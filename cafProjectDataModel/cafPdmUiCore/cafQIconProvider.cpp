@@ -4,6 +4,8 @@
 
 #include <QApplication>
 
+#include <memory>
+
 using namespace caf;
 
 
