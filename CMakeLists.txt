@@ -19,15 +19,6 @@ else()
     set(QT_LIBRARIES Qt5::Core)
 endif()
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(CMAKE_CXX_FLAGS "-std=c++14")
-endif() 
-
-if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-endif()
-
-
 # Improvement Cmake 3.x
 # If we have compiler requirements for this library, list them
 #target_compile_features(lib

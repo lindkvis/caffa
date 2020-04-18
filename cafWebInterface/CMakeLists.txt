@@ -8,14 +8,6 @@ if (CAF_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(CMAKE_CXX_FLAGS "-std=c++14")
-endif() 
-
-if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-endif()
-
 if (MSVC)
     # Define this one to tell windows.h to not define min() and max() as macros
     add_definitions(-DNOMINMAX)
