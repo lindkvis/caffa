@@ -1,0 +1,71 @@
+@startuml
+
+namespace Inheritance{
+
+QObject <|-- PdmUiEditorHandle
+PdmUiEditorHandle <|-- PdmUiObjectEditorHandle
+PdmUiObjectEditorHandle  <|-- PdmUiWidgetObjectEditorHandle
+PdmUiObjectEditorHandle  <|-- PdmUi3dObjectEditorHandle
+PdmUiWidgetObjectEditorHandle <|-- PdmUiFormLayoutObjectEditor
+PdmUiFormLayoutObjectEditor <|-- PdmUiDefaultObjectEditor
+PdmUiFieldEditorHandle <|-- "Tons of field editors"
+PdmUiEditorHandle <|-- PdmUiTreeItemEditor
+PdmUiEditorHandle <|-- PdmUiTreeEditorHandle
+PdmUiEditorHandle <|-- PdmUiToolBarEditor
+PdmUiEditorHandle <|-- PdmUiTableRowEditor
+PdmUiEditorHandle <|-- PdmUiFieldEditorHandle 
+
+PdmUiTreeEditorHandle  <|-- PdmUiTreeViewEditor
+}
+
+Namespace TreeView{
+
+QWidget <|-- PdmUiTreeView
+
+PdmUiTreeView --* PdmUiTreeViewEditor
+
+PdmUiTreeViewEditor --* 		PdmUiTreeViewWidget 
+PdmUiTreeViewEditor --* 		PdmUiTreeViewQModel 
+
+PdmUiTreeItemEditor -->  PdmUiTreeViewEditor
+PdmUiTreeViewQModel --* "root"  PdmUiTreeOrdering
+
+PdmUiTreeOrdering --> 	PdmUiItem 
+PdmUiTreeOrdering --*  			PdmUiTreeItemEditor
+
+QTreeView <|-- PdmUiTreeViewWidget
+
+}
+
+namespace Properties{
+
+QWidget <|-- PdmUiPropertyView
+
+PdmUiPropertyView --* PdmUiDefaultObjectEditor
+PdmUiDefaultObjectEditor ---* "N" PdmUiFieldEditorHandle
+
+PdmField --> "N" PdmUiFieldEditorHandle
+
+PdmUiFieldEditorHandle --> "1" PdmField 
+PdmUiDefaultObjectEditor  "N" <--> "1" edited_PdmObject
+
+edited_PdmObject --* "N" PdmField
+
+PdmUiFieldEditorHandle --* QWidget_UsedByEditor
+}
+
+namespace 3DEditors{
+
+SomeViewer --* PdmUiSelection3dEditorVisualizer
+
+PdmUiSelection3dEditorVisualizer --* PdmUi3dObjectEditorHandle : "Creates on SelectionChanged()"
+
+PdmUi3dObjectEditorHandle --> SomeViewer
+PdmUi3dObjectEditorHandle --> 3DVisualizationStuff
+PdmUi3dObjectEditorHandle -->edited_PdmObject
+
+}
+
+
+
+@enduml
