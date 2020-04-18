@@ -96,8 +96,11 @@ message(STATUS "Boost library dirs: ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost libraries: ${Boost_LIBRARIES}")
 link_directories(${Boost_LIBRARY_DIRS})
 
-find_library(WT_LIB NAMES wtd PATHS ${WEBTOOLKIT_PREFIX}/lib)
-find_library(WTHTTP_LIB NAMES wthttpd PATHS ${WEBTOOLKIT_PREFIX}/lib)
+#find_library(WT_LIBD NAMES wtd PATHS ${WEBTOOLKIT_PREFIX}/lib)
+#find_library(WTHTTP_LIBD NAMES wthttpd PATHS ${WEBTOOLKIT_PREFIX}/lib)
+find_library(WT_LIB NAMES wt PATHS ${WEBTOOLKIT_PREFIX}/lib)
+find_library(WTHTTP_LIB NAMES wthttp PATHS ${WEBTOOLKIT_PREFIX}/lib)
+
 message(STATUS "WTHTTP_LIBS: " ${WTHTTP_LIB})
 
 add_definitions(-DBOOST_ALL_NO_LIB)
