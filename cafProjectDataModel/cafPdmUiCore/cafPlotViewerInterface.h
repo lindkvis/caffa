@@ -6,6 +6,7 @@
 #include <QString>
 
 #include <list>
+#include <memory>
 #include <utility>
 
 namespace caf {

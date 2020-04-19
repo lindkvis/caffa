@@ -33,6 +33,7 @@
 #include <QDate>
 #include <QString>
 
+#include <cmath>
 #include <functional>
 #include <memory>
 
