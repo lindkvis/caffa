@@ -60,6 +60,12 @@ set (TAP_LINK_LIBRARIES
     cafWebInterface
     )
 
+    
+if (UNIX)
+    append(LIST TAP_LINK_LIBRARIES pthread)
+endif()
+
+    
 if (USE_COMMAND_FRAMEWORK)
     set (TAP_LINK_LIBRARIES
         ${TAP_LINK_LIBRARIES}
