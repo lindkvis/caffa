@@ -3,3 +3,6 @@ Web and Desktop Application Interface in C++. WCaf is based on the Qt5-based Cee
 
 # Licensing
 WCaf is licensed under the LGPL 2.1. However, the Web Toolkit is licensed under the GPL v2, meaning that apps deploying to the Web will have to follow the stricter licensing terms of the GPL v2.
+
+# Example Screenshot
+![WCaf Test Application](testapp.jpg "WCaf Test Application")
