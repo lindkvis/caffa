@@ -295,7 +295,7 @@ MainWindow* MainWindow::sm_mainWindowInstance = nullptr;
 std::unique_ptr<Wt::WPanel> MainWindow::createPlotPanel()
 {
     m_plot.reset(new caf::WebPlotViewer);
-    m_plot->getOrCreateChart();
+    m_plot->getOrCreateViewer();
     auto container = std::make_unique<WContainerWidget>();
 
     {
@@ -339,7 +339,7 @@ std::unique_ptr<Wt::WPanel> MainWindow::createPlotPanel()
     m_plot->setAxisTitle(caf::PlotViewerInterface::Axis::x, "Depth");
     m_plot->setAxisTitle(caf::PlotViewerInterface::Axis::yLeft, "Something");
     Wt::Chart::WCartesianChart* chart =
-        container->addWidget(std::unique_ptr<Wt::Chart::WCartesianChart>(m_plot->getOrCreateChart()));
+        container->addWidget(std::unique_ptr<Wt::Chart::WCartesianChart>(m_plot->getOrCreateViewer()));
 
     // Add the curves
 

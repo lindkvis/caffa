@@ -5,27 +5,26 @@ project (wcaf)
 set(CMAKE_CXX_STANDARD 14)
 
 if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
-  # VS 2017 : Disable warnings from from gtest code, using deprecated code related to TR1 
+  # VS 2017 : Disable warnings from from gtest code, using deprecated code related to TR1
   add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
   message("Add flag to disable warings from gtest -  _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING")
 endif()
 
-option(WebDeployment "Turn this on to build for the WebToolkit. Off to build for Desktop Qt5" OFF)
+option(WCAF_WEB_DEPLOYMENT "Turn this on to build for web deployment with the Web Toolkit" OFF)
+option(WCAF_DESKTOP_DEPLOYMENT "Turn this on to build for desktop deployment with Qt" ON)
 
 find_package(Qt5 COMPONENTS REQUIRED Core)
-if (NOT WebDeployment)
+
+if (WCAF_DESKTOP_DEPLOYMENT)
     find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Widgets)
     set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets)
 else()
-    add_definitions(-DWEB_DEPLOYMENT)
     set(QT_LIBRARIES Qt5::Core)
 endif()
 
-# Improvement Cmake 3.x
-# If we have compiler requirements for this library, list them
-#target_compile_features(lib
-#    PUBLIC cxx_auto_type
-#    PRIVATE cxx_variadic_templates)
+if (WCAF_WEB_DEPLOYMENT)
+    add_definitions(-DWEB_DEPLOYMENT)
+endif(WCAF_WEB_DEPLOYMENT)
 
 #libraries
 add_subdirectory (cafProjectDataModel/cafPdmCore)
@@ -39,11 +38,21 @@ add_subdirectory(cafPdmScripting)
 add_subdirectory(cafCommonInterface)
 
 #executables
-if (WebDeployment)
+if (WCAF_WEB_DEPLOYMENT)
     add_subdirectory(cafWebInterface)
-    add_subdirectory(cafTests/cafTestWebApplication)    
-else()
+    add_subdirectory(cafTests/cafTestWebApplication)
+endif(WCAF_WEB_DEPLOYMENT)
+
+if (WCAF_DESKTOP_DEPLOYMENT)
+    option(WCAF_DESKTOP_PLOTTING ON)
     add_subdirectory(cafUserInterface)
+
+    if (WCAF_DESKTOP_PLOTTING)
+        add_subdirectory(ThirdParty/qwt)
+        set_property(TARGET qwt PROPERTY FOLDER "ThirdParty")
+        add_subdirectory(cafUiPlotViewer)
+    endif(WCAF_DESKTOP_PLOTTING)
+
     add_subdirectory(cafTests/cafTestApplication)
     add_subdirectory (cafUserInterface/cafUserInterface_UnitTests)
 endif()
@@ -62,4 +71,3 @@ add_subdirectory (cafProjectDataModel/cafProjectDataModel_UnitTests)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set_property(TARGET  cafPdmCore cafPdmCore_UnitTests cafPdmXml cafPdmXml_UnitTests  cafPdmUiCore  PROPERTY FOLDER "PdmCore")
-

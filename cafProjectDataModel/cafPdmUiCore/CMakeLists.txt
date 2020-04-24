@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.12.0)
 
-project (cafPdmUiCore)		
+project (cafPdmUiCore)
 
 # Unity Build
 if (CAF_ENABLE_UNITY_BUILD)
@@ -9,7 +9,7 @@ if (CAF_ENABLE_UNITY_BUILD)
 endif()
 
 # These headers need to go through Qt's MOC compiler
-set (MOC_HEADER_FILES    
+set (MOC_HEADER_FILES
     cafPdmUiEditorHandle.h
     cafPdmUiFieldEditorHandle.h
 	cafPdmUiSelection3dEditorVisualizer.h
@@ -80,12 +80,6 @@ set( PROJECT_FILES
 	cafQShortenedLabel.h
 	cafQIconProvider.cpp
 	cafQIconProvider.h
-
-	cafCurveInterface.h
-	cafPlotViewerInterface.h
-
-	cafCurveDataTools.h
-	cafCurveDataTools.cpp
 )
 
 add_library( ${PROJECT_NAME}
@@ -103,7 +97,7 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-if (MSVC) 
+if (MSVC)
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
 endif()
 

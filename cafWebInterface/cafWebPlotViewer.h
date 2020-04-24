@@ -26,38 +26,10 @@ class WebPlotViewer : public PlotViewerInterface
 {
 public:
     WebPlotViewer();
-    ~WebPlotViewer();
-    Wt::Chart::WCartesianChart* getOrCreateChart();
+    virtual ~WebPlotViewer();
+    Wt::Chart::WCartesianChart* getOrCreateViewer();
 
-    // Plot Interface overrides
-    void    setTitle( const QString& title ) override;
-    QString title() const override;
-
-    void        setOrientation( Orientation orientation ) override;
-    Orientation orientation() const override;
-
-    void   setBackgroundColor( const QColor& color ) override;
-    QColor backgroundColor() const override;
-
-    std::pair<double, double> axisRange( Axis axis ) const override;
-    void                      setAxisRange( Axis axis, double minValue, double maxValue ) override;
-    void                      setAxisTitle( Axis axis, const QString& axisTitle ) override;
-    QString                   axisTitle( Axis axis ) const override;
-
-    void setLegendEnabled( bool enabled ) override;
-    bool legendEnabled() const override;
-    void setZoomEnabled( bool enabled ) override;
-    bool zoomEnabled() const override;
-    void setPanEnabled( bool enabled ) override;
-    bool panEnabled() const override;
-
-    void addCurve( std::shared_ptr<CurveInterface> curveToAdd ) override;
-    void removeCurve( CurveInterface* curve ) override;
-    void removeAllCurves() override;
-
-    std::list<std::shared_ptr<CurveInterface>> curves() const;
-
-    void updatePlot() override;
+    void updateViewer() override;
 
 private:
     friend class WebPlotCurve;
@@ -68,16 +40,6 @@ private:
 
 private:
     Wt::Core::observing_ptr<Wt::Chart::WCartesianChart> m_chart;
-    std::list<std::shared_ptr<CurveInterface>>          m_curves;
-
-    QString                                   m_title;
-    Orientation                               m_orientation;
-    QColor                                    m_bgColor;
-    std::map<Axis, std::pair<double, double>> m_axisRanges;
-    std::map<Axis, QString>                   m_axisTitles;
-    bool                                      m_legendEnabled;
-    bool                                      m_zoomEnabled;
-    bool                                      m_panEnabled;
 };
 
 } // namespace caf

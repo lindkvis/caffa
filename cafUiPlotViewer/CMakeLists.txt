@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.12.0)
 
-project (cafCommonInterface)
+project (cafUiPlotViewer)
 
 # Unity Build
 if (CAF_ENABLE_UNITY_BUILD)
@@ -13,40 +13,24 @@ if (MSVC)
     add_definitions(-DNOMINMAX)
 endif (MSVC)
 
-find_package(Qt5 COMPONENTS REQUIRED Core)
-set(QT_LIBRARIES Qt5::Core)
+# These headers need to go through Qt's MOC compiler
+set (MOC_HEADER_FILES
+)
+
+find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
+set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 
 set( PROJECT_FILES
-    cafPdmUiDragDropInterface.h
- 	cafPdmUiColorEditorAttribute.h
- 	cafPdmUiComboBoxEditorAttribute.h
- 	cafPdmUiDateEditorAttribute.h
- 	cafPdmUiFilePathEditorAttribute.h
- 	cafPdmUiSliderEditorAttribute.h
- 	cafPdmUiTreeViewAttribute.h
-
-    cafColor3.h
-    cafColor3.cpp
-
-    cafPdmCoreColor3f.h
-    cafPdmUiCoreColor3f.cpp
-    cafPdmUiCoreColor3f.h
-    cafPdmXmlColor3f.cpp
-    cafPdmXmlColor3f.h
-    cafPdmFieldCafColor.h
-
-    cafCurveInterface.h
-    cafCurveInterface.cpp
-    cafPlotViewerInterface.h
-    cafPlotViewerInterface.cpp
-
-    cafCurveDataTools.h
-    cafCurveDataTools.cpp
-
+    cafUiPlotViewer.h
+    cafUiPlotViewer.cpp
 )
 
 add_library( ${PROJECT_NAME}
-             ${PROJECT_FILES}
+
+ ${PROJECT_FILES}
+
+    ${MOC_SOURCE_FILES}
 )
 
 if (MSVC)
@@ -60,6 +44,9 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries ( ${PROJECT_NAME}
     cafProjectDataModel
+    cafCommonInterface
+    cafUserInterface
+    qwt
     ${QT_LIBRARIES}
 )
 

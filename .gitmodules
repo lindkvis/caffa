@@ -1,0 +1,3 @@
+[submodule "ThirdParty/qwt"]
+	path = ThirdParty/qwt
+	url = https://github.com/CeetronSolutions/qwt.git
