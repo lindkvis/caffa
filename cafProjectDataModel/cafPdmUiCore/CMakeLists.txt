@@ -36,10 +36,13 @@ set( PROJECT_FILES
     cafInternalPdmUiFieldCapability.inl
     cafInternalPdmUiCommandSystemInterface.h
 
-	cafActionWrapper.h
-	cafQActionWrapper.h
-	cafQActionWrapper.cpp
-	cafPdmUiEditorAttribute.h
+    cafFontTools.h
+    cafFontTools.cpp
+
+    cafActionWrapper.h
+    cafQActionWrapper.h
+    cafQActionWrapper.cpp
+    cafPdmUiEditorAttribute.h
     cafPdmUiEditorHandle.cpp
     cafPdmUiEditorHandle.h
     cafPdmUiFieldEditorHandle.cpp

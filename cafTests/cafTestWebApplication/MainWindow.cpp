@@ -312,6 +312,7 @@ std::unique_ptr<Wt::WPanel> MainWindow::createPlotPanel()
         auto curve = std::make_shared<caf::WebPlotCurve>();
         curve->setSamplesFromXValuesAndYValues(xValues, yValues);
         curve->setName("y = sin(x)");
+        curve->setColor(QColor(Qt::blue));
         m_plot->addCurve(curve);
     }
     {
@@ -328,6 +329,7 @@ std::unique_ptr<Wt::WPanel> MainWindow::createPlotPanel()
         auto curve = std::make_shared<caf::WebPlotCurve>();
         curve->setSamplesFromXValuesAndYValues(xValues, yValues);
         curve->setName("y = cos(x)");
+        curve->setColor(QColor(Qt::red));
         m_plot->addCurve(curve);
     }
 

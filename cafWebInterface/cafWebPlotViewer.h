@@ -29,17 +29,18 @@ public:
     virtual ~WebPlotViewer();
     Wt::Chart::WCartesianChart* getOrCreateViewer();
 
-    void updateViewer() override;
-
 private:
     friend class WebPlotCurve;
 
     Wt::Chart::WAxis& axis( Axis axis ) const;
     void              addSeries( CurveInterface* curve, std::unique_ptr<Wt::Chart::WDataSeries> dataSeries );
     void              removeSeries( Wt::Chart::WDataSeries* dataSeries );
+    void              dataChanged( void* changedVariable = nullptr ) override;
+    Wt::FontSize      convertFontSize( FontTools::Size size );
+    void              assignPropertiesToAxis( Axis axisEnum, const AxisProperties& properties );
 
 private:
-    Wt::Core::observing_ptr<Wt::Chart::WCartesianChart> m_chart;
+    Wt::Core::observing_ptr<Wt::Chart::WCartesianChart> m_viewer;
 };
 
 } // namespace caf

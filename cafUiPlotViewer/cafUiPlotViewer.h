@@ -4,7 +4,7 @@
 
 #include <QPointer>
 
-class QwtPlot;
+#include "qwt_plot.h"
 
 namespace caf
 {
@@ -15,9 +15,14 @@ public:
     virtual ~UiPlotViewer();
 
     QwtPlot* getOrCreateViewer();
-    void     updateViewer() override;
 
 private:
-    QPointer<QwtPlot> m_plotWidget;
+    static QwtPlot::Axis axis( Axis axisEnum, Orientation orientation );
+
+    void dataChanged( void* changedVariable = nullptr ) override;
+    void assignPropertiesToAxis( Axis axisEnum, const AxisProperties& properties ) override;
+
+private:
+    QPointer<QwtPlot> m_viewer;
 };
 } // namespace caf

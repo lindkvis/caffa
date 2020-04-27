@@ -272,7 +272,7 @@ void WebPlotCurve::applyColor( Wt::Chart::WDataSeries* dataSeries ) const
 {
     CAF_ASSERT( dataSeries );
     Wt::WPen pen = dataSeries->pen();
-    pen.setColor( Wt::WColor( m_color.red(), m_color.blue(), m_color.green() ) );
+    pen.setColor( Wt::WColor( m_color.red(), m_color.green(), m_color.blue() ) );
     dataSeries->setPen( pen );
 }
 
