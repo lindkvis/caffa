@@ -34,19 +34,16 @@
 //
 //##################################################################################################
 
-#pragma once
+#include "cafPdmUiCoreColor.h"
 
-#include <QMetaType>
+#include "cafPdmField.h"
+#include "cafPdmProxyValueField.h"
 
-#include "cafColor3.h"
-
-class QTextStream;
-
-//==================================================================================================
-/// QTextStream Stream operator for caf::Color3f
-//==================================================================================================
-
-QTextStream& operator>>( QTextStream& str, caf::Color3f& value );
-QTextStream& operator<<( QTextStream& str, const caf::Color3f& value );
-
-Q_DECLARE_METATYPE( caf::Color3f );
+//--------------------------------------------------------------------------------------------------
+// If the macro for registering the editor is put as the single statement
+// in a cpp file, a dummy static class must be used to make sure the compile unit
+// is included
+//--------------------------------------------------------------------------------------------------
+PdmColorInitializer::PdmColorInitializer()
+{
+}

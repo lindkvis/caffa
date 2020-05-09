@@ -36,63 +36,35 @@
 
 #pragma once
 
-#include "cafColor3.h"
-
 #include "cafInternalPdmValueFieldSpecializations.h"
-#include "cafPdmUiFieldSpecialization.h"
-#include "cafPdmUiItem.h"
+#include "cafPdmXmlColor.h"
 
-#include "cafPdmCoreColor3f.h"
+#include <QColor>
 
-
-namespace caf 
+namespace caf
 {
+//==================================================================================================
+/// Partial specialization for PdmValueFieldSpecialization< QColor >
+//==================================================================================================
 
 template <>
-class PdmUiFieldSpecialization < caf::Color3f >
+class PdmValueFieldSpecialization<QColor>
 {
 public:
-    /// Convert the field value into a QVariant
-    static QVariant convert(const caf::Color3f& value)
+    static QVariant convert( const QColor& value )
     {
-        return PdmValueFieldSpecialization< caf::Color3f >::convert(value);
+        QColor col;
+        col.setRgbF( value.red(), value.green(), value.blue() );
+
+        return col;
     }
 
+    static void setFromVariant( const QVariant& variantValue, QColor& value ) { value = variantValue.value<QColor>(); }
 
-    /// Set the field value from a QVariant
-    static void setFromVariant(const QVariant& variantValue, caf::Color3f& value)
+    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
     {
-        PdmValueFieldSpecialization< caf::Color3f >::setFromVariant(variantValue, value);
+        return variantValue == variantValue2;
     }
-
-    static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2)
-    {
-        return PdmValueFieldSpecialization< caf::Color3f >::isEqual(variantValue, variantValue2);
-    }
-
-    /// Methods to get a list of options for a field, specialized for AppEnum
-    static QList<PdmOptionItemInfo> valueOptions(bool* useOptionsOnly, const caf::Color3f&)
-    {
-        return QList<PdmOptionItemInfo>();
-    }
-
-    /// Methods to retrieve the possible PdmObject pointed to by a field
-    static void childObjects(const PdmDataValueField< caf::Color3f >&, std::vector<PdmObjectHandle*>*)
-    { }
-
 };
 
 } // end namespace caf
-
-
-//--------------------------------------------------------------------------------------------------
-// If the macro for registering the editor is put as the single statement
-// in a cpp file, a dummy static class must be used to make sure the compile unit
-// is included
-//--------------------------------------------------------------------------------------------------
-class PdmColor3fInitializer
-{
-public:
-    PdmColor3fInitializer();
-};
-static PdmColor3fInitializer pdmColor3fInitializer;

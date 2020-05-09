@@ -38,41 +38,40 @@
 
 #include "cafToggleItemsFeatureImpl.h"
 
+#include "cafIconProvider.h"
 #include "cafSelectionManager.h"
-#include "cafQIconProvider.h"
 
 namespace caf
 {
-	
-CAF_CMD_SOURCE_INIT(ToggleItemsFeature, "cafToggleItemsFeature");
+CAF_CMD_SOURCE_INIT( ToggleItemsFeature, "cafToggleItemsFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool ToggleItemsFeature::isCommandEnabled() 
+bool ToggleItemsFeature::isCommandEnabled()
 {
     return ToggleItemsFeatureImpl::isToggleCommandsAvailable();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void ToggleItemsFeature::onActionTriggered(bool isChecked)
+void ToggleItemsFeature::onActionTriggered( bool isChecked )
 {
-    ToggleItemsFeatureImpl::setObjectToggleStateForSelection(ToggleItemsFeatureImpl::TOGGLE_SUBITEMS);
+    ToggleItemsFeatureImpl::setObjectToggleStateForSelection( ToggleItemsFeatureImpl::TOGGLE_SUBITEMS );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void ToggleItemsFeature::setupActionLook(ActionWrapper* actionToSetup)
+void ToggleItemsFeature::setupActionLook( ActionWrapper* actionToSetup )
 {
-    if (ToggleItemsFeatureImpl::isToggleCommandsForSubItems())
-        actionToSetup->setText("Toggle Sub Items");
+    if ( ToggleItemsFeatureImpl::isToggleCommandsForSubItems() )
+        actionToSetup->setText( "Toggle Sub Items" );
     else
-        actionToSetup->setText("Toggle");
+        actionToSetup->setText( "Toggle" );
 
-    actionToSetup->setIcon(QIconProvider(":/cafCommandFeatures/ToggleOnOffL16x16.png"));
+    actionToSetup->setIcon( IconProvider( ":/cafCommandFeatures/ToggleOnOffL16x16.png" ) );
 }
 
-}
+} // namespace caf

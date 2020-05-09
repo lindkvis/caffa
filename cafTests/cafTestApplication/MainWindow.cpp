@@ -35,8 +35,8 @@
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafPdmUiTreeView.h"
-#include "cafSelectionManager.h"
 #include "cafQActionWrapper.h"
+#include "cafSelectionManager.h"
 
 #include <QAction>
 #include <QDebug>
@@ -179,7 +179,7 @@ public:
             options.push_back(caf::PdmOptionItemInfo(text, text));
 
             text = "Second";
-            options.push_back(caf::PdmOptionItemInfo::createHeader(text, false, caf::QIconProvider(":/images/win/textbold.png")));
+            options.push_back(caf::PdmOptionItemInfo::createHeader(text, false, caf::IconProvider(":/images/win/textbold.png")));
 
             {
                 text                            = "Second_a";
@@ -191,7 +191,7 @@ public:
             {
                 text = "Second_b";
                 caf::PdmOptionItemInfo itemInfo =
-                    caf::PdmOptionItemInfo(text, text, false, caf::QIconProvider(":/images/win/filenew.png"));
+                    caf::PdmOptionItemInfo(text, text, false, caf::IconProvider(":/images/win/filenew.png"));
                 itemInfo.setLevel(1);
                 options.push_back(itemInfo);
             }
@@ -231,8 +231,10 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, caf::MenuInterface* menu, QWidget* fieldEditorWidget) override
-    {        
+    void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu,
+                                 caf::MenuInterface*        menu,
+                                 QWidget*                   fieldEditorWidget) override
+    {
         menu->addAction(caf::CmdFeatureManager::instance()->action("test", "nothing"));
         menu->addAction(caf::CmdFeatureManager::instance()->action("other test <<>>", "still nothing"));
     }
@@ -1010,7 +1012,9 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, caf::MenuInterface* menu, QWidget* fieldEditorWidget) override
+    void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu,
+                                 caf::MenuInterface*        menu,
+                                 QWidget*                   fieldEditorWidget) override
     {
         if (fieldNeedingMenu == &m_objectListOfSameType)
         {

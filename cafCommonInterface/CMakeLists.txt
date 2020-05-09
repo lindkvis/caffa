@@ -25,15 +25,12 @@ set( PROJECT_FILES
  	cafPdmUiSliderEditorAttribute.h
  	cafPdmUiTreeViewAttribute.h
 
-    cafColor3.h
-    cafColor3.cpp
-
-    cafPdmCoreColor3f.h
-    cafPdmUiCoreColor3f.cpp
-    cafPdmUiCoreColor3f.h
-    cafPdmXmlColor3f.cpp
-    cafPdmXmlColor3f.h
-    cafPdmFieldCafColor.h
+    cafPdmCoreColor.h
+    cafPdmUiCoreColor.cpp
+    cafPdmUiCoreColor.h
+    cafPdmXmlColor.cpp
+    cafPdmXmlColor.h
+    cafPdmFieldColor.h
 
     cafCurveInterface.h
     cafCurveInterface.cpp

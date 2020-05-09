@@ -73,7 +73,7 @@ void ToggleItemsOnFeature::setupActionLook( ActionWrapper* actionToSetup )
     else
         actionToSetup->setText("On");
 
-    actionToSetup->setIcon(QIconProvider(":/cafCommandFeatures/ToggleOnL16x16.png"));
+    actionToSetup->setIcon(IconProvider(":/cafCommandFeatures/ToggleOnL16x16.png"));
 
 }
 

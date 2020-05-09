@@ -12,18 +12,17 @@ using namespace caf;
 ///
 //--------------------------------------------------------------------------------------------------
 QActionWrapper::QActionWrapper()
-    : m_action(nullptr)
-    , m_takesOwnership(true)
+    : m_action( nullptr )
+    , m_takesOwnership( true )
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QActionWrapper::QActionWrapper(QAction* action)
-    : m_action(action)
-    , m_takesOwnership(false)
+QActionWrapper::QActionWrapper( QAction* action )
+    : m_action( action )
+    , m_takesOwnership( false )
 {
 }
 
@@ -32,7 +31,7 @@ QActionWrapper::QActionWrapper(QAction* action)
 //--------------------------------------------------------------------------------------------------
 QActionWrapper::~QActionWrapper()
 {
-    if (m_takesOwnership)
+    if ( m_takesOwnership )
     {
         delete m_action;
     }
@@ -41,10 +40,10 @@ QActionWrapper::~QActionWrapper()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void QActionWrapper::init(const QString& text, QObject* parent)
+void QActionWrapper::init( const QString& text, QObject* parent )
 {
-    CAF_ASSERT(!m_action);
-    m_action = new QAction(text, parent);
+    CAF_ASSERT( !m_action );
+    m_action = new QAction( text, parent );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,15 +73,14 @@ QVariant QActionWrapper::data() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void QActionWrapper::setShortcut(QKeySequence::StandardKey keySequence)
+void QActionWrapper::setShortcut( QKeySequence::StandardKey keySequence )
 {
-    m_action->setShortcut(keySequence);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+    m_action->setShortcut( keySequence );
+#if ( QT_VERSION >= QT_VERSION_CHECK( 5, 10, 0 ) )
     // Qt made keyboard shortcuts in context menus platform dependent in Qt 5.10
     // With no global way of removing it.
-    m_action->setShortcutVisibleInContextMenu(true);
+    m_action->setShortcutVisibleInContextMenu( true );
 #endif
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,35 +94,37 @@ QKeySequence QActionWrapper::shortcut() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void QActionWrapper::setIcon(const QIconProvider& iconProvider)
+void QActionWrapper::setIcon( const IconProvider& iconProvider )
 {
-    m_action->setIcon(iconProvider.icon());
+    m_iconProvider = iconProvider;
+    auto icon      = m_iconProvider.icon();
+    if ( icon ) m_action->setIcon( *icon );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void QActionWrapper::connect(const std::function<void(bool) >& trigger)
+void QActionWrapper::connect( const std::function<void( bool )>& trigger )
 {
     m_trigger = trigger;
-    QObject::connect(m_action, SIGNAL(triggered(bool)), SLOT(actionTriggered(bool)));
+    QObject::connect( m_action, SIGNAL( triggered( bool ) ), SLOT( actionTriggered( bool ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void QActionWrapper::actionTriggered(bool checked)
+void QActionWrapper::actionTriggered( bool checked )
 {
-    m_trigger(checked);
+    m_trigger( checked );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool QActionWrapper::isEqualTo(const ActionWrapper* wrapper) const
+bool QActionWrapper::isEqualTo( const ActionWrapper* wrapper ) const
 {
-    auto qWrapper = dynamic_cast<const QActionWrapper*>(wrapper);
-    if (qWrapper)
+    auto qWrapper = dynamic_cast<const QActionWrapper*>( wrapper );
+    if ( qWrapper )
     {
         return this->action() == qWrapper->action();
     }
@@ -134,25 +134,25 @@ bool QActionWrapper::isEqualTo(const ActionWrapper* wrapper) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void QActionWrapper::setData(const QVariant& variant)
+void QActionWrapper::setData( const QVariant& variant )
 {
-    m_action->setData(variant);
+    m_action->setData( variant );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void QActionWrapper::setText(const QString& text)
+void QActionWrapper::setText( const QString& text )
 {
-    m_action->setText(text);
+    m_action->setText( text );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void QActionWrapper::setEnabled(bool enabled)
+void QActionWrapper::setEnabled( bool enabled )
 {
-    m_action->setEnabled(enabled);
+    m_action->setEnabled( enabled );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,9 +166,9 @@ bool QActionWrapper::isEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void QActionWrapper::setChecked(bool checked)
+void QActionWrapper::setChecked( bool checked )
 {
-    m_action->setChecked(checked);
+    m_action->setChecked( checked );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,26 +198,26 @@ bool QActionWrapper::isChecked() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QIconProvider QActionWrapper::icon() const
+IconProvider QActionWrapper::icon() const
 {
-    return QIconProvider(m_action->icon());
+    return m_iconProvider;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void QActionWrapper::trigger(bool checked) const
+void QActionWrapper::trigger( bool checked ) const
 {
-    m_trigger(checked);
+    m_trigger( checked );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<ActionWrapper> QActionCreator::createAction(const QString& actionName, QObject* parent) const
+std::shared_ptr<ActionWrapper> QActionCreator::createAction( const QString& actionName, QObject* parent ) const
 {
     auto wrapper = std::make_shared<QActionWrapper>();
-    wrapper->init(actionName, parent);
+    wrapper->init( actionName, parent );
     return wrapper;
 }
 
@@ -230,15 +230,13 @@ QActionCreator* QActionCreator::instance()
     return creator;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QMenuWrapper::QMenuWrapper()
-    : m_menu(new QMenu)
-    , m_takesOwnerhip(true)
+    : m_menu( new QMenu )
+    , m_takesOwnerhip( true )
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -246,7 +244,7 @@ QMenuWrapper::QMenuWrapper()
 //--------------------------------------------------------------------------------------------------
 QMenuWrapper::~QMenuWrapper()
 {
-    if (m_takesOwnerhip)
+    if ( m_takesOwnerhip )
     {
         delete m_menu;
     }
@@ -263,21 +261,30 @@ QMenu* QMenuWrapper::menu()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-MenuInterface* QMenuWrapper::addMenu(const QIconProvider& icon, const QString& subMenuName)
+MenuInterface* QMenuWrapper::addMenu( const IconProvider& iconProvider, const QString& subMenuName )
 {
-    QMenu* subMenu = m_menu->addMenu(icon.icon(), subMenuName);
-    return new QMenuWrapper(subMenu);
+    auto   icon    = iconProvider.icon();
+    QMenu* subMenu = nullptr;
+    if ( icon )
+    {
+        subMenu = m_menu->addMenu( *icon, subMenuName );
+    }
+    else
+    {
+        subMenu = m_menu->addMenu( subMenuName );
+    }
+    return new QMenuWrapper( subMenu );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void QMenuWrapper::addAction(std::shared_ptr<ActionWrapper> actionWrapper)
+void QMenuWrapper::addAction( std::shared_ptr<ActionWrapper> actionWrapper )
 {
-    QActionWrapper* qActionWrapper = dynamic_cast<QActionWrapper*>(actionWrapper.get());
-    CAF_ASSERT(qActionWrapper);
+    QActionWrapper* qActionWrapper = dynamic_cast<QActionWrapper*>( actionWrapper.get() );
+    CAF_ASSERT( qActionWrapper );
 
-    m_menu->addAction(qActionWrapper->action());
+    m_menu->addAction( qActionWrapper->action() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -285,17 +292,17 @@ void QMenuWrapper::addAction(std::shared_ptr<ActionWrapper> actionWrapper)
 //--------------------------------------------------------------------------------------------------
 std::shared_ptr<ActionWrapper> QMenuWrapper::menuAction() const
 {
-    return std::make_shared<QActionWrapper>(m_menu->menuAction());
+    return std::make_shared<QActionWrapper>( m_menu->menuAction() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void QMenuWrapper::removeAction(std::shared_ptr<ActionWrapper> actionWrapper)
+void QMenuWrapper::removeAction( std::shared_ptr<ActionWrapper> actionWrapper )
 {
-    QActionWrapper* qActionWrapper = dynamic_cast<QActionWrapper*>(actionWrapper.get());
-    CAF_ASSERT(qActionWrapper);
-    m_menu->removeAction(qActionWrapper->action());
+    QActionWrapper* qActionWrapper = dynamic_cast<QActionWrapper*>( actionWrapper.get() );
+    CAF_ASSERT( qActionWrapper );
+    m_menu->removeAction( qActionWrapper->action() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -312,22 +319,18 @@ void QMenuWrapper::addSeparator()
 std::list<std::shared_ptr<ActionWrapper>> QMenuWrapper::actions() const
 {
     std::list<std::shared_ptr<ActionWrapper>> wrappers;
-    for (auto action : m_menu->actions())
+    for ( auto action : m_menu->actions() )
     {
-        wrappers.push_back(std::make_shared<QActionWrapper>(action));
+        wrappers.push_back( std::make_shared<QActionWrapper>( action ) );
     }
     return wrappers;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QMenuWrapper::QMenuWrapper(QMenu* menu)
-    : m_menu(new QMenu)
-    , m_takesOwnerhip(false)
+QMenuWrapper::QMenuWrapper( QMenu* menu )
+    : m_menu( new QMenu )
+    , m_takesOwnerhip( false )
 {
-
 }
-
-

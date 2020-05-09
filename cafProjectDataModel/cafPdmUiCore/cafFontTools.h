@@ -37,22 +37,61 @@
 
 namespace caf
 {
+    template <typename T>
+    class AppEnum;
+}
+
+namespace caf
+{
+//==================================================================================================
+/// Tools for managing fonts in the application
+//==================================================================================================
+
 class FontTools
 {
 public:
-    enum class Size
+    enum class FontSize
     {
-        XXSmall,
-        XSmall,
-        Small,
-        Medium,
-        Large,
-        XLarge,
-        XXLarge
+        INVALID = -1,
+        MIN_FONT_SIZE = 8,
+        FONT_SIZE_8 = 8,
+        FONT_SIZE_10 = 10,
+        FONT_SIZE_12 = 12,
+        FONT_SIZE_14 = 14,
+        FONT_SIZE_16 = 16,
+        FONT_SIZE_24 = 24,
+        FONT_SIZE_32 = 32,
+        MAX_FONT_SIZE
     };
+    typedef caf::AppEnum<FontSize> FontSizeEnum;
 
-    static int absolutePointSize( int normalPointSize, Size relativeSize );
-    static int pointSizeToPixelSize( int pointSize );
-    static int pixelSizeToPointSize( int pixelSize );
+    enum class DeltaSize
+    {
+        XXSmall = -4,
+        XSmall  = -2,
+        Small   = -1,
+        Medium  = 0,
+        Large   = +2,
+        XLarge  = +4,
+        XXLarge = +8
+    };
+    typedef caf::AppEnum<DeltaSize> DeltaSizeEnum;
+    
+    static int      absolutePointSize( FontSize normalPointSize, DeltaSize relativeSize = DeltaSize::Medium );
+    static int      pointSizeToPixelSize(FontSize pointSize);
+    static int      pointSizeToPixelSize( int pointSize );
+    static int      pixelSizeToPointSize( int pixelSize );
 };
+
+//==================================================================================================
+/// Interface to implement for any PdmObject that has font sizes
+//==================================================================================================
+class FontHolderInterface
+{
+public:
+    virtual FontTools::FontSize fontSize() const = 0;
+    virtual void                resetToDefaultFontSize() = 0;
+    virtual bool                hasDefaultFontSize() const = 0;
+};
+
 } // namespace caf

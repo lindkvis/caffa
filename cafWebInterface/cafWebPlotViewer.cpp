@@ -130,23 +130,23 @@ Wt::Chart::WAxis& WebPlotViewer::axis( Axis axis ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Wt::FontSize caf::WebPlotViewer::convertFontSize( FontTools::Size size )
+Wt::FontSize caf::WebPlotViewer::convertFontSize( FontTools::DeltaSize size )
 {
     switch ( size )
     {
-        case FontTools::Size::XXSmall:
+        case FontTools::DeltaSize::XXSmall:
             return Wt::FontSize::XXSmall;
-        case FontTools::Size::XSmall:
+        case FontTools::DeltaSize::XSmall:
             return Wt::FontSize::XSmall;
-        case FontTools::Size::Small:
+        case FontTools::DeltaSize::Small:
             return Wt::FontSize::Small;
-        case FontTools::Size::Medium:
+        case FontTools::DeltaSize::Medium:
             return Wt::FontSize::Medium;
-        case FontTools::Size::Large:
+        case FontTools::DeltaSize::Large:
             return Wt::FontSize::Large;
-        case FontTools::Size::XLarge:
+        case FontTools::DeltaSize::XLarge:
             return Wt::FontSize::XLarge;
-        case FontTools::Size::XXLarge:
+        case FontTools::DeltaSize::XXLarge:
             return Wt::FontSize::XXLarge;
         default:
             break;

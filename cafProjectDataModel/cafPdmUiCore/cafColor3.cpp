@@ -34,24 +34,19 @@
 //
 //##################################################################################################
 
-
 #include "cafColor3.h"
 
-namespace caf {
-
-
-
+namespace caf
+{
 //==================================================================================================
 ///
 /// \class caf::Color3
 /// \ingroup Core
 ///
-/// Abstract base class for 3-component RGB colors. 
+/// Abstract base class for 3-component RGB colors.
 ///
 /// Currently, this class only contains the ColorIdent enums,
 //==================================================================================================
-
-
 
 //==================================================================================================
 ///
@@ -72,53 +67,47 @@ Color3f::Color3f()
     m_rgb[2] = 0.0f;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Color3f::Color3f(float r, float g, float b)
+Color3f::Color3f( float r, float g, float b )
 {
     m_rgb[0] = r;
     m_rgb[1] = g;
     m_rgb[2] = b;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Color3f::Color3f(const Color3f& other)
+Color3f::Color3f( const Color3f& other )
 {
     m_rgb[0] = other.m_rgb[0];
     m_rgb[1] = other.m_rgb[1];
     m_rgb[2] = other.m_rgb[2];
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Color3f::Color3f(ColorIdent colorIdent)
+Color3f::Color3f( ColorIdent colorIdent )
 {
-    Color3ub byteColor(colorIdent);
-    *this = Color3f::fromByteColor(byteColor.r(), byteColor.g(), byteColor.b());
+    Color3ub byteColor( colorIdent );
+    *this = Color3f::fromByteColor( byteColor.r(), byteColor.g(), byteColor.b() );
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Explicit conversion constructor from byte color
 //--------------------------------------------------------------------------------------------------
-Color3f::Color3f(const Color3ub& byteColor)
+Color3f::Color3f( const Color3ub& byteColor )
 {
-    *this = Color3f::fromByteColor(byteColor.r(), byteColor.g(), byteColor.b());
+    *this = Color3f::fromByteColor( byteColor.r(), byteColor.g(), byteColor.b() );
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Color3f& Color3f::operator=(const Color3f& rhs)
+Color3f& Color3f::operator=( const Color3f& rhs )
 {
     m_rgb[0] = rhs.m_rgb[0];
     m_rgb[1] = rhs.m_rgb[1];
@@ -127,24 +116,20 @@ Color3f& Color3f::operator=(const Color3f& rhs)
     return *this;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Color3f& Color3f::operator=(ColorIdent colorIdent)
+Color3f& Color3f::operator=( ColorIdent colorIdent )
 {
-    return operator=(Color3f(colorIdent));
+    return operator=( Color3f( colorIdent ) );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool Color3f::operator==(const Color3f& rhs) const
+bool Color3f::operator==( const Color3f& rhs ) const
 {
-    if (m_rgb[0] == rhs.m_rgb[0] &&
-        m_rgb[1] == rhs.m_rgb[1] &&
-        m_rgb[2] == rhs.m_rgb[2])
+    if ( m_rgb[0] == rhs.m_rgb[0] && m_rgb[1] == rhs.m_rgb[1] && m_rgb[2] == rhs.m_rgb[2] )
     {
         return true;
     }
@@ -154,44 +139,40 @@ bool Color3f::operator==(const Color3f& rhs) const
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool Color3f::operator!=(const Color3f& rhs) const
+bool Color3f::operator!=( const Color3f& rhs ) const
 {
-    return !operator==(rhs);
+    return !operator==( rhs );
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Sets all color components
 //--------------------------------------------------------------------------------------------------
-void Color3f::set(float r, float g, float b)
+void Color3f::set( float r, float g, float b )
 {
     m_rgb[0] = r;
     m_rgb[1] = g;
     m_rgb[2] = b;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// Query whether this color is valid
-/// 
+///
 /// For a color to be considered valid, all the component values must be in the range 0.0 to 1.0
 //--------------------------------------------------------------------------------------------------
 bool Color3f::isValid() const
 {
-    for (size_t i = 0; i < 3; ++i)
+    for ( size_t i = 0; i < 3; ++i )
     {
-        if (0.0f <= m_rgb[i] && m_rgb[i] <= 1.0f) return false;
+        if ( 0.0f <= m_rgb[i] && m_rgb[i] <= 1.0f ) return false;
     }
     return true;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const float* Color3f::ptr() const
 {
@@ -203,74 +184,78 @@ const float* Color3f::ptr() const
 //--------------------------------------------------------------------------------------------------
 unsigned char Color3f::rByte() const
 {
-    int val = static_cast<int>(m_rgb[0]*255.0f + 0.5f);
-    
-    if      (val < 0)   return 0;
-    else if (val > 255) return 255;
-    else                return static_cast<unsigned char>(val);
-}
+    int val = static_cast<int>( m_rgb[0] * 255.0f + 0.5f );
 
+    if ( val < 0 )
+        return 0;
+    else if ( val > 255 )
+        return 255;
+    else
+        return static_cast<unsigned char>( val );
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Get green component as byte color (unsigned char)
 //--------------------------------------------------------------------------------------------------
 unsigned char Color3f::gByte() const
 {
-    int val = static_cast<int>(m_rgb[1]*255.0f + 0.5f);
+    int val = static_cast<int>( m_rgb[1] * 255.0f + 0.5f );
 
-    if      (val < 0)   return 0;
-    else if (val > 255) return 255;
-    else                return static_cast<unsigned char>(val);
+    if ( val < 0 )
+        return 0;
+    else if ( val > 255 )
+        return 255;
+    else
+        return static_cast<unsigned char>( val );
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Get blue component as a byte color (unsigned char)
 //--------------------------------------------------------------------------------------------------
 unsigned char Color3f::bByte() const
 {
-    int val = static_cast<int>(m_rgb[2]*255.0f + 0.5f);
+    int val = static_cast<int>( m_rgb[2] * 255.0f + 0.5f );
 
-    if      (val < 0)   return 0;
-    else if (val > 255) return 255;
-    else                return static_cast<unsigned char>(val);
+    if ( val < 0 )
+        return 0;
+    else if ( val > 255 )
+        return 255;
+    else
+        return static_cast<unsigned char>( val );
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// Static function to construct a Color3f object from byte RGB values.
-/// 
+///
 /// All the values parameter values should be in the range 0-255. The returned object will always
 /// have its components clamped to the range 0.0 to 1.0
 //--------------------------------------------------------------------------------------------------
-Color3f Color3f::fromByteColor(ubyte r, ubyte g, ubyte b)
+Color3f Color3f::fromByteColor( ubyte r, ubyte g, ubyte b )
 {
     // Constructor sets all elements to 0
     Color3f c;
 
-    c.m_rgb[0] = static_cast<float>(r)/255.0f;
-    c.m_rgb[1] = static_cast<float>(g)/255.0f;
-    c.m_rgb[2] = static_cast<float>(b)/255.0f;
+    c.m_rgb[0] = static_cast<float>( r ) / 255.0f;
+    c.m_rgb[1] = static_cast<float>( g ) / 255.0f;
+    c.m_rgb[2] = static_cast<float>( b ) / 255.0f;
 
     return c;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool operator < (const Color3f& color1, const Color3f& color2)
+bool operator<( const Color3f& color1, const Color3f& color2 )
 {
-    for (int i = 0; i < 3; i++)
+    for ( int i = 0; i < 3; i++ )
     {
-        if (color1.m_rgb[i] > color2.m_rgb[i])
+        if ( color1.m_rgb[i] > color2.m_rgb[i] )
             return false;
-        else if (color1.m_rgb[i] < color2.m_rgb[i])
+        else if ( color1.m_rgb[i] < color2.m_rgb[i] )
             return true;
     }
     return false;
 }
-
 
 //==================================================================================================
 ///
@@ -294,92 +279,163 @@ Color3ub::Color3ub()
 //--------------------------------------------------------------------------------------------------
 /// Constructor with initialization of all components
 //--------------------------------------------------------------------------------------------------
-Color3ub::Color3ub(ubyte r, ubyte g, ubyte b)
+Color3ub::Color3ub( ubyte r, ubyte g, ubyte b )
 {
     m_rgb[0] = r;
     m_rgb[1] = g;
     m_rgb[2] = b;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// Copy constructor
 //--------------------------------------------------------------------------------------------------
-Color3ub::Color3ub(const Color3ub& other)
+Color3ub::Color3ub( const Color3ub& other )
 {
     m_rgb[0] = other.m_rgb[0];
     m_rgb[1] = other.m_rgb[1];
     m_rgb[2] = other.m_rgb[2];
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Color3ub::Color3ub(ColorIdent colorIdent)
+Color::Color( ColorIdent colorIdent )
 {
-    switch (colorIdent)
+    switch ( colorIdent )
     {
-        case RED:           set(255,   0,   0);  break;
-        case GREEN:         set(  0, 255,   0);  break;
-        case BLUE:          set(  0,   0, 255);  break;
-        case YELLOW:        set(255, 255,   0);  break;
-        case CYAN:          set(  0, 255, 255);  break;
-        case MAGENTA:       set(255,   0, 255);  break;
+        case RED:
+            set( 255, 0, 0 );
+            break;
+        case GREEN:
+            set( 0, 255, 0 );
+            break;
+        case BLUE:
+            set( 0, 0, 255 );
+            break;
+        case YELLOW:
+            set( 255, 255, 0 );
+            break;
+        case CYAN:
+            set( 0, 255, 255 );
+            break;
+        case MAGENTA:
+            set( 255, 0, 255 );
+            break;
 
-        case WHITE:         set(255, 255, 255);  break;
-        case BLACK:         set(  0,   0,   0);  break;
-        case LIGHT_GRAY:    set(192, 192, 192);  break;
-        case GRAY:          set(128, 128, 128);  break;
-        case DARK_GRAY:     set( 64,  64,  64);  break;
+        case WHITE:
+            set( 255, 255, 255 );
+            break;
+        case BLACK:
+            set( 0, 0, 0 );
+            break;
+        case LIGHT_GRAY:
+            set( 192, 192, 192 );
+            break;
+        case GRAY:
+            set( 128, 128, 128 );
+            break;
+        case DARK_GRAY:
+            set( 64, 64, 64 );
+            break;
 
-        case BROWN:         set(165,  42,  42);  break;
-        case CRIMSON:       set(220,  20,  60);  break;
-        case DARK_BLUE:     set(  0,   0, 139);  break;
-        case DARK_YELLOW:   set(139, 139,   0);  break;
-        case DARK_CYAN:     set(  0, 139, 139);  break;
-        case DARK_GREEN:    set(  0, 100,   0);  break;
-        case DARK_MAGENTA:  set(139,   0, 139);  break;
-        case DARK_ORANGE:   set(255, 140,   0);  break;
-        case DARK_RED:      set(139,   0,   0);  break;
-        case DARK_VIOLET:   set(148,   0, 211);  break;
-        case DEEP_PINK:     set(255,  20, 147);  break;
-        case FOREST_GREEN:  set( 34, 139,  34);  break;
-        case GOLD:          set(255, 215,   0);  break;
-        case GREEN_YELLOW:  set(173, 255,  47);  break;
-        case INDIGO:        set( 75,   0, 130);  break;
-        case OLIVE:         set(128, 128,   0);  break;
-        case ORANGE:        set(255, 165,   0);  break;
-        case ORANGE_RED:    set(255,  69,   0);  break;
-        case ORCHID:        set(218, 112, 214);  break;
-        case PINK:          set(255, 192, 203);  break;
-        case PURPLE:        set(128,   0, 128);  break;
-        case SEA_GREEN:     set( 46, 139,  87);  break;
-        case SKY_BLUE:      set(135, 206, 235);  break;
-        case VIOLET:        set(238, 130, 238);  break;
-        case YELLOW_GREEN:  set(154, 205,  50);  break;
-        case CEETRON:       set( 81, 134, 148);  break;
+        case BROWN:
+            set( 165, 42, 42 );
+            break;
+        case CRIMSON:
+            set( 220, 20, 60 );
+            break;
+        case DARK_BLUE:
+            set( 0, 0, 139 );
+            break;
+        case DARK_YELLOW:
+            set( 139, 139, 0 );
+            break;
+        case DARK_CYAN:
+            set( 0, 139, 139 );
+            break;
+        case DARK_GREEN:
+            set( 0, 100, 0 );
+            break;
+        case DARK_MAGENTA:
+            set( 139, 0, 139 );
+            break;
+        case DARK_ORANGE:
+            set( 255, 140, 0 );
+            break;
+        case DARK_RED:
+            set( 139, 0, 0 );
+            break;
+        case DARK_VIOLET:
+            set( 148, 0, 211 );
+            break;
+        case DEEP_PINK:
+            set( 255, 20, 147 );
+            break;
+        case FOREST_GREEN:
+            set( 34, 139, 34 );
+            break;
+        case GOLD:
+            set( 255, 215, 0 );
+            break;
+        case GREEN_YELLOW:
+            set( 173, 255, 47 );
+            break;
+        case INDIGO:
+            set( 75, 0, 130 );
+            break;
+        case OLIVE:
+            set( 128, 128, 0 );
+            break;
+        case ORANGE:
+            set( 255, 165, 0 );
+            break;
+        case ORANGE_RED:
+            set( 255, 69, 0 );
+            break;
+        case ORCHID:
+            set( 218, 112, 214 );
+            break;
+        case PINK:
+            set( 255, 192, 203 );
+            break;
+        case PURPLE:
+            set( 128, 0, 128 );
+            break;
+        case SEA_GREEN:
+            set( 46, 139, 87 );
+            break;
+        case SKY_BLUE:
+            set( 135, 206, 235 );
+            break;
+        case VIOLET:
+            set( 238, 130, 238 );
+            break;
+        case YELLOW_GREEN:
+            set( 154, 205, 50 );
+            break;
+        case CEETRON:
+            set( 81, 134, 148 );
+            break;
 
-        default:            set(0, 0, 0);                           
+        default:
+            set( 0, 0, 0 );
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Color3ub::Color3ub(const Color3f& other)
+Color3ub::Color3ub( const Color3f& other )
 {
-    m_rgb[0] = static_cast<ubyte>(other.r()*255.0f);
-    m_rgb[1] = static_cast<ubyte>(other.g()*255.0f);
-    m_rgb[2] = static_cast<ubyte>(other.b()*255.0f);
+    m_rgb[0] = static_cast<ubyte>( other.r() * 255.0f );
+    m_rgb[1] = static_cast<ubyte>( other.g() * 255.0f );
+    m_rgb[2] = static_cast<ubyte>( other.b() * 255.0f );
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Assignment operator
 //--------------------------------------------------------------------------------------------------
-Color3ub& Color3ub::operator=(const Color3ub& rhs)
+Color3ub& Color3ub::operator=( const Color3ub& rhs )
 {
     m_rgb[0] = rhs.m_rgb[0];
     m_rgb[1] = rhs.m_rgb[1];
@@ -388,24 +444,20 @@ Color3ub& Color3ub::operator=(const Color3ub& rhs)
     return *this;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// Assignment from ColorIdent 
+/// Assignment from ColorIdent
 //--------------------------------------------------------------------------------------------------
-Color3ub& Color3ub::operator=(ColorIdent colorIdent)
+Color3ub& Color3ub::operator=( ColorIdent colorIdent )
 {
-    return operator=(Color3ub(colorIdent));
+    return operator=( Color3ub( colorIdent ) );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool Color3ub::operator==(const Color3ub& rhs) const
+bool Color3ub::operator==( const Color3ub& rhs ) const
 {
-    if (m_rgb[0] == rhs.m_rgb[0] &&
-        m_rgb[1] == rhs.m_rgb[1] &&
-        m_rgb[2] == rhs.m_rgb[2])
+    if ( m_rgb[0] == rhs.m_rgb[0] && m_rgb[1] == rhs.m_rgb[1] && m_rgb[2] == rhs.m_rgb[2] )
     {
         return true;
     }
@@ -415,29 +467,26 @@ bool Color3ub::operator==(const Color3ub& rhs) const
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool Color3ub::operator!=(const Color3ub& rhs) const
+bool Color3ub::operator!=( const Color3ub& rhs ) const
 {
-    return !operator==(rhs);
+    return !operator==( rhs );
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Sets all color components
 //--------------------------------------------------------------------------------------------------
-void Color3ub::set(ubyte r, ubyte g, ubyte b)
+void Color3ub::set( ubyte r, ubyte g, ubyte b )
 {
     m_rgb[0] = r;
     m_rgb[1] = g;
     m_rgb[2] = b;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const ubyte* Color3ub::ptr() const
 {
@@ -445,4 +494,3 @@ const ubyte* Color3ub::ptr() const
 }
 
 } // namespace caf
-

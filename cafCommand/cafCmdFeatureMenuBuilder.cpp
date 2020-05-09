@@ -118,7 +118,7 @@ CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::addSeparator()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::subMenuStart(const QString& menuName, const QIconProvider& menuIcon)
+CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::subMenuStart(const QString& menuName, const IconProvider& menuIcon)
 {
     MenuItem i;
     i.itemType = MenuItem::SUBMENU_START;

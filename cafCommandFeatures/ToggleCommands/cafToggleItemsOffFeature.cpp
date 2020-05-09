@@ -73,7 +73,7 @@ void ToggleItemsOffFeature::setupActionLook( ActionWrapper* actionToSetup )
     else
         actionToSetup->setText("Off");
 
-    actionToSetup->setIcon(QIconProvider(":/cafCommandFeatures/ToggleOffL16x16.png"));
+    actionToSetup->setIcon(IconProvider(":/cafCommandFeatures/ToggleOffL16x16.png"));
 
 }
 

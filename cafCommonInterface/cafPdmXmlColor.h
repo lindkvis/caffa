@@ -36,44 +36,16 @@
 
 #pragma once
 
-#include "cafColor3.h"
-
-#include "cafInternalPdmValueFieldSpecializations.h"
-#include "cafPdmXmlColor3f.h"
-
 #include <QColor>
+#include <QMetaType>
 
-namespace caf 
-{
+class QTextStream;
 
 //==================================================================================================
-/// Partial specialization for PdmValueFieldSpecialization< caf::Color3f >
+/// QTextStream Stream operator for QColor
 //==================================================================================================
 
-template <>
-class PdmValueFieldSpecialization<caf::Color3f>
-{
-public:
-    static QVariant convert(const caf::Color3f& value)
-    {
-        QColor col;
-        col.setRgbF(value.r(), value.g(), value.b());
+QTextStream& operator>>( QTextStream& str, QColor& value );
+QTextStream& operator<<( QTextStream& str, const QColor& value );
 
-        return col;
-    }
-
-    static void setFromVariant(const QVariant& variantValue, caf::Color3f& value)
-    {
-        QColor col = variantValue.value<QColor>();
-
-        value.set(col.redF(), col.greenF(), col.blueF());
-    }
-
-    static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
-    {
-        return variantValue == variantValue2;
-    }
-};
-
-
-} // end namespace caf
+// Q_DECLARE_METATYPE( QColor );

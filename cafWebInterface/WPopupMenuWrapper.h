@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cafActionWrapper.h"
-#include "cafQIconProvider.h"
+#include "cafIconProvider.h"
 
 #include <Wt/WMenuItem.h>
 
@@ -37,8 +37,8 @@ public:
     void setShortcut(QKeySequence::StandardKey keySequence) override;
     QKeySequence shortcut() const override;
     bool isEqualTo(const ActionWrapper* wrapper) const;
-    void setIcon(const QIconProvider& iconProvider) override;
-    QIconProvider icon() const override;
+    void setIcon(const IconProvider& iconProvider) override;
+    IconProvider icon() const override;
     void trigger(bool checked) const override;
 
     void connect(const std::function<void(bool) >& trigger) override;
@@ -50,7 +50,7 @@ private:
     bool                      m_checked;
     bool                      m_checkable;
     QKeySequence::StandardKey m_shortcut;
-    QIconProvider             m_icon;
+    IconProvider             m_icon;
     std::function<void(bool)> m_trigger;
 };
 
@@ -79,7 +79,7 @@ public:
     ~WPopupMenuWrapper() override;
 
     Wt::WPopupMenu* menu();
-    MenuInterface* addMenu(const QIconProvider& icon, const QString& subMenuName) override;
+    MenuInterface* addMenu(const IconProvider& icon, const QString& subMenuName) override;
     void addAction(std::shared_ptr<ActionWrapper> action) override;
     std::shared_ptr<ActionWrapper> menuAction() const override;
     void removeAction(std::shared_ptr<ActionWrapper> action) override;

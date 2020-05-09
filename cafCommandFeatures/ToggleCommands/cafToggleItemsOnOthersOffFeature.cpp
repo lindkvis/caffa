@@ -105,7 +105,7 @@ void ToggleItemsOnOthersOffFeature::setupActionLook( ActionWrapper* actionToSetu
 {
     actionToSetup->setText("On - Others Off");
 
-    actionToSetup->setIcon(QIconProvider(":/cafCommandFeatures/ToggleOnOthersOffL16x16.png"));
+    actionToSetup->setIcon(IconProvider(":/cafCommandFeatures/ToggleOnOthersOffL16x16.png"));
 
 }
 

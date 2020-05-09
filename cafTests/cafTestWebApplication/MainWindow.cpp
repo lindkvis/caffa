@@ -5,7 +5,6 @@
 #include "cafCmdFeatureManager.h"
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafCmdSelectionHelper.h"
-#include "cafColor3.h"
 
 #include "WPopupMenuWrapper.h"
 #include "cafFilePath.h"
@@ -19,7 +18,7 @@
 #include "cafPdmUiOrdering.h"
 #include "cafPdmWebDefaultObjectEditor.h"
 #include "cafPdmWebSliderEditor.h"
-#include "cafPdmXmlColor3f.h"
+#include "cafPdmXmlColor.h"
 #include "cafSelectionManager.h"
 #include "cafWebPlotCurve.h"
 #include "cafWebPlotViewer.h"
@@ -30,6 +29,7 @@
 #include <Wt/WTimer.h>
 #include <Wt/WVBoxLayout.h>
 
+#include <QColor>
 #include <QDate>
 #include <QString>
 
@@ -226,7 +226,7 @@ public:
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_colorField, "ColorField", caf::Color3f(0.2, 0.7, 0.9), "Color Field", "", "Click to set color", "");
+        CAF_PDM_InitField(&m_colorField, "ColorField", QColor(50, 100, 150), "Color Field", "", "Click to set color", "");
         CAF_PDM_InitField(&m_dateField, "DateField", QDate(2012, 05, 19), "Date Field", "", "Set a date", "");
         CAF_PDM_InitFieldNoDefault(
             &m_fileUploadField, "FileUploadField", "Upload File", "", "This editor lets you upload a file", "");
@@ -234,7 +234,7 @@ public:
 
     // Outside group
     caf::PdmField<int>           m_intFieldStandard;
-    caf::PdmField<caf::Color3f>  m_colorField;
+    caf::PdmField<QColor>        m_colorField;
     caf::PdmField<QDate>         m_dateField;
     caf::PdmField<caf::FilePath> m_fileUploadField;
 
@@ -245,7 +245,7 @@ protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
     {
         uiOrdering.add(&m_intFieldStandard);
-        // uiOrdering.add(&m_colorField);
+        uiOrdering.add(&m_colorField);
         uiOrdering.add(&m_dateField);
         uiOrdering.add(&m_fileUploadField);
         uiOrdering.skipRemainingFields(true);
@@ -255,10 +255,7 @@ protected:
         if (changedField == &m_colorField)
         {
             if (MainWindow::instance())
-                MainWindow::instance()->debug(QString("Color changed to:  %1,%2,%3")
-                                                  .arg(m_colorField().r())
-                                                  .arg(m_colorField().g())
-                                                  .arg(m_colorField().b()));
+                MainWindow::instance()->debug(QString("Color changed to:  %1").arg(m_colorField().name()));
         }
         else if (changedField == &m_dateField)
         {

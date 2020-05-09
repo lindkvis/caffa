@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cafQIconProvider.h"
+#include "cafIconProvider.h"
 
 #include <functional>
 #include <memory>
@@ -31,8 +31,8 @@ namespace caf
         virtual QKeySequence shortcut() const = 0;
         virtual void setShortcut(QKeySequence::StandardKey shortcut) = 0;
         virtual bool isEqualTo(const ActionWrapper* wrapper) const = 0;
-        virtual void setIcon(const QIconProvider& iconProvider) = 0;
-        virtual QIconProvider icon() const = 0;
+        virtual void setIcon(const IconProvider& iconProvider) = 0;
+        virtual IconProvider icon() const = 0;
         virtual void trigger(bool checked) const = 0;
         virtual void connect(const std::function<void(bool) >& trigger) = 0;
     };
@@ -48,7 +48,7 @@ namespace caf
     {
     public:
         virtual ~MenuInterface() = default;
-        virtual MenuInterface* addMenu(const QIconProvider& icon, const QString& subMenuName) = 0;
+        virtual MenuInterface* addMenu(const IconProvider& icon, const QString& subMenuName) = 0;
         virtual void addAction(std::shared_ptr<ActionWrapper> actionWrapper) = 0;
         virtual std::shared_ptr<ActionWrapper> menuAction() const = 0;
         virtual void removeAction(std::shared_ptr<ActionWrapper> actionWrapper) = 0;

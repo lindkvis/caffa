@@ -36,9 +36,8 @@
 
 #include "cafPdmWebDefaultObjectEditor.h"
 
-#include "cafColor3.h"
 #include "cafFilePath.h"
-#include "cafPdmCoreColor3f.h"
+#include "cafPdmCoreColor.h"
 #include "cafPdmField.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmWebCheckBoxEditor.h"
@@ -55,6 +54,7 @@
 #include "Wt/WGridLayout.h"
 #include "Wt/WPanel.h"
 
+#include <QColor>
 #include <QDate>
 
 namespace caf
@@ -67,7 +67,7 @@ CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebLineEditor, int );
 CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebLineEditor, double );
 CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebLineEditor, float );
 CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebLineEditor, quint64 );
-CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebColorEditor, caf::Color3f );
+CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebColorEditor, QColor );
 CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebDateEditor, QDate );
 CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebFileUploadEditor, caf::FilePath );
 

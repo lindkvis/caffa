@@ -38,6 +38,12 @@ set( PROJECT_FILES
 
     cafFontTools.h
     cafFontTools.cpp
+    cafColorTable.h
+    cafColorTable.cpp
+    cafColorTables.h
+    cafColorTables.cpp
+    cafColorTools.h
+    cafColorTools.cpp
 
     cafActionWrapper.h
     cafQActionWrapper.h
@@ -77,12 +83,12 @@ set( PROJECT_FILES
     cafSelectionChangedReceiver.h
     cafSelectionChangedReceiver.cpp
     cafSelectionManagerTools.h
-	cafPdmUiSelection3dEditorVisualizer.h
-	cafPdmUiSelection3dEditorVisualizer.cpp
-	cafQShortenedLabel.cpp
-	cafQShortenedLabel.h
-	cafQIconProvider.cpp
-	cafQIconProvider.h
+    cafPdmUiSelection3dEditorVisualizer.h
+    cafPdmUiSelection3dEditorVisualizer.cpp
+    cafQShortenedLabel.cpp
+    cafQShortenedLabel.h
+    cafIconProvider.cpp
+    cafIconProvider.h
 )
 
 add_library( ${PROJECT_NAME}

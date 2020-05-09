@@ -64,7 +64,7 @@ public:
 
     CmdFeatureMenuBuilder& addSeparator();
 
-    CmdFeatureMenuBuilder& subMenuStart(const QString& menuName, const QIconProvider& menuIcon = QIconProvider());
+    CmdFeatureMenuBuilder& subMenuStart(const QString& menuName, const IconProvider& menuIcon = IconProvider());
     CmdFeatureMenuBuilder& subMenuEnd();
 
     void                   appendToMenu(MenuInterface* menu);
@@ -87,7 +87,7 @@ private:
         QString  itemName;
         QString  uiText;
         QVariant userData;
-        QIconProvider icon;
+        IconProvider icon;
     };
 
     std::vector<MenuItem> m_items;

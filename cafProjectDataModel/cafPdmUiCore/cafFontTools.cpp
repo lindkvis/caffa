@@ -35,50 +35,51 @@
 //##################################################################################################
 #include "cafFontTools.h"
 
+#include "cafAppEnum.h"
+
 #include <QApplication>
 #include <QDesktopWidget>
 
 using namespace caf;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int caf::FontTools::absolutePointSize( int normalPointSize, Size relativeSize )
+template <>
+void FontTools::FontSizeEnum::setUp()
 {
-    int delta = 0;
-    switch ( relativeSize )
-    {
-        case caf::FontTools::Size::XXSmall:
-            delta = -4;
-            break;
-        case caf::FontTools::Size::XSmall:
-            delta = -2;
-            break;
-        case caf::FontTools::Size::Small:
-            delta = -1;
-            break;
-        case caf::FontTools::Size::Medium:
-            delta = 0;
-            break;
-        case caf::FontTools::Size::Large:
-            delta = +1;
-            break;
-        case caf::FontTools::Size::XLarge:
-            delta = +2;
-            break;
-        case caf::FontTools::Size::XXLarge:
-            delta = +4;
-            break;
-        default:
-            break;
-    }
-    return normalPointSize + delta;
+    addItem(FontTools::FontSize::FONT_SIZE_8, "8", "8");
+    addItem(FontTools::FontSize::FONT_SIZE_10, "10", "10");
+    addItem(FontTools::FontSize::FONT_SIZE_12, "12", "12");
+    addItem(FontTools::FontSize::FONT_SIZE_14, "14", "14");
+    addItem(FontTools::FontSize::FONT_SIZE_16, "16", "16");
+    addItem(FontTools::FontSize::FONT_SIZE_24, "24", "24");
+    addItem(FontTools::FontSize::FONT_SIZE_32, "32", "32");
+
+    setDefault(FontTools::FontSize::FONT_SIZE_8);
+}
+
+template <>
+void FontTools::DeltaSizeEnum::setUp()
+{
+    addItem(FontTools::DeltaSize::XSmall, "XX Small", "XX Small");
+    addItem(FontTools::DeltaSize::XSmall, "X Small", "X Small");
+    addItem(FontTools::DeltaSize::Small, "Small", "Small");
+    addItem(FontTools::DeltaSize::Medium, "Medium", "Medium");
+    addItem(FontTools::DeltaSize::Large, "Large", "Medium");
+    addItem(FontTools::DeltaSize::XLarge, "X Large", "X Large");
+    addItem(FontTools::DeltaSize::XXLarge, "XX Large", "XX Large");
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int caf::FontTools::pointSizeToPixelSize( int pointSize )
+int FontTools::absolutePointSize(FontSize normalPointSize, DeltaSize relativeSize )
+{
+    return static_cast<int>(normalPointSize) + static_cast<int>(relativeSize);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int FontTools::pointSizeToPixelSize( int pointSize )
 {
     auto app = dynamic_cast<const QApplication*>( QCoreApplication::instance() );
     if ( app )
@@ -93,7 +94,15 @@ int caf::FontTools::pointSizeToPixelSize( int pointSize )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int caf::FontTools::pixelSizeToPointSize( int pixelSize )
+int FontTools::pointSizeToPixelSize(FontSize pointSize)
+{
+    return pointSizeToPixelSize((int) pointSize);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int FontTools::pixelSizeToPointSize( int pixelSize )
 {
     auto app = dynamic_cast<const QApplication*>( QCoreApplication::instance() );
     if ( app )

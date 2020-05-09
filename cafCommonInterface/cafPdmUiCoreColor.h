@@ -34,16 +34,56 @@
 //
 //##################################################################################################
 
-#include "cafPdmUiCoreColor3f.h"
+#pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmProxyValueField.h"
+#include "cafInternalPdmValueFieldSpecializations.h"
+#include "cafPdmUiFieldSpecialization.h"
+#include "cafPdmUiItem.h"
+
+#include "cafPdmCoreColor.h"
+
+#include <QColor>
+
+namespace caf
+{
+template <>
+class PdmUiFieldSpecialization<QColor>
+{
+public:
+    /// Convert the field value into a QVariant
+    static QVariant convert( const QColor& value ) { return PdmValueFieldSpecialization<QColor>::convert( value ); }
+
+    /// Set the field value from a QVariant
+    static void setFromVariant( const QVariant& variantValue, QColor& value )
+    {
+        PdmValueFieldSpecialization<QColor>::setFromVariant( variantValue, value );
+    }
+
+    static bool isDataElementEqual( const QVariant& variantValue, const QVariant& variantValue2 )
+    {
+        return PdmValueFieldSpecialization<QColor>::isEqual( variantValue, variantValue2 );
+    }
+
+    /// Methods to get a list of options for a field, specialized for AppEnum
+    static QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly, const QColor& )
+    {
+        return QList<PdmOptionItemInfo>();
+    }
+
+    /// Methods to retrieve the possible PdmObject pointed to by a field
+    static void childObjects( const PdmDataValueField<QColor>&, std::vector<PdmObjectHandle*>* ) {}
+};
+
+} // end namespace caf
 
 //--------------------------------------------------------------------------------------------------
 // If the macro for registering the editor is put as the single statement
 // in a cpp file, a dummy static class must be used to make sure the compile unit
 // is included
 //--------------------------------------------------------------------------------------------------
-PdmColor3fInitializer::PdmColor3fInitializer()
+class PdmColorInitializer
 {
-}
+public:
+    PdmColorInitializer();
+};
+static PdmColorInitializer pdmColorInitializer;

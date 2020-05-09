@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) Ceetron Solutions AS
+//   Copyright (C) 2020- Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -33,28 +33,56 @@
 //   for more details.
 //
 //##################################################################################################
+#pragma once
 
-#include "cafPdmXmlColor3f.h"
+#include <QIcon>
+#include <QPixmap>
+#include <QSize>
+#include <QString>
 
-#include <QTextStream>
+#include <memory>
 
-QTextStream& operator >> (QTextStream& str, caf::Color3f& value)
+class QIcon;
+class QPixmap;
+
+namespace caf
 {
-    QString text;
-
-    double r, g, b;
-    str >> r;
-    str >> g;
-    str >> b;
-
-    value.set(r, g, b);
-
-    return str;
-}
-
-QTextStream& operator << (QTextStream& str, const caf::Color3f& value)
+//==================================================================================================
+/// Utility class to provide Icons when required. Qt crashes if a non-empty QIcon is created
+/// ... without a GUI Application running. So create the icon on demand instead.
+//==================================================================================================
+class IconProvider
 {
-    str << value.r() << " " << value.g() << " " << value.b();
+public:
+    IconProvider();
+    IconProvider( const QString& iconResourceString );
+    IconProvider( const QPixmap& pixmap );
+    IconProvider( const IconProvider& rhs );
+    IconProvider& operator=( const IconProvider& rhs );
 
-    return str;
-}
+    void setActive( bool active );
+    bool valid() const;
+
+    std::unique_ptr<QIcon> icon( const QSize& size = QSize( 16, 16 ) ) const;
+    const QString&         iconResourceString() const;
+
+    void setIconResourceString( const QString& iconResourceString );
+    void setOverlayResourceString( const QString& overlayResourceString );
+    void setBackgroundColorString( const QString& colorName );
+
+    void setPixmap( const QPixmap& pixmap );
+
+private:
+    static bool isGuiApplication();
+    void        copyPixmap( const IconProvider& rhs );
+
+private:
+    bool m_active;
+
+    QString m_iconResourceString;
+    QString m_overlayResourceString;
+    QString m_backgroundColorString;
+
+    std::unique_ptr<QPixmap> m_pixmap;
+};
+} // namespace caf

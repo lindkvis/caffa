@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2017 Ceetron Solutions AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,44 +34,28 @@
 //
 //##################################################################################################
 
-#pragma once
+#include "cafPdmXmlColor.h"
 
-#include "cvfArray.h"
-#include "cvfBase.h"
+#include <QColor>
+#include <QTextStream>
 
-#include <vector>
-
-class QColor;
-
-namespace caf
+QTextStream& operator>>( QTextStream& str, QColor& value )
 {
-//==================================================================================================
-//
-//
-//
-//==================================================================================================
-class ColorTable
+    QString text;
+
+    double r, g, b;
+    str >> r;
+    str >> g;
+    str >> b;
+
+    value = QColor::fromRgbF( r, g, b );
+
+    return str;
+}
+
+QTextStream& operator<<( QTextStream& str, const QColor& value )
 {
-public:
-    explicit ColorTable(const std::vector<cvf::Color3ub>& colors);
-    explicit ColorTable(const cvf::Color3ubArray& colors);
+    str << value.red() << " " << value.green() << " " << value.blue();
 
-    cvf::Color3f  cycledColor3f(size_t itemIndex) const;
-    cvf::Color3ub cycledColor3ub(size_t itemIndex) const;
-    QColor        cycledQColor(size_t itemIndex) const;
-
-    cvf::Color3ubArray color3ubArray() const;
-    cvf::Color3fArray  color3fArray() const;
-
-    size_t size() const;
-
-    ColorTable inverted() const;
-
-    static cvf::Color3ub      fromQColor(const QColor& color);
-    static cvf::Color3ubArray interpolateColorArray(const cvf::Color3ubArray& colorArray, size_t targetColorCount);
-
-private:
-    const std::vector<cvf::Color3ub> m_colors;
-};
-
-} // namespace caf
+    return str;
+}

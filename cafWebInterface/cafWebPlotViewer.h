@@ -36,7 +36,7 @@ private:
     void              addSeries( CurveInterface* curve, std::unique_ptr<Wt::Chart::WDataSeries> dataSeries );
     void              removeSeries( Wt::Chart::WDataSeries* dataSeries );
     void              dataChanged( void* changedVariable = nullptr ) override;
-    Wt::FontSize      convertFontSize( FontTools::Size size );
+    Wt::FontSize      convertFontSize( FontTools::DeltaSize size );
     void              assignPropertiesToAxis( Axis axisEnum, const AxisProperties& properties );
 
 private:

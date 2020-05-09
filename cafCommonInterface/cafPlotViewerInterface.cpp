@@ -163,7 +163,7 @@ void PlotViewerInterface::setAxisLabelsAndTicksEnabled( Axis axis, bool enableLa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FontTools::Size PlotViewerInterface::axisTitleFontPointSize( Axis axis ) const
+FontTools::DeltaSize PlotViewerInterface::axisTitleFontPointSize( Axis axis ) const
 {
     return axisProperties( axis ).titleFontSize;
 }
@@ -171,7 +171,7 @@ FontTools::Size PlotViewerInterface::axisTitleFontPointSize( Axis axis ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FontTools::Size PlotViewerInterface::axisValueFontPointSize( Axis axis ) const
+FontTools::DeltaSize PlotViewerInterface::axisValueFontPointSize( Axis axis ) const
 {
     return axisProperties( axis ).valueFontSize;
 }
@@ -179,11 +179,11 @@ FontTools::Size PlotViewerInterface::axisValueFontPointSize( Axis axis ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PlotViewerInterface::setAxisFontsAndAlignment( Axis            axis,
-                                                    FontTools::Size titleFontSize,
-                                                    FontTools::Size valueFontSize,
-                                                    bool            titleBold /*= false*/,
-                                                    int             alignment /*= (int)Qt::AlignRight */ )
+void PlotViewerInterface::setAxisFontsAndAlignment( Axis                 axis,
+                                                    FontTools::DeltaSize titleFontSize,
+                                                    FontTools::DeltaSize valueFontSize,
+                                                    bool                 titleBold /*= false*/,
+                                                    int                  alignment /*= (int)Qt::AlignRight */ )
 {
     AxisProperties& props = axisProperties( axis );
     props.titleFontSize   = titleFontSize;
@@ -328,8 +328,8 @@ PlotViewerInterface::AxisProperties::AxisProperties()
     , titleEnabled( true )
     , titleBold( false )
     , titleAlignment( Qt::AlignRight )
-    , titleFontSize( FontTools::Size::Medium )
-    , valueFontSize( FontTools::Size::XSmall )
+    , titleFontSize( FontTools::DeltaSize::Medium )
+    , valueFontSize( FontTools::DeltaSize::XSmall )
     , inverted( false )
     , labelsEnabled( true )
     , ticksEnabled( true )

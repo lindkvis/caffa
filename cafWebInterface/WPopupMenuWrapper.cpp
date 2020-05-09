@@ -1,6 +1,6 @@
 #include "WPopupMenuWrapper.h"
 
-#include "cafQIconProvider.h"
+#include "cafIconProvider.h"
 
 #include <Wt/WPopupMenu.h>
 #include <Wt/WString.h>
@@ -128,7 +128,7 @@ bool WAction::isEqualTo(const ActionWrapper* wrapper) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void WAction::setIcon(const QIconProvider& iconProvider)
+void WAction::setIcon(const IconProvider& iconProvider)
 {
     m_icon = iconProvider;
 }
@@ -160,7 +160,7 @@ bool WAction::isChecked() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QIconProvider WAction::icon() const
+IconProvider WAction::icon() const
 {
     return m_icon;
 }
@@ -264,7 +264,7 @@ WPopupMenuWrapper::~WPopupMenuWrapper()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-MenuInterface* WPopupMenuWrapper::addMenu(const QIconProvider& icon, const QString& subMenuName)
+MenuInterface* WPopupMenuWrapper::addMenu(const IconProvider& icon, const QString& subMenuName)
 {
     auto subMenu = new Wt::WPopupMenu;
     std::string stdName = subMenuName.toStdString();

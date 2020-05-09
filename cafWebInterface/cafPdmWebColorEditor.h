@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmUiColorEditorAttribute.h"
@@ -46,9 +45,8 @@
 #include <Wt/WLabel.h>
 #include <Wt/WPushButton.h>
 
-namespace caf 
+namespace caf
 {
-
 //==================================================================================================
 ///
 //==================================================================================================
@@ -57,26 +55,26 @@ class PdmWebColorEditor : public PdmWebFieldEditorHandle
     CAF_PDM_WEB_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmWebColorEditor(); 
-    ~PdmWebColorEditor() override {} 
-    void applyColor(const Wt::WColor& newColor);
-protected:
-    Wt::WWidget*    createEditorWidget() override;
-    Wt::WLabel* createLabelWidget() override;
-    void            configureAndUpdateUi(const QString& uiConfigName) override;
+    PdmWebColorEditor();
+    ~PdmWebColorEditor() override {}
+    void applyColor( const Wt::WColor& newColor );
 
-//protected slots:
-    void        colorSelectionClicked();
-    void        setColorOnWidget(const Wt::WColor& c);
-    Wt::WColor  getFontColor(const Wt::WColor& backgroundColor) const;
+protected:
+    Wt::WWidget* createEditorWidget() override;
+    Wt::WLabel*  createLabelWidget() override;
+    void         configureAndUpdateUi( const QString& uiConfigName ) override;
+
+    // protected slots:
+    void colorSelectionClicked();
+    void setColorOnWidget( const Wt::WColor& c );
+
 private:
     Wt::Core::observing_ptr<Wt::WLabel>      m_label;
     Wt::Core::observing_ptr<Wt::WPushButton> m_colorSelectionButton;
 
-    Wt::WColor                               m_color;
+    Wt::WColor m_color;
 
     PdmUiColorEditorAttribute m_attributes;
 };
-
 
 } // end namespace caf

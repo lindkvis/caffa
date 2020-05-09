@@ -46,8 +46,8 @@ public:
         bool    titleBold;
         int     titleAlignment;
 
-        FontTools::Size titleFontSize;
-        FontTools::Size valueFontSize;
+        FontTools::DeltaSize titleFontSize;
+        FontTools::DeltaSize valueFontSize;
 
         bool   inverted;
         bool   labelsEnabled;
@@ -86,14 +86,14 @@ public:
     void    setAxisInverted( Axis axis, bool inverted = true );
     void    setAxisLabelsAndTicksEnabled( Axis axis, bool enableLabels, bool enableTicks );
 
-    FontTools::Size axisTitleFontPointSize( Axis axis ) const;
-    FontTools::Size axisValueFontPointSize( Axis axis ) const;
+    FontTools::DeltaSize axisTitleFontPointSize( Axis axis ) const;
+    FontTools::DeltaSize axisValueFontPointSize( Axis axis ) const;
 
-    void setAxisFontsAndAlignment( Axis            axis,
-                                   FontTools::Size titleFontSize,
-                                   FontTools::Size valueFontPointSize,
-                                   bool            titleBold = false,
-                                   int             alignment = (int)Qt::AlignRight );
+    void setAxisFontsAndAlignment( Axis                 axis,
+                                   FontTools::DeltaSize titleFontSize,
+                                   FontTools::DeltaSize valueFontPointSize,
+                                   bool                 titleBold = false,
+                                   int                  alignment = (int)Qt::AlignRight );
 
     void enableGridLines( Axis axis, bool majorGridLines, bool minorGridLines );
 

@@ -77,8 +77,8 @@ bool caf::PdmFieldXmlCap<FieldType>::resolveReferences()
      QString dataString = xmlStream.text().toString();
 
      // Make stream point to end of element
-     QXmlStreamReader::TokenType type;
-     type = xmlStream.readNext();
+     QXmlStreamReader::TokenType type = xmlStream.readNext();
+     Q_UNUSED(type);
      PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
 
      // This resolving can NOT be done here. 
@@ -157,8 +157,8 @@ bool caf::PdmFieldXmlCap<FieldType>::resolveReferences()
      QString dataString = xmlStream.text().toString();
 
      // Make stream point to end of element
-     QXmlStreamReader::TokenType type;
-     type = xmlStream.readNext();
+     QXmlStreamReader::TokenType type = xmlStream.readNext();
+     Q_UNUSED(type);
      PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
 
      // This resolving can NOT be done here. 
@@ -303,8 +303,8 @@ void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::readFieldData(QXmlStr
 
     // Make stream point to endElement of this field
 
-    QXmlStreamReader::TokenType type;
-    type = xmlStream.readNext();
+    QXmlStreamReader::TokenType type = xmlStream.readNext();
+    Q_UNUSED(type);
     PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
 }
 
@@ -392,8 +392,8 @@ void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::readFieldData(QX
             xmlStream.skipCurrentElement();
 
             // Jump off the end element, and head for next start element (or the final EndElement of the field)
-            QXmlStreamReader::TokenType type;
-            type = xmlStream.readNext();
+            QXmlStreamReader::TokenType type = xmlStream.readNext();
+            Q_UNUSED(type);
             PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
 
             continue;
@@ -408,8 +408,8 @@ void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::readFieldData(QX
             xmlStream.skipCurrentElement();
 
             // Jump off the end element, and head for next start element (or the final EndElement of the field)
-            QXmlStreamReader::TokenType type;
-            type = xmlStream.readNext();
+            QXmlStreamReader::TokenType type = xmlStream.readNext();
+            Q_UNUSED(type);
             PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
 
             continue;
@@ -424,8 +424,8 @@ void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::readFieldData(QX
         // Jump off the end element, and head for next start element (or the final EndElement of the field)
         // Qt reports a character token between EndElements and StartElements so skip it
 
-        QXmlStreamReader::TokenType type;
-        type = xmlStream.readNext();
+        QXmlStreamReader::TokenType type = xmlStream.readNext();
+        Q_UNUSED(type);
         PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
     }
 }
@@ -445,6 +445,54 @@ bool caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType *>>::resolveReferences
 //--------------------------------------------------------------------------------------------------
 template < typename DataType>
 bool caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::isVectorField() const
+{
+    return true;
+}
+
+//==================================================================================================
+/// XML Implementation for PdmFieldXmlCap<std::vector<DataType>> methods
+/// 
+//==================================================================================================
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template < typename DataType>
+bool caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::isVectorField() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType >
+ void  caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::readFieldData(QXmlStreamReader& xmlStream, 
+                                          PdmObjectFactory* objectFactory)
+ { 
+     this->assertValid(); 
+     typename FieldType::FieldDataType value; 
+     PdmFieldReader<typename FieldType::FieldDataType>::readFieldData(value, xmlStream, objectFactory);  
+     m_field->setValue(value); 
+ }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType >
+void caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::writeFieldData(QXmlStreamWriter& xmlStream) const
+ { 
+     this->assertValid(); 
+     PdmFieldWriter<typename FieldType::FieldDataType>::writeFieldData(m_field->value(), xmlStream); 
+ }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template < typename DataType>
+bool caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::resolveReferences()
 {
     return true;
 }

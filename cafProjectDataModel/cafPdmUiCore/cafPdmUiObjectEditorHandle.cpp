@@ -64,7 +64,7 @@ PdmUiObjectEditorHandle::~PdmUiObjectEditorHandle()
 //--------------------------------------------------------------------------------------------------
 void PdmUiObjectEditorHandle::setPdmObject(PdmObjectHandle* object)
 {
-   cleanupBeforeSettingPdmObject();
+    cleanupBeforeSettingPdmObject();
 
     caf::PdmUiObjectHandle* uiObject = uiObj(object);
     this->bindToPdmItem(uiObject);
