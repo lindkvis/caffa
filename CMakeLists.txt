@@ -1,8 +1,8 @@
 cmake_minimum_required (VERSION 3.12.0)
 
-project (wcaf)
+project (caffa)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   # VS 2017 : Disable warnings from from gtest code, using deprecated code related to TR1
@@ -10,21 +10,21 @@ if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   message("Add flag to disable warings from gtest -  _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING")
 endif()
 
-option(WCAF_WEB_DEPLOYMENT "Turn this on to build for web deployment with the Web Toolkit" OFF)
-option(WCAF_DESKTOP_DEPLOYMENT "Turn this on to build for desktop deployment with Qt" ON)
+option(CAFFA_WEB_DEPLOYMENT "Turn this on to build for web deployment with the Web Toolkit" OFF)
+option(CAFFA_DESKTOP_DEPLOYMENT "Turn this on to build for desktop deployment with Qt" ON)
 
 find_package(Qt5 COMPONENTS REQUIRED Core)
 
-if (WCAF_DESKTOP_DEPLOYMENT)
+if (CAFFA_DESKTOP_DEPLOYMENT)
     find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Widgets)
     set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets)
 else()
     set(QT_LIBRARIES Qt5::Core)
 endif()
 
-if (WCAF_WEB_DEPLOYMENT)
+if (CAFFA_WEB_DEPLOYMENT)
     add_definitions(-DWEB_DEPLOYMENT)
-endif(WCAF_WEB_DEPLOYMENT)
+endif(CAFFA_WEB_DEPLOYMENT)
 
 #libraries
 add_subdirectory (cafProjectDataModel/cafPdmCore)
@@ -38,20 +38,20 @@ add_subdirectory(cafPdmScripting)
 add_subdirectory(cafCommonInterface)
 
 #executables
-if (WCAF_WEB_DEPLOYMENT)
+if (CAFFA_WEB_DEPLOYMENT)
     add_subdirectory(cafWebInterface)
     add_subdirectory(cafTests/cafTestWebApplication)
-endif(WCAF_WEB_DEPLOYMENT)
+endif(CAFFA_WEB_DEPLOYMENT)
 
-if (WCAF_DESKTOP_DEPLOYMENT)
-    option(WCAF_DESKTOP_PLOTTING ON)
+if (CAFFA_DESKTOP_DEPLOYMENT)
+    option(CAFFA_DESKTOP_PLOTTING ON)
     add_subdirectory(cafUserInterface)
 
-    if (WCAF_DESKTOP_PLOTTING)
+    if (CAFFA_DESKTOP_PLOTTING)
         add_subdirectory(ThirdParty/qwt)
         set_property(TARGET qwt PROPERTY FOLDER "ThirdParty")
         add_subdirectory(cafUiPlotViewer)
-    endif(WCAF_DESKTOP_PLOTTING)
+    endif(CAFFA_DESKTOP_PLOTTING)
 
     add_subdirectory(cafTests/cafTestApplication)
     add_subdirectory (cafUserInterface/cafUserInterface_UnitTests)
