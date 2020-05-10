@@ -3,6 +3,9 @@ Caffa is an Application Framework for Web and Desktop Applications written in C+
 
 It allows you to write applications both for desktop and cloud deployment with one code base.
 
+# Requirements
+Caffa uses modern C++ and requires a C++-17 compatible compiler and CMake 3.12+. It requires Qt5 Core even in its web deployment mode.
+
 # Licensing
 Caffa is licensed under the LGPL 2.1. However, the Web Toolkit is licensed under the GPL v2, meaning that apps deploying to the Web will have to follow the stricter licensing terms of the GPL v2 unless you obtain a commercial license from Emweb, the developers of Web Toolkit.
 
