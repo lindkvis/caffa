@@ -62,7 +62,7 @@ set (TAP_LINK_LIBRARIES
 
     
 if (UNIX)
-    append(LIST TAP_LINK_LIBRARIES pthread)
+    list(APPEND LIST TAP_LINK_LIBRARIES pthread)
 endif()
 
     

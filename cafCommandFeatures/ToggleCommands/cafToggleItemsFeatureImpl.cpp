@@ -39,7 +39,11 @@
 #include "cafPdmUiItem.h"
 #include "cafPdmUiObjectHandle.h"
 #include "cafPdmUiTreeOrdering.h"
+#ifdef WEB_DEPLOYMENT
+#include "cafPdmWebTreeView.h"
+#else
 #include "cafPdmUiTreeView.h"
+#endif
 #include "cafSelectionManager.h"
 
 #include <QModelIndex>
@@ -49,6 +53,12 @@
 
 namespace caf
 {
+
+#ifdef WEB_PLOYMENT
+using TreeView = caf::PdmWebTreeView;
+#else
+using TreeView = caf::PdmUiTreeView;
+#endif
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -170,10 +180,10 @@ void ToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggleTy
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiTreeView* ToggleItemsFeatureImpl::findTreeView( const caf::PdmUiItem* uiItem )
+TreeView* ToggleItemsFeatureImpl::findTreeView( const caf::PdmUiItem* uiItem )
 {
-    caf::PdmUiTreeView* customActiveTreeView =
-        dynamic_cast<caf::PdmUiTreeView*>( CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
+    auto customActiveTreeView =
+        dynamic_cast<TreeView*>( CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
 
     return customActiveTreeView;
 }
@@ -183,7 +193,7 @@ caf::PdmUiTreeView* ToggleItemsFeatureImpl::findTreeView( const caf::PdmUiItem* 
 //--------------------------------------------------------------------------------------------------
 caf::PdmUiTreeOrdering* ToggleItemsFeatureImpl::findTreeItemFromSelectedUiItem( const caf::PdmUiItem* uiItem )
 {
-    caf::PdmUiTreeView* pdmUiTreeView = findTreeView( uiItem );
+    TreeView* pdmUiTreeView = findTreeView( uiItem );
 
     if ( pdmUiTreeView )
     {

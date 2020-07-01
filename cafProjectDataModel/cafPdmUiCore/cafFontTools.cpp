@@ -40,6 +40,8 @@
 #include <QApplication>
 #include <QDesktopWidget>
 
+#include <cmath>
+
 using namespace caf;
 
 template <>

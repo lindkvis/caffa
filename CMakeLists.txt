@@ -4,21 +4,17 @@ project (caffa)
 
 set(CMAKE_CXX_STANDARD 17)
 
-<<<<<<< Updated upstream
 add_definitions(-DGTEST_HAS_TR1_TUPLE=0)
 
 option(CAFFA_WEB_DEPLOYMENT "Turn this on to build for web deployment with the Web Toolkit" OFF)
 option(CAFFA_DESKTOP_DEPLOYMENT "Turn this on to build for desktop deployment with Qt" ON)
-=======
-option(WCAF_WEB_DEPLOYMENT "Turn this on to build for web deployment with the Web Toolkit" OFF)
-option(WCAF_DESKTOP_DEPLOYMENT "Turn this on to build for desktop deployment with Qt" ON)
->>>>>>> Stashed changes
 
 find_package(Qt5 COMPONENTS REQUIRED Core)
 
 if (CAFFA_DESKTOP_DEPLOYMENT)
     find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Widgets)
     set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets)
+    add_definitions(-DDESKTOP_DEPLOYMENT)
 else()
     set(QT_LIBRARIES Qt5::Core)
 endif()

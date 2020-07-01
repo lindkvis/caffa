@@ -16,7 +16,7 @@ set (MOC_HEADER_FILES
 # Qt
 find_package(Qt5 COMPONENTS REQUIRED Core)
 set(QT_LIBRARIES Qt5::Core)
-if (NOT WebDeployment)
+if (NOT CAFFA_WEB_DEPLOYMENT)
 	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
 	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 endif()
@@ -39,7 +39,7 @@ set( PROJECT_FILES
     AddAndDelete/cafCmdDeleteItemFeature.h
 )
 
-if (NOT WebDeployment)
+if (NOT CAFFA_WEB_DEPLOYMENT)
 	list(APPEND PROJECT_FILES
 		ToggleCommands/cafToggleItemsFeature.cpp
 		ToggleCommands/cafToggleItemsFeature.h
@@ -80,7 +80,7 @@ target_include_directories(${PROJECT_NAME}
 )
 
 set(INTERFACE_LIB "cafUserInterface")
-if (WebDeployment)
+if (CAFFA_WEB_DEPLOYMENT)
 	set(INTERFACE_LIB "cafWebInterface")
 endif()
 
