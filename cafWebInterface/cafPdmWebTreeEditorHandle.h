@@ -1,7 +1,8 @@
 //##################################################################################################
 //
-//   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Caffa Web Interface
+//   Copyright (C) Ceetron AS
+//   Copyright (C) Gaute Lindkvist
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:

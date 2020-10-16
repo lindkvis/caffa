@@ -1,7 +1,8 @@
 //##################################################################################################
 //
-//   Custom Visualization Core library
+//   Caffa Web Interface
 //   Copyright (C) 2014 Ceetron Solutions AS
+//   Copyright (C) Gaute Lindkvist
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -33,7 +34,6 @@
 //   for more details.
 //
 //##################################################################################################
-
 
 #include "cafPdmWebTreeViewWModel.h"
 
