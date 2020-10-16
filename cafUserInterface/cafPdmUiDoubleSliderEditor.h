@@ -34,23 +34,21 @@
 //
 //##################################################################################################
 
-
 #pragma once
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiSliderEditorAttribute.h"
 
-#include <QString>
 #include <QLabel>
-#include <QWidget>
-#include <QPointer>
 #include <QLineEdit>
+#include <QPointer>
 #include <QSlider>
+#include <QString>
+#include <QWidget>
 
-
-namespace caf 
+namespace caf
 {
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class PdmUiDoubleSliderEditor : public PdmUiFieldEditorHandle
 {
@@ -58,25 +56,25 @@ class PdmUiDoubleSliderEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiDoubleSliderEditor()          {} 
-    ~PdmUiDoubleSliderEditor() override {} 
+    PdmUiDoubleSliderEditor() {}
+    ~PdmUiDoubleSliderEditor() override {}
 
 protected:
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
-    QWidget*    createEditorWidget(QWidget * parent) override;
-    QWidget*    createLabelWidget(QWidget * parent) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
 
 protected slots:
-    void        slotEditingFinished();
-    void        slotSliderValueChanged(int value);
-    void        slotSliderReleased();
+    void slotEditingFinished();
+    void slotSliderValueChanged( int value );
+    void slotSliderReleased();
 
 private:
-    void        updateSliderPosition(double value);
-    void        writeValueToField(double value);
+    void updateSliderPosition( double value );
+    void writeValueToField( double value );
 
-    int         convertToSliderValue(double value);
-    double      convertFromSliderValue(int sliderValue);
+    int    convertToSliderValue( double value );
+    double convertFromSliderValue( int sliderValue );
 
 private:
     QPointer<QLineEdit>       m_lineEdit;
@@ -86,6 +84,5 @@ private:
 
     PdmUiDoubleSliderEditorAttribute m_attributes;
 };
-
 
 } // end namespace caf

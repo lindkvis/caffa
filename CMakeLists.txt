@@ -1,10 +1,8 @@
-cmake_minimum_required (VERSION 3.12.0)
+cmake_minimum_required (VERSION 3.12)
 
 project (caffa)
 
 set(CMAKE_CXX_STANDARD 17)
-
-add_definitions(-DGTEST_HAS_TR1_TUPLE=0)
 
 option(CAFFA_WEB_DEPLOYMENT "Turn this on to build for web deployment with the Web Toolkit" OFF)
 option(CAFFA_DESKTOP_DEPLOYMENT "Turn this on to build for desktop deployment with Qt" ON)

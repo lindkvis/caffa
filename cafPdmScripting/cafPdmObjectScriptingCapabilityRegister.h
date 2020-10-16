@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2019- Ceetron Solutions AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -35,44 +35,33 @@
 //##################################################################################################
 #pragma once
 
-#include <QIcon>
-#include <QPixmap>
 #include <QString>
 
-#include <memory>
+#include <map>
 
 namespace caf
 {
+class PdmObject;
+
 //==================================================================================================
-/// Utility class to provide QIcons when required. Qt crashes if a non-empty QIcon is created
-/// ... without a GUI Application running. So create the icon on demand instead.
+/// Static register for object scriptability.
 //==================================================================================================
-class QIconProvider
+class PdmObjectScriptingCapabilityRegister
 {
 public:
-    QIconProvider();
-    QIconProvider(const QString& iconResourceString);
-    QIconProvider(const QPixmap& pixmap);
-    QIconProvider(const QIcon& rhs);
-    QIconProvider(const QIconProvider& rhs);
-    QIconProvider& operator=(const QIconProvider& rhs);
+    static void    registerScriptClassNameAndComment( const QString& classKeyword,
+                                                      const QString& scriptClassName,
+                                                      const QString& scriptClassComment );
+    static QString scriptClassNameFromClassKeyword( const QString& classKeyword );
+    static QString classKeywordFromScriptClassName( const QString& scriptClassName );
+    static QString scriptClassComment( const QString& classKeyword );
 
-    QIcon        icon() const;
-    QString      iconResourceString() const;
-    virtual bool isNull() const;
-    void         setActive(bool active);
-    void         setIconResourceString(const QString& iconResourceString);
-    void         setPixmap(const QPixmap& pixmap);
+    static bool isScriptable( const caf::PdmObject* object );
 
-protected:
-    bool                           hasValidPixmap() const;
-    virtual std::unique_ptr<QIcon> generateIcon() const;
-    static bool                    isGuiApplication();
-
-protected:
-    QString                          m_iconResourceString;
-    std::unique_ptr<QPixmap>         m_iconPixmap;
-    mutable std::unique_ptr<QIcon>   m_icon;
-    bool                             m_active;
+private:
+    static std::map<QString, QString> s_classKeywordToScriptClassName;
+    static std::map<QString, QString> s_scriptClassNameToClassKeyword;
+    static std::map<QString, QString> s_scriptClassComments;
 };
-}
+
+} // namespace caf

@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.12.0)
+cmake_minimum_required (VERSION 3.12)
 
 project ( cafPdmCore_UnitTests )
 
@@ -19,6 +19,7 @@ set( PROJECT_FILES
 	cafPdmCoreBasicTest.cpp
     cafPdmReferenceHelperTest.cpp
     cafPdmChildArrayFieldHandleTest.cpp
+	cafSignalTest.cpp
 
 	Child.cpp
 	Child.h
@@ -41,7 +42,7 @@ target_link_libraries ( ${PROJECT_NAME}
     ${THREAD_LIBRARY}
 )
 
-# Copy Qt Dlls
+#Copy Qt Dlls
 foreach (qtlib ${QT_LIBRARIES})
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${PROJECT_NAME}>

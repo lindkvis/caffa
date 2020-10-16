@@ -40,9 +40,8 @@ class QVariant;
 class QString;
 class QWidget;
 
-namespace caf 
+namespace caf
 {
-
 class MenuInterface;
 class PdmFieldHandle;
 class PdmUiFieldHandle;
@@ -54,15 +53,14 @@ public:
     PdmUiCommandSystemProxy();
 
     static PdmUiCommandSystemProxy* instance();
-    void setCommandInterface(PdmUiCommandSystemInterface* undoCommandInterface);
+    void                            setCommandInterface( PdmUiCommandSystemInterface* undoCommandInterface );
 
-    void setUiValueToField(PdmUiFieldHandle* uiFieldHandle, const QVariant& newUiValue);
-    void setCurrentContextMenuTargetWidget(QWidget* targetWidget);
-    void populateMenuWithDefaultCommands(const QString& uiConfigName, MenuInterface* menu);
+    void setUiValueToField( PdmUiFieldHandle* uiFieldHandle, const QVariant& newUiValue );
+    void setCurrentContextMenuTargetWidget( QWidget* targetWidget );
+    void populateMenuWithDefaultCommands( const QString& uiConfigName, MenuInterface* menu );
 
 private:
     PdmUiCommandSystemInterface* m_commandInterface;
 };
 
 } // End of namespace caf
-

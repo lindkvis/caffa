@@ -38,9 +38,9 @@
 
 #include <vector>
 
+#include "cafActionWrapper.h"
 #include <QIcon>
 #include <QVariant>
-#include "cafActionWrapper.h"
 
 class QAction;
 
@@ -57,20 +57,21 @@ public:
     CmdFeatureMenuBuilder();
     virtual ~CmdFeatureMenuBuilder();
 
-    CmdFeatureMenuBuilder& operator<<(const QString& commandIdOrSeparator);
-    CmdFeatureMenuBuilder& addCmdFeature(const QString commandId, const QString& customUiText = "");
-    CmdFeatureMenuBuilder& addCmdFeatureWithUserData(const QString commandId, const QString& customUiText,
-                                                     const QVariant& userData);
+    CmdFeatureMenuBuilder& operator<<( const QString& commandIdOrSeparator );
+    CmdFeatureMenuBuilder& addCmdFeature( const QString commandId, const QString& customUiText = "" );
+    CmdFeatureMenuBuilder&
+        addCmdFeatureWithUserData( const QString commandId, const QString& customUiText, const QVariant& userData );
 
     CmdFeatureMenuBuilder& addSeparator();
 
-    CmdFeatureMenuBuilder& subMenuStart(const QString& menuName, const IconProvider& menuIcon = IconProvider());
+    CmdFeatureMenuBuilder& subMenuStart( const QString& menuName, const IconProvider& menuIcon = IconProvider() );
     CmdFeatureMenuBuilder& subMenuEnd();
 
-    void                   appendToMenu(MenuInterface* menu);
+    void appendToMenu( MenuInterface* menu );
 
-    bool                   isCmdFeatureAdded(const QString &commandId);
-    size_t                 itemCount() const;
+    bool   isCmdFeatureAdded( const QString& commandId );
+    size_t itemCount() const;
+
 private:
     struct MenuItem
     {
@@ -83,10 +84,10 @@ private:
             SUBMENU_END
         };
 
-        ItemType itemType;
-        QString  itemName;
-        QString  uiText;
-        QVariant userData;
+        ItemType     itemType;
+        QString      itemName;
+        QString      uiText;
+        QVariant     userData;
         IconProvider icon;
     };
 

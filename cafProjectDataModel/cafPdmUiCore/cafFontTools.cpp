@@ -47,35 +47,35 @@ using namespace caf;
 template <>
 void FontTools::FontSizeEnum::setUp()
 {
-    addItem(FontTools::FontSize::FONT_SIZE_8, "8", "8");
-    addItem(FontTools::FontSize::FONT_SIZE_10, "10", "10");
-    addItem(FontTools::FontSize::FONT_SIZE_12, "12", "12");
-    addItem(FontTools::FontSize::FONT_SIZE_14, "14", "14");
-    addItem(FontTools::FontSize::FONT_SIZE_16, "16", "16");
-    addItem(FontTools::FontSize::FONT_SIZE_24, "24", "24");
-    addItem(FontTools::FontSize::FONT_SIZE_32, "32", "32");
+    addItem( FontTools::FontSize::FONT_SIZE_8, "8", "8" );
+    addItem( FontTools::FontSize::FONT_SIZE_10, "10", "10" );
+    addItem( FontTools::FontSize::FONT_SIZE_12, "12", "12" );
+    addItem( FontTools::FontSize::FONT_SIZE_14, "14", "14" );
+    addItem( FontTools::FontSize::FONT_SIZE_16, "16", "16" );
+    addItem( FontTools::FontSize::FONT_SIZE_24, "24", "24" );
+    addItem( FontTools::FontSize::FONT_SIZE_32, "32", "32" );
 
-    setDefault(FontTools::FontSize::FONT_SIZE_8);
+    setDefault( FontTools::FontSize::FONT_SIZE_8 );
 }
 
 template <>
 void FontTools::DeltaSizeEnum::setUp()
 {
-    addItem(FontTools::DeltaSize::XSmall, "XX Small", "XX Small");
-    addItem(FontTools::DeltaSize::XSmall, "X Small", "X Small");
-    addItem(FontTools::DeltaSize::Small, "Small", "Small");
-    addItem(FontTools::DeltaSize::Medium, "Medium", "Medium");
-    addItem(FontTools::DeltaSize::Large, "Large", "Medium");
-    addItem(FontTools::DeltaSize::XLarge, "X Large", "X Large");
-    addItem(FontTools::DeltaSize::XXLarge, "XX Large", "XX Large");
+    addItem( FontTools::DeltaSize::XSmall, "XX Small", "XX Small" );
+    addItem( FontTools::DeltaSize::XSmall, "X Small", "X Small" );
+    addItem( FontTools::DeltaSize::Small, "Small", "Small" );
+    addItem( FontTools::DeltaSize::Medium, "Medium", "Medium" );
+    addItem( FontTools::DeltaSize::Large, "Large", "Medium" );
+    addItem( FontTools::DeltaSize::XLarge, "X Large", "X Large" );
+    addItem( FontTools::DeltaSize::XXLarge, "XX Large", "XX Large" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int FontTools::absolutePointSize(FontSize normalPointSize, DeltaSize relativeSize )
+int FontTools::absolutePointSize( FontSize normalPointSize, DeltaSize relativeSize )
 {
-    return static_cast<int>(normalPointSize) + static_cast<int>(relativeSize);
+    return static_cast<int>( normalPointSize ) + static_cast<int>( relativeSize );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,9 +96,9 @@ int FontTools::pointSizeToPixelSize( int pointSize )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int FontTools::pointSizeToPixelSize(FontSize pointSize)
+int FontTools::pointSizeToPixelSize( FontSize pointSize )
 {
-    return pointSizeToPixelSize((int) pointSize);
+    return pointSizeToPixelSize( (int)pointSize );
 }
 
 //--------------------------------------------------------------------------------------------------

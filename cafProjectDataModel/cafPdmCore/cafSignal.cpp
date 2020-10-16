@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) Ceetron Solutions AS
+//   Copyright (C) 2020- Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -33,71 +33,87 @@
 //   for more details.
 //
 //##################################################################################################
-#include "cafPdmObjectScriptabilityRegister.h"
-
-#include "cafPdmObject.h"
+#include "cafSignal.h"
 
 using namespace caf;
 
-std::map<QString, QString> PdmObjectScriptabilityRegister::s_classKeywordToScriptClassName;
-std::map<QString, QString> PdmObjectScriptabilityRegister::s_scriptClassNameToClassKeyword;
-std::map<QString, QString> PdmObjectScriptabilityRegister::s_scriptClassComments;
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmObjectScriptabilityRegister::registerScriptClassNameAndComment(const QString& classKeyword,
-    const QString& scriptClassName,
-    const QString& scriptClassComment)
+SignalEmitter::SignalEmitter()
 {
-    s_classKeywordToScriptClassName[classKeyword] = scriptClassName;
-    s_scriptClassNameToClassKeyword[scriptClassName] = classKeyword;
-    s_scriptClassComments[classKeyword] = scriptClassComment;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmObjectScriptabilityRegister::scriptClassNameFromClassKeyword(const QString& classKeyword)
+SignalEmitter::~SignalEmitter()
 {
-    auto it = s_classKeywordToScriptClassName.find(classKeyword);
-    if (it != s_classKeywordToScriptClassName.end())
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void SignalEmitter::addEmittedSignal( AbstractSignal* signalToAdd ) const
+{
+    m_signals.push_back( signalToAdd );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::list<AbstractSignal*> SignalEmitter::emittedSignals() const
+{
+    return m_signals;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+SignalObserver::SignalObserver()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+SignalObserver::~SignalObserver()
+{
+    disconnectAllSignals();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::list<AbstractSignal*> SignalObserver::observedSignals() const
+{
+    return m_signals;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void SignalObserver::addObservedSignal( AbstractSignal* signalToObserve ) const
+{
+    m_signals.push_back( signalToObserve );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void SignalObserver::removeObservedSignal( AbstractSignal* signalToRemove ) const
+{
+    m_signals.remove( signalToRemove );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void SignalObserver::disconnectAllSignals()
+{
+    auto observedSignals = m_signals;
+    for ( auto observedSignal : observedSignals )
     {
-        return it->second;
+        observedSignal->disconnect( const_cast<SignalObserver*>( this ) );
     }
-    return classKeyword;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString PdmObjectScriptabilityRegister::classKeywordFromScriptClassName(const QString& scriptClassName)
-{
-    auto it = s_scriptClassNameToClassKeyword.find(scriptClassName);
-    if (it != s_scriptClassNameToClassKeyword.end())
-    {
-        return it->second;
-    }
-    return scriptClassName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString PdmObjectScriptabilityRegister::scriptClassComment(const QString& classKeyword)
-{
-    auto it = s_scriptClassComments.find(classKeyword);
-    if (it != s_scriptClassComments.end())
-    {
-        return it->second;
-    }
-    return "";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool PdmObjectScriptabilityRegister::isScriptable(const caf::PdmObject* object)
-{
-    return s_classKeywordToScriptClassName.find(object->classKeyword()) != s_classKeywordToScriptClassName.end();
 }

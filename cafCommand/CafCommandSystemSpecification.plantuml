@@ -1,141 +1,121 @@
-﻿@startuml
-scale 1200 width
+﻿@startuml scale 1200 width
 
-class PdmUiTableEditor{
-
-   QMenu * buildDefaultContextMenu()
-   enableDefaultContextMenu(bool );
+    class PdmUiTableEditor
+{
+    QMenu* buildDefaultContextMenu() enableDefaultContextMenu( bool );
 
 }
 
-PdmUiTableEditor  --->  CmdFeatureManager :"GetQAction(id)"
-PdmUiTableEditor --* QTableView
+    PdmUiTableEditor--->CmdFeatureManager
+    : "GetQAction(id)" PdmUiTableEditor--* QTableView
 
-QTableView --> NodeTableMenuCreator : signal CustomContextMenu(QMenu*)
+          QTableView-- > NodeTableMenuCreator : signal CustomContextMenu( QMenu* )
 
+                                                    NodeTableMenuCreator..SelectionManager NodeTableMenuCreator
+                                                --->CmdFeatureManager : "GetQAction(id)"
 
-NodeTableMenuCreator .. SelectionManager
-NodeTableMenuCreator --->  CmdFeatureManager :"GetQAction(id)"
-
-class MainWindow{
+                                                                        class MainWindow
+{
     refreshAllVisibleToolbars()
 }
 
-MainWindow --> CmdFeatureManager: refreshEnabledState()
+    MainWindow-- > CmdFeatureManager : refreshEnabledState()
 
-class SelectionManager{ 
-    SelectionStack
-    CurrentTempSelection
-    ---
-    CurrentItem ?
-    PreHighlightSelection ?
-    ---
-    activePdmCommandFeature 
-    
+                                           class SelectionManager
+{
+    SelectionStack CurrentTempSelection-- - CurrentItem ? PreHighlightSelection ? ---activePdmCommandFeature
+
 }
 
+class CmdFeatureManager
+{
+    QAction* action( commandId )
 
-class CmdFeatureManager{
-    QAction* action(commandId)
-	
-    void     refreshEnabledState([commandIdList])
-    void     refreshCheckedState([commandIdList])
-	void     refreshStates([commandIdList])
-	
-	CmdFeature* getCommandFeature(const std::string& commandId)
+        void refreshEnabledState( [commandIdList] ) void refreshCheckedState( [commandIdList] ) void refreshStates( [
+            commandIdList] )
+
+            CmdFeature* getCommandFeature( const std::string& commandId )
 }
 
-CmdFeatureManager ----* "n" CmdFeature
-CmdFeatureManager --> "get new" CmdFeatureFactory
+    CmdFeatureManager-- --*"n" CmdFeature CmdFeatureManager-- > "get new" CmdFeatureFactory
 
-class CmdFeature{
-    QAction* action()
-    QAction* action(QString customText);
-	
-    void     refreshEnabledState();
-    void     refreshCheckedState();
---
- slot:
-    void actionTriggered(bool isChecked)    
+    class CmdFeature
+{
+    QAction* action() QAction* action( QString customText );
+
+    void          refreshEnabledState();
+    void          refreshCheckedState();
+    --slot : void actionTriggered( bool isChecked )
 }
 
+        CmdFeature<| --CmdAddItemFeature
 
+                         SelectionManager<----> CmdAddItemFeature CmdAddItemFeature--> "create" CmdAddItemExec CmdAddItemFeature -
+        l->"processExecuteCommand()" CmdExecCommandManager
 
-CmdFeature <|-- CmdAddItemFeature
+            CmdFeature -
+        l->CmdFeatureFactory : "register"
 
-SelectionManager <---->  CmdAddItemFeature 
-CmdAddItemFeature --> "create" CmdAddItemExec
-CmdAddItemFeature -l-> "processExecuteCommand()" CmdExecCommandManager
+                               CmdFeature..>
+    "create" CmdExecuteCommand CmdFeature..> "processExecuteCommand()" CmdExecCommandManager
 
+                                                 CmdFeature.> "Thought" CommandUserProcess CommandUserProcess.>
+    "Thought" CommandUi
 
-CmdFeature -l->  CmdFeatureFactory :"register"
-
-CmdFeature ..> "create" CmdExecuteCommand
-CmdFeature ..> "processExecuteCommand()" CmdExecCommandManager
-
-CmdFeature .> "Thought" CommandUserProcess
-CommandUserProcess .> "Thought" CommandUi
-
-
-
-
-class CmdExecuteCommand{
-    virtual redo()
-    virtual undo()
+    class CmdExecuteCommand
+{
+    virtual redo() virtual undo()
 }
 
-CmdExecuteCommand <|--- CmdFieldChangeExec
-CmdFieldChangeExec --* CmdFieldChangeExecData
-PdmObject <|- CmdFieldChangeExecData
+        CmdExecuteCommand < |
+    ---CmdFieldChangeExec CmdFieldChangeExec--* CmdFieldChangeExecData PdmObject < |
+    -CmdFieldChangeExecData
 
-CmdExecuteCommand <|--- CmdAddItemExec
-CmdAddItemExec --* CmdAddItemExecData
-PdmObject <|-  CmdAddItemExecData
+                      CmdExecuteCommand < |
+    ---CmdAddItemExec CmdAddItemExec--* CmdAddItemExecData PdmObject < |
+    -CmdAddItemExecData
 
-
-class CmdExecCommandManager{
+    class CmdExecCommandManager
+{
     void activateCommandSystem();
 
-
-    void enableUndoCommandSystem(bool enable);
+    void        enableUndoCommandSystem( bool enable );
     QUndoStack* undoStack();
 
-    void processExecuteCommand( CmdExecuteCommand* cmd)
-    void processExecuteCommandsAsMacro(const QString& macroName,
-	std::vector<CmdExecuteCommand*>& commands);
+    void processExecuteCommand( CmdExecuteCommand* cmd ) void processExecuteCommandsAsMacro(
+        const QString&                   macroName,
+        std::vector<CmdExecuteCommand*>& commands );
 }
 
+    CmdExecCommandManager-- *
+    "n" CmdExecuteCommand
 
-CmdExecCommandManager --* "n" CmdExecuteCommand
+        package "Project Data Model UI"
+{
+    class PdmUiFieldEditorHandle
 
-package "Project Data Model UI" {
-class PdmUiFieldEditorHandle
+        PdmUiFieldEditorHandle->PdmUiCommandSystemProxy
+        : setUiValueToField()
 
-PdmUiFieldEditorHandle -> PdmUiCommandSystemProxy : setUiValueToField()
+              class PdmUiCommandSystemProxy note right If the commandinterface object is set,
+        delegate handling of field changed events to this object If no commandinterface,
+        perform basic field change on a single field end note
 
+        class PdmUiCommandSystemProxy
+    {
+        void setCommandInterface( PdmUiCommandFeatureInterface* undoCommandInterface );
 
-class PdmUiCommandSystemProxy
-note right
-If the commandinterface object is set,
-delegate handling of field changed events to this object
-If no  commandinterface,
-perform basic field change on a single field
-end note
+        void setUiValueToField( PdmUiFieldHandle* uiFieldHandle, const QVariant& newUiValue );
+        void populateMenu( const QString& uiConfigName, QMenu* menu );
+    }
 
-class PdmUiCommandSystemProxy{
-    void setCommandInterface(PdmUiCommandFeatureInterface* undoCommandInterface);
-
-    void setUiValueToField(PdmUiFieldHandle* uiFieldHandle, const QVariant& newUiValue);
-    void populateMenu(const QString& uiConfigName, QMenu* menu);
+        PdmUiCommandSystemProxy "Process Ui requests"..> PdmUiCommandFeatureInterface
 }
 
-PdmUiCommandSystemProxy "Process Ui requests" ..>  PdmUiCommandFeatureInterface
-
-}
-
-class PdmUiCommandFeatureInterface{
-    virtual void fieldChangedCommand(PdmFieldHandle* field, const QVariant& newUiValue) = 0;
-    virtual void populateMenu(const QString& uiConfigName, QMenu* menu) = 0;
+class PdmUiCommandFeatureInterface
+{
+    virtual void fieldChangedCommand( PdmFieldHandle* field, const QVariant& newUiValue ) = 0;
+    virtual void populateMenu( const QString& uiConfigName, QMenu* menu )                 = 0;
 }
 
 CmdFieldChangeExec --> CmdExecCommandManager
@@ -152,14 +132,13 @@ creates N CmdFieldChangeExec commands, and insert into undo stack if needed
 populateMenu creates the UI menu for default commands (add item/delete item)
 end note
 
-class CmdUiCommandSystemImpl{
-    virtual void fieldChangedCommand(PdmFieldHandle* field, const QVariant& newUiValue);
-    virtual void populateMenu(const QString& uiConfigName, QMenu* menu);
+class CmdUiCommandSystemImpl
+{
+    virtual void fieldChangedCommand( PdmFieldHandle* field, const QVariant& newUiValue );
+    virtual void populateMenu( const QString& uiConfigName, QMenu* menu );
     virtual bool isUndoEnabled();
 }
 
-CmdUiCommandSystemImpl ----* "n" CmdFieldChangeExec
+CmdUiCommandSystemImpl-- --*"n" CmdFieldChangeExec
 
-
-@enduml
-		
+    @enduml

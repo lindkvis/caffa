@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.12.0)
+cmake_minimum_required (VERSION 3.12)
 
 project (cafPdmCore)
 
@@ -23,10 +23,13 @@ set( PROJECT_FILES
     cafPdmChildField.h
     cafPdmChildField.inl
     cafPdmDataValueField.h
+    cafPdmField.h
     cafPdmFieldCapability.h
     cafPdmFieldHandle.cpp
     cafPdmFieldHandle.h
     cafPdmObjectCapability.h
+    cafPdmFieldReorderCapability.cpp
+    cafPdmFieldReorderCapability.h
     cafPdmObjectHandle.cpp
     cafPdmObjectHandle.h
     cafPdmPointer.cpp
@@ -45,6 +48,9 @@ set( PROJECT_FILES
 
     cafNotificationCenter.cpp
     cafNotificationCenter.h
+
+    cafSignal.h
+    cafSignal.cpp
 
     cafTristate.cpp
     cafTristate.h
@@ -72,8 +78,3 @@ if (MSVC)
 endif()
 
 source_group("" FILES ${PROJECT_FILES})
-
-# cotire
-if (COMMAND caf_apply_cotire)
-  caf_apply_cotire("${PROJECT_NAME}")
-endif()

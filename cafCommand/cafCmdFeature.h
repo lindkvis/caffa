@@ -34,11 +34,10 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
-#include "cafFactory.h"
 #include "cafActionWrapper.h"
+#include "cafFactory.h"
 
 #include <map>
 #include <string>
@@ -50,17 +49,19 @@ class QIcon;
 class QString;
 
 #define CAF_CMD_HEADER_INIT \
-    public: \
+public:                     \
     static const std::string& idNameStatic()
 
-#define CAF_CMD_SOURCE_INIT(ClassName, CommandIdName)\
-    const std::string& ClassName::idNameStatic() { static std::string id = CommandIdName; return id;} \
-    CAF_FACTORY_REGISTER(caf::CmdFeature, ClassName, std::string, ClassName::idNameStatic())
+#define CAF_CMD_SOURCE_INIT( ClassName, CommandIdName ) \
+    const std::string& ClassName::idNameStatic()        \
+    {                                                   \
+        static std::string id = CommandIdName;          \
+        return id;                                      \
+    }                                                   \
+    CAF_FACTORY_REGISTER( caf::CmdFeature, ClassName, std::string, ClassName::idNameStatic() )
 
-
-namespace caf 
+namespace caf
 {
-
 class CmdExecuteCommand;
 
 //==================================================================================================
@@ -78,35 +79,33 @@ public:
     ~CmdFeature() override;
 
     std::shared_ptr<ActionWrapper> action();
-    std::shared_ptr<ActionWrapper> actionWithCustomText(const QString& customText);
-    std::shared_ptr<ActionWrapper> actionWithUserData(const QString& customText, const QVariant& userData);
-    void             refreshEnabledState();
-    void             refreshCheckedState();
+    std::shared_ptr<ActionWrapper> actionWithCustomText( const QString& customText );
+    std::shared_ptr<ActionWrapper> actionWithUserData( const QString& customText, const QVariant& userData );
+    void                           refreshEnabledState();
+    void                           refreshCheckedState();
 
-    bool            canFeatureBeExecuted();
+    bool canFeatureBeExecuted();
 
-    static void     applyShortcutWithHintToAction(ActionWrapper* action, const QKeySequence::StandardKey& keySequence);
+    static void applyShortcutWithHintToAction( ActionWrapper* action, const QKeySequence::StandardKey& keySequence );
 
-    static void     setActionCreator(const ActionCreatorInterface* actionCreator);
+    static void setActionCreator( const ActionCreatorInterface* actionCreator );
 
 public slots:
-    void            actionTriggered(bool isChecked);
+    void actionTriggered( bool isChecked );
 
 protected:
-    virtual void    onActionTriggered(bool isChecked) = 0;
-    virtual void    setupActionLook( ActionWrapper* actionToSetup ) =  0;
-    virtual bool    isCommandEnabled() = 0;
-    virtual bool    isCommandChecked();
-    
-    void            disableModelChangeContribution();
-    const QVariant  userData() const;
+    virtual void onActionTriggered( bool isChecked )             = 0;
+    virtual void setupActionLook( ActionWrapper* actionToSetup ) = 0;
+    virtual bool isCommandEnabled()                              = 0;
+    virtual bool isCommandChecked();
+
+    void           disableModelChangeContribution();
+    const QVariant userData() const;
 
 private:
     std::map<QString, std::shared_ptr<ActionWrapper>> m_customTextToActionMap;
     bool                                              m_triggerModelChange;
     static const ActionCreatorInterface*              s_actionCreator;
 };
-
-
 
 } // end namespace caf

@@ -37,8 +37,8 @@
 
 namespace caf
 {
-    template <typename T>
-    class AppEnum;
+template <typename T>
+class AppEnum;
 }
 
 namespace caf
@@ -52,15 +52,15 @@ class FontTools
 public:
     enum class FontSize
     {
-        INVALID = -1,
+        INVALID       = -1,
         MIN_FONT_SIZE = 8,
-        FONT_SIZE_8 = 8,
-        FONT_SIZE_10 = 10,
-        FONT_SIZE_12 = 12,
-        FONT_SIZE_14 = 14,
-        FONT_SIZE_16 = 16,
-        FONT_SIZE_24 = 24,
-        FONT_SIZE_32 = 32,
+        FONT_SIZE_8   = 8,
+        FONT_SIZE_10  = 10,
+        FONT_SIZE_12  = 12,
+        FONT_SIZE_14  = 14,
+        FONT_SIZE_16  = 16,
+        FONT_SIZE_24  = 24,
+        FONT_SIZE_32  = 32,
         MAX_FONT_SIZE
     };
     typedef caf::AppEnum<FontSize> FontSizeEnum;
@@ -76,11 +76,11 @@ public:
         XXLarge = +8
     };
     typedef caf::AppEnum<DeltaSize> DeltaSizeEnum;
-    
-    static int      absolutePointSize( FontSize normalPointSize, DeltaSize relativeSize = DeltaSize::Medium );
-    static int      pointSizeToPixelSize(FontSize pointSize);
-    static int      pointSizeToPixelSize( int pointSize );
-    static int      pixelSizeToPointSize( int pixelSize );
+
+    static int absolutePointSize( FontSize normalPointSize, DeltaSize relativeSize = DeltaSize::Medium );
+    static int pointSizeToPixelSize( FontSize pointSize );
+    static int pointSizeToPixelSize( int pointSize );
+    static int pixelSizeToPointSize( int pixelSize );
 };
 
 //==================================================================================================
@@ -89,8 +89,8 @@ public:
 class FontHolderInterface
 {
 public:
-    virtual FontTools::FontSize fontSize() const = 0;
-    virtual void                resetToDefaultFontSize() = 0;
+    virtual FontTools::FontSize fontSize() const           = 0;
+    virtual void                resetToDefaultFontSize()   = 0;
     virtual bool                hasDefaultFontSize() const = 0;
 };
 

@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) Ceetron Solutions AS
+//   Copyright (C) 2020- Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -35,50 +35,50 @@
 //##################################################################################################
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObjectCapability.h"
-#include "cafPdmObjectMethod.h"
-#include "cafPdmObjectScriptabilityRegister.h"
-
-#include <QString>
-
-#include <map>
-#include <memory>
-#include <vector>
-
-class QTextStream;
-
-#define CAF_PDM_InitScriptableObject( uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis );              \
-    caf::PdmObjectScriptabilityRegister::registerScriptClassNameAndComment( classKeyword(), classKeyword(), whatsThis );
-
-#define CAF_PDM_InitScriptableObjectWithNameAndComment( uiName, iconResourceName, toolTip, whatsThis, scriptClassName, scriptComment ) \
-    CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis );                                                                \
-    caf::PdmObjectScriptabilityRegister::registerScriptClassNameAndComment( classKeyword(), scriptClassName, scriptComment );
+#include "cafPdmFieldCapability.h"
+#include "cafPdmPtrArrayFieldHandle.h"
+#include "cafSignal.h"
 
 namespace caf
 {
-class PdmObject;
 class PdmObjectHandle;
-class PdmObjectFactory;
-class PdmScriptIOMessages;
 
-//==================================================================================================
-//
-//
-//
-//==================================================================================================
-class PdmObjectScriptability : public PdmObjectCapability
+class PdmFieldReorderCapability : public PdmFieldCapability, public SignalEmitter, public SignalObserver
 {
 public:
-    PdmObjectScriptability( PdmObjectHandle* owner, bool giveOwnership );
+    Signal<> orderChanged;
 
-    ~PdmObjectScriptability() override;
+public:
+    PdmFieldReorderCapability( PdmPtrArrayFieldHandle* field, bool giveOwnership );
 
-    void readFields( QTextStream& inputStream, PdmObjectFactory* objectFactory, PdmScriptIOMessages* errorMessageContainer );
-    void writeFields( QTextStream& outputStream ) const;
+    bool canItemBeMovedUp( size_t index ) const;
+    bool canItemBeMovedDown( size_t index ) const;
+
+    bool moveItemToTop( size_t index );
+    bool moveItemUp( size_t index );
+    bool moveItemDown( size_t index );
+
+    static PdmFieldReorderCapability* addToField( PdmPtrArrayFieldHandle* field );
+    template <typename ObserverClassType, typename... Args>
+    static PdmFieldReorderCapability*
+        addToFieldWithCallback( PdmPtrArrayFieldHandle* field,
+                                ObserverClassType*      observer,
+                                void ( ObserverClassType::*method )( const SignalEmitter*, Args... args ) )
+    {
+        PdmFieldReorderCapability* reorderCapability = addToField( field );
+        reorderCapability->orderChanged.connect( observer, method );
+        return reorderCapability;
+    }
+    static bool fieldIsReorderable( PdmPtrArrayFieldHandle* field );
+
+    static PdmFieldReorderCapability* reorderCapabilityOfParentContainer( const PdmObjectHandle* pdmObject );
+
+    void onMoveItemToTop( const SignalEmitter* emitter, size_t index );
+    void onMoveItemUp( const SignalEmitter* emitter, size_t index );
+    void onMoveItemDown( const SignalEmitter* emitter, size_t index );
 
 private:
-    PdmObjectHandle* m_owner;
+    PdmPtrArrayFieldHandle* m_field;
 };
-} // namespace caf
+
+}; // namespace caf

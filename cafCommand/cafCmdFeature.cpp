@@ -47,111 +47,109 @@
 
 namespace caf
 {
-
 const ActionCreatorInterface* CmdFeature::s_actionCreator = QActionCreator::instance();
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdFeature::CmdFeature()
-    : m_triggerModelChange(true)
+    : m_triggerModelChange( true )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdFeature::~CmdFeature()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::shared_ptr<ActionWrapper> CmdFeature::action()
 {
-    return this->actionWithCustomText(QString(""));
+    return this->actionWithCustomText( QString( "" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<ActionWrapper> CmdFeature::actionWithCustomText(const QString& customText)
+std::shared_ptr<ActionWrapper> CmdFeature::actionWithCustomText( const QString& customText )
 {
-    return actionWithUserData(customText, QVariant());
+    return actionWithUserData( customText, QVariant() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<ActionWrapper> CmdFeature::actionWithUserData(const QString& customText, const QVariant& userData)
+std::shared_ptr<ActionWrapper> CmdFeature::actionWithUserData( const QString& customText, const QVariant& userData )
 {
     std::shared_ptr<ActionWrapper> action = nullptr;
 
     std::map<QString, std::shared_ptr<ActionWrapper>>::iterator it;
-    it = m_customTextToActionMap.find(customText);
+    it = m_customTextToActionMap.find( customText );
 
-    if (it != m_customTextToActionMap.end() && it->second != NULL)
+    if ( it != m_customTextToActionMap.end() && it->second != NULL )
     {
         action = it->second;
     }
     else
     {
-        action = s_actionCreator->createAction("", this);
-        action->connect(std::bind(&CmdFeature::actionTriggered, this, std::placeholders::_1));
-        m_customTextToActionMap[customText]= action;
+        action = s_actionCreator->createAction( "", this );
+        action->connect( std::bind( &CmdFeature::actionTriggered, this, std::placeholders::_1 ) );
+        m_customTextToActionMap[customText] = action;
     }
 
-    if (!userData.isNull())
+    if ( !userData.isNull() )
     {
-        action->setData(userData);
+        action->setData( userData );
     }
 
-    this->setupActionLook(action.get());    
-    if (!customText.isEmpty())
+    this->setupActionLook( action.get() );
+    if ( !customText.isEmpty() )
     {
-        action->setText(customText);
+        action->setText( customText );
     }
 
     return action;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CmdFeature::refreshEnabledState()
 {
     std::map<QString, std::shared_ptr<ActionWrapper>>::iterator it;
-    bool isEnabled = this->isCommandEnabled();
+    bool                                                        isEnabled = this->isCommandEnabled();
 
-    for (it = m_customTextToActionMap.begin(); it != m_customTextToActionMap.end(); ++it)
+    for ( it = m_customTextToActionMap.begin(); it != m_customTextToActionMap.end(); ++it )
     {
-        it->second->setEnabled(isEnabled);
-        CAF_ASSERT(it->second->isEnabled() == isEnabled);
+        it->second->setEnabled( isEnabled );
+        CAF_ASSERT( it->second->isEnabled() == isEnabled );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CmdFeature::refreshCheckedState()
 {
     std::map<QString, std::shared_ptr<ActionWrapper>>::iterator it;
-    bool isChecked = this->isCommandChecked();
+    bool                                                        isChecked = this->isCommandChecked();
 
-    for (it = m_customTextToActionMap.begin(); it != m_customTextToActionMap.end(); ++it)
+    for ( it = m_customTextToActionMap.begin(); it != m_customTextToActionMap.end(); ++it )
     {
         std::shared_ptr<ActionWrapper> act = it->second;
-        if (act->isCheckable())
+        if ( act->isCheckable() )
         {
-            it->second->setChecked(isChecked);
+            it->second->setChecked( isChecked );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool CmdFeature::canFeatureBeExecuted()
 {
@@ -161,34 +159,34 @@ bool CmdFeature::canFeatureBeExecuted()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void CmdFeature::applyShortcutWithHintToAction(ActionWrapper* action, const QKeySequence::StandardKey& keySequence)
+void CmdFeature::applyShortcutWithHintToAction( ActionWrapper* action, const QKeySequence::StandardKey& keySequence )
 {
-    action->setShortcut(keySequence);
+    action->setShortcut( keySequence );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void CmdFeature::setActionCreator(const ActionCreatorInterface* actionCreator)
+void CmdFeature::setActionCreator( const ActionCreatorInterface* actionCreator )
 {
     s_actionCreator = actionCreator;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdFeature::actionTriggered(bool isChecked)
+void CmdFeature::actionTriggered( bool isChecked )
 {
-    this->onActionTriggered(isChecked);
+    this->onActionTriggered( isChecked );
 
-    if (m_triggerModelChange)
+    if ( m_triggerModelChange )
     {
         caf::PdmUiModelChangeDetector::instance()->setModelChanged();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool CmdFeature::isCommandChecked()
 {
@@ -196,7 +194,7 @@ bool CmdFeature::isCommandChecked()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CmdFeature::disableModelChangeContribution()
 {
@@ -209,8 +207,8 @@ void CmdFeature::disableModelChangeContribution()
 //--------------------------------------------------------------------------------------------------
 const QVariant CmdFeature::userData() const
 {
-    ActionWrapper* action = qobject_cast<ActionWrapper*>(sender());
-    CAF_ASSERT(action);
+    ActionWrapper* action = qobject_cast<ActionWrapper*>( sender() );
+    CAF_ASSERT( action );
 
     return action->data();
 }

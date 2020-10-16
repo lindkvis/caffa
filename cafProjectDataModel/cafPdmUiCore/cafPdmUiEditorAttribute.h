@@ -47,6 +47,6 @@ class PdmUiEditorAttribute
 {
 public:
     PdmUiEditorAttribute() {}
-    virtual ~PdmUiEditorAttribute() {} 
+    virtual ~PdmUiEditorAttribute() {}
 };
-}
+} // namespace caf

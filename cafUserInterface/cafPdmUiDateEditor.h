@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmUiDateEditorAttribute.h"
@@ -46,11 +45,10 @@
 #include <QString>
 #include <QWidget>
 
-namespace caf 
+namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmUiDateEditor : public PdmUiFieldEditorHandle
 {
@@ -58,23 +56,22 @@ class PdmUiDateEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiDateEditor()          {} 
-    ~PdmUiDateEditor() override {} 
+    PdmUiDateEditor() {}
+    ~PdmUiDateEditor() override {}
 
 protected:
-    QWidget*    createEditorWidget(QWidget * parent) override;
-    QWidget*    createLabelWidget(QWidget * parent) override;
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
 protected slots:
-    void                slotEditingFinished();
+    void slotEditingFinished();
 
 private:
-    QPointer<QDateTimeEdit>           m_dateEdit;
-    QPointer<QShortenedLabel>         m_label;
+    QPointer<QDateTimeEdit>   m_dateEdit;
+    QPointer<QShortenedLabel> m_label;
 
     PdmUiDateEditorAttribute m_attributes;
 };
-
 
 } // end namespace caf

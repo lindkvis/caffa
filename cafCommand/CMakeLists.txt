@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.12.0)
+cmake_minimum_required (VERSION 3.12)
 
 project (cafCommand)
 
@@ -20,6 +20,7 @@ set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 
 set( PROJECT_FILES
+
     cafCmdExecCommandManager.cpp
     cafCmdExecCommandManager.h
     cafCmdExecuteCommand.h
@@ -63,8 +64,3 @@ if (MSVC)
 endif()
 
 source_group("" FILES ${PROJECT_FILES})
-
-# cotire
-if (COMMAND caf_apply_cotire)
-  caf_apply_cotire("${PROJECT_NAME}")
-endif()

@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmUiComboBoxEditorAttribute.h"
@@ -50,9 +49,8 @@
 
 namespace caf
 {
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class PdmUiComboBoxEditor : public PdmUiFieldEditorHandle
 {
@@ -60,24 +58,24 @@ class PdmUiComboBoxEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiComboBoxEditor()          {} 
-    ~PdmUiComboBoxEditor() override {} 
+    PdmUiComboBoxEditor() {}
+    ~PdmUiComboBoxEditor() override {}
 
 protected:
-    QWidget*    createEditorWidget(QWidget * parent) override;
-    QWidget*    createLabelWidget(QWidget * parent) override;
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
-    QMargins    calculateLabelContentMargins() const override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    QMargins calculateLabelContentMargins() const override;
 
 protected slots:
-    void        slotIndexActivated(int index);
+    void slotIndexActivated( int index );
 
-    void        slotNextButtonPressed();
-    void        slotPreviousButtonPressed();
+    void slotNextButtonPressed();
+    void slotPreviousButtonPressed();
 
 private:
-    QPointer<QComboBox> m_comboBox;
-    QPointer<QShortenedLabel>    m_label;
+    QPointer<QComboBox>       m_comboBox;
+    QPointer<QShortenedLabel> m_label;
 
     QPointer<QToolButton> m_previousItemButton;
     QPointer<QToolButton> m_nextItemButton;
@@ -86,6 +84,5 @@ private:
 
     PdmUiComboBoxEditorAttribute m_attributes;
 };
-
 
 } // end namespace caf

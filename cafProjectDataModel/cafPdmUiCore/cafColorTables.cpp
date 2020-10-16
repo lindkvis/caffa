@@ -45,16 +45,16 @@ ColorTable ColorTables::kellyColors()
 //--------------------------------------------------------------------------------------------------
 ColorTable ColorTables::salmonContrast()
 {
-    static std::vector<QColor> hexColors{ QColor( "#adbca5" ),
-                                          QColor( "#e8b9ab" ),
-                                          QColor( "#e09891" ),
-                                          QColor( "#cb769e" ),
-                                          QColor( "#8c5f66" ),
-                                          QColor( "#484a47" ),
-                                          QColor( "#5c6d70" ),
-                                          QColor( "#a37774" ),
-                                          QColor( "#52796f" ),
-                                          QColor( "#354f52ff" ) };
+    static std::vector<QColor> hexColors{QColor( "#adbca5" ),
+                                         QColor( "#e8b9ab" ),
+                                         QColor( "#e09891" ),
+                                         QColor( "#cb769e" ),
+                                         QColor( "#8c5f66" ),
+                                         QColor( "#484a47" ),
+                                         QColor( "#5c6d70" ),
+                                         QColor( "#a37774" ),
+                                         QColor( "#52796f" ),
+                                         QColor( "#354f52ff" )};
     return ColorTable( hexColors );
 }
 

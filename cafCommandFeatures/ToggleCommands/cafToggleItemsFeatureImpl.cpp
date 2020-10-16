@@ -53,7 +53,6 @@
 
 namespace caf
 {
-
 #ifdef WEB_PLOYMENT
 using TreeView = caf::PdmWebTreeView;
 #else
@@ -182,8 +181,7 @@ void ToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggleTy
 //--------------------------------------------------------------------------------------------------
 TreeView* ToggleItemsFeatureImpl::findTreeView( const caf::PdmUiItem* uiItem )
 {
-    auto customActiveTreeView =
-        dynamic_cast<TreeView*>( CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
+    auto customActiveTreeView = dynamic_cast<TreeView*>( CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
 
     return customActiveTreeView;
 }
