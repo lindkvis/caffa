@@ -13,7 +13,6 @@ set (MOC_HEADER_FILES
     cafPdmUiEditorHandle.h
     cafPdmUiFieldEditorHandle.h
 	cafPdmUiSelection3dEditorVisualizer.h
-	cafQShortenedLabel.h
 	cafActionWrapper.h
 	cafQActionWrapper.h
 )
@@ -85,8 +84,6 @@ set( PROJECT_FILES
     cafSelectionManagerTools.h
     cafPdmUiSelection3dEditorVisualizer.h
     cafPdmUiSelection3dEditorVisualizer.cpp
-    cafQShortenedLabel.cpp
-    cafQShortenedLabel.h
     cafIconProvider.cpp
     cafIconProvider.h
 )

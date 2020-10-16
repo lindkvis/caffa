@@ -8,7 +8,6 @@
 #include "cafPdmWebFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmField.h"
-#include "cafQShortenedLabel.h"
 
 #include "cafFactory.h"
 #include "cafTristate.h"
