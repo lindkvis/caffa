@@ -14,7 +14,7 @@ public:
     TinyDemoPdmObject();
 
 private:
-    caf::PdmField<bool> m_toggleField;
+    caf::PdmField<bool>   m_toggleField;
     caf::PdmField<double> m_doubleField;
 };
 ```
