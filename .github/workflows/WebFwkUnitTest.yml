@@ -12,10 +12,10 @@ env:
   BUILD_TYPE: Release
   BUILDCACHE_VERSION: 0.18.0
   BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
+
 jobs:
   caffa-x64:
-    runs-on: ${{ matrix.os }}
-   runs-on: ${{ matrix.config.os }}
+    runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -56,7 +56,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-       name: Download Ninja
+        with:
+          submodules: true
+      - name: Download Ninja
         uses: seanmiddleditch/gha-setup-ninja@master
         with:
           version: ${{ env.NINJA_VERSION }}
