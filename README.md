@@ -3,7 +3,7 @@ Caffa is an Application Framework for Web and Desktop Applications written in C+
 
 It allows you to write applications both for desktop and cloud deployment with one code base. The main target for Caffa is to create simple control applications for embedded Linux systems with an embedded Web Interface.
 
-As an example, you would write Data Model Objects with PdmFields holding data instead of simple variables.
+As an example, you would write Data Model Objects with PdmFields holding data instead of simple variables. This gives you runtime introspection of the fields without using a pre-compiler.
 
 ```C++
 class TinyDemoPdmObject : public caf::PdmObject
