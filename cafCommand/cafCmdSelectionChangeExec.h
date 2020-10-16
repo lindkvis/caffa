@@ -75,7 +75,7 @@ public:
 class CmdSelectionChangeExec : public CmdExecuteCommand
 {
 public:
-    explicit CmdSelectionChangeExec( NotificationCenter* notificationCenter );
+    explicit CmdSelectionChangeExec( );
     ~CmdSelectionChangeExec() override;
     ;
 

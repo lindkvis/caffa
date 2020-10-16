@@ -92,7 +92,7 @@ CmdExecuteCommand* CmdDeleteItemFeature::createExecuteCommand()
     // Did not find currently selected pdm object in the current list field
     CAF_ASSERT( indexAfter != -1 );
 
-    CmdDeleteItemExec* executeCmd = new CmdDeleteItemExec( SelectionManager::instance()->notificationCenter() );
+    CmdDeleteItemExec* executeCmd = new CmdDeleteItemExec();
 
     CmdDeleteItemExecData* data = executeCmd->commandData();
     data->m_rootObject          = PdmReferenceHelper::findRoot( childArrayFieldHandle );

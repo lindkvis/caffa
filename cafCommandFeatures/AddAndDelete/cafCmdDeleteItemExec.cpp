@@ -41,8 +41,9 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiFieldHandle.h"
 
-#include "cafNotificationCenter.h"
 #include "cafSelectionManager.h"
+
+#include <memory>
 
 namespace caf
 {
@@ -68,14 +69,14 @@ void CmdDeleteItemExec::redo()
         std::vector<PdmObjectHandle*> children;
         listField->childObjects( &children );
 
-        PdmObjectHandle* obj = children[m_commandData->m_indexToObject];
-        caf::SelectionManager::instance()->removeObjectFromAllSelections( obj );
+        std::unique_ptr<PdmObjectHandle> obj( children[m_commandData->m_indexToObject] );
+        caf::SelectionManager::instance()->removeObjectFromAllSelections( obj.get() );
 
         if ( m_commandData->m_deletedObjectAsXml().isEmpty() )
         {
             QString encodedXml;
             {
-                m_commandData->m_deletedObjectAsXml = xmlObj( obj )->writeObjectToXmlString();
+                m_commandData->m_deletedObjectAsXml = xmlObj( obj.get() )->writeObjectToXmlString();
             }
         }
 
@@ -91,10 +92,6 @@ void CmdDeleteItemExec::redo()
         }
 
         listField->uiCapability()->updateConnectedEditors();
-
-        if ( m_notificationCenter ) m_notificationCenter->notifyObservers();
-
-        delete obj;
     }
 }
 
@@ -125,16 +122,13 @@ void CmdDeleteItemExec::undo()
         }
 
         listField->uiCapability()->updateConnectedEditors();
-
-        if ( m_notificationCenter ) m_notificationCenter->notifyObservers();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CmdDeleteItemExec::CmdDeleteItemExec( NotificationCenter* notificationCenter )
-    : CmdExecuteCommand( notificationCenter )
+CmdDeleteItemExec::CmdDeleteItemExec()
 {
     m_commandData = new CmdDeleteItemExecData;
 }

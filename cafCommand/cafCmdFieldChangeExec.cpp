@@ -36,7 +36,6 @@
 
 #include "cafCmdFieldChangeExec.h"
 
-#include "cafNotificationCenter.h"
 #include "cafPdmReferenceHelper.h"
 
 namespace caf
@@ -127,7 +126,6 @@ void CmdFieldChangeExec::redo()
         }
     }
 
-    if ( m_notificationCenter ) m_notificationCenter->notifyObserversOfDataChange( field->ownerObject() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,15 +155,13 @@ void CmdFieldChangeExec::undo()
         // New data is present in field, notify data changed
         uiFieldHandle->notifyFieldChanged( oldFieldData, newFieldData );
     }
-
-    if ( m_notificationCenter ) m_notificationCenter->notifyObserversOfDataChange( field->ownerObject() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CmdFieldChangeExec::CmdFieldChangeExec( NotificationCenter* notificationCenter )
-    : CmdExecuteCommand( notificationCenter )
+CmdFieldChangeExec::CmdFieldChangeExec(  )
+    : CmdExecuteCommand( )
 {
     m_commandData = new CmdFieldChangeExecData;
 }

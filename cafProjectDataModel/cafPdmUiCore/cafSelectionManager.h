@@ -48,7 +48,6 @@
 namespace caf
 {
 class PdmUiItem;
-class NotificationCenter;
 class PdmChildArrayFieldHandle;
 
 //==================================================================================================
@@ -149,9 +148,6 @@ public:
         }
         return nullptr;
     }
-
-    // OBSOLETE ! Remove when time to refactor the command system
-    NotificationCenter* notificationCenter();
 
     void                      setActiveChildArrayFieldHandle( PdmChildArrayFieldHandle* childArray );
     PdmChildArrayFieldHandle* activeChildArrayFieldHandle();

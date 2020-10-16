@@ -38,7 +38,6 @@
 
 #include "cafCmdAddItemExecData.h"
 
-#include "cafNotificationCenter.h"
 #include "cafPdmReferenceHelper.h"
 #include "cafSelectionManager.h"
 
@@ -96,8 +95,6 @@ void CmdAddItemExec::redo()
             m_commandData->m_createdItemIndex = m_commandData->m_indexAfter;
         }
 
-        if ( m_notificationCenter ) m_notificationCenter->notifyObserversOfDataChange( obj );
-
         listField->uiCapability()->updateConnectedEditors();
 
         if ( listField->ownerObject() )
@@ -132,8 +129,6 @@ void CmdAddItemExec::undo()
         listField->erase( m_commandData->m_createdItemIndex );
         listField->uiCapability()->updateConnectedEditors();
 
-        if ( m_notificationCenter ) m_notificationCenter->notifyObservers();
-
         if ( listField->ownerObject() )
         {
             caf::PdmUiObjectHandle* ownerUiObject = uiObj( listField->ownerObject() );
@@ -150,8 +145,8 @@ void CmdAddItemExec::undo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CmdAddItemExec::CmdAddItemExec( NotificationCenter* notificationCenter )
-    : CmdExecuteCommand( notificationCenter )
+CmdAddItemExec::CmdAddItemExec( )
+    : CmdExecuteCommand( )
 {
     m_commandData = new CmdAddItemExecData;
 }

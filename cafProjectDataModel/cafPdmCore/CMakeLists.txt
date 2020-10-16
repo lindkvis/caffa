@@ -46,9 +46,6 @@ set( PROJECT_FILES
     cafPdmValueField.h
     cafInternalPdmValueFieldSpecializations.h 
 
-    cafNotificationCenter.cpp
-    cafNotificationCenter.h
-
     cafSignal.h
     cafSignal.cpp
 

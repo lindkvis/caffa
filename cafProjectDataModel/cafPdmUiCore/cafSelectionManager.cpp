@@ -52,14 +52,6 @@ SelectionManager* SelectionManager::instance()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Obsolete.  Do not use this method.
-//--------------------------------------------------------------------------------------------------
-caf::NotificationCenter* SelectionManager::notificationCenter()
-{
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void SelectionManager::selectedItems( std::vector<PdmUiItem*>& items, int selectionLevel /*= 0*/ )

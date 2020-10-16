@@ -71,8 +71,8 @@ void CmdSelectionChangeExec::undo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CmdSelectionChangeExec::CmdSelectionChangeExec( NotificationCenter* notificationCenter )
-    : CmdExecuteCommand( notificationCenter )
+CmdSelectionChangeExec::CmdSelectionChangeExec( )
+    : CmdExecuteCommand( )
 {
     m_commandData = new CmdSelectionChangeExecData;
 }

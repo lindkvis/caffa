@@ -64,7 +64,7 @@ CmdExecuteCommand* CmdAddItemFeature::createExecuteCommand()
     if ( !childArrayFieldHandle ) return nullptr;
 
     int             indexAfter  = -1;
-    CmdAddItemExec* addItemExec = new CmdAddItemExec( SelectionManager::instance()->notificationCenter() );
+    CmdAddItemExec* addItemExec = new CmdAddItemExec( );
 
     CmdAddItemExecData* data = addItemExec->commandData();
     data->m_rootObject       = PdmReferenceHelper::findRoot( childArrayFieldHandle );

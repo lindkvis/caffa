@@ -77,7 +77,7 @@ public:
 class CmdFieldChangeExec : public CmdExecuteCommand
 {
 public:
-    explicit CmdFieldChangeExec( NotificationCenter* notificationCenter );
+    explicit CmdFieldChangeExec( );
     ~CmdFieldChangeExec() override;
 
     CmdFieldChangeExecData* commandData();

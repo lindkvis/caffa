@@ -60,7 +60,7 @@ CmdSelectionChangeExec* CmdSelectionHelper::createSelectionCommand( const std::v
                                                                     int selectionLevel )
 {
     CmdSelectionChangeExec* selectionChangeExec =
-        new CmdSelectionChangeExec( SelectionManager::instance()->notificationCenter() );
+        new CmdSelectionChangeExec();
     selectionChangeExec->commandData()->m_selectionLevel.v() = selectionLevel;
 
     SelectionManager::instance()->selectionAsReferences( selectionChangeExec->commandData()->m_previousSelection.v(),

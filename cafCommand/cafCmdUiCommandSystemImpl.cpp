@@ -90,7 +90,7 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
                 }
 
                 CmdFieldChangeExec* fieldChangeExec =
-                    new CmdFieldChangeExec( SelectionManager::instance()->notificationCenter() );
+                    new CmdFieldChangeExec();
 
                 fieldChangeExec->commandData()->m_newUiValue  = newUiValue;
                 fieldChangeExec->commandData()->m_pathToField = reference;

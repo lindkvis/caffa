@@ -49,7 +49,7 @@ class CmdDeleteItemExecData;
 class CmdDeleteItemExec : public CmdExecuteCommand
 {
 public:
-    explicit CmdDeleteItemExec( NotificationCenter* notificationCenter );
+    explicit CmdDeleteItemExec();
     ~CmdDeleteItemExec() override{};
 
     CmdDeleteItemExecData* commandData();

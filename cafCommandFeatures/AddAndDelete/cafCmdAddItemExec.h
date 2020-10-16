@@ -49,7 +49,7 @@ class CmdAddItemExecData;
 class CmdAddItemExec : public CmdExecuteCommand
 {
 public:
-    explicit CmdAddItemExec( NotificationCenter* notificationCenter );
+    explicit CmdAddItemExec( );
     ~CmdAddItemExec() override;
     ;
 
