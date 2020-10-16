@@ -1,4 +1,4 @@
-name: Application Framework Build with Unit Tests
+name: Desktop Deployment Build
 
 on: [push, pull_request]
 jobs:

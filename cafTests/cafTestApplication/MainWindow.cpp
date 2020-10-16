@@ -65,6 +65,36 @@ public:
 
 CAF_PDM_SOURCE_INIT(DemoPdmObjectGroup, "DemoPdmObjectGroup");
 
+class TinyDemoPdmObject : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    TinyDemoPdmObject();
+
+private:
+    caf::PdmField<bool>   m_toggleField;
+    caf::PdmField<double> m_doubleField;
+};
+
+CAF_PDM_SOURCE_INIT(TinyDemoPdmObject, "TinyDemoPdmObject");
+
+TinyDemoPdmObject::TinyDemoPdmObject()
+{
+    CAF_PDM_InitObject("Tiny Demo Object",
+                       "",
+                       "This object is a demo of the CAF framework",
+                       "");
+    CAF_PDM_InitField(&m_toggleField, "Toggle", false, "Toggle Item", "", "Tooltip", " Whatsthis?");
+    CAF_PDM_InitField(&m_doubleField,
+                      "Number",
+                      0.0,
+                      "Number",
+                      "",
+                      "Enter a floating point number here",
+                      "Double precision floating point number");
+}
+
 class SmallDemoPdmObject : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
