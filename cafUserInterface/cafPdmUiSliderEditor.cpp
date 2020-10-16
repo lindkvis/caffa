@@ -42,7 +42,6 @@
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include "cafFactory.h"
-#include "cafQShortenedLabel.h"
 
 #include <QHBoxLayout>
 #include <QIntValidator>
@@ -122,7 +121,7 @@ QWidget* PdmUiSliderEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiSliderEditor::createLabelWidget( QWidget* parent )
 {
-    m_label = new QShortenedLabel( parent );
+    m_label = new QLabel( parent );
     return m_label;
 }
 

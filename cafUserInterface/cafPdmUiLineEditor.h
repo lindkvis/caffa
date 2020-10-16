@@ -140,7 +140,7 @@ private:
 
 protected:
     QPointer<PdmUiLineEdit>   m_lineEdit;
-    QPointer<QShortenedLabel> m_label;
+    QPointer<QLabel> m_label;
 
     QPointer<QCompleter>       m_completer;
     QPointer<QStringListModel> m_completerTextList;

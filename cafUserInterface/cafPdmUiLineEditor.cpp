@@ -43,7 +43,6 @@
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUniqueIdValidator.h"
-#include "cafQShortenedLabel.h"
 #include "cafSelectionManager.h"
 
 #include <QAbstractItemView>
@@ -80,7 +79,7 @@ QWidget* PdmUiLineEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiLineEditor::createLabelWidget( QWidget* parent )
 {
-    m_label = new QShortenedLabel( parent );
+    m_label = new QLabel( parent );
     return m_label;
 }
 

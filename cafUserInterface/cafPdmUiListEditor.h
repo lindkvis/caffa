@@ -100,7 +100,7 @@ private:
 
 private:
     QPointer<QListViewHeightHint> m_listView;
-    QPointer<QShortenedLabel>     m_label;
+    QPointer<QLabel>     m_label;
     QPointer<QStringListModel>    m_model;
 
     bool m_isEditOperationsAvailable;

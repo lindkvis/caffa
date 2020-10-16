@@ -42,7 +42,6 @@
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
-#include "cafQShortenedLabel.h"
 
 #include <QBoxLayout>
 #include <QDir>
@@ -114,7 +113,7 @@ QWidget* PdmUiFilePathEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiFilePathEditor::createLabelWidget( QWidget* parent )
 {
-    m_label = new QShortenedLabel( parent );
+    m_label = new QLabel( parent );
     return m_label;
 }
 

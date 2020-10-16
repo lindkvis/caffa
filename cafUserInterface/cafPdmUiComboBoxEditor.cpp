@@ -41,7 +41,6 @@
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include "cafFactory.h"
-#include "cafQShortenedLabel.h"
 
 #include <QApplication>
 #include <QComboBox>
@@ -457,7 +456,7 @@ QWidget* PdmUiComboBoxEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiComboBoxEditor::createLabelWidget( QWidget* parent )
 {
-    m_label = new QShortenedLabel( parent );
+    m_label = new QLabel( parent );
     return m_label;
 }
 

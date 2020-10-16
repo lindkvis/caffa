@@ -44,7 +44,6 @@
 #include "cafPdmUiOrdering.h"
 
 #include "cafFactory.h"
-#include "cafQShortenedLabel.h"
 
 #include <QBoxLayout>
 
@@ -156,7 +155,7 @@ QWidget* PdmUiPushButtonEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiPushButtonEditor::createLabelWidget( QWidget* parent )
 {
-    m_label = new QShortenedLabel( parent );
+    m_label = new QLabel( parent );
     return m_label;
 }
 

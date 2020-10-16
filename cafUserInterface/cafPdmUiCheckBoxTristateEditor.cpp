@@ -8,10 +8,11 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
-#include "cafQShortenedLabel.h"
 
 #include "cafFactory.h"
 #include "cafTristate.h"
+
+#include <QLabel>
 
 namespace caf
 {
@@ -63,7 +64,7 @@ QWidget* PdmUiCheckBoxTristateEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiCheckBoxTristateEditor::createLabelWidget( QWidget* parent )
 {
-    m_label = new QShortenedLabel( parent );
+    m_label = new QLabel( parent );
     return m_label;
 }
 

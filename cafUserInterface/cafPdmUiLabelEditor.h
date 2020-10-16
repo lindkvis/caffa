@@ -37,7 +37,6 @@
 #pragma once
 
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafQShortenedLabel.h"
 
 #include <QLabel>
 #include <QPointer>
@@ -66,7 +65,7 @@ protected:
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
 private:
-    QPointer<QShortenedLabel> m_label;
+    QPointer<QLabel> m_label;
 };
 
 } // end namespace caf

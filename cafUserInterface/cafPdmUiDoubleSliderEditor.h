@@ -79,7 +79,7 @@ private:
 private:
     QPointer<QLineEdit>       m_lineEdit;
     QPointer<QSlider>         m_slider;
-    QPointer<QShortenedLabel> m_label;
+    QPointer<QLabel> m_label;
     double                    m_sliderValue;
 
     PdmUiDoubleSliderEditorAttribute m_attributes;

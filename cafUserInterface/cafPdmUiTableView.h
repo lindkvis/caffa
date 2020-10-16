@@ -36,7 +36,6 @@
 
 #pragma once
 
-#include "cafNotificationCenter.h"
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include <QModelIndex>

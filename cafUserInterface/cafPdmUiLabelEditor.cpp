@@ -79,7 +79,7 @@ QWidget* PdmUiLabelEditor::createLabelWidget( QWidget* parent )
 {
     if ( m_label.isNull() )
     {
-        m_label = new QShortenedLabel( parent );
+        m_label = new QLabel( parent );
     }
 
     return m_label;

@@ -76,7 +76,7 @@ protected slots:
 
 private:
     QPointer<QCheckBox>       m_checkBox;
-    QPointer<QShortenedLabel> m_label;
+    QPointer<QLabel> m_label;
 };
 
 } // end namespace caf
