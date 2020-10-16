@@ -2,7 +2,7 @@ name: Application Framework Build with Unit Tests
 
 on: [push, pull_request]
 jobs:
-  ResInsight-x64:
+  caffa-x64:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
