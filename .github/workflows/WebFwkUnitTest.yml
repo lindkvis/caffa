@@ -1,0 +1,38 @@
+name: Application Framework Build with Unit Tests
+
+on: [push, pull_request]
+jobs:
+  caffa-x64:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/Qt/
+          key: ${{ runner.os }}-QtCache
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: 5.9.9
+          modules: qtscript 
+          dir: '${{ github.workspace }}/Qt/'
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+      - name: Install Linux dependencies
+        if: "contains( matrix.os, 'ubuntu')"
+        run: sudo apt-get install libxkbcommon-x11-0 libboost-dev-all witty witty-dev
+      - name: Build Web-caffa with Unit Tests
+        uses: lukka/run-cmake@v1
+        with:
+          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+          cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+          cmakeAppendedArgs:  '-DCAFFA_WEB_DEPLOYMENT=ON'
+          buildDirectory: ${{ github.workspace }}/cmakebuild
+          buildWithCMakeArgs: '--config Release'
+          useVcpkgToolchainFile: false    
