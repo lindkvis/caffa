@@ -26,7 +26,7 @@ jobs:
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
       - name: Install Linux dependencies
         if: "contains( matrix.os, 'ubuntu')"
-        run: sudo apt-get install libxkbcommon-x11-0 libboost-dev-all witty witty-dev
+        run: sudo apt-get install libxkbcommon-x11-0 libboost-dev-all libwt libwt-dev
       - name: Build Web-caffa with Unit Tests
         uses: lukka/run-cmake@v1
         with:
