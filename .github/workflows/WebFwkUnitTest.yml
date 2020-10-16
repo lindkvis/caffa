@@ -2,6 +2,7 @@ name: Web Deployment Build
 
 on:
   push:
+  pull_request:
   schedule:
     # Every day at 1am to make sure we have a build cache for the current date
     # build cache is
