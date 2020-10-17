@@ -23,6 +23,13 @@ add_executable (${PROJECT_NAME}
 	gtest/gtest-all.cpp
 )
 
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    list(APPEND THREAD_LIBRARY
+        rt
+        pthread
+    )
+endif()
+
 target_link_libraries ( ${PROJECT_NAME}
 	cafProjectDataModel 
     ${QT_LIBRARIES}

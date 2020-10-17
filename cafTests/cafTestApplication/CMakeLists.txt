@@ -66,7 +66,6 @@ set (TAP_LINK_LIBRARIES
     cafCommand
 )
 
-# According to ivarun this is needed on OpenSuse, and Fedora. See: https://github.com/OPM/ResInsight/pull/7
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     list(APPEND EXTERNAL_LINK_LIBRARIES
         rt

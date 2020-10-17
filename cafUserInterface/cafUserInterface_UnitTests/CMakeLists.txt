@@ -26,6 +26,13 @@ add_executable (${PROJECT_NAME}
 )
 
 source_group("" FILES ${PROJECT_FILES})
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    list(APPEND THREAD_LIBRARY
+        rt
+        pthread
+    )
+endif()
+
 
 target_link_libraries ( ${PROJECT_NAME}
     cafUserInterface
