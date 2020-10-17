@@ -153,6 +153,7 @@ jobs:
               -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
               -D CMAKE_INSTALL_PREFIX=cmakebuild/install
               -D CAFFA_WEB_DEPLOYMENT=ON
+              -D WEBTOOLKIT_PREFIX=${{ github.workspace }}/ThirdParty/vcpkg/installed/${{ matrix.config.vcpkg-triplet }}
               -D VCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg-triplet }}
               -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}
               -G Ninja
