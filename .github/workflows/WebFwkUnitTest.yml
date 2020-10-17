@@ -178,10 +178,6 @@ jobs:
           if ("${{ runner.os }}" STREQUAL "Windows")
             set(path_separator ";")
           endif()
-          execute_process(
-            COMMAND cmake --build cmakebuild --target install
-            RESULT_VARIABLE result
-          )
           if (NOT result EQUAL 0)
             message(FATAL_ERROR "Bad exit status")
           endif()
