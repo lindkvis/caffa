@@ -7,7 +7,7 @@ set(QT_LIBRARIES Qt5::Core)
 
 set(WEBTOOLKIT_PREFIX "" CACHE PATH "WebToolKit : Path to WebToolKit")
 if(WEBTOOLKIT_PREFIX)
-	message(STATUS "Using web toolkit prefix: ${WEBTOOLKIT_PREFIX}")
+#	message(STATUS "Using web toolkit prefix: ${WEBTOOLKIT_PREFIX}")
 else()
 	message(ERROR "Need web toolkit")
 endif(WEBTOOLKIT_PREFIX)
@@ -31,7 +31,7 @@ set( PROJECT_FILES
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(Boost 1.60 COMPONENTS system program_options thread filesystem date_time regex REQUIRED)
-message(STATUS "Boost Library Dir: ${Boost_LIBRARY_DIRS}")
+#message(STATUS "Boost Library Dir: ${Boost_LIBRARY_DIRS}")
 link_directories(${Boost_LIBRARY_DIRS})
 
 # add the executable 
@@ -51,8 +51,8 @@ target_include_directories(${PROJECT_NAME}
 find_library(WT_LIB NAMES wtd PATHS ${WEBTOOLKIT_PREFIX}/lib)
 find_library(WTHTTP_LIB NAMES wthttpd PATHS ${WEBTOOLKIT_PREFIX}/lib)
 
-message(STATUS "Boost library dirs: ${Boost_LIBRARY_DIRS}")
-message(STATUS "Boost libraries: ${Boost_LIBRARIES}")
+#message(STATUS "Boost library dirs: ${Boost_LIBRARY_DIRS}")
+#message(STATUS "Boost libraries: ${Boost_LIBRARIES}")
 
 set (EXTERNAL_LINK_LIBRARIES
     )
@@ -69,10 +69,9 @@ add_definitions(-DBOOST_ALL_NO_LIB)
 add_definitions(-DBOOST_ALL_DYN_LINK)
 
 target_link_libraries ( ${PROJECT_NAME}
-    cafPdmCore
-    cafPdmUiCore
-    cafCommandFeatures
+    cafProjectDataModel
     cafCommand
+    cafCommandFeatures
     cafCommonInterface
     cafWebInterface
     ${EXTERNAL_LINK_LIBRARIES}

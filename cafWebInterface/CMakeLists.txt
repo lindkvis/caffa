@@ -19,7 +19,7 @@ qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 
 set(WEBTOOLKIT_PREFIX "" CACHE PATH "WebToolKit : Path to WebToolKit")
 if(WEBTOOLKIT_PREFIX)
-	message(STATUS "Using web toolkit prefix: ${WEBTOOLKIT_PREFIX}")
+#	message(STATUS "Using web toolkit prefix: ${WEBTOOLKIT_PREFIX}")
 else()
 	message(FATAL_ERROR "Need web toolkit to build for web deployment. Please set the WEBTOOLKIT_PREFIX")
 endif(WEBTOOLKIT_PREFIX)
@@ -102,8 +102,8 @@ target_include_directories(${PROJECT_NAME}
 	${WEBTOOLKIT_PREFIX}/include
 	${Boost_INCLUDE_DIRS}
 )
-message(STATUS "Boost library dirs: ${Boost_LIBRARY_DIRS}")
-message(STATUS "Boost libraries: ${Boost_LIBRARIES}")
+#message(STATUS "Boost library dirs: ${Boost_LIBRARY_DIRS}")
+#message(STATUS "Boost libraries: ${Boost_LIBRARIES}")
 link_directories(${Boost_LIBRARY_DIRS})
 
 #find_library(WT_LIBD NAMES wtd PATHS ${WEBTOOLKIT_PREFIX}/lib)
@@ -111,7 +111,7 @@ link_directories(${Boost_LIBRARY_DIRS})
 find_library(WT_LIB NAMES wt PATHS ${WEBTOOLKIT_PREFIX}/lib)
 find_library(WTHTTP_LIB NAMES wthttp PATHS ${WEBTOOLKIT_PREFIX}/lib)
 
-message(STATUS "WTHTTP_LIBS: " ${WTHTTP_LIB})
+#message(STATUS "WTHTTP_LIBS: " ${WTHTTP_LIB})
 
 add_definitions(-DBOOST_ALL_NO_LIB)
 add_definitions(-DBOOST_ALL_DYN_LINK)
