@@ -35,7 +35,7 @@
 //##################################################################################################
 
 #pragma once
-
+#include "cafUserInterface_export.h"
 #include <QPointer>
 #include <QScrollArea>
 #include <QString>
@@ -66,7 +66,7 @@ class PdmUiDefaultObjectEditor;
 ///
 //==================================================================================================
 
-class PdmUiPropertyView : public QWidget
+class cafUserInterface_EXPORT PdmUiPropertyView : public QWidget
 {
     Q_OBJECT
 public:

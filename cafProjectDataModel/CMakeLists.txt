@@ -12,22 +12,29 @@ endif()
 find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 
-set( PROJECT_FILES
+set(PUBLIC_HEADERS
 	cafFactory.h
 	cafOmpMutex.h
-	cafPdmDocument.cpp
 	cafPdmDocument.h
-	cafPdmObjectGroup.cpp
 	cafPdmObjectGroup.h
-	cafPdmObject.cpp
 	cafPdmObject.h
+)
+
+set( PROJECT_FILES
+	${PUBLIC_HEADERS}
+	cafPdmDocument.cpp
+	cafPdmObjectGroup.cpp
+	cafPdmObject.cpp
 )
 
 add_library( ${PROJECT_NAME}
 	${PROJECT_FILES}
 )
 
+set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
+
 target_link_libraries ( ${PROJECT_NAME}
+	cafPdmCore
     cafPdmUiCore
     cafPdmXml
     ${QT_LIBRARIES}
@@ -41,5 +48,11 @@ target_include_directories(${PROJECT_NAME}
 if (MSVC) 
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
 endif()
+
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
+
+install(TARGETS ${PROJECT_NAME}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 source_group("" FILES ${PROJECT_FILES})

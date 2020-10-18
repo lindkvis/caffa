@@ -35,6 +35,7 @@
 //##################################################################################################
 
 #pragma once
+#include "cafUserInterface_export.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiSliderEditorAttribute.h"
 
@@ -48,7 +49,7 @@
 
 namespace caf
 {
-class PdmUiSliderEditor : public PdmUiFieldEditorHandle
+class cafUserInterface_EXPORT PdmUiSliderEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

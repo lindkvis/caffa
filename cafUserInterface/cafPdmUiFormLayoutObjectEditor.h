@@ -36,6 +36,8 @@
 
 #pragma once
 
+#include "cafUserInterface_export.h"
+
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUiWidgetObjectEditorHandle.h"
 
@@ -57,7 +59,7 @@ class PdmUiOrdering;
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiFormLayoutObjectEditor : public PdmUiWidgetObjectEditorHandle
+class cafUserInterface_EXPORT PdmUiFormLayoutObjectEditor : public PdmUiWidgetObjectEditorHandle
 {
     Q_OBJECT
 public:

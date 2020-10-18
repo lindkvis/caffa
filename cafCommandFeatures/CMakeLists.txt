@@ -22,35 +22,44 @@ if (NOT CAFFA_WEB_DEPLOYMENT)
 endif()
 qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 
-set( PROJECT_FILES
+set (PUBLIC_HEADERS
+    # Default features
+    AddAndDelete/cafCmdAddItemExec.h
+    AddAndDelete/cafCmdAddItemExecData.h
+    AddAndDelete/cafCmdAddItemFeature.h
+    AddAndDelete/cafCmdDeleteItemExec.h
+    AddAndDelete/cafCmdDeleteItemExecData.h
+    AddAndDelete/cafCmdDeleteItemFeature.h
+)
 
+if (NOT CAFFA_WEB_DEPLOYMENT)
+	list(APPEND PUBLIC_HEADERS
+		ToggleCommands/cafToggleItemsFeature.h
+		ToggleCommands/cafToggleItemsFeatureImpl.h
+		ToggleCommands/cafToggleItemsOffFeature.h
+		ToggleCommands/cafToggleItemsOnFeature.h
+		ToggleCommands/cafToggleItemsOnOthersOffFeature.h
+	)
+endif()
+
+set( PROJECT_FILES
+    ${PUBLIC_HEADERS}
     # Default features
     AddAndDelete/cafCmdAddItemExec.cpp
-    AddAndDelete/cafCmdAddItemExec.h
     AddAndDelete/cafCmdAddItemExecData.cpp
-    AddAndDelete/cafCmdAddItemExecData.h
     AddAndDelete/cafCmdAddItemFeature.cpp
-    AddAndDelete/cafCmdAddItemFeature.h
     AddAndDelete/cafCmdDeleteItemExec.cpp
-    AddAndDelete/cafCmdDeleteItemExec.h
     AddAndDelete/cafCmdDeleteItemExecData.cpp
-    AddAndDelete/cafCmdDeleteItemExecData.h
     AddAndDelete/cafCmdDeleteItemFeature.cpp
-    AddAndDelete/cafCmdDeleteItemFeature.h
 )
 
 if (NOT CAFFA_WEB_DEPLOYMENT)
 	list(APPEND PROJECT_FILES
 		ToggleCommands/cafToggleItemsFeature.cpp
-		ToggleCommands/cafToggleItemsFeature.h
 		ToggleCommands/cafToggleItemsFeatureImpl.cpp
-		ToggleCommands/cafToggleItemsFeatureImpl.h
 		ToggleCommands/cafToggleItemsOffFeature.cpp
-		ToggleCommands/cafToggleItemsOffFeature.h
 		ToggleCommands/cafToggleItemsOnFeature.cpp
-		ToggleCommands/cafToggleItemsOnFeature.h
 		ToggleCommands/cafToggleItemsOnOthersOffFeature.cpp
-		ToggleCommands/cafToggleItemsOnOthersOffFeature.h
 	)
 endif()
 
@@ -69,10 +78,12 @@ set( QRC_FILES
     PARENT_SCOPE
 )
 
-add_library( ${PROJECT_NAME} OBJECT
+add_library( ${PROJECT_NAME}
  	${PROJECT_FILES}
     ${MOC_SOURCE_FILES}
 )
+
+set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC
@@ -86,6 +97,7 @@ endif()
 
 target_link_libraries ( ${PROJECT_NAME}
     cafCommand
+    cafProjectDataModel
 	${INTERFACE_LIB}
     ${QT_LIBRARIES}
 )
@@ -94,6 +106,12 @@ target_link_libraries ( ${PROJECT_NAME}
 if (MSVC) 
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
 endif()
+
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
+
+install(TARGETS ${PROJECT_NAME}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 source_group("" FILES ${PROJECT_FILES})
 

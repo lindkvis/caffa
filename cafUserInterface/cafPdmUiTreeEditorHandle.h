@@ -35,6 +35,7 @@
 //##################################################################################################
 
 #pragma once
+#include "cafUserInterface_export.h"
 #include "cafPdmPointer.h"
 #include "cafPdmUiEditorHandle.h"
 #include <QPointer>
@@ -50,7 +51,7 @@ class PdmObjectHandle;
 ///
 //==================================================================================================
 
-class PdmUiTreeEditorHandle : public PdmUiEditorHandle
+class cafUserInterface_EXPORT PdmUiTreeEditorHandle : public PdmUiEditorHandle
 {
 public:
     PdmUiTreeEditorHandle() {}

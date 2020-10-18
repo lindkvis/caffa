@@ -26,18 +26,16 @@ add_executable (${PROJECT_NAME}
 )
 
 source_group("" FILES ${PROJECT_FILES})
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    list(APPEND THREAD_LIBRARY
-        rt
-        pthread
-    )
+
+if (UNIX)
+    list(APPEND LIST TAP_LINK_LIBRARIES pthread z)
 endif()
 
-
 target_link_libraries ( ${PROJECT_NAME}
+	cafPdmUiCore
     cafUserInterface
     ${QT_LIBRARIES}
-    ${THREAD_LIBRARY}
+    ${TAP_LINK_LIBRARIES}
 )
 
 # Copy Qt Dlls

@@ -46,11 +46,11 @@ if (CAF_CVF_SCRIPTING)
     list(APPEND CAF_LIBS cafPdmCvf)
 endif()
 
-
-
 add_library( ${PROJECT_NAME}
     ${PROJECT_FILES}
 )
+
+set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC
@@ -63,5 +63,10 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries ( ${PROJECT_NAME}
     ${CAF_LIBS}
 )
+
+install(TARGETS ${PROJECT_NAME}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
 
 source_group("" FILES ${PROJECT_FILES})

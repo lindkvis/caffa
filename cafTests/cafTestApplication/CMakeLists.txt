@@ -1,9 +1,6 @@
-cmake_minimum_required (VERSION 3.12.0)
+cmake_minimum_required (VERSION 3.12)
 
 project ( cafTestApplication )
-
-# Open GL
-find_package( OpenGL )
 
 # Qt
 
@@ -21,8 +18,8 @@ set( QRC_FILES
     textedit.qrc
 )
 
-find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
-set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
+find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
+set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 qt5_add_resources( QRC_FILES_CPP ${QRC_FILES} )
 
@@ -59,18 +56,11 @@ add_executable ( ${PROJECT_NAME}
 
 set (TAP_LINK_LIBRARIES
     cafUserInterface
-    )
-
-set (TAP_LINK_LIBRARIES
-    ${TAP_LINK_LIBRARIES}
     cafCommand
-)
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    list(APPEND EXTERNAL_LINK_LIBRARIES
-        rt
-        pthread
     )
+
+if (UNIX)
+    list(APPEND LIST TAP_LINK_LIBRARIES pthread z)
 endif()
 
 target_link_libraries ( ${PROJECT_NAME}

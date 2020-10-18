@@ -1,18 +1,20 @@
 #pragma once
 
+#include "cafPdmUiCore_export.h"
+
 #include "cafIconProvider.h"
 
 #include <functional>
 #include <memory>
 
+#include <QObject>
 #include <QKeySequence>
 #include <QString>
 #include <QVariant>
 
 namespace caf
 {
-class CmdFeature;
-class ActionWrapper : public QObject
+class cafPdmUiCore_EXPORT ActionWrapper : public QObject
 {
     Q_OBJECT;
 
@@ -36,6 +38,7 @@ public:
     virtual IconProvider icon() const                                                 = 0;
     virtual void         trigger( bool checked ) const                                = 0;
     virtual void         connect( const std::function<void( bool )>& trigger )        = 0;
+
 };
 
 class ActionCreatorInterface

@@ -35,7 +35,7 @@
 //##################################################################################################
 
 #pragma once
-
+#include "cafUserInterface_export.h"
 #include "cafPdmUiColorEditorAttribute.h"
 #include "cafPdmUiFieldEditorHandle.h"
 
@@ -51,7 +51,7 @@ namespace caf
 //==================================================================================================
 /// See cafPdmFieldCvfColor for conversion between cvf::Color3f and QColor
 //==================================================================================================
-class PdmUiColorEditor : public PdmUiFieldEditorHandle
+class cafUserInterface_EXPORT PdmUiColorEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

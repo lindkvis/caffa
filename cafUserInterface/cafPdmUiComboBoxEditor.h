@@ -35,7 +35,7 @@
 //##################################################################################################
 
 #pragma once
-
+#include "cafUserInterface_export.h"
 #include "cafPdmUiComboBoxEditorAttribute.h"
 #include "cafPdmUiFieldEditorHandle.h"
 
@@ -52,7 +52,7 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiComboBoxEditor : public PdmUiFieldEditorHandle
+class cafUserInterface_EXPORT PdmUiComboBoxEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

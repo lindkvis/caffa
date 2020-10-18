@@ -36,6 +36,7 @@
 
 #pragma once
 
+#include "cafPdmUiCore_export.h"
 #include "cafPdmUiItem.h"
 
 #include <QObject>
@@ -49,7 +50,7 @@ class PdmUiItem;
 /// Abstract class to handle editors. Inherits QObject to be able to use signals and slots
 //==================================================================================================
 
-class PdmUiEditorHandle : public QObject
+class cafPdmUiCore_EXPORT PdmUiEditorHandle : public QObject
 {
     Q_OBJECT
 public:

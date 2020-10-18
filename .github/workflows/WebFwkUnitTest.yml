@@ -179,7 +179,7 @@ jobs:
             set(path_separator ";")
           endif()
           execute_process(
-            COMMAND cmake --build cmakebuild
+            COMMAND cmake --build cmakebuild --target install
             RESULT_VARIABLE result
           )
           if (NOT result EQUAL 0)

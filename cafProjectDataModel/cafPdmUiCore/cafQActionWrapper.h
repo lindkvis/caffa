@@ -9,7 +9,7 @@ class QMenu;
 
 namespace caf
 {
-class QActionWrapper : public ActionWrapper
+class cafPdmUiCore_EXPORT QActionWrapper : public ActionWrapper
 {
     Q_OBJECT;
 

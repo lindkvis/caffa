@@ -53,7 +53,7 @@ namespace caf
 //==================================================================================================
 
 // Selected object 3D editor visualizer
-class PdmUiSelection3dEditorVisualizer : public QObject, caf::SelectionChangedReceiver
+class cafPdmUiCore_EXPORT PdmUiSelection3dEditorVisualizer : public QObject, caf::SelectionChangedReceiver
 {
     Q_OBJECT
 public:

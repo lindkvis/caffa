@@ -16,7 +16,7 @@ endif (MSVC)
 find_package(Qt5 COMPONENTS REQUIRED Core)
 set(QT_LIBRARIES Qt5::Core)
 
-set( PROJECT_FILES
+set (PUBLIC_HEADERS
     cafPdmUiDragDropInterface.h
  	cafPdmUiColorEditorAttribute.h
  	cafPdmUiComboBoxEditorAttribute.h
@@ -26,18 +26,20 @@ set( PROJECT_FILES
  	cafPdmUiTreeViewAttribute.h
 
     cafPdmCoreColor.h
-    cafPdmUiCoreColor.cpp
     cafPdmUiCoreColor.h
-    cafPdmXmlColor.cpp
     cafPdmXmlColor.h
     cafPdmFieldColor.h
 
     cafCurveInterface.h
-    cafCurveInterface.cpp
     cafPlotViewerInterface.h
-    cafPlotViewerInterface.cpp
+)
 
-    cafCurveDataTools.h
+set( PROJECT_FILES
+    ${PUBLIC_HEADERS}
+    cafPdmUiCoreColor.cpp
+    cafPdmXmlColor.cpp
+    cafCurveInterface.cpp
+    cafPlotViewerInterface.cpp
     cafCurveDataTools.cpp
 
 )
@@ -45,6 +47,8 @@ set( PROJECT_FILES
 add_library( ${PROJECT_NAME}
              ${PROJECT_FILES}
 )
+
+set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
 
 if (MSVC)
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
@@ -60,9 +64,11 @@ target_link_libraries ( ${PROJECT_NAME}
     ${QT_LIBRARIES}
 )
 
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
+
+install(TARGETS ${PROJECT_NAME}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
 source_group("" FILES ${PROJECT_FILES})
 
-# cotire
-if (COMMAND caf_apply_cotire)
-  caf_apply_cotire("${PROJECT_NAME}")
-endif()

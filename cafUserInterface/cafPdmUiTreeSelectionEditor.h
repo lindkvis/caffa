@@ -34,7 +34,7 @@
 //##################################################################################################
 
 #pragma once
-
+#include "cafUserInterface_export.h"
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include <QAbstractItemModel>
@@ -55,7 +55,7 @@ class PdmUiTreeSelectionQModel;
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiTreeSelectionEditorAttribute : public PdmUiEditorAttribute
+class cafUserInterface_EXPORT PdmUiTreeSelectionEditorAttribute : public PdmUiEditorAttribute
 {
 public:
     bool showTextFilter;

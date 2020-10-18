@@ -35,7 +35,7 @@
 //##################################################################################################
 
 #pragma once
-
+#include "cafUserInterface_export.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiTreeEditorHandle.h"
 #include "cafPdmUiTreeViewQModel.h"
@@ -80,7 +80,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiTreeViewEditor : public PdmUiTreeEditorHandle
+class cafUserInterface_EXPORT PdmUiTreeViewEditor : public PdmUiTreeEditorHandle
 {
     Q_OBJECT
 public:

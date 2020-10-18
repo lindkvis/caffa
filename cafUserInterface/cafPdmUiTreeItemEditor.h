@@ -35,6 +35,7 @@
 //##################################################################################################
 
 #pragma once
+#include "cafUserInterface_export.h"
 #include "cafPdmUiEditorHandle.h"
 
 namespace caf
@@ -46,7 +47,7 @@ class PdmUiTreeEditorHandle;
 /// needed. (Typically because of a direct call to updateConnectedEditors() )
 //==================================================================================================
 
-class PdmUiTreeItemEditor : public PdmUiEditorHandle
+class cafUserInterface_EXPORT PdmUiTreeItemEditor : public PdmUiEditorHandle
 {
 public:
     explicit PdmUiTreeItemEditor( PdmUiItem* uiItem );

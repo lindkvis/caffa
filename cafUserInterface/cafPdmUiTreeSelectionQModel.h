@@ -34,7 +34,7 @@
 //##################################################################################################
 
 #pragma once
-
+#include "cafUserInterface_export.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafUiTreeItem.h"
 
@@ -51,7 +51,7 @@ class PdmUiFieldHandle;
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiTreeSelectionQModel : public QAbstractItemModel
+class cafUserInterface_EXPORT PdmUiTreeSelectionQModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:

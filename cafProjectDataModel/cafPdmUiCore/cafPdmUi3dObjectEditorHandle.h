@@ -68,7 +68,7 @@ public:                                         \
 /// Abstract class for 3D editors editing complete PdmObjects
 //==================================================================================================
 
-class PdmUi3dObjectEditorHandle : public caf::PdmUiObjectEditorHandle
+class cafPdmUiCore_EXPORT PdmUi3dObjectEditorHandle : public caf::PdmUiObjectEditorHandle
 {
 public:
     PdmUi3dObjectEditorHandle();

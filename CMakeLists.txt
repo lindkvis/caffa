@@ -1,20 +1,24 @@
 cmake_minimum_required (VERSION 3.12)
 
-project (caffa)
+project (caffa VERSION 0.1 DESCRIPTION "Caffa Application Framework")
 
 set(CMAKE_CXX_STANDARD 17)
 
 option(CAFFA_WEB_DEPLOYMENT "Turn this on to build for web deployment with the Web Toolkit" OFF)
 option(CAFFA_DESKTOP_DEPLOYMENT "Turn this on to build for desktop deployment with Qt" ON)
-
+option(BUILD_SHARED_LIBS "Create a shared Caffa library" ON)
 find_package(Qt5 COMPONENTS REQUIRED Core)
 
 if (CAFFA_DESKTOP_DEPLOYMENT)
-    find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Widgets)
-    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets)
+    find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
+    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
     add_definitions(-DDESKTOP_DEPLOYMENT)
 else()
     set(QT_LIBRARIES Qt5::Core)
+endif()
+
+if (MSVC)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif()
 
 if (CAFFA_WEB_DEPLOYMENT)
