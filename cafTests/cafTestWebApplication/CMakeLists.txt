@@ -54,18 +54,8 @@ find_library(WTHTTP_LIB NAMES wthttpd PATHS ${WEBTOOLKIT_PREFIX}/lib)
 message(STATUS "Boost library dirs: ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost libraries: ${Boost_LIBRARIES}")
 
-set (TAP_LINK_LIBRARIES
-    cafCommandFeatures
-    cafCommonInterface
-    cafWebInterface
+set (EXTERNAL_LINK_LIBRARIES
     )
-
-if (USE_COMMAND_FRAMEWORK)
-    set (TAP_LINK_LIBRARIES
-        ${TAP_LINK_LIBRARIES}
-        cafCommand
-    )
-endif(USE_COMMAND_FRAMEWORK)
 
 if (UNIX)
     list(APPEND EXTERNAL_LINK_LIBRARIES
@@ -79,6 +69,12 @@ add_definitions(-DBOOST_ALL_NO_LIB)
 add_definitions(-DBOOST_ALL_DYN_LINK)
 
 target_link_libraries ( ${PROJECT_NAME}
+    cafPdmCore
+    cafPdmUiCore
+    cafCommandFeatures
+    cafCommand
+    cafCommonInterface
+    cafWebInterface
     ${EXTERNAL_LINK_LIBRARIES}
     ${QT_LIBRARIES}
 	${Boost_LIBRARIES}
