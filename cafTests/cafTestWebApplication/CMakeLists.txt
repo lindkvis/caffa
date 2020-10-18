@@ -69,6 +69,7 @@ add_definitions(-DBOOST_ALL_NO_LIB)
 add_definitions(-DBOOST_ALL_DYN_LINK)
 
 target_link_libraries ( ${PROJECT_NAME}
+    ${EXTERNAL_LINK_LIBRARIES}
     cafProjectDataModel
     cafCommand
     cafCommandFeatures
