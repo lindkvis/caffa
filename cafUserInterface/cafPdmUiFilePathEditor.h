@@ -35,7 +35,7 @@
 //##################################################################################################
 
 #pragma once
-
+#include "cafUserInterface_export.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiFilePathEditorAttribute.h"
 
@@ -53,7 +53,7 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiFilePathEditor : public PdmUiFieldEditorHandle
+class cafUserInterface_EXPORT PdmUiFilePathEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

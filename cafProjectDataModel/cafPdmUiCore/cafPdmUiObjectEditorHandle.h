@@ -50,7 +50,7 @@ class PdmObjectHandle;
 /// Abstract class to handle editors for complete PdmObjects
 //==================================================================================================
 
-class PdmUiObjectEditorHandle : public PdmUiEditorHandle
+class cafPdmUiCore_EXPORT PdmUiObjectEditorHandle : public PdmUiEditorHandle
 {
 public:
     PdmUiObjectEditorHandle();

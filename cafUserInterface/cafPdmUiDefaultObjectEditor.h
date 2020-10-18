@@ -35,7 +35,7 @@
 //##################################################################################################
 
 #pragma once
-
+#include "cafUserInterface_export.h"
 #include "cafPdmUiFormLayoutObjectEditor.h"
 
 #include <QPointer>
@@ -52,7 +52,7 @@ class PdmUiGroup;
 //==================================================================================================
 /// The default editor for PdmObjects. Manages the field editors in a grid layout vertically
 //==================================================================================================
-class PdmUiDefaultObjectEditor : public PdmUiFormLayoutObjectEditor
+class cafUserInterface_EXPORT PdmUiDefaultObjectEditor : public PdmUiFormLayoutObjectEditor
 {
     Q_OBJECT
 public:

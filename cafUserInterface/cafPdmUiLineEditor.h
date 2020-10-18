@@ -35,7 +35,7 @@
 //##################################################################################################
 
 #pragma once
-
+#include "cafUserInterface_export.h"
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include <QLabel>
@@ -94,7 +94,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiLineEdit : public QLineEdit
+class cafUserInterface_EXPORT PdmUiLineEdit : public QLineEdit
 {
     Q_OBJECT
 public:

@@ -35,7 +35,7 @@
 //##################################################################################################
 
 #pragma once
-
+#include "cafUserInterface_export.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cafPdmUiFieldHandle.h"
@@ -58,7 +58,7 @@ class PdmUiTreeViewEditor;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class TableViewPushButton : public QPushButton
+class cafUserInterface_EXPORT TableViewPushButton : public QPushButton
 {
     Q_OBJECT
 public:

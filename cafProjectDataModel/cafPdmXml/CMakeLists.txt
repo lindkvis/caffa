@@ -16,33 +16,39 @@ include_directories (
 	..
 )
 
-set( PROJECT_FILES
-	cafInternalPdmFieldIoHelper.cpp
+set( PUBLIC_HEADERS
 	cafInternalPdmFieldIoHelper.h
-	cafInternalPdmFilePathStreamOperators.cpp
 	cafInternalPdmFilePathStreamOperators.h
-	cafInternalPdmStreamOperators.cpp
 	cafInternalPdmStreamOperators.h
 	cafInternalPdmXmlFieldCapability.h
 	cafInternalPdmXmlFieldCapability.inl
-	cafInternalPdmXmlFieldReaderWriter.cpp
 	cafInternalPdmXmlFieldReaderWriter.h
 
-	cafPdmXmlFieldHandle.cpp
 	cafPdmXmlFieldHandle.h
-	cafPdmXmlObjectHandle.cpp
 	cafPdmXmlObjectHandle.h
 	
 	cafPdmXmlObjectHandleMacros.h
 
-	cafPdmDefaultObjectFactory.cpp
 	cafPdmDefaultObjectFactory.h
 	cafPdmObjectFactory.h
 	
 	cafPdmSettings.h
-	cafPdmSettings.cpp
 
 	cafPdmXmlStringValidation.h
+
+)
+
+set( PROJECT_FILES
+	${PUBLIC_HEADERS}
+	cafInternalPdmFieldIoHelper.cpp
+	cafInternalPdmFilePathStreamOperators.cpp
+	cafInternalPdmStreamOperators.cpp
+	cafInternalPdmXmlFieldReaderWriter.cpp
+
+	cafPdmXmlFieldHandle.cpp
+	cafPdmXmlObjectHandle.cpp
+	cafPdmDefaultObjectFactory.cpp
+	cafPdmSettings.cpp
 )
 
 
@@ -64,9 +70,10 @@ if (MSVC)
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
 endif()
 
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
+
 source_group("" FILES ${PROJECT_FILES})
 
-# cotire
-if (COMMAND caf_apply_cotire)
-  caf_apply_cotire("${PROJECT_NAME}")
-endif()
+install(TARGETS ${PROJECT_NAME}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

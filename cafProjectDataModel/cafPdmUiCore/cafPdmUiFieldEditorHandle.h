@@ -35,6 +35,8 @@
 //##################################################################################################
 #pragma once
 
+#include "cafPdmUiCore_export.h"
+
 #include "cafClassTypeName.h"
 #include "cafFactory.h"
 #include "cafPdmUiEditorAttribute.h"
@@ -86,7 +88,7 @@ class PdmUiFieldHandle;
 /// Abstract class to handle editors of PdmFields
 //==================================================================================================
 
-class PdmUiFieldEditorHandle : public PdmUiEditorHandle
+class cafPdmUiCore_EXPORT PdmUiFieldEditorHandle : public PdmUiEditorHandle
 {
     Q_OBJECT
 public:

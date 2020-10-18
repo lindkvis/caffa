@@ -36,6 +36,8 @@
 
 #pragma once
 
+#include "cafCommand_export.h"
+
 #include "cafActionWrapper.h"
 
 #include <map>
@@ -57,7 +59,7 @@ class CmdFeature;
 //==================================================================================================
 ///
 //==================================================================================================
-class CmdFeatureManager : public QObject
+class cafCommand_EXPORT CmdFeatureManager : public QObject
 {
     Q_OBJECT
 

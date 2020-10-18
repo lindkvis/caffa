@@ -34,13 +34,13 @@
 //
 //##################################################################################################
 #pragma once
-
+#include "cafUserInterface_export.h"
 #include <QValidator>
 #include <set>
 
 namespace caf
 {
-class PdmUniqueIdValidator : public QValidator
+class cafUserInterface_EXPORT PdmUniqueIdValidator : public QValidator
 {
     Q_OBJECT
 public:

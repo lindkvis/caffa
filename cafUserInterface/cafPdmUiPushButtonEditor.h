@@ -35,6 +35,7 @@
 //##################################################################################################
 
 #pragma once
+#include "cafUserInterface_export.h"
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include <QLabel>
@@ -58,7 +59,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiPushButtonEditor : public PdmUiFieldEditorHandle
+class cafUserInterface_EXPORT PdmUiPushButtonEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

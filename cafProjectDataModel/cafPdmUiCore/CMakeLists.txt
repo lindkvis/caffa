@@ -17,6 +17,46 @@ set (MOC_HEADER_FILES
 	cafQActionWrapper.h
 )
 
+set (PUBLIC_HEADERS
+    ${MOC_HEADER_FILES}
+    cafPdmUiCore_export.h
+
+    cafInternalPdmFieldTypeSpecializations.h
+    cafInternalPdmUiFieldCapability.h
+    cafInternalPdmUiFieldCapability.inl
+    cafInternalPdmUiCommandSystemInterface.h
+
+    cafFontTools.h
+    cafColorTable.h
+    cafColorTables.h
+    cafColorTools.h
+
+    cafActionWrapper.h
+    cafQActionWrapper.h
+    cafPdmUiEditorAttribute.h
+    cafPdmUiEditorHandle.h
+    cafPdmUiFieldEditorHandle.h
+    cafPdmUiFieldHandle.h
+    cafPdmUiFieldSpecialization.h
+    cafPdmUiItem.h
+    cafPdmUiModelChangeDetector.h
+    cafPdmUiObjectEditorHandle.h
+    cafPdmUiWidgetObjectEditorHandle.h
+    cafPdmUi3dObjectEditorHandle.h
+    cafPdmUiObjectHandle.h
+    cafPdmUiOrdering.h
+    cafPdmUiCommandSystemProxy.h
+    cafPdmUiTreeOrdering.h
+    cafUiTreeItem.h
+    cafPdmUiGroup.h
+
+    cafSelectionManager.h
+    cafSelectionChangedReceiver.h
+    cafSelectionManagerTools.h
+    cafPdmUiSelection3dEditorVisualizer.h
+    cafIconProvider.h
+)
+
 # Qt
 find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
@@ -26,72 +66,44 @@ include_directories (
     ..
 )
 
-add_definitions(-DCVF_USING_CMAKE)
+add_definitions(-D${PROJECT_NAME}_LIBRARY)
 
 set( PROJECT_FILES
-
-    cafInternalPdmFieldTypeSpecializations.h
-    cafInternalPdmUiFieldCapability.h
-    cafInternalPdmUiFieldCapability.inl
-    cafInternalPdmUiCommandSystemInterface.h
-
-    cafFontTools.h
+    ${PUBLIC_HEADERS}
     cafFontTools.cpp
-    cafColorTable.h
     cafColorTable.cpp
-    cafColorTables.h
     cafColorTables.cpp
-    cafColorTools.h
     cafColorTools.cpp
 
-    cafActionWrapper.h
-    cafQActionWrapper.h
     cafQActionWrapper.cpp
-    cafPdmUiEditorAttribute.h
     cafPdmUiEditorHandle.cpp
-    cafPdmUiEditorHandle.h
     cafPdmUiFieldEditorHandle.cpp
-    cafPdmUiFieldEditorHandle.h
     cafPdmUiFieldHandle.cpp
-    cafPdmUiFieldHandle.h
-    cafPdmUiFieldSpecialization.h
     cafPdmUiItem.cpp
-    cafPdmUiItem.h
     cafPdmUiModelChangeDetector.cpp
-    cafPdmUiModelChangeDetector.h
     cafPdmUiObjectEditorHandle.cpp
-    cafPdmUiObjectEditorHandle.h
     cafPdmUiWidgetObjectEditorHandle.cpp
-    cafPdmUiWidgetObjectEditorHandle.h
     cafPdmUi3dObjectEditorHandle.cpp
-    cafPdmUi3dObjectEditorHandle.h
     cafPdmUiObjectHandle.cpp
-    cafPdmUiObjectHandle.h
     cafPdmUiOrdering.cpp
-    cafPdmUiOrdering.h
     cafPdmUiCommandSystemProxy.cpp
-    cafPdmUiCommandSystemProxy.h
     cafPdmUiTreeOrdering.cpp
-    cafPdmUiTreeOrdering.h
-    cafUiTreeItem.h
     cafPdmUiGroup.cpp
-    cafPdmUiGroup.h
 
     cafSelectionManager.cpp
-    cafSelectionManager.h
-    cafSelectionChangedReceiver.h
     cafSelectionChangedReceiver.cpp
-    cafSelectionManagerTools.h
-    cafPdmUiSelection3dEditorVisualizer.h
     cafPdmUiSelection3dEditorVisualizer.cpp
     cafIconProvider.cpp
-    cafIconProvider.h
 )
 
 add_library( ${PROJECT_NAME}
 	${PROJECT_FILES}
-	${MOC_SOURCE_FILES}
+    ${MOC_SOURCE_FILES}
 )
+
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${CMAKE_PROJECT_VERSION})
+set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 
 target_link_libraries ( ${PROJECT_NAME}
     cafPdmCore
@@ -106,5 +118,9 @@ target_include_directories(${PROJECT_NAME}
 if (MSVC)
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
 endif()
+
+install(TARGETS ${PROJECT_NAME}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 source_group("" FILES ${PROJECT_FILES})

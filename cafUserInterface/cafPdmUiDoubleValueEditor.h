@@ -35,7 +35,7 @@
 //##################################################################################################
 
 #pragma once
-
+#include "cafUserInterface_export.h"
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include <QDoubleValidator>
@@ -51,7 +51,7 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiDoubleValueEditorAttribute : public PdmUiEditorAttribute
+class cafUserInterface_EXPORT PdmUiDoubleValueEditorAttribute : public PdmUiEditorAttribute
 {
 public:
     enum class NumberFormat

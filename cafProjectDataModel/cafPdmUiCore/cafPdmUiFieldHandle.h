@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cafPdmUiCore_export.h"
+
 #include "cafPdmFieldCapability.h"
 #include "cafPdmUiFieldHandleInterface.h"
 #include "cafPdmUiItem.h"
@@ -8,7 +10,7 @@ namespace caf
 {
 class PdmFieldHandle;
 
-class PdmUiFieldHandle : public PdmUiItem, public PdmFieldCapability, public PdmUiFieldHandleInterface
+class cafPdmUiCore_EXPORT PdmUiFieldHandle : public PdmUiItem, public PdmFieldCapability, public PdmUiFieldHandleInterface
 {
 public:
     PdmUiFieldHandle( PdmFieldHandle* owner, bool giveOwnership );

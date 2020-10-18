@@ -35,6 +35,7 @@
 //##################################################################################################
 
 #pragma once
+#include "cafUserInterface_export.h"
 #include <QString>
 #include <QWidget>
 
@@ -55,7 +56,7 @@ class PdmObjectHandle;
 ///
 //==================================================================================================
 
-class PdmUiTreeView : public QWidget
+class cafUserInterface_EXPORT PdmUiTreeView : public QWidget
 {
     Q_OBJECT
 public:

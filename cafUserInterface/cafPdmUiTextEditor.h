@@ -35,6 +35,7 @@
 //##################################################################################################
 
 #pragma once
+#include "cafUserInterface_export.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include <QLabel>
 #include <QPointer>
@@ -87,7 +88,7 @@ public:
 //==================================================================================================
 /// Override focus out event and emit editinghFinished to avoid multiple field changed events
 //==================================================================================================
-class TextEdit : public QTextEdit
+class cafUserInterface_EXPORT TextEdit : public QTextEdit
 {
     Q_OBJECT
 public:
@@ -109,7 +110,7 @@ private:
 //==================================================================================================
 /// An editor to show (and possibly edit?) formatted larger portions of text
 //==================================================================================================
-class PdmUiTextEditor : public PdmUiFieldEditorHandle
+class cafUserInterface_EXPORT PdmUiTextEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

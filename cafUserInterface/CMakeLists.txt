@@ -8,10 +8,14 @@ if (CAF_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 if (MSVC)
     # Define this one to tell windows.h to not define min() and max() as macros
     add_definitions(-DNOMINMAX)
 endif (MSVC)
+
+add_definitions(-D${PROJECT_NAME}_LIBRARY)
 
 # These headers need to go through Qt's MOC compiler
 set (MOC_HEADER_FILES    
@@ -43,7 +47,6 @@ set (MOC_HEADER_FILES
     cafPdmUiTreeViewEditor.h
     cafUiProcess.h
     QMinimizePanel.h
-	cafQStyledProgressBar.h
     cafPdmUiTreeSelectionEditor.h
     cafPdmUiTreeSelectionQModel.h
     cafPdmUiFormLayoutObjectEditor.h
@@ -59,7 +62,8 @@ set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )	
 
 set( PROJECT_FILES
-    
+    cafUserInterface_export.h
+
     # field editors
     cafPdmUiCheckBoxDelegate.cpp
     cafPdmUiCheckBoxDelegate.h
@@ -149,30 +153,27 @@ set( PROJECT_FILES
     cafUiProcess.h
     QMinimizePanel.cpp
     QMinimizePanel.h
-	cafQStyledProgressBar.cpp
-	cafQStyledProgressBar.h
     cafQTreeViewStateSerializer.h
     cafQTreeViewStateSerializer.cpp
     cafMemoryInspector.h
     cafMemoryInspector.cpp
+    cafPdmUniqueIdValidator.h
     cafPdmUniqueIdValidator.cpp
+    cafPdmDoubleStringValidator.h
     cafPdmDoubleStringValidator.cpp
     cafPickEventHandler.h
+    cafPdmUiPickableLineEditor.h
     cafPdmUiPickableLineEditor.cpp
-	cafStyleSheetTools.h
-	cafStyleSheetTools.cpp
     cafPdmUiTabbedPropertyViewDialog.h
     cafPdmUiTabbedPropertyViewDialog.cpp
-	cafUiStyleSheet.h
-	cafUiStyleSheet.cpp
 )
 
 add_library( ${PROJECT_NAME}
-    
- ${PROJECT_FILES}
-
+    ${PROJECT_FILES}
     ${MOC_SOURCE_FILES}
 )
+
+set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
 
 if (MSVC) 
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
@@ -186,12 +187,12 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries ( ${PROJECT_NAME}
     cafProjectDataModel
     cafCommonInterface
+    cafPdmUiCore
     ${QT_LIBRARIES}
 )
 
-source_group("" FILES ${PROJECT_FILES})
+install(TARGETS ${PROJECT_NAME}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-# cotire
-if (COMMAND caf_apply_cotire)
-  caf_apply_cotire("${PROJECT_NAME}")
-endif()
+source_group("" FILES ${PROJECT_FILES})

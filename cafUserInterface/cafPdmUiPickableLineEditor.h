@@ -34,7 +34,7 @@
 //
 //##################################################################################################
 #pragma once
-
+#include "cafUserInterface_export.h"
 #include "cafPdmUiLineEditor.h"
 
 #include <memory>
@@ -62,7 +62,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiPickableLineEditor : public PdmUiLineEditor
+class cafUserInterface_EXPORT PdmUiPickableLineEditor : public PdmUiLineEditor
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

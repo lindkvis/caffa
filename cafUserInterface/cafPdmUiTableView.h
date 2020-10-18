@@ -35,7 +35,7 @@
 //##################################################################################################
 
 #pragma once
-
+#include "cafUserInterface_export.h"
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include <QModelIndex>
@@ -54,7 +54,7 @@ class PdmChildArrayFieldHandle;
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiTableView : public QWidget
+class cafUserInterface_EXPORT PdmUiTableView : public QWidget
 {
     Q_OBJECT
 public:

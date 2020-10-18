@@ -36,6 +36,8 @@
 
 #pragma once
 
+#include "cafUserInterface_export.h"
+
 #include <QStyledItemDelegate>
 
 namespace caf
@@ -46,7 +48,7 @@ namespace caf
 /// Based on http://qt-project.org/faq/answer/how_can_i_align_the_checkboxes_in_a_view
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiCheckBoxDelegate : public QStyledItemDelegate
+class cafUserInterface_EXPORT PdmUiCheckBoxDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 

@@ -11,28 +11,22 @@ endif()
 find_package(Qt5 COMPONENTS REQUIRED Core)
 set(QT_LIBRARIES Qt5::Core)
 
-set( PROJECT_FILES
-
+set (PUBLIC_HEADERS 
     cafAssert.h
     cafAppEnum.h
     cafClassTypeName.h
     cafPdmBase.h
     cafPdmChildArrayField.h
     cafPdmChildArrayField.inl
-    cafPdmChildArrayFieldHandle.cpp
     cafPdmChildField.h
     cafPdmChildField.inl
     cafPdmDataValueField.h
     cafPdmField.h
     cafPdmFieldCapability.h
-    cafPdmFieldHandle.cpp
     cafPdmFieldHandle.h
     cafPdmObjectCapability.h
-    cafPdmFieldReorderCapability.cpp
     cafPdmFieldReorderCapability.h
-    cafPdmObjectHandle.cpp
     cafPdmObjectHandle.h
-    cafPdmPointer.cpp
     cafPdmPointer.h
     cafPdmProxyValueField.h
     cafPdmPtrArrayField.h
@@ -40,28 +34,41 @@ set( PROJECT_FILES
     cafPdmPtrArrayFieldHandle.h
     cafPdmPtrField.h
     cafPdmPtrField.inl
-    cafPdmReferenceHelper.cpp
     cafPdmReferenceHelper.h
     cafPdmUiFieldHandleInterface.h
     cafPdmValueField.h
     cafInternalPdmValueFieldSpecializations.h 
 
     cafSignal.h
-    cafSignal.cpp
 
-    cafTristate.cpp
     cafTristate.h
-    cafFilePath.cpp
     cafFilePath.h
     cafAsyncObjectDeleter.h
     cafAsyncObjectDeleter.inl
 	cafAsyncWorkerManager.h
+)
+
+set( PROJECT_FILES
+    ${PUBLIC_HEADERS}
+    cafPdmChildArrayFieldHandle.cpp
+    cafPdmFieldHandle.cpp
+    cafPdmFieldReorderCapability.cpp
+    cafPdmObjectHandle.cpp
+    cafPdmPointer.cpp
+    cafPdmReferenceHelper.cpp
+    cafSignal.cpp
+    cafTristate.cpp
+    cafFilePath.cpp
 	cafAsyncWorkerManager.cpp
 )
 
 add_library( ${PROJECT_NAME}
     ${PROJECT_FILES}
 )
+
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${CMAKE_PROJECT_VERSION})
+set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC
@@ -73,5 +80,9 @@ target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES})
 if (MSVC) 
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
 endif()
+
+install(TARGETS ${PROJECT_NAME}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 source_group("" FILES ${PROJECT_FILES})

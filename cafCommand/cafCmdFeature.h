@@ -36,6 +36,8 @@
 
 #pragma once
 
+#include "cafCommand_export.h"
+
 #include "cafActionWrapper.h"
 #include "cafFactory.h"
 
@@ -71,7 +73,7 @@ class CmdExecuteCommand;
 /// 3. If a user process is required, create start an CommandUserProcess. When the process is complete,
 ///    create an ExecuteCommand object and fill in the data provided by the user
 //==================================================================================================
-class CmdFeature : public QObject
+class cafCommand_EXPORT CmdFeature : public QObject
 {
     Q_OBJECT
 public:

@@ -14,33 +14,44 @@ set (MOC_HEADER_FILES
 	cafCmdFeatureManager.h
 )
 
+add_definitions(-D${PROJECT_NAME}_LIBRARY)
+
 # Qt
 find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 
-set( PROJECT_FILES
+set( PUBLIC_HEADERS
+    cafCommand_export.h
 
-    cafCmdExecCommandManager.cpp
     cafCmdExecCommandManager.h
     cafCmdExecuteCommand.h
     cafCmdUiCommandSystemImpl.h
+
+    cafCmdFieldChangeExec.h
+
+    cafCmdSelectionHelper.h
+    cafCmdSelectionChangeExec.h
+
+    cafCmdFeature.h
+    cafCmdFeatureManager.h
+	cafCmdFeatureMenuBuilder.h
+
+)
+
+set( PROJECT_FILES
+    ${PUBLIC_HEADERS}
+    cafCmdExecCommandManager.cpp
     cafCmdUiCommandSystemImpl.cpp
 
     cafCmdFieldChangeExec.cpp
-    cafCmdFieldChangeExec.h
 
     cafCmdSelectionHelper.cpp
-    cafCmdSelectionHelper.h
     cafCmdSelectionChangeExec.cpp
-    cafCmdSelectionChangeExec.h
 
     cafCmdFeature.cpp
-    cafCmdFeature.h
     cafCmdFeatureManager.cpp
-    cafCmdFeatureManager.h
 	cafCmdFeatureMenuBuilder.cpp
-	cafCmdFeatureMenuBuilder.h
 )
 
 
@@ -48,6 +59,8 @@ add_library( ${PROJECT_NAME}
  	${PROJECT_FILES}
     ${MOC_SOURCE_FILES}
 )
+
+set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC
@@ -62,5 +75,11 @@ target_link_libraries ( ${PROJECT_NAME}
 if (MSVC) 
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
 endif()
+
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
+
+install(TARGETS ${PROJECT_NAME}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 source_group("" FILES ${PROJECT_FILES})

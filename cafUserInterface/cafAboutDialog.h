@@ -62,8 +62,6 @@ public:
 
     void create();
 
-    static QString versionStringForcurrentOpenGLContext();
-
 private:
     void addStringPairToVerInfoLayout( const QString& labelStr,
                                        const QString& infoStr,

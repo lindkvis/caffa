@@ -24,58 +24,68 @@ else()
 	message(FATAL_ERROR "Need web toolkit to build for web deployment. Please set the WEBTOOLKIT_PREFIX")
 endif(WEBTOOLKIT_PREFIX)
 
-set( PROJECT_FILES
-	cafPdmWebFieldEditorHandle.cpp
+set( PUBLIC_HEADERS
 	cafPdmWebFieldEditorHandle.h
-	cafPdmWebDefaultObjectEditor.cpp
 	cafPdmWebDefaultObjectEditor.h
-	cafPdmWebFormLayoutObjectEditor.cpp
 	cafPdmWebFormLayoutObjectEditor.h
-	cafPdmWebWidgetObjectEditorHandle.cpp
 	cafPdmWebWidgetObjectEditorHandle.h
-	cafPdmWebTreeView.cpp
 	cafPdmWebTreeView.h
-	cafPdmWebTreeViewEditor.cpp
 	cafPdmWebTreeViewEditor.h
-	cafPdmWebTreeItemEditor.cpp
 	cafPdmWebTreeItemEditor.h
-	cafPdmWebTreeEditorHandle.cpp
 	cafPdmWebTreeEditorHandle.h
-	cafPdmWebTreeViewWModel.cpp
 	cafPdmWebTreeViewWModel.h
 
 	cafWebPlotViewer.h
-	cafWebPlotViewer.cpp
 	cafWebPlotCurve.h
+
+    # field editors
+    cafPdmWebCheckBoxEditor.h
+    cafPdmWebCheckBoxTristateEditor.h
+	cafPdmWebComboBoxEditor.h
+    cafPdmWebLineEditor.h
+    cafPdmWebColorEditor.h
+    cafPdmWebDateEditor.h
+    cafPdmWebFileUploadEditor.h
+	cafPdmWebSliderEditor.h
+	cafPdmWebDoubleSliderEditor.h
+
+	WPopupMenuWrapper.h
+)
+
+set( PROJECT_FILES
+	${PUBLIC_HEADERS}
+	cafPdmWebFieldEditorHandle.cpp
+	cafPdmWebDefaultObjectEditor.cpp
+	cafPdmWebFormLayoutObjectEditor.cpp
+	cafPdmWebWidgetObjectEditorHandle.cpp
+	cafPdmWebTreeView.cpp
+	cafPdmWebTreeViewEditor.cpp
+	cafPdmWebTreeItemEditor.cpp
+	cafPdmWebTreeEditorHandle.cpp
+	cafPdmWebTreeViewWModel.cpp
+
+	cafWebPlotViewer.cpp
 	cafWebPlotCurve.cpp
 
     # field editors
     cafPdmWebCheckBoxEditor.cpp
-    cafPdmWebCheckBoxEditor.h
     cafPdmWebCheckBoxTristateEditor.cpp
-    cafPdmWebCheckBoxTristateEditor.h
 	cafPdmWebComboBoxEditor.cpp
-	cafPdmWebComboBoxEditor.h
     cafPdmWebLineEditor.cpp
-    cafPdmWebLineEditor.h
     cafPdmWebColorEditor.cpp
-    cafPdmWebColorEditor.h
     cafPdmWebDateEditor.cpp
-    cafPdmWebDateEditor.h
 	cafPdmWebFileUploadEditor.cpp
-    cafPdmWebFileUploadEditor.h
 	cafPdmWebSliderEditor.cpp
-	cafPdmWebSliderEditor.h
 	cafPdmWebDoubleSliderEditor.cpp
-	cafPdmWebDoubleSliderEditor.h
 
 	WPopupMenuWrapper.cpp
-	WPopupMenuWrapper.h
 )
 
 add_library( ${PROJECT_NAME}    
 			 ${PROJECT_FILES}
 )
+
+set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
 
 if (MSVC) 
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
@@ -118,9 +128,10 @@ target_link_libraries ( ${PROJECT_NAME}
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC -DQT_NO_EMIT)
 
-source_group("" FILES ${PROJECT_FILES})
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 
-# cotire
-if (COMMAND caf_apply_cotire)
-  caf_apply_cotire("${PROJECT_NAME}")
-endif()
+install(TARGETS ${PROJECT_NAME}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+source_group("" FILES ${PROJECT_FILES})

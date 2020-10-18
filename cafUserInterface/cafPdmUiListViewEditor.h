@@ -35,7 +35,7 @@
 //##################################################################################################
 
 #pragma once
-
+#include "cafUserInterface_export.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiWidgetObjectEditorHandle.h"
 
@@ -94,7 +94,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiListViewEditor : public PdmUiWidgetObjectEditorHandle
+class cafUserInterface_EXPORT PdmUiListViewEditor : public PdmUiWidgetObjectEditorHandle
 {
 public:
     PdmUiListViewEditor();

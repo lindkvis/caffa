@@ -35,7 +35,7 @@
 //##################################################################################################
 
 #pragma once
-
+#include "cafUserInterface_export.h"
 #include "cafUiTreeItem.h"
 
 #include <QAbstractItemModel>
@@ -54,7 +54,7 @@ class PdmUiDragDropInterface;
 // This class is intended to replace UiTreeModelPdm (cafUiTreeModelPdm)
 //
 //==================================================================================================
-class PdmUiTreeViewQModel : public QAbstractItemModel
+class cafUserInterface_EXPORT PdmUiTreeViewQModel : public QAbstractItemModel
 {
     Q_OBJECT
 

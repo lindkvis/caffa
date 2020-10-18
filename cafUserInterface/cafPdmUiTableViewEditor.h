@@ -35,7 +35,7 @@
 //##################################################################################################
 
 #pragma once
-
+#include "cafUserInterface_export.h"
 #include "cafPdmDocument.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafSelectionChangedReceiver.h"
@@ -112,7 +112,7 @@ public:
 ///
 //--------------------------------------------------------------------------------------------------
 
-class PdmUiTableViewEditor : public PdmUiFieldEditorHandle, public SelectionChangedReceiver
+class cafUserInterface_EXPORT PdmUiTableViewEditor : public PdmUiFieldEditorHandle, public SelectionChangedReceiver
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

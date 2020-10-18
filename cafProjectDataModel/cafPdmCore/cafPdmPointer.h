@@ -67,8 +67,6 @@ private:
 /// Use a PdmPointer<SomePdmObject> in the same way as a normal pointer.
 /// The guarding sets the pointer to NULL if the object pointed to dies
 ///
-/// NOTE: This is not reference counting. The user is responsible to delete the objects pointed to.
-///       It _can_ be used together with the cvf::ref system if neccesary (this is no recomendation)
 //==================================================================================================
 
 template <class T>

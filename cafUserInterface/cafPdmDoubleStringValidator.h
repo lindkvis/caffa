@@ -35,6 +35,7 @@
 //##################################################################################################
 #pragma once
 
+#include "cafUserInterface_export.h"
 #include <QDoubleValidator>
 #include <QString>
 
@@ -43,9 +44,8 @@ namespace caf
 //////////////////////////////////////////////////////////////////////////
 /// Class that validates text strings containing double values but allows
 /// a default text string that isn't necessarily a double.
-/// Example use is the "1*" value in ECLIPSE output files or "N/A".
 //////////////////////////////////////////////////////////////////////////
-class PdmDoubleStringValidator : public QDoubleValidator
+class cafUserInterface_EXPORT PdmDoubleStringValidator : public QDoubleValidator
 {
     Q_OBJECT
 public:
