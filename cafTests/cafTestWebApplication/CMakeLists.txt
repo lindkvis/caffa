@@ -60,12 +60,6 @@ set (TAP_LINK_LIBRARIES
     cafWebInterface
     )
 
-    
-if (UNIX)
-    list(APPEND LIST TAP_LINK_LIBRARIES pthread z)
-endif()
-
-    
 if (USE_COMMAND_FRAMEWORK)
     set (TAP_LINK_LIBRARIES
         ${TAP_LINK_LIBRARIES}
@@ -73,15 +67,19 @@ if (USE_COMMAND_FRAMEWORK)
     )
 endif(USE_COMMAND_FRAMEWORK)
 
+if (UNIX)
+    list(APPEND LIST TAP_LINK_LIBRARIES pthread z)
+endif()
+
 add_definitions(-DBOOST_ALL_NO_LIB)
 add_definitions(-DBOOST_ALL_DYN_LINK)
 
 target_link_libraries ( ${PROJECT_NAME}
-	${Boost_LIBRARIES}
     ${QT_LIBRARIES}
-	${TAP_LINK_LIBRARIES}
-	${WT_LIB}
+	${Boost_LIBRARIES}
+    ${WT_LIB}
     ${WTHTTP_LIB}
+	${TAP_LINK_LIBRARIES}
 )
 
 source_group("" FILES ${PROJECT_FILES})
@@ -90,8 +88,3 @@ foreach (qtlib ${QT_LIBRARIES})
 	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 		           COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 endforeach(qtlib)
-
-# cotire
-if (COMMAND caf_apply_cotire)
-  caf_apply_cotire("${PROJECT_NAME}")
-endif()
