@@ -68,18 +68,22 @@ if (USE_COMMAND_FRAMEWORK)
 endif(USE_COMMAND_FRAMEWORK)
 
 if (UNIX)
-    list(APPEND LIST TAP_LINK_LIBRARIES pthread z)
+    list(APPEND EXTERNAL_LINK_LIBRARIES
+        rt
+        pthread
+        z
+    )
 endif()
 
 add_definitions(-DBOOST_ALL_NO_LIB)
 add_definitions(-DBOOST_ALL_DYN_LINK)
 
 target_link_libraries ( ${PROJECT_NAME}
+    ${EXTERNAL_LINK_LIBRARIES}
     ${QT_LIBRARIES}
 	${Boost_LIBRARIES}
     ${WT_LIB}
     ${WTHTTP_LIB}
-	${TAP_LINK_LIBRARIES}
 )
 
 source_group("" FILES ${PROJECT_FILES})
