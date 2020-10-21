@@ -5,13 +5,6 @@ project ( cafTestWebApplication )
 find_package(Qt5 COMPONENTS REQUIRED Core )
 set(QT_LIBRARIES Qt5::Core)
 
-set(WEBTOOLKIT_PREFIX "" CACHE PATH "WebToolKit : Path to WebToolKit")
-if(WEBTOOLKIT_PREFIX)
-#	message(STATUS "Using web toolkit prefix: ${WEBTOOLKIT_PREFIX}")
-else()
-	message(ERROR "Need web toolkit")
-endif(WEBTOOLKIT_PREFIX)
-
 option(USE_COMMAND_FRAMEWORK "Use Caf Command Framework" ON)
 
 if (USE_COMMAND_FRAMEWORK)
@@ -28,11 +21,14 @@ set( PROJECT_FILES
     MainWindow.h
 )
 
-set(Boost_USE_MULTITHREADED ON)
+set(Boost
+_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
+
+find_package(ZLIB REQUIRED)
+find_package(OpenSSL REQUIRED)
 find_package(Boost 1.60 COMPONENTS system program_options thread filesystem date_time regex REQUIRED)
-#message(STATUS "Boost Library Dir: ${Boost_LIBRARY_DIRS}")
-link_directories(${Boost_LIBRARY_DIRS})
+find_package(WT CONFIG REQUIRED)
 
 # add the executable 
 add_executable ( ${PROJECT_NAME}
@@ -44,24 +40,16 @@ add_executable ( ${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
-	${WEBTOOLKIT_PREFIX}/include
-	${Boost_INCLUDE_DIRS}
 )
 
-find_library(WT_LIB NAMES wtd PATHS ${WEBTOOLKIT_PREFIX}/lib)
-find_library(WTHTTP_LIB NAMES wthttpd PATHS ${WEBTOOLKIT_PREFIX}/lib)
-
-#message(STATUS "Boost library dirs: ${Boost_LIBRARY_DIRS}")
-#message(STATUS "Boost libraries: ${Boost_LIBRARIES}")
-
 set (EXTERNAL_LINK_LIBRARIES
+	Wt::Wt Wt::HTTP
     )
 
 if (UNIX)
-    list(APPEND EXTERNAL_LINK_LIBRARIES
-        rt
-        pthread
-        z
+    list(PREPEND EXTERNAL_LINK_LIBRARIES
+	ZLIB::ZLIB
+    OpenSSL::Crypto
     )
 endif()
 
@@ -70,17 +58,20 @@ add_definitions(-DBOOST_ALL_DYN_LINK)
 
 target_link_libraries ( ${PROJECT_NAME}
     ${EXTERNAL_LINK_LIBRARIES}
-    cafProjectDataModel
-    cafCommand
+    ${QT_LIBRARIES}
+    ${Boost_LIBRARIES}
+    cafPdmCore
+    cafPdmUiCore
     cafCommandFeatures
+    cafCommand
     cafCommonInterface
     cafWebInterface
-    ${EXTERNAL_LINK_LIBRARIES}
-    ${QT_LIBRARIES}
-	${Boost_LIBRARIES}
-    ${WT_LIB}
-    ${WTHTTP_LIB}
 )
+
+
+if (MSVC) 
+    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4267")
+endif() 
 
 source_group("" FILES ${PROJECT_FILES})
 

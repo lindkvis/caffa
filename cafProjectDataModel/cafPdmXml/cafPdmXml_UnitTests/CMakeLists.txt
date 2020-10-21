@@ -20,9 +20,7 @@ add_executable (${PROJECT_NAME}
 	cafPdmPtrArrayTest.cpp
 )
 
-if (Qt5Core_FOUND)
-    set(QT_LIBRARIES Qt5::Core Qt5::Xml)
-endif()
+set(QT_LIBRARIES Qt5::Core Qt5::Xml)
 
 target_link_libraries ( ${PROJECT_NAME}
 	cafPdmXml

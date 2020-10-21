@@ -1,13 +1,11 @@
-cmake_minimum_required (VERSION 3.12.0)
+cmake_minimum_required (VERSION 3.12)
 
 project ( cafProjectDataModel_UnitTests )
 
 find_package(Qt5 COMPONENTS REQUIRED Core Xml Gui)
 set(QT_LIBRARIES Qt5::Core Qt5::Xml Qt5::Gui)
 
-include_directories (
-	${CMAKE_CURRENT_SOURCE_DIR} # required for gtest-all.cpp
-)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set( PROJECT_FILES
 	cafPdmBasicTest.cpp
@@ -22,13 +20,6 @@ add_executable (${PROJECT_NAME}
 	${PROJECT_FILES}
 	gtest/gtest-all.cpp
 )
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    list(APPEND THREAD_LIBRARY
-        rt
-        pthread
-    )
-endif()
 
 target_link_libraries ( ${PROJECT_NAME}
 	cafProjectDataModel 
