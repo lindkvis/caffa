@@ -43,15 +43,11 @@ target_include_directories(${PROJECT_NAME}
 )
 
 set (EXTERNAL_LINK_LIBRARIES
-	Wt::Wt Wt::HTTP
-    )
-
-if (UNIX)
-    list(PREPEND EXTERNAL_LINK_LIBRARIES
+    ${THREAD_LIBRARY}
 	ZLIB::ZLIB
     OpenSSL::Crypto
+	Wt::Wt Wt::HTTP
     )
-endif()
 
 add_definitions(-DBOOST_ALL_NO_LIB)
 add_definitions(-DBOOST_ALL_DYN_LINK)

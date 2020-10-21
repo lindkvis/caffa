@@ -23,15 +23,14 @@ set( PROJECT_FILES
 )
 
 
-# add the executable 
+# add the executable
 add_executable ( ${PROJECT_NAME}
 	${PROJECT_FILES}
 )
 
 target_link_libraries ( ${PROJECT_NAME}
-    PRIVATE
-    ${QT_LIBRARIES}
     ${THREAD_LIBRARY}
+    ${QT_LIBRARIES}
     cafUserInterface
     cafCommand
 )
@@ -43,5 +42,3 @@ foreach (qtlib ${QT_LIBRARIES})
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
 )
 endforeach(qtlib)
-
- 
