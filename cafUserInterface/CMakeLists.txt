@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.12.0)
+cmake_minimum_required (VERSION 3.12)
 
 project (cafUserInterface)
 
@@ -17,49 +17,8 @@ endif (MSVC)
 
 add_definitions(-D${PROJECT_NAME}_LIBRARY)
 
-# These headers need to go through Qt's MOC compiler
-set (MOC_HEADER_FILES    
-    cafPdmUiCheckBoxDelegate.h
-    cafPdmUiCheckBoxEditor.h
-    cafPdmUiCheckBoxTristateEditor.h
-    cafPdmUiColorEditor.h
-    cafPdmUiComboBoxEditor.h
-    cafPdmUiDateEditor.h
-	cafPdmUiTimeEditor.h
-    cafPdmUiDefaultObjectEditor.h
-    cafPdmUiDoubleSliderEditor.h
-    cafPdmUiFilePathEditor.h
-    cafPdmUiLineEditor.h
-    cafPdmUiListEditor.h
-    cafPdmUiListView.h
-    cafPdmUiListViewEditor.h
-    cafPdmUiPropertyView.h
-    cafPdmUiPushButtonEditor.h
-    cafPdmUiSliderEditor.h
-    cafPdmUiTableView.h
-    cafPdmUiTableViewDelegate.h
-    cafPdmUiTableViewEditor.h
-    cafPdmUiTableViewQModel.h
-    cafPdmUiTextEditor.h
-    cafPdmUiToolButtonEditor.h
-    cafPdmUiTreeView.h
-    cafPdmUiTreeViewQModel.h
-    cafPdmUiTreeViewEditor.h
-    cafUiProcess.h
-    QMinimizePanel.h
-    cafPdmUiTreeSelectionEditor.h
-    cafPdmUiTreeSelectionQModel.h
-    cafPdmUiFormLayoutObjectEditor.h
-    cafPdmUiDoubleValueEditor.h
-    cafPdmUniqueIdValidator.h
-    cafPdmDoubleStringValidator.h
-    cafPdmUiPickableLineEditor.h
-    cafPdmUiLabelEditor.h
-)
-
 find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )	
 
 set( PROJECT_FILES
     cafUserInterface_export.h
@@ -170,7 +129,6 @@ set( PROJECT_FILES
 
 add_library( ${PROJECT_NAME}
     ${PROJECT_FILES}
-    ${MOC_SOURCE_FILES}
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})

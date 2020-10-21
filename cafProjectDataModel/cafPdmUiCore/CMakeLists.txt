@@ -8,17 +8,7 @@ if (CAF_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
-# These headers need to go through Qt's MOC compiler
-set (MOC_HEADER_FILES
-    cafPdmUiEditorHandle.h
-    cafPdmUiFieldEditorHandle.h
-	cafPdmUiSelection3dEditorVisualizer.h
-	cafActionWrapper.h
-	cafQActionWrapper.h
-)
-
 set (PUBLIC_HEADERS
-    ${MOC_HEADER_FILES}
     cafPdmUiCore_export.h
 
     cafInternalPdmFieldTypeSpecializations.h
@@ -60,7 +50,6 @@ set (PUBLIC_HEADERS
 # Qt
 find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 
 include_directories (
     ..
@@ -98,7 +87,6 @@ set( PROJECT_FILES
 
 add_library( ${PROJECT_NAME}
 	${PROJECT_FILES}
-    ${MOC_SOURCE_FILES}
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${CMAKE_PROJECT_VERSION})

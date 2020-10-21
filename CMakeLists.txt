@@ -9,6 +9,9 @@ option(CAFFA_DESKTOP_DEPLOYMENT "Turn this on to build for desktop deployment wi
 option(BUILD_SHARED_LIBS "Create a shared Caffa library" ON)
 find_package(Qt5 COMPONENTS REQUIRED Core)
 
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
 if (CAFFA_DESKTOP_DEPLOYMENT)
     find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
     set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)

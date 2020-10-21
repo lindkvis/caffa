@@ -8,18 +8,11 @@ if (CAF_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
-# These headers need to go through Qt's MOC compiler
-set (MOC_HEADER_FILES    
-    cafCmdFeature.h
-	cafCmdFeatureManager.h
-)
-
 add_definitions(-D${PROJECT_NAME}_LIBRARY)
 
 # Qt
 find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 
 set( PUBLIC_HEADERS
     cafCommand_export.h
@@ -57,7 +50,6 @@ set( PROJECT_FILES
 
 add_library( ${PROJECT_NAME}
  	${PROJECT_FILES}
-    ${MOC_SOURCE_FILES}
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})

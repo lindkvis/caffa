@@ -8,11 +8,6 @@ if (CAF_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
-# These headers need to go through Qt's MOC compiler
-set (MOC_HEADER_FILES    
- 
-)
-
 # Qt
 find_package(Qt5 COMPONENTS REQUIRED Core)
 set(QT_LIBRARIES Qt5::Core)
@@ -20,7 +15,6 @@ if (NOT CAFFA_WEB_DEPLOYMENT)
 	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
 	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 endif()
-qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 
 set (PUBLIC_HEADERS
     # Default features
@@ -63,24 +57,8 @@ if (NOT CAFFA_WEB_DEPLOYMENT)
 	)
 endif()
 
-# NOTE! Resources in this subfolder appends to the variable QRC_FILES in parent scope
-# CMakeList.txt in the application folder (parent scope) must use the following syntax
-# to make sure the QRC_FILES variable contains appended files in subfolders
-
-#   set( QRC_FILES
-#       ${QRC_FILES} 
-#       <Path/To/ApplicationResourceFile.qrc>
-#   )
-
-set( QRC_FILES
-    ${QRC_FILES}
-    ${CMAKE_CURRENT_SOURCE_DIR}/Resources/cafCommandFeatures.qrc
-    PARENT_SCOPE
-)
-
 add_library( ${PROJECT_NAME}
  	${PROJECT_FILES}
-    ${MOC_SOURCE_FILES}
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
