@@ -5,7 +5,15 @@ project (caffa VERSION 0.1 DESCRIPTION "Caffa Application Framework")
 set(CMAKE_CXX_STANDARD 17)
 
 option(CAFFA_WEB_DEPLOYMENT "Turn this on to build for web deployment with the Web Toolkit" OFF)
-option(CAFFA_DESKTOP_DEPLOYMENT "Turn this on to build for desktop deployment with Qt" ON)
+set(CAFFA_DESKTOP_DEPLOYMENT OFF)
+if (NOT CAFFA_WEB_DEPLOYMENT)
+    set(CAFFA_DESKTOP_DEPLOYMENT ON)
+endif()
+
+if (UNIX)
+    option(CAFFA_HARDWARE_IO "Build the Caffa Hardware IO library (Raspberry PI)" OFF)
+endif()
+
 option(BUILD_SHARED_LIBS "Create a shared Caffa library" ON)
 find_package(Qt5 COMPONENTS REQUIRED Core)
 
@@ -70,6 +78,9 @@ endif()
 add_subdirectory (cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests)
 add_subdirectory (cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests)
 add_subdirectory (cafProjectDataModel/cafProjectDataModel_UnitTests)
+if (CAFFA_HARDWARE_IO AND UNIX)
+    add_subdirectory (cafHardwareIO)
+endif()
 #add_subdirectory(cafPdmScripting/cafPdmScripting_UnitTests)
 
 # Organize sub-projects into folders on Visual Studio
