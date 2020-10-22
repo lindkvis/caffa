@@ -32,6 +32,10 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+if( UNIX )
+    set(THREAD_LIBRARY "pthread")
+endif()
+
 #libraries
 add_subdirectory (cafProjectDataModel/cafPdmCore)
 add_subdirectory (cafProjectDataModel/cafPdmUiCore)
@@ -61,10 +65,6 @@ if (CAFFA_DESKTOP_DEPLOYMENT)
 
     add_subdirectory(cafTests/cafTestApplication)
     add_subdirectory (cafUserInterface/cafUserInterface_UnitTests)
-endif()
-
-if( UNIX )
-    set(THREAD_LIBRARY "pthread")
 endif()
 
 add_subdirectory (cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests)

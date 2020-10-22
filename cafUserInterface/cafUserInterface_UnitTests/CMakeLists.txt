@@ -27,15 +27,20 @@ add_executable (${PROJECT_NAME}
 
 source_group("" FILES ${PROJECT_FILES})
 
+set(EXTERNAL_LINK_LIBRARIES)
+
 if (UNIX)
-    list(APPEND LIST TAP_LINK_LIBRARIES pthread z)
+    list(APPEND LIST EXTERNAL_LINK_LIBRARIES z)
 endif()
 
+message("THREAD: " ${THREAD_LIBRARY})
+
 target_link_libraries ( ${PROJECT_NAME}
-	cafPdmUiCore
-    cafUserInterface
+    ${THREAD_LIBRARY}
     ${QT_LIBRARIES}
-    ${TAP_LINK_LIBRARIES}
+    ${EXTERNAL_LINK_LIBRARIES}
+    cafPdmUiCore
+    cafUserInterface    
 )
 
 # Copy Qt Dlls
