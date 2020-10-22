@@ -36,6 +36,7 @@
 
 #include "cafPdmUiCommandSystemProxy.h"
 
+#include "cafAssert.h"
 #include "cafInternalPdmUiCommandSystemInterface.h"
 
 #include "cafPdmFieldHandle.h"
@@ -84,7 +85,11 @@ void PdmUiCommandSystemProxy::setUiValueToField( PdmUiFieldHandle* uiFieldHandle
     {
         // Handle editing multiple objects when several objects are selected
         PdmFieldHandle*       editorField      = uiFieldHandle->fieldHandle();
-        const std::type_info& fieldOwnerTypeId = typeid( *editorField->ownerObject() );
+        auto                  ownerObject      = editorField->ownerObject();
+
+        CAF_ASSERT( ownerObject );
+        auto&                  ownerRef         = *ownerObject;
+        const std::type_info& fieldOwnerTypeId = typeid( ownerRef );
 
         std::vector<PdmFieldHandle*> fieldsToUpdate;
         fieldsToUpdate.push_back( editorField );

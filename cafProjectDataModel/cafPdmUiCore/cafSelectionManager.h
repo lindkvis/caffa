@@ -40,6 +40,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmPointer.h"
+#include "cafPdmUiItem.h"
 
 #include <QString>
 #include <set>
@@ -47,7 +48,6 @@
 
 namespace caf
 {
-class PdmUiItem;
 class PdmChildArrayFieldHandle;
 
 //==================================================================================================
@@ -154,7 +154,6 @@ public:
 
     void             setPdmRootObject( PdmObjectHandle* root );
     PdmObjectHandle* pdmRootObject() { return m_rootObject; }
-    // End OBSOLETE
 
 private:
     SelectionManager();
