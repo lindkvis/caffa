@@ -28,7 +28,7 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(ZLIB REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Boost 1.60 COMPONENTS system program_options thread filesystem date_time regex REQUIRED)
-find_package(WT CONFIG REQUIRED)
+find_package(WT COMPONENTS Wt HTTP REQUIRED)
 
 # add the executable 
 add_executable ( ${PROJECT_NAME}
@@ -56,8 +56,7 @@ target_link_libraries ( ${PROJECT_NAME}
     ${EXTERNAL_LINK_LIBRARIES}
     ${QT_LIBRARIES}
     ${Boost_LIBRARIES}
-    cafPdmCore
-    cafPdmUiCore
+    cafProjectDataModel
     cafCommandFeatures
     cafCommand
     cafCommonInterface

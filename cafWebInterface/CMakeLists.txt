@@ -85,7 +85,7 @@ find_package(ZLIB REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 find_package(Boost 1.60 COMPONENTS system regex program_options thread filesystem date_time REQUIRED)
-find_package(WT CONFIG REQUIRED)
+find_package(WT COMPONENTS Wt HTTP REQUIRED)
 
 if (MSVC) 
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127 /wd4267")
@@ -103,7 +103,7 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries ( ${PROJECT_NAME}	
     cafProjectDataModel
 	cafCommonInterface
-    OpenSSL::Crypto Wt::Wt Wt::Dbo Wt::HTTP Wt::DboSqlite3
+    OpenSSL::Crypto Wt::Wt Wt::HTTP
     ${QT_LIBRARIES}
 	${WT_LIB}
 	${WTHTTP_LIB}
