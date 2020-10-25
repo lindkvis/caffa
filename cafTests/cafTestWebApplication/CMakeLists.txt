@@ -29,8 +29,10 @@ find_package(ZLIB REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Boost 1.60 COMPONENTS system program_options thread filesystem date_time regex REQUIRED)
 set(Fontconfig_LIBRARIES)
+set(FREETYPE_LIBRARIES)
 if (UNIX)
     find_package(Fontconfig REQUIRED)
+    find_package(Freetype REQUIRED)
 endif()
 find_package(WT COMPONENTS Wt HTTP REQUIRED)
 
@@ -50,6 +52,7 @@ set (EXTERNAL_LINK_LIBRARIES
     ${THREAD_LIBRARY}
 	ZLIB::ZLIB
     OpenSSL::Crypto
+    ${Fontconfig_LIBRARIES}
 	Wt::Wt Wt::HTTP
     )
 
@@ -60,6 +63,7 @@ target_link_libraries ( ${PROJECT_NAME}
     ${EXTERNAL_LINK_LIBRARIES}
     ${QT_LIBRARIES}
     ${Boost_LIBRARIES}
+    ${FREETYPE_LIBRARIES}
     ${Fontconfig_LIBRARIES}
     cafProjectDataModel
     cafCommandFeatures

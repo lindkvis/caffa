@@ -87,8 +87,10 @@ find_package(OpenSSL REQUIRED)
 find_package(Boost 1.60 COMPONENTS system regex program_options thread filesystem date_time REQUIRED)
 
 set(Fontconfig_LIBRARIES)
+set(FREETYPE_LIBRARIES)
 if (UNIX)
     find_package(Fontconfig REQUIRED)
+    find_package(Freetype REQUIRED)
 endif()
 
 find_package(WT COMPONENTS Wt HTTP REQUIRED)
@@ -106,7 +108,8 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries ( ${PROJECT_NAME}	
     ${QT_LIBRARIES}
     ${Boost_LIBRARIES}
-    ${Fontconfig_LIBRARIES}
+    ${FREETYPE_LIBRARIES}
+    ${Fontconfig_LIBRARIES}    
     OpenSSL::Crypto Wt::Wt Wt::HTTP
     cafProjectDataModel
     cafCommonInterface
