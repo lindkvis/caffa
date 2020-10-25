@@ -14,64 +14,64 @@ if (MSVC)
 endif (MSVC)
 
 set( PUBLIC_HEADERS
-	cafPdmWebFieldEditorHandle.h
-	cafPdmWebDefaultObjectEditor.h
-	cafPdmWebFormLayoutObjectEditor.h
-	cafPdmWebWidgetObjectEditorHandle.h
-	cafPdmWebTreeView.h
-	cafPdmWebTreeViewEditor.h
-	cafPdmWebTreeItemEditor.h
-	cafPdmWebTreeEditorHandle.h
-	cafPdmWebTreeViewWModel.h
+    cafPdmWebFieldEditorHandle.h
+    cafPdmWebDefaultObjectEditor.h
+    cafPdmWebFormLayoutObjectEditor.h
+    cafPdmWebWidgetObjectEditorHandle.h
+    cafPdmWebTreeView.h
+    cafPdmWebTreeViewEditor.h
+    cafPdmWebTreeItemEditor.h
+    cafPdmWebTreeEditorHandle.h
+    cafPdmWebTreeViewWModel.h
 
-	cafWebPlotViewer.h
-	cafWebPlotCurve.h
+    cafWebPlotViewer.h
+    cafWebPlotCurve.h
 
     # field editors
     cafPdmWebCheckBoxEditor.h
     cafPdmWebCheckBoxTristateEditor.h
-	cafPdmWebComboBoxEditor.h
+    cafPdmWebComboBoxEditor.h
     cafPdmWebLineEditor.h
     cafPdmWebColorEditor.h
     cafPdmWebDateEditor.h
     cafPdmWebFileUploadEditor.h
-	cafPdmWebSliderEditor.h
-	cafPdmWebDoubleSliderEditor.h
+    cafPdmWebSliderEditor.h
+    cafPdmWebDoubleSliderEditor.h
 
-	WPopupMenuWrapper.h
+    WPopupMenuWrapper.h
 )
 
 set( PROJECT_FILES
-	${PUBLIC_HEADERS}
-	cafPdmWebFieldEditorHandle.cpp
-	cafPdmWebDefaultObjectEditor.cpp
-	cafPdmWebFormLayoutObjectEditor.cpp
-	cafPdmWebWidgetObjectEditorHandle.cpp
-	cafPdmWebTreeView.cpp
-	cafPdmWebTreeViewEditor.cpp
-	cafPdmWebTreeItemEditor.cpp
-	cafPdmWebTreeEditorHandle.cpp
-	cafPdmWebTreeViewWModel.cpp
+    ${PUBLIC_HEADERS}
+    cafPdmWebFieldEditorHandle.cpp
+    cafPdmWebDefaultObjectEditor.cpp
+    cafPdmWebFormLayoutObjectEditor.cpp
+    cafPdmWebWidgetObjectEditorHandle.cpp
+    cafPdmWebTreeView.cpp
+    cafPdmWebTreeViewEditor.cpp
+    cafPdmWebTreeItemEditor.cpp
+    cafPdmWebTreeEditorHandle.cpp
+    cafPdmWebTreeViewWModel.cpp
 
-	cafWebPlotViewer.cpp
-	cafWebPlotCurve.cpp
+    cafWebPlotViewer.cpp
+    cafWebPlotCurve.cpp
 
     # field editors
     cafPdmWebCheckBoxEditor.cpp
     cafPdmWebCheckBoxTristateEditor.cpp
-	cafPdmWebComboBoxEditor.cpp
+    cafPdmWebComboBoxEditor.cpp
     cafPdmWebLineEditor.cpp
     cafPdmWebColorEditor.cpp
     cafPdmWebDateEditor.cpp
-	cafPdmWebFileUploadEditor.cpp
-	cafPdmWebSliderEditor.cpp
-	cafPdmWebDoubleSliderEditor.cpp
+    cafPdmWebFileUploadEditor.cpp
+    cafPdmWebSliderEditor.cpp
+    cafPdmWebDoubleSliderEditor.cpp
 
-	WPopupMenuWrapper.cpp
+    WPopupMenuWrapper.cpp
 )
 
 add_library( ${PROJECT_NAME}    
-			 ${PROJECT_FILES}
+             ${PROJECT_FILES}
 )
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
 
@@ -85,11 +85,17 @@ find_package(ZLIB REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 find_package(Boost 1.60 COMPONENTS system regex program_options thread filesystem date_time REQUIRED)
+
+set(Fontconfig_LIBRARIES)
+if (UNIX)
+    find_package(Fontconfig REQUIRED)
+endif()
+
 find_package(WT COMPONENTS Wt HTTP REQUIRED)
 
 if (MSVC) 
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127 /wd4267")
-	set( OTHER_DEPENDENCIES d2d1 Shlwapi windowscodecs Dwrite)
+    set( OTHER_DEPENDENCIES d2d1 Shlwapi windowscodecs Dwrite)
 endif() 
 
 target_include_directories(${PROJECT_NAME}
@@ -97,17 +103,13 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-#add_definitions(-DBOOST_ALL_NO_LIB)
-#add_definitions(-DBOOST_ALL_DYN_LINK)
-
 target_link_libraries ( ${PROJECT_NAME}	
-    cafProjectDataModel
-	cafCommonInterface
-    OpenSSL::Crypto Wt::Wt Wt::HTTP
     ${QT_LIBRARIES}
-	${WT_LIB}
-	${WTHTTP_LIB}
-	${Boost_LIBRARIES}
+    ${Boost_LIBRARIES}
+    ${Fontconfig_LIBRARIES}
+    OpenSSL::Crypto Wt::Wt Wt::HTTP
+    cafProjectDataModel
+    cafCommonInterface
 )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC -DQT_NO_EMIT)
