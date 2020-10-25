@@ -30,9 +30,11 @@ find_package(OpenSSL REQUIRED)
 find_package(Boost 1.60 COMPONENTS system program_options thread filesystem date_time regex REQUIRED)
 set(Fontconfig_LIBRARIES)
 set(FREETYPE_LIBRARIES)
+set(OTHER_DEPENDENCIES)
 if (UNIX)
     find_package(Fontconfig REQUIRED)
     find_package(Freetype REQUIRED)
+    list(APPEND OTHER_DEPENDENCIES ffi expat harfbuzz)
 endif()
 find_package(WT COMPONENTS Wt HTTP REQUIRED)
 
@@ -52,7 +54,9 @@ set (EXTERNAL_LINK_LIBRARIES
     ${THREAD_LIBRARY}
 	ZLIB::ZLIB
     OpenSSL::Crypto
+    ${OTHER_DEPENDENCIES}
     ${Fontconfig_LIBRARIES}
+    ${FREETYPE_LIBRARIES}
 	Wt::Wt Wt::HTTP
     )
 

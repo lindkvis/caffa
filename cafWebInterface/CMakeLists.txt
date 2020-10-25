@@ -86,11 +86,11 @@ find_package(OpenSSL REQUIRED)
 
 find_package(Boost 1.60 COMPONENTS system regex program_options thread filesystem date_time REQUIRED)
 
-set(Fontconfig_LIBRARIES)
-set(FREETYPE_LIBRARIES)
+set(OTHER_DEPENDENCIES)
 if (UNIX)
     find_package(Fontconfig REQUIRED)
     find_package(Freetype REQUIRED)
+    list(APPEND OTHER_DEPENDENCIES ffi expat harfbuzz)
 endif()
 
 find_package(WT COMPONENTS Wt HTTP REQUIRED)
