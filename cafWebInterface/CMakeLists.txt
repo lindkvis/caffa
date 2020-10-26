@@ -110,6 +110,7 @@ target_link_libraries ( ${PROJECT_NAME}
     ${Boost_LIBRARIES}
     ${FREETYPE_LIBRARIES}
     ${Fontconfig_LIBRARIES}    
+    ${OTHER_DEPENDENCIES}
     OpenSSL::Crypto Wt::Wt Wt::HTTP
     cafProjectDataModel
     cafCommonInterface
