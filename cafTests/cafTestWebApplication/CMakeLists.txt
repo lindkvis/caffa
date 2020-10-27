@@ -34,9 +34,9 @@ set(OTHER_DEPENDENCIES)
 if (UNIX)
     find_package(Fontconfig REQUIRED)
     find_package(Freetype REQUIRED)
-    list(APPEND OTHER_DEPENDENCIES ffi expat harfbuzz)
+    list(APPEND OTHER_DEPENDENCIES ffi expat harfbuzz tiff)
 endif()
-find_package(WT COMPONENTS Wt HTTP REQUIRED)
+find_package(wt COMPONENTS Wt HTTP REQUIRED)
 
 # add the executable 
 add_executable ( ${PROJECT_NAME}

@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.12)
 
-project (cafPdmXml)
+project (cafPdmIoCore)
 
 # Unity Build
 if (CAF_ENABLE_UNITY_BUILD)
@@ -20,14 +20,14 @@ set( PUBLIC_HEADERS
 	cafInternalPdmFieldIoHelper.h
 	cafInternalPdmFilePathStreamOperators.h
 	cafInternalPdmStreamOperators.h
-	cafInternalPdmXmlFieldCapability.h
-	cafInternalPdmXmlFieldCapability.inl
+	cafPdmFieldIoCapabilitySpecializations.h
+	cafPdmFieldIoCapabilitySpecializations.inl
 	cafInternalPdmXmlFieldReaderWriter.h
 
-	cafPdmXmlFieldHandle.h
-	cafPdmXmlObjectHandle.h
-	
-	cafPdmXmlObjectHandleMacros.h
+	cafPdmFieldIoCapability.h
+	cafPdmObjectXmlCapability.h
+	cafPdmObjectIoCapability.h
+	cafPdmObjectHandleIoMacros.h
 
 	cafPdmDefaultObjectFactory.h
 	cafPdmObjectFactory.h
@@ -45,8 +45,10 @@ set( PROJECT_FILES
 	cafInternalPdmStreamOperators.cpp
 	cafInternalPdmXmlFieldReaderWriter.cpp
 
-	cafPdmXmlFieldHandle.cpp
-	cafPdmXmlObjectHandle.cpp
+	cafPdmFieldIoCapability.cpp
+	
+	cafPdmObjectIoCapability.cpp
+	cafPdmObjectXmlCapability.cpp
 	cafPdmDefaultObjectFactory.cpp
 	cafPdmSettings.cpp
 )

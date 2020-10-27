@@ -14,7 +14,8 @@ namespace caf
 class PdmObjectCapability;
 class PdmFieldHandle;
 class PdmUiObjectHandle;
-class PdmXmlObjectHandle;
+class PdmFieldIoCapability;
+class PdmObjectXmlCapability;
 class PdmChildArrayFieldHandle;
 
 //==================================================================================================
@@ -96,9 +97,6 @@ public:
         return nullptr;
     }
 
-    PdmUiObjectHandle*  uiCapability() const; // Implementation is in cafPdmUiObjectHandle.cpp
-    PdmXmlObjectHandle* xmlCapability() const; // Implementation is in cafPdmXmlObjectHandle.cpp
-
     virtual void setDeletable( bool isDeletable );
     virtual bool isDeletable() const;
     virtual void onChildDeleted( PdmChildArrayFieldHandle*           childArray,
@@ -141,7 +139,7 @@ private:
     friend class PdmField; // For backwards compatibility layer
 
     template <class T>
-    friend class PdmFieldXmlCap;
+    friend class PdmFieldIoCap;
 
     // Support system for PdmPointer
     friend class PdmPointerImpl;

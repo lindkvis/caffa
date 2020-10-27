@@ -37,12 +37,12 @@
 #include "cafPdmWebFormLayoutObjectEditor.h"
 
 #include "cafPdmObjectHandle.h"
+#include "cafPdmObjectXmlCapability.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmWebComboBoxEditor.h"
 #include "cafPdmWebFieldEditorHandle.h"
-#include "cafPdmXmlObjectHandle.h"
 
 #include "cafAssert.h"
 

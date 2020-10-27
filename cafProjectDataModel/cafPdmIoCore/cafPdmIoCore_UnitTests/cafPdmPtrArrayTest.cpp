@@ -3,29 +3,30 @@
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmDataValueField.h"
+#include "cafPdmFieldIoCapabilitySpecializations.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmObjectHandleIoMacros.h"
+#include "cafPdmObjectIoCapability.h"
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmReferenceHelper.h"
-#include "cafPdmXmlObjectHandle.h"
-#include "cafPdmXmlObjectHandleMacros.h"
 
-class MyItemPdmObject : public caf::PdmObjectHandle, public caf::PdmXmlObjectHandle
+class MyItemPdmObject : public caf::PdmObjectHandle, public caf::PdmObjectIoCapability
 {
-    CAF_PDM_XML_HEADER_INIT;
+    CAF_PDM_IO_HEADER_INIT;
 
 public:
     MyItemPdmObject()
         : PdmObjectHandle()
-        , PdmXmlObjectHandle( this, false )
+        , PdmObjectIoCapability( this, false )
     {
-        CAF_PDM_XML_InitField( &m_name, "Name" );
+        CAF_PDM_IO_InitField( &m_name, "Name" );
     }
 
     explicit MyItemPdmObject( QString name )
         : PdmObjectHandle()
-        , PdmXmlObjectHandle( this, false )
+        , PdmObjectIoCapability( this, false )
     {
-        CAF_PDM_XML_InitField( &m_name, "Name" );
+        CAF_PDM_IO_InitField( &m_name, "Name" );
         m_name = name;
     }
 
@@ -34,19 +35,19 @@ public:
     // Fields
     caf::PdmDataValueField<QString> m_name;
 };
-CAF_PDM_XML_SOURCE_INIT( MyItemPdmObject, "MyItemPdmObject" );
+CAF_PDM_IO_SOURCE_INIT( MyItemPdmObject, "MyItemPdmObject" );
 
-class MyContainerPdmObject : public caf::PdmObjectHandle, public caf::PdmXmlObjectHandle
+class MyContainerPdmObject : public caf::PdmObjectHandle, public caf::PdmObjectIoCapability
 {
-    CAF_PDM_XML_HEADER_INIT;
+    CAF_PDM_IO_HEADER_INIT;
 
 public:
     MyContainerPdmObject()
         : PdmObjectHandle()
-        , PdmXmlObjectHandle( this, false )
+        , PdmObjectIoCapability( this, false )
     {
-        CAF_PDM_XML_InitField( &m_items, "Items" );
-        CAF_PDM_XML_InitField( &m_containers, "Containers" );
+        CAF_PDM_IO_InitField( &m_items, "Items" );
+        CAF_PDM_IO_InitField( &m_containers, "Containers" );
     }
 
     ~MyContainerPdmObject() {}
@@ -55,7 +56,7 @@ public:
     caf::PdmChildArrayField<MyItemPdmObject*> m_items;
     caf::PdmPtrArrayField<MyItemPdmObject*>   m_containers;
 };
-CAF_PDM_XML_SOURCE_INIT( MyContainerPdmObject, "MyContainerPdmObject" );
+CAF_PDM_IO_SOURCE_INIT( MyContainerPdmObject, "MyContainerPdmObject" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -80,7 +81,7 @@ TEST( PtrArrayBaseTest, PtrArraySerializeTest )
 
     QString serializedString;
     {
-        serializedString = objA->writeObjectToXmlString();
+        serializedString = objA->writeObjectToString();
 
         std::cout << serializedString.toStdString() << std::endl;
     }
@@ -90,7 +91,7 @@ TEST( PtrArrayBaseTest, PtrArraySerializeTest )
 
         QXmlStreamReader xmlStream( serializedString );
 
-        ihd1->readObjectFromXmlString( serializedString, caf::PdmDefaultObjectFactory::instance() );
+        ihd1->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance() );
         ihd1->resolveReferencesRecursively();
     }
 }
@@ -118,7 +119,7 @@ TEST( PtrArrayBaseTest, DeleteObjectPtrArraySerializeTest )
 
     QString serializedString;
     {
-        serializedString = objA->writeObjectToXmlString();
+        serializedString = objA->writeObjectToString();
 
         std::cout << serializedString.toStdString() << std::endl;
     }
@@ -128,7 +129,7 @@ TEST( PtrArrayBaseTest, DeleteObjectPtrArraySerializeTest )
 
         QXmlStreamReader xmlStream( serializedString );
 
-        ihd1->readObjectFromXmlString( serializedString, caf::PdmDefaultObjectFactory::instance() );
+        ihd1->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance() );
         ihd1->resolveReferencesRecursively();
 
         EXPECT_TRUE( ihd1->m_containers.at( 0 ) != nullptr );

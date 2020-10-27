@@ -73,7 +73,7 @@ public:
         m_proxyDouble.registerSetMethod( this, &SimpleObj::setDoubleMember );
         m_proxyDouble.registerGetMethod( this, &SimpleObj::doubleMember );
         AddUiCapabilityToField( &m_proxyDouble );
-        AddXmlCapabilityToField( &m_proxyDouble );
+        AddIoCapabilityToField( &m_proxyDouble );
         CAF_PDM_InitFieldNoDefault( &m_proxyDouble, "ProxyDouble", "ProxyDouble", "", "", "" );
 #endif
     }
@@ -235,47 +235,6 @@ TEST( BaseTest, Delete )
 {
     SimpleObj* s2 = new SimpleObj;
     delete s2;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// This is a testbed to try out different aspects, instead of having a main in a prototype program
-/// To be disabled when everything gets more mature.
-//--------------------------------------------------------------------------------------------------
-TEST( BaseTest, Start )
-{
-    DemoPdmObject* a = new DemoPdmObject;
-
-    caf::PdmObjectHandle* demo = caf::PdmDefaultObjectFactory::instance()->create( "DemoPdmObject" );
-    EXPECT_TRUE( demo != NULL );
-
-    QString          xml;
-    QXmlStreamWriter xmlStream( &xml );
-    xmlStream.setAutoFormatting( true );
-
-    SimpleObj*                 s2 = new SimpleObj;
-    caf::PdmPointer<SimpleObj> sp;
-    sp = s2;
-    std::cout << sp.p() << std::endl;
-
-    {
-        SimpleObj s;
-        s.m_dir        = 10000;
-        sp             = &s;
-        a->m_textField = "Hei og hå";
-        //*s2 = s;
-        a->m_simpleObjPtrField = s2;
-
-        s.writeFields( xmlStream );
-    }
-    a->writeFields( xmlStream );
-
-    caf::PdmObjectGroup og;
-    og.objects.push_back( a );
-    og.objects.push_back( new SimpleObj );
-    og.writeFields( xmlStream );
-    std::cout << sp.p() << std::endl,
-
-        std::cout << xml.toStdString() << std::endl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -781,12 +740,12 @@ TEST( BaseTest, PdmObjectFactory )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ValidXmlKeywords )
 {
-    EXPECT_TRUE( caf::PdmXmlObjectHandle::isValidXmlElementName( "Valid_name" ) );
+    EXPECT_TRUE( caf::PdmObjectIoCapability::isValidElementName( "Valid_name" ) );
 
-    EXPECT_FALSE( caf::PdmXmlObjectHandle::isValidXmlElementName( "2Valid_name" ) );
-    EXPECT_FALSE( caf::PdmXmlObjectHandle::isValidXmlElementName( ".Valid_name" ) );
-    EXPECT_FALSE( caf::PdmXmlObjectHandle::isValidXmlElementName( "xml_Valid_name" ) );
-    EXPECT_FALSE( caf::PdmXmlObjectHandle::isValidXmlElementName( "Valid_name_with_space " ) );
+    EXPECT_FALSE( caf::PdmObjectIoCapability::isValidElementName( "2Valid_name" ) );
+    EXPECT_FALSE( caf::PdmObjectIoCapability::isValidElementName( ".Valid_name" ) );
+    EXPECT_FALSE( caf::PdmObjectIoCapability::isValidElementName( "xml_Valid_name" ) );
+    EXPECT_FALSE( caf::PdmObjectIoCapability::isValidElementName( "Valid_name_with_space " ) );
 }
 
 TEST( BaseTest, PdmPointersFieldInsertVector )

@@ -1,7 +1,7 @@
 
 
 #include "cafPdmObjectGroup.h"
-#include "cafInternalPdmXmlFieldCapability.h"
+#include "cafPdmFieldIoCapabilitySpecializations.h"
 
 #include <QFile>
 

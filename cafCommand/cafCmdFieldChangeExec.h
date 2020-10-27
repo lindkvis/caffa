@@ -43,6 +43,7 @@
 namespace caf
 {
 class PdmChildArrayFieldHandle;
+class PdmFieldIoCapability;
 
 //==================================================================================================
 ///
@@ -77,7 +78,7 @@ public:
 class CmdFieldChangeExec : public CmdExecuteCommand
 {
 public:
-    explicit CmdFieldChangeExec( );
+    explicit CmdFieldChangeExec();
     ~CmdFieldChangeExec() override;
 
     CmdFieldChangeExecData* commandData();
@@ -87,8 +88,8 @@ public:
     void    undo() override;
 
 private:
-    void readFieldValueFromValidXmlDocument( QXmlStreamReader& xmlStream, PdmXmlFieldHandle* xmlFieldHandle );
-    void writeFieldDataToValidXmlDocument( QXmlStreamWriter& xmlStream, PdmXmlFieldHandle* xmlFieldHandle );
+    void readFieldValueFromValidXmlDocument( QXmlStreamReader& xmlStream, PdmFieldIoCapability* ioCapability );
+    void writeFieldDataToValidXmlDocument( QXmlStreamWriter& xmlStream, PdmFieldIoCapability* ioCapability );
 
 private:
     CmdFieldChangeExecData* m_commandData;

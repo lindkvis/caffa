@@ -73,7 +73,7 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
     for ( size_t i = 0; i < fieldsToUpdate.size(); i++ )
     {
         PdmFieldHandle*   field         = fieldsToUpdate[i];
-        PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+        PdmUiFieldHandle* uiFieldHandle = field->capability<PdmUiFieldHandle>();
         if ( uiFieldHandle )
         {
             QVariant fieldCurrentUiValue = uiFieldHandle->uiValue();
@@ -89,8 +89,7 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
                     return;
                 }
 
-                CmdFieldChangeExec* fieldChangeExec =
-                    new CmdFieldChangeExec();
+                CmdFieldChangeExec* fieldChangeExec = new CmdFieldChangeExec();
 
                 fieldChangeExec->commandData()->m_newUiValue  = newUiValue;
                 fieldChangeExec->commandData()->m_pathToField = reference;

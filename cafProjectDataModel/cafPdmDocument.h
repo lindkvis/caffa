@@ -57,8 +57,11 @@ public:
     void readFile();
     bool writeFile();
 
-    void readFile( QIODevice* device );
-    void writeFile( QIODevice* device );
+    void readFile( QIODevice*                                       device,
+                   caf::PdmObjectIoCapability::IoParameters::IoType ioType = PdmObjectIoCapability::IoParameters::IoType::XML );
+
+    void writeFile( QIODevice*                                       device,
+                    caf::PdmObjectIoCapability::IoParameters::IoType ioType = PdmObjectIoCapability::IoParameters::IoType::XML );
 
     static void updateUiIconStateRecursively( PdmObjectHandle* root );
 };

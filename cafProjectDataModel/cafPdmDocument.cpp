@@ -56,38 +56,21 @@ PdmDocument::PdmDocument()
 //--------------------------------------------------------------------------------------------------
 void PdmDocument::readFile()
 {
-    QFile xmlFile( fileName );
-    if ( !xmlFile.open( QIODevice::ReadOnly | QIODevice::Text ) ) return;
+    QFile file( fileName );
+    if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) return;
 
-    readFile( &xmlFile );
+    readFile( &file );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmDocument::readFile( QIODevice* xmlFile )
+void PdmDocument::readFile(
+    QIODevice*                                       file,
+    caf::PdmObjectIoCapability::IoParameters::IoType ioType /*= PdmObjectIoCapability::IoParameters::IoType::XML */ )
 {
-    QXmlStreamReader xmlStream( xmlFile );
-
-    while ( !xmlStream.atEnd() )
-    {
-        xmlStream.readNext();
-        if ( xmlStream.isStartElement() )
-        {
-            if ( !matchesClassKeyword( xmlStream.name().toString() ) )
-            {
-                // Error: This is not a Ceetron Pdm based xml document
-                return;
-            }
-            readFields( xmlStream, PdmDefaultObjectFactory::instance(), false );
-        }
-    }
-
-    // Ask all objects to initialize and set up internal datastructure and pointers
-    // after everything is read from file
-
-    resolveReferencesRecursively();
-    initAfterReadRecursively();
+    PdmObjectIoCapability::IoParameters params = { ioType, file };
+    PdmObjectIoCapability::readFile( params );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,10 +78,10 @@ void PdmDocument::readFile( QIODevice* xmlFile )
 //--------------------------------------------------------------------------------------------------
 bool PdmDocument::writeFile()
 {
-    QFile xmlFile( fileName );
-    if ( !xmlFile.open( QIODevice::WriteOnly | QIODevice::Text ) ) return false;
+    QFile inputFile( fileName );
+    if ( !inputFile.open( QIODevice::WriteOnly | QIODevice::Text ) ) return false;
 
-    writeFile( &xmlFile );
+    writeFile( &inputFile );
 
     return true;
 }
@@ -106,22 +89,11 @@ bool PdmDocument::writeFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmDocument::writeFile( QIODevice* xmlFile )
+void PdmDocument::writeFile( QIODevice* file, caf::PdmObjectIoCapability::IoParameters::IoType ioType )
 {
-    // Ask all objects to make them ready to write themselves to file
-    setupBeforeSaveRecursively();
+    PdmObjectIoCapability::IoParameters params = { ioType, file };
 
-    QXmlStreamWriter xmlStream( xmlFile );
-    xmlStream.setAutoFormatting( true );
-
-    xmlStream.writeStartDocument();
-    QString className = classKeyword();
-
-    xmlStream.writeStartElement( "", className );
-    writeFields( xmlStream );
-    xmlStream.writeEndElement();
-
-    xmlStream.writeEndDocument();
+    PdmObjectIoCapability::writeFile( params );
 }
 
 //--------------------------------------------------------------------------------------------------

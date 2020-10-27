@@ -8,7 +8,7 @@
 namespace caf
 {
 template <typename T>
-class PdmFieldXmlCap;
+class PdmFieldIoCap;
 
 //==================================================================================================
 /// A field that contains a pointer to a PdmObjectHandle derived object.
@@ -76,7 +76,7 @@ public:
 private:
     PDM_DISABLE_COPY_AND_ASSIGN( PdmPtrField );
 
-    friend class PdmFieldXmlCap<PdmPtrField<DataType*>>;
+    friend class PdmFieldIoCap<PdmPtrField<DataType*>>;
     void setRawPtr( PdmObjectHandle* obj );
 
     PdmPointer<DataType> m_fieldValue;

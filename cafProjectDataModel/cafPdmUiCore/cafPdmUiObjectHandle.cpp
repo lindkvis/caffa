@@ -46,7 +46,7 @@ void PdmUiObjectHandle::uiOrdering( const QString& uiConfigName, PdmUiOrdering& 
         m_owner->fields( fields );
         for ( size_t i = 0; i < fields.size(); ++i )
         {
-            PdmUiFieldHandle* field = fields[i]->uiCapability();
+            PdmUiFieldHandle* field = fields[i]->capability<PdmUiFieldHandle>();
             if ( !uiOrdering.contains( field ) )
             {
                 uiOrdering.add( field->fieldHandle() );
@@ -120,7 +120,8 @@ void PdmUiObjectHandle::addDefaultUiTreeChildren( PdmUiTreeOrdering* uiTreeOrder
         {
             if ( fields[fIdx]->hasChildObjects() && !uiTreeOrdering->containsField( fields[fIdx] ) )
             {
-                if ( fields[fIdx]->uiCapability()->isUiHidden() && !fields[fIdx]->uiCapability()->isUiTreeChildrenHidden() )
+                if ( fields[fIdx]->capability<PdmUiFieldHandle>()->isUiHidden() &&
+                     !fields[fIdx]->capability<PdmUiFieldHandle>()->isUiTreeChildrenHidden() )
                 {
                     std::vector<PdmObjectHandle*> children;
                     fields[fIdx]->childObjects( &children );
@@ -153,7 +154,7 @@ void PdmUiObjectHandle::addDefaultUiTreeChildren( PdmUiTreeOrdering* uiTreeOrder
                         }
                     }
                 }
-                else if ( !fields[fIdx]->uiCapability()->isUiHidden() )
+                else if ( !fields[fIdx]->capability<PdmUiFieldHandle>()->isUiHidden() )
                 {
                     uiTreeOrdering->add( fields[fIdx] );
                 }
@@ -187,7 +188,8 @@ void PdmUiObjectHandle::expandUiTree( PdmUiTreeOrdering* root, const QString& ui
     {
         if ( !root->ignoreSubTree() )
         {
-            if ( root->isRepresentingField() && !root->field()->uiCapability()->isUiTreeChildrenHidden( uiConfigName ) )
+            if ( root->isRepresentingField() &&
+                 !root->field()->capability<PdmUiFieldHandle>()->isUiTreeChildrenHidden( uiConfigName ) )
             {
                 std::vector<PdmObjectHandle*> fieldsChildObjects;
                 root->field()->childObjects( &fieldsChildObjects );
@@ -201,7 +203,7 @@ void PdmUiObjectHandle::expandUiTree( PdmUiTreeOrdering* root, const QString& ui
                 }
             }
             else if ( root->isRepresentingObject() &&
-                      !root->object()->uiCapability()->isUiTreeChildrenHidden( uiConfigName ) )
+                      !root->object()->capability<PdmUiFieldHandle>()->isUiTreeChildrenHidden( uiConfigName ) )
             {
                 uiObj( root->object() )->defineUiTreeOrdering( *root, uiConfigName );
                 uiObj( root->object() )->addDefaultUiTreeChildren( root );
@@ -222,24 +224,13 @@ void PdmUiObjectHandle::updateUiIconFromToggleField()
 {
     if ( objectToggleField() )
     {
-        PdmUiFieldHandle* uiFieldHandle = objectToggleField()->uiCapability();
+        PdmUiFieldHandle* uiFieldHandle = objectToggleField()->capability<PdmUiFieldHandle>();
         if ( uiFieldHandle )
         {
             bool active = uiFieldHandle->uiValue().toBool();
             updateUiIconFromState( active );
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Implementation of uiCapability() defined in cafPdmObjectHandle.h
-//--------------------------------------------------------------------------------------------------
-PdmUiObjectHandle* PdmObjectHandle::uiCapability() const
-{
-    PdmUiObjectHandle* uiField = capability<PdmUiObjectHandle>();
-    CAF_ASSERT( uiField );
-
-    return uiField;
 }
 
 } // End namespace caf

@@ -36,7 +36,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSI
 target_link_libraries ( ${PROJECT_NAME}
 	cafPdmCore
     cafPdmUiCore
-    cafPdmXml
+    cafPdmIoCore
     ${QT_LIBRARIES}
 )
 

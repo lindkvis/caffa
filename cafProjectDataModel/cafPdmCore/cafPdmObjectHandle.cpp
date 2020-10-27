@@ -38,7 +38,7 @@ QString PdmObjectHandle::classKeywordStatic()
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> PdmObjectHandle::classKeywordAliases()
 {
-    return {QString( "PdmObjectHandle" )};
+    return { QString( "PdmObjectHandle" ) };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -226,12 +226,12 @@ void PdmObjectHandle::onChildDeleted( PdmChildArrayFieldHandle*           childA
 
 // These two functions can be used when PdmCore is used standalone without PdmUi/PdmXml
 /*
-PdmUiObjectHandle* PdmObjectHandle::uiCapability()
+PdmUiObjectHandle* PdmObjectHandle::capability<PdmUiFieldHandle>()
 {
 return NULL;
 }
 
-PdmXmlObjectHandle* PdmObjectHandle::xmlCapability()
+PdmXmlObjectHandle* PdmObjectHandle::capability<PdmObjectXmlCapability>()
 {
 return NULL;
 }

@@ -130,10 +130,6 @@ public:
 protected:
     DataType m_fieldValue;
 
-    // Default value stuff.
-    //
-    // This is not used enough. Remove when dust has settled.
-    // ResInsight uses at one point to find whether the value is changed by the user
 public:
     const DataType& defaultValue() const { return m_defaultFieldValue; }
     void            setDefaultValue( const DataType& val ) { m_defaultFieldValue = val; }

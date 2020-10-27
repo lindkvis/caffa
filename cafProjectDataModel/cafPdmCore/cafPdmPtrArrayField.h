@@ -8,7 +8,7 @@
 namespace caf
 {
 template <typename T>
-class PdmFieldXmlCap;
+class PdmFieldIoCap;
 
 //==================================================================================================
 /// PdmFieldClass to handle a collection of PdmObject derived pointers
@@ -88,7 +88,7 @@ private: // To be disabled
     void removeThisAsReferencingPtrField();
 
 private:
-    friend class PdmFieldXmlCap<PdmPtrArrayField<DataType*>>;
+    friend class PdmFieldIoCap<PdmPtrArrayField<DataType*>>;
 
     std::vector<PdmPointer<DataType>> m_pointers;
     QString                           m_referenceString;

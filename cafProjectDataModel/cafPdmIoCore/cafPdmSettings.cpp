@@ -37,7 +37,11 @@
 #include "cafPdmSettings.h"
 
 #include "cafPdmField.h"
-#include "cafPdmXmlObjectHandle.h"
+#include "cafPdmObjectHandle.h"
+#include "cafPdmObjectXmlCapability.h"
+
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 namespace caf
 {
@@ -64,10 +68,10 @@ void PdmSettings::readFieldsFromApplicationStore( caf::PdmObjectHandle* object, 
         fieldHandle->childObjects( &children );
         for ( size_t childIdx = 0; childIdx < children.size(); childIdx++ )
         {
-            caf::PdmObjectHandle*    child        = children[childIdx];
-            caf::PdmXmlObjectHandle* xmlObjHandle = xmlObj( child );
+            caf::PdmObjectHandle* child        = children[childIdx];
+            auto                  ioCapability = child->capability<PdmObjectIoCapability>();
 
-            QString subContext = context + xmlObjHandle->classKeyword() + "/";
+            QString subContext = context + ioCapability->classKeyword() + "/";
             readFieldsFromApplicationStore( child, subContext );
         }
 
@@ -116,9 +120,8 @@ void PdmSettings::writeFieldsToApplicationStore( const caf::PdmObjectHandle* obj
             QString               subContext;
             if ( context.isEmpty() )
             {
-                caf::PdmXmlObjectHandle* xmlObjHandle = xmlObj( child );
-
-                subContext = xmlObjHandle->classKeyword() + "/";
+                auto objHandle = child->capability<PdmObjectIoCapability>();
+                subContext     = objHandle->classKeyword() + "/";
             }
 
             writeFieldsToApplicationStore( child, subContext );
@@ -173,7 +176,7 @@ void PdmSettings::readValueFieldsFromApplicationStore( caf::PdmObjectHandle* obj
                 reader.readNext(); // StartDocument
                 reader.readNext(); // StartElement
                 reader.readNext(); // Characters
-                fieldHandle->xmlCapability()->readFieldData( reader, nullptr );
+                fieldHandle->capability<PdmFieldIoCapability>()->readFieldData( reader, nullptr );
             }
         }
     }
@@ -212,7 +215,7 @@ void PdmSettings::writeValueFieldsToApplicationStore( const caf::PdmObjectHandle
             QString          fieldText;
             QXmlStreamWriter writer( &fieldText );
 
-            fieldHandle->xmlCapability()->writeFieldData( writer );
+            fieldHandle->capability<PdmFieldIoCapability>()->writeFieldData( writer );
             settings.setValue( fieldHandle->keyword(), fieldText );
         }
     }

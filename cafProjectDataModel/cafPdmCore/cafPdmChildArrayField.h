@@ -9,7 +9,7 @@
 namespace caf
 {
 template <typename T>
-class PdmFieldXmlCap;
+class PdmFieldIoCap;
 
 //==================================================================================================
 ///
@@ -101,7 +101,7 @@ private:
     void addThisAsParentField();
 
 private:
-    friend class PdmFieldXmlCap<PdmChildArrayField<DataType*>>;
+    friend class PdmFieldIoCap<PdmChildArrayField<DataType*>>;
     std::vector<PdmPointer<DataType>> m_pointers;
 };
 

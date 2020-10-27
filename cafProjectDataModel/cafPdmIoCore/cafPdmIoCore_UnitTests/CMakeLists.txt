@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.12)
 
-project ( cafPdmXml_UnitTests )
+project ( cafPdmIoCore_UnitTests )
 
 find_package(Qt5 COMPONENTS REQUIRED Core Xml)
 set(QT_LIBRARIES Qt5::Core Qt5::Xml)
@@ -23,7 +23,7 @@ add_executable (${PROJECT_NAME}
 set(QT_LIBRARIES Qt5::Core Qt5::Xml)
 
 target_link_libraries ( ${PROJECT_NAME}
-	cafPdmXml
+	cafPdmIoCore
     ${QT_LIBRARIES}
     ${THREAD_LIBRARY}
 )

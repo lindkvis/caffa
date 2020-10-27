@@ -48,13 +48,13 @@ class QXmlStreamWriter;
 
 #include "cafPdmObjectCapability.h"
 
+#include "cafPdmObjectHandleIoMacros.h"
+#include "cafPdmObjectIoCapability.h"
 #include "cafPdmUiObjectHandle.h"
-#include "cafPdmXmlObjectHandle.h"
-#include "cafPdmXmlObjectHandleMacros.h"
 
 #include "cafInternalPdmUiFieldCapability.h"
-#include "cafInternalPdmXmlFieldCapability.h"
 #include "cafPdmFieldHandle.h"
+#include "cafPdmFieldIoCapabilitySpecializations.h"
 
 #include "cafIconProvider.h"
 #include "cafPdmUiFieldSpecialization.h"
@@ -68,9 +68,9 @@ class PdmUiEditorAttribute;
 class PdmUiTreeOrdering;
 class PdmObjectCapability;
 
-#define CAF_PDM_HEADER_INIT CAF_PDM_XML_HEADER_INIT
-#define CAF_PDM_SOURCE_INIT CAF_PDM_XML_SOURCE_INIT
-#define CAF_PDM_ABSTRACT_SOURCE_INIT CAF_PDM_XML_ABSTRACT_SOURCE_INIT
+#define CAF_PDM_HEADER_INIT CAF_PDM_IO_HEADER_INIT
+#define CAF_PDM_SOURCE_INIT CAF_PDM_IO_SOURCE_INIT
+#define CAF_PDM_ABSTRACT_SOURCE_INIT CAF_PDM_IO_ABSTRACT_SOURCE_INIT
 
 /// InitObject sets up the user interface related information for the object
 /// Placed in the constructor of your PdmObject
@@ -80,7 +80,7 @@ class PdmObjectCapability;
 #define CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis )                             \
     {                                                                                                  \
         this->isInheritedFromPdmUiObject();                                                            \
-        this->isInheritedFromPdmXmlSerializable();                                                     \
+        this->isInheritedFromSerializable();                                                           \
         this->registerClassKeyword( classKeyword() );                                                  \
                                                                                                        \
         static caf::PdmUiItemInfo objDescr( uiName, QString( iconResourceName ), toolTip, whatsThis ); \
@@ -94,51 +94,51 @@ class PdmObjectCapability;
 /// Note that classKeyword() is not virtual in the constructor of the PdmObject
 /// This is expected and fine.
 
-#define CAF_PDM_InitField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis )                                      \
-    {                                                                                                                                   \
-        CAF_PDM_VERIFY_XML_KEYWORD( keyword )                                                                                           \
-                                                                                                                                        \
-        static bool chekingThePresenceOfHeaderAndSourceInitMacros =                                                                     \
-            Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
-        Q_UNUSED( chekingThePresenceOfHeaderAndSourceInitMacros );                                                                      \
-        this->isInheritedFromPdmUiObject();                                                                                             \
-        this->isInheritedFromPdmXmlSerializable();                                                                                      \
-                                                                                                                                        \
-        AddXmlCapabilityToField( field );                                                                                               \
-        AddUiCapabilityToField( field );                                                                                                \
-        RegisterClassWithField( classKeyword(), field );                                                                                \
-                                                                                                                                        \
-        static caf::PdmUiItemInfo objDescr( uiName, QString( iconResourceName ), toolTip, whatsThis, keyword );                         \
-        addFieldUi( field, keyword, default, &objDescr );                                                                               \
+#define CAF_PDM_InitField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis )                                    \
+    {                                                                                                                                 \
+        CAF_PDM_VERIFY_IO_KEYWORD( keyword )                                                                                          \
+                                                                                                                                      \
+        static bool checkingThePresenceOfHeaderAndSourceInitMacros =                                                                  \
+            Error_You_forgot_to_add_the_macro_CAF_PDM_IO_HEADER_INIT_and_or_CAF_PDM_IO_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
+        Q_UNUSED( checkingThePresenceOfHeaderAndSourceInitMacros );                                                                   \
+        this->isInheritedFromPdmUiObject();                                                                                           \
+        this->isInheritedFromSerializable();                                                                                          \
+                                                                                                                                      \
+        AddIoCapabilityToField( field );                                                                                              \
+        AddUiCapabilityToField( field );                                                                                              \
+        RegisterClassWithField( classKeyword(), field );                                                                              \
+                                                                                                                                      \
+        static caf::PdmUiItemInfo objDescr( uiName, QString( iconResourceName ), toolTip, whatsThis, keyword );                       \
+        addFieldUi( field, keyword, default, &objDescr );                                                                             \
     }
 
 /// InitFieldNoDefault does the same as InitField but omits the default value.
 /// Note that classKeyword() is not virtual in the constructor of the PdmObject
 /// This is expected and fine.
 
-#define CAF_PDM_InitFieldNoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis )                                      \
-    {                                                                                                                                   \
-        CAF_PDM_VERIFY_XML_KEYWORD( keyword )                                                                                           \
-                                                                                                                                        \
-        static bool chekingThePresenceOfHeaderAndSourceInitMacros =                                                                     \
-            Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
-        Q_UNUSED( chekingThePresenceOfHeaderAndSourceInitMacros );                                                                      \
-        this->isInheritedFromPdmUiObject();                                                                                             \
-        this->isInheritedFromPdmXmlSerializable();                                                                                      \
-                                                                                                                                        \
-        AddXmlCapabilityToField( field );                                                                                               \
-        AddUiCapabilityToField( field );                                                                                                \
-        RegisterClassWithField( classKeyword(), field );                                                                                \
-                                                                                                                                        \
-        static caf::PdmUiItemInfo objDescr( uiName, QString( iconResourceName ), toolTip, whatsThis, keyword );                         \
-        addFieldUiNoDefault( field, keyword, &objDescr );                                                                               \
+#define CAF_PDM_InitFieldNoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis )                                    \
+    {                                                                                                                                 \
+        CAF_PDM_VERIFY_IO_KEYWORD( keyword )                                                                                          \
+                                                                                                                                      \
+        static bool checkingThePresenceOfHeaderAndSourceInitMacros =                                                                  \
+            Error_You_forgot_to_add_the_macro_CAF_PDM_IO_HEADER_INIT_and_or_CAF_PDM_IO_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
+        Q_UNUSED( checkingThePresenceOfHeaderAndSourceInitMacros );                                                                   \
+        this->isInheritedFromPdmUiObject();                                                                                           \
+        this->isInheritedFromSerializable();                                                                                          \
+                                                                                                                                      \
+        AddIoCapabilityToField( field );                                                                                              \
+        AddUiCapabilityToField( field );                                                                                              \
+        RegisterClassWithField( classKeyword(), field );                                                                              \
+                                                                                                                                      \
+        static caf::PdmUiItemInfo objDescr( uiName, QString( iconResourceName ), toolTip, whatsThis, keyword );                       \
+        addFieldUiNoDefault( field, keyword, &objDescr );                                                                             \
     }
 
 } // End of namespace caf
 
 namespace caf
 {
-class PdmObject : public PdmObjectHandle, public PdmXmlObjectHandle, public PdmUiObjectHandle
+class PdmObject : public PdmObjectHandle, public PdmObjectIoCapability, public PdmUiObjectHandle
 {
 public:
     CAF_PDM_HEADER_INIT;
@@ -165,7 +165,7 @@ public:
     {
         addField( field, keyword );
 
-        PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+        PdmUiFieldHandle* uiFieldHandle = field->capability<PdmUiFieldHandle>();
         if ( uiFieldHandle )
         {
             uiFieldHandle->setUiItemInfo( fieldDescription );
