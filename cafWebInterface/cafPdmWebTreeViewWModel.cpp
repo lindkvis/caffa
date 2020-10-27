@@ -51,11 +51,11 @@
 using namespace caf;
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-PdmWebTreeViewWModel::PdmWebTreeViewWModel(PdmWebTreeViewEditor* treeViewEditor)
+PdmWebTreeViewWModel::PdmWebTreeViewWModel( PdmWebTreeViewEditor* treeViewEditor )
 {
-    m_treeOrderingRoot = nullptr;
+    m_treeOrderingRoot  = nullptr;
     m_dragDropInterface = nullptr;
 
     m_treeViewEditor = treeViewEditor;
@@ -63,111 +63,111 @@ PdmWebTreeViewWModel::PdmWebTreeViewWModel(PdmWebTreeViewEditor* treeViewEditor)
 
 //--------------------------------------------------------------------------------------------------
 /// Will populate the tree with the contents of the Pdm data structure rooted at rootItem.
-/// Will not show the rootItem itself, only the children and downwards 
+/// Will not show the rootItem itself, only the children and downwards
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewWModel::setPdmItemRoot(PdmUiItem* rootItem)
+void PdmWebTreeViewWModel::setPdmItemRoot( PdmUiItem* rootItem )
 {
     // Check if we are already watching this root
-    if (rootItem && m_treeOrderingRoot && m_treeOrderingRoot->activeItem() == rootItem)
+    if ( rootItem && m_treeOrderingRoot && m_treeOrderingRoot->activeItem() == rootItem )
     {
-        this->updateSubTree(rootItem);
+        this->updateSubTree( rootItem );
         return;
     }
 
     PdmUiTreeOrdering* newRoot = nullptr;
-    PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*> (rootItem);
+    PdmUiFieldHandle*  field   = dynamic_cast<PdmUiFieldHandle*>( rootItem );
 
-    if (field)
+    if ( field )
     {
-        newRoot = new PdmUiTreeOrdering(field->fieldHandle());
-        PdmUiObjectHandle::expandUiTree(newRoot, m_uiConfigName);
+        newRoot = new PdmUiTreeOrdering( field->fieldHandle() );
+        PdmUiObjectHandle::expandUiTree( newRoot, m_uiConfigName );
     }
     else
     {
-        PdmUiObjectHandle * obj = dynamic_cast<PdmUiObjectHandle*> (rootItem);
-        if (obj)
+        PdmUiObjectHandle* obj = dynamic_cast<PdmUiObjectHandle*>( rootItem );
+        if ( obj )
         {
-            newRoot = obj->uiTreeOrdering(m_uiConfigName);
+            newRoot = obj->uiTreeOrdering( m_uiConfigName );
         }
     }
 
     CAF_ASSERT( newRoot || rootItem == nullptr ); // Only fields, objects or NULL is allowed.
 
-    //if (newRoot) newRoot->debugDump(0);
+    // if (newRoot) newRoot->debugDump(0);
 
-    this->resetTree(newRoot);
+    this->resetTree( newRoot );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewWModel::resetTree(PdmUiTreeOrdering* newRoot)
+void PdmWebTreeViewWModel::resetTree( PdmUiTreeOrdering* newRoot )
 {
-    if (m_treeOrderingRoot)
+    if ( m_treeOrderingRoot )
     {
         delete m_treeOrderingRoot;
     }
 
     m_treeOrderingRoot = newRoot;
 
-    updateEditorsForSubTree(m_treeOrderingRoot);
+    updateEditorsForSubTree( m_treeOrderingRoot );
 
     modelReset().emit();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewWModel::setColumnHeaders(const QStringList& columnHeaders)
+void PdmWebTreeViewWModel::setColumnHeaders( const QStringList& columnHeaders )
 {
     m_columnHeaders = columnHeaders;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewWModel::emitDataChanged(const Wt::WModelIndex& index)
+void PdmWebTreeViewWModel::emitDataChanged( const Wt::WModelIndex& index )
 {
-    dataChanged().emit(index, index);
+    dataChanged().emit( index, index );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Refreshes the UI-tree below the supplied root PdmUiItem
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewWModel::updateSubTree(PdmUiItem* pdmRoot)
+void PdmWebTreeViewWModel::updateSubTree( PdmUiItem* pdmRoot )
 {
     // Build the new "Correct" Tree
 
     PdmUiTreeOrdering* newTreeRootTmp = nullptr;
-    PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*> (pdmRoot);
-    if (field)
+    PdmUiFieldHandle*  field          = dynamic_cast<PdmUiFieldHandle*>( pdmRoot );
+    if ( field )
     {
-        newTreeRootTmp = new PdmUiTreeOrdering(field->fieldHandle());
+        newTreeRootTmp = new PdmUiTreeOrdering( field->fieldHandle() );
     }
     else
     {
-        PdmUiObjectHandle* obj = dynamic_cast<PdmUiObjectHandle*> (pdmRoot);
-        if (obj)
+        PdmUiObjectHandle* obj = dynamic_cast<PdmUiObjectHandle*>( pdmRoot );
+        if ( obj )
         {
-            newTreeRootTmp = new PdmUiTreeOrdering(obj->objectHandle());
+            newTreeRootTmp = new PdmUiTreeOrdering( obj->objectHandle() );
         }
     }
 
-    PdmUiObjectHandle::expandUiTree(newTreeRootTmp, m_uiConfigName);
+    PdmUiObjectHandle::expandUiTree( newTreeRootTmp, m_uiConfigName );
 
 #if CAF_PDM_TREE_VIEW_DEBUG_PRINT
-    std::cout << std::endl << "New Stuff: " << std::endl ;
-    newTreeRootTmp->debugDump(0);
+    std::cout << std::endl << "New Stuff: " << std::endl;
+    newTreeRootTmp->debugDump( 0 );
 #endif
 
     // Find the corresponding entry for "root" in the existing Ui tree
 
-    Wt::WModelIndex existingSubTreeRootModIdx = findModelIndex(pdmRoot);
+    Wt::WModelIndex existingSubTreeRootModIdx = findModelIndex( pdmRoot );
 
     PdmUiTreeOrdering* existingSubTreeRoot = nullptr;
-    if (existingSubTreeRootModIdx.isValid())
+    if ( existingSubTreeRootModIdx.isValid() )
     {
-        existingSubTreeRoot = treeItemFromIndex(existingSubTreeRootModIdx);
+        existingSubTreeRoot = treeItemFromIndex( existingSubTreeRootModIdx );
     }
     else
     {
@@ -175,53 +175,51 @@ void PdmWebTreeViewWModel::updateSubTree(PdmUiItem* pdmRoot)
     }
 
 #if CAF_PDM_TREE_VIEW_DEBUG_PRINT
-    std::cout << std::endl << "Old :"<< std::endl ;
-    existingSubTreeRoot->debugDump(0);
+    std::cout << std::endl << "Old :" << std::endl;
+    existingSubTreeRoot->debugDump( 0 );
 #endif
 
-    updateSubTreeRecursive(existingSubTreeRootModIdx, existingSubTreeRoot, newTreeRootTmp);
+    updateSubTreeRecursive( existingSubTreeRootModIdx, existingSubTreeRoot, newTreeRootTmp );
 
     delete newTreeRootTmp;
 
-    updateEditorsForSubTree(existingSubTreeRoot);
+    updateEditorsForSubTree( existingSubTreeRoot );
 
 #if CAF_PDM_TREE_VIEW_DEBUG_PRINT
-    std::cout << std::endl << "Result :"<< std::endl ;
-    existingSubTreeRoot->debugDump(0);
-#endif    
+    std::cout << std::endl << "Result :" << std::endl;
+    existingSubTreeRoot->debugDump( 0 );
+#endif
 }
 
 class RecursiveUpdateData
 {
 public:
-    RecursiveUpdateData(int row, PdmUiTreeOrdering* existingChild, PdmUiTreeOrdering* sourceChild)
-        : m_row(row),
-        m_existingChild(existingChild),
-        m_sourceChild(sourceChild)
-    {
-    };
+    RecursiveUpdateData( int row, PdmUiTreeOrdering* existingChild, PdmUiTreeOrdering* sourceChild )
+        : m_row( row )
+        , m_existingChild( existingChild )
+        , m_sourceChild( sourceChild ){};
 
-    int m_row;
-    PdmUiTreeOrdering*  m_existingChild;
-    PdmUiTreeOrdering*  m_sourceChild;
+    int                m_row;
+    PdmUiTreeOrdering* m_existingChild;
+    PdmUiTreeOrdering* m_sourceChild;
 };
 
 //--------------------------------------------------------------------------------------------------
-/// Makes the existingSubTreeRoot tree become identical to the tree in sourceSubTreeRoot, 
+/// Makes the existingSubTreeRoot tree become identical to the tree in sourceSubTreeRoot,
 /// calling begin..() end..() to make the UI update accordingly.
-/// This assumes that all the items have a pointer an unique PdmObject 
+/// This assumes that all the items have a pointer an unique PdmObject
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewWModel::updateSubTreeRecursive(const Wt::WModelIndex& existingSubTreeRootModIdx,
-                                                PdmUiTreeOrdering* existingSubTreeRoot, 
-                                                PdmUiTreeOrdering* sourceSubTreeRoot)
+void PdmWebTreeViewWModel::updateSubTreeRecursive( const Wt::WModelIndex& existingSubTreeRootModIdx,
+                                                   PdmUiTreeOrdering*     existingSubTreeRoot,
+                                                   PdmUiTreeOrdering*     sourceSubTreeRoot )
 {
     // Build map for source items
     std::map<caf::PdmUiItem*, int> sourceTreeMap;
-    for (int i = 0; i < sourceSubTreeRoot->childCount() ; ++i)
+    for ( int i = 0; i < sourceSubTreeRoot->childCount(); ++i )
     {
-        PdmUiTreeOrdering* child = sourceSubTreeRoot->child(i);
+        PdmUiTreeOrdering* child = sourceSubTreeRoot->child( i );
 
-        if (child && child->activeItem())
+        if ( child && child->activeItem() )
         {
             sourceTreeMap[child->activeItem()] = i;
         }
@@ -229,32 +227,34 @@ void PdmWebTreeViewWModel::updateSubTreeRecursive(const Wt::WModelIndex& existin
 
     // Detect items to be deleted from existing tree
     std::vector<int> indicesToRemoveFromExisting;
-    for (int i = 0; i < existingSubTreeRoot->childCount() ; ++i)
+    for ( int i = 0; i < existingSubTreeRoot->childCount(); ++i )
     {
-        PdmUiTreeOrdering* child = existingSubTreeRoot->child(i);
+        PdmUiTreeOrdering* child = existingSubTreeRoot->child( i );
 
-        std::map<caf::PdmUiItem*, int>::iterator it = sourceTreeMap.find(child->activeItem());
-        if (it == sourceTreeMap.end())
+        std::map<caf::PdmUiItem*, int>::iterator it = sourceTreeMap.find( child->activeItem() );
+        if ( it == sourceTreeMap.end() )
         {
-            indicesToRemoveFromExisting.push_back(i);
+            indicesToRemoveFromExisting.push_back( i );
         }
     }
 
     // Delete items with largest index first from existing
-    for (std::vector<int>::reverse_iterator it = indicesToRemoveFromExisting.rbegin(); it != indicesToRemoveFromExisting.rend(); ++it)
+    for ( std::vector<int>::reverse_iterator it = indicesToRemoveFromExisting.rbegin();
+          it != indicesToRemoveFromExisting.rend();
+          ++it )
     {
-        this->beginRemoveRows(existingSubTreeRootModIdx, *it, *it);
-        existingSubTreeRoot->removeChildren(*it, 1);
+        this->beginRemoveRows( existingSubTreeRootModIdx, *it, *it );
+        existingSubTreeRoot->removeChildren( *it, 1 );
         this->endRemoveRows();
     }
 
     // Build map for existing items without the deleted items
     std::map<caf::PdmUiItem*, int> existingTreeMap;
-    for (int i = 0; i < existingSubTreeRoot->childCount() ; ++i)
+    for ( int i = 0; i < existingSubTreeRoot->childCount(); ++i )
     {
-        PdmUiTreeOrdering* child = existingSubTreeRoot->child(i);
+        PdmUiTreeOrdering* child = existingSubTreeRoot->child( i );
 
-        if (child && child->activeItem())
+        if ( child && child->activeItem() )
         {
             existingTreeMap[child->activeItem()] = i;
         }
@@ -263,11 +263,11 @@ void PdmWebTreeViewWModel::updateSubTreeRecursive(const Wt::WModelIndex& existin
     // Check if there are any changes between existing and source
     // If no changes, update the subtree recursively
     bool anyChanges = false;
-    if (existingSubTreeRoot->childCount() == sourceSubTreeRoot->childCount())
+    if ( existingSubTreeRoot->childCount() == sourceSubTreeRoot->childCount() )
     {
-        for (int i = 0; i < existingSubTreeRoot->childCount(); ++i)
+        for ( int i = 0; i < existingSubTreeRoot->childCount(); ++i )
         {
-            if (existingSubTreeRoot->child(i)->activeItem() != sourceSubTreeRoot->child(i)->activeItem())
+            if ( existingSubTreeRoot->child( i )->activeItem() != sourceSubTreeRoot->child( i )->activeItem() )
             {
                 anyChanges = true;
                 break;
@@ -279,65 +279,69 @@ void PdmWebTreeViewWModel::updateSubTreeRecursive(const Wt::WModelIndex& existin
         anyChanges = true;
     }
 
-    if (!anyChanges)
+    if ( !anyChanges )
     {
         // Notify Qt that the toggle/name/icon etc might have been changed
-        emitDataChanged(existingSubTreeRootModIdx);
+        emitDataChanged( existingSubTreeRootModIdx );
 
         // No changes to list of children at this level, call update on all children
-        for (int i = 0; i < existingSubTreeRoot->childCount(); ++i)
+        for ( int i = 0; i < existingSubTreeRoot->childCount(); ++i )
         {
-            updateSubTreeRecursive( index(i, 0, existingSubTreeRootModIdx), existingSubTreeRoot->child(i), sourceSubTreeRoot->child(i));
+            updateSubTreeRecursive( index( i, 0, existingSubTreeRootModIdx ),
+                                    existingSubTreeRoot->child( i ),
+                                    sourceSubTreeRoot->child( i ) );
         }
     }
     else
     {
         std::vector<RecursiveUpdateData> recursiveUpdateData;
-        std::vector<PdmUiTreeOrdering*> newMergedOrdering;
+        std::vector<PdmUiTreeOrdering*>  newMergedOrdering;
 
         layoutAboutToBeChanged().emit();
         {
             // Detect items to be moved from source to existing
             // Merge items from existing and source into newMergedOrdering using order in sourceSubTreeRoot
             std::vector<int> indicesToRemoveFromSource;
-            for (int i = 0; i < sourceSubTreeRoot->childCount() ; ++i)
+            for ( int i = 0; i < sourceSubTreeRoot->childCount(); ++i )
             {
-                PdmUiTreeOrdering* sourceChild = sourceSubTreeRoot->child(i);
-                std::map<caf::PdmUiItem*, int>::iterator it = existingTreeMap.find(sourceChild->activeItem());
-                if (it != existingTreeMap.end())
+                PdmUiTreeOrdering*                       sourceChild = sourceSubTreeRoot->child( i );
+                std::map<caf::PdmUiItem*, int>::iterator it = existingTreeMap.find( sourceChild->activeItem() );
+                if ( it != existingTreeMap.end() )
                 {
-                    newMergedOrdering.push_back(existingSubTreeRoot->child(it->second));
+                    newMergedOrdering.push_back( existingSubTreeRoot->child( it->second ) );
 
-                    int rowIndexToBeUpdated = static_cast<int>(newMergedOrdering.size() - 1);
-                    recursiveUpdateData.push_back(RecursiveUpdateData(rowIndexToBeUpdated,
-                                                                      existingSubTreeRoot->child(it->second),
-                                                                      sourceChild));
+                    int rowIndexToBeUpdated = static_cast<int>( newMergedOrdering.size() - 1 );
+                    recursiveUpdateData.push_back(
+                        RecursiveUpdateData( rowIndexToBeUpdated, existingSubTreeRoot->child( it->second ), sourceChild ) );
                 }
                 else
                 {
-                    newMergedOrdering.push_back(sourceChild);
+                    newMergedOrdering.push_back( sourceChild );
 
-                    indicesToRemoveFromSource.push_back(i);
+                    indicesToRemoveFromSource.push_back( i );
                 }
             }
 
             // Delete new items from source because they have been moved into newMergedOrdering
-            for (std::vector<int>::reverse_iterator it = indicesToRemoveFromSource.rbegin(); it != indicesToRemoveFromSource.rend(); ++it)
+            for ( std::vector<int>::reverse_iterator it = indicesToRemoveFromSource.rbegin();
+                  it != indicesToRemoveFromSource.rend();
+                  ++it )
             {
                 // Use the removeChildrenNoDelete() to remove the pointer from the list without deleting the pointer
-                sourceSubTreeRoot->removeChildrenNoDelete(*it, 1);
+                sourceSubTreeRoot->removeChildrenNoDelete( *it, 1 );
             }
 
             // Delete all items from existingSubTreeRoot, as the complete list is present in newMergedOrdering
-            existingSubTreeRoot->removeChildrenNoDelete(0, existingSubTreeRoot->childCount());
+            existingSubTreeRoot->removeChildrenNoDelete( 0, existingSubTreeRoot->childCount() );
 
-            // First, reorder all items in existing tree, as this operation is valid when later emitting the signal layoutChanged()
-            // Insert of new items before issuing this signal causes the tree items below the inserted item to collapse
-            for (size_t i = 0; i < newMergedOrdering.size(); i++)
+            // First, reorder all items in existing tree, as this operation is valid when later emitting the signal
+            // layoutChanged() Insert of new items before issuing this signal causes the tree items below the inserted
+            // item to collapse
+            for ( size_t i = 0; i < newMergedOrdering.size(); i++ )
             {
-                if (existingTreeMap.find(newMergedOrdering[i]->activeItem()) != existingTreeMap.end())
+                if ( existingTreeMap.find( newMergedOrdering[i]->activeItem() ) != existingTreeMap.end() )
                 {
-                    existingSubTreeRoot->appendChild(newMergedOrdering[i]);
+                    existingSubTreeRoot->appendChild( newMergedOrdering[i] );
                 }
             }
         }
@@ -345,225 +349,220 @@ void PdmWebTreeViewWModel::updateSubTreeRecursive(const Wt::WModelIndex& existin
         layoutChanged().emit();
 
         // Insert new items into existingSubTreeRoot
-        for (size_t i = 0; i < newMergedOrdering.size(); i++)
+        for ( size_t i = 0; i < newMergedOrdering.size(); i++ )
         {
-            if (existingTreeMap.find(newMergedOrdering[i]->activeItem()) == existingTreeMap.end())
+            if ( existingTreeMap.find( newMergedOrdering[i]->activeItem() ) == existingTreeMap.end() )
             {
-                this->beginInsertRows(existingSubTreeRootModIdx, static_cast<int>(i), static_cast<int>(i));
-                existingSubTreeRoot->insertChild(static_cast<int>(i), newMergedOrdering[i]);
+                this->beginInsertRows( existingSubTreeRootModIdx, static_cast<int>( i ), static_cast<int>( i ) );
+                existingSubTreeRoot->insertChild( static_cast<int>( i ), newMergedOrdering[i] );
                 this->endInsertRows();
             }
         }
 
-        for (size_t i = 0; i < recursiveUpdateData.size(); i++)
+        for ( size_t i = 0; i < recursiveUpdateData.size(); i++ )
         {
             // Using the index() function here is OK, as new items has been inserted in the previous for-loop
             // This code used to be executed before insertion of new items, and caused creation of invalid indices
-            Wt::WModelIndex mi = index(recursiveUpdateData[i].m_row, 0, existingSubTreeRootModIdx);
-            CAF_ASSERT(mi.isValid());
+            Wt::WModelIndex mi = index( recursiveUpdateData[i].m_row, 0, existingSubTreeRootModIdx );
+            CAF_ASSERT( mi.isValid() );
 
-            updateSubTreeRecursive(mi, recursiveUpdateData[i].m_existingChild, recursiveUpdateData[i].m_sourceChild);
+            updateSubTreeRecursive( mi, recursiveUpdateData[i].m_existingChild, recursiveUpdateData[i].m_sourceChild );
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewWModel::updateEditorsForSubTree(PdmUiTreeOrdering* root)
-{
-    if (!root) return;
-
-    if (!root->editor())
-    {
-        PdmWebTreeItemEditor* treeItemEditor = new PdmWebTreeItemEditor(root->activeItem());
-        root->setEditor(treeItemEditor);
-        CAF_ASSERT(root->editor());
-    }
-
-    PdmWebTreeItemEditor* treeItemEditor = dynamic_cast<PdmWebTreeItemEditor*>(root->editor());
-    if (treeItemEditor)
-    {
-        treeItemEditor->setTreeViewEditor(m_treeViewEditor);
-    }
-
-    for (int i = 0; i < root->childCount(); ++i)
-    {
-        updateEditorsForSubTree(root->child(i));
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::list<Wt::WModelIndex> PdmWebTreeViewWModel::allIndicesRecursive(const Wt::WModelIndex& current) const
+void PdmWebTreeViewWModel::updateEditorsForSubTree( PdmUiTreeOrdering* root )
+{
+    if ( !root ) return;
+
+    if ( !root->editor() )
+    {
+        PdmWebTreeItemEditor* treeItemEditor = new PdmWebTreeItemEditor( root->activeItem() );
+        root->setEditor( treeItemEditor );
+        CAF_ASSERT( root->editor() );
+    }
+
+    PdmWebTreeItemEditor* treeItemEditor = dynamic_cast<PdmWebTreeItemEditor*>( root->editor() );
+    if ( treeItemEditor )
+    {
+        treeItemEditor->setTreeViewEditor( m_treeViewEditor );
+    }
+
+    for ( int i = 0; i < root->childCount(); ++i )
+    {
+        updateEditorsForSubTree( root->child( i ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::list<Wt::WModelIndex> PdmWebTreeViewWModel::allIndicesRecursive( const Wt::WModelIndex& current ) const
 {
     std::list<Wt::WModelIndex> currentAndDescendants;
-    currentAndDescendants.push_back(current);
+    currentAndDescendants.push_back( current );
 
-    int rows = rowCount(current);
-    int cols = columnCount(current);
-    for (int row = 0; row < rows; ++row)
+    int rows = rowCount( current );
+    int cols = columnCount( current );
+    for ( int row = 0; row < rows; ++row )
     {
-        for (int col = 0; col < cols; ++col)
+        for ( int col = 0; col < cols; ++col )
         {
-            Wt::WModelIndex childIndex = index(row, col, current);
-            std::list<Wt::WModelIndex> subList = allIndicesRecursive(childIndex);
-            currentAndDescendants.insert(currentAndDescendants.end(), subList.begin(), subList.end());
+            Wt::WModelIndex            childIndex = index( row, col, current );
+            std::list<Wt::WModelIndex> subList    = allIndicesRecursive( childIndex );
+            currentAndDescendants.insert( currentAndDescendants.end(), subList.begin(), subList.end() );
         }
     }
     return currentAndDescendants;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeOrdering* caf::PdmWebTreeViewWModel::treeItemFromIndex(const Wt::WModelIndex& index) const 
+PdmUiTreeOrdering* caf::PdmWebTreeViewWModel::treeItemFromIndex( const Wt::WModelIndex& index ) const
 {
-    if (!index.isValid())
+    if ( !index.isValid() )
     {
         return m_treeOrderingRoot;
     }
-    
-    CAF_ASSERT(index.internalPointer());
 
-    PdmUiTreeOrdering* treeItem = static_cast<PdmUiTreeOrdering*>(index.internalPointer());
+    CAF_ASSERT( index.internalPointer() );
+
+    PdmUiTreeOrdering* treeItem = static_cast<PdmUiTreeOrdering*>( index.internalPointer() );
 
     return treeItem;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Wt::WModelIndex caf::PdmWebTreeViewWModel::findModelIndex( const PdmUiItem * object) const
+Wt::WModelIndex caf::PdmWebTreeViewWModel::findModelIndex( const PdmUiItem* object ) const
 {
     Wt::WModelIndex foundIndex;
-    int numRows = rowCount(Wt::WModelIndex());
-    int r = 0;
-    while (r < numRows && !foundIndex.isValid())
+    int             numRows = rowCount( Wt::WModelIndex() );
+    int             r       = 0;
+    while ( r < numRows && !foundIndex.isValid() )
     {
-        foundIndex = findModelIndexRecursive(index(r, 0, Wt::WModelIndex()), object);
+        foundIndex = findModelIndexRecursive( index( r, 0, Wt::WModelIndex() ), object );
         ++r;
     }
     return foundIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Wt::WModelIndex caf::PdmWebTreeViewWModel::findModelIndexRecursive(const Wt::WModelIndex& currentIndex, const PdmUiItem * pdmItem) const
+Wt::WModelIndex caf::PdmWebTreeViewWModel::findModelIndexRecursive( const Wt::WModelIndex& currentIndex,
+                                                                    const PdmUiItem*       pdmItem ) const
 {
-    if (currentIndex.internalPointer())
+    if ( currentIndex.internalPointer() )
     {
-        PdmUiTreeOrdering* treeItem = static_cast<PdmUiTreeOrdering*>(currentIndex.internalPointer());
-        if (treeItem->activeItem() == pdmItem) return currentIndex;
+        PdmUiTreeOrdering* treeItem = static_cast<PdmUiTreeOrdering*>( currentIndex.internalPointer() );
+        if ( treeItem->activeItem() == pdmItem ) return currentIndex;
     }
 
-   int row;
-   for (row = 0; row < rowCount(currentIndex); ++row)
-   {
-       Wt::WModelIndex foundIndex = findModelIndexRecursive(index(row, 0, currentIndex), pdmItem);
-       if (foundIndex.isValid()) return foundIndex;
-   }
-   return Wt::WModelIndex();
+    int row;
+    for ( row = 0; row < rowCount( currentIndex ); ++row )
+    {
+        Wt::WModelIndex foundIndex = findModelIndexRecursive( index( row, 0, currentIndex ), pdmItem );
+        if ( foundIndex.isValid() ) return foundIndex;
+    }
+    return Wt::WModelIndex();
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// An invalid parent index is implicitly meaning the root item, and not "above" root, since
 /// we are not showing the root item itself
 //--------------------------------------------------------------------------------------------------
-Wt::WModelIndex PdmWebTreeViewWModel::index(int row, int column, const Wt::WModelIndex &parentIndex ) const
+Wt::WModelIndex PdmWebTreeViewWModel::index( int row, int column, const Wt::WModelIndex& parentIndex ) const
 {
-    if (!m_treeOrderingRoot)
-        return Wt::WModelIndex();
+    if ( !m_treeOrderingRoot ) return Wt::WModelIndex();
 
     PdmUiTreeOrdering* parentItem = nullptr;
 
-    if (!parentIndex.isValid())
+    if ( !parentIndex.isValid() )
         parentItem = m_treeOrderingRoot;
     else
-        parentItem = static_cast<PdmUiTreeOrdering*>(parentIndex.internalPointer());
+        parentItem = static_cast<PdmUiTreeOrdering*>( parentIndex.internalPointer() );
 
-    CAF_ASSERT(parentItem);
+    CAF_ASSERT( parentItem );
 
-    if (parentItem->childCount() <= row)
+    if ( parentItem->childCount() <= row )
     {
         return Wt::WModelIndex();
     }
 
-    PdmUiTreeOrdering* childItem = parentItem->child(row);
-    if (childItem)
-        return createIndex(row, column, childItem);
+    PdmUiTreeOrdering* childItem = parentItem->child( row );
+    if ( childItem )
+        return createIndex( row, column, childItem );
     else
         return Wt::WModelIndex();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Wt::WModelIndex PdmWebTreeViewWModel::parent(const Wt::WModelIndex &childIndex) const
+Wt::WModelIndex PdmWebTreeViewWModel::parent( const Wt::WModelIndex& childIndex ) const
 {
-    if (!childIndex.isValid()) return Wt::WModelIndex();
+    if ( !childIndex.isValid() ) return Wt::WModelIndex();
 
-    PdmUiTreeOrdering* childItem = static_cast<PdmUiTreeOrdering*>(childIndex.internalPointer());
-    if (!childItem) return Wt::WModelIndex();
+    PdmUiTreeOrdering* childItem = static_cast<PdmUiTreeOrdering*>( childIndex.internalPointer() );
+    if ( !childItem ) return Wt::WModelIndex();
 
     PdmUiTreeOrdering* parentItem = childItem->parent();
-    if (!parentItem) return Wt::WModelIndex();
+    if ( !parentItem ) return Wt::WModelIndex();
 
-    if (parentItem == m_treeOrderingRoot) return Wt::WModelIndex();
+    if ( parentItem == m_treeOrderingRoot ) return Wt::WModelIndex();
 
-    return createIndex(parentItem->indexInParent(), 0, parentItem);
+    return createIndex( parentItem->indexInParent(), 0, parentItem );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-int PdmWebTreeViewWModel::rowCount(const Wt::WModelIndex &parentIndex ) const
+int PdmWebTreeViewWModel::rowCount( const Wt::WModelIndex& parentIndex ) const
 {
-    if (!m_treeOrderingRoot)
-        return 0;
+    if ( !m_treeOrderingRoot ) return 0;
 
-    if (parentIndex.column() > 0)
-        return 0;
+    if ( parentIndex.column() > 0 ) return 0;
 
-    PdmUiTreeOrdering* parentItem = this->treeItemFromIndex(parentIndex);
+    PdmUiTreeOrdering* parentItem = this->treeItemFromIndex( parentIndex );
 
     return parentItem->childCount();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-int PdmWebTreeViewWModel::columnCount(const Wt::WModelIndex &parentIndex ) const
+int PdmWebTreeViewWModel::columnCount( const Wt::WModelIndex& parentIndex ) const
 {
-    if (!m_treeOrderingRoot)
-        return 0;
+    if ( !m_treeOrderingRoot ) return 0;
 
     return 1;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Wt::cpp17::any PdmWebTreeViewWModel::data(const Wt::WModelIndex &index, Wt::ItemDataRole role ) const
+Wt::cpp17::any PdmWebTreeViewWModel::data( const Wt::WModelIndex& index, Wt::ItemDataRole role ) const
 {
-    if (!index.isValid())
+    if ( !index.isValid() )
     {
         return Wt::cpp17::any();
     }
 
-    PdmUiTreeOrdering* uitreeOrdering = static_cast<PdmUiTreeOrdering*>(index.internalPointer());
-    if (!uitreeOrdering)
+    PdmUiTreeOrdering* uitreeOrdering = static_cast<PdmUiTreeOrdering*>( index.internalPointer() );
+    if ( !uitreeOrdering )
     {
         return Wt::cpp17::any();
     }
 
     bool isObjRep = uitreeOrdering->isRepresentingObject();
 
-    if (role == Wt::ItemDataRole::Display && !uitreeOrdering->isValid())
+    if ( role == Wt::ItemDataRole::Display && !uitreeOrdering->isValid() )
     {
         QString str;
 
@@ -574,18 +573,19 @@ Wt::cpp17::any PdmWebTreeViewWModel::data(const Wt::WModelIndex &index, Wt::Item
         return str.toStdString();
     }
 
-    if (role == Wt::ItemDataRole::Display || role == Wt::ItemDataRole::Edit)
+    if ( role == Wt::ItemDataRole::Display || role == Wt::ItemDataRole::Edit )
     {
-        if (isObjRep)
+        if ( isObjRep )
         {
-            PdmUiObjectHandle* pdmUiObject = uiObj(uitreeOrdering->object());
-            if (pdmUiObject)
+            PdmUiObjectHandle* pdmUiObject = uiObj( uitreeOrdering->object() );
+            if ( pdmUiObject )
             {
                 QVariant v;
-                if (pdmUiObject->userDescriptionField())
+                if ( pdmUiObject->userDescriptionField() )
                 {
-                    caf::PdmUiFieldHandle* uiFieldHandle = pdmUiObject->userDescriptionField()->uiCapability();
-                    if (uiFieldHandle)
+                    caf::PdmUiFieldHandle* uiFieldHandle =
+                        pdmUiObject->userDescriptionField()->capability<PdmUiFieldHandle>();
+                    if ( uiFieldHandle )
                     {
                         v = uiFieldHandle->uiValue();
                     }
@@ -597,13 +597,13 @@ Wt::cpp17::any PdmWebTreeViewWModel::data(const Wt::WModelIndex &index, Wt::Item
 
                 QString txt = v.toString();
 
-                if (m_treeViewEditor->isAppendOfClassNameToUiItemTextEnabled())
+                if ( m_treeViewEditor->isAppendOfClassNameToUiItemTextEnabled() )
                 {
                     PdmObjectHandle* pdmObjHandle = pdmUiObject->objectHandle();
-                    if (pdmObjHandle)
+                    if ( pdmObjHandle )
                     {
                         txt += " - ";
-                        txt += typeid(*pdmObjHandle).name();
+                        txt += typeid( *pdmObjHandle ).name();
                     }
                 }
 
@@ -614,8 +614,8 @@ Wt::cpp17::any PdmWebTreeViewWModel::data(const Wt::WModelIndex &index, Wt::Item
                 return Wt::cpp17::any();
             }
         }
-       
-        if (uitreeOrdering->activeItem())
+
+        if ( uitreeOrdering->activeItem() )
         {
             return uitreeOrdering->activeItem()->uiName().toStdString();
         }
@@ -624,9 +624,9 @@ Wt::cpp17::any PdmWebTreeViewWModel::data(const Wt::WModelIndex &index, Wt::Item
             return Wt::cpp17::any();
         }
     }
-    else if (role == Wt::ItemDataRole::Decoration)
+    else if ( role == Wt::ItemDataRole::Decoration )
     {
-        if (uitreeOrdering->activeItem())
+        if ( uitreeOrdering->activeItem() )
         {
             return uitreeOrdering->activeItem()->uiIconProvider().iconResourceString().toStdString();
         }
@@ -635,20 +635,20 @@ Wt::cpp17::any PdmWebTreeViewWModel::data(const Wt::WModelIndex &index, Wt::Item
             return Wt::cpp17::any();
         }
     }
-    else if (role == Wt::ItemDataRole::ToolTip)
+    else if ( role == Wt::ItemDataRole::ToolTip )
     {
-        if (uitreeOrdering->activeItem())
+        if ( uitreeOrdering->activeItem() )
         {
-             return uitreeOrdering->activeItem()->uiToolTip().toStdString();
+            return uitreeOrdering->activeItem()->uiToolTip().toStdString();
         }
         else
         {
             return Wt::cpp17::any();
         }
     }
-    else if (role == Wt::ItemDataRole::User)
+    else if ( role == Wt::ItemDataRole::User )
     {
-        if (uitreeOrdering->activeItem())
+        if ( uitreeOrdering->activeItem() )
         {
             return uitreeOrdering->activeItem()->uiWhatsThis().toStdString();
         }
@@ -657,18 +657,18 @@ Wt::cpp17::any PdmWebTreeViewWModel::data(const Wt::WModelIndex &index, Wt::Item
             return Wt::cpp17::any();
         }
     }
-    else if (role == Wt::ItemDataRole::Checked)
+    else if ( role == Wt::ItemDataRole::Checked )
     {
-        if (isObjRep)
+        if ( isObjRep )
         {
-            PdmUiObjectHandle* pdmUiObj = uiObj(uitreeOrdering->object());
-            if (pdmUiObj && pdmUiObj->objectToggleField())
+            PdmUiObjectHandle* pdmUiObj = uiObj( uitreeOrdering->object() );
+            if ( pdmUiObj && pdmUiObj->objectToggleField() )
             {
-                caf::PdmUiFieldHandle* uiFieldHandle = pdmUiObj->objectToggleField()->uiCapability();
-                if (uiFieldHandle)
+                caf::PdmUiFieldHandle* uiFieldHandle = pdmUiObj->objectToggleField()->capability<PdmUiFieldHandle>();
+                if ( uiFieldHandle )
                 {
                     bool isToggledOn = uiFieldHandle->uiValue().toBool();
-                    return Wt::cpp17::any(isToggledOn);
+                    return Wt::cpp17::any( isToggledOn );
                 }
                 else
                 {
@@ -682,45 +682,46 @@ Wt::cpp17::any PdmWebTreeViewWModel::data(const Wt::WModelIndex &index, Wt::Item
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool PdmWebTreeViewWModel::setData(const Wt::WModelIndex &index, const Wt::cpp17::any& value, Wt::ItemDataRole role /*= Wt::ItemDataRole::Edit*/)
+bool PdmWebTreeViewWModel::setData( const Wt::WModelIndex& index,
+                                    const Wt::cpp17::any&  value,
+                                    Wt::ItemDataRole       role /*= Wt::ItemDataRole::Edit*/ )
 {
-    if (!index.isValid())
+    if ( !index.isValid() )
     {
         return false;
     }
 
-    PdmUiTreeOrdering* treeItem = PdmWebTreeViewWModel::treeItemFromIndex(index);
-    CAF_ASSERT(treeItem);
+    PdmUiTreeOrdering* treeItem = PdmWebTreeViewWModel::treeItemFromIndex( index );
+    CAF_ASSERT( treeItem );
 
-    if (!treeItem->isRepresentingObject()) return false;
+    if ( !treeItem->isRepresentingObject() ) return false;
 
-    PdmUiObjectHandle* uiObject = uiObj(treeItem->object());
-    if (uiObject)
+    PdmUiObjectHandle* uiObject = uiObj( treeItem->object() );
+    if ( uiObject )
     {
-        if (role == Wt::ItemDataRole::Edit && uiObject->userDescriptionField())
+        if ( role == Wt::ItemDataRole::Edit && uiObject->userDescriptionField() )
         {
-            PdmUiFieldHandle* userDescriptionUiField = uiObject->userDescriptionField()->uiCapability();
-            if (userDescriptionUiField)
+            PdmUiFieldHandle* userDescriptionUiField = uiObject->userDescriptionField()->capability<PdmUiFieldHandle>();
+            if ( userDescriptionUiField )
             {
-                Wt::WString text = Wt::cpp17::any_cast<Wt::WString>(value);
-                QVariant qValue (QString::fromStdString(text.narrow()));
-                PdmUiCommandSystemProxy::instance()->setUiValueToField(userDescriptionUiField, qValue);
+                Wt::WString text = Wt::cpp17::any_cast<Wt::WString>( value );
+                QVariant    qValue( QString::fromStdString( text.narrow() ) );
+                PdmUiCommandSystemProxy::instance()->setUiValueToField( userDescriptionUiField, qValue );
             }
 
             return true;
         }
-        else if (   role == Wt::ItemDataRole::Checked &&
-                    uiObject->objectToggleField() && 
-                    !uiObject->objectToggleField()->uiCapability()->isUiReadOnly(m_uiConfigName))
+        else if ( role == Wt::ItemDataRole::Checked && uiObject->objectToggleField() &&
+                  !uiObject->objectToggleField()->capability<PdmUiFieldHandle>()->isUiReadOnly( m_uiConfigName ) )
         {
-            bool toggleOn = Wt::cpp17::any_cast<bool>(value);
+            bool toggleOn = Wt::cpp17::any_cast<bool>( value );
 
-            PdmUiFieldHandle* toggleUiField = uiObject->objectToggleField()->uiCapability();
-            if (toggleUiField)
+            PdmUiFieldHandle* toggleUiField = uiObject->objectToggleField()->capability<PdmUiFieldHandle>();
+            if ( toggleUiField )
             {
-                PdmUiCommandSystemProxy::instance()->setUiValueToField(toggleUiField, toggleOn);
+                PdmUiCommandSystemProxy::instance()->setUiValueToField( toggleUiField, toggleOn );
             }
 
             return true;
@@ -734,41 +735,42 @@ bool PdmWebTreeViewWModel::setData(const Wt::WModelIndex &index, const Wt::cpp17
 /// Enable edit of this item if we have a editable user description field for a pdmObject
 /// Disable edit for other items
 //--------------------------------------------------------------------------------------------------
-Wt::WFlags<Wt::ItemFlag> PdmWebTreeViewWModel::flags(const Wt::WModelIndex &index) const
+Wt::WFlags<Wt::ItemFlag> PdmWebTreeViewWModel::flags( const Wt::WModelIndex& index ) const
 {
-    if (!index.isValid())
+    if ( !index.isValid() )
     {
         return Wt::WFlags<Wt::ItemFlag>();
     }
 
-    Wt::WFlags<Wt::ItemFlag> flagMask = Wt::WAbstractItemModel::flags(index);
+    Wt::WFlags<Wt::ItemFlag> flagMask = Wt::WAbstractItemModel::flags( index );
 
-    PdmUiTreeOrdering* treeItem = treeItemFromIndex(index);
-    CAF_ASSERT(treeItem);
+    PdmUiTreeOrdering* treeItem = treeItemFromIndex( index );
+    CAF_ASSERT( treeItem );
 
-    if (treeItem->isRepresentingObject())
+    if ( treeItem->isRepresentingObject() )
     {
-        PdmUiObjectHandle* pdmUiObject = uiObj(treeItem->object());
-        if (pdmUiObject)
+        PdmUiObjectHandle* pdmUiObject = uiObj( treeItem->object() );
+        if ( pdmUiObject )
         {
             flagMask |= Wt::ItemFlag::Selectable;
-            if (pdmUiObject->userDescriptionField() && !pdmUiObject->userDescriptionField()->uiCapability()->isUiReadOnly())
+            if ( pdmUiObject->userDescriptionField() &&
+                 !pdmUiObject->userDescriptionField()->capability<PdmUiFieldHandle>()->isUiReadOnly() )
             {
                 flagMask = flagMask | Wt::ItemFlag::Editable;
             }
 
-            if (pdmUiObject->objectToggleField())
+            if ( pdmUiObject->objectToggleField() )
             {
                 flagMask = flagMask | Wt::ItemFlag::UserCheckable;
             }
         }
     }
 
-    if (treeItem->isValid())
+    if ( treeItem->isValid() )
     {
-        if (treeItem->activeItem()->isUiReadOnly())
+        if ( treeItem->activeItem()->isUiReadOnly() )
         {
-            flagMask = flagMask & ~Wt::WFlags<Wt::ItemFlag>(Wt::ItemFlag::Editable);
+            flagMask = flagMask & ~Wt::WFlags<Wt::ItemFlag>( Wt::ItemFlag::Editable );
         }
     }
 
@@ -781,16 +783,16 @@ Wt::WFlags<Wt::ItemFlag> PdmWebTreeViewWModel::flags(const Wt::WModelIndex &inde
     return flagMask;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Wt::cpp17::any PdmWebTreeViewWModel::headerData(int section, Wt::Orientation orientation, Wt::ItemDataRole role /*= Wt::ItemDataRole::Display */) const
+Wt::cpp17::any PdmWebTreeViewWModel::headerData( int              section,
+                                                 Wt::Orientation  orientation,
+                                                 Wt::ItemDataRole role /*= Wt::ItemDataRole::Display */ ) const
 {
-    if (role != Wt::ItemDataRole::Display)
-        return Wt::cpp17::any();
+    if ( role != Wt::ItemDataRole::Display ) return Wt::cpp17::any();
 
-    if (section < m_columnHeaders.size())
+    if ( section < m_columnHeaders.size() )
     {
         return m_columnHeaders[section];
     }
@@ -799,29 +801,29 @@ Wt::cpp17::any PdmWebTreeViewWModel::headerData(int section, Wt::Orientation ori
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-PdmUiItem* PdmWebTreeViewWModel::uiItemFromModelIndex(const Wt::WModelIndex& index) const
+PdmUiItem* PdmWebTreeViewWModel::uiItemFromModelIndex( const Wt::WModelIndex& index ) const
 {
-    PdmUiTreeOrdering* treeItem = this->treeItemFromIndex(index);
-    if (treeItem)
+    PdmUiTreeOrdering* treeItem = this->treeItemFromIndex( index );
+    if ( treeItem )
     {
         return treeItem->activeItem();
     }
-    
+
     return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewWModel::setDragDropInterface(PdmUiDragDropInterface* dragDropInterface)
+void PdmWebTreeViewWModel::setDragDropInterface( PdmUiDragDropInterface* dragDropInterface )
 {
     m_dragDropInterface = dragDropInterface;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiDragDropInterface* PdmWebTreeViewWModel::dragDropInterface()
 {

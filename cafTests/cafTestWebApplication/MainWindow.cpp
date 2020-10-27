@@ -48,7 +48,7 @@ public:
     {
         CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects", "", "", "", "")
 
-            objects.uiCapability()
+            objects.capability<caf::PdmUiObjectHandle>()
                 ->setUiHidden(true);
     }
 
@@ -85,7 +85,7 @@ public:
                           "",
                           "Enter a big number here",
                           "This is a place you can enter a big real value if you want");
-        m_doubleField.uiCapability()->setCustomContextMenuEnabled(true);
+        m_doubleField.capability<caf::PdmUiFieldHandle>()->setCustomContextMenuEnabled(true);
 
         CAF_PDM_InitField(&m_intField,
                           "IntNumber",
@@ -94,7 +94,7 @@ public:
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        m_intField.uiCapability()->setUiEditorTypeName(caf::PdmWebSliderEditor::uiEditorTypeName());
+        m_intField.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmWebSliderEditor::uiEditorTypeName());
         CAF_PDM_InitField(&m_textField,
                           "TextField",
                           QString("A cow jumped over whatever"),

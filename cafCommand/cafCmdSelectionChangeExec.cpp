@@ -71,8 +71,8 @@ void CmdSelectionChangeExec::undo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CmdSelectionChangeExec::CmdSelectionChangeExec( )
-    : CmdExecuteCommand( )
+CmdSelectionChangeExec::CmdSelectionChangeExec()
+    : CmdExecuteCommand()
 {
     m_commandData = new CmdSelectionChangeExecData;
 }

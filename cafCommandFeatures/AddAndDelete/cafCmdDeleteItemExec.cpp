@@ -76,7 +76,7 @@ void CmdDeleteItemExec::redo()
         {
             QString encodedXml;
             {
-                m_commandData->m_deletedObjectAsXml = xmlObj( obj.get() )->writeObjectToXmlString();
+                m_commandData->m_deletedObjectAsXml = obj->capability<PdmObjectIoCapability>()->writeObjectToString();
             }
         }
 
@@ -91,7 +91,7 @@ void CmdDeleteItemExec::redo()
             ownerUiObject->fieldChangedByUi( field, QVariant(), QVariant() );
         }
 
-        listField->uiCapability()->updateConnectedEditors();
+        listField->capability<PdmUiFieldHandle>()->updateConnectedEditors();
     }
 }
 
@@ -106,7 +106,7 @@ void CmdDeleteItemExec::undo()
     PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
     if ( listField )
     {
-        PdmObjectHandle* obj = PdmXmlObjectHandle::readUnknownObjectFromXmlString( m_commandData->m_deletedObjectAsXml(),
+        PdmObjectHandle* obj = PdmObjectIoCapability::readUnknownObjectFromString( m_commandData->m_deletedObjectAsXml(),
                                                                                    PdmDefaultObjectFactory::instance(),
                                                                                    false );
 
@@ -121,7 +121,7 @@ void CmdDeleteItemExec::undo()
             ownerUiObject->fieldChangedByUi( field, QVariant(), QVariant() );
         }
 
-        listField->uiCapability()->updateConnectedEditors();
+        listField->capability<PdmUiFieldHandle>()->updateConnectedEditors();
     }
 }
 

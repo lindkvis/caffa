@@ -52,10 +52,10 @@ void PdmObjectGroup::createCopyByType( std::vector<PdmPointer<T>>* copyOfTypedOb
 
     for ( size_t i = 0; i < sourceTypedObjects.size(); i++ )
     {
-        QString xml = xmlObj( sourceTypedObjects[i] )->writeObjectToXmlString();
-
+        auto             ioCapability = sourceTypedObjects[i]->capability<PdmObjectIoCapability>();
+        QString          string       = ioCapability->writeObjectToString();
         PdmObjectHandle* objectCopy =
-            PdmXmlObjectHandle::readUnknownObjectFromXmlString( xml, PdmDefaultObjectFactory::instance(), true );
+            PdmObjectIoCapability::readUnknownObjectFromString( string, PdmDefaultObjectFactory::instance(), true );
 
         T* typedObject = dynamic_cast<T*>( objectCopy );
         CAF_ASSERT( typedObject );

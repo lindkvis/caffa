@@ -8,7 +8,7 @@
 namespace caf
 {
 template <typename T>
-class PdmFieldXmlCap;
+class PdmFieldIoCap;
 //==================================================================================================
 /// Specialization for pointers, but only applicable to PdmObject derived objects.
 /// The pointer is guarded, meaning that it will be set to NULL if the object pointed to
@@ -69,7 +69,7 @@ public:
 private:
     PDM_DISABLE_COPY_AND_ASSIGN( PdmChildField );
 
-    friend class PdmFieldXmlCap<PdmChildField<DataType*>>;
+    friend class PdmFieldIoCap<PdmChildField<DataType*>>;
     PdmPointer<DataType> m_fieldValue;
 };
 

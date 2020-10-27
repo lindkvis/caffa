@@ -11,7 +11,7 @@ if (NOT CAFFA_WEB_DEPLOYMENT)
 endif()
 
 if (UNIX)
-    option(CAFFA_HARDWARE_IO "Build the Caffa Hardware IO library (Raspberry PI)" OFF)
+    option(CAFFA_GPIO "Build the Caffa Hardware GPIO library (Raspberry PI)" OFF)
 endif()
 
 option(BUILD_SHARED_LIBS "Create a shared Caffa library" ON)
@@ -47,7 +47,7 @@ endif()
 #libraries
 add_subdirectory (cafProjectDataModel/cafPdmCore)
 add_subdirectory (cafProjectDataModel/cafPdmUiCore)
-add_subdirectory (cafProjectDataModel/cafPdmXml)
+add_subdirectory (cafProjectDataModel/cafPdmIoCore)
 
 add_subdirectory(cafProjectDataModel)
 add_subdirectory(cafCommand)
@@ -76,10 +76,10 @@ if (CAFFA_DESKTOP_DEPLOYMENT)
 endif()
 
 add_subdirectory (cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests)
-add_subdirectory (cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests)
+add_subdirectory (cafProjectDataModel/cafPdmIoCore/cafPdmIoCore_UnitTests)
 add_subdirectory (cafProjectDataModel/cafProjectDataModel_UnitTests)
 if (CAFFA_HARDWARE_IO AND UNIX)
-    add_subdirectory (cafHardwareIO)
+    add_subdirectory (cafGPIO)
 endif()
 #add_subdirectory(cafPdmScripting/cafPdmScripting_UnitTests)
 
@@ -87,4 +87,4 @@ endif()
 # Turn on using solution folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set_property(TARGET  cafPdmCore cafPdmCore_UnitTests cafPdmXml cafPdmXml_UnitTests  cafPdmUiCore  PROPERTY FOLDER "PdmCore")
+set_property(TARGET  cafPdmCore cafPdmCore_UnitTests cafPdmIoCore cafPdmIoCore_UnitTests  cafPdmUiCore  PROPERTY FOLDER "PdmCore")

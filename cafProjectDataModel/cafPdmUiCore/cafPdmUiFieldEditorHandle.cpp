@@ -241,7 +241,9 @@ void PdmUiFieldEditorHandle::customMenuRequested( QPoint pos )
 
         QMenuWrapper menuWrapper;
         PdmUiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( widget );
-        objectHandle->uiCapability()->defineCustomContextMenu( uiField()->fieldHandle(), &menuWrapper, widget );
+        objectHandle->capability<PdmUiObjectHandle>()->defineCustomContextMenu( uiField()->fieldHandle(),
+                                                                                &menuWrapper,
+                                                                                widget );
 
         if ( !menuWrapper.actions().empty() )
         {

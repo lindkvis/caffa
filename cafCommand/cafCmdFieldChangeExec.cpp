@@ -53,7 +53,7 @@ QString CmdFieldChangeExec::name()
     {
         QString fieldText;
 
-        PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+        PdmUiFieldHandle* uiFieldHandle = field->capability<PdmUiFieldHandle>();
         if ( uiFieldHandle )
         {
             fieldText = QString( "Change field '%1'" ).arg( uiFieldHandle->uiName() );
@@ -88,16 +88,16 @@ void CmdFieldChangeExec::redo()
         return;
     }
 
-    PdmUiFieldHandle*  uiFieldHandle  = field->uiCapability();
-    PdmXmlFieldHandle* xmlFieldHandle = field->xmlCapability();
-    if ( uiFieldHandle && xmlFieldHandle )
+    PdmUiFieldHandle*     uiFieldHandle = field->capability<PdmUiFieldHandle>();
+    PdmFieldIoCapability* ioCapability  = field->capability<PdmFieldIoCapability>();
+    if ( uiFieldHandle && ioCapability )
     {
         if ( m_commandData->m_redoFieldValueSerialized.isEmpty() )
         {
             // We end up here only when the user actually has done something in the actual living Gui editor.
             {
                 QXmlStreamWriter xmlStream( &m_commandData->m_undoFieldValueSerialized );
-                writeFieldDataToValidXmlDocument( xmlStream, xmlFieldHandle );
+                writeFieldDataToValidXmlDocument( xmlStream, ioCapability );
             }
 
             // This function will notify field change, no need to explicitly call notification
@@ -108,7 +108,7 @@ void CmdFieldChangeExec::redo()
 
             {
                 QXmlStreamWriter xmlStream( &m_commandData->m_redoFieldValueSerialized );
-                writeFieldDataToValidXmlDocument( xmlStream, xmlFieldHandle );
+                writeFieldDataToValidXmlDocument( xmlStream, ioCapability );
             }
         }
         else
@@ -117,7 +117,7 @@ void CmdFieldChangeExec::redo()
 
             QXmlStreamReader xmlStream( m_commandData->m_redoFieldValueSerialized );
 
-            readFieldValueFromValidXmlDocument( xmlStream, xmlFieldHandle );
+            readFieldValueFromValidXmlDocument( xmlStream, ioCapability );
 
             QVariant newFieldData = uiFieldHandle->toUiBasedQVariant();
 
@@ -125,7 +125,6 @@ void CmdFieldChangeExec::redo()
             uiFieldHandle->notifyFieldChanged( oldFieldData, newFieldData );
         }
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,14 +140,14 @@ void CmdFieldChangeExec::undo()
         return;
     }
 
-    PdmUiFieldHandle*  uiFieldHandle  = field->uiCapability();
-    PdmXmlFieldHandle* xmlFieldHandle = field->xmlCapability();
-    if ( uiFieldHandle && xmlFieldHandle )
+    PdmUiFieldHandle*     uiFieldHandle = field->capability<PdmUiFieldHandle>();
+    PdmFieldIoCapability* ioCapability  = field->capability<PdmFieldIoCapability>();
+    if ( uiFieldHandle && ioCapability )
     {
         QXmlStreamReader xmlStream( m_commandData->m_undoFieldValueSerialized );
         QVariant         oldFieldData = uiFieldHandle->toUiBasedQVariant();
 
-        readFieldValueFromValidXmlDocument( xmlStream, xmlFieldHandle );
+        readFieldValueFromValidXmlDocument( xmlStream, ioCapability );
 
         QVariant newFieldData = uiFieldHandle->toUiBasedQVariant();
 
@@ -160,8 +159,8 @@ void CmdFieldChangeExec::undo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CmdFieldChangeExec::CmdFieldChangeExec(  )
-    : CmdExecuteCommand( )
+CmdFieldChangeExec::CmdFieldChangeExec()
+    : CmdExecuteCommand()
 {
     m_commandData = new CmdFieldChangeExecData;
 }
@@ -184,12 +183,12 @@ CmdFieldChangeExecData* CmdFieldChangeExec::commandData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void CmdFieldChangeExec::writeFieldDataToValidXmlDocument( QXmlStreamWriter& xmlStream, PdmXmlFieldHandle* xmlFieldHandle )
+void CmdFieldChangeExec::writeFieldDataToValidXmlDocument( QXmlStreamWriter& xmlStream, PdmFieldIoCapability* ioCapability )
 {
     xmlStream.setAutoFormatting( true );
     xmlStream.writeStartDocument();
     xmlStream.writeStartElement( "", "d" );
-    xmlFieldHandle->writeFieldData( xmlStream );
+    ioCapability->writeFieldData( xmlStream );
     xmlStream.writeEndElement();
     xmlStream.writeEndDocument();
 }
@@ -197,7 +196,7 @@ void CmdFieldChangeExec::writeFieldDataToValidXmlDocument( QXmlStreamWriter& xml
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void CmdFieldChangeExec::readFieldValueFromValidXmlDocument( QXmlStreamReader& xmlStream, PdmXmlFieldHandle* xmlFieldHandle )
+void CmdFieldChangeExec::readFieldValueFromValidXmlDocument( QXmlStreamReader& xmlStream, PdmFieldIoCapability* ioCapability )
 {
     // See PdmObject::readFields and friends to match token count for reading field values
     // The stream is supposed to be pointing at the first token of field content when calling readFieldData()
@@ -207,7 +206,7 @@ void CmdFieldChangeExec::readFieldValueFromValidXmlDocument( QXmlStreamReader& x
     {
         tt = xmlStream.readNext();
     }
-    xmlFieldHandle->readFieldData( xmlStream, PdmDefaultObjectFactory::instance() );
+    ioCapability->readFieldData( xmlStream, PdmDefaultObjectFactory::instance() );
 }
 
 } // end namespace caf

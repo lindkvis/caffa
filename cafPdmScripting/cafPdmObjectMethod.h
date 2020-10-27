@@ -73,7 +73,7 @@ public:
     // Return true here to allow this
     virtual bool isNullptrValidResult() const { return false; }
 
-    virtual QString selfClassKeyword() const { return m_self->xmlCapability()->classKeyword(); }
+    virtual QString selfClassKeyword() const { return m_self->capability<PdmObjectIoCapability>()->classKeyword(); }
 
     // True if object is a persistent project tree item. False if the object is to be deleted on completion.
     virtual bool resultIsPersistent() const = 0;

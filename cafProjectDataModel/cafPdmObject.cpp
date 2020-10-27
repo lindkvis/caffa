@@ -9,7 +9,7 @@ CAF_PDM_ABSTRACT_SOURCE_INIT( PdmObject, "PdmObjectBase" );
 //--------------------------------------------------------------------------------------------------
 caf::PdmObject::PdmObject()
     : PdmObjectHandle()
-    , PdmXmlObjectHandle( this, false )
+    , PdmObjectIoCapability( this, false )
     , PdmUiObjectHandle( this, false )
 {
     CAF_PDM_InitObject( "Base PDM Object", "", "", "The Abstract Base Class for the Project Data Model" );

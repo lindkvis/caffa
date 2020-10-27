@@ -2,9 +2,10 @@
 #include "gtest/gtest.h"
 
 #include "cafPdmDataValueField.h"
+#include "cafPdmFieldIoCapabilitySpecializations.h"
 #include "cafPdmObjectHandle.h"
-#include "cafPdmXmlObjectHandle.h"
-#include "cafPdmXmlObjectHandleMacros.h"
+#include "cafPdmObjectHandleIoMacros.h"
+#include "cafPdmObjectXmlCapability.h"
 
 #include <QXmlStreamWriter>
 
@@ -13,20 +14,20 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class SimpleObjectWithNumbers : public caf::PdmObjectHandle, public caf::PdmXmlObjectHandle
+class SimpleObjectWithNumbers : public caf::PdmObjectHandle, public caf::PdmObjectIoCapability
 {
-    CAF_PDM_XML_HEADER_INIT;
+    CAF_PDM_IO_HEADER_INIT;
 
 public:
     SimpleObjectWithNumbers()
         : PdmObjectHandle()
-        , PdmXmlObjectHandle( this, false )
+        , PdmObjectIoCapability( this, false )
     {
-        CAF_PDM_XML_InitField( &m_valueA, "ValueA" );
-        CAF_PDM_XML_InitField( &m_valueB, "ValueB" );
+        CAF_PDM_IO_InitField( &m_valueA, "ValueA" );
+        CAF_PDM_IO_InitField( &m_valueB, "ValueB" );
 
-        CAF_PDM_XML_InitField( &m_floatValueA, "FloatValueA" );
-        CAF_PDM_XML_InitField( &m_floatValueB, "FloatValueB" );
+        CAF_PDM_IO_InitField( &m_floatValueA, "FloatValueA" );
+        CAF_PDM_IO_InitField( &m_floatValueB, "FloatValueB" );
     }
 
     caf::PdmDataValueField<double> m_valueA;
@@ -35,7 +36,7 @@ public:
     caf::PdmDataValueField<float> m_floatValueA;
     caf::PdmDataValueField<float> m_floatValueB;
 };
-CAF_PDM_XML_SOURCE_INIT( SimpleObjectWithNumbers, "SimpleObjectWithNumbers" );
+CAF_PDM_IO_SOURCE_INIT( SimpleObjectWithNumbers, "SimpleObjectWithNumbers" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -53,13 +54,13 @@ TEST( SerializeNumbers, SimpleObjectWithDoubleValues )
         obj1.m_valueA = valueA;
         obj1.m_valueB = valueB;
 
-        objectAsText = obj1.writeObjectToXmlString();
+        objectAsText = obj1.writeObjectToString();
     }
 
     {
         SimpleObjectWithNumbers obj1;
 
-        obj1.readObjectFromXmlString( objectAsText, caf::PdmDefaultObjectFactory::instance() );
+        obj1.readObjectFromString( objectAsText, caf::PdmDefaultObjectFactory::instance() );
 
         {
             double epsilon = 1e-7;
@@ -93,13 +94,13 @@ TEST( SerializeNumbers, SimpleObjectWithFloatValues )
         obj1.m_floatValueA = valueA;
         obj1.m_floatValueB = valueB;
 
-        objectAsText = obj1.writeObjectToXmlString();
+        objectAsText = obj1.writeObjectToString();
     }
 
     {
         SimpleObjectWithNumbers obj1;
 
-        obj1.readObjectFromXmlString( objectAsText, caf::PdmDefaultObjectFactory::instance() );
+        obj1.readObjectFromString( objectAsText, caf::PdmDefaultObjectFactory::instance() );
 
         double epsilon = 1e-7;
 

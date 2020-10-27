@@ -84,11 +84,11 @@ void PdmUiCommandSystemProxy::setUiValueToField( PdmUiFieldHandle* uiFieldHandle
     if ( uiFieldHandle )
     {
         // Handle editing multiple objects when several objects are selected
-        PdmFieldHandle*       editorField      = uiFieldHandle->fieldHandle();
-        auto                  ownerObject      = editorField->ownerObject();
+        PdmFieldHandle* editorField = uiFieldHandle->fieldHandle();
+        auto            ownerObject = editorField->ownerObject();
 
         CAF_ASSERT( ownerObject );
-        auto&                  ownerRef         = *ownerObject;
+        auto&                 ownerRef         = *ownerObject;
         const std::type_info& fieldOwnerTypeId = typeid( ownerRef );
 
         std::vector<PdmFieldHandle*> fieldsToUpdate;
@@ -141,7 +141,7 @@ void PdmUiCommandSystemProxy::setUiValueToField( PdmUiFieldHandle* uiFieldHandle
         {
             for ( auto fieldHandle : fieldsToUpdate )
             {
-                fieldHandle->uiCapability()->setValueFromUiEditor( newUiValue );
+                fieldHandle->capability<PdmUiFieldHandle>()->setValueFromUiEditor( newUiValue );
             }
         }
     }

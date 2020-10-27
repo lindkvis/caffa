@@ -16,7 +16,7 @@ bool PdmFieldHandle::assertValid() const
         return false;
     }
 
-    if (!PdmXmlSerializable::isValidXmlElementName(m_keyword))
+    if (!PdmXmlSerializable::isValidElementName(m_keyword))
     {
         std::cout << "PdmField: The supplied keyword: \"" << m_keyword.toStdString() << "\" is an invalid XML element name, and will break your file format!\n";
         return false;
@@ -132,12 +132,12 @@ std::vector<QString> PdmFieldHandle::keywordAliases() const
 
 // These two functions can be used when PdmCore is used standalone without PdmUi/PdmXml
 /*
-PdmUiFieldHandle* PdmFieldHandle::uiCapability()
+PdmUiFieldHandle* PdmFieldHandle::capability<PdmUiFieldHandle>()
 {
     return NULL;
 }
 
-PdmXmlFieldHandle* PdmFieldHandle::xmlCapability()
+PdmXmlFieldHandle* PdmFieldHandle::capability<PdmObjectXmlCapability>()
 {
     return NULL;
 }

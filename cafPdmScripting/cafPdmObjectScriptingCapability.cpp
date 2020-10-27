@@ -36,10 +36,10 @@
 #include "cafPdmObjectScriptingCapability.h"
 
 #include "cafPdmAbstractFieldScriptingCapability.h"
+#include "cafPdmFieldIoCapability.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmScriptIOMessages.h"
-#include "cafPdmXmlFieldHandle.h"
 
 #include <QTextStream>
 
@@ -147,14 +147,14 @@ void PdmObjectScriptingCapability::readFields( QTextStream&         inputStream,
             // Make field read its data
 
             PdmFieldHandle* fieldHandle = m_owner->findField( keyword );
-            if ( fieldHandle && fieldHandle->xmlCapability() &&
+            if ( fieldHandle && fieldHandle->capability<PdmFieldIoCapability>() &&
                  fieldHandle->capability<PdmAbstractFieldScriptingCapability>() )
             {
-                PdmXmlFieldHandle*                   xmlFieldHandle = fieldHandle->xmlCapability();
+                auto                                 ioFieldHandle = fieldHandle->capability<PdmFieldIoCapability>();
                 PdmAbstractFieldScriptingCapability* scriptability =
                     fieldHandle->capability<PdmAbstractFieldScriptingCapability>();
 
-                if ( xmlFieldHandle->isIOReadable() )
+                if ( ioFieldHandle->isIOReadable() )
                 {
                     errorMessageContainer->currentArgument = keyword;
                     scriptability->writeToField( inputStream, objectFactory, errorMessageContainer );
@@ -221,13 +221,13 @@ void PdmObjectScriptingCapability::writeFields( QTextStream& outputStream ) cons
     int writtenFieldCount = 0;
     for ( size_t it = 0; it < fields.size(); ++it )
     {
-        const PdmXmlFieldHandle*                   xmlField = fields[it]->xmlCapability();
+        const auto                                 ioField = fields[it]->capability<PdmFieldIoCapability>();
         const PdmAbstractFieldScriptingCapability* scriptability =
             fields[it]->capability<PdmAbstractFieldScriptingCapability>();
-        if ( scriptability && xmlField && xmlField->isIOWritable() )
+        if ( scriptability && ioField && ioField->isIOWritable() )
         {
-            QString keyword = xmlField->fieldHandle()->keyword();
-            CAF_ASSERT( PdmXmlObjectHandle::isValidXmlElementName( keyword ) );
+            QString keyword = ioField->fieldHandle()->keyword();
+            CAF_ASSERT( PdmObjectIoCapability::isValidElementName( keyword ) );
 
             if ( writtenFieldCount >= 1 )
             {

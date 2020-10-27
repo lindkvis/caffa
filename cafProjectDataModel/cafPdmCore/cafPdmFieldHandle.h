@@ -8,7 +8,7 @@ namespace caf
 {
 class PdmObjectHandle;
 class PdmUiFieldHandle;
-class PdmXmlFieldHandle;
+class PdmFieldIoCapability;
 
 //==================================================================================================
 /// Base class for all fields, making it possible to handle them generically
@@ -50,9 +50,6 @@ public:
     CapabilityType* capability();
     template <typename CapabilityType>
     const CapabilityType* capability() const;
-
-    PdmUiFieldHandle*  uiCapability();
-    PdmXmlFieldHandle* xmlCapability();
 
 protected:
     bool isInitializedByInitFieldMacro() const { return m_ownerObject != nullptr; }

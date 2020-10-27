@@ -1,7 +1,10 @@
 #pragma once
 
 #include "cafPdmFieldCapability.h"
+
 #include <QString>
+
+#include <memory>
 #include <vector>
 
 class QXmlStreamReader;
@@ -10,7 +13,9 @@ class QXmlStreamWriter;
 namespace caf
 {
 class PdmFieldHandle;
+class PdmFieldXmlCapability;
 class PdmObjectFactory;
+class PdmObjectHandle;
 class PdmReferenceHelper;
 
 //==================================================================================================
@@ -18,11 +23,12 @@ class PdmReferenceHelper;
 //
 //
 //==================================================================================================
-class PdmXmlFieldHandle : public PdmFieldCapability
+class PdmFieldIoCapability : public PdmFieldCapability
 {
 public:
-    PdmXmlFieldHandle( PdmFieldHandle* owner, bool giveOwnership );
-    ~PdmXmlFieldHandle() override {}
+    PdmFieldIoCapability( PdmFieldHandle* owner, bool giveOwnership );
+
+    ~PdmFieldIoCapability() override = default;
 
     PdmFieldHandle*       fieldHandle() { return m_owner; }
     const PdmFieldHandle* fieldHandle() const { return m_owner; }
@@ -40,25 +46,23 @@ public:
 
     QString dataTypeName() const;
 
-    virtual void readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) = 0;
-    virtual void writeFieldData( QXmlStreamWriter& xmlStream ) const                           = 0;
-
     virtual bool resolveReferences() = 0;
 
     virtual QString referenceString() const { return QString(); }
 
+    virtual void readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) = 0;
+    virtual void writeFieldData( QXmlStreamWriter& xmlStream ) const                           = 0;
+
 protected:
-    bool    assertValid() const;
+    bool assertValid() const;
+
     QString m_dataTypeName; ///< Must be set in constructor of derived XmlFieldHandle
 
-private:
+protected:
     bool m_isIOReadable;
     bool m_isIOWritable;
     bool m_isCopyable;
 
     PdmFieldHandle* m_owner;
 };
-
 } // End of namespace caf
-
-#include "cafInternalPdmXmlFieldCapability.h"

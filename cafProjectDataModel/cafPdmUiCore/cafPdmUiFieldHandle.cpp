@@ -137,15 +137,4 @@ bool PdmUiFieldHandle::isQVariantDataEqual( const QVariant& oldUiBasedQVariant, 
     return false;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// Implementation of uiCapability() defined in cafPdmFieldHandle.h
-//--------------------------------------------------------------------------------------------------
-PdmUiFieldHandle* PdmFieldHandle::uiCapability()
-{
-    PdmUiFieldHandle* uiField = capability<PdmUiFieldHandle>();
-    CAF_ASSERT( uiField );
-
-    return uiField;
-}
-
 } // End of namespace caf

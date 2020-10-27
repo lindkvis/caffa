@@ -86,14 +86,7 @@ find_package(OpenSSL REQUIRED)
 
 find_package(Boost 1.60 COMPONENTS system regex program_options thread filesystem date_time REQUIRED)
 
-set(OTHER_DEPENDENCIES)
-if (UNIX)
-    find_package(Fontconfig REQUIRED)
-    find_package(Freetype REQUIRED)
-    list(APPEND OTHER_DEPENDENCIES ffi expat harfbuzz)
-endif()
-
-find_package(WT COMPONENTS Wt HTTP REQUIRED)
+find_package(wt COMPONENTS Wt HTTP REQUIRED)
 
 if (MSVC) 
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127 /wd4267")
@@ -108,10 +101,7 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries ( ${PROJECT_NAME}	
     ${QT_LIBRARIES}
     ${Boost_LIBRARIES}
-    ${FREETYPE_LIBRARIES}
-    ${Fontconfig_LIBRARIES}    
-    ${OTHER_DEPENDENCIES}
-    OpenSSL::Crypto Wt::Wt Wt::HTTP
+    Wt::Wt Wt::HTTP
     cafProjectDataModel
     cafCommonInterface
 )

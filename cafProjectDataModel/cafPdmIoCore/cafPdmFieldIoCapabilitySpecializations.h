@@ -1,14 +1,17 @@
 #pragma once
 
 #include "cafInternalPdmXmlFieldReaderWriter.h"
-#include "cafPdmXmlFieldHandle.h"
+#include "cafPdmFieldIoCapability.h"
 
 #include <typeinfo>
+
+class QXmlStreamReader;
+class QXmlStreamWriter;
 
 namespace caf
 {
 template <typename FieldType>
-class PdmFieldXmlCap : public PdmXmlFieldHandle
+class PdmFieldIoCap : public PdmFieldIoCapability
 {
 public:
     // Type traits magic to check if a template argument is a vector
@@ -21,8 +24,8 @@ public:
     {
     };
 
-    PdmFieldXmlCap( FieldType* field, bool giveOwnership )
-        : PdmXmlFieldHandle( field, giveOwnership )
+    PdmFieldIoCap( FieldType* field, bool giveOwnership )
+        : PdmFieldIoCapability( field, giveOwnership )
     {
         m_field        = field;
         m_dataTypeName = QString( "%1" ).arg( typeid( typename FieldType::FieldDataType ).name() );
@@ -44,13 +47,13 @@ template <typename DataType>
 class PdmPtrField;
 
 template <typename DataType>
-class PdmFieldXmlCap<PdmPtrField<DataType*>> : public PdmXmlFieldHandle
+class PdmFieldIoCap<PdmPtrField<DataType*>> : public PdmFieldIoCapability
 {
     typedef PdmPtrField<DataType*> FieldType;
 
 public:
-    PdmFieldXmlCap( FieldType* field, bool giveOwnership )
-        : PdmXmlFieldHandle( field, giveOwnership )
+    PdmFieldIoCap( FieldType* field, bool giveOwnership )
+        : PdmFieldIoCapability( field, giveOwnership )
     {
         m_field           = field;
         m_dataTypeName    = DataType::classKeywordStatic();
@@ -77,13 +80,13 @@ template <typename DataType>
 class PdmPtrArrayField;
 
 template <typename DataType>
-class PdmFieldXmlCap<PdmPtrArrayField<DataType*>> : public PdmXmlFieldHandle
+class PdmFieldIoCap<PdmPtrArrayField<DataType*>> : public PdmFieldIoCapability
 {
     typedef PdmPtrArrayField<DataType*> FieldType;
 
 public:
-    PdmFieldXmlCap( FieldType* field, bool giveOwnership )
-        : PdmXmlFieldHandle( field, giveOwnership )
+    PdmFieldIoCap( FieldType* field, bool giveOwnership )
+        : PdmFieldIoCapability( field, giveOwnership )
     {
         m_field           = field;
         m_dataTypeName    = DataType::classKeywordStatic();
@@ -110,13 +113,13 @@ template <typename DataType>
 class PdmChildField;
 
 template <typename DataType>
-class PdmFieldXmlCap<PdmChildField<DataType*>> : public PdmXmlFieldHandle
+class PdmFieldIoCap<PdmChildField<DataType*>> : public PdmFieldIoCapability
 {
     typedef PdmChildField<DataType*> FieldType;
 
 public:
-    PdmFieldXmlCap( FieldType* field, bool giveOwnership )
-        : PdmXmlFieldHandle( field, giveOwnership )
+    PdmFieldIoCap( FieldType* field, bool giveOwnership )
+        : PdmFieldIoCapability( field, giveOwnership )
     {
         m_field        = field;
         m_dataTypeName = DataType::classKeywordStatic();
@@ -136,13 +139,13 @@ template <typename DataType>
 class PdmChildArrayField;
 
 template <typename DataType>
-class PdmFieldXmlCap<PdmChildArrayField<DataType*>> : public PdmXmlFieldHandle
+class PdmFieldIoCap<PdmChildArrayField<DataType*>> : public PdmFieldIoCapability
 {
     typedef PdmChildArrayField<DataType*> FieldType;
 
 public:
-    PdmFieldXmlCap( FieldType* field, bool giveOwnership )
-        : PdmXmlFieldHandle( field, giveOwnership )
+    PdmFieldIoCap( FieldType* field, bool giveOwnership )
+        : PdmFieldIoCapability( field, giveOwnership )
     {
         m_field        = field;
         m_dataTypeName = DataType::classKeywordStatic();
@@ -163,13 +166,13 @@ template <typename DataType>
 class PdmField;
 
 template <typename DataType>
-class PdmFieldXmlCap<PdmField<std::vector<DataType>>> : public PdmXmlFieldHandle
+class PdmFieldIoCap<PdmField<std::vector<DataType>>> : public PdmFieldIoCapability
 {
     typedef PdmField<std::vector<DataType>> FieldType;
 
 public:
-    PdmFieldXmlCap( FieldType* field, bool giveOwnership )
-        : PdmXmlFieldHandle( field, giveOwnership )
+    PdmFieldIoCap( FieldType* field, bool giveOwnership )
+        : PdmFieldIoCapability( field, giveOwnership )
     {
         m_field = field;
 
@@ -188,11 +191,11 @@ private:
 };
 
 template <typename FieldType>
-void AddXmlCapabilityToField( FieldType* field )
+void AddIoCapabilityToField( FieldType* field )
 {
-    if ( field->template capability<PdmFieldXmlCap<FieldType>>() == NULL )
+    if ( !field->template capability<PdmFieldIoCapability>() )
     {
-        new PdmFieldXmlCap<FieldType>( field, true );
+        new PdmFieldIoCap<FieldType>( field, true );
     }
 }
 
@@ -204,4 +207,4 @@ void RegisterClassWithField( const QString& classKeyword, FieldType* field )
 
 } // End of namespace caf
 
-#include "cafInternalPdmXmlFieldCapability.inl"
+#include "cafPdmFieldIoCapabilitySpecializations.inl"

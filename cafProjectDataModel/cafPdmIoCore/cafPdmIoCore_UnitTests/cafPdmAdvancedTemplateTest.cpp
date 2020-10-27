@@ -5,32 +5,33 @@
 #include "cafFilePath.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmDataValueField.h"
+#include "cafPdmFieldIoCapabilitySpecializations.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmObjectHandleIoMacros.h"
+#include "cafPdmObjectIoCapability.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmReferenceHelper.h"
-#include "cafPdmXmlObjectHandle.h"
-#include "cafPdmXmlObjectHandleMacros.h"
 
 #include <QXmlStreamWriter>
 
-class ItemPdmObject : public caf::PdmObjectHandle, public caf::PdmXmlObjectHandle
+class ItemPdmObject : public caf::PdmObjectHandle, public caf::PdmObjectIoCapability
 {
-    CAF_PDM_XML_HEADER_INIT;
+    CAF_PDM_IO_HEADER_INIT;
 
 public:
     ItemPdmObject()
         : PdmObjectHandle()
-        , PdmXmlObjectHandle( this, false )
+        , PdmObjectIoCapability( this, false )
     {
-        CAF_PDM_XML_InitField( &m_name, "Name" );
+        CAF_PDM_IO_InitField( &m_name, "Name" );
     }
 
     explicit ItemPdmObject( QString name )
         : PdmObjectHandle()
-        , PdmXmlObjectHandle( this, false )
+        , PdmObjectIoCapability( this, false )
     {
-        CAF_PDM_XML_InitField( &m_name, "Name" );
+        CAF_PDM_IO_InitField( &m_name, "Name" );
         m_name = name;
     }
 
@@ -39,22 +40,22 @@ public:
     // Fields
     caf::PdmDataValueField<QString> m_name;
 };
-CAF_PDM_XML_SOURCE_INIT( ItemPdmObject, "ItemPdmObject" );
+CAF_PDM_IO_SOURCE_INIT( ItemPdmObject, "ItemPdmObject" );
 
 class DemoPdmObjectA;
 
-class ContainerPdmObject : public caf::PdmObjectHandle, public caf::PdmXmlObjectHandle
+class ContainerPdmObject : public caf::PdmObjectHandle, public caf::PdmObjectIoCapability
 {
-    CAF_PDM_XML_HEADER_INIT;
+    CAF_PDM_IO_HEADER_INIT;
 
 public:
     ContainerPdmObject()
         : PdmObjectHandle()
-        , PdmXmlObjectHandle( this, false )
+        , PdmObjectIoCapability( this, false )
     {
-        CAF_PDM_XML_InitField( &m_items, "Items" );
-        CAF_PDM_XML_InitField( &m_containers, "Containers" );
-        CAF_PDM_XML_InitField( &m_demoObjs, "DemoObjs" );
+        CAF_PDM_IO_InitField( &m_items, "Items" );
+        CAF_PDM_IO_InitField( &m_containers, "Containers" );
+        CAF_PDM_IO_InitField( &m_demoObjs, "DemoObjs" );
     }
 
     ~ContainerPdmObject() {}
@@ -64,11 +65,11 @@ public:
     caf::PdmChildArrayField<ContainerPdmObject*> m_containers;
     caf::PdmChildArrayField<DemoPdmObjectA*>     m_demoObjs;
 };
-CAF_PDM_XML_SOURCE_INIT( ContainerPdmObject, "ContainerPdmObject" );
+CAF_PDM_IO_SOURCE_INIT( ContainerPdmObject, "ContainerPdmObject" );
 
-class DemoPdmObjectA : public caf::PdmObjectHandle, public caf::PdmXmlObjectHandle
+class DemoPdmObjectA : public caf::PdmObjectHandle, public caf::PdmObjectIoCapability
 {
-    CAF_PDM_XML_HEADER_INIT;
+    CAF_PDM_IO_HEADER_INIT;
 
 public:
     enum TestEnumType
@@ -80,14 +81,14 @@ public:
 
     DemoPdmObjectA()
         : PdmObjectHandle()
-        , PdmXmlObjectHandle( this, false )
+        , PdmObjectIoCapability( this, false )
     {
-        CAF_PDM_XML_InitField( &m_doubleField, "BigNumber" );
+        CAF_PDM_IO_InitField( &m_doubleField, "BigNumber" );
         m_doubleField.registerSetMethod( this, &DemoPdmObjectA::setDoubleMember );
         m_doubleField.registerGetMethod( this, &DemoPdmObjectA::doubleMember );
 
-        CAF_PDM_XML_InitField( &m_pointerToItem, "TestPointerToItem" );
-        CAF_PDM_XML_InitField( &m_pointerToDemoObj, "TestPointerToDemo" );
+        CAF_PDM_IO_InitField( &m_pointerToItem, "TestPointerToItem" );
+        CAF_PDM_IO_InitField( &m_pointerToDemoObj, "TestPointerToDemo" );
     }
 
     ~DemoPdmObjectA() {}
@@ -112,7 +113,7 @@ public:
     double m_doubleMember;
 };
 
-CAF_PDM_XML_SOURCE_INIT( DemoPdmObjectA, "DemoPdmObjectA" );
+CAF_PDM_IO_SOURCE_INIT( DemoPdmObjectA, "DemoPdmObjectA" );
 
 namespace caf
 {
@@ -164,7 +165,7 @@ TEST( AdvancedObjectTest, FieldWrite )
         {
             DemoPdmObjectA* a = new DemoPdmObjectA;
             sibling->m_demoObjs.push_back( a );
-            serializedString = a->writeObjectToXmlString();
+            serializedString = a->writeObjectToString();
             delete a;
         }
 
@@ -172,7 +173,7 @@ TEST( AdvancedObjectTest, FieldWrite )
             DemoPdmObjectA* a = new DemoPdmObjectA;
             sibling->m_demoObjs.push_back( a );
 
-            a->readObjectFromXmlString( serializedString, caf::PdmDefaultObjectFactory::instance() );
+            a->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance() );
 
             ASSERT_TRUE( a->m_pointerToItem() == NULL );
         }
@@ -186,7 +187,7 @@ TEST( AdvancedObjectTest, FieldWrite )
 
             a->m_pointerToItem = container->m_items[1];
 
-            serializedString = a->writeObjectToXmlString();
+            serializedString = a->writeObjectToString();
             std::cout << serializedString.toStdString() << std::endl;
             delete a;
         }
@@ -195,8 +196,8 @@ TEST( AdvancedObjectTest, FieldWrite )
             DemoPdmObjectA* a = new DemoPdmObjectA;
             sibling->m_demoObjs.push_back( a );
 
-            a->readObjectFromXmlString( serializedString, caf::PdmDefaultObjectFactory::instance() );
-            a->xmlCapability()->resolveReferencesRecursively();
+            a->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance() );
+            a->capability<caf::PdmObjectIoCapability>()->resolveReferencesRecursively();
 
             ASSERT_TRUE( a->m_pointerToItem() == container->m_items[1] );
         }
@@ -241,8 +242,9 @@ TEST( AdvancedObjectTest, CopyOfObjects )
                 a->m_pointerToItem = container->m_items[1];
 
                 {
-                    auto* objCopy = dynamic_cast<DemoPdmObjectA*>(
-                        a->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+                    auto* objCopy =
+                        dynamic_cast<DemoPdmObjectA*>( a->capability<caf::PdmObjectIoCapability>()->copyBySerialization(
+                            caf::PdmDefaultObjectFactory::instance() ) );
                     std::vector<caf::PdmFieldHandle*> fieldWithFailingResolve;
                     objCopy->resolveReferencesRecursively( &fieldWithFailingResolve );
                     ASSERT_FALSE( fieldWithFailingResolve.empty() );
@@ -250,8 +252,9 @@ TEST( AdvancedObjectTest, CopyOfObjects )
                 }
 
                 {
-                    auto* objCopy = dynamic_cast<DemoPdmObjectA*>(
-                        a->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+                    auto* objCopy =
+                        dynamic_cast<DemoPdmObjectA*>( a->capability<caf::PdmObjectIoCapability>()->copyBySerialization(
+                            caf::PdmDefaultObjectFactory::instance() ) );
 
                     sibling->m_demoObjs.push_back( objCopy );
 

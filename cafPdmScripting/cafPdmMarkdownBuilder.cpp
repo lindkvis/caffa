@@ -39,12 +39,12 @@
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
+#include "cafPdmFieldIoCapability.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectFactory.h"
 #include "cafPdmObjectScriptingCapabilityRegister.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPythonGenerator.h"
-#include "cafPdmXmlFieldHandle.h"
 
 #include <QRegularExpression>
 #include <QTextStream>
@@ -132,7 +132,7 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
                         if ( pdmValueField )
                         {
                             QString dataType = PdmPythonGenerator::dataTypeString( field, true );
-                            if ( field->xmlCapability()->isVectorField() )
+                            if ( field->capability<PdmFieldIoCapability>()->isVectorField() )
                             {
                                 dataType = QString( "List of %1" ).arg( dataType );
                             }
@@ -202,7 +202,7 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
                             QString scriptDataType =
                                 PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( dataType );
 
-                            QString commentDataType = field->xmlCapability()->isVectorField()
+                            QString commentDataType = field->capability<PdmFieldIoCapability>()->isVectorField()
                                                           ? QString( "List of %1" ).arg( scriptDataType )
                                                           : scriptDataType;
 
@@ -368,7 +368,7 @@ QString caf::PdmMarkdownBuilder::generateDocCommandObjects( std::vector<std::sha
             QString snake_field_name = PdmPythonGenerator::camelToSnakeCase( field->keyword() );
             QString pythonDataType   = PdmPythonGenerator::dataTypeString( field, true );
 
-            QString nativeDataType = field->xmlCapability()->dataTypeName();
+            QString nativeDataType = field->capability<PdmFieldIoCapability>()->dataTypeName();
             if ( nativeDataType.contains( "std::vector" ) )
             {
                 pythonDataType = QString( "List of %1" ).arg( pythonDataType );
@@ -383,11 +383,11 @@ QString caf::PdmMarkdownBuilder::generateDocCommandObjects( std::vector<std::sha
                 comment = commentComponents.join( ". " );
             }
 
-            attributes.push_back( {snake_field_name, comment, pythonDataType} );
+            attributes.push_back( { snake_field_name, comment, pythonDataType } );
         }
 
         QString comment = caf::PdmObjectScriptingCapabilityRegister::scriptClassComment( object->classKeyword() );
-        objs.push_back( {snakeCommandName, comment, attributes} );
+        objs.push_back( { snakeCommandName, comment, attributes } );
         //        objectsAndAttributes[snakeCommandName] = attributes;
     }
 

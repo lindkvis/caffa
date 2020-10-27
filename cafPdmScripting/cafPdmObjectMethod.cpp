@@ -38,7 +38,7 @@
 
 using namespace caf;
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( PdmObjectMethod, "PdmObjectMethod" );
+CAF_PDM_IO_ABSTRACT_SOURCE_INIT( PdmObjectMethod, "PdmObjectMethod" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -62,7 +62,7 @@ PdmObjectMethodFactory* PdmObjectMethodFactory::instance()
 //--------------------------------------------------------------------------------------------------
 std::shared_ptr<PdmObjectMethod> PdmObjectMethodFactory::createMethod( PdmObjectHandle* self, const QString& methodName )
 {
-    auto stack = self->xmlCapability()->classInheritanceStack();
+    auto stack = self->capability<PdmObjectIoCapability>()->classInheritanceStack();
     for ( auto className : stack )
     {
         auto classIt = m_factoryMap.find( className );

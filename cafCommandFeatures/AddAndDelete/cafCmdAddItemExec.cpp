@@ -58,8 +58,8 @@ QString CmdAddItemExec::name()
     PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
     if ( listField )
     {
-        PdmXmlFieldHandle* xfh = listField->xmlCapability();
-        containedObjectType    = xfh->dataTypeName();
+        auto ioCapability   = listField->capability<PdmFieldIoCapability>();
+        containedObjectType = ioCapability->dataTypeName();
     }
 
     return QString( "Create new '%1'" ).arg( containedObjectType );
@@ -74,9 +74,9 @@ void CmdAddItemExec::redo()
         PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
 
     PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
-    if ( listField && field->xmlCapability() )
+    if ( listField && field->capability<PdmFieldIoCapability>() )
     {
-        QString classKeyword = field->xmlCapability()->dataTypeName();
+        QString classKeyword = field->capability<PdmFieldIoCapability>()->dataTypeName();
 
         if ( classKeyword.isEmpty() ) return;
 
@@ -95,7 +95,7 @@ void CmdAddItemExec::redo()
             m_commandData->m_createdItemIndex = m_commandData->m_indexAfter;
         }
 
-        listField->uiCapability()->updateConnectedEditors();
+        listField->capability<PdmUiFieldHandle>()->updateConnectedEditors();
 
         if ( listField->ownerObject() )
         {
@@ -127,7 +127,7 @@ void CmdAddItemExec::undo()
         caf::SelectionManager::instance()->removeObjectFromAllSelections( obj );
 
         listField->erase( m_commandData->m_createdItemIndex );
-        listField->uiCapability()->updateConnectedEditors();
+        listField->capability<PdmUiFieldHandle>()->updateConnectedEditors();
 
         if ( listField->ownerObject() )
         {
@@ -145,8 +145,8 @@ void CmdAddItemExec::undo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CmdAddItemExec::CmdAddItemExec( )
-    : CmdExecuteCommand( )
+CmdAddItemExec::CmdAddItemExec()
+    : CmdExecuteCommand()
 {
     m_commandData = new CmdAddItemExecData;
 }

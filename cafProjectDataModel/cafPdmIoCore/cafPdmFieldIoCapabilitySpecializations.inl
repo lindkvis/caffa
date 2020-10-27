@@ -2,7 +2,8 @@
 #include "cafAssert.h"
 #include "cafInternalPdmFieldIoHelper.h"
 #include "cafPdmObjectFactory.h"
-#include "cafPdmXmlObjectHandle.h"
+#include "cafPdmObjectIoCapability.h"
+#include "cafPdmObjectXmlCapability.h"
 
 #include <QStringList>
 
@@ -11,7 +12,7 @@
 namespace caf
 {
 //==================================================================================================
-/// XML Implementation for PdmFieldXmlCap<> methods
+/// XML Implementation for PdmFieldIoCap<> methods
 ///
 //==================================================================================================
 
@@ -19,7 +20,7 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-bool caf::PdmFieldXmlCap<FieldType>::isVectorField() const
+bool caf::PdmFieldIoCap<FieldType>::isVectorField() const
 {
     return is_vector<FieldType>();
 }
@@ -28,7 +29,7 @@ bool caf::PdmFieldXmlCap<FieldType>::isVectorField() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void caf::PdmFieldXmlCap<FieldType>::readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory )
+void caf::PdmFieldIoCap<FieldType>::readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory )
 {
     this->assertValid();
     typename FieldType::FieldDataType value;
@@ -40,7 +41,7 @@ void caf::PdmFieldXmlCap<FieldType>::readFieldData( QXmlStreamReader& xmlStream,
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void caf::PdmFieldXmlCap<FieldType>::writeFieldData( QXmlStreamWriter& xmlStream ) const
+void caf::PdmFieldIoCap<FieldType>::writeFieldData( QXmlStreamWriter& xmlStream ) const
 {
     this->assertValid();
     PdmFieldWriter<typename FieldType::FieldDataType>::writeFieldData( m_field->value(), xmlStream );
@@ -50,7 +51,7 @@ void caf::PdmFieldXmlCap<FieldType>::writeFieldData( QXmlStreamWriter& xmlStream
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-bool caf::PdmFieldXmlCap<FieldType>::resolveReferences()
+bool caf::PdmFieldIoCap<FieldType>::resolveReferences()
 {
     return true;
 }
@@ -64,7 +65,7 @@ bool caf::PdmFieldXmlCap<FieldType>::resolveReferences()
 //--------------------------------------------------------------------------------------------------
 
 template <typename DataType>
-void caf::PdmFieldXmlCap<caf::PdmPtrField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* )
+void caf::PdmFieldIoCap<caf::PdmPtrField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* )
 {
     this->assertValid();
 
@@ -98,7 +99,7 @@ void caf::PdmFieldXmlCap<caf::PdmPtrField<DataType*>>::readFieldData( QXmlStream
 //--------------------------------------------------------------------------------------------------
 
 template <typename DataType>
-void caf::PdmFieldXmlCap<caf::PdmPtrField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
+void caf::PdmFieldIoCap<caf::PdmPtrField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
 {
     this->assertValid();
 
@@ -113,7 +114,7 @@ void caf::PdmFieldXmlCap<caf::PdmPtrField<DataType*>>::writeFieldData( QXmlStrea
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool caf::PdmFieldXmlCap<PdmPtrField<DataType*>>::resolveReferences()
+bool caf::PdmFieldIoCap<PdmPtrField<DataType*>>::resolveReferences()
 {
     if ( m_isResolved ) return true;
     if ( m_referenceString.isEmpty() ) return true;
@@ -129,7 +130,7 @@ bool caf::PdmFieldXmlCap<PdmPtrField<DataType*>>::resolveReferences()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-QString caf::PdmFieldXmlCap<PdmPtrField<DataType*>>::referenceString() const
+QString caf::PdmFieldIoCap<PdmPtrField<DataType*>>::referenceString() const
 {
     return m_referenceString;
 }
@@ -143,7 +144,7 @@ QString caf::PdmFieldXmlCap<PdmPtrField<DataType*>>::referenceString() const
 //--------------------------------------------------------------------------------------------------
 
 template <typename DataType>
-void caf::PdmFieldXmlCap<caf::PdmPtrArrayField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* )
+void caf::PdmFieldIoCap<caf::PdmPtrArrayField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* )
 {
     this->assertValid();
 
@@ -171,7 +172,7 @@ void caf::PdmFieldXmlCap<caf::PdmPtrArrayField<DataType*>>::readFieldData( QXmlS
 //--------------------------------------------------------------------------------------------------
 
 template <typename DataType>
-void caf::PdmFieldXmlCap<caf::PdmPtrArrayField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
+void caf::PdmFieldIoCap<caf::PdmPtrArrayField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
 {
     this->assertValid();
 
@@ -189,7 +190,7 @@ void caf::PdmFieldXmlCap<caf::PdmPtrArrayField<DataType*>>::writeFieldData( QXml
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool caf::PdmFieldXmlCap<PdmPtrArrayField<DataType*>>::resolveReferences()
+bool caf::PdmFieldIoCap<PdmPtrArrayField<DataType*>>::resolveReferences()
 {
     if ( m_isResolved ) return true;
     if ( m_referenceString.isEmpty() ) return true;
@@ -218,7 +219,7 @@ bool caf::PdmFieldXmlCap<PdmPtrArrayField<DataType*>>::resolveReferences()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool caf::PdmFieldXmlCap<caf::PdmPtrArrayField<DataType*>>::isVectorField() const
+bool caf::PdmFieldIoCap<caf::PdmPtrArrayField<DataType*>>::isVectorField() const
 {
     return true;
 }
@@ -232,8 +233,8 @@ bool caf::PdmFieldXmlCap<caf::PdmPtrArrayField<DataType*>>::isVectorField() cons
 //--------------------------------------------------------------------------------------------------
 
 template <typename DataType>
-void caf::PdmFieldXmlCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream,
-                                                                        PdmObjectFactory* objectFactory )
+void caf::PdmFieldIoCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream,
+                                                                       PdmObjectFactory* objectFactory )
 {
     PdmFieldIOHelper::skipCharactersAndComments( xmlStream );
     if ( !xmlStream.isStartElement() )
@@ -262,8 +263,8 @@ void caf::PdmFieldXmlCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStre
         }
         else
         {
-            PdmXmlObjectHandle* xmlObject = xmlObj( obj );
-            if ( !xmlObject || !xmlObject->matchesClassKeyword( className ) )
+            auto ioObject = obj->capability<PdmObjectIoCapability>();
+            if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
             {
                 CAF_ASSERT( false ); // Inconsistency in the factory. It creates objects of wrong type from the
                                      // ClassKeyword
@@ -283,14 +284,14 @@ void caf::PdmFieldXmlCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStre
         obj = m_field->m_fieldValue.rawPtr();
     }
 
-    PdmXmlObjectHandle* xmlObject = xmlObj( obj );
-    if ( !xmlObject || !xmlObject->matchesClassKeyword( className ) )
+    auto ioObject = obj->capability<PdmObjectIoCapability>();
+    if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
     {
         // Error: Field contains different class type than on file
         std::cout << "Line " << xmlStream.lineNumber()
                   << ": Warning: Unknown object type with class name: " << className.toLatin1().data()
                   << " found while reading the field : " << m_field->keyword().toLatin1().data() << std::endl;
-        std::cout << "                     Expected class name: " << xmlObject->classKeyword().toLatin1().data()
+        std::cout << "                     Expected class name: " << ioObject->classKeyword().toLatin1().data()
                   << std::endl;
 
         xmlStream.skipCurrentElement(); // Skip to the endelement of the object we was supposed to read
@@ -301,7 +302,7 @@ void caf::PdmFieldXmlCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStre
 
     // Everything seems ok, so read the contents of the object:
 
-    xmlObject->readFields( xmlStream, objectFactory, false );
+    PdmObjectXmlCapability::readFields( obj, xmlStream, objectFactory, false );
 
     // Make stream point to endElement of this field
 
@@ -315,17 +316,18 @@ void caf::PdmFieldXmlCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStre
 //--------------------------------------------------------------------------------------------------
 
 template <typename DataType>
-void caf::PdmFieldXmlCap<caf::PdmChildField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
+void caf::PdmFieldIoCap<caf::PdmChildField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
 {
-    if ( m_field->m_fieldValue.rawPtr() == NULL ) return;
+    auto object = m_field->m_fieldValue.rawPtr();
+    if ( !object ) return;
 
-    PdmXmlObjectHandle* xmlObject = xmlObj( m_field->m_fieldValue.rawPtr() );
-    if ( xmlObject )
+    auto ioObject = object->capability<PdmObjectIoCapability>();
+    if ( ioObject )
     {
-        QString className = xmlObject->classKeyword();
+        QString className = ioObject->classKeyword();
 
         xmlStream.writeStartElement( "", className );
-        xmlObject->writeFields( xmlStream );
+        PdmObjectXmlCapability::writeFields( object, xmlStream );
         xmlStream.writeEndElement();
     }
 }
@@ -334,7 +336,7 @@ void caf::PdmFieldXmlCap<caf::PdmChildField<DataType*>>::writeFieldData( QXmlStr
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool caf::PdmFieldXmlCap<caf::PdmChildField<DataType*>>::resolveReferences()
+bool caf::PdmFieldIoCap<caf::PdmChildField<DataType*>>::resolveReferences()
 {
     return true;
 }
@@ -347,20 +349,20 @@ bool caf::PdmFieldXmlCap<caf::PdmChildField<DataType*>>::resolveReferences()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
+void caf::PdmFieldIoCap<caf::PdmChildArrayField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
 {
     typename std::vector<PdmPointer<DataType>>::iterator it;
     for ( it = m_field->m_pointers.begin(); it != m_field->m_pointers.end(); ++it )
     {
         if ( it->rawPtr() == NULL ) continue;
 
-        PdmXmlObjectHandle* xmlObject = xmlObj( it->rawPtr() );
-        if ( xmlObject )
+        auto ioObject = it->rawPtr()->capability<PdmObjectIoCapability>();
+        if ( ioObject )
         {
-            QString className = xmlObject->classKeyword();
+            QString className = ioObject->classKeyword();
 
             xmlStream.writeStartElement( "", className );
-            xmlObject->writeFields( xmlStream );
+            PdmObjectXmlCapability::writeFields( it->rawPtr(), xmlStream );
             xmlStream.writeEndElement();
         }
     }
@@ -370,8 +372,8 @@ void caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType*>>::writeFieldData( QX
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream,
-                                                                             PdmObjectFactory* objectFactory )
+void caf::PdmFieldIoCap<caf::PdmChildArrayField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream,
+                                                                            PdmObjectFactory* objectFactory )
 {
     m_field->deleteAllChildObjects();
     PdmFieldIOHelper::skipCharactersAndComments( xmlStream );
@@ -402,8 +404,8 @@ void caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType*>>::readFieldData( QXm
             continue;
         }
 
-        PdmXmlObjectHandle* xmlObject = xmlObj( obj );
-        if ( !xmlObject || !xmlObject->matchesClassKeyword( className ) )
+        auto ioObject = obj->capability<PdmObjectIoCapability>();
+        if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
         {
             CAF_ASSERT( false ); // There is an inconsistency in the factory. It creates objects of type not matching
                                  // the ClassKeyword
@@ -419,7 +421,7 @@ void caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType*>>::readFieldData( QXm
             continue;
         }
 
-        xmlObject->readFields( xmlStream, objectFactory, false );
+        caf::PdmObjectXmlCapability::readFields( obj, xmlStream, objectFactory, false );
 
         m_field->m_pointers.push_back( PdmPointer<DataType>() );
         m_field->m_pointers.back().setRawPtr( obj );
@@ -438,7 +440,7 @@ void caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType*>>::readFieldData( QXm
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType*>>::resolveReferences()
+bool caf::PdmFieldIoCap<caf::PdmChildArrayField<DataType*>>::resolveReferences()
 {
     return true;
 }
@@ -447,13 +449,13 @@ bool caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType*>>::resolveReferences(
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType*>>::isVectorField() const
+bool caf::PdmFieldIoCap<caf::PdmChildArrayField<DataType*>>::isVectorField() const
 {
     return true;
 }
 
 //==================================================================================================
-/// XML Implementation for PdmFieldXmlCap<std::vector<DataType>> methods
+/// XML Implementation for PdmFieldIoCap<std::vector<DataType>> methods
 ///
 //==================================================================================================
 
@@ -461,7 +463,7 @@ bool caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType*>>::isVectorField() co
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::isVectorField() const
+bool caf::PdmFieldIoCap<caf::PdmField<std::vector<DataType>>>::isVectorField() const
 {
     return true;
 }
@@ -470,8 +472,8 @@ bool caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::isVectorField() 
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::readFieldData( QXmlStreamReader& xmlStream,
-                                                                               PdmObjectFactory* objectFactory )
+void caf::PdmFieldIoCap<caf::PdmField<std::vector<DataType>>>::readFieldData( QXmlStreamReader& xmlStream,
+                                                                              PdmObjectFactory* objectFactory )
 {
     this->assertValid();
     typename FieldType::FieldDataType value;
@@ -483,7 +485,7 @@ void caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::readFieldData( Q
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
+void caf::PdmFieldIoCap<caf::PdmField<std::vector<DataType>>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
 {
     this->assertValid();
     PdmFieldWriter<typename FieldType::FieldDataType>::writeFieldData( m_field->value(), xmlStream );
@@ -493,7 +495,7 @@ void caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::writeFieldData( 
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::resolveReferences()
+bool caf::PdmFieldIoCap<caf::PdmField<std::vector<DataType>>>::resolveReferences()
 {
     return true;
 }

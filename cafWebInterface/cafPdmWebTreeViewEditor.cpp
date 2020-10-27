@@ -55,48 +55,48 @@ using namespace std::placeholders;
 
 namespace caf
 {
-
 class PdmWebTreeWidget : public Wt::WTreeView
 {
 public:
-    PdmWebTreeWidget() : Wt::WTreeView()
+    PdmWebTreeWidget()
+        : Wt::WTreeView()
     {
-        setLayoutSizeAware(true);
+        setLayoutSizeAware( true );
     }
 };
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmWebTreeViewEditor::PdmWebTreeViewEditor()
 {
-    m_useDefaultContextMenu = false;
-    m_updateSelectionManager = false;
+    m_useDefaultContextMenu       = false;
+    m_updateSelectionManager      = false;
     m_appendClassNameToUiItemText = false;
-    m_treeView = nullptr;
-    m_treeViewModel = nullptr;
+    m_treeView                    = nullptr;
+    m_treeViewModel               = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmWebTreeViewEditor::~PdmWebTreeViewEditor()
 {
-    m_treeViewModel->setPdmItemRoot(nullptr);
+    m_treeViewModel->setPdmItemRoot( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Wt::WWidget* PdmWebTreeViewEditor::createWidget()
 {
-    m_treeViewModel.reset(new PdmWebTreeViewWModel(this));
+    m_treeViewModel.reset( new PdmWebTreeViewWModel( this ) );
     m_treeView = new PdmWebTreeWidget;
-    m_treeView->setModel(m_treeViewModel);
-    m_treeView->setSortingEnabled(false);
-    m_treeView->setAlternatingRowColors(true);
-    m_treeView->setColumnResizeEnabled(false);
-    m_treeView->selectionChanged().connect(std::bind(&PdmWebTreeViewEditor::slotOnSelectionChanged, this));
+    m_treeView->setModel( m_treeViewModel );
+    m_treeView->setSortingEnabled( false );
+    m_treeView->setAlternatingRowColors( true );
+    m_treeView->setColumnResizeEnabled( false );
+    m_treeView->selectionChanged().connect( std::bind( &PdmWebTreeViewEditor::slotOnSelectionChanged, this ) );
     updateContextMenuSignals();
     return m_treeView.get();
 }
@@ -104,34 +104,34 @@ Wt::WWidget* PdmWebTreeViewEditor::createWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewEditor::configureAndUpdateUi(const QString& uiConfigName)
+void PdmWebTreeViewEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
     PdmUiTreeViewEditorAttribute editorAttributes;
 
     {
-        PdmUiObjectHandle* uiObjectHandle = dynamic_cast<PdmUiObjectHandle*>(this->pdmItemRoot());
-        if (uiObjectHandle)
+        PdmUiObjectHandle* uiObjectHandle = dynamic_cast<PdmUiObjectHandle*>( this->pdmItemRoot() );
+        if ( uiObjectHandle )
         {
-            uiObjectHandle->objectEditorAttribute(uiConfigName, &editorAttributes);            
+            uiObjectHandle->objectEditorAttribute( uiConfigName, &editorAttributes );
         }
     }
-    if (editorAttributes.columnHeaders.empty())
+    if ( editorAttributes.columnHeaders.empty() )
     {
-        m_treeView->setHeaderHeight(0);
+        m_treeView->setHeaderHeight( 0 );
     }
     else
     {
-        m_treeViewModel->setColumnHeaders(editorAttributes.columnHeaders);
+        m_treeViewModel->setColumnHeaders( editorAttributes.columnHeaders );
     }
-    m_treeViewModel->setUiConfigName(uiConfigName);
-    m_treeViewModel->setPdmItemRoot(this->pdmItemRoot());
+    m_treeViewModel->setUiConfigName( uiConfigName );
+    m_treeViewModel->setPdmItemRoot( this->pdmItemRoot() );
 
-    if (editorAttributes.currentObject)
+    if ( editorAttributes.currentObject )
     {
-        PdmUiObjectHandle* uiObjectHandle = editorAttributes.currentObject->uiCapability();
-        if (uiObjectHandle)
+        auto uiObjectHandle = editorAttributes.currentObject->capability<PdmUiObjectHandle>();
+        if ( uiObjectHandle )
         {
-            selectAsCurrentItem(uiObjectHandle);
+            selectAsCurrentItem( uiObjectHandle );
         }
     }
     m_treeView->refresh();
@@ -140,16 +140,16 @@ void PdmWebTreeViewEditor::configureAndUpdateUi(const QString& uiConfigName)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewEditor::updateMySubTree(PdmUiItem* uiItem)
+void PdmWebTreeViewEditor::updateMySubTree( PdmUiItem* uiItem )
 {
-    if (m_treeViewModel)
+    if ( m_treeViewModel )
     {
-        m_treeViewModel->updateSubTree(uiItem);
+        m_treeViewModel->updateSubTree( uiItem );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Wt::WTreeView* PdmWebTreeViewEditor::treeView()
 {
@@ -157,28 +157,28 @@ Wt::WTreeView* PdmWebTreeViewEditor::treeView()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewEditor::selectedUiItems(std::vector<PdmUiItem*>& objects)
+void PdmWebTreeViewEditor::selectedUiItems( std::vector<PdmUiItem*>& objects )
 {
-    if (!this->treeView()) return;
+    if ( !this->treeView() ) return;
 
     Wt::WModelIndexSet idxList = this->treeView()->selectionModel()->selectedIndexes();
 
-    for (auto idx : idxList)
+    for ( auto idx : idxList )
     {
-        caf::PdmUiItem* item = this->m_treeViewModel->uiItemFromModelIndex(idx);
-        if (item)
+        caf::PdmUiItem* item = this->m_treeViewModel->uiItemFromModelIndex( idx );
+        if ( item )
         {
-            objects.push_back(item);
+            objects.push_back( item );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewEditor::enableDefaultContextMenu(bool enable)
+void PdmWebTreeViewEditor::enableDefaultContextMenu( bool enable )
 {
     m_useDefaultContextMenu = enable;
 
@@ -186,82 +186,80 @@ void PdmWebTreeViewEditor::enableDefaultContextMenu(bool enable)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewEditor::enableSelectionManagerUpdating(bool enable)
+void PdmWebTreeViewEditor::enableSelectionManagerUpdating( bool enable )
 {
     m_updateSelectionManager = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmWebTreeViewEditor::updateContextMenuSignals()
 {
-    if (!m_treeView) return;
+    if ( !m_treeView ) return;
 
-    if (!m_useDefaultContextMenu)
+    if ( !m_useDefaultContextMenu )
     {
-        m_treeView->setAttributeValue
-        ("oncontextmenu",
-            "event.cancelBubble = true; event.returnValue = false; return false;");
-        //m_treeView->mouseWentUp().connect(std::bind(&PdmWebTreeViewEditor::slotCustomMenuRequested, this, _1, _2));
+        m_treeView->setAttributeValue( "oncontextmenu",
+                                       "event.cancelBubble = true; event.returnValue = false; return false;" );
+        // m_treeView->mouseWentUp().connect(std::bind(&PdmWebTreeViewEditor::slotCustomMenuRequested, this, _1, _2));
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewEditor::slotCustomMenuRequested(const Wt::WModelIndex& item, const Wt::WMouseEvent& event)
+void PdmWebTreeViewEditor::slotCustomMenuRequested( const Wt::WModelIndex& item, const Wt::WMouseEvent& event )
 {
-    if (event.button() == Wt::MouseButton::Right)
+    if ( event.button() == Wt::MouseButton::Right )
     {
         // Select the item, it was not yet selected.
-        SelectionManager::instance()->setActiveChildArrayFieldHandle(this->currentChildArrayFieldHandle());
+        SelectionManager::instance()->setActiveChildArrayFieldHandle( this->currentChildArrayFieldHandle() );
         // Select the item, it was not yet selected.
-        if (!m_treeView->isSelected(item))
+        if ( !m_treeView->isSelected( item ) )
         {
-            m_treeView->select(item);
+            m_treeView->select( item );
             //            SelectionManager::instance()->setSelectedItem(uiItemFromModelIndex(item));
         }
 
         m_popup = std::make_unique<WPopupMenuWrapper>();
-        caf::PdmUiCommandSystemProxy::instance()->populateMenuWithDefaultCommands("PdmUiTreeViewEditor", m_popup.get());
-        m_popup->menu()->aboutToHide().connect(std::bind(&PdmWebTreeViewEditor::slotOnActionSelection, this));
-        
+        caf::PdmUiCommandSystemProxy::instance()->populateMenuWithDefaultCommands( "PdmUiTreeViewEditor", m_popup.get() );
+        m_popup->menu()->aboutToHide().connect( std::bind( &PdmWebTreeViewEditor::slotOnActionSelection, this ) );
+
         m_popup->refreshEnabledState();
-        if (m_popup->menu()->isHidden())
-            m_popup->menu()->popup(event);
+        if ( m_popup->menu()->isHidden() )
+            m_popup->menu()->popup( event );
         else
             m_popup->menu()->hide();
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmChildArrayFieldHandle* PdmWebTreeViewEditor::currentChildArrayFieldHandle()
 {
-    PdmUiItem* currentSelectedItem = SelectionManager::instance()->selectedItem(SelectionManager::FIRST_LEVEL);
+    PdmUiItem* currentSelectedItem = SelectionManager::instance()->selectedItem( SelectionManager::FIRST_LEVEL );
 
-    PdmUiFieldHandle* uiFieldHandle = dynamic_cast<PdmUiFieldHandle*>(currentSelectedItem);
-    if (uiFieldHandle)
+    PdmUiFieldHandle* uiFieldHandle = dynamic_cast<PdmUiFieldHandle*>( currentSelectedItem );
+    if ( uiFieldHandle )
     {
         PdmFieldHandle* fieldHandle = uiFieldHandle->fieldHandle();
 
-        if (dynamic_cast<PdmChildArrayFieldHandle*>(fieldHandle))
+        if ( dynamic_cast<PdmChildArrayFieldHandle*>( fieldHandle ) )
         {
-            return dynamic_cast<PdmChildArrayFieldHandle*>(fieldHandle);
+            return dynamic_cast<PdmChildArrayFieldHandle*>( fieldHandle );
         }
     }
 
-    PdmObjectHandle* pdmObject = dynamic_cast<caf::PdmObjectHandle*>(currentSelectedItem);
-    if (pdmObject)
+    PdmObjectHandle* pdmObject = dynamic_cast<caf::PdmObjectHandle*>( currentSelectedItem );
+    if ( pdmObject )
     {
-        PdmChildArrayFieldHandle* parentChildArray = dynamic_cast<PdmChildArrayFieldHandle*>(pdmObject->parentField());
+        PdmChildArrayFieldHandle* parentChildArray = dynamic_cast<PdmChildArrayFieldHandle*>( pdmObject->parentField() );
 
-        if (parentChildArray)
+        if ( parentChildArray )
         {
             return parentChildArray;
         }
@@ -271,39 +269,39 @@ PdmChildArrayFieldHandle* PdmWebTreeViewEditor::currentChildArrayFieldHandle()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewEditor::selectAsCurrentItem(const PdmUiItem* uiItem)
+void PdmWebTreeViewEditor::selectAsCurrentItem( const PdmUiItem* uiItem )
 {
-    Wt::WModelIndex index = m_treeViewModel->findModelIndex(uiItem);
+    Wt::WModelIndex index = m_treeViewModel->findModelIndex( uiItem );
     m_treeView->clearSelection();
-    m_treeView->select(index);
+    m_treeView->select( index );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewEditor::selectItems(std::vector<const PdmUiItem*> uiItems)
+void PdmWebTreeViewEditor::selectItems( std::vector<const PdmUiItem*> uiItems )
 {
     m_treeView->clearSelection();
 
-    if (uiItems.empty())
+    if ( uiItems.empty() )
     {
         return;
     }
 
     Wt::WModelIndexSet selectedIndices;
 
-    for (const PdmUiItem* uiItem : uiItems)
+    for ( const PdmUiItem* uiItem : uiItems )
     {
-        Wt::WModelIndex itemIndex = findModelIndex(uiItem);
-        selectedIndices.insert(itemIndex);
+        Wt::WModelIndex itemIndex = findModelIndex( uiItem );
+        selectedIndices.insert( itemIndex );
     }
-    m_treeView->setSelectedIndexes(selectedIndices);
+    m_treeView->setSelectedIndexes( selectedIndices );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmWebTreeViewEditor::slotOnSelectionChanged()
 {
@@ -317,49 +315,49 @@ void PdmWebTreeViewEditor::slotOnSelectionChanged()
 //--------------------------------------------------------------------------------------------------
 void PdmWebTreeViewEditor::slotOnActionSelection()
 {
-    if (m_popup->menu()->result())
+    if ( m_popup->menu()->result() )
     {
-        Wt::WString text = m_popup->menu()->result()->text();
-        std::shared_ptr<ActionWrapper> action = m_popup->findAction(QString::fromStdString(text.narrow()));
+        Wt::WString                    text   = m_popup->menu()->result()->text();
+        std::shared_ptr<ActionWrapper> action = m_popup->findAction( QString::fromStdString( text.narrow() ) );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewEditor::setExpanded(const PdmUiItem* uiItem, bool doExpand) const
+void PdmWebTreeViewEditor::setExpanded( const PdmUiItem* uiItem, bool doExpand ) const
 {
-    Wt::WModelIndex index = m_treeViewModel->findModelIndex(uiItem);
-    m_treeView->setExpanded(index, doExpand);
+    Wt::WModelIndex index = m_treeViewModel->findModelIndex( uiItem );
+    m_treeView->setExpanded( index, doExpand );
 
-    if (doExpand)
+    if ( doExpand )
     {
-        m_treeView->scrollTo(index);
+        m_treeView->scrollTo( index );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-PdmUiItem* PdmWebTreeViewEditor::uiItemFromModelIndex(const Wt::WModelIndex& index) const
+PdmUiItem* PdmWebTreeViewEditor::uiItemFromModelIndex( const Wt::WModelIndex& index ) const
 {
-    return m_treeViewModel->uiItemFromModelIndex(index);
+    return m_treeViewModel->uiItemFromModelIndex( index );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Wt::WModelIndex PdmWebTreeViewEditor::findModelIndex(const PdmUiItem* object) const
+Wt::WModelIndex PdmWebTreeViewEditor::findModelIndex( const PdmUiItem* object ) const
 {
-    return m_treeViewModel->findModelIndex(object);
+    return m_treeViewModel->findModelIndex( object );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewEditor::setDragDropInterface(PdmUiDragDropInterface* dragDropInterface)
+void PdmWebTreeViewEditor::setDragDropInterface( PdmUiDragDropInterface* dragDropInterface )
 {
-    m_treeViewModel->setDragDropInterface(dragDropInterface);
+    m_treeViewModel->setDragDropInterface( dragDropInterface );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -371,43 +369,42 @@ Wt::Signal<>& PdmWebTreeViewEditor::selectionChanged()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool PdmWebTreeViewEditor::eventFilter(QObject *obj, QEvent *event)
+bool PdmWebTreeViewEditor::eventFilter( QObject* obj, QEvent* event )
 {
-    if (event->type() == QEvent::FocusIn)
+    if ( event->type() == QEvent::FocusIn )
     {
         this->updateSelectionManager();
     }
 
     // standard event processing
-    return QObject::eventFilter(obj, event);
+    return QObject::eventFilter( obj, event );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmWebTreeViewEditor::updateSelectionManager()
 {
-    if (m_updateSelectionManager)
+    if ( m_updateSelectionManager )
     {
         std::vector<PdmUiItem*> items;
-        this->selectedUiItems(items);
-        SelectionManager::instance()->setSelectedItems(items);
+        this->selectedUiItems( items );
+        SelectionManager::instance()->setSelectedItems( items );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewEditor::enableAppendOfClassNameToUiItemText(bool enable)
+void PdmWebTreeViewEditor::enableAppendOfClassNameToUiItemText( bool enable )
 {
     m_appendClassNameToUiItemText = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool PdmWebTreeViewEditor::isAppendOfClassNameToUiItemTextEnabled()
 {
