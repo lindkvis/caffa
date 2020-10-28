@@ -1,0 +1,54 @@
+#pragma once
+
+#include "cafPdmObjectCapability.h"
+#include "cafPdmObjectIoCapability.h"
+
+#include <QString>
+
+#include <list>
+#include <vector>
+
+class QIODevice;
+class QJsonObject;
+
+namespace caf
+{
+class PdmObjectIoCapability;
+class PdmObjectHandle;
+class PdmObjectFactory;
+class PdmReferenceHelper;
+class PdmFieldHandle;
+
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
+class PdmObjectJsonCapability
+{
+public:
+    /// Convenience methods to serialize/de-serialize this particular object (with children)
+    static void readObjectFromString( PdmObjectHandle* object, const QString& string, PdmObjectFactory* objectFactory );
+    static QString          writeObjectToString( const PdmObjectHandle* object );
+    static PdmObjectHandle* copyByJsonSerialization( const PdmObjectHandle* object, PdmObjectFactory* objectFactory );
+    static PdmObjectHandle* copyAndCastByJsonSerialization( const PdmObjectHandle* object,
+                                                            const QString&         destinationClassKeyword,
+                                                            const QString&         sourceClassKeyword,
+                                                            PdmObjectFactory*      objectFactory );
+
+    static PdmObjectHandle*
+        readUnknownObjectFromString( const QString& string, PdmObjectFactory* objectFactory, bool isCopyOperation );
+
+    static void readFile( PdmObjectHandle* object, QIODevice* file );
+    static void writeFile( const PdmObjectHandle* object, QIODevice* file );
+
+    // Main XML serialization methods that is used internally by the document serialization system
+    // Not supposed to be used directly.
+    static void readFields( PdmObjectHandle*   object,
+                            const QJsonObject& jsonObject,
+                            PdmObjectFactory*  objectFactory,
+                            bool               isCopyOperation );
+    static void writeFields( const PdmObjectHandle* object, QJsonObject& jsonObject );
+};
+
+} // End of namespace caf

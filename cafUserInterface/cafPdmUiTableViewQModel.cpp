@@ -176,11 +176,11 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
     if ( role == Qt::ForegroundRole )
     {
         PdmFieldHandle* fieldHandle = getField( index );
-        if ( fieldHandle && fieldHandle->uiCapability() )
+        if ( fieldHandle && fieldHandle->capability<PdmUiFieldHandle>() )
         {
-            QColor textColor = fieldHandle->uiCapability()->uiContentTextColor( m_currentConfigName );
+            QColor textColor = fieldHandle->capability<PdmUiFieldHandle>()->uiContentTextColor( m_currentConfigName );
 
-            if ( fieldHandle->uiCapability()->isUiReadOnly( m_currentConfigName ) )
+            if ( fieldHandle->capability<PdmUiFieldHandle>()->isUiReadOnly( m_currentConfigName ) )
             {
                 if ( textColor.isValid() )
                 {
@@ -202,7 +202,7 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
     {
         PdmFieldHandle* fieldHandle = getField( index );
 
-        PdmUiFieldHandle* uiFieldHandle = fieldHandle->uiCapability();
+        PdmUiFieldHandle* uiFieldHandle = fieldHandle->capability<PdmUiFieldHandle>();
         if ( uiFieldHandle )
         {
             QVariant fieldValue = uiFieldHandle->uiValue();
@@ -310,7 +310,7 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
     {
         if ( isRepresentingBoolean( index ) )
         {
-            PdmUiFieldHandle* uiFieldHandle = getField( index )->uiCapability();
+            PdmUiFieldHandle* uiFieldHandle = getField( index )->capability<PdmUiFieldHandle>();
             if ( uiFieldHandle )
             {
                 QVariant val         = uiFieldHandle->uiValue();
@@ -332,7 +332,7 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
     }
     else if ( role == Qt::ToolTipRole )
     {
-        PdmUiFieldHandle* uiFieldHandle = getField( index )->uiCapability();
+        PdmUiFieldHandle* uiFieldHandle = getField( index )->capability<PdmUiFieldHandle>();
         if ( uiFieldHandle )
         {
             return uiFieldHandle->uiToolTip();
@@ -378,7 +378,7 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( PdmChildArrayFieldHandl
     if ( m_pdmList && !m_pdmList->empty() )
     {
         PdmObjectHandle*   firstObject            = m_pdmList->at( 0 );
-        PdmUiObjectHandle* uiHandleForFirstObject = firstObject->uiCapability();
+        PdmUiObjectHandle* uiHandleForFirstObject = firstObject->capability<PdmUiObjectHandle>();
         if ( uiHandleForFirstObject )
         {
             uiHandleForFirstObject->uiOrdering( configName, configForFirstObject );
@@ -524,7 +524,7 @@ PdmUiFieldEditorHandle* PdmUiTableViewQModel::getEditor( const QModelIndex& inde
         {
             if ( field )
             {
-                editor->setUiField( field->uiCapability() );
+                editor->setUiField( field->capability<PdmUiFieldHandle>() );
             }
         }
     }
@@ -591,7 +591,7 @@ caf::PdmUiFieldHandle* PdmUiTableViewQModel::getUiFieldHandle( const QModelIndex
     auto fieldHandle = getField( index );
     if ( fieldHandle )
     {
-        return fieldHandle->uiCapability();
+        return fieldHandle->capability<PdmUiFieldHandle>();
     }
 
     return nullptr;
@@ -624,7 +624,7 @@ bool PdmUiTableViewQModel::isRepresentingBoolean( const QModelIndex& index ) con
             return false;
         }
 
-        QVariant val = fieldHandle->uiCapability()->uiValue();
+        QVariant val = fieldHandle->capability<PdmUiFieldHandle>()->uiValue();
         if ( val.type() == QVariant::Bool )
         {
             return true;
@@ -651,7 +651,7 @@ void PdmUiTableViewQModel::createPersistentPushButtonWidgets( QTableView* tableV
                     QModelIndex mi = createIndex( row, col );
 
                     tableView->setIndexWidget( mi,
-                                               new TableViewPushButton( getField( mi )->uiCapability(),
+                                               new TableViewPushButton( getField( mi )->capability<PdmUiFieldHandle>(),
                                                                         m_pushButtonEditorAttributes.pushButtonText(
                                                                             fieldHandle->keyword() ) ) );
                     tableView->openPersistentEditor( mi );

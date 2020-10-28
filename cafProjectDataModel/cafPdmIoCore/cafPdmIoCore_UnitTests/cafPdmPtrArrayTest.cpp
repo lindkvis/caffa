@@ -79,20 +79,26 @@ TEST( PtrArrayBaseTest, PtrArraySerializeTest )
 
     // delete s2;
 
-    QString serializedString;
+    std::vector<caf::PdmObjectIoCapability::IoParameters::IoType> ioTypes =
+        { caf::PdmObjectIoCapability::IoParameters::IoType::XML, caf::PdmObjectIoCapability::IoParameters::IoType::JSON };
+
+    for ( auto ioType : ioTypes )
     {
-        serializedString = objA->writeObjectToString();
+        QString serializedString;
+        {
+            serializedString = objA->writeObjectToString( ioType );
 
-        std::cout << serializedString.toStdString() << std::endl;
-    }
+            std::cout << serializedString.toStdString() << std::endl;
+        }
 
-    {
-        MyContainerPdmObject* ihd1 = new MyContainerPdmObject;
+        {
+            MyContainerPdmObject* ihd1 = new MyContainerPdmObject;
 
-        QXmlStreamReader xmlStream( serializedString );
+            QXmlStreamReader xmlStream( serializedString );
 
-        ihd1->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance() );
-        ihd1->resolveReferencesRecursively();
+            ihd1->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance(), ioType );
+            ihd1->resolveReferencesRecursively();
+        }
     }
 }
 
@@ -117,27 +123,33 @@ TEST( PtrArrayBaseTest, DeleteObjectPtrArraySerializeTest )
 
     delete s2;
 
-    QString serializedString;
+    std::vector<caf::PdmObjectIoCapability::IoParameters::IoType> ioTypes =
+        { caf::PdmObjectIoCapability::IoParameters::IoType::XML, caf::PdmObjectIoCapability::IoParameters::IoType::JSON };
+
+    for ( auto ioType : ioTypes )
     {
-        serializedString = objA->writeObjectToString();
+        QString serializedString;
+        {
+            serializedString = objA->writeObjectToString( ioType );
 
-        std::cout << serializedString.toStdString() << std::endl;
-    }
+            std::cout << serializedString.toStdString() << std::endl;
+        }
 
-    {
-        MyContainerPdmObject* ihd1 = new MyContainerPdmObject;
+        {
+            MyContainerPdmObject* ihd1 = new MyContainerPdmObject;
 
-        QXmlStreamReader xmlStream( serializedString );
+            QXmlStreamReader xmlStream( serializedString );
 
-        ihd1->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance() );
-        ihd1->resolveReferencesRecursively();
+            ihd1->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance(), ioType );
+            ihd1->resolveReferencesRecursively();
 
-        EXPECT_TRUE( ihd1->m_containers.at( 0 ) != nullptr );
-        EXPECT_TRUE( ihd1->m_containers.at( 1 ) == nullptr ); // Deleted
-        EXPECT_TRUE( ihd1->m_containers.at( 2 ) == nullptr ); // Pointing to item at index 2, does not longer exist
+            EXPECT_TRUE( ihd1->m_containers.at( 0 ) != nullptr );
+            EXPECT_TRUE( ihd1->m_containers.at( 1 ) == nullptr ); // Deleted
+            EXPECT_TRUE( ihd1->m_containers.at( 2 ) == nullptr ); // Pointing to item at index 2, does not longer exist
 
-        EXPECT_TRUE( ihd1->m_items.size() == size_t( 2 ) );
-        EXPECT_TRUE( ihd1->m_items[0] != nullptr );
-        EXPECT_TRUE( ihd1->m_items[1] != nullptr );
+            EXPECT_TRUE( ihd1->m_items.size() == size_t( 2 ) );
+            EXPECT_TRUE( ihd1->m_items[0] != nullptr );
+            EXPECT_TRUE( ihd1->m_items[1] != nullptr );
+        }
     }
 }

@@ -1,10 +1,10 @@
 #pragma once
 
 #include "cafAssert.h"
-#include "cafInternalPdmValueFieldSpecializations.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmPointer.h"
 #include "cafPdmValueField.h"
+#include "cafPdmValueFieldSpecializations.h"
 
 #include <QVariant>
 

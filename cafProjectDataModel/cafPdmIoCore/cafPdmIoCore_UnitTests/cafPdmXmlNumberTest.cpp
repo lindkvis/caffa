@@ -46,34 +46,40 @@ TEST( SerializeNumbers, SimpleObjectWithDoubleValues )
     double valueA = 0.123456789;
     double valueB = 123456789 + valueA;
 
-    QString objectAsText;
+    std::vector<caf::PdmObjectIoCapability::IoParameters::IoType> ioTypes =
+        { caf::PdmObjectIoCapability::IoParameters::IoType::XML, caf::PdmObjectIoCapability::IoParameters::IoType::JSON };
 
+    for ( auto ioType : ioTypes )
     {
-        SimpleObjectWithNumbers obj1;
-
-        obj1.m_valueA = valueA;
-        obj1.m_valueB = valueB;
-
-        objectAsText = obj1.writeObjectToString();
-    }
-
-    {
-        SimpleObjectWithNumbers obj1;
-
-        obj1.readObjectFromString( objectAsText, caf::PdmDefaultObjectFactory::instance() );
+        QString objectAsText;
 
         {
-            double epsilon = 1e-7;
+            SimpleObjectWithNumbers obj1;
 
-            double diffA = fabs( obj1.m_valueA - valueA );
-            EXPECT_TRUE( diffA < epsilon );
+            obj1.m_valueA = valueA;
+            obj1.m_valueB = valueB;
+
+            objectAsText = obj1.writeObjectToString( ioType );
         }
 
         {
-            double epsilon = 3e-7;
+            SimpleObjectWithNumbers obj1;
 
-            double diffB = fabs( obj1.m_valueB - valueB );
-            EXPECT_TRUE( diffB < epsilon );
+            obj1.readObjectFromString( objectAsText, caf::PdmDefaultObjectFactory::instance(), ioType );
+
+            {
+                double epsilon = 1e-7;
+
+                double diffA = fabs( obj1.m_valueA - valueA );
+                EXPECT_TRUE( diffA < epsilon );
+            }
+
+            {
+                double epsilon = 3e-7;
+
+                double diffB = fabs( obj1.m_valueB - valueB );
+                EXPECT_TRUE( diffB < epsilon );
+            }
         }
     }
 }
@@ -86,28 +92,34 @@ TEST( SerializeNumbers, SimpleObjectWithFloatValues )
     float valueA = 0.123456789f;
     float valueB = 123456 + valueA;
 
-    QString objectAsText;
+    std::vector<caf::PdmObjectIoCapability::IoParameters::IoType> ioTypes =
+        { caf::PdmObjectIoCapability::IoParameters::IoType::XML, caf::PdmObjectIoCapability::IoParameters::IoType::JSON };
 
+    for ( auto ioType : ioTypes )
     {
-        SimpleObjectWithNumbers obj1;
+        QString objectAsText;
 
-        obj1.m_floatValueA = valueA;
-        obj1.m_floatValueB = valueB;
+        {
+            SimpleObjectWithNumbers obj1;
 
-        objectAsText = obj1.writeObjectToString();
-    }
+            obj1.m_floatValueA = valueA;
+            obj1.m_floatValueB = valueB;
 
-    {
-        SimpleObjectWithNumbers obj1;
+            objectAsText = obj1.writeObjectToString( ioType );
+        }
 
-        obj1.readObjectFromString( objectAsText, caf::PdmDefaultObjectFactory::instance() );
+        {
+            SimpleObjectWithNumbers obj1;
 
-        double epsilon = 1e-7;
+            obj1.readObjectFromString( objectAsText, caf::PdmDefaultObjectFactory::instance(), ioType );
 
-        double diffA = fabs( obj1.m_floatValueA - valueA );
-        EXPECT_TRUE( diffA < epsilon );
+            double epsilon = 1e-7;
 
-        double diffB = fabs( obj1.m_floatValueB - valueB );
-        EXPECT_TRUE( diffB < epsilon );
+            double diffA = fabs( obj1.m_floatValueA - valueA );
+            EXPECT_TRUE( diffA < epsilon );
+
+            double diffB = fabs( obj1.m_floatValueB - valueB );
+            EXPECT_TRUE( diffB < epsilon );
+        }
     }
 }

@@ -117,15 +117,16 @@ void PdmUiPushButtonEditor::configureEditorForField( PdmFieldHandle* fieldHandle
 {
     if ( fieldHandle )
     {
-        if ( fieldHandle->xmlCapability() )
+        if ( fieldHandle->capability<PdmFieldIoCapability>() )
         {
-            fieldHandle->xmlCapability()->disableIO();
+            fieldHandle->capability<PdmFieldIoCapability>()->disableIO();
         }
 
-        if ( fieldHandle->uiCapability() )
+        if ( fieldHandle->capability<PdmUiFieldHandle>() )
         {
-            fieldHandle->uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-            fieldHandle->uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LEFT );
+            fieldHandle->capability<PdmUiFieldHandle>()->setUiEditorTypeName(
+                caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+            fieldHandle->capability<PdmUiFieldHandle>()->setUiLabelPosition( caf::PdmUiItemInfo::LEFT );
         }
     }
 }

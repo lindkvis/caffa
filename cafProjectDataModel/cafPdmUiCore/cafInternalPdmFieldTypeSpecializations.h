@@ -1,8 +1,8 @@
 #pragma once
 
-#include "cafInternalPdmValueFieldSpecializations.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmPointer.h"
+#include "cafPdmValueFieldSpecializations.h"
 
 #include <QStringList>
 

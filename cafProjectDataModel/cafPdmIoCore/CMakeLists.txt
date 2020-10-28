@@ -22,10 +22,11 @@ set( PUBLIC_HEADERS
 	cafInternalPdmStreamOperators.h
 	cafPdmFieldIoCapabilitySpecializations.h
 	cafPdmFieldIoCapabilitySpecializations.inl
-	cafInternalPdmXmlFieldReaderWriter.h
+	cafInternalPdmIoFieldReaderWriter.h
 
 	cafPdmFieldIoCapability.h
 	cafPdmObjectXmlCapability.h
+	cafPdmObjectJsonCapability.h
 	cafPdmObjectIoCapability.h
 	cafPdmObjectHandleIoMacros.h
 
@@ -43,12 +44,13 @@ set( PROJECT_FILES
 	cafInternalPdmFieldIoHelper.cpp
 	cafInternalPdmFilePathStreamOperators.cpp
 	cafInternalPdmStreamOperators.cpp
-	cafInternalPdmXmlFieldReaderWriter.cpp
+	cafInternalPdmIoFieldReaderWriter.cpp
 
 	cafPdmFieldIoCapability.cpp
 	
 	cafPdmObjectIoCapability.cpp
 	cafPdmObjectXmlCapability.cpp
+	cafPdmObjectJsonCapability.cpp
 	cafPdmDefaultObjectFactory.cpp
 	cafPdmSettings.cpp
 )

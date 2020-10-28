@@ -1,7 +1,11 @@
 #pragma once
 
-#include "cafInternalPdmXmlFieldReaderWriter.h"
+#include "cafInternalPdmIoFieldReaderWriter.h"
+#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmFieldIoCapability.h"
+#include "cafPdmPtrArrayField.h"
+#include "cafPdmPtrField.h"
 
 #include <typeinfo>
 
@@ -31,12 +35,16 @@ public:
         m_dataTypeName = QString( "%1" ).arg( typeid( typename FieldType::FieldDataType ).name() );
     }
 
-    // Xml Serializing
 public:
+    // Xml Serializing
     void readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) override;
     void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
-    bool resolveReferences() override;
 
+    // Json Serializing
+    void readFieldData( const QJsonValue& jsonValue, PdmObjectFactory* objectFactory ) override;
+    void writeFieldData( QJsonValue& jsonValue ) const override;
+
+    bool resolveReferences() override;
     bool isVectorField() const override;
 
 private:
@@ -63,8 +71,14 @@ public:
 
     // Xml Serializing
 public:
-    void    readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) override;
-    void    writeFieldData( QXmlStreamWriter& xmlStream ) const override;
+    // Xml Serializing
+    void readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) override;
+    void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
+
+    // Json Serializing
+    void readFieldData( const QJsonValue& jsonValue, PdmObjectFactory* objectFactory ) override;
+    void writeFieldData( QJsonValue& jsonValue ) const override;
+
     bool    resolveReferences() override;
     QString referenceString() const override;
 
@@ -94,12 +108,18 @@ public:
         m_referenceString = "";
     }
 
-    // Xml Serializing
 public:
+    // Xml Serializing
     void readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) override;
     void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
-    bool resolveReferences() override;
-    bool isVectorField() const override;
+
+    // Json Serializing
+    void readFieldData( const QJsonValue& jsonValue, PdmObjectFactory* objectFactory ) override;
+    void writeFieldData( QJsonValue& jsonValue ) const override;
+
+    bool    resolveReferences() override;
+    QString referenceString() const override;
+    bool    isVectorField() const override;
 
 private:
     FieldType* m_field;
@@ -125,10 +145,15 @@ public:
         m_dataTypeName = DataType::classKeywordStatic();
     }
 
-    // Xml Serializing
 public:
+    // Xml Serializing
     void readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) override;
     void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
+
+    // Json Serializing
+    void readFieldData( const QJsonValue& jsonValue, PdmObjectFactory* objectFactory ) override;
+    void writeFieldData( QJsonValue& jsonValue ) const override;
+
     bool resolveReferences() override;
 
 private:
@@ -151,10 +176,15 @@ public:
         m_dataTypeName = DataType::classKeywordStatic();
     }
 
-    // Xml Serializing
 public:
+    // Xml Serializing
     void readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) override;
     void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
+
+    // Json Serializing
+    void readFieldData( const QJsonValue& jsonValue, PdmObjectFactory* objectFactory ) override;
+    void writeFieldData( QJsonValue& jsonValue ) const override;
+
     bool resolveReferences() override;
     bool isVectorField() const override;
 
@@ -179,10 +209,15 @@ public:
         m_dataTypeName = QString( "%1" ).arg( typeid( DataType ).name() );
     }
 
-    // Xml Serializing
 public:
+    // Xml Serializing
     void readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) override;
     void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
+
+    // Json Serializing
+    void readFieldData( const QJsonValue& jsonValue, PdmObjectFactory* objectFactory ) override;
+    void writeFieldData( QJsonValue& jsonValue ) const override;
+
     bool resolveReferences() override;
     bool isVectorField() const override;
 

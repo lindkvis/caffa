@@ -169,7 +169,7 @@ void PdmUiTreeViewEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     if ( editorAttributes.currentObject )
     {
-        PdmUiObjectHandle* uiObjectHandle = editorAttributes.currentObject->uiCapability();
+        PdmUiObjectHandle* uiObjectHandle = editorAttributes.currentObject->capability<PdmUiObjectHandle>();
         if ( uiObjectHandle )
         {
             selectAsCurrentItem( uiObjectHandle );

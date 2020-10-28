@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QJsonValue>
 #include <QTextStream>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -36,12 +37,25 @@ struct PdmFieldWriter
         data << fieldValue;
         xmlStream.writeCharacters( dataString );
     }
+    static void writeFieldData( const DataType& fieldValue, QJsonValue& jsonValue )
+    {
+        QString     dataString;
+        QTextStream data( &dataString, QIODevice::WriteOnly );
+
+        // Use precision of 15 to cover most value ranges for double values
+        // Default Qt behavior is precision of 6
+        data.setRealNumberPrecision( 15 );
+
+        data << fieldValue;
+        jsonValue = dataString;
+    }
 };
 
 template <typename DataType>
 struct PdmFieldReader
 {
     static void readFieldData( DataType& fieldValue, QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory );
+    static void readFieldData( DataType& fieldValue, const QJsonValue& jsonValue, PdmObjectFactory* objectFactory );
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -64,6 +78,13 @@ void PdmFieldReader<DataType>::readFieldData( DataType& fieldValue, QXmlStreamRe
     Q_UNUSED( type );
     PdmFieldIOHelper::skipCharactersAndComments( xmlStream );
 }
+template <typename DataType>
+void PdmFieldReader<DataType>::readFieldData( DataType& fieldValue, const QJsonValue& jsonValue, PdmObjectFactory* objectFactory )
+{
+    QString     dataString = jsonValue.toString();
+    QTextStream data( &dataString, QIODevice::ReadOnly );
+    data >> fieldValue;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Specialized read function for QStrings, because the >> operator only can read word by word
@@ -71,56 +92,7 @@ void PdmFieldReader<DataType>::readFieldData( DataType& fieldValue, QXmlStreamRe
 template <>
 void PdmFieldReader<QString>::readFieldData( QString& field, QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory );
 
-#if 0
-//--------------------------------------------------------------------------------------------------
-/// Specialized IO for PdmPointer
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-struct PdmFieldWriter< PdmPointer<DataType> >
-{
-    static void writeFieldData(const PdmPointer<DataType> & fieldValue, QXmlStreamWriter& xmlStream, PdmReferenceHelper* referenceHelper)
-    {
-        QString dataString; 
+template <>
+void PdmFieldReader<QString>::readFieldData( QString& field, const QJsonValue& jsonValue, PdmObjectFactory* objectFactory );
 
-        CAF_ASSERT(referenceHelper);
-
-        if (fieldValue.isNull())
-        {
-            dataString = "NULL";
-        }
-        else
-        {
-            dataString = referenceHelper->referenceFromRootToObject(fieldValue.p());
-        }
-
-        xmlStream.writeCharacters(dataString);  
-    }
-};
-
-template <typename DataType>
-struct PdmFieldReader< PdmPointer<DataType> >
-{
-    static void readFieldData(PdmPointer<DataType> & fieldValue, QXmlStreamReader& xmlStream, PdmObjectFactory*, PdmReferenceHelper* referenceHelper)
-    {
-        PdmFieldIOHelper::skipComments(xmlStream);
-        if (!xmlStream.isCharacters()) return;
-
-        QString dataString = xmlStream.text().toString();
-
-        // Make stream point to end of element
-        QXmlStreamReader::TokenType type = xmlStream.readNext();
-        Q_UNUSED(type);
-        PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
-
-        if (dataString != "NULL")
-        {
-            CAF_ASSERT(referenceHelper);
-            
-            PdmObjectHandle* objHandle = referenceHelper->objectFromReference(dataString);
-            fieldValue.setRawPtr(objHandle);
-        }
-    }
-};
-
-#endif
 } // End of namespace caf

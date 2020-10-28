@@ -114,7 +114,7 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
 
         for ( PdmFieldHandle* field : m_fields )
         {
-            caf::PdmUiObjectHandle* ownerUiObject = field->ownerObject()->uiCapability();
+            caf::PdmUiObjectHandle* ownerUiObject = field->ownerObject()->capability<PdmUiObjectHandle>();
             if ( ownerUiObject )
             {
                 ownerUiObjects.insert( ownerUiObject );
@@ -137,7 +137,7 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
         it = m_fieldViews.find( field->keyword() );
         if ( it == m_fieldViews.end() )
         {
-            caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+            caf::PdmUiFieldHandle* uiFieldHandle = field->capability<PdmUiFieldHandle>();
 
             bool addSpace = false;
             if ( uiFieldHandle )
@@ -151,7 +151,8 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
                 else
                 {
                     fieldEditor =
-                        caf::PdmUiFieldEditorHelper::createFieldEditorForField( field->uiCapability(), uiConfigName );
+                        caf::PdmUiFieldEditorHelper::createFieldEditorForField( field->capability<PdmUiFieldHandle>(),
+                                                                                uiConfigName );
 
                     addSpace = true;
                 }
@@ -195,7 +196,7 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
         // See Qt doc for QToolBar::insertWidget
         QAction* action = m_actions[static_cast<int>( i )];
 
-        caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+        caf::PdmUiFieldHandle* uiFieldHandle = field->capability<PdmUiFieldHandle>();
         if ( uiFieldHandle )
         {
             action->setEnabled( !uiFieldHandle->isUiReadOnly( uiConfigName ) );

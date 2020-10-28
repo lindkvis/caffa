@@ -30,8 +30,9 @@ class PdmObjectXmlCapability
 {
 public:
     /// Convenience methods to serialize/de-serialize this particular object (with children)
-    static void readObjectFromString( PdmObjectHandle* object, const QString& xmlString, PdmObjectFactory* objectFactory );
-    static QString          writeObjectToString( const PdmObjectHandle* object );
+    static void
+        readObjectFromXmlString( PdmObjectHandle* object, const QString& xmlString, PdmObjectFactory* objectFactory );
+    static QString          writeObjectToXmlString( const PdmObjectHandle* object );
     static PdmObjectHandle* copyByXmlSerialization( const PdmObjectHandle* object, PdmObjectFactory* objectFactory );
     static PdmObjectHandle* copyAndCastByXmlSerialization( const PdmObjectHandle* object,
                                                            const QString&         destinationClassKeyword,

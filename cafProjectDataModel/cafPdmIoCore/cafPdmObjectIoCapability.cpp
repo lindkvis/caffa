@@ -3,6 +3,7 @@
 #include "cafAssert.h"
 #include "cafPdmFieldIoCapability.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmObjectJsonCapability.h"
 #include "cafPdmObjectXmlCapability.h"
 
 #include "cafPdmFieldHandle.h"
@@ -39,7 +40,7 @@ PdmObjectHandle*
             object = PdmObjectXmlCapability::readUnknownObjectFromXmlString( string, objectFactory, isCopyOperation );
             break;
         case IoParameters::IoType::JSON:
-            CAF_ASSERT( "JSON writing is not implemented" );
+            object = PdmObjectJsonCapability::readUnknownObjectFromString( string, objectFactory, isCopyOperation );
             break;
         case IoParameters::IoType::SQL:
             CAF_ASSERT( "SQL writing is not implemented" );
@@ -60,10 +61,10 @@ void PdmObjectIoCapability::readObjectFromString( const QString&       string,
         default:
             break;
         case IoParameters::IoType::XML:
-            PdmObjectXmlCapability::readObjectFromString( m_owner, string, objectFactory );
+            PdmObjectXmlCapability::readObjectFromXmlString( m_owner, string, objectFactory );
             break;
         case IoParameters::IoType::JSON:
-            CAF_ASSERT( "JSON writing is not implemented" );
+            PdmObjectJsonCapability::readObjectFromString( m_owner, string, objectFactory );
             break;
         case IoParameters::IoType::SQL:
             CAF_ASSERT( "SQL writing is not implemented" );
@@ -82,10 +83,10 @@ QString PdmObjectIoCapability::writeObjectToString( IoParameters::IoType ioType 
         default:
             break;
         case IoParameters::IoType::XML:
-            string = PdmObjectXmlCapability::writeObjectToString( m_owner );
+            string = PdmObjectXmlCapability::writeObjectToXmlString( m_owner );
             break;
         case IoParameters::IoType::JSON:
-            CAF_ASSERT( "JSON writing is not implemented" );
+            string = PdmObjectJsonCapability::writeObjectToString( m_owner );
             break;
         case IoParameters::IoType::SQL:
             CAF_ASSERT( "SQL writing is not implemented" );
@@ -108,7 +109,7 @@ caf::PdmObjectHandle*
         case IoParameters::IoType::XML:
             return PdmObjectXmlCapability::copyByXmlSerialization( m_owner, objectFactory );
         case IoParameters::IoType::JSON:
-            CAF_ASSERT( "JSON writing is not implemented" );
+            return PdmObjectJsonCapability::copyByJsonSerialization( m_owner, objectFactory );
             break;
         case IoParameters::IoType::SQL:
             CAF_ASSERT( "SQL writing is not implemented" );
@@ -136,7 +137,10 @@ caf::PdmObjectHandle*
                                                                           sourceClassKeyword,
                                                                           objectFactory );
         case IoParameters::IoType::JSON:
-            CAF_ASSERT( "JSON writing is not implemented" );
+            return PdmObjectJsonCapability::copyAndCastByJsonSerialization( m_owner,
+                                                                            destinationClassKeyword,
+                                                                            sourceClassKeyword,
+                                                                            objectFactory );
             break;
         case IoParameters::IoType::SQL:
             CAF_ASSERT( "SQL writing is not implemented" );
@@ -226,7 +230,7 @@ void PdmObjectIoCapability::readFile( const IoParameters& parameters )
             PdmObjectXmlCapability::readFile( m_owner, parameters.ioDevice );
             break;
         case IoParameters::IoType::JSON:
-            CAF_ASSERT( "JSON writing is not implemented" );
+            PdmObjectJsonCapability::readFile( m_owner, parameters.ioDevice );
             break;
         case IoParameters::IoType::SQL:
             CAF_ASSERT( "SQL writing is not implemented" );
@@ -251,7 +255,7 @@ void PdmObjectIoCapability::writeFile( const IoParameters& parameters )
             PdmObjectXmlCapability::writeFile( m_owner, parameters.ioDevice );
             break;
         case IoParameters::IoType::JSON:
-            CAF_ASSERT( "JSON writing is not implemented" );
+            PdmObjectJsonCapability::writeFile( m_owner, parameters.ioDevice );
             break;
         case IoParameters::IoType::SQL:
             CAF_ASSERT( "SQL writing is not implemented" );

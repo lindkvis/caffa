@@ -1,4 +1,4 @@
-#include "cafInternalPdmXmlFieldReaderWriter.h"
+#include "cafInternalPdmIoFieldReaderWriter.h"
 
 #include "cafInternalPdmFieldIoHelper.h"
 
@@ -21,4 +21,12 @@ void PdmFieldReader<QString>::readFieldData( QString& field, QXmlStreamReader& x
     PdmFieldIOHelper::skipCharactersAndComments( xmlStream );
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Specialized read function for QStrings, because the >> operator only can read word by word
+//--------------------------------------------------------------------------------------------------
+template <>
+void PdmFieldReader<QString>::readFieldData( QString& field, const QJsonValue& jsonValue, PdmObjectFactory* )
+{
+    field = jsonValue.toString();
+}
 } // End of namespace caf

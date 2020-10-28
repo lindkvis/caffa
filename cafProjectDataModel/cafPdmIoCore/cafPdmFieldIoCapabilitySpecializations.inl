@@ -3,8 +3,11 @@
 #include "cafInternalPdmFieldIoHelper.h"
 #include "cafPdmObjectFactory.h"
 #include "cafPdmObjectIoCapability.h"
+#include "cafPdmObjectJsonCapability.h"
 #include "cafPdmObjectXmlCapability.h"
 
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QStringList>
 
 #include <iostream>
@@ -20,7 +23,7 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-bool caf::PdmFieldIoCap<FieldType>::isVectorField() const
+bool PdmFieldIoCap<FieldType>::isVectorField() const
 {
     return is_vector<FieldType>();
 }
@@ -29,7 +32,7 @@ bool caf::PdmFieldIoCap<FieldType>::isVectorField() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void caf::PdmFieldIoCap<FieldType>::readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory )
+void PdmFieldIoCap<FieldType>::readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory )
 {
     this->assertValid();
     typename FieldType::FieldDataType value;
@@ -41,7 +44,7 @@ void caf::PdmFieldIoCap<FieldType>::readFieldData( QXmlStreamReader& xmlStream, 
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void caf::PdmFieldIoCap<FieldType>::writeFieldData( QXmlStreamWriter& xmlStream ) const
+void PdmFieldIoCap<FieldType>::writeFieldData( QXmlStreamWriter& xmlStream ) const
 {
     this->assertValid();
     PdmFieldWriter<typename FieldType::FieldDataType>::writeFieldData( m_field->value(), xmlStream );
@@ -51,7 +54,29 @@ void caf::PdmFieldIoCap<FieldType>::writeFieldData( QXmlStreamWriter& xmlStream 
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-bool caf::PdmFieldIoCap<FieldType>::resolveReferences()
+void PdmFieldIoCap<FieldType>::readFieldData( const QJsonValue& jsonValue, PdmObjectFactory* objectFactory )
+{
+    this->assertValid();
+    typename FieldType::FieldDataType value;
+    PdmFieldReader<typename FieldType::FieldDataType>::readFieldData( value, jsonValue, objectFactory );
+    m_field->setValue( value );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename FieldType>
+void PdmFieldIoCap<FieldType>::writeFieldData( QJsonValue& jsonValue ) const
+{
+    this->assertValid();
+    PdmFieldWriter<typename FieldType::FieldDataType>::writeFieldData( m_field->value(), jsonValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename FieldType>
+bool PdmFieldIoCap<FieldType>::resolveReferences()
 {
     return true;
 }
@@ -65,7 +90,7 @@ bool caf::PdmFieldIoCap<FieldType>::resolveReferences()
 //--------------------------------------------------------------------------------------------------
 
 template <typename DataType>
-void caf::PdmFieldIoCap<caf::PdmPtrField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* )
+void PdmFieldIoCap<PdmPtrField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* )
 {
     this->assertValid();
 
@@ -85,21 +110,20 @@ void caf::PdmFieldIoCap<caf::PdmPtrField<DataType*>>::readFieldData( QXmlStreamR
     // We rather need to do something like :
     // m_refenceString = dataString;
     // m_isResolved = false;
-    // m_field->setRawPtr(NULL);
+    // m_field->setRawPtr(nullptr);
     //
     // and then we need a traversal of the object hierarchy to resolve all references before initAfterRead.
 
     m_isResolved      = false;
     m_referenceString = dataString;
-    m_field->setRawPtr( NULL );
+    m_field->setRawPtr( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
 template <typename DataType>
-void caf::PdmFieldIoCap<caf::PdmPtrField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
+void PdmFieldIoCap<PdmPtrField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
 {
     this->assertValid();
 
@@ -114,7 +138,46 @@ void caf::PdmFieldIoCap<caf::PdmPtrField<DataType*>>::writeFieldData( QXmlStream
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool caf::PdmFieldIoCap<PdmPtrField<DataType*>>::resolveReferences()
+void PdmFieldIoCap<PdmPtrField<DataType*>>::readFieldData( const QJsonValue& jsonValue, PdmObjectFactory* objectFactory )
+{
+    this->assertValid();
+
+    QString dataString = jsonValue.toString();
+
+    // This resolving can NOT be done here.
+    // It must be done when we know that the complete hierarchy is read and created,
+    // The object pointed to is not always read and created at this point in time.
+    // We rather need to do something like :
+    // m_refenceString = dataString;
+    // m_isResolved = false;
+    // m_field->setRawPtr(nullptr);
+    //
+    // and then we need a traversal of the object hierarchy to resolve all references before initAfterRead.
+
+    m_isResolved      = false;
+    m_referenceString = dataString;
+    m_field->setRawPtr( nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void PdmFieldIoCap<PdmPtrField<DataType*>>::writeFieldData( QJsonValue& jsonValue ) const
+{
+    this->assertValid();
+
+    QString dataString;
+
+    dataString = PdmReferenceHelper::referenceFromFieldToObject( m_field, m_field->m_fieldValue.rawPtr() );
+    jsonValue  = dataString;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+bool PdmFieldIoCap<PdmPtrField<DataType*>>::resolveReferences()
 {
     if ( m_isResolved ) return true;
     if ( m_referenceString.isEmpty() ) return true;
@@ -130,7 +193,7 @@ bool caf::PdmFieldIoCap<PdmPtrField<DataType*>>::resolveReferences()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-QString caf::PdmFieldIoCap<PdmPtrField<DataType*>>::referenceString() const
+QString PdmFieldIoCap<PdmPtrField<DataType*>>::referenceString() const
 {
     return m_referenceString;
 }
@@ -144,7 +207,7 @@ QString caf::PdmFieldIoCap<PdmPtrField<DataType*>>::referenceString() const
 //--------------------------------------------------------------------------------------------------
 
 template <typename DataType>
-void caf::PdmFieldIoCap<caf::PdmPtrArrayField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* )
+void PdmFieldIoCap<PdmPtrArrayField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* )
 {
     this->assertValid();
 
@@ -172,7 +235,7 @@ void caf::PdmFieldIoCap<caf::PdmPtrArrayField<DataType*>>::readFieldData( QXmlSt
 //--------------------------------------------------------------------------------------------------
 
 template <typename DataType>
-void caf::PdmFieldIoCap<caf::PdmPtrArrayField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
+void PdmFieldIoCap<PdmPtrArrayField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
 {
     this->assertValid();
 
@@ -190,7 +253,43 @@ void caf::PdmFieldIoCap<caf::PdmPtrArrayField<DataType*>>::writeFieldData( QXmlS
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool caf::PdmFieldIoCap<PdmPtrArrayField<DataType*>>::resolveReferences()
+void PdmFieldIoCap<PdmPtrArrayField<DataType*>>::readFieldData( const QJsonValue& jsonValue, PdmObjectFactory* objectFactory )
+{
+    this->assertValid();
+
+    QString dataString = jsonValue.toString();
+
+    // This resolving can NOT be done here.
+    // It must be done when we know that the complete hierarchy is read and created,
+    // and then we need a traversal of the object hierarchy to resolve all references before initAfterRead.
+
+    m_isResolved      = false;
+    m_referenceString = dataString;
+    m_field->clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void PdmFieldIoCap<PdmPtrArrayField<DataType*>>::writeFieldData( QJsonValue& jsonValue ) const
+{
+    this->assertValid();
+
+    QString dataString;
+    size_t  pointerCount = m_field->m_pointers.size();
+    for ( size_t i = 0; i < pointerCount; ++i )
+    {
+        dataString += PdmReferenceHelper::referenceFromFieldToObject( m_field, m_field->m_pointers[i].rawPtr() );
+        if ( !dataString.isEmpty() && i < pointerCount - 1 ) dataString += " | \n\t";
+    }
+    jsonValue = dataString;
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+bool PdmFieldIoCap<PdmPtrArrayField<DataType*>>::resolveReferences()
 {
     if ( m_isResolved ) return true;
     if ( m_referenceString.isEmpty() ) return true;
@@ -206,7 +305,7 @@ bool caf::PdmFieldIoCap<PdmPtrArrayField<DataType*>>::resolveReferences()
             foundValidObjectFromString = false;
         }
 
-        m_field->m_pointers.push_back( NULL );
+        m_field->m_pointers.push_back( nullptr );
         m_field->m_pointers.back().setRawPtr( objHandle );
     }
 
@@ -219,7 +318,16 @@ bool caf::PdmFieldIoCap<PdmPtrArrayField<DataType*>>::resolveReferences()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool caf::PdmFieldIoCap<caf::PdmPtrArrayField<DataType*>>::isVectorField() const
+QString PdmFieldIoCap<PdmPtrArrayField<DataType*>>::referenceString() const
+{
+    return m_referenceString;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+bool PdmFieldIoCap<PdmPtrArrayField<DataType*>>::isVectorField() const
 {
     return true;
 }
@@ -233,8 +341,7 @@ bool caf::PdmFieldIoCap<caf::PdmPtrArrayField<DataType*>>::isVectorField() const
 //--------------------------------------------------------------------------------------------------
 
 template <typename DataType>
-void caf::PdmFieldIoCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream,
-                                                                       PdmObjectFactory* objectFactory )
+void PdmFieldIoCap<PdmChildField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory )
 {
     PdmFieldIOHelper::skipCharactersAndComments( xmlStream );
     if ( !xmlStream.isStartElement() )
@@ -243,15 +350,15 @@ void caf::PdmFieldIoCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStrea
     }
 
     QString          className = xmlStream.name().toString();
-    PdmObjectHandle* obj       = NULL;
+    PdmObjectHandle* obj       = nullptr;
 
     // Create an object if needed
-    if ( m_field->value() == NULL )
+    if ( m_field->value() == nullptr )
     {
         CAF_ASSERT( objectFactory );
         obj = objectFactory->create( className );
 
-        if ( obj == NULL )
+        if ( obj == nullptr )
         {
             std::cout << "Line " << xmlStream.lineNumber()
                       << ": Warning: Unknown object type with class name: " << className.toLatin1().data()
@@ -263,7 +370,7 @@ void caf::PdmFieldIoCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStrea
         }
         else
         {
-            auto ioObject = obj->capability<PdmObjectIoCapability>();
+            auto ioObject = obj->capability<caf::PdmObjectIoCapability>();
             if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
             {
                 CAF_ASSERT( false ); // Inconsistency in the factory. It creates objects of wrong type from the
@@ -284,7 +391,7 @@ void caf::PdmFieldIoCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStrea
         obj = m_field->m_fieldValue.rawPtr();
     }
 
-    auto ioObject = obj->capability<PdmObjectIoCapability>();
+    auto ioObject = obj->capability<caf::PdmObjectIoCapability>();
     if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
     {
         // Error: Field contains different class type than on file
@@ -314,14 +421,13 @@ void caf::PdmFieldIoCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStrea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
 template <typename DataType>
-void caf::PdmFieldIoCap<caf::PdmChildField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
+void PdmFieldIoCap<PdmChildField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
 {
     auto object = m_field->m_fieldValue.rawPtr();
     if ( !object ) return;
 
-    auto ioObject = object->capability<PdmObjectIoCapability>();
+    auto ioObject = object->capability<caf::PdmObjectIoCapability>();
     if ( ioObject )
     {
         QString className = ioObject->classKeyword();
@@ -336,7 +442,88 @@ void caf::PdmFieldIoCap<caf::PdmChildField<DataType*>>::writeFieldData( QXmlStre
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool caf::PdmFieldIoCap<caf::PdmChildField<DataType*>>::resolveReferences()
+void PdmFieldIoCap<PdmChildField<DataType*>>::readFieldData( const QJsonValue& jsonValue, PdmObjectFactory* objectFactory )
+{
+    QJsonObject jsonObject = jsonValue.toObject();
+
+    QString className = jsonObject["classKeyword"].toString();
+
+    PdmObjectHandle* obj = nullptr;
+
+    // Create an object if needed
+    if ( m_field->value() == nullptr )
+    {
+        CAF_ASSERT( objectFactory );
+        obj = objectFactory->create( className );
+
+        if ( obj == nullptr )
+        {
+            std::cout << "Warning: Unknown object type with class name: " << className.toLatin1().data()
+                      << " found while reading the field : " << m_field->keyword().toLatin1().data() << std::endl;
+
+            return;
+        }
+        else
+        {
+            auto ioObject = obj->capability<caf::PdmObjectIoCapability>();
+            if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
+            {
+                CAF_ASSERT( false ); // Inconsistency in the factory. It creates objects of wrong type from the
+                                     // ClassKeyword
+                return;
+            }
+
+            m_field->m_fieldValue.setRawPtr( obj );
+            obj->setAsParentField( m_field );
+        }
+    }
+    else
+    {
+        obj = m_field->m_fieldValue.rawPtr();
+    }
+
+    auto ioObject = obj->capability<caf::PdmObjectIoCapability>();
+    if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
+    {
+        // Error: Field contains different class type than on file
+        std::cout << "Warning: Unknown object type with class name: " << className.toLatin1().data()
+                  << " found while reading the field : " << m_field->keyword().toLatin1().data() << std::endl;
+        std::cout << "                     Expected class name: " << ioObject->classKeyword().toLatin1().data()
+                  << std::endl;
+
+        return;
+    }
+
+    // Everything seems ok, so read the contents of the object:
+    PdmObjectJsonCapability::readFields( obj, jsonObject, objectFactory, false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void PdmFieldIoCap<PdmChildField<DataType*>>::writeFieldData( QJsonValue& jsonValue ) const
+{
+    auto object = m_field->m_fieldValue.rawPtr();
+    if ( !object ) return;
+
+    auto ioObject = object->capability<caf::PdmObjectIoCapability>();
+    if ( ioObject )
+    {
+        QString className = ioObject->classKeyword();
+
+        QJsonObject jsonObject;
+        jsonObject["classKeyword"] = className;
+        PdmObjectJsonCapability::writeFields( object, jsonObject );
+        jsonValue = jsonObject;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+bool PdmFieldIoCap<PdmChildField<DataType*>>::resolveReferences()
 {
     return true;
 }
@@ -349,14 +536,14 @@ bool caf::PdmFieldIoCap<caf::PdmChildField<DataType*>>::resolveReferences()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::PdmFieldIoCap<caf::PdmChildArrayField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
+void PdmFieldIoCap<PdmChildArrayField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
 {
     typename std::vector<PdmPointer<DataType>>::iterator it;
     for ( it = m_field->m_pointers.begin(); it != m_field->m_pointers.end(); ++it )
     {
-        if ( it->rawPtr() == NULL ) continue;
+        if ( it->rawPtr() == nullptr ) continue;
 
-        auto ioObject = it->rawPtr()->capability<PdmObjectIoCapability>();
+        auto ioObject = it->rawPtr()->capability<caf::PdmObjectIoCapability>();
         if ( ioObject )
         {
             QString className = ioObject->classKeyword();
@@ -372,8 +559,8 @@ void caf::PdmFieldIoCap<caf::PdmChildArrayField<DataType*>>::writeFieldData( QXm
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::PdmFieldIoCap<caf::PdmChildArrayField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream,
-                                                                            PdmObjectFactory* objectFactory )
+void PdmFieldIoCap<PdmChildArrayField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream,
+                                                                  PdmObjectFactory* objectFactory )
 {
     m_field->deleteAllChildObjects();
     PdmFieldIOHelper::skipCharactersAndComments( xmlStream );
@@ -384,7 +571,7 @@ void caf::PdmFieldIoCap<caf::PdmChildArrayField<DataType*>>::readFieldData( QXml
         CAF_ASSERT( objectFactory );
         PdmObjectHandle* obj = objectFactory->create( className );
 
-        if ( obj == NULL )
+        if ( obj == nullptr )
         {
             // Warning: Unknown className read
             // Skip to corresponding end element
@@ -404,7 +591,7 @@ void caf::PdmFieldIoCap<caf::PdmChildArrayField<DataType*>>::readFieldData( QXml
             continue;
         }
 
-        auto ioObject = obj->capability<PdmObjectIoCapability>();
+        auto ioObject = obj->capability<caf::PdmObjectIoCapability>();
         if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
         {
             CAF_ASSERT( false ); // There is an inconsistency in the factory. It creates objects of type not matching
@@ -421,7 +608,7 @@ void caf::PdmFieldIoCap<caf::PdmChildArrayField<DataType*>>::readFieldData( QXml
             continue;
         }
 
-        caf::PdmObjectXmlCapability::readFields( obj, xmlStream, objectFactory, false );
+        PdmObjectXmlCapability::readFields( obj, xmlStream, objectFactory, false );
 
         m_field->m_pointers.push_back( PdmPointer<DataType>() );
         m_field->m_pointers.back().setRawPtr( obj );
@@ -440,7 +627,80 @@ void caf::PdmFieldIoCap<caf::PdmChildArrayField<DataType*>>::readFieldData( QXml
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool caf::PdmFieldIoCap<caf::PdmChildArrayField<DataType*>>::resolveReferences()
+void PdmFieldIoCap<PdmChildArrayField<DataType*>>::readFieldData( const QJsonValue& jsonValue,
+                                                                  PdmObjectFactory* objectFactory )
+{
+    m_field->deleteAllChildObjects();
+
+    QJsonArray array = jsonValue.toArray();
+
+    for ( auto it = array.begin(); it != array.end(); ++it )
+    {
+        auto        value      = *it;
+        QJsonObject jsonObject = value.toObject();
+        QString     className  = jsonObject["classKeyword"].toString();
+
+        CAF_ASSERT( objectFactory );
+        PdmObjectHandle* obj = objectFactory->create( className );
+
+        if ( obj == nullptr )
+        {
+            // Warning: Unknown className read
+            // Skip to corresponding end element
+
+            std::cout << "Warning: Unknown object type with class name: " << className.toLatin1().data()
+                      << " found while reading the field : " << m_field->keyword().toLatin1().data() << std::endl;
+
+            continue;
+        }
+
+        auto ioObject = obj->capability<caf::PdmObjectIoCapability>();
+        if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
+        {
+            CAF_ASSERT( false ); // There is an inconsistency in the factory. It creates objects of type not matching
+                                 // the ClassKeyword
+
+            continue;
+        }
+
+        PdmObjectJsonCapability::readFields( obj, jsonObject, objectFactory, false );
+
+        m_field->m_pointers.push_back( PdmPointer<DataType>() );
+        m_field->m_pointers.back().setRawPtr( obj );
+        obj->setAsParentField( m_field );
+    }
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void PdmFieldIoCap<PdmChildArrayField<DataType*>>::writeFieldData( QJsonValue& jsonValue ) const
+{
+    typename std::vector<PdmPointer<DataType>>::iterator it;
+
+    QJsonArray jsonArray;
+    for ( it = m_field->m_pointers.begin(); it != m_field->m_pointers.end(); ++it )
+    {
+        if ( it->rawPtr() == nullptr ) continue;
+
+        auto ioObject = it->rawPtr()->capability<caf::PdmObjectIoCapability>();
+        if ( ioObject )
+        {
+            QString     className = ioObject->classKeyword();
+            QJsonObject jsonObject;
+            jsonObject["classKeyword"] = className;
+            PdmObjectJsonCapability::writeFields( it->rawPtr(), jsonObject );
+            jsonArray.push_back( jsonObject );
+        }
+    }
+    jsonValue = jsonArray;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+bool PdmFieldIoCap<PdmChildArrayField<DataType*>>::resolveReferences()
 {
     return true;
 }
@@ -449,7 +709,7 @@ bool caf::PdmFieldIoCap<caf::PdmChildArrayField<DataType*>>::resolveReferences()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool caf::PdmFieldIoCap<caf::PdmChildArrayField<DataType*>>::isVectorField() const
+bool PdmFieldIoCap<PdmChildArrayField<DataType*>>::isVectorField() const
 {
     return true;
 }
@@ -463,7 +723,7 @@ bool caf::PdmFieldIoCap<caf::PdmChildArrayField<DataType*>>::isVectorField() con
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool caf::PdmFieldIoCap<caf::PdmField<std::vector<DataType>>>::isVectorField() const
+bool PdmFieldIoCap<PdmField<std::vector<DataType>>>::isVectorField() const
 {
     return true;
 }
@@ -472,8 +732,8 @@ bool caf::PdmFieldIoCap<caf::PdmField<std::vector<DataType>>>::isVectorField() c
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::PdmFieldIoCap<caf::PdmField<std::vector<DataType>>>::readFieldData( QXmlStreamReader& xmlStream,
-                                                                              PdmObjectFactory* objectFactory )
+void PdmFieldIoCap<PdmField<std::vector<DataType>>>::readFieldData( QXmlStreamReader& xmlStream,
+                                                                    PdmObjectFactory* objectFactory )
 {
     this->assertValid();
     typename FieldType::FieldDataType value;
@@ -485,7 +745,7 @@ void caf::PdmFieldIoCap<caf::PdmField<std::vector<DataType>>>::readFieldData( QX
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::PdmFieldIoCap<caf::PdmField<std::vector<DataType>>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
+void PdmFieldIoCap<PdmField<std::vector<DataType>>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
 {
     this->assertValid();
     PdmFieldWriter<typename FieldType::FieldDataType>::writeFieldData( m_field->value(), xmlStream );
@@ -495,7 +755,30 @@ void caf::PdmFieldIoCap<caf::PdmField<std::vector<DataType>>>::writeFieldData( Q
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool caf::PdmFieldIoCap<caf::PdmField<std::vector<DataType>>>::resolveReferences()
+void PdmFieldIoCap<PdmField<std::vector<DataType>>>::readFieldData( const QJsonValue& jsonValue,
+                                                                    PdmObjectFactory* objectFactory )
+{
+    this->assertValid();
+    typename FieldType::FieldDataType value;
+    PdmFieldReader<typename FieldType::FieldDataType>::readFieldData( value, jsonValue, objectFactory );
+    m_field->setValue( value );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void PdmFieldIoCap<PdmField<std::vector<DataType>>>::writeFieldData( QJsonValue& jsonValue ) const
+{
+    this->assertValid();
+    PdmFieldWriter<typename FieldType::FieldDataType>::writeFieldData( m_field->value(), jsonValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+bool PdmFieldIoCap<PdmField<std::vector<DataType>>>::resolveReferences()
 {
     return true;
 }

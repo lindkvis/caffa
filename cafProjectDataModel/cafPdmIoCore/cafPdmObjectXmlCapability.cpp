@@ -124,9 +124,9 @@ void PdmObjectXmlCapability::writeFields( const PdmObjectHandle* object, QXmlStr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmObjectXmlCapability::readObjectFromString( PdmObjectHandle*  object,
-                                                   const QString&    xmlString,
-                                                   PdmObjectFactory* objectFactory )
+void PdmObjectXmlCapability::readObjectFromXmlString( PdmObjectHandle*  object,
+                                                      const QString&    xmlString,
+                                                      PdmObjectFactory* objectFactory )
 {
     // A valid XML is used to store field data of the object. The format of the XML is like this
 
@@ -219,7 +219,7 @@ PdmObjectHandle* PdmObjectXmlCapability::copyByXmlSerialization( const PdmObject
     auto ioCapability = object->capability<PdmObjectIoCapability>();
     ioCapability->setupBeforeSaveRecursively();
 
-    QString xmlString = writeObjectToString( object );
+    QString xmlString = writeObjectToXmlString( object );
 
     PdmObjectHandle* objectCopy = readUnknownObjectFromXmlString( xmlString, objectFactory, true );
     if ( !objectCopy ) return nullptr;
@@ -240,7 +240,7 @@ caf::PdmObjectHandle* PdmObjectXmlCapability::copyAndCastByXmlSerialization( con
     auto ioCapability = object->capability<PdmObjectIoCapability>();
     ioCapability->setupBeforeSaveRecursively();
 
-    QString xmlString = writeObjectToString( object );
+    QString xmlString = writeObjectToXmlString( object );
 
     PdmObjectHandle* upgradedObject = objectFactory->create( destinationClassKeyword );
     if ( !upgradedObject ) return nullptr;
@@ -262,7 +262,7 @@ caf::PdmObjectHandle* PdmObjectXmlCapability::copyAndCastByXmlSerialization( con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmObjectXmlCapability::writeObjectToString( const PdmObjectHandle* object )
+QString PdmObjectXmlCapability::writeObjectToXmlString( const PdmObjectHandle* object )
 {
     QString          xmlString;
     QXmlStreamWriter outputStream( &xmlString );

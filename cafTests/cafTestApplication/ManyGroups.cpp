@@ -50,11 +50,11 @@ ManyGroups::ManyGroups()
     }
 
     CAF_PDM_InitFieldNoDefault(&m_multiSelectList, "SelectedItems", "Multi Select Field", "", "", "");
-    m_multiSelectList.uiCapability()->setAutoAddingOptionFromValue(false);
+    m_multiSelectList.capability<caf::PdmUiFieldHandle>()->setAutoAddingOptionFromValue(false);
 
-    m_multiSelectList.xmlCapability()->setIOReadable(false);
-    m_multiSelectList.xmlCapability()->setIOWritable(false);
-    m_multiSelectList.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+    m_multiSelectList.capability<caf::PdmFieldIoCapability>()->setIOReadable(false);
+    m_multiSelectList.capability<caf::PdmFieldIoCapability>()->setIOWritable(false);
+    m_multiSelectList.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
 
     m_multiSelectList.v().push_back("First");
     m_multiSelectList.v().push_back("Second");
@@ -62,7 +62,8 @@ ManyGroups::ManyGroups()
 
     CAF_PDM_InitField(
         &m_stringWithMultipleOptions, "m_stringWithMultipleOptions", QString(""), "Text with many items", "", "", "");
-    m_stringWithMultipleOptions.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    m_stringWithMultipleOptions.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(
+        caf::PdmUiListEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
