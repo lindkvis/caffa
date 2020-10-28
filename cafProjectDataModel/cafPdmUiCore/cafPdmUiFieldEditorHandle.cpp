@@ -36,10 +36,10 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
+#include "cafPdmFieldUiCapability.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmObjectUiCapability.h"
 #include "cafPdmUiCommandSystemProxy.h"
-#include "cafPdmUiFieldHandle.h"
-#include "cafPdmUiObjectHandle.h"
 #include "cafQActionWrapper.h"
 
 #include <QAbstractScrollArea>
@@ -76,7 +76,7 @@ PdmUiFieldEditorHandle::~PdmUiFieldEditorHandle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldEditorHandle::setUiField( PdmUiFieldHandle* field )
+void PdmUiFieldEditorHandle::setUiField( PdmFieldUiCapability* field )
 {
     this->bindToPdmItem( field );
 
@@ -98,7 +98,7 @@ void PdmUiFieldEditorHandle::updateContextMenuPolicy()
 {
     if ( m_editorWidget.isNull() ) return;
 
-    PdmUiFieldHandle* field = uiField();
+    PdmFieldUiCapability* field = uiField();
     if ( field && field->isCustomContextMenuEnabled() )
     {
         m_editorWidget->setContextMenuPolicy( Qt::CustomContextMenu );
@@ -112,9 +112,9 @@ void PdmUiFieldEditorHandle::updateContextMenuPolicy()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiFieldHandle* PdmUiFieldEditorHandle::uiField()
+PdmFieldUiCapability* PdmUiFieldEditorHandle::uiField()
 {
-    return dynamic_cast<PdmUiFieldHandle*>( pdmItem() );
+    return dynamic_cast<PdmFieldUiCapability*>( pdmItem() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,7 +169,7 @@ void PdmUiFieldEditorHandle::updateLabelFromField( QLabel* label, const QString&
 {
     CAF_ASSERT( label );
 
-    const PdmUiFieldHandle* fieldHandle = dynamic_cast<const PdmUiFieldHandle*>( pdmItem() );
+    const PdmFieldUiCapability* fieldHandle = dynamic_cast<const PdmFieldUiCapability*>( pdmItem() );
     if ( fieldHandle )
     {
         auto ic = fieldHandle->uiIcon( uiConfigName );
@@ -241,9 +241,9 @@ void PdmUiFieldEditorHandle::customMenuRequested( QPoint pos )
 
         QMenuWrapper menuWrapper;
         PdmUiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( widget );
-        objectHandle->capability<PdmUiObjectHandle>()->defineCustomContextMenu( uiField()->fieldHandle(),
-                                                                                &menuWrapper,
-                                                                                widget );
+        objectHandle->capability<PdmObjectUiCapability>()->defineCustomContextMenu( uiField()->fieldHandle(),
+                                                                                    &menuWrapper,
+                                                                                    widget );
 
         if ( !menuWrapper.actions().empty() )
         {

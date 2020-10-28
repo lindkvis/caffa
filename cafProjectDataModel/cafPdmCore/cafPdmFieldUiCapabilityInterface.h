@@ -4,11 +4,11 @@
 
 namespace caf
 {
-class PdmUiFieldHandleInterface
+class PdmFieldUiCapabilityInterface
 {
 public:
-    PdmUiFieldHandleInterface() {}
-    virtual ~PdmUiFieldHandleInterface() {}
+    PdmFieldUiCapabilityInterface() {}
+    virtual ~PdmFieldUiCapabilityInterface() {}
 
     virtual QVariant toUiBasedQVariant() const { return QVariant(); }
     virtual void     notifyFieldChanged( const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant ){};

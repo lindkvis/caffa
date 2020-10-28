@@ -40,9 +40,9 @@
 #include "cafInternalPdmUiCommandSystemInterface.h"
 
 #include "cafPdmFieldHandle.h"
+#include "cafPdmFieldUiCapability.h"
 #include "cafPdmObjectHandle.h"
-#include "cafPdmUiFieldHandle.h"
-#include "cafPdmUiObjectHandle.h"
+#include "cafPdmObjectUiCapability.h"
 #include "cafSelectionManager.h"
 
 #include <cstddef>
@@ -79,7 +79,7 @@ void PdmUiCommandSystemProxy::setCommandInterface( PdmUiCommandSystemInterface* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiCommandSystemProxy::setUiValueToField( PdmUiFieldHandle* uiFieldHandle, const QVariant& newUiValue )
+void PdmUiCommandSystemProxy::setUiValueToField( PdmFieldUiCapability* uiFieldHandle, const QVariant& newUiValue )
 {
     if ( uiFieldHandle )
     {
@@ -120,7 +120,7 @@ void PdmUiCommandSystemProxy::setUiValueToField( PdmUiFieldHandle* uiFieldHandle
                 {
                     // Todo Remove when dust has settled. Selection manager is not supposed to select single fields
                     // A field is selected, check if keywords are identical
-                    PdmUiFieldHandle* itemFieldHandle = dynamic_cast<PdmUiFieldHandle*>( items[i] );
+                    PdmFieldUiCapability* itemFieldHandle = dynamic_cast<PdmFieldUiCapability*>( items[i] );
                     if ( itemFieldHandle )
                     {
                         PdmFieldHandle* field = itemFieldHandle->fieldHandle();
@@ -141,7 +141,7 @@ void PdmUiCommandSystemProxy::setUiValueToField( PdmUiFieldHandle* uiFieldHandle
         {
             for ( auto fieldHandle : fieldsToUpdate )
             {
-                fieldHandle->capability<PdmUiFieldHandle>()->setValueFromUiEditor( newUiValue );
+                fieldHandle->capability<PdmFieldUiCapability>()->setValueFromUiEditor( newUiValue );
             }
         }
     }

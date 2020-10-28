@@ -156,7 +156,7 @@ void PdmUiTreeViewEditor::configureAndUpdateUi( const QString& uiConfigName )
     PdmUiTreeViewEditorAttribute editorAttributes;
 
     {
-        PdmUiObjectHandle* uiObjectHandle = dynamic_cast<PdmUiObjectHandle*>( this->pdmItemRoot() );
+        PdmObjectUiCapability* uiObjectHandle = dynamic_cast<PdmObjectUiCapability*>( this->pdmItemRoot() );
         if ( uiObjectHandle )
         {
             uiObjectHandle->objectEditorAttribute( uiConfigName, &editorAttributes );
@@ -169,7 +169,7 @@ void PdmUiTreeViewEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     if ( editorAttributes.currentObject )
     {
-        PdmUiObjectHandle* uiObjectHandle = editorAttributes.currentObject->capability<PdmUiObjectHandle>();
+        PdmObjectUiCapability* uiObjectHandle = editorAttributes.currentObject->capability<PdmObjectUiCapability>();
         if ( uiObjectHandle )
         {
             selectAsCurrentItem( uiObjectHandle );
@@ -299,7 +299,7 @@ PdmChildArrayFieldHandle* PdmUiTreeViewEditor::currentChildArrayFieldHandle()
 {
     PdmUiItem* currentSelectedItem = SelectionManager::instance()->selectedItem( SelectionManager::FIRST_LEVEL );
 
-    PdmUiFieldHandle* uiFieldHandle = dynamic_cast<PdmUiFieldHandle*>( currentSelectedItem );
+    PdmFieldUiCapability* uiFieldHandle = dynamic_cast<PdmFieldUiCapability*>( currentSelectedItem );
     if ( uiFieldHandle )
     {
         PdmFieldHandle* fieldHandle = uiFieldHandle->fieldHandle();
@@ -443,8 +443,8 @@ void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& model
     auto allIndices = m_treeViewModel->allIndicesRecursive();
     for ( QModelIndex index : allIndices )
     {
-        PdmUiItem*         uiItem         = m_treeViewModel->uiItemFromModelIndex( index );
-        PdmUiObjectHandle* uiObjectHandle = dynamic_cast<PdmUiObjectHandle*>( uiItem );
+        PdmUiItem*             uiItem         = m_treeViewModel->uiItemFromModelIndex( index );
+        PdmObjectUiCapability* uiObjectHandle = dynamic_cast<PdmObjectUiCapability*>( uiItem );
         if ( uiObjectHandle )
         {
             PdmUiTreeViewItemAttribute attribute;

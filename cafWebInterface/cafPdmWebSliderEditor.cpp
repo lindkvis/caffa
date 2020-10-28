@@ -74,7 +74,7 @@ void PdmWebSliderEditor::configureAndUpdateUi( const QString& uiConfigName )
         m_slider->setToolTip( uiField()->uiToolTip( uiConfigName ).toStdString() );
     }
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );

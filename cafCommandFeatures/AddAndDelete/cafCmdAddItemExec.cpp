@@ -95,11 +95,11 @@ void CmdAddItemExec::redo()
             m_commandData->m_createdItemIndex = m_commandData->m_indexAfter;
         }
 
-        listField->capability<PdmUiFieldHandle>()->updateConnectedEditors();
+        listField->capability<PdmFieldUiCapability>()->updateConnectedEditors();
 
         if ( listField->ownerObject() )
         {
-            caf::PdmUiObjectHandle* ownerUiObject = uiObj( listField->ownerObject() );
+            caf::PdmObjectUiCapability* ownerUiObject = uiObj( listField->ownerObject() );
             if ( ownerUiObject )
             {
                 ownerUiObject->fieldChangedByUi( listField, QVariant(), QVariant() );
@@ -127,11 +127,11 @@ void CmdAddItemExec::undo()
         caf::SelectionManager::instance()->removeObjectFromAllSelections( obj );
 
         listField->erase( m_commandData->m_createdItemIndex );
-        listField->capability<PdmUiFieldHandle>()->updateConnectedEditors();
+        listField->capability<PdmFieldUiCapability>()->updateConnectedEditors();
 
         if ( listField->ownerObject() )
         {
-            caf::PdmUiObjectHandle* ownerUiObject = uiObj( listField->ownerObject() );
+            caf::PdmObjectUiCapability* ownerUiObject = uiObj( listField->ownerObject() );
             if ( ownerUiObject )
             {
                 ownerUiObject->fieldChangedByUi( listField, QVariant(), QVariant() );

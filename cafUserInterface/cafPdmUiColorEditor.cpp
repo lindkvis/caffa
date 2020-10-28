@@ -74,7 +74,7 @@ void PdmUiColorEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );

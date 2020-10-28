@@ -7,7 +7,7 @@
 namespace caf
 {
 class PdmObjectHandle;
-class PdmUiFieldHandle;
+class PdmFieldUiCapability;
 class PdmFieldIoCapability;
 
 //==================================================================================================

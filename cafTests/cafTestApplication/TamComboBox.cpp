@@ -13,7 +13,7 @@ TamComboBox::TamComboBox()
     CAF_PDM_InitObject("Cell Filter", "", "", "");
 
     CAF_PDM_InitField(&m_name, "UserDescription", QString("Filter Name"), "Name", "", "", "");
-    m_name.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+    m_name.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------

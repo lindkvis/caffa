@@ -36,13 +36,13 @@
 
 #include "cafPdmUiFormLayoutObjectEditor.h"
 
+#include "cafPdmFieldUiCapability.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectIoCapability.h"
+#include "cafPdmObjectUiCapability.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiFieldEditorHelper.h"
-#include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiListEditor.h"
-#include "cafPdmUiObjectHandle.h"
 #include "cafPdmUiOrdering.h"
 
 #include "cafAssert.h"
@@ -166,7 +166,7 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
             else
             {
                 PdmUiFieldEditorHandle* fieldEditor = nullptr;
-                PdmUiFieldHandle*       field       = dynamic_cast<PdmUiFieldHandle*>( currentItem );
+                PdmFieldUiCapability*   field       = dynamic_cast<PdmFieldUiCapability*>( currentItem );
 
                 if ( field )
                     fieldEditor = findOrCreateFieldEditor( containerWidgetWithGridLayout, field, uiConfigName );
@@ -383,9 +383,9 @@ QMinimizePanel* caf::PdmUiFormLayoutObjectEditor::findOrCreateGroupBox( QWidget*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateFieldEditor( QWidget*          parent,
-                                                                                        PdmUiFieldHandle* field,
-                                                                                        const QString&    uiConfigName )
+caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateFieldEditor( QWidget*              parent,
+                                                                                        PdmFieldUiCapability* field,
+                                                                                        const QString& uiConfigName )
 {
     caf::PdmUiFieldEditorHandle* fieldEditor = nullptr;
 
@@ -500,7 +500,7 @@ void caf::PdmUiFormLayoutObjectEditor::configureAndUpdateUi( const QString& uiCo
     caf::PdmUiOrdering config;
     if ( pdmObject() )
     {
-        caf::PdmUiObjectHandle* uiObject = uiObj( pdmObject() );
+        caf::PdmObjectUiCapability* uiObject = uiObj( pdmObject() );
         if ( uiObject )
         {
             uiObject->uiOrdering( uiConfigName, config );
@@ -551,7 +551,7 @@ void caf::PdmUiFormLayoutObjectEditor::configureAndUpdateUi( const QString& uiCo
     m_groupBoxes = m_newGroupBoxes;
 
     // Notify pdm object when widgets have been created
-    caf::PdmUiObjectHandle* uiObject = uiObj( pdmObject() );
+    caf::PdmObjectUiCapability* uiObject = uiObj( pdmObject() );
     if ( uiObject )
     {
         uiObject->onEditorWidgetsCreated();
@@ -589,7 +589,7 @@ void caf::PdmUiFormLayoutObjectEditor::recursiveVerifyUniqueNames( const std::ve
         }
         else
         {
-            PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*>( uiItems[i] );
+            PdmFieldUiCapability* field = dynamic_cast<PdmFieldUiCapability*>( uiItems[i] );
 
             QString fieldKeyword = field->fieldHandle()->keyword();
             if ( fieldKeywordNames->find( fieldKeyword ) != fieldKeywordNames->end() )

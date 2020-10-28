@@ -67,7 +67,7 @@ TEST( PdmUiTreeViewModelTest, DeleteOneItemAndVerifyTreeOrdering )
     EXPECT_TRUE( mi.isValid() );
 
     demoObj->m_simpleObjPtrField.removeChildObject( obj1 );
-    demoObj->m_simpleObjPtrField().capability<PdmUiFieldHandle>()->updateConnectedEditors();
+    demoObj->m_simpleObjPtrField().capability<PdmFieldUiCapability>()->updateConnectedEditors();
 
     mi = treeView.findModelIndex( obj1 );
     EXPECT_FALSE( mi.isValid() );
@@ -96,7 +96,7 @@ TEST( PdmUiTreeViewModelTest, AddOneItemAndVerifyTreeOrdering )
     EXPECT_FALSE( mi.isValid() );
 
     demoObj->m_simpleObjPtrField.push_back( obj4 );
-    demoObj->m_simpleObjPtrField().capability<PdmUiFieldHandle>()->updateConnectedEditors();
+    demoObj->m_simpleObjPtrField().capability<PdmFieldUiCapability>()->updateConnectedEditors();
 
     mi = treeView.findModelIndex( obj4 );
     EXPECT_TRUE( mi.isValid() );
@@ -131,7 +131,7 @@ TEST( PdmUiTreeViewModelTest, ChangeOrderingAndVerifyTreeOrdering )
     demoObj->m_simpleObjPtrField.push_back( obj3 );
     demoObj->m_simpleObjPtrField.push_back( obj2 );
 
-    demoObj->m_simpleObjPtrField().capability<PdmUiFieldHandle>()->updateConnectedEditors();
+    demoObj->m_simpleObjPtrField().capability<PdmFieldUiCapability>()->updateConnectedEditors();
 
     mi = treeView.findModelIndex( obj4 );
     EXPECT_EQ( 1, mi.row() );
@@ -168,7 +168,7 @@ TEST( PdmUiTreeViewModelTest, ChangeDeepInTreeNotifyRootAndVerifyTreeOrdering )
 
     demoObj->m_simpleObjPtrField.removeChildObject( obj4 );
 
-    root->m_simpleObjPtrField().capability<PdmUiFieldHandle>()->updateConnectedEditors();
+    root->m_simpleObjPtrField().capability<PdmFieldUiCapability>()->updateConnectedEditors();
 
     mi = treeView.findModelIndex( obj4 );
     EXPECT_FALSE( mi.isValid() );
@@ -190,5 +190,5 @@ TEST( PdmUiTreeViewModelTest, DISABLED_PerformanceLargeNumberOfItems )
 
     PdmUiTreeView treeView;
     treeView.setPdmItem( demoObj );
-    demoObj->m_simpleObjPtrField().capability<PdmUiFieldHandle>()->updateConnectedEditors();
+    demoObj->m_simpleObjPtrField().capability<PdmFieldUiCapability>()->updateConnectedEditors();
 }

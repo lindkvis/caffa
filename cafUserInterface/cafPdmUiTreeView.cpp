@@ -133,7 +133,7 @@ void PdmUiTreeView::slotOnSelectionChanged()
 
     if ( objects.size() )
     {
-        PdmUiObjectHandle* uiObjH = dynamic_cast<PdmUiObjectHandle*>( objects[0] );
+        PdmObjectUiCapability* uiObjH = dynamic_cast<PdmObjectUiCapability*>( objects[0] );
         if ( uiObjH )
         {
             objHandle = uiObjH->objectHandle();

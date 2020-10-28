@@ -44,7 +44,7 @@ namespace caf
 {
 class MenuInterface;
 class PdmFieldHandle;
-class PdmUiFieldHandle;
+class PdmFieldUiCapability;
 class PdmUiCommandSystemInterface;
 
 class PdmUiCommandSystemProxy
@@ -55,7 +55,7 @@ public:
     static PdmUiCommandSystemProxy* instance();
     void                            setCommandInterface( PdmUiCommandSystemInterface* undoCommandInterface );
 
-    void setUiValueToField( PdmUiFieldHandle* uiFieldHandle, const QVariant& newUiValue );
+    void setUiValueToField( PdmFieldUiCapability* uiFieldHandle, const QVariant& newUiValue );
     void setCurrentContextMenuTargetWidget( QWidget* targetWidget );
     void populateMenuWithDefaultCommands( const QString& uiConfigName, MenuInterface* menu );
 

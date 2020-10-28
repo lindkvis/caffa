@@ -38,10 +38,10 @@
 
 #include "cafAssert.h"
 #include "cafPdmDataValueField.h"
+#include "cafPdmFieldUiCapability.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmObjectUiCapability.h"
 #include "cafPdmUiEditorHandle.h"
-#include "cafPdmUiFieldHandle.h"
-#include "cafPdmUiObjectHandle.h"
 
 #include <iostream>
 
@@ -54,9 +54,9 @@ void PdmUiTreeOrdering::add( PdmFieldHandle* field, QString uiConfigName )
 {
     CAF_ASSERT( field );
 
-    if ( field->capability<PdmUiFieldHandle>()->isUiTreeHidden( uiConfigName ) )
+    if ( field->capability<PdmFieldUiCapability>()->isUiTreeHidden( uiConfigName ) )
     {
-        if ( !field->capability<PdmUiFieldHandle>()->isUiTreeChildrenHidden( uiConfigName ) )
+        if ( !field->capability<PdmFieldUiCapability>()->isUiTreeChildrenHidden( uiConfigName ) )
         {
             std::vector<PdmObjectHandle*> children;
             field->childObjects( &children );
@@ -270,7 +270,7 @@ PdmUiItem* PdmUiTreeOrdering::uiItem() const
 PdmUiItem* PdmUiTreeOrdering::activeItem() const
 {
     if ( isRepresentingObject() ) return uiObj( m_object );
-    if ( isRepresentingField() ) return m_field->capability<PdmUiFieldHandle>();
+    if ( isRepresentingField() ) return m_field->capability<PdmFieldUiCapability>();
     if ( isDisplayItemOnly() ) return m_uiItem;
     return nullptr;
 }

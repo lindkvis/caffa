@@ -50,7 +50,7 @@ class QXmlStreamWriter;
 
 #include "cafPdmObjectHandleIoMacros.h"
 #include "cafPdmObjectIoCapability.h"
-#include "cafPdmUiObjectHandle.h"
+#include "cafPdmObjectUiCapability.h"
 
 #include "cafInternalPdmUiFieldCapability.h"
 #include "cafPdmFieldHandle.h"
@@ -138,7 +138,7 @@ class PdmObjectCapability;
 
 namespace caf
 {
-class PdmObject : public PdmObjectHandle, public PdmObjectIoCapability, public PdmUiObjectHandle
+class PdmObject : public PdmObjectHandle, public PdmObjectIoCapability, public PdmObjectUiCapability
 {
 public:
     CAF_PDM_HEADER_INIT;
@@ -165,7 +165,7 @@ public:
     {
         addField( field, keyword );
 
-        PdmUiFieldHandle* uiFieldHandle = field->capability<PdmUiFieldHandle>();
+        PdmFieldUiCapability* uiFieldHandle = field->capability<PdmFieldUiCapability>();
         if ( uiFieldHandle )
         {
             uiFieldHandle->setUiItemInfo( fieldDescription );

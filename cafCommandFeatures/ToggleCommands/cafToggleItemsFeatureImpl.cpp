@@ -35,9 +35,9 @@
 //##################################################################################################
 
 #include "cafToggleItemsFeatureImpl.h"
-#include "cafPdmUiFieldHandle.h"
+#include "cafPdmFieldUiCapability.h"
+#include "cafPdmObjectUiCapability.h"
 #include "cafPdmUiItem.h"
-#include "cafPdmUiObjectHandle.h"
 #include "cafPdmUiTreeOrdering.h"
 #ifdef WEB_DEPLOYMENT
 #include "cafPdmWebTreeView.h"
@@ -78,11 +78,11 @@ bool ToggleItemsFeatureImpl::isToggleCommandsAvailable()
             if ( !child ) continue;
             if ( !child->isRepresentingObject() ) continue;
 
-            caf::PdmObjectHandle*   childObj            = child->object();
-            caf::PdmUiObjectHandle* uiObjectHandleChild = uiObj( childObj );
+            caf::PdmObjectHandle*       childObj            = child->object();
+            caf::PdmObjectUiCapability* uiObjectHandleChild = uiObj( childObj );
 
             if ( uiObjectHandleChild && uiObjectHandleChild->objectToggleField() &&
-                 !uiObjectHandleChild->objectToggleField()->capability<PdmUiFieldHandle>()->isUiReadOnly() )
+                 !uiObjectHandleChild->objectToggleField()->capability<PdmFieldUiCapability>()->isUiReadOnly() )
             {
                 return true;
             }
@@ -92,7 +92,7 @@ bool ToggleItemsFeatureImpl::isToggleCommandsAvailable()
     {
         for ( size_t i = 0; i < selectedItems.size(); ++i )
         {
-            caf::PdmUiObjectHandle* uiObjectHandle = dynamic_cast<caf::PdmUiObjectHandle*>( selectedItems[i] );
+            caf::PdmObjectUiCapability* uiObjectHandle = dynamic_cast<caf::PdmObjectUiCapability*>( selectedItems[i] );
 
             if ( uiObjectHandle && uiObjectHandle->objectToggleField() )
             {
@@ -142,8 +142,8 @@ void ToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggleTy
             if ( !child ) continue;
             if ( !child->isRepresentingObject() ) continue;
 
-            caf::PdmObjectHandle*   childObj            = child->object();
-            caf::PdmUiObjectHandle* uiObjectHandleChild = uiObj( childObj );
+            caf::PdmObjectHandle*       childObj            = child->object();
+            caf::PdmObjectUiCapability* uiObjectHandleChild = uiObj( childObj );
 
             if ( uiObjectHandleChild && uiObjectHandleChild->objectToggleField() )
             {
@@ -159,7 +159,7 @@ void ToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggleTy
     {
         for ( size_t i = 0; i < selectedItems.size(); ++i )
         {
-            caf::PdmUiObjectHandle* uiObjectHandle = dynamic_cast<caf::PdmUiObjectHandle*>( selectedItems[i] );
+            caf::PdmObjectUiCapability* uiObjectHandle = dynamic_cast<caf::PdmObjectUiCapability*>( selectedItems[i] );
 
             if ( uiObjectHandle && uiObjectHandle->objectToggleField() )
             {

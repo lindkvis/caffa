@@ -226,7 +226,7 @@ void PdmObjectHandle::onChildDeleted( PdmChildArrayFieldHandle*           childA
 
 // These two functions can be used when PdmCore is used standalone without PdmUi/PdmXml
 /*
-PdmUiObjectHandle* PdmObjectHandle::capability<PdmUiFieldHandle>()
+PdmObjectUiCapability* PdmObjectHandle::capability<PdmFieldUiCapability>()
 {
 return NULL;
 }

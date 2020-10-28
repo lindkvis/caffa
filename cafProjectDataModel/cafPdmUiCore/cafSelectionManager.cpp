@@ -36,9 +36,9 @@
 
 #include "cafSelectionManager.h"
 
+#include "cafPdmFieldUiCapability.h"
+#include "cafPdmObjectUiCapability.h"
 #include "cafPdmReferenceHelper.h"
-#include "cafPdmUiFieldHandle.h"
-#include "cafPdmUiObjectHandle.h"
 
 namespace caf
 {
@@ -99,7 +99,7 @@ void SelectionManager::extractInternalSelectionItems( const std::vector<PdmUiIte
 {
     for ( size_t i = 0; i < items.size(); i++ )
     {
-        PdmUiFieldHandle* fieldHandle = dynamic_cast<PdmUiFieldHandle*>( items[i] );
+        PdmFieldUiCapability* fieldHandle = dynamic_cast<PdmFieldUiCapability*>( items[i] );
         if ( fieldHandle )
         {
             PdmObjectHandle* obj = fieldHandle->fieldHandle()->ownerObject();
@@ -108,7 +108,7 @@ void SelectionManager::extractInternalSelectionItems( const std::vector<PdmUiIte
         }
         else
         {
-            PdmUiObjectHandle* obj = dynamic_cast<PdmUiObjectHandle*>( items[i] );
+            PdmObjectUiCapability* obj = dynamic_cast<PdmObjectUiCapability*>( items[i] );
             if ( obj )
             {
                 newSelection->push_back( std::make_pair( obj->objectHandle(), obj ) );
@@ -130,7 +130,7 @@ void SelectionManager::setSelectedItemsAtLevel( const std::vector<PdmUiItem*>& i
     if ( newSelection != selection )
     {
         selection = newSelection;
-        notifySelectionChanged( {selectionLevel} );
+        notifySelectionChanged( { selectionLevel } );
     }
 }
 
@@ -265,7 +265,7 @@ void SelectionManager::selectionAsReferences( std::vector<QString>& referenceLis
     {
         if ( !selection[i].first.isNull() )
         {
-            PdmUiObjectHandle* pdmObj = dynamic_cast<PdmUiObjectHandle*>( selection[i].second );
+            PdmObjectUiCapability* pdmObj = dynamic_cast<PdmObjectUiCapability*>( selection[i].second );
             if ( pdmObj )
             {
                 QString itemRef = PdmReferenceHelper::referenceFromRootToObject( m_rootObject, pdmObj->objectHandle() );
@@ -291,7 +291,7 @@ void SelectionManager::setSelectionAtLevelFromReferences( const std::vector<QStr
         PdmObjectHandle* pdmObj = PdmReferenceHelper::objectFromReference( m_rootObject, reference );
         if ( pdmObj )
         {
-            caf::PdmUiObjectHandle* uiObject = uiObj( pdmObj );
+            caf::PdmObjectUiCapability* uiObject = uiObj( pdmObj );
             if ( uiObject )
             {
                 uiItems.push_back( uiObject );
@@ -366,7 +366,7 @@ void SelectionManager::clear( int selectionLevel )
     {
         m_selectionPrLevel[selectionLevel].clear();
 
-        notifySelectionChanged( {selectionLevel} );
+        notifySelectionChanged( { selectionLevel } );
     }
 }
 

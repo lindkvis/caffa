@@ -35,13 +35,12 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmWebFieldEditorHandle.h"
 
+#include "cafPdmFieldUiCapability.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmObjectUiCapability.h"
 #include "cafPdmUiCommandSystemProxy.h"
-#include "cafPdmUiFieldHandle.h"
-#include "cafPdmUiObjectHandle.h"
 
 #include <Wt/WContainerWidget.h>
 #include <Wt/WLabel.h>
@@ -51,28 +50,26 @@
 
 namespace caf
 {
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmWebFieldEditorHandle::PdmWebFieldEditorHandle()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmWebFieldEditorHandle::~PdmWebFieldEditorHandle()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebFieldEditorHandle::setUiField(PdmUiFieldHandle * field)
+void PdmWebFieldEditorHandle::setUiField( PdmFieldUiCapability* field )
 {
-    this->bindToPdmItem(field);
+    this->bindToPdmItem( field );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,94 +83,94 @@ bool PdmWebFieldEditorHandle::hasLabel() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebFieldEditorHandle::applyTextToLabel(Wt::WLabel* label, const QString& uiConfigName) const
+void PdmWebFieldEditorHandle::applyTextToLabel( Wt::WLabel* label, const QString& uiConfigName ) const
 {
-    if (label)
+    if ( label )
     {
-        const PdmUiFieldHandle* fieldHandle = dynamic_cast<const PdmUiFieldHandle*>(pdmItem());
-        if (fieldHandle)
+        const PdmFieldUiCapability* fieldHandle = dynamic_cast<const PdmFieldUiCapability*>( pdmItem() );
+        if ( fieldHandle )
         {
-            std::string labelText = fieldHandle->uiName(uiConfigName).toStdString();
-            label->setText(labelText);
+            std::string labelText = fieldHandle->uiName( uiConfigName ).toStdString();
+            label->setText( labelText );
         }
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<Wt::WWidget> PdmWebFieldEditorHandle::findOrCreateCombinedWidget(std::list<std::unique_ptr<Wt::WWidget>>& existingWidgets)
+std::unique_ptr<Wt::WWidget>
+    PdmWebFieldEditorHandle::findOrCreateCombinedWidget( std::list<std::unique_ptr<Wt::WWidget>>& existingWidgets )
 {
-    if (m_combinedWidget)
+    if ( m_combinedWidget )
     {
-        for (std::unique_ptr<Wt::WWidget>& widgetPtr : existingWidgets)
+        for ( std::unique_ptr<Wt::WWidget>& widgetPtr : existingWidgets )
         {
-            if (widgetPtr.get() == m_combinedWidget.get())
+            if ( widgetPtr.get() == m_combinedWidget.get() )
             {
-                return std::move(widgetPtr);
+                return std::move( widgetPtr );
             }
         }
-        CAF_ASSERT(false && "Should never happen");
+        CAF_ASSERT( false && "Should never happen" );
         return nullptr;
     }
     else
     {
         m_combinedWidget = createCombinedWidget();
-        return std::unique_ptr<Wt::WWidget>(m_combinedWidget.get());
+        return std::unique_ptr<Wt::WWidget>( m_combinedWidget.get() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<Wt::WWidget> PdmWebFieldEditorHandle::findOrCreateEditorWidget(std::list<std::unique_ptr<Wt::WWidget>>& existingWidgets)
+std::unique_ptr<Wt::WWidget>
+    PdmWebFieldEditorHandle::findOrCreateEditorWidget( std::list<std::unique_ptr<Wt::WWidget>>& existingWidgets )
 {
-    if (m_editorWidget)
+    if ( m_editorWidget )
     {
-        for (std::unique_ptr<Wt::WWidget>& widgetPtr : existingWidgets)
+        for ( std::unique_ptr<Wt::WWidget>& widgetPtr : existingWidgets )
         {
-            if (widgetPtr.get() == m_editorWidget.get())
+            if ( widgetPtr.get() == m_editorWidget.get() )
             {
-                return std::move(widgetPtr);
+                return std::move( widgetPtr );
             }
         }
-        CAF_ASSERT(false && "Should never happen");
+        CAF_ASSERT( false && "Should never happen" );
         return nullptr;
     }
     else
     {
         m_editorWidget = createEditorWidget();
-        return std::unique_ptr<Wt::WWidget>(m_editorWidget.get());
+        return std::unique_ptr<Wt::WWidget>( m_editorWidget.get() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<Wt::WLabel> PdmWebFieldEditorHandle::findOrCreateLabelWidget(std::list<std::unique_ptr<Wt::WWidget>>& existingWidgets)
+std::unique_ptr<Wt::WLabel>
+    PdmWebFieldEditorHandle::findOrCreateLabelWidget( std::list<std::unique_ptr<Wt::WWidget>>& existingWidgets )
 {
-    if (m_labelWidget)
+    if ( m_labelWidget )
     {
-        for (std::unique_ptr<Wt::WWidget>& widgetPtr : existingWidgets)
+        for ( std::unique_ptr<Wt::WWidget>& widgetPtr : existingWidgets )
         {
-            if (widgetPtr.get() == m_labelWidget.get())
+            if ( widgetPtr.get() == m_labelWidget.get() )
             {
-                return std::unique_ptr<Wt::WLabel>(static_cast<Wt::WLabel*>(widgetPtr.release()));
+                return std::unique_ptr<Wt::WLabel>( static_cast<Wt::WLabel*>( widgetPtr.release() ) );
             }
         }
-        CAF_ASSERT(false && "Should never happen");
+        CAF_ASSERT( false && "Should never happen" );
         return nullptr;
-
     }
     else
     {
         m_labelWidget = createLabelWidget();
-        m_labelWidget->setMinimumSize(Wt::WLength(10, Wt::LengthUnit::FontEx), Wt::WLength::Auto);
+        m_labelWidget->setMinimumSize( Wt::WLength( 10, Wt::LengthUnit::FontEx ), Wt::WLength::Auto );
 
-        return std::unique_ptr<Wt::WLabel>(m_labelWidget.get());
+        return std::unique_ptr<Wt::WLabel>( m_labelWidget.get() );
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,28 +182,27 @@ int PdmWebFieldEditorHandle::rowStretchFactor() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmWebFieldEditorHandle::updateContextMenuPolicy()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-PdmUiFieldHandle* PdmWebFieldEditorHandle::uiField()
+PdmFieldUiCapability* PdmWebFieldEditorHandle::uiField()
 {
-    return dynamic_cast<PdmUiFieldHandle*>(pdmItem());
+    return dynamic_cast<PdmFieldUiCapability*>( pdmItem() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebFieldEditorHandle::setValueToField(const QVariant& newUiValue)
+void PdmWebFieldEditorHandle::setValueToField( const QVariant& newUiValue )
 {
-    PdmUiCommandSystemProxy::instance()->setUiValueToField(uiField(), newUiValue);
+    PdmUiCommandSystemProxy::instance()->setUiValueToField( uiField(), newUiValue );
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///

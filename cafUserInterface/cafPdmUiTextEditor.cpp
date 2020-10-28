@@ -109,7 +109,7 @@ void PdmUiTextEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     PdmUiTextEditorAttribute leab;
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &leab );

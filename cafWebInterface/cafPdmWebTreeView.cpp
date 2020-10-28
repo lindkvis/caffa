@@ -35,66 +35,63 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmWebTreeView.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmWebDefaultObjectEditor.h"
 #include "cafPdmWebTreeViewEditor.h"
 
-#include <Wt/WLabel.h>
 #include <Wt/WFitLayout.h>
+#include <Wt/WLabel.h>
 #include <Wt/WTreeView.h>
 
 namespace caf
 {
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmWebTreeView::PdmWebTreeView()
 {
-    this->setMargin(0);
-    m_treeViewEditor.reset(new PdmWebTreeViewEditor());
-    this->setCentralWidget(std::unique_ptr<Wt::WWidget>(m_treeViewEditor->getOrCreateWidget()));
-    m_treeViewEditor->selectionChanged().connect(this, &PdmWebTreeView::slotOnSelectionChanged);
-    this->setMinimumSize(150, 100);
-    this->setTitle("Project Tree");
+    this->setMargin( 0 );
+    m_treeViewEditor.reset( new PdmWebTreeViewEditor() );
+    this->setCentralWidget( std::unique_ptr<Wt::WWidget>( m_treeViewEditor->getOrCreateWidget() ) );
+    m_treeViewEditor->selectionChanged().connect( this, &PdmWebTreeView::slotOnSelectionChanged );
+    this->setMinimumSize( 150, 100 );
+    this->setTitle( "Project Tree" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmWebTreeView::~PdmWebTreeView()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeView::setUiConfigurationName(QString uiConfigName)
+void PdmWebTreeView::setUiConfigurationName( QString uiConfigName )
 {
     // Reset everything, and possibly create widgets etc afresh
-    if (m_uiConfigName != uiConfigName)
-    { 
+    if ( m_uiConfigName != uiConfigName )
+    {
         m_uiConfigName = uiConfigName;
 
-        m_treeViewEditor->updateUi(m_uiConfigName);
+        m_treeViewEditor->updateUi( m_uiConfigName );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeView::setPdmItem(caf::PdmUiItem* object)
+void PdmWebTreeView::setPdmItem( caf::PdmUiItem* object )
 {
-    m_treeViewEditor->setPdmItemRoot(object);
-    m_treeViewEditor->updateUi(m_uiConfigName);
+    m_treeViewEditor->setPdmItemRoot( object );
+    m_treeViewEditor->updateUi( m_uiConfigName );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Wt::WTreeView* PdmWebTreeView::treeView()
 {
@@ -102,91 +99,91 @@ Wt::WTreeView* PdmWebTreeView::treeView()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeView::selectedUiItems(std::vector<PdmUiItem*>& objects)
+void PdmWebTreeView::selectedUiItems( std::vector<PdmUiItem*>& objects )
 {
-    m_treeViewEditor->selectedUiItems(objects);
+    m_treeViewEditor->selectedUiItems( objects );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmWebTreeView::slotOnSelectionChanged()
 {
     m_selectionChanged.emit();
 
     std::vector<PdmUiItem*> objects;
-    m_treeViewEditor->selectedUiItems(objects);
+    m_treeViewEditor->selectedUiItems( objects );
     PdmObjectHandle* objHandle = nullptr;
 
-    if (objects.size())
+    if ( objects.size() )
     {
-        PdmUiObjectHandle* uiObjH = dynamic_cast< PdmUiObjectHandle*>(objects[0]);
-        if (uiObjH)
+        PdmObjectUiCapability* uiObjH = dynamic_cast<PdmObjectUiCapability*>( objects[0] );
+        if ( uiObjH )
         {
             objHandle = uiObjH->objectHandle();
         }
     }
 
-    m_selectedObjectChanged.emit(objHandle);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmWebTreeView::enableDefaultContextMenu(bool enable)
-{
-    m_treeViewEditor->enableDefaultContextMenu(enable);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Enables or disables automatic updating of the SelectionManager selection state based on 
-/// the selections in this tree view
-//--------------------------------------------------------------------------------------------------
-void PdmWebTreeView::enableSelectionManagerUpdating(bool enable)
-{
-    m_treeViewEditor->enableSelectionManagerUpdating(enable);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmWebTreeView::selectAsCurrentItem(const PdmUiItem* uiItem)
-{
-    m_treeViewEditor->selectAsCurrentItem(uiItem);
+    m_selectedObjectChanged.emit( objHandle );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeView::selectItems(const std::vector<const PdmUiItem*>& uiItems)
+void PdmWebTreeView::enableDefaultContextMenu( bool enable )
 {
-    m_treeViewEditor->selectItems(uiItems);
+    m_treeViewEditor->enableDefaultContextMenu( enable );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Enables or disables automatic updating of the SelectionManager selection state based on
+/// the selections in this tree view
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeView::setExpanded(const PdmUiItem* uiItem, bool doExpand) const 
+void PdmWebTreeView::enableSelectionManagerUpdating( bool enable )
 {
-    m_treeViewEditor->setExpanded(uiItem, doExpand);
+    m_treeViewEditor->enableSelectionManagerUpdating( enable );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-PdmUiItem* PdmWebTreeView::uiItemFromModelIndex(const Wt::WModelIndex& index) const
+void PdmWebTreeView::selectAsCurrentItem( const PdmUiItem* uiItem )
 {
-    return m_treeViewEditor->uiItemFromModelIndex(index);
+    m_treeViewEditor->selectAsCurrentItem( uiItem );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Wt::WModelIndex PdmWebTreeView::findModelIndex(const PdmUiItem* object) const
+void PdmWebTreeView::selectItems( const std::vector<const PdmUiItem*>& uiItems )
 {
-    return m_treeViewEditor->findModelIndex(object);
+    m_treeViewEditor->selectItems( uiItems );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmWebTreeView::setExpanded( const PdmUiItem* uiItem, bool doExpand ) const
+{
+    m_treeViewEditor->setExpanded( uiItem, doExpand );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiItem* PdmWebTreeView::uiItemFromModelIndex( const Wt::WModelIndex& index ) const
+{
+    return m_treeViewEditor->uiItemFromModelIndex( index );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Wt::WModelIndex PdmWebTreeView::findModelIndex( const PdmUiItem* object ) const
+{
+    return m_treeViewEditor->findModelIndex( object );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,7 +203,7 @@ Wt::Signal<caf::PdmObjectHandle*>& PdmWebTreeView::selectedObjectChanged()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 /*void PdmWebTreeView::setDragDropInterface(PdmUiDragDropInterface* dragDropInterface)
 {
@@ -214,12 +211,11 @@ Wt::Signal<caf::PdmObjectHandle*>& PdmWebTreeView::selectedObjectChanged()
 } */
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeView::enableAppendOfClassNameToUiItemText(bool enable)
+void PdmWebTreeView::enableAppendOfClassNameToUiItemText( bool enable )
 {
-    m_treeViewEditor->enableAppendOfClassNameToUiItemText(enable);
+    m_treeViewEditor->enableAppendOfClassNameToUiItemText( enable );
 }
 
-} //End of namespace caf
-
+} // End of namespace caf

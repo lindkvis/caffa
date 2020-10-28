@@ -35,10 +35,10 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafUserInterface_export.h"
 
-#include "cafPdmUiFieldHandle.h"
+#include "cafPdmFieldUiCapability.h"
 #include "cafPdmUiTableViewEditor.h"
 
 #include <QAbstractItemModel>
@@ -62,13 +62,13 @@ class cafUserInterface_EXPORT TableViewPushButton : public QPushButton
 {
     Q_OBJECT
 public:
-    explicit TableViewPushButton( caf::PdmUiFieldHandle* field, const QString& text, QWidget* parent = nullptr );
+    explicit TableViewPushButton( caf::PdmFieldUiCapability* field, const QString& text, QWidget* parent = nullptr );
 
 private slots:
     void slotPressed();
 
 private:
-    caf::PdmUiFieldHandle* m_fieldHandle;
+    caf::PdmFieldUiCapability* m_fieldHandle;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -102,9 +102,9 @@ public:
     void createPersistentPushButtonWidgets( QTableView* tableView );
 
 private:
-    int               getFieldIndex( PdmFieldHandle* field ) const;
-    void              recreateTableItemEditors();
-    PdmUiFieldHandle* getUiFieldHandle( const QModelIndex& index ) const;
+    int                   getFieldIndex( PdmFieldHandle* field ) const;
+    void                  recreateTableItemEditors();
+    PdmFieldUiCapability* getUiFieldHandle( const QModelIndex& index ) const;
 
     friend class PdmUiTableViewDelegate;
     QWidget*                getEditorWidgetAndTransferOwnership( QWidget* parent, const QModelIndex& index );

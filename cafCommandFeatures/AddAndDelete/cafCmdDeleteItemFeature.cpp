@@ -68,9 +68,9 @@ CmdExecuteCommand* CmdDeleteItemFeature::createExecuteCommand()
 
     for ( size_t i = 0; i < items.size(); i++ )
     {
-        if ( dynamic_cast<caf::PdmUiObjectHandle*>( items[i] ) )
+        if ( dynamic_cast<caf::PdmObjectUiCapability*>( items[i] ) )
         {
-            currentPdmObject = dynamic_cast<caf::PdmUiObjectHandle*>( items[i] )->objectHandle();
+            currentPdmObject = dynamic_cast<caf::PdmObjectUiCapability*>( items[i] )->objectHandle();
         }
     }
 

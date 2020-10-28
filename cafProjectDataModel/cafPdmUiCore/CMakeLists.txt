@@ -26,14 +26,14 @@ set (PUBLIC_HEADERS
     cafPdmUiEditorAttribute.h
     cafPdmUiEditorHandle.h
     cafPdmUiFieldEditorHandle.h
-    cafPdmUiFieldHandle.h
+    cafPdmFieldUiCapability.h
     cafPdmUiFieldSpecialization.h
     cafPdmUiItem.h
     cafPdmUiModelChangeDetector.h
     cafPdmUiObjectEditorHandle.h
     cafPdmUiWidgetObjectEditorHandle.h
     cafPdmUi3dObjectEditorHandle.h
-    cafPdmUiObjectHandle.h
+    cafPdmObjectUiCapability.h
     cafPdmUiOrdering.h
     cafPdmUiCommandSystemProxy.h
     cafPdmUiTreeOrdering.h
@@ -67,13 +67,13 @@ set( PROJECT_FILES
     cafQActionWrapper.cpp
     cafPdmUiEditorHandle.cpp
     cafPdmUiFieldEditorHandle.cpp
-    cafPdmUiFieldHandle.cpp
+    cafPdmFieldUiCapability.cpp
     cafPdmUiItem.cpp
     cafPdmUiModelChangeDetector.cpp
     cafPdmUiObjectEditorHandle.cpp
     cafPdmUiWidgetObjectEditorHandle.cpp
     cafPdmUi3dObjectEditorHandle.cpp
-    cafPdmUiObjectHandle.cpp
+    cafPdmObjectUiCapability.cpp
     cafPdmUiOrdering.cpp
     cafPdmUiCommandSystemProxy.cpp
     cafPdmUiTreeOrdering.cpp

@@ -13,11 +13,11 @@ class PdmUiOrdering;
 class PdmFieldHandle;
 class PdmUiEditorAttribute;
 
-class PdmUiObjectHandle : public PdmUiItem, public PdmObjectCapability
+class PdmObjectUiCapability : public PdmUiItem, public PdmObjectCapability
 {
 public:
-    PdmUiObjectHandle( PdmObjectHandle* owner, bool giveOwnership );
-    ~PdmUiObjectHandle() override {}
+    PdmObjectUiCapability( PdmObjectHandle* owner, bool giveOwnership );
+    ~PdmObjectUiCapability() override {}
 
     PdmObjectHandle*       objectHandle() { return m_owner; }
     const PdmObjectHandle* objectHandle() const { return m_owner; }
@@ -96,7 +96,7 @@ protected:
 
     /// Override used to append actions to a context menu
     /// To use this method, enable custom context menu by
-    /// m_myField.capability<PdmUiFieldHandle>()->setUseCustomContextMenu(true);
+    /// m_myField.capability<PdmFieldUiCapability>()->setUseCustomContextMenu(true);
     friend class PdmUiFieldEditorHandle;
     virtual void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu,
                                           MenuInterface*             menu,
@@ -111,6 +111,6 @@ private:
     PdmObjectHandle* m_owner;
 };
 
-PdmUiObjectHandle* uiObj( const PdmObjectHandle* obj );
+PdmObjectUiCapability* uiObj( const PdmObjectHandle* obj );
 
 } // End of namespace caf

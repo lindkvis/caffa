@@ -170,8 +170,8 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
         m_isEditOperationsAvailable = true;
     }
 
-    PdmUiListEditorAttribute attributes;
-    caf::PdmUiObjectHandle*  uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    PdmUiListEditorAttribute    attributes;
+    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );

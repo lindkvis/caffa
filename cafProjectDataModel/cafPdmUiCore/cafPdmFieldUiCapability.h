@@ -3,18 +3,18 @@
 #include "cafPdmUiCore_export.h"
 
 #include "cafPdmFieldCapability.h"
-#include "cafPdmUiFieldHandleInterface.h"
+#include "cafPdmFieldUiCapabilityInterface.h"
 #include "cafPdmUiItem.h"
 
 namespace caf
 {
 class PdmFieldHandle;
 
-class cafPdmUiCore_EXPORT PdmUiFieldHandle : public PdmUiItem, public PdmFieldCapability, public PdmUiFieldHandleInterface
+class cafPdmUiCore_EXPORT PdmFieldUiCapability : public PdmUiItem, public PdmFieldCapability, public PdmFieldUiCapabilityInterface
 {
 public:
-    PdmUiFieldHandle( PdmFieldHandle* owner, bool giveOwnership );
-    ~PdmUiFieldHandle() override;
+    PdmFieldUiCapability( PdmFieldHandle* owner, bool giveOwnership );
+    ~PdmFieldUiCapability() override;
 
     PdmFieldHandle* fieldHandle();
 

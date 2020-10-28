@@ -37,9 +37,9 @@
 #include "cafPdmUiToolButtonEditor.h"
 
 #include "cafPdmFieldHandle.h"
+#include "cafPdmFieldUiCapability.h"
 #include "cafPdmObjectHandle.h"
-#include "cafPdmUiFieldHandle.h"
-#include "cafPdmUiObjectHandle.h"
+#include "cafPdmObjectUiCapability.h"
 
 namespace caf
 {
@@ -66,7 +66,7 @@ void PdmUiToolButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     PdmUiToolButtonEditorAttribute attributes;
 
-    PdmUiObjectHandle* pdmUiOjectHandle = uiObj( uiField()->fieldHandle()->ownerObject() );
+    PdmObjectUiCapability* pdmUiOjectHandle = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( pdmUiOjectHandle )
     {
         pdmUiOjectHandle->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );

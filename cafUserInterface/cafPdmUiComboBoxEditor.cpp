@@ -205,7 +205,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
     }
 
     // Handle attributes
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );

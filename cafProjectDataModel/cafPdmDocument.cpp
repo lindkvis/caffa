@@ -118,7 +118,7 @@ void PdmDocument::updateUiIconStateRecursively( PdmObjectHandle* object )
         PdmDocument::updateUiIconStateRecursively( children[cIdx] );
     }
 
-    PdmUiObjectHandle* uiObjectHandle = uiObj( object );
+    PdmObjectUiCapability* uiObjectHandle = uiObj( object );
     if ( uiObjectHandle )
     {
         uiObjectHandle->updateUiIconFromToggleField();

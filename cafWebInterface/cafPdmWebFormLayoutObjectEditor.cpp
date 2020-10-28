@@ -36,10 +36,10 @@
 
 #include "cafPdmWebFormLayoutObjectEditor.h"
 
+#include "cafPdmFieldUiCapability.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmObjectUiCapability.h"
 #include "cafPdmObjectXmlCapability.h"
-#include "cafPdmUiFieldHandle.h"
-#include "cafPdmUiObjectHandle.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmWebComboBoxEditor.h"
 #include "cafPdmWebFieldEditorHandle.h"
@@ -85,7 +85,7 @@ void caf::PdmWebFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingI
         {
             auto group = recursivelyCreateGroup( existingWidgets, item, uiConfigName );
         }
-        PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*>( item );
+        PdmFieldUiCapability* field = dynamic_cast<PdmFieldUiCapability*>( item );
         if ( !field ) continue;
 
         PdmWebFieldEditorHandle* fieldEditor = findOrCreateFieldEditor( field, uiConfigName );
@@ -110,7 +110,7 @@ void caf::PdmWebFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingI
         else
         {
             PdmWebFieldEditorHandle* fieldEditor = nullptr;
-            PdmUiFieldHandle*        field       = dynamic_cast<PdmUiFieldHandle*>( currentItem );
+            PdmFieldUiCapability*    field       = dynamic_cast<PdmFieldUiCapability*>( currentItem );
 
             if ( field ) fieldEditor = findOrCreateFieldEditor( field, uiConfigName );
 
@@ -211,7 +211,7 @@ std::unique_ptr<Wt::WPanel> caf::PdmWebFormLayoutObjectEditor::createGroupBox( P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmWebFieldEditorHandle* caf::PdmWebFormLayoutObjectEditor::findOrCreateFieldEditor( PdmUiFieldHandle* field,
+caf::PdmWebFieldEditorHandle* caf::PdmWebFormLayoutObjectEditor::findOrCreateFieldEditor( PdmFieldUiCapability* field,
                                                                                           const QString& uiConfigName )
 {
     caf::PdmWebFieldEditorHandle* fieldEditor = nullptr;
@@ -267,7 +267,7 @@ void caf::PdmWebFormLayoutObjectEditor::configureAndUpdateUi( const QString& uiC
     caf::PdmUiOrdering config;
     if ( pdmObject() )
     {
-        caf::PdmUiObjectHandle* uiObject = uiObj( pdmObject() );
+        caf::PdmObjectUiCapability* uiObject = uiObj( pdmObject() );
         if ( uiObject )
         {
             uiObject->uiOrdering( uiConfigName, config );
@@ -276,7 +276,7 @@ void caf::PdmWebFormLayoutObjectEditor::configureAndUpdateUi( const QString& uiC
     recursivelyConfigureAndUpdateTopLevelUiOrdering( config, uiConfigName );
 
     // Notify pdm object when widgets have been created
-    caf::PdmUiObjectHandle* uiObject = uiObj( pdmObject() );
+    caf::PdmObjectUiCapability* uiObject = uiObj( pdmObject() );
     if ( uiObject )
     {
         uiObject->onEditorWidgetsCreated();

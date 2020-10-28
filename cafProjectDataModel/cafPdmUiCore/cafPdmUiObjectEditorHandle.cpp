@@ -36,7 +36,7 @@
 
 #include "cafPdmUiObjectEditorHandle.h"
 
-#include "cafPdmUiObjectHandle.h"
+#include "cafPdmObjectUiCapability.h"
 
 namespace caf
 {
@@ -65,7 +65,7 @@ void PdmUiObjectEditorHandle::setPdmObject( PdmObjectHandle* object )
 {
     cleanupBeforeSettingPdmObject();
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( object );
+    caf::PdmObjectUiCapability* uiObject = uiObj( object );
     this->bindToPdmItem( uiObject );
 }
 
@@ -74,7 +74,7 @@ void PdmUiObjectEditorHandle::setPdmObject( PdmObjectHandle* object )
 //--------------------------------------------------------------------------------------------------
 PdmObjectHandle* PdmUiObjectEditorHandle::pdmObject()
 {
-    PdmUiObjectHandle* uiObject = dynamic_cast<PdmUiObjectHandle*>( pdmItem() );
+    PdmObjectUiCapability* uiObject = dynamic_cast<PdmObjectUiCapability*>( pdmItem() );
     if ( uiObject )
     {
         return uiObject->objectHandle();
@@ -92,7 +92,7 @@ const caf::PdmObjectHandle* PdmUiObjectEditorHandle::pdmObject() const
 {
     const PdmUiItem* pdmItem = this->pdmItem();
 
-    const PdmUiObjectHandle* uiObject = dynamic_cast<const PdmUiObjectHandle*>( pdmItem );
+    const PdmObjectUiCapability* uiObject = dynamic_cast<const PdmObjectUiCapability*>( pdmItem );
     if ( uiObject )
     {
         return uiObject->objectHandle();

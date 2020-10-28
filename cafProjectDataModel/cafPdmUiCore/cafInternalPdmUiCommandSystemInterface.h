@@ -46,7 +46,7 @@ namespace caf
 {
 class MenuInterface;
 class PdmFieldHandle;
-class PdmUiFieldHandle;
+class PdmFieldUiCapability;
 
 class PdmUiCommandSystemInterface
 {

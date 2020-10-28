@@ -150,8 +150,8 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object )
     {
         if ( object )
         {
-            PdmUiObjectHandle* uiObject1 = uiObj( m_defaultObjectEditor->pdmObject() );
-            PdmUiObjectHandle* uiObject2 = uiObj( object );
+            PdmObjectUiCapability* uiObject1 = uiObj( m_defaultObjectEditor->pdmObject() );
+            PdmObjectUiCapability* uiObject2 = uiObj( object );
 
             if ( uiObject1 && uiObject2 &&
                  ( uiObject1->uiEditorTypeName( m_uiConfigName ) != uiObject2->uiEditorTypeName( m_uiConfigName ) ) )
