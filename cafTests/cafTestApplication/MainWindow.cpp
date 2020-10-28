@@ -18,13 +18,13 @@
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafFilePath.h"
 #include "cafPdmDocument.h"
+#include "cafPdmFieldUiCapability.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectGroup.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiComboBoxEditor.h"
-#include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiListEditor.h"
@@ -56,7 +56,7 @@ public:
     {
         CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects", "", "", "", "")
 
-            objects.capability<caf::PdmUiFieldHandle>()
+            objects.capability<caf::PdmFieldUiCapability>()
                 ->setUiHidden(true);
     }
 
@@ -114,7 +114,7 @@ public:
                           "",
                           "Enter a big number here",
                           "This is a place you can enter a big real value if you want");
-        m_doubleField.capability<caf::PdmUiFieldHandle>()->setCustomContextMenuEnabled(true);
+        m_doubleField.capability<caf::PdmFieldUiCapability>()->setCustomContextMenuEnabled(true);
 
         CAF_PDM_InitField(&m_intField,
                           "IntNumber",
@@ -138,7 +138,7 @@ public:
         CAF_PDM_InitField(&m_fileName, "FileName", caf::FilePath("filename"), "File Name", "", "", "");
 
         CAF_PDM_InitFieldNoDefault(&m_fileNameList, "FileNameList", "File Name List", "", "", "");
-        m_fileNameList.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+        m_fileNameList.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
         m_proxyDoubleField = 0;
         if (!(m_proxyDoubleField == 3))
@@ -149,7 +149,7 @@ public:
         CAF_PDM_InitFieldNoDefault(&m_multiSelectList, "SelectedItems", "Multi Select Field", "", "", "");
         m_multiSelectList.capability<caf::PdmFieldIoCapability>()->setIOReadable(false);
         m_multiSelectList.capability<caf::PdmFieldIoCapability>()->setIOWritable(false);
-        m_multiSelectList.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(
+        m_multiSelectList.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(
             caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
 
         m_multiSelectList.v().push_back("First");
@@ -400,7 +400,7 @@ public:
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        m_intFieldLabelTop.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+        m_intFieldLabelTop.capability<caf::PdmFieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
         CAF_PDM_InitField(&m_stringFieldLabelHidden,
                           "FieldLabelHidden",
                           QString("Hidden Label Field"),
@@ -408,7 +408,7 @@ public:
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        m_stringFieldLabelHidden.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+        m_stringFieldLabelHidden.capability<caf::PdmFieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
         CAF_PDM_InitField(&m_intFieldWideBothAuto,
                           "WideBothAuto",
@@ -445,7 +445,7 @@ public:
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        m_intFieldLabelTopAuto.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+        m_intFieldLabelTopAuto.capability<caf::PdmFieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
         CAF_PDM_InitField(&m_stringFieldLabelHiddenAuto,
                           "FieldLabelHiddenAuto",
                           QString("Hidden Label Field"),
@@ -453,7 +453,7 @@ public:
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        m_stringFieldLabelHiddenAuto.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+        m_stringFieldLabelHiddenAuto.capability<caf::PdmFieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
         CAF_PDM_InitField(&m_intFieldLeftOfGroup,
                           "FieldLeftOfGrp",
@@ -694,13 +694,13 @@ public:
         m_proxyEnumField.registerGetMethod(this, &SmallDemoPdmObjectA::enumMember);
         m_proxyEnumMember = T2;
 
-        m_testEnumField.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+        m_testEnumField.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
         CAF_PDM_InitFieldNoDefault(&m_multipleAppEnum, "MultipleAppEnumValue", "MultipleAppEnumValue", "", "", "");
-        m_multipleAppEnum.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(
+        m_multipleAppEnum.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(
             caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
         CAF_PDM_InitFieldNoDefault(&m_highlightedEnum, "HighlightedEnum", "HighlightedEnum", "", "", "");
-        m_highlightedEnum.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+        m_highlightedEnum.capability<caf::PdmFieldUiCapability>()->setUiHidden(true);
     }
 
     caf::PdmField<double>                     m_doubleField;
@@ -765,13 +765,13 @@ public:
             {
                 QString userDesc;
 
-                caf::PdmUiObjectHandle* uiObject = caf::uiObj(objects[i]);
+                caf::PdmObjectUiCapability* uiObject = caf::uiObj(objects[i]);
                 if (uiObject)
                 {
                     if (uiObject->userDescriptionField())
                     {
-                        caf::PdmUiFieldHandle* uiFieldHandle =
-                            uiObject->userDescriptionField()->capability<caf::PdmUiFieldHandle>();
+                        caf::PdmFieldUiCapability* uiFieldHandle =
+                            uiObject->userDescriptionField()->capability<caf::PdmFieldUiCapability>();
                         if (uiFieldHandle)
                         {
                             userDesc = uiFieldHandle->uiValue().toString();
@@ -907,16 +907,16 @@ public:
                                    "",
                                    "Same type List",
                                    "Same type list of PdmObjects");
-        m_objectListOfSameType.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(
+        m_objectListOfSameType.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(
             caf::PdmUiTableViewEditor::uiEditorTypeName());
-        m_objectListOfSameType.capability<caf::PdmUiFieldHandle>()->setCustomContextMenuEnabled(true);
+        m_objectListOfSameType.capability<caf::PdmFieldUiCapability>()->setCustomContextMenuEnabled(true);
         ;
         CAF_PDM_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "Same type List", "Same type list of PdmObjects");
 
-        m_filePath.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
-        m_filePath.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
-        m_longText.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
-        m_longText.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+        m_filePath.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+        m_filePath.capability<caf::PdmFieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+        m_longText.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+        m_longText.capability<caf::PdmFieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
         m_menuItemProducer = new MenuItemProducer;
     }
@@ -960,7 +960,7 @@ public:
         {
             for (size_t i = 0; i < m_objectListOfSameType.size(); ++i)
             {
-                caf::PdmUiObjectHandle* uiObject = caf::uiObj(m_objectListOfSameType[i]);
+                caf::PdmObjectUiCapability* uiObject = caf::uiObj(m_objectListOfSameType[i]);
                 if (uiObject)
                 {
                     options.push_back(caf::PdmOptionItemInfo(
@@ -1020,7 +1020,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     void onEditorWidgetsCreated() override
     {
-        for (auto e : m_longText.capability<caf::PdmUiFieldHandle>()->connectedEditors())
+        for (auto e : m_longText.capability<caf::PdmFieldUiCapability>()->connectedEditors())
         {
             caf::PdmUiTextEditor* textEditor = dynamic_cast<caf::PdmUiTextEditor*>(e);
             if (!textEditor) continue;
@@ -1229,7 +1229,7 @@ void MainWindow::buildTestModel()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
 {
-    caf::PdmUiObjectHandle* uiObject = uiObj(pdmRoot);
+    caf::PdmObjectUiCapability* uiObject = uiObj(pdmRoot);
 
     m_pdmUiTreeView->setPdmItem(uiObject);
 
@@ -1246,8 +1246,8 @@ void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
 
     if (fields.size())
     {
-        caf::PdmFieldHandle*   field         = fields[0];
-        caf::PdmUiFieldHandle* uiFieldHandle = field->capability<caf::PdmUiFieldHandle>();
+        caf::PdmFieldHandle*       field         = fields[0];
+        caf::PdmFieldUiCapability* uiFieldHandle = field->capability<caf::PdmFieldUiCapability>();
         if (uiFieldHandle)
         {
             m_pdmUiTreeView2->setPdmItem(uiFieldHandle);
@@ -1367,7 +1367,7 @@ void MainWindow::slotInsert()
 
     for (size_t i = 0; i < selection.size(); ++i)
     {
-        caf::PdmUiFieldHandle*                          uiFh  = dynamic_cast<caf::PdmUiFieldHandle*>(selection[i]);
+        caf::PdmFieldUiCapability*                      uiFh  = dynamic_cast<caf::PdmFieldUiCapability*>(selection[i]);
         caf::PdmChildArrayField<caf::PdmObjectHandle*>* field = nullptr;
 
         if (uiFh) field = dynamic_cast<caf::PdmChildArrayField<caf::PdmObjectHandle*>*>(uiFh->fieldHandle());
@@ -1375,7 +1375,7 @@ void MainWindow::slotInsert()
         if (field)
         {
             field->push_back(new DemoPdmObject);
-            field->capability<caf::PdmUiFieldHandle>()->updateConnectedEditors();
+            field->capability<caf::PdmFieldUiCapability>()->updateConnectedEditors();
 
             return;
         }
@@ -1416,7 +1416,7 @@ void MainWindow::slotRemove()
             delete obj;
 
             // Update editors
-            field->capability<caf::PdmUiFieldHandle>()->updateConnectedEditors();
+            field->capability<caf::PdmFieldUiCapability>()->updateConnectedEditors();
 
             break;
         }
@@ -1440,7 +1440,7 @@ void MainWindow::slotSimpleSelectionChanged()
 
     if (selection.size())
     {
-        caf::PdmUiObjectHandle* pdmUiObj = dynamic_cast<caf::PdmUiObjectHandle*>(selection[0]);
+        caf::PdmObjectUiCapability* pdmUiObj = dynamic_cast<caf::PdmObjectUiCapability*>(selection[0]);
         if (pdmUiObj) obj = pdmUiObj->objectHandle();
     }
 
@@ -1455,14 +1455,14 @@ void MainWindow::slotShowTableView()
     std::vector<caf::PdmUiItem*> selection;
     m_pdmUiTreeView2->selectedUiItems(selection);
     caf::PdmObjectHandle*          obj                   = nullptr;
-    caf::PdmUiFieldHandle*         uiFieldHandle         = nullptr;
+    caf::PdmFieldUiCapability*     uiFieldHandle         = nullptr;
     caf::PdmChildArrayFieldHandle* childArrayFieldHandle = nullptr;
 
     if (selection.size())
     {
         caf::PdmUiItem* pdmUiItem = selection[0];
 
-        uiFieldHandle = dynamic_cast<caf::PdmUiFieldHandle*>(pdmUiItem);
+        uiFieldHandle = dynamic_cast<caf::PdmFieldUiCapability*>(pdmUiItem);
         if (uiFieldHandle)
         {
             childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>(uiFieldHandle->fieldHandle());

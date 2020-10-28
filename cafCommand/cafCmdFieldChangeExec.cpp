@@ -53,7 +53,7 @@ QString CmdFieldChangeExec::name()
     {
         QString fieldText;
 
-        PdmUiFieldHandle* uiFieldHandle = field->capability<PdmUiFieldHandle>();
+        PdmFieldUiCapability* uiFieldHandle = field->capability<PdmFieldUiCapability>();
         if ( uiFieldHandle )
         {
             fieldText = QString( "Change field '%1'" ).arg( uiFieldHandle->uiName() );
@@ -61,7 +61,7 @@ QString CmdFieldChangeExec::name()
 
         if ( field->ownerObject() )
         {
-            PdmUiObjectHandle* uiObjHandle = uiObj( field->ownerObject() );
+            PdmObjectUiCapability* uiObjHandle = uiObj( field->ownerObject() );
             if ( uiObjHandle )
             {
                 fieldText += QString( " in '%1'" ).arg( uiObjHandle->uiName() );
@@ -88,7 +88,7 @@ void CmdFieldChangeExec::redo()
         return;
     }
 
-    PdmUiFieldHandle*     uiFieldHandle = field->capability<PdmUiFieldHandle>();
+    PdmFieldUiCapability* uiFieldHandle = field->capability<PdmFieldUiCapability>();
     PdmFieldIoCapability* ioCapability  = field->capability<PdmFieldIoCapability>();
     if ( uiFieldHandle && ioCapability )
     {
@@ -140,7 +140,7 @@ void CmdFieldChangeExec::undo()
         return;
     }
 
-    PdmUiFieldHandle*     uiFieldHandle = field->capability<PdmUiFieldHandle>();
+    PdmFieldUiCapability* uiFieldHandle = field->capability<PdmFieldUiCapability>();
     PdmFieldIoCapability* ioCapability  = field->capability<PdmFieldIoCapability>();
     if ( uiFieldHandle && ioCapability )
     {

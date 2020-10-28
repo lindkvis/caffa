@@ -34,9 +34,9 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafUiTreeItem.h"
+#include "cafUserInterface_export.h"
 
 #include <QAbstractItemModel>
 
@@ -46,7 +46,7 @@
 namespace caf
 {
 class PdmOptionItemInfo;
-class PdmUiFieldHandle;
+class PdmFieldUiCapability;
 
 //==================================================================================================
 ///

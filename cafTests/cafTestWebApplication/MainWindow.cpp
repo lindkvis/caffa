@@ -48,7 +48,7 @@ public:
     {
         CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects", "", "", "", "")
 
-            objects.capability<caf::PdmUiObjectHandle>()
+            objects.capability<caf::PdmObjectUiCapability>()
                 ->setUiHidden(true);
     }
 
@@ -85,7 +85,7 @@ public:
                           "",
                           "Enter a big number here",
                           "This is a place you can enter a big real value if you want");
-        m_doubleField.capability<caf::PdmUiFieldHandle>()->setCustomContextMenuEnabled(true);
+        m_doubleField.capability<caf::PdmFieldUiCapability>()->setCustomContextMenuEnabled(true);
 
         CAF_PDM_InitField(&m_intField,
                           "IntNumber",
@@ -94,7 +94,7 @@ public:
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        m_intField.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmWebSliderEditor::uiEditorTypeName());
+        m_intField.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(caf::PdmWebSliderEditor::uiEditorTypeName());
         CAF_PDM_InitField(&m_textField,
                           "TextField",
                           QString("A cow jumped over whatever"),
@@ -440,7 +440,7 @@ MainWindow* MainWindow::instance()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
 {
-    caf::PdmUiObjectHandle* uiObject = uiObj(pdmRoot);
+    caf::PdmObjectUiCapability* uiObject = uiObj(pdmRoot);
 
     m_pdmUiTreeView->setPdmItem(uiObject);
     m_pdmUiTreeView->selectionChanged().connect(this, &MainWindow::slotSimpleSelectionChanged);
@@ -499,7 +499,7 @@ void MainWindow::slotSimpleSelectionChanged()
 
     if (selection.size())
     {
-        caf::PdmUiObjectHandle* pdmUiObj = dynamic_cast<caf::PdmUiObjectHandle*>(selection[0]);
+        caf::PdmObjectUiCapability* pdmUiObj = dynamic_cast<caf::PdmObjectUiCapability*>(selection[0]);
         if (pdmUiObj) obj = pdmUiObj->objectHandle();
     }
 

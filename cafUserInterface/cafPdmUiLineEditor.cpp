@@ -114,7 +114,7 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
 
         PdmUiLineEditorAttribute leab;
         {
-            caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+            caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
             if ( uiObject )
             {
                 uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &leab );
@@ -184,7 +184,7 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
             m_optionCache.clear();
 
             PdmUiLineEditorAttributeUiDisplayString displayStringAttrib;
-            caf::PdmUiObjectHandle*                 uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+            caf::PdmObjectUiCapability*             uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
             if ( uiObject )
             {
                 uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &displayStringAttrib );
@@ -307,7 +307,7 @@ bool PdmUiLineEditor::isMultipleFieldsWithSameKeywordSelected( PdmFieldHandle* e
 
     for ( size_t i = 0; i < items.size(); i++ )
     {
-        PdmUiFieldHandle* uiField = dynamic_cast<PdmUiFieldHandle*>( items[i] );
+        PdmFieldUiCapability* uiField = dynamic_cast<PdmFieldUiCapability*>( items[i] );
         if ( !uiField ) continue;
 
         PdmFieldHandle* field = uiField->fieldHandle();

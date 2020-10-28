@@ -82,7 +82,7 @@ public:                                     \
                            qStringTypeName( caf::PdmProxyValueField<TypeName> ) )
 
 class PdmUiGroup;
-class PdmUiFieldHandle;
+class PdmFieldUiCapability;
 
 //==================================================================================================
 /// Abstract class to handle editors of PdmFields
@@ -95,8 +95,8 @@ public:
     PdmUiFieldEditorHandle();
     ~PdmUiFieldEditorHandle() override;
 
-    PdmUiFieldHandle* uiField();
-    void              setUiField( PdmUiFieldHandle* uiFieldHandle );
+    PdmFieldUiCapability* uiField();
+    void                  setUiField( PdmFieldUiCapability* uiFieldHandle );
 
     void     createWidgets( QWidget* parent );
     QWidget* combinedWidget() { return m_combinedWidget; }

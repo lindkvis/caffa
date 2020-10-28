@@ -40,7 +40,7 @@
 #include "cafPdmValueField.h"
 
 #include "cafAssert.h"
-#include "cafPdmUiFieldHandleInterface.h"
+#include "cafPdmFieldUiCapabilityInterface.h"
 #include "cafPdmValueFieldSpecializations.h"
 
 #include <QVariant>
@@ -146,7 +146,7 @@ void caf::PdmDataValueField<DataType>::setValueWithFieldChanged( const DataType&
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
-    PdmUiFieldHandleInterface* uiFieldHandleInterface = capability<PdmUiFieldHandleInterface>();
+    PdmFieldUiCapabilityInterface* uiFieldHandleInterface = capability<PdmFieldUiCapabilityInterface>();
     if ( uiFieldHandleInterface )
     {
         QVariant oldValue = uiFieldHandleInterface->toUiBasedQVariant();

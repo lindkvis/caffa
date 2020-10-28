@@ -159,7 +159,7 @@ QVariant caf::UiListViewModelPdm::data( const QModelIndex& index, int role /*= Q
                         fieldIndex = index.column();
                     }
 
-                    PdmUiFieldHandle* uiFieldHandle = fields[fieldIndex]->capability<PdmUiFieldHandle>();
+                    PdmFieldUiCapability* uiFieldHandle = fields[fieldIndex]->capability<PdmFieldUiCapability>();
                     if ( uiFieldHandle )
                     {
                         return uiFieldHandle->uiValue();
@@ -186,7 +186,7 @@ void caf::UiListViewModelPdm::setPdmData( PdmObjectCollection* objectGroup, cons
 
     if ( m_pdmObjectGroup )
     {
-        caf::PdmUiObjectHandle* uiObject = uiObj( m_pdmObjectGroup );
+        caf::PdmObjectUiCapability* uiObject = uiObj( m_pdmObjectGroup );
         if ( uiObject )
         {
             uiObject->objectEditorAttribute( m_configName, &m_editorAttribute );

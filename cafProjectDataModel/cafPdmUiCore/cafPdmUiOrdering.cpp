@@ -37,9 +37,9 @@
 #include "cafPdmUiOrdering.h"
 
 #include "cafPdmDataValueField.h"
+#include "cafPdmFieldUiCapability.h"
 #include "cafPdmObjectHandle.h"
-#include "cafPdmUiFieldHandle.h"
-#include "cafPdmUiObjectHandle.h"
+#include "cafPdmObjectUiCapability.h"
 
 namespace caf
 {
@@ -244,7 +244,7 @@ caf::PdmUiOrdering::PositionFound PdmUiOrdering::findGroupPosition( const QStrin
 //--------------------------------------------------------------------------------------------------
 void PdmUiOrdering::add( const PdmFieldHandle* field, LayoutOptions layout )
 {
-    PdmUiFieldHandle* uiItem = const_cast<PdmFieldHandle*>( field )->capability<PdmUiFieldHandle>();
+    PdmFieldUiCapability* uiItem = const_cast<PdmFieldHandle*>( field )->capability<PdmFieldUiCapability>();
     CAF_ASSERT( uiItem );
     CAF_ASSERT( !this->contains( uiItem ) );
 
@@ -256,7 +256,7 @@ void PdmUiOrdering::add( const PdmFieldHandle* field, LayoutOptions layout )
 //--------------------------------------------------------------------------------------------------
 void PdmUiOrdering::add( const PdmObjectHandle* obj, LayoutOptions layout )
 {
-    PdmUiObjectHandle* uiItem = uiObj( const_cast<PdmObjectHandle*>( obj ) );
+    PdmObjectUiCapability* uiItem = uiObj( const_cast<PdmObjectHandle*>( obj ) );
     CAF_ASSERT( uiItem );
     CAF_ASSERT( !this->contains( uiItem ) );
     m_ordering.push_back( std::make_pair( uiItem, layout ) );
@@ -267,7 +267,7 @@ void PdmUiOrdering::add( const PdmObjectHandle* obj, LayoutOptions layout )
 //--------------------------------------------------------------------------------------------------
 void PdmUiOrdering::insert( size_t index, const PdmFieldHandle* field, LayoutOptions layout )
 {
-    PdmUiFieldHandle* uiItem = const_cast<PdmFieldHandle*>( field )->capability<PdmUiFieldHandle>();
+    PdmFieldUiCapability* uiItem = const_cast<PdmFieldHandle*>( field )->capability<PdmFieldUiCapability>();
     CAF_ASSERT( uiItem );
     CAF_ASSERT( !this->contains( uiItem ) );
 

@@ -67,7 +67,7 @@ void PdmUiSliderEditor::configureAndUpdateUi( const QString& uiConfigName )
     m_slider->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
     m_slider->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );

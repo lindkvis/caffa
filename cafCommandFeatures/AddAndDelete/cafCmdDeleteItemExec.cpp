@@ -38,8 +38,8 @@
 #include "cafCmdDeleteItemExecData.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmFieldUiCapability.h"
 #include "cafPdmReferenceHelper.h"
-#include "cafPdmUiFieldHandle.h"
 
 #include "cafSelectionManager.h"
 
@@ -83,15 +83,15 @@ void CmdDeleteItemExec::redo()
         listField->erase( m_commandData->m_indexToObject );
 
         // TODO: The notification here could possibly be changed to
-        // PdmUiFieldHandle::notifyDataChange() similar to void CmdFieldChangeExec::redo()
+        // PdmFieldUiCapability::notifyDataChange() similar to void CmdFieldChangeExec::redo()
 
-        caf::PdmUiObjectHandle* ownerUiObject = uiObj( listField->ownerObject() );
+        caf::PdmObjectUiCapability* ownerUiObject = uiObj( listField->ownerObject() );
         if ( ownerUiObject )
         {
             ownerUiObject->fieldChangedByUi( field, QVariant(), QVariant() );
         }
 
-        listField->capability<PdmUiFieldHandle>()->updateConnectedEditors();
+        listField->capability<PdmFieldUiCapability>()->updateConnectedEditors();
     }
 }
 
@@ -113,15 +113,15 @@ void CmdDeleteItemExec::undo()
         listField->insertAt( m_commandData->m_indexToObject, obj );
 
         // TODO: The notification here could possibly be changed to
-        // PdmUiFieldHandle::notifyDataChange() similar to void CmdFieldChangeExec::redo()
+        // PdmFieldUiCapability::notifyDataChange() similar to void CmdFieldChangeExec::redo()
 
-        caf::PdmUiObjectHandle* ownerUiObject = uiObj( listField->ownerObject() );
+        caf::PdmObjectUiCapability* ownerUiObject = uiObj( listField->ownerObject() );
         if ( ownerUiObject )
         {
             ownerUiObject->fieldChangedByUi( field, QVariant(), QVariant() );
         }
 
-        listField->capability<PdmUiFieldHandle>()->updateConnectedEditors();
+        listField->capability<PdmFieldUiCapability>()->updateConnectedEditors();
     }
 }
 

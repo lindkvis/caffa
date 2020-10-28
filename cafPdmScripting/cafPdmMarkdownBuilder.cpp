@@ -120,8 +120,8 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
                         QString comment;
                         {
                             QStringList commentComponents;
-                            commentComponents << field->capability<PdmUiFieldHandle>()->uiName();
-                            commentComponents << field->capability<PdmUiFieldHandle>()->uiWhatsThis();
+                            commentComponents << field->capability<PdmFieldUiCapability>()->uiName();
+                            commentComponents << field->capability<PdmFieldUiCapability>()->uiWhatsThis();
                             commentComponents.removeAll( QString( "" ) );
                             comment = commentComponents.join( ". " );
                         }
@@ -377,8 +377,8 @@ QString caf::PdmMarkdownBuilder::generateDocCommandObjects( std::vector<std::sha
             QString comment;
             {
                 QStringList commentComponents;
-                commentComponents << field->capability<PdmUiFieldHandle>()->uiName();
-                commentComponents << field->capability<PdmUiFieldHandle>()->uiWhatsThis();
+                commentComponents << field->capability<PdmFieldUiCapability>()->uiName();
+                commentComponents << field->capability<PdmFieldUiCapability>()->uiWhatsThis();
                 commentComponents.removeAll( QString( "" ) );
                 comment = commentComponents.join( ". " );
             }

@@ -109,7 +109,7 @@ void PdmWebTreeViewEditor::configureAndUpdateUi( const QString& uiConfigName )
     PdmUiTreeViewEditorAttribute editorAttributes;
 
     {
-        PdmUiObjectHandle* uiObjectHandle = dynamic_cast<PdmUiObjectHandle*>( this->pdmItemRoot() );
+        PdmObjectUiCapability* uiObjectHandle = dynamic_cast<PdmObjectUiCapability*>( this->pdmItemRoot() );
         if ( uiObjectHandle )
         {
             uiObjectHandle->objectEditorAttribute( uiConfigName, &editorAttributes );
@@ -128,7 +128,7 @@ void PdmWebTreeViewEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     if ( editorAttributes.currentObject )
     {
-        auto uiObjectHandle = editorAttributes.currentObject->capability<PdmUiObjectHandle>();
+        auto uiObjectHandle = editorAttributes.currentObject->capability<PdmObjectUiCapability>();
         if ( uiObjectHandle )
         {
             selectAsCurrentItem( uiObjectHandle );
@@ -243,7 +243,7 @@ PdmChildArrayFieldHandle* PdmWebTreeViewEditor::currentChildArrayFieldHandle()
 {
     PdmUiItem* currentSelectedItem = SelectionManager::instance()->selectedItem( SelectionManager::FIRST_LEVEL );
 
-    PdmUiFieldHandle* uiFieldHandle = dynamic_cast<PdmUiFieldHandle*>( currentSelectedItem );
+    PdmFieldUiCapability* uiFieldHandle = dynamic_cast<PdmFieldUiCapability*>( currentSelectedItem );
     if ( uiFieldHandle )
     {
         PdmFieldHandle* fieldHandle = uiFieldHandle->fieldHandle();

@@ -121,8 +121,8 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                         QString comment;
                         {
                             QStringList commentComponents;
-                            commentComponents << field->capability<PdmUiFieldHandle>()->uiName();
-                            commentComponents << field->capability<PdmUiFieldHandle>()->uiWhatsThis();
+                            commentComponents << field->capability<PdmFieldUiCapability>()->uiName();
+                            commentComponents << field->capability<PdmFieldUiCapability>()->uiWhatsThis();
                             commentComponents.removeAll( QString( "" ) );
                             comment = commentComponents.join( ". " );
                         }
@@ -245,7 +245,7 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                 std::vector<PdmFieldHandle*> arguments;
                 method->fields( arguments );
 
-                QString methodComment = method->capability<PdmUiFieldHandle>()->uiWhatsThis();
+                QString methodComment = method->capability<PdmFieldUiCapability>()->uiWhatsThis();
 
                 QString snake_method_name = camelToSnakeCase( methodName );
 
@@ -271,7 +271,7 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                     argumentComments.push_back( QString( "%1 (%2): %3" )
                                                     .arg( argumentName )
                                                     .arg( dataType )
-                                                    .arg( field->capability<PdmUiFieldHandle>()->uiWhatsThis() ) );
+                                                    .arg( field->capability<PdmFieldUiCapability>()->uiWhatsThis() ) );
                 }
                 QString fullComment = QString( "        \"\"\"\n        %1\n        Arguments:\n            "
                                                "%2\n        Returns:\n            %3\n        \"\"\"" )

@@ -68,7 +68,7 @@ void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
     m_pushButton->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
     PdmUiPushButtonEditorAttribute attributes;
-    caf::PdmUiObjectHandle*        uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::PdmObjectUiCapability*    uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
@@ -122,11 +122,11 @@ void PdmUiPushButtonEditor::configureEditorForField( PdmFieldHandle* fieldHandle
             fieldHandle->capability<PdmFieldIoCapability>()->disableIO();
         }
 
-        if ( fieldHandle->capability<PdmUiFieldHandle>() )
+        if ( fieldHandle->capability<PdmFieldUiCapability>() )
         {
-            fieldHandle->capability<PdmUiFieldHandle>()->setUiEditorTypeName(
+            fieldHandle->capability<PdmFieldUiCapability>()->setUiEditorTypeName(
                 caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-            fieldHandle->capability<PdmUiFieldHandle>()->setUiLabelPosition( caf::PdmUiItemInfo::LEFT );
+            fieldHandle->capability<PdmFieldUiCapability>()->setUiLabelPosition( caf::PdmUiItemInfo::LEFT );
         }
     }
 }

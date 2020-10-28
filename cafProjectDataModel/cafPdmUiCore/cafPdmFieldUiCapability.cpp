@@ -1,17 +1,17 @@
-#include "cafPdmUiFieldHandle.h"
+#include "cafPdmFieldUiCapability.h"
 
 #include "cafAssert.h"
 #include "cafPdmFieldHandle.h"
+#include "cafPdmObjectUiCapability.h"
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiModelChangeDetector.h"
-#include "cafPdmUiObjectHandle.h"
 
 namespace caf
 {
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiFieldHandle::PdmUiFieldHandle( PdmFieldHandle* owner, bool giveOwnership )
+PdmFieldUiCapability::PdmFieldUiCapability( PdmFieldHandle* owner, bool giveOwnership )
     : m_isAutoAddingOptionFromValue( true )
 {
     m_owner = owner;
@@ -21,14 +21,14 @@ PdmUiFieldHandle::PdmUiFieldHandle( PdmFieldHandle* owner, bool giveOwnership )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiFieldHandle::~PdmUiFieldHandle()
+PdmFieldUiCapability::~PdmFieldUiCapability()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* PdmUiFieldHandle::fieldHandle()
+caf::PdmFieldHandle* PdmFieldUiCapability::fieldHandle()
 {
     return m_owner;
 }
@@ -36,7 +36,7 @@ caf::PdmFieldHandle* PdmUiFieldHandle::fieldHandle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QVariant PdmUiFieldHandle::uiValue() const
+QVariant PdmFieldUiCapability::uiValue() const
 {
     return QVariant();
 }
@@ -44,7 +44,7 @@ QVariant PdmUiFieldHandle::uiValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> PdmUiFieldHandle::valueOptions( bool* useOptionsOnly ) const
+QList<caf::PdmOptionItemInfo> PdmFieldUiCapability::valueOptions( bool* useOptionsOnly ) const
 {
     return QList<PdmOptionItemInfo>();
 }
@@ -52,7 +52,7 @@ QList<caf::PdmOptionItemInfo> PdmUiFieldHandle::valueOptions( bool* useOptionsOn
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldHandle::notifyFieldChanged( const QVariant& oldFieldValue, const QVariant& newFieldValue )
+void PdmFieldUiCapability::notifyFieldChanged( const QVariant& oldFieldValue, const QVariant& newFieldValue )
 {
     if ( !this->isQVariantDataEqual( oldFieldValue, newFieldValue ) )
     {
@@ -66,7 +66,7 @@ void PdmUiFieldHandle::notifyFieldChanged( const QVariant& oldFieldValue, const 
 
             // Object editors
 
-            PdmUiObjectHandle* uiObjHandle = uiObj( ownerObjectHandle );
+            PdmObjectUiCapability* uiObjHandle = uiObj( ownerObjectHandle );
             if ( uiObjHandle )
             {
                 uiObjHandle->fieldChangedByUi( fieldHandle, oldFieldValue, newFieldValue );
@@ -92,7 +92,7 @@ void PdmUiFieldHandle::notifyFieldChanged( const QVariant& oldFieldValue, const 
 
         if ( ownerObjectHandle->parentField() && ownerObjectHandle->parentField()->ownerObject() )
         {
-            PdmUiObjectHandle* uiObjHandle = uiObj( ownerObjectHandle->parentField()->ownerObject() );
+            PdmObjectUiCapability* uiObjHandle = uiObj( ownerObjectHandle->parentField()->ownerObject() );
             if ( uiObjHandle )
             {
                 uiObjHandle->childFieldChangedByUi( ownerObjectHandle->parentField() );
@@ -108,7 +108,7 @@ void PdmUiFieldHandle::notifyFieldChanged( const QVariant& oldFieldValue, const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiFieldHandle::isAutoAddingOptionFromValue() const
+bool PdmFieldUiCapability::isAutoAddingOptionFromValue() const
 {
     return m_isAutoAddingOptionFromValue;
 }
@@ -116,7 +116,7 @@ bool PdmUiFieldHandle::isAutoAddingOptionFromValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldHandle::setAutoAddingOptionFromValue( bool isAddingValue )
+void PdmFieldUiCapability::setAutoAddingOptionFromValue( bool isAddingValue )
 {
     m_isAutoAddingOptionFromValue = isAddingValue;
 }
@@ -124,14 +124,14 @@ void PdmUiFieldHandle::setAutoAddingOptionFromValue( bool isAddingValue )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldHandle::setValueFromUiEditor( const QVariant& uiValue )
+void PdmFieldUiCapability::setValueFromUiEditor( const QVariant& uiValue )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiFieldHandle::isQVariantDataEqual( const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant ) const
+bool PdmFieldUiCapability::isQVariantDataEqual( const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant ) const
 {
     CAF_ASSERT( false );
     return false;

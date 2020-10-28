@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cafPdmUiFieldHandle.h"
+#include "cafPdmFieldUiCapability.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -8,11 +8,11 @@
 namespace caf
 {
 template <typename FieldType>
-class PdmFieldUiCap : public PdmUiFieldHandle
+class PdmFieldUiCap : public PdmFieldUiCapability
 {
 public:
     PdmFieldUiCap( FieldType* field, bool giveOwnership )
-        : PdmUiFieldHandle( field, giveOwnership )
+        : PdmFieldUiCapability( field, giveOwnership )
     {
         m_field = field;
     }
@@ -38,13 +38,13 @@ private:
 // Specialization for ChildFields to do nothing towards GUI
 //
 template <typename DataType>
-class PdmFieldUiCap<PdmChildField<DataType*>> : public PdmUiFieldHandle
+class PdmFieldUiCap<PdmChildField<DataType*>> : public PdmFieldUiCapability
 {
     typedef PdmChildField<DataType*> FieldType;
 
 public:
     PdmFieldUiCap( FieldType* field, bool giveOwnership )
-        : PdmUiFieldHandle( field, giveOwnership )
+        : PdmFieldUiCapability( field, giveOwnership )
     {
     }
 
@@ -61,13 +61,13 @@ public:
 // Specialization for ChildArrayFields to do nothing towards GUI
 //
 template <typename DataType>
-class PdmFieldUiCap<PdmChildArrayField<DataType*>> : public PdmUiFieldHandle
+class PdmFieldUiCap<PdmChildArrayField<DataType*>> : public PdmFieldUiCapability
 {
     typedef PdmChildArrayField<DataType*> FieldType;
 
 public:
     PdmFieldUiCap( FieldType* field, bool giveOwnership )
-        : PdmUiFieldHandle( field, giveOwnership )
+        : PdmFieldUiCapability( field, giveOwnership )
     {
     }
 

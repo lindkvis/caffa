@@ -35,7 +35,7 @@ set (PUBLIC_HEADERS
     cafPdmPtrField.h
     cafPdmPtrField.inl
     cafPdmReferenceHelper.h
-    cafPdmUiFieldHandleInterface.h
+    cafPdmFieldUiCapabilityInterface.h
     cafPdmValueField.h
     cafPdmValueFieldSpecializations.h
 

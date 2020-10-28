@@ -151,7 +151,7 @@ std::vector<caf::PdmObjectHandle*> ToggleItemsOnOthersOffFeature::childObjects( 
 //--------------------------------------------------------------------------------------------------
 caf::PdmField<bool>* ToggleItemsOnOthersOffFeature::objectToggleField( caf::PdmObjectHandle* objectHandle )
 {
-    caf::PdmUiObjectHandle* childUiObject = uiObj( objectHandle );
+    caf::PdmObjectUiCapability* childUiObject = uiObj( objectHandle );
     if ( childUiObject && childUiObject->objectToggleField() )
     {
         return dynamic_cast<caf::PdmField<bool>*>( childUiObject->objectToggleField() );

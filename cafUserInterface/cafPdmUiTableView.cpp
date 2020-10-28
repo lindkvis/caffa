@@ -97,7 +97,7 @@ void PdmUiTableView::setChildArrayField( PdmChildArrayFieldHandle* childArrayFie
         // be respected when using the field in a separate view.
         auto orgContextPolicy = m_listViewEditor->tableView()->contextMenuPolicy();
 
-        m_listViewEditor->setUiField( childArrayField->capability<PdmUiFieldHandle>() );
+        m_listViewEditor->setUiField( childArrayField->capability<PdmFieldUiCapability>() );
 
         auto newContextPolicy = m_listViewEditor->tableView()->contextMenuPolicy();
         if ( newContextPolicy == Qt::DefaultContextMenu )

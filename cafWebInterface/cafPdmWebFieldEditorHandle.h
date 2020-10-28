@@ -88,7 +88,7 @@ public:                                      \
                            qStringTypeName( caf::PdmProxyValueField<TypeName> ) )
 
 class PdmUiGroup;
-class PdmUiFieldHandle;
+class PdmFieldUiCapability;
 
 //==================================================================================================
 /// Abstract class to handle editors of PdmFields
@@ -100,8 +100,8 @@ public:
     PdmWebFieldEditorHandle();
     ~PdmWebFieldEditorHandle() override;
 
-    PdmUiFieldHandle* uiField();
-    void              setUiField( PdmUiFieldHandle* uiFieldHandle );
+    PdmFieldUiCapability* uiField();
+    void                  setUiField( PdmFieldUiCapability* uiFieldHandle );
 
     virtual bool                 hasLabel() const;
     void                         applyTextToLabel( Wt::WLabel* label, const QString& uiConfigName ) const;

@@ -60,7 +60,7 @@ void PdmUiCheckBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
     CAF_ASSERT( !m_label.isNull() );
 
     PdmUiCheckBoxEditorAttribute attributes;
-    caf::PdmUiObjectHandle*      uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::PdmObjectUiCapability*  uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );

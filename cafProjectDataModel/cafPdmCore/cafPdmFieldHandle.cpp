@@ -132,7 +132,7 @@ std::vector<QString> PdmFieldHandle::keywordAliases() const
 
 // These two functions can be used when PdmCore is used standalone without PdmUi/PdmXml
 /*
-PdmUiFieldHandle* PdmFieldHandle::capability<PdmUiFieldHandle>()
+PdmFieldUiCapability* PdmFieldHandle::capability<PdmFieldUiCapability>()
 {
     return NULL;
 }

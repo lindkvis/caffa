@@ -87,8 +87,9 @@ protected:
                                          int            currentColumn,
                                          int            itemColumnSpan );
 
-    QMinimizePanel*         findOrCreateGroupBox( QWidget* parent, PdmUiGroup* group, const QString& uiConfigName );
-    PdmUiFieldEditorHandle* findOrCreateFieldEditor( QWidget* parent, PdmUiFieldHandle* field, const QString& uiConfigName );
+    QMinimizePanel* findOrCreateGroupBox( QWidget* parent, PdmUiGroup* group, const QString& uiConfigName );
+    PdmUiFieldEditorHandle*
+        findOrCreateFieldEditor( QWidget* parent, PdmFieldUiCapability* field, const QString& uiConfigName );
 
     static void ensureWidgetContainsEmptyGridLayout( QWidget* containerWidget, QMargins contentMargins = QMargins() );
 

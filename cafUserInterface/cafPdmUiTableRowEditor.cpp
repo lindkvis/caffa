@@ -51,7 +51,7 @@ PdmUiTableRowEditor::PdmUiTableRowEditor( PdmUiTableViewQModel* model, caf::PdmO
     m_model = model;
     m_row   = row;
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( pdmObject );
+    caf::PdmObjectUiCapability* uiObject = uiObj( pdmObject );
     this->bindToPdmItem( uiObject );
 }
 
@@ -67,7 +67,7 @@ PdmUiTableRowEditor::~PdmUiTableRowEditor()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTableRowEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    caf::PdmUiObjectHandle* uiObject = dynamic_cast<caf::PdmUiObjectHandle*>( this->pdmItem() );
+    caf::PdmObjectUiCapability* uiObject = dynamic_cast<caf::PdmObjectUiCapability*>( this->pdmItem() );
     if ( uiObject )
     {
         // Call uiOrdering method, as this method is responsible for control of

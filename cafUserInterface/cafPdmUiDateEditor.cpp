@@ -71,7 +71,7 @@ void PdmUiDateEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     m_dateEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );

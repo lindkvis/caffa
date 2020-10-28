@@ -83,7 +83,7 @@ protected:
                                                         const QString&                           uiConfigName );
 
     std::unique_ptr<Wt::WPanel> createGroupBox( PdmUiGroup* group, const QString& uiConfigName );
-    PdmWebFieldEditorHandle*    findOrCreateFieldEditor( PdmUiFieldHandle* field, const QString& uiConfigName );
+    PdmWebFieldEditorHandle*    findOrCreateFieldEditor( PdmFieldUiCapability* field, const QString& uiConfigName );
 
 private:
     void configureAndUpdateUi( const QString& uiConfigName ) override;

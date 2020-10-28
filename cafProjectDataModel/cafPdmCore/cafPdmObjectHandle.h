@@ -13,7 +13,7 @@ namespace caf
 {
 class PdmObjectCapability;
 class PdmFieldHandle;
-class PdmUiObjectHandle;
+class PdmObjectUiCapability;
 class PdmFieldIoCapability;
 class PdmObjectXmlCapability;
 class PdmChildArrayFieldHandle;

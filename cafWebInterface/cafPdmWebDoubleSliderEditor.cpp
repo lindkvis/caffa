@@ -39,8 +39,8 @@
 
 #include "cafAssert.h"
 #include "cafPdmField.h"
-#include "cafPdmUiFieldHandle.h"
-#include "cafPdmUiObjectHandle.h"
+#include "cafPdmFieldUiCapability.h"
+#include "cafPdmObjectUiCapability.h"
 
 #include <Wt/WContainerWidget.h>
 #include <Wt/WHBoxLayout.h>
@@ -63,7 +63,7 @@ void PdmWebDoubleSliderEditor::configureAndUpdateUi( const QString& uiConfigName
     m_spinBox->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
     m_slider->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );

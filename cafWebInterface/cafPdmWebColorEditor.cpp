@@ -97,7 +97,7 @@ void PdmWebColorEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     applyTextToLabel( m_label.get(), uiConfigName );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );

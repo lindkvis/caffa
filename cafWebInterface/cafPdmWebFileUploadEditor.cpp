@@ -35,14 +35,13 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmWebFileUploadEditor.h"
 
 #include "cafAssert.h"
 
 #include "cafPdmField.h"
+#include "cafPdmFieldUiCapability.h"
 #include "cafPdmObject.h"
-#include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiOrdering.h"
 
 #include <Wt/WApplication.h>
@@ -53,92 +52,89 @@
 #include <Wt/WProgressBar.h>
 #include <Wt/WWidget.h>
 
-#include <QFileInfo>
 #include <QDir>
-
+#include <QFileInfo>
 
 namespace caf
 {
-
-CAF_PDM_WEB_FIELD_EDITOR_SOURCE_INIT(PdmWebFileUploadEditor);
+CAF_PDM_WEB_FIELD_EDITOR_SOURCE_INIT( PdmWebFileUploadEditor );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebFileUploadEditor::configureAndUpdateUi(const QString& uiConfigName)
+void PdmWebFileUploadEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    CAF_ASSERT(m_fileUpload);
-    CAF_ASSERT(m_label);
+    CAF_ASSERT( m_fileUpload );
+    CAF_ASSERT( m_label );
 
-    applyTextToLabel(m_label.get(), uiConfigName);
+    applyTextToLabel( m_label.get(), uiConfigName );
 
     Wt::WLink   link;
     std::string fullLinkText;
-    QString fieldValue = uiField()->uiValue().toString();
-    if (!fieldValue.isEmpty())
+    QString     fieldValue = uiField()->uiValue().toString();
+    if ( !fieldValue.isEmpty() )
     {
-        QDir dir = uploadDir();
-        QDir webroot (QString::fromStdString(wApp->docRoot()));
-        QString fullPath = dir.absoluteFilePath(fieldValue);
-        fullLinkText = fieldValue.toStdString();
-        link = Wt::WLink(Wt::LinkType::Url, "/" + webroot.relativeFilePath(fullPath).toStdString());
+        QDir    dir = uploadDir();
+        QDir    webroot( QString::fromStdString( wApp->docRoot() ) );
+        QString fullPath = dir.absoluteFilePath( fieldValue );
+        fullLinkText     = fieldValue.toStdString();
+        link             = Wt::WLink( Wt::LinkType::Url, "/" + webroot.relativeFilePath( fullPath ).toStdString() );
     }
 
     std::string shortLinkText = fullLinkText;
-    if (fullLinkText.length() > 20)
+    if ( fullLinkText.length() > 20 )
     {
-        shortLinkText = fullLinkText.substr(0, 8) + "..." + fullLinkText.substr(fullLinkText.length() - 6);
+        shortLinkText = fullLinkText.substr( 0, 8 ) + "..." + fullLinkText.substr( fullLinkText.length() - 6 );
     }
 
-    m_fileLink->setText(shortLinkText);
-    m_fileLink->setLink(link);
+    m_fileLink->setText( shortLinkText );
+    m_fileLink->setLink( link );
 
-    m_label->setDisabled(uiField()->isUiReadOnly(uiConfigName));
-    m_fileLink->setDisabled(uiField()->isUiReadOnly(uiConfigName) || m_fileLink->link().isNull());
-    m_fileLink->setHidden(m_fileLink->link().isNull());
-    m_fileLink->setToolTip(fullLinkText);
-    m_fileUpload->setDisabled(uiField()->isUiReadOnly(uiConfigName));
-    m_fileUpload->setToolTip(uiField()->uiToolTip(uiConfigName).toStdString());
-    m_fileUpload->setFilters(m_attributes.m_fileSelectionFilter.toStdString());
-    m_fileUpload->setDisplayWidget(m_uploadButton.get());
-    m_fileUpload->setProgressBar(std::make_unique<Wt::WProgressBar>());
+    m_label->setDisabled( uiField()->isUiReadOnly( uiConfigName ) );
+    m_fileLink->setDisabled( uiField()->isUiReadOnly( uiConfigName ) || m_fileLink->link().isNull() );
+    m_fileLink->setHidden( m_fileLink->link().isNull() );
+    m_fileLink->setToolTip( fullLinkText );
+    m_fileUpload->setDisabled( uiField()->isUiReadOnly( uiConfigName ) );
+    m_fileUpload->setToolTip( uiField()->uiToolTip( uiConfigName ).toStdString() );
+    m_fileUpload->setFilters( m_attributes.m_fileSelectionFilter.toStdString() );
+    m_fileUpload->setDisplayWidget( m_uploadButton.get() );
+    m_fileUpload->setProgressBar( std::make_unique<Wt::WProgressBar>() );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
-    if (uiObject)
+    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    if ( uiObject )
     {
-        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
+        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Wt::WWidget* PdmWebFileUploadEditor::createEditorWidget()
 {
     Wt::WContainerWidget* container = new Wt::WContainerWidget();
-    container->setContentAlignment(Wt::AlignmentFlag::Top);
-    Wt::WHBoxLayout* layout = container->setLayout<Wt::WHBoxLayout>(std::make_unique<Wt::WHBoxLayout>());
-    layout->setContentsMargins(0, 0, 0, 0);
-    m_fileLink = new Wt::WAnchor;
+    container->setContentAlignment( Wt::AlignmentFlag::Top );
+    Wt::WHBoxLayout* layout = container->setLayout<Wt::WHBoxLayout>( std::make_unique<Wt::WHBoxLayout>() );
+    layout->setContentsMargins( 0, 0, 0, 0 );
+    m_fileLink   = new Wt::WAnchor;
     m_fileUpload = new Wt::WFileUpload;
 
-    layout->addWidget(std::unique_ptr<Wt::WAnchor>(m_fileLink.get()));
-    layout->addWidget(std::unique_ptr<Wt::WFileUpload>(m_fileUpload.get()));
+    layout->addWidget( std::unique_ptr<Wt::WAnchor>( m_fileLink.get() ) );
+    layout->addWidget( std::unique_ptr<Wt::WFileUpload>( m_fileUpload.get() ) );
     m_uploadButton = new Wt::WPushButton;
-    m_uploadButton->setText("Browse");
-    m_uploadButton->setStyleClass("btn-primary");
-    layout->addWidget(std::unique_ptr<Wt::WPushButton>(m_uploadButton.get()));
+    m_uploadButton->setText( "Browse" );
+    m_uploadButton->setStyleClass( "btn-primary" );
+    layout->addWidget( std::unique_ptr<Wt::WPushButton>( m_uploadButton.get() ) );
 
-    m_fileUpload->changed().connect([=] { slotFileSelectionFinished(); });
-    m_fileUpload->uploaded().connect([=] { slotFileUploaded(); });
-    m_fileUpload->fileTooLarge().connect([=] { slotFileTooLargeError(); });
+    m_fileUpload->changed().connect( [=] { slotFileSelectionFinished(); } );
+    m_fileUpload->uploaded().connect( [=] { slotFileUploaded(); } );
+    m_fileUpload->fileTooLarge().connect( [=] { slotFileTooLargeError(); } );
 
     return container;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Wt::WLabel* PdmWebFileUploadEditor::createLabelWidget()
 {
@@ -147,13 +143,12 @@ Wt::WLabel* PdmWebFileUploadEditor::createLabelWidget()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmWebFileUploadEditor::slotFileSelectionFinished()
 {
     m_fileUpload->upload();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -162,17 +157,17 @@ void PdmWebFileUploadEditor::slotFileUploaded()
 {
     m_fileUpload->stealSpooledFile();
     std::string tmpFilePath = m_fileUpload->spoolFileName();
-    QFileInfo tmpFileInfo(QString::fromStdString(tmpFilePath));
-    QFileInfo clientFileInfo(QString::fromStdString(m_fileUpload->clientFileName().narrow()));
-    QString fileName = clientFileInfo.fileName();
-    QDir destinationDir = uploadDir();
-    QString destinationFilePath = destinationDir.filePath(destinationDir.absoluteFilePath(fileName));
-    QFile file (tmpFileInfo.filePath());
-    file.rename(destinationFilePath);
+    QFileInfo   tmpFileInfo( QString::fromStdString( tmpFilePath ) );
+    QFileInfo   clientFileInfo( QString::fromStdString( m_fileUpload->clientFileName().narrow() ) );
+    QString     fileName            = clientFileInfo.fileName();
+    QDir        destinationDir      = uploadDir();
+    QString     destinationFilePath = destinationDir.filePath( destinationDir.absoluteFilePath( fileName ) );
+    QFile       file( tmpFileInfo.filePath() );
+    file.rename( destinationFilePath );
 
     QVariant v;
     v = fileName;
-    this->setValueToField(v);
+    this->setValueToField( v );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,19 +175,17 @@ void PdmWebFileUploadEditor::slotFileUploaded()
 //--------------------------------------------------------------------------------------------------
 void PdmWebFileUploadEditor::slotFileTooLargeError()
 {
-    auto messageBox =
-        m_fileUpload->addChild(std::make_unique<Wt::WMessageBox>(
-            "Error",
-            Wt::WString("<p>File uploaded is too large</p>"
-                        "<p>The maximum file size allowed is {1} KiB").arg(wApp->maximumRequestSize() / 1024),
-            Wt::Icon::Critical,
-            Wt::StandardButton::Ok));
+    auto messageBox = m_fileUpload->addChild(
+        std::make_unique<Wt::WMessageBox>( "Error",
+                                           Wt::WString( "<p>File uploaded is too large</p>"
+                                                        "<p>The maximum file size allowed is {1} KiB" )
+                                               .arg( wApp->maximumRequestSize() / 1024 ),
+                                           Wt::Icon::Critical,
+                                           Wt::StandardButton::Ok ) );
 
-    messageBox->setModal(false);
+    messageBox->setModal( false );
 
-    messageBox->buttonClicked().connect([=] {
-        m_fileUpload->removeChild(messageBox);
-    });
+    messageBox->buttonClicked().connect( [=] { m_fileUpload->removeChild( messageBox ); } );
 
     messageBox->show();
 }
@@ -203,9 +196,9 @@ void PdmWebFileUploadEditor::slotFileTooLargeError()
 QDir PdmWebFileUploadEditor::uploadDir()
 {
     Wt::WString docRoot = Wt::WApplication::instance()->docRoot();
-    QDir uploadDir (QString::fromStdString(docRoot.narrow()));
-    bool worked = uploadDir.cd("uploads");
-    CAF_ASSERT(worked);
+    QDir        uploadDir( QString::fromStdString( docRoot.narrow() ) );
+    bool        worked = uploadDir.cd( "uploads" );
+    CAF_ASSERT( worked );
     return uploadDir;
 }
 

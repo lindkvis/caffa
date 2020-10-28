@@ -100,7 +100,7 @@ public:
 
 private:
     friend class PdmObjectHandle;
-    friend class PdmUiObjectHandle;
+    friend class PdmObjectUiCapability;
     bool isIncludingRemainingChildren() const { return !m_forgetRemainingFields; }
     bool ignoreSubTree() const { return m_isToIgnoreSubTree; }
     bool containsField( const PdmFieldHandle* field );

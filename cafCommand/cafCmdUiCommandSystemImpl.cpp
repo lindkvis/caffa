@@ -43,7 +43,7 @@
 #include "cafCmdFieldChangeExec.h"
 
 #include "cafPdmFieldHandle.h"
-#include "cafPdmUiObjectHandle.h"
+#include "cafPdmObjectUiCapability.h"
 
 #include "cafSelectionManager.h"
 
@@ -72,8 +72,8 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
 
     for ( size_t i = 0; i < fieldsToUpdate.size(); i++ )
     {
-        PdmFieldHandle*   field         = fieldsToUpdate[i];
-        PdmUiFieldHandle* uiFieldHandle = field->capability<PdmUiFieldHandle>();
+        PdmFieldHandle*       field         = fieldsToUpdate[i];
+        PdmFieldUiCapability* uiFieldHandle = field->capability<PdmFieldUiCapability>();
         if ( uiFieldHandle )
         {
             QVariant fieldCurrentUiValue = uiFieldHandle->uiValue();
@@ -100,10 +100,10 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
         }
     }
 
-    caf::PdmUiObjectHandle* uiOwnerObjectHandle = uiObj( fieldsToUpdate[0]->ownerObject() );
+    caf::PdmObjectUiCapability* uiOwnerObjectHandle = uiObj( fieldsToUpdate[0]->ownerObject() );
     if ( uiOwnerObjectHandle && !uiOwnerObjectHandle->useUndoRedoForFieldChanged() )
     {
-        // Temporarily disable undo framework as requested by the PdmUiObjectHandle
+        // Temporarily disable undo framework as requested by the PdmObjectUiCapability
         m_disableUndoForFieldChange = true;
     }
 
