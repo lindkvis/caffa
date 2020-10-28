@@ -40,8 +40,8 @@
 #include "cafPdmValueField.h"
 
 #include "cafAssert.h"
-#include "cafInternalPdmValueFieldSpecializations.h"
 #include "cafPdmUiFieldHandleInterface.h"
+#include "cafPdmValueFieldSpecializations.h"
 
 #include <QVariant>
 

@@ -36,9 +36,9 @@
 
 #pragma once
 
-#include "cafInternalPdmValueFieldSpecializations.h"
 #include "cafPdmUiFieldSpecialization.h"
 #include "cafPdmUiItem.h"
+#include "cafPdmValueFieldSpecializations.h"
 
 #include "cafPdmCoreColor.h"
 

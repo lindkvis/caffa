@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafInternalPdmValueFieldSpecializations.h"
+#include "cafPdmValueFieldSpecializations.h"
 #include "cafPdmXmlColor.h"
 
 #include <QColor>

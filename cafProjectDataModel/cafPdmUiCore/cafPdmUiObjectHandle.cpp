@@ -203,7 +203,7 @@ void PdmUiObjectHandle::expandUiTree( PdmUiTreeOrdering* root, const QString& ui
                 }
             }
             else if ( root->isRepresentingObject() &&
-                      !root->object()->capability<PdmUiFieldHandle>()->isUiTreeChildrenHidden( uiConfigName ) )
+                      !root->object()->capability<PdmUiObjectHandle>()->isUiTreeChildrenHidden( uiConfigName ) )
             {
                 uiObj( root->object() )->defineUiTreeOrdering( *root, uiConfigName );
                 uiObj( root->object() )->addDefaultUiTreeChildren( root );

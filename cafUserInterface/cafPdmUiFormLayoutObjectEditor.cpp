@@ -37,13 +37,13 @@
 #include "cafPdmUiFormLayoutObjectEditor.h"
 
 #include "cafPdmObjectHandle.h"
+#include "cafPdmObjectIoCapability.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiFieldEditorHelper.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiObjectHandle.h"
 #include "cafPdmUiOrdering.h"
-#include "cafPdmXmlObjectHandle.h"
 
 #include "cafAssert.h"
 
@@ -123,7 +123,7 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
         int nrOfExpandingItemsInRow      = uiOrdering.nrOfExpandingItemsInRow( uiItemsInRow );
         int spareColumnsInRow            = totalColumns - columnsRequiredForCurrentRow;
 
-        std::div_t columnsDiv = {0, 0};
+        std::div_t columnsDiv = { 0, 0 };
         if ( spareColumnsInRow && nrOfExpandingItemsInRow )
         {
             columnsDiv = std::div( spareColumnsInRow, nrOfExpandingItemsInRow );
@@ -315,7 +315,8 @@ bool caf::PdmUiFormLayoutObjectEditor::isUiGroupExpanded( const PdmUiGroup* uiGr
 {
     if ( uiGroup->hasForcedExpandedState() ) return uiGroup->forcedExpandedState();
 
-    auto kwMapPair = m_objectKeywordGroupUiNameExpandedState.find( pdmObject()->xmlCapability()->classKeyword() );
+    auto kwMapPair =
+        m_objectKeywordGroupUiNameExpandedState.find( pdmObject()->capability<PdmObjectIoCapability>()->classKeyword() );
     if ( kwMapPair != m_objectKeywordGroupUiNameExpandedState.end() )
     {
         QString keyword = uiGroup->keyword();
@@ -457,9 +458,9 @@ void caf::PdmUiFormLayoutObjectEditor::ensureWidgetContainsEmptyGridLayout( QWid
 //--------------------------------------------------------------------------------------------------
 void caf::PdmUiFormLayoutObjectEditor::groupBoxExpandedStateToggled( bool isExpanded )
 {
-    if ( !this->pdmObject()->xmlCapability() ) return;
+    if ( !this->pdmObject()->capability<PdmObjectIoCapability>() ) return;
 
-    QString         objKeyword = this->pdmObject()->xmlCapability()->classKeyword();
+    QString         objKeyword = this->pdmObject()->capability<PdmObjectIoCapability>()->classKeyword();
     QMinimizePanel* panel      = dynamic_cast<QMinimizePanel*>( this->sender() );
 
     if ( !panel ) return;

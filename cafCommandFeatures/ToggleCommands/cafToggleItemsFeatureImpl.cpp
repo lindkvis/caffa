@@ -82,7 +82,7 @@ bool ToggleItemsFeatureImpl::isToggleCommandsAvailable()
             caf::PdmUiObjectHandle* uiObjectHandleChild = uiObj( childObj );
 
             if ( uiObjectHandleChild && uiObjectHandleChild->objectToggleField() &&
-                 !uiObjectHandleChild->objectToggleField()->uiCapability()->isUiReadOnly() )
+                 !uiObjectHandleChild->objectToggleField()->capability<PdmUiFieldHandle>()->isUiReadOnly() )
             {
                 return true;
             }

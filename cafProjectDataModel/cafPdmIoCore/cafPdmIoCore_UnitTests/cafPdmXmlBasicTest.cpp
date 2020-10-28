@@ -144,31 +144,37 @@ TEST(BaseTest, Start)
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, FieldWrite )
 {
-    QString serializedString;
+    std::vector<caf::PdmObjectIoCapability::IoParameters::IoType> ioTypes =
+        { caf::PdmObjectIoCapability::IoParameters::IoType::XML, caf::PdmObjectIoCapability::IoParameters::IoType::JSON };
+
+    for ( auto ioType : ioTypes )
     {
-        DemoPdmObject* a = new DemoPdmObject;
+        QString serializedString;
+        {
+            DemoPdmObject* a = new DemoPdmObject;
 
-        a->m_proxyDoubleField.setValue( 2.5 );
-        ASSERT_DOUBLE_EQ( 2.5, a->m_proxyDoubleField.value() );
+            a->m_proxyDoubleField.setValue( 2.5 );
+            ASSERT_DOUBLE_EQ( 2.5, a->m_proxyDoubleField.value() );
 
-        serializedString = a->writeObjectToString();
+            serializedString = a->writeObjectToString( ioType );
 
-        std::cout << serializedString.toStdString() << std::endl;
+            std::cout << serializedString.toStdString() << std::endl;
 
-        delete a;
-    }
+            delete a;
+        }
 
-    /*
-    <DemoPdmObject>
-        <BigNumber>2.5</BigNumber>
-        <TestEnumValue>T3</TestEnumValue>
-    </DemoPdmObject>
-    */
+        /*
+        <DemoPdmObject>
+            <BigNumber>2.5</BigNumber>
+            <TestEnumValue>T3</TestEnumValue>
+        </DemoPdmObject>
+        */
 
-    {
-        DemoPdmObject* a = new DemoPdmObject;
+        {
+            DemoPdmObject* a = new DemoPdmObject;
 
-        a->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance() );
+            a->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance(), ioType );
+        }
     }
 }
 

@@ -159,35 +159,17 @@ TEST( AdvancedObjectTest, FieldWrite )
         container->m_items.push_back( item );
     }
 
+    std::vector<caf::PdmObjectIoCapability::IoParameters::IoType> ioTypes =
+        { caf::PdmObjectIoCapability::IoParameters::IoType::XML, caf::PdmObjectIoCapability::IoParameters::IoType::JSON };
+
     // Test with empty ptr field
+    for ( auto ioType : ioTypes )
     {
         QString serializedString;
         {
             DemoPdmObjectA* a = new DemoPdmObjectA;
             sibling->m_demoObjs.push_back( a );
-            serializedString = a->writeObjectToString();
-            delete a;
-        }
-
-        {
-            DemoPdmObjectA* a = new DemoPdmObjectA;
-            sibling->m_demoObjs.push_back( a );
-
-            a->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance() );
-
-            ASSERT_TRUE( a->m_pointerToItem() == NULL );
-        }
-    }
-
-    {
-        QString serializedString;
-        {
-            DemoPdmObjectA* a = new DemoPdmObjectA;
-            sibling->m_demoObjs.push_back( a );
-
-            a->m_pointerToItem = container->m_items[1];
-
-            serializedString = a->writeObjectToString();
+            serializedString = a->writeObjectToString( ioType );
             std::cout << serializedString.toStdString() << std::endl;
             delete a;
         }
@@ -196,11 +178,49 @@ TEST( AdvancedObjectTest, FieldWrite )
             DemoPdmObjectA* a = new DemoPdmObjectA;
             sibling->m_demoObjs.push_back( a );
 
-            a->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance() );
+            a->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance(), ioType );
+
+            ASSERT_TRUE( a->m_pointerToItem() == NULL );
+        }
+    }
+
+    for ( auto ioType : ioTypes )
+    {
+        QString serializedString;
+        {
+            DemoPdmObjectA* a = new DemoPdmObjectA;
+            sibling->m_demoObjs.push_back( a );
+
+            a->m_pointerToItem = container->m_items[1];
+
+            serializedString = a->writeObjectToString( ioType );
+            std::cout << serializedString.toStdString() << std::endl;
+            delete a;
+        }
+
+        {
+            DemoPdmObjectA* a = new DemoPdmObjectA;
+            sibling->m_demoObjs.push_back( a );
+
+            a->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance(), ioType );
             a->capability<caf::PdmObjectIoCapability>()->resolveReferencesRecursively();
 
             ASSERT_TRUE( a->m_pointerToItem() == container->m_items[1] );
         }
+    }
+
+    for ( auto ioType : ioTypes )
+    {
+        QString string = root->writeObjectToString( ioType );
+        std::cout << string.toStdString() << std::endl;
+
+        caf::PdmObjectHandle* objCopy =
+            caf::PdmObjectIoCapability::readUnknownObjectFromString( string,
+                                                                     caf::PdmDefaultObjectFactory::instance(),
+                                                                     true,
+                                                                     ioType );
+        auto rootCopy = dynamic_cast<ContainerPdmObject*>( objCopy );
+        ASSERT_TRUE( rootCopy != nullptr );
     }
 }
 
@@ -234,6 +254,11 @@ TEST( AdvancedObjectTest, CopyOfObjects )
 
         container->m_items.push_back( item );
 
+        std::vector<caf::PdmObjectIoCapability::IoParameters::IoType> ioTypes =
+            { caf::PdmObjectIoCapability::IoParameters::IoType::XML,
+              caf::PdmObjectIoCapability::IoParameters::IoType::JSON };
+
+        for ( auto ioType : ioTypes )
         {
             {
                 DemoPdmObjectA* a = new DemoPdmObjectA;
@@ -242,9 +267,9 @@ TEST( AdvancedObjectTest, CopyOfObjects )
                 a->m_pointerToItem = container->m_items[1];
 
                 {
-                    auto* objCopy =
-                        dynamic_cast<DemoPdmObjectA*>( a->capability<caf::PdmObjectIoCapability>()->copyBySerialization(
-                            caf::PdmDefaultObjectFactory::instance() ) );
+                    auto* objCopy = dynamic_cast<DemoPdmObjectA*>(
+                        a->capability<caf::PdmObjectIoCapability>()
+                            ->copyBySerialization( caf::PdmDefaultObjectFactory::instance(), ioType ) );
                     std::vector<caf::PdmFieldHandle*> fieldWithFailingResolve;
                     objCopy->resolveReferencesRecursively( &fieldWithFailingResolve );
                     ASSERT_FALSE( fieldWithFailingResolve.empty() );
@@ -252,9 +277,9 @@ TEST( AdvancedObjectTest, CopyOfObjects )
                 }
 
                 {
-                    auto* objCopy =
-                        dynamic_cast<DemoPdmObjectA*>( a->capability<caf::PdmObjectIoCapability>()->copyBySerialization(
-                            caf::PdmDefaultObjectFactory::instance() ) );
+                    auto* objCopy = dynamic_cast<DemoPdmObjectA*>(
+                        a->capability<caf::PdmObjectIoCapability>()
+                            ->copyBySerialization( caf::PdmDefaultObjectFactory::instance(), ioType ) );
 
                     sibling->m_demoObjs.push_back( objCopy );
 

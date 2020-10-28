@@ -159,7 +159,7 @@ QVariant caf::UiListViewModelPdm::data( const QModelIndex& index, int role /*= Q
                         fieldIndex = index.column();
                     }
 
-                    PdmUiFieldHandle* uiFieldHandle = fields[fieldIndex]->uiCapability();
+                    PdmUiFieldHandle* uiFieldHandle = fields[fieldIndex]->capability<PdmUiFieldHandle>();
                     if ( uiFieldHandle )
                     {
                         return uiFieldHandle->uiValue();

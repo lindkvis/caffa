@@ -37,7 +37,7 @@ set (PUBLIC_HEADERS
     cafPdmReferenceHelper.h
     cafPdmUiFieldHandleInterface.h
     cafPdmValueField.h
-    cafInternalPdmValueFieldSpecializations.h 
+    cafPdmValueFieldSpecializations.h
 
     cafSignal.h
 

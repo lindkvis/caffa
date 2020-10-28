@@ -348,7 +348,7 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
 
     if ( m_attributes.currentIndexFieldHandle )
     {
-        PdmUiFieldHandle* uiFieldHandle = m_attributes.currentIndexFieldHandle->uiCapability();
+        PdmUiFieldHandle* uiFieldHandle = m_attributes.currentIndexFieldHandle->capability<PdmUiFieldHandle>();
         if ( uiFieldHandle )
         {
             QModelIndexList indices          = allVisibleSourceModelIndices();
@@ -696,7 +696,7 @@ void PdmUiTreeSelectionEditor::currentChanged( const QModelIndex& current )
 
     if ( m_attributes.currentIndexFieldHandle )
     {
-        PdmUiFieldHandle* uiFieldHandle = m_attributes.currentIndexFieldHandle->uiCapability();
+        PdmUiFieldHandle* uiFieldHandle = m_attributes.currentIndexFieldHandle->capability<PdmUiFieldHandle>();
         if ( uiFieldHandle )
         {
             QVariant v = m_proxyModel->data( current, PdmUiTreeSelectionQModel::optionItemValueRole() );

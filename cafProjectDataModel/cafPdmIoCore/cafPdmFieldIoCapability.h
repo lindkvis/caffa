@@ -10,6 +10,8 @@
 class QXmlStreamReader;
 class QXmlStreamWriter;
 
+class QJsonValue;
+
 namespace caf
 {
 class PdmFieldHandle;
@@ -52,6 +54,9 @@ public:
 
     virtual void readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) = 0;
     virtual void writeFieldData( QXmlStreamWriter& xmlStream ) const                           = 0;
+
+    virtual void readFieldData( const QJsonValue& value, PdmObjectFactory* objectFactory ) = 0;
+    virtual void writeFieldData( QJsonValue& value ) const                                 = 0;
 
 protected:
     bool assertValid() const;
