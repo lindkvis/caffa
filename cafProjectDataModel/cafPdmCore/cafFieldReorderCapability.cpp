@@ -44,7 +44,7 @@ using namespace caf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FieldReorderCapability::FieldReorderCapability( PdmPtrArrayFieldHandle* field, bool giveOwnership )
+FieldReorderCapability::FieldReorderCapability( PtrArrayFieldHandle* field, bool giveOwnership )
     : orderChanged( this )
     , m_field( field )
 
@@ -111,7 +111,7 @@ bool FieldReorderCapability::moveItemDown( size_t index )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FieldReorderCapability* FieldReorderCapability::addToField( PdmPtrArrayFieldHandle* field )
+FieldReorderCapability* FieldReorderCapability::addToField( PtrArrayFieldHandle* field )
 {
     if ( !fieldIsReorderable( field ) )
     {
@@ -123,7 +123,7 @@ FieldReorderCapability* FieldReorderCapability::addToField( PdmPtrArrayFieldHand
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool FieldReorderCapability::fieldIsReorderable( PdmPtrArrayFieldHandle* field )
+bool FieldReorderCapability::fieldIsReorderable( PtrArrayFieldHandle* field )
 {
     return field->capability<FieldReorderCapability>() != nullptr;
 }
@@ -179,7 +179,7 @@ FieldReorderCapability* FieldReorderCapability::reorderCapabilityOfParentContain
 {
     if ( pdmObject )
     {
-        PdmPtrArrayFieldHandle* arrayField = dynamic_cast<PdmPtrArrayFieldHandle*>( pdmObject->parentField() );
+        PtrArrayFieldHandle* arrayField = dynamic_cast<PtrArrayFieldHandle*>( pdmObject->parentField() );
         if ( arrayField )
         {
             FieldReorderCapability* reorderability = arrayField->capability<FieldReorderCapability>();

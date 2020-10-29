@@ -12,7 +12,7 @@
 #include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
 #include "cafPdmProxyValueField.h"
-#include "cafPdmPtrField.h"
+#include "cafPtrField.h"
 #include "cafPdmReferenceHelper.h"
 
 #include <QXmlStreamWriter>

@@ -4,8 +4,8 @@
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafFieldIoCapability.h"
-#include "cafPdmPtrArrayField.h"
-#include "cafPdmPtrField.h"
+#include "cafPtrArrayField.h"
+#include "cafPtrField.h"
 
 #include <typeinfo>
 
@@ -52,12 +52,12 @@ private:
 };
 
 template <typename DataType>
-class PdmPtrField;
+class PtrField;
 
 template <typename DataType>
-class FieldIoCap<PdmPtrField<DataType*>> : public FieldIoCapability
+class FieldIoCap<PtrField<DataType*>> : public FieldIoCapability
 {
-    typedef PdmPtrField<DataType*> FieldType;
+    typedef PtrField<DataType*> FieldType;
 
 public:
     FieldIoCap( FieldType* field, bool giveOwnership )
@@ -91,12 +91,12 @@ private:
 };
 
 template <typename DataType>
-class PdmPtrArrayField;
+class PtrArrayField;
 
 template <typename DataType>
-class FieldIoCap<PdmPtrArrayField<DataType*>> : public FieldIoCapability
+class FieldIoCap<PtrArrayField<DataType*>> : public FieldIoCapability
 {
-    typedef PdmPtrArrayField<DataType*> FieldType;
+    typedef PtrArrayField<DataType*> FieldType;
 
 public:
     FieldIoCap( FieldType* field, bool giveOwnership )

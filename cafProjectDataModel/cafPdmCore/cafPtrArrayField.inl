@@ -1,27 +1,60 @@
-#include "cafAsyncObjectDeleter.h"
+#pragma once
+
 #include "cafClassTypeName.h"
 #include "cafObjectHandle.h"
 
 namespace caf
 {
 //==================================================================================================
-/// Implementation of ChildArrayField<>
+/// Implementation of PtrArrayField<>
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-ChildArrayField<DataType*>::~ChildArrayField()
+PtrArrayField<DataType*>::~PtrArrayField()
 {
-    deleteAllChildObjects();
+    this->removeThisAsReferencingPtrField();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-DataType* ChildArrayField<DataType*>::operator[]( size_t index ) const
+void PtrArrayField<DataType*>::setValue( const std::vector<PdmPointer<DataType>>& fieldValue )
+{
+    this->clear();
+    this->insert( 0, fieldValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+const std::vector<PdmPointer<DataType>>& PtrArrayField<DataType*>::value() const
+{
+    return m_pointers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void PtrArrayField<DataType*>::setValue( const std::vector<DataType*>& fieldValue )
+{
+    this->clear();
+    for ( DataType* rawPtr : fieldValue )
+    {
+        this->push_back( PdmPointer<DataType>( rawPtr ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+DataType* PtrArrayField<DataType*>::operator[]( size_t index ) const
 {
     return m_pointers[index];
 }
@@ -30,12 +63,12 @@ DataType* ChildArrayField<DataType*>::operator[]( size_t index ) const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void ChildArrayField<DataType*>::push_back( DataType* pointer )
+void PtrArrayField<DataType*>::push_back( DataType* pointer )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
     m_pointers.push_back( pointer );
-    if ( pointer ) pointer->setAsParentField( this );
+    if ( pointer ) pointer->addReferencingPtrField( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -43,13 +76,13 @@ void ChildArrayField<DataType*>::push_back( DataType* pointer )
 /// position without deleting the object pointed to.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void ChildArrayField<DataType*>::set( size_t index, DataType* pointer )
+void PtrArrayField<DataType*>::set( size_t index, DataType* pointer )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
-    if ( m_pointers[index] ) m_pointers[index]->removeAsParentField( this );
+    if ( m_pointers[index] ) m_pointers[index]->removeReferencingPtrField( this );
     m_pointers[index] = pointer;
-    if ( m_pointers[index] ) pointer->setAsParentField( this );
+    if ( m_pointers[index] ) pointer->addReferencingPtrField( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,13 +90,13 @@ void ChildArrayField<DataType*>::set( size_t index, DataType* pointer )
 /// the preceding values backwards
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void ChildArrayField<DataType*>::insert( size_t index, DataType* pointer )
+void PtrArrayField<DataType*>::insert( size_t index, DataType* pointer )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
     m_pointers.insert( m_pointers.begin() + index, pointer );
 
-    if ( pointer ) pointer->setAsParentField( this );
+    if ( pointer ) pointer->addReferencingPtrField( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,7 +104,7 @@ void ChildArrayField<DataType*>::insert( size_t index, DataType* pointer )
 /// the preceding values backwards
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void ChildArrayField<DataType*>::insert( size_t index, const std::vector<PdmPointer<DataType>>& objects )
+void PtrArrayField<DataType*>::insert( size_t index, const std::vector<PdmPointer<DataType>>& objects )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
@@ -82,7 +115,7 @@ void ChildArrayField<DataType*>::insert( size_t index, const std::vector<PdmPoin
     {
         if ( !it->isNull() )
         {
-            ( *it )->setAsParentField( this );
+            ( *it )->addReferencingPtrField( this );
         }
     }
 }
@@ -91,7 +124,7 @@ void ChildArrayField<DataType*>::insert( size_t index, const std::vector<PdmPoin
 /// Returns the number of times pointer is referenced from the container.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-size_t ChildArrayField<DataType*>::count( const DataType* pointer ) const
+size_t PtrArrayField<DataType*>::count( const DataType* pointer ) const
 {
     size_t itemCount = 0;
 
@@ -111,55 +144,27 @@ size_t ChildArrayField<DataType*>::count( const DataType* pointer ) const
 /// Empty the container without deleting the objects pointed to.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void ChildArrayField<DataType*>::clear()
+void PtrArrayField<DataType*>::clear()
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
-    this->removeThisAsParentField();
+    this->removeThisAsReferencingPtrField();
     m_pointers.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Deletes all the objects pointed to by the field, then clears the container.
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void ChildArrayField<DataType*>::deleteAllChildObjects()
-{
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
-
-    size_t index;
-    for ( index = 0; index < m_pointers.size(); ++index )
-    {
-        delete ( m_pointers[index].rawPtr() );
-    }
-
-    m_pointers.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Transfers ownership of the objects pointed to a separate thread.
-/// Then clears the container and lets the thread delete the objects.
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void ChildArrayField<DataType*>::deleteAllChildObjectsAsync()
-{
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
-
-    AsyncObjectVectorDeleter<DataType> pointerDeleter( m_pointers );
-    CAF_ASSERT( m_pointers.empty() ); // Object storage for m_pointers should be empty immediately.
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Removes the pointer at index from the container. Does not delete the object pointed to.
+/// Todo: This implementation can't be necessary in the new regime. Should be to just remove
+/// the item at index (shrinking the array)
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void ChildArrayField<DataType*>::erase( size_t index )
+void PtrArrayField<DataType*>::erase( size_t index )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
     if ( m_pointers[index].rawPtr() )
     {
-        m_pointers[index].rawPtr()->removeAsParentField( this );
+        m_pointers[index].rawPtr()->removeReferencingPtrField( this );
     }
 
     m_pointers.erase( m_pointers.begin() + index );
@@ -169,7 +174,7 @@ void ChildArrayField<DataType*>::erase( size_t index )
 /// Get the index of the given object pointer
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-size_t ChildArrayField<DataType*>::index( const DataType* pointer ) const
+size_t PtrArrayField<DataType*>::index( DataType* pointer )
 {
     for ( size_t i = 0; i < m_pointers.size(); ++i )
     {
@@ -183,23 +188,10 @@ size_t ChildArrayField<DataType*>::index( const DataType* pointer ) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Assign objects to the field, replacing the current child objects
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void ChildArrayField<DataType*>::setValue( const std::vector<DataType*>& objects )
-{
-    clear();
-    for ( auto object : objects )
-    {
-        push_back( object );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Removes all instances of object pointer from the container without deleting the object.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void ChildArrayField<DataType*>::removeChildObject( ObjectHandle* object )
+void PtrArrayField<DataType*>::removePtr( ObjectHandle* object )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
@@ -218,7 +210,7 @@ void ChildArrayField<DataType*>::removeChildObject( ObjectHandle* object )
         {
             if ( tempPointers[index].rawPtr() )
             {
-                tempPointers[index].rawPtr()->removeAsParentField( this );
+                tempPointers[index].rawPtr()->removeReferencingPtrField( this );
             }
         }
     }
@@ -228,16 +220,14 @@ void ChildArrayField<DataType*>::removeChildObject( ObjectHandle* object )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-std::vector<DataType*> caf::ChildArrayField<DataType*>::childObjects() const
+std::vector<DataType*> PtrArrayField<DataType*>::ptrReferencedObjects() const
 {
     std::vector<DataType*> objects;
 
-    for ( DataType* p : m_pointers )
+    size_t i;
+    for ( i = 0; i < m_pointers.size(); ++i )
     {
-        if ( p != nullptr )
-        {
-            objects.push_back( p );
-        }
+        objects.push_back( m_pointers[i].p() );
     }
 
     return objects;
@@ -247,7 +237,7 @@ std::vector<DataType*> caf::ChildArrayField<DataType*>::childObjects() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void ChildArrayField<DataType*>::childObjects( std::vector<ObjectHandle*>* objects )
+void PtrArrayField<DataType*>::ptrReferencedObjects( std::vector<ObjectHandle*>* objects )
 {
     if ( !objects ) return;
     size_t i;
@@ -261,11 +251,11 @@ void ChildArrayField<DataType*>::childObjects( std::vector<ObjectHandle*>* objec
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void ChildArrayField<DataType*>::insertAt( int indexAfter, ObjectHandle* obj )
+void PtrArrayField<DataType*>::insertAt( int indexAfter, ObjectHandle* obj )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
-    // This method should assert if obj to insert is not castable to the container type, but since this
+    // This method should CAF_ASSERT( if obj to insert is not castable to the container type, but since this
     // is a virtual method, its implementation is always created and that makes a dyn_cast add the need for
     // #include of the header file "everywhere"
     typename std::vector<PdmPointer<DataType>>::iterator it;
@@ -282,14 +272,14 @@ void ChildArrayField<DataType*>::insertAt( int indexAfter, ObjectHandle* obj )
     }
 
     it->setRawPtr( obj );
-    obj->setAsParentField( this );
+    obj->addReferencingPtrField( this );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-ObjectHandle* ChildArrayField<DataType*>::at( size_t index )
+ObjectHandle* PtrArrayField<DataType*>::at( size_t index )
 {
     return m_pointers[index].rawPtr();
 }
@@ -298,14 +288,14 @@ ObjectHandle* ChildArrayField<DataType*>::at( size_t index )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void ChildArrayField<DataType*>::removeThisAsParentField()
+void PtrArrayField<DataType*>::removeThisAsReferencingPtrField()
 {
     typename std::vector<PdmPointer<DataType>>::iterator it;
     for ( it = m_pointers.begin(); it != m_pointers.end(); ++it )
     {
         if ( !it->isNull() )
         {
-            it->rawPtr()->removeAsParentField( this );
+            it->rawPtr()->removeReferencingPtrField( this );
         }
     }
 }
@@ -314,14 +304,14 @@ void ChildArrayField<DataType*>::removeThisAsParentField()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void ChildArrayField<DataType*>::addThisAsParentField()
+void PtrArrayField<DataType*>::addThisAsReferencingPtrField()
 {
     typename std::vector<PdmPointer<DataType>>::iterator it;
     for ( it = m_pointers.begin(); it != m_pointers.end(); ++it )
     {
         if ( !it->isNull() )
         {
-            ( *it )->setAsParentField( this );
+            ( *it )->addReferencingPtrField( this );
         }
     }
 }

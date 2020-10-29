@@ -29,11 +29,11 @@ set (PUBLIC_HEADERS
     cafObjectHandle.h
     cafPdmPointer.h
     cafPdmProxyValueField.h
-    cafPdmPtrArrayField.h
-    cafPdmPtrArrayField.inl
-    cafPdmPtrArrayFieldHandle.h
-    cafPdmPtrField.h
-    cafPdmPtrField.inl
+    cafPtrArrayField.h
+    cafPtrArrayField.inl
+    cafPtrArrayFieldHandle.h
+    cafPtrField.h
+    cafPtrField.inl
     cafPdmReferenceHelper.h
     cafFieldUiCapabilityInterface.h
     cafPdmValueField.h

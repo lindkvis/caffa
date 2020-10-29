@@ -9,11 +9,11 @@ namespace caf
 ///
 ///
 //==================================================================================================
-class PdmPtrArrayFieldHandle : public FieldHandle
+class PtrArrayFieldHandle : public FieldHandle
 {
 public:
-    PdmPtrArrayFieldHandle() {}
-    ~PdmPtrArrayFieldHandle() override {}
+    PtrArrayFieldHandle() {}
+    ~PtrArrayFieldHandle() override {}
 
     virtual size_t size() const                                     = 0;
     virtual bool   empty() const                                    = 0;

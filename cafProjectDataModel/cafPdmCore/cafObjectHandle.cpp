@@ -106,8 +106,8 @@ void ObjectHandle::removeReferencingPtrField( FieldHandle* fieldReferringToMe )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Appends pointers to all the PdmPtrFields containing a pointer to this object.
-/// As the PdmPtrArrayFields can hold several pointers to the same object, the returned vector can
+/// Appends pointers to all the PtrFields containing a pointer to this object.
+/// As the PtrArrayFields can hold several pointers to the same object, the returned vector can
 /// contain multiple pointers to the same field.
 //--------------------------------------------------------------------------------------------------
 void ObjectHandle::referringPtrFields( std::vector<FieldHandle*>& fieldsReferringToMe ) const

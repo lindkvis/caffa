@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cafPdmPtrArrayFieldHandle.h"
+#include "cafPtrArrayFieldHandle.h"
 
 #include "cafAssert.h"
 #include "cafFieldHandle.h"
@@ -16,7 +16,7 @@ class FieldIoCap;
 ///
 ///
 //==================================================================================================
-class ChildArrayFieldHandle : public PdmPtrArrayFieldHandle
+class ChildArrayFieldHandle : public PtrArrayFieldHandle
 {
 public:
     ChildArrayFieldHandle() {}

@@ -22,7 +22,7 @@
 #include "cafObject.h"
 #include "cafObjectGroup.h"
 #include "cafPdmProxyValueField.h"
-#include "cafPdmPtrField.h"
+#include "cafPtrField.h"
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
@@ -707,7 +707,7 @@ public:
     caf::Field<int>                        m_intField;
     caf::Field<QString>                    m_textField;
     caf::Field<caf::AppEnum<TestEnumType>> m_testEnumField;
-    caf::PdmPtrField<SmallDemoObjectA*>    m_ptrField;
+    caf::PtrField<SmallDemoObjectA*>    m_ptrField;
 
     caf::PdmProxyValueField<caf::AppEnum<TestEnumType>> m_proxyEnumField;
     void                                                setEnumMember(const caf::AppEnum<TestEnumType>& val)
@@ -996,7 +996,7 @@ public:
 
     caf::ChildArrayField<caf::ObjectHandle*> m_objectList;
     caf::ChildArrayField<SmallDemoObjectA*>  m_objectListOfSameType;
-    caf::PdmPtrField<SmallDemoObjectA*>         m_ptrField;
+    caf::PtrField<SmallDemoObjectA*>         m_ptrField;
 
     caf::Field<bool> m_toggleField;
 

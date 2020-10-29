@@ -29,8 +29,8 @@ class ChildField : public ChildFieldHandle
 public:
     ChildField()
     {
-        bool doNotUsePdmPtrFieldForAnythingButPointersToObject = false;
-        CAF_ASSERT( doNotUsePdmPtrFieldForAnythingButPointersToObject );
+        bool doNotUsePtrFieldForAnythingButPointersToObject = false;
+        CAF_ASSERT( doNotUsePtrFieldForAnythingButPointersToObject );
     }
 };
 
