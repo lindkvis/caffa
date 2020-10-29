@@ -34,7 +34,7 @@
 //
 //##################################################################################################
 
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 
 #include "cafFieldUiCapability.h"
 #include "cafObjectHandle.h"
@@ -52,7 +52,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiFieldEditorHandle::PdmUiFieldEditorHandle()
+UiFieldEditorHandle::UiFieldEditorHandle()
 {
     m_combinedWidget = QPointer<QWidget>();
     m_editorWidget   = QPointer<QWidget>();
@@ -62,7 +62,7 @@ PdmUiFieldEditorHandle::PdmUiFieldEditorHandle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiFieldEditorHandle::~PdmUiFieldEditorHandle()
+UiFieldEditorHandle::~UiFieldEditorHandle()
 {
     // Note : deleteLater will not work unless you are actually inside an event loop.
     // See https://doc.qt.io/qt-5/qobject.html#deleteLater
@@ -76,7 +76,7 @@ PdmUiFieldEditorHandle::~PdmUiFieldEditorHandle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldEditorHandle::setUiField( FieldUiCapability* field )
+void UiFieldEditorHandle::setUiField( FieldUiCapability* field )
 {
     this->bindToPdmItem( field );
 
@@ -84,7 +84,7 @@ void PdmUiFieldEditorHandle::setUiField( FieldUiCapability* field )
     {
         // Required to be called here to be able to handle different context menu
         // policy when switching between objects of same type. In this case, the
-        // PdmUiFieldEditorHandle::createWidgets() will not be run, as the field
+        // UiFieldEditorHandle::createWidgets() will not be run, as the field
         // widgets are cached by the property editor
 
         updateContextMenuPolicy();
@@ -94,7 +94,7 @@ void PdmUiFieldEditorHandle::setUiField( FieldUiCapability* field )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldEditorHandle::updateContextMenuPolicy()
+void UiFieldEditorHandle::updateContextMenuPolicy()
 {
     if ( m_editorWidget.isNull() ) return;
 
@@ -112,7 +112,7 @@ void PdmUiFieldEditorHandle::updateContextMenuPolicy()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FieldUiCapability* PdmUiFieldEditorHandle::uiField()
+FieldUiCapability* UiFieldEditorHandle::uiField()
 {
     return dynamic_cast<FieldUiCapability*>( pdmItem() );
 }
@@ -120,7 +120,7 @@ FieldUiCapability* PdmUiFieldEditorHandle::uiField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldEditorHandle::createWidgets( QWidget* parent )
+void UiFieldEditorHandle::createWidgets( QWidget* parent )
 {
     if ( m_combinedWidget.isNull() ) m_combinedWidget = createCombinedWidget( parent );
     if ( m_editorWidget.isNull() ) m_editorWidget = createEditorWidget( parent );
@@ -141,7 +141,7 @@ void PdmUiFieldEditorHandle::createWidgets( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QMargins PdmUiFieldEditorHandle::labelContentMargins() const
+QMargins UiFieldEditorHandle::labelContentMargins() const
 {
     return calculateLabelContentMargins();
 }
@@ -149,7 +149,7 @@ QMargins PdmUiFieldEditorHandle::labelContentMargins() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int PdmUiFieldEditorHandle::rowStretchFactor() const
+int UiFieldEditorHandle::rowStretchFactor() const
 {
     return isMultiRowEditor() ? 1 : 0;
 }
@@ -157,7 +157,7 @@ int PdmUiFieldEditorHandle::rowStretchFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldEditorHandle::setValueToField( const QVariant& newUiValue )
+void UiFieldEditorHandle::setValueToField( const QVariant& newUiValue )
 {
     PdmUiCommandSystemProxy::instance()->setUiValueToField( uiField(), newUiValue );
 }
@@ -165,7 +165,7 @@ void PdmUiFieldEditorHandle::setValueToField( const QVariant& newUiValue )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldEditorHandle::updateLabelFromField( QLabel* label, const QString& uiConfigName /*= ""*/ ) const
+void UiFieldEditorHandle::updateLabelFromField( QLabel* label, const QString& uiConfigName /*= ""*/ ) const
 {
     CAF_ASSERT( label );
 
@@ -189,10 +189,10 @@ void PdmUiFieldEditorHandle::updateLabelFromField( QLabel* label, const QString&
 }
 
 //------------------------------------------------------------------------------------------------------------
-/// Re-implement this virtual method if a custom PdmUiField is misaligned with its label.
+/// Re-implement this virtual method if a custom UiField is misaligned with its label.
 /// See cafPdmUiLineEditor for an example.
 //------------------------------------------------------------------------------------------------------------
-QMargins PdmUiFieldEditorHandle::calculateLabelContentMargins() const
+QMargins UiFieldEditorHandle::calculateLabelContentMargins() const
 {
     return m_labelWidget->contentsMargins();
 }
@@ -200,7 +200,7 @@ QMargins PdmUiFieldEditorHandle::calculateLabelContentMargins() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiFieldEditorHandle::isMultiRowEditor() const
+bool UiFieldEditorHandle::isMultiRowEditor() const
 {
     return false;
 }
@@ -208,7 +208,7 @@ bool PdmUiFieldEditorHandle::isMultiRowEditor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldEditorHandle::customMenuRequested( QPoint pos )
+void UiFieldEditorHandle::customMenuRequested( QPoint pos )
 {
     ObjectHandle* objectHandle = nullptr;
     if ( uiField() && uiField()->fieldHandle() )

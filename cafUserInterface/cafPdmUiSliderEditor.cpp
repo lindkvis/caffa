@@ -39,7 +39,7 @@
 #include "cafField.h"
 #include "cafObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 
 #include "cafFactory.h"
 
@@ -59,7 +59,7 @@ void PdmUiSliderEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
     CAF_ASSERT( !m_spinBox.isNull() );
 
-    PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 
     m_spinBox->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
     m_spinBox->setToolTip( uiField()->uiToolTip( uiConfigName ) );

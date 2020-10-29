@@ -40,7 +40,7 @@
 
 #include "cafField.h"
 #include "cafObject.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 
 #include "cafFactory.h"
@@ -61,7 +61,7 @@ void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
     CAF_ASSERT( !m_pushButton.isNull() );
     CAF_ASSERT( !m_label.isNull() );
 
-    PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 
     m_pushButton->setCheckable( true );
     m_pushButton->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );

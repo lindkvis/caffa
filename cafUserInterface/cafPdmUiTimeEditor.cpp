@@ -40,7 +40,7 @@
 #include "cafField.h"
 #include "cafObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 #include "cafSelectionManager.h"
 
@@ -66,7 +66,7 @@ void PdmUiTimeEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
     CAF_ASSERT( !m_timeEdit.isNull() );
 
-    PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 
     m_timeEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
 

@@ -34,7 +34,7 @@
 //##################################################################################################
 
 #pragma once
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 #include "cafUiTreeItem.h"
 #include "cafUserInterface_export.h"
 
@@ -65,7 +65,7 @@ public:
     void enableSingleSelectionMode( bool enable );
 
     int  optionItemCount() const;
-    void setOptions( caf::PdmUiFieldEditorHandle* field, const QList<caf::PdmOptionItemInfo>& options );
+    void setOptions( caf::UiFieldEditorHandle* field, const QList<caf::PdmOptionItemInfo>& options );
     void setUiValueCache( const QVariant* uiValuesCache );
     void resetUiValueCache();
     bool isReadOnly( const QModelIndex& index ) const;
@@ -84,7 +84,7 @@ public:
     QModelIndex indexForLastUncheckedItem() const;
     void        clearIndexForLastUncheckedItem();
 
-    // Consider moving these functions to PdmUiFieldHandle
+    // Consider moving these functions to UiFieldHandle
     static bool isSingleValueField( const QVariant& fieldValue );
     static bool isMultipleValueField( const QVariant& fieldValue );
 
@@ -100,7 +100,7 @@ private:
 
 private:
     QList<caf::PdmOptionItemInfo>         m_options;
-    QPointer<caf::PdmUiFieldEditorHandle> m_uiFieldHandle;
+    QPointer<caf::UiFieldEditorHandle> m_uiFieldHandle;
 
     const QVariant* m_uiValueCache;
 

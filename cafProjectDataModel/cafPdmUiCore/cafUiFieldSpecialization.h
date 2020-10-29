@@ -24,7 +24,7 @@ class ObjectHandle;
 //==================================================================================================
 
 template <typename T>
-class PdmUiFieldSpecialization
+class UiFieldSpecialization
 {
 public:
     /// Convert the field value into a QVariant

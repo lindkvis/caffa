@@ -36,7 +36,7 @@
 
 #pragma once
 #include "cafUserInterface_export.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 #include "cafPdmUiFilePathEditorAttribute.h"
 
 #include <QLabel>
@@ -53,7 +53,7 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class cafUserInterface_EXPORT PdmUiFilePathEditor : public PdmUiFieldEditorHandle
+class cafUserInterface_EXPORT PdmUiFilePathEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

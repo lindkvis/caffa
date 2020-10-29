@@ -40,7 +40,7 @@
 #include "cafField.h"
 #include "cafObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 
 #include <QBoxLayout>
@@ -62,7 +62,7 @@ void PdmUiFilePathEditor::configureAndUpdateUi( const QString& uiConfigName )
     CAF_ASSERT( !m_lineEdit.isNull() );
     CAF_ASSERT( !m_label.isNull() );
 
-    PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 
     m_lineEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
     m_lineEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );

@@ -40,8 +40,8 @@
 #include "cafObjectHandle.h"
 #include "cafObjectIoCapability.h"
 #include "cafObjectUiCapability.h"
-#include "cafPdmUiFieldEditorHandle.h"
-#include "cafPdmUiFieldEditorHelper.h"
+#include "cafUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHelper.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiOrdering.h"
 
@@ -165,7 +165,7 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
             }
             else
             {
-                PdmUiFieldEditorHandle* fieldEditor = nullptr;
+                UiFieldEditorHandle* fieldEditor = nullptr;
                 FieldUiCapability*   field       = dynamic_cast<FieldUiCapability*>( currentItem );
 
                 if ( field )
@@ -383,17 +383,17 @@ QMinimizePanel* caf::PdmUiFormLayoutObjectEditor::findOrCreateGroupBox( QWidget*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateFieldEditor( QWidget*              parent,
+caf::UiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateFieldEditor( QWidget*              parent,
                                                                                         FieldUiCapability* field,
                                                                                         const QString& uiConfigName )
 {
-    caf::PdmUiFieldEditorHandle* fieldEditor = nullptr;
+    caf::UiFieldEditorHandle* fieldEditor = nullptr;
 
-    std::map<FieldHandle*, PdmUiFieldEditorHandle*>::iterator it = m_fieldViews.find( field->fieldHandle() );
+    std::map<FieldHandle*, UiFieldEditorHandle*>::iterator it = m_fieldViews.find( field->fieldHandle() );
 
     if ( it == m_fieldViews.end() )
     {
-        fieldEditor = PdmUiFieldEditorHelper::createFieldEditorForField( field, uiConfigName );
+        fieldEditor = UiFieldEditorHelper::createFieldEditorForField( field, uiConfigName );
 
         if ( fieldEditor )
         {
@@ -473,10 +473,10 @@ void caf::PdmUiFormLayoutObjectEditor::groupBoxExpandedStateToggled( bool isExpa
 //--------------------------------------------------------------------------------------------------
 void caf::PdmUiFormLayoutObjectEditor::cleanupBeforeSettingObject()
 {
-    std::map<FieldHandle*, PdmUiFieldEditorHandle*>::iterator it;
+    std::map<FieldHandle*, UiFieldEditorHandle*>::iterator it;
     for ( it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it )
     {
-        PdmUiFieldEditorHandle* fvh = it->second;
+        UiFieldEditorHandle* fvh = it->second;
         delete fvh;
     }
     m_fieldViews.clear();

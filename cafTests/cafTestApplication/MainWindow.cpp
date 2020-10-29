@@ -1387,7 +1387,7 @@ void MainWindow::slotInsert()
         if (listField)
         {
             caf::ObjectHandle* obj = listField->createAppendObject();
-            listField->capability<caf::PdmUiFieldHandle>()->updateConnectedEditors();
+            listField->capability<caf::UiFieldHandle>()->updateConnectedEditors();
         }
 #endif
     }

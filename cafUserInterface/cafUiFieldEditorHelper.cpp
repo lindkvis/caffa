@@ -34,28 +34,28 @@
 //
 //##################################################################################################
 
-#include "cafPdmUiFieldEditorHelper.h"
+#include "cafUiFieldEditorHelper.h"
 
 #include "cafClassTypeName.h"
 
 #include "cafFieldUiCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 #include "cafPdmUiListEditor.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiFieldEditorHandle* caf::PdmUiFieldEditorHelper::createFieldEditorForField( caf::FieldUiCapability* field,
+caf::UiFieldEditorHandle* caf::UiFieldEditorHelper::createFieldEditorForField( caf::FieldUiCapability* field,
                                                                                      const QString& uiConfigName )
 {
-    caf::PdmUiFieldEditorHandle* fieldEditor = nullptr;
+    caf::UiFieldEditorHandle* fieldEditor = nullptr;
 
     // If editor type is specified, find in factory
     if ( !field->uiEditorTypeName( uiConfigName ).isEmpty() )
     {
         fieldEditor =
-            caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create( field->uiEditorTypeName( uiConfigName ) );
+            caf::Factory<UiFieldEditorHandle, QString>::instance()->create( field->uiEditorTypeName( uiConfigName ) );
     }
     else
     {
@@ -84,7 +84,7 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFieldEditorHelper::createFieldEditorForFi
             }
         }
 
-        fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create( fieldTypeName );
+        fieldEditor = caf::Factory<UiFieldEditorHandle, QString>::instance()->create( fieldTypeName );
     }
 
     return fieldEditor;

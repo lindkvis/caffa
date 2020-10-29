@@ -41,7 +41,7 @@
 #include "cafProxyValueField.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiDateEditor.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"

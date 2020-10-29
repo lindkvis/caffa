@@ -6,7 +6,7 @@
 
 #include "cafField.h"
 #include "cafObject.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 
 #include "cafFactory.h"
@@ -26,7 +26,7 @@ void PdmUiCheckBoxTristateEditor::configureAndUpdateUi( const QString& uiConfigN
     CAF_ASSERT( !m_checkBox.isNull() );
     CAF_ASSERT( !m_label.isNull() );
 
-    PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 
     m_checkBox->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
     m_checkBox->setToolTip( uiField()->uiToolTip( uiConfigName ) );

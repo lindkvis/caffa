@@ -36,7 +36,7 @@
 
 #pragma once
 #include "cafUserInterface_export.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 
 #include <QPointer>
 #include <QToolButton>
@@ -54,7 +54,7 @@ public:
     QSizePolicy m_sizePolicy;
 };
 
-class cafUserInterface_EXPORT PdmUiToolButtonEditor : public PdmUiFieldEditorHandle
+class cafUserInterface_EXPORT PdmUiToolButtonEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

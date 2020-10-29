@@ -60,8 +60,8 @@ set( PROJECT_FILES
     cafPdmUiTreeSelectionEditor.cpp
     cafPdmUiTreeSelectionQModel.h
     cafPdmUiTreeSelectionQModel.cpp
-    cafPdmUiFieldEditorHelper.h
-    cafPdmUiFieldEditorHelper.cpp
+    cafUiFieldEditorHelper.h
+    cafUiFieldEditorHelper.cpp
     cafPdmUiLabelEditor.h
     cafPdmUiLabelEditor.cpp
 	

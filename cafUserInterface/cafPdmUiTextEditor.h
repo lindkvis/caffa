@@ -36,7 +36,7 @@
 
 #pragma once
 #include "cafUserInterface_export.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 #include <QLabel>
 #include <QPointer>
 #include <QPushButton>
@@ -110,7 +110,7 @@ private:
 //==================================================================================================
 /// An editor to show (and possibly edit?) formatted larger portions of text
 //==================================================================================================
-class cafUserInterface_EXPORT PdmUiTextEditor : public PdmUiFieldEditorHandle
+class cafUserInterface_EXPORT PdmUiTextEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

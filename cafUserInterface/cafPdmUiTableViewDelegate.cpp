@@ -36,7 +36,7 @@
 
 #include "cafPdmUiTableViewDelegate.h"
 
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 #include "cafPdmUiTableViewQModel.h"
 
 namespace caf
@@ -79,7 +79,7 @@ QWidget* PdmUiTableViewDelegate::createEditor( QWidget*                    paren
 //--------------------------------------------------------------------------------------------------
 void PdmUiTableViewDelegate::setEditorData( QWidget* editor, const QModelIndex& index ) const
 {
-    PdmUiFieldEditorHandle* fieldHandle = m_model->getEditor( index );
+    UiFieldEditorHandle* fieldHandle = m_model->getEditor( index );
     if ( fieldHandle )
     {
         fieldHandle->updateUi();

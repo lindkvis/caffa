@@ -37,7 +37,7 @@
 #pragma once
 
 #include "cafPdmUiEditorHandle.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 
 #include <vector>
 
@@ -48,7 +48,7 @@ class QMainWindow;
 
 namespace caf
 {
-class PdmUiFieldEditorHandle;
+class UiFieldEditorHandle;
 class PdmUiItem;
 class FieldHandle;
 
@@ -76,13 +76,13 @@ public:
 private:
     void configureAndUpdateUi( const QString& uiConfigName ) override;
 
-    static QWidget* focusWidget( PdmUiFieldEditorHandle* uiFieldEditorHandle );
+    static QWidget* focusWidget( UiFieldEditorHandle* uiFieldEditorHandle );
 
 private:
     QPointer<QToolBar> m_toolbar;
 
     std::vector<caf::FieldHandle*>          m_fields;
-    std::map<QString, PdmUiFieldEditorHandle*> m_fieldViews;
+    std::map<QString, UiFieldEditorHandle*> m_fieldViews;
 
     QList<QAction*> m_actions;
 };

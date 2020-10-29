@@ -52,7 +52,7 @@ class QWidget;
 
 namespace caf
 {
-class PdmUiFieldEditorHandle;
+class UiFieldEditorHandle;
 class PdmUiGroup;
 class PdmUiOrdering;
 
@@ -88,7 +88,7 @@ protected:
                                          int            itemColumnSpan );
 
     QMinimizePanel* findOrCreateGroupBox( QWidget* parent, PdmUiGroup* group, const QString& uiConfigName );
-    PdmUiFieldEditorHandle*
+    UiFieldEditorHandle*
         findOrCreateFieldEditor( QWidget* parent, FieldUiCapability* field, const QString& uiConfigName );
 
     static void ensureWidgetContainsEmptyGridLayout( QWidget* containerWidget, QMargins contentMargins = QMargins() );
@@ -107,7 +107,7 @@ private:
                                             std::set<QString>*             groupNames );
 
 private:
-    std::map<FieldHandle*, PdmUiFieldEditorHandle*> m_fieldViews;
+    std::map<FieldHandle*, UiFieldEditorHandle*> m_fieldViews;
     std::set<FieldHandle*> m_usedFields; ///< used temporarily to store the new(complete) set of used fields
     std::map<QString, QPointer<QMinimizePanel>> m_groupBoxes;
     std::map<QString, QPointer<QMinimizePanel>> m_newGroupBoxes; ///< used temporarily to store the new(complete) set of

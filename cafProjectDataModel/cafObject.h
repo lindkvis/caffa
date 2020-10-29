@@ -52,12 +52,12 @@ class QXmlStreamWriter;
 #include "cafObjectIoCapability.h"
 #include "cafObjectUiCapability.h"
 
-#include "cafInternalPdmUiFieldCapability.h"
+#include "cafInternalUiFieldCapability.h"
 #include "cafFieldHandle.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 
 #include "cafIconProvider.h"
-#include "cafPdmUiFieldSpecialization.h"
+#include "cafUiFieldSpecialization.h"
 
 namespace caf
 {

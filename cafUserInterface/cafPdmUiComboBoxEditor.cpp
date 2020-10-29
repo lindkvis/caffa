@@ -38,7 +38,7 @@
 
 #include "cafField.h"
 #include "cafObject.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 
 #include "cafFactory.h"
 
@@ -201,7 +201,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
     if ( !m_label.isNull() )
     {
-        PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+        UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
     }
 
     // Handle attributes

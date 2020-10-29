@@ -36,7 +36,7 @@
 
 #pragma once
 #include "cafUserInterface_export.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 #include "cafPdmUiWidgetObjectEditorHandle.h"
 
 #include <QAbstractItemModel>
@@ -47,7 +47,7 @@ class QTableView;
 
 namespace caf
 {
-class PdmUiFieldEditorHandle;
+class UiFieldEditorHandle;
 class PdmUiItem;
 class ObjectCollection;
 

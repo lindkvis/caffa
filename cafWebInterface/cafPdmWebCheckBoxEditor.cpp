@@ -41,7 +41,7 @@
 
 #include "cafField.h"
 #include "cafObject.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 
 #include "cafFactory.h"

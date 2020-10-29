@@ -37,7 +37,7 @@
 #pragma once
 #include "cafUserInterface_export.h"
 #include "cafPdmUiDateEditorAttribute.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 
 #include <QDateTimeEdit>
 #include <QLabel>
@@ -50,7 +50,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class cafUserInterface_EXPORT PdmUiDateEditor : public PdmUiFieldEditorHandle
+class cafUserInterface_EXPORT PdmUiDateEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

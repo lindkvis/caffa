@@ -28,7 +28,7 @@ class AppEnum;
 //==================================================================================================
 
 template <typename T>
-class PdmUiFieldSpecialization<PdmPointer<T>>
+class UiFieldSpecialization<PdmPointer<T>>
 {
 public:
     static QVariant convert( const PdmPointer<T>& value )
@@ -57,7 +57,7 @@ public:
 //==================================================================================================
 
 template <typename T>
-class PdmUiFieldSpecialization<std::list<T>>
+class UiFieldSpecialization<std::list<T>>
 {
 public:
     /// Convert the field value into a QVariant
@@ -108,7 +108,7 @@ public:
 //==================================================================================================
 
 template <typename T>
-class PdmUiFieldSpecialization<std::vector<T>>
+class UiFieldSpecialization<std::vector<T>>
 {
 public:
     /// Convert the field value into a QVariant
@@ -146,7 +146,7 @@ public:
 //==================================================================================================
 
 template <typename T>
-class PdmUiFieldSpecialization<caf::AppEnum<T>>
+class UiFieldSpecialization<caf::AppEnum<T>>
 {
 public:
     /// Convert the field value into a QVariant
@@ -195,7 +195,7 @@ public:
 //==================================================================================================
 
 template <>
-class PdmUiFieldSpecialization<caf::FilePath>
+class UiFieldSpecialization<caf::FilePath>
 {
 public:
     /// Convert the field value into a QVariant
