@@ -39,7 +39,7 @@
 #include "cafField.h"
 #include "cafObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 
 #include "cafFactory.h"
 
@@ -73,7 +73,7 @@ void PdmUiDoubleValueEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
     CAF_ASSERT( !m_lineEdit.isNull() );
 
-    PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 
     m_lineEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
 

@@ -36,7 +36,7 @@
 
 #pragma once
 #include "cafUserInterface_export.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 #include "cafPdmUiSliderEditorAttribute.h"
 
 #include <QGroupBox>
@@ -49,7 +49,7 @@
 
 namespace caf
 {
-class cafUserInterface_EXPORT PdmUiSliderEditor : public PdmUiFieldEditorHandle
+class cafUserInterface_EXPORT PdmUiSliderEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

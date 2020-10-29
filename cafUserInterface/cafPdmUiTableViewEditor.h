@@ -37,7 +37,7 @@
 #pragma once
 #include "cafUserInterface_export.h"
 #include "cafPdmDocument.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 #include "cafSelectionChangedReceiver.h"
 
 #include <QAbstractItemModel>
@@ -51,7 +51,7 @@ class QTableView;
 namespace caf
 {
 class PdmUiCheckBoxDelegate;
-class PdmUiFieldEditorHandle;
+class UiFieldEditorHandle;
 class PdmUiItem;
 class PdmUiTableViewDelegate;
 class PdmUiTableViewQModel;
@@ -112,7 +112,7 @@ public:
 ///
 //--------------------------------------------------------------------------------------------------
 
-class cafUserInterface_EXPORT PdmUiTableViewEditor : public PdmUiFieldEditorHandle, public SelectionChangedReceiver
+class cafUserInterface_EXPORT PdmUiTableViewEditor : public UiFieldEditorHandle, public SelectionChangedReceiver
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

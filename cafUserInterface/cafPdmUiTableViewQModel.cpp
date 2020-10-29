@@ -42,7 +42,7 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiDateEditor.h"
-#include "cafPdmUiFieldEditorHelper.h"
+#include "cafUiFieldEditorHelper.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTableRowEditor.h"
 #include "cafPdmUiTableView.h"
@@ -400,14 +400,14 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( ChildArrayFieldHandle* 
 
         {
             FieldUiCapability*   field       = dynamic_cast<FieldUiCapability*>( uiItem );
-            PdmUiFieldEditorHandle* fieldEditor = nullptr;
+            UiFieldEditorHandle* fieldEditor = nullptr;
 
             // Find or create FieldEditor
             auto it = m_fieldEditors.find( field->fieldHandle()->keyword() );
 
             if ( it == m_fieldEditors.end() )
             {
-                fieldEditor = PdmUiFieldEditorHelper::createFieldEditorForField( field, configName );
+                fieldEditor = UiFieldEditorHelper::createFieldEditorForField( field, configName );
 
                 if ( fieldEditor )
                 {
@@ -427,7 +427,7 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( ChildArrayFieldHandle* 
 
                 // TODO: Create/update is not required at this point, as UI is recreated in
                 // getEditorWidgetAndTransferOwnership()
-                // Can be moved, but a move will require changes in PdmUiFieldEditorHandle
+                // Can be moved, but a move will require changes in UiFieldEditorHandle
                 fieldEditor->createWidgets( nullptr );
                 fieldEditor->updateUi( configName );
 
@@ -444,7 +444,7 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( ChildArrayFieldHandle* 
     {
         if ( usedFieldKeywords.count( it->first ) == 0 )
         {
-            PdmUiFieldEditorHandle* fvh = it->second;
+            UiFieldEditorHandle* fvh = it->second;
             delete fvh;
             fvhToRemoveFromMap.push_back( it->first );
         }
@@ -504,7 +504,7 @@ FieldHandle* PdmUiTableViewQModel::getField( const QModelIndex& index ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiFieldEditorHandle* PdmUiTableViewQModel::getEditor( const QModelIndex& index )
+UiFieldEditorHandle* PdmUiTableViewQModel::getEditor( const QModelIndex& index )
 {
     FieldHandle* field = getField( index );
     if ( !field )
@@ -512,9 +512,9 @@ PdmUiFieldEditorHandle* PdmUiTableViewQModel::getEditor( const QModelIndex& inde
         return nullptr;
     }
 
-    PdmUiFieldEditorHandle* editor = nullptr;
+    UiFieldEditorHandle* editor = nullptr;
 
-    std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
+    std::map<QString, UiFieldEditorHandle*>::iterator it;
     it = m_fieldEditors.find( field->keyword() );
 
     if ( it != m_fieldEditors.end() )
@@ -537,7 +537,7 @@ PdmUiFieldEditorHandle* PdmUiTableViewQModel::getEditor( const QModelIndex& inde
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiTableViewQModel::getEditorWidgetAndTransferOwnership( QWidget* parent, const QModelIndex& index )
 {
-    PdmUiFieldEditorHandle* editor = getEditor( index );
+    UiFieldEditorHandle* editor = getEditor( index );
     if ( editor )
     {
         // Recreate editor widget, as the delegate takes ownership of the QWidget and destroys it when

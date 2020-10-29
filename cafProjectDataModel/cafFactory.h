@@ -84,7 +84,7 @@ namespace caf
 ///
 ///     You can also use the macro CAF_FACTORY_REGISTER(BaseType, TypeToCreate, KeyType, key)
 ///
-///     See also cafPdmUiFieldEditorHandle.h for an advanced example.
+///     See also cafUiFieldEditorHandle.h for an advanced example.
 ///
 ///     When you need an object:
 ///

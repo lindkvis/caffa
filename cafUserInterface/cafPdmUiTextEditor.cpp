@@ -39,7 +39,7 @@
 #include "cafField.h"
 #include "cafObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 
 #include <QIntValidator>
@@ -101,7 +101,7 @@ void PdmUiTextEditor::configureAndUpdateUi( const QString& uiConfigName )
     CAF_ASSERT( !m_textEdit.isNull() );
     CAF_ASSERT( !m_label.isNull() );
 
-    PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 
     m_textEdit->setReadOnly( uiField()->isUiReadOnly( uiConfigName ) );
     // m_textEdit->setEnabled(!field()->isUiReadOnly(uiConfigName)); // Neccesary ?

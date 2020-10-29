@@ -49,7 +49,7 @@ namespace caf
 {
 class ChildArrayFieldHandle;
 class ObjectHandle;
-class PdmUiFieldEditorHandle;
+class UiFieldEditorHandle;
 class PdmUiItem;
 class PdmUiTableRowEditor;
 class PdmUiTreeOrdering;
@@ -108,7 +108,7 @@ private:
 
     friend class PdmUiTableViewDelegate;
     QWidget*                getEditorWidgetAndTransferOwnership( QWidget* parent, const QModelIndex& index );
-    PdmUiFieldEditorHandle* getEditor( const QModelIndex& index );
+    UiFieldEditorHandle* getEditor( const QModelIndex& index );
 
     ChildArrayFieldHandle* childArrayFieldHandle() const;
 
@@ -118,7 +118,7 @@ private:
     ChildArrayFieldHandle*   m_pdmList;
     QString                     m_currentConfigName;
 
-    std::map<QString, PdmUiFieldEditorHandle*> m_fieldEditors;
+    std::map<QString, UiFieldEditorHandle*> m_fieldEditors;
     std::vector<int>                           m_modelColumnIndexToFieldIndex;
 
     std::vector<PdmUiTableRowEditor*> m_tableRowEditors;

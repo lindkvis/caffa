@@ -69,14 +69,14 @@ public:                                     \
 
 #define CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( EditorClassName )               \
     QString EditorClassName::uiEditorTypeName() { return #EditorClassName; } \
-    CAF_FACTORY_REGISTER( caf::PdmUiFieldEditorHandle, EditorClassName, QString, EditorClassName::uiEditorTypeName() )
+    CAF_FACTORY_REGISTER( caf::UiFieldEditorHandle, EditorClassName, QString, EditorClassName::uiEditorTypeName() )
 
 /// CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR registers what default editor to use with a field of a certain type
 /// Place this in the cpp file, preferably above the constructor
 
 #define CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( EditorClassName, TypeName )                                                  \
-    CAF_FACTORY_REGISTER( caf::PdmUiFieldEditorHandle, EditorClassName, QString, qStringTypeName( caf::Field<TypeName> ) ); \
-    CAF_FACTORY_REGISTER2( caf::PdmUiFieldEditorHandle,                                                                        \
+    CAF_FACTORY_REGISTER( caf::UiFieldEditorHandle, EditorClassName, QString, qStringTypeName( caf::Field<TypeName> ) ); \
+    CAF_FACTORY_REGISTER2( caf::UiFieldEditorHandle,                                                                        \
                            EditorClassName,                                                                                    \
                            QString,                                                                                            \
                            qStringTypeName( caf::ProxyValueField<TypeName> ) )
@@ -88,12 +88,12 @@ class FieldUiCapability;
 /// Abstract class to handle editors of Fields
 //==================================================================================================
 
-class cafPdmUiCore_EXPORT PdmUiFieldEditorHandle : public PdmUiEditorHandle
+class cafPdmUiCore_EXPORT UiFieldEditorHandle : public PdmUiEditorHandle
 {
     Q_OBJECT
 public:
-    PdmUiFieldEditorHandle();
-    ~PdmUiFieldEditorHandle() override;
+    UiFieldEditorHandle();
+    ~UiFieldEditorHandle() override;
 
     FieldUiCapability* uiField();
     void                  setUiField( FieldUiCapability* uiFieldHandle );

@@ -156,7 +156,7 @@ int caf::PdmUiTreeSelectionQModel::optionItemCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiTreeSelectionQModel::setOptions( caf::PdmUiFieldEditorHandle*         field,
+void caf::PdmUiTreeSelectionQModel::setOptions( caf::UiFieldEditorHandle*         field,
                                                 const QList<caf::PdmOptionItemInfo>& options )
 {
     m_uiFieldHandle = field;

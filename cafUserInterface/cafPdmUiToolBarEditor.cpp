@@ -41,8 +41,8 @@
 #include "cafObjectHandle.h"
 #include "cafObjectUiCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
-#include "cafPdmUiFieldEditorHandle.h"
-#include "cafPdmUiFieldEditorHelper.h"
+#include "cafUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHelper.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -130,10 +130,10 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     for ( FieldHandle* field : m_fields )
     {
-        PdmUiFieldEditorHandle* fieldEditor = nullptr;
+        UiFieldEditorHandle* fieldEditor = nullptr;
 
         // Find or create FieldEditor
-        std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
+        std::map<QString, UiFieldEditorHandle*>::iterator it;
         it = m_fieldViews.find( field->keyword() );
         if ( it == m_fieldViews.end() )
         {
@@ -146,12 +146,12 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
                 {
                     QString editorTypeName = caf::PdmUiToolButtonEditor::uiEditorTypeName();
 
-                    fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create( editorTypeName );
+                    fieldEditor = caf::Factory<UiFieldEditorHandle, QString>::instance()->create( editorTypeName );
                 }
                 else
                 {
                     fieldEditor =
-                        caf::PdmUiFieldEditorHelper::createFieldEditorForField( field->capability<FieldUiCapability>(),
+                        caf::UiFieldEditorHelper::createFieldEditorForField( field->capability<FieldUiCapability>(),
                                                                                 uiConfigName );
 
                     addSpace = true;
@@ -210,7 +210,7 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiToolBarEditor::focusWidget( PdmUiFieldEditorHandle* uiFieldEditorHandle )
+QWidget* PdmUiToolBarEditor::focusWidget( UiFieldEditorHandle* uiFieldEditorHandle )
 {
     // Some editors have a placeholder widget as parent of the main editor widget
     // This is the case for combo box widget to allow up/down arrow buttons associated with the combo box

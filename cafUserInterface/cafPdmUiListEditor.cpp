@@ -39,7 +39,7 @@
 #include "cafField.h"
 #include "cafObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 
 #include "cafFactory.h"
 
@@ -153,7 +153,7 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
     CAF_ASSERT( !m_label.isNull() );
     CAF_ASSERT( m_listView->selectionModel() );
 
-    PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 
     m_listView->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
     m_listView->setToolTip( uiField()->uiToolTip( uiConfigName ) );

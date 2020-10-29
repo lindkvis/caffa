@@ -40,7 +40,7 @@
 #include "cafField.h"
 #include "cafObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUniqueIdValidator.h"
 #include "cafSelectionManager.h"
@@ -90,7 +90,7 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
     if ( !m_label.isNull() )
     {
-        PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+        UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
     }
 
     if ( !m_lineEdit.isNull() )

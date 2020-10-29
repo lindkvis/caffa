@@ -97,7 +97,7 @@ protected:
     /// Override used to append actions to a context menu
     /// To use this method, enable custom context menu by
     /// m_myField.capability<FieldUiCapability>()->setUseCustomContextMenu(true);
-    friend class PdmUiFieldEditorHandle;
+    friend class UiFieldEditorHandle;
     virtual void defineCustomContextMenu( const caf::FieldHandle* fieldNeedingMenu,
                                           MenuInterface*             menu,
                                           QWidget*                   fieldEditorWidget )

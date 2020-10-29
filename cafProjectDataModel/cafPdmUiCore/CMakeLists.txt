@@ -12,8 +12,8 @@ set (PUBLIC_HEADERS
     cafPdmUiCore_export.h
 
     cafInternalUiFieldSpecializations.h
-    cafInternalPdmUiFieldCapability.h
-    cafInternalPdmUiFieldCapability.inl
+    cafInternalUiFieldCapability.h
+    cafInternalUiFieldCapability.inl
     cafInternalPdmUiCommandSystemInterface.h
 
     cafFontTools.h
@@ -25,9 +25,9 @@ set (PUBLIC_HEADERS
     cafQActionWrapper.h
     cafPdmUiEditorAttribute.h
     cafPdmUiEditorHandle.h
-    cafPdmUiFieldEditorHandle.h
+    cafUiFieldEditorHandle.h
     cafFieldUiCapability.h
-    cafPdmUiFieldSpecialization.h
+    cafUiFieldSpecialization.h
     cafPdmUiItem.h
     cafPdmUiModelChangeDetector.h
     cafPdmUiObjectEditorHandle.h
@@ -66,7 +66,7 @@ set( PROJECT_FILES
 
     cafQActionWrapper.cpp
     cafPdmUiEditorHandle.cpp
-    cafPdmUiFieldEditorHandle.cpp
+    cafUiFieldEditorHandle.cpp
     cafFieldUiCapability.cpp
     cafPdmUiItem.cpp
     cafPdmUiModelChangeDetector.cpp

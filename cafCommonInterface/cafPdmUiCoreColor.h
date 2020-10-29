@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldSpecialization.h"
+#include "cafUiFieldSpecialization.h"
 #include "cafPdmUiItem.h"
 #include "cafValueFieldSpecializations.h"
 
@@ -47,7 +47,7 @@
 namespace caf
 {
 template <>
-class PdmUiFieldSpecialization<QColor>
+class UiFieldSpecialization<QColor>
 {
 public:
     /// Convert the field value into a QVariant

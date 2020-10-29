@@ -45,7 +45,7 @@ class QString;
 namespace caf 
 {
 
-class PdmUiFieldEditorHandle;
+class UiFieldEditorHandle;
 class PdmUiItem;
 class PdmUiGroup;
 

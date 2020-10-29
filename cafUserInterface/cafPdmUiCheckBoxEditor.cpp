@@ -40,7 +40,7 @@
 
 #include "cafField.h"
 #include "cafObject.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 
 #include "cafFactory.h"
@@ -75,7 +75,7 @@ void PdmUiCheckBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
     }
     else
     {
-        PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+        UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
     }
 
     m_checkBox->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );

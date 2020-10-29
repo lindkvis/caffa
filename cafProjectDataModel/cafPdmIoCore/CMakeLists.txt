@@ -22,7 +22,7 @@ set( PUBLIC_HEADERS
 	cafInternalPdmStreamOperators.h
 	cafFieldIoCapabilitySpecializations.h
 	cafFieldIoCapabilitySpecializations.inl
-	cafInternalPdmIoFieldReaderWriter.h
+	cafInternalIoFieldReaderWriter.h
 
 	cafFieldIoCapability.h
 	cafObjectXmlCapability.h
@@ -44,7 +44,7 @@ set( PROJECT_FILES
 	cafInternalFieldIoHelper.cpp
 	cafInternalPdmFilePathStreamOperators.cpp
 	cafInternalPdmStreamOperators.cpp
-	cafInternalPdmIoFieldReaderWriter.cpp
+	cafInternalIoFieldReaderWriter.cpp
 
 	cafFieldIoCapability.cpp
 	

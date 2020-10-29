@@ -91,4 +91,4 @@ void AddUiCapabilityToField( FieldType* field )
 
 } // End of namespace caf
 
-#include "cafInternalPdmUiFieldCapability.inl"
+#include "cafInternalUiFieldCapability.inl"

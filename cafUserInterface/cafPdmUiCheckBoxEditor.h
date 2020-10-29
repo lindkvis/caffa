@@ -36,7 +36,7 @@
 #pragma once
 #include "cafUserInterface_export.h"
 
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiFieldEditorHandle.h"
 
 #include <QCheckBox>
 #include <QLabel>
@@ -58,7 +58,7 @@ public:
     bool m_useNativeCheckBoxLabel;
 };
 
-class cafUserInterface_EXPORT PdmUiCheckBoxEditor : public PdmUiFieldEditorHandle
+class cafUserInterface_EXPORT PdmUiCheckBoxEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

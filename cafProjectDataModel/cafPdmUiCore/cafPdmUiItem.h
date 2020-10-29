@@ -37,7 +37,7 @@
 #pragma once
 
 #include "cafIconProvider.h"
-#include "cafPdmUiFieldSpecialization.h"
+#include "cafUiFieldSpecialization.h"
 
 #include <QApplication>
 #include <QColor>
@@ -199,7 +199,7 @@ bool PdmOptionItemInfo::findValues( const QList<PdmOptionItemInfo>& optionList,
                 std::list<std::pair<QVariant, unsigned int>>::iterator it;
                 for ( it = optionVariantAndIndexPairs.begin(); it != optionVariantAndIndexPairs.end(); ++it )
                 {
-                    if ( PdmUiFieldSpecialization<T>::isDataElementEqual( valuesSelectedInField[i], it->first ) )
+                    if ( UiFieldSpecialization<T>::isDataElementEqual( valuesSelectedInField[i], it->first ) )
                     {
                         foundIndexes.push_back( it->second );
 
@@ -220,7 +220,7 @@ bool PdmOptionItemInfo::findValues( const QList<PdmOptionItemInfo>& optionList,
     {
         for ( unsigned int opIdx = 0; opIdx < static_cast<unsigned int>( optionList.size() ); ++opIdx )
         {
-            if ( PdmUiFieldSpecialization<T>::isDataElementEqual( optionList[opIdx].value(), fieldValue ) )
+            if ( UiFieldSpecialization<T>::isDataElementEqual( optionList[opIdx].value(), fieldValue ) )
             {
                 foundIndexes.push_back( opIdx );
                 break;
