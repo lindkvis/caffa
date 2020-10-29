@@ -57,7 +57,7 @@ CAF_CMD_SOURCE_INIT( CmdDeleteItemFeature, "PdmListField_DeleteItem" );
 //--------------------------------------------------------------------------------------------------
 CmdExecuteCommand* CmdDeleteItemFeature::createExecuteCommand()
 {
-    std::vector<PdmUiItem*> items;
+    std::vector<UiItem*> items;
     SelectionManager::instance()->selectedItems( items, SelectionManager::FIRST_LEVEL );
 
     caf::ChildArrayFieldHandle* childArrayFieldHandle =

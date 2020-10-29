@@ -32,7 +32,7 @@ protected:
 
     virtual void defineEditorAttribute(const caf::FieldHandle* field,
                                        QString                    uiConfigName,
-                                       caf::PdmUiEditorAttribute* attribute) override;
+                                       caf::UiEditorAttribute* attribute) override;
 
 private:
     QStringList m_historyItems;

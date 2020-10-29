@@ -53,7 +53,7 @@ namespace Wt
 namespace caf
 {
 
-class PdmUiItem;
+class UiItem;
 class PdmWebTreeViewEditor;
 class PdmUiDragDropInterface;
 class ObjectHandle;
@@ -73,20 +73,20 @@ public:
     void        enableAppendOfClassNameToUiItemText(bool enable);
 
     void        setUiConfigurationName(QString uiConfigName);
-    void        setPdmItem(caf::PdmUiItem* object);
+    void        setPdmItem(caf::UiItem* object);
 
     Wt::WTreeView*  treeView();
 
-    void        selectedUiItems(std::vector<PdmUiItem*>& objects); // TODO: rename
-    void        selectAsCurrentItem(const PdmUiItem* uiItem);
-    void        selectItems(const std::vector<const PdmUiItem*>& uiItems);
-    void        setExpanded(const PdmUiItem* uiItem, bool doExpand) const ;
+    void        selectedUiItems(std::vector<UiItem*>& objects); // TODO: rename
+    void        selectAsCurrentItem(const UiItem* uiItem);
+    void        selectItems(const std::vector<const UiItem*>& uiItems);
+    void        setExpanded(const UiItem* uiItem, bool doExpand) const ;
 
     // QModelIndex access
     // Use this translation only when it is inconvenient to traverse 
     // the Pdm model directly.
-    PdmUiItem*  uiItemFromModelIndex(const Wt::WModelIndex& index) const;
-    Wt::WModelIndex findModelIndex(const PdmUiItem* object) const;
+    UiItem*  uiItemFromModelIndex(const Wt::WModelIndex& index) const;
+    Wt::WModelIndex findModelIndex(const UiItem* object) const;
 
     //void        setDragDropInterface(PdmUiDragDropInterface* dragDropInterface);
 

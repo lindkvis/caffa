@@ -68,7 +68,7 @@ Wt::WWidget* PdmWebTreeEditorHandle::widget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeEditorHandle::setPdmItemRoot(PdmUiItem* root)
+void PdmWebTreeEditorHandle::setPdmItemRoot(UiItem* root)
 {
     this->bindToPdmItem(root);
 }
@@ -76,7 +76,7 @@ void PdmWebTreeEditorHandle::setPdmItemRoot(PdmUiItem* root)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiItem* PdmWebTreeEditorHandle::pdmItemRoot()
+UiItem* PdmWebTreeEditorHandle::pdmItemRoot()
 {
     return this->pdmItem();
 }

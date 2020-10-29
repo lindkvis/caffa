@@ -37,7 +37,7 @@
 
 #pragma once
 
-#include "cafPdmUiComboBoxEditorAttribute.h"
+#include "cafUiComboBoxEditorAttribute.h"
 #include "cafPdmWebFieldEditorHandle.h"
 
 #include <Wt/Core/observing_ptr.hpp>

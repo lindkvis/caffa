@@ -40,7 +40,7 @@
 #include "cafObjectHandle.h"
 #include "cafObjectUiCapability.h"
 #include "cafObjectXmlCapability.h"
-#include "cafPdmUiOrdering.h"
+#include "cafUiOrdering.h"
 #include "cafPdmWebComboBoxEditor.h"
 #include "cafPdmWebFieldEditorHandle.h"
 
@@ -79,7 +79,7 @@ void caf::PdmWebFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingI
         existingWidgets.push_back( std::move( parentLayout->removeWidget( widget ) ) );
     } );
 
-    for ( PdmUiItem* item : uiOrdering.uiItems() )
+    for ( UiItem* item : uiOrdering.uiItems() )
     {
         if ( item->isUiGroup() )
         {
@@ -98,7 +98,7 @@ void caf::PdmWebFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingI
 
     for ( int currentRowIndex = 0; currentRowIndex < (int)uiOrdering.uiItems().size(); ++currentRowIndex )
     {
-        PdmUiItem* currentItem = uiOrdering.uiItems()[currentRowIndex];
+        UiItem* currentItem = uiOrdering.uiItems()[currentRowIndex];
 
         if ( currentItem->isUiGroup() )
         {
@@ -120,13 +120,13 @@ void caf::PdmWebFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingI
                 if ( !fieldEditorWidget ) continue;
 
                 auto                        fieldLabelWidget = fieldEditor->findOrCreateLabelWidget( existingWidgets );
-                PdmUiItemInfo::LabelPosType labelPos         = PdmUiItemInfo::HIDDEN;
+                UiItemInfo::LabelPosType labelPos         = UiItemInfo::HIDDEN;
 
                 if ( fieldLabelWidget )
                 {
                     labelPos = field->uiLabelPosition( uiConfigName );
 
-                    CAF_ASSERT( labelPos == PdmUiItemInfo::LEFT );
+                    CAF_ASSERT( labelPos == UiItemInfo::LEFT );
 
                     Wt::WString labelString = fieldLabelWidget->text();
                     parentLayout->addWidget( std::move( fieldLabelWidget ),
@@ -156,7 +156,7 @@ void caf::PdmWebFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingI
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<Wt::WPanel>
     caf::PdmWebFormLayoutObjectEditor::recursivelyCreateGroup( std::list<std::unique_ptr<Wt::WWidget>>& existingWidgets,
-                                                               PdmUiItem*                               currentItem,
+                                                               UiItem*                               currentItem,
                                                                const QString&                           uiConfigName )
 {
     PdmUiGroup* group = static_cast<PdmUiGroup*>( currentItem );

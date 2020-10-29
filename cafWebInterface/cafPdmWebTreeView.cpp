@@ -84,7 +84,7 @@ void PdmWebTreeView::setUiConfigurationName( QString uiConfigName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeView::setPdmItem( caf::PdmUiItem* object )
+void PdmWebTreeView::setPdmItem( caf::UiItem* object )
 {
     m_treeViewEditor->setPdmItemRoot( object );
     m_treeViewEditor->updateUi( m_uiConfigName );
@@ -101,7 +101,7 @@ Wt::WTreeView* PdmWebTreeView::treeView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeView::selectedUiItems( std::vector<PdmUiItem*>& objects )
+void PdmWebTreeView::selectedUiItems( std::vector<UiItem*>& objects )
 {
     m_treeViewEditor->selectedUiItems( objects );
 }
@@ -113,7 +113,7 @@ void PdmWebTreeView::slotOnSelectionChanged()
 {
     m_selectionChanged.emit();
 
-    std::vector<PdmUiItem*> objects;
+    std::vector<UiItem*> objects;
     m_treeViewEditor->selectedUiItems( objects );
     ObjectHandle* objHandle = nullptr;
 
@@ -149,7 +149,7 @@ void PdmWebTreeView::enableSelectionManagerUpdating( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeView::selectAsCurrentItem( const PdmUiItem* uiItem )
+void PdmWebTreeView::selectAsCurrentItem( const UiItem* uiItem )
 {
     m_treeViewEditor->selectAsCurrentItem( uiItem );
 }
@@ -157,7 +157,7 @@ void PdmWebTreeView::selectAsCurrentItem( const PdmUiItem* uiItem )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeView::selectItems( const std::vector<const PdmUiItem*>& uiItems )
+void PdmWebTreeView::selectItems( const std::vector<const UiItem*>& uiItems )
 {
     m_treeViewEditor->selectItems( uiItems );
 }
@@ -165,7 +165,7 @@ void PdmWebTreeView::selectItems( const std::vector<const PdmUiItem*>& uiItems )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeView::setExpanded( const PdmUiItem* uiItem, bool doExpand ) const
+void PdmWebTreeView::setExpanded( const UiItem* uiItem, bool doExpand ) const
 {
     m_treeViewEditor->setExpanded( uiItem, doExpand );
 }
@@ -173,7 +173,7 @@ void PdmWebTreeView::setExpanded( const PdmUiItem* uiItem, bool doExpand ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiItem* PdmWebTreeView::uiItemFromModelIndex( const Wt::WModelIndex& index ) const
+UiItem* PdmWebTreeView::uiItemFromModelIndex( const Wt::WModelIndex& index ) const
 {
     return m_treeViewEditor->uiItemFromModelIndex( index );
 }
@@ -181,7 +181,7 @@ PdmUiItem* PdmWebTreeView::uiItemFromModelIndex( const Wt::WModelIndex& index ) 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Wt::WModelIndex PdmWebTreeView::findModelIndex( const PdmUiItem* object ) const
+Wt::WModelIndex PdmWebTreeView::findModelIndex( const UiItem* object ) const
 {
     return m_treeViewEditor->findModelIndex( object );
 }

@@ -1,7 +1,7 @@
 
 #include "TamComboBox.h"
 
-#include "cafPdmUiComboBoxEditor.h"
+#include "cafUiComboBoxEditor.h"
 
 CAF_PDM_SOURCE_INIT(TamComboBox, "TamComboBox");
 
@@ -62,7 +62,7 @@ void TamComboBox::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
 //--------------------------------------------------------------------------------------------------
 void TamComboBox::defineEditorAttribute(const caf::FieldHandle* field,
                                         QString                    uiConfigName,
-                                        caf::PdmUiEditorAttribute* attribute)
+                                        caf::UiEditorAttribute* attribute)
 {
     auto attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>(attribute);
     if (attr)

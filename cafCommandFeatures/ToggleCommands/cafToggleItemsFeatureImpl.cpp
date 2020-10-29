@@ -37,12 +37,12 @@
 #include "cafToggleItemsFeatureImpl.h"
 #include "cafFieldUiCapability.h"
 #include "cafObjectUiCapability.h"
-#include "cafPdmUiItem.h"
-#include "cafPdmUiTreeOrdering.h"
+#include "cafUiItem.h"
+#include "cafUiTreeOrdering.h"
 #ifdef WEB_DEPLOYMENT
 #include "cafPdmWebTreeView.h"
 #else
-#include "cafPdmUiTreeView.h"
+#include "cafUiTreeView.h"
 #endif
 #include "cafSelectionManager.h"
 
@@ -63,7 +63,7 @@ using TreeView = caf::PdmUiTreeView;
 //--------------------------------------------------------------------------------------------------
 bool ToggleItemsFeatureImpl::isToggleCommandsAvailable()
 {
-    std::vector<caf::PdmUiItem*> selectedItems;
+    std::vector<caf::UiItem*> selectedItems;
     caf::SelectionManager::instance()->selectedItems( selectedItems );
 
     if ( selectedItems.size() == 1 )
@@ -109,7 +109,7 @@ bool ToggleItemsFeatureImpl::isToggleCommandsAvailable()
 //--------------------------------------------------------------------------------------------------
 bool ToggleItemsFeatureImpl::isToggleCommandsForSubItems()
 {
-    std::vector<caf::PdmUiItem*> selectedItems;
+    std::vector<caf::UiItem*> selectedItems;
     caf::SelectionManager::instance()->selectedItems( selectedItems );
     if ( isToggleCommandsAvailable() && selectedItems.size() == 1 )
     {
@@ -123,7 +123,7 @@ bool ToggleItemsFeatureImpl::isToggleCommandsForSubItems()
 //--------------------------------------------------------------------------------------------------
 void ToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggleType state )
 {
-    std::vector<caf::PdmUiItem*> selectedItems;
+    std::vector<caf::UiItem*> selectedItems;
     caf::SelectionManager::instance()->selectedItems( selectedItems );
     if ( state != TOGGLE && selectedItems.size() == 1 )
     {
@@ -179,7 +179,7 @@ void ToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggleTy
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TreeView* ToggleItemsFeatureImpl::findTreeView( const caf::PdmUiItem* uiItem )
+TreeView* ToggleItemsFeatureImpl::findTreeView( const caf::UiItem* uiItem )
 {
     auto customActiveTreeView = dynamic_cast<TreeView*>( CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
 
@@ -189,7 +189,7 @@ TreeView* ToggleItemsFeatureImpl::findTreeView( const caf::PdmUiItem* uiItem )
 //--------------------------------------------------------------------------------------------------
 /// Finds the tree item in either the 3D main window or plot main window project tree view
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiTreeOrdering* ToggleItemsFeatureImpl::findTreeItemFromSelectedUiItem( const caf::PdmUiItem* uiItem )
+caf::PdmUiTreeOrdering* ToggleItemsFeatureImpl::findTreeItemFromSelectedUiItem( const caf::UiItem* uiItem )
 {
     TreeView* pdmUiTreeView = findTreeView( uiItem );
 

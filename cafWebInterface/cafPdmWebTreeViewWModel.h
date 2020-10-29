@@ -49,7 +49,7 @@ namespace caf
 {
 
 class ObjectHandle;
-class PdmUiItem;
+class UiItem;
 class PdmWebTreeViewEditor;
 class PdmUiTreeOrdering;
 class PdmUiDragDropInterface;
@@ -64,16 +64,16 @@ class PdmWebTreeViewWModel : public Wt::WAbstractItemModel
 public:
     explicit PdmWebTreeViewWModel(PdmWebTreeViewEditor* treeViewEditor);
 
-    void                    setPdmItemRoot(PdmUiItem* rootItem);
-    void                    updateSubTree(PdmUiItem* subTreeRoot);
+    void                    setPdmItemRoot(UiItem* rootItem);
+    void                    updateSubTree(UiItem* subTreeRoot);
 
     void                    setColumnHeaders(const QStringList& columnHeaders);
     void                    setUiConfigName(const QString& uiConfigName) { m_uiConfigName = uiConfigName; }
  
     // These are supposed to be used from the Editor only, and to implement selection support.
  
-    PdmUiItem*              uiItemFromModelIndex(const Wt::WModelIndex& index) const;
-    Wt::WModelIndex         findModelIndex(const PdmUiItem* object) const;
+    UiItem*              uiItemFromModelIndex(const Wt::WModelIndex& index) const;
+    Wt::WModelIndex         findModelIndex(const UiItem* object) const;
 
     void                    setDragDropInterface(PdmUiDragDropInterface* dragDropInterface);
     PdmUiDragDropInterface* dragDropInterface();
@@ -84,7 +84,7 @@ private:
     void                    updateSubTreeRecursive(const Wt::WModelIndex& uiSubTreeRootModelIdx, PdmUiTreeOrdering* uiModelSubTreeRoot, PdmUiTreeOrdering* updatedPdmSubTreeRoot);
 
     PdmUiTreeOrdering*      treeItemFromIndex(const Wt::WModelIndex& index) const;
-    Wt::WModelIndex         findModelIndexRecursive(const Wt::WModelIndex& currentIndex, const PdmUiItem * object) const;
+    Wt::WModelIndex         findModelIndexRecursive(const Wt::WModelIndex& currentIndex, const UiItem * object) const;
 
     void                    resetTree(PdmUiTreeOrdering* root);
     void                    emitDataChanged(const Wt::WModelIndex& index);

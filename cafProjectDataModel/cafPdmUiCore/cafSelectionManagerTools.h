@@ -49,7 +49,7 @@ T firstAncestorOfTypeFromSelectedObject()
 {
     T objToFind = nullptr;
 
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
+    caf::UiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
 
     caf::ObjectHandle* objHandle = dynamic_cast<caf::ObjectHandle*>( pdmUiItem );
     if ( objHandle )

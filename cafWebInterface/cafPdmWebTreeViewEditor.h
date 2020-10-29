@@ -57,7 +57,7 @@ namespace caf
 
 class ChildArrayFieldHandle;
 class PdmUiDragDropInterface;
-class PdmUiItem;
+class UiItem;
 class PdmWebTreeViewEditor;
 class PdmWebTreeViewWModel;
 class PdmUiTreeViewWidget;
@@ -79,13 +79,13 @@ public:
 
     Wt::WTreeView*  treeView();
 
-    void        selectAsCurrentItem(const PdmUiItem* uiItem);
-    void        selectItems(std::vector<const PdmUiItem*> uiItems);
-    void        selectedUiItems(std::vector<PdmUiItem*>& objects);
-    void        setExpanded(const PdmUiItem* uiItem, bool doExpand) const;
+    void        selectAsCurrentItem(const UiItem* uiItem);
+    void        selectItems(std::vector<const UiItem*> uiItems);
+    void        selectedUiItems(std::vector<UiItem*>& objects);
+    void        setExpanded(const UiItem* uiItem, bool doExpand) const;
 
-    PdmUiItem*  uiItemFromModelIndex(const Wt::WModelIndex& index) const;
-    Wt::WModelIndex findModelIndex(const PdmUiItem* object) const;
+    UiItem*  uiItemFromModelIndex(const Wt::WModelIndex& index) const;
+    Wt::WModelIndex findModelIndex(const UiItem* object) const;
 
     Wt::WWidget* createWidget() override;
 
@@ -95,7 +95,7 @@ public:
 
 protected:
     void        configureAndUpdateUi(const QString& uiConfigName) override;
-    void        updateMySubTree(PdmUiItem* uiItem) override;
+    void        updateMySubTree(UiItem* uiItem) override;
     void        updateContextMenuSignals();
 
     void        slotCustomMenuRequested(const Wt::WModelIndex& item, const Wt::WMouseEvent& event);

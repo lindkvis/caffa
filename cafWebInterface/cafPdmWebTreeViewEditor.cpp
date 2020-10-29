@@ -40,11 +40,11 @@
 #include "cafChildArrayField.h"
 #include "cafField.h"
 #include "cafObject.h"
-#include "cafPdmUiCommandSystemProxy.h"
-#include "cafPdmUiDragDropInterface.h"
-#include "cafPdmUiEditorHandle.h"
-#include "cafPdmUiTreeOrdering.h"
-#include "cafPdmUiTreeViewAttribute.h"
+#include "cafUiCommandSystemProxy.h"
+#include "cafUiDragDropInterface.h"
+#include "cafUiEditorHandle.h"
+#include "cafUiTreeOrdering.h"
+#include "cafUiTreeViewAttribute.h"
 #include "cafPdmWebTreeViewWModel.h"
 #include "cafSelectionManager.h"
 
@@ -140,7 +140,7 @@ void PdmWebTreeViewEditor::configureAndUpdateUi( const QString& uiConfigName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewEditor::updateMySubTree( PdmUiItem* uiItem )
+void PdmWebTreeViewEditor::updateMySubTree( UiItem* uiItem )
 {
     if ( m_treeViewModel )
     {
@@ -159,7 +159,7 @@ Wt::WTreeView* PdmWebTreeViewEditor::treeView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewEditor::selectedUiItems( std::vector<PdmUiItem*>& objects )
+void PdmWebTreeViewEditor::selectedUiItems( std::vector<UiItem*>& objects )
 {
     if ( !this->treeView() ) return;
 
@@ -167,7 +167,7 @@ void PdmWebTreeViewEditor::selectedUiItems( std::vector<PdmUiItem*>& objects )
 
     for ( auto idx : idxList )
     {
-        caf::PdmUiItem* item = this->m_treeViewModel->uiItemFromModelIndex( idx );
+        caf::UiItem* item = this->m_treeViewModel->uiItemFromModelIndex( idx );
         if ( item )
         {
             objects.push_back( item );
@@ -225,7 +225,7 @@ void PdmWebTreeViewEditor::slotCustomMenuRequested( const Wt::WModelIndex& item,
         }
 
         m_popup = std::make_unique<WPopupMenuWrapper>();
-        caf::PdmUiCommandSystemProxy::instance()->populateMenuWithDefaultCommands( "PdmUiTreeViewEditor", m_popup.get() );
+        caf::UiCommandSystemProxy::instance()->populateMenuWithDefaultCommands( "PdmUiTreeViewEditor", m_popup.get() );
         m_popup->menu()->aboutToHide().connect( std::bind( &PdmWebTreeViewEditor::slotOnActionSelection, this ) );
 
         m_popup->refreshEnabledState();
@@ -241,7 +241,7 @@ void PdmWebTreeViewEditor::slotCustomMenuRequested( const Wt::WModelIndex& item,
 //--------------------------------------------------------------------------------------------------
 ChildArrayFieldHandle* PdmWebTreeViewEditor::currentChildArrayFieldHandle()
 {
-    PdmUiItem* currentSelectedItem = SelectionManager::instance()->selectedItem( SelectionManager::FIRST_LEVEL );
+    UiItem* currentSelectedItem = SelectionManager::instance()->selectedItem( SelectionManager::FIRST_LEVEL );
 
     FieldUiCapability* uiFieldHandle = dynamic_cast<FieldUiCapability*>( currentSelectedItem );
     if ( uiFieldHandle )
@@ -271,7 +271,7 @@ ChildArrayFieldHandle* PdmWebTreeViewEditor::currentChildArrayFieldHandle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewEditor::selectAsCurrentItem( const PdmUiItem* uiItem )
+void PdmWebTreeViewEditor::selectAsCurrentItem( const UiItem* uiItem )
 {
     Wt::WModelIndex index = m_treeViewModel->findModelIndex( uiItem );
     m_treeView->clearSelection();
@@ -281,7 +281,7 @@ void PdmWebTreeViewEditor::selectAsCurrentItem( const PdmUiItem* uiItem )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewEditor::selectItems( std::vector<const PdmUiItem*> uiItems )
+void PdmWebTreeViewEditor::selectItems( std::vector<const UiItem*> uiItems )
 {
     m_treeView->clearSelection();
 
@@ -292,7 +292,7 @@ void PdmWebTreeViewEditor::selectItems( std::vector<const PdmUiItem*> uiItems )
 
     Wt::WModelIndexSet selectedIndices;
 
-    for ( const PdmUiItem* uiItem : uiItems )
+    for ( const UiItem* uiItem : uiItems )
     {
         Wt::WModelIndex itemIndex = findModelIndex( uiItem );
         selectedIndices.insert( itemIndex );
@@ -325,7 +325,7 @@ void PdmWebTreeViewEditor::slotOnActionSelection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewEditor::setExpanded( const PdmUiItem* uiItem, bool doExpand ) const
+void PdmWebTreeViewEditor::setExpanded( const UiItem* uiItem, bool doExpand ) const
 {
     Wt::WModelIndex index = m_treeViewModel->findModelIndex( uiItem );
     m_treeView->setExpanded( index, doExpand );
@@ -339,7 +339,7 @@ void PdmWebTreeViewEditor::setExpanded( const PdmUiItem* uiItem, bool doExpand )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiItem* PdmWebTreeViewEditor::uiItemFromModelIndex( const Wt::WModelIndex& index ) const
+UiItem* PdmWebTreeViewEditor::uiItemFromModelIndex( const Wt::WModelIndex& index ) const
 {
     return m_treeViewModel->uiItemFromModelIndex( index );
 }
@@ -347,7 +347,7 @@ PdmUiItem* PdmWebTreeViewEditor::uiItemFromModelIndex( const Wt::WModelIndex& in
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Wt::WModelIndex PdmWebTreeViewEditor::findModelIndex( const PdmUiItem* object ) const
+Wt::WModelIndex PdmWebTreeViewEditor::findModelIndex( const UiItem* object ) const
 {
     return m_treeViewModel->findModelIndex( object );
 }
@@ -389,7 +389,7 @@ void PdmWebTreeViewEditor::updateSelectionManager()
 {
     if ( m_updateSelectionManager )
     {
-        std::vector<PdmUiItem*> items;
+        std::vector<UiItem*> items;
         this->selectedUiItems( items );
         SelectionManager::instance()->setSelectedItems( items );
     }

@@ -24,83 +24,83 @@ set( PROJECT_FILES
     cafUserInterface_export.h
 
     # field editors
-    cafPdmUiCheckBoxDelegate.cpp
-    cafPdmUiCheckBoxDelegate.h
-    cafPdmUiCheckBoxEditor.cpp
-    cafPdmUiCheckBoxEditor.h
-    cafPdmUiCheckBoxTristateEditor.cpp
-    cafPdmUiCheckBoxTristateEditor.h
-	cafPdmUiColorEditor.cpp
-    cafPdmUiColorEditor.h
-	cafPdmUiComboBoxEditor.cpp
-    cafPdmUiComboBoxEditor.h
-	cafPdmUiDateEditor.cpp
-    cafPdmUiDateEditor.h
-	cafPdmUiTimeEditor.cpp
-    cafPdmUiTimeEditor.h   
-    cafPdmUiDoubleSliderEditor.cpp
-    cafPdmUiDoubleSliderEditor.h
-	cafPdmUiFilePathEditor.cpp
-    cafPdmUiFilePathEditor.h
-    cafPdmUiLineEditor.cpp
-    cafPdmUiLineEditor.h
-    cafPdmUiListEditor.cpp
-    cafPdmUiListEditor.h
-    cafPdmUiPushButtonEditor.cpp
-    cafPdmUiPushButtonEditor.h
-    cafPdmUiSliderEditor.cpp
-    cafPdmUiSliderEditor.h
-    cafPdmUiTextEditor.cpp
-    cafPdmUiTextEditor.h
-    cafPdmUiToolBarEditor.cpp
-    cafPdmUiToolBarEditor.h
-    cafPdmUiToolButtonEditor.cpp
-    cafPdmUiToolButtonEditor.h
-    cafPdmUiTreeSelectionEditor.h
-    cafPdmUiTreeSelectionEditor.cpp
-    cafPdmUiTreeSelectionQModel.h
-    cafPdmUiTreeSelectionQModel.cpp
+    cafUiCheckBoxDelegate.cpp
+    cafUiCheckBoxDelegate.h
+    cafUiCheckBoxEditor.cpp
+    cafUiCheckBoxEditor.h
+    cafUiCheckBoxTristateEditor.cpp
+    cafUiCheckBoxTristateEditor.h
+	cafUiColorEditor.cpp
+    cafUiColorEditor.h
+	cafUiComboBoxEditor.cpp
+    cafUiComboBoxEditor.h
+	cafUiDateEditor.cpp
+    cafUiDateEditor.h
+	cafUiTimeEditor.cpp
+    cafUiTimeEditor.h   
+    cafUiDoubleSliderEditor.cpp
+    cafUiDoubleSliderEditor.h
+	cafUiFilePathEditor.cpp
+    cafUiFilePathEditor.h
+    cafUiLineEditor.cpp
+    cafUiLineEditor.h
+    cafUiListEditor.cpp
+    cafUiListEditor.h
+    cafUiPushButtonEditor.cpp
+    cafUiPushButtonEditor.h
+    cafUiSliderEditor.cpp
+    cafUiSliderEditor.h
+    cafUiTextEditor.cpp
+    cafUiTextEditor.h
+    cafUiToolBarEditor.cpp
+    cafUiToolBarEditor.h
+    cafUiToolButtonEditor.cpp
+    cafUiToolButtonEditor.h
+    cafUiTreeSelectionEditor.h
+    cafUiTreeSelectionEditor.cpp
+    cafUiTreeSelectionQModel.h
+    cafUiTreeSelectionQModel.cpp
     cafUiFieldEditorHelper.h
     cafUiFieldEditorHelper.cpp
-    cafPdmUiLabelEditor.h
-    cafPdmUiLabelEditor.cpp
+    cafUiLabelEditor.h
+    cafUiLabelEditor.cpp
 	
 
     # object editors
-    cafPdmUiDefaultObjectEditor.cpp
-    cafPdmUiDefaultObjectEditor.h
-    cafPdmUiListView.cpp
-    cafPdmUiListView.h
-    cafPdmUiListViewEditor.cpp
-    cafPdmUiListViewEditor.h
-    cafPdmUiTableRowEditor.cpp
-    cafPdmUiTableRowEditor.h
-    cafPdmUiTableView.cpp
-    cafPdmUiTableView.h
-    cafPdmUiTableViewDelegate.cpp
-    cafPdmUiTableViewDelegate.h
-    cafPdmUiTableViewEditor.cpp
-    cafPdmUiTableViewEditor.h
-    cafPdmUiTableViewQModel.cpp
-    cafPdmUiTableViewQModel.h
-    cafPdmUiTreeEditorHandle.cpp
-    cafPdmUiTreeEditorHandle.h
-    cafPdmUiTreeItemEditor.cpp
-    cafPdmUiTreeItemEditor.h
-    cafPdmUiTreeView.cpp
-    cafPdmUiTreeView.h
-    cafPdmUiTreeViewEditor.cpp
-    cafPdmUiTreeViewEditor.h
-    cafPdmUiTreeViewQModel.cpp
-    cafPdmUiTreeViewQModel.h
-    cafPdmUiPropertyView.cpp
-    cafPdmUiPropertyView.h
-    cafPdmUiPropertyViewDialog.cpp
-    cafPdmUiPropertyViewDialog.h
-    cafPdmUiFormLayoutObjectEditor.cpp
-    cafPdmUiFormLayoutObjectEditor.h
-    cafPdmUiDoubleValueEditor.cpp
-    cafPdmUiDoubleValueEditor.h
+    cafUiDefaultObjectEditor.cpp
+    cafUiDefaultObjectEditor.h
+    cafUiListView.cpp
+    cafUiListView.h
+    cafUiListViewEditor.cpp
+    cafUiListViewEditor.h
+    cafUiTableRowEditor.cpp
+    cafUiTableRowEditor.h
+    cafUiTableView.cpp
+    cafUiTableView.h
+    cafUiTableViewDelegate.cpp
+    cafUiTableViewDelegate.h
+    cafUiTableViewEditor.cpp
+    cafUiTableViewEditor.h
+    cafUiTableViewQModel.cpp
+    cafUiTableViewQModel.h
+    cafUiTreeEditorHandle.cpp
+    cafUiTreeEditorHandle.h
+    cafUiTreeItemEditor.cpp
+    cafUiTreeItemEditor.h
+    cafUiTreeView.cpp
+    cafUiTreeView.h
+    cafUiTreeViewEditor.cpp
+    cafUiTreeViewEditor.h
+    cafUiTreeViewQModel.cpp
+    cafUiTreeViewQModel.h
+    cafUiPropertyView.cpp
+    cafUiPropertyView.h
+    cafUiPropertyViewDialog.cpp
+    cafUiPropertyViewDialog.h
+    cafUiFormLayoutObjectEditor.cpp
+    cafUiFormLayoutObjectEditor.h
+    cafUiDoubleValueEditor.cpp
+    cafUiDoubleValueEditor.h
 
 
     # div
@@ -121,10 +121,10 @@ set( PROJECT_FILES
     cafPdmDoubleStringValidator.h
     cafPdmDoubleStringValidator.cpp
     cafPickEventHandler.h
-    cafPdmUiPickableLineEditor.h
-    cafPdmUiPickableLineEditor.cpp
-    cafPdmUiTabbedPropertyViewDialog.h
-    cafPdmUiTabbedPropertyViewDialog.cpp
+    cafUiPickableLineEditor.h
+    cafUiPickableLineEditor.cpp
+    cafUiTabbedPropertyViewDialog.h
+    cafUiTabbedPropertyViewDialog.cpp
 )
 
 add_library( ${PROJECT_NAME}

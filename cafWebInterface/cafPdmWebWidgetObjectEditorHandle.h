@@ -36,7 +36,7 @@
 //##################################################################################################
 #pragma once
 
-#include "cafPdmUiObjectEditorHandle.h"
+#include "cafUiObjectEditorHandle.h"
 
 #include <Wt/Core/observing_ptr.hpp>
 

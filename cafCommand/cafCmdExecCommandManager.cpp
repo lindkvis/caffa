@@ -39,7 +39,7 @@
 #include "cafCmdExecuteCommand.h"
 #include "cafCmdFieldChangeExec.h"
 #include "cafCmdUiCommandSystemImpl.h"
-#include "cafPdmUiCommandSystemProxy.h"
+#include "cafUiCommandSystemProxy.h"
 
 #include <QUndoCommand>
 
@@ -103,7 +103,7 @@ void CmdExecCommandManager::activateCommandSystem()
         m_commandFeatureInterface = new CmdUiCommandSystemImpl;
     }
 
-    PdmUiCommandSystemProxy::instance()->setCommandInterface( m_commandFeatureInterface );
+    UiCommandSystemProxy::instance()->setCommandInterface( m_commandFeatureInterface );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ void CmdExecCommandManager::activateCommandSystem()
 //--------------------------------------------------------------------------------------------------
 void CmdExecCommandManager::deactivateCommandSystem()
 {
-    PdmUiCommandSystemProxy::instance()->setCommandInterface( nullptr );
+    UiCommandSystemProxy::instance()->setCommandInterface( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------

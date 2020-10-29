@@ -13,8 +13,8 @@ set( PROJECT_FILES
 
 	cafUserInterface_UnitTests.cpp 
 	
-	cafPdmUiTreeViewModelTest.cpp 
-	cafPdmUiTreeSelectionQModelTest.cpp 
+	cafUiTreeViewModelTest.cpp 
+	cafUiTreeSelectionQModelTest.cpp 
 
 	gtest/gtest.h
 	gtest/gtest-all.cpp

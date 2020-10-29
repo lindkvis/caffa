@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFormLayoutObjectEditor.h"
+#include "cafUiFormLayoutObjectEditor.h"
 
 #include <QPointer>
 
@@ -50,7 +50,7 @@ class WidgetCellIds;
 
 namespace caf
 {
-class PdmUiItem;
+class UiItem;
 class PdmUiGroup;
 
 //==================================================================================================

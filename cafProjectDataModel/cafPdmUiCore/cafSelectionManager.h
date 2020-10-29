@@ -40,7 +40,7 @@
 #include "cafField.h"
 #include "cafObjectHandle.h"
 #include "cafPdmPointer.h"
-#include "cafPdmUiItem.h"
+#include "cafUiItem.h"
 
 #include <QString>
 #include <set>
@@ -67,18 +67,18 @@ public:
 public:
     static SelectionManager* instance();
 
-    PdmUiItem* selectedItem( int selectionLevel = 0 );
-    void       selectedItems( std::vector<PdmUiItem*>& items, int selectionLevel = 0 );
+    UiItem* selectedItem( int selectionLevel = 0 );
+    void       selectedItems( std::vector<UiItem*>& items, int selectionLevel = 0 );
 
-    void setSelectedItem( PdmUiItem* item );
-    void setSelectedItemAtLevel( PdmUiItem* item, int selectionLevel );
+    void setSelectedItem( UiItem* item );
+    void setSelectedItemAtLevel( UiItem* item, int selectionLevel );
 
-    void setSelectedItems( const std::vector<PdmUiItem*>& items );
-    void setSelectedItemsAtLevel( const std::vector<PdmUiItem*>& items, int selectionLevel = 0 );
+    void setSelectedItems( const std::vector<UiItem*>& items );
+    void setSelectedItemsAtLevel( const std::vector<UiItem*>& items, int selectionLevel = 0 );
 
     struct SelectionItem
     {
-        PdmUiItem* item;
+        UiItem* item;
         int        selectionLevel;
     };
     void setSelection( const std::vector<SelectionItem> completeSelection );
@@ -86,7 +86,7 @@ public:
     void selectionAsReferences( std::vector<QString>& referenceList, int selectionLevel = 0 ) const;
     void setSelectionAtLevelFromReferences( const std::vector<QString>& referenceList, int selectionLevel );
 
-    bool isSelected( PdmUiItem* item, int selectionLevel ) const;
+    bool isSelected( UiItem* item, int selectionLevel ) const;
 
     void clearAll();
     void clear( int selectionLevel );
@@ -95,7 +95,7 @@ public:
     template <typename T>
     void objectsByType( std::vector<T*>* typedObjects, int selectionLevel = 0 )
     {
-        std::vector<PdmUiItem*> items;
+        std::vector<UiItem*> items;
         this->selectedItems( items, selectionLevel );
         for ( size_t i = 0; i < items.size(); i++ )
         {
@@ -109,7 +109,7 @@ public:
     template <typename T>
     void objectsByTypeStrict( std::vector<T*>* typedObjects, int selectionLevel = 0 )
     {
-        std::vector<PdmUiItem*> items;
+        std::vector<UiItem*> items;
         this->selectedItems( items, selectionLevel );
         for ( size_t i = 0; i < items.size(); i++ )
         {
@@ -138,7 +138,7 @@ public:
     template <typename T>
     T* selectedItemAncestorOfType( int selectionLevel = 0 )
     {
-        PdmUiItem*       item           = this->selectedItem( selectionLevel );
+        UiItem*       item           = this->selectedItem( selectionLevel );
         ObjectHandle* selectedObject = dynamic_cast<ObjectHandle*>( item );
         if ( selectedObject )
         {
@@ -159,12 +159,12 @@ private:
     SelectionManager();
 
     static void extractInternalSelectionItems(
-        const std::vector<PdmUiItem*>&                                   items,
-        std::vector<std::pair<PdmPointer<ObjectHandle>, PdmUiItem*>>* internalSelectionItems );
+        const std::vector<UiItem*>&                                   items,
+        std::vector<std::pair<PdmPointer<ObjectHandle>, UiItem*>>* internalSelectionItems );
 
     void          notifySelectionChanged( const std::set<int>& changedSelectionLevels );
     std::set<int> findChangedLevels(
-        const std::map<int, std::vector<std::pair<PdmPointer<ObjectHandle>, PdmUiItem*>>>& newCompleteSelectionMap ) const;
+        const std::map<int, std::vector<std::pair<PdmPointer<ObjectHandle>, UiItem*>>>& newCompleteSelectionMap ) const;
 
     friend class SelectionChangedReceiver;
     void registerSelectionChangedReceiver( SelectionChangedReceiver* receiver )
@@ -177,7 +177,7 @@ private:
     }
 
 private:
-    std::map<int, std::vector<std::pair<PdmPointer<ObjectHandle>, PdmUiItem*>>> m_selectionPrLevel;
+    std::map<int, std::vector<std::pair<PdmPointer<ObjectHandle>, UiItem*>>> m_selectionPrLevel;
 
     ChildArrayFieldHandle*   m_activeChildArrayFieldHandle;
     PdmPointer<ObjectHandle> m_rootObject;

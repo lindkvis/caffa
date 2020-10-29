@@ -37,7 +37,7 @@
 
 #pragma once
 
-#include "cafPdmUiSliderEditorAttribute.h"
+#include "cafUiSliderEditorAttribute.h"
 #include "cafPdmWebFieldEditorHandle.h"
 
 #include <Wt/Core/observing_ptr.hpp>

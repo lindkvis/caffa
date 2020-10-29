@@ -46,7 +46,7 @@ namespace caf
 {
 
 class UiFieldEditorHandle;
-class PdmUiItem;
+class UiItem;
 class PdmUiGroup;
 
 

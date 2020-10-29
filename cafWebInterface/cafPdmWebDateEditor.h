@@ -38,7 +38,7 @@
 
 #pragma once
 
-#include "cafPdmUiDateEditorAttribute.h"
+#include "cafUiDateEditorAttribute.h"
 #include "cafPdmWebFieldEditorHandle.h"
 
 #include <Wt/Core/observing_ptr.hpp>

@@ -42,7 +42,7 @@
 #include "cafField.h"
 #include "cafFieldUiCapability.h"
 #include "cafObject.h"
-#include "cafPdmUiOrdering.h"
+#include "cafUiOrdering.h"
 
 #include <Wt/WApplication.h>
 #include <Wt/WContainerWidget.h>

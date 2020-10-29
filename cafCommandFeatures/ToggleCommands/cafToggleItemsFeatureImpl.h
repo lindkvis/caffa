@@ -38,7 +38,7 @@
 
 namespace caf
 {
-class PdmUiItem;
+class UiItem;
 class PdmUiTreeOrdering;
 class PdmUiTreeView;
 
@@ -62,8 +62,8 @@ public:
     static void setObjectToggleStateForSelection( SelectionToggleType state );
 
 private:
-    static caf::PdmUiTreeView*     findTreeView( const caf::PdmUiItem* uiItem );
-    static caf::PdmUiTreeOrdering* findTreeItemFromSelectedUiItem( const caf::PdmUiItem* uiItem );
+    static caf::PdmUiTreeView*     findTreeView( const caf::UiItem* uiItem );
+    static caf::PdmUiTreeOrdering* findTreeItemFromSelectedUiItem( const caf::UiItem* uiItem );
 };
 
 }; // namespace caf

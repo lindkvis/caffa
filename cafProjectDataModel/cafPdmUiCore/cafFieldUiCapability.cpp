@@ -3,8 +3,8 @@
 #include "cafAssert.h"
 #include "cafFieldHandle.h"
 #include "cafObjectUiCapability.h"
-#include "cafPdmUiEditorHandle.h"
-#include "cafPdmUiModelChangeDetector.h"
+#include "cafUiEditorHandle.h"
+#include "cafUiModelChangeDetector.h"
 
 namespace caf
 {
@@ -79,7 +79,7 @@ void FieldUiCapability::notifyFieldChanged( const QVariant& oldFieldValue, const
 
             for ( const auto& editorForThisField : m_editors )
             {
-                PdmUiEditorHandle* editorContainingThisField = editorForThisField->topMostContainingEditor();
+                UiEditorHandle* editorContainingThisField = editorForThisField->topMostContainingEditor();
 
                 bool editorContainingThisFieldIsNotUpdated = !uiObjHandle->hasEditor( editorContainingThisField );
 

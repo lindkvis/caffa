@@ -39,9 +39,9 @@
 
 #include "cafField.h"
 #include "cafObject.h"
-#include "cafPdmUiCommandSystemProxy.h"
-#include "cafPdmUiDragDropInterface.h"
-#include "cafPdmUiTreeOrdering.h"
+#include "cafUiCommandSystemProxy.h"
+#include "cafUiDragDropInterface.h"
+#include "cafUiTreeOrdering.h"
 #include "cafPdmWebTreeItemEditor.h"
 #include "cafPdmWebTreeViewEditor.h"
 
@@ -65,7 +65,7 @@ PdmWebTreeViewWModel::PdmWebTreeViewWModel( PdmWebTreeViewEditor* treeViewEditor
 /// Will populate the tree with the contents of the Pdm data structure rooted at rootItem.
 /// Will not show the rootItem itself, only the children and downwards
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewWModel::setPdmItemRoot( PdmUiItem* rootItem )
+void PdmWebTreeViewWModel::setPdmItemRoot( UiItem* rootItem )
 {
     // Check if we are already watching this root
     if ( rootItem && m_treeOrderingRoot && m_treeOrderingRoot->activeItem() == rootItem )
@@ -132,9 +132,9 @@ void PdmWebTreeViewWModel::emitDataChanged( const Wt::WModelIndex& index )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Refreshes the UI-tree below the supplied root PdmUiItem
+/// Refreshes the UI-tree below the supplied root UiItem
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewWModel::updateSubTree( PdmUiItem* pdmRoot )
+void PdmWebTreeViewWModel::updateSubTree( UiItem* pdmRoot )
 {
     // Build the new "Correct" Tree
 
@@ -214,7 +214,7 @@ void PdmWebTreeViewWModel::updateSubTreeRecursive( const Wt::WModelIndex& existi
                                                    PdmUiTreeOrdering*     sourceSubTreeRoot )
 {
     // Build map for source items
-    std::map<caf::PdmUiItem*, int> sourceTreeMap;
+    std::map<caf::UiItem*, int> sourceTreeMap;
     for ( int i = 0; i < sourceSubTreeRoot->childCount(); ++i )
     {
         PdmUiTreeOrdering* child = sourceSubTreeRoot->child( i );
@@ -231,7 +231,7 @@ void PdmWebTreeViewWModel::updateSubTreeRecursive( const Wt::WModelIndex& existi
     {
         PdmUiTreeOrdering* child = existingSubTreeRoot->child( i );
 
-        std::map<caf::PdmUiItem*, int>::iterator it = sourceTreeMap.find( child->activeItem() );
+        std::map<caf::UiItem*, int>::iterator it = sourceTreeMap.find( child->activeItem() );
         if ( it == sourceTreeMap.end() )
         {
             indicesToRemoveFromExisting.push_back( i );
@@ -249,7 +249,7 @@ void PdmWebTreeViewWModel::updateSubTreeRecursive( const Wt::WModelIndex& existi
     }
 
     // Build map for existing items without the deleted items
-    std::map<caf::PdmUiItem*, int> existingTreeMap;
+    std::map<caf::UiItem*, int> existingTreeMap;
     for ( int i = 0; i < existingSubTreeRoot->childCount(); ++i )
     {
         PdmUiTreeOrdering* child = existingSubTreeRoot->child( i );
@@ -305,7 +305,7 @@ void PdmWebTreeViewWModel::updateSubTreeRecursive( const Wt::WModelIndex& existi
             for ( int i = 0; i < sourceSubTreeRoot->childCount(); ++i )
             {
                 PdmUiTreeOrdering*                       sourceChild = sourceSubTreeRoot->child( i );
-                std::map<caf::PdmUiItem*, int>::iterator it = existingTreeMap.find( sourceChild->activeItem() );
+                std::map<caf::UiItem*, int>::iterator it = existingTreeMap.find( sourceChild->activeItem() );
                 if ( it != existingTreeMap.end() )
                 {
                     newMergedOrdering.push_back( existingSubTreeRoot->child( it->second ) );
@@ -439,7 +439,7 @@ PdmUiTreeOrdering* caf::PdmWebTreeViewWModel::treeItemFromIndex( const Wt::WMode
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Wt::WModelIndex caf::PdmWebTreeViewWModel::findModelIndex( const PdmUiItem* object ) const
+Wt::WModelIndex caf::PdmWebTreeViewWModel::findModelIndex( const UiItem* object ) const
 {
     Wt::WModelIndex foundIndex;
     int             numRows = rowCount( Wt::WModelIndex() );
@@ -456,7 +456,7 @@ Wt::WModelIndex caf::PdmWebTreeViewWModel::findModelIndex( const PdmUiItem* obje
 ///
 //--------------------------------------------------------------------------------------------------
 Wt::WModelIndex caf::PdmWebTreeViewWModel::findModelIndexRecursive( const Wt::WModelIndex& currentIndex,
-                                                                    const PdmUiItem*       pdmItem ) const
+                                                                    const UiItem*       pdmItem ) const
 {
     if ( currentIndex.internalPointer() )
     {
@@ -710,7 +710,7 @@ bool PdmWebTreeViewWModel::setData( const Wt::WModelIndex& index,
             {
                 Wt::WString text = Wt::cpp17::any_cast<Wt::WString>( value );
                 QVariant    qValue( QString::fromStdString( text.narrow() ) );
-                PdmUiCommandSystemProxy::instance()->setUiValueToField( userDescriptionUiField, qValue );
+                UiCommandSystemProxy::instance()->setUiValueToField( userDescriptionUiField, qValue );
             }
 
             return true;
@@ -723,7 +723,7 @@ bool PdmWebTreeViewWModel::setData( const Wt::WModelIndex& index,
             FieldUiCapability* toggleUiField = uiObject->objectToggleField()->capability<FieldUiCapability>();
             if ( toggleUiField )
             {
-                PdmUiCommandSystemProxy::instance()->setUiValueToField( toggleUiField, toggleOn );
+                UiCommandSystemProxy::instance()->setUiValueToField( toggleUiField, toggleOn );
             }
 
             return true;
@@ -805,7 +805,7 @@ Wt::cpp17::any PdmWebTreeViewWModel::headerData( int              section,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiItem* PdmWebTreeViewWModel::uiItemFromModelIndex( const Wt::WModelIndex& index ) const
+UiItem* PdmWebTreeViewWModel::uiItemFromModelIndex( const Wt::WModelIndex& index ) const
 {
     PdmUiTreeOrdering* treeItem = this->treeItemFromIndex( index );
     if ( treeItem )
