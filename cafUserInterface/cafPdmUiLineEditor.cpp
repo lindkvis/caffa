@@ -37,8 +37,8 @@
 #include "cafPdmUiLineEditor.h"
 
 #include "cafFactory.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
@@ -114,7 +114,7 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
 
         PdmUiLineEditorAttribute leab;
         {
-            caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+            caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
             if ( uiObject )
             {
                 uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &leab );
@@ -184,7 +184,7 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
             m_optionCache.clear();
 
             PdmUiLineEditorAttributeUiDisplayString displayStringAttrib;
-            caf::PdmObjectUiCapability*             uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+            caf::ObjectUiCapability*             uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
             if ( uiObject )
             {
                 uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &displayStringAttrib );
@@ -280,7 +280,7 @@ void PdmUiLineEditor::slotEditingFinished()
             }
             else
             {
-                // Revert to value stored in the PdmField, because we didn't find any matches
+                // Revert to value stored in the Field, because we didn't find any matches
                 this->updateUi();
             }
         }
@@ -296,9 +296,9 @@ void PdmUiLineEditor::slotEditingFinished()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiLineEditor::isMultipleFieldsWithSameKeywordSelected( PdmFieldHandle* editorField ) const
+bool PdmUiLineEditor::isMultipleFieldsWithSameKeywordSelected( FieldHandle* editorField ) const
 {
-    std::vector<PdmFieldHandle*> fieldsToUpdate;
+    std::vector<FieldHandle*> fieldsToUpdate;
     fieldsToUpdate.push_back( editorField );
 
     // For current selection, find all fields with same keyword
@@ -307,10 +307,10 @@ bool PdmUiLineEditor::isMultipleFieldsWithSameKeywordSelected( PdmFieldHandle* e
 
     for ( size_t i = 0; i < items.size(); i++ )
     {
-        PdmFieldUiCapability* uiField = dynamic_cast<PdmFieldUiCapability*>( items[i] );
+        FieldUiCapability* uiField = dynamic_cast<FieldUiCapability*>( items[i] );
         if ( !uiField ) continue;
 
-        PdmFieldHandle* field = uiField->fieldHandle();
+        FieldHandle* field = uiField->fieldHandle();
         if ( field && field != editorField && field->keyword() == editorField->keyword() )
         {
             fieldsToUpdate.push_back( field );

@@ -43,7 +43,7 @@
 
 namespace caf
 {
-class PdmObjectHandle;
+class ObjectHandle;
 class PdmUiItem;
 class PdmUiTreeViewEditor;
 class PdmUiTreeOrdering;

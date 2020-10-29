@@ -17,21 +17,21 @@ include_directories (
 )
 
 set( PUBLIC_HEADERS
-	cafInternalPdmFieldIoHelper.h
+	cafInternalFieldIoHelper.h
 	cafInternalPdmFilePathStreamOperators.h
 	cafInternalPdmStreamOperators.h
-	cafPdmFieldIoCapabilitySpecializations.h
-	cafPdmFieldIoCapabilitySpecializations.inl
+	cafFieldIoCapabilitySpecializations.h
+	cafFieldIoCapabilitySpecializations.inl
 	cafInternalPdmIoFieldReaderWriter.h
 
-	cafPdmFieldIoCapability.h
-	cafPdmObjectXmlCapability.h
-	cafPdmObjectJsonCapability.h
-	cafPdmObjectIoCapability.h
-	cafPdmObjectHandleIoMacros.h
+	cafFieldIoCapability.h
+	cafObjectXmlCapability.h
+	cafObjectJsonCapability.h
+	cafObjectIoCapability.h
+	cafObjectHandleIoMacros.h
 
 	cafPdmDefaultObjectFactory.h
-	cafPdmObjectFactory.h
+	cafObjectFactory.h
 	
 	cafPdmSettings.h
 
@@ -41,16 +41,16 @@ set( PUBLIC_HEADERS
 
 set( PROJECT_FILES
 	${PUBLIC_HEADERS}
-	cafInternalPdmFieldIoHelper.cpp
+	cafInternalFieldIoHelper.cpp
 	cafInternalPdmFilePathStreamOperators.cpp
 	cafInternalPdmStreamOperators.cpp
 	cafInternalPdmIoFieldReaderWriter.cpp
 
-	cafPdmFieldIoCapability.cpp
+	cafFieldIoCapability.cpp
 	
-	cafPdmObjectIoCapability.cpp
-	cafPdmObjectXmlCapability.cpp
-	cafPdmObjectJsonCapability.cpp
+	cafObjectIoCapability.cpp
+	cafObjectXmlCapability.cpp
+	cafObjectJsonCapability.cpp
 	cafPdmDefaultObjectFactory.cpp
 	cafPdmSettings.cpp
 )

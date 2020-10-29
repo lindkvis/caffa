@@ -50,7 +50,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 QString CmdAddItemExec::name()
 {
-    PdmFieldHandle* field =
+    FieldHandle* field =
         PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
 
     QString containedObjectType = "object";
@@ -58,7 +58,7 @@ QString CmdAddItemExec::name()
     PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
     if ( listField )
     {
-        auto ioCapability   = listField->capability<PdmFieldIoCapability>();
+        auto ioCapability   = listField->capability<FieldIoCapability>();
         containedObjectType = ioCapability->dataTypeName();
     }
 
@@ -70,17 +70,17 @@ QString CmdAddItemExec::name()
 //--------------------------------------------------------------------------------------------------
 void CmdAddItemExec::redo()
 {
-    PdmFieldHandle* field =
+    FieldHandle* field =
         PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
 
     PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
-    if ( listField && field->capability<PdmFieldIoCapability>() )
+    if ( listField && field->capability<FieldIoCapability>() )
     {
-        QString classKeyword = field->capability<PdmFieldIoCapability>()->dataTypeName();
+        QString classKeyword = field->capability<FieldIoCapability>()->dataTypeName();
 
         if ( classKeyword.isEmpty() ) return;
 
-        caf::PdmObjectHandle* obj = PdmDefaultObjectFactory::instance()->create( classKeyword );
+        caf::ObjectHandle* obj = PdmDefaultObjectFactory::instance()->create( classKeyword );
 
         if ( !obj ) return;
 
@@ -95,11 +95,11 @@ void CmdAddItemExec::redo()
             m_commandData->m_createdItemIndex = m_commandData->m_indexAfter;
         }
 
-        listField->capability<PdmFieldUiCapability>()->updateConnectedEditors();
+        listField->capability<FieldUiCapability>()->updateConnectedEditors();
 
         if ( listField->ownerObject() )
         {
-            caf::PdmObjectUiCapability* ownerUiObject = uiObj( listField->ownerObject() );
+            caf::ObjectUiCapability* ownerUiObject = uiObj( listField->ownerObject() );
             if ( ownerUiObject )
             {
                 ownerUiObject->fieldChangedByUi( listField, QVariant(), QVariant() );
@@ -113,25 +113,25 @@ void CmdAddItemExec::redo()
 //--------------------------------------------------------------------------------------------------
 void CmdAddItemExec::undo()
 {
-    PdmFieldHandle* field =
+    FieldHandle* field =
         PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
 
     PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
     if ( listField && m_commandData->m_createdItemIndex >= 0 )
     {
-        std::vector<caf::PdmObjectHandle*> children;
+        std::vector<caf::ObjectHandle*> children;
         listField->childObjects( &children );
 
-        caf::PdmObjectHandle* obj = children[m_commandData->m_createdItemIndex];
+        caf::ObjectHandle* obj = children[m_commandData->m_createdItemIndex];
 
         caf::SelectionManager::instance()->removeObjectFromAllSelections( obj );
 
         listField->erase( m_commandData->m_createdItemIndex );
-        listField->capability<PdmFieldUiCapability>()->updateConnectedEditors();
+        listField->capability<FieldUiCapability>()->updateConnectedEditors();
 
         if ( listField->ownerObject() )
         {
-            caf::PdmObjectUiCapability* ownerUiObject = uiObj( listField->ownerObject() );
+            caf::ObjectUiCapability* ownerUiObject = uiObj( listField->ownerObject() );
             if ( ownerUiObject )
             {
                 ownerUiObject->fieldChangedByUi( listField, QVariant(), QVariant() );

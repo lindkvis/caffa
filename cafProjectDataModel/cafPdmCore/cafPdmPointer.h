@@ -40,7 +40,7 @@
 
 namespace caf
 {
-class PdmObjectHandle;
+class ObjectHandle;
 
 //==================================================================================================
 /// Helper class for the PdmPointer class
@@ -58,13 +58,13 @@ class PdmPointerImpl
 private:
     template <class T>
     friend class PdmPointer;
-    static void addReference( PdmObjectHandle** addressToObjectPointer );
-    static void removeReference( PdmObjectHandle** addressToObjectPointer );
+    static void addReference( ObjectHandle** addressToObjectPointer );
+    static void removeReference( ObjectHandle** addressToObjectPointer );
 };
 
 //==================================================================================================
-/// Guarded pointer class to point at PdmObjects
-/// Use a PdmPointer<SomePdmObject> in the same way as a normal pointer.
+/// Guarded pointer class to point at Objects
+/// Use a PdmPointer<SomeObject> in the same way as a normal pointer.
 /// The guarding sets the pointer to NULL if the object pointed to dies
 ///
 //==================================================================================================
@@ -72,7 +72,7 @@ private:
 template <class T>
 class PdmPointer
 {
-    PdmObjectHandle* m_object;
+    ObjectHandle* m_object;
 
 public:
     inline PdmPointer()
@@ -91,12 +91,12 @@ public:
     }
     inline ~PdmPointer() { PdmPointerImpl::removeReference( &m_object ); }
 
-    T*             p() const { return static_cast<T*>( const_cast<PdmObjectHandle*>( m_object ) ); }
+    T*             p() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
     bool           isNull() const { return !m_object; }
     bool           notNull() const { return !isNull(); }
-                   operator T*() const { return static_cast<T*>( const_cast<PdmObjectHandle*>( m_object ) ); }
-    T&             operator*() const { return *static_cast<T*>( const_cast<PdmObjectHandle*>( m_object ) ); }
-    T*             operator->() const { return static_cast<T*>( const_cast<PdmObjectHandle*>( m_object ) ); }
+                   operator T*() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
+    T&             operator*() const { return *static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
+    T*             operator->() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
     PdmPointer<T>& operator=( const PdmPointer<T>& p )
     {
         if ( this != &p ) PdmPointerImpl::removeReference( &m_object );
@@ -116,9 +116,9 @@ public:
     {
         return m_object == rhs.rawPtr();
     }
-    // Private methods used by PdmField<T*> and PdmPointersField<T*>. Do not use unless you mean it !
-    PdmObjectHandle* rawPtr() const { return m_object; }
-    void             setRawPtr( PdmObjectHandle* p )
+    // Private methods used by Field<T*> and PdmPointersField<T*>. Do not use unless you mean it !
+    ObjectHandle* rawPtr() const { return m_object; }
+    void             setRawPtr( ObjectHandle* p )
     {
         if ( m_object != p ) PdmPointerImpl::removeReference( &m_object );
         m_object = p;
@@ -129,4 +129,4 @@ public:
 } // End of namespace caf
 
 #include <QMetaType>
-Q_DECLARE_METATYPE( caf::PdmPointer<caf::PdmObjectHandle> );
+Q_DECLARE_METATYPE( caf::PdmPointer<caf::ObjectHandle> );

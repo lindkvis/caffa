@@ -5,7 +5,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// This method is supposed to be the interface for the implementation of UI editors to set values into
 /// the field. The data to set must be encapsulated in a QVariant.
-/// This method triggers PdmObject::fieldChangedByUi() and PdmObject::updateConnectedEditors(), an thus
+/// This method triggers Object::fieldChangedByUi() and Object::updateConnectedEditors(), an thus
 /// makes the application and the UI aware of the change.
 ///
 /// Note : If the field has m_optionEntryCache the interface is _index-based_. The QVariant must contain
@@ -14,7 +14,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 
 template <typename FieldType>
-void caf::PdmFieldUiCap<FieldType>::setValueFromUiEditor( const QVariant& uiValue )
+void caf::FieldUiCap<FieldType>::setValueFromUiEditor( const QVariant& uiValue )
 {
     QVariant oldUiBasedQVariant = toUiBasedQVariant();
 
@@ -123,7 +123,7 @@ void caf::PdmFieldUiCap<FieldType>::setValueFromUiEditor( const QVariant& uiValu
 //--------------------------------------------------------------------------------------------------
 
 template <typename FieldType>
-QVariant caf::PdmFieldUiCap<FieldType>::uiValue() const
+QVariant caf::FieldUiCap<FieldType>::uiValue() const
 {
     if ( m_optionEntryCache.size() )
     {
@@ -172,7 +172,7 @@ QVariant caf::PdmFieldUiCap<FieldType>::uiValue() const
 
 //--------------------------------------------------------------------------------------------------
 /// Returns the option values that is to be displayed in the UI for this field.
-/// This method calls the virtual PdmObject::calculateValueOptions to get the list provided from the
+/// This method calls the virtual Object::calculateValueOptions to get the list provided from the
 /// application, then possibly adds the current field value(s) to the list, to
 /// make sure the actual values are shown
 ///
@@ -181,11 +181,11 @@ QVariant caf::PdmFieldUiCap<FieldType>::uiValue() const
 //--------------------------------------------------------------------------------------------------
 
 template <typename FieldType>
-QList<PdmOptionItemInfo> caf::PdmFieldUiCap<FieldType>::valueOptions( bool* useOptionsOnly ) const
+QList<PdmOptionItemInfo> caf::FieldUiCap<FieldType>::valueOptions( bool* useOptionsOnly ) const
 {
     m_optionEntryCache.clear();
 
-    // First check if the owner PdmObject has a value options specification. If it has, we use it.
+    // First check if the owner Object has a value options specification. If it has, we use it.
     if ( m_field->ownerObject() )
     {
         m_optionEntryCache = uiObj( m_field->ownerObject() )->calculateValueOptions( this->m_field, useOptionsOnly );
@@ -261,7 +261,7 @@ QList<PdmOptionItemInfo> caf::PdmFieldUiCap<FieldType>::valueOptions( bool* useO
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-QVariant caf::PdmFieldUiCap<FieldType>::toUiBasedQVariant() const
+QVariant caf::FieldUiCap<FieldType>::toUiBasedQVariant() const
 {
     return PdmUiFieldSpecialization<typename FieldType::FieldDataType>::convert( m_field->value() );
 }
@@ -270,7 +270,7 @@ QVariant caf::PdmFieldUiCap<FieldType>::toUiBasedQVariant() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-bool caf::PdmFieldUiCap<FieldType>::isQVariantDataEqual( const QVariant& oldUiBasedQVariant,
+bool caf::FieldUiCap<FieldType>::isQVariantDataEqual( const QVariant& oldUiBasedQVariant,
                                                          const QVariant& newUiBasedQVariant ) const
 {
     return PdmValueFieldSpecialization<typename FieldType::FieldDataType>::isEqual( oldUiBasedQVariant, newUiBasedQVariant );

@@ -37,9 +37,9 @@
 
 #include "cafPdmWebFieldEditorHandle.h"
 
-#include "cafPdmFieldUiCapability.h"
-#include "cafPdmObjectHandle.h"
-#include "cafPdmObjectUiCapability.h"
+#include "cafFieldUiCapability.h"
+#include "cafObjectHandle.h"
+#include "cafObjectUiCapability.h"
 #include "cafPdmUiCommandSystemProxy.h"
 
 #include <Wt/WContainerWidget.h>
@@ -67,7 +67,7 @@ PdmWebFieldEditorHandle::~PdmWebFieldEditorHandle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebFieldEditorHandle::setUiField( PdmFieldUiCapability* field )
+void PdmWebFieldEditorHandle::setUiField( FieldUiCapability* field )
 {
     this->bindToPdmItem( field );
 }
@@ -87,7 +87,7 @@ void PdmWebFieldEditorHandle::applyTextToLabel( Wt::WLabel* label, const QString
 {
     if ( label )
     {
-        const PdmFieldUiCapability* fieldHandle = dynamic_cast<const PdmFieldUiCapability*>( pdmItem() );
+        const FieldUiCapability* fieldHandle = dynamic_cast<const FieldUiCapability*>( pdmItem() );
         if ( fieldHandle )
         {
             std::string labelText = fieldHandle->uiName( uiConfigName ).toStdString();
@@ -191,9 +191,9 @@ void PdmWebFieldEditorHandle::updateContextMenuPolicy()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmFieldUiCapability* PdmWebFieldEditorHandle::uiField()
+FieldUiCapability* PdmWebFieldEditorHandle::uiField()
 {
-    return dynamic_cast<PdmFieldUiCapability*>( pdmItem() );
+    return dynamic_cast<FieldUiCapability*>( pdmItem() );
 }
 
 //--------------------------------------------------------------------------------------------------

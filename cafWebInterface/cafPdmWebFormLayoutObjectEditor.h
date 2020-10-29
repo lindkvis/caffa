@@ -83,13 +83,13 @@ protected:
                                                         const QString&                           uiConfigName );
 
     std::unique_ptr<Wt::WPanel> createGroupBox( PdmUiGroup* group, const QString& uiConfigName );
-    PdmWebFieldEditorHandle*    findOrCreateFieldEditor( PdmFieldUiCapability* field, const QString& uiConfigName );
+    PdmWebFieldEditorHandle*    findOrCreateFieldEditor( FieldUiCapability* field, const QString& uiConfigName );
 
 private:
     void configureAndUpdateUi( const QString& uiConfigName ) override;
 
 private:
-    std::map<PdmFieldHandle*, PdmWebFieldEditorHandle*> m_fieldViews;
+    std::map<FieldHandle*, PdmWebFieldEditorHandle*> m_fieldViews;
 };
 
 } // end namespace caf

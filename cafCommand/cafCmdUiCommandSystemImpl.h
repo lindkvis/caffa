@@ -42,14 +42,14 @@
 namespace caf
 {
 class MenuInterface;
-class PdmFieldHandle;
+class FieldHandle;
 
 class CmdUiCommandSystemImpl : public PdmUiCommandSystemInterface
 {
 public:
     CmdUiCommandSystemImpl();
 
-    void fieldChangedCommand( const std::vector<PdmFieldHandle*>& fieldsToUpdate, const QVariant& newUiValue ) override;
+    void fieldChangedCommand( const std::vector<FieldHandle*>& fieldsToUpdate, const QVariant& newUiValue ) override;
     void setCurrentContextMenuTargetWidget( QWidget* targetWidget ) override;
     void populateMenuWithDefaultCommands( const QString& uiConfigName, MenuInterface* menu ) override;
 

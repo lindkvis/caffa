@@ -16,15 +16,15 @@ set(PUBLIC_HEADERS
 	cafFactory.h
 	cafOmpMutex.h
 	cafPdmDocument.h
-	cafPdmObjectGroup.h
-	cafPdmObject.h
+	cafObjectGroup.h
+	cafObject.h
 )
 
 set( PROJECT_FILES
 	${PUBLIC_HEADERS}
 	cafPdmDocument.cpp
-	cafPdmObjectGroup.cpp
-	cafPdmObject.cpp
+	cafObjectGroup.cpp
+	cafObject.cpp
 )
 
 add_library( ${PROJECT_NAME}

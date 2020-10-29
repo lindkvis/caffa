@@ -6,18 +6,18 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmDataValueField.h"
-#include "cafPdmObjectHandle.h"
+#include "cafObjectHandle.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmReferenceHelper.h"
 
 #include <QDebug>
 
-class MsjSimpleObj : public caf::PdmObjectHandle
+class MsjSimpleObj : public caf::ObjectHandle
 {
 public:
     MsjSimpleObj()
-        : PdmObjectHandle()
+        : ObjectHandle()
     {
         this->addField( &name, "Name" );
         this->addField( &id, "ID" );
@@ -56,11 +56,11 @@ public:
     caf::PdmDataValueField<double> valueDouble;
 };
 
-class ContainerObj : public caf::PdmObjectHandle
+class ContainerObj : public caf::ObjectHandle
 {
 public:
     ContainerObj()
-        : PdmObjectHandle()
+        : ObjectHandle()
     {
         this->addField( &derivedObjs, "derivedObjs" );
         this->addField( &derivedOtherObjs, "derivedOtherObjs" );

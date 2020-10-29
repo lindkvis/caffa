@@ -89,7 +89,7 @@ protected:
 
     QMinimizePanel* findOrCreateGroupBox( QWidget* parent, PdmUiGroup* group, const QString& uiConfigName );
     PdmUiFieldEditorHandle*
-        findOrCreateFieldEditor( QWidget* parent, PdmFieldUiCapability* field, const QString& uiConfigName );
+        findOrCreateFieldEditor( QWidget* parent, FieldUiCapability* field, const QString& uiConfigName );
 
     static void ensureWidgetContainsEmptyGridLayout( QWidget* containerWidget, QMargins contentMargins = QMargins() );
 
@@ -98,7 +98,7 @@ private slots:
 
 private:
     bool isUiGroupExpanded( const PdmUiGroup* uiGroup ) const;
-    void cleanupBeforeSettingPdmObject() override;
+    void cleanupBeforeSettingObject() override;
     void configureAndUpdateUi( const QString& uiConfigName ) override;
 
     static void recursiveVerifyUniqueNames( const std::vector<PdmUiItem*>& uiItems,
@@ -107,8 +107,8 @@ private:
                                             std::set<QString>*             groupNames );
 
 private:
-    std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*> m_fieldViews;
-    std::set<PdmFieldHandle*> m_usedFields; ///< used temporarily to store the new(complete) set of used fields
+    std::map<FieldHandle*, PdmUiFieldEditorHandle*> m_fieldViews;
+    std::set<FieldHandle*> m_usedFields; ///< used temporarily to store the new(complete) set of used fields
     std::map<QString, QPointer<QMinimizePanel>> m_groupBoxes;
     std::map<QString, QPointer<QMinimizePanel>> m_newGroupBoxes; ///< used temporarily to store the new(complete) set of
                                                                  ///< group boxes

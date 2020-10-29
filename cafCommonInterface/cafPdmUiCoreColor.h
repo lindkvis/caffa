@@ -70,8 +70,8 @@ public:
         return QList<PdmOptionItemInfo>();
     }
 
-    /// Methods to retrieve the possible PdmObject pointed to by a field
-    static void childObjects( const PdmDataValueField<QColor>&, std::vector<PdmObjectHandle*>* ) {}
+    /// Methods to retrieve the possible Object pointed to by a field
+    static void childObjects( const PdmDataValueField<QColor>&, std::vector<ObjectHandle*>* ) {}
 };
 
 } // end namespace caf

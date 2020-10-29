@@ -120,7 +120,7 @@ PdmOptionItemInfo::PdmOptionItemInfo( const QString&      anOptionUiText,
 ///
 //--------------------------------------------------------------------------------------------------
 PdmOptionItemInfo::PdmOptionItemInfo( const QString&        anOptionUiText,
-                                      caf::PdmObjectHandle* obj,
+                                      caf::ObjectHandle* obj,
                                       bool                  isReadOnly /*= false*/,
                                       const IconProvider&   anIcon /*= IconProvider()*/ )
     : m_optionUiText( anOptionUiText )
@@ -128,7 +128,7 @@ PdmOptionItemInfo::PdmOptionItemInfo( const QString&        anOptionUiText,
     , m_iconProvider( anIcon )
     , m_level( 0 )
 {
-    m_value = QVariant::fromValue( caf::PdmPointer<caf::PdmObjectHandle>( obj ) );
+    m_value = QVariant::fromValue( caf::PdmPointer<caf::ObjectHandle>( obj ) );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1,10 +1,10 @@
 #pragma once
 
 #include "cafPdmDataValueField.h"
-#include "cafPdmObjectHandle.h"
+#include "cafObjectHandle.h"
 #include "cafPdmPointer.h"
 
-class TestObj : public caf::PdmObjectHandle
+class TestObj : public caf::ObjectHandle
 {
 public:
     TestObj();

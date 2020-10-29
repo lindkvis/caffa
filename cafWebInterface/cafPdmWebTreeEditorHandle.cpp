@@ -37,7 +37,7 @@
 
 
 #include "cafPdmWebTreeEditorHandle.h"
-#include "cafPdmObject.h"
+#include "cafObject.h"
 
 #include <Wt/WWidget.h>
 

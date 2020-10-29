@@ -340,7 +340,7 @@ bool operator!=( T value, const caf::AppEnum<T>& appEnum )
 }
 
 //==================================================================================================
-/// Implementation of stream operators to make PdmField<AppEnum<> > work smoothly
+/// Implementation of stream operators to make Field<AppEnum<> > work smoothly
 /// Assumes that the stream ends at the end of the enum text
 //==================================================================================================
 

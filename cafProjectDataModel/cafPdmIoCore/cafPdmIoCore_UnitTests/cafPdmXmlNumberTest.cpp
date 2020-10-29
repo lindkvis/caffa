@@ -2,10 +2,10 @@
 #include "gtest/gtest.h"
 
 #include "cafPdmDataValueField.h"
-#include "cafPdmFieldIoCapabilitySpecializations.h"
-#include "cafPdmObjectHandle.h"
-#include "cafPdmObjectHandleIoMacros.h"
-#include "cafPdmObjectXmlCapability.h"
+#include "cafFieldIoCapabilitySpecializations.h"
+#include "cafObjectHandle.h"
+#include "cafObjectHandleIoMacros.h"
+#include "cafObjectXmlCapability.h"
 
 #include <QXmlStreamWriter>
 
@@ -14,14 +14,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class SimpleObjectWithNumbers : public caf::PdmObjectHandle, public caf::PdmObjectIoCapability
+class SimpleObjectWithNumbers : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
     CAF_PDM_IO_HEADER_INIT;
 
 public:
     SimpleObjectWithNumbers()
-        : PdmObjectHandle()
-        , PdmObjectIoCapability( this, false )
+        : ObjectHandle()
+        , ObjectIoCapability( this, false )
     {
         CAF_PDM_IO_InitField( &m_valueA, "ValueA" );
         CAF_PDM_IO_InitField( &m_valueB, "ValueB" );
@@ -46,8 +46,8 @@ TEST( SerializeNumbers, SimpleObjectWithDoubleValues )
     double valueA = 0.123456789;
     double valueB = 123456789 + valueA;
 
-    std::vector<caf::PdmObjectIoCapability::IoParameters::IoType> ioTypes =
-        { caf::PdmObjectIoCapability::IoParameters::IoType::XML, caf::PdmObjectIoCapability::IoParameters::IoType::JSON };
+    std::vector<caf::ObjectIoCapability::IoParameters::IoType> ioTypes =
+        { caf::ObjectIoCapability::IoParameters::IoType::XML, caf::ObjectIoCapability::IoParameters::IoType::JSON };
 
     for ( auto ioType : ioTypes )
     {
@@ -92,8 +92,8 @@ TEST( SerializeNumbers, SimpleObjectWithFloatValues )
     float valueA = 0.123456789f;
     float valueB = 123456 + valueA;
 
-    std::vector<caf::PdmObjectIoCapability::IoParameters::IoType> ioTypes =
-        { caf::PdmObjectIoCapability::IoParameters::IoType::XML, caf::PdmObjectIoCapability::IoParameters::IoType::JSON };
+    std::vector<caf::ObjectIoCapability::IoParameters::IoType> ioTypes =
+        { caf::ObjectIoCapability::IoParameters::IoType::XML, caf::ObjectIoCapability::IoParameters::IoType::JSON };
 
     for ( auto ioType : ioTypes )
     {

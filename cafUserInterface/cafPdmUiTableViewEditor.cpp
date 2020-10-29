@@ -36,8 +36,8 @@
 #include "cafPdmUiTableViewEditor.h"
 
 #include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmUiCheckBoxDelegate.h"
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiTableViewDelegate.h"
@@ -149,9 +149,9 @@ void PdmUiTableViewEditor::configureAndUpdateUi( const QString& uiConfigName )
     PdmUiTableViewEditorAttribute editorAttrib;
     bool                          editorAttribLoaded = false;
 
-    if ( childArrayFH && childArrayFH->ownerObject() && childArrayFH->ownerObject()->capability<PdmFieldUiCapability>() )
+    if ( childArrayFH && childArrayFH->ownerObject() && childArrayFH->ownerObject()->capability<FieldUiCapability>() )
     {
-        childArrayFH->ownerObject()->capability<PdmObjectUiCapability>()->editorAttribute( childArrayFH,
+        childArrayFH->ownerObject()->capability<ObjectUiCapability>()->editorAttribute( childArrayFH,
                                                                                            uiConfigName,
                                                                                            &editorAttrib );
         editorAttribLoaded = true;
@@ -182,19 +182,19 @@ void PdmUiTableViewEditor::configureAndUpdateUi( const QString& uiConfigName )
         }
     }
 
-    if ( childArrayFH && childArrayFH->capability<PdmFieldUiCapability>() )
+    if ( childArrayFH && childArrayFH->capability<FieldUiCapability>() )
     {
         QString text = "";
-        auto    icon = childArrayFH->capability<PdmFieldUiCapability>()->uiIcon( uiConfigName );
+        auto    icon = childArrayFH->capability<FieldUiCapability>()->uiIcon( uiConfigName );
         if ( icon )
         {
             m_tableHeadingIcon->setPixmap( icon->pixmap( 16, 16 ) );
-            m_tableHeading->setText( childArrayFH->capability<PdmFieldUiCapability>()->uiName( uiConfigName ) +
+            m_tableHeading->setText( childArrayFH->capability<FieldUiCapability>()->uiName( uiConfigName ) +
                                      QString( " (%1)" ).arg( childArrayFH->size() ) );
         }
         else
         {
-            m_tableHeadingIcon->setText( childArrayFH->capability<PdmFieldUiCapability>()->uiName( uiConfigName ) +
+            m_tableHeadingIcon->setText( childArrayFH->capability<FieldUiCapability>()->uiName( uiConfigName ) +
                                          QString( " (%1)" ).arg( childArrayFH->size() ) );
             m_tableHeading->setText( "" );
         }
@@ -259,7 +259,7 @@ void PdmUiTableViewEditor::selectedUiItems( const QModelIndexList& modelIndexLis
     {
         int row = mi.row();
 
-        caf::PdmObjectUiCapability* uiObject = uiObj( m_tableModelPdm->pdmObjectForRow( row ) );
+        caf::ObjectUiCapability* uiObject = uiObj( m_tableModelPdm->pdmObjectForRow( row ) );
         if ( uiObject )
         {
             objects.push_back( uiObject );
@@ -315,8 +315,8 @@ void PdmUiTableViewEditor::onSelectionManagerSelectionChanged( const std::set<in
         QItemSelection totalSelection;
         for ( auto item : items )
         {
-            PdmObject*     pdmObj        = dynamic_cast<PdmObject*>( item );
-            QItemSelection itemSelection = m_tableModelPdm->modelIndexFromPdmObject( pdmObj );
+            Object*     pdmObj        = dynamic_cast<Object*>( item );
+            QItemSelection itemSelection = m_tableModelPdm->modelIndexFromObject( pdmObj );
             totalSelection.merge( itemSelection, QItemSelectionModel::Select );
         }
 
@@ -359,7 +359,7 @@ bool PdmUiTableViewEditor::isSelectionRoleDefined() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObjectHandle* PdmUiTableViewEditor::pdmObjectFromModelIndex( const QModelIndex& mi )
+ObjectHandle* PdmUiTableViewEditor::pdmObjectFromModelIndex( const QModelIndex& mi )
 {
     if ( mi.isValid() )
     {
@@ -380,11 +380,11 @@ void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
         QModelIndexList      modelIndexList = m_tableView->selectionModel()->selectedIndexes();
         for ( const QModelIndex& mi : modelIndexList )
         {
-            PdmObjectHandle* obj = m_tableModelPdm->pdmObjectForRow( mi.row() );
+            ObjectHandle* obj = m_tableModelPdm->pdmObjectForRow( mi.row() );
 
-            if ( obj && obj->capability<PdmFieldUiCapability>() )
+            if ( obj && obj->capability<FieldUiCapability>() )
             {
-                selectedRowObjects.insert( obj->capability<PdmFieldUiCapability>() );
+                selectedRowObjects.insert( obj->capability<FieldUiCapability>() );
             }
         }
 
@@ -398,7 +398,7 @@ void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
         if ( childArrayFieldHandle() && childArrayFieldHandle()->ownerObject() )
         {
             newCompleteSelection.push_back(
-                { childArrayFieldHandle()->ownerObject()->capability<PdmFieldUiCapability>(), m_tableSelectionLevel } );
+                { childArrayFieldHandle()->ownerObject()->capability<FieldUiCapability>(), m_tableSelectionLevel } );
         }
 
         m_isBlockingSelectionManagerChanged = true;

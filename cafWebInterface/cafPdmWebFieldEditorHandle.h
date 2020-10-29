@@ -81,17 +81,17 @@ public:                                      \
     CAF_FACTORY_REGISTER( caf::PdmWebFieldEditorHandle,                        \
                           EditorClassName,                                     \
                           QString,                                             \
-                          qStringTypeName( caf::PdmField<TypeName> ) );        \
+                          qStringTypeName( caf::Field<TypeName> ) );        \
     CAF_FACTORY_REGISTER2( caf::PdmWebFieldEditorHandle,                       \
                            EditorClassName,                                    \
                            QString,                                            \
                            qStringTypeName( caf::PdmProxyValueField<TypeName> ) )
 
 class PdmUiGroup;
-class PdmFieldUiCapability;
+class FieldUiCapability;
 
 //==================================================================================================
-/// Abstract class to handle editors of PdmFields
+/// Abstract class to handle editors of Fields
 //==================================================================================================
 
 class PdmWebFieldEditorHandle : public PdmUiEditorHandle
@@ -100,8 +100,8 @@ public:
     PdmWebFieldEditorHandle();
     ~PdmWebFieldEditorHandle() override;
 
-    PdmFieldUiCapability* uiField();
-    void                  setUiField( PdmFieldUiCapability* uiFieldHandle );
+    FieldUiCapability* uiField();
+    void                  setUiField( FieldUiCapability* uiFieldHandle );
 
     virtual bool                 hasLabel() const;
     void                         applyTextToLabel( Wt::WLabel* label, const QString& uiConfigName ) const;

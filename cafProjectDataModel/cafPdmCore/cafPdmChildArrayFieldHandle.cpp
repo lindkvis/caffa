@@ -1,7 +1,7 @@
 #include "cafPdmChildArrayField.h"
 
-#include "cafPdmFieldHandle.h"
-#include "cafPdmObjectHandle.h"
+#include "cafFieldHandle.h"
+#include "cafObjectHandle.h"
 
 namespace caf
 {
@@ -10,7 +10,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 bool PdmChildArrayFieldHandle::hasSameFieldCountForAllObjects()
 {
-    std::vector<PdmObjectHandle*> listObjects;
+    std::vector<ObjectHandle*> listObjects;
     this->childObjects( &listObjects );
 
     if ( listObjects.size() == 0 )
@@ -21,7 +21,7 @@ bool PdmChildArrayFieldHandle::hasSameFieldCountForAllObjects()
     size_t fieldCount = 0;
     for ( size_t i = 0; i < listObjects.size(); i++ )
     {
-        std::vector<PdmFieldHandle*> fields;
+        std::vector<FieldHandle*> fields;
         listObjects[i]->fields( fields );
 
         if ( i == 0 )

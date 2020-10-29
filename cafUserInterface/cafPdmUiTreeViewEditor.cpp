@@ -37,8 +37,8 @@
 #include "cafPdmUiTreeViewEditor.h"
 
 #include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiDragDropInterface.h"
 #include "cafPdmUiEditorHandle.h"
@@ -156,7 +156,7 @@ void PdmUiTreeViewEditor::configureAndUpdateUi( const QString& uiConfigName )
     PdmUiTreeViewEditorAttribute editorAttributes;
 
     {
-        PdmObjectUiCapability* uiObjectHandle = dynamic_cast<PdmObjectUiCapability*>( this->pdmItemRoot() );
+        ObjectUiCapability* uiObjectHandle = dynamic_cast<ObjectUiCapability*>( this->pdmItemRoot() );
         if ( uiObjectHandle )
         {
             uiObjectHandle->objectEditorAttribute( uiConfigName, &editorAttributes );
@@ -169,7 +169,7 @@ void PdmUiTreeViewEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     if ( editorAttributes.currentObject )
     {
-        PdmObjectUiCapability* uiObjectHandle = editorAttributes.currentObject->capability<PdmObjectUiCapability>();
+        ObjectUiCapability* uiObjectHandle = editorAttributes.currentObject->capability<ObjectUiCapability>();
         if ( uiObjectHandle )
         {
             selectAsCurrentItem( uiObjectHandle );
@@ -299,10 +299,10 @@ PdmChildArrayFieldHandle* PdmUiTreeViewEditor::currentChildArrayFieldHandle()
 {
     PdmUiItem* currentSelectedItem = SelectionManager::instance()->selectedItem( SelectionManager::FIRST_LEVEL );
 
-    PdmFieldUiCapability* uiFieldHandle = dynamic_cast<PdmFieldUiCapability*>( currentSelectedItem );
+    FieldUiCapability* uiFieldHandle = dynamic_cast<FieldUiCapability*>( currentSelectedItem );
     if ( uiFieldHandle )
     {
-        PdmFieldHandle* fieldHandle = uiFieldHandle->fieldHandle();
+        FieldHandle* fieldHandle = uiFieldHandle->fieldHandle();
 
         if ( dynamic_cast<PdmChildArrayFieldHandle*>( fieldHandle ) )
         {
@@ -310,7 +310,7 @@ PdmChildArrayFieldHandle* PdmUiTreeViewEditor::currentChildArrayFieldHandle()
         }
     }
 
-    PdmObjectHandle* pdmObject = dynamic_cast<caf::PdmObjectHandle*>( currentSelectedItem );
+    ObjectHandle* pdmObject = dynamic_cast<caf::ObjectHandle*>( currentSelectedItem );
     if ( pdmObject )
     {
         PdmChildArrayFieldHandle* parentChildArray = dynamic_cast<PdmChildArrayFieldHandle*>( pdmObject->parentField() );
@@ -444,7 +444,7 @@ void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& model
     for ( QModelIndex index : allIndices )
     {
         PdmUiItem*             uiItem         = m_treeViewModel->uiItemFromModelIndex( index );
-        PdmObjectUiCapability* uiObjectHandle = dynamic_cast<PdmObjectUiCapability*>( uiItem );
+        ObjectUiCapability* uiObjectHandle = dynamic_cast<ObjectUiCapability*>( uiItem );
         if ( uiObjectHandle )
         {
             PdmUiTreeViewItemAttribute attribute;

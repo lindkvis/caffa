@@ -1,6 +1,6 @@
 #include "cafAsyncObjectDeleter.h"
 #include "cafClassTypeName.h"
-#include "cafPdmObjectHandle.h"
+#include "cafObjectHandle.h"
 
 namespace caf
 {
@@ -145,7 +145,7 @@ void PdmChildArrayField<DataType*>::deleteAllChildObjectsAsync()
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
-    AsyncPdmObjectVectorDeleter<DataType> pointerDeleter( m_pointers );
+    AsyncObjectVectorDeleter<DataType> pointerDeleter( m_pointers );
     CAF_ASSERT( m_pointers.empty() ); // Object storage for m_pointers should be empty immediately.
 }
 
@@ -199,7 +199,7 @@ void PdmChildArrayField<DataType*>::setValue( const std::vector<DataType*>& obje
 /// Removes all instances of object pointer from the container without deleting the object.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmChildArrayField<DataType*>::removeChildObject( PdmObjectHandle* object )
+void PdmChildArrayField<DataType*>::removeChildObject( ObjectHandle* object )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
@@ -247,7 +247,7 @@ std::vector<DataType*> caf::PdmChildArrayField<DataType*>::childObjects() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmChildArrayField<DataType*>::childObjects( std::vector<PdmObjectHandle*>* objects )
+void PdmChildArrayField<DataType*>::childObjects( std::vector<ObjectHandle*>* objects )
 {
     if ( !objects ) return;
     size_t i;
@@ -261,7 +261,7 @@ void PdmChildArrayField<DataType*>::childObjects( std::vector<PdmObjectHandle*>*
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmChildArrayField<DataType*>::insertAt( int indexAfter, PdmObjectHandle* obj )
+void PdmChildArrayField<DataType*>::insertAt( int indexAfter, ObjectHandle* obj )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
@@ -289,7 +289,7 @@ void PdmChildArrayField<DataType*>::insertAt( int indexAfter, PdmObjectHandle* o
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-PdmObjectHandle* PdmChildArrayField<DataType*>::at( size_t index )
+ObjectHandle* PdmChildArrayField<DataType*>::at( size_t index )
 {
     return m_pointers[index].rawPtr();
 }

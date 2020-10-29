@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cafAssert.h"
-#include "cafPdmFieldHandle.h"
+#include "cafFieldHandle.h"
 #include "cafPdmPointer.h"
 #include "cafPdmValueField.h"
 #include "cafPdmValueFieldSpecializations.h"

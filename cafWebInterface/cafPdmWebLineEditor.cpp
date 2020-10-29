@@ -39,8 +39,8 @@
 #include "cafPdmWebLineEditor.h"
 
 #include "cafFactory.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmWebDefaultObjectEditor.h"
 #include "cafPdmWebFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"

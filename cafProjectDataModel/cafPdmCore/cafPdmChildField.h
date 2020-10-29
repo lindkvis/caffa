@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cafPdmFieldHandle.h"
+#include "cafFieldHandle.h"
 
 #include "cafAssert.h"
 #include "cafPdmPointer.h"
@@ -8,19 +8,19 @@
 namespace caf
 {
 template <typename T>
-class PdmFieldIoCap;
+class FieldIoCap;
 //==================================================================================================
-/// Specialization for pointers, but only applicable to PdmObject derived objects.
+/// Specialization for pointers, but only applicable to Object derived objects.
 /// The pointer is guarded, meaning that it will be set to NULL if the object pointed to
 /// is deleted. The referenced object will be printed in place in the xml-file
 /// This is supposed to be renamed to PdmChildField
 //==================================================================================================
 
-class PdmChildFieldHandle : public PdmFieldHandle
+class PdmChildFieldHandle : public FieldHandle
 {
 public:
-    virtual void childObjects( std::vector<PdmObjectHandle*>* objects ) = 0;
-    virtual void setChildObject( PdmObjectHandle* object )              = 0;
+    virtual void childObjects( std::vector<ObjectHandle*>* objects ) = 0;
+    virtual void setChildObject( ObjectHandle* object )              = 0;
 };
 
 template <typename DataType>
@@ -29,8 +29,8 @@ class PdmChildField : public PdmChildFieldHandle
 public:
     PdmChildField()
     {
-        bool doNotUsePdmPtrFieldForAnythingButPointersToPdmObject = false;
-        CAF_ASSERT( doNotUsePdmPtrFieldForAnythingButPointersToPdmObject );
+        bool doNotUsePdmPtrFieldForAnythingButPointersToObject = false;
+        CAF_ASSERT( doNotUsePdmPtrFieldForAnythingButPointersToObject );
     }
 };
 
@@ -62,14 +62,14 @@ public:
     const PdmPointer<DataType>& v() const { return m_fieldValue; }
 
     // Child objects
-    virtual void childObjects( std::vector<PdmObjectHandle*>* objects ) override;
-    void         setChildObject( PdmObjectHandle* object ) override;
-    virtual void removeChildObject( PdmObjectHandle* object ) override;
+    virtual void childObjects( std::vector<ObjectHandle*>* objects ) override;
+    void         setChildObject( ObjectHandle* object ) override;
+    virtual void removeChildObject( ObjectHandle* object ) override;
 
 private:
     PDM_DISABLE_COPY_AND_ASSIGN( PdmChildField );
 
-    friend class PdmFieldIoCap<PdmChildField<DataType*>>;
+    friend class FieldIoCap<PdmChildField<DataType*>>;
     PdmPointer<DataType> m_fieldValue;
 };
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cafPdmFieldHandle.h"
+#include "cafFieldHandle.h"
 
 namespace caf
 {
@@ -9,7 +9,7 @@ namespace caf
 ///
 ///
 //==================================================================================================
-class PdmPtrArrayFieldHandle : public PdmFieldHandle
+class PdmPtrArrayFieldHandle : public FieldHandle
 {
 public:
     PdmPtrArrayFieldHandle() {}
@@ -18,10 +18,10 @@ public:
     virtual size_t size() const                                     = 0;
     virtual bool   empty() const                                    = 0;
     virtual void   clear()                                          = 0;
-    virtual void   insertAt( int indexAfter, PdmObjectHandle* obj ) = 0;
+    virtual void   insertAt( int indexAfter, ObjectHandle* obj ) = 0;
     virtual void   erase( size_t index )                            = 0;
 
-    virtual PdmObjectHandle* at( size_t index ) = 0;
+    virtual ObjectHandle* at( size_t index ) = 0;
 };
 
 } // namespace caf

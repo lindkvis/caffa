@@ -36,7 +36,7 @@
 
 #include "cafPdmUiPropertyViewDialog.h"
 
-#include "cafPdmObject.h"
+#include "cafObject.h"
 #include "cafPdmUiPropertyView.h"
 
 #include <QVBoxLayout>
@@ -47,7 +47,7 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 PdmUiPropertyViewDialog::PdmUiPropertyViewDialog( QWidget*       parent,
-                                                  PdmObject*     object,
+                                                  Object*     object,
                                                   const QString& windowTitle,
                                                   const QString& uiConfigName )
     : QDialog( parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint )
@@ -61,7 +61,7 @@ PdmUiPropertyViewDialog::PdmUiPropertyViewDialog( QWidget*       parent,
 ///
 //--------------------------------------------------------------------------------------------------
 PdmUiPropertyViewDialog::PdmUiPropertyViewDialog( QWidget*                                 parent,
-                                                  PdmObject*                               object,
+                                                  Object*                               object,
                                                   const QString&                           windowTitle,
                                                   const QString&                           uiConfigName,
                                                   const QDialogButtonBox::StandardButtons& standardButtons )
@@ -91,7 +91,7 @@ QDialogButtonBox* PdmUiPropertyViewDialog::dialogButtonBox()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiPropertyViewDialog::initialize( PdmObject* object, const QString& windowTitle, const QString& uiConfigName )
+void PdmUiPropertyViewDialog::initialize( Object* object, const QString& windowTitle, const QString& uiConfigName )
 {
     m_pdmObject    = object;
     m_windowTitle  = windowTitle;

@@ -36,10 +36,10 @@
 
 #include "cafPdmUiToolBarEditor.h"
 
-#include "cafPdmField.h"
-#include "cafPdmFieldUiCapability.h"
-#include "cafPdmObjectHandle.h"
-#include "cafPdmObjectUiCapability.h"
+#include "cafField.h"
+#include "cafFieldUiCapability.h"
+#include "cafObjectHandle.h"
+#include "cafObjectUiCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiFieldEditorHelper.h"
@@ -78,7 +78,7 @@ PdmUiToolBarEditor::~PdmUiToolBarEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiToolBarEditor::isEditorDataValid( const std::vector<caf::PdmFieldHandle*>& fields ) const
+bool PdmUiToolBarEditor::isEditorDataValid( const std::vector<caf::FieldHandle*>& fields ) const
 {
     if ( m_fields.size() == fields.size() && m_fieldViews.size() == fields.size() )
     {
@@ -110,11 +110,11 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
         // Find set of owner objects. Can be several objects, make a set to avoid calling uiOrdering more than once for
         // an object
 
-        std::set<caf::PdmObjectUiCapability*> ownerUiObjects;
+        std::set<caf::ObjectUiCapability*> ownerUiObjects;
 
-        for ( PdmFieldHandle* field : m_fields )
+        for ( FieldHandle* field : m_fields )
         {
-            caf::PdmObjectUiCapability* ownerUiObject = field->ownerObject()->capability<PdmObjectUiCapability>();
+            caf::ObjectUiCapability* ownerUiObject = field->ownerObject()->capability<ObjectUiCapability>();
             if ( ownerUiObject )
             {
                 ownerUiObjects.insert( ownerUiObject );
@@ -122,13 +122,13 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
         }
 
         PdmUiOrdering config;
-        for ( caf::PdmObjectUiCapability* ownerUiObject : ownerUiObjects )
+        for ( caf::ObjectUiCapability* ownerUiObject : ownerUiObjects )
         {
             ownerUiObject->uiOrdering( uiConfigName, config );
         }
     }
 
-    for ( PdmFieldHandle* field : m_fields )
+    for ( FieldHandle* field : m_fields )
     {
         PdmUiFieldEditorHandle* fieldEditor = nullptr;
 
@@ -137,7 +137,7 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
         it = m_fieldViews.find( field->keyword() );
         if ( it == m_fieldViews.end() )
         {
-            caf::PdmFieldUiCapability* uiFieldHandle = field->capability<PdmFieldUiCapability>();
+            caf::FieldUiCapability* uiFieldHandle = field->capability<FieldUiCapability>();
 
             bool addSpace = false;
             if ( uiFieldHandle )
@@ -151,7 +151,7 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
                 else
                 {
                     fieldEditor =
-                        caf::PdmUiFieldEditorHelper::createFieldEditorForField( field->capability<PdmFieldUiCapability>(),
+                        caf::PdmUiFieldEditorHelper::createFieldEditorForField( field->capability<FieldUiCapability>(),
                                                                                 uiConfigName );
 
                     addSpace = true;
@@ -189,14 +189,14 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     for ( size_t i = 0; i < m_fields.size(); i++ )
     {
-        caf::PdmFieldHandle* field = m_fields[i];
+        caf::FieldHandle* field = m_fields[i];
 
         // Enabled state of a tool button is controlled by the QAction associated with a tool button
         // Changing the state of a widget directly has no effect
         // See Qt doc for QToolBar::insertWidget
         QAction* action = m_actions[static_cast<int>( i )];
 
-        caf::PdmFieldUiCapability* uiFieldHandle = field->capability<PdmFieldUiCapability>();
+        caf::FieldUiCapability* uiFieldHandle = field->capability<FieldUiCapability>();
         if ( uiFieldHandle )
         {
             action->setEnabled( !uiFieldHandle->isUiReadOnly( uiConfigName ) );
@@ -235,7 +235,7 @@ QWidget* PdmUiToolBarEditor::focusWidget( PdmUiFieldEditorHandle* uiFieldEditorH
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiToolBarEditor::setFields( std::vector<caf::PdmFieldHandle*>& fields )
+void PdmUiToolBarEditor::setFields( std::vector<caf::FieldHandle*>& fields )
 {
     clear();
 
@@ -284,7 +284,7 @@ void PdmUiToolBarEditor::setFocusWidgetFromKeyword( const QString& fieldKeyword 
             {
                 if ( field->keyword() == fieldKeyword )
                 {
-                    caf::PdmObjectUiCapability* uiObject = uiObj( field->ownerObject() );
+                    caf::ObjectUiCapability* uiObject = uiObj( field->ownerObject() );
                     if ( uiObject )
                     {
                         uiObject->editorAttribute( field, uiEditorConfigName(), &attributes );

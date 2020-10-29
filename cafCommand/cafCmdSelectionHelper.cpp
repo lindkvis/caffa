@@ -46,7 +46,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void CmdSelectionHelper::executeSelectionCommand( const std::vector<PdmObjectHandle*>& selection, int selectionLevel )
+void CmdSelectionHelper::executeSelectionCommand( const std::vector<ObjectHandle*>& selection, int selectionLevel )
 {
     CmdSelectionChangeExec* selectionChangeExec = createSelectionCommand( selection, selectionLevel );
 
@@ -56,7 +56,7 @@ void CmdSelectionHelper::executeSelectionCommand( const std::vector<PdmObjectHan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CmdSelectionChangeExec* CmdSelectionHelper::createSelectionCommand( const std::vector<PdmObjectHandle*>& selection,
+CmdSelectionChangeExec* CmdSelectionHelper::createSelectionCommand( const std::vector<ObjectHandle*>& selection,
                                                                     int selectionLevel )
 {
     CmdSelectionChangeExec* selectionChangeExec =

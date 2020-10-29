@@ -44,10 +44,10 @@
 
 namespace caf
 {
-class PdmObjectHandle;
+class ObjectHandle;
 
 //==================================================================================================
-/// Abstract class to handle editors for complete PdmObjects
+/// Abstract class to handle editors for complete Objects
 //==================================================================================================
 
 class cafPdmUiCore_EXPORT PdmUiObjectEditorHandle : public PdmUiEditorHandle
@@ -56,15 +56,15 @@ public:
     PdmUiObjectEditorHandle();
     ~PdmUiObjectEditorHandle() override;
 
-    void                   setPdmObject( PdmObjectHandle* object );
-    PdmObjectHandle*       pdmObject();
-    const PdmObjectHandle* pdmObject() const;
+    void                   setObject( ObjectHandle* object );
+    ObjectHandle*       pdmObject();
+    const ObjectHandle* pdmObject() const;
 
-    /// This function is intended to be called after a PdmObject has been created or deleted
+    /// This function is intended to be called after a Object has been created or deleted
     static void updateUiAllObjectEditors();
 
 protected:
-    virtual void cleanupBeforeSettingPdmObject(){};
+    virtual void cleanupBeforeSettingObject(){};
 
 private:
     static std::set<QPointer<PdmUiObjectEditorHandle>> m_sRegisteredObjectEditors;

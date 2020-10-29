@@ -50,7 +50,7 @@ namespace caf
 class PdmUiItem;
 class PdmUiTreeViewEditor;
 class PdmUiDragDropInterface;
-class PdmObjectHandle;
+class ObjectHandle;
 
 //==================================================================================================
 ///
@@ -89,7 +89,7 @@ public:
 signals:
     void selectionChanged();
     // Convenience signal for use with PdmUiPropertyView
-    void selectedObjectChanged( caf::PdmObjectHandle* object ); // Signal/Slot system needs caf:: prefix in some cases
+    void selectedObjectChanged( caf::ObjectHandle* object ); // Signal/Slot system needs caf:: prefix in some cases
 
 private slots:
     void slotOnSelectionChanged();

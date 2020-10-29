@@ -35,7 +35,7 @@
 
 #include "cafPdmUiTreeSelectionQModel.h"
 
-#include "cafPdmObject.h"
+#include "cafObject.h"
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiTreeViewQModel.h"
 

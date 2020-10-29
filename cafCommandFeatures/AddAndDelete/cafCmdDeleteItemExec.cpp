@@ -38,7 +38,7 @@
 #include "cafCmdDeleteItemExecData.h"
 
 #include "cafPdmChildArrayField.h"
-#include "cafPdmFieldUiCapability.h"
+#include "cafFieldUiCapability.h"
 #include "cafPdmReferenceHelper.h"
 
 #include "cafSelectionManager.h"
@@ -60,38 +60,38 @@ QString CmdDeleteItemExec::name()
 //--------------------------------------------------------------------------------------------------
 void CmdDeleteItemExec::redo()
 {
-    PdmFieldHandle* field =
+    FieldHandle* field =
         PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
 
     PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
     if ( listField )
     {
-        std::vector<PdmObjectHandle*> children;
+        std::vector<ObjectHandle*> children;
         listField->childObjects( &children );
 
-        std::unique_ptr<PdmObjectHandle> obj( children[m_commandData->m_indexToObject] );
+        std::unique_ptr<ObjectHandle> obj( children[m_commandData->m_indexToObject] );
         caf::SelectionManager::instance()->removeObjectFromAllSelections( obj.get() );
 
         if ( m_commandData->m_deletedObjectAsXml().isEmpty() )
         {
             QString encodedXml;
             {
-                m_commandData->m_deletedObjectAsXml = obj->capability<PdmObjectIoCapability>()->writeObjectToString();
+                m_commandData->m_deletedObjectAsXml = obj->capability<ObjectIoCapability>()->writeObjectToString();
             }
         }
 
         listField->erase( m_commandData->m_indexToObject );
 
         // TODO: The notification here could possibly be changed to
-        // PdmFieldUiCapability::notifyDataChange() similar to void CmdFieldChangeExec::redo()
+        // FieldUiCapability::notifyDataChange() similar to void CmdFieldChangeExec::redo()
 
-        caf::PdmObjectUiCapability* ownerUiObject = uiObj( listField->ownerObject() );
+        caf::ObjectUiCapability* ownerUiObject = uiObj( listField->ownerObject() );
         if ( ownerUiObject )
         {
             ownerUiObject->fieldChangedByUi( field, QVariant(), QVariant() );
         }
 
-        listField->capability<PdmFieldUiCapability>()->updateConnectedEditors();
+        listField->capability<FieldUiCapability>()->updateConnectedEditors();
     }
 }
 
@@ -100,28 +100,28 @@ void CmdDeleteItemExec::redo()
 //--------------------------------------------------------------------------------------------------
 void CmdDeleteItemExec::undo()
 {
-    PdmFieldHandle* field =
+    FieldHandle* field =
         PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
 
     PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
     if ( listField )
     {
-        PdmObjectHandle* obj = PdmObjectIoCapability::readUnknownObjectFromString( m_commandData->m_deletedObjectAsXml(),
+        ObjectHandle* obj = ObjectIoCapability::readUnknownObjectFromString( m_commandData->m_deletedObjectAsXml(),
                                                                                    PdmDefaultObjectFactory::instance(),
                                                                                    false );
 
         listField->insertAt( m_commandData->m_indexToObject, obj );
 
         // TODO: The notification here could possibly be changed to
-        // PdmFieldUiCapability::notifyDataChange() similar to void CmdFieldChangeExec::redo()
+        // FieldUiCapability::notifyDataChange() similar to void CmdFieldChangeExec::redo()
 
-        caf::PdmObjectUiCapability* ownerUiObject = uiObj( listField->ownerObject() );
+        caf::ObjectUiCapability* ownerUiObject = uiObj( listField->ownerObject() );
         if ( ownerUiObject )
         {
             ownerUiObject->fieldChangedByUi( field, QVariant(), QVariant() );
         }
 
-        listField->capability<PdmFieldUiCapability>()->updateConnectedEditors();
+        listField->capability<FieldUiCapability>()->updateConnectedEditors();
     }
 }
 

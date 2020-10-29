@@ -37,13 +37,13 @@
 #pragma once
 
 #include "cafCmdFeature.h"
-#include "cafPdmField.h"
+#include "cafField.h"
 
 namespace caf
 {
-class PdmFieldHandle;
-class PdmObject;
-class PdmObjectHandle;
+class FieldHandle;
+class Object;
+class ObjectHandle;
 
 //==================================================================================================
 ///
@@ -59,9 +59,9 @@ protected:
     void setupActionLook( ActionWrapper* actionToSetup ) override;
 
 private:
-    caf::PdmFieldHandle* verifySameParentForSelection( const std::vector<caf::PdmObject*>& selectedObjects );
-    std::vector<caf::PdmObjectHandle*> childObjects( caf::PdmFieldHandle* parent );
-    caf::PdmField<bool>*               objectToggleField( caf::PdmObjectHandle* objectHandle );
+    caf::FieldHandle* verifySameParentForSelection( const std::vector<caf::Object*>& selectedObjects );
+    std::vector<caf::ObjectHandle*> childObjects( caf::FieldHandle* parent );
+    caf::Field<bool>*               objectToggleField( caf::ObjectHandle* objectHandle );
 };
 
 } // namespace caf

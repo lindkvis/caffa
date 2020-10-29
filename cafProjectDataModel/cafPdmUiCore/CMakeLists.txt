@@ -11,7 +11,7 @@ endif()
 set (PUBLIC_HEADERS
     cafPdmUiCore_export.h
 
-    cafInternalPdmFieldTypeSpecializations.h
+    cafInternalUiFieldSpecializations.h
     cafInternalPdmUiFieldCapability.h
     cafInternalPdmUiFieldCapability.inl
     cafInternalPdmUiCommandSystemInterface.h
@@ -26,14 +26,14 @@ set (PUBLIC_HEADERS
     cafPdmUiEditorAttribute.h
     cafPdmUiEditorHandle.h
     cafPdmUiFieldEditorHandle.h
-    cafPdmFieldUiCapability.h
+    cafFieldUiCapability.h
     cafPdmUiFieldSpecialization.h
     cafPdmUiItem.h
     cafPdmUiModelChangeDetector.h
     cafPdmUiObjectEditorHandle.h
     cafPdmUiWidgetObjectEditorHandle.h
     cafPdmUi3dObjectEditorHandle.h
-    cafPdmObjectUiCapability.h
+    cafObjectUiCapability.h
     cafPdmUiOrdering.h
     cafPdmUiCommandSystemProxy.h
     cafPdmUiTreeOrdering.h
@@ -67,13 +67,13 @@ set( PROJECT_FILES
     cafQActionWrapper.cpp
     cafPdmUiEditorHandle.cpp
     cafPdmUiFieldEditorHandle.cpp
-    cafPdmFieldUiCapability.cpp
+    cafFieldUiCapability.cpp
     cafPdmUiItem.cpp
     cafPdmUiModelChangeDetector.cpp
     cafPdmUiObjectEditorHandle.cpp
     cafPdmUiWidgetObjectEditorHandle.cpp
     cafPdmUi3dObjectEditorHandle.cpp
-    cafPdmObjectUiCapability.cpp
+    cafObjectUiCapability.cpp
     cafPdmUiOrdering.cpp
     cafPdmUiCommandSystemProxy.cpp
     cafPdmUiTreeOrdering.cpp

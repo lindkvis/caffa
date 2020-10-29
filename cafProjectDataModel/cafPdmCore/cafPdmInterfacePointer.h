@@ -52,7 +52,7 @@ public:
 
     T* p() const
     {
-        if ( m_implementingPdmObject.notNull() )
+        if ( m_implementingObject.notNull() )
         {
             return m_iface;
         }
@@ -64,25 +64,25 @@ public:
 
     PdmInterfacePointer<T>& operator=( T* iface )
     {
-        m_implementingPdmObject = nullptr;
+        m_implementingObject = nullptr;
         m_iface                 = nullptr;
         if ( iface != nullptr )
         {
-            m_implementingPdmObject = iface->implementingPdmObject();
+            m_implementingObject = iface->implementingObject();
             m_iface                 = iface;
         }
         return *this;
     }
 
-    bool                    isNull() const { return m_implementingPdmObject.isNull(); }
-    bool                    notNull() const { return m_implementingPdmObject.notNull(); }
+    bool                    isNull() const { return m_implementingObject.isNull(); }
+    bool                    notNull() const { return m_implementingObject.notNull(); }
                             operator T*() const { return p(); }
     T*                      operator->() const { return p(); }
     PdmInterfacePointer<T>& operator=( const PdmInterfacePointer<T>& other ) { return *this = other.p(); }
 
 private:
     T*                               m_iface;
-    PdmPointer<caf::PdmObjectHandle> m_implementingPdmObject;
+    PdmPointer<caf::ObjectHandle> m_implementingObject;
 };
 
 } // namespace caf

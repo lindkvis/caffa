@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cafPdmObjectHandle.h"
+#include "cafObjectHandle.h"
 #include "cafPdmUiEditorAttribute.h"
 
 #include <QColor>
@@ -46,6 +46,6 @@ public:
     QStringList columnHeaders;
 
     /// This object is set as current item in the tree view in configureAndUpdateUi()
-    caf::PdmObjectHandle* currentObject;
+    caf::ObjectHandle* currentObject;
 };
 }

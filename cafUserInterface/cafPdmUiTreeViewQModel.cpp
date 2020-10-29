@@ -36,9 +36,9 @@
 
 #include "cafPdmUiTreeViewQModel.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmObjectUiCapability.h"
+#include "cafField.h"
+#include "cafObject.h"
+#include "cafObjectUiCapability.h"
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiDragDropInterface.h"
 #include "cafPdmUiTreeItemEditor.h"
@@ -75,16 +75,16 @@ void PdmUiTreeViewQModel::setPdmItemRoot( PdmUiItem* rootItem )
     }
 
     PdmUiTreeOrdering*    newRoot = nullptr;
-    PdmFieldUiCapability* field   = dynamic_cast<PdmFieldUiCapability*>( rootItem );
+    FieldUiCapability* field   = dynamic_cast<FieldUiCapability*>( rootItem );
 
     if ( field )
     {
         newRoot = new PdmUiTreeOrdering( field->fieldHandle() );
-        PdmObjectUiCapability::expandUiTree( newRoot, m_uiConfigName );
+        ObjectUiCapability::expandUiTree( newRoot, m_uiConfigName );
     }
     else
     {
-        PdmObjectUiCapability* obj = dynamic_cast<PdmObjectUiCapability*>( rootItem );
+        ObjectUiCapability* obj = dynamic_cast<ObjectUiCapability*>( rootItem );
         if ( obj )
         {
             newRoot = obj->uiTreeOrdering( m_uiConfigName );
@@ -141,21 +141,21 @@ void PdmUiTreeViewQModel::updateSubTree( PdmUiItem* pdmRoot )
     // Build the new "Correct" Tree
 
     PdmUiTreeOrdering*    newTreeRootTmp = nullptr;
-    PdmFieldUiCapability* field          = dynamic_cast<PdmFieldUiCapability*>( pdmRoot );
+    FieldUiCapability* field          = dynamic_cast<FieldUiCapability*>( pdmRoot );
     if ( field )
     {
         newTreeRootTmp = new PdmUiTreeOrdering( field->fieldHandle() );
     }
     else
     {
-        PdmObjectUiCapability* obj = dynamic_cast<PdmObjectUiCapability*>( pdmRoot );
+        ObjectUiCapability* obj = dynamic_cast<ObjectUiCapability*>( pdmRoot );
         if ( obj )
         {
             newTreeRootTmp = new PdmUiTreeOrdering( obj->objectHandle() );
         }
     }
 
-    PdmObjectUiCapability::expandUiTree( newTreeRootTmp, m_uiConfigName );
+    ObjectUiCapability::expandUiTree( newTreeRootTmp, m_uiConfigName );
 
 #if CAF_PDM_TREE_VIEW_DEBUG_PRINT
     std::cout << std::endl << "New Stuff: " << std::endl;
@@ -209,7 +209,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 /// Makes the existingSubTreeRoot tree become identical to the tree in sourceSubTreeRoot,
 /// calling begin..() end..() to make the UI update accordingly.
-/// This assumes that all the items have a pointer an unique PdmObject
+/// This assumes that all the items have a pointer an unique Object
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSubTreeRootModIdx,
                                                   PdmUiTreeOrdering* existingSubTreeRoot,
@@ -578,14 +578,14 @@ QVariant PdmUiTreeViewQModel::data( const QModelIndex& index, int role ) const
     {
         if ( isObjRep )
         {
-            PdmObjectUiCapability* pdmUiObject = uiObj( uitreeOrdering->object() );
+            ObjectUiCapability* pdmUiObject = uiObj( uitreeOrdering->object() );
             if ( pdmUiObject )
             {
                 QVariant v;
                 if ( pdmUiObject->userDescriptionField() )
                 {
-                    caf::PdmFieldUiCapability* uiFieldHandle =
-                        pdmUiObject->userDescriptionField()->capability<PdmFieldUiCapability>();
+                    caf::FieldUiCapability* uiFieldHandle =
+                        pdmUiObject->userDescriptionField()->capability<FieldUiCapability>();
                     if ( uiFieldHandle )
                     {
                         v = uiFieldHandle->uiValue();
@@ -600,7 +600,7 @@ QVariant PdmUiTreeViewQModel::data( const QModelIndex& index, int role ) const
 
                 if ( m_treeViewEditor->isAppendOfClassNameToUiItemTextEnabled() )
                 {
-                    PdmObjectHandle* pdmObjHandle = pdmUiObject->objectHandle();
+                    ObjectHandle* pdmObjHandle = pdmUiObject->objectHandle();
                     if ( pdmObjHandle )
                     {
                         txt += " - ";
@@ -663,11 +663,11 @@ QVariant PdmUiTreeViewQModel::data( const QModelIndex& index, int role ) const
     {
         if ( isObjRep )
         {
-            PdmObjectUiCapability* pdmUiObj = uiObj( uitreeOrdering->object() );
+            ObjectUiCapability* pdmUiObj = uiObj( uitreeOrdering->object() );
             if ( pdmUiObj && pdmUiObj->objectToggleField() )
             {
-                caf::PdmFieldUiCapability* uiFieldHandle =
-                    pdmUiObj->objectToggleField()->capability<PdmFieldUiCapability>();
+                caf::FieldUiCapability* uiFieldHandle =
+                    pdmUiObj->objectToggleField()->capability<FieldUiCapability>();
                 if ( uiFieldHandle )
                 {
                     bool isToggledOn = uiFieldHandle->uiValue().toBool();
@@ -706,13 +706,13 @@ bool PdmUiTreeViewQModel::setData( const QModelIndex& index, const QVariant& val
 
     if ( !treeItem->isRepresentingObject() ) return false;
 
-    PdmObjectUiCapability* uiObject = uiObj( treeItem->object() );
+    ObjectUiCapability* uiObject = uiObj( treeItem->object() );
     if ( uiObject )
     {
         if ( role == Qt::EditRole && uiObject->userDescriptionField() )
         {
-            PdmFieldUiCapability* userDescriptionUiField =
-                uiObject->userDescriptionField()->capability<PdmFieldUiCapability>();
+            FieldUiCapability* userDescriptionUiField =
+                uiObject->userDescriptionField()->capability<FieldUiCapability>();
             if ( userDescriptionUiField )
             {
                 PdmUiCommandSystemProxy::instance()->setUiValueToField( userDescriptionUiField, value );
@@ -721,11 +721,11 @@ bool PdmUiTreeViewQModel::setData( const QModelIndex& index, const QVariant& val
             return true;
         }
         else if ( role == Qt::CheckStateRole && uiObject->objectToggleField() &&
-                  !uiObject->objectToggleField()->capability<PdmFieldUiCapability>()->isUiReadOnly( m_uiConfigName ) )
+                  !uiObject->objectToggleField()->capability<FieldUiCapability>()->isUiReadOnly( m_uiConfigName ) )
         {
             bool toggleOn = ( value == Qt::Checked );
 
-            PdmFieldUiCapability* toggleUiField = uiObject->objectToggleField()->capability<PdmFieldUiCapability>();
+            FieldUiCapability* toggleUiField = uiObject->objectToggleField()->capability<FieldUiCapability>();
             if ( toggleUiField )
             {
                 PdmUiCommandSystemProxy::instance()->setUiValueToField( toggleUiField, toggleOn );
@@ -756,11 +756,11 @@ Qt::ItemFlags PdmUiTreeViewQModel::flags( const QModelIndex& index ) const
 
     if ( treeItem->isRepresentingObject() )
     {
-        PdmObjectUiCapability* pdmUiObject = uiObj( treeItem->object() );
+        ObjectUiCapability* pdmUiObject = uiObj( treeItem->object() );
         if ( pdmUiObject )
         {
             if ( pdmUiObject->userDescriptionField() &&
-                 !pdmUiObject->userDescriptionField()->capability<PdmFieldUiCapability>()->isUiReadOnly() )
+                 !pdmUiObject->userDescriptionField()->capability<FieldUiCapability>()->isUiReadOnly() )
             {
                 flagMask = flagMask | Qt::ItemIsEditable;
             }

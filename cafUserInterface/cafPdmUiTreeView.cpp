@@ -36,7 +36,7 @@
 
 #include "cafPdmUiTreeView.h"
 
-#include "cafPdmObject.h"
+#include "cafObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 
 #include "cafPdmUiTreeViewEditor.h"
@@ -129,11 +129,11 @@ void PdmUiTreeView::slotOnSelectionChanged()
 
     std::vector<PdmUiItem*> objects;
     m_treeViewEditor->selectedUiItems( objects );
-    PdmObjectHandle* objHandle = nullptr;
+    ObjectHandle* objHandle = nullptr;
 
     if ( objects.size() )
     {
-        PdmObjectUiCapability* uiObjH = dynamic_cast<PdmObjectUiCapability*>( objects[0] );
+        ObjectUiCapability* uiObjH = dynamic_cast<ObjectUiCapability*>( objects[0] );
         if ( uiObjH )
         {
             objHandle = uiObjH->objectHandle();

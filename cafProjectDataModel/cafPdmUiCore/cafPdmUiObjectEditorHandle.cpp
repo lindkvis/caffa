@@ -36,7 +36,7 @@
 
 #include "cafPdmUiObjectEditorHandle.h"
 
-#include "cafPdmObjectUiCapability.h"
+#include "cafObjectUiCapability.h"
 
 namespace caf
 {
@@ -61,20 +61,20 @@ PdmUiObjectEditorHandle::~PdmUiObjectEditorHandle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiObjectEditorHandle::setPdmObject( PdmObjectHandle* object )
+void PdmUiObjectEditorHandle::setObject( ObjectHandle* object )
 {
-    cleanupBeforeSettingPdmObject();
+    cleanupBeforeSettingObject();
 
-    caf::PdmObjectUiCapability* uiObject = uiObj( object );
+    caf::ObjectUiCapability* uiObject = uiObj( object );
     this->bindToPdmItem( uiObject );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObjectHandle* PdmUiObjectEditorHandle::pdmObject()
+ObjectHandle* PdmUiObjectEditorHandle::pdmObject()
 {
-    PdmObjectUiCapability* uiObject = dynamic_cast<PdmObjectUiCapability*>( pdmItem() );
+    ObjectUiCapability* uiObject = dynamic_cast<ObjectUiCapability*>( pdmItem() );
     if ( uiObject )
     {
         return uiObject->objectHandle();
@@ -88,11 +88,11 @@ PdmObjectHandle* PdmUiObjectEditorHandle::pdmObject()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const caf::PdmObjectHandle* PdmUiObjectEditorHandle::pdmObject() const
+const caf::ObjectHandle* PdmUiObjectEditorHandle::pdmObject() const
 {
     const PdmUiItem* pdmItem = this->pdmItem();
 
-    const PdmObjectUiCapability* uiObject = dynamic_cast<const PdmObjectUiCapability*>( pdmItem );
+    const ObjectUiCapability* uiObject = dynamic_cast<const ObjectUiCapability*>( pdmItem );
     if ( uiObject )
     {
         return uiObject->objectHandle();

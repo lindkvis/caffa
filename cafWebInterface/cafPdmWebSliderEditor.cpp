@@ -38,8 +38,8 @@
 #include "cafPdmWebSliderEditor.h"
 
 #include "cafAssert.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmWebDefaultObjectEditor.h"
 #include "cafPdmWebFieldEditorHandle.h"
 
@@ -74,7 +74,7 @@ void PdmWebSliderEditor::configureAndUpdateUi( const QString& uiConfigName )
         m_slider->setToolTip( uiField()->uiToolTip( uiConfigName ).toStdString() );
     }
 
-    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );

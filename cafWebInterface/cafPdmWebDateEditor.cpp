@@ -38,8 +38,8 @@
 #include "cafPdmWebDateEditor.h"
 
 #include "cafFactory.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmWebDefaultObjectEditor.h"
 #include "cafPdmWebFieldEditorHandle.h"
@@ -65,7 +65,7 @@ void PdmWebDateEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     m_dateEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
 
-    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );

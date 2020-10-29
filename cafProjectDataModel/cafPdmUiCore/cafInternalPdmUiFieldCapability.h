@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cafPdmFieldUiCapability.h"
+#include "cafFieldUiCapability.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -8,11 +8,11 @@
 namespace caf
 {
 template <typename FieldType>
-class PdmFieldUiCap : public PdmFieldUiCapability
+class FieldUiCap : public FieldUiCapability
 {
 public:
-    PdmFieldUiCap( FieldType* field, bool giveOwnership )
-        : PdmFieldUiCapability( field, giveOwnership )
+    FieldUiCap( FieldType* field, bool giveOwnership )
+        : FieldUiCapability( field, giveOwnership )
     {
         m_field = field;
     }
@@ -38,13 +38,13 @@ private:
 // Specialization for ChildFields to do nothing towards GUI
 //
 template <typename DataType>
-class PdmFieldUiCap<PdmChildField<DataType*>> : public PdmFieldUiCapability
+class FieldUiCap<PdmChildField<DataType*>> : public FieldUiCapability
 {
     typedef PdmChildField<DataType*> FieldType;
 
 public:
-    PdmFieldUiCap( FieldType* field, bool giveOwnership )
-        : PdmFieldUiCapability( field, giveOwnership )
+    FieldUiCap( FieldType* field, bool giveOwnership )
+        : FieldUiCapability( field, giveOwnership )
     {
     }
 
@@ -61,13 +61,13 @@ public:
 // Specialization for ChildArrayFields to do nothing towards GUI
 //
 template <typename DataType>
-class PdmFieldUiCap<PdmChildArrayField<DataType*>> : public PdmFieldUiCapability
+class FieldUiCap<PdmChildArrayField<DataType*>> : public FieldUiCapability
 {
     typedef PdmChildArrayField<DataType*> FieldType;
 
 public:
-    PdmFieldUiCap( FieldType* field, bool giveOwnership )
-        : PdmFieldUiCapability( field, giveOwnership )
+    FieldUiCap( FieldType* field, bool giveOwnership )
+        : FieldUiCapability( field, giveOwnership )
     {
     }
 
@@ -83,9 +83,9 @@ public:
 template <typename FieldType>
 void AddUiCapabilityToField( FieldType* field )
 {
-    if ( field->template capability<PdmFieldUiCap<FieldType>>() == NULL )
+    if ( field->template capability<FieldUiCap<FieldType>>() == NULL )
     {
-        new PdmFieldUiCap<FieldType>( field, true );
+        new FieldUiCap<FieldType>( field, true );
     }
 }
 

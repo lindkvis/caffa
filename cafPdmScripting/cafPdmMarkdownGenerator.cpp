@@ -37,7 +37,7 @@
 #include "cafPdmMarkdownGenerator.h"
 
 #include "cafPdmMarkdownBuilder.h"
-#include "cafPdmObjectScriptingCapabilityRegister.h"
+#include "cafObjectScriptingCapabilityRegister.h"
 
 using namespace caf;
 
@@ -46,20 +46,20 @@ CAF_PDM_CODE_GENERATOR_SOURCE_INIT( PdmMarkdownGenerator, "md" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString caf::PdmMarkdownGenerator::generate( PdmObjectFactory* factory ) const
+QString caf::PdmMarkdownGenerator::generate( ObjectFactory* factory ) const
 {
     QString     generatedCode;
     QTextStream out( &generatedCode );
 
     std::vector<QString> classKeywords = factory->classKeywords();
 
-    std::vector<std::shared_ptr<const PdmObject>> scriptableObjects;
+    std::vector<std::shared_ptr<const Object>> scriptableObjects;
 
     {
-        std::vector<std::shared_ptr<const PdmObject>> allObjects = caf::PdmMarkdownBuilder::createAllObjects( factory );
+        std::vector<std::shared_ptr<const Object>> allObjects = caf::PdmMarkdownBuilder::createAllObjects( factory );
         for ( auto obj : allObjects )
         {
-            if ( PdmObjectScriptingCapabilityRegister::isScriptable( obj.get() ) )
+            if ( ObjectScriptingCapabilityRegister::isScriptable( obj.get() ) )
             {
                 scriptableObjects.push_back( obj );
             }

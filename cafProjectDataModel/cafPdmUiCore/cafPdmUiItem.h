@@ -129,7 +129,7 @@ public:
                        bool                isReadOnly = false,
                        const IconProvider& anIcon     = IconProvider() );
     PdmOptionItemInfo( const QString&        anOptionUiText,
-                       caf::PdmObjectHandle* obj,
+                       caf::ObjectHandle* obj,
                        bool                  isReadOnly = false,
                        const IconProvider&   anIcon     = IconProvider() );
 

@@ -36,7 +36,7 @@
 
 #include "cafPdmUiCoreColor.h"
 
-#include "cafPdmField.h"
+#include "cafField.h"
 #include "cafPdmProxyValueField.h"
 
 //--------------------------------------------------------------------------------------------------

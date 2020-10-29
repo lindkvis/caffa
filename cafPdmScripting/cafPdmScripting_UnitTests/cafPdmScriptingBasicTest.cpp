@@ -41,28 +41,28 @@
 #include "cafPdmChildField.h"
 #include "cafPdmCodeGenerator.h"
 #include "cafPdmDocument.h"
-#include "cafPdmField.h"
-#include "cafPdmFieldScriptingCapability.h"
-#include "cafPdmObject.h"
-#include "cafPdmObjectGroup.h"
+#include "cafField.h"
+#include "cafFieldScriptingCapability.h"
+#include "cafObject.h"
+#include "cafObjectGroup.h"
 #include "cafPdmPointer.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmReferenceHelper.h"
 
 #include <QFile>
 
-#include "cafPdmObjectScriptingCapability.h"
+#include "cafObjectScriptingCapability.h"
 #include <memory>
 
 /// Demo objects to show the usage of the Pdm system
 
-class SimpleObj : public caf::PdmObject
+class SimpleObj : public caf::Object
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     SimpleObj()
-        : PdmObject()
+        : Object()
         , m_doubleMember( 0.0 )
     {
         CAF_PDM_InitObject( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
@@ -83,7 +83,7 @@ public:
     /// Assignment and copying of PDM objects is not focus for the features. This is only a
     /// "would it work" test
     SimpleObj( const SimpleObj& other )
-        : PdmObject()
+        : Object()
     {
         CAF_PDM_InitField( &m_position, "Position", 8765.2, "Position", "", "", "WhatsThis" );
         CAF_PDM_InitField( &m_dir, "Dir", 123.56, "Direction", "", "", "WhatsThis" );
@@ -100,10 +100,10 @@ public:
 
     ~SimpleObj() {}
 
-    caf::PdmField<double>              m_position;
-    caf::PdmField<double>              m_dir;
-    caf::PdmField<double>              m_up;
-    caf::PdmField<std::vector<double>> m_numbers;
+    caf::Field<double>              m_position;
+    caf::Field<double>              m_dir;
+    caf::Field<double>              m_up;
+    caf::Field<std::vector<double>> m_numbers;
     caf::PdmProxyValueField<double>    m_proxyDouble;
 
     void setDoubleMember( const double& d )
@@ -121,14 +121,14 @@ public:
 };
 CAF_PDM_SOURCE_INIT( SimpleObj, "SimpleObj" );
 
-class DemoPdmObject : public caf::PdmObject
+class DemoObject : public caf::Object
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    DemoPdmObject()
+    DemoObject()
     {
-        CAF_PDM_InitObject( "DemoPdmObject", "", "Tooltip DemoPdmObject", "WhatsThis DemoPdmObject" );
+        CAF_PDM_InitObject( "DemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
 
         CAF_PDM_InitField( &m_doubleField,
                            "BigNumber",
@@ -152,24 +152,24 @@ public:
         m_simpleObjPtrField2 = new SimpleObj;
     }
 
-    ~DemoPdmObject()
+    ~DemoObject()
     {
         delete m_simpleObjPtrField();
         delete m_simpleObjPtrField2();
     }
 
     // Fields
-    caf::PdmField<double>  m_doubleField;
-    caf::PdmField<int>     m_intField;
-    caf::PdmField<QString> m_textField;
+    caf::Field<double>  m_doubleField;
+    caf::Field<int>     m_intField;
+    caf::Field<QString> m_textField;
 
     caf::PdmChildField<SimpleObj*> m_simpleObjPtrField;
     caf::PdmChildField<SimpleObj*> m_simpleObjPtrField2;
 };
 
-CAF_PDM_SOURCE_INIT( DemoPdmObject, "DemoPdmObject" );
+CAF_PDM_SOURCE_INIT( DemoObject, "DemoObject" );
 
-class InheritedDemoObj : public DemoPdmObject
+class InheritedDemoObj : public DemoObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -203,10 +203,10 @@ public:
 
     ~InheritedDemoObj() { m_simpleObjectsField.deleteAllChildObjects(); }
 
-    caf::PdmField<std::vector<QString>> m_texts;
-    caf::PdmField<std::vector<double>>  m_numbers;
+    caf::Field<std::vector<QString>> m_texts;
+    caf::Field<std::vector<double>>  m_numbers;
 
-    caf::PdmField<caf::AppEnum<TestEnumType>> m_testEnumField;
+    caf::Field<caf::AppEnum<TestEnumType>> m_testEnumField;
     caf::PdmChildArrayField<SimpleObj*>       m_simpleObjectsField;
 };
 CAF_PDM_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj" );
@@ -218,13 +218,13 @@ class MyPdmDocument : public caf::PdmDocument
 public:
     MyPdmDocument()
     {
-        CAF_PDM_InitObject( "PdmObjectCollection", "", "", "" );
-        CAF_PDM_InitFieldNoDefault( &objects, "PdmObjects", "", "", "", "" )
+        CAF_PDM_InitObject( "ObjectCollection", "", "", "" );
+        CAF_PDM_InitFieldNoDefault( &objects, "Objects", "", "", "", "" )
     }
 
     ~MyPdmDocument() { objects.deleteAllChildObjects(); }
 
-    caf::PdmChildArrayField<PdmObjectHandle*> objects;
+    caf::PdmChildArrayField<ObjectHandle*> objects;
 };
 CAF_PDM_SOURCE_INIT( MyPdmDocument, "MyPdmDocument" );
 

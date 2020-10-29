@@ -8,10 +8,10 @@
 namespace caf
 {
 template <typename T>
-class PdmFieldIoCap;
+class FieldIoCap;
 
 //==================================================================================================
-/// A field that contains a pointer to a PdmObjectHandle derived object.
+/// A field that contains a pointer to a ObjectHandle derived object.
 /// The referenced object will not be printed in the XML-output yet, but
 /// it is intended to be written as a reference (by path from common root)
 /// This field has nothing to do with ownership at all, and is not a part of the
@@ -26,8 +26,8 @@ class PdmPtrField : public PdmValueField
 public:
     PdmPtrField()
     {
-        bool doNotUsePdmPtrFieldForAnythingButPointersToPdmObject = false;
-        CAF_ASSERT( doNotUsePdmPtrFieldForAnythingButPointersToPdmObject );
+        bool doNotUsePdmPtrFieldForAnythingButPointersToObject = false;
+        CAF_ASSERT( doNotUsePdmPtrFieldForAnythingButPointersToObject );
     }
 };
 
@@ -71,13 +71,13 @@ public:
 
     // Ptr referenced objects
 
-    void ptrReferencedObjects( std::vector<PdmObjectHandle*>* objectsToFill ) override;
+    void ptrReferencedObjects( std::vector<ObjectHandle*>* objectsToFill ) override;
 
 private:
     PDM_DISABLE_COPY_AND_ASSIGN( PdmPtrField );
 
-    friend class PdmFieldIoCap<PdmPtrField<DataType*>>;
-    void setRawPtr( PdmObjectHandle* obj );
+    friend class FieldIoCap<PdmPtrField<DataType*>>;
+    void setRawPtr( ObjectHandle* obj );
 
     PdmPointer<DataType> m_fieldValue;
 

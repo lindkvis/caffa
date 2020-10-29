@@ -42,8 +42,8 @@
 #include "cafCmdFeatureManager.h"
 #include "cafCmdFieldChangeExec.h"
 
-#include "cafPdmFieldHandle.h"
-#include "cafPdmObjectUiCapability.h"
+#include "cafFieldHandle.h"
+#include "cafObjectUiCapability.h"
 
 #include "cafSelectionManager.h"
 
@@ -63,7 +63,7 @@ CmdUiCommandSystemImpl::CmdUiCommandSystemImpl()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHandle*>& fieldsToUpdate,
+void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<FieldHandle*>& fieldsToUpdate,
                                                   const QVariant&                     newUiValue )
 {
     if ( fieldsToUpdate.empty() ) return;
@@ -72,15 +72,15 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
 
     for ( size_t i = 0; i < fieldsToUpdate.size(); i++ )
     {
-        PdmFieldHandle*       field         = fieldsToUpdate[i];
-        PdmFieldUiCapability* uiFieldHandle = field->capability<PdmFieldUiCapability>();
+        FieldHandle*       field         = fieldsToUpdate[i];
+        FieldUiCapability* uiFieldHandle = field->capability<FieldUiCapability>();
         if ( uiFieldHandle )
         {
             QVariant fieldCurrentUiValue = uiFieldHandle->uiValue();
 
             if ( fieldCurrentUiValue != newUiValue )
             {
-                PdmObjectHandle* rootObjHandle = PdmReferenceHelper::findRoot( field );
+                ObjectHandle* rootObjHandle = PdmReferenceHelper::findRoot( field );
 
                 QString reference = PdmReferenceHelper::referenceFromRootToField( rootObjHandle, field );
                 if ( reference.isEmpty() )
@@ -100,10 +100,10 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
         }
     }
 
-    caf::PdmObjectUiCapability* uiOwnerObjectHandle = uiObj( fieldsToUpdate[0]->ownerObject() );
+    caf::ObjectUiCapability* uiOwnerObjectHandle = uiObj( fieldsToUpdate[0]->ownerObject() );
     if ( uiOwnerObjectHandle && !uiOwnerObjectHandle->useUndoRedoForFieldChanged() )
     {
-        // Temporarily disable undo framework as requested by the PdmObjectUiCapability
+        // Temporarily disable undo framework as requested by the ObjectUiCapability
         m_disableUndoForFieldChange = true;
     }
 

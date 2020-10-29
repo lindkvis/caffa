@@ -35,7 +35,7 @@
 //##################################################################################################
 
 #include "cafPdmUiTreeEditorHandle.h"
-#include "cafPdmObject.h"
+#include "cafObject.h"
 
 namespace caf
 {

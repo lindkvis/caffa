@@ -43,8 +43,8 @@ class QWidget;
 namespace caf
 {
 class MenuInterface;
-class PdmFieldHandle;
-class PdmFieldUiCapability;
+class FieldHandle;
+class FieldUiCapability;
 class PdmUiCommandSystemInterface;
 
 class PdmUiCommandSystemProxy
@@ -55,7 +55,7 @@ public:
     static PdmUiCommandSystemProxy* instance();
     void                            setCommandInterface( PdmUiCommandSystemInterface* undoCommandInterface );
 
-    void setUiValueToField( PdmFieldUiCapability* uiFieldHandle, const QVariant& newUiValue );
+    void setUiValueToField( FieldUiCapability* uiFieldHandle, const QVariant& newUiValue );
     void setCurrentContextMenuTargetWidget( QWidget* targetWidget );
     void populateMenuWithDefaultCommands( const QString& uiConfigName, MenuInterface* menu );
 

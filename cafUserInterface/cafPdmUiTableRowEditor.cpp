@@ -36,8 +36,8 @@
 
 #include "cafPdmUiTableRowEditor.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiTableViewQModel.h"
 
@@ -46,12 +46,12 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTableRowEditor::PdmUiTableRowEditor( PdmUiTableViewQModel* model, caf::PdmObjectHandle* pdmObject, int row )
+PdmUiTableRowEditor::PdmUiTableRowEditor( PdmUiTableViewQModel* model, caf::ObjectHandle* pdmObject, int row )
 {
     m_model = model;
     m_row   = row;
 
-    caf::PdmObjectUiCapability* uiObject = uiObj( pdmObject );
+    caf::ObjectUiCapability* uiObject = uiObj( pdmObject );
     this->bindToPdmItem( uiObject );
 }
 
@@ -67,7 +67,7 @@ PdmUiTableRowEditor::~PdmUiTableRowEditor()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTableRowEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    caf::PdmObjectUiCapability* uiObject = dynamic_cast<caf::PdmObjectUiCapability*>( this->pdmItem() );
+    caf::ObjectUiCapability* uiObject = dynamic_cast<caf::ObjectUiCapability*>( this->pdmItem() );
     if ( uiObject )
     {
         // Call uiOrdering method, as this method is responsible for control of

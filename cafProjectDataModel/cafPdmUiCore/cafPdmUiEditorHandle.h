@@ -75,7 +75,7 @@ protected:
     virtual void configureAndUpdateUi( const QString& uiConfigName ) = 0;
 
 protected:
-    /// This needs to be called from subclass when connecting to a PdmField or Object
+    /// This needs to be called from subclass when connecting to a Field or Object
     void             bindToPdmItem( PdmUiItem* item );
     PdmUiItem*       pdmItem() { return m_pdmItem; }
     const PdmUiItem* pdmItem() const { return m_pdmItem; }

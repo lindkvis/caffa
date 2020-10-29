@@ -49,7 +49,7 @@ namespace caf
 {
 
 //==================================================================================================
-/// Abstract class to handle widget based editors for complete PdmObjects
+/// Abstract class to handle widget based editors for complete Objects
 //==================================================================================================
 
 class PdmWebWidgetObjectEditorHandle : public PdmUiObjectEditorHandle

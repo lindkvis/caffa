@@ -4,7 +4,7 @@
 
 namespace caf
 {
-class PdmObject;
+class Object;
 class PdmUiPropertyView;
 } // namespace caf
 
@@ -18,7 +18,7 @@ namespace caf
 class PdmUiTabbedPropertyViewDialog : public QDialog
 {
 public:
-    PdmUiTabbedPropertyViewDialog( caf::PdmObject*    object,
+    PdmUiTabbedPropertyViewDialog( caf::Object*    object,
                                    const QStringList& uiConfigNameForTabs,
                                    const QString&     windowTitle,
                                    QWidget*           parent );

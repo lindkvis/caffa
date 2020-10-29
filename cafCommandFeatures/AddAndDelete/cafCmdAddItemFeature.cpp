@@ -45,7 +45,7 @@
 
 #include "cafCmdExecCommandManager.h"
 #include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
+#include "cafField.h"
 
 #include "cafAssert.h"
 

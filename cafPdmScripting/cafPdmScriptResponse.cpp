@@ -49,7 +49,7 @@ PdmScriptResponse::PdmScriptResponse( Status status, const QString& message )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmScriptResponse::PdmScriptResponse( PdmObject* ok_result )
+PdmScriptResponse::PdmScriptResponse( Object* ok_result )
     : m_status( COMMAND_OK )
     , m_result( ok_result )
 {
@@ -84,7 +84,7 @@ QStringList PdmScriptResponse::messages() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObject* PdmScriptResponse::result() const
+Object* PdmScriptResponse::result() const
 {
     return m_result.get();
 }
@@ -92,7 +92,7 @@ PdmObject* PdmScriptResponse::result() const
 //--------------------------------------------------------------------------------------------------
 /// Takes ownership of the result object
 //--------------------------------------------------------------------------------------------------
-void PdmScriptResponse::setResult( PdmObject* result )
+void PdmScriptResponse::setResult( Object* result )
 {
     m_result.reset( result );
 }

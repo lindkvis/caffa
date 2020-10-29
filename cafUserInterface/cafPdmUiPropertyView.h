@@ -59,7 +59,7 @@ public:
 
 namespace caf
 {
-class PdmObjectHandle;
+class ObjectHandle;
 class PdmUiDefaultObjectEditor;
 
 //==================================================================================================
@@ -74,13 +74,13 @@ public:
     ~PdmUiPropertyView() override;
 
     void             setUiConfigurationName( QString uiConfigName );
-    PdmObjectHandle* currentObject();
+    ObjectHandle* currentObject();
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
 public slots:
-    void showProperties( caf::PdmObjectHandle* object ); // Signal/Slot system needs caf:: prefix in some cases
+    void showProperties( caf::ObjectHandle* object ); // Signal/Slot system needs caf:: prefix in some cases
 
 private:
     PdmUiDefaultObjectEditor*     m_defaultObjectEditor;

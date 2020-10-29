@@ -36,10 +36,10 @@
 
 #include "cafPdmUiFormLayoutObjectEditor.h"
 
-#include "cafPdmFieldUiCapability.h"
-#include "cafPdmObjectHandle.h"
-#include "cafPdmObjectIoCapability.h"
-#include "cafPdmObjectUiCapability.h"
+#include "cafFieldUiCapability.h"
+#include "cafObjectHandle.h"
+#include "cafObjectIoCapability.h"
+#include "cafObjectUiCapability.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiFieldEditorHelper.h"
 #include "cafPdmUiListEditor.h"
@@ -66,7 +66,7 @@ caf::PdmUiFormLayoutObjectEditor::PdmUiFormLayoutObjectEditor()
 caf::PdmUiFormLayoutObjectEditor::~PdmUiFormLayoutObjectEditor()
 {
     // If there are field editor present, the usage of this editor has not cleared correctly
-    // The intended usage is to call the method setPdmObject(NULL) before closing the dialog
+    // The intended usage is to call the method setObject(NULL) before closing the dialog
     CAF_ASSERT( m_fieldViews.size() == 0 );
 }
 
@@ -166,7 +166,7 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
             else
             {
                 PdmUiFieldEditorHandle* fieldEditor = nullptr;
-                PdmFieldUiCapability*   field       = dynamic_cast<PdmFieldUiCapability*>( currentItem );
+                FieldUiCapability*   field       = dynamic_cast<FieldUiCapability*>( currentItem );
 
                 if ( field )
                     fieldEditor = findOrCreateFieldEditor( containerWidgetWithGridLayout, field, uiConfigName );
@@ -316,7 +316,7 @@ bool caf::PdmUiFormLayoutObjectEditor::isUiGroupExpanded( const PdmUiGroup* uiGr
     if ( uiGroup->hasForcedExpandedState() ) return uiGroup->forcedExpandedState();
 
     auto kwMapPair =
-        m_objectKeywordGroupUiNameExpandedState.find( pdmObject()->capability<PdmObjectIoCapability>()->classKeyword() );
+        m_objectKeywordGroupUiNameExpandedState.find( pdmObject()->capability<ObjectIoCapability>()->classKeyword() );
     if ( kwMapPair != m_objectKeywordGroupUiNameExpandedState.end() )
     {
         QString keyword = uiGroup->keyword();
@@ -384,12 +384,12 @@ QMinimizePanel* caf::PdmUiFormLayoutObjectEditor::findOrCreateGroupBox( QWidget*
 ///
 //--------------------------------------------------------------------------------------------------
 caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateFieldEditor( QWidget*              parent,
-                                                                                        PdmFieldUiCapability* field,
+                                                                                        FieldUiCapability* field,
                                                                                         const QString& uiConfigName )
 {
     caf::PdmUiFieldEditorHandle* fieldEditor = nullptr;
 
-    std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>::iterator it = m_fieldViews.find( field->fieldHandle() );
+    std::map<FieldHandle*, PdmUiFieldEditorHandle*>::iterator it = m_fieldViews.find( field->fieldHandle() );
 
     if ( it == m_fieldViews.end() )
     {
@@ -458,9 +458,9 @@ void caf::PdmUiFormLayoutObjectEditor::ensureWidgetContainsEmptyGridLayout( QWid
 //--------------------------------------------------------------------------------------------------
 void caf::PdmUiFormLayoutObjectEditor::groupBoxExpandedStateToggled( bool isExpanded )
 {
-    if ( !this->pdmObject()->capability<PdmObjectIoCapability>() ) return;
+    if ( !this->pdmObject()->capability<ObjectIoCapability>() ) return;
 
-    QString         objKeyword = this->pdmObject()->capability<PdmObjectIoCapability>()->classKeyword();
+    QString         objKeyword = this->pdmObject()->capability<ObjectIoCapability>()->classKeyword();
     QMinimizePanel* panel      = dynamic_cast<QMinimizePanel*>( this->sender() );
 
     if ( !panel ) return;
@@ -471,9 +471,9 @@ void caf::PdmUiFormLayoutObjectEditor::groupBoxExpandedStateToggled( bool isExpa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiFormLayoutObjectEditor::cleanupBeforeSettingPdmObject()
+void caf::PdmUiFormLayoutObjectEditor::cleanupBeforeSettingObject()
 {
-    std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>::iterator it;
+    std::map<FieldHandle*, PdmUiFieldEditorHandle*>::iterator it;
     for ( it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it )
     {
         PdmUiFieldEditorHandle* fvh = it->second;
@@ -500,7 +500,7 @@ void caf::PdmUiFormLayoutObjectEditor::configureAndUpdateUi( const QString& uiCo
     caf::PdmUiOrdering config;
     if ( pdmObject() )
     {
-        caf::PdmObjectUiCapability* uiObject = uiObj( pdmObject() );
+        caf::ObjectUiCapability* uiObject = uiObj( pdmObject() );
         if ( uiObject )
         {
             uiObject->uiOrdering( uiConfigName, config );
@@ -518,7 +518,7 @@ void caf::PdmUiFormLayoutObjectEditor::configureAndUpdateUi( const QString& uiCo
 
     // Remove all fieldViews not mentioned by the configuration from the layout
 
-    std::vector<PdmFieldHandle*> fvhToRemoveFromMap;
+    std::vector<FieldHandle*> fvhToRemoveFromMap;
     for ( auto oldFvIt = m_fieldViews.begin(); oldFvIt != m_fieldViews.end(); ++oldFvIt )
     {
         if ( m_usedFields.count( oldFvIt->first ) == 0 )
@@ -551,7 +551,7 @@ void caf::PdmUiFormLayoutObjectEditor::configureAndUpdateUi( const QString& uiCo
     m_groupBoxes = m_newGroupBoxes;
 
     // Notify pdm object when widgets have been created
-    caf::PdmObjectUiCapability* uiObject = uiObj( pdmObject() );
+    caf::ObjectUiCapability* uiObject = uiObj( pdmObject() );
     if ( uiObject )
     {
         uiObject->onEditorWidgetsCreated();
@@ -589,7 +589,7 @@ void caf::PdmUiFormLayoutObjectEditor::recursiveVerifyUniqueNames( const std::ve
         }
         else
         {
-            PdmFieldUiCapability* field = dynamic_cast<PdmFieldUiCapability*>( uiItems[i] );
+            FieldUiCapability* field = dynamic_cast<FieldUiCapability*>( uiItems[i] );
 
             QString fieldKeyword = field->fieldHandle()->keyword();
             if ( fieldKeywordNames->find( fieldKeyword ) != fieldKeywordNames->end() )

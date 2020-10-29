@@ -21,12 +21,12 @@ set (PUBLIC_HEADERS
     cafPdmChildField.h
     cafPdmChildField.inl
     cafPdmDataValueField.h
-    cafPdmField.h
-    cafPdmFieldCapability.h
-    cafPdmFieldHandle.h
-    cafPdmObjectCapability.h
-    cafPdmFieldReorderCapability.h
-    cafPdmObjectHandle.h
+    cafField.h
+    cafFieldCapability.h
+    cafFieldHandle.h
+    cafObjectCapability.h
+    cafFieldReorderCapability.h
+    cafObjectHandle.h
     cafPdmPointer.h
     cafPdmProxyValueField.h
     cafPdmPtrArrayField.h
@@ -35,7 +35,7 @@ set (PUBLIC_HEADERS
     cafPdmPtrField.h
     cafPdmPtrField.inl
     cafPdmReferenceHelper.h
-    cafPdmFieldUiCapabilityInterface.h
+    cafFieldUiCapabilityInterface.h
     cafPdmValueField.h
     cafPdmValueFieldSpecializations.h
 
@@ -51,9 +51,9 @@ set (PUBLIC_HEADERS
 set( PROJECT_FILES
     ${PUBLIC_HEADERS}
     cafPdmChildArrayFieldHandle.cpp
-    cafPdmFieldHandle.cpp
-    cafPdmFieldReorderCapability.cpp
-    cafPdmObjectHandle.cpp
+    cafFieldHandle.cpp
+    cafFieldReorderCapability.cpp
+    cafObjectHandle.cpp
     cafPdmPointer.cpp
     cafPdmReferenceHelper.cpp
     cafSignal.cpp

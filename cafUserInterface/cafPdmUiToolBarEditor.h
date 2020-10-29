@@ -50,7 +50,7 @@ namespace caf
 {
 class PdmUiFieldEditorHandle;
 class PdmUiItem;
-class PdmFieldHandle;
+class FieldHandle;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -61,8 +61,8 @@ public:
     PdmUiToolBarEditor( const QString& title, QMainWindow* mainWindow );
     ~PdmUiToolBarEditor() override;
 
-    bool isEditorDataValid( const std::vector<caf::PdmFieldHandle*>& fields ) const;
-    void setFields( std::vector<caf::PdmFieldHandle*>& fields );
+    bool isEditorDataValid( const std::vector<caf::FieldHandle*>& fields ) const;
+    void setFields( std::vector<caf::FieldHandle*>& fields );
     void clear();
 
     void    setFocusWidgetFromKeyword( const QString& fieldKeyword );
@@ -81,7 +81,7 @@ private:
 private:
     QPointer<QToolBar> m_toolbar;
 
-    std::vector<caf::PdmFieldHandle*>          m_fields;
+    std::vector<caf::FieldHandle*>          m_fields;
     std::map<QString, PdmUiFieldEditorHandle*> m_fieldViews;
 
     QList<QAction*> m_actions;

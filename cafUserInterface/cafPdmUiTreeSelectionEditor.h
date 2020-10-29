@@ -67,7 +67,7 @@ public:
     /// This is useful when displaying a list of appEnums, and a dependent view is displaying content based on
     /// the current item in the tree view
     /// Make sure the type of the receiving field is of the same type as the field used in PdmUiTreeSelectionEditor
-    caf::PdmFieldHandle* currentIndexFieldHandle;
+    caf::FieldHandle* currentIndexFieldHandle;
 
 public:
     PdmUiTreeSelectionEditorAttribute()

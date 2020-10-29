@@ -1,12 +1,12 @@
 #pragma once
 
 #include "cafPdmChildField.h"
-#include "cafPdmObject.h"
+#include "cafObject.h"
 #include "cafPdmPointer.h"
 
 class TestObj;
 
-class Child : public caf::PdmObject
+class Child : public caf::Object
 {
     CAF_PDM_HEADER_INIT;
 

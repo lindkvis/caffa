@@ -39,7 +39,7 @@
 
 #include "cafFilePath.h"
 #include "cafPdmCoreColor.h"
-#include "cafPdmField.h"
+#include "cafField.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmWebCheckBoxEditor.h"
 #include "cafPdmWebCheckBoxTristateEditor.h"
@@ -144,7 +144,7 @@ void PdmWebDefaultObjectEditor::resetWidget( Wt::WContainerWidget* widget )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebDefaultObjectEditor::cleanupBeforeSettingPdmObject()
+void PdmWebDefaultObjectEditor::cleanupBeforeSettingObject()
 {
     resetWidget( this->widget() );
 }

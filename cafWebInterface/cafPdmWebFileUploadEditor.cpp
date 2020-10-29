@@ -39,9 +39,9 @@
 
 #include "cafAssert.h"
 
-#include "cafPdmField.h"
-#include "cafPdmFieldUiCapability.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafFieldUiCapability.h"
+#include "cafObject.h"
 #include "cafPdmUiOrdering.h"
 
 #include <Wt/WApplication.h>
@@ -100,7 +100,7 @@ void PdmWebFileUploadEditor::configureAndUpdateUi( const QString& uiConfigName )
     m_fileUpload->setDisplayWidget( m_uploadButton.get() );
     m_fileUpload->setProgressBar( std::make_unique<Wt::WProgressBar>() );
 
-    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );

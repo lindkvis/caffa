@@ -1,10 +1,10 @@
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmPointer.h"
 
-class TestObj : public caf::PdmObject
+class TestObj : public caf::Object
 {
     CAF_PDM_HEADER_INIT;
 
@@ -13,5 +13,5 @@ public:
 
     ~TestObj();
 
-    caf::PdmField<double> m_position;
+    caf::Field<double> m_position;
 };

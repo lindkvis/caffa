@@ -38,9 +38,9 @@
 
 #include "cafAssert.h"
 #include "cafPdmDataValueField.h"
-#include "cafPdmFieldUiCapability.h"
-#include "cafPdmObjectHandle.h"
-#include "cafPdmObjectUiCapability.h"
+#include "cafFieldUiCapability.h"
+#include "cafObjectHandle.h"
+#include "cafObjectUiCapability.h"
 #include "cafPdmUiEditorHandle.h"
 
 #include <iostream>
@@ -50,18 +50,18 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeOrdering::add( PdmFieldHandle* field, QString uiConfigName )
+void PdmUiTreeOrdering::add( FieldHandle* field, QString uiConfigName )
 {
     CAF_ASSERT( field );
 
-    if ( field->capability<PdmFieldUiCapability>()->isUiTreeHidden( uiConfigName ) )
+    if ( field->capability<FieldUiCapability>()->isUiTreeHidden( uiConfigName ) )
     {
-        if ( !field->capability<PdmFieldUiCapability>()->isUiTreeChildrenHidden( uiConfigName ) )
+        if ( !field->capability<FieldUiCapability>()->isUiTreeChildrenHidden( uiConfigName ) )
         {
-            std::vector<PdmObjectHandle*> children;
+            std::vector<ObjectHandle*> children;
             field->childObjects( &children );
 
-            for ( PdmObjectHandle* objHandle : children )
+            for ( ObjectHandle* objHandle : children )
             {
                 this->add( objHandle );
             }
@@ -76,7 +76,7 @@ void PdmUiTreeOrdering::add( PdmFieldHandle* field, QString uiConfigName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeOrdering::add( PdmObjectHandle* object )
+void PdmUiTreeOrdering::add( ObjectHandle* object )
 {
     CAF_ASSERT( object );
 
@@ -98,7 +98,7 @@ PdmUiTreeOrdering* PdmUiTreeOrdering::add( const QString& title, const QString& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTreeOrdering::containsField( const PdmFieldHandle* field )
+bool PdmUiTreeOrdering::containsField( const FieldHandle* field )
 {
     CAF_ASSERT( field );
     for ( int cIdx = 0; cIdx < this->childCount(); ++cIdx )
@@ -117,7 +117,7 @@ bool PdmUiTreeOrdering::containsField( const PdmFieldHandle* field )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTreeOrdering::containsObject( const PdmObjectHandle* object )
+bool PdmUiTreeOrdering::containsObject( const ObjectHandle* object )
 {
     CAF_ASSERT( object );
     for ( int cIdx = 0; cIdx < this->childCount(); ++cIdx )
@@ -134,9 +134,9 @@ bool PdmUiTreeOrdering::containsObject( const PdmObjectHandle* object )
 }
 
 //--------------------------------------------------------------------------------------------------
-///  Creates an new root PdmUiTreeOrdering item, pointing at a PdmObject
+///  Creates an new root PdmUiTreeOrdering item, pointing at a Object
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeOrdering::PdmUiTreeOrdering( PdmObjectHandle* pdmObject )
+PdmUiTreeOrdering::PdmUiTreeOrdering( ObjectHandle* pdmObject )
     : m_object( pdmObject )
     , m_field( nullptr )
     , m_uiItem( nullptr )
@@ -150,7 +150,7 @@ PdmUiTreeOrdering::PdmUiTreeOrdering( PdmObjectHandle* pdmObject )
 //--------------------------------------------------------------------------------------------------
 ///  Creates an new root PdmUiTreeOrdering item, pointing at a field
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeOrdering::PdmUiTreeOrdering( PdmFieldHandle* pdmField )
+PdmUiTreeOrdering::PdmUiTreeOrdering( FieldHandle* pdmField )
     : m_object( nullptr )
     , m_field( pdmField )
     , m_uiItem( nullptr )
@@ -183,7 +183,7 @@ PdmUiTreeOrdering::PdmUiTreeOrdering( const QString& title, const QString& iconR
 ///  Creates an new PdmUiTreeOrdering item, and adds it to parent. If position is -1, it is added
 ///  at the end of parents existing child list.
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeOrdering::PdmUiTreeOrdering( PdmUiTreeOrdering* parent, PdmObjectHandle* pdmObject )
+PdmUiTreeOrdering::PdmUiTreeOrdering( PdmUiTreeOrdering* parent, ObjectHandle* pdmObject )
     : m_object( pdmObject )
     , m_field( nullptr )
     , m_uiItem( nullptr )
@@ -202,7 +202,7 @@ PdmUiTreeOrdering::PdmUiTreeOrdering( PdmUiTreeOrdering* parent, PdmObjectHandle
 ///  Creates an new PdmUiTreeOrdering item, and adds it to parent. If position is -1, it is added
 ///  at the end of parents existing child list.
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeOrdering::PdmUiTreeOrdering( PdmUiTreeOrdering* parent, PdmFieldHandle* pdmField )
+PdmUiTreeOrdering::PdmUiTreeOrdering( PdmUiTreeOrdering* parent, FieldHandle* pdmField )
     : m_object( nullptr )
     , m_field( pdmField )
     , m_uiItem( nullptr )
@@ -240,7 +240,7 @@ PdmUiTreeOrdering::~PdmUiTreeOrdering()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObjectHandle* PdmUiTreeOrdering::object() const
+ObjectHandle* PdmUiTreeOrdering::object() const
 {
     CAF_ASSERT( isRepresentingObject() );
     return m_object;
@@ -249,7 +249,7 @@ PdmObjectHandle* PdmUiTreeOrdering::object() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmFieldHandle* PdmUiTreeOrdering::field() const
+FieldHandle* PdmUiTreeOrdering::field() const
 {
     CAF_ASSERT( isRepresentingField() );
     return m_field;
@@ -270,7 +270,7 @@ PdmUiItem* PdmUiTreeOrdering::uiItem() const
 PdmUiItem* PdmUiTreeOrdering::activeItem() const
 {
     if ( isRepresentingObject() ) return uiObj( m_object );
-    if ( isRepresentingField() ) return m_field->capability<PdmFieldUiCapability>();
+    if ( isRepresentingField() ) return m_field->capability<FieldUiCapability>();
     if ( isDisplayItemOnly() ) return m_uiItem;
     return nullptr;
 }

@@ -39,10 +39,10 @@
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
-#include "cafPdmFieldIoCapability.h"
-#include "cafPdmObject.h"
-#include "cafPdmObjectFactory.h"
-#include "cafPdmObjectScriptingCapabilityRegister.h"
+#include "cafFieldIoCapability.h"
+#include "cafObject.h"
+#include "cafObjectFactory.h"
+#include "cafObjectScriptingCapabilityRegister.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPythonGenerator.h"
 
@@ -60,7 +60,7 @@ using namespace caf;
 ///
 //--------------------------------------------------------------------------------------------------
 ;
-QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::shared_ptr<const PdmObject>>& dataModelObjects )
+QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::shared_ptr<const Object>>& dataModelObjects )
 {
     QString     generatedCode;
     QTextStream out( &generatedCode );
@@ -68,7 +68,7 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
     // Sort to make sure super classes get created before sub classes
     std::sort( dataModelObjects.begin(),
                dataModelObjects.end(),
-               []( std::shared_ptr<const PdmObject> lhs, std::shared_ptr<const PdmObject> rhs ) {
+               []( std::shared_ptr<const Object> lhs, std::shared_ptr<const Object> rhs ) {
                    auto lhsStack = lhs->classInheritanceStack();
                    auto rhsStack = rhs->classInheritanceStack();
 
@@ -93,14 +93,14 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
     std::map<QString, QString>                                        classCommentsGenerated;
 
     // First generate all attributes and comments to go into each object
-    for ( std::shared_ptr<const PdmObject> object : dataModelObjects )
+    for ( std::shared_ptr<const Object> object : dataModelObjects )
     {
         const std::list<QString>& classInheritanceStack = object->classInheritanceStack();
 
         for ( auto it = classInheritanceStack.begin(); it != classInheritanceStack.end(); ++it )
         {
             const QString& classKeyword = *it;
-            QString scriptClassComment  = PdmObjectScriptingCapabilityRegister::scriptClassComment( classKeyword );
+            QString scriptClassComment  = ObjectScriptingCapabilityRegister::scriptClassComment( classKeyword );
 
             std::map<QString, QString> attributesGenerated;
 
@@ -108,7 +108,7 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
 
             if ( classKeyword == object->classKeyword() )
             {
-                std::vector<PdmFieldHandle*> fields;
+                std::vector<FieldHandle*> fields;
                 object->fields( fields );
                 for ( auto field : fields )
                 {
@@ -120,8 +120,8 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
                         QString comment;
                         {
                             QStringList commentComponents;
-                            commentComponents << field->capability<PdmFieldUiCapability>()->uiName();
-                            commentComponents << field->capability<PdmFieldUiCapability>()->uiWhatsThis();
+                            commentComponents << field->capability<FieldUiCapability>()->uiName();
+                            commentComponents << field->capability<FieldUiCapability>()->uiWhatsThis();
                             commentComponents.removeAll( QString( "" ) );
                             comment = commentComponents.join( ". " );
                         }
@@ -132,7 +132,7 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
                         if ( pdmValueField )
                         {
                             QString dataType = PdmPythonGenerator::dataTypeString( field, true );
-                            if ( field->capability<PdmFieldIoCapability>()->isVectorField() )
+                            if ( field->capability<FieldIoCapability>()->isVectorField() )
                             {
                                 dataType = QString( "List of %1" ).arg( dataType );
                             }
@@ -200,9 +200,9 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
                         {
                             QString dataType = PdmPythonGenerator::dataTypeString( field, false );
                             QString scriptDataType =
-                                PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( dataType );
+                                ObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( dataType );
 
-                            QString commentDataType = field->capability<PdmFieldIoCapability>()->isVectorField()
+                            QString commentDataType = field->capability<FieldIoCapability>()->isVectorField()
                                                           ? QString( "List of %1" ).arg( scriptDataType )
                                                           : scriptDataType;
 
@@ -241,7 +241,7 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
 
     // Write out classes
     std::set<QString> classesWritten;
-    for ( std::shared_ptr<const caf::PdmObject> object : dataModelObjects )
+    for ( std::shared_ptr<const caf::Object> object : dataModelObjects )
     {
         const std::list<QString>& classInheritanceStack = object->classInheritanceStack();
         std::list<QString>        scriptSuperClassNames;
@@ -250,7 +250,7 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
         for ( auto it = classInheritanceStack.begin(); it != classInheritanceStack.end(); ++it )
         {
             const QString& classKeyword = *it;
-            QString scriptClassName = PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( classKeyword );
+            QString scriptClassName = ObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( classKeyword );
             if ( scriptClassName.isEmpty() ) scriptClassName = classKeyword;
 
             if ( !classesWritten.count( scriptClassName ) )
@@ -320,18 +320,18 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::shared_ptr<const PdmObject>> caf::PdmMarkdownBuilder::createAllObjects( caf::PdmObjectFactory* factory )
+std::vector<std::shared_ptr<const Object>> caf::PdmMarkdownBuilder::createAllObjects( caf::ObjectFactory* factory )
 {
-    std::vector<std::shared_ptr<const PdmObject>> objects;
+    std::vector<std::shared_ptr<const Object>> objects;
 
     std::vector<QString> classKeywords = factory->classKeywords();
     for ( QString classKeyword : classKeywords )
     {
         auto       objectHandle = factory->create( classKeyword );
-        PdmObject* object       = dynamic_cast<PdmObject*>( objectHandle );
+        Object* object       = dynamic_cast<Object*>( objectHandle );
         CAF_ASSERT( object );
 
-        std::shared_ptr<PdmObject> sharedObject( object );
+        std::shared_ptr<Object> sharedObject( object );
         objects.push_back( sharedObject );
     }
 
@@ -341,7 +341,7 @@ std::vector<std::shared_ptr<const PdmObject>> caf::PdmMarkdownBuilder::createAll
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString caf::PdmMarkdownBuilder::generateDocCommandObjects( std::vector<std::shared_ptr<const PdmObject>>& commandObjects )
+QString caf::PdmMarkdownBuilder::generateDocCommandObjects( std::vector<std::shared_ptr<const Object>>& commandObjects )
 {
     QString     generatedText;
     QTextStream out( &generatedText );
@@ -356,19 +356,19 @@ QString caf::PdmMarkdownBuilder::generateDocCommandObjects( std::vector<std::sha
     std::vector<CommandDocData> objs;
 
     // First generate all attributes and comments to go into each object
-    for ( std::shared_ptr<const PdmObject> object : commandObjects )
+    for ( std::shared_ptr<const Object> object : commandObjects )
     {
         QString snakeCommandName = PdmPythonGenerator::camelToSnakeCase( object->classKeyword() );
 
         std::vector<AttributeItem>   attributes;
-        std::vector<PdmFieldHandle*> fields;
+        std::vector<FieldHandle*> fields;
         object->fields( fields );
         for ( auto field : fields )
         {
             QString snake_field_name = PdmPythonGenerator::camelToSnakeCase( field->keyword() );
             QString pythonDataType   = PdmPythonGenerator::dataTypeString( field, true );
 
-            QString nativeDataType = field->capability<PdmFieldIoCapability>()->dataTypeName();
+            QString nativeDataType = field->capability<FieldIoCapability>()->dataTypeName();
             if ( nativeDataType.contains( "std::vector" ) )
             {
                 pythonDataType = QString( "List of %1" ).arg( pythonDataType );
@@ -377,8 +377,8 @@ QString caf::PdmMarkdownBuilder::generateDocCommandObjects( std::vector<std::sha
             QString comment;
             {
                 QStringList commentComponents;
-                commentComponents << field->capability<PdmFieldUiCapability>()->uiName();
-                commentComponents << field->capability<PdmFieldUiCapability>()->uiWhatsThis();
+                commentComponents << field->capability<FieldUiCapability>()->uiName();
+                commentComponents << field->capability<FieldUiCapability>()->uiWhatsThis();
                 commentComponents.removeAll( QString( "" ) );
                 comment = commentComponents.join( ". " );
             }
@@ -386,7 +386,7 @@ QString caf::PdmMarkdownBuilder::generateDocCommandObjects( std::vector<std::sha
             attributes.push_back( { snake_field_name, comment, pythonDataType } );
         }
 
-        QString comment = caf::PdmObjectScriptingCapabilityRegister::scriptClassComment( object->classKeyword() );
+        QString comment = caf::ObjectScriptingCapabilityRegister::scriptClassComment( object->classKeyword() );
         objs.push_back( { snakeCommandName, comment, attributes } );
         //        objectsAndAttributes[snakeCommandName] = attributes;
     }

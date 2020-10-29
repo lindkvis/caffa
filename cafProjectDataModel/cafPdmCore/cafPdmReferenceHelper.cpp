@@ -37,7 +37,7 @@
 #include "cafPdmReferenceHelper.h"
 
 #include "cafAssert.h"
-#include "cafPdmFieldHandle.h"
+#include "cafFieldHandle.h"
 
 #include <QStringList>
 
@@ -56,7 +56,7 @@ QString rootIdentifierString()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmReferenceHelper::referenceFromRootToObject( PdmObjectHandle* root, PdmObjectHandle* obj )
+QString PdmReferenceHelper::referenceFromRootToObject( ObjectHandle* root, ObjectHandle* obj )
 {
     if ( obj == nullptr || root == nullptr ) return QString();
 
@@ -69,11 +69,11 @@ QString PdmReferenceHelper::referenceFromRootToObject( PdmObjectHandle* root, Pd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmReferenceHelper::referenceFromRootToField( PdmObjectHandle* root, PdmFieldHandle* field )
+QString PdmReferenceHelper::referenceFromRootToField( ObjectHandle* root, FieldHandle* field )
 {
     if ( field == nullptr || root == nullptr ) return QString();
 
-    PdmObjectHandle* owner = field->ownerObject();
+    ObjectHandle* owner = field->ownerObject();
     if ( !owner ) return QString(); // Should be assert ?
 
     QStringList refFromRootToField;
@@ -89,7 +89,7 @@ QString PdmReferenceHelper::referenceFromRootToField( PdmObjectHandle* root, Pdm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObjectHandle* PdmReferenceHelper::objectFromReference( PdmObjectHandle* root, const QString& reference )
+ObjectHandle* PdmReferenceHelper::objectFromReference( ObjectHandle* root, const QString& reference )
 {
     QStringList decodedReference = reference.split( " " );
 
@@ -99,11 +99,11 @@ PdmObjectHandle* PdmReferenceHelper::objectFromReference( PdmObjectHandle* root,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmFieldHandle* PdmReferenceHelper::findField( PdmObjectHandle* object, const QString& fieldKeyword )
+FieldHandle* PdmReferenceHelper::findField( ObjectHandle* object, const QString& fieldKeyword )
 {
     if ( object == nullptr ) return nullptr;
 
-    std::vector<PdmFieldHandle*> fields;
+    std::vector<FieldHandle*> fields;
     object->fields( fields );
 
     for ( size_t i = 0; i < fields.size(); i++ )
@@ -120,7 +120,7 @@ PdmFieldHandle* PdmReferenceHelper::findField( PdmObjectHandle* object, const QS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList( PdmObjectHandle* root, PdmObjectHandle* obj )
+QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList( ObjectHandle* root, ObjectHandle* obj )
 {
     QStringList objectNames;
 
@@ -128,19 +128,19 @@ QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList( PdmObject
     {
         if ( obj == root ) return objectNames;
 
-        PdmObjectHandle* currentObject = obj;
+        ObjectHandle* currentObject = obj;
 
         bool continueParsing = true;
         while ( continueParsing )
         {
-            caf::PdmFieldHandle* parentField = currentObject->parentField();
+            caf::FieldHandle* parentField = currentObject->parentField();
             if ( !parentField )
             {
                 // Could not find a path from obj to root, obj and root are unrelated objects
                 return QStringList();
             }
 
-            std::vector<PdmObjectHandle*> childObjects;
+            std::vector<ObjectHandle*> childObjects;
             parentField->childObjects( &childObjects );
 
             if ( childObjects.size() > 0 )
@@ -164,7 +164,7 @@ QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList( PdmObject
                 continue;
             }
 
-            PdmObjectHandle* ownerObject = parentField->ownerObject();
+            ObjectHandle* ownerObject = parentField->ownerObject();
             if ( !ownerObject )
             {
                 // Could not find a path from obj to root, obj and root are unrelated objects
@@ -187,7 +187,7 @@ QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList( PdmObject
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmFieldHandle* PdmReferenceHelper::fieldFromReference( PdmObjectHandle* root, const QString& reference )
+FieldHandle* PdmReferenceHelper::fieldFromReference( ObjectHandle* root, const QString& reference )
 {
     QStringList decodedReference = reference.split( " " );
     if ( decodedReference.size() == 0 ) return nullptr;
@@ -195,31 +195,31 @@ PdmFieldHandle* PdmReferenceHelper::fieldFromReference( PdmObjectHandle* root, c
     QString fieldKeyword = decodedReference[0];
     decodedReference.pop_front();
 
-    PdmObjectHandle* parentObject = objectFromReferenceStringList( root, decodedReference );
+    ObjectHandle* parentObject = objectFromReferenceStringList( root, decodedReference );
     return findField( parentObject, fieldKeyword );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObjectHandle* PdmReferenceHelper::objectFromReferenceStringList( PdmObjectHandle* root, const QStringList& reference )
+ObjectHandle* PdmReferenceHelper::objectFromReferenceStringList( ObjectHandle* root, const QStringList& reference )
 {
     if ( !root ) return nullptr;
 
-    PdmObjectHandle* currentObject = root;
+    ObjectHandle* currentObject = root;
 
     int i = 0;
     while ( i < reference.size() )
     {
         QString fieldKeyword = reference.at( i++ );
 
-        PdmFieldHandle* fieldHandle = findField( currentObject, fieldKeyword );
+        FieldHandle* fieldHandle = findField( currentObject, fieldKeyword );
         if ( !fieldHandle )
         {
             return nullptr;
         }
 
-        std::vector<PdmObjectHandle*> childObjects;
+        std::vector<ObjectHandle*> childObjects;
         fieldHandle->childObjects( &childObjects );
 
         if ( childObjects.size() == 0 )
@@ -249,10 +249,10 @@ PdmObjectHandle* PdmReferenceHelper::objectFromReferenceStringList( PdmObjectHan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<PdmObjectHandle*> findPathToObjectFromRoot( PdmObjectHandle* obj )
+std::vector<ObjectHandle*> findPathToObjectFromRoot( ObjectHandle* obj )
 {
-    std::vector<PdmObjectHandle*> objPath;
-    PdmObjectHandle*              currentObj = obj;
+    std::vector<ObjectHandle*> objPath;
+    ObjectHandle*              currentObj = obj;
     while ( currentObj )
     {
         objPath.push_back( currentObj );
@@ -274,15 +274,15 @@ std::vector<PdmObjectHandle*> findPathToObjectFromRoot( PdmObjectHandle* obj )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmReferenceHelper::referenceFromFieldToObject( PdmFieldHandle* fromField, PdmObjectHandle* toObj )
+QString PdmReferenceHelper::referenceFromFieldToObject( FieldHandle* fromField, ObjectHandle* toObj )
 {
     if ( !fromField || !toObj ) return "";
 
-    PdmObjectHandle* fromObj = fromField->ownerObject();
+    ObjectHandle* fromObj = fromField->ownerObject();
     if ( !fromObj ) return "";
 
-    std::vector<PdmObjectHandle*> fromObjPath = findPathToObjectFromRoot( fromObj );
-    std::vector<PdmObjectHandle*> toObjPath   = findPathToObjectFromRoot( toObj );
+    std::vector<ObjectHandle*> fromObjPath = findPathToObjectFromRoot( fromObj );
+    std::vector<ObjectHandle*> toObjPath   = findPathToObjectFromRoot( toObj );
 
     // Make sure the objects actually have at least one common ancestor
     if ( fromObjPath.front() != toObjPath.front() ) return nullptr;
@@ -302,7 +302,7 @@ QString PdmReferenceHelper::referenceFromFieldToObject( PdmFieldHandle* fromFiel
 
     size_t levelCountToCommonAnchestor = ( fromObjPath.size() - 1 ) - idxToLastCommonAnchestor;
 
-    PdmObjectHandle* lastCommonAnchestor = fromObjPath[idxToLastCommonAnchestor];
+    ObjectHandle* lastCommonAnchestor = fromObjPath[idxToLastCommonAnchestor];
 
     QStringList referenceList = referenceFromRootToObjectAsStringList( lastCommonAnchestor, toObj );
 
@@ -326,14 +326,14 @@ QString PdmReferenceHelper::referenceFromFieldToObject( PdmFieldHandle* fromFiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObjectHandle* PdmReferenceHelper::objectFromFieldReference( PdmFieldHandle* fromField, const QString& reference )
+ObjectHandle* PdmReferenceHelper::objectFromFieldReference( FieldHandle* fromField, const QString& reference )
 {
     if ( !fromField ) return nullptr;
     if ( reference.isEmpty() ) return nullptr;
     if ( reference.trimmed().isEmpty() ) return nullptr;
 
     QStringList      decodedReference    = reference.split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
-    PdmObjectHandle* lastCommonAnchestor = fromField->ownerObject();
+    ObjectHandle* lastCommonAnchestor = fromField->ownerObject();
     CAF_ASSERT( lastCommonAnchestor );
 
     if ( !decodedReference.empty() && decodedReference.front() == rootIdentifierString() )
@@ -345,7 +345,7 @@ PdmObjectHandle* PdmReferenceHelper::objectFromFieldReference( PdmFieldHandle* f
     {
         while ( !decodedReference.empty() && decodedReference.front() == ".." )
         {
-            PdmFieldHandle* parentField = lastCommonAnchestor->parentField();
+            FieldHandle* parentField = lastCommonAnchestor->parentField();
             if ( !parentField )
             {
                 // Error: Relative object reference has an invalid number of parent levels
@@ -364,9 +364,9 @@ PdmObjectHandle* PdmReferenceHelper::objectFromFieldReference( PdmFieldHandle* f
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObjectHandle* PdmReferenceHelper::findRoot( PdmObjectHandle* obj )
+ObjectHandle* PdmReferenceHelper::findRoot( ObjectHandle* obj )
 {
-    std::vector<PdmObjectHandle*> path = findPathToObjectFromRoot( obj );
+    std::vector<ObjectHandle*> path = findPathToObjectFromRoot( obj );
 
     if ( path.size() )
         return path[0];
@@ -377,11 +377,11 @@ PdmObjectHandle* PdmReferenceHelper::findRoot( PdmObjectHandle* obj )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObjectHandle* PdmReferenceHelper::findRoot( PdmFieldHandle* field )
+ObjectHandle* PdmReferenceHelper::findRoot( FieldHandle* field )
 {
     if ( field )
     {
-        PdmObjectHandle* ownerObject = field->ownerObject();
+        ObjectHandle* ownerObject = field->ownerObject();
         return findRoot( ownerObject );
     }
 

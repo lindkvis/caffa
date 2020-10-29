@@ -1,4 +1,4 @@
-#include "cafPdmObjectHandle.h"
+#include "cafObjectHandle.h"
 
 #include <iostream>
 #include <vector>
@@ -9,10 +9,10 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::PdmChildField<DataType*>::childObjects( std::vector<PdmObjectHandle*>* objects )
+void caf::PdmChildField<DataType*>::childObjects( std::vector<ObjectHandle*>* objects )
 {
     CAF_ASSERT( objects );
-    PdmObjectHandle* obj = m_fieldValue.rawPtr();
+    ObjectHandle* obj = m_fieldValue.rawPtr();
     if ( obj )
     {
         objects->push_back( obj );
@@ -23,11 +23,11 @@ void caf::PdmChildField<DataType*>::childObjects( std::vector<PdmObjectHandle*>*
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::PdmChildField<DataType*>::setChildObject( PdmObjectHandle* object )
+void caf::PdmChildField<DataType*>::setChildObject( ObjectHandle* object )
 {
     if ( m_fieldValue.rawPtr() != nullptr )
     {
-        PdmObjectHandle* oldObject = m_fieldValue.rawPtr();
+        ObjectHandle* oldObject = m_fieldValue.rawPtr();
         this->removeChildObject( oldObject );
         delete oldObject;
     }
@@ -39,7 +39,7 @@ void caf::PdmChildField<DataType*>::setChildObject( PdmObjectHandle* object )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::PdmChildField<DataType*>::removeChildObject( PdmObjectHandle* object )
+void caf::PdmChildField<DataType*>::removeChildObject( ObjectHandle* object )
 {
     if ( m_fieldValue.rawPtr() != nullptr && m_fieldValue.rawPtr() == object )
     {

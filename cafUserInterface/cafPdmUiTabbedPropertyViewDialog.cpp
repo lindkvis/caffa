@@ -1,7 +1,7 @@
 
 #include "cafPdmUiTabbedPropertyViewDialog.h"
 
-#include "cafPdmObject.h"
+#include "cafObject.h"
 #include "cafPdmUiPropertyView.h"
 
 #include <QBoxLayout>
@@ -16,7 +16,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTabbedPropertyViewDialog::PdmUiTabbedPropertyViewDialog( caf::PdmObject*    object,
+PdmUiTabbedPropertyViewDialog::PdmUiTabbedPropertyViewDialog( caf::Object*    object,
                                                               const QStringList& uiConfigNameForTabs,
                                                               const QString&     windowTitle,
                                                               QWidget*           parent )

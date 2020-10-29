@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cafClassTypeName.h"
-#include "cafPdmObjectHandle.h"
+#include "cafObjectHandle.h"
 
 namespace caf
 {
@@ -191,7 +191,7 @@ size_t PdmPtrArrayField<DataType*>::index( DataType* pointer )
 /// Removes all instances of object pointer from the container without deleting the object.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmPtrArrayField<DataType*>::removePtr( PdmObjectHandle* object )
+void PdmPtrArrayField<DataType*>::removePtr( ObjectHandle* object )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
@@ -237,7 +237,7 @@ std::vector<DataType*> PdmPtrArrayField<DataType*>::ptrReferencedObjects() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmPtrArrayField<DataType*>::ptrReferencedObjects( std::vector<PdmObjectHandle*>* objects )
+void PdmPtrArrayField<DataType*>::ptrReferencedObjects( std::vector<ObjectHandle*>* objects )
 {
     if ( !objects ) return;
     size_t i;
@@ -251,7 +251,7 @@ void PdmPtrArrayField<DataType*>::ptrReferencedObjects( std::vector<PdmObjectHan
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmPtrArrayField<DataType*>::insertAt( int indexAfter, PdmObjectHandle* obj )
+void PdmPtrArrayField<DataType*>::insertAt( int indexAfter, ObjectHandle* obj )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
@@ -279,7 +279,7 @@ void PdmPtrArrayField<DataType*>::insertAt( int indexAfter, PdmObjectHandle* obj
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-PdmObjectHandle* PdmPtrArrayField<DataType*>::at( size_t index )
+ObjectHandle* PdmPtrArrayField<DataType*>::at( size_t index )
 {
     return m_pointers[index].rawPtr();
 }

@@ -1,28 +1,28 @@
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmProxyValueField.h"
 
-class ManyGroups : public caf::PdmObject
+class ManyGroups : public caf::Object
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     ManyGroups();
 
-    caf::PdmField<double>           m_doubleField;
-    caf::PdmField<int>              m_intField;
-    caf::PdmField<QString>          m_textField;
+    caf::Field<double>           m_doubleField;
+    caf::Field<int>              m_intField;
+    caf::Field<QString>          m_textField;
     caf::PdmProxyValueField<double> m_proxyDoubleField;
 
-    caf::PdmField<std::vector<QString>> m_multiSelectList;
-    caf::PdmField<QString>              m_stringWithMultipleOptions;
+    caf::Field<std::vector<QString>> m_multiSelectList;
+    caf::Field<QString>              m_stringWithMultipleOptions;
 
-    caf::PdmField<bool>  m_toggleField;
-    caf::PdmFieldHandle* objectToggleField() override;
+    caf::Field<bool>  m_toggleField;
+    caf::FieldHandle* objectToggleField() override;
 
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void fieldChangedByUi(const caf::FieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
     void setDoubleMember(const double& d)
     {
@@ -38,7 +38,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
                                                         bool*                      useOptionsOnly) override;
 
 private:
@@ -50,7 +50,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
-    void defineEditorAttribute(const caf::PdmFieldHandle* field,
+    void defineEditorAttribute(const caf::FieldHandle* field,
                                QString                    uiConfigName,
                                caf::PdmUiEditorAttribute* attribute) override;
 };

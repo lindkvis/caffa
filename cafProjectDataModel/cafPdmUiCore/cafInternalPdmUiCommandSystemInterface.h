@@ -45,13 +45,13 @@ class QWidget;
 namespace caf
 {
 class MenuInterface;
-class PdmFieldHandle;
-class PdmFieldUiCapability;
+class FieldHandle;
+class FieldUiCapability;
 
 class PdmUiCommandSystemInterface
 {
 public:
-    virtual void fieldChangedCommand( const std::vector<PdmFieldHandle*>& fieldsToUpdate, const QVariant& newUiValue ) = 0;
+    virtual void fieldChangedCommand( const std::vector<FieldHandle*>& fieldsToUpdate, const QVariant& newUiValue ) = 0;
     virtual void setCurrentContextMenuTargetWidget( QWidget* targetWidget ) = 0;
 
     virtual void populateMenuWithDefaultCommands( const QString& uiConfigName, MenuInterface* menu ) = 0;

@@ -50,11 +50,11 @@ ManyGroups::ManyGroups()
     }
 
     CAF_PDM_InitFieldNoDefault(&m_multiSelectList, "SelectedItems", "Multi Select Field", "", "", "");
-    m_multiSelectList.capability<caf::PdmFieldUiCapability>()->setAutoAddingOptionFromValue(false);
+    m_multiSelectList.capability<caf::FieldUiCapability>()->setAutoAddingOptionFromValue(false);
 
-    m_multiSelectList.capability<caf::PdmFieldIoCapability>()->setIOReadable(false);
-    m_multiSelectList.capability<caf::PdmFieldIoCapability>()->setIOWritable(false);
-    m_multiSelectList.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(
+    m_multiSelectList.capability<caf::FieldIoCapability>()->setIOReadable(false);
+    m_multiSelectList.capability<caf::FieldIoCapability>()->setIOWritable(false);
+    m_multiSelectList.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
         caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
 
     m_multiSelectList.v().push_back("First");
@@ -63,14 +63,14 @@ ManyGroups::ManyGroups()
 
     CAF_PDM_InitField(
         &m_stringWithMultipleOptions, "m_stringWithMultipleOptions", QString(""), "Text with many items", "", "", "");
-    m_stringWithMultipleOptions.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(
+    m_stringWithMultipleOptions.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
         caf::PdmUiListEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* ManyGroups::objectToggleField()
+caf::FieldHandle* ManyGroups::objectToggleField()
 {
     return &m_toggleField;
 }
@@ -78,7 +78,7 @@ caf::PdmFieldHandle* ManyGroups::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ManyGroups::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void ManyGroups::fieldChangedByUi(const caf::FieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_toggleField)
     {
@@ -89,7 +89,7 @@ void ManyGroups::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> ManyGroups::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+QList<caf::PdmOptionItemInfo> ManyGroups::calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
                                                                 bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -236,7 +236,7 @@ void ManyGroups::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ManyGroups::defineEditorAttribute(const caf::PdmFieldHandle* field,
+void ManyGroups::defineEditorAttribute(const caf::FieldHandle* field,
                                        QString                    uiConfigName,
                                        caf::PdmUiEditorAttribute* attribute)
 {

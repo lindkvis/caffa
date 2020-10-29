@@ -35,13 +35,13 @@
 //##################################################################################################
 #pragma once
 
-#include "cafPdmFieldHandle.h"
+#include "cafFieldHandle.h"
 
 class QVariant;
 
 namespace caf
 {
-class PdmValueField : public PdmFieldHandle
+class PdmValueField : public FieldHandle
 {
 public:
     virtual QVariant toQVariant() const                         = 0;

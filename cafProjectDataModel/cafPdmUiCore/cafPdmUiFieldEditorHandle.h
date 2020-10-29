@@ -75,17 +75,17 @@ public:                                     \
 /// Place this in the cpp file, preferably above the constructor
 
 #define CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( EditorClassName, TypeName )                                                  \
-    CAF_FACTORY_REGISTER( caf::PdmUiFieldEditorHandle, EditorClassName, QString, qStringTypeName( caf::PdmField<TypeName> ) ); \
+    CAF_FACTORY_REGISTER( caf::PdmUiFieldEditorHandle, EditorClassName, QString, qStringTypeName( caf::Field<TypeName> ) ); \
     CAF_FACTORY_REGISTER2( caf::PdmUiFieldEditorHandle,                                                                        \
                            EditorClassName,                                                                                    \
                            QString,                                                                                            \
                            qStringTypeName( caf::PdmProxyValueField<TypeName> ) )
 
 class PdmUiGroup;
-class PdmFieldUiCapability;
+class FieldUiCapability;
 
 //==================================================================================================
-/// Abstract class to handle editors of PdmFields
+/// Abstract class to handle editors of Fields
 //==================================================================================================
 
 class cafPdmUiCore_EXPORT PdmUiFieldEditorHandle : public PdmUiEditorHandle
@@ -95,8 +95,8 @@ public:
     PdmUiFieldEditorHandle();
     ~PdmUiFieldEditorHandle() override;
 
-    PdmFieldUiCapability* uiField();
-    void                  setUiField( PdmFieldUiCapability* uiFieldHandle );
+    FieldUiCapability* uiField();
+    void                  setUiField( FieldUiCapability* uiFieldHandle );
 
     void     createWidgets( QWidget* parent );
     QWidget* combinedWidget() { return m_combinedWidget; }

@@ -40,7 +40,7 @@
 #include "cafPdmValueField.h"
 
 #include "cafAssert.h"
-#include "cafPdmFieldUiCapabilityInterface.h"
+#include "cafFieldUiCapabilityInterface.h"
 #include "cafPdmValueFieldSpecializations.h"
 
 #include <QVariant>
@@ -50,7 +50,7 @@
 
 namespace caf
 {
-class PdmObjectHandle;
+class ObjectHandle;
 
 //==================================================================================================
 /// Field class encapsulating data with input and output of this data to/from a QXmlStream
@@ -146,7 +146,7 @@ void caf::PdmDataValueField<DataType>::setValueWithFieldChanged( const DataType&
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
-    PdmFieldUiCapabilityInterface* uiFieldHandleInterface = capability<PdmFieldUiCapabilityInterface>();
+    FieldUiCapabilityInterface* uiFieldHandleInterface = capability<FieldUiCapabilityInterface>();
     if ( uiFieldHandleInterface )
     {
         QVariant oldValue = uiFieldHandleInterface->toUiBasedQVariant();

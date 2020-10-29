@@ -56,7 +56,7 @@ namespace caf
 class PdmUiItem;
 class PdmWebTreeViewEditor;
 class PdmUiDragDropInterface;
-class PdmObjectHandle;
+class ObjectHandle;
 
 //==================================================================================================
 /// 
@@ -93,7 +93,7 @@ public:
 //signals:
     Wt::Signal<>& selectionChanged();
     // Convenience signal for use with PdmUiPropertyView
-    Wt::Signal<caf::PdmObjectHandle*>& selectedObjectChanged();
+    Wt::Signal<caf::ObjectHandle*>& selectedObjectChanged();
 
 private: // slots:
     void        slotOnSelectionChanged();
@@ -103,7 +103,7 @@ private:
     QString                                 m_uiConfigName;
 
     Wt::Signal<>                      m_selectionChanged;
-    Wt::Signal<caf::PdmObjectHandle*> m_selectedObjectChanged;
+    Wt::Signal<caf::ObjectHandle*> m_selectedObjectChanged;
 };
 
 

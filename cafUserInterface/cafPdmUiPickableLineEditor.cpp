@@ -35,8 +35,8 @@
 //##################################################################################################
 #include "cafPdmUiPickableLineEditor.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPickEventHandler.h"
@@ -61,7 +61,7 @@ void caf::PdmUiPickableLineEditor::configureAndUpdateUi( const QString& uiConfig
 {
     PdmUiLineEditor::configureAndUpdateUi( uiConfigName );
 
-    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attribute );

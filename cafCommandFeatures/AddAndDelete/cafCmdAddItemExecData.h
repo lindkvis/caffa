@@ -36,15 +36,15 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 
 namespace caf
 {
 //==================================================================================================
 ///
 //==================================================================================================
-class CmdAddItemExecData : public PdmObject
+class CmdAddItemExecData : public Object
 {
     CAF_PDM_HEADER_INIT;
 
@@ -64,11 +64,11 @@ public:
                            "createdItemIndex whatsthis" );
     }
 
-    caf::PdmPointer<PdmObjectHandle> m_rootObject;
+    caf::PdmPointer<ObjectHandle> m_rootObject;
 
-    caf::PdmField<QString> m_pathToField;
-    caf::PdmField<int>     m_indexAfter;
-    caf::PdmField<int>     m_createdItemIndex;
+    caf::Field<QString> m_pathToField;
+    caf::Field<int>     m_indexAfter;
+    caf::Field<int>     m_createdItemIndex;
 };
 
 } // end namespace caf

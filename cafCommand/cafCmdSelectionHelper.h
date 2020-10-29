@@ -41,13 +41,13 @@
 namespace caf
 {
 class CmdSelectionChangeExec;
-class PdmObjectHandle;
+class ObjectHandle;
 
 class CmdSelectionHelper
 {
 public:
-    static void executeSelectionCommand( const std::vector<PdmObjectHandle*>& selection, int selectionLevel );
-    static CmdSelectionChangeExec* createSelectionCommand( const std::vector<PdmObjectHandle*>& selection,
+    static void executeSelectionCommand( const std::vector<ObjectHandle*>& selection, int selectionLevel );
+    static CmdSelectionChangeExec* createSelectionCommand( const std::vector<ObjectHandle*>& selection,
                                                            int                                  selectionLevel );
 };
 

@@ -53,7 +53,7 @@ public:                                    \
 
 namespace caf
 {
-class PdmObjectFactory;
+class ObjectFactory;
 
 //==================================================================================================
 /// Abstract skeleton code generator for the Project Data Model
@@ -61,7 +61,7 @@ class PdmObjectFactory;
 class PdmCodeGenerator
 {
 public:
-    virtual QString generate( PdmObjectFactory* factory ) const = 0;
+    virtual QString generate( ObjectFactory* factory ) const = 0;
 };
 
 typedef Factory<PdmCodeGenerator, std::string> PdmCodeGeneratorFactory;

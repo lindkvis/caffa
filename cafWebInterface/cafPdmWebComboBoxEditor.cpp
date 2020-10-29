@@ -35,8 +35,8 @@
 //##################################################################################################
 #include "cafPdmWebComboBoxEditor.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmWebFieldEditorHandle.h"
 
 #include "cafFactory.h"
@@ -62,7 +62,7 @@ void PdmWebComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
     applyTextToLabel( m_label.get(), uiConfigName );
 
     // Handle attributes
-    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );

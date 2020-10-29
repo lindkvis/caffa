@@ -67,10 +67,10 @@ void PdmDocument::readFile()
 //--------------------------------------------------------------------------------------------------
 void PdmDocument::readFile(
     QIODevice*                                       file,
-    caf::PdmObjectIoCapability::IoParameters::IoType ioType /*= PdmObjectIoCapability::IoParameters::IoType::XML */ )
+    caf::ObjectIoCapability::IoParameters::IoType ioType /*= ObjectIoCapability::IoParameters::IoType::XML */ )
 {
-    PdmObjectIoCapability::IoParameters params = { ioType, file };
-    PdmObjectIoCapability::readFile( params );
+    ObjectIoCapability::IoParameters params = { ioType, file };
+    ObjectIoCapability::readFile( params );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,23 +89,23 @@ bool PdmDocument::writeFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmDocument::writeFile( QIODevice* file, caf::PdmObjectIoCapability::IoParameters::IoType ioType )
+void PdmDocument::writeFile( QIODevice* file, caf::ObjectIoCapability::IoParameters::IoType ioType )
 {
-    PdmObjectIoCapability::IoParameters params = { ioType, file };
+    ObjectIoCapability::IoParameters params = { ioType, file };
 
-    PdmObjectIoCapability::writeFile( params );
+    ObjectIoCapability::writeFile( params );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmDocument::updateUiIconStateRecursively( PdmObjectHandle* object )
+void PdmDocument::updateUiIconStateRecursively( ObjectHandle* object )
 {
     if ( object == nullptr ) return;
-    std::vector<PdmFieldHandle*> fields;
+    std::vector<FieldHandle*> fields;
     object->fields( fields );
 
-    std::vector<PdmObjectHandle*> children;
+    std::vector<ObjectHandle*> children;
     size_t                        fIdx;
     for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
     {
@@ -118,7 +118,7 @@ void PdmDocument::updateUiIconStateRecursively( PdmObjectHandle* object )
         PdmDocument::updateUiIconStateRecursively( children[cIdx] );
     }
 
-    PdmObjectUiCapability* uiObjectHandle = uiObj( object );
+    ObjectUiCapability* uiObjectHandle = uiObj( object );
     if ( uiObjectHandle )
     {
         uiObjectHandle->updateUiIconFromToggleField();
