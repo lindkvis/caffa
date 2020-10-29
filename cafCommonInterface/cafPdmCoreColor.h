@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmValueFieldSpecializations.h"
+#include "cafValueFieldSpecializations.h"
 #include "cafPdmXmlColor.h"
 
 #include <QColor>
@@ -44,11 +44,11 @@
 namespace caf
 {
 //==================================================================================================
-/// Partial specialization for PdmValueFieldSpecialization< QColor >
+/// Partial specialization for ValueFieldSpecialization< QColor >
 //==================================================================================================
 
 template <>
-class PdmValueFieldSpecialization<QColor>
+class ValueFieldSpecialization<QColor>
 {
 public:
     static QVariant convert( const QColor& value )

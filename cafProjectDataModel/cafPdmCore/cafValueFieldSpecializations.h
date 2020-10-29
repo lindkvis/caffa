@@ -24,7 +24,7 @@ namespace caf
 //==================================================================================================
 
 template <typename T>
-class PdmValueFieldSpecialization
+class ValueFieldSpecialization
 {
 public:
     /// Convert the field value into a QVariant
@@ -47,7 +47,7 @@ public:
 /// Partial specialization for caf::AppEnum
 //==================================================================================================
 template <typename T>
-class PdmValueFieldSpecialization<caf::AppEnum<T>>
+class ValueFieldSpecialization<caf::AppEnum<T>>
 {
 public:
     static QVariant convert( const caf::AppEnum<T>& value )
@@ -74,7 +74,7 @@ public:
 /// User must use PdmPtrField or ChildField
 //==================================================================================================
 template <typename T>
-class PdmValueFieldSpecialization<PdmPointer<T>>
+class ValueFieldSpecialization<PdmPointer<T>>
 {
 public:
     static QVariant convert( const PdmPointer<T>& value )
@@ -97,7 +97,7 @@ public:
 /// Partial specialization for std::vector
 //==================================================================================================
 template <typename T>
-class PdmValueFieldSpecialization<std::vector<T>>
+class ValueFieldSpecialization<std::vector<T>>
 {
 public:
     static QVariant convert( const std::vector<T>& value )
@@ -106,7 +106,7 @@ public:
         typename std::vector<T>::const_iterator it;
         for ( it = value.begin(); it != value.end(); ++it )
         {
-            returnList.push_back( PdmValueFieldSpecialization<T>::convert( *it ) );
+            returnList.push_back( ValueFieldSpecialization<T>::convert( *it ) );
         }
 
         return returnList;
@@ -121,7 +121,7 @@ public:
             for ( int i = 0; i < lst.size(); ++i )
             {
                 T val;
-                PdmValueFieldSpecialization<T>::setFromVariant( lst[i], val );
+                ValueFieldSpecialization<T>::setFromVariant( lst[i], val );
 
                 value.push_back( val );
             }
@@ -138,7 +138,7 @@ public:
 /// Partial specialization for caf::FilePath
 //==================================================================================================
 template <>
-class PdmValueFieldSpecialization<FilePath>
+class ValueFieldSpecialization<FilePath>
 {
 public:
     static QVariant convert( const FilePath& value ) { return QVariant( value.path() ); }

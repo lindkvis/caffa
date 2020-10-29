@@ -40,7 +40,7 @@
 #include "cafFilePath.h"
 #include "cafPdmCoreColor.h"
 #include "cafField.h"
-#include "cafPdmProxyValueField.h"
+#include "cafProxyValueField.h"
 #include "cafPdmWebCheckBoxEditor.h"
 #include "cafPdmWebCheckBoxTristateEditor.h"
 #include "cafPdmWebColorEditor.h"

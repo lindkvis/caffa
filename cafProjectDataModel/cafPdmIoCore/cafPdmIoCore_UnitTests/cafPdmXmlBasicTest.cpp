@@ -5,13 +5,13 @@
 
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
-#include "cafPdmDataValueField.h"
+#include "cafDataValueField.h"
 #include "cafFieldIoCapability.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
-#include "cafPdmProxyValueField.h"
+#include "cafProxyValueField.h"
 #include "cafPtrField.h"
 #include "cafPdmReferenceHelper.h"
 
@@ -47,8 +47,8 @@ public:
 
     // Fields
 
-    caf::PdmProxyValueField<double>                     m_proxyDoubleField;
-    caf::PdmProxyValueField<caf::AppEnum<TestEnumType>> m_proxyEnumField;
+    caf::ProxyValueField<double>                     m_proxyDoubleField;
+    caf::ProxyValueField<caf::AppEnum<TestEnumType>> m_proxyEnumField;
 
 private:
     void setDoubleMember( const double& d )
@@ -191,7 +191,7 @@ public:
 
     ~InheritedDemoObj() { m_childArrayField.deleteAllChildObjects(); }
 
-    caf::PdmDataValueField<QString>         m_texts;
+    caf::DataValueField<QString>         m_texts;
     caf::ChildArrayField<DemoObject*> m_childArrayField;
 };
 CAF_PDM_IO_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj" );
@@ -218,13 +218,13 @@ public:
         m_proxyDouble.registerGetMethod( this, &SimpleObj::doubleMember );
     }
 
-    caf::PdmDataValueField<double>  m_position;
-    caf::PdmDataValueField<double>  m_dir;
-    caf::PdmDataValueField<int>     m_up;
-    caf::PdmProxyValueField<double> m_proxyDouble;
+    caf::DataValueField<double>  m_position;
+    caf::DataValueField<double>  m_dir;
+    caf::DataValueField<int>     m_up;
+    caf::ProxyValueField<double> m_proxyDouble;
 
-    caf::PdmDataValueField<caf::FilePath>              m_singleFilePath;
-    caf::PdmDataValueField<std::vector<caf::FilePath>> m_multipleFilePath;
+    caf::DataValueField<caf::FilePath>              m_singleFilePath;
+    caf::DataValueField<std::vector<caf::FilePath>> m_multipleFilePath;
 
     void setDoubleMember( const double& d )
     {

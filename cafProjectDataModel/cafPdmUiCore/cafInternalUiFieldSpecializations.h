@@ -2,7 +2,7 @@
 
 #include "cafObjectHandle.h"
 #include "cafPdmPointer.h"
-#include "cafPdmValueFieldSpecializations.h"
+#include "cafValueFieldSpecializations.h"
 
 #include <QStringList>
 
@@ -11,7 +11,7 @@
 namespace caf
 {
 template <typename T>
-class PdmDataValueField;
+class DataValueField;
 template <typename T>
 class PdmPointer;
 template <typename T>
@@ -90,7 +90,7 @@ public:
     /// Operates on scalar content T value of the std::list<T>
     static bool isDataElementEqual( const QVariant& variantValue, const QVariant& variantValue2 )
     {
-        return PdmValueFieldSpecialization<T>::isEqual( variantValue, variantValue2 );
+        return ValueFieldSpecialization<T>::isEqual( variantValue, variantValue2 );
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
@@ -100,7 +100,7 @@ public:
     }
 
     /// Methods to retrieve the possible Object pointed to by a field
-    static void childObjects( const PdmDataValueField<std::list<T>>&, std::vector<ObjectHandle*>* ) {}
+    static void childObjects( const DataValueField<std::list<T>>&, std::vector<ObjectHandle*>* ) {}
 };
 
 //==================================================================================================
@@ -114,19 +114,19 @@ public:
     /// Convert the field value into a QVariant
     static QVariant convert( const std::vector<T>& value )
     {
-        return PdmValueFieldSpecialization<std::vector<T>>::convert( value );
+        return ValueFieldSpecialization<std::vector<T>>::convert( value );
     }
 
     /// Set the field value from a QVariant
     static void setFromVariant( const QVariant& variantValue, std::vector<T>& value )
     {
-        return PdmValueFieldSpecialization<std::vector<T>>::setFromVariant( variantValue, value );
+        return ValueFieldSpecialization<std::vector<T>>::setFromVariant( variantValue, value );
     }
 
     /// Operates on scalar content T value of the std::vector<T>
     static bool isDataElementEqual( const QVariant& variantValue, const QVariant& variantValue2 )
     {
-        return PdmValueFieldSpecialization<T>::isEqual( variantValue, variantValue2 );
+        return ValueFieldSpecialization<T>::isEqual( variantValue, variantValue2 );
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
@@ -136,7 +136,7 @@ public:
     }
 
     /// Methods to retrieve the possible Object pointed to by a field
-    static void childObjects( const PdmDataValueField<std::vector<T>>& field, std::vector<ObjectHandle*>* objects )
+    static void childObjects( const DataValueField<std::vector<T>>& field, std::vector<ObjectHandle*>* objects )
     {
     }
 };
@@ -185,7 +185,7 @@ public:
     }
 
     /// Methods to retrieve the possible Object pointed to by a field
-    static void childObjects( const PdmDataValueField<caf::AppEnum<T>>& field, std::vector<ObjectHandle*>* objects )
+    static void childObjects( const DataValueField<caf::AppEnum<T>>& field, std::vector<ObjectHandle*>* objects )
     {
     }
 };
@@ -201,18 +201,18 @@ public:
     /// Convert the field value into a QVariant
     static QVariant convert( const caf::FilePath& value )
     {
-        return PdmValueFieldSpecialization<caf::FilePath>::convert( value );
+        return ValueFieldSpecialization<caf::FilePath>::convert( value );
     }
 
     /// Set the field value from a QVariant
     static void setFromVariant( const QVariant& variantValue, caf::FilePath& value )
     {
-        return PdmValueFieldSpecialization<caf::FilePath>::setFromVariant( variantValue, value );
+        return ValueFieldSpecialization<caf::FilePath>::setFromVariant( variantValue, value );
     }
 
     static bool isDataElementEqual( const QVariant& variantValue, const QVariant& variantValue2 )
     {
-        return PdmValueFieldSpecialization<caf::FilePath>::isEqual( variantValue, variantValue2 );
+        return ValueFieldSpecialization<caf::FilePath>::isEqual( variantValue, variantValue2 );
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
@@ -222,7 +222,7 @@ public:
     }
 
     /// Methods to retrieve the possible Object pointed to by a field
-    static void childObjects( const PdmDataValueField<caf::FilePath>& field, std::vector<ObjectHandle*>* objects ) {}
+    static void childObjects( const DataValueField<caf::FilePath>& field, std::vector<ObjectHandle*>* objects ) {}
 };
 
 } // End namespace caf

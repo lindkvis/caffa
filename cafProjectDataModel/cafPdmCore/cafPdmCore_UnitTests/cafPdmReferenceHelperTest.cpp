@@ -5,9 +5,9 @@
 
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
-#include "cafPdmDataValueField.h"
+#include "cafDataValueField.h"
 #include "cafObjectHandle.h"
-#include "cafPdmProxyValueField.h"
+#include "cafProxyValueField.h"
 #include "cafPtrField.h"
 #include "cafPdmReferenceHelper.h"
 
@@ -24,10 +24,10 @@ public:
         this->addField( &m_proxyDouble, "m_proxyDouble" );
     }
 
-    caf::PdmDataValueField<double>  m_position;
-    caf::PdmDataValueField<double>  m_dir;
-    caf::PdmDataValueField<double>  m_up;
-    caf::PdmProxyValueField<double> m_proxyDouble;
+    caf::DataValueField<double>  m_position;
+    caf::DataValueField<double>  m_dir;
+    caf::DataValueField<double>  m_up;
+    caf::ProxyValueField<double> m_proxyDouble;
 
     void setDoubleMember( const double& d )
     {

@@ -5,9 +5,9 @@
 
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
-#include "cafPdmDataValueField.h"
+#include "cafDataValueField.h"
 #include "cafObjectHandle.h"
-#include "cafPdmProxyValueField.h"
+#include "cafProxyValueField.h"
 #include "cafPtrField.h"
 #include "cafPdmReferenceHelper.h"
 
@@ -28,8 +28,8 @@ public:
         name = QString( "Name %1" ).arg( id );
     }
 
-    caf::PdmDataValueField<QString> name;
-    caf::PdmDataValueField<int>     id;
+    caf::DataValueField<QString> name;
+    caf::DataValueField<int>     id;
 };
 
 class SimpleObjDerived : public MsjSimpleObj
@@ -41,7 +41,7 @@ public:
         this->addField( &valueA, "valueA" );
     }
 
-    caf::PdmDataValueField<int> valueA;
+    caf::DataValueField<int> valueA;
 };
 
 class SimpleObjDerivedOther : public MsjSimpleObj
@@ -53,7 +53,7 @@ public:
         this->addField( &valueDouble, "valueDouble" );
     }
 
-    caf::PdmDataValueField<double> valueDouble;
+    caf::DataValueField<double> valueDouble;
 };
 
 class ContainerObj : public caf::ObjectHandle

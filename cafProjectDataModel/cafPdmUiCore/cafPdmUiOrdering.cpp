@@ -36,7 +36,7 @@
 
 #include "cafPdmUiOrdering.h"
 
-#include "cafPdmDataValueField.h"
+#include "cafDataValueField.h"
 #include "cafFieldUiCapability.h"
 #include "cafObjectHandle.h"
 #include "cafObjectUiCapability.h"

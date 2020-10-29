@@ -4,12 +4,12 @@
 #include "cafAppEnum.h"
 #include "cafFilePath.h"
 #include "cafChildArrayField.h"
-#include "cafPdmDataValueField.h"
+#include "cafDataValueField.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
-#include "cafPdmProxyValueField.h"
+#include "cafProxyValueField.h"
 #include "cafPtrField.h"
 #include "cafPdmReferenceHelper.h"
 
@@ -38,7 +38,7 @@ public:
     ~ItemObject() {}
 
     // Fields
-    caf::PdmDataValueField<QString> m_name;
+    caf::DataValueField<QString> m_name;
 };
 CAF_PDM_IO_SOURCE_INIT( ItemObject, "ItemObject" );
 
@@ -94,11 +94,11 @@ public:
     ~DemoObjectA() {}
 
     // Fields
-    caf::PdmProxyValueField<double>         m_doubleField;
+    caf::ProxyValueField<double>         m_doubleField;
     caf::PtrField<caf::ObjectHandle*> m_pointerToItem;
     caf::PtrField<caf::ObjectHandle*> m_pointerToDemoObj;
 
-    caf::PdmDataValueField<caf::FilePath> m_singleFilePath;
+    caf::DataValueField<caf::FilePath> m_singleFilePath;
 
     void setDoubleMember( const double& d )
     {

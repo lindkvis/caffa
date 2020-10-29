@@ -82,7 +82,7 @@ void PdmSettings::readFieldsFromApplicationStore( caf::ObjectHandle* object, con
             {
                 QVariant val = settings.value( key );
 
-                caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>( fieldHandle );
+                caf::ValueField* valueField = dynamic_cast<caf::ValueField*>( fieldHandle );
                 CAF_ASSERT( valueField );
                 valueField->setFromQVariant( val );
             }
@@ -129,7 +129,7 @@ void PdmSettings::writeFieldsToApplicationStore( const caf::ObjectHandle* object
 
         if ( children.size() == 0 )
         {
-            caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>( fieldHandle );
+            caf::ValueField* valueField = dynamic_cast<caf::ValueField*>( fieldHandle );
             CAF_ASSERT( valueField );
             settings.setValue( context + fieldHandle->keyword(), valueField->toQVariant() );
         }
@@ -160,7 +160,7 @@ void PdmSettings::readValueFieldsFromApplicationStore( caf::ObjectHandle* object
     for ( i = 0; i < fields.size(); i++ )
     {
         caf::FieldHandle* fieldHandle = fields[i];
-        caf::PdmValueField*  valueField  = dynamic_cast<caf::PdmValueField*>( fieldHandle );
+        caf::ValueField*  valueField  = dynamic_cast<caf::ValueField*>( fieldHandle );
 
         if ( valueField )
         {
@@ -209,7 +209,7 @@ void PdmSettings::writeValueFieldsToApplicationStore( const caf::ObjectHandle* o
     for ( i = 0; i < fields.size(); i++ )
     {
         caf::FieldHandle* fieldHandle = fields[i];
-        caf::PdmValueField*  valueField  = dynamic_cast<caf::PdmValueField*>( fieldHandle );
+        caf::ValueField*  valueField  = dynamic_cast<caf::ValueField*>( fieldHandle );
         if ( valueField )
         {
             QString          fieldText;

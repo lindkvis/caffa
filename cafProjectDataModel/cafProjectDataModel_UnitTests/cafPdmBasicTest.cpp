@@ -45,7 +45,7 @@
 #include "cafObject.h"
 #include "cafObjectGroup.h"
 #include "cafPdmPointer.h"
-#include "cafPdmProxyValueField.h"
+#include "cafProxyValueField.h"
 #include "cafPdmReferenceHelper.h"
 
 #include <QFile>
@@ -102,7 +102,7 @@ public:
     caf::Field<double>              m_dir;
     caf::Field<double>              m_up;
     caf::Field<std::vector<double>> m_numbers;
-    caf::PdmProxyValueField<double>    m_proxyDouble;
+    caf::ProxyValueField<double>    m_proxyDouble;
 
     void setDoubleMember( const double& d )
     {

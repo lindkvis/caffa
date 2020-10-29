@@ -33,8 +33,6 @@ if (UNIX)
     list(APPEND LIST EXTERNAL_LINK_LIBRARIES z)
 endif()
 
-message("THREAD: " ${THREAD_LIBRARY})
-
 target_link_libraries ( ${PROJECT_NAME}
     ${THREAD_LIBRARY}
     ${QT_LIBRARIES}

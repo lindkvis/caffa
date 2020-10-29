@@ -1,7 +1,7 @@
 
 #include "gtest/gtest.h"
 
-#include "cafPdmDataValueField.h"
+#include "cafDataValueField.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
@@ -30,11 +30,11 @@ public:
         CAF_PDM_IO_InitField( &m_floatValueB, "FloatValueB" );
     }
 
-    caf::PdmDataValueField<double> m_valueA;
-    caf::PdmDataValueField<double> m_valueB;
+    caf::DataValueField<double> m_valueA;
+    caf::DataValueField<double> m_valueB;
 
-    caf::PdmDataValueField<float> m_floatValueA;
-    caf::PdmDataValueField<float> m_floatValueB;
+    caf::DataValueField<float> m_floatValueA;
+    caf::DataValueField<float> m_floatValueB;
 };
 CAF_PDM_IO_SOURCE_INIT( SimpleObjectWithNumbers, "SimpleObjectWithNumbers" );
 

@@ -37,11 +37,11 @@
 #pragma once
 #endif
 
-#include "cafPdmValueField.h"
+#include "cafValueField.h"
 
 #include "cafAssert.h"
 #include "cafFieldUiCapabilityInterface.h"
-#include "cafPdmValueFieldSpecializations.h"
+#include "cafValueFieldSpecializations.h"
 
 #include <QVariant>
 
@@ -58,7 +58,7 @@ class ObjectHandle;
 //==================================================================================================
 
 template <typename DataType>
-class PdmDataValueField : public PdmValueField
+class DataValueField : public ValueField
 {
 public:
     // Type traits magic to check if a template argument is a vector
@@ -72,20 +72,20 @@ public:
     };
 
     typedef DataType FieldDataType;
-    PdmDataValueField() {}
-    PdmDataValueField( const PdmDataValueField& other ) { m_fieldValue = other.m_fieldValue; }
-    explicit PdmDataValueField( const DataType& fieldValue ) { m_fieldValue = fieldValue; }
-    ~PdmDataValueField() override {}
+    DataValueField() {}
+    DataValueField( const DataValueField& other ) { m_fieldValue = other.m_fieldValue; }
+    explicit DataValueField( const DataType& fieldValue ) { m_fieldValue = fieldValue; }
+    ~DataValueField() override {}
 
     // Assignment
 
-    PdmDataValueField& operator=( const PdmDataValueField& other )
+    DataValueField& operator=( const DataValueField& other )
     {
         CAF_ASSERT( isInitializedByInitFieldMacro() );
         m_fieldValue = other.m_fieldValue;
         return *this;
     }
-    PdmDataValueField& operator=( const DataType& fieldValue )
+    DataValueField& operator=( const DataType& fieldValue )
     {
         CAF_ASSERT( isInitializedByInitFieldMacro() );
         m_fieldValue = fieldValue;
@@ -102,17 +102,17 @@ public:
     }
     void setValueWithFieldChanged( const DataType& fieldValue );
 
-    // Implementation of PdmValueField interface
+    // Implementation of ValueField interface
 
     QVariant toQVariant() const override
     {
         CAF_ASSERT( isInitializedByInitFieldMacro() );
-        return PdmValueFieldSpecialization<DataType>::convert( m_fieldValue );
+        return ValueFieldSpecialization<DataType>::convert( m_fieldValue );
     }
     void setFromQVariant( const QVariant& variant ) override
     {
         CAF_ASSERT( isInitializedByInitFieldMacro() );
-        PdmValueFieldSpecialization<DataType>::setFromVariant( variant, m_fieldValue );
+        ValueFieldSpecialization<DataType>::setFromVariant( variant, m_fieldValue );
     }
     bool isReadOnly() const override { return false; }
 
@@ -142,7 +142,7 @@ protected:
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::PdmDataValueField<DataType>::setValueWithFieldChanged( const DataType& fieldValue )
+void caf::DataValueField<DataType>::setValueWithFieldChanged( const DataType& fieldValue )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 

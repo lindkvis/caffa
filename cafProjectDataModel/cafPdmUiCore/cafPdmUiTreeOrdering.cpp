@@ -37,7 +37,7 @@
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cafAssert.h"
-#include "cafPdmDataValueField.h"
+#include "cafDataValueField.h"
 #include "cafFieldUiCapability.h"
 #include "cafObjectHandle.h"
 #include "cafObjectUiCapability.h"
