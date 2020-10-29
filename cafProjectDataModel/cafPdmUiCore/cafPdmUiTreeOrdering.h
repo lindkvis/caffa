@@ -45,22 +45,22 @@
 
 namespace caf
 {
-class PdmFieldHandle;
-class PdmObjectHandle;
+class FieldHandle;
+class ObjectHandle;
 class PdmUiEditorHandle;
 class PdmUiItem;
 class PdmUiTreeItemEditor;
 class PdmUiTreeOrdering;
 
 //==================================================================================================
-/// Class storing a tree structure representation of some PdmObject hierarchy to be used for tree views in the Gui
+/// Class storing a tree structure representation of some Object hierarchy to be used for tree views in the Gui
 //==================================================================================================
 
 class PdmUiTreeOrdering
 {
 public:
-    explicit PdmUiTreeOrdering( PdmObjectHandle* pdmItem );
-    explicit PdmUiTreeOrdering( PdmFieldHandle* pdmField );
+    explicit PdmUiTreeOrdering( ObjectHandle* pdmItem );
+    explicit PdmUiTreeOrdering( FieldHandle* pdmField );
     PdmUiTreeOrdering( const QString& title, const QString& iconResourceName );
 
     ~PdmUiTreeOrdering();
@@ -68,8 +68,8 @@ public:
     PdmUiTreeOrdering( const PdmUiTreeOrdering& ) = delete;
     PdmUiTreeOrdering& operator=( const PdmUiTreeOrdering& ) = delete;
 
-    void               add( PdmFieldHandle* field, QString uiConfigName = "" );
-    void               add( PdmObjectHandle* object );
+    void               add( FieldHandle* field, QString uiConfigName = "" );
+    void               add( ObjectHandle* object );
     PdmUiTreeOrdering* add( const QString& title, const QString& iconResourceName );
 
     /// If the rest of the fields containing children is supposed to be omitted, set skipRemainingFields to true.
@@ -85,8 +85,8 @@ public:
 
     // Access to the PdmItem being represented
     PdmUiItem*       activeItem() const;
-    PdmObjectHandle* object() const;
-    PdmFieldHandle*  field() const;
+    ObjectHandle* object() const;
+    FieldHandle*  field() const;
     PdmUiItem*       uiItem() const;
 
     // Tree structure traversal access
@@ -99,12 +99,12 @@ public:
     void debugDump( int level ) const;
 
 private:
-    friend class PdmObjectHandle;
-    friend class PdmObjectUiCapability;
+    friend class ObjectHandle;
+    friend class ObjectUiCapability;
     bool isIncludingRemainingChildren() const { return !m_forgetRemainingFields; }
     bool ignoreSubTree() const { return m_isToIgnoreSubTree; }
-    bool containsField( const PdmFieldHandle* field );
-    bool containsObject( const PdmObjectHandle* object );
+    bool containsField( const FieldHandle* field );
+    bool containsObject( const ObjectHandle* object );
     void appendChild( PdmUiTreeOrdering* child );
 
     friend class PdmUiTreeViewQModel;
@@ -116,12 +116,12 @@ private:
     bool               removeChildrenNoDelete( int position, int count );
 
 private:
-    PdmUiTreeOrdering( PdmUiTreeOrdering* parent, PdmObjectHandle* pdmItem );
-    PdmUiTreeOrdering( PdmUiTreeOrdering* parent, PdmFieldHandle* pdmField );
+    PdmUiTreeOrdering( PdmUiTreeOrdering* parent, ObjectHandle* pdmItem );
+    PdmUiTreeOrdering( PdmUiTreeOrdering* parent, FieldHandle* pdmField );
 
     // Item that we represent
-    PdmPointer<PdmObjectHandle> m_object; // We keep both pointer to object and pointer to field when representing a field
-    PdmFieldHandle* m_field; // because m_object is guarded while PdmFieldHandle::ownerObject() is not guarded
+    PdmPointer<ObjectHandle> m_object; // We keep both pointer to object and pointer to field when representing a field
+    FieldHandle* m_field; // because m_object is guarded while FieldHandle::ownerObject() is not guarded
     PdmUiItem*      m_uiItem;
 
     // Tree generation control

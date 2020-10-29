@@ -36,8 +36,8 @@
 
 #include "cafPdmUiTextEditor.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
@@ -109,7 +109,7 @@ void PdmUiTextEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     PdmUiTextEditorAttribute leab;
 
-    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &leab );

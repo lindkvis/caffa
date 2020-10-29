@@ -36,8 +36,8 @@
 
 #include "cafPdmUiListView.h"
 
-#include "cafPdmObjectGroup.h"
-#include "cafPdmObjectHandle.h"
+#include "cafObjectGroup.h"
+#include "cafObjectHandle.h"
 #include "cafPdmUiListViewEditor.h"
 
 #include <QHBoxLayout>
@@ -76,11 +76,11 @@ PdmUiListView::~PdmUiListView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiListView::setPdmObject( caf::PdmObjectCollection* object )
+void PdmUiListView::setObject( caf::ObjectCollection* object )
 {
     CAF_ASSERT( m_listViewEditor );
 
-    m_listViewEditor->setPdmObject( object );
+    m_listViewEditor->setObject( object );
 }
 
 } // End of namespace caf

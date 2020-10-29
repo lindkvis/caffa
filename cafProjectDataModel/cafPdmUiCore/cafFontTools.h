@@ -84,7 +84,7 @@ public:
 };
 
 //==================================================================================================
-/// Interface to implement for any PdmObject that has font sizes
+/// Interface to implement for any Object that has font sizes
 //==================================================================================================
 class FontHolderInterface
 {

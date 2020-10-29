@@ -1,0 +1,15 @@
+#pragma once
+
+class QXmlStreamReader;
+
+namespace caf
+{
+class FieldIOHelper
+{
+public:
+    // Utility functions for reading from QXmlStreamReader
+    static void skipCharactersAndComments( QXmlStreamReader& xmlStream );
+    static void skipComments( QXmlStreamReader& xmlStream );
+};
+
+} // End of namespace caf

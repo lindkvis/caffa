@@ -65,7 +65,7 @@ public:                                         \
     CAF_FACTORY_REGISTER( caf::PdmUi3dObjectEditorHandle, EditorClassName, QString, EditorClassName::uiEditorTypeName() )
 
 //==================================================================================================
-/// Abstract class for 3D editors editing complete PdmObjects
+/// Abstract class for 3D editors editing complete Objects
 //==================================================================================================
 
 class cafPdmUiCore_EXPORT PdmUi3dObjectEditorHandle : public caf::PdmUiObjectEditorHandle

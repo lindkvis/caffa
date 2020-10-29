@@ -47,13 +47,13 @@ CAF_PDM_SOURCE_INIT( CmdFieldChangeExecData, "CmdFieldChangeExecData" );
 //--------------------------------------------------------------------------------------------------
 QString CmdFieldChangeExec::name()
 {
-    PdmFieldHandle* field =
+    FieldHandle* field =
         PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
     if ( field )
     {
         QString fieldText;
 
-        PdmFieldUiCapability* uiFieldHandle = field->capability<PdmFieldUiCapability>();
+        FieldUiCapability* uiFieldHandle = field->capability<FieldUiCapability>();
         if ( uiFieldHandle )
         {
             fieldText = QString( "Change field '%1'" ).arg( uiFieldHandle->uiName() );
@@ -61,7 +61,7 @@ QString CmdFieldChangeExec::name()
 
         if ( field->ownerObject() )
         {
-            PdmObjectUiCapability* uiObjHandle = uiObj( field->ownerObject() );
+            ObjectUiCapability* uiObjHandle = uiObj( field->ownerObject() );
             if ( uiObjHandle )
             {
                 fieldText += QString( " in '%1'" ).arg( uiObjHandle->uiName() );
@@ -80,7 +80,7 @@ QString CmdFieldChangeExec::name()
 //--------------------------------------------------------------------------------------------------
 void CmdFieldChangeExec::redo()
 {
-    PdmFieldHandle* field =
+    FieldHandle* field =
         PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
     if ( !field )
     {
@@ -88,8 +88,8 @@ void CmdFieldChangeExec::redo()
         return;
     }
 
-    PdmFieldUiCapability* uiFieldHandle = field->capability<PdmFieldUiCapability>();
-    PdmFieldIoCapability* ioCapability  = field->capability<PdmFieldIoCapability>();
+    FieldUiCapability* uiFieldHandle = field->capability<FieldUiCapability>();
+    FieldIoCapability* ioCapability  = field->capability<FieldIoCapability>();
     if ( uiFieldHandle && ioCapability )
     {
         if ( m_commandData->m_redoFieldValueSerialized.isEmpty() )
@@ -132,7 +132,7 @@ void CmdFieldChangeExec::redo()
 //--------------------------------------------------------------------------------------------------
 void CmdFieldChangeExec::undo()
 {
-    PdmFieldHandle* field =
+    FieldHandle* field =
         PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
     if ( !field )
     {
@@ -140,8 +140,8 @@ void CmdFieldChangeExec::undo()
         return;
     }
 
-    PdmFieldUiCapability* uiFieldHandle = field->capability<PdmFieldUiCapability>();
-    PdmFieldIoCapability* ioCapability  = field->capability<PdmFieldIoCapability>();
+    FieldUiCapability* uiFieldHandle = field->capability<FieldUiCapability>();
+    FieldIoCapability* ioCapability  = field->capability<FieldIoCapability>();
     if ( uiFieldHandle && ioCapability )
     {
         QXmlStreamReader xmlStream( m_commandData->m_undoFieldValueSerialized );
@@ -183,7 +183,7 @@ CmdFieldChangeExecData* CmdFieldChangeExec::commandData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void CmdFieldChangeExec::writeFieldDataToValidXmlDocument( QXmlStreamWriter& xmlStream, PdmFieldIoCapability* ioCapability )
+void CmdFieldChangeExec::writeFieldDataToValidXmlDocument( QXmlStreamWriter& xmlStream, FieldIoCapability* ioCapability )
 {
     xmlStream.setAutoFormatting( true );
     xmlStream.writeStartDocument();
@@ -196,9 +196,9 @@ void CmdFieldChangeExec::writeFieldDataToValidXmlDocument( QXmlStreamWriter& xml
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void CmdFieldChangeExec::readFieldValueFromValidXmlDocument( QXmlStreamReader& xmlStream, PdmFieldIoCapability* ioCapability )
+void CmdFieldChangeExec::readFieldValueFromValidXmlDocument( QXmlStreamReader& xmlStream, FieldIoCapability* ioCapability )
 {
-    // See PdmObject::readFields and friends to match token count for reading field values
+    // See Object::readFields and friends to match token count for reading field values
     // The stream is supposed to be pointing at the first token of field content when calling readFieldData()
     QXmlStreamReader::TokenType tt;
     int                         tokenCount = 3;

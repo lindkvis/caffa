@@ -46,7 +46,7 @@
 namespace caf
 {
 //==================================================================================================
-/// The default editor for several PdmFields.
+/// The default editor for several Fields.
 //==================================================================================================
 
 class PdmUiCheckBoxEditorAttribute : public PdmUiEditorAttribute

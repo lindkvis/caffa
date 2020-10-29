@@ -38,11 +38,11 @@
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
-#include "cafPdmFieldIoCapability.h"
-#include "cafPdmObject.h"
-#include "cafPdmObjectFactory.h"
-#include "cafPdmObjectMethod.h"
-#include "cafPdmObjectScriptingCapabilityRegister.h"
+#include "cafFieldIoCapability.h"
+#include "cafObject.h"
+#include "cafObjectFactory.h"
+#include "cafObjectMethod.h"
+#include "cafObjectScriptingCapabilityRegister.h"
 #include "cafPdmProxyValueField.h"
 
 #include <QRegularExpression>
@@ -59,29 +59,29 @@ CAF_PDM_CODE_GENERATOR_SOURCE_INIT( PdmPythonGenerator, "py" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
+QString PdmPythonGenerator::generate( ObjectFactory* factory ) const
 {
     QString     generatedCode;
     QTextStream out( &generatedCode );
 
     std::vector<QString> classKeywords = factory->classKeywords();
 
-    std::vector<std::shared_ptr<PdmObject>> dummyObjects;
+    std::vector<std::shared_ptr<Object>> dummyObjects;
     for ( QString classKeyword : classKeywords )
     {
         auto       objectHandle = factory->create( classKeyword );
-        PdmObject* object       = dynamic_cast<PdmObject*>( objectHandle );
+        Object* object       = dynamic_cast<Object*>( objectHandle );
         CAF_ASSERT( object );
 
-        std::shared_ptr<PdmObject> sharedObject( object );
-        if ( PdmObjectScriptingCapabilityRegister::isScriptable( sharedObject.get() ) )
+        std::shared_ptr<Object> sharedObject( object );
+        if ( ObjectScriptingCapabilityRegister::isScriptable( sharedObject.get() ) )
         {
             dummyObjects.push_back( sharedObject );
         }
     }
 
     // Sort to make sure super classes get created before sub classes
-    std::sort( dummyObjects.begin(), dummyObjects.end(), []( std::shared_ptr<PdmObject> lhs, std::shared_ptr<PdmObject> rhs ) {
+    std::sort( dummyObjects.begin(), dummyObjects.end(), []( std::shared_ptr<Object> lhs, std::shared_ptr<Object> rhs ) {
         if ( lhs->inheritsClassWithKeyword( rhs->classKeyword() ) )
         {
             return false;
@@ -94,14 +94,14 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
     std::map<QString, QString>                                        classCommentsGenerated;
 
     // First generate all attributes and comments to go into each object
-    for ( std::shared_ptr<PdmObject> object : dummyObjects )
+    for ( std::shared_ptr<Object> object : dummyObjects )
     {
         const std::list<QString>& classInheritanceStack = object->classInheritanceStack();
 
         for ( auto it = classInheritanceStack.begin(); it != classInheritanceStack.end(); ++it )
         {
             const QString& classKeyword = *it;
-            QString scriptClassComment  = PdmObjectScriptingCapabilityRegister::scriptClassComment( classKeyword );
+            QString scriptClassComment  = ObjectScriptingCapabilityRegister::scriptClassComment( classKeyword );
 
             std::map<QString, QString> attributesGenerated;
 
@@ -109,7 +109,7 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
 
             if ( classKeyword == object->classKeyword() )
             {
-                std::vector<PdmFieldHandle*> fields;
+                std::vector<FieldHandle*> fields;
                 object->fields( fields );
                 for ( auto field : fields )
                 {
@@ -121,8 +121,8 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                         QString comment;
                         {
                             QStringList commentComponents;
-                            commentComponents << field->capability<PdmFieldUiCapability>()->uiName();
-                            commentComponents << field->capability<PdmFieldUiCapability>()->uiWhatsThis();
+                            commentComponents << field->capability<FieldUiCapability>()->uiName();
+                            commentComponents << field->capability<FieldUiCapability>()->uiWhatsThis();
                             commentComponents.removeAll( QString( "" ) );
                             comment = commentComponents.join( ". " );
                         }
@@ -133,7 +133,7 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                         if ( pdmValueField )
                         {
                             QString dataType = PdmPythonGenerator::dataTypeString( field, true );
-                            if ( field->capability<PdmFieldIoCapability>()->isVectorField() )
+                            if ( field->capability<FieldIoCapability>()->isVectorField() )
                             {
                                 dataType = QString( "List of %1" ).arg( dataType );
                             }
@@ -201,9 +201,9 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                         {
                             QString dataType = PdmPythonGenerator::dataTypeString( field, false );
                             QString scriptDataType =
-                                PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( dataType );
+                                ObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( dataType );
 
-                            QString commentDataType = field->capability<PdmFieldIoCapability>()->isVectorField()
+                            QString commentDataType = field->capability<FieldIoCapability>()->isVectorField()
                                                           ? QString( "List of %1" ).arg( scriptDataType )
                                                           : scriptDataType;
 
@@ -238,14 +238,14 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                 }
             }
 
-            for ( QString methodName : PdmObjectMethodFactory::instance()->registeredMethodNames( classKeyword ) )
+            for ( QString methodName : ObjectMethodFactory::instance()->registeredMethodNames( classKeyword ) )
             {
-                std::shared_ptr<PdmObjectMethod> method =
-                    PdmObjectMethodFactory::instance()->createMethod( object.get(), methodName );
-                std::vector<PdmFieldHandle*> arguments;
+                std::shared_ptr<ObjectMethod> method =
+                    ObjectMethodFactory::instance()->createMethod( object.get(), methodName );
+                std::vector<FieldHandle*> arguments;
                 method->fields( arguments );
 
-                QString methodComment = method->capability<PdmFieldUiCapability>()->uiWhatsThis();
+                QString methodComment = method->capability<FieldUiCapability>()->uiWhatsThis();
 
                 QString snake_method_name = camelToSnakeCase( methodName );
 
@@ -256,11 +256,11 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                 QStringList argumentComments;
 
                 outputArgumentStrings.push_back( QString( "\"%1\"" ).arg( methodName ) );
-                QString returnComment = method->defaultResult()->capability<PdmObjectIoCapability>()->classKeyword();
+                QString returnComment = method->defaultResult()->capability<ObjectIoCapability>()->classKeyword();
 
                 for ( auto field : arguments )
                 {
-                    bool    isList        = field->capability<PdmFieldIoCapability>()->isVectorField();
+                    bool    isList        = field->capability<FieldIoCapability>()->isVectorField();
                     QString defaultValue  = isList ? "[]" : "None";
                     auto    scriptability = field->capability<PdmAbstractFieldScriptingCapability>();
                     auto    argumentName  = camelToSnakeCase( scriptability->scriptFieldName() );
@@ -271,7 +271,7 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                     argumentComments.push_back( QString( "%1 (%2): %3" )
                                                     .arg( argumentName )
                                                     .arg( dataType )
-                                                    .arg( field->capability<PdmFieldUiCapability>()->uiWhatsThis() ) );
+                                                    .arg( field->capability<FieldUiCapability>()->uiWhatsThis() ) );
                 }
                 QString fullComment = QString( "        \"\"\"\n        %1\n        Arguments:\n            "
                                                "%2\n        Returns:\n            %3\n        \"\"\"" )
@@ -293,11 +293,11 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
 
     // Write out classes
     std::set<QString> classesWritten;
-    classesWritten.insert( "PdmObjectBase" );
+    classesWritten.insert( "ObjectBase" );
 
-    out << "from rips.pdmobject import PdmObjectBase\n";
+    out << "from rips.pdmobject import ObjectBase\n";
 
-    for ( std::shared_ptr<PdmObject> object : dummyObjects )
+    for ( std::shared_ptr<Object> object : dummyObjects )
     {
         const std::list<QString>& classInheritanceStack = object->classInheritanceStack();
         std::list<QString>        scriptSuperClassNames;
@@ -305,7 +305,7 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
         for ( auto it = classInheritanceStack.begin(); it != classInheritanceStack.end(); ++it )
         {
             const QString& classKeyword = *it;
-            QString scriptClassName = PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( classKeyword );
+            QString scriptClassName = ObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( classKeyword );
             if ( scriptClassName.isEmpty() ) scriptClassName = classKeyword;
 
             if ( !classesWritten.count( scriptClassName ) )
@@ -407,9 +407,9 @@ QString PdmPythonGenerator::camelToSnakeCase( const QString& camelString )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmPythonGenerator::dataTypeString( const PdmFieldHandle* field, bool useStrForUnknownDataTypes )
+QString PdmPythonGenerator::dataTypeString( const FieldHandle* field, bool useStrForUnknownDataTypes )
 {
-    auto ioObj = field->capability<PdmFieldIoCapability>();
+    auto ioObj = field->capability<FieldIoCapability>();
 
     QString dataType = ioObj->dataTypeName();
 

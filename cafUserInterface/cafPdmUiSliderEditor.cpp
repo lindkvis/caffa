@@ -36,8 +36,8 @@
 
 #include "cafPdmUiSliderEditor.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 
@@ -67,7 +67,7 @@ void PdmUiSliderEditor::configureAndUpdateUi( const QString& uiConfigName )
     m_slider->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
     m_slider->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
-    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );

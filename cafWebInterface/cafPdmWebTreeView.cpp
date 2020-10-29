@@ -37,7 +37,7 @@
 
 #include "cafPdmWebTreeView.h"
 
-#include "cafPdmObject.h"
+#include "cafObject.h"
 #include "cafPdmWebDefaultObjectEditor.h"
 #include "cafPdmWebTreeViewEditor.h"
 
@@ -115,11 +115,11 @@ void PdmWebTreeView::slotOnSelectionChanged()
 
     std::vector<PdmUiItem*> objects;
     m_treeViewEditor->selectedUiItems( objects );
-    PdmObjectHandle* objHandle = nullptr;
+    ObjectHandle* objHandle = nullptr;
 
     if ( objects.size() )
     {
-        PdmObjectUiCapability* uiObjH = dynamic_cast<PdmObjectUiCapability*>( objects[0] );
+        ObjectUiCapability* uiObjH = dynamic_cast<ObjectUiCapability*>( objects[0] );
         if ( uiObjH )
         {
             objHandle = uiObjH->objectHandle();
@@ -197,7 +197,7 @@ Wt::Signal<>& PdmWebTreeView::selectionChanged()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Wt::Signal<caf::PdmObjectHandle*>& PdmWebTreeView::selectedObjectChanged()
+Wt::Signal<caf::ObjectHandle*>& PdmWebTreeView::selectedObjectChanged()
 {
     return m_selectedObjectChanged;
 }

@@ -35,8 +35,8 @@
 //##################################################################################################
 
 #pragma once
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmPointer.h"
 
 namespace caf
@@ -45,25 +45,25 @@ namespace caf
 /// The PdmDocument class is the main class to do file based IO,
 /// and is also supposed to act as the overall container of the objects read.
 //==================================================================================================
-class PdmDocument : public PdmObject
+class PdmDocument : public Object
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     PdmDocument();
 
-    PdmField<QString> fileName;
+    Field<QString> fileName;
 
     void readFile();
     bool writeFile();
 
     void readFile( QIODevice*                                       device,
-                   caf::PdmObjectIoCapability::IoParameters::IoType ioType = PdmObjectIoCapability::IoParameters::IoType::XML );
+                   caf::ObjectIoCapability::IoParameters::IoType ioType = ObjectIoCapability::IoParameters::IoType::XML );
 
     void writeFile( QIODevice*                                       device,
-                    caf::PdmObjectIoCapability::IoParameters::IoType ioType = PdmObjectIoCapability::IoParameters::IoType::XML );
+                    caf::ObjectIoCapability::IoParameters::IoType ioType = ObjectIoCapability::IoParameters::IoType::XML );
 
-    static void updateUiIconStateRecursively( PdmObjectHandle* root );
+    static void updateUiIconStateRecursively( ObjectHandle* root );
 };
 
 } // End of namespace caf

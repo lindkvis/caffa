@@ -136,7 +136,7 @@ protected slots:
     void slotCompleterActivated( const QModelIndex& index );
 
 private:
-    bool isMultipleFieldsWithSameKeywordSelected( PdmFieldHandle* editorField ) const;
+    bool isMultipleFieldsWithSameKeywordSelected( FieldHandle* editorField ) const;
 
 protected:
     QPointer<PdmUiLineEdit>   m_lineEdit;

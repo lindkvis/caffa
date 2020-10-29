@@ -10,16 +10,16 @@ namespace caf
 template <typename T>
 class PdmDataValueField;
 class PdmOptionItemInfo;
-class PdmObjectHandle;
+class ObjectHandle;
 
 //==================================================================================================
 /// A proxy class that implements the Gui interface of fields
 ///
-/// This class collects methods that need specialization when introducing a new type in a PdmField.
+/// This class collects methods that need specialization when introducing a new type in a Field.
 /// Having those methods in a separate class makes it possible to "partially specialize" the methods
 /// for container classes etc. since partial specialization of template functions is not C++ as of yet.
 ///
-/// When introducing a new type in a PdmField, you might need to implement a (partial)specialization
+/// When introducing a new type in a Field, you might need to implement a (partial)specialization
 /// of this class.
 //==================================================================================================
 
@@ -55,9 +55,9 @@ public:
         return QList<PdmOptionItemInfo>();
     }
 
-    /// Methods to retrieve the possible PdmObject pointed to by a field
-    static void childObjects( const PdmDataValueField<T>&, std::vector<PdmObjectHandle*>* ) {}
+    /// Methods to retrieve the possible Object pointed to by a field
+    static void childObjects( const PdmDataValueField<T>&, std::vector<ObjectHandle*>* ) {}
 };
 } // End of namespace caf
 
-#include "cafInternalPdmFieldTypeSpecializations.h"
+#include "cafInternalUiFieldSpecializations.h"

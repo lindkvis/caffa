@@ -4,16 +4,16 @@
 #include <QItemSelection>
 #include <QMainWindow>
 
-class DemoPdmObject;
-class DemoPdmObjectGroup;
+class DemoObject;
+class DemoObjectGroup;
 class QTreeView;
 class QUndoView;
 class QLabel;
 
 namespace caf
 {
-class PdmObjectCollection;
-class PdmObjectHandle;
+class ObjectCollection;
+class ObjectHandle;
 class UiTreeModelPdm;
 class PdmUiPropertyView;
 class PdmUiTreeView;
@@ -30,7 +30,7 @@ public:
     ~MainWindow() override;
 
     static MainWindow* instance();
-    void               setPdmRoot(caf::PdmObjectHandle* pdmRoot);
+    void               setPdmRoot(caf::ObjectHandle* pdmRoot);
 
 private:
     void createActions();
@@ -62,7 +62,7 @@ private:
     caf::PdmUiTreeView*     m_pdmUiTreeView2;
     caf::PdmUiPropertyView* m_pdmUiPropertyView;
     caf::PdmUiTableView*    m_pdmUiTableView;
-    DemoPdmObjectGroup*     m_testRoot;
+    DemoObjectGroup*     m_testRoot;
 
     caf::CustomObjectEditor* m_customObjectEditor;
 

@@ -37,18 +37,18 @@
 #pragma once
 
 #include "cafCmdExecuteCommand.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 
 namespace caf
 {
 class PdmChildArrayFieldHandle;
-class PdmFieldIoCapability;
+class FieldIoCapability;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class CmdFieldChangeExecData : public PdmObject
+class CmdFieldChangeExecData : public Object
 {
     CAF_PDM_HEADER_INIT;
 
@@ -63,9 +63,9 @@ public:
         CAF_PDM_InitField( &m_pathToField, "PathToField", QString(), "PathToField", "", "PathToField tooltip", "PathToField whatsthis" );
     }
 
-    caf::PdmPointer<PdmObjectHandle> m_rootObject;
+    caf::PdmPointer<ObjectHandle> m_rootObject;
 
-    PdmField<QString> m_pathToField;
+    Field<QString> m_pathToField;
     QVariant          m_newUiValue; // QVariant coming from the UI
 
     QString m_undoFieldValueSerialized;
@@ -88,8 +88,8 @@ public:
     void    undo() override;
 
 private:
-    void readFieldValueFromValidXmlDocument( QXmlStreamReader& xmlStream, PdmFieldIoCapability* ioCapability );
-    void writeFieldDataToValidXmlDocument( QXmlStreamWriter& xmlStream, PdmFieldIoCapability* ioCapability );
+    void readFieldValueFromValidXmlDocument( QXmlStreamReader& xmlStream, FieldIoCapability* ioCapability );
+    void writeFieldDataToValidXmlDocument( QXmlStreamWriter& xmlStream, FieldIoCapability* ioCapability );
 
 private:
     CmdFieldChangeExecData* m_commandData;

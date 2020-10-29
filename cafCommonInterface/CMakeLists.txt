@@ -28,7 +28,7 @@ set (PUBLIC_HEADERS
     cafPdmCoreColor.h
     cafPdmUiCoreColor.h
     cafPdmXmlColor.h
-    cafPdmFieldColor.h
+    cafFieldColor.h
 
     cafCurveInterface.h
     cafPlotViewerInterface.h

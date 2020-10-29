@@ -6,7 +6,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmDataValueField.h"
-#include "cafPdmObjectHandle.h"
+#include "cafObjectHandle.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmReferenceHelper.h"
@@ -14,22 +14,22 @@
 
 #include <vector>
 
-class DemoPdmObject : public caf::PdmObjectHandle
+class DemoObject : public caf::ObjectHandle
 {
 public:
-    DemoPdmObject()
+    DemoObject()
     {
         this->addField( &m_proxyDoubleField, "m_proxyDoubleField" );
-        m_proxyDoubleField.registerSetMethod( this, &DemoPdmObject::setDoubleMember );
-        m_proxyDoubleField.registerGetMethod( this, &DemoPdmObject::doubleMember );
+        m_proxyDoubleField.registerSetMethod( this, &DemoObject::setDoubleMember );
+        m_proxyDoubleField.registerGetMethod( this, &DemoObject::doubleMember );
 
         this->addField( &m_proxyIntField, "m_proxyIntField" );
-        m_proxyIntField.registerSetMethod( this, &DemoPdmObject::setIntMember );
-        m_proxyIntField.registerGetMethod( this, &DemoPdmObject::intMember );
+        m_proxyIntField.registerSetMethod( this, &DemoObject::setIntMember );
+        m_proxyIntField.registerGetMethod( this, &DemoObject::intMember );
 
         this->addField( &m_proxyStringField, "m_proxyStringField" );
-        m_proxyStringField.registerSetMethod( this, &DemoPdmObject::setStringMember );
-        m_proxyStringField.registerGetMethod( this, &DemoPdmObject::stringMember );
+        m_proxyStringField.registerSetMethod( this, &DemoObject::setStringMember );
+        m_proxyStringField.registerGetMethod( this, &DemoObject::stringMember );
 
         this->addField( &m_memberDoubleField, "m_memberDoubleField" );
         this->addField( &m_memberIntField, "m_memberIntField" );
@@ -45,7 +45,7 @@ public:
         m_memberStringField = "";
     }
 
-    ~DemoPdmObject() {}
+    ~DemoObject() {}
 
     // Fields
     caf::PdmProxyValueField<double>  m_proxyDoubleField;
@@ -80,13 +80,13 @@ private:
     QString m_stringMember;
 };
 
-class InheritedDemoObj : public DemoPdmObject
+class InheritedDemoObj : public DemoObject
 {
 public:
     InheritedDemoObj()
     {
         this->addField( &m_texts, "Texts" );
-        this->addField( &m_childArrayField, "DemoPdmObjectects" );
+        this->addField( &m_childArrayField, "DemoObjectects" );
         this->addField( &m_ptrField, "m_ptrField" );
 
         this->addField( &m_singleFilePath, "m_singleFilePath" );
@@ -94,7 +94,7 @@ public:
     }
 
     caf::PdmDataValueField<QString>         m_texts;
-    caf::PdmChildArrayField<DemoPdmObject*> m_childArrayField;
+    caf::PdmChildArrayField<DemoObject*> m_childArrayField;
     caf::PdmPtrField<InheritedDemoObj*>     m_ptrField;
 
     caf::PdmDataValueField<caf::FilePath>              m_singleFilePath;
@@ -103,7 +103,7 @@ public:
 
 TEST( BaseTest, Delete )
 {
-    DemoPdmObject* s2 = new DemoPdmObject;
+    DemoObject* s2 = new DemoObject;
     delete s2;
 }
 
@@ -112,7 +112,7 @@ TEST( BaseTest, Delete )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, TestPdmDataValueField )
 {
-    DemoPdmObject* a = new DemoPdmObject;
+    DemoObject* a = new DemoObject;
 
     ASSERT_DOUBLE_EQ( 0.0, a->m_memberDoubleField.value() );
     a->m_memberDoubleField.setValue( 1.2 );
@@ -132,7 +132,7 @@ TEST( BaseTest, TestPdmDataValueField )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, TestPdmProxyValueField )
 {
-    DemoPdmObject* a = new DemoPdmObject;
+    DemoObject* a = new DemoObject;
 
     ASSERT_DOUBLE_EQ( 2.1, a->m_proxyDoubleField.value() );
     a->m_proxyDoubleField.setValue( 1.2 );
@@ -151,7 +151,7 @@ TEST( BaseTest, TestPdmProxyValueField )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, TestPdmValueFieldInterface )
 {
-    DemoPdmObject* a = new DemoPdmObject;
+    DemoObject* a = new DemoObject;
 
     {
         caf::PdmValueField* valField = dynamic_cast<caf::PdmValueField*>( a->findField( "m_proxyDoubleField" ) );
@@ -205,9 +205,9 @@ TEST( BaseTest, TestPdmValueFieldInterface )
 //--------------------------------------------------------------------------------------------------
 /// Test of PdmDataValueField operations
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, NormalPdmField )
+TEST( BaseTest, NormalField )
 {
-    class A : public caf::PdmObjectHandle
+    class A : public caf::ObjectHandle
     {
     public:
         explicit A( const std::vector<double>& testValue )
@@ -266,9 +266,9 @@ TEST( BaseTest, PdmChildArrayField )
 {
     InheritedDemoObj* ihd1 = new InheritedDemoObj;
 
-    caf::PdmPointer<DemoPdmObject> s1 = new DemoPdmObject;
-    caf::PdmPointer<DemoPdmObject> s2 = new DemoPdmObject;
-    caf::PdmPointer<DemoPdmObject> s3 = new DemoPdmObject;
+    caf::PdmPointer<DemoObject> s1 = new DemoObject;
+    caf::PdmPointer<DemoObject> s2 = new DemoObject;
+    caf::PdmPointer<DemoObject> s3 = new DemoObject;
 
     // empty() number 1
     EXPECT_TRUE( ihd1->m_childArrayField.empty() );
@@ -291,11 +291,11 @@ TEST( BaseTest, PdmChildArrayField )
     EXPECT_EQ( s3, ihd1->m_childArrayField[2] );
 
     // childObjects
-    std::vector<caf::PdmObjectHandle*> objects;
+    std::vector<caf::ObjectHandle*> objects;
     ihd1->m_childArrayField.childObjects( &objects );
     EXPECT_EQ( size_t( 3 ), objects.size() );
 
-    std::vector<DemoPdmObject*> typedObjects = ihd1->m_childArrayField.childObjects();
+    std::vector<DemoObject*> typedObjects = ihd1->m_childArrayField.childObjects();
     EXPECT_EQ( size_t( 3 ), typedObjects.size() );
 
     // set()
@@ -380,23 +380,23 @@ TEST( BaseTest, PdmChildArrayFieldHandle )
     //     virtual size_t      size() const = 0;
     //     virtual bool        empty() const = 0;
     //     virtual void        clear() = 0;
-    //     virtual PdmObject*  createAppendObject(int indexAfter) = 0;
+    //     virtual Object*  createAppendObject(int indexAfter) = 0;
     //     virtual void        erase(size_t index) = 0;
     //     virtual void        deleteAllChildObjects() = 0;
     //
-    //     virtual PdmObject*  at(size_t index) = 0;
+    //     virtual Object*  at(size_t index) = 0;
     //
     //     bool                hasSameFieldCountForAllObjects();
-    DemoPdmObject* s0       = new DemoPdmObject;
+    DemoObject* s0       = new DemoObject;
     s0->m_memberDoubleField = 1000;
 
-    DemoPdmObject* s1       = new DemoPdmObject;
+    DemoObject* s1       = new DemoObject;
     s1->m_memberDoubleField = 1000;
 
-    DemoPdmObject* s2       = new DemoPdmObject;
+    DemoObject* s2       = new DemoObject;
     s2->m_memberDoubleField = 2000;
 
-    DemoPdmObject* s3       = new DemoPdmObject;
+    DemoObject* s3       = new DemoObject;
     s3->m_memberDoubleField = 3000;
 
     InheritedDemoObj*              ihd1      = new InheritedDemoObj;
@@ -435,7 +435,7 @@ TEST( BaseTest, PdmChildArrayFieldHandle )
 
 TEST( BaseTest, PdmChildField )
 {
-    class A : public caf::PdmObjectHandle
+    class A : public caf::ObjectHandle
     {
     public:
         explicit A( Child* a )
@@ -473,7 +473,7 @@ TEST( BaseTest, PdmChildField )
         EXPECT_EQ( c2, a.field2.value() );
         EXPECT_TRUE( c2 == a.field2 );
 
-        std::vector<caf::PdmObjectHandle*> objects;
+        std::vector<caf::ObjectHandle*> objects;
         a.field2.childObjects( &objects );
         EXPECT_EQ( (size_t)1, objects.size() );
         EXPECT_EQ( c2, objects[0] );
@@ -518,7 +518,7 @@ TEST( BaseTest, PdmPtrField )
 
     // Generic access
     {
-        std::vector<caf::PdmObjectHandle*> objects;
+        std::vector<caf::ObjectHandle*> objects;
         ihd1->m_ptrField.ptrReferencedObjects( &objects );
         EXPECT_EQ( 1u, objects.size() );
         EXPECT_EQ( ihd2, objects[0] );
@@ -530,14 +530,14 @@ TEST( BaseTest, PdmPtrField )
 
     // Referencing system
     {
-        std::vector<caf::PdmFieldHandle*> ptrFields;
+        std::vector<caf::FieldHandle*> ptrFields;
         ihd2->referringPtrFields( ptrFields );
         EXPECT_EQ( 1u, ptrFields.size() );
         EXPECT_EQ( &( ihd1->m_ptrField ), ptrFields[0] );
     }
 
     {
-        std::vector<caf::PdmObjectHandle*> objects;
+        std::vector<caf::ObjectHandle*> objects;
         ihd2->objectsWithReferringPtrFields( objects );
         EXPECT_EQ( 1u, objects.size() );
         EXPECT_EQ( ihd1, objects[0] );
@@ -581,7 +581,7 @@ TEST( BaseTest, PdmPointer )
         EXPECT_TRUE( p.isNull() && p2.isNull() );
     }
 
-    caf::PdmPointer<DemoPdmObject> p3( new DemoPdmObject() );
+    caf::PdmPointer<DemoObject> p3( new DemoObject() );
 
     delete p3;
 }

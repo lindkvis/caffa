@@ -40,8 +40,8 @@
 
 #include "cafSelectionManager.h"
 
-#include "cafPdmObject.h"
-#include "cafPdmObjectHandle.h"
+#include "cafObject.h"
+#include "cafObjectHandle.h"
 #include "cafPdmUiItem.h"
 #include <QAction>
 
@@ -54,11 +54,11 @@ CAF_CMD_SOURCE_INIT( ToggleItemsOnOthersOffFeature, "cafToggleItemsOnOthersOffFe
 //--------------------------------------------------------------------------------------------------
 bool ToggleItemsOnOthersOffFeature::isCommandEnabled()
 {
-    std::vector<caf::PdmObject*> selectedObjects;
+    std::vector<caf::Object*> selectedObjects;
     caf::SelectionManager::instance()->objectsByType( &selectedObjects );
 
-    caf::PdmFieldHandle*               commonParent = verifySameParentForSelection( selectedObjects );
-    std::vector<caf::PdmObjectHandle*> children     = childObjects( commonParent );
+    caf::FieldHandle*               commonParent = verifySameParentForSelection( selectedObjects );
+    std::vector<caf::ObjectHandle*> children     = childObjects( commonParent );
 
     return commonParent != nullptr && children.size() > 0 && objectToggleField( children.front() ) &&
            children.size() > selectedObjects.size();
@@ -69,16 +69,16 @@ bool ToggleItemsOnOthersOffFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void ToggleItemsOnOthersOffFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<caf::PdmObject*> selectedObjects;
+    std::vector<caf::Object*> selectedObjects;
     caf::SelectionManager::instance()->objectsByType( &selectedObjects );
 
     // First toggle off all siblings
 
-    caf::PdmFieldHandle* commonParent = verifySameParentForSelection( selectedObjects );
+    caf::FieldHandle* commonParent = verifySameParentForSelection( selectedObjects );
 
-    for ( caf::PdmObjectHandle* child : childObjects( commonParent ) )
+    for ( caf::ObjectHandle* child : childObjects( commonParent ) )
     {
-        caf::PdmField<bool>* field = objectToggleField( child );
+        caf::Field<bool>* field = objectToggleField( child );
 
         if ( field )
         {
@@ -87,9 +87,9 @@ void ToggleItemsOnOthersOffFeature::onActionTriggered( bool isChecked )
     }
 
     // Then toggle on the selected item(s)
-    for ( caf::PdmObject* selectedObject : selectedObjects )
+    for ( caf::Object* selectedObject : selectedObjects )
     {
-        caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>( selectedObject->objectToggleField() );
+        caf::Field<bool>* field = dynamic_cast<caf::Field<bool>*>( selectedObject->objectToggleField() );
 
         field->setValueWithFieldChanged( true );
     }
@@ -108,14 +108,14 @@ void ToggleItemsOnOthersOffFeature::setupActionLook( ActionWrapper* actionToSetu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle*
-    ToggleItemsOnOthersOffFeature::verifySameParentForSelection( const std::vector<caf::PdmObject*>& selection )
+caf::FieldHandle*
+    ToggleItemsOnOthersOffFeature::verifySameParentForSelection( const std::vector<caf::Object*>& selection )
 {
-    caf::PdmFieldHandle* sameParent = nullptr;
+    caf::FieldHandle* sameParent = nullptr;
 
-    for ( caf::PdmObject* obj : selection )
+    for ( caf::Object* obj : selection )
     {
-        caf::PdmFieldHandle* parent = obj->parentField();
+        caf::FieldHandle* parent = obj->parentField();
         if ( parent )
         {
             if ( !sameParent )
@@ -136,9 +136,9 @@ caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmObjectHandle*> ToggleItemsOnOthersOffFeature::childObjects( caf::PdmFieldHandle* parent )
+std::vector<caf::ObjectHandle*> ToggleItemsOnOthersOffFeature::childObjects( caf::FieldHandle* parent )
 {
-    std::vector<caf::PdmObjectHandle*> children;
+    std::vector<caf::ObjectHandle*> children;
     if ( parent )
     {
         parent->childObjects( &children );
@@ -149,12 +149,12 @@ std::vector<caf::PdmObjectHandle*> ToggleItemsOnOthersOffFeature::childObjects( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmField<bool>* ToggleItemsOnOthersOffFeature::objectToggleField( caf::PdmObjectHandle* objectHandle )
+caf::Field<bool>* ToggleItemsOnOthersOffFeature::objectToggleField( caf::ObjectHandle* objectHandle )
 {
-    caf::PdmObjectUiCapability* childUiObject = uiObj( objectHandle );
+    caf::ObjectUiCapability* childUiObject = uiObj( objectHandle );
     if ( childUiObject && childUiObject->objectToggleField() )
     {
-        return dynamic_cast<caf::PdmField<bool>*>( childUiObject->objectToggleField() );
+        return dynamic_cast<caf::Field<bool>*>( childUiObject->objectToggleField() );
     }
     return nullptr;
 }

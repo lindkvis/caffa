@@ -44,7 +44,7 @@
 #include "cafSelectionManager.h"
 
 #include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
+#include "cafField.h"
 
 #include <QAction>
 
@@ -64,26 +64,26 @@ CmdExecuteCommand* CmdDeleteItemFeature::createExecuteCommand()
         caf::SelectionManager::instance()->activeChildArrayFieldHandle();
     if ( !childArrayFieldHandle ) return nullptr;
 
-    caf::PdmObjectHandle* currentPdmObject = nullptr;
+    caf::ObjectHandle* currentObject = nullptr;
 
     for ( size_t i = 0; i < items.size(); i++ )
     {
-        if ( dynamic_cast<caf::PdmObjectUiCapability*>( items[i] ) )
+        if ( dynamic_cast<caf::ObjectUiCapability*>( items[i] ) )
         {
-            currentPdmObject = dynamic_cast<caf::PdmObjectUiCapability*>( items[i] )->objectHandle();
+            currentObject = dynamic_cast<caf::ObjectUiCapability*>( items[i] )->objectHandle();
         }
     }
 
-    if ( !currentPdmObject ) return nullptr;
+    if ( !currentObject ) return nullptr;
 
     int indexAfter = -1;
 
-    std::vector<PdmObjectHandle*> childObjects;
+    std::vector<ObjectHandle*> childObjects;
     childArrayFieldHandle->childObjects( &childObjects );
 
     for ( size_t i = 0; i < childObjects.size(); i++ )
     {
-        if ( childObjects[i] == currentPdmObject )
+        if ( childObjects[i] == currentObject )
         {
             indexAfter = static_cast<int>( i );
         }
@@ -107,9 +107,9 @@ CmdExecuteCommand* CmdDeleteItemFeature::createExecuteCommand()
 //--------------------------------------------------------------------------------------------------
 bool CmdDeleteItemFeature::isCommandEnabled()
 {
-    caf::PdmObject* currentPdmObject = dynamic_cast<caf::PdmObject*>(
+    caf::Object* currentObject = dynamic_cast<caf::Object*>(
         caf::SelectionManager::instance()->selectedItem( caf::SelectionManager::FIRST_LEVEL ) );
-    if ( !currentPdmObject ) return false;
+    if ( !currentObject ) return false;
 
     caf::PdmChildArrayFieldHandle* childArrayFieldHandle =
         caf::SelectionManager::instance()->activeChildArrayFieldHandle();

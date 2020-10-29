@@ -51,7 +51,7 @@ class PdmUiGroup;
 
 
 //==================================================================================================
-/// The default editor for PdmObjects. Manages the field editors in a grid layout vertically
+/// The default editor for Objects. Manages the field editors in a grid layout vertically
 //==================================================================================================
 class PdmWebDefaultObjectEditor : public PdmWebFormLayoutObjectEditor
 {
@@ -66,7 +66,7 @@ private:
 
 protected:
     void resetWidget(Wt::WContainerWidget* widget);
-    virtual void cleanupBeforeSettingPdmObject() override;
+    virtual void cleanupBeforeSettingObject() override;
 
 };
 

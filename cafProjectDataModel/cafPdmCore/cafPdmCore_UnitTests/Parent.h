@@ -2,11 +2,11 @@
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
-#include "cafPdmObjectHandle.h"
+#include "cafObjectHandle.h"
 
 class Child;
 
-class Parent : public caf::PdmObjectHandle
+class Parent : public caf::ObjectHandle
 {
 public:
     Parent();

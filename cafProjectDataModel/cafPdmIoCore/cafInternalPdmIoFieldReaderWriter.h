@@ -5,14 +5,14 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-#include "cafInternalPdmFieldIoHelper.h"
+#include "cafInternalFieldIoHelper.h"
 #include "cafInternalPdmFilePathStreamOperators.h"
 #include "cafInternalPdmStreamOperators.h"
 #include "cafPdmReferenceHelper.h"
 
 namespace caf
 {
-class PdmObjectFactory;
+class ObjectFactory;
 template <typename T>
 class PdmPointer;
 
@@ -23,7 +23,7 @@ class PdmPointer;
 /// Implemented in a proxy class to allow  partial specialization
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-struct PdmFieldWriter
+struct FieldWriter
 {
     static void writeFieldData( const DataType& fieldValue, QXmlStreamWriter& xmlStream )
     {
@@ -52,10 +52,10 @@ struct PdmFieldWriter
 };
 
 template <typename DataType>
-struct PdmFieldReader
+struct FieldReader
 {
-    static void readFieldData( DataType& fieldValue, QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory );
-    static void readFieldData( DataType& fieldValue, const QJsonValue& jsonValue, PdmObjectFactory* objectFactory );
+    static void readFieldData( DataType& fieldValue, QXmlStreamReader& xmlStream, ObjectFactory* objectFactory );
+    static void readFieldData( DataType& fieldValue, const QJsonValue& jsonValue, ObjectFactory* objectFactory );
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -64,9 +64,9 @@ struct PdmFieldReader
 /// impossible/awkward to implement the stream operator
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmFieldReader<DataType>::readFieldData( DataType& fieldValue, QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory )
+void FieldReader<DataType>::readFieldData( DataType& fieldValue, QXmlStreamReader& xmlStream, ObjectFactory* objectFactory )
 {
-    PdmFieldIOHelper::skipComments( xmlStream );
+    FieldIOHelper::skipComments( xmlStream );
     if ( !xmlStream.isCharacters() ) return;
 
     QString     dataString = xmlStream.text().toString();
@@ -76,10 +76,10 @@ void PdmFieldReader<DataType>::readFieldData( DataType& fieldValue, QXmlStreamRe
     // Make stream point to end of element
     QXmlStreamReader::TokenType type = xmlStream.readNext();
     Q_UNUSED( type );
-    PdmFieldIOHelper::skipCharactersAndComments( xmlStream );
+    FieldIOHelper::skipCharactersAndComments( xmlStream );
 }
 template <typename DataType>
-void PdmFieldReader<DataType>::readFieldData( DataType& fieldValue, const QJsonValue& jsonValue, PdmObjectFactory* objectFactory )
+void FieldReader<DataType>::readFieldData( DataType& fieldValue, const QJsonValue& jsonValue, ObjectFactory* objectFactory )
 {
     QString     dataString = jsonValue.toString();
     QTextStream data( &dataString, QIODevice::ReadOnly );
@@ -90,9 +90,9 @@ void PdmFieldReader<DataType>::readFieldData( DataType& fieldValue, const QJsonV
 /// Specialized read function for QStrings, because the >> operator only can read word by word
 //--------------------------------------------------------------------------------------------------
 template <>
-void PdmFieldReader<QString>::readFieldData( QString& field, QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory );
+void FieldReader<QString>::readFieldData( QString& field, QXmlStreamReader& xmlStream, ObjectFactory* objectFactory );
 
 template <>
-void PdmFieldReader<QString>::readFieldData( QString& field, const QJsonValue& jsonValue, PdmObjectFactory* objectFactory );
+void FieldReader<QString>::readFieldData( QString& field, const QJsonValue& jsonValue, ObjectFactory* objectFactory );
 
 } // End of namespace caf

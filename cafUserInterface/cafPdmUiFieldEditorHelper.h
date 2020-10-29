@@ -41,7 +41,7 @@ class QString;
 namespace caf
 {
 class PdmUiFieldEditorHandle;
-class PdmFieldUiCapability;
+class FieldUiCapability;
 
 //==================================================================================================
 ///
@@ -49,7 +49,7 @@ class PdmFieldUiCapability;
 class PdmUiFieldEditorHelper
 {
 public:
-    static PdmUiFieldEditorHandle* createFieldEditorForField( PdmFieldUiCapability* fieldHandle,
+    static PdmUiFieldEditorHandle* createFieldEditorForField( FieldUiCapability* fieldHandle,
                                                               const QString&        uiConfigName );
 };
 

@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmObjectHandle.h"
+#include "cafObjectHandle.h"
 
 namespace caf
 {

@@ -6,16 +6,16 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmDataValueField.h"
-#include "cafPdmObjectHandle.h"
+#include "cafObjectHandle.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmReferenceHelper.h"
 
-class SimpleObj : public caf::PdmObjectHandle
+class SimpleObj : public caf::ObjectHandle
 {
 public:
     SimpleObj()
-        : PdmObjectHandle()
+        : ObjectHandle()
         , m_doubleMember( 0.0 )
     {
         this->addField( &m_position, "m_position" );
@@ -43,11 +43,11 @@ public:
     double m_doubleMember;
 };
 
-class ReferenceSimpleObj : public caf::PdmObjectHandle
+class ReferenceSimpleObj : public caf::ObjectHandle
 {
 public:
     ReferenceSimpleObj()
-        : PdmObjectHandle()
+        : ObjectHandle()
     {
         this->addField( &m_pointersField, "m_pointersField" );
         this->addField( &m_simpleObjPtrField, "m_simpleObjPtrField" );
@@ -60,7 +60,7 @@ public:
     }
 
     // Fields
-    caf::PdmChildField<PdmObjectHandle*> m_pointersField;
+    caf::PdmChildField<ObjectHandle*> m_pointersField;
     caf::PdmChildArrayField<SimpleObj*>  m_simpleObjPtrField;
 };
 
@@ -70,12 +70,12 @@ public:
 TEST( PdmReferenceHelperTest, FindRootFromObject )
 {
     {
-        caf::PdmObjectHandle* obj = NULL;
+        caf::ObjectHandle* obj = NULL;
         EXPECT_EQ( NULL, caf::PdmReferenceHelper::findRoot( obj ) );
     }
 
     {
-        caf::PdmObjectHandle* obj = new SimpleObj;
+        caf::ObjectHandle* obj = new SimpleObj;
         EXPECT_EQ( obj, caf::PdmReferenceHelper::findRoot( obj ) );
         delete obj;
     }
@@ -96,7 +96,7 @@ TEST( PdmReferenceHelperTest, FindRootFromObject )
 TEST( PdmReferenceHelperTest, FindRootFromField )
 {
     {
-        caf::PdmFieldHandle* fieldHandle = NULL;
+        caf::FieldHandle* fieldHandle = NULL;
         EXPECT_EQ( NULL, caf::PdmReferenceHelper::findRoot( fieldHandle ) );
     }
 
@@ -116,8 +116,8 @@ TEST( PdmReferenceHelperTest, FindRootFromField )
 TEST( PdmReferenceHelperTest, ReferenceFrommRootToField )
 {
     {
-        caf::PdmObjectHandle* obj         = NULL;
-        caf::PdmFieldHandle*  fieldHandle = NULL;
+        caf::ObjectHandle* obj         = NULL;
+        caf::FieldHandle*  fieldHandle = NULL;
         EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromRootToField( obj, fieldHandle ).isEmpty() );
     }
 
@@ -147,8 +147,8 @@ TEST( PdmReferenceHelperTest, ReferenceFrommRootToField )
 TEST( PdmReferenceHelperTest, ReferenceFrommRootToObject )
 {
     {
-        caf::PdmObjectHandle* root = NULL;
-        caf::PdmObjectHandle* obj  = NULL;
+        caf::ObjectHandle* root = NULL;
+        caf::ObjectHandle* obj  = NULL;
         EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromRootToObject( root, obj ).isEmpty() );
     }
 
@@ -185,7 +185,7 @@ TEST( PdmReferenceHelperTest, ReferenceFrommRootToObject )
 TEST( PdmReferenceHelperTest, ObjectFromReference )
 {
     {
-        caf::PdmObjectHandle* root = NULL;
+        caf::ObjectHandle* root = NULL;
         EXPECT_EQ( NULL, caf::PdmReferenceHelper::objectFromReference( root, "" ) );
         EXPECT_EQ( NULL, caf::PdmReferenceHelper::objectFromReference( root, "a 2 b 4" ) );
     }
@@ -221,7 +221,7 @@ TEST( PdmReferenceHelperTest, ObjectFromReference )
 TEST( PdmReferenceHelperTest, FieldFromReference )
 {
     {
-        caf::PdmObjectHandle* root = NULL;
+        caf::ObjectHandle* root = NULL;
         EXPECT_EQ( NULL, caf::PdmReferenceHelper::fieldFromReference( root, "" ) );
         EXPECT_EQ( NULL, caf::PdmReferenceHelper::fieldFromReference( root, "a 2 b 4" ) );
     }
@@ -236,7 +236,7 @@ TEST( PdmReferenceHelperTest, FieldFromReference )
         EXPECT_EQ( NULL, caf::PdmReferenceHelper::fieldFromReference( ihd1, "" ) );
         EXPECT_EQ( NULL, caf::PdmReferenceHelper::fieldFromReference( ihd1, "a 2 b 4" ) );
 
-        caf::PdmFieldHandle* fHandle = &s2->m_position;
+        caf::FieldHandle* fHandle = &s2->m_position;
 
         QString refString = caf::PdmReferenceHelper::referenceFromRootToField( ihd1, fHandle );
         EXPECT_EQ( fHandle, caf::PdmReferenceHelper::fieldFromReference( ihd1, refString ) );
@@ -259,8 +259,8 @@ TEST( PdmReferenceHelperTest, FieldFromReference )
 TEST( PdmReferenceHelperTest, ReferenceFromFieldToObject )
 {
     {
-        caf::PdmObjectHandle* root        = NULL;
-        caf::PdmFieldHandle*  fieldHandle = NULL;
+        caf::ObjectHandle* root        = NULL;
+        caf::FieldHandle*  fieldHandle = NULL;
 
         EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromFieldToObject( fieldHandle, root ).isEmpty() );
     }
@@ -269,7 +269,7 @@ TEST( PdmReferenceHelperTest, ReferenceFromFieldToObject )
         SimpleObj* s1 = new SimpleObj;
         SimpleObj* s2 = new SimpleObj;
 
-        caf::PdmFieldHandle* s2FieldHandle = &s2->m_dir;
+        caf::FieldHandle* s2FieldHandle = &s2->m_dir;
 
         // Unrelated objects
         EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromFieldToObject( s2FieldHandle, s1 ).isEmpty() );
@@ -285,7 +285,7 @@ TEST( PdmReferenceHelperTest, ReferenceFromFieldToObject )
         ihd1->m_simpleObjPtrField.push_back( s2 );
 
         QString               refString = caf::PdmReferenceHelper::referenceFromFieldToObject( s2FieldHandle, root_s1 );
-        caf::PdmObjectHandle* obj       = caf::PdmReferenceHelper::objectFromFieldReference( s2FieldHandle, refString );
+        caf::ObjectHandle* obj       = caf::PdmReferenceHelper::objectFromFieldReference( s2FieldHandle, refString );
         EXPECT_EQ( root_s1, obj );
 
         delete root;

@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmObjectFactory.h"
+#include "cafObjectFactory.h"
 
 #include "cafAssert.h"
 
@@ -48,22 +48,22 @@
 namespace caf
 {
 //==================================================================================================
-/// "Private" class for implementation of a factory for PdmObjectBase derived objects
-/// Every PdmObject must register with this factory to be readable
+/// "Private" class for implementation of a factory for ObjectBase derived objects
+/// Every Object must register with this factory to be readable
 /// This class can be considered private in the Pdm system
 //==================================================================================================
 
-class PdmDefaultObjectFactory : public PdmObjectFactory
+class PdmDefaultObjectFactory : public ObjectFactory
 {
 public:
     static PdmDefaultObjectFactory* instance();
 
-    PdmObjectHandle* create( const QString& classNameKeyword ) override;
+    ObjectHandle* create( const QString& classNameKeyword ) override;
 
-    template <typename PdmObjectBaseDerivative>
+    template <typename ObjectBaseDerivative>
     bool registerCreator()
     {
-        std::vector<QString> classNameKeywords = PdmObjectBaseDerivative::classKeywordAliases();
+        std::vector<QString> classNameKeywords = ObjectBaseDerivative::classKeywordAliases();
 
         for ( QString classNameKeyword : classNameKeywords )
         {
@@ -75,7 +75,7 @@ public:
                 return false; // never hit;
             }
         }
-        auto object = new PdmObjectCreator<PdmObjectBaseDerivative>();
+        auto object = new ObjectCreator<ObjectBaseDerivative>();
         for ( QString classNameKeyword : classNameKeywords )
         {
             m_factoryMap[classNameKeyword] = object;
@@ -93,23 +93,23 @@ private:
 
     // Internal helper classes
 
-    class PdmObjectCreatorBase
+    class ObjectCreatorBase
     {
     public:
-        PdmObjectCreatorBase() {}
-        virtual ~PdmObjectCreatorBase() {}
-        virtual PdmObjectHandle* create() = 0;
+        ObjectCreatorBase() {}
+        virtual ~ObjectCreatorBase() {}
+        virtual ObjectHandle* create() = 0;
     };
 
-    template <typename PdmObjectBaseDerivative>
-    class PdmObjectCreator : public PdmObjectCreatorBase
+    template <typename ObjectBaseDerivative>
+    class ObjectCreator : public ObjectCreatorBase
     {
     public:
-        PdmObjectHandle* create() override { return new PdmObjectBaseDerivative(); }
+        ObjectHandle* create() override { return new ObjectBaseDerivative(); }
     };
 
     // Map to store factory
-    std::map<QString, PdmObjectCreatorBase*> m_factoryMap;
+    std::map<QString, ObjectCreatorBase*> m_factoryMap;
 };
 
 } // End of namespace caf

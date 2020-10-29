@@ -36,9 +36,9 @@
 
 #include "cafPdmUiDoubleSliderEditor.h"
 
-#include "cafPdmField.h"
-#include "cafPdmFieldUiCapability.h"
-#include "cafPdmObjectUiCapability.h"
+#include "cafField.h"
+#include "cafFieldUiCapability.h"
+#include "cafObjectUiCapability.h"
 
 #include <QDoubleValidator>
 #include <QHBoxLayout>
@@ -89,7 +89,7 @@ void PdmUiDoubleSliderEditor::configureAndUpdateUi( const QString& uiConfigName 
     m_lineEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
     m_slider->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
 
-    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );

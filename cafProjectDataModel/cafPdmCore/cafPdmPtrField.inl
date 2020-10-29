@@ -8,8 +8,8 @@ namespace caf
 template <typename DataType>
 QVariant caf::PdmPtrField<DataType*>::toQVariant() const
 {
-    caf::PdmObjectHandle*                 objectHandle = m_fieldValue.rawPtr();
-    caf::PdmPointer<caf::PdmObjectHandle> ptrHandle( objectHandle );
+    caf::ObjectHandle*                 objectHandle = m_fieldValue.rawPtr();
+    caf::PdmPointer<caf::ObjectHandle> ptrHandle( objectHandle );
     return QVariant::fromValue( ptrHandle );
 }
 
@@ -19,7 +19,7 @@ QVariant caf::PdmPtrField<DataType*>::toQVariant() const
 template <typename DataType>
 void caf::PdmPtrField<DataType*>::setFromQVariant( const QVariant& variant )
 {
-    caf::PdmPointer<caf::PdmObjectHandle> variantHandle = variant.value<caf::PdmPointer<caf::PdmObjectHandle>>();
+    caf::PdmPointer<caf::ObjectHandle> variantHandle = variant.value<caf::PdmPointer<caf::ObjectHandle>>();
     m_fieldValue.setRawPtr( variantHandle.rawPtr() );
 }
 
@@ -61,7 +61,7 @@ void PdmPtrField<DataType*>::setValue( const DataTypePtr& fieldValue )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmPtrField<DataType*>::setRawPtr( PdmObjectHandle* obj )
+void PdmPtrField<DataType*>::setRawPtr( ObjectHandle* obj )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
@@ -104,7 +104,7 @@ caf::PdmPtrField<DataType*>& PdmPtrField<DataType*>::operator=( const FieldDataT
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmPtrField<DataType*>::ptrReferencedObjects( std::vector<PdmObjectHandle*>* objectsToFill )
+void PdmPtrField<DataType*>::ptrReferencedObjects( std::vector<ObjectHandle*>* objectsToFill )
 {
     if ( m_fieldValue.rawPtr() )
     {

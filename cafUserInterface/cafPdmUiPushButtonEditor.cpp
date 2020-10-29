@@ -38,8 +38,8 @@
 
 #include "cafPdmUiDefaultObjectEditor.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 
@@ -68,7 +68,7 @@ void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
     m_pushButton->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
     PdmUiPushButtonEditorAttribute attributes;
-    caf::PdmObjectUiCapability*    uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::ObjectUiCapability*    uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
@@ -113,20 +113,20 @@ void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiPushButtonEditor::configureEditorForField( PdmFieldHandle* fieldHandle )
+void PdmUiPushButtonEditor::configureEditorForField( FieldHandle* fieldHandle )
 {
     if ( fieldHandle )
     {
-        if ( fieldHandle->capability<PdmFieldIoCapability>() )
+        if ( fieldHandle->capability<FieldIoCapability>() )
         {
-            fieldHandle->capability<PdmFieldIoCapability>()->disableIO();
+            fieldHandle->capability<FieldIoCapability>()->disableIO();
         }
 
-        if ( fieldHandle->capability<PdmFieldUiCapability>() )
+        if ( fieldHandle->capability<FieldUiCapability>() )
         {
-            fieldHandle->capability<PdmFieldUiCapability>()->setUiEditorTypeName(
+            fieldHandle->capability<FieldUiCapability>()->setUiEditorTypeName(
                 caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-            fieldHandle->capability<PdmFieldUiCapability>()->setUiLabelPosition( caf::PdmUiItemInfo::LEFT );
+            fieldHandle->capability<FieldUiCapability>()->setUiLabelPosition( caf::PdmUiItemInfo::LEFT );
         }
     }
 }
@@ -165,7 +165,7 @@ QWidget* PdmUiPushButtonEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void PdmUiPushButtonEditor::slotClicked( bool checked )
 {
-    if ( uiField() && dynamic_cast<PdmField<bool>*>( uiField()->fieldHandle() ) )
+    if ( uiField() && dynamic_cast<Field<bool>*>( uiField()->fieldHandle() ) )
     {
         QVariant v;
         v = checked;

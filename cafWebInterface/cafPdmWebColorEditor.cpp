@@ -41,8 +41,8 @@
 #include "cafColorTables.h"
 #include "cafColorTools.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmWebDefaultObjectEditor.h"
 #include "cafPdmWebFieldEditorHandle.h"
@@ -97,7 +97,7 @@ void PdmWebColorEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     applyTextToLabel( m_label.get(), uiConfigName );
 
-    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );

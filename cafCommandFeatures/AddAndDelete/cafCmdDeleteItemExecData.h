@@ -36,15 +36,15 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 
 namespace caf
 {
 //==================================================================================================
 ///
 //==================================================================================================
-class CmdDeleteItemExecData : public PdmObject
+class CmdDeleteItemExecData : public Object
 {
     CAF_PDM_HEADER_INIT;
 
@@ -73,11 +73,11 @@ public:
                            "deletedObjectAsXml whatsthis" );
     }
 
-    caf::PdmPointer<PdmObjectHandle> m_rootObject;
+    caf::PdmPointer<ObjectHandle> m_rootObject;
 
-    caf::PdmField<QString> m_pathToField;
-    caf::PdmField<int>     m_indexToObject;
-    caf::PdmField<QString> m_deletedObjectAsXml;
+    caf::Field<QString> m_pathToField;
+    caf::Field<int>     m_indexToObject;
+    caf::Field<QString> m_deletedObjectAsXml;
 };
 
 } // end namespace caf

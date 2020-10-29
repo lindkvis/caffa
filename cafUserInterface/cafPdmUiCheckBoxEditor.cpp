@@ -38,8 +38,8 @@
 
 #include "cafPdmUiDefaultObjectEditor.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 
@@ -60,7 +60,7 @@ void PdmUiCheckBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
     CAF_ASSERT( !m_label.isNull() );
 
     PdmUiCheckBoxEditorAttribute attributes;
-    caf::PdmObjectUiCapability*  uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::ObjectUiCapability*  uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );

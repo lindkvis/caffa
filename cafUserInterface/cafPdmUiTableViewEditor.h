@@ -125,7 +125,7 @@ public:
     void setTableSelectionLevel( int selectionLevel );
     void setRowSelectionLevel( int selectionLevel );
 
-    PdmObjectHandle* pdmObjectFromModelIndex( const QModelIndex& mi );
+    ObjectHandle* pdmObjectFromModelIndex( const QModelIndex& mi );
     QTableView*      tableView();
 
 protected:

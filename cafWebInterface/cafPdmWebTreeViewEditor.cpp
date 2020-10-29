@@ -38,8 +38,8 @@
 #include "cafPdmWebTreeViewEditor.h"
 
 #include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiDragDropInterface.h"
 #include "cafPdmUiEditorHandle.h"
@@ -109,7 +109,7 @@ void PdmWebTreeViewEditor::configureAndUpdateUi( const QString& uiConfigName )
     PdmUiTreeViewEditorAttribute editorAttributes;
 
     {
-        PdmObjectUiCapability* uiObjectHandle = dynamic_cast<PdmObjectUiCapability*>( this->pdmItemRoot() );
+        ObjectUiCapability* uiObjectHandle = dynamic_cast<ObjectUiCapability*>( this->pdmItemRoot() );
         if ( uiObjectHandle )
         {
             uiObjectHandle->objectEditorAttribute( uiConfigName, &editorAttributes );
@@ -128,7 +128,7 @@ void PdmWebTreeViewEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     if ( editorAttributes.currentObject )
     {
-        auto uiObjectHandle = editorAttributes.currentObject->capability<PdmObjectUiCapability>();
+        auto uiObjectHandle = editorAttributes.currentObject->capability<ObjectUiCapability>();
         if ( uiObjectHandle )
         {
             selectAsCurrentItem( uiObjectHandle );
@@ -243,10 +243,10 @@ PdmChildArrayFieldHandle* PdmWebTreeViewEditor::currentChildArrayFieldHandle()
 {
     PdmUiItem* currentSelectedItem = SelectionManager::instance()->selectedItem( SelectionManager::FIRST_LEVEL );
 
-    PdmFieldUiCapability* uiFieldHandle = dynamic_cast<PdmFieldUiCapability*>( currentSelectedItem );
+    FieldUiCapability* uiFieldHandle = dynamic_cast<FieldUiCapability*>( currentSelectedItem );
     if ( uiFieldHandle )
     {
-        PdmFieldHandle* fieldHandle = uiFieldHandle->fieldHandle();
+        FieldHandle* fieldHandle = uiFieldHandle->fieldHandle();
 
         if ( dynamic_cast<PdmChildArrayFieldHandle*>( fieldHandle ) )
         {
@@ -254,7 +254,7 @@ PdmChildArrayFieldHandle* PdmWebTreeViewEditor::currentChildArrayFieldHandle()
         }
     }
 
-    PdmObjectHandle* pdmObject = dynamic_cast<caf::PdmObjectHandle*>( currentSelectedItem );
+    ObjectHandle* pdmObject = dynamic_cast<caf::ObjectHandle*>( currentSelectedItem );
     if ( pdmObject )
     {
         PdmChildArrayFieldHandle* parentChildArray = dynamic_cast<PdmChildArrayFieldHandle*>( pdmObject->parentField() );

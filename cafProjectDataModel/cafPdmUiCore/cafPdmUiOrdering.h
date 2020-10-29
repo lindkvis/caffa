@@ -44,8 +44,8 @@
 namespace caf
 {
 class PdmUiGroup;
-class PdmFieldHandle;
-class PdmObjectHandle;
+class FieldHandle;
+class ObjectHandle;
 
 //==================================================================================================
 /// Class storing the order and grouping of fields and groups of fields etc. to be used in the Gui
@@ -79,13 +79,13 @@ public:
     PdmUiOrdering( const PdmUiOrdering& ) = delete;
     PdmUiOrdering& operator=( const PdmUiOrdering& ) = delete;
 
-    void add( const PdmFieldHandle* field, LayoutOptions layout = LayoutOptions() );
-    void add( const PdmObjectHandle* obj, LayoutOptions layout = LayoutOptions() );
+    void add( const FieldHandle* field, LayoutOptions layout = LayoutOptions() );
+    void add( const ObjectHandle* obj, LayoutOptions layout = LayoutOptions() );
     bool insertBeforeGroup( const QString&        groupId,
-                            const PdmFieldHandle* fieldToInsert,
+                            const FieldHandle* fieldToInsert,
                             LayoutOptions         layout = LayoutOptions() );
     bool insertBeforeItem( const PdmUiItem*      item,
-                           const PdmFieldHandle* fieldToInsert,
+                           const FieldHandle* fieldToInsert,
                            LayoutOptions         layout = LayoutOptions() );
 
     PdmUiGroup* addNewGroup( const QString& displayName, LayoutOptions layout = LayoutOptions() );
@@ -140,7 +140,7 @@ protected:
     PositionFound findItemPosition( const PdmUiItem* item ) const;
 
 private:
-    void        insert( size_t index, const PdmFieldHandle* field, LayoutOptions layout = LayoutOptions() );
+    void        insert( size_t index, const FieldHandle* field, LayoutOptions layout = LayoutOptions() );
     PdmUiGroup* insertNewGroupWithKeyword( size_t         index,
                                            const QString& displayName,
                                            const QString& groupKeyword,

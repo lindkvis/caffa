@@ -3,71 +3,71 @@
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmDataValueField.h"
-#include "cafPdmFieldIoCapabilitySpecializations.h"
-#include "cafPdmObjectHandle.h"
-#include "cafPdmObjectHandleIoMacros.h"
-#include "cafPdmObjectIoCapability.h"
+#include "cafFieldIoCapabilitySpecializations.h"
+#include "cafObjectHandle.h"
+#include "cafObjectHandleIoMacros.h"
+#include "cafObjectIoCapability.h"
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmReferenceHelper.h"
 
-class MyItemPdmObject : public caf::PdmObjectHandle, public caf::PdmObjectIoCapability
+class MyItemObject : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
     CAF_PDM_IO_HEADER_INIT;
 
 public:
-    MyItemPdmObject()
-        : PdmObjectHandle()
-        , PdmObjectIoCapability( this, false )
+    MyItemObject()
+        : ObjectHandle()
+        , ObjectIoCapability( this, false )
     {
         CAF_PDM_IO_InitField( &m_name, "Name" );
     }
 
-    explicit MyItemPdmObject( QString name )
-        : PdmObjectHandle()
-        , PdmObjectIoCapability( this, false )
+    explicit MyItemObject( QString name )
+        : ObjectHandle()
+        , ObjectIoCapability( this, false )
     {
         CAF_PDM_IO_InitField( &m_name, "Name" );
         m_name = name;
     }
 
-    ~MyItemPdmObject() {}
+    ~MyItemObject() {}
 
     // Fields
     caf::PdmDataValueField<QString> m_name;
 };
-CAF_PDM_IO_SOURCE_INIT( MyItemPdmObject, "MyItemPdmObject" );
+CAF_PDM_IO_SOURCE_INIT( MyItemObject, "MyItemObject" );
 
-class MyContainerPdmObject : public caf::PdmObjectHandle, public caf::PdmObjectIoCapability
+class MyContainerObject : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
     CAF_PDM_IO_HEADER_INIT;
 
 public:
-    MyContainerPdmObject()
-        : PdmObjectHandle()
-        , PdmObjectIoCapability( this, false )
+    MyContainerObject()
+        : ObjectHandle()
+        , ObjectIoCapability( this, false )
     {
         CAF_PDM_IO_InitField( &m_items, "Items" );
         CAF_PDM_IO_InitField( &m_containers, "Containers" );
     }
 
-    ~MyContainerPdmObject() {}
+    ~MyContainerObject() {}
 
     // Fields
-    caf::PdmChildArrayField<MyItemPdmObject*> m_items;
-    caf::PdmPtrArrayField<MyItemPdmObject*>   m_containers;
+    caf::PdmChildArrayField<MyItemObject*> m_items;
+    caf::PdmPtrArrayField<MyItemObject*>   m_containers;
 };
-CAF_PDM_IO_SOURCE_INIT( MyContainerPdmObject, "MyContainerPdmObject" );
+CAF_PDM_IO_SOURCE_INIT( MyContainerObject, "MyContainerObject" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 TEST( PtrArrayBaseTest, PtrArraySerializeTest )
 {
-    MyContainerPdmObject* objA = new MyContainerPdmObject;
+    MyContainerObject* objA = new MyContainerObject;
 
-    MyItemPdmObject* s1 = new MyItemPdmObject;
-    MyItemPdmObject* s2 = new MyItemPdmObject;
-    MyItemPdmObject* s3 = new MyItemPdmObject;
+    MyItemObject* s1 = new MyItemObject;
+    MyItemObject* s2 = new MyItemObject;
+    MyItemObject* s3 = new MyItemObject;
 
     objA->m_items.push_back( s1 );
     objA->m_items.push_back( s2 );
@@ -79,8 +79,8 @@ TEST( PtrArrayBaseTest, PtrArraySerializeTest )
 
     // delete s2;
 
-    std::vector<caf::PdmObjectIoCapability::IoParameters::IoType> ioTypes =
-        { caf::PdmObjectIoCapability::IoParameters::IoType::XML, caf::PdmObjectIoCapability::IoParameters::IoType::JSON };
+    std::vector<caf::ObjectIoCapability::IoParameters::IoType> ioTypes =
+        { caf::ObjectIoCapability::IoParameters::IoType::XML, caf::ObjectIoCapability::IoParameters::IoType::JSON };
 
     for ( auto ioType : ioTypes )
     {
@@ -92,7 +92,7 @@ TEST( PtrArrayBaseTest, PtrArraySerializeTest )
         }
 
         {
-            MyContainerPdmObject* ihd1 = new MyContainerPdmObject;
+            MyContainerObject* ihd1 = new MyContainerObject;
 
             QXmlStreamReader xmlStream( serializedString );
 
@@ -107,11 +107,11 @@ TEST( PtrArrayBaseTest, PtrArraySerializeTest )
 //--------------------------------------------------------------------------------------------------
 TEST( PtrArrayBaseTest, DeleteObjectPtrArraySerializeTest )
 {
-    MyContainerPdmObject* objA = new MyContainerPdmObject;
+    MyContainerObject* objA = new MyContainerObject;
 
-    MyItemPdmObject* s1 = new MyItemPdmObject;
-    MyItemPdmObject* s2 = new MyItemPdmObject;
-    MyItemPdmObject* s3 = new MyItemPdmObject;
+    MyItemObject* s1 = new MyItemObject;
+    MyItemObject* s2 = new MyItemObject;
+    MyItemObject* s3 = new MyItemObject;
 
     objA->m_items.push_back( s1 );
     objA->m_items.push_back( s2 );
@@ -123,8 +123,8 @@ TEST( PtrArrayBaseTest, DeleteObjectPtrArraySerializeTest )
 
     delete s2;
 
-    std::vector<caf::PdmObjectIoCapability::IoParameters::IoType> ioTypes =
-        { caf::PdmObjectIoCapability::IoParameters::IoType::XML, caf::PdmObjectIoCapability::IoParameters::IoType::JSON };
+    std::vector<caf::ObjectIoCapability::IoParameters::IoType> ioTypes =
+        { caf::ObjectIoCapability::IoParameters::IoType::XML, caf::ObjectIoCapability::IoParameters::IoType::JSON };
 
     for ( auto ioType : ioTypes )
     {
@@ -136,7 +136,7 @@ TEST( PtrArrayBaseTest, DeleteObjectPtrArraySerializeTest )
         }
 
         {
-            MyContainerPdmObject* ihd1 = new MyContainerPdmObject;
+            MyContainerObject* ihd1 = new MyContainerObject;
 
             QXmlStreamReader xmlStream( serializedString );
 

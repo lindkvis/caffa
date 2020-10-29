@@ -39,10 +39,10 @@
 #include "cafAssert.h"
 #include "cafInternalPdmUiCommandSystemInterface.h"
 
-#include "cafPdmFieldHandle.h"
-#include "cafPdmFieldUiCapability.h"
-#include "cafPdmObjectHandle.h"
-#include "cafPdmObjectUiCapability.h"
+#include "cafFieldHandle.h"
+#include "cafFieldUiCapability.h"
+#include "cafObjectHandle.h"
+#include "cafObjectUiCapability.h"
 #include "cafSelectionManager.h"
 
 #include <cstddef>
@@ -79,19 +79,19 @@ void PdmUiCommandSystemProxy::setCommandInterface( PdmUiCommandSystemInterface* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiCommandSystemProxy::setUiValueToField( PdmFieldUiCapability* uiFieldHandle, const QVariant& newUiValue )
+void PdmUiCommandSystemProxy::setUiValueToField( FieldUiCapability* uiFieldHandle, const QVariant& newUiValue )
 {
     if ( uiFieldHandle )
     {
         // Handle editing multiple objects when several objects are selected
-        PdmFieldHandle* editorField = uiFieldHandle->fieldHandle();
+        FieldHandle* editorField = uiFieldHandle->fieldHandle();
         auto            ownerObject = editorField->ownerObject();
 
         CAF_ASSERT( ownerObject );
         auto&                 ownerRef         = *ownerObject;
         const std::type_info& fieldOwnerTypeId = typeid( ownerRef );
 
-        std::vector<PdmFieldHandle*> fieldsToUpdate;
+        std::vector<FieldHandle*> fieldsToUpdate;
         fieldsToUpdate.push_back( editorField );
 
         // For level 1 selection, find all fields with same keyword
@@ -106,11 +106,11 @@ void PdmUiCommandSystemProxy::setUiValueToField( PdmFieldUiCapability* uiFieldHa
 
             for ( size_t i = 0; i < items.size(); i++ )
             {
-                PdmObjectHandle* objectHandle = dynamic_cast<PdmObjectHandle*>( items[i] );
+                ObjectHandle* objectHandle = dynamic_cast<ObjectHandle*>( items[i] );
                 if ( objectHandle && typeid( *objectHandle ) == fieldOwnerTypeId )
                 {
                     // An object is selected, find field with same keyword as the current field being edited
-                    PdmFieldHandle* fieldHandle = objectHandle->findField( editorField->keyword() );
+                    FieldHandle* fieldHandle = objectHandle->findField( editorField->keyword() );
                     if ( fieldHandle && fieldHandle != editorField )
                     {
                         fieldsToUpdate.push_back( fieldHandle );
@@ -120,10 +120,10 @@ void PdmUiCommandSystemProxy::setUiValueToField( PdmFieldUiCapability* uiFieldHa
                 {
                     // Todo Remove when dust has settled. Selection manager is not supposed to select single fields
                     // A field is selected, check if keywords are identical
-                    PdmFieldUiCapability* itemFieldHandle = dynamic_cast<PdmFieldUiCapability*>( items[i] );
+                    FieldUiCapability* itemFieldHandle = dynamic_cast<FieldUiCapability*>( items[i] );
                     if ( itemFieldHandle )
                     {
-                        PdmFieldHandle* field = itemFieldHandle->fieldHandle();
+                        FieldHandle* field = itemFieldHandle->fieldHandle();
                         if ( field && field != editorField && field->keyword() == editorField->keyword() )
                         {
                             fieldsToUpdate.push_back( field );
@@ -141,7 +141,7 @@ void PdmUiCommandSystemProxy::setUiValueToField( PdmFieldUiCapability* uiFieldHa
         {
             for ( auto fieldHandle : fieldsToUpdate )
             {
-                fieldHandle->capability<PdmFieldUiCapability>()->setValueFromUiEditor( newUiValue );
+                fieldHandle->capability<FieldUiCapability>()->setValueFromUiEditor( newUiValue );
             }
         }
     }

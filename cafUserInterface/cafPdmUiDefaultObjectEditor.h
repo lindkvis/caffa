@@ -50,7 +50,7 @@ class PdmUiItem;
 class PdmUiGroup;
 
 //==================================================================================================
-/// The default editor for PdmObjects. Manages the field editors in a grid layout vertically
+/// The default editor for Objects. Manages the field editors in a grid layout vertically
 //==================================================================================================
 class cafUserInterface_EXPORT PdmUiDefaultObjectEditor : public PdmUiFormLayoutObjectEditor
 {

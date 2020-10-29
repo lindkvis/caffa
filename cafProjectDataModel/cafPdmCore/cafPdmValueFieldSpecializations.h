@@ -15,11 +15,11 @@ namespace caf
 //==================================================================================================
 /// A proxy class that implements the generic QVariant interface for a field
 ///
-/// This class collects methods that need specialization when introducing a new type in a PdmField.
+/// This class collects methods that need specialization when introducing a new type in a Field.
 /// Having those methods in a separate class makes it possible to "partially specialize" the methods
 /// for container classes etc. since partial specialization of template functions is not C++ as of yet.
 ///
-/// When introducing a new type in a PdmField, you might need to implement a (partial)specialization
+/// When introducing a new type in a Field, you might need to implement a (partial)specialization
 /// of this class.
 //==================================================================================================
 
@@ -79,17 +79,17 @@ class PdmValueFieldSpecialization<PdmPointer<T>>
 public:
     static QVariant convert( const PdmPointer<T>& value )
     {
-        return QVariant::fromValue( PdmPointer<PdmObjectHandle>( value.rawPtr() ) );
+        return QVariant::fromValue( PdmPointer<ObjectHandle>( value.rawPtr() ) );
     }
 
     static void setFromVariant( const QVariant& variantValue, caf::PdmPointer<T>& value )
     {
-        value.setRawPtr( variantValue.value<PdmPointer<PdmObjectHandle>>().rawPtr() );
+        value.setRawPtr( variantValue.value<PdmPointer<ObjectHandle>>().rawPtr() );
     }
 
     static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
     {
-        return variantValue.value<PdmPointer<PdmObjectHandle>>() == variantValue2.value<PdmPointer<PdmObjectHandle>>();
+        return variantValue.value<PdmPointer<ObjectHandle>>() == variantValue2.value<PdmPointer<ObjectHandle>>();
     }
 };
 

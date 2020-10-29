@@ -1,5 +1,5 @@
 
-#include "cafPdmField.h"
+#include "cafField.h"
 
 #include "MainWindow.h"
 
@@ -18,9 +18,9 @@
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafFilePath.h"
 #include "cafPdmDocument.h"
-#include "cafPdmFieldUiCapability.h"
-#include "cafPdmObject.h"
-#include "cafPdmObjectGroup.h"
+#include "cafFieldUiCapability.h"
+#include "cafObject.h"
+#include "cafObjectGroup.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmReferenceHelper.h"
@@ -47,40 +47,40 @@
 #include <QTreeView>
 #include <QUndoView>
 
-class DemoPdmObjectGroup : public caf::PdmDocument
+class DemoObjectGroup : public caf::PdmDocument
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    DemoPdmObjectGroup()
+    DemoObjectGroup()
     {
-        CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects", "", "", "", "")
+        CAF_PDM_InitFieldNoDefault(&objects, "Objects", "", "", "", "")
 
-            objects.capability<caf::PdmFieldUiCapability>()
+            objects.capability<caf::FieldUiCapability>()
                 ->setUiHidden(true);
     }
 
 public:
-    caf::PdmChildArrayField<PdmObjectHandle*> objects;
+    caf::PdmChildArrayField<ObjectHandle*> objects;
 };
 
-CAF_PDM_SOURCE_INIT(DemoPdmObjectGroup, "DemoPdmObjectGroup");
+CAF_PDM_SOURCE_INIT(DemoObjectGroup, "DemoObjectGroup");
 
-class TinyDemoPdmObject : public caf::PdmObject
+class TinyDemoObject : public caf::Object
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    TinyDemoPdmObject();
+    TinyDemoObject();
 
 private:
-    caf::PdmField<bool>   m_toggleField;
-    caf::PdmField<double> m_doubleField;
+    caf::Field<bool>   m_toggleField;
+    caf::Field<double> m_doubleField;
 };
 
-CAF_PDM_SOURCE_INIT(TinyDemoPdmObject, "TinyDemoPdmObject");
+CAF_PDM_SOURCE_INIT(TinyDemoObject, "TinyDemoObject");
 
-TinyDemoPdmObject::TinyDemoPdmObject()
+TinyDemoObject::TinyDemoObject()
 {
     CAF_PDM_InitObject("Tiny Demo Object", "", "This object is a demo of the CAF framework", "");
     CAF_PDM_InitField(&m_toggleField, "Toggle", false, "Toggle Item", "", "Tooltip", " Whatsthis?");
@@ -93,12 +93,12 @@ TinyDemoPdmObject::TinyDemoPdmObject()
                       "Double precision floating point number");
 }
 
-class SmallDemoPdmObject : public caf::PdmObject
+class SmallDemoObject : public caf::Object
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    SmallDemoPdmObject()
+    SmallDemoObject()
     {
         CAF_PDM_InitObject("Small Demo Object",
                            ":/images/win/filenew.png",
@@ -114,7 +114,7 @@ public:
                           "",
                           "Enter a big number here",
                           "This is a place you can enter a big real value if you want");
-        m_doubleField.capability<caf::PdmFieldUiCapability>()->setCustomContextMenuEnabled(true);
+        m_doubleField.capability<caf::FieldUiCapability>()->setCustomContextMenuEnabled(true);
 
         CAF_PDM_InitField(&m_intField,
                           "IntNumber",
@@ -131,14 +131,14 @@ public:
                           "Text tooltip",
                           "This is a place you can enter a small integer value if you want");
 
-        m_proxyDoubleField.registerSetMethod(this, &SmallDemoPdmObject::setDoubleMember);
-        m_proxyDoubleField.registerGetMethod(this, &SmallDemoPdmObject::doubleMember);
+        m_proxyDoubleField.registerSetMethod(this, &SmallDemoObject::setDoubleMember);
+        m_proxyDoubleField.registerGetMethod(this, &SmallDemoObject::doubleMember);
         CAF_PDM_InitFieldNoDefault(&m_proxyDoubleField, "ProxyDouble", "Proxy Double", "", "", "");
 
         CAF_PDM_InitField(&m_fileName, "FileName", caf::FilePath("filename"), "File Name", "", "", "");
 
         CAF_PDM_InitFieldNoDefault(&m_fileNameList, "FileNameList", "File Name List", "", "", "");
-        m_fileNameList.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+        m_fileNameList.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
         m_proxyDoubleField = 0;
         if (!(m_proxyDoubleField == 3))
@@ -147,9 +147,9 @@ public:
         }
 
         CAF_PDM_InitFieldNoDefault(&m_multiSelectList, "SelectedItems", "Multi Select Field", "", "", "");
-        m_multiSelectList.capability<caf::PdmFieldIoCapability>()->setIOReadable(false);
-        m_multiSelectList.capability<caf::PdmFieldIoCapability>()->setIOWritable(false);
-        m_multiSelectList.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(
+        m_multiSelectList.capability<caf::FieldIoCapability>()->setIOReadable(false);
+        m_multiSelectList.capability<caf::FieldIoCapability>()->setIOWritable(false);
+        m_multiSelectList.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
             caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
 
         m_multiSelectList.v().push_back("First");
@@ -157,23 +157,23 @@ public:
         m_multiSelectList.v().push_back("Third");
     }
 
-    caf::PdmField<double>  m_doubleField;
-    caf::PdmField<int>     m_intField;
-    caf::PdmField<QString> m_textField;
+    caf::Field<double>  m_doubleField;
+    caf::Field<int>     m_intField;
+    caf::Field<QString> m_textField;
 
     caf::PdmProxyValueField<double>           m_proxyDoubleField;
-    caf::PdmField<caf::FilePath>              m_fileName;
-    caf::PdmField<std::vector<caf::FilePath>> m_fileNameList;
+    caf::Field<caf::FilePath>              m_fileName;
+    caf::Field<std::vector<caf::FilePath>> m_fileNameList;
 
-    caf::PdmField<std::vector<QString>> m_multiSelectList;
+    caf::Field<std::vector<QString>> m_multiSelectList;
 
-    caf::PdmField<bool>  m_toggleField;
-    caf::PdmFieldHandle* objectToggleField() override
+    caf::Field<bool>  m_toggleField;
+    caf::FieldHandle* objectToggleField() override
     {
         return &m_toggleField;
     }
 
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override
+    void fieldChangedByUi(const caf::FieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override
     {
         if (changedField == &m_toggleField)
         {
@@ -195,7 +195,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
                                                         bool*                      useOptionsOnly) override
     {
         QList<caf::PdmOptionItemInfo> options;
@@ -260,7 +260,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu,
+    void defineCustomContextMenu(const caf::FieldHandle* fieldNeedingMenu,
                                  caf::MenuInterface*        menu,
                                  QWidget*                   fieldEditorWidget) override
     {
@@ -287,14 +287,14 @@ protected:
     }
 };
 
-CAF_PDM_SOURCE_INIT(SmallDemoPdmObject, "SmallDemoPdmObject");
+CAF_PDM_SOURCE_INIT(SmallDemoObject, "SmallDemoObject");
 
-class SmallGridDemoPdmObject : public caf::PdmObject
+class SmallGridDemoObject : public caf::Object
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    SmallGridDemoPdmObject()
+    SmallGridDemoObject()
     {
         CAF_PDM_InitObject("Small Grid Demo Object",
                            "",
@@ -400,7 +400,7 @@ public:
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        m_intFieldLabelTop.capability<caf::PdmFieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+        m_intFieldLabelTop.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
         CAF_PDM_InitField(&m_stringFieldLabelHidden,
                           "FieldLabelHidden",
                           QString("Hidden Label Field"),
@@ -408,7 +408,7 @@ public:
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        m_stringFieldLabelHidden.capability<caf::PdmFieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+        m_stringFieldLabelHidden.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
         CAF_PDM_InitField(&m_intFieldWideBothAuto,
                           "WideBothAuto",
@@ -445,7 +445,7 @@ public:
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        m_intFieldLabelTopAuto.capability<caf::PdmFieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+        m_intFieldLabelTopAuto.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
         CAF_PDM_InitField(&m_stringFieldLabelHiddenAuto,
                           "FieldLabelHiddenAuto",
                           QString("Hidden Label Field"),
@@ -453,7 +453,7 @@ public:
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        m_stringFieldLabelHiddenAuto.capability<caf::PdmFieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+        m_stringFieldLabelHiddenAuto.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
         CAF_PDM_InitField(&m_intFieldLeftOfGroup,
                           "FieldLeftOfGrp",
@@ -515,43 +515,43 @@ public:
     }
 
     // Outside group
-    caf::PdmField<int> m_intFieldStandard;
-    caf::PdmField<int> m_intFieldUseFullSpace;
-    caf::PdmField<int> m_intFieldUseFullSpaceLabel;
-    caf::PdmField<int> m_intFieldUseFullSpaceField;
-    caf::PdmField<int> m_intFieldWideLabel;
-    caf::PdmField<int> m_intFieldWideField;
-    caf::PdmField<int> m_intFieldWideBoth;
-    caf::PdmField<int> m_intFieldLeft;
-    caf::PdmField<int> m_intFieldRight;
+    caf::Field<int> m_intFieldStandard;
+    caf::Field<int> m_intFieldUseFullSpace;
+    caf::Field<int> m_intFieldUseFullSpaceLabel;
+    caf::Field<int> m_intFieldUseFullSpaceField;
+    caf::Field<int> m_intFieldWideLabel;
+    caf::Field<int> m_intFieldWideField;
+    caf::Field<int> m_intFieldWideBoth;
+    caf::Field<int> m_intFieldLeft;
+    caf::Field<int> m_intFieldRight;
 
     // First group
-    caf::PdmField<int>     m_intFieldWideBoth2;
-    caf::PdmField<int>     m_intFieldLeft2;
-    caf::PdmField<int>     m_intFieldCenter;
-    caf::PdmField<int>     m_intFieldRight2;
-    caf::PdmField<int>     m_intFieldLabelTop;
-    caf::PdmField<QString> m_stringFieldLabelHidden;
+    caf::Field<int>     m_intFieldWideBoth2;
+    caf::Field<int>     m_intFieldLeft2;
+    caf::Field<int>     m_intFieldCenter;
+    caf::Field<int>     m_intFieldRight2;
+    caf::Field<int>     m_intFieldLabelTop;
+    caf::Field<QString> m_stringFieldLabelHidden;
 
     // Auto group
-    caf::PdmField<int>     m_intFieldWideBothAuto;
-    caf::PdmField<int>     m_intFieldLeftAuto;
-    caf::PdmField<int>     m_intFieldCenterAuto;
-    caf::PdmField<int>     m_intFieldRightAuto;
-    caf::PdmField<int>     m_intFieldLabelTopAuto;
-    caf::PdmField<QString> m_stringFieldLabelHiddenAuto;
+    caf::Field<int>     m_intFieldWideBothAuto;
+    caf::Field<int>     m_intFieldLeftAuto;
+    caf::Field<int>     m_intFieldCenterAuto;
+    caf::Field<int>     m_intFieldRightAuto;
+    caf::Field<int>     m_intFieldLabelTopAuto;
+    caf::Field<QString> m_stringFieldLabelHiddenAuto;
 
     // Combination with groups
-    caf::PdmField<int> m_intFieldLeftOfGroup;
-    caf::PdmField<int> m_intFieldRightOfGroup;
-    caf::PdmField<int> m_intFieldInsideGroup1;
-    caf::PdmField<int> m_intFieldInsideGroup2;
+    caf::Field<int> m_intFieldLeftOfGroup;
+    caf::Field<int> m_intFieldRightOfGroup;
+    caf::Field<int> m_intFieldInsideGroup1;
+    caf::Field<int> m_intFieldInsideGroup2;
 
     // Side-by-side groups
-    caf::PdmField<int> m_intFieldInsideGroup3;
-    caf::PdmField<int> m_intFieldInsideGroup4;
-    caf::PdmField<int> m_intFieldInsideGroup5;
-    caf::PdmField<int> m_intFieldInsideGroup6;
+    caf::Field<int> m_intFieldInsideGroup3;
+    caf::Field<int> m_intFieldInsideGroup4;
+    caf::Field<int> m_intFieldInsideGroup5;
+    caf::Field<int> m_intFieldInsideGroup6;
 
 protected:
     //--------------------------------------------------------------------------------------------------
@@ -612,14 +612,14 @@ protected:
     }
 };
 
-CAF_PDM_SOURCE_INIT(SmallGridDemoPdmObject, "SmallGridDemoPdmObject");
+CAF_PDM_SOURCE_INIT(SmallGridDemoObject, "SmallGridDemoObject");
 
-class SingleEditorPdmObject : public caf::PdmObject
+class SingleEditorObject : public caf::Object
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    SingleEditorPdmObject()
+    SingleEditorObject()
     {
         CAF_PDM_InitObject("Single Editor Object",
                            "",
@@ -636,7 +636,7 @@ public:
     }
 
     // Outside group
-    caf::PdmField<int> m_intFieldStandard;
+    caf::Field<int> m_intFieldStandard;
 
 protected:
     //--------------------------------------------------------------------------------------------------
@@ -648,9 +648,9 @@ protected:
     }
 };
 
-CAF_PDM_SOURCE_INIT(SingleEditorPdmObject, "SingleEditorObject");
+CAF_PDM_SOURCE_INIT(SingleEditorObject, "SingleEditorObject");
 
-class SmallDemoPdmObjectA : public caf::PdmObject
+class SmallDemoObjectA : public caf::Object
 {
     CAF_PDM_HEADER_INIT;
 
@@ -662,7 +662,7 @@ public:
         T3
     };
 
-    SmallDemoPdmObjectA()
+    SmallDemoObjectA()
     {
         CAF_PDM_InitObject("Small Demo Object A",
                            "",
@@ -690,24 +690,24 @@ public:
         CAF_PDM_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "", "");
 
         CAF_PDM_InitFieldNoDefault(&m_proxyEnumField, "ProxyEnumValue", "ProxyEnum", "", "", "");
-        m_proxyEnumField.registerSetMethod(this, &SmallDemoPdmObjectA::setEnumMember);
-        m_proxyEnumField.registerGetMethod(this, &SmallDemoPdmObjectA::enumMember);
+        m_proxyEnumField.registerSetMethod(this, &SmallDemoObjectA::setEnumMember);
+        m_proxyEnumField.registerGetMethod(this, &SmallDemoObjectA::enumMember);
         m_proxyEnumMember = T2;
 
-        m_testEnumField.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+        m_testEnumField.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
         CAF_PDM_InitFieldNoDefault(&m_multipleAppEnum, "MultipleAppEnumValue", "MultipleAppEnumValue", "", "", "");
-        m_multipleAppEnum.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(
+        m_multipleAppEnum.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
             caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
         CAF_PDM_InitFieldNoDefault(&m_highlightedEnum, "HighlightedEnum", "HighlightedEnum", "", "", "");
-        m_highlightedEnum.capability<caf::PdmFieldUiCapability>()->setUiHidden(true);
+        m_highlightedEnum.capability<caf::FieldUiCapability>()->setUiHidden(true);
     }
 
-    caf::PdmField<double>                     m_doubleField;
-    caf::PdmField<int>                        m_intField;
-    caf::PdmField<QString>                    m_textField;
-    caf::PdmField<caf::AppEnum<TestEnumType>> m_testEnumField;
-    caf::PdmPtrField<SmallDemoPdmObjectA*>    m_ptrField;
+    caf::Field<double>                     m_doubleField;
+    caf::Field<int>                        m_intField;
+    caf::Field<QString>                    m_textField;
+    caf::Field<caf::AppEnum<TestEnumType>> m_testEnumField;
+    caf::PdmPtrField<SmallDemoObjectA*>    m_ptrField;
 
     caf::PdmProxyValueField<caf::AppEnum<TestEnumType>> m_proxyEnumField;
     void                                                setEnumMember(const caf::AppEnum<TestEnumType>& val)
@@ -721,18 +721,18 @@ public:
     TestEnumType m_proxyEnumMember;
 
     // vector of app enum
-    caf::PdmField<std::vector<caf::AppEnum<TestEnumType>>> m_multipleAppEnum;
-    caf::PdmField<caf::AppEnum<TestEnumType>>              m_highlightedEnum;
+    caf::Field<std::vector<caf::AppEnum<TestEnumType>>> m_multipleAppEnum;
+    caf::Field<caf::AppEnum<TestEnumType>>              m_highlightedEnum;
 
-    caf::PdmField<bool> m_toggleField;
-    caf::PdmField<bool> m_pushButtonField;
+    caf::Field<bool> m_toggleField;
+    caf::Field<bool> m_pushButtonField;
 
-    caf::PdmFieldHandle* objectToggleField() override
+    caf::FieldHandle* objectToggleField() override
     {
         return &m_toggleField;
     }
 
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override
+    void fieldChangedByUi(const caf::FieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override
     {
         if (changedField == &m_toggleField)
         {
@@ -748,15 +748,15 @@ public:
         }
     }
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
                                                         bool*                      useOptionsOnly) override
     {
         QList<caf::PdmOptionItemInfo> options;
 
         if (&m_ptrField == fieldNeedingOptions)
         {
-            caf::PdmFieldHandle*               field;
-            std::vector<caf::PdmObjectHandle*> objects;
+            caf::FieldHandle*               field;
+            std::vector<caf::ObjectHandle*> objects;
             field = this->parentField();
 
             field->childObjects(&objects);
@@ -765,13 +765,13 @@ public:
             {
                 QString userDesc;
 
-                caf::PdmObjectUiCapability* uiObject = caf::uiObj(objects[i]);
+                caf::ObjectUiCapability* uiObject = caf::uiObj(objects[i]);
                 if (uiObject)
                 {
                     if (uiObject->userDescriptionField())
                     {
-                        caf::PdmFieldUiCapability* uiFieldHandle =
-                            uiObject->userDescriptionField()->capability<caf::PdmFieldUiCapability>();
+                        caf::FieldUiCapability* uiFieldHandle =
+                            uiObject->userDescriptionField()->capability<caf::FieldUiCapability>();
                         if (uiFieldHandle)
                         {
                             userDesc = uiFieldHandle->uiValue().toString();
@@ -780,7 +780,7 @@ public:
 
                     options.push_back(
                         caf::PdmOptionItemInfo(uiObject->uiName() + "(" + userDesc + ")",
-                                               QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(objects[i]))));
+                                               QVariant::fromValue(caf::PdmPointer<caf::ObjectHandle>(objects[i]))));
                 }
             }
         }
@@ -801,7 +801,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    caf::PdmFieldHandle* userDescriptionField() override
+    caf::FieldHandle* userDescriptionField() override
     {
         return &m_textField;
     }
@@ -810,7 +810,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineEditorAttribute(const caf::PdmFieldHandle* field,
+    void defineEditorAttribute(const caf::FieldHandle* field,
                                QString                    uiConfigName,
                                caf::PdmUiEditorAttribute* attribute) override
     {
@@ -846,28 +846,28 @@ protected:
     }
 };
 
-CAF_PDM_SOURCE_INIT(SmallDemoPdmObjectA, "SmallDemoPdmObjectA");
+CAF_PDM_SOURCE_INIT(SmallDemoObjectA, "SmallDemoObjectA");
 
 namespace caf
 {
 template<>
-void AppEnum<SmallDemoPdmObjectA::TestEnumType>::setUp()
+void AppEnum<SmallDemoObjectA::TestEnumType>::setUp()
 {
-    addItem(SmallDemoPdmObjectA::T1, "T1", "An A letter");
-    addItem(SmallDemoPdmObjectA::T2, "T2", "A B letter");
-    addItem(SmallDemoPdmObjectA::T3, "T3", "A B C letter");
-    setDefault(SmallDemoPdmObjectA::T1);
+    addItem(SmallDemoObjectA::T1, "T1", "An A letter");
+    addItem(SmallDemoObjectA::T2, "T2", "A B letter");
+    addItem(SmallDemoObjectA::T3, "T3", "A B C letter");
+    setDefault(SmallDemoObjectA::T1);
 }
 
 } // namespace caf
-Q_DECLARE_METATYPE(caf::AppEnum<SmallDemoPdmObjectA::TestEnumType>);
+Q_DECLARE_METATYPE(caf::AppEnum<SmallDemoObjectA::TestEnumType>);
 
-class DemoPdmObject : public caf::PdmObject
+class DemoObject : public caf::Object
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    DemoPdmObject()
+    DemoObject()
     {
         CAF_PDM_InitObject(
             "Demo Object", "", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
@@ -900,23 +900,23 @@ public:
 
         CAF_PDM_InitFieldNoDefault(
             &m_multiSelectList, "MultiSelect", "Selection List", "", "List", "This is a multi selection list");
-        CAF_PDM_InitFieldNoDefault(&m_objectList, "ObjectList", "Objects list Field", "", "List", "This is a list of PdmObjects");
+        CAF_PDM_InitFieldNoDefault(&m_objectList, "ObjectList", "Objects list Field", "", "List", "This is a list of Objects");
         CAF_PDM_InitFieldNoDefault(&m_objectListOfSameType,
                                    "m_objectListOfSameType",
                                    "Same type Objects list Field",
                                    "",
                                    "Same type List",
-                                   "Same type list of PdmObjects");
-        m_objectListOfSameType.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(
+                                   "Same type list of Objects");
+        m_objectListOfSameType.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
             caf::PdmUiTableViewEditor::uiEditorTypeName());
-        m_objectListOfSameType.capability<caf::PdmFieldUiCapability>()->setCustomContextMenuEnabled(true);
+        m_objectListOfSameType.capability<caf::FieldUiCapability>()->setCustomContextMenuEnabled(true);
         ;
-        CAF_PDM_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "Same type List", "Same type list of PdmObjects");
+        CAF_PDM_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "Same type List", "Same type list of Objects");
 
-        m_filePath.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
-        m_filePath.capability<caf::PdmFieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
-        m_longText.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
-        m_longText.capability<caf::PdmFieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+        m_filePath.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+        m_filePath.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+        m_longText.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+        m_longText.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
         m_menuItemProducer = new MenuItemProducer;
     }
@@ -942,7 +942,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
                                                         bool*                      useOptionsOnly) override
     {
         QList<caf::PdmOptionItemInfo> options;
@@ -960,12 +960,12 @@ public:
         {
             for (size_t i = 0; i < m_objectListOfSameType.size(); ++i)
             {
-                caf::PdmObjectUiCapability* uiObject = caf::uiObj(m_objectListOfSameType[i]);
+                caf::ObjectUiCapability* uiObject = caf::uiObj(m_objectListOfSameType[i]);
                 if (uiObject)
                 {
                     options.push_back(caf::PdmOptionItemInfo(
                         uiObject->uiName(),
-                        QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(m_objectListOfSameType[i]))));
+                        QVariant::fromValue(caf::PdmPointer<caf::ObjectHandle>(m_objectListOfSameType[i]))));
                 }
             }
         }
@@ -978,36 +978,36 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    caf::PdmFieldHandle* userDescriptionField() override
+    caf::FieldHandle* userDescriptionField() override
     {
         return &m_textField;
     }
 
     // Fields
-    caf::PdmField<bool>    m_boolField;
-    caf::PdmField<double>  m_doubleField;
-    caf::PdmField<int>     m_intField;
-    caf::PdmField<QString> m_textField;
+    caf::Field<bool>    m_boolField;
+    caf::Field<double>  m_doubleField;
+    caf::Field<int>     m_intField;
+    caf::Field<QString> m_textField;
 
-    caf::PdmField<QString> m_filePath;
+    caf::Field<QString> m_filePath;
 
-    caf::PdmField<QString>              m_longText;
-    caf::PdmField<std::vector<QString>> m_multiSelectList;
+    caf::Field<QString>              m_longText;
+    caf::Field<std::vector<QString>> m_multiSelectList;
 
-    caf::PdmChildArrayField<caf::PdmObjectHandle*> m_objectList;
-    caf::PdmChildArrayField<SmallDemoPdmObjectA*>  m_objectListOfSameType;
-    caf::PdmPtrField<SmallDemoPdmObjectA*>         m_ptrField;
+    caf::PdmChildArrayField<caf::ObjectHandle*> m_objectList;
+    caf::PdmChildArrayField<SmallDemoObjectA*>  m_objectListOfSameType;
+    caf::PdmPtrField<SmallDemoObjectA*>         m_ptrField;
 
-    caf::PdmField<bool> m_toggleField;
+    caf::Field<bool> m_toggleField;
 
     MenuItemProducer* m_menuItemProducer;
 
-    caf::PdmFieldHandle* objectToggleField() override
+    caf::FieldHandle* objectToggleField() override
     {
         return &m_toggleField;
     }
 
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override
+    void fieldChangedByUi(const caf::FieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override
     {
         if (changedField == &m_toggleField)
         {
@@ -1020,7 +1020,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     void onEditorWidgetsCreated() override
     {
-        for (auto e : m_longText.capability<caf::PdmFieldUiCapability>()->connectedEditors())
+        for (auto e : m_longText.capability<caf::FieldUiCapability>()->connectedEditors())
         {
             caf::PdmUiTextEditor* textEditor = dynamic_cast<caf::PdmUiTextEditor*>(e);
             if (!textEditor) continue;
@@ -1043,7 +1043,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu,
+    void defineCustomContextMenu(const caf::FieldHandle* fieldNeedingMenu,
                                  caf::MenuInterface*        menu,
                                  QWidget*                   fieldEditorWidget) override
     {
@@ -1054,7 +1054,7 @@ protected:
     }
 };
 
-CAF_PDM_SOURCE_INIT(DemoPdmObject, "DemoPdmObject");
+CAF_PDM_SOURCE_INIT(DemoObject, "DemoObject");
 
 MainWindow* MainWindow::sm_mainWindowInstance = nullptr;
 
@@ -1180,46 +1180,46 @@ void MainWindow::createDockPanels()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::buildTestModel()
 {
-    m_testRoot = new DemoPdmObjectGroup;
+    m_testRoot = new DemoObjectGroup;
 
     ManyGroups* manyGroups = new ManyGroups;
     m_testRoot->objects.push_back(manyGroups);
 
-    DemoPdmObject* demoObject = new DemoPdmObject;
+    DemoObject* demoObject = new DemoObject;
     m_testRoot->objects.push_back(demoObject);
 
-    SmallDemoPdmObject* smallObj1 = new SmallDemoPdmObject;
+    SmallDemoObject* smallObj1 = new SmallDemoObject;
     m_testRoot->objects.push_back(smallObj1);
 
-    SmallDemoPdmObjectA* smallObj2 = new SmallDemoPdmObjectA;
+    SmallDemoObjectA* smallObj2 = new SmallDemoObjectA;
     m_testRoot->objects.push_back(smallObj2);
 
-    SmallGridDemoPdmObject* smallGridObj = new SmallGridDemoPdmObject;
+    SmallGridDemoObject* smallGridObj = new SmallGridDemoObject;
     m_testRoot->objects.push_back(smallGridObj);
 
-    SingleEditorPdmObject* singleEditorObj = new SingleEditorPdmObject;
+    SingleEditorObject* singleEditorObj = new SingleEditorObject;
     m_testRoot->objects.push_back(singleEditorObj);
 
     auto tamComboBox = new TamComboBox;
     m_testRoot->objects.push_back(tamComboBox);
 
-    DemoPdmObject* demoObj2 = new DemoPdmObject;
+    DemoObject* demoObj2 = new DemoObject;
 
     demoObject->m_textField = "Mitt Demo Obj";
     demoObject->m_objectList.push_back(demoObj2);
-    demoObject->m_objectList.push_back(new SmallDemoPdmObjectA());
-    SmallDemoPdmObject* smallObj3 = new SmallDemoPdmObject();
+    demoObject->m_objectList.push_back(new SmallDemoObjectA());
+    SmallDemoObject* smallObj3 = new SmallDemoObject();
     demoObject->m_objectList.push_back(smallObj3);
-    demoObject->m_objectList.push_back(new SmallDemoPdmObject());
+    demoObject->m_objectList.push_back(new SmallDemoObject());
 
-    demoObject->m_objectListOfSameType.push_back(new SmallDemoPdmObjectA());
-    demoObject->m_objectListOfSameType.push_back(new SmallDemoPdmObjectA());
-    demoObject->m_objectListOfSameType.push_back(new SmallDemoPdmObjectA());
-    demoObject->m_objectListOfSameType.push_back(new SmallDemoPdmObjectA());
+    demoObject->m_objectListOfSameType.push_back(new SmallDemoObjectA());
+    demoObject->m_objectListOfSameType.push_back(new SmallDemoObjectA());
+    demoObject->m_objectListOfSameType.push_back(new SmallDemoObjectA());
+    demoObject->m_objectListOfSameType.push_back(new SmallDemoObjectA());
 
-    demoObj2->m_objectList.push_back(new SmallDemoPdmObjectA());
-    demoObj2->m_objectList.push_back(new SmallDemoPdmObjectA());
-    demoObj2->m_objectList.push_back(new SmallDemoPdmObject());
+    demoObj2->m_objectList.push_back(new SmallDemoObjectA());
+    demoObj2->m_objectList.push_back(new SmallDemoObjectA());
+    demoObj2->m_objectList.push_back(new SmallDemoObject());
 
     delete smallObj3;
 }
@@ -1227,18 +1227,18 @@ void MainWindow::buildTestModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
+void MainWindow::setPdmRoot(caf::ObjectHandle* pdmRoot)
 {
-    caf::PdmObjectUiCapability* uiObject = uiObj(pdmRoot);
+    caf::ObjectUiCapability* uiObject = uiObj(pdmRoot);
 
     m_pdmUiTreeView->setPdmItem(uiObject);
 
     connect(m_pdmUiTreeView, SIGNAL(selectionChanged()), SLOT(slotSimpleSelectionChanged()));
 
     // Set up test of using a field as a root item
-    // Hack, because we know that pdmRoot is a PdmObjectGroup ...
+    // Hack, because we know that pdmRoot is a ObjectGroup ...
 
-    std::vector<caf::PdmFieldHandle*> fields;
+    std::vector<caf::FieldHandle*> fields;
     if (pdmRoot)
     {
         pdmRoot->fields(fields);
@@ -1246,8 +1246,8 @@ void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
 
     if (fields.size())
     {
-        caf::PdmFieldHandle*       field         = fields[0];
-        caf::PdmFieldUiCapability* uiFieldHandle = field->capability<caf::PdmFieldUiCapability>();
+        caf::FieldHandle*       field         = fields[0];
+        caf::FieldUiCapability* uiFieldHandle = field->capability<caf::FieldUiCapability>();
         if (uiFieldHandle)
         {
             m_pdmUiTreeView2->setPdmItem(uiFieldHandle);
@@ -1271,7 +1271,7 @@ void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
 
     if (obj.size() == 1)
     {
-        m_customObjectEditor->setPdmObject(obj[0]);
+        m_customObjectEditor->setObject(obj[0]);
 
         m_customObjectEditor->defineGridLayout(5, 4);
 
@@ -1281,7 +1281,7 @@ void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
     }
     else
     {
-        m_customObjectEditor->setPdmObject(nullptr);
+        m_customObjectEditor->setObject(nullptr);
     }
 
     m_customObjectEditor->updateUi();
@@ -1367,15 +1367,15 @@ void MainWindow::slotInsert()
 
     for (size_t i = 0; i < selection.size(); ++i)
     {
-        caf::PdmFieldUiCapability*                      uiFh  = dynamic_cast<caf::PdmFieldUiCapability*>(selection[i]);
-        caf::PdmChildArrayField<caf::PdmObjectHandle*>* field = nullptr;
+        caf::FieldUiCapability*                      uiFh  = dynamic_cast<caf::FieldUiCapability*>(selection[i]);
+        caf::PdmChildArrayField<caf::ObjectHandle*>* field = nullptr;
 
-        if (uiFh) field = dynamic_cast<caf::PdmChildArrayField<caf::PdmObjectHandle*>*>(uiFh->fieldHandle());
+        if (uiFh) field = dynamic_cast<caf::PdmChildArrayField<caf::ObjectHandle*>*>(uiFh->fieldHandle());
 
         if (field)
         {
-            field->push_back(new DemoPdmObject);
-            field->capability<caf::PdmFieldUiCapability>()->updateConnectedEditors();
+            field->push_back(new DemoObject);
+            field->capability<caf::FieldUiCapability>()->updateConnectedEditors();
 
             return;
         }
@@ -1386,7 +1386,7 @@ void MainWindow::slotInsert()
 
         if (listField)
         {
-            caf::PdmObjectHandle* obj = listField->createAppendObject();
+            caf::ObjectHandle* obj = listField->createAppendObject();
             listField->capability<caf::PdmUiFieldHandle>()->updateConnectedEditors();
         }
 #endif
@@ -1403,10 +1403,10 @@ void MainWindow::slotRemove()
 
     for (size_t i = 0; i < selection.size(); ++i)
     {
-        caf::PdmObjectHandle* obj = dynamic_cast<caf::PdmObjectHandle*>(selection[i]);
+        caf::ObjectHandle* obj = dynamic_cast<caf::ObjectHandle*>(selection[i]);
         if (obj)
         {
-            caf::PdmFieldHandle* field = obj->parentField();
+            caf::FieldHandle* field = obj->parentField();
 
             // Ordering is important
 
@@ -1416,7 +1416,7 @@ void MainWindow::slotRemove()
             delete obj;
 
             // Update editors
-            field->capability<caf::PdmFieldUiCapability>()->updateConnectedEditors();
+            field->capability<caf::FieldUiCapability>()->updateConnectedEditors();
 
             break;
         }
@@ -1435,12 +1435,12 @@ void MainWindow::slotSimpleSelectionChanged()
 {
     std::vector<caf::PdmUiItem*> selection;
     m_pdmUiTreeView->selectedUiItems(selection);
-    caf::PdmObjectHandle*          obj       = nullptr;
+    caf::ObjectHandle*          obj       = nullptr;
     caf::PdmChildArrayFieldHandle* listField = nullptr;
 
     if (selection.size())
     {
-        caf::PdmObjectUiCapability* pdmUiObj = dynamic_cast<caf::PdmObjectUiCapability*>(selection[0]);
+        caf::ObjectUiCapability* pdmUiObj = dynamic_cast<caf::ObjectUiCapability*>(selection[0]);
         if (pdmUiObj) obj = pdmUiObj->objectHandle();
     }
 
@@ -1454,15 +1454,15 @@ void MainWindow::slotShowTableView()
 {
     std::vector<caf::PdmUiItem*> selection;
     m_pdmUiTreeView2->selectedUiItems(selection);
-    caf::PdmObjectHandle*          obj                   = nullptr;
-    caf::PdmFieldUiCapability*     uiFieldHandle         = nullptr;
+    caf::ObjectHandle*          obj                   = nullptr;
+    caf::FieldUiCapability*     uiFieldHandle         = nullptr;
     caf::PdmChildArrayFieldHandle* childArrayFieldHandle = nullptr;
 
     if (selection.size())
     {
         caf::PdmUiItem* pdmUiItem = selection[0];
 
-        uiFieldHandle = dynamic_cast<caf::PdmFieldUiCapability*>(pdmUiItem);
+        uiFieldHandle = dynamic_cast<caf::FieldUiCapability*>(pdmUiItem);
         if (uiFieldHandle)
         {
             childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>(uiFieldHandle->fieldHandle());
@@ -1498,7 +1498,7 @@ void MainWindow::slotLoadProject()
         setPdmRoot(nullptr);
         releaseTestData();
 
-        m_testRoot           = new DemoPdmObjectGroup;
+        m_testRoot           = new DemoObjectGroup;
         m_testRoot->fileName = fileName;
         m_testRoot->readFile();
 

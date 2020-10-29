@@ -6,18 +6,18 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmDataValueField.h"
-#include "cafPdmFieldIoCapability.h"
-#include "cafPdmFieldIoCapabilitySpecializations.h"
-#include "cafPdmObjectHandle.h"
-#include "cafPdmObjectHandleIoMacros.h"
-#include "cafPdmObjectIoCapability.h"
+#include "cafFieldIoCapability.h"
+#include "cafFieldIoCapabilitySpecializations.h"
+#include "cafObjectHandle.h"
+#include "cafObjectHandleIoMacros.h"
+#include "cafObjectIoCapability.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmReferenceHelper.h"
 
 #include <QXmlStreamWriter>
 
-class DemoPdmObject : public caf::PdmObjectHandle, public caf::PdmObjectIoCapability
+class DemoObject : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
     CAF_PDM_IO_HEADER_INIT;
 
@@ -29,21 +29,21 @@ public:
         T3
     };
 
-    DemoPdmObject()
-        : PdmObjectHandle()
-        , PdmObjectIoCapability( this, false )
+    DemoObject()
+        : ObjectHandle()
+        , ObjectIoCapability( this, false )
     {
         CAF_PDM_IO_InitField( &m_proxyDoubleField, "BigNumber" );
-        m_proxyDoubleField.registerSetMethod( this, &DemoPdmObject::setDoubleMember );
-        m_proxyDoubleField.registerGetMethod( this, &DemoPdmObject::doubleMember );
+        m_proxyDoubleField.registerSetMethod( this, &DemoObject::setDoubleMember );
+        m_proxyDoubleField.registerGetMethod( this, &DemoObject::doubleMember );
 
         CAF_PDM_IO_InitField( &m_proxyEnumField, "AppEnum" );
-        m_proxyEnumField.registerSetMethod( this, &DemoPdmObject::setEnumMember );
-        m_proxyEnumField.registerGetMethod( this, &DemoPdmObject::enumMember );
+        m_proxyEnumField.registerSetMethod( this, &DemoObject::setEnumMember );
+        m_proxyEnumField.registerGetMethod( this, &DemoObject::enumMember );
         m_enumMember = T1;
     }
 
-    ~DemoPdmObject() {}
+    ~DemoObject() {}
 
     // Fields
 
@@ -69,43 +69,43 @@ private:
     TestEnumType m_enumMember;
 };
 
-CAF_PDM_IO_SOURCE_INIT( DemoPdmObject, "DemoPdmObject" );
+CAF_PDM_IO_SOURCE_INIT( DemoObject, "DemoObject" );
 
 namespace caf
 {
 template <>
-void AppEnum<DemoPdmObject::TestEnumType>::setUp()
+void AppEnum<DemoObject::TestEnumType>::setUp()
 {
-    addItem( DemoPdmObject::T1, "T1", "An A letter" );
-    addItem( DemoPdmObject::T2, "T2", "A B letter" );
-    addItem( DemoPdmObject::T3, "T3", "A B letter" );
-    setDefault( DemoPdmObject::T1 );
+    addItem( DemoObject::T1, "T1", "An A letter" );
+    addItem( DemoObject::T2, "T2", "A B letter" );
+    addItem( DemoObject::T3, "T3", "A B letter" );
+    setDefault( DemoObject::T1 );
 }
 
 } // namespace caf
 
 TEST( BaseTest, Delete )
 {
-    DemoPdmObject* s2 = new DemoPdmObject;
+    DemoObject* s2 = new DemoObject;
     delete s2;
 }
 
 #if 0 
 //--------------------------------------------------------------------------------------------------
-/// Read/write Xml using PdmObjectGroup
+/// Read/write Xml using ObjectGroup
 //--------------------------------------------------------------------------------------------------
 TEST(BaseTest, Start)
 {
     QString serializedString;
     {
-        DemoPdmObject* a = new DemoPdmObject;
+        DemoObject* a = new DemoObject;
 
         a->m_proxyDoubleField.setValue(2.5);
-        a->m_proxyEnumField.setValue(DemoPdmObject::T3);
+        a->m_proxyEnumField.setValue(DemoObject::T3);
 
         ASSERT_DOUBLE_EQ(2.5, a->m_proxyDoubleField.value());
 
-        caf::PdmObjectGroup objGroup;
+        caf::ObjectGroup objGroup;
         objGroup.addObject(a);
 
         QXmlStreamWriter xmlStream(&serializedString);
@@ -118,23 +118,23 @@ TEST(BaseTest, Start)
     }
 
     /*
-        <PdmObjects>
-          <DemoPdmObject>
+        <Objects>
+          <DemoObject>
             <BigNumber>2.5</BigNumber>
             <TestEnumValue>T3</TestEnumValue>
-          </DemoPdmObject>
-        </PdmObjects>
+          </DemoObject>
+        </Objects>
     */
 
     {
-        caf::PdmObjectGroup destinationObjectGroup;
+        caf::ObjectGroup destinationObjectGroup;
         QXmlStreamReader xmlStream(serializedString);
         destinationObjectGroup.readFields(xmlStream, caf::PdmDefaultObjectFactory::instance(), NULL);
 
-        DemoPdmObject* a = dynamic_cast<DemoPdmObject*>(destinationObjectGroup.objects[0]);
+        DemoObject* a = dynamic_cast<DemoObject*>(destinationObjectGroup.objects[0]);
 
         ASSERT_DOUBLE_EQ(2.5, a->m_proxyDoubleField.value());
-        ASSERT_EQ(DemoPdmObject::T3, a->m_proxyEnumField());
+        ASSERT_EQ(DemoObject::T3, a->m_proxyEnumField());
 
     }
 }
@@ -144,14 +144,14 @@ TEST(BaseTest, Start)
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, FieldWrite )
 {
-    std::vector<caf::PdmObjectIoCapability::IoParameters::IoType> ioTypes =
-        { caf::PdmObjectIoCapability::IoParameters::IoType::XML, caf::PdmObjectIoCapability::IoParameters::IoType::JSON };
+    std::vector<caf::ObjectIoCapability::IoParameters::IoType> ioTypes =
+        { caf::ObjectIoCapability::IoParameters::IoType::XML, caf::ObjectIoCapability::IoParameters::IoType::JSON };
 
     for ( auto ioType : ioTypes )
     {
         QString serializedString;
         {
-            DemoPdmObject* a = new DemoPdmObject;
+            DemoObject* a = new DemoObject;
 
             a->m_proxyDoubleField.setValue( 2.5 );
             ASSERT_DOUBLE_EQ( 2.5, a->m_proxyDoubleField.value() );
@@ -164,21 +164,21 @@ TEST( BaseTest, FieldWrite )
         }
 
         /*
-        <DemoPdmObject>
+        <DemoObject>
             <BigNumber>2.5</BigNumber>
             <TestEnumValue>T3</TestEnumValue>
-        </DemoPdmObject>
+        </DemoObject>
         */
 
         {
-            DemoPdmObject* a = new DemoPdmObject;
+            DemoObject* a = new DemoObject;
 
             a->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance(), ioType );
         }
     }
 }
 
-class InheritedDemoObj : public DemoPdmObject
+class InheritedDemoObj : public DemoObject
 {
     CAF_PDM_IO_HEADER_INIT;
 
@@ -186,24 +186,24 @@ public:
     InheritedDemoObj()
     {
         CAF_PDM_IO_InitField( &m_texts, "Texts" );
-        CAF_PDM_IO_InitField( &m_childArrayField, "DemoPdmObjectects" );
+        CAF_PDM_IO_InitField( &m_childArrayField, "DemoObjectects" );
     }
 
     ~InheritedDemoObj() { m_childArrayField.deleteAllChildObjects(); }
 
     caf::PdmDataValueField<QString>         m_texts;
-    caf::PdmChildArrayField<DemoPdmObject*> m_childArrayField;
+    caf::PdmChildArrayField<DemoObject*> m_childArrayField;
 };
 CAF_PDM_IO_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj" );
 
-class SimpleObj : public caf::PdmObjectHandle, public caf::PdmObjectIoCapability
+class SimpleObj : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
     CAF_PDM_IO_HEADER_INIT;
 
 public:
     SimpleObj()
-        : PdmObjectHandle()
-        , PdmObjectIoCapability( this, false )
+        : ObjectHandle()
+        , ObjectIoCapability( this, false )
         , m_doubleMember( 0.0 )
     {
         CAF_PDM_IO_InitField( &m_position, "Position" );
@@ -241,43 +241,43 @@ public:
 };
 CAF_PDM_IO_SOURCE_INIT( SimpleObj, "SimpleObj" );
 
-class ReferenceDemoPdmObject : public caf::PdmObjectHandle, public caf::PdmObjectIoCapability
+class ReferenceDemoObject : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
     CAF_PDM_IO_HEADER_INIT;
 
 public:
-    ReferenceDemoPdmObject()
-        : PdmObjectHandle()
-        , PdmObjectIoCapability( this, false )
+    ReferenceDemoObject()
+        : ObjectHandle()
+        , ObjectIoCapability( this, false )
     {
         CAF_PDM_IO_InitField( &m_pointersField, "SimpleObjPtrField" );
         CAF_PDM_IO_InitField( &m_simpleObjPtrField2, "SimpleObjPtrField2" );
     }
 
-    ~ReferenceDemoPdmObject()
+    ~ReferenceDemoObject()
     {
         delete m_pointersField();
         m_simpleObjPtrField2.deleteAllChildObjects();
     }
 
     // Fields
-    caf::PdmChildField<PdmObjectHandle*> m_pointersField;
+    caf::PdmChildField<ObjectHandle*> m_pointersField;
     caf::PdmChildArrayField<SimpleObj*>  m_simpleObjPtrField2;
 };
 
-CAF_PDM_IO_SOURCE_INIT( ReferenceDemoPdmObject, "ReferenceDemoPdmObject" );
+CAF_PDM_IO_SOURCE_INIT( ReferenceDemoObject, "ReferenceDemoObject" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, PdmReferenceHelper )
 {
-    DemoPdmObject* s1 = new DemoPdmObject;
-    DemoPdmObject* s2 = new DemoPdmObject;
-    DemoPdmObject* s3 = new DemoPdmObject;
+    DemoObject* s1 = new DemoObject;
+    DemoObject* s2 = new DemoObject;
+    DemoObject* s3 = new DemoObject;
 
     InheritedDemoObj* ihd1 = new InheritedDemoObj;
-    ihd1->m_childArrayField.push_back( new DemoPdmObject );
+    ihd1->m_childArrayField.push_back( new DemoObject );
 
     ihd1->m_childArrayField.push_back( s1 );
     ihd1->m_childArrayField.push_back( s2 );
@@ -288,17 +288,17 @@ TEST( BaseTest, PdmReferenceHelper )
         QString expectedString = ihd1->m_childArrayField.keyword() + " 3";
         EXPECT_STREQ( refString.toLatin1(), expectedString.toLatin1() );
 
-        caf::PdmObjectHandle* fromRef = caf::PdmReferenceHelper::objectFromReference( ihd1, refString );
+        caf::ObjectHandle* fromRef = caf::PdmReferenceHelper::objectFromReference( ihd1, refString );
         EXPECT_TRUE( fromRef == s3 );
     }
 
-    ReferenceDemoPdmObject* objA = new ReferenceDemoPdmObject;
+    ReferenceDemoObject* objA = new ReferenceDemoObject;
     objA->m_pointersField        = ihd1;
 
     {
         QString refString = caf::PdmReferenceHelper::referenceFromRootToObject( objA, s3 );
 
-        caf::PdmObjectHandle* fromRef = caf::PdmReferenceHelper::objectFromReference( objA, refString );
+        caf::ObjectHandle* fromRef = caf::PdmReferenceHelper::objectFromReference( objA, refString );
         EXPECT_TRUE( fromRef == s3 );
     }
 
@@ -306,7 +306,7 @@ TEST( BaseTest, PdmReferenceHelper )
     {
         QString refString = caf::PdmReferenceHelper::referenceFromRootToField( objA, &( ihd1->m_childArrayField ) );
 
-        caf::PdmFieldHandle* fromRef = caf::PdmReferenceHelper::fieldFromReference( objA, refString );
+        caf::FieldHandle* fromRef = caf::PdmReferenceHelper::fieldFromReference( objA, refString );
         EXPECT_TRUE( fromRef == &( ihd1->m_childArrayField ) );
     }
 }
@@ -316,13 +316,13 @@ TEST( BaseTest, PdmReferenceHelper )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ChildArrayFieldSerializing )
 {
-    DemoPdmObject* s1 = new DemoPdmObject;
+    DemoObject* s1 = new DemoObject;
     s1->m_proxyDoubleField.setValue( 10 );
 
-    DemoPdmObject* s2 = new DemoPdmObject;
+    DemoObject* s2 = new DemoObject;
     s2->m_proxyDoubleField.setValue( 20 );
 
-    DemoPdmObject* s3 = new DemoPdmObject;
+    DemoObject* s3 = new DemoObject;
     s3->m_proxyDoubleField.setValue( 30 );
 
     InheritedDemoObj* ihd1 = new InheritedDemoObj;
@@ -359,11 +359,11 @@ TEST( BaseTest, ChildArrayFieldSerializing )
 TEST( BaseTest, QXMLStreamTest )
 {
     QString xmlText =
-        //"<DemoPdmObject>"
+        //"<DemoObject>"
         "<BigNumber>2.5</BigNumber>"
         "<TestEnumValue>T3</TestEnumValue>"
         "<TestEnumValue2>T3</TestEnumValue2>"
-        //"</DemoPdmObject>"
+        //"</DemoObject>"
         ;
 
     QXmlStreamReader inputStream( xmlText );
@@ -417,28 +417,28 @@ TEST( BaseTest, TestDataType )
     SimpleObj* s1 = new SimpleObj;
 
     {
-        auto dataTypeNameDouble = s1->m_position.capability<caf::PdmFieldIoCapability>()->dataTypeName();
+        auto dataTypeNameDouble = s1->m_position.capability<caf::FieldIoCapability>()->dataTypeName();
         EXPECT_EQ( "double", dataTypeNameDouble.toStdString() );
     }
 
     {
-        auto dataTypeNameDouble = s1->m_proxyDouble.capability<caf::PdmFieldIoCapability>()->dataTypeName();
+        auto dataTypeNameDouble = s1->m_proxyDouble.capability<caf::FieldIoCapability>()->dataTypeName();
         EXPECT_EQ( "double", dataTypeNameDouble.toStdString() );
     }
 
     {
-        auto dataTypeNameDouble = s1->m_up.capability<caf::PdmFieldIoCapability>()->dataTypeName();
+        auto dataTypeNameDouble = s1->m_up.capability<caf::FieldIoCapability>()->dataTypeName();
         EXPECT_EQ( "int", dataTypeNameDouble.toStdString() );
     }
 
     {
-        auto dataTypeNameDouble = s1->m_singleFilePath.capability<caf::PdmFieldIoCapability>()->dataTypeName();
+        auto dataTypeNameDouble = s1->m_singleFilePath.capability<caf::FieldIoCapability>()->dataTypeName();
         EXPECT_EQ( "class caf::FilePath", dataTypeNameDouble.toStdString() );
     }
 
     {
         InheritedDemoObj* obj                = new InheritedDemoObj;
-        auto              dataTypeNameDouble = obj->m_texts.capability<caf::PdmFieldIoCapability>()->dataTypeName();
+        auto              dataTypeNameDouble = obj->m_texts.capability<caf::FieldIoCapability>()->dataTypeName();
         EXPECT_EQ( "class QString", dataTypeNameDouble.toStdString() );
     }
 

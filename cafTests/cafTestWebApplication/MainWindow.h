@@ -11,13 +11,13 @@
 #include "Wt/WTextArea.h"
 
 class QString;
-class DemoPdmObjectGroup;
+class DemoObjectGroup;
 
 namespace caf
 {
 class PdmDocument;
-class PdmObjectCollection;
-class PdmObjectHandle;
+class ObjectCollection;
+class ObjectHandle;
 class PdmWebDefaultObjectEditor;
 class WebPlotViewer;
 } // namespace caf
@@ -29,7 +29,7 @@ public:
     ~MainWindow() override;
 
     static MainWindow* instance();
-    void               setPdmRoot(caf::PdmObjectHandle* pdmRoot);
+    void               setPdmRoot(caf::ObjectHandle* pdmRoot);
     void               debug(const QString& string);
 
 private:
@@ -42,7 +42,7 @@ private:
     std::unique_ptr<Wt::WPanel> createPlotPanel();
 
 private:
-    DemoPdmObjectGroup* m_testRoot;
+    DemoObjectGroup* m_testRoot;
 
     caf::PdmWebDefaultObjectEditor*         m_objectEditor;
     Wt::WTextArea*                          m_debugWindow;

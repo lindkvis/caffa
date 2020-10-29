@@ -9,8 +9,8 @@
 #include "WPopupMenuWrapper.h"
 #include "cafFilePath.h"
 #include "cafPdmDocument.h"
-#include "cafPdmObject.h"
-#include "cafPdmObjectGroup.h"
+#include "cafObject.h"
+#include "cafObjectGroup.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmReferenceHelper.h"
@@ -39,26 +39,26 @@
 
 using namespace std::placeholders;
 
-class DemoPdmObjectGroup : public caf::PdmDocument
+class DemoObjectGroup : public caf::PdmDocument
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    DemoPdmObjectGroup()
+    DemoObjectGroup()
     {
-        CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects", "", "", "", "")
+        CAF_PDM_InitFieldNoDefault(&objects, "Objects", "", "", "", "")
 
-            objects.capability<caf::PdmObjectUiCapability>()
+            objects.capability<caf::ObjectUiCapability>()
                 ->setUiHidden(true);
     }
 
 public:
-    caf::PdmChildArrayField<PdmObjectHandle*> objects;
+    caf::PdmChildArrayField<ObjectHandle*> objects;
 };
 
-CAF_PDM_SOURCE_INIT(DemoPdmObjectGroup, "DemoPdmObjectGroup");
+CAF_PDM_SOURCE_INIT(DemoObjectGroup, "DemoObjectGroup");
 
-class SmallDemoPdmObject : public caf::PdmObject
+class SmallDemoObject : public caf::Object
 {
     CAF_PDM_HEADER_INIT;
 
@@ -70,7 +70,7 @@ public:
         T3
     };
 
-    SmallDemoPdmObject()
+    SmallDemoObject()
     {
         CAF_PDM_InitObject("Small Demo Object  with a very long title",
                            ":/images/win/filenew.png",
@@ -85,7 +85,7 @@ public:
                           "",
                           "Enter a big number here",
                           "This is a place you can enter a big real value if you want");
-        m_doubleField.capability<caf::PdmFieldUiCapability>()->setCustomContextMenuEnabled(true);
+        m_doubleField.capability<caf::FieldUiCapability>()->setCustomContextMenuEnabled(true);
 
         CAF_PDM_InitField(&m_intField,
                           "IntNumber",
@@ -94,7 +94,7 @@ public:
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        m_intField.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(caf::PdmWebSliderEditor::uiEditorTypeName());
+        m_intField.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmWebSliderEditor::uiEditorTypeName());
         CAF_PDM_InitField(&m_textField,
                           "TextField",
                           QString("A cow jumped over whatever"),
@@ -104,22 +104,22 @@ public:
                           "This is a place you can enter a small integer value if you want");
         CAF_PDM_InitFieldNoDefault(&m_testEnumField, "TestEnumValue", "EnumField", "", "", "");
 
-        m_proxyDoubleField.registerSetMethod(this, &SmallDemoPdmObject::setDoubleMember);
-        m_proxyDoubleField.registerGetMethod(this, &SmallDemoPdmObject::doubleMember);
+        m_proxyDoubleField.registerSetMethod(this, &SmallDemoObject::setDoubleMember);
+        m_proxyDoubleField.registerGetMethod(this, &SmallDemoObject::doubleMember);
         CAF_PDM_InitFieldNoDefault(&m_proxyDoubleField, "ProxyDouble", "Proxy Double", "", "", "");
 
         m_proxyDoubleField = 0;
     }
 
-    caf::PdmField<double>                     m_doubleField;
-    caf::PdmField<int>                        m_intField;
-    caf::PdmField<QString>                    m_textField;
-    caf::PdmField<bool>                       m_toggleField;
-    caf::PdmField<caf::AppEnum<TestEnumType>> m_testEnumField;
+    caf::Field<double>                     m_doubleField;
+    caf::Field<int>                        m_intField;
+    caf::Field<QString>                    m_textField;
+    caf::Field<bool>                       m_toggleField;
+    caf::Field<caf::AppEnum<TestEnumType>> m_testEnumField;
 
     caf::PdmProxyValueField<double> m_proxyDoubleField;
 
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override
+    void fieldChangedByUi(const caf::FieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override
     {
         if (changedField == &m_doubleField)
         {
@@ -155,12 +155,12 @@ public:
         return m_doubleMember;
     }
 
-    caf::PdmFieldHandle* objectToggleField() override
+    caf::FieldHandle* objectToggleField() override
     {
         return &m_toggleField;
     }
 
-    caf::PdmFieldHandle* userDescriptionField() override
+    caf::FieldHandle* userDescriptionField() override
     {
         return &m_textField;
     }
@@ -189,7 +189,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineEditorAttribute(const caf::PdmFieldHandle* field,
+    void defineEditorAttribute(const caf::FieldHandle* field,
                                QString                    uiConfigName,
                                caf::PdmUiEditorAttribute* attribute) override
     {
@@ -205,14 +205,14 @@ protected:
     }
 };
 
-CAF_PDM_SOURCE_INIT(SmallDemoPdmObject, "SmallDemoPdmObject");
+CAF_PDM_SOURCE_INIT(SmallDemoObject, "SmallDemoObject");
 
-class ColorAndDateEditorPdmObject : public caf::PdmObject
+class ColorAndDateEditorObject : public caf::Object
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    ColorAndDateEditorPdmObject()
+    ColorAndDateEditorObject()
     {
         CAF_PDM_InitObject("Color And Date and File Upload Editor Object",
                            "",
@@ -233,10 +233,10 @@ public:
     }
 
     // Outside group
-    caf::PdmField<int>           m_intFieldStandard;
-    caf::PdmField<QColor>        m_colorField;
-    caf::PdmField<QDate>         m_dateField;
-    caf::PdmField<caf::FilePath> m_fileUploadField;
+    caf::Field<int>           m_intFieldStandard;
+    caf::Field<QColor>        m_colorField;
+    caf::Field<QDate>         m_dateField;
+    caf::Field<caf::FilePath> m_fileUploadField;
 
 protected:
     //--------------------------------------------------------------------------------------------------
@@ -250,7 +250,7 @@ protected:
         uiOrdering.add(&m_fileUploadField);
         uiOrdering.skipRemainingFields(true);
     }
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override
+    void fieldChangedByUi(const caf::FieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override
     {
         if (changedField == &m_colorField)
         {
@@ -270,17 +270,17 @@ protected:
     }
 };
 
-CAF_PDM_SOURCE_INIT(ColorAndDateEditorPdmObject, "ColorAndDateEditorPdmObject");
+CAF_PDM_SOURCE_INIT(ColorAndDateEditorObject, "ColorAndDateEditorObject");
 
 namespace caf
 {
 template<>
-void AppEnum<SmallDemoPdmObject::TestEnumType>::setUp()
+void AppEnum<SmallDemoObject::TestEnumType>::setUp()
 {
-    addItem(SmallDemoPdmObject::T1, "T1", "An A letter");
-    addItem(SmallDemoPdmObject::T2, "T2", "A B letter");
-    addItem(SmallDemoPdmObject::T3, "T3", "A B C letter");
-    setDefault(SmallDemoPdmObject::T1);
+    addItem(SmallDemoObject::T1, "T1", "An A letter");
+    addItem(SmallDemoObject::T2, "T2", "A B letter");
+    addItem(SmallDemoObject::T3, "T3", "A B C letter");
+    setDefault(SmallDemoObject::T1);
 }
 } // namespace caf
 
@@ -418,7 +418,7 @@ MainWindow::MainWindow()
 
     this->setLayout(std::move(windowLayout));
 
-    std::vector<caf::PdmObject*> objects;
+    std::vector<caf::Object*> objects;
     m_testRoot->descendantsIncludingThisOfType(objects);
 }
 
@@ -438,20 +438,20 @@ MainWindow* MainWindow::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
+void MainWindow::setPdmRoot(caf::ObjectHandle* pdmRoot)
 {
-    caf::PdmObjectUiCapability* uiObject = uiObj(pdmRoot);
+    caf::ObjectUiCapability* uiObject = uiObj(pdmRoot);
 
     m_pdmUiTreeView->setPdmItem(uiObject);
     m_pdmUiTreeView->selectionChanged().connect(this, &MainWindow::slotSimpleSelectionChanged);
 
-    std::vector<SmallDemoPdmObject*> obj;
+    std::vector<SmallDemoObject*> obj;
     if (pdmRoot)
     {
         pdmRoot->descendantsIncludingThisOfType(obj);
     }
 
-    m_objectEditor->setPdmObject(obj[0]);
+    m_objectEditor->setObject(obj[0]);
 
     caf::SelectionManager::instance()->setPdmRootObject(m_testRoot);
     caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
@@ -474,16 +474,16 @@ void MainWindow::debug(const QString& string)
 //--------------------------------------------------------------------------------------------------
 void MainWindow::buildTestModel()
 {
-    m_testRoot = new DemoPdmObjectGroup;
+    m_testRoot = new DemoObjectGroup;
 
-    SmallDemoPdmObject* smallObj1 = new SmallDemoPdmObject;
+    SmallDemoObject* smallObj1 = new SmallDemoObject;
     m_testRoot->objects.push_back(smallObj1);
 
-    SmallDemoPdmObject* smallObj2 = new SmallDemoPdmObject;
+    SmallDemoObject* smallObj2 = new SmallDemoObject;
     m_testRoot->objects.push_back(smallObj2);
-    SmallDemoPdmObject* smallObj3 = new SmallDemoPdmObject;
+    SmallDemoObject* smallObj3 = new SmallDemoObject;
     m_testRoot->objects.push_back(smallObj3);
-    ColorAndDateEditorPdmObject* smallObj4 = new ColorAndDateEditorPdmObject;
+    ColorAndDateEditorObject* smallObj4 = new ColorAndDateEditorObject;
     m_testRoot->objects.push_back(smallObj4);
 }
 
@@ -494,16 +494,16 @@ void MainWindow::slotSimpleSelectionChanged()
 {
     std::vector<caf::PdmUiItem*> selection;
     m_pdmUiTreeView->selectedUiItems(selection);
-    caf::PdmObjectHandle*          obj       = nullptr;
+    caf::ObjectHandle*          obj       = nullptr;
     caf::PdmChildArrayFieldHandle* listField = nullptr;
 
     if (selection.size())
     {
-        caf::PdmObjectUiCapability* pdmUiObj = dynamic_cast<caf::PdmObjectUiCapability*>(selection[0]);
+        caf::ObjectUiCapability* pdmUiObj = dynamic_cast<caf::ObjectUiCapability*>(selection[0]);
         if (pdmUiObj) obj = pdmUiObj->objectHandle();
     }
 
-    m_objectEditor->setPdmObject(obj);
+    m_objectEditor->setObject(obj);
     m_objectEditor->updateUi();
     wApp->triggerUpdate();
 }

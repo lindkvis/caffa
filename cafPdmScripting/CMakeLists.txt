@@ -14,18 +14,18 @@ set( PROJECT_FILES
      cafPdmCodeGenerator.h
      cafPdmAbstractFieldScriptingCapability.h
      cafPdmAbstractFieldScriptingCapability.cpp
-     cafPdmFieldScriptingCapability.h
-     cafPdmFieldScriptingCapability.cpp
-     cafPdmObjectMethod.h
-     cafPdmObjectMethod.cpp
-     cafPdmObjectScriptingCapabilityRegister.h
-     cafPdmObjectScriptingCapabilityRegister.cpp
+     cafFieldScriptingCapability.h
+     cafFieldScriptingCapability.cpp
+     cafObjectMethod.h
+     cafObjectMethod.cpp
+     cafObjectScriptingCapabilityRegister.h
+     cafObjectScriptingCapabilityRegister.cpp
      cafPdmPythonGenerator.h
      cafPdmPythonGenerator.cpp
      cafPdmScriptIOMessages.h
      cafPdmScriptIOMessages.cpp
-     cafPdmObjectScriptingCapability.h
-     cafPdmObjectScriptingCapability.cpp
+     cafObjectScriptingCapability.h
+     cafObjectScriptingCapability.cpp
      cafPdmScriptResponse.h
      cafPdmScriptResponse.cpp
      cafPdmMarkdownGenerator.h
@@ -38,10 +38,10 @@ set (CAF_LIBS cafProjectDataModel)
 
 if (CAF_CVF_SCRIPTING)
     list(APPEND PROJECT_FILES
-     cafPdmFieldScriptingCapabilityCvfColor3.h
-     cafPdmFieldScriptingCapabilityCvfColor3.cpp
-     cafPdmFieldScriptingCapabilityCvfVec3d.h
-     cafPdmFieldScriptingCapabilityCvfVec3d.cpp
+     cafFieldScriptingCapabilityCvfColor3.h
+     cafFieldScriptingCapabilityCvfColor3.cpp
+     cafFieldScriptingCapabilityCvfVec3d.h
+     cafFieldScriptingCapabilityCvfVec3d.cpp
     )
     list(APPEND CAF_LIBS cafPdmCvf)
 endif()

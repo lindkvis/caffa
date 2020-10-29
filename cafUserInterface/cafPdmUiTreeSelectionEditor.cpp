@@ -36,7 +36,7 @@
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include "cafAssert.h"
-#include "cafPdmObject.h"
+#include "cafObject.h"
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiTreeSelectionQModel.h"
 
@@ -281,7 +281,7 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
     }
     else if ( PdmUiTreeSelectionQModel::isMultipleValueField( fieldValue ) )
     {
-        caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+        caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
         if ( uiObject )
         {
             uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
@@ -348,7 +348,7 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
 
     if ( m_attributes.currentIndexFieldHandle )
     {
-        PdmFieldUiCapability* uiFieldHandle = m_attributes.currentIndexFieldHandle->capability<PdmFieldUiCapability>();
+        FieldUiCapability* uiFieldHandle = m_attributes.currentIndexFieldHandle->capability<FieldUiCapability>();
         if ( uiFieldHandle )
         {
             QModelIndexList indices          = allVisibleSourceModelIndices();
@@ -696,7 +696,7 @@ void PdmUiTreeSelectionEditor::currentChanged( const QModelIndex& current )
 
     if ( m_attributes.currentIndexFieldHandle )
     {
-        PdmFieldUiCapability* uiFieldHandle = m_attributes.currentIndexFieldHandle->capability<PdmFieldUiCapability>();
+        FieldUiCapability* uiFieldHandle = m_attributes.currentIndexFieldHandle->capability<FieldUiCapability>();
         if ( uiFieldHandle )
         {
             QVariant v = m_proxyModel->data( current, PdmUiTreeSelectionQModel::optionItemValueRole() );

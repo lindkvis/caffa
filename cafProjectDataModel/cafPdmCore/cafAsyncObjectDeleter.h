@@ -38,17 +38,17 @@
 
 namespace caf
 {
-template <typename PdmObjectType>
-class AsyncPdmObjectVectorDeleter
+template <typename ObjectType>
+class AsyncObjectVectorDeleter
 {
 public:
-    AsyncPdmObjectVectorDeleter( std::vector<PdmObjectType*>& pointerVector );
-    AsyncPdmObjectVectorDeleter( std::vector<PdmPointer<PdmObjectType>>& pdmPointerVector );
-    ~AsyncPdmObjectVectorDeleter();
+    AsyncObjectVectorDeleter( std::vector<ObjectType*>& pointerVector );
+    AsyncObjectVectorDeleter( std::vector<PdmPointer<ObjectType>>& pdmPointerVector );
+    ~AsyncObjectVectorDeleter();
     void start();
 
 private:
-    std::vector<PdmObjectHandle*> m_pointersToDelete;
+    std::vector<ObjectHandle*> m_pointersToDelete;
 };
 } // namespace caf
 

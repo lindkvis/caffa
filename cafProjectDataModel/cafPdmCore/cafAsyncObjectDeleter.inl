@@ -1,22 +1,22 @@
 #include <thread>
 
 #include "cafAsyncWorkerManager.h"
-#include "cafPdmObjectHandle.h"
+#include "cafObjectHandle.h"
 
 namespace caf
 {
 //--------------------------------------------------------------------------------------------------
 /// Constructor that takes ownership of the data in the provided vector
 //--------------------------------------------------------------------------------------------------
-template <typename PdmObjectType>
-AsyncPdmObjectVectorDeleter<PdmObjectType>::AsyncPdmObjectVectorDeleter( std::vector<PdmObjectType*>& pointerVector )
+template <typename ObjectType>
+AsyncObjectVectorDeleter<ObjectType>::AsyncObjectVectorDeleter( std::vector<ObjectType*>& pointerVector )
 {
     m_pointersToDelete.reserve( pointerVector.size() );
-    for ( PdmObjectType* rawPointer : pointerVector )
+    for ( ObjectType* rawPointer : pointerVector )
     {
         if ( rawPointer )
         {
-            PdmObjectHandle* objectHandle = static_cast<PdmObjectHandle*>( rawPointer );
+            ObjectHandle* objectHandle = static_cast<ObjectHandle*>( rawPointer );
             objectHandle->prepareForDelete();
             m_pointersToDelete.push_back( objectHandle );
         }
@@ -27,15 +27,15 @@ AsyncPdmObjectVectorDeleter<PdmObjectType>::AsyncPdmObjectVectorDeleter( std::ve
 //--------------------------------------------------------------------------------------------------
 /// Constructor that takes ownership of the data in the provided vector
 //--------------------------------------------------------------------------------------------------
-template <typename PdmObjectType>
-AsyncPdmObjectVectorDeleter<PdmObjectType>::AsyncPdmObjectVectorDeleter( std::vector<PdmPointer<PdmObjectType>>& pdmPointerVector )
+template <typename ObjectType>
+AsyncObjectVectorDeleter<ObjectType>::AsyncObjectVectorDeleter( std::vector<PdmPointer<ObjectType>>& pdmPointerVector )
 {
     m_pointersToDelete.reserve( pdmPointerVector.size() );
-    for ( PdmPointer<PdmObjectType>& pdmPointer : pdmPointerVector )
+    for ( PdmPointer<ObjectType>& pdmPointer : pdmPointerVector )
     {
         if ( pdmPointer.notNull() )
         {
-            PdmObjectHandle* objectHandle = pdmPointer.rawPtr();
+            ObjectHandle* objectHandle = pdmPointer.rawPtr();
             objectHandle->prepareForDelete();
             m_pointersToDelete.push_back( objectHandle );
         }
@@ -46,8 +46,8 @@ AsyncPdmObjectVectorDeleter<PdmObjectType>::AsyncPdmObjectVectorDeleter( std::ve
 //--------------------------------------------------------------------------------------------------
 /// Destructor will launch the asynchronous deletion if start() hasn't already been run.
 //--------------------------------------------------------------------------------------------------
-template <typename PdmObjectType>
-AsyncPdmObjectVectorDeleter<PdmObjectType>::~AsyncPdmObjectVectorDeleter()
+template <typename ObjectType>
+AsyncObjectVectorDeleter<ObjectType>::~AsyncObjectVectorDeleter()
 {
     if ( !m_pointersToDelete.empty() )
     {
@@ -58,12 +58,12 @@ AsyncPdmObjectVectorDeleter<PdmObjectType>::~AsyncPdmObjectVectorDeleter()
 //--------------------------------------------------------------------------------------------------
 /// Perform deletion of the pointers in a separate thread.
 //--------------------------------------------------------------------------------------------------
-template <typename PdmObjectType>
-void AsyncPdmObjectVectorDeleter<PdmObjectType>::start()
+template <typename ObjectType>
+void AsyncObjectVectorDeleter<ObjectType>::start()
 {
     std::thread thread(
-        []( std::vector<PdmObjectHandle*>&& pointerVector ) {
-            for ( PdmObjectHandle* pointerToDelete : pointerVector )
+        []( std::vector<ObjectHandle*>&& pointerVector ) {
+            for ( ObjectHandle* pointerToDelete : pointerVector )
             {
                 delete pointerToDelete;
             }

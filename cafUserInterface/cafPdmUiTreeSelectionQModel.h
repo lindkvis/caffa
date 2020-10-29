@@ -46,7 +46,7 @@
 namespace caf
 {
 class PdmOptionItemInfo;
-class PdmFieldUiCapability;
+class FieldUiCapability;
 
 //==================================================================================================
 ///

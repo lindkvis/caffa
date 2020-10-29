@@ -35,7 +35,7 @@
 //##################################################################################################
 #pragma once
 
-#include "cafPdmObject.h"
+#include "cafObject.h"
 #include "cafPdmPointer.h"
 
 #include <QString>
@@ -63,13 +63,13 @@ public:
 
 public:
     PdmScriptResponse( Status status = COMMAND_OK, const QString& message = "" );
-    explicit PdmScriptResponse( PdmObject* ok_result );
+    explicit PdmScriptResponse( Object* ok_result );
 
     Status      status() const;
     QString     sanitizedResponseMessage() const;
     QStringList messages() const;
-    PdmObject*  result() const;
-    void        setResult( PdmObject* result );
+    Object*  result() const;
+    void        setResult( Object* result );
     void        updateStatus( Status status, const QString& message );
 
 private:
@@ -78,6 +78,6 @@ private:
 private:
     Status                     m_status;
     QStringList                m_messages;
-    std::unique_ptr<PdmObject> m_result;
+    std::unique_ptr<Object> m_result;
 };
 } // namespace caf

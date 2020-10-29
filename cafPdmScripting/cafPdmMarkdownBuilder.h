@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
+#include "cafObject.h"
 
 namespace caf
 {
@@ -46,10 +46,10 @@ namespace caf
 class PdmMarkdownBuilder
 {
 public:
-    static QString generateDocCommandObjects( std::vector<std::shared_ptr<const PdmObject>>& commandObjects );
-    static QString generateDocDataModelObjects( std::vector<std::shared_ptr<const PdmObject>>& dataModelObjects );
+    static QString generateDocCommandObjects( std::vector<std::shared_ptr<const Object>>& commandObjects );
+    static QString generateDocDataModelObjects( std::vector<std::shared_ptr<const Object>>& dataModelObjects );
 
-    static std::vector<std::shared_ptr<const PdmObject>> createAllObjects( caf::PdmObjectFactory* factory );
+    static std::vector<std::shared_ptr<const Object>> createAllObjects( caf::ObjectFactory* factory );
 
 private:
     struct AttributeItem

@@ -37,8 +37,8 @@
 #include "cafPdmUiFilePathEditor.h"
 
 #include "cafFactory.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
@@ -68,7 +68,7 @@ void PdmUiFilePathEditor::configureAndUpdateUi( const QString& uiConfigName )
     m_lineEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
     m_button->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
 
-    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );

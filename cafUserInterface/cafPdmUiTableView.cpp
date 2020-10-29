@@ -38,7 +38,7 @@
 
 #include "cafActionWrapper.h"
 #include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "cafObject.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafSelectionManager.h"
 
@@ -97,7 +97,7 @@ void PdmUiTableView::setChildArrayField( PdmChildArrayFieldHandle* childArrayFie
         // be respected when using the field in a separate view.
         auto orgContextPolicy = m_listViewEditor->tableView()->contextMenuPolicy();
 
-        m_listViewEditor->setUiField( childArrayField->capability<PdmFieldUiCapability>() );
+        m_listViewEditor->setUiField( childArrayField->capability<FieldUiCapability>() );
 
         auto newContextPolicy = m_listViewEditor->tableView()->contextMenuPolicy();
         if ( newContextPolicy == Qt::DefaultContextMenu )
@@ -164,7 +164,7 @@ void PdmUiTableView::setRowSelectionLevel( int selectionLevel )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObjectHandle* PdmUiTableView::pdmObjectFromModelIndex( const QModelIndex& mi )
+ObjectHandle* PdmUiTableView::pdmObjectFromModelIndex( const QModelIndex& mi )
 {
     return m_listViewEditor->pdmObjectFromModelIndex( mi );
 }

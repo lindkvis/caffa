@@ -36,7 +36,7 @@ QTextStream& operator<<( QTextStream& str, const QTime& value );
 
 //==================================================================================================
 /// QTextStream Stream operator overloading for std::vector of things.
-/// Makes automated IO of PdmField< std::vector< Whatever > possible as long as
+/// Makes automated IO of Field< std::vector< Whatever > possible as long as
 /// the type will print as one single word
 //==================================================================================================
 

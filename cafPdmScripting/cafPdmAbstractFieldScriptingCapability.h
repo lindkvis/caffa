@@ -35,22 +35,22 @@
 //##################################################################################################
 #pragma once
 
-#include "cafPdmFieldCapability.h"
+#include "cafFieldCapability.h"
 #include <QString>
 
 class QTextStream;
 
 namespace caf
 {
-class PdmFieldHandle;
-class PdmObjectFactory;
-class PdmObjectHandle;
+class FieldHandle;
+class ObjectFactory;
+class ObjectHandle;
 class PdmScriptIOMessages;
 
-class PdmAbstractFieldScriptingCapability : public PdmFieldCapability
+class PdmAbstractFieldScriptingCapability : public FieldCapability
 {
 public:
-    PdmAbstractFieldScriptingCapability( caf::PdmFieldHandle* owner, const QString& scriptFieldName, bool giveOwnership );
+    PdmAbstractFieldScriptingCapability( caf::FieldHandle* owner, const QString& scriptFieldName, bool giveOwnership );
     virtual ~PdmAbstractFieldScriptingCapability();
 
     const QString scriptFieldName() const;
@@ -61,15 +61,15 @@ public:
     virtual void
                  readFromField( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const = 0;
     virtual void writeToField( QTextStream&              inputStream,
-                               caf::PdmObjectFactory*    objectFactory,
+                               caf::ObjectFactory*    objectFactory,
                                caf::PdmScriptIOMessages* errorMessageContainer,
                                bool                      stringsAreQuoted    = true,
-                               caf::PdmObjectHandle*     existingObjectsRoot = nullptr ) = 0;
+                               caf::ObjectHandle*     existingObjectsRoot = nullptr ) = 0;
 
     static QString helpString( const QString& existingTooltip, const QString& keyword );
 
 protected:
-    PdmFieldHandle* m_owner;
+    FieldHandle* m_owner;
     QString         m_scriptFieldName;
     bool            m_IOWriteable;
 };

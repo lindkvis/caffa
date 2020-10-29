@@ -13,13 +13,13 @@ TamComboBox::TamComboBox()
     CAF_PDM_InitObject("Cell Filter", "", "", "");
 
     CAF_PDM_InitField(&m_name, "UserDescription", QString("Filter Name"), "Name", "", "", "");
-    m_name.capability<caf::PdmFieldUiCapability>()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+    m_name.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> TamComboBox::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+QList<caf::PdmOptionItemInfo> TamComboBox::calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
                                                                  bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -35,7 +35,7 @@ QList<caf::PdmOptionItemInfo> TamComboBox::calculateValueOptions(const caf::PdmF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void TamComboBox::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void TamComboBox::fieldChangedByUi(const caf::FieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_name)
     {
@@ -60,7 +60,7 @@ void TamComboBox::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void TamComboBox::defineEditorAttribute(const caf::PdmFieldHandle* field,
+void TamComboBox::defineEditorAttribute(const caf::FieldHandle* field,
                                         QString                    uiConfigName,
                                         caf::PdmUiEditorAttribute* attribute)
 {

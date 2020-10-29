@@ -36,8 +36,8 @@
 
 #include "cafPdmUiDoubleValueEditor.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 
@@ -77,7 +77,7 @@ void PdmUiDoubleValueEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     m_lineEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
 
-    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );

@@ -68,7 +68,7 @@ public:
     PdmUiPushButtonEditor() {}
     ~PdmUiPushButtonEditor() override {}
 
-    static void configureEditorForField( PdmFieldHandle* fieldHandle );
+    static void configureEditorForField( FieldHandle* fieldHandle );
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;

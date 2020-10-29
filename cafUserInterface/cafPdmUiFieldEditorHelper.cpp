@@ -38,7 +38,7 @@
 
 #include "cafClassTypeName.h"
 
-#include "cafPdmFieldUiCapability.h"
+#include "cafFieldUiCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiListEditor.h"
@@ -46,7 +46,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiFieldEditorHandle* caf::PdmUiFieldEditorHelper::createFieldEditorForField( caf::PdmFieldUiCapability* field,
+caf::PdmUiFieldEditorHandle* caf::PdmUiFieldEditorHelper::createFieldEditorForField( caf::FieldUiCapability* field,
                                                                                      const QString& uiConfigName )
 {
     caf::PdmUiFieldEditorHandle* fieldEditor = nullptr;

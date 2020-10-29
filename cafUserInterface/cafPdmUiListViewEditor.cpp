@@ -36,9 +36,9 @@
 
 #include "cafPdmUiListViewEditor.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmObjectGroup.h"
+#include "cafField.h"
+#include "cafObject.h"
+#include "cafObjectGroup.h"
 #include "cafPdmUiEditorHandle.h"
 
 #include <QGridLayout>
@@ -104,7 +104,7 @@ void UiListViewModelPdm::computeColumnCount()
         // Loop over all objects and find the object with largest number of fields
         for ( size_t i = 0; i < m_pdmObjectGroup->objects.size(); i++ )
         {
-            std::vector<PdmFieldHandle*> fields;
+            std::vector<FieldHandle*> fields;
             m_pdmObjectGroup->objects[i]->fields( fields );
 
             if ( m_columnCount < static_cast<int>( fields.size() ) )
@@ -132,10 +132,10 @@ QVariant caf::UiListViewModelPdm::data( const QModelIndex& index, int role /*= Q
     {
         if ( index.row() < static_cast<int>( m_pdmObjectGroup->objects.size() ) )
         {
-            PdmObjectHandle* pdmObject = m_pdmObjectGroup->objects[index.row()];
+            ObjectHandle* pdmObject = m_pdmObjectGroup->objects[index.row()];
             if ( pdmObject )
             {
-                std::vector<PdmFieldHandle*> fields;
+                std::vector<FieldHandle*> fields;
                 pdmObject->fields( fields );
 
                 if ( index.column() < static_cast<int>( fields.size() ) )
@@ -159,7 +159,7 @@ QVariant caf::UiListViewModelPdm::data( const QModelIndex& index, int role /*= Q
                         fieldIndex = index.column();
                     }
 
-                    PdmFieldUiCapability* uiFieldHandle = fields[fieldIndex]->capability<PdmFieldUiCapability>();
+                    FieldUiCapability* uiFieldHandle = fields[fieldIndex]->capability<FieldUiCapability>();
                     if ( uiFieldHandle )
                     {
                         return uiFieldHandle->uiValue();
@@ -179,14 +179,14 @@ QVariant caf::UiListViewModelPdm::data( const QModelIndex& index, int role /*= Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::UiListViewModelPdm::setPdmData( PdmObjectCollection* objectGroup, const QString& configName )
+void caf::UiListViewModelPdm::setPdmData( ObjectCollection* objectGroup, const QString& configName )
 {
     m_pdmObjectGroup = objectGroup;
     m_configName     = configName;
 
     if ( m_pdmObjectGroup )
     {
-        caf::PdmObjectUiCapability* uiObject = uiObj( m_pdmObjectGroup );
+        caf::ObjectUiCapability* uiObject = uiObj( m_pdmObjectGroup );
         if ( uiObject )
         {
             uiObject->objectEditorAttribute( m_configName, &m_editorAttribute );
@@ -241,7 +241,7 @@ QWidget* PdmUiListViewEditor::createWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void PdmUiListViewEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    PdmObjectCollection* objectGroup = dynamic_cast<PdmObjectCollection*>( pdmObject() );
+    ObjectCollection* objectGroup = dynamic_cast<ObjectCollection*>( pdmObject() );
     m_tableModelPdm->setPdmData( objectGroup, uiConfigName );
 
     m_tableView->resizeColumnsToContents();

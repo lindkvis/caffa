@@ -39,15 +39,15 @@
 #include "cafCmdExecuteCommand.h"
 
 #include "cafAppEnum.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 
 namespace caf
 {
 //==================================================================================================
 ///
 //==================================================================================================
-class CmdSelectionChangeExecData : public PdmObject
+class CmdSelectionChangeExecData : public Object
 {
     CAF_PDM_HEADER_INIT;
 
@@ -64,9 +64,9 @@ public:
         CAF_PDM_InitField( &m_newSelection, "newSelection", std::vector<QString>(), "newSelection", "", "", "" );
     }
 
-    PdmField<int>                  m_selectionLevel;
-    PdmField<std::vector<QString>> m_previousSelection;
-    PdmField<std::vector<QString>> m_newSelection;
+    Field<int>                  m_selectionLevel;
+    Field<std::vector<QString>> m_previousSelection;
+    Field<std::vector<QString>> m_newSelection;
 };
 
 //==================================================================================================

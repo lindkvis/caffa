@@ -36,7 +36,7 @@
 
 #include "cafPdmUiPropertyView.h"
 
-#include "cafPdmObject.h"
+#include "cafObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 
 #include <QEvent>
@@ -125,7 +125,7 @@ void PdmUiPropertyView::setUiConfigurationName( QString uiConfigName )
 
         if ( m_defaultObjectEditor )
         {
-            PdmObjectHandle* object = m_defaultObjectEditor->pdmObject();
+            ObjectHandle* object = m_defaultObjectEditor->pdmObject();
             delete m_defaultObjectEditor;
             m_defaultObjectEditor = nullptr;
             this->showProperties( object );
@@ -136,7 +136,7 @@ void PdmUiPropertyView::setUiConfigurationName( QString uiConfigName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiPropertyView::showProperties( PdmObjectHandle* object )
+void PdmUiPropertyView::showProperties( ObjectHandle* object )
 {
     // Find specialized object view handle
 
@@ -150,8 +150,8 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object )
     {
         if ( object )
         {
-            PdmObjectUiCapability* uiObject1 = uiObj( m_defaultObjectEditor->pdmObject() );
-            PdmObjectUiCapability* uiObject2 = uiObj( object );
+            ObjectUiCapability* uiObject1 = uiObj( m_defaultObjectEditor->pdmObject() );
+            ObjectUiCapability* uiObject2 = uiObj( object );
 
             if ( uiObject1 && uiObject2 &&
                  ( uiObject1->uiEditorTypeName( m_uiConfigName ) != uiObject2->uiEditorTypeName( m_uiConfigName ) ) )
@@ -187,7 +187,7 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object )
         this->m_placeHolderLayout->insertStretch( -1, 1 );
     }
 
-    m_defaultObjectEditor->setPdmObject( object );
+    m_defaultObjectEditor->setObject( object );
 
     m_defaultObjectEditor->updateUi( m_uiConfigName );
     m_scrollArea->updateGeometry();
@@ -196,7 +196,7 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObjectHandle* PdmUiPropertyView::currentObject()
+ObjectHandle* PdmUiPropertyView::currentObject()
 {
     if ( !m_defaultObjectEditor ) return nullptr;
     return m_defaultObjectEditor->pdmObject();

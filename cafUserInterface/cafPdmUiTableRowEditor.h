@@ -43,7 +43,7 @@
 namespace caf
 {
 class PdmUiTableViewQModel;
-class PdmObjectHandle;
+class ObjectHandle;
 
 //--------------------------------------------------------------------------------------------------
 /// This class is used to update a row in the model when a field value changes
@@ -51,7 +51,7 @@ class PdmObjectHandle;
 class PdmUiTableRowEditor : public PdmUiEditorHandle
 {
 public:
-    PdmUiTableRowEditor( PdmUiTableViewQModel* model, caf::PdmObjectHandle* pdmObject, int row );
+    PdmUiTableRowEditor( PdmUiTableViewQModel* model, caf::ObjectHandle* pdmObject, int row );
     ~PdmUiTableRowEditor() override;
 
 protected:

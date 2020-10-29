@@ -38,10 +38,10 @@
 
 #include "cafPdmWebDefaultObjectEditor.h"
 
-#include "cafPdmObject.h"
+#include "cafObject.h"
 #include "cafPdmWebFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
-#include "cafPdmField.h"
+#include "cafField.h"
 
 #include "cafFactory.h"
 #include "cafTristate.h"

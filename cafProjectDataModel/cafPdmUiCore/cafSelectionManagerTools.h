@@ -51,7 +51,7 @@ T firstAncestorOfTypeFromSelectedObject()
 
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
 
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
+    caf::ObjectHandle* objHandle = dynamic_cast<caf::ObjectHandle*>( pdmUiItem );
     if ( objHandle )
     {
         objHandle->firstAncestorOrThisOfType( objToFind );

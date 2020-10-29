@@ -37,7 +37,7 @@
 #include "cafPdmUiDefaultObjectEditor.h"
 
 #include "cafFilePath.h"
-#include "cafPdmField.h"
+#include "cafField.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiDateEditor.h"

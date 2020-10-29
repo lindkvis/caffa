@@ -40,16 +40,16 @@
 
 namespace caf
 {
-class PdmObjectHandle;
+class ObjectHandle;
 
 class PdmSettings
 {
 public:
-    static void readFieldsFromApplicationStore( caf::PdmObjectHandle* object, const QString context = "" );
-    static void writeFieldsToApplicationStore( const caf::PdmObjectHandle* object, const QString context = "" );
+    static void readFieldsFromApplicationStore( caf::ObjectHandle* object, const QString context = "" );
+    static void writeFieldsToApplicationStore( const caf::ObjectHandle* object, const QString context = "" );
 
-    static void readValueFieldsFromApplicationStore( caf::PdmObjectHandle* object, const QString folderName = "" );
-    static void writeValueFieldsToApplicationStore( const caf::PdmObjectHandle* object, const QString folderName = "" );
+    static void readValueFieldsFromApplicationStore( caf::ObjectHandle* object, const QString folderName = "" );
+    static void writeValueFieldsToApplicationStore( const caf::ObjectHandle* object, const QString folderName = "" );
 };
 
 } // end namespace caf

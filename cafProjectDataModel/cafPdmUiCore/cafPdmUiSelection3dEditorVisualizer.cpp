@@ -107,7 +107,7 @@ void PdmUiSelection3dEditorVisualizer::onSelectionManagerSelectionChanged( const
         QString editor3dTypeName = item->ui3dEditorTypeName( m_configName );
         if ( !editor3dTypeName.isEmpty() )
         {
-            PdmObjectHandle* itemObject = dynamic_cast<PdmObjectHandle*>( item );
+            ObjectHandle* itemObject = dynamic_cast<ObjectHandle*>( item );
             if ( itemObject )
             {
                 // Editor in main view
@@ -115,7 +115,7 @@ void PdmUiSelection3dEditorVisualizer::onSelectionManagerSelectionChanged( const
                     PdmUi3dObjectEditorHandle* editor3d =
                         caf::Factory<PdmUi3dObjectEditorHandle, QString>::instance()->create( editor3dTypeName );
                     editor3d->setViewer( m_ownerViewer, false );
-                    editor3d->setPdmObject( itemObject );
+                    editor3d->setObject( itemObject );
                     m_active3DEditors.emplace_back( editor3d );
                     editor3d->updateUi();
                 }
@@ -128,7 +128,7 @@ void PdmUiSelection3dEditorVisualizer::onSelectionManagerSelectionChanged( const
                     PdmUi3dObjectEditorHandle* editor3d =
                         caf::Factory<PdmUi3dObjectEditorHandle, QString>::instance()->create( editor3dTypeName );
                     editor3d->setViewer( m_ownerViewer, true );
-                    editor3d->setPdmObject( itemObject );
+                    editor3d->setObject( itemObject );
                     m_active3DEditors.emplace_back( editor3d );
                     editor3d->updateUi();
                 }

@@ -1,6 +1,6 @@
 #include "cafInternalPdmIoFieldReaderWriter.h"
 
-#include "cafInternalPdmFieldIoHelper.h"
+#include "cafInternalFieldIoHelper.h"
 
 namespace caf
 {
@@ -8,9 +8,9 @@ namespace caf
 /// Specialized read function for QStrings, because the >> operator only can read word by word
 //--------------------------------------------------------------------------------------------------
 template <>
-void PdmFieldReader<QString>::readFieldData( QString& field, QXmlStreamReader& xmlStream, PdmObjectFactory* )
+void FieldReader<QString>::readFieldData( QString& field, QXmlStreamReader& xmlStream, ObjectFactory* )
 {
-    PdmFieldIOHelper::skipComments( xmlStream );
+    FieldIOHelper::skipComments( xmlStream );
     if ( !xmlStream.isCharacters() ) return;
 
     field = xmlStream.text().toString();
@@ -18,14 +18,14 @@ void PdmFieldReader<QString>::readFieldData( QString& field, QXmlStreamReader& x
     // Make stream point to end of element
     QXmlStreamReader::TokenType type;
     type = xmlStream.readNext();
-    PdmFieldIOHelper::skipCharactersAndComments( xmlStream );
+    FieldIOHelper::skipCharactersAndComments( xmlStream );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Specialized read function for QStrings, because the >> operator only can read word by word
 //--------------------------------------------------------------------------------------------------
 template <>
-void PdmFieldReader<QString>::readFieldData( QString& field, const QJsonValue& jsonValue, PdmObjectFactory* )
+void FieldReader<QString>::readFieldData( QString& field, const QJsonValue& jsonValue, ObjectFactory* )
 {
     field = jsonValue.toString();
 }

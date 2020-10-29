@@ -1,12 +1,12 @@
 #pragma once
 
 #include "cafPdmChildField.h"
-#include "cafPdmObjectHandle.h"
+#include "cafObjectHandle.h"
 #include "cafPdmPointer.h"
 
 class TestObj;
 
-class Child : public caf::PdmObjectHandle
+class Child : public caf::ObjectHandle
 {
 public:
     Child();

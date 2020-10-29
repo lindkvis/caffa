@@ -37,11 +37,11 @@
 #pragma once
 
 #include "cafPdmCodeGenerator.h"
-#include "cafPdmObject.h"
+#include "cafObject.h"
 
 namespace caf
 {
-class PdmFieldHandle;
+class FieldHandle;
 
 //==================================================================================================
 ///
@@ -58,7 +58,7 @@ class PdmMarkdownGenerator : public PdmCodeGenerator
     };
 
 public:
-    QString generate( PdmObjectFactory* factory ) const override;
+    QString generate( ObjectFactory* factory ) const override;
 };
 
 } // namespace caf

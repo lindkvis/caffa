@@ -35,7 +35,7 @@
 //##################################################################################################
 #include "cafPdmAbstractFieldScriptingCapability.h"
 
-#include "cafPdmFieldHandle.h"
+#include "cafFieldHandle.h"
 #include "cafPdmPythonGenerator.h"
 
 using namespace caf;
@@ -43,7 +43,7 @@ using namespace caf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmAbstractFieldScriptingCapability::PdmAbstractFieldScriptingCapability( caf::PdmFieldHandle* owner,
+PdmAbstractFieldScriptingCapability::PdmAbstractFieldScriptingCapability( caf::FieldHandle* owner,
                                                                           const QString&       scriptFieldName,
                                                                           bool                 giveOwnership )
 {

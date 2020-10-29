@@ -36,9 +36,9 @@
 
 #include "cafPdmSettings.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObjectHandle.h"
-#include "cafPdmObjectXmlCapability.h"
+#include "cafField.h"
+#include "cafObjectHandle.h"
+#include "cafObjectXmlCapability.h"
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -48,7 +48,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmSettings::readFieldsFromApplicationStore( caf::PdmObjectHandle* object, const QString context )
+void PdmSettings::readFieldsFromApplicationStore( caf::ObjectHandle* object, const QString context )
 {
     // Qt doc :
     //
@@ -56,20 +56,20 @@ void PdmSettings::readFieldsFromApplicationStore( caf::PdmObjectHandle* object, 
     // set previously with a call to QCoreApplication::setOrganizationName(),
     // QCoreApplication::setOrganizationDomain(), and QCoreApplication::setApplicationName().
     QSettings                         settings;
-    std::vector<caf::PdmFieldHandle*> fields;
+    std::vector<caf::FieldHandle*> fields;
 
     object->fields( fields );
     size_t i;
     for ( i = 0; i < fields.size(); i++ )
     {
-        caf::PdmFieldHandle* fieldHandle = fields[i];
+        caf::FieldHandle* fieldHandle = fields[i];
 
-        std::vector<caf::PdmObjectHandle*> children;
+        std::vector<caf::ObjectHandle*> children;
         fieldHandle->childObjects( &children );
         for ( size_t childIdx = 0; childIdx < children.size(); childIdx++ )
         {
-            caf::PdmObjectHandle* child        = children[childIdx];
-            auto                  ioCapability = child->capability<PdmObjectIoCapability>();
+            caf::ObjectHandle* child        = children[childIdx];
+            auto                  ioCapability = child->capability<ObjectIoCapability>();
 
             QString subContext = context + ioCapability->classKeyword() + "/";
             readFieldsFromApplicationStore( child, subContext );
@@ -93,7 +93,7 @@ void PdmSettings::readFieldsFromApplicationStore( caf::PdmObjectHandle* object, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmSettings::writeFieldsToApplicationStore( const caf::PdmObjectHandle* object, const QString context )
+void PdmSettings::writeFieldsToApplicationStore( const caf::ObjectHandle* object, const QString context )
 {
     CAF_ASSERT( object );
 
@@ -104,23 +104,23 @@ void PdmSettings::writeFieldsToApplicationStore( const caf::PdmObjectHandle* obj
     // QCoreApplication::setOrganizationDomain(), and QCoreApplication::setApplicationName().
     QSettings settings;
 
-    std::vector<caf::PdmFieldHandle*> fields;
+    std::vector<caf::FieldHandle*> fields;
     object->fields( fields );
 
     size_t i;
     for ( i = 0; i < fields.size(); i++ )
     {
-        caf::PdmFieldHandle* fieldHandle = fields[i];
+        caf::FieldHandle* fieldHandle = fields[i];
 
-        std::vector<caf::PdmObjectHandle*> children;
+        std::vector<caf::ObjectHandle*> children;
         fieldHandle->childObjects( &children );
         for ( size_t childIdx = 0; childIdx < children.size(); childIdx++ )
         {
-            caf::PdmObjectHandle* child = children[childIdx];
+            caf::ObjectHandle* child = children[childIdx];
             QString               subContext;
             if ( context.isEmpty() )
             {
-                auto objHandle = child->capability<PdmObjectIoCapability>();
+                auto objHandle = child->capability<ObjectIoCapability>();
                 subContext     = objHandle->classKeyword() + "/";
             }
 
@@ -139,7 +139,7 @@ void PdmSettings::writeFieldsToApplicationStore( const caf::PdmObjectHandle* obj
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmSettings::readValueFieldsFromApplicationStore( caf::PdmObjectHandle* object, const QString folderName /*= ""*/ )
+void PdmSettings::readValueFieldsFromApplicationStore( caf::ObjectHandle* object, const QString folderName /*= ""*/ )
 {
     // Qt doc :
     //
@@ -153,13 +153,13 @@ void PdmSettings::readValueFieldsFromApplicationStore( caf::PdmObjectHandle* obj
         settings.beginGroup( folderName );
     }
 
-    std::vector<caf::PdmFieldHandle*> fields;
+    std::vector<caf::FieldHandle*> fields;
 
     object->fields( fields );
     size_t i;
     for ( i = 0; i < fields.size(); i++ )
     {
-        caf::PdmFieldHandle* fieldHandle = fields[i];
+        caf::FieldHandle* fieldHandle = fields[i];
         caf::PdmValueField*  valueField  = dynamic_cast<caf::PdmValueField*>( fieldHandle );
 
         if ( valueField )
@@ -176,7 +176,7 @@ void PdmSettings::readValueFieldsFromApplicationStore( caf::PdmObjectHandle* obj
                 reader.readNext(); // StartDocument
                 reader.readNext(); // StartElement
                 reader.readNext(); // Characters
-                fieldHandle->capability<PdmFieldIoCapability>()->readFieldData( reader, nullptr );
+                fieldHandle->capability<FieldIoCapability>()->readFieldData( reader, nullptr );
             }
         }
     }
@@ -185,7 +185,7 @@ void PdmSettings::readValueFieldsFromApplicationStore( caf::PdmObjectHandle* obj
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmSettings::writeValueFieldsToApplicationStore( const caf::PdmObjectHandle* object,
+void PdmSettings::writeValueFieldsToApplicationStore( const caf::ObjectHandle* object,
                                                       const QString               folderName /*= ""*/ )
 {
     CAF_ASSERT( object );
@@ -202,20 +202,20 @@ void PdmSettings::writeValueFieldsToApplicationStore( const caf::PdmObjectHandle
         settings.beginGroup( folderName );
     }
 
-    std::vector<caf::PdmFieldHandle*> fields;
+    std::vector<caf::FieldHandle*> fields;
     object->fields( fields );
 
     size_t i;
     for ( i = 0; i < fields.size(); i++ )
     {
-        caf::PdmFieldHandle* fieldHandle = fields[i];
+        caf::FieldHandle* fieldHandle = fields[i];
         caf::PdmValueField*  valueField  = dynamic_cast<caf::PdmValueField*>( fieldHandle );
         if ( valueField )
         {
             QString          fieldText;
             QXmlStreamWriter writer( &fieldText );
 
-            fieldHandle->capability<PdmFieldIoCapability>()->writeFieldData( writer );
+            fieldHandle->capability<FieldIoCapability>()->writeFieldData( writer );
             settings.setValue( fieldHandle->keyword(), fieldText );
         }
     }

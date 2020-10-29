@@ -3,15 +3,15 @@
 namespace caf
 {
 //--------------------------------------------------------------------------------------------------
-///  PdmObjectFactory implementations
+///  ObjectFactory implementations
 //--------------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObjectHandle* PdmDefaultObjectFactory::create( const QString& classNameKeyword )
+ObjectHandle* PdmDefaultObjectFactory::create( const QString& classNameKeyword )
 {
-    std::map<QString, PdmObjectCreatorBase*>::iterator entryIt;
+    std::map<QString, ObjectCreatorBase*>::iterator entryIt;
     entryIt = m_factoryMap.find( classNameKeyword );
     if ( entryIt != m_factoryMap.end() )
     {

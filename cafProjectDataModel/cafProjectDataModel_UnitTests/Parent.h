@@ -2,7 +2,7 @@
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
-#include "cafPdmObject.h"
+#include "cafObject.h"
 #include "cafPdmPointer.h"
 
 #if 0
@@ -17,7 +17,7 @@ public:
    {
       // Set all guarded pointers pointing to this to NULL
 
-      std::set<PdmObject**>::iterator it;
+      std::set<Object**>::iterator it;
       for (it = m_pointersReferencingMe.begin(); it != m_pointersReferencingMe.end() ; ++it)
       {
           (**it) = NULL;
@@ -36,7 +36,7 @@ private:
 
 class Child;
 
-class Parent : public caf::PdmObject
+class Parent : public caf::Object
 {
     CAF_PDM_HEADER_INIT;
 

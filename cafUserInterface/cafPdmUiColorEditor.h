@@ -49,7 +49,7 @@
 namespace caf
 {
 //==================================================================================================
-/// See cafPdmFieldCvfColor for conversion between cvf::Color3f and QColor
+/// See cafFieldCvfColor for conversion between cvf::Color3f and QColor
 //==================================================================================================
 class cafUserInterface_EXPORT PdmUiColorEditor : public PdmUiFieldEditorHandle
 {

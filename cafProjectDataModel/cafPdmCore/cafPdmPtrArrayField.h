@@ -1,29 +1,29 @@
 #pragma once
 
 #include "cafAssert.h"
-#include "cafPdmFieldHandle.h"
+#include "cafFieldHandle.h"
 #include "cafPdmPointer.h"
 
 #include "cafPdmPtrArrayFieldHandle.h"
 namespace caf
 {
 template <typename T>
-class PdmFieldIoCap;
+class FieldIoCap;
 
 //==================================================================================================
-/// PdmFieldClass to handle a collection of PdmObject derived pointers
+/// FieldClass to handle a collection of Object derived pointers
 /// The reasons for this class is to add itself as parentField into the objects being pointed to.
 /// The interface is made similar to std::vector<>, and the complexity of the methods is similar too.
 //==================================================================================================
 
 template <typename DataType>
-class PdmPtrArrayField : public PdmFieldHandle
+class PdmPtrArrayField : public FieldHandle
 {
 public:
     PdmPtrArrayField()
     {
-        bool doNotUsePdmPtrArrayFieldForAnythingButPointersToPdmObject = false;
-        CAF_ASSERT( doNotUsePdmPtrArrayFieldForAnythingButPointersToPdmObject );
+        bool doNotUsePdmPtrArrayFieldForAnythingButPointersToObject = false;
+        CAF_ASSERT( doNotUsePdmPtrArrayFieldForAnythingButPointersToObject );
     }
 };
 
@@ -53,8 +53,8 @@ public:
     virtual size_t           size() const { return m_pointers.size(); }
     virtual bool             empty() const { return m_pointers.empty(); }
     virtual void             clear();
-    virtual void             insertAt( int indexAfter, PdmObjectHandle* obj );
-    virtual PdmObjectHandle* at( size_t index );
+    virtual void             insertAt( int indexAfter, ObjectHandle* obj );
+    virtual ObjectHandle* at( size_t index );
 
     // std::vector-like access
 
@@ -68,7 +68,7 @@ public:
 
     void   erase( size_t index );
     size_t index( DataType* pointer );
-    void   removePtr( PdmObjectHandle* object );
+    void   removePtr( ObjectHandle* object );
 
     typename std::vector<PdmPointer<DataType>>::iterator begin() { return m_pointers.begin(); };
     typename std::vector<PdmPointer<DataType>>::iterator end() { return m_pointers.end(); };
@@ -79,7 +79,7 @@ public:
     std::vector<DataType*> ptrReferencedObjects() const;
 
     // Child objects
-    virtual void ptrReferencedObjects( std::vector<PdmObjectHandle*>* );
+    virtual void ptrReferencedObjects( std::vector<ObjectHandle*>* );
 
 private: // To be disabled
     PDM_DISABLE_COPY_AND_ASSIGN( PdmPtrArrayField );
@@ -88,7 +88,7 @@ private: // To be disabled
     void removeThisAsReferencingPtrField();
 
 private:
-    friend class PdmFieldIoCap<PdmPtrArrayField<DataType*>>;
+    friend class FieldIoCap<PdmPtrArrayField<DataType*>>;
 
     std::vector<PdmPointer<DataType>> m_pointers;
     QString                           m_referenceString;

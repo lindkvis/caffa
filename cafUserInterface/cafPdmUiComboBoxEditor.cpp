@@ -36,8 +36,8 @@
 
 #include "cafPdmUiComboBoxEditor.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include "cafFactory.h"
@@ -205,7 +205,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
     }
 
     // Handle attributes
-    caf::PdmObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
