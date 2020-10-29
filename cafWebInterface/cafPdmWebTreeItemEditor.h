@@ -37,21 +37,21 @@
 
 
 #pragma once
-#include "cafPdmUiEditorHandle.h"
+#include "cafUiEditorHandle.h"
 
 namespace caf 
 {
     class PdmWebTreeEditorHandle;
 
 //==================================================================================================
-/// A class that tells the treeViewEditor to update the sub tree of its associate PdmUiItem, when 
+/// A class that tells the treeViewEditor to update the sub tree of its associate UiItem, when 
 /// needed. (Typically because of a direct call to updateConnectedEditors() )
 //==================================================================================================
 
-class PdmWebTreeItemEditor: public PdmUiEditorHandle
+class PdmWebTreeItemEditor: public UiEditorHandle
 {
 public:
-    explicit PdmWebTreeItemEditor(PdmUiItem* uiItem);
+    explicit PdmWebTreeItemEditor(UiItem* uiItem);
     ~PdmWebTreeItemEditor() override {};
 
     void setTreeViewEditor(PdmWebTreeEditorHandle* treeViewEditor) { m_treeViewEditor = treeViewEditor; } 

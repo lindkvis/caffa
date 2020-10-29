@@ -4,8 +4,8 @@
 #include "cafFieldHandle.h"
 #include "cafFieldUiCapability.h"
 #include "cafObjectHandle.h"
-#include "cafPdmUiOrdering.h"
-#include "cafPdmUiTreeOrdering.h"
+#include "cafUiOrdering.h"
+#include "cafUiTreeOrdering.h"
 
 namespace caf
 {
@@ -65,7 +65,7 @@ void ObjectUiCapability::uiOrdering( const QString& uiConfigName, PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 void ObjectUiCapability::editorAttribute( const FieldHandle* field,
                                              const QString&        uiConfigName,
-                                             PdmUiEditorAttribute* attribute )
+                                             UiEditorAttribute* attribute )
 {
     this->defineEditorAttribute( field, uiConfigName, attribute );
 }
@@ -73,7 +73,7 @@ void ObjectUiCapability::editorAttribute( const FieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectUiCapability::objectEditorAttribute( const QString& uiConfigName, PdmUiEditorAttribute* attribute )
+void ObjectUiCapability::objectEditorAttribute( const QString& uiConfigName, UiEditorAttribute* attribute )
 {
     this->defineObjectEditorAttribute( uiConfigName, attribute );
 }

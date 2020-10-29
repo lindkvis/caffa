@@ -1,19 +1,19 @@
 #pragma once
 
 #include "cafObjectCapability.h"
-#include "cafPdmUiItem.h"
+#include "cafUiItem.h"
 
 namespace caf
 {
 class MenuInterface;
-class PdmUiEditorAttribute;
+class UiEditorAttribute;
 class PdmUiTreeOrdering;
 class ObjectHandle;
 class PdmUiOrdering;
 class FieldHandle;
-class PdmUiEditorAttribute;
+class UiEditorAttribute;
 
-class ObjectUiCapability : public PdmUiItem, public ObjectCapability
+class ObjectUiCapability : public UiItem, public ObjectCapability
 {
 public:
     ObjectUiCapability( ObjectHandle* owner, bool giveOwnership );
@@ -33,10 +33,10 @@ public:
     static void expandUiTree( PdmUiTreeOrdering* root, const QString& uiConfigName = "" );
 
     /// For a specific field, return editor specific parameters used to customize the editor behavior.
-    void editorAttribute( const FieldHandle* field, const QString& uiConfigName, PdmUiEditorAttribute* attribute );
+    void editorAttribute( const FieldHandle* field, const QString& uiConfigName, UiEditorAttribute* attribute );
 
     /// Return object editor specific parameters used to customize the editor behavior.
-    void objectEditorAttribute( const QString& uiConfigName, PdmUiEditorAttribute* attribute );
+    void objectEditorAttribute( const QString& uiConfigName, UiEditorAttribute* attribute );
 
     /// Field used to control if field change of and object should be covered by undo/redo framework
     virtual bool useUndoRedoForFieldChanged() { return true; }
@@ -83,12 +83,12 @@ protected:
     /// Override to provide editor specific data for the field and uiConfigName
     virtual void defineEditorAttribute( const caf::FieldHandle* field,
                                         QString                    uiConfigName,
-                                        caf::PdmUiEditorAttribute* attribute )
+                                        caf::UiEditorAttribute* attribute )
     {
     }
 
     /// Override to provide editor specific data for the uiConfigName for the object
-    virtual void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) {}
+    virtual void defineObjectEditorAttribute( QString uiConfigName, caf::UiEditorAttribute* attribute ) {}
 
     /// This method is intended to be used in macros to make compile time errors
     // if user uses them on wrong type of objects

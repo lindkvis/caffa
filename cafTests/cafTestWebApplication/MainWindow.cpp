@@ -14,8 +14,8 @@
 #include "cafProxyValueField.h"
 #include "cafPtrField.h"
 #include "cafPdmReferenceHelper.h"
-#include "cafPdmUiItem.h"
-#include "cafPdmUiOrdering.h"
+#include "cafUiItem.h"
+#include "cafUiOrdering.h"
 #include "cafPdmWebDefaultObjectEditor.h"
 #include "cafPdmWebSliderEditor.h"
 #include "cafPdmXmlColor.h"
@@ -191,7 +191,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     void defineEditorAttribute(const caf::FieldHandle* field,
                                QString                    uiConfigName,
-                               caf::PdmUiEditorAttribute* attribute) override
+                               caf::UiEditorAttribute* attribute) override
     {
         if (field == &m_intField)
         {
@@ -375,7 +375,7 @@ MainWindow::MainWindow()
     setPdmRoot(m_testRoot);
     std::unique_ptr<Wt::WContainerWidget> objectWidget(m_objectEditor->getOrCreateWidget());
 
-    caf::PdmUiItem::enableExtraDebugText(true);
+    caf::UiItem::enableExtraDebugText(true);
     this->setPadding(0);
     auto windowLayout = std::make_unique<Wt::WHBoxLayout>();
     windowLayout->setContentsMargins(0, 0, 0, 0);
@@ -492,7 +492,7 @@ void MainWindow::buildTestModel()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::slotSimpleSelectionChanged()
 {
-    std::vector<caf::PdmUiItem*> selection;
+    std::vector<caf::UiItem*> selection;
     m_pdmUiTreeView->selectedUiItems(selection);
     caf::ObjectHandle*          obj       = nullptr;
     caf::ChildArrayFieldHandle* listField = nullptr;

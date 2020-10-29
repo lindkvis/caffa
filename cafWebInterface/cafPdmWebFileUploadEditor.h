@@ -37,7 +37,7 @@
 
 #pragma once
 
-#include "cafPdmUiFilePathEditorAttribute.h"
+#include "cafUiFilePathEditorAttribute.h"
 #include "cafPdmWebFieldEditorHandle.h"
 
 #include <Wt/Core/observing_ptr.hpp>

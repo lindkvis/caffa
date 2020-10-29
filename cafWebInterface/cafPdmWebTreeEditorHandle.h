@@ -36,7 +36,7 @@
 //##################################################################################################
 #pragma once
 
-#include "cafPdmUiEditorHandle.h"
+#include "cafUiEditorHandle.h"
 #include "cafPdmPointer.h"
 
 #include <QString>
@@ -55,7 +55,7 @@ class ObjectHandle;
 /// 
 //==================================================================================================
 
-class PdmWebTreeEditorHandle: public PdmUiEditorHandle
+class PdmWebTreeEditorHandle: public UiEditorHandle
 {
 public:
     PdmWebTreeEditorHandle() {}
@@ -64,16 +64,16 @@ public:
     Wt::WWidget* getOrCreateWidget();
     Wt::WWidget* widget();
 
-    void                setPdmItemRoot(PdmUiItem* root);
-    PdmUiItem*          pdmItemRoot();
-    void                updateSubTree(PdmUiItem* root) { this->updateMySubTree(root); }
+    void                setPdmItemRoot(UiItem* root);
+    UiItem*          pdmItemRoot();
+    void                updateSubTree(UiItem* root) { this->updateMySubTree(root); }
 
 protected:
     virtual Wt::WWidget* createWidget() = 0;
 
     /// Supposed to update the representation of the tree from root and downwards, as gracefully as possible.
     /// Will be called when the content of root might have been changed
-    virtual void        updateMySubTree(PdmUiItem* root) = 0;
+    virtual void        updateMySubTree(UiItem* root) = 0;
 
 protected:
     Wt::Core::observing_ptr<Wt::WWidget> m_widget;

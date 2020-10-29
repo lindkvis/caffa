@@ -40,7 +40,7 @@
 
 #include "cafObject.h"
 #include "cafPdmWebFieldEditorHandle.h"
-#include "cafPdmUiOrdering.h"
+#include "cafUiOrdering.h"
 #include "cafField.h"
 
 #include "cafFactory.h"

@@ -36,7 +36,7 @@
 
 #include "CustomObjectEditor.h"
 
-#include "cafPdmUiGroup.h"
+#include "cafUiGroup.h"
 
 #include "QMinimizePanel.h"
 

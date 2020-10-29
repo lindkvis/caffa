@@ -39,9 +39,9 @@
 #include "cafClassTypeName.h"
 
 #include "cafFieldUiCapability.h"
-#include "cafPdmUiComboBoxEditor.h"
+#include "cafUiComboBoxEditor.h"
 #include "cafUiFieldEditorHandle.h"
-#include "cafPdmUiListEditor.h"
+#include "cafUiListEditor.h"
 
 //--------------------------------------------------------------------------------------------------
 ///

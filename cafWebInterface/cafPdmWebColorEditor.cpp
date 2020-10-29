@@ -43,7 +43,7 @@
 
 #include "cafField.h"
 #include "cafObject.h"
-#include "cafPdmUiOrdering.h"
+#include "cafUiOrdering.h"
 #include "cafPdmWebDefaultObjectEditor.h"
 #include "cafPdmWebFieldEditorHandle.h"
 

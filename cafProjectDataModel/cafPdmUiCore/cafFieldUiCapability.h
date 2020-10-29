@@ -4,13 +4,13 @@
 
 #include "cafFieldCapability.h"
 #include "cafFieldUiCapabilityInterface.h"
-#include "cafPdmUiItem.h"
+#include "cafUiItem.h"
 
 namespace caf
 {
 class FieldHandle;
 
-class cafPdmUiCore_EXPORT FieldUiCapability : public PdmUiItem, public FieldCapability, public FieldUiCapabilityInterface
+class cafPdmUiCore_EXPORT FieldUiCapability : public UiItem, public FieldCapability, public FieldUiCapabilityInterface
 {
 public:
     FieldUiCapability( FieldHandle* owner, bool giveOwnership );
@@ -30,7 +30,7 @@ public:
     void setAutoAddingOptionFromValue( bool isAddingValue );
 
 private:
-    friend class PdmUiCommandSystemProxy;
+    friend class UiCommandSystemProxy;
     friend class CmdFieldChangeExec;
     virtual void setValueFromUiEditor( const QVariant& uiValue );
     // This is needed to handle custom types in QVariants since operator == between QVariant does not work when they use

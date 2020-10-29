@@ -42,7 +42,7 @@
 
 #include "cafObject.h"
 #include "cafObjectHandle.h"
-#include "cafPdmUiItem.h"
+#include "cafUiItem.h"
 #include <QAction>
 
 namespace caf

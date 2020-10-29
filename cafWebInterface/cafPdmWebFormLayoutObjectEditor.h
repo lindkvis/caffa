@@ -37,7 +37,7 @@
 
 #pragma once
 
-#include "cafPdmUiOrdering.h"
+#include "cafUiOrdering.h"
 #include "cafPdmWebWidgetObjectEditorHandle.h"
 
 #include <QString>
@@ -79,7 +79,7 @@ protected:
                                                                                      Wt::WGridLayout*     parentLayout,
                                                                                      const QString&       uiConfigName );
     std::unique_ptr<Wt::WPanel> recursivelyCreateGroup( std::list<std::unique_ptr<Wt::WWidget>>& existingWidgets,
-                                                        PdmUiItem*                               currentItem,
+                                                        UiItem*                               currentItem,
                                                         const QString&                           uiConfigName );
 
     std::unique_ptr<Wt::WPanel> createGroupBox( PdmUiGroup* group, const QString& uiConfigName );

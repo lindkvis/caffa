@@ -24,18 +24,18 @@
 #include "cafProxyValueField.h"
 #include "cafPtrField.h"
 #include "cafPdmReferenceHelper.h"
-#include "cafPdmUiComboBoxEditor.h"
-#include "cafPdmUiFilePathEditor.h"
-#include "cafPdmUiItem.h"
-#include "cafPdmUiListEditor.h"
-#include "cafPdmUiOrdering.h"
-#include "cafPdmUiPropertyView.h"
-#include "cafPdmUiPushButtonEditor.h"
-#include "cafPdmUiTableView.h"
-#include "cafPdmUiTableViewEditor.h"
-#include "cafPdmUiTextEditor.h"
-#include "cafPdmUiTreeSelectionEditor.h"
-#include "cafPdmUiTreeView.h"
+#include "cafUiComboBoxEditor.h"
+#include "cafUiFilePathEditor.h"
+#include "cafUiItem.h"
+#include "cafUiListEditor.h"
+#include "cafUiOrdering.h"
+#include "cafUiPropertyView.h"
+#include "cafUiPushButtonEditor.h"
+#include "cafUiTableView.h"
+#include "cafUiTableViewEditor.h"
+#include "cafUiTextEditor.h"
+#include "cafUiTreeSelectionEditor.h"
+#include "cafUiTreeView.h"
 #include "cafQActionWrapper.h"
 #include "cafSelectionManager.h"
 
@@ -400,7 +400,7 @@ public:
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        m_intFieldLabelTop.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+        m_intFieldLabelTop.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::TOP);
         CAF_PDM_InitField(&m_stringFieldLabelHidden,
                           "FieldLabelHidden",
                           QString("Hidden Label Field"),
@@ -408,7 +408,7 @@ public:
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        m_stringFieldLabelHidden.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+        m_stringFieldLabelHidden.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::HIDDEN);
 
         CAF_PDM_InitField(&m_intFieldWideBothAuto,
                           "WideBothAuto",
@@ -445,7 +445,7 @@ public:
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        m_intFieldLabelTopAuto.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+        m_intFieldLabelTopAuto.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::TOP);
         CAF_PDM_InitField(&m_stringFieldLabelHiddenAuto,
                           "FieldLabelHiddenAuto",
                           QString("Hidden Label Field"),
@@ -453,7 +453,7 @@ public:
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        m_stringFieldLabelHiddenAuto.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+        m_stringFieldLabelHiddenAuto.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::HIDDEN);
 
         CAF_PDM_InitField(&m_intFieldLeftOfGroup,
                           "FieldLeftOfGrp",
@@ -812,7 +812,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     void defineEditorAttribute(const caf::FieldHandle* field,
                                QString                    uiConfigName,
-                               caf::PdmUiEditorAttribute* attribute) override
+                               caf::UiEditorAttribute* attribute) override
     {
         if (field == &m_multipleAppEnum)
         {
@@ -835,7 +835,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override
+    void defineObjectEditorAttribute(QString uiConfigName, caf::UiEditorAttribute* attribute) override
     {
         caf::PdmUiTableViewPushButtonEditorAttribute* attr =
             dynamic_cast<caf::PdmUiTableViewPushButtonEditorAttribute*>(attribute);
@@ -914,9 +914,9 @@ public:
         CAF_PDM_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "Same type List", "Same type list of Objects");
 
         m_filePath.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
-        m_filePath.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+        m_filePath.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::TOP);
         m_longText.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
-        m_longText.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+        m_longText.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::HIDDEN);
 
         m_menuItemProducer = new MenuItemProducer;
     }
@@ -1063,7 +1063,7 @@ MainWindow* MainWindow::sm_mainWindowInstance = nullptr;
 //--------------------------------------------------------------------------------------------------
 MainWindow::MainWindow()
 {
-    caf::PdmUiItem::enableExtraDebugText(true);
+    caf::UiItem::enableExtraDebugText(true);
 
     // Initialize command framework
 
@@ -1362,7 +1362,7 @@ void MainWindow::createActions()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::slotInsert()
 {
-    std::vector<caf::PdmUiItem*> selection;
+    std::vector<caf::UiItem*> selection;
     m_pdmUiTreeView->selectedUiItems(selection);
 
     for (size_t i = 0; i < selection.size(); ++i)
@@ -1398,7 +1398,7 @@ void MainWindow::slotInsert()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::slotRemove()
 {
-    std::vector<caf::PdmUiItem*> selection;
+    std::vector<caf::UiItem*> selection;
     m_pdmUiTreeView->selectedUiItems(selection);
 
     for (size_t i = 0; i < selection.size(); ++i)
@@ -1433,7 +1433,7 @@ void MainWindow::slotRemoveAll() {}
 //--------------------------------------------------------------------------------------------------
 void MainWindow::slotSimpleSelectionChanged()
 {
-    std::vector<caf::PdmUiItem*> selection;
+    std::vector<caf::UiItem*> selection;
     m_pdmUiTreeView->selectedUiItems(selection);
     caf::ObjectHandle*          obj       = nullptr;
     caf::ChildArrayFieldHandle* listField = nullptr;
@@ -1452,7 +1452,7 @@ void MainWindow::slotSimpleSelectionChanged()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::slotShowTableView()
 {
-    std::vector<caf::PdmUiItem*> selection;
+    std::vector<caf::UiItem*> selection;
     m_pdmUiTreeView2->selectedUiItems(selection);
     caf::ObjectHandle*          obj                   = nullptr;
     caf::FieldUiCapability*     uiFieldHandle         = nullptr;
@@ -1460,7 +1460,7 @@ void MainWindow::slotShowTableView()
 
     if (selection.size())
     {
-        caf::PdmUiItem* pdmUiItem = selection[0];
+        caf::UiItem* pdmUiItem = selection[0];
 
         uiFieldHandle = dynamic_cast<caf::FieldUiCapability*>(pdmUiItem);
         if (uiFieldHandle)

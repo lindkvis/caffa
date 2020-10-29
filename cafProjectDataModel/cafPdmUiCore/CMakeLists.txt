@@ -14,7 +14,7 @@ set (PUBLIC_HEADERS
     cafInternalUiFieldSpecializations.h
     cafInternalUiFieldCapability.h
     cafInternalUiFieldCapability.inl
-    cafInternalPdmUiCommandSystemInterface.h
+    cafInternalUiCommandSystemInterface.h
 
     cafFontTools.h
     cafColorTable.h
@@ -23,27 +23,27 @@ set (PUBLIC_HEADERS
 
     cafActionWrapper.h
     cafQActionWrapper.h
-    cafPdmUiEditorAttribute.h
-    cafPdmUiEditorHandle.h
+    cafUiEditorAttribute.h
+    cafUiEditorHandle.h
     cafUiFieldEditorHandle.h
     cafFieldUiCapability.h
     cafUiFieldSpecialization.h
-    cafPdmUiItem.h
-    cafPdmUiModelChangeDetector.h
-    cafPdmUiObjectEditorHandle.h
-    cafPdmUiWidgetObjectEditorHandle.h
-    cafPdmUi3dObjectEditorHandle.h
+    cafUiItem.h
+    cafUiModelChangeDetector.h
+    cafUiObjectEditorHandle.h
+    cafUiWidgetObjectEditorHandle.h
+    cafUi3dObjectEditorHandle.h
     cafObjectUiCapability.h
-    cafPdmUiOrdering.h
-    cafPdmUiCommandSystemProxy.h
-    cafPdmUiTreeOrdering.h
+    cafUiOrdering.h
+    cafUiCommandSystemProxy.h
+    cafUiTreeOrdering.h
     cafUiTreeItem.h
-    cafPdmUiGroup.h
+    cafUiGroup.h
 
     cafSelectionManager.h
     cafSelectionChangedReceiver.h
     cafSelectionManagerTools.h
-    cafPdmUiSelection3dEditorVisualizer.h
+    cafUiSelection3dEditorVisualizer.h
     cafIconProvider.h
 )
 
@@ -65,23 +65,23 @@ set( PROJECT_FILES
     cafColorTools.cpp
 
     cafQActionWrapper.cpp
-    cafPdmUiEditorHandle.cpp
+    cafUiEditorHandle.cpp
     cafUiFieldEditorHandle.cpp
     cafFieldUiCapability.cpp
-    cafPdmUiItem.cpp
-    cafPdmUiModelChangeDetector.cpp
-    cafPdmUiObjectEditorHandle.cpp
-    cafPdmUiWidgetObjectEditorHandle.cpp
-    cafPdmUi3dObjectEditorHandle.cpp
+    cafUiItem.cpp
+    cafUiModelChangeDetector.cpp
+    cafUiObjectEditorHandle.cpp
+    cafUiWidgetObjectEditorHandle.cpp
+    cafUi3dObjectEditorHandle.cpp
     cafObjectUiCapability.cpp
-    cafPdmUiOrdering.cpp
-    cafPdmUiCommandSystemProxy.cpp
-    cafPdmUiTreeOrdering.cpp
-    cafPdmUiGroup.cpp
+    cafUiOrdering.cpp
+    cafUiCommandSystemProxy.cpp
+    cafUiTreeOrdering.cpp
+    cafUiGroup.cpp
 
     cafSelectionManager.cpp
     cafSelectionChangedReceiver.cpp
-    cafPdmUiSelection3dEditorVisualizer.cpp
+    cafUiSelection3dEditorVisualizer.cpp
     cafIconProvider.cpp
 )
 

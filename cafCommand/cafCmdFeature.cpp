@@ -41,7 +41,7 @@
 #include "cafCmdFeatureManager.h"
 #include "cafQActionWrapper.h"
 
-#include "cafPdmUiModelChangeDetector.h"
+#include "cafUiModelChangeDetector.h"
 
 #include <QApplication>
 

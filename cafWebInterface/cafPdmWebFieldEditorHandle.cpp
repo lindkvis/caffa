@@ -40,7 +40,7 @@
 #include "cafFieldUiCapability.h"
 #include "cafObjectHandle.h"
 #include "cafObjectUiCapability.h"
-#include "cafPdmUiCommandSystemProxy.h"
+#include "cafUiCommandSystemProxy.h"
 
 #include <Wt/WContainerWidget.h>
 #include <Wt/WLabel.h>
@@ -201,7 +201,7 @@ FieldUiCapability* PdmWebFieldEditorHandle::uiField()
 //--------------------------------------------------------------------------------------------------
 void PdmWebFieldEditorHandle::setValueToField( const QVariant& newUiValue )
 {
-    PdmUiCommandSystemProxy::instance()->setUiValueToField( uiField(), newUiValue );
+    UiCommandSystemProxy::instance()->setUiValueToField( uiField(), newUiValue );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -17,16 +17,16 @@ find_package(Qt5 COMPONENTS REQUIRED Core)
 set(QT_LIBRARIES Qt5::Core)
 
 set (PUBLIC_HEADERS
-    cafPdmUiDragDropInterface.h
- 	cafPdmUiColorEditorAttribute.h
- 	cafPdmUiComboBoxEditorAttribute.h
- 	cafPdmUiDateEditorAttribute.h
- 	cafPdmUiFilePathEditorAttribute.h
- 	cafPdmUiSliderEditorAttribute.h
- 	cafPdmUiTreeViewAttribute.h
+    cafUiDragDropInterface.h
+ 	cafUiColorEditorAttribute.h
+ 	cafUiComboBoxEditorAttribute.h
+ 	cafUiDateEditorAttribute.h
+ 	cafUiFilePathEditorAttribute.h
+ 	cafUiSliderEditorAttribute.h
+ 	cafUiTreeViewAttribute.h
 
     cafPdmCoreColor.h
-    cafPdmUiCoreColor.h
+    cafUiCoreColor.h
     cafPdmXmlColor.h
     cafFieldColor.h
 
@@ -36,7 +36,7 @@ set (PUBLIC_HEADERS
 
 set( PROJECT_FILES
     ${PUBLIC_HEADERS}
-    cafPdmUiCoreColor.cpp
+    cafUiCoreColor.cpp
     cafPdmXmlColor.cpp
     cafCurveInterface.cpp
     cafPlotViewerInterface.cpp

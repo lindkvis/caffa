@@ -44,7 +44,7 @@ using namespace caf;
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmWebTreeItemEditor::PdmWebTreeItemEditor(PdmUiItem* uiItem) 
+PdmWebTreeItemEditor::PdmWebTreeItemEditor(UiItem* uiItem) 
 {
     m_treeViewEditor = nullptr; 
     this->bindToPdmItem(uiItem);

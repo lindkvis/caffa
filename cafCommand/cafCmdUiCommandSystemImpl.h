@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafInternalPdmUiCommandSystemInterface.h"
+#include "cafInternalUiCommandSystemInterface.h"
 #include <vector>
 
 namespace caf
@@ -44,7 +44,7 @@ namespace caf
 class MenuInterface;
 class FieldHandle;
 
-class CmdUiCommandSystemImpl : public PdmUiCommandSystemInterface
+class CmdUiCommandSystemImpl : public UiCommandSystemInterface
 {
 public:
     CmdUiCommandSystemImpl();

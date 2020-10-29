@@ -37,7 +37,7 @@
 
 #pragma once
 
-#include "cafPdmUiColorEditorAttribute.h"
+#include "cafUiColorEditorAttribute.h"
 #include "cafPdmWebFieldEditorHandle.h"
 
 #include <Wt/Core/observing_ptr.hpp>

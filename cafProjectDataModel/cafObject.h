@@ -39,7 +39,7 @@
 #include "cafObjectHandle.h"
 
 #include "cafPdmPointer.h"
-#include "cafPdmUiOrdering.h"
+#include "cafUiOrdering.h"
 
 #include <set>
 
@@ -64,7 +64,7 @@ namespace caf
 class FieldHandle;
 template <class FieldDataType>
 class Field;
-class PdmUiEditorAttribute;
+class UiEditorAttribute;
 class PdmUiTreeOrdering;
 class ObjectCapability;
 
@@ -83,7 +83,7 @@ class ObjectCapability;
         this->isInheritedFromSerializable();                                                           \
         this->registerClassKeyword( classKeyword() );                                                  \
                                                                                                        \
-        static caf::PdmUiItemInfo objDescr( uiName, QString( iconResourceName ), toolTip, whatsThis ); \
+        static caf::UiItemInfo objDescr( uiName, QString( iconResourceName ), toolTip, whatsThis ); \
         this->setUiItemInfo( &objDescr );                                                              \
     }
 
@@ -108,7 +108,7 @@ class ObjectCapability;
         AddUiCapabilityToField( field );                                                                                              \
         RegisterClassWithField( classKeyword(), field );                                                                              \
                                                                                                                                       \
-        static caf::PdmUiItemInfo objDescr( uiName, QString( iconResourceName ), toolTip, whatsThis, keyword );                       \
+        static caf::UiItemInfo objDescr( uiName, QString( iconResourceName ), toolTip, whatsThis, keyword );                       \
         addFieldUi( field, keyword, default, &objDescr );                                                                             \
     }
 
@@ -130,7 +130,7 @@ class ObjectCapability;
         AddUiCapabilityToField( field );                                                                                              \
         RegisterClassWithField( classKeyword(), field );                                                                              \
                                                                                                                                       \
-        static caf::PdmUiItemInfo objDescr( uiName, QString( iconResourceName ), toolTip, whatsThis, keyword );                       \
+        static caf::UiItemInfo objDescr( uiName, QString( iconResourceName ), toolTip, whatsThis, keyword );                       \
         addFieldUiNoDefault( field, keyword, &objDescr );                                                                             \
     }
 
@@ -152,7 +152,7 @@ public:
     void addFieldUi( Field<FieldDataType>* field,
                      const QString&           keyword,
                      const FieldDataType&     defaultValue,
-                     PdmUiItemInfo*           fieldDescription )
+                     UiItemInfo*           fieldDescription )
     {
         addFieldUiNoDefault( field, keyword, fieldDescription );
         field->setDefaultValue( defaultValue );
@@ -161,7 +161,7 @@ public:
 
     /// Does the same as the above method, but omits the default value.
     /// Consider this method private. Please use the CAF_PDM_InitFieldNoDefault() macro instead.
-    void addFieldUiNoDefault( FieldHandle* field, const QString& keyword, PdmUiItemInfo* fieldDescription )
+    void addFieldUiNoDefault( FieldHandle* field, const QString& keyword, UiItemInfo* fieldDescription )
     {
         addField( field, keyword );
 

@@ -43,7 +43,7 @@
 #include "cafObject.h"
 #include "cafPdmWebDefaultObjectEditor.h"
 #include "cafPdmWebFieldEditorHandle.h"
-#include "cafPdmUiOrdering.h"
+#include "cafUiOrdering.h"
 #include "cafSelectionManager.h"
 
 #include <Wt/WApplication.h>
@@ -104,7 +104,7 @@ void PdmWebLineEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 }
 
-// Define at this location to avoid duplicate symbol definitions in 'cafPdmUiDefaultObjectEditor.cpp' in a cotire build. The
+// Define at this location to avoid duplicate symbol definitions in 'cafUiDefaultObjectEditor.cpp' in a cotire build. The
 // variables defined by the macro are prefixed by line numbers causing a crash if the macro is defined at the same line number.
 CAF_PDM_WEB_FIELD_EDITOR_SOURCE_INIT(PdmWebLineEditor);
 

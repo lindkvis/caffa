@@ -1,7 +1,7 @@
 
 #include "ManyGroups.h"
-#include "cafPdmUiListEditor.h"
-#include "cafPdmUiTreeSelectionEditor.h"
+#include "cafUiListEditor.h"
+#include "cafUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT(ManyGroups, "LargeObject");
 
@@ -238,7 +238,7 @@ void ManyGroups::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOr
 //--------------------------------------------------------------------------------------------------
 void ManyGroups::defineEditorAttribute(const caf::FieldHandle* field,
                                        QString                    uiConfigName,
-                                       caf::PdmUiEditorAttribute* attribute)
+                                       caf::UiEditorAttribute* attribute)
 {
     if (field == &m_multiSelectList)
     {

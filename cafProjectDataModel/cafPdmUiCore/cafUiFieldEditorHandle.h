@@ -39,8 +39,8 @@
 
 #include "cafClassTypeName.h"
 #include "cafFactory.h"
-#include "cafPdmUiEditorAttribute.h"
-#include "cafPdmUiEditorHandle.h"
+#include "cafUiEditorAttribute.h"
+#include "cafUiEditorHandle.h"
 
 #include <vector>
 
@@ -58,7 +58,7 @@ namespace caf
 //==================================================================================================
 
 /// CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT assists the factory used when creating editors
-/// Place this in the header file inside the class definition of your PdmUiEditor
+/// Place this in the header file inside the class definition of your UiEditor
 
 #define CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT \
 public:                                     \
@@ -88,7 +88,7 @@ class FieldUiCapability;
 /// Abstract class to handle editors of Fields
 //==================================================================================================
 
-class cafPdmUiCore_EXPORT UiFieldEditorHandle : public PdmUiEditorHandle
+class cafPdmUiCore_EXPORT UiFieldEditorHandle : public UiEditorHandle
 {
     Q_OBJECT
 public:

@@ -39,7 +39,7 @@
 #include "cafFieldUiCapability.h"
 #include "cafObjectHandle.h"
 #include "cafObjectUiCapability.h"
-#include "cafPdmUiCommandSystemProxy.h"
+#include "cafUiCommandSystemProxy.h"
 #include "cafQActionWrapper.h"
 
 #include <QAbstractScrollArea>
@@ -159,7 +159,7 @@ int UiFieldEditorHandle::rowStretchFactor() const
 //--------------------------------------------------------------------------------------------------
 void UiFieldEditorHandle::setValueToField( const QVariant& newUiValue )
 {
-    PdmUiCommandSystemProxy::instance()->setUiValueToField( uiField(), newUiValue );
+    UiCommandSystemProxy::instance()->setUiValueToField( uiField(), newUiValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -190,7 +190,7 @@ void UiFieldEditorHandle::updateLabelFromField( QLabel* label, const QString& ui
 
 //------------------------------------------------------------------------------------------------------------
 /// Re-implement this virtual method if a custom UiField is misaligned with its label.
-/// See cafPdmUiLineEditor for an example.
+/// See cafUiLineEditor for an example.
 //------------------------------------------------------------------------------------------------------------
 QMargins UiFieldEditorHandle::calculateLabelContentMargins() const
 {
@@ -240,7 +240,7 @@ void UiFieldEditorHandle::customMenuRequested( QPoint pos )
         }
 
         QMenuWrapper menuWrapper;
-        PdmUiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( widget );
+        UiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( widget );
         objectHandle->capability<ObjectUiCapability>()->defineCustomContextMenu( uiField()->fieldHandle(),
                                                                                     &menuWrapper,
                                                                                     widget );
@@ -249,7 +249,7 @@ void UiFieldEditorHandle::customMenuRequested( QPoint pos )
         {
             menuWrapper.menu()->exec( globalPos );
         }
-        PdmUiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( nullptr );
+        UiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( nullptr );
     }
 }
 
