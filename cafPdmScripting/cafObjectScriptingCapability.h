@@ -35,7 +35,7 @@
 //##################################################################################################
 #pragma once
 
-#include "cafPdmChildArrayField.h"
+#include "cafChildArrayField.h"
 #include "cafObjectCapability.h"
 #include "cafObjectMethod.h"
 #include "cafObjectScriptingCapabilityRegister.h"

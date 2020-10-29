@@ -3,8 +3,8 @@
 
 #include "cafAppEnum.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
+#include "cafChildArrayField.h"
+#include "cafChildField.h"
 #include "cafPdmDataValueField.h"
 #include "cafObjectHandle.h"
 #include "cafPdmProxyValueField.h"
@@ -60,8 +60,8 @@ public:
     }
 
     // Fields
-    caf::PdmChildField<ObjectHandle*> m_pointersField;
-    caf::PdmChildArrayField<SimpleObj*>  m_simpleObjPtrField;
+    caf::ChildField<ObjectHandle*> m_pointersField;
+    caf::ChildArrayField<SimpleObj*>  m_simpleObjPtrField;
 };
 
 //--------------------------------------------------------------------------------------------------

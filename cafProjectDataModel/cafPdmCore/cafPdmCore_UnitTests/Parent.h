@@ -1,7 +1,7 @@
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
+#include "cafChildArrayField.h"
+#include "cafChildField.h"
 #include "cafObjectHandle.h"
 
 class Child;
@@ -14,6 +14,6 @@ public:
 
     void doSome();
 
-    caf::PdmChildArrayField<Child*> m_simpleObjectsField;
-    caf::PdmChildField<Child*>      m_simpleObjectF;
+    caf::ChildArrayField<Child*> m_simpleObjectsField;
+    caf::ChildField<Child*>      m_simpleObjectF;
 };

@@ -14,8 +14,8 @@ namespace caf
 #ifdef WIN32
 
 template <typename DataType>
-class Field<DataType*> : public Rename_Field_of_pointer_to_PdmChildField // You must rename Field<T*> to
-                                                                               // PdmChildField<T*>
+class Field<DataType*> : public Rename_Field_of_pointer_to_ChildField // You must rename Field<T*> to
+                                                                               // ChildField<T*>
 {
 };
 

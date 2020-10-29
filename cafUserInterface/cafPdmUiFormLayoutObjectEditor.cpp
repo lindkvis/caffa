@@ -411,7 +411,7 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateField
             //
             // See cafPdmUiCoreColor3f and cafPdmUiCoreVec3d
 
-            // This assert will trigger for PdmChildArrayField and PdmChildField
+            // This assert will trigger for ChildArrayField and ChildField
             // Consider to exclude assert or add editors for these types if the assert is reintroduced
             // CAF_ASSERT(false);
         }

@@ -41,7 +41,7 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafSelectionManager.h"
 
-#include "cafPdmChildArrayField.h"
+#include "cafChildArrayField.h"
 
 namespace caf
 {
@@ -55,7 +55,7 @@ QString CmdAddItemExec::name()
 
     QString containedObjectType = "object";
 
-    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
+    ChildArrayFieldHandle* listField = dynamic_cast<ChildArrayFieldHandle*>( field );
     if ( listField )
     {
         auto ioCapability   = listField->capability<FieldIoCapability>();
@@ -73,7 +73,7 @@ void CmdAddItemExec::redo()
     FieldHandle* field =
         PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
 
-    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
+    ChildArrayFieldHandle* listField = dynamic_cast<ChildArrayFieldHandle*>( field );
     if ( listField && field->capability<FieldIoCapability>() )
     {
         QString classKeyword = field->capability<FieldIoCapability>()->dataTypeName();
@@ -116,7 +116,7 @@ void CmdAddItemExec::undo()
     FieldHandle* field =
         PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
 
-    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
+    ChildArrayFieldHandle* listField = dynamic_cast<ChildArrayFieldHandle*>( field );
     if ( listField && m_commandData->m_createdItemIndex >= 0 )
     {
         std::vector<caf::ObjectHandle*> children;

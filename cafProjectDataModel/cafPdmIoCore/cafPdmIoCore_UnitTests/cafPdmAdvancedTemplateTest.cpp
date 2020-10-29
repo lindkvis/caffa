@@ -3,7 +3,7 @@
 
 #include "cafAppEnum.h"
 #include "cafFilePath.h"
-#include "cafPdmChildArrayField.h"
+#include "cafChildArrayField.h"
 #include "cafPdmDataValueField.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafObjectHandle.h"
@@ -61,9 +61,9 @@ public:
     ~ContainerObject() {}
 
     // Fields
-    caf::PdmChildArrayField<ItemObject*>      m_items;
-    caf::PdmChildArrayField<ContainerObject*> m_containers;
-    caf::PdmChildArrayField<DemoObjectA*>     m_demoObjs;
+    caf::ChildArrayField<ItemObject*>      m_items;
+    caf::ChildArrayField<ContainerObject*> m_containers;
+    caf::ChildArrayField<DemoObjectA*>     m_demoObjs;
 };
 CAF_PDM_IO_SOURCE_INIT( ContainerObject, "ContainerObject" );
 

@@ -57,7 +57,7 @@ class QVBoxLayout;
 
 namespace caf
 {
-class PdmChildArrayFieldHandle;
+class ChildArrayFieldHandle;
 class PdmUiDragDropInterface;
 class PdmUiItem;
 class PdmUiTreeViewEditor;
@@ -123,7 +123,7 @@ private slots:
     void slotOnSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected );
 
 private:
-    PdmChildArrayFieldHandle* currentChildArrayFieldHandle();
+    ChildArrayFieldHandle* currentChildArrayFieldHandle();
 
     void updateSelectionManager();
     void updateItemDelegateForSubTree( const QModelIndex& modelIndex = QModelIndex() );

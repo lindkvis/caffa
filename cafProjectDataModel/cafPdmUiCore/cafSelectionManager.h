@@ -48,7 +48,7 @@
 
 namespace caf
 {
-class PdmChildArrayFieldHandle;
+class ChildArrayFieldHandle;
 
 //==================================================================================================
 ///
@@ -149,8 +149,8 @@ public:
         return nullptr;
     }
 
-    void                      setActiveChildArrayFieldHandle( PdmChildArrayFieldHandle* childArray );
-    PdmChildArrayFieldHandle* activeChildArrayFieldHandle();
+    void                      setActiveChildArrayFieldHandle( ChildArrayFieldHandle* childArray );
+    ChildArrayFieldHandle* activeChildArrayFieldHandle();
 
     void             setPdmRootObject( ObjectHandle* root );
     ObjectHandle* pdmRootObject() { return m_rootObject; }
@@ -179,7 +179,7 @@ private:
 private:
     std::map<int, std::vector<std::pair<PdmPointer<ObjectHandle>, PdmUiItem*>>> m_selectionPrLevel;
 
-    PdmChildArrayFieldHandle*   m_activeChildArrayFieldHandle;
+    ChildArrayFieldHandle*   m_activeChildArrayFieldHandle;
     PdmPointer<ObjectHandle> m_rootObject;
 
     std::set<SelectionChangedReceiver*> m_selectionReceivers;

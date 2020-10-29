@@ -36,7 +36,7 @@
 
 #include "cafPdmUiTableViewQModel.h"
 
-#include "cafPdmChildArrayField.h"
+#include "cafChildArrayField.h"
 #include "cafField.h"
 #include "cafObject.h"
 #include "cafPdmUiComboBoxEditor.h"
@@ -348,7 +348,7 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( PdmChildArrayFieldHandle* listField, const QString& configName )
+void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( ChildArrayFieldHandle* listField, const QString& configName )
 {
     beginResetModel();
 
@@ -684,7 +684,7 @@ QItemSelection PdmUiTableViewQModel::modelIndexFromObject( ObjectHandle* pdmObje
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmChildArrayFieldHandle* PdmUiTableViewQModel::childArrayFieldHandle() const
+caf::ChildArrayFieldHandle* PdmUiTableViewQModel::childArrayFieldHandle() const
 {
     // Required to have a PdmPointer to the owner object. Used to guard access to a field inside this object. It is not
     // possible to use a PdmPointer on a field pointer

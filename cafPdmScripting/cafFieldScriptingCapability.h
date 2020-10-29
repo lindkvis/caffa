@@ -37,8 +37,8 @@
 
 #include "cafAppEnum.h"
 #include "cafPdmAbstractFieldScriptingCapability.h"
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
+#include "cafChildArrayField.h"
+#include "cafChildField.h"
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmScriptIOMessages.h"
@@ -483,10 +483,10 @@ private:
 };
 
 template <typename DataType>
-class FieldScriptingCapability<PdmChildField<DataType*>> : public PdmAbstractFieldScriptingCapability
+class FieldScriptingCapability<ChildField<DataType*>> : public PdmAbstractFieldScriptingCapability
 {
 public:
-    FieldScriptingCapability( PdmChildField<DataType*>* field, const QString& fieldName, bool giveOwnership )
+    FieldScriptingCapability( ChildField<DataType*>* field, const QString& fieldName, bool giveOwnership )
         : PdmAbstractFieldScriptingCapability( field, fieldName, giveOwnership )
     {
         m_field = field;
@@ -524,7 +524,7 @@ public:
     }
 
 private:
-    PdmChildField<DataType*>* m_field;
+    ChildField<DataType*>* m_field;
 };
 
 template <typename DataType>
@@ -573,10 +573,10 @@ private:
 };
 
 template <typename DataType>
-class FieldScriptingCapability<PdmChildArrayField<DataType*>> : public PdmAbstractFieldScriptingCapability
+class FieldScriptingCapability<ChildArrayField<DataType*>> : public PdmAbstractFieldScriptingCapability
 {
 public:
-    FieldScriptingCapability( PdmChildArrayField<DataType*>* field, const QString& fieldName, bool giveOwnership )
+    FieldScriptingCapability( ChildArrayField<DataType*>* field, const QString& fieldName, bool giveOwnership )
         : PdmAbstractFieldScriptingCapability( field, fieldName, giveOwnership )
     {
         m_field = field;
@@ -614,7 +614,7 @@ public:
     }
 
 private:
-    PdmChildArrayField<DataType*>* m_field;
+    ChildArrayField<DataType*>* m_field;
 };
 
 template <typename FieldType>

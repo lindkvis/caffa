@@ -15,7 +15,7 @@ class FieldIoCap;
 /// The referenced object will not be printed in the XML-output yet, but
 /// it is intended to be written as a reference (by path from common root)
 /// This field has nothing to do with ownership at all, and is not a part of the
-/// parent-child relations induced by the other PdmChildField<PdmPtrType*> PdmChildArrayField<PdmPtrType*>
+/// parent-child relations induced by the other ChildField<PdmPtrType*> ChildArrayField<PdmPtrType*>
 /// The pointer is guarded, meaning that it will be set to NULL if the object pointed to
 /// is deleted.
 //==================================================================================================

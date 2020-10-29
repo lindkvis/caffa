@@ -55,7 +55,7 @@ class PdmUiFieldEditorHandle;
 class PdmUiItem;
 class PdmUiTableViewDelegate;
 class PdmUiTableViewQModel;
-class PdmChildArrayFieldHandle;
+class ChildArrayFieldHandle;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -142,7 +142,7 @@ private:
     void updateSelectionManagerFromTableSelection();
 
     bool                      eventFilter( QObject* obj, QEvent* event ) override;
-    PdmChildArrayFieldHandle* childArrayFieldHandle();
+    ChildArrayFieldHandle* childArrayFieldHandle();
 
 private slots:
     void slotSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected );
@@ -165,7 +165,7 @@ private:
     bool m_isBlockingSelectionManagerChanged;
     bool m_isUpdatingSelectionQModel;
 
-    caf::PdmChildArrayFieldHandle* m_previousFieldHandle;
+    caf::ChildArrayFieldHandle* m_previousFieldHandle;
 };
 
 } // end namespace caf

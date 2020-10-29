@@ -1,7 +1,7 @@
 
 #include "gtest/gtest.h"
 
-#include "cafPdmChildArrayField.h"
+#include "cafChildArrayField.h"
 #include "cafPdmDataValueField.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafObjectHandle.h"
@@ -53,7 +53,7 @@ public:
     ~MyContainerObject() {}
 
     // Fields
-    caf::PdmChildArrayField<MyItemObject*> m_items;
+    caf::ChildArrayField<MyItemObject*> m_items;
     caf::PdmPtrArrayField<MyItemObject*>   m_containers;
 };
 CAF_PDM_IO_SOURCE_INIT( MyContainerObject, "MyContainerObject" );

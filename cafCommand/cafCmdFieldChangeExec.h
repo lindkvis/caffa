@@ -42,7 +42,7 @@
 
 namespace caf
 {
-class PdmChildArrayFieldHandle;
+class ChildArrayFieldHandle;
 class FieldIoCapability;
 
 //==================================================================================================

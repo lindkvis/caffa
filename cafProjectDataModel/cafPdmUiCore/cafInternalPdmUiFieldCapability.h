@@ -2,8 +2,8 @@
 
 #include "cafFieldUiCapability.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
+#include "cafChildArrayField.h"
+#include "cafChildField.h"
 
 namespace caf
 {
@@ -38,9 +38,9 @@ private:
 // Specialization for ChildFields to do nothing towards GUI
 //
 template <typename DataType>
-class FieldUiCap<PdmChildField<DataType*>> : public FieldUiCapability
+class FieldUiCap<ChildField<DataType*>> : public FieldUiCapability
 {
-    typedef PdmChildField<DataType*> FieldType;
+    typedef ChildField<DataType*> FieldType;
 
 public:
     FieldUiCap( FieldType* field, bool giveOwnership )
@@ -61,9 +61,9 @@ public:
 // Specialization for ChildArrayFields to do nothing towards GUI
 //
 template <typename DataType>
-class FieldUiCap<PdmChildArrayField<DataType*>> : public FieldUiCapability
+class FieldUiCap<ChildArrayField<DataType*>> : public FieldUiCapability
 {
-    typedef PdmChildArrayField<DataType*> FieldType;
+    typedef ChildArrayField<DataType*> FieldType;
 
 public:
     FieldUiCap( FieldType* field, bool giveOwnership )

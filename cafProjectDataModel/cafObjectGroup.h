@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cafPdmChildArrayField.h"
+#include "cafChildArrayField.h"
 #include "cafObject.h"
 
 #include <QXmlStreamWriter>
@@ -65,7 +65,7 @@ void ObjectGroup::createCopyByType( std::vector<PdmPointer<T>>* copyOfTypedObjec
 }
 
 //==================================================================================================
-/// The ObjectCollection serves as a container of unknown Objects stored in a PdmChildArrayField
+/// The ObjectCollection serves as a container of unknown Objects stored in a ChildArrayField
 //==================================================================================================
 class ObjectCollection : public Object
 {
@@ -75,7 +75,7 @@ public:
     ObjectCollection();
     ~ObjectCollection() override;
 
-    caf::PdmChildArrayField<ObjectHandle*> objects;
+    caf::ChildArrayField<ObjectHandle*> objects;
 };
 
 } // End of namespace caf

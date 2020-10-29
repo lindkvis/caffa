@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cafPdmChildField.h"
+#include "cafChildField.h"
 #include "cafObjectHandle.h"
 #include "cafPdmPointer.h"
 
@@ -12,5 +12,5 @@ public:
     Child();
     ~Child();
 
-    caf::PdmChildField<TestObj*> m_testObj;
+    caf::ChildField<TestObj*> m_testObj;
 };

@@ -38,8 +38,8 @@
 #include <iostream>
 
 #include "cafAppEnum.h"
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
+#include "cafChildArrayField.h"
+#include "cafChildField.h"
 #include "cafPdmDocument.h"
 #include "cafField.h"
 #include "cafObject.h"
@@ -161,8 +161,8 @@ public:
     caf::Field<int>     m_intField;
     caf::Field<QString> m_textField;
 
-    caf::PdmChildField<SimpleObj*> m_simpleObjPtrField;
-    caf::PdmChildField<SimpleObj*> m_simpleObjPtrField2;
+    caf::ChildField<SimpleObj*> m_simpleObjPtrField;
+    caf::ChildField<SimpleObj*> m_simpleObjPtrField2;
 };
 
 CAF_PDM_SOURCE_INIT( DemoObject, "DemoObject" );
@@ -197,7 +197,7 @@ public:
 
     caf::Field<std::vector<QString>>       m_texts;
     caf::Field<caf::AppEnum<TestEnumType>> m_testEnumField;
-    caf::PdmChildArrayField<SimpleObj*>       m_simpleObjectsField;
+    caf::ChildArrayField<SimpleObj*>       m_simpleObjectsField;
 };
 CAF_PDM_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj" );
 
@@ -214,7 +214,7 @@ public:
 
     ~MyPdmDocument() { objects.deleteAllChildObjects(); }
 
-    caf::PdmChildArrayField<ObjectHandle*> objects;
+    caf::ChildArrayField<ObjectHandle*> objects;
 };
 CAF_PDM_SOURCE_INIT( MyPdmDocument, "MyPdmDocument" );
 
@@ -332,7 +332,7 @@ TEST(BaseTest, PointerField)
 /// Test of PdmPointersField operations
 //--------------------------------------------------------------------------------------------------
 #if 0
-TEST(BaseTest, PdmChildArrayField)
+TEST(BaseTest, ChildArrayField)
 {
     std::vector<caf::FieldHandle*> parentFields;
 
@@ -816,9 +816,9 @@ TEST( BaseTest, ObjectGroupCopyOfTypedObjects )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// PdmChildArrayFieldHandle
+/// ChildArrayFieldHandle
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, PdmChildArrayFieldHandle )
+TEST( BaseTest, ChildArrayFieldHandle )
 {
     //     virtual size_t      size() const = 0;
     //     virtual bool        empty() const = 0;
@@ -842,7 +842,7 @@ TEST( BaseTest, PdmChildArrayFieldHandle )
     s3->m_position = 3000;
 
     InheritedDemoObj*              ihd1      = new InheritedDemoObj;
-    caf::PdmChildArrayFieldHandle* listField = &( ihd1->m_simpleObjectsField );
+    caf::ChildArrayFieldHandle* listField = &( ihd1->m_simpleObjectsField );
 
     EXPECT_EQ( 0u, listField->size() );
     EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
@@ -886,8 +886,8 @@ public:
     }
 
     // Fields
-    caf::PdmChildField<ObjectHandle*> m_pointersField;
-    caf::PdmChildArrayField<SimpleObj*>  m_simpleObjPtrField2;
+    caf::ChildField<ObjectHandle*> m_pointersField;
+    caf::ChildArrayField<SimpleObj*>  m_simpleObjPtrField2;
 };
 
 CAF_PDM_SOURCE_INIT( ReferenceDemoObject, "ReferenceDemoObject" );
