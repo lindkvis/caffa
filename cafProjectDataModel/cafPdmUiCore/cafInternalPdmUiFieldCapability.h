@@ -2,6 +2,9 @@
 
 #include "cafPdmUiFieldHandle.h"
 
+#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
+
 namespace caf
 {
 template <typename FieldType>
