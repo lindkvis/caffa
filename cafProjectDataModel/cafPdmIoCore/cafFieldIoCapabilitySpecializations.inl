@@ -333,7 +333,7 @@ bool FieldIoCap<PdmPtrArrayField<DataType*>>::isVectorField() const
 }
 
 //==================================================================================================
-/// XML Implementation for PdmChildField<>
+/// XML Implementation for ChildField<>
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
@@ -341,7 +341,7 @@ bool FieldIoCap<PdmPtrArrayField<DataType*>>::isVectorField() const
 //--------------------------------------------------------------------------------------------------
 
 template <typename DataType>
-void FieldIoCap<PdmChildField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream, ObjectFactory* objectFactory )
+void FieldIoCap<ChildField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream, ObjectFactory* objectFactory )
 {
     FieldIOHelper::skipCharactersAndComments( xmlStream );
     if ( !xmlStream.isStartElement() )
@@ -422,7 +422,7 @@ void FieldIoCap<PdmChildField<DataType*>>::readFieldData( QXmlStreamReader& xmlS
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PdmChildField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
+void FieldIoCap<ChildField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
 {
     auto object = m_field->m_fieldValue.rawPtr();
     if ( !object ) return;
@@ -442,7 +442,7 @@ void FieldIoCap<PdmChildField<DataType*>>::writeFieldData( QXmlStreamWriter& xml
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PdmChildField<DataType*>>::readFieldData( const QJsonValue& jsonValue, ObjectFactory* objectFactory )
+void FieldIoCap<ChildField<DataType*>>::readFieldData( const QJsonValue& jsonValue, ObjectFactory* objectFactory )
 {
     QJsonObject jsonObject = jsonValue.toObject();
 
@@ -502,7 +502,7 @@ void FieldIoCap<PdmChildField<DataType*>>::readFieldData( const QJsonValue& json
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PdmChildField<DataType*>>::writeFieldData( QJsonValue& jsonValue ) const
+void FieldIoCap<ChildField<DataType*>>::writeFieldData( QJsonValue& jsonValue ) const
 {
     auto object = m_field->m_fieldValue.rawPtr();
     if ( !object ) return;
@@ -523,20 +523,20 @@ void FieldIoCap<PdmChildField<DataType*>>::writeFieldData( QJsonValue& jsonValue
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool FieldIoCap<PdmChildField<DataType*>>::resolveReferences()
+bool FieldIoCap<ChildField<DataType*>>::resolveReferences()
 {
     return true;
 }
 
 //==================================================================================================
-/// XML Implementation for PdmChildArrayField<>
+/// XML Implementation for ChildArrayField<>
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PdmChildArrayField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
+void FieldIoCap<ChildArrayField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
 {
     typename std::vector<PdmPointer<DataType>>::iterator it;
     for ( it = m_field->m_pointers.begin(); it != m_field->m_pointers.end(); ++it )
@@ -559,7 +559,7 @@ void FieldIoCap<PdmChildArrayField<DataType*>>::writeFieldData( QXmlStreamWriter
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PdmChildArrayField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream,
+void FieldIoCap<ChildArrayField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream,
                                                                   ObjectFactory* objectFactory )
 {
     m_field->deleteAllChildObjects();
@@ -627,7 +627,7 @@ void FieldIoCap<PdmChildArrayField<DataType*>>::readFieldData( QXmlStreamReader&
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PdmChildArrayField<DataType*>>::readFieldData( const QJsonValue& jsonValue,
+void FieldIoCap<ChildArrayField<DataType*>>::readFieldData( const QJsonValue& jsonValue,
                                                                   ObjectFactory* objectFactory )
 {
     m_field->deleteAllChildObjects();
@@ -674,7 +674,7 @@ void FieldIoCap<PdmChildArrayField<DataType*>>::readFieldData( const QJsonValue&
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PdmChildArrayField<DataType*>>::writeFieldData( QJsonValue& jsonValue ) const
+void FieldIoCap<ChildArrayField<DataType*>>::writeFieldData( QJsonValue& jsonValue ) const
 {
     typename std::vector<PdmPointer<DataType>>::iterator it;
 
@@ -700,7 +700,7 @@ void FieldIoCap<PdmChildArrayField<DataType*>>::writeFieldData( QJsonValue& json
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool FieldIoCap<PdmChildArrayField<DataType*>>::resolveReferences()
+bool FieldIoCap<ChildArrayField<DataType*>>::resolveReferences()
 {
     return true;
 }
@@ -709,7 +709,7 @@ bool FieldIoCap<PdmChildArrayField<DataType*>>::resolveReferences()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool FieldIoCap<PdmChildArrayField<DataType*>>::isVectorField() const
+bool FieldIoCap<ChildArrayField<DataType*>>::isVectorField() const
 {
     return true;
 }

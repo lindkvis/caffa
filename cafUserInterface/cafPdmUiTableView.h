@@ -49,7 +49,7 @@ namespace caf
 class MenuInterface;
 class ObjectHandle;
 class PdmUiTableViewEditor;
-class PdmChildArrayFieldHandle;
+class ChildArrayFieldHandle;
 
 //==================================================================================================
 ///
@@ -61,7 +61,7 @@ public:
     PdmUiTableView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
     ~PdmUiTableView() override;
 
-    void setChildArrayField( PdmChildArrayFieldHandle* childArrayField );
+    void setChildArrayField( ChildArrayFieldHandle* childArrayField );
     void setUiConfigurationName( QString uiConfigName );
     void enableHeaderText( bool enable );
     void setTableSelectionLevel( int selectionLevel );
@@ -71,7 +71,7 @@ public:
 
     QTableView* tableView();
 
-    static void addActionsToMenu( MenuInterface* menu, PdmChildArrayFieldHandle* childArrayField );
+    static void addActionsToMenu( MenuInterface* menu, ChildArrayFieldHandle* childArrayField );
 
 private:
     PdmUiTableViewEditor* m_listViewEditor;

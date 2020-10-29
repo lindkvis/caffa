@@ -37,7 +37,7 @@
 #include "cafPdmUiTableView.h"
 
 #include "cafActionWrapper.h"
-#include "cafPdmChildArrayField.h"
+#include "cafChildArrayField.h"
 #include "cafObject.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafSelectionManager.h"
@@ -86,7 +86,7 @@ PdmUiTableView::~PdmUiTableView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableView::setChildArrayField( PdmChildArrayFieldHandle* childArrayField )
+void PdmUiTableView::setChildArrayField( ChildArrayFieldHandle* childArrayField )
 {
     CAF_ASSERT( m_listViewEditor );
 
@@ -172,7 +172,7 @@ ObjectHandle* PdmUiTableView::pdmObjectFromModelIndex( const QModelIndex& mi )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableView::addActionsToMenu( MenuInterface* menu, PdmChildArrayFieldHandle* childArrayField )
+void PdmUiTableView::addActionsToMenu( MenuInterface* menu, ChildArrayFieldHandle* childArrayField )
 {
     // This is function is required to execute before populating the menu
     // Several commands rely on the activeChildArrayFieldHandle in the selection manager

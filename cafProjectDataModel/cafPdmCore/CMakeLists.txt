@@ -16,10 +16,10 @@ set (PUBLIC_HEADERS
     cafAppEnum.h
     cafClassTypeName.h
     cafPdmBase.h
-    cafPdmChildArrayField.h
-    cafPdmChildArrayField.inl
-    cafPdmChildField.h
-    cafPdmChildField.inl
+    cafChildArrayField.h
+    cafChildArrayField.inl
+    cafChildField.h
+    cafChildField.inl
     cafPdmDataValueField.h
     cafField.h
     cafFieldCapability.h
@@ -50,7 +50,7 @@ set (PUBLIC_HEADERS
 
 set( PROJECT_FILES
     ${PUBLIC_HEADERS}
-    cafPdmChildArrayFieldHandle.cpp
+    cafChildArrayFieldHandle.cpp
     cafFieldHandle.cpp
     cafFieldReorderCapability.cpp
     cafObjectHandle.cpp

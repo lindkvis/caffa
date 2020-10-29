@@ -1,8 +1,8 @@
 #pragma once
 
 #include "cafInternalPdmIoFieldReaderWriter.h"
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
+#include "cafChildArrayField.h"
+#include "cafChildField.h"
 #include "cafFieldIoCapability.h"
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
@@ -130,12 +130,12 @@ private:
 };
 
 template <typename DataType>
-class PdmChildField;
+class ChildField;
 
 template <typename DataType>
-class FieldIoCap<PdmChildField<DataType*>> : public FieldIoCapability
+class FieldIoCap<ChildField<DataType*>> : public FieldIoCapability
 {
-    typedef PdmChildField<DataType*> FieldType;
+    typedef ChildField<DataType*> FieldType;
 
 public:
     FieldIoCap( FieldType* field, bool giveOwnership )
@@ -161,12 +161,12 @@ private:
 };
 
 template <typename DataType>
-class PdmChildArrayField;
+class ChildArrayField;
 
 template <typename DataType>
-class FieldIoCap<PdmChildArrayField<DataType*>> : public FieldIoCapability
+class FieldIoCap<ChildArrayField<DataType*>> : public FieldIoCapability
 {
-    typedef PdmChildArrayField<DataType*> FieldType;
+    typedef ChildArrayField<DataType*> FieldType;
 
 public:
     FieldIoCap( FieldType* field, bool giveOwnership )

@@ -37,8 +37,8 @@
 #include "gtest/gtest.h"
 
 #include "cafAppEnum.h"
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
+#include "cafChildArrayField.h"
+#include "cafChildField.h"
 #include "cafPdmCodeGenerator.h"
 #include "cafPdmDocument.h"
 #include "cafField.h"
@@ -163,8 +163,8 @@ public:
     caf::Field<int>     m_intField;
     caf::Field<QString> m_textField;
 
-    caf::PdmChildField<SimpleObj*> m_simpleObjPtrField;
-    caf::PdmChildField<SimpleObj*> m_simpleObjPtrField2;
+    caf::ChildField<SimpleObj*> m_simpleObjPtrField;
+    caf::ChildField<SimpleObj*> m_simpleObjPtrField2;
 };
 
 CAF_PDM_SOURCE_INIT( DemoObject, "DemoObject" );
@@ -207,7 +207,7 @@ public:
     caf::Field<std::vector<double>>  m_numbers;
 
     caf::Field<caf::AppEnum<TestEnumType>> m_testEnumField;
-    caf::PdmChildArrayField<SimpleObj*>       m_simpleObjectsField;
+    caf::ChildArrayField<SimpleObj*>       m_simpleObjectsField;
 };
 CAF_PDM_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj" );
 
@@ -224,7 +224,7 @@ public:
 
     ~MyPdmDocument() { objects.deleteAllChildObjects(); }
 
-    caf::PdmChildArrayField<ObjectHandle*> objects;
+    caf::ChildArrayField<ObjectHandle*> objects;
 };
 CAF_PDM_SOURCE_INIT( MyPdmDocument, "MyPdmDocument" );
 

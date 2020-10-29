@@ -3,8 +3,8 @@
 
 #include "cafAppEnum.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
+#include "cafChildArrayField.h"
+#include "cafChildField.h"
 #include "cafPdmDataValueField.h"
 #include "cafFieldIoCapability.h"
 #include "cafFieldIoCapabilitySpecializations.h"
@@ -192,7 +192,7 @@ public:
     ~InheritedDemoObj() { m_childArrayField.deleteAllChildObjects(); }
 
     caf::PdmDataValueField<QString>         m_texts;
-    caf::PdmChildArrayField<DemoObject*> m_childArrayField;
+    caf::ChildArrayField<DemoObject*> m_childArrayField;
 };
 CAF_PDM_IO_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj" );
 
@@ -261,8 +261,8 @@ public:
     }
 
     // Fields
-    caf::PdmChildField<ObjectHandle*> m_pointersField;
-    caf::PdmChildArrayField<SimpleObj*>  m_simpleObjPtrField2;
+    caf::ChildField<ObjectHandle*> m_pointersField;
+    caf::ChildArrayField<SimpleObj*>  m_simpleObjPtrField2;
 };
 
 CAF_PDM_IO_SOURCE_INIT( ReferenceDemoObject, "ReferenceDemoObject" );

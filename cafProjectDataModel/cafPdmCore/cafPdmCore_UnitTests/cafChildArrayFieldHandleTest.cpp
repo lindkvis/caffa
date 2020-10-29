@@ -3,8 +3,8 @@
 
 #include "cafAppEnum.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
+#include "cafChildArrayField.h"
+#include "cafChildField.h"
 #include "cafPdmDataValueField.h"
 #include "cafObjectHandle.h"
 #include "cafPdmProxyValueField.h"
@@ -72,8 +72,8 @@ public:
         derivedOtherObjs.deleteAllChildObjects();
     }
 
-    caf::PdmChildArrayField<SimpleObjDerived*>      derivedObjs;
-    caf::PdmChildArrayField<SimpleObjDerivedOther*> derivedOtherObjs;
+    caf::ChildArrayField<SimpleObjDerived*>      derivedObjs;
+    caf::ChildArrayField<SimpleObjDerivedOther*> derivedOtherObjs;
 };
 
 template <class U, typename T>

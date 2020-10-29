@@ -75,7 +75,7 @@ private:
 
     // Creates the object (CmdUiCommandSystemImpl) used to communicate from UI editors to advanced parts of the command
     // system This includes support for undo system and default command features for add/delete of items in
-    // PdmChildArrayFieldHandle and creation of field changed commands so a change in an editor can be put into
+    // ChildArrayFieldHandle and creation of field changed commands so a change in an editor can be put into
     // undo/redo CmdUiCommandSystemImpl is a requirement for using the undo system
     void activateCommandSystem();
     void deactivateCommandSystem();

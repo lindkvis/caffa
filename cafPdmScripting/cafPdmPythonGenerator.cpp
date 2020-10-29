@@ -36,8 +36,8 @@
 #include "cafPdmPythonGenerator.h"
 
 #include "cafPdmAbstractFieldScriptingCapability.h"
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
+#include "cafChildArrayField.h"
+#include "cafChildField.h"
 #include "cafFieldIoCapability.h"
 #include "cafObject.h"
 #include "cafObjectFactory.h"
@@ -128,8 +128,8 @@ QString PdmPythonGenerator::generate( ObjectFactory* factory ) const
                         }
 
                         auto pdmValueField      = dynamic_cast<const PdmValueField*>( field );
-                        auto pdmChildField      = dynamic_cast<const PdmChildFieldHandle*>( field );
-                        auto pdmChildArrayField = dynamic_cast<const PdmChildArrayFieldHandle*>( field );
+                        auto pdmChildField      = dynamic_cast<const ChildFieldHandle*>( field );
+                        auto pdmChildArrayField = dynamic_cast<const ChildArrayFieldHandle*>( field );
                         if ( pdmValueField )
                         {
                             QString dataType = PdmPythonGenerator::dataTypeString( field, true );

@@ -16,7 +16,7 @@ class FieldHandle;
 class ObjectUiCapability;
 class FieldIoCapability;
 class ObjectXmlCapability;
-class PdmChildArrayFieldHandle;
+class ChildArrayFieldHandle;
 
 //==================================================================================================
 /// The base class of all objects
@@ -99,7 +99,7 @@ public:
 
     virtual void setDeletable( bool isDeletable );
     virtual bool isDeletable() const;
-    virtual void onChildDeleted( PdmChildArrayFieldHandle*           childArray,
+    virtual void onChildDeleted( ChildArrayFieldHandle*           childArray,
                                  std::vector<caf::ObjectHandle*>& referringObjects );
 
 protected:
@@ -128,9 +128,9 @@ private:
 
     // Give access to set/removeAsParentField
     template <class T>
-    friend class PdmChildArrayField;
+    friend class ChildArrayField;
     template <class T>
-    friend class PdmChildField;
+    friend class ChildField;
     template <class T>
     friend class PdmPtrArrayField;
     template <class T>

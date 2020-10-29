@@ -1,7 +1,7 @@
 
 #include "gtest/gtest.h"
 
-#include "cafPdmChildArrayField.h"
+#include "cafChildArrayField.h"
 #include "cafObject.h"
 #include "cafPdmUiTreeView.h"
 
@@ -38,7 +38,7 @@ public:
 
     ~DemoObject() { m_simpleObjPtrField.deleteAllChildObjects(); }
 
-    caf::PdmChildArrayField<caf::ObjectHandle*> m_simpleObjPtrField;
+    caf::ChildArrayField<caf::ObjectHandle*> m_simpleObjPtrField;
 };
 
 CAF_PDM_SOURCE_INIT( DemoObject, "DemoObject" );

@@ -3,8 +3,8 @@
 
 #include "Parent.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
+#include "cafChildArrayField.h"
+#include "cafChildField.h"
 #include "cafPdmDataValueField.h"
 #include "cafObjectHandle.h"
 #include "cafPdmProxyValueField.h"
@@ -94,7 +94,7 @@ public:
     }
 
     caf::PdmDataValueField<QString>         m_texts;
-    caf::PdmChildArrayField<DemoObject*> m_childArrayField;
+    caf::ChildArrayField<DemoObject*> m_childArrayField;
     caf::PdmPtrField<InheritedDemoObj*>     m_ptrField;
 
     caf::PdmDataValueField<caf::FilePath>              m_singleFilePath;
@@ -259,10 +259,10 @@ TEST( BaseTest, NormalField )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Test of PdmChildArrayField operations
+/// Test of ChildArrayField operations
 //--------------------------------------------------------------------------------------------------
 
-TEST( BaseTest, PdmChildArrayField )
+TEST( BaseTest, ChildArrayField )
 {
     InheritedDemoObj* ihd1 = new InheritedDemoObj;
 
@@ -343,7 +343,7 @@ TEST( BaseTest, PdmChildArrayField )
 
 TEST( BaseTest, PdmChildArrayParentField )
 {
-    // Test of instanciating a class with forward declare of object used in PdmChildArrayField and PdmChildField
+    // Test of instanciating a class with forward declare of object used in ChildArrayField and ChildField
     Parent* parentObj = new Parent;
 
     delete parentObj;
@@ -373,9 +373,9 @@ TEST( BaseTest, PdmPointersFieldInsertVector )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// PdmChildArrayFieldHandle
+/// ChildArrayFieldHandle
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, PdmChildArrayFieldHandle )
+TEST( BaseTest, ChildArrayFieldHandle )
 {
     //     virtual size_t      size() const = 0;
     //     virtual bool        empty() const = 0;
@@ -400,7 +400,7 @@ TEST( BaseTest, PdmChildArrayFieldHandle )
     s3->m_memberDoubleField = 3000;
 
     InheritedDemoObj*              ihd1      = new InheritedDemoObj;
-    caf::PdmChildArrayFieldHandle* listField = &( ihd1->m_childArrayField );
+    caf::ChildArrayFieldHandle* listField = &( ihd1->m_childArrayField );
 
     EXPECT_EQ( 0u, listField->size() );
     EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
@@ -430,10 +430,10 @@ TEST( BaseTest, PdmChildArrayFieldHandle )
     EXPECT_TRUE( listField->empty() );
 }
 //--------------------------------------------------------------------------------------------------
-/// Test of PdmChildField
+/// Test of ChildField
 //--------------------------------------------------------------------------------------------------
 
-TEST( BaseTest, PdmChildField )
+TEST( BaseTest, ChildField )
 {
     class A : public caf::ObjectHandle
     {
@@ -447,7 +447,7 @@ TEST( BaseTest, PdmChildField )
 
         ~A() { delete field2(); }
 
-        caf::PdmChildField<Child*> field2;
+        caf::ChildField<Child*> field2;
         int                        b;
     };
 

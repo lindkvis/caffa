@@ -2,7 +2,7 @@
 #include "cafObjectHandle.h"
 
 #include "cafAssert.h"
-#include "cafPdmChildArrayField.h"
+#include "cafChildArrayField.h"
 #include "cafFieldHandle.h"
 #include "cafObjectCapability.h"
 
@@ -219,7 +219,7 @@ bool ObjectHandle::isDeletable() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectHandle::onChildDeleted( PdmChildArrayFieldHandle*           childArray,
+void ObjectHandle::onChildDeleted( ChildArrayFieldHandle*           childArray,
                                       std::vector<caf::ObjectHandle*>& referringObjects )
 {
 }

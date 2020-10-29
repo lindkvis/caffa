@@ -61,7 +61,7 @@ public:
     }
 
 public:
-    caf::PdmChildArrayField<ObjectHandle*> objects;
+    caf::ChildArrayField<ObjectHandle*> objects;
 };
 
 CAF_PDM_SOURCE_INIT(DemoObjectGroup, "DemoObjectGroup");
@@ -994,8 +994,8 @@ public:
     caf::Field<QString>              m_longText;
     caf::Field<std::vector<QString>> m_multiSelectList;
 
-    caf::PdmChildArrayField<caf::ObjectHandle*> m_objectList;
-    caf::PdmChildArrayField<SmallDemoObjectA*>  m_objectListOfSameType;
+    caf::ChildArrayField<caf::ObjectHandle*> m_objectList;
+    caf::ChildArrayField<SmallDemoObjectA*>  m_objectListOfSameType;
     caf::PdmPtrField<SmallDemoObjectA*>         m_ptrField;
 
     caf::Field<bool> m_toggleField;
@@ -1368,9 +1368,9 @@ void MainWindow::slotInsert()
     for (size_t i = 0; i < selection.size(); ++i)
     {
         caf::FieldUiCapability*                      uiFh  = dynamic_cast<caf::FieldUiCapability*>(selection[i]);
-        caf::PdmChildArrayField<caf::ObjectHandle*>* field = nullptr;
+        caf::ChildArrayField<caf::ObjectHandle*>* field = nullptr;
 
-        if (uiFh) field = dynamic_cast<caf::PdmChildArrayField<caf::ObjectHandle*>*>(uiFh->fieldHandle());
+        if (uiFh) field = dynamic_cast<caf::ChildArrayField<caf::ObjectHandle*>*>(uiFh->fieldHandle());
 
         if (field)
         {
@@ -1380,9 +1380,9 @@ void MainWindow::slotInsert()
             return;
         }
 #if 0
-        caf::PdmChildArrayFieldHandle* listField = NULL;
+        caf::ChildArrayFieldHandle* listField = NULL;
 
-        if (uiFh) listField = dynamic_cast<caf::PdmChildArrayFieldHandle*>(uiFh->fieldHandle());
+        if (uiFh) listField = dynamic_cast<caf::ChildArrayFieldHandle*>(uiFh->fieldHandle());
 
         if (listField)
         {
@@ -1436,7 +1436,7 @@ void MainWindow::slotSimpleSelectionChanged()
     std::vector<caf::PdmUiItem*> selection;
     m_pdmUiTreeView->selectedUiItems(selection);
     caf::ObjectHandle*          obj       = nullptr;
-    caf::PdmChildArrayFieldHandle* listField = nullptr;
+    caf::ChildArrayFieldHandle* listField = nullptr;
 
     if (selection.size())
     {
@@ -1456,7 +1456,7 @@ void MainWindow::slotShowTableView()
     m_pdmUiTreeView2->selectedUiItems(selection);
     caf::ObjectHandle*          obj                   = nullptr;
     caf::FieldUiCapability*     uiFieldHandle         = nullptr;
-    caf::PdmChildArrayFieldHandle* childArrayFieldHandle = nullptr;
+    caf::ChildArrayFieldHandle* childArrayFieldHandle = nullptr;
 
     if (selection.size())
     {
@@ -1465,7 +1465,7 @@ void MainWindow::slotShowTableView()
         uiFieldHandle = dynamic_cast<caf::FieldUiCapability*>(pdmUiItem);
         if (uiFieldHandle)
         {
-            childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>(uiFieldHandle->fieldHandle());
+            childArrayFieldHandle = dynamic_cast<caf::ChildArrayFieldHandle*>(uiFieldHandle->fieldHandle());
         }
 
         if (childArrayFieldHandle)

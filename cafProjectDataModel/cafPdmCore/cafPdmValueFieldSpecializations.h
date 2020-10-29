@@ -71,7 +71,7 @@ public:
 //==================================================================================================
 /// Partial specialization for caf::PdmPointer<T>
 /// Used internally to avoid havning to declare everything Q_DECLARE_METATYPE()
-/// User must use PdmPtrField or PdmChildField
+/// User must use PdmPtrField or ChildField
 //==================================================================================================
 template <typename T>
 class PdmValueFieldSpecialization<PdmPointer<T>>

@@ -44,7 +44,7 @@
 #include "cafSelectionManager.h"
 
 #include "cafCmdExecCommandManager.h"
-#include "cafPdmChildArrayField.h"
+#include "cafChildArrayField.h"
 #include "cafField.h"
 
 #include "cafAssert.h"
@@ -60,7 +60,7 @@ CAF_CMD_SOURCE_INIT( CmdAddItemFeature, "PdmListField_AddItem" );
 //--------------------------------------------------------------------------------------------------
 CmdExecuteCommand* CmdAddItemFeature::createExecuteCommand()
 {
-    caf::PdmChildArrayFieldHandle* childArrayFieldHandle = SelectionManager::instance()->activeChildArrayFieldHandle();
+    caf::ChildArrayFieldHandle* childArrayFieldHandle = SelectionManager::instance()->activeChildArrayFieldHandle();
     if ( !childArrayFieldHandle ) return nullptr;
 
     int             indexAfter  = -1;
@@ -79,7 +79,7 @@ CmdExecuteCommand* CmdAddItemFeature::createExecuteCommand()
 //--------------------------------------------------------------------------------------------------
 bool CmdAddItemFeature::isCommandEnabled()
 {
-    caf::PdmChildArrayFieldHandle* childArrayFieldHandle = SelectionManager::instance()->activeChildArrayFieldHandle();
+    caf::ChildArrayFieldHandle* childArrayFieldHandle = SelectionManager::instance()->activeChildArrayFieldHandle();
 
     if ( childArrayFieldHandle )
     {

@@ -47,7 +47,7 @@
 
 namespace caf
 {
-class PdmChildArrayFieldHandle;
+class ChildArrayFieldHandle;
 class ObjectHandle;
 class PdmUiFieldEditorHandle;
 class PdmUiItem;
@@ -83,7 +83,7 @@ public:
 
     QItemSelection   modelIndexFromObject( ObjectHandle* pdmObject );
     FieldHandle*  getField( const QModelIndex& index ) const;
-    void             setArrayFieldAndBuildEditors( PdmChildArrayFieldHandle* pdmObject, const QString& configName );
+    void             setArrayFieldAndBuildEditors( ChildArrayFieldHandle* pdmObject, const QString& configName );
     ObjectHandle* pdmObjectForRow( int row ) const;
 
     // Qt overrides
@@ -110,12 +110,12 @@ private:
     QWidget*                getEditorWidgetAndTransferOwnership( QWidget* parent, const QModelIndex& index );
     PdmUiFieldEditorHandle* getEditor( const QModelIndex& index );
 
-    PdmChildArrayFieldHandle* childArrayFieldHandle() const;
+    ChildArrayFieldHandle* childArrayFieldHandle() const;
 
 private:
     // Required to have a PdmPointer to the owner object. Used to guard access to a field inside this object
     PdmPointer<ObjectHandle> m_ownerObject;
-    PdmChildArrayFieldHandle*   m_pdmList;
+    ChildArrayFieldHandle*   m_pdmList;
     QString                     m_currentConfigName;
 
     std::map<QString, PdmUiFieldEditorHandle*> m_fieldEditors;

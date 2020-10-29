@@ -43,7 +43,7 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafSelectionManager.h"
 
-#include "cafPdmChildArrayField.h"
+#include "cafChildArrayField.h"
 #include "cafField.h"
 
 #include <QAction>
@@ -60,7 +60,7 @@ CmdExecuteCommand* CmdDeleteItemFeature::createExecuteCommand()
     std::vector<PdmUiItem*> items;
     SelectionManager::instance()->selectedItems( items, SelectionManager::FIRST_LEVEL );
 
-    caf::PdmChildArrayFieldHandle* childArrayFieldHandle =
+    caf::ChildArrayFieldHandle* childArrayFieldHandle =
         caf::SelectionManager::instance()->activeChildArrayFieldHandle();
     if ( !childArrayFieldHandle ) return nullptr;
 
@@ -111,7 +111,7 @@ bool CmdDeleteItemFeature::isCommandEnabled()
         caf::SelectionManager::instance()->selectedItem( caf::SelectionManager::FIRST_LEVEL ) );
     if ( !currentObject ) return false;
 
-    caf::PdmChildArrayFieldHandle* childArrayFieldHandle =
+    caf::ChildArrayFieldHandle* childArrayFieldHandle =
         caf::SelectionManager::instance()->activeChildArrayFieldHandle();
     if ( !childArrayFieldHandle ) return false;
 

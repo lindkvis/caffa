@@ -37,7 +37,7 @@
 #include "cafCmdDeleteItemExec.h"
 #include "cafCmdDeleteItemExecData.h"
 
-#include "cafPdmChildArrayField.h"
+#include "cafChildArrayField.h"
 #include "cafFieldUiCapability.h"
 #include "cafPdmReferenceHelper.h"
 
@@ -63,7 +63,7 @@ void CmdDeleteItemExec::redo()
     FieldHandle* field =
         PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
 
-    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
+    ChildArrayFieldHandle* listField = dynamic_cast<ChildArrayFieldHandle*>( field );
     if ( listField )
     {
         std::vector<ObjectHandle*> children;
@@ -103,7 +103,7 @@ void CmdDeleteItemExec::undo()
     FieldHandle* field =
         PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
 
-    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
+    ChildArrayFieldHandle* listField = dynamic_cast<ChildArrayFieldHandle*>( field );
     if ( listField )
     {
         ObjectHandle* obj = ObjectIoCapability::readUnknownObjectFromString( m_commandData->m_deletedObjectAsXml(),

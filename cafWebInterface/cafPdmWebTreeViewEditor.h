@@ -55,7 +55,7 @@ class MySortFilterProxyModel;
 namespace caf 
 {
 
-class PdmChildArrayFieldHandle;
+class ChildArrayFieldHandle;
 class PdmUiDragDropInterface;
 class PdmUiItem;
 class PdmWebTreeViewEditor;
@@ -103,7 +103,7 @@ protected:
     void        slotOnActionSelection();
 
 private:
-    PdmChildArrayFieldHandle* currentChildArrayFieldHandle();
+    ChildArrayFieldHandle* currentChildArrayFieldHandle();
 
     void        updateSelectionManager();
 

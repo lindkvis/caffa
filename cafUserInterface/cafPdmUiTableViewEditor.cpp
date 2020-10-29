@@ -35,7 +35,7 @@
 //##################################################################################################
 #include "cafPdmUiTableViewEditor.h"
 
-#include "cafPdmChildArrayField.h"
+#include "cafChildArrayField.h"
 #include "cafField.h"
 #include "cafObject.h"
 #include "cafPdmUiCheckBoxDelegate.h"
@@ -423,12 +423,12 @@ bool PdmUiTableViewEditor::eventFilter( QObject* obj, QEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmChildArrayFieldHandle* PdmUiTableViewEditor::childArrayFieldHandle()
+caf::ChildArrayFieldHandle* PdmUiTableViewEditor::childArrayFieldHandle()
 {
-    caf::PdmChildArrayFieldHandle* fieldHandle = nullptr;
+    caf::ChildArrayFieldHandle* fieldHandle = nullptr;
     if ( this->uiField() )
     {
-        fieldHandle = dynamic_cast<PdmChildArrayFieldHandle*>( this->uiField()->fieldHandle() );
+        fieldHandle = dynamic_cast<ChildArrayFieldHandle*>( this->uiField()->fieldHandle() );
     }
 
     return fieldHandle;

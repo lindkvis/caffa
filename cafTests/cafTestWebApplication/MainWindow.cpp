@@ -53,7 +53,7 @@ public:
     }
 
 public:
-    caf::PdmChildArrayField<ObjectHandle*> objects;
+    caf::ChildArrayField<ObjectHandle*> objects;
 };
 
 CAF_PDM_SOURCE_INIT(DemoObjectGroup, "DemoObjectGroup");
@@ -495,7 +495,7 @@ void MainWindow::slotSimpleSelectionChanged()
     std::vector<caf::PdmUiItem*> selection;
     m_pdmUiTreeView->selectedUiItems(selection);
     caf::ObjectHandle*          obj       = nullptr;
-    caf::PdmChildArrayFieldHandle* listField = nullptr;
+    caf::ChildArrayFieldHandle* listField = nullptr;
 
     if (selection.size())
     {

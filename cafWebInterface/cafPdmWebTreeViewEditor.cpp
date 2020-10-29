@@ -37,7 +37,7 @@
 
 #include "cafPdmWebTreeViewEditor.h"
 
-#include "cafPdmChildArrayField.h"
+#include "cafChildArrayField.h"
 #include "cafField.h"
 #include "cafObject.h"
 #include "cafPdmUiCommandSystemProxy.h"
@@ -239,7 +239,7 @@ void PdmWebTreeViewEditor::slotCustomMenuRequested( const Wt::WModelIndex& item,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmChildArrayFieldHandle* PdmWebTreeViewEditor::currentChildArrayFieldHandle()
+ChildArrayFieldHandle* PdmWebTreeViewEditor::currentChildArrayFieldHandle()
 {
     PdmUiItem* currentSelectedItem = SelectionManager::instance()->selectedItem( SelectionManager::FIRST_LEVEL );
 
@@ -248,16 +248,16 @@ PdmChildArrayFieldHandle* PdmWebTreeViewEditor::currentChildArrayFieldHandle()
     {
         FieldHandle* fieldHandle = uiFieldHandle->fieldHandle();
 
-        if ( dynamic_cast<PdmChildArrayFieldHandle*>( fieldHandle ) )
+        if ( dynamic_cast<ChildArrayFieldHandle*>( fieldHandle ) )
         {
-            return dynamic_cast<PdmChildArrayFieldHandle*>( fieldHandle );
+            return dynamic_cast<ChildArrayFieldHandle*>( fieldHandle );
         }
     }
 
     ObjectHandle* pdmObject = dynamic_cast<caf::ObjectHandle*>( currentSelectedItem );
     if ( pdmObject )
     {
-        PdmChildArrayFieldHandle* parentChildArray = dynamic_cast<PdmChildArrayFieldHandle*>( pdmObject->parentField() );
+        ChildArrayFieldHandle* parentChildArray = dynamic_cast<ChildArrayFieldHandle*>( pdmObject->parentField() );
 
         if ( parentChildArray )
         {

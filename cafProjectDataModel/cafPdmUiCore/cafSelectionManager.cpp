@@ -427,7 +427,7 @@ void SelectionManager::setPdmRootObject( ObjectHandle* root )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void SelectionManager::setActiveChildArrayFieldHandle( PdmChildArrayFieldHandle* childArray )
+void SelectionManager::setActiveChildArrayFieldHandle( ChildArrayFieldHandle* childArray )
 {
     m_activeChildArrayFieldHandle = childArray;
 }
@@ -435,7 +435,7 @@ void SelectionManager::setActiveChildArrayFieldHandle( PdmChildArrayFieldHandle*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmChildArrayFieldHandle* SelectionManager::activeChildArrayFieldHandle()
+ChildArrayFieldHandle* SelectionManager::activeChildArrayFieldHandle()
 {
     return m_activeChildArrayFieldHandle;
 }
