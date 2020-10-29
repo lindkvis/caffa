@@ -370,7 +370,7 @@ void PdmFieldIoCap<PdmChildField<DataType*>>::readFieldData( QXmlStreamReader& x
         }
         else
         {
-            auto ioObject = obj->capability<caf::PdmObjectIoCapability>();
+            auto ioObject = obj->template capability<caf::PdmObjectIoCapability>();
             if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
             {
                 CAF_ASSERT( false ); // Inconsistency in the factory. It creates objects of wrong type from the
@@ -391,7 +391,7 @@ void PdmFieldIoCap<PdmChildField<DataType*>>::readFieldData( QXmlStreamReader& x
         obj = m_field->m_fieldValue.rawPtr();
     }
 
-    auto ioObject = obj->capability<caf::PdmObjectIoCapability>();
+    auto ioObject = obj->template capability<caf::PdmObjectIoCapability>();
     if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
     {
         // Error: Field contains different class type than on file
@@ -427,7 +427,7 @@ void PdmFieldIoCap<PdmChildField<DataType*>>::writeFieldData( QXmlStreamWriter& 
     auto object = m_field->m_fieldValue.rawPtr();
     if ( !object ) return;
 
-    auto ioObject = object->capability<caf::PdmObjectIoCapability>();
+    auto ioObject = object->template capability<caf::PdmObjectIoCapability>();
     if ( ioObject )
     {
         QString className = ioObject->classKeyword();
@@ -465,7 +465,7 @@ void PdmFieldIoCap<PdmChildField<DataType*>>::readFieldData( const QJsonValue& j
         }
         else
         {
-            auto ioObject = obj->capability<caf::PdmObjectIoCapability>();
+            auto ioObject = obj->template capability<caf::PdmObjectIoCapability>();
             if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
             {
                 CAF_ASSERT( false ); // Inconsistency in the factory. It creates objects of wrong type from the
@@ -482,7 +482,7 @@ void PdmFieldIoCap<PdmChildField<DataType*>>::readFieldData( const QJsonValue& j
         obj = m_field->m_fieldValue.rawPtr();
     }
 
-    auto ioObject = obj->capability<caf::PdmObjectIoCapability>();
+    auto ioObject = obj->template capability<caf::PdmObjectIoCapability>();
     if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
     {
         // Error: Field contains different class type than on file
@@ -507,7 +507,7 @@ void PdmFieldIoCap<PdmChildField<DataType*>>::writeFieldData( QJsonValue& jsonVa
     auto object = m_field->m_fieldValue.rawPtr();
     if ( !object ) return;
 
-    auto ioObject = object->capability<caf::PdmObjectIoCapability>();
+    auto ioObject = object->template capability<caf::PdmObjectIoCapability>();
     if ( ioObject )
     {
         QString className = ioObject->classKeyword();
@@ -543,7 +543,7 @@ void PdmFieldIoCap<PdmChildArrayField<DataType*>>::writeFieldData( QXmlStreamWri
     {
         if ( it->rawPtr() == nullptr ) continue;
 
-        auto ioObject = it->rawPtr()->capability<caf::PdmObjectIoCapability>();
+        auto ioObject = it->rawPtr()->template capability<caf::PdmObjectIoCapability>();
         if ( ioObject )
         {
             QString className = ioObject->classKeyword();
@@ -591,7 +591,7 @@ void PdmFieldIoCap<PdmChildArrayField<DataType*>>::readFieldData( QXmlStreamRead
             continue;
         }
 
-        auto ioObject = obj->capability<caf::PdmObjectIoCapability>();
+        auto ioObject = obj->template capability<caf::PdmObjectIoCapability>();
         if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
         {
             CAF_ASSERT( false ); // There is an inconsistency in the factory. It creates objects of type not matching
@@ -654,7 +654,7 @@ void PdmFieldIoCap<PdmChildArrayField<DataType*>>::readFieldData( const QJsonVal
             continue;
         }
 
-        auto ioObject = obj->capability<caf::PdmObjectIoCapability>();
+        auto ioObject = obj->template capability<caf::PdmObjectIoCapability>();
         if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
         {
             CAF_ASSERT( false ); // There is an inconsistency in the factory. It creates objects of type not matching
@@ -683,7 +683,7 @@ void PdmFieldIoCap<PdmChildArrayField<DataType*>>::writeFieldData( QJsonValue& j
     {
         if ( it->rawPtr() == nullptr ) continue;
 
-        auto ioObject = it->rawPtr()->capability<caf::PdmObjectIoCapability>();
+        auto ioObject = it->rawPtr()->template capability<caf::PdmObjectIoCapability>();
         if ( ioObject )
         {
             QString     className = ioObject->classKeyword();
