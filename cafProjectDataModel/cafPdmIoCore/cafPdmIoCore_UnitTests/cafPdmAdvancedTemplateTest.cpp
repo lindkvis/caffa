@@ -10,7 +10,7 @@
 #include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
 #include "cafPdmProxyValueField.h"
-#include "cafPdmPtrField.h"
+#include "cafPtrField.h"
 #include "cafPdmReferenceHelper.h"
 
 #include <QXmlStreamWriter>
@@ -95,8 +95,8 @@ public:
 
     // Fields
     caf::PdmProxyValueField<double>         m_doubleField;
-    caf::PdmPtrField<caf::ObjectHandle*> m_pointerToItem;
-    caf::PdmPtrField<caf::ObjectHandle*> m_pointerToDemoObj;
+    caf::PtrField<caf::ObjectHandle*> m_pointerToItem;
+    caf::PtrField<caf::ObjectHandle*> m_pointerToDemoObj;
 
     caf::PdmDataValueField<caf::FilePath> m_singleFilePath;
 

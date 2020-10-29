@@ -8,7 +8,7 @@
 #include "cafPdmDataValueField.h"
 #include "cafObjectHandle.h"
 #include "cafPdmProxyValueField.h"
-#include "cafPdmPtrField.h"
+#include "cafPtrField.h"
 #include "cafPdmReferenceHelper.h"
 
 #include <QDebug>

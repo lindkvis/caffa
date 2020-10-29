@@ -17,7 +17,7 @@ add_executable (${PROJECT_NAME}
 	cafPdmXmlBasicTest.cpp
 	cafPdmAdvancedTemplateTest.cpp
 	cafPdmXmlNumberTest.cpp
-	cafPdmPtrArrayTest.cpp
+	cafPtrArrayTest.cpp
 )
 
 set(QT_LIBRARIES Qt5::Core Qt5::Xml)

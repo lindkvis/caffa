@@ -4,7 +4,7 @@
 #include "cafFieldHandle.h"
 #include "cafPdmPointer.h"
 
-#include "cafPdmPtrArrayFieldHandle.h"
+#include "cafPtrArrayFieldHandle.h"
 namespace caf
 {
 template <typename T>
@@ -17,31 +17,31 @@ class FieldIoCap;
 //==================================================================================================
 
 template <typename DataType>
-class PdmPtrArrayField : public FieldHandle
+class PtrArrayField : public FieldHandle
 {
 public:
-    PdmPtrArrayField()
+    PtrArrayField()
     {
-        bool doNotUsePdmPtrArrayFieldForAnythingButPointersToObject = false;
-        CAF_ASSERT( doNotUsePdmPtrArrayFieldForAnythingButPointersToObject );
+        bool doNotUsePtrArrayFieldForAnythingButPointersToObject = false;
+        CAF_ASSERT( doNotUsePtrArrayFieldForAnythingButPointersToObject );
     }
 };
 
 template <typename DataType>
-class PdmPtrArrayField<DataType*> : public PdmPtrArrayFieldHandle
+class PtrArrayField<DataType*> : public PtrArrayFieldHandle
 {
     typedef DataType* DataTypePtr;
 
 public:
     typedef std::vector<PdmPointer<DataType>> FieldDataType;
 
-    PdmPtrArrayField()
+    PtrArrayField()
         : m_isResolved( false )
     {
     }
-    virtual ~PdmPtrArrayField();
+    virtual ~PtrArrayField();
 
-    PdmPtrArrayField& operator()() { return *this; }
+    PtrArrayField& operator()() { return *this; }
 
     void                                     setValue( const std::vector<PdmPointer<DataType>>& fieldValue );
     const std::vector<PdmPointer<DataType>>& value() const;
@@ -82,13 +82,13 @@ public:
     virtual void ptrReferencedObjects( std::vector<ObjectHandle*>* );
 
 private: // To be disabled
-    PDM_DISABLE_COPY_AND_ASSIGN( PdmPtrArrayField );
+    PDM_DISABLE_COPY_AND_ASSIGN( PtrArrayField );
 
     void addThisAsReferencingPtrField();
     void removeThisAsReferencingPtrField();
 
 private:
-    friend class FieldIoCap<PdmPtrArrayField<DataType*>>;
+    friend class FieldIoCap<PtrArrayField<DataType*>>;
 
     std::vector<PdmPointer<DataType>> m_pointers;
     QString                           m_referenceString;
@@ -97,4 +97,4 @@ private:
 
 } // End of namespace caf
 
-#include "cafPdmPtrArrayField.inl"
+#include "cafPtrArrayField.inl"

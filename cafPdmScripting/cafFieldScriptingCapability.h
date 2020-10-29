@@ -39,8 +39,8 @@
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
-#include "cafPdmPtrArrayField.h"
-#include "cafPdmPtrField.h"
+#include "cafPtrArrayField.h"
+#include "cafPtrField.h"
 #include "cafPdmScriptIOMessages.h"
 
 #include <QString>
@@ -438,10 +438,10 @@ private:
 };
 
 template <typename DataType>
-class FieldScriptingCapability<PdmPtrField<DataType*>> : public PdmAbstractFieldScriptingCapability
+class FieldScriptingCapability<PtrField<DataType*>> : public PdmAbstractFieldScriptingCapability
 {
 public:
-    FieldScriptingCapability( PdmPtrField<DataType*>* field, const QString& fieldName, bool giveOwnership )
+    FieldScriptingCapability( PtrField<DataType*>* field, const QString& fieldName, bool giveOwnership )
         : PdmAbstractFieldScriptingCapability( field, fieldName, giveOwnership )
     {
         m_field = field;
@@ -479,7 +479,7 @@ public:
     }
 
 private:
-    PdmPtrField<DataType*>* m_field;
+    PtrField<DataType*>* m_field;
 };
 
 template <typename DataType>
@@ -528,10 +528,10 @@ private:
 };
 
 template <typename DataType>
-class FieldScriptingCapability<PdmPtrArrayField<DataType*>> : public PdmAbstractFieldScriptingCapability
+class FieldScriptingCapability<PtrArrayField<DataType*>> : public PdmAbstractFieldScriptingCapability
 {
 public:
-    FieldScriptingCapability( PdmPtrArrayField<DataType*>* field, const QString& fieldName, bool giveOwnership )
+    FieldScriptingCapability( PtrArrayField<DataType*>* field, const QString& fieldName, bool giveOwnership )
         : PdmAbstractFieldScriptingCapability( field, fieldName, giveOwnership )
     {
         m_field = field;
@@ -569,7 +569,7 @@ public:
     }
 
 private:
-    PdmPtrArrayField<DataType*>* m_field;
+    PtrArrayField<DataType*>* m_field;
 };
 
 template <typename DataType>

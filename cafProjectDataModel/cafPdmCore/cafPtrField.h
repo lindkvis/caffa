@@ -15,41 +15,41 @@ class FieldIoCap;
 /// The referenced object will not be printed in the XML-output yet, but
 /// it is intended to be written as a reference (by path from common root)
 /// This field has nothing to do with ownership at all, and is not a part of the
-/// parent-child relations induced by the other ChildField<PdmPtrType*> ChildArrayField<PdmPtrType*>
+/// parent-child relations induced by the other ChildField<PtrType*> ChildArrayField<PtrType*>
 /// The pointer is guarded, meaning that it will be set to NULL if the object pointed to
 /// is deleted.
 //==================================================================================================
 
 template <typename DataType>
-class PdmPtrField : public PdmValueField
+class PtrField : public PdmValueField
 {
 public:
-    PdmPtrField()
+    PtrField()
     {
-        bool doNotUsePdmPtrFieldForAnythingButPointersToObject = false;
-        CAF_ASSERT( doNotUsePdmPtrFieldForAnythingButPointersToObject );
+        bool doNotUsePtrFieldForAnythingButPointersToObject = false;
+        CAF_ASSERT( doNotUsePtrFieldForAnythingButPointersToObject );
     }
 };
 
 template <typename DataType>
-class PdmPtrField<DataType*> : public PdmValueField
+class PtrField<DataType*> : public PdmValueField
 {
     typedef DataType* DataTypePtr;
 
 public:
     typedef PdmPointer<DataType> FieldDataType;
 
-    PdmPtrField()
+    PtrField()
         : m_isResolved( false )
     {
     }
-    explicit PdmPtrField( const DataTypePtr& fieldValue );
-    ~PdmPtrField() override;
+    explicit PtrField( const DataTypePtr& fieldValue );
+    ~PtrField() override;
 
     //  Assignment
 
-    PdmPtrField& operator=( const DataTypePtr& fieldValue );
-    PdmPtrField& operator=( const FieldDataType& fieldValue );
+    PtrField& operator=( const DataTypePtr& fieldValue );
+    PtrField& operator=( const FieldDataType& fieldValue );
 
     // Basic access
 
@@ -74,9 +74,9 @@ public:
     void ptrReferencedObjects( std::vector<ObjectHandle*>* objectsToFill ) override;
 
 private:
-    PDM_DISABLE_COPY_AND_ASSIGN( PdmPtrField );
+    PDM_DISABLE_COPY_AND_ASSIGN( PtrField );
 
-    friend class FieldIoCap<PdmPtrField<DataType*>>;
+    friend class FieldIoCap<PtrField<DataType*>>;
     void setRawPtr( ObjectHandle* obj );
 
     PdmPointer<DataType> m_fieldValue;
@@ -88,4 +88,4 @@ private:
 
 } // End of namespace caf
 
-#include "cafPdmPtrField.inl"
+#include "cafPtrField.inl"

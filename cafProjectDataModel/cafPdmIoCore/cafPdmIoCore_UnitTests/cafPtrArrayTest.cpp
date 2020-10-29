@@ -7,7 +7,7 @@
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
-#include "cafPdmPtrArrayField.h"
+#include "cafPtrArrayField.h"
 #include "cafPdmReferenceHelper.h"
 
 class MyItemObject : public caf::ObjectHandle, public caf::ObjectIoCapability
@@ -54,7 +54,7 @@ public:
 
     // Fields
     caf::ChildArrayField<MyItemObject*> m_items;
-    caf::PdmPtrArrayField<MyItemObject*>   m_containers;
+    caf::PtrArrayField<MyItemObject*>   m_containers;
 };
 CAF_PDM_IO_SOURCE_INIT( MyContainerObject, "MyContainerObject" );
 

@@ -68,7 +68,7 @@ public:
     void descendantsOfType( std::vector<T*>& descendants ) const;
 
     // PtrReferences
-    /// The PdmPtrField's containing pointers to this Objecthandle
+    /// The PtrField's containing pointers to this Objecthandle
     /// Use ownerObject() on the fieldHandle to get the ObjectHandle
     void referringPtrFields( std::vector<FieldHandle*>& fieldsReferringToMe ) const;
     /// Convenience method to get the objects pointing to this field
@@ -132,9 +132,9 @@ private:
     template <class T>
     friend class ChildField;
     template <class T>
-    friend class PdmPtrArrayField;
+    friend class PtrArrayField;
     template <class T>
-    friend class PdmPtrField;
+    friend class PtrField;
     template <class T>
     friend class Field; // For backwards compatibility layer
 

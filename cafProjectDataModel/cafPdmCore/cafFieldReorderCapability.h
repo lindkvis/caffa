@@ -36,7 +36,7 @@
 #pragma once
 
 #include "cafFieldCapability.h"
-#include "cafPdmPtrArrayFieldHandle.h"
+#include "cafPtrArrayFieldHandle.h"
 #include "cafSignal.h"
 
 namespace caf
@@ -49,7 +49,7 @@ public:
     Signal<> orderChanged;
 
 public:
-    FieldReorderCapability( PdmPtrArrayFieldHandle* field, bool giveOwnership );
+    FieldReorderCapability( PtrArrayFieldHandle* field, bool giveOwnership );
 
     bool canItemBeMovedUp( size_t index ) const;
     bool canItemBeMovedDown( size_t index ) const;
@@ -58,10 +58,10 @@ public:
     bool moveItemUp( size_t index );
     bool moveItemDown( size_t index );
 
-    static FieldReorderCapability* addToField( PdmPtrArrayFieldHandle* field );
+    static FieldReorderCapability* addToField( PtrArrayFieldHandle* field );
     template <typename ObserverClassType, typename... Args>
     static FieldReorderCapability*
-        addToFieldWithCallback( PdmPtrArrayFieldHandle* field,
+        addToFieldWithCallback( PtrArrayFieldHandle* field,
                                 ObserverClassType*      observer,
                                 void ( ObserverClassType::*method )( const SignalEmitter*, Args... args ) )
     {
@@ -69,7 +69,7 @@ public:
         reorderCapability->orderChanged.connect( observer, method );
         return reorderCapability;
     }
-    static bool fieldIsReorderable( PdmPtrArrayFieldHandle* field );
+    static bool fieldIsReorderable( PtrArrayFieldHandle* field );
 
     static FieldReorderCapability* reorderCapabilityOfParentContainer( const ObjectHandle* pdmObject );
 
@@ -78,7 +78,7 @@ public:
     void onMoveItemDown( const SignalEmitter* emitter, size_t index );
 
 private:
-    PdmPtrArrayFieldHandle* m_field;
+    PtrArrayFieldHandle* m_field;
 };
 
 }; // namespace caf

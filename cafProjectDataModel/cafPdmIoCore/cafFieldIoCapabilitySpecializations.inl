@@ -82,7 +82,7 @@ bool FieldIoCap<FieldType>::resolveReferences()
 }
 
 //==================================================================================================
-/// XML Implementation for PdmPtrField<>
+/// XML Implementation for PtrField<>
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
@@ -90,7 +90,7 @@ bool FieldIoCap<FieldType>::resolveReferences()
 //--------------------------------------------------------------------------------------------------
 
 template <typename DataType>
-void FieldIoCap<PdmPtrField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream, ObjectFactory* )
+void FieldIoCap<PtrField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream, ObjectFactory* )
 {
     this->assertValid();
 
@@ -123,7 +123,7 @@ void FieldIoCap<PdmPtrField<DataType*>>::readFieldData( QXmlStreamReader& xmlStr
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PdmPtrField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
+void FieldIoCap<PtrField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
 {
     this->assertValid();
 
@@ -138,7 +138,7 @@ void FieldIoCap<PdmPtrField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlSt
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PdmPtrField<DataType*>>::readFieldData( const QJsonValue& jsonValue, ObjectFactory* objectFactory )
+void FieldIoCap<PtrField<DataType*>>::readFieldData( const QJsonValue& jsonValue, ObjectFactory* objectFactory )
 {
     this->assertValid();
 
@@ -163,7 +163,7 @@ void FieldIoCap<PdmPtrField<DataType*>>::readFieldData( const QJsonValue& jsonVa
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PdmPtrField<DataType*>>::writeFieldData( QJsonValue& jsonValue ) const
+void FieldIoCap<PtrField<DataType*>>::writeFieldData( QJsonValue& jsonValue ) const
 {
     this->assertValid();
 
@@ -177,7 +177,7 @@ void FieldIoCap<PdmPtrField<DataType*>>::writeFieldData( QJsonValue& jsonValue )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool FieldIoCap<PdmPtrField<DataType*>>::resolveReferences()
+bool FieldIoCap<PtrField<DataType*>>::resolveReferences()
 {
     if ( m_isResolved ) return true;
     if ( m_referenceString.isEmpty() ) return true;
@@ -193,13 +193,13 @@ bool FieldIoCap<PdmPtrField<DataType*>>::resolveReferences()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-QString FieldIoCap<PdmPtrField<DataType*>>::referenceString() const
+QString FieldIoCap<PtrField<DataType*>>::referenceString() const
 {
     return m_referenceString;
 }
 
 //==================================================================================================
-/// XML Implementation for PdmPtrArrayField<>
+/// XML Implementation for PtrArrayField<>
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
@@ -207,7 +207,7 @@ QString FieldIoCap<PdmPtrField<DataType*>>::referenceString() const
 //--------------------------------------------------------------------------------------------------
 
 template <typename DataType>
-void FieldIoCap<PdmPtrArrayField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream, ObjectFactory* )
+void FieldIoCap<PtrArrayField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream, ObjectFactory* )
 {
     this->assertValid();
 
@@ -235,7 +235,7 @@ void FieldIoCap<PdmPtrArrayField<DataType*>>::readFieldData( QXmlStreamReader& x
 //--------------------------------------------------------------------------------------------------
 
 template <typename DataType>
-void FieldIoCap<PdmPtrArrayField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
+void FieldIoCap<PtrArrayField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
 {
     this->assertValid();
 
@@ -253,7 +253,7 @@ void FieldIoCap<PdmPtrArrayField<DataType*>>::writeFieldData( QXmlStreamWriter& 
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PdmPtrArrayField<DataType*>>::readFieldData( const QJsonValue& jsonValue, ObjectFactory* objectFactory )
+void FieldIoCap<PtrArrayField<DataType*>>::readFieldData( const QJsonValue& jsonValue, ObjectFactory* objectFactory )
 {
     this->assertValid();
 
@@ -272,7 +272,7 @@ void FieldIoCap<PdmPtrArrayField<DataType*>>::readFieldData( const QJsonValue& j
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PdmPtrArrayField<DataType*>>::writeFieldData( QJsonValue& jsonValue ) const
+void FieldIoCap<PtrArrayField<DataType*>>::writeFieldData( QJsonValue& jsonValue ) const
 {
     this->assertValid();
 
@@ -289,7 +289,7 @@ void FieldIoCap<PdmPtrArrayField<DataType*>>::writeFieldData( QJsonValue& jsonVa
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool FieldIoCap<PdmPtrArrayField<DataType*>>::resolveReferences()
+bool FieldIoCap<PtrArrayField<DataType*>>::resolveReferences()
 {
     if ( m_isResolved ) return true;
     if ( m_referenceString.isEmpty() ) return true;
@@ -318,7 +318,7 @@ bool FieldIoCap<PdmPtrArrayField<DataType*>>::resolveReferences()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-QString FieldIoCap<PdmPtrArrayField<DataType*>>::referenceString() const
+QString FieldIoCap<PtrArrayField<DataType*>>::referenceString() const
 {
     return m_referenceString;
 }
@@ -327,7 +327,7 @@ QString FieldIoCap<PdmPtrArrayField<DataType*>>::referenceString() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool FieldIoCap<PdmPtrArrayField<DataType*>>::isVectorField() const
+bool FieldIoCap<PtrArrayField<DataType*>>::isVectorField() const
 {
     return true;
 }

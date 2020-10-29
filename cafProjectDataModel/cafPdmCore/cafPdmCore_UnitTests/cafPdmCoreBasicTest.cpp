@@ -8,7 +8,7 @@
 #include "cafPdmDataValueField.h"
 #include "cafObjectHandle.h"
 #include "cafPdmProxyValueField.h"
-#include "cafPdmPtrField.h"
+#include "cafPtrField.h"
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmValueField.h"
 
@@ -95,7 +95,7 @@ public:
 
     caf::PdmDataValueField<QString>         m_texts;
     caf::ChildArrayField<DemoObject*> m_childArrayField;
-    caf::PdmPtrField<InheritedDemoObj*>     m_ptrField;
+    caf::PtrField<InheritedDemoObj*>     m_ptrField;
 
     caf::PdmDataValueField<caf::FilePath>              m_singleFilePath;
     caf::PdmDataValueField<std::vector<caf::FilePath>> m_multipleFilePath;
@@ -480,7 +480,7 @@ TEST( BaseTest, ChildField )
     }
 }
 
-TEST( BaseTest, PdmPtrField )
+TEST( BaseTest, PtrField )
 {
     InheritedDemoObj* ihd1 = new InheritedDemoObj;
     InheritedDemoObj* ihd2 = new InheritedDemoObj;
@@ -503,12 +503,12 @@ TEST( BaseTest, PdmPtrField )
     accessedIhd = ihd1->m_ptrField.value();
     EXPECT_EQ( ihd2, accessedIhd );
 
-    caf::PdmPointer<InheritedDemoObj> accessedPdmPtr;
+    caf::PdmPointer<InheritedDemoObj> accessedPtr;
     EXPECT_EQ( ihd2, accessedIhd );
-    accessedPdmPtr = ihd1->m_ptrField();
-    EXPECT_EQ( ihd2, accessedPdmPtr.p() );
-    accessedPdmPtr = ihd1->m_ptrField();
-    EXPECT_EQ( ihd2, accessedPdmPtr.p() );
+    accessedPtr = ihd1->m_ptrField();
+    EXPECT_EQ( ihd2, accessedPtr.p() );
+    accessedPtr = ihd1->m_ptrField();
+    EXPECT_EQ( ihd2, accessedPtr.p() );
 
     // Operator ==
     EXPECT_TRUE( ihd1->m_ptrField == ihd2 );

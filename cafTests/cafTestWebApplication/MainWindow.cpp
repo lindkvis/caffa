@@ -12,7 +12,7 @@
 #include "cafObject.h"
 #include "cafObjectGroup.h"
 #include "cafPdmProxyValueField.h"
-#include "cafPdmPtrField.h"
+#include "cafPtrField.h"
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiOrdering.h"
