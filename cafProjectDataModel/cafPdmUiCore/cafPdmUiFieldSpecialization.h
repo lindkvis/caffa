@@ -8,7 +8,7 @@
 namespace caf
 {
 template <typename T>
-class PdmDataValueField;
+class DataValueField;
 class PdmOptionItemInfo;
 class ObjectHandle;
 
@@ -56,7 +56,7 @@ public:
     }
 
     /// Methods to retrieve the possible Object pointed to by a field
-    static void childObjects( const PdmDataValueField<T>&, std::vector<ObjectHandle*>* ) {}
+    static void childObjects( const DataValueField<T>&, std::vector<ObjectHandle*>* ) {}
 };
 } // End of namespace caf
 

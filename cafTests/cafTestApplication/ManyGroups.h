@@ -2,7 +2,7 @@
 
 #include "cafField.h"
 #include "cafObject.h"
-#include "cafPdmProxyValueField.h"
+#include "cafProxyValueField.h"
 
 class ManyGroups : public caf::Object
 {
@@ -14,7 +14,7 @@ public:
     caf::Field<double>           m_doubleField;
     caf::Field<int>              m_intField;
     caf::Field<QString>          m_textField;
-    caf::PdmProxyValueField<double> m_proxyDoubleField;
+    caf::ProxyValueField<double> m_proxyDoubleField;
 
     caf::Field<std::vector<QString>> m_multiSelectList;
     caf::Field<QString>              m_stringWithMultipleOptions;

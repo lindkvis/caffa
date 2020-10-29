@@ -3,8 +3,8 @@
 #include "cafAssert.h"
 #include "cafFieldHandle.h"
 #include "cafPdmPointer.h"
-#include "cafPdmValueField.h"
-#include "cafPdmValueFieldSpecializations.h"
+#include "cafValueField.h"
+#include "cafValueFieldSpecializations.h"
 
 #include <QVariant>
 
@@ -14,11 +14,11 @@
 namespace caf
 {
 //==================================================================================================
-/// Abstract non-templated base class for PdmProxyValueField
+/// Abstract non-templated base class for ProxyValueField
 /// Exists only to be able to determine that a field is a proxy field
 //==================================================================================================
 
-class PdmProxyFieldHandle : public PdmValueField
+class PdmProxyFieldHandle : public ValueField
 {
 public:
     virtual bool isStreamingField() const = 0;
@@ -32,7 +32,7 @@ public:
 /// read/write-FieldData is supposed to be specialized for types needing specialization
 //==================================================================================================
 template <typename DataType>
-class PdmProxyValueField : public PdmProxyFieldHandle
+class ProxyValueField : public PdmProxyFieldHandle
 {
 public:
     // Type traits magic to check if a template argument is a vector
@@ -46,12 +46,12 @@ public:
     };
 
     typedef DataType FieldDataType;
-    PdmProxyValueField()
+    ProxyValueField()
     {
         m_valueSetter = NULL;
         m_valueGetter = NULL;
     }
-    ~PdmProxyValueField() override
+    ~ProxyValueField() override
     {
         if ( m_valueSetter ) delete m_valueSetter;
         if ( m_valueGetter ) delete m_valueGetter;
@@ -59,7 +59,7 @@ public:
 
     // Assignment
 
-    PdmProxyValueField& operator=( const DataType& newFieldValue )
+    ProxyValueField& operator=( const DataType& newFieldValue )
     {
         setValue( newFieldValue );
         return *this;
@@ -82,17 +82,17 @@ public:
     bool hasGetter() const override { return m_valueGetter != nullptr; }
     bool hasSetter() const override { return m_valueSetter != nullptr; }
 
-    // Implementation of PdmValueField interface
+    // Implementation of ValueField interface
 
     QVariant toQVariant() const override
     {
         DataType val = value();
-        return PdmValueFieldSpecialization<DataType>::convert( val );
+        return ValueFieldSpecialization<DataType>::convert( val );
     }
     void setFromQVariant( const QVariant& variant ) override
     {
         DataType val;
-        PdmValueFieldSpecialization<DataType>::setFromVariant( variant, val );
+        ValueFieldSpecialization<DataType>::setFromVariant( variant, val );
         setValue( val );
     }
     bool isReadOnly() const override
@@ -114,7 +114,7 @@ public:
     bool     operator==( const DataType& otherValue ) const { return value() == otherValue; }
 
 private:
-    PDM_DISABLE_COPY_AND_ASSIGN( PdmProxyValueField );
+    PDM_DISABLE_COPY_AND_ASSIGN( ProxyValueField );
 
     // Proxy Field stuff to handle the method pointers
     // The public registering methods must be written below the private classes

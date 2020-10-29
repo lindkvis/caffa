@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cafPdmDataValueField.h"
+#include "cafDataValueField.h"
 #include "cafObjectHandle.h"
 #include "cafPdmPointer.h"
 
@@ -10,5 +10,5 @@ public:
     TestObj();
     ~TestObj();
 
-    caf::PdmDataValueField<double> m_position;
+    caf::DataValueField<double> m_position;
 };

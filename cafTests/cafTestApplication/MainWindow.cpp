@@ -21,7 +21,7 @@
 #include "cafFieldUiCapability.h"
 #include "cafObject.h"
 #include "cafObjectGroup.h"
-#include "cafPdmProxyValueField.h"
+#include "cafProxyValueField.h"
 #include "cafPtrField.h"
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiComboBoxEditor.h"
@@ -161,7 +161,7 @@ public:
     caf::Field<int>     m_intField;
     caf::Field<QString> m_textField;
 
-    caf::PdmProxyValueField<double>           m_proxyDoubleField;
+    caf::ProxyValueField<double>           m_proxyDoubleField;
     caf::Field<caf::FilePath>              m_fileName;
     caf::Field<std::vector<caf::FilePath>> m_fileNameList;
 
@@ -709,7 +709,7 @@ public:
     caf::Field<caf::AppEnum<TestEnumType>> m_testEnumField;
     caf::PtrField<SmallDemoObjectA*>    m_ptrField;
 
-    caf::PdmProxyValueField<caf::AppEnum<TestEnumType>> m_proxyEnumField;
+    caf::ProxyValueField<caf::AppEnum<TestEnumType>> m_proxyEnumField;
     void                                                setEnumMember(const caf::AppEnum<TestEnumType>& val)
     {
         m_proxyEnumMember = val;

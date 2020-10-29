@@ -273,7 +273,7 @@ template <typename FieldType>
 bool caf::FieldUiCap<FieldType>::isQVariantDataEqual( const QVariant& oldUiBasedQVariant,
                                                          const QVariant& newUiBasedQVariant ) const
 {
-    return PdmValueFieldSpecialization<typename FieldType::FieldDataType>::isEqual( oldUiBasedQVariant, newUiBasedQVariant );
+    return ValueFieldSpecialization<typename FieldType::FieldDataType>::isEqual( oldUiBasedQVariant, newUiBasedQVariant );
 }
 
 } // End of namespace caf

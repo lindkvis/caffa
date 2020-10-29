@@ -43,7 +43,7 @@
 #include "cafObjectFactory.h"
 #include "cafObjectMethod.h"
 #include "cafObjectScriptingCapabilityRegister.h"
-#include "cafPdmProxyValueField.h"
+#include "cafProxyValueField.h"
 
 #include <QRegularExpression>
 #include <QTextStream>
@@ -127,7 +127,7 @@ QString PdmPythonGenerator::generate( ObjectFactory* factory ) const
                             comment = commentComponents.join( ". " );
                         }
 
-                        auto pdmValueField      = dynamic_cast<const PdmValueField*>( field );
+                        auto pdmValueField      = dynamic_cast<const ValueField*>( field );
                         auto pdmChildField      = dynamic_cast<const ChildFieldHandle*>( field );
                         auto pdmChildArrayField = dynamic_cast<const ChildArrayFieldHandle*>( field );
                         if ( pdmValueField )

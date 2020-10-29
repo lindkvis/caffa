@@ -38,7 +38,7 @@
 
 #include "cafPdmUiFieldSpecialization.h"
 #include "cafPdmUiItem.h"
-#include "cafPdmValueFieldSpecializations.h"
+#include "cafValueFieldSpecializations.h"
 
 #include "cafPdmCoreColor.h"
 
@@ -51,17 +51,17 @@ class PdmUiFieldSpecialization<QColor>
 {
 public:
     /// Convert the field value into a QVariant
-    static QVariant convert( const QColor& value ) { return PdmValueFieldSpecialization<QColor>::convert( value ); }
+    static QVariant convert( const QColor& value ) { return ValueFieldSpecialization<QColor>::convert( value ); }
 
     /// Set the field value from a QVariant
     static void setFromVariant( const QVariant& variantValue, QColor& value )
     {
-        PdmValueFieldSpecialization<QColor>::setFromVariant( variantValue, value );
+        ValueFieldSpecialization<QColor>::setFromVariant( variantValue, value );
     }
 
     static bool isDataElementEqual( const QVariant& variantValue, const QVariant& variantValue2 )
     {
-        return PdmValueFieldSpecialization<QColor>::isEqual( variantValue, variantValue2 );
+        return ValueFieldSpecialization<QColor>::isEqual( variantValue, variantValue2 );
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
@@ -71,7 +71,7 @@ public:
     }
 
     /// Methods to retrieve the possible Object pointed to by a field
-    static void childObjects( const PdmDataValueField<QColor>&, std::vector<ObjectHandle*>* ) {}
+    static void childObjects( const DataValueField<QColor>&, std::vector<ObjectHandle*>* ) {}
 };
 
 } // end namespace caf

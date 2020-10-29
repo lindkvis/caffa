@@ -85,7 +85,7 @@ public:                                      \
     CAF_FACTORY_REGISTER2( caf::PdmWebFieldEditorHandle,                       \
                            EditorClassName,                                    \
                            QString,                                            \
-                           qStringTypeName( caf::PdmProxyValueField<TypeName> ) )
+                           qStringTypeName( caf::ProxyValueField<TypeName> ) )
 
 class PdmUiGroup;
 class FieldUiCapability;

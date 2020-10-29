@@ -11,7 +11,7 @@
 #include "cafPdmDocument.h"
 #include "cafObject.h"
 #include "cafObjectGroup.h"
-#include "cafPdmProxyValueField.h"
+#include "cafProxyValueField.h"
 #include "cafPtrField.h"
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiItem.h"
@@ -117,7 +117,7 @@ public:
     caf::Field<bool>                       m_toggleField;
     caf::Field<caf::AppEnum<TestEnumType>> m_testEnumField;
 
-    caf::PdmProxyValueField<double> m_proxyDoubleField;
+    caf::ProxyValueField<double> m_proxyDoubleField;
 
     void fieldChangedByUi(const caf::FieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override
     {

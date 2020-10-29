@@ -43,7 +43,7 @@
 #include "cafObject.h"
 #include "cafObjectFactory.h"
 #include "cafObjectScriptingCapabilityRegister.h"
-#include "cafPdmProxyValueField.h"
+#include "cafProxyValueField.h"
 #include "cafPdmPythonGenerator.h"
 
 #include <QRegularExpression>
@@ -126,7 +126,7 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
                             comment = commentComponents.join( ". " );
                         }
 
-                        auto pdmValueField      = dynamic_cast<const PdmValueField*>( field );
+                        auto pdmValueField      = dynamic_cast<const ValueField*>( field );
                         auto pdmChildField      = dynamic_cast<const ChildFieldHandle*>( field );
                         auto pdmChildArrayField = dynamic_cast<const ChildArrayFieldHandle*>( field );
                         if ( pdmValueField )

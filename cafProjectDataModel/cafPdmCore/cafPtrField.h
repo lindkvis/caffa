@@ -3,7 +3,7 @@
 #include "cafAssert.h"
 #include "cafPdmPointer.h"
 
-#include "cafPdmValueField.h"
+#include "cafValueField.h"
 
 namespace caf
 {
@@ -21,7 +21,7 @@ class FieldIoCap;
 //==================================================================================================
 
 template <typename DataType>
-class PtrField : public PdmValueField
+class PtrField : public ValueField
 {
 public:
     PtrField()
@@ -32,7 +32,7 @@ public:
 };
 
 template <typename DataType>
-class PtrField<DataType*> : public PdmValueField
+class PtrField<DataType*> : public ValueField
 {
     typedef DataType* DataTypePtr;
 

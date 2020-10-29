@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 
 #include "cafChildArrayField.h"
-#include "cafPdmDataValueField.h"
+#include "cafDataValueField.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
@@ -33,7 +33,7 @@ public:
     ~MyItemObject() {}
 
     // Fields
-    caf::PdmDataValueField<QString> m_name;
+    caf::DataValueField<QString> m_name;
 };
 CAF_PDM_IO_SOURCE_INIT( MyItemObject, "MyItemObject" );
 

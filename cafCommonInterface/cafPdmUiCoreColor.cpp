@@ -37,7 +37,7 @@
 #include "cafPdmUiCoreColor.h"
 
 #include "cafField.h"
-#include "cafPdmProxyValueField.h"
+#include "cafProxyValueField.h"
 
 //--------------------------------------------------------------------------------------------------
 // If the macro for registering the editor is put as the single statement

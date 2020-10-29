@@ -5,12 +5,12 @@
 
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
-#include "cafPdmDataValueField.h"
+#include "cafDataValueField.h"
 #include "cafObjectHandle.h"
-#include "cafPdmProxyValueField.h"
+#include "cafProxyValueField.h"
 #include "cafPtrField.h"
 #include "cafPdmReferenceHelper.h"
-#include "cafPdmValueField.h"
+#include "cafValueField.h"
 
 #include <vector>
 
@@ -48,13 +48,13 @@ public:
     ~DemoObject() {}
 
     // Fields
-    caf::PdmProxyValueField<double>  m_proxyDoubleField;
-    caf::PdmProxyValueField<int>     m_proxyIntField;
-    caf::PdmProxyValueField<QString> m_proxyStringField;
+    caf::ProxyValueField<double>  m_proxyDoubleField;
+    caf::ProxyValueField<int>     m_proxyIntField;
+    caf::ProxyValueField<QString> m_proxyStringField;
 
-    caf::PdmDataValueField<double>  m_memberDoubleField;
-    caf::PdmDataValueField<int>     m_memberIntField;
-    caf::PdmDataValueField<QString> m_memberStringField;
+    caf::DataValueField<double>  m_memberDoubleField;
+    caf::DataValueField<int>     m_memberIntField;
+    caf::DataValueField<QString> m_memberStringField;
 
     // Internal class members accessed by proxy fields
     double doubleMember() const
@@ -93,12 +93,12 @@ public:
         this->addField( &m_multipleFilePath, "m_multipleFilePath" );
     }
 
-    caf::PdmDataValueField<QString>         m_texts;
+    caf::DataValueField<QString>         m_texts;
     caf::ChildArrayField<DemoObject*> m_childArrayField;
     caf::PtrField<InheritedDemoObj*>     m_ptrField;
 
-    caf::PdmDataValueField<caf::FilePath>              m_singleFilePath;
-    caf::PdmDataValueField<std::vector<caf::FilePath>> m_multipleFilePath;
+    caf::DataValueField<caf::FilePath>              m_singleFilePath;
+    caf::DataValueField<std::vector<caf::FilePath>> m_multipleFilePath;
 };
 
 TEST( BaseTest, Delete )
@@ -108,9 +108,9 @@ TEST( BaseTest, Delete )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// TestPdmDataValueField
+/// TestDataValueField
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, TestPdmDataValueField )
+TEST( BaseTest, TestDataValueField )
 {
     DemoObject* a = new DemoObject;
 
@@ -128,9 +128,9 @@ TEST( BaseTest, TestPdmDataValueField )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// TestPdmProxyValueField
+/// TestProxyValueField
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, TestPdmProxyValueField )
+TEST( BaseTest, TestProxyValueField )
 {
     DemoObject* a = new DemoObject;
 
@@ -149,12 +149,12 @@ TEST( BaseTest, TestPdmProxyValueField )
 
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, TestPdmValueFieldInterface )
+TEST( BaseTest, TestValueFieldInterface )
 {
     DemoObject* a = new DemoObject;
 
     {
-        caf::PdmValueField* valField = dynamic_cast<caf::PdmValueField*>( a->findField( "m_proxyDoubleField" ) );
+        caf::ValueField* valField = dynamic_cast<caf::ValueField*>( a->findField( "m_proxyDoubleField" ) );
         QVariant            newVal   = 3.4;
         valField->setFromQVariant( newVal );
         QVariant var = valField->toQVariant();
@@ -162,7 +162,7 @@ TEST( BaseTest, TestPdmValueFieldInterface )
     }
 
     {
-        caf::PdmValueField* valField = dynamic_cast<caf::PdmValueField*>( a->findField( "m_proxyIntField" ) );
+        caf::ValueField* valField = dynamic_cast<caf::ValueField*>( a->findField( "m_proxyIntField" ) );
         QVariant            newVal   = 3;
         valField->setFromQVariant( newVal );
         QVariant var = valField->toQVariant();
@@ -170,7 +170,7 @@ TEST( BaseTest, TestPdmValueFieldInterface )
     }
 
     {
-        caf::PdmValueField* valField = dynamic_cast<caf::PdmValueField*>( a->findField( "m_proxyStringField" ) );
+        caf::ValueField* valField = dynamic_cast<caf::ValueField*>( a->findField( "m_proxyStringField" ) );
         QVariant            newVal   = "test";
         valField->setFromQVariant( newVal );
         QVariant var = valField->toQVariant();
@@ -178,7 +178,7 @@ TEST( BaseTest, TestPdmValueFieldInterface )
     }
 
     {
-        caf::PdmValueField* valField = dynamic_cast<caf::PdmValueField*>( a->findField( "m_memberDoubleField" ) );
+        caf::ValueField* valField = dynamic_cast<caf::ValueField*>( a->findField( "m_memberDoubleField" ) );
         QVariant            newVal   = 3.4;
         valField->setFromQVariant( newVal );
         QVariant var = valField->toQVariant();
@@ -186,7 +186,7 @@ TEST( BaseTest, TestPdmValueFieldInterface )
     }
 
     {
-        caf::PdmValueField* valField = dynamic_cast<caf::PdmValueField*>( a->findField( "m_memberIntField" ) );
+        caf::ValueField* valField = dynamic_cast<caf::ValueField*>( a->findField( "m_memberIntField" ) );
         QVariant            newVal   = 3;
         valField->setFromQVariant( newVal );
         QVariant var = valField->toQVariant();
@@ -194,7 +194,7 @@ TEST( BaseTest, TestPdmValueFieldInterface )
     }
 
     {
-        caf::PdmValueField* valField = dynamic_cast<caf::PdmValueField*>( a->findField( "m_memberStringField" ) );
+        caf::ValueField* valField = dynamic_cast<caf::ValueField*>( a->findField( "m_memberStringField" ) );
         QVariant            newVal   = "test";
         valField->setFromQVariant( newVal );
         QVariant var = valField->toQVariant();
@@ -203,7 +203,7 @@ TEST( BaseTest, TestPdmValueFieldInterface )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Test of PdmDataValueField operations
+/// Test of DataValueField operations
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, NormalField )
 {
@@ -219,9 +219,9 @@ TEST( BaseTest, NormalField )
             this->addField( &field3, "field3" );
         }
 
-        caf::PdmDataValueField<std::vector<double>> field1;
-        caf::PdmDataValueField<std::vector<double>> field2;
-        caf::PdmDataValueField<std::vector<double>> field3;
+        caf::DataValueField<std::vector<double>> field1;
+        caf::DataValueField<std::vector<double>> field2;
+        caf::DataValueField<std::vector<double>> field3;
     };
 
     std::vector<double> testValue;

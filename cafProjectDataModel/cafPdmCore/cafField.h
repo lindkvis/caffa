@@ -1,9 +1,9 @@
 #pragma once
 
 #define CAF_IS_DEFINING_PDM_FIELD
-#define PdmDataValueField Field
-#include "cafPdmDataValueField.h"
-#undef PdmDataValueField
+#define DataValueField Field
+#include "cafDataValueField.h"
+#undef DataValueField
 #undef CAF_IS_DEFINING_PDM_FIELD
 
 #ifndef __clang__

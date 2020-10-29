@@ -41,7 +41,7 @@ class QVariant;
 
 namespace caf
 {
-class PdmValueField : public FieldHandle
+class ValueField : public FieldHandle
 {
 public:
     virtual QVariant toQVariant() const                         = 0;
@@ -49,7 +49,7 @@ public:
     virtual bool     isReadOnly() const                         = 0;
 };
 
-// class PdmProxyValueField : public PdmValueField
+// class ProxyValueField : public ValueField
 // {
 //     DataType        value() const                      { CAF_ASSERT(m_valueGetter);  return
 //     m_valueGetter->getValue(); } void            setValue(const DataType& fieldValue)  { if (m_valueSetter)
