@@ -52,7 +52,7 @@ void PdmObjectGroup::createCopyByType( std::vector<PdmPointer<T>>* copyOfTypedOb
 
     for ( size_t i = 0; i < sourceTypedObjects.size(); i++ )
     {
-        auto             ioCapability = sourceTypedObjects[i]->capability<PdmObjectIoCapability>();
+        auto             ioCapability = sourceTypedObjects[i]->template capability<PdmObjectIoCapability>();
         QString          string       = ioCapability->writeObjectToString();
         PdmObjectHandle* objectCopy =
             PdmObjectIoCapability::readUnknownObjectFromString( string, PdmDefaultObjectFactory::instance(), true );
