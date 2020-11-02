@@ -12,7 +12,7 @@ bool FieldHandle::assertValid() const
 {
     if (m_keyword == "UNDEFINED")
     {
-        std::cout << "Field: Detected use of non-initialized field. Did you forget to do CAF_PDM_InitField() on this field ?\n";
+        std::cout << "Field: Detected use of non-initialized field. Did you forget to do CAF_InitField() on this field ?\n";
         return false;
     }
 

@@ -50,17 +50,17 @@ class FieldIoCapability;
 //==================================================================================================
 class CmdFieldChangeExecData : public Object
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     CmdFieldChangeExecData()
     {
-        CAF_PDM_InitObject( "CmdFieldChangeExecData uiName",
+        CAF_InitObject( "CmdFieldChangeExecData uiName",
                             "",
                             "CmdFieldChangeExecData tooltip",
                             "CmdFieldChangeExecData whatsthis" );
 
-        CAF_PDM_InitField( &m_pathToField, "PathToField", QString(), "PathToField", "", "PathToField tooltip", "PathToField whatsthis" );
+        CAF_InitField( &m_pathToField, "PathToField", QString(), "PathToField", "", "PathToField tooltip", "PathToField whatsthis" );
     }
 
     caf::PdmPointer<ObjectHandle> m_rootObject;

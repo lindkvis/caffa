@@ -2,7 +2,7 @@
 
 using namespace caf;
 
-CAF_PDM_ABSTRACT_SOURCE_INIT( Object, "ObjectBase" );
+CAF_ABSTRACT_SOURCE_INIT( Object, "ObjectBase" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -12,7 +12,7 @@ caf::Object::Object()
     , ObjectIoCapability( this, false )
     , ObjectUiCapability( this, false )
 {
-    CAF_PDM_InitObject( "Base PDM Object", "", "", "The Abstract Base Class for the Project Data Model" );
+    CAF_InitObject( "Base PDM Object", "", "", "The Abstract Base Class for the Project Data Model" );
 }
 
 //--------------------------------------------------------------------------------------------------

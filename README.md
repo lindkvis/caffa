@@ -8,7 +8,7 @@ As an example, you would write Data Model Objects with PdmFields holding data in
 ```C++
 class TinyDemoObject : public caf::Object
 {
-    CAF__HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     TinyDemoObject();
@@ -21,12 +21,12 @@ private:
 
 In the cpp file you then register the object and fields.
 ```C++
-CAF_PDM_SOURCE_INIT(TinyDemoObject, "TinyDemoObject");
+CAF_SOURCE_INIT(TinyDemoObject, "TinyDemoObject");
 
 TinyDemoObject::TinyDemoObject()
 {
-    CAF_PDM_InitField(&m_toggleField, "Toggle", false, "Toggle Item", "", "Tooltip", " Whatsthis?");
-    CAF_PDM_InitField(&m_doubleField, "Number", 0.0, "Number", "", "Enter a number here", "Double precision number");
+    CAF_InitField(&m_toggleField, "Toggle", false, "Toggle Item", "", "Tooltip", " Whatsthis?");
+    CAF_InitField(&m_doubleField, "Number", 0.0, "Number", "", "Enter a number here", "Double precision number");
 }
 ```
 # Requirements

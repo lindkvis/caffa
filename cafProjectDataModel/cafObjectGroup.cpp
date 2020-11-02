@@ -7,14 +7,14 @@
 
 namespace caf
 {
-CAF_PDM_SOURCE_INIT( ObjectGroup, "ObjectGroup" );
+CAF_SOURCE_INIT( ObjectGroup, "ObjectGroup" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 ObjectGroup::ObjectGroup()
 {
-    CAF_PDM_InitObject( "Object Group", "", "", "" );
+    CAF_InitObject( "Object Group", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -44,15 +44,15 @@ void ObjectGroup::addObject( ObjectHandle* obj )
     objects.push_back( obj );
 }
 
-CAF_PDM_SOURCE_INIT( ObjectCollection, "ObjectCollection" );
+CAF_SOURCE_INIT( ObjectCollection, "ObjectCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 ObjectCollection::ObjectCollection()
 {
-    CAF_PDM_InitObject( "ObjectCollection", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &objects, "Objects", "", "", "", "" )
+    CAF_InitObject( "ObjectCollection", "", "", "" );
+    CAF_InitFieldNoDefault( &objects, "Objects", "", "", "", "" )
 }
 
 //--------------------------------------------------------------------------------------------------

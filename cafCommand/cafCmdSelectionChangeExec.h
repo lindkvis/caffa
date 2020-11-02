@@ -49,19 +49,19 @@ namespace caf
 //==================================================================================================
 class CmdSelectionChangeExecData : public Object
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     CmdSelectionChangeExecData()
     {
-        CAF_PDM_InitObject( "CmdSelectionChangeExecData uiName",
+        CAF_InitObject( "CmdSelectionChangeExecData uiName",
                             "",
                             "CmdSelectionChangeExecData tooltip",
                             "CmdSelectionChangeExecData whatsthis" );
 
-        CAF_PDM_InitFieldNoDefault( &m_selectionLevel, "selectionLevel", "selectionLevel", "", "", "" );
-        CAF_PDM_InitField( &m_previousSelection, "previousSelection", std::vector<QString>(), "previousSelection", "", "", "" );
-        CAF_PDM_InitField( &m_newSelection, "newSelection", std::vector<QString>(), "newSelection", "", "", "" );
+        CAF_InitFieldNoDefault( &m_selectionLevel, "selectionLevel", "selectionLevel", "", "", "" );
+        CAF_InitField( &m_previousSelection, "previousSelection", std::vector<QString>(), "previousSelection", "", "", "" );
+        CAF_InitField( &m_newSelection, "newSelection", std::vector<QString>(), "newSelection", "", "", "" );
     }
 
     Field<int>                  m_selectionLevel;

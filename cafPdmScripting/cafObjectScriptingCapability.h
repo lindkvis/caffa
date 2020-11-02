@@ -49,13 +49,13 @@
 class QTextStream;
 
 #define CAF_PDM_InitScriptableObject( uiName, iconResourceName, toolTip, whatsThis )              \
-    CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis );                           \
+    CAF_InitObject( uiName, iconResourceName, toolTip, whatsThis );                           \
     caf::ObjectScriptingCapabilityRegister::registerScriptClassNameAndComment( classKeyword(), \
                                                                                   classKeyword(), \
                                                                                   whatsThis );
 
 #define CAF_PDM_InitScriptableObjectWithNameAndComment( uiName, iconResourceName, toolTip, whatsThis, scriptClassName, scriptComment ) \
-    CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis );                                                                \
+    CAF_InitObject( uiName, iconResourceName, toolTip, whatsThis );                                                                \
     caf::ObjectScriptingCapabilityRegister::registerScriptClassNameAndComment( classKeyword(),                                      \
                                                                                   scriptClassName,                                     \
                                                                                   scriptComment );

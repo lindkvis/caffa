@@ -46,25 +46,25 @@ namespace caf
 //==================================================================================================
 class CmdDeleteItemExecData : public Object
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     CmdDeleteItemExecData()
     {
-        CAF_PDM_InitObject( "CmdDeleteItemExecData uiName",
+        CAF_InitObject( "CmdDeleteItemExecData uiName",
                             "",
                             "CmdDeleteItemExecData tooltip",
                             "CmdDeleteItemExecData whatsthis" );
 
-        CAF_PDM_InitField( &m_pathToField, "PathToField", QString(), "PathToField", "", "PathToField tooltip", "PathToField whatsthis" );
-        CAF_PDM_InitField( &m_indexToObject,
+        CAF_InitField( &m_pathToField, "PathToField", QString(), "PathToField", "", "PathToField tooltip", "PathToField whatsthis" );
+        CAF_InitField( &m_indexToObject,
                            "indexToObject",
                            -1,
                            "indexToObject",
                            "",
                            "indexToObject tooltip",
                            "indexToObject whatsthis" );
-        CAF_PDM_InitField( &m_deletedObjectAsXml,
+        CAF_InitField( &m_deletedObjectAsXml,
                            "deletedObjectAsXml",
                            QString(),
                            "deletedObjectAsXml",

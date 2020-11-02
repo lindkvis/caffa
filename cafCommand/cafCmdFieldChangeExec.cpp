@@ -40,7 +40,7 @@
 
 namespace caf
 {
-CAF_PDM_SOURCE_INIT( CmdFieldChangeExecData, "CmdFieldChangeExecData" );
+CAF_SOURCE_INIT( CmdFieldChangeExecData, "CmdFieldChangeExecData" );
 
 //--------------------------------------------------------------------------------------------------
 ///

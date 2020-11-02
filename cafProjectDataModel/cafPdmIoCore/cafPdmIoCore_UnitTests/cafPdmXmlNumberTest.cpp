@@ -16,7 +16,7 @@
 //--------------------------------------------------------------------------------------------------
 class SimpleObjectWithNumbers : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
-    CAF_PDM_IO_HEADER_INIT;
+    CAF_IO_HEADER_INIT;
 
 public:
     SimpleObjectWithNumbers()
@@ -36,7 +36,7 @@ public:
     caf::DataValueField<float> m_floatValueA;
     caf::DataValueField<float> m_floatValueB;
 };
-CAF_PDM_IO_SOURCE_INIT( SimpleObjectWithNumbers, "SimpleObjectWithNumbers" );
+CAF_IO_SOURCE_INIT( SimpleObjectWithNumbers, "SimpleObjectWithNumbers" );
 
 //--------------------------------------------------------------------------------------------------
 ///

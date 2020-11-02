@@ -22,20 +22,20 @@
     static_assert( !isFirstThreeCharactersXml( keyword ), "Keyword starts with invalid sequence xml" );     \
     static_assert( isValidXmlKeyword( keyword ), "Detected invalid character in keyword" );
 
-/// CAF_PDM_HEADER_INIT assists the factory used when reading objects from file
+/// CAF_HEADER_INIT assists the factory used when reading objects from file
 /// Place this in the header file inside the class definition of your Object
 
-#define CAF_PDM_IO_HEADER_INIT                                                                \
+#define CAF_IO_HEADER_INIT                                                                \
 public:                                                                                       \
     virtual QString             classKeyword() const override;                                \
     static QString              classKeywordStatic();                                         \
     static std::vector<QString> classKeywordAliases();                                        \
     virtual bool                matchesClassKeyword( const QString& keyword ) const override; \
                                                                                               \
-    static bool Error_You_forgot_to_add_the_macro_CAF_PDM_IO_HEADER_INIT_and_or_CAF_PDM_IO_SOURCE_INIT_to_your_cpp_file_for_this_class()
+    static bool Error_You_forgot_to_add_the_macro_CAF_IO_HEADER_INIT_and_or_CAF_IO_SOURCE_INIT_to_your_cpp_file_for_this_class()
 
-#define CAF_PDM_IO_ABSTRACT_SOURCE_INIT( ClassName, keyword, ... )                                                                           \
-    bool ClassName::Error_You_forgot_to_add_the_macro_CAF_PDM_IO_HEADER_INIT_and_or_CAF_PDM_IO_SOURCE_INIT_to_your_cpp_file_for_this_class() \
+#define CAF_IO_ABSTRACT_SOURCE_INIT( ClassName, keyword, ... )                                                                           \
+    bool ClassName::Error_You_forgot_to_add_the_macro_CAF_IO_HEADER_INIT_and_or_CAF_IO_SOURCE_INIT_to_your_cpp_file_for_this_class() \
     {                                                                                                                                        \
         return false;                                                                                                                        \
     }                                                                                                                                        \
@@ -57,11 +57,11 @@ public:                                                                         
         return false;                                                                                                                        \
     }
 
-/// CAF_PDM_IO_SOURCE_INIT associates the file keyword used for storage with the class and
+/// CAF_IO_SOURCE_INIT associates the file keyword used for storage with the class and
 //  initializes the factory
 /// Place this in the cpp file, preferably above the constructor
-#define CAF_PDM_IO_SOURCE_INIT( ClassName, keyword, ... )                  \
-    CAF_PDM_IO_ABSTRACT_SOURCE_INIT( ClassName, keyword, ##__VA_ARGS__ )   \
+#define CAF_IO_SOURCE_INIT( ClassName, keyword, ... )                  \
+    CAF_IO_ABSTRACT_SOURCE_INIT( ClassName, keyword, ##__VA_ARGS__ )   \
     static bool PDM_OBJECT_STRING_CONCATENATE( my##ClassName, __LINE__ ) = \
         caf::PdmDefaultObjectFactory::instance()->registerCreator<ClassName>()
 
@@ -69,7 +69,7 @@ public:                                                                         
     {                                                                                                                                 \
         CAF_PDM_VERIFY_IO_KEYWORD( keyword )                                                                                          \
         static bool checkingThePresenceOfHeaderAndSourceInitMacros =                                                                  \
-            Error_You_forgot_to_add_the_macro_CAF_PDM_IO_HEADER_INIT_and_or_CAF_PDM_IO_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
+            Error_You_forgot_to_add_the_macro_CAF_IO_HEADER_INIT_and_or_CAF_IO_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
         this->isInheritedFromSerializable();                                                                                          \
                                                                                                                                       \
         AddIoCapabilityToField( ( field ) );                                                                                          \

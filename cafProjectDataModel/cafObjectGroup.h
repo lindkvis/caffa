@@ -14,7 +14,7 @@ class PdmReferenceHelper;
 //==================================================================================================
 class ObjectGroup : public Object
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     ObjectGroup();
@@ -69,7 +69,7 @@ void ObjectGroup::createCopyByType( std::vector<PdmPointer<T>>* copyOfTypedObjec
 //==================================================================================================
 class ObjectCollection : public Object
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     ObjectCollection();

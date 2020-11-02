@@ -3,16 +3,16 @@
 
 #include "cafUiComboBoxEditor.h"
 
-CAF_PDM_SOURCE_INIT(TamComboBox, "TamComboBox");
+CAF_SOURCE_INIT(TamComboBox, "TamComboBox");
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 TamComboBox::TamComboBox()
 {
-    CAF_PDM_InitObject("Cell Filter", "", "", "");
+    CAF_InitObject("Cell Filter", "", "", "");
 
-    CAF_PDM_InitField(&m_name, "UserDescription", QString("Filter Name"), "Name", "", "", "");
+    CAF_InitField(&m_name, "UserDescription", QString("Filter Name"), "Name", "", "", "");
     m_name.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 }
 

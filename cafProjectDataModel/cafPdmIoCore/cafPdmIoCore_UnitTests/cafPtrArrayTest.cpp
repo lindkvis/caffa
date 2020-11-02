@@ -12,7 +12,7 @@
 
 class MyItemObject : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
-    CAF_PDM_IO_HEADER_INIT;
+    CAF_IO_HEADER_INIT;
 
 public:
     MyItemObject()
@@ -35,11 +35,11 @@ public:
     // Fields
     caf::DataValueField<QString> m_name;
 };
-CAF_PDM_IO_SOURCE_INIT( MyItemObject, "MyItemObject" );
+CAF_IO_SOURCE_INIT( MyItemObject, "MyItemObject" );
 
 class MyContainerObject : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
-    CAF_PDM_IO_HEADER_INIT;
+    CAF_IO_HEADER_INIT;
 
 public:
     MyContainerObject()
@@ -56,7 +56,7 @@ public:
     caf::ChildArrayField<MyItemObject*> m_items;
     caf::PtrArrayField<MyItemObject*>   m_containers;
 };
-CAF_PDM_IO_SOURCE_INIT( MyContainerObject, "MyContainerObject" );
+CAF_IO_SOURCE_INIT( MyContainerObject, "MyContainerObject" );
 
 //--------------------------------------------------------------------------------------------------
 ///
