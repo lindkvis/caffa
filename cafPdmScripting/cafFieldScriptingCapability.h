@@ -50,7 +50,7 @@
 #include <type_traits>
 
 #define CAF_PDM_InitScriptableField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitField( field,                                                                                \
+    CAF_InitField( field,                                                                                \
                        keyword,                                                                              \
                        default,                                                                              \
                        uiName,                                                                               \
@@ -60,7 +60,7 @@
     caf::AddScriptingCapabilityToField( field, keyword )
 
 #define CAF_PDM_InitScriptableFieldNoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitFieldNoDefault( field,                                                                       \
+    CAF_InitFieldNoDefault( field,                                                                       \
                                 keyword,                                                                     \
                                 uiName,                                                                      \
                                 iconResourceName,                                                            \
@@ -76,7 +76,7 @@
                                                       iconResourceName,                                \
                                                       toolTip,                                         \
                                                       whatsThis )                                      \
-    CAF_PDM_InitField( field,                                                                          \
+    CAF_InitField( field,                                                                          \
                        keyword,                                                                        \
                        default,                                                                        \
                        uiName,                                                                         \
@@ -92,7 +92,7 @@
                                                                iconResourceName,                                \
                                                                toolTip,                                         \
                                                                whatsThis )                                      \
-    CAF_PDM_InitFieldNoDefault( field,                                                                          \
+    CAF_InitFieldNoDefault( field,                                                                          \
                                 keyword,                                                                        \
                                 uiName,                                                                         \
                                 iconResourceName,                                                               \

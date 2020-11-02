@@ -38,6 +38,6 @@
 
 namespace caf
 {
-CAF_PDM_SOURCE_INIT( CmdDeleteItemExecData, "CmdDeleteItemExecData" );
+CAF_SOURCE_INIT( CmdDeleteItemExecData, "CmdDeleteItemExecData" );
 
 } // end namespace caf

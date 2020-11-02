@@ -49,12 +49,12 @@
 
 class DemoObjectGroup : public caf::PdmDocument
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     DemoObjectGroup()
     {
-        CAF_PDM_InitFieldNoDefault(&objects, "Objects", "", "", "", "")
+        CAF_InitFieldNoDefault(&objects, "Objects", "", "", "", "")
 
             objects.capability<caf::FieldUiCapability>()
                 ->setUiHidden(true);
@@ -64,11 +64,11 @@ public:
     caf::ChildArrayField<ObjectHandle*> objects;
 };
 
-CAF_PDM_SOURCE_INIT(DemoObjectGroup, "DemoObjectGroup");
+CAF_SOURCE_INIT(DemoObjectGroup, "DemoObjectGroup");
 
 class TinyDemoObject : public caf::Object
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     TinyDemoObject();
@@ -78,13 +78,13 @@ private:
     caf::Field<double> m_doubleField;
 };
 
-CAF_PDM_SOURCE_INIT(TinyDemoObject, "TinyDemoObject");
+CAF_SOURCE_INIT(TinyDemoObject, "TinyDemoObject");
 
 TinyDemoObject::TinyDemoObject()
 {
-    CAF_PDM_InitObject("Tiny Demo Object", "", "This object is a demo of the CAF framework", "");
-    CAF_PDM_InitField(&m_toggleField, "Toggle", false, "Toggle Item", "", "Tooltip", " Whatsthis?");
-    CAF_PDM_InitField(&m_doubleField,
+    CAF_InitObject("Tiny Demo Object", "", "This object is a demo of the CAF framework", "");
+    CAF_InitField(&m_toggleField, "Toggle", false, "Toggle Item", "", "Tooltip", " Whatsthis?");
+    CAF_InitField(&m_doubleField,
                       "Number",
                       0.0,
                       "Number",
@@ -95,19 +95,19 @@ TinyDemoObject::TinyDemoObject()
 
 class SmallDemoObject : public caf::Object
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     SmallDemoObject()
     {
-        CAF_PDM_InitObject("Small Demo Object",
+        CAF_InitObject("Small Demo Object",
                            ":/images/win/filenew.png",
                            "This object is a demo of the CAF framework",
                            "This object is a demo of the CAF framework");
 
-        CAF_PDM_InitField(
+        CAF_InitField(
             &m_toggleField, "Toggle", false, "Add Items To Multi Select", "", "Toggle Field tooltip", " Toggle Field whatsthis");
-        CAF_PDM_InitField(&m_doubleField,
+        CAF_InitField(&m_doubleField,
                           "BigNumber",
                           0.0,
                           "Big Number",
@@ -116,14 +116,14 @@ public:
                           "This is a place you can enter a big real value if you want");
         m_doubleField.capability<caf::FieldUiCapability>()->setCustomContextMenuEnabled(true);
 
-        CAF_PDM_InitField(&m_intField,
+        CAF_InitField(&m_intField,
                           "IntNumber",
                           0,
                           "Small Number",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_textField,
+        CAF_InitField(&m_textField,
                           "TextField",
                           QString(""),
                           "Text",
@@ -133,11 +133,11 @@ public:
 
         m_proxyDoubleField.registerSetMethod(this, &SmallDemoObject::setDoubleMember);
         m_proxyDoubleField.registerGetMethod(this, &SmallDemoObject::doubleMember);
-        CAF_PDM_InitFieldNoDefault(&m_proxyDoubleField, "ProxyDouble", "Proxy Double", "", "", "");
+        CAF_InitFieldNoDefault(&m_proxyDoubleField, "ProxyDouble", "Proxy Double", "", "", "");
 
-        CAF_PDM_InitField(&m_fileName, "FileName", caf::FilePath("filename"), "File Name", "", "", "");
+        CAF_InitField(&m_fileName, "FileName", caf::FilePath("filename"), "File Name", "", "", "");
 
-        CAF_PDM_InitFieldNoDefault(&m_fileNameList, "FileNameList", "File Name List", "", "", "");
+        CAF_InitFieldNoDefault(&m_fileNameList, "FileNameList", "File Name List", "", "", "");
         m_fileNameList.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
         m_proxyDoubleField = 0;
@@ -146,7 +146,7 @@ public:
             qDebug() << "Double is not 3 ";
         }
 
-        CAF_PDM_InitFieldNoDefault(&m_multiSelectList, "SelectedItems", "Multi Select Field", "", "", "");
+        CAF_InitFieldNoDefault(&m_multiSelectList, "SelectedItems", "Multi Select Field", "", "", "");
         m_multiSelectList.capability<caf::FieldIoCapability>()->setIOReadable(false);
         m_multiSelectList.capability<caf::FieldIoCapability>()->setIOWritable(false);
         m_multiSelectList.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
@@ -287,77 +287,77 @@ protected:
     }
 };
 
-CAF_PDM_SOURCE_INIT(SmallDemoObject, "SmallDemoObject");
+CAF_SOURCE_INIT(SmallDemoObject, "SmallDemoObject");
 
 class SmallGridDemoObject : public caf::Object
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     SmallGridDemoObject()
     {
-        CAF_PDM_InitObject("Small Grid Demo Object",
+        CAF_InitObject("Small Grid Demo Object",
                            "",
                            "This object is a demo of the CAF framework",
                            "This object is a demo of the CAF framework");
 
-        CAF_PDM_InitField(&m_intFieldStandard,
+        CAF_InitField(&m_intFieldStandard,
                           "Standard",
                           0,
                           "Standard",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldUseFullSpace,
+        CAF_InitField(&m_intFieldUseFullSpace,
                           "FullSpace",
                           0,
                           "Use Full Space For Both",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldUseFullSpaceLabel,
+        CAF_InitField(&m_intFieldUseFullSpaceLabel,
                           "FullSpaceLabel",
                           0,
                           "Total 3, Label MAX",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldUseFullSpaceField,
+        CAF_InitField(&m_intFieldUseFullSpaceField,
                           "FullSpaceField",
                           0,
                           "Total MAX, Label 1",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldWideLabel,
+        CAF_InitField(&m_intFieldWideLabel,
                           "WideLabel",
                           0,
                           "Wide Label",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldWideField,
+        CAF_InitField(&m_intFieldWideField,
                           "WideField",
                           0,
                           "Wide Field",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldLeft,
+        CAF_InitField(&m_intFieldLeft,
                           "LeftField",
                           0,
                           "Left Field",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldRight,
+        CAF_InitField(&m_intFieldRight,
                           "RightField",
                           0,
                           "Right Field With More Text",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldWideBoth,
+        CAF_InitField(&m_intFieldWideBoth,
                           "WideBoth",
                           0,
                           "Wide Both",
@@ -365,35 +365,35 @@ public:
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
 
-        CAF_PDM_InitField(&m_intFieldWideBoth2,
+        CAF_InitField(&m_intFieldWideBoth2,
                           "WideBoth2",
                           0,
                           "Wide Both",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldLeft2,
+        CAF_InitField(&m_intFieldLeft2,
                           "LeftFieldInGrp",
                           0,
                           "Left Field",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldCenter,
+        CAF_InitField(&m_intFieldCenter,
                           "CenterFieldInGrp",
                           0,
                           "Center Field",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldRight2,
+        CAF_InitField(&m_intFieldRight2,
                           "RightFieldInGrp",
                           0,
                           "Right Field",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldLabelTop,
+        CAF_InitField(&m_intFieldLabelTop,
                           "FieldLabelTop",
                           0,
                           "Field Label Top",
@@ -401,7 +401,7 @@ public:
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
         m_intFieldLabelTop.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::TOP);
-        CAF_PDM_InitField(&m_stringFieldLabelHidden,
+        CAF_InitField(&m_stringFieldLabelHidden,
                           "FieldLabelHidden",
                           QString("Hidden Label Field"),
                           "Field Label Hidden",
@@ -410,35 +410,35 @@ public:
                           "This is a place you can enter a small integer value if you want");
         m_stringFieldLabelHidden.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::HIDDEN);
 
-        CAF_PDM_InitField(&m_intFieldWideBothAuto,
+        CAF_InitField(&m_intFieldWideBothAuto,
                           "WideBothAuto",
                           0,
                           "Wide ",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldLeftAuto,
+        CAF_InitField(&m_intFieldLeftAuto,
                           "LeftFieldInGrpAuto",
                           0,
                           "Left Field",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldCenterAuto,
+        CAF_InitField(&m_intFieldCenterAuto,
                           "CenterFieldInGrpAuto",
                           0,
                           "Center Field",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldRightAuto,
+        CAF_InitField(&m_intFieldRightAuto,
                           "RightFieldInGrpAuto",
                           0,
                           "Right Field",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldLabelTopAuto,
+        CAF_InitField(&m_intFieldLabelTopAuto,
                           "FieldLabelTopAuto",
                           0,
                           "Field Label Top",
@@ -446,7 +446,7 @@ public:
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
         m_intFieldLabelTopAuto.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::TOP);
-        CAF_PDM_InitField(&m_stringFieldLabelHiddenAuto,
+        CAF_InitField(&m_stringFieldLabelHiddenAuto,
                           "FieldLabelHiddenAuto",
                           QString("Hidden Label Field"),
                           "Field Label Hidden",
@@ -455,14 +455,14 @@ public:
                           "This is a place you can enter a small integer value if you want");
         m_stringFieldLabelHiddenAuto.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::HIDDEN);
 
-        CAF_PDM_InitField(&m_intFieldLeftOfGroup,
+        CAF_InitField(&m_intFieldLeftOfGroup,
                           "FieldLeftOfGrp",
                           0,
                           "Left of group",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldRightOfGroup,
+        CAF_InitField(&m_intFieldRightOfGroup,
                           "FieldRightOfGrp",
                           0,
                           "Right of group wide label",
@@ -470,42 +470,42 @@ public:
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
 
-        CAF_PDM_InitField(&m_intFieldInsideGroup1,
+        CAF_InitField(&m_intFieldInsideGroup1,
                           "FieldInGrp1",
                           0,
                           "Inside Group",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldInsideGroup2,
+        CAF_InitField(&m_intFieldInsideGroup2,
                           "FieldInGrp2",
                           0,
                           "Inside Group",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldInsideGroup3,
+        CAF_InitField(&m_intFieldInsideGroup3,
                           "FieldInGrp3",
                           0,
                           "Inside Group",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldInsideGroup4,
+        CAF_InitField(&m_intFieldInsideGroup4,
                           "FieldInGrp4",
                           0,
                           "Inside Group",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldInsideGroup5,
+        CAF_InitField(&m_intFieldInsideGroup5,
                           "FieldInGrp5",
                           0,
                           "Inside Group",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_intFieldInsideGroup6,
+        CAF_InitField(&m_intFieldInsideGroup6,
                           "FieldInGrp6",
                           0,
                           "Inside Group",
@@ -612,21 +612,21 @@ protected:
     }
 };
 
-CAF_PDM_SOURCE_INIT(SmallGridDemoObject, "SmallGridDemoObject");
+CAF_SOURCE_INIT(SmallGridDemoObject, "SmallGridDemoObject");
 
 class SingleEditorObject : public caf::Object
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     SingleEditorObject()
     {
-        CAF_PDM_InitObject("Single Editor Object",
+        CAF_InitObject("Single Editor Object",
                            "",
                            "This object is a demo of the CAF framework",
                            "This object is a demo of the CAF framework");
 
-        CAF_PDM_InitField(&m_intFieldStandard,
+        CAF_InitField(&m_intFieldStandard,
                           "Standard",
                           0,
                           "Fairly Wide Label",
@@ -648,11 +648,11 @@ protected:
     }
 };
 
-CAF_PDM_SOURCE_INIT(SingleEditorObject, "SingleEditorObject");
+CAF_SOURCE_INIT(SingleEditorObject, "SingleEditorObject");
 
 class SmallDemoObjectA : public caf::Object
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     enum TestEnumType
@@ -664,42 +664,42 @@ public:
 
     SmallDemoObjectA()
     {
-        CAF_PDM_InitObject("Small Demo Object A",
+        CAF_InitObject("Small Demo Object A",
                            "",
                            "This object is a demo of the CAF framework",
                            "This object is a demo of the CAF framework");
 
-        CAF_PDM_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
-        CAF_PDM_InitField(&m_pushButtonField, "Push", false, "Button Field", "", "", " ");
-        CAF_PDM_InitField(&m_doubleField,
+        CAF_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
+        CAF_InitField(&m_pushButtonField, "Push", false, "Button Field", "", "", " ");
+        CAF_InitField(&m_doubleField,
                           "BigNumber",
                           0.0,
                           "Big Number",
                           "",
                           "Enter a big number here",
                           "This is a place you can enter a big real value if you want");
-        CAF_PDM_InitField(&m_intField,
+        CAF_InitField(&m_intField,
                           "IntNumber",
                           0,
                           "Small Number",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_textField, "TextField", QString("Small Demo Object A"), "Name Text Field", "", "", "");
-        CAF_PDM_InitField(&m_testEnumField, "TestEnumValue", caf::AppEnum<TestEnumType>(T1), "EnumField", "", "", "");
-        CAF_PDM_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "", "");
+        CAF_InitField(&m_textField, "TextField", QString("Small Demo Object A"), "Name Text Field", "", "", "");
+        CAF_InitField(&m_testEnumField, "TestEnumValue", caf::AppEnum<TestEnumType>(T1), "EnumField", "", "", "");
+        CAF_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "", "");
 
-        CAF_PDM_InitFieldNoDefault(&m_proxyEnumField, "ProxyEnumValue", "ProxyEnum", "", "", "");
+        CAF_InitFieldNoDefault(&m_proxyEnumField, "ProxyEnumValue", "ProxyEnum", "", "", "");
         m_proxyEnumField.registerSetMethod(this, &SmallDemoObjectA::setEnumMember);
         m_proxyEnumField.registerGetMethod(this, &SmallDemoObjectA::enumMember);
         m_proxyEnumMember = T2;
 
         m_testEnumField.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
-        CAF_PDM_InitFieldNoDefault(&m_multipleAppEnum, "MultipleAppEnumValue", "MultipleAppEnumValue", "", "", "");
+        CAF_InitFieldNoDefault(&m_multipleAppEnum, "MultipleAppEnumValue", "MultipleAppEnumValue", "", "", "");
         m_multipleAppEnum.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
             caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
-        CAF_PDM_InitFieldNoDefault(&m_highlightedEnum, "HighlightedEnum", "HighlightedEnum", "", "", "");
+        CAF_InitFieldNoDefault(&m_highlightedEnum, "HighlightedEnum", "HighlightedEnum", "", "", "");
         m_highlightedEnum.capability<caf::FieldUiCapability>()->setUiHidden(true);
     }
 
@@ -846,7 +846,7 @@ protected:
     }
 };
 
-CAF_PDM_SOURCE_INIT(SmallDemoObjectA, "SmallDemoObjectA");
+CAF_SOURCE_INIT(SmallDemoObjectA, "SmallDemoObjectA");
 
 namespace caf
 {
@@ -864,44 +864,44 @@ Q_DECLARE_METATYPE(caf::AppEnum<SmallDemoObjectA::TestEnumType>);
 
 class DemoObject : public caf::Object
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     DemoObject()
     {
-        CAF_PDM_InitObject(
+        CAF_InitObject(
             "Demo Object", "", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
 
-        CAF_PDM_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
-        CAF_PDM_InitField(&m_doubleField,
+        CAF_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
+        CAF_InitField(&m_doubleField,
                           "BigNumber",
                           0.0,
                           "Big Number",
                           "",
                           "Enter a big number here",
                           "This is a place you can enter a big real value if you want");
-        CAF_PDM_InitField(&m_intField,
+        CAF_InitField(&m_intField,
                           "IntNumber",
                           0,
                           "Small Number",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_boolField,
+        CAF_InitField(&m_boolField,
                           "BooleanValue",
                           false,
                           "Boolean:",
                           "",
                           "Boolean:Enter some small number here",
                           "Boolean:This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_textField, "TextField", QString("Demo Object Description Field"), "Description Field", "", "", "");
-        CAF_PDM_InitField(&m_filePath, "FilePath", QString(""), "Filename", "", "", "");
-        CAF_PDM_InitField(&m_longText, "LongText", QString("Test text"), "Long Text", "", "", "");
+        CAF_InitField(&m_textField, "TextField", QString("Demo Object Description Field"), "Description Field", "", "", "");
+        CAF_InitField(&m_filePath, "FilePath", QString(""), "Filename", "", "", "");
+        CAF_InitField(&m_longText, "LongText", QString("Test text"), "Long Text", "", "", "");
 
-        CAF_PDM_InitFieldNoDefault(
+        CAF_InitFieldNoDefault(
             &m_multiSelectList, "MultiSelect", "Selection List", "", "List", "This is a multi selection list");
-        CAF_PDM_InitFieldNoDefault(&m_objectList, "ObjectList", "Objects list Field", "", "List", "This is a list of Objects");
-        CAF_PDM_InitFieldNoDefault(&m_objectListOfSameType,
+        CAF_InitFieldNoDefault(&m_objectList, "ObjectList", "Objects list Field", "", "List", "This is a list of Objects");
+        CAF_InitFieldNoDefault(&m_objectListOfSameType,
                                    "m_objectListOfSameType",
                                    "Same type Objects list Field",
                                    "",
@@ -911,7 +911,7 @@ public:
             caf::PdmUiTableViewEditor::uiEditorTypeName());
         m_objectListOfSameType.capability<caf::FieldUiCapability>()->setCustomContextMenuEnabled(true);
         ;
-        CAF_PDM_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "Same type List", "Same type list of Objects");
+        CAF_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "Same type List", "Same type list of Objects");
 
         m_filePath.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
         m_filePath.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::TOP);
@@ -1054,7 +1054,7 @@ protected:
     }
 };
 
-CAF_PDM_SOURCE_INIT(DemoObject, "DemoObject");
+CAF_SOURCE_INIT(DemoObject, "DemoObject");
 
 MainWindow* MainWindow::sm_mainWindowInstance = nullptr;
 

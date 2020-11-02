@@ -46,16 +46,16 @@ namespace caf
 //==================================================================================================
 class CmdAddItemExecData : public Object
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     CmdAddItemExecData()
     {
-        CAF_PDM_InitObject( "CmdAddItemExecData uiName", "", "CmdAddItemExecData tooltip", "CmdAddItemExecData whatsthis" );
+        CAF_InitObject( "CmdAddItemExecData uiName", "", "CmdAddItemExecData tooltip", "CmdAddItemExecData whatsthis" );
 
-        CAF_PDM_InitField( &m_pathToField, "PathToField", QString(), "PathToField", "", "PathToField tooltip", "PathToField whatsthis" );
-        CAF_PDM_InitField( &m_indexAfter, "indexAfter", -1, "indexAfter", "", "indexAfter tooltip", "indexAfter whatsthis" );
-        CAF_PDM_InitField( &m_createdItemIndex,
+        CAF_InitField( &m_pathToField, "PathToField", QString(), "PathToField", "", "PathToField tooltip", "PathToField whatsthis" );
+        CAF_InitField( &m_indexAfter, "indexAfter", -1, "indexAfter", "", "indexAfter tooltip", "indexAfter whatsthis" );
+        CAF_InitField( &m_createdItemIndex,
                            "createdItemIndex",
                            -1,
                            "createdItemIndex",

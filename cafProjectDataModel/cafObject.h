@@ -68,16 +68,16 @@ class UiEditorAttribute;
 class PdmUiTreeOrdering;
 class ObjectCapability;
 
-#define CAF_PDM_HEADER_INIT CAF_PDM_IO_HEADER_INIT
-#define CAF_PDM_SOURCE_INIT CAF_PDM_IO_SOURCE_INIT
-#define CAF_PDM_ABSTRACT_SOURCE_INIT CAF_PDM_IO_ABSTRACT_SOURCE_INIT
+#define CAF_HEADER_INIT CAF_IO_HEADER_INIT
+#define CAF_SOURCE_INIT CAF_IO_SOURCE_INIT
+#define CAF_ABSTRACT_SOURCE_INIT CAF_IO_ABSTRACT_SOURCE_INIT
 
 /// InitObject sets up the user interface related information for the object
 /// Placed in the constructor of your Object
 /// Note that classKeyword() is not virtual in the constructor of the Object
 /// This is expected and fine.
 
-#define CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis )                             \
+#define CAF_InitObject( uiName, iconResourceName, toolTip, whatsThis )                             \
     {                                                                                                  \
         this->isInheritedFromPdmUiObject();                                                            \
         this->isInheritedFromSerializable();                                                           \
@@ -94,12 +94,12 @@ class ObjectCapability;
 /// Note that classKeyword() is not virtual in the constructor of the Object
 /// This is expected and fine.
 
-#define CAF_PDM_InitField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis )                                    \
+#define CAF_InitField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis )                                    \
     {                                                                                                                                 \
         CAF_PDM_VERIFY_IO_KEYWORD( keyword )                                                                                          \
                                                                                                                                       \
         static bool checkingThePresenceOfHeaderAndSourceInitMacros =                                                                  \
-            Error_You_forgot_to_add_the_macro_CAF_PDM_IO_HEADER_INIT_and_or_CAF_PDM_IO_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
+            Error_You_forgot_to_add_the_macro_CAF_IO_HEADER_INIT_and_or_CAF_IO_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
         Q_UNUSED( checkingThePresenceOfHeaderAndSourceInitMacros );                                                                   \
         this->isInheritedFromPdmUiObject();                                                                                           \
         this->isInheritedFromSerializable();                                                                                          \
@@ -116,12 +116,12 @@ class ObjectCapability;
 /// Note that classKeyword() is not virtual in the constructor of the Object
 /// This is expected and fine.
 
-#define CAF_PDM_InitFieldNoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis )                                    \
+#define CAF_InitFieldNoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis )                                    \
     {                                                                                                                                 \
         CAF_PDM_VERIFY_IO_KEYWORD( keyword )                                                                                          \
                                                                                                                                       \
         static bool checkingThePresenceOfHeaderAndSourceInitMacros =                                                                  \
-            Error_You_forgot_to_add_the_macro_CAF_PDM_IO_HEADER_INIT_and_or_CAF_PDM_IO_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
+            Error_You_forgot_to_add_the_macro_CAF_IO_HEADER_INIT_and_or_CAF_IO_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
         Q_UNUSED( checkingThePresenceOfHeaderAndSourceInitMacros );                                                                   \
         this->isInheritedFromPdmUiObject();                                                                                           \
         this->isInheritedFromSerializable();                                                                                          \
@@ -141,13 +141,13 @@ namespace caf
 class Object : public ObjectHandle, public ObjectIoCapability, public ObjectUiCapability
 {
 public:
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
     Object();
     ~Object() override {}
 
     /// Adds field to the internal data structure and sets the file keyword and Ui information
-    /// Consider this method private. Please use the CAF_PDM_InitField() macro instead
+    /// Consider this method private. Please use the CAF_InitField() macro instead
     template <typename FieldDataType>
     void addFieldUi( Field<FieldDataType>* field,
                      const QString&           keyword,
@@ -160,7 +160,7 @@ public:
     }
 
     /// Does the same as the above method, but omits the default value.
-    /// Consider this method private. Please use the CAF_PDM_InitFieldNoDefault() macro instead.
+    /// Consider this method private. Please use the CAF_InitFieldNoDefault() macro instead.
     void addFieldUiNoDefault( FieldHandle* field, const QString& keyword, UiItemInfo* fieldDescription )
     {
         addField( field, keyword );

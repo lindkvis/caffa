@@ -19,7 +19,7 @@
 
 class DemoObject : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
-    CAF_PDM_IO_HEADER_INIT;
+    CAF_IO_HEADER_INIT;
 
 public:
     enum TestEnumType
@@ -69,7 +69,7 @@ private:
     TestEnumType m_enumMember;
 };
 
-CAF_PDM_IO_SOURCE_INIT( DemoObject, "DemoObject" );
+CAF_IO_SOURCE_INIT( DemoObject, "DemoObject" );
 
 namespace caf
 {
@@ -180,7 +180,7 @@ TEST( BaseTest, FieldWrite )
 
 class InheritedDemoObj : public DemoObject
 {
-    CAF_PDM_IO_HEADER_INIT;
+    CAF_IO_HEADER_INIT;
 
 public:
     InheritedDemoObj()
@@ -194,11 +194,11 @@ public:
     caf::DataValueField<QString>         m_texts;
     caf::ChildArrayField<DemoObject*> m_childArrayField;
 };
-CAF_PDM_IO_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj" );
+CAF_IO_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj" );
 
 class SimpleObj : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
-    CAF_PDM_IO_HEADER_INIT;
+    CAF_IO_HEADER_INIT;
 
 public:
     SimpleObj()
@@ -239,11 +239,11 @@ public:
 
     double m_doubleMember;
 };
-CAF_PDM_IO_SOURCE_INIT( SimpleObj, "SimpleObj" );
+CAF_IO_SOURCE_INIT( SimpleObj, "SimpleObj" );
 
 class ReferenceDemoObject : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
-    CAF_PDM_IO_HEADER_INIT;
+    CAF_IO_HEADER_INIT;
 
 public:
     ReferenceDemoObject()
@@ -265,7 +265,7 @@ public:
     caf::ChildArrayField<SimpleObj*>  m_simpleObjPtrField2;
 };
 
-CAF_PDM_IO_SOURCE_INIT( ReferenceDemoObject, "ReferenceDemoObject" );
+CAF_IO_SOURCE_INIT( ReferenceDemoObject, "ReferenceDemoObject" );
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -12,28 +12,28 @@ using namespace caf;
 
 class SimpleObj : public caf::Object
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     SimpleObj()
         : Object()
     {
-        CAF_PDM_InitObject( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
+        CAF_InitObject( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
     }
     ~SimpleObj() {}
 };
-CAF_PDM_SOURCE_INIT( SimpleObj, "SimpleObj" );
+CAF_SOURCE_INIT( SimpleObj, "SimpleObj" );
 
 class DemoObject : public caf::Object
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     DemoObject()
     {
-        CAF_PDM_InitObject( "DemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
+        CAF_InitObject( "DemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
 
-        CAF_PDM_InitFieldNoDefault( &m_simpleObjPtrField, "SimpleObjPtrField", "SimpleObjPtrField", "", "Tooltip", "WhatsThis" );
+        CAF_InitFieldNoDefault( &m_simpleObjPtrField, "SimpleObjPtrField", "SimpleObjPtrField", "", "Tooltip", "WhatsThis" );
     }
 
     ~DemoObject() { m_simpleObjPtrField.deleteAllChildObjects(); }
@@ -41,7 +41,7 @@ public:
     caf::ChildArrayField<caf::ObjectHandle*> m_simpleObjPtrField;
 };
 
-CAF_PDM_SOURCE_INIT( DemoObject, "DemoObject" );
+CAF_SOURCE_INIT( DemoObject, "DemoObject" );
 
 //--------------------------------------------------------------------------------------------------
 ///

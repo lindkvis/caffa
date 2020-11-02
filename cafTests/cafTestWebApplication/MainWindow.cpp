@@ -41,12 +41,12 @@ using namespace std::placeholders;
 
 class DemoObjectGroup : public caf::PdmDocument
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     DemoObjectGroup()
     {
-        CAF_PDM_InitFieldNoDefault(&objects, "Objects", "", "", "", "")
+        CAF_InitFieldNoDefault(&objects, "Objects", "", "", "", "")
 
             objects.capability<caf::ObjectUiCapability>()
                 ->setUiHidden(true);
@@ -56,11 +56,11 @@ public:
     caf::ChildArrayField<ObjectHandle*> objects;
 };
 
-CAF_PDM_SOURCE_INIT(DemoObjectGroup, "DemoObjectGroup");
+CAF_SOURCE_INIT(DemoObjectGroup, "DemoObjectGroup");
 
 class SmallDemoObject : public caf::Object
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     enum TestEnumType
@@ -72,13 +72,13 @@ public:
 
     SmallDemoObject()
     {
-        CAF_PDM_InitObject("Small Demo Object  with a very long title",
+        CAF_InitObject("Small Demo Object  with a very long title",
                            ":/images/win/filenew.png",
                            "This object is a demo of the CAF framework",
                            "This object is a demo of the CAF framework");
 
-        CAF_PDM_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
-        CAF_PDM_InitField(&m_doubleField,
+        CAF_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
+        CAF_InitField(&m_doubleField,
                           "BigNumber",
                           0.123,
                           "Big Number",
@@ -87,7 +87,7 @@ public:
                           "This is a place you can enter a big real value if you want");
         m_doubleField.capability<caf::FieldUiCapability>()->setCustomContextMenuEnabled(true);
 
-        CAF_PDM_InitField(&m_intField,
+        CAF_InitField(&m_intField,
                           "IntNumber",
                           3,
                           "Small Number",
@@ -95,18 +95,18 @@ public:
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
         m_intField.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmWebSliderEditor::uiEditorTypeName());
-        CAF_PDM_InitField(&m_textField,
+        CAF_InitField(&m_textField,
                           "TextField",
                           QString("A cow jumped over whatever"),
                           "Text",
                           "",
                           "Text tooltip",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitFieldNoDefault(&m_testEnumField, "TestEnumValue", "EnumField", "", "", "");
+        CAF_InitFieldNoDefault(&m_testEnumField, "TestEnumValue", "EnumField", "", "", "");
 
         m_proxyDoubleField.registerSetMethod(this, &SmallDemoObject::setDoubleMember);
         m_proxyDoubleField.registerGetMethod(this, &SmallDemoObject::doubleMember);
-        CAF_PDM_InitFieldNoDefault(&m_proxyDoubleField, "ProxyDouble", "Proxy Double", "", "", "");
+        CAF_InitFieldNoDefault(&m_proxyDoubleField, "ProxyDouble", "Proxy Double", "", "", "");
 
         m_proxyDoubleField = 0;
     }
@@ -205,30 +205,30 @@ protected:
     }
 };
 
-CAF_PDM_SOURCE_INIT(SmallDemoObject, "SmallDemoObject");
+CAF_SOURCE_INIT(SmallDemoObject, "SmallDemoObject");
 
 class ColorAndDateEditorObject : public caf::Object
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     ColorAndDateEditorObject()
     {
-        CAF_PDM_InitObject("Color And Date and File Upload Editor Object",
+        CAF_InitObject("Color And Date and File Upload Editor Object",
                            "",
                            "This object is a demo of the CAF framework",
                            "This object is a demo of the CAF framework");
 
-        CAF_PDM_InitField(&m_intFieldStandard,
+        CAF_InitField(&m_intFieldStandard,
                           "Standard",
                           0,
                           "Fairly Wide Label",
                           "",
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_colorField, "ColorField", QColor(50, 100, 150), "Color Field", "", "Click to set color", "");
-        CAF_PDM_InitField(&m_dateField, "DateField", QDate(2012, 05, 19), "Date Field", "", "Set a date", "");
-        CAF_PDM_InitFieldNoDefault(
+        CAF_InitField(&m_colorField, "ColorField", QColor(50, 100, 150), "Color Field", "", "Click to set color", "");
+        CAF_InitField(&m_dateField, "DateField", QDate(2012, 05, 19), "Date Field", "", "Set a date", "");
+        CAF_InitFieldNoDefault(
             &m_fileUploadField, "FileUploadField", "Upload File", "", "This editor lets you upload a file", "");
     }
 
@@ -270,7 +270,7 @@ protected:
     }
 };
 
-CAF_PDM_SOURCE_INIT(ColorAndDateEditorObject, "ColorAndDateEditorObject");
+CAF_SOURCE_INIT(ColorAndDateEditorObject, "ColorAndDateEditorObject");
 
 namespace caf
 {

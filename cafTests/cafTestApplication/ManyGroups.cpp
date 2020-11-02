@@ -3,35 +3,35 @@
 #include "cafUiListEditor.h"
 #include "cafUiTreeSelectionEditor.h"
 
-CAF_PDM_SOURCE_INIT(ManyGroups, "LargeObject");
+CAF_SOURCE_INIT(ManyGroups, "LargeObject");
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 ManyGroups::ManyGroups()
 {
-    CAF_PDM_InitObject("Many Groups",
+    CAF_InitObject("Many Groups",
                        ":/images/win/filenew.png",
                        "This object is a demo of the CAF framework",
                        "This object is a demo of the CAF framework");
 
-    CAF_PDM_InitField(
+    CAF_InitField(
         &m_toggleField, "Toggle", false, "Add Items To Multi Select", "", "Toggle Field tooltip", " Toggle Field whatsthis");
-    CAF_PDM_InitField(&m_doubleField,
+    CAF_InitField(&m_doubleField,
                       "BigNumber",
                       0.0,
                       "Big Number",
                       "",
                       "Enter a big number here",
                       "This is a place you can enter a big real value if you want");
-    CAF_PDM_InitField(&m_intField,
+    CAF_InitField(&m_intField,
                       "IntNumber",
                       0,
                       "Small Number",
                       "",
                       "Enter some small number here",
                       "This is a place you can enter a small integer value if you want");
-    CAF_PDM_InitField(&m_textField,
+    CAF_InitField(&m_textField,
                       "TextField",
                       QString(""),
                       "Text",
@@ -41,7 +41,7 @@ ManyGroups::ManyGroups()
 
     m_proxyDoubleField.registerSetMethod(this, &ManyGroups::setDoubleMember);
     m_proxyDoubleField.registerGetMethod(this, &ManyGroups::doubleMember);
-    CAF_PDM_InitFieldNoDefault(&m_proxyDoubleField, "ProxyDouble", "Proxy Double", "", "", "");
+    CAF_InitFieldNoDefault(&m_proxyDoubleField, "ProxyDouble", "Proxy Double", "", "", "");
 
     m_proxyDoubleField = 0;
     if (!(m_proxyDoubleField == 3))
@@ -49,7 +49,7 @@ ManyGroups::ManyGroups()
         std::cout << "Double is not 3 " << std::endl;
     }
 
-    CAF_PDM_InitFieldNoDefault(&m_multiSelectList, "SelectedItems", "Multi Select Field", "", "", "");
+    CAF_InitFieldNoDefault(&m_multiSelectList, "SelectedItems", "Multi Select Field", "", "", "");
     m_multiSelectList.capability<caf::FieldUiCapability>()->setAutoAddingOptionFromValue(false);
 
     m_multiSelectList.capability<caf::FieldIoCapability>()->setIOReadable(false);
@@ -61,7 +61,7 @@ ManyGroups::ManyGroups()
     m_multiSelectList.v().push_back("Second");
     m_multiSelectList.v().push_back("Third");
 
-    CAF_PDM_InitField(
+    CAF_InitField(
         &m_stringWithMultipleOptions, "m_stringWithMultipleOptions", QString(""), "Text with many items", "", "", "");
     m_stringWithMultipleOptions.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
         caf::PdmUiListEditor::uiEditorTypeName());

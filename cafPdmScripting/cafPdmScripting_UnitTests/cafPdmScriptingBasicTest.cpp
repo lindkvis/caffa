@@ -58,25 +58,25 @@
 
 class SimpleObj : public caf::Object
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     SimpleObj()
         : Object()
         , m_doubleMember( 0.0 )
     {
-        CAF_PDM_InitObject( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
+        CAF_InitObject( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
 
-        CAF_PDM_InitField( &m_position, "Position", 8765.2, "Position", "", "Tooltip", "WhatsThis" );
-        CAF_PDM_InitField( &m_dir, "Dir", 123.56, "Direction", "", "Tooltip", "WhatsThis" );
-        CAF_PDM_InitField( &m_up, "Up", 0.0, "Up value", "", "Tooltip", "WhatsThis" );
-        CAF_PDM_InitFieldNoDefault( &m_numbers, "Numbers", "Important Numbers", "", "Tooltip", "WhatsThis" );
+        CAF_InitField( &m_position, "Position", 8765.2, "Position", "", "Tooltip", "WhatsThis" );
+        CAF_InitField( &m_dir, "Dir", 123.56, "Direction", "", "Tooltip", "WhatsThis" );
+        CAF_InitField( &m_up, "Up", 0.0, "Up value", "", "Tooltip", "WhatsThis" );
+        CAF_InitFieldNoDefault( &m_numbers, "Numbers", "Important Numbers", "", "Tooltip", "WhatsThis" );
 #if 1
         m_proxyDouble.registerSetMethod( this, &SimpleObj::setDoubleMember );
         m_proxyDouble.registerGetMethod( this, &SimpleObj::doubleMember );
         AddUiCapabilityToField( &m_proxyDouble );
         AddXmlCapabilityToField( &m_proxyDouble );
-        CAF_PDM_InitFieldNoDefault( &m_proxyDouble, "ProxyDouble", "ProxyDouble", "", "", "" );
+        CAF_InitFieldNoDefault( &m_proxyDouble, "ProxyDouble", "ProxyDouble", "", "", "" );
 #endif
     }
 
@@ -85,11 +85,11 @@ public:
     SimpleObj( const SimpleObj& other )
         : Object()
     {
-        CAF_PDM_InitField( &m_position, "Position", 8765.2, "Position", "", "", "WhatsThis" );
-        CAF_PDM_InitField( &m_dir, "Dir", 123.56, "Direction", "", "", "WhatsThis" );
-        CAF_PDM_InitField( &m_up, "Up", 0.0, "Up value", "", "", "WhatsThis" );
+        CAF_InitField( &m_position, "Position", 8765.2, "Position", "", "", "WhatsThis" );
+        CAF_InitField( &m_dir, "Dir", 123.56, "Direction", "", "", "WhatsThis" );
+        CAF_InitField( &m_up, "Up", 0.0, "Up value", "", "", "WhatsThis" );
 
-        CAF_PDM_InitFieldNoDefault( &m_numbers, "Numbers", "Important Numbers", "", "", "WhatsThis" );
+        CAF_InitFieldNoDefault( &m_numbers, "Numbers", "Important Numbers", "", "", "WhatsThis" );
 
         m_position     = other.m_position;
         m_dir          = other.m_dir;
@@ -119,18 +119,18 @@ public:
 
     double m_doubleMember;
 };
-CAF_PDM_SOURCE_INIT( SimpleObj, "SimpleObj" );
+CAF_SOURCE_INIT( SimpleObj, "SimpleObj" );
 
 class DemoObject : public caf::Object
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     DemoObject()
     {
-        CAF_PDM_InitObject( "DemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
+        CAF_InitObject( "DemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
 
-        CAF_PDM_InitField( &m_doubleField,
+        CAF_InitField( &m_doubleField,
                            "BigNumber",
                            0.0,
                            "",
@@ -138,7 +138,7 @@ public:
                            "Enter a big number here",
                            "This is a place you can enter a big real value if you want" );
 
-        CAF_PDM_InitField( &m_intField,
+        CAF_InitField( &m_intField,
                            "IntNumber",
                            0,
                            "",
@@ -146,9 +146,9 @@ public:
                            "Enter some small number here",
                            "This is a place you can enter a small integer value if you want" );
 
-        CAF_PDM_InitField( &m_textField, "TextField", QString( "??? Test text   end" ), "TextField", "", "Tooltip", "WhatsThis" );
-        CAF_PDM_InitFieldNoDefault( &m_simpleObjPtrField, "SimpleObjPtrField", "SimpleObjPtrField", "", "Tooltip", "WhatsThis" );
-        CAF_PDM_InitFieldNoDefault( &m_simpleObjPtrField2, "SimpleObjPtrField2", "SimpleObjPtrField2", "", "Tooltip", "WhatsThis" );
+        CAF_InitField( &m_textField, "TextField", QString( "??? Test text   end" ), "TextField", "", "Tooltip", "WhatsThis" );
+        CAF_InitFieldNoDefault( &m_simpleObjPtrField, "SimpleObjPtrField", "SimpleObjPtrField", "", "Tooltip", "WhatsThis" );
+        CAF_InitFieldNoDefault( &m_simpleObjPtrField2, "SimpleObjPtrField2", "SimpleObjPtrField2", "", "Tooltip", "WhatsThis" );
         m_simpleObjPtrField2 = new SimpleObj;
     }
 
@@ -167,11 +167,11 @@ public:
     caf::ChildField<SimpleObj*> m_simpleObjPtrField2;
 };
 
-CAF_PDM_SOURCE_INIT( DemoObject, "DemoObject" );
+CAF_SOURCE_INIT( DemoObject, "DemoObject" );
 
 class InheritedDemoObj : public DemoObject
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     enum TestEnumType
@@ -192,8 +192,8 @@ public:
 
         CAF_PDM_InitScriptableFieldNoDefault( &m_texts, "Texts", "Some words", "", "", "" );
         CAF_PDM_InitScriptableFieldNoDefault( &m_numbers, "Numbers", "Some words", "", "", "" );
-        CAF_PDM_InitFieldNoDefault( &m_testEnumField, "TestEnumValue", "An Enum", "", "", "" );
-        CAF_PDM_InitFieldNoDefault( &m_simpleObjectsField,
+        CAF_InitFieldNoDefault( &m_testEnumField, "TestEnumValue", "An Enum", "", "", "" );
+        CAF_InitFieldNoDefault( &m_simpleObjectsField,
                                     "SimpleObjects",
                                     "SimpleObjectsField",
                                     "",
@@ -209,24 +209,24 @@ public:
     caf::Field<caf::AppEnum<TestEnumType>> m_testEnumField;
     caf::ChildArrayField<SimpleObj*>       m_simpleObjectsField;
 };
-CAF_PDM_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj" );
+CAF_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj" );
 
 class MyPdmDocument : public caf::PdmDocument
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_HEADER_INIT;
 
 public:
     MyPdmDocument()
     {
-        CAF_PDM_InitObject( "ObjectCollection", "", "", "" );
-        CAF_PDM_InitFieldNoDefault( &objects, "Objects", "", "", "", "" )
+        CAF_InitObject( "ObjectCollection", "", "", "" );
+        CAF_InitFieldNoDefault( &objects, "Objects", "", "", "", "" )
     }
 
     ~MyPdmDocument() { objects.deleteAllChildObjects(); }
 
     caf::ChildArrayField<ObjectHandle*> objects;
 };
-CAF_PDM_SOURCE_INIT( MyPdmDocument, "MyPdmDocument" );
+CAF_SOURCE_INIT( MyPdmDocument, "MyPdmDocument" );
 
 namespace caf
 {

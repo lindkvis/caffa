@@ -17,7 +17,7 @@
 
 class ItemObject : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
-    CAF_PDM_IO_HEADER_INIT;
+    CAF_IO_HEADER_INIT;
 
 public:
     ItemObject()
@@ -40,13 +40,13 @@ public:
     // Fields
     caf::DataValueField<QString> m_name;
 };
-CAF_PDM_IO_SOURCE_INIT( ItemObject, "ItemObject" );
+CAF_IO_SOURCE_INIT( ItemObject, "ItemObject" );
 
 class DemoObjectA;
 
 class ContainerObject : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
-    CAF_PDM_IO_HEADER_INIT;
+    CAF_IO_HEADER_INIT;
 
 public:
     ContainerObject()
@@ -65,11 +65,11 @@ public:
     caf::ChildArrayField<ContainerObject*> m_containers;
     caf::ChildArrayField<DemoObjectA*>     m_demoObjs;
 };
-CAF_PDM_IO_SOURCE_INIT( ContainerObject, "ContainerObject" );
+CAF_IO_SOURCE_INIT( ContainerObject, "ContainerObject" );
 
 class DemoObjectA : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
-    CAF_PDM_IO_HEADER_INIT;
+    CAF_IO_HEADER_INIT;
 
 public:
     enum TestEnumType
@@ -113,7 +113,7 @@ public:
     double m_doubleMember;
 };
 
-CAF_PDM_IO_SOURCE_INIT( DemoObjectA, "DemoObjectA" );
+CAF_IO_SOURCE_INIT( DemoObjectA, "DemoObjectA" );
 
 namespace caf
 {
