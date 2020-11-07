@@ -1,0 +1,25 @@
+name: ARM32v7 Desktop Deployment Build
+
+on:
+  push:
+  pull_request:
+  schedule:
+    # Every day at 1am to make sure we have a build cache for the current date
+    # build cache is
+    - cron: '0 1 * * * '
+jobs:
+  caffa-x64:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install qemu-user moby-cli moby-engine
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: false
+      - name: Run script in Docker container
+        shell: bash
+        run: |
+          sudo docker run -i --log-driver=none -a stdin -a stdout -a stderr -v /usr/bin/qemu-arm-static:/usr/bin/qemu-arm-static --rm arm32v7/ubuntu < ${{ github.workspace }}/scripts/build-in-container.sh
