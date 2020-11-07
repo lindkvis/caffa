@@ -5,6 +5,9 @@ DEBIAN_FRONTEND=noninteractive apt-get -yq install cmake build-essential git qtb
 echo "Cloning caffa"
 git clone https://github.com/lindkvis/caffa.git
 cd caffa
+echo "Initialising Submodules"
+git submodule init
+git submodule update
 mkdir build
 cd build
 echo "Configuring"
