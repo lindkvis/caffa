@@ -38,6 +38,17 @@ jobs:
       with:
           platforms: linux/arm/v7
           push: true
-          tags: "lindkvis/caffa_arm32v7:${{steps.vars.outputs.sha_short}}"
+          tags: "lindkvis/caffa_arm32v7:latest,lindkvis/caffa_arm32v7:${{steps.vars.outputs.sha_short}}"
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
+  run-tests:    
+    runs-on: ubuntu-20.04
+    container:
+      image: lindkvis/caffa_arm32v7:latest
+    steps:
+    - name: Run Unit Tests Linux
+      shell: bash
+      run: |
+        /usr/src/caffa/cmakebuild/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests/cafPdmCore_UnitTests
+        /usr/src/caffa/cmakebuild/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests/cafPdmXml_UnitTests
+        /usr/src/caffa/cmakebuild/cafProjectDataModel/cafProjectDataModel_UnitTests/cafProjectDataModel_UnitTests
