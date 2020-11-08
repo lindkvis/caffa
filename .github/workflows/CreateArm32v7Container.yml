@@ -41,10 +41,15 @@ jobs:
           tags: "lindkvis/caffa_arm32v7:latest,lindkvis/caffa_arm32v7:${{steps.vars.outputs.sha_short}}"
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
-    - name: Run Unit Tests in Container
+    - name: Run Core Unit Tests in Container
       uses: "docker://lindkvis/caffa_arm32v7:latest"
       with:
-        args: |
-          /usr/src/caffa/cmakebuild/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests/cafPdmCore_UnitTests
-          /usr/src/caffa/cmakebuild/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests/cafPdmXml_UnitTests
-          /usr/src/caffa/cmakebuild/cafProjectDataModel/cafProjectDataModel_UnitTests/cafProjectDataModel_UnitTests
+        args: /usr/src/caffa/build/bin/cafPdmCore_UnitTests
+    - name: Run IO Unit Tests in Container
+      uses: "docker://lindkvis/caffa_arm32v7:latest"
+      with:
+        args: /usr/src/caffa/build/bin/cafPdmIoCore_UnitTests
+    - name: Run PDM Unit Tests in Container
+      uses: "docker://lindkvis/caffa_arm32v7:latest"
+      with:
+        args: /usr/src/caffa/build/bin/cafProjectDataModel_UnitTests
