@@ -36,7 +36,20 @@ jobs:
       id: docker_build
       uses: docker/build-push-action@v2
       with:
+          platforms: linux/arm/v7
           push: true
-          tags: lindkvis/caffa_arm32v7:latest
+          tags: "lindkvis/caffa_arm32v7:latest,lindkvis/caffa_arm32v7:${{steps.vars.outputs.sha_short}}"
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
+    - name: Run Core Unit Tests in Container
+      uses: "docker://lindkvis/caffa_arm32v7:latest"
+      with:
+        args: /usr/src/caffa/build/bin/cafPdmCore_UnitTests
+    - name: Run IO Unit Tests in Container
+      uses: "docker://lindkvis/caffa_arm32v7:latest"
+      with:
+        args: /usr/src/caffa/build/bin/cafPdmIoCore_UnitTests
+    - name: Run PDM Unit Tests in Container
+      uses: "docker://lindkvis/caffa_arm32v7:latest"
+      with:
+        args: /usr/src/caffa/build/bin/cafProjectDataModel_UnitTests
