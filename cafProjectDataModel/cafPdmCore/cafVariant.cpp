@@ -86,7 +86,7 @@ std::vector<Variant> Variant::toVector() const
                 {
                     if constexpr ( is_std_vector<T>::value )
                     {
-                        return toVectorT<T::value_type>( arg );
+                        return toVectorT<typename T::value_type>( arg );
                     }
                     else
                     {
