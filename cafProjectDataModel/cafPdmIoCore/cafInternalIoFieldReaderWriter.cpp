@@ -1,7 +1,6 @@
 #include "cafInternalIoFieldReaderWriter.h"
 
 #include <nlohmann/json.hpp>
-#include <tinyxml2.h>
 
 namespace caf
 {

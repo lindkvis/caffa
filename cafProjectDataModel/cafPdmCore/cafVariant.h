@@ -6,8 +6,8 @@
 #include "cafPdmPointer.h"
 #include "cafTristate.h"
 
+#include <algorithm>
 #include <ctime>
-#include <filesystem>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -156,8 +156,8 @@ private:
 
             for ( auto stringValue : stringValues )
             {
-                std::stringstream stream( stringValue );
-                T::value_type     value;
+                std::stringstream      stream( stringValue );
+                typename T::value_type value;
                 stream >> value;
                 valueVector.push_back( value );
             }
@@ -218,7 +218,6 @@ public:
                                          caf::Color,
                                          std::time_t,
                                          caf::PdmPointer<ObjectHandle>,
-                                         std::filesystem::path,
                                          std::vector<bool>,
                                          std::vector<int>,
                                          std::vector<unsigned char>,
@@ -230,8 +229,7 @@ public:
                                          std::vector<caf::Tristate>,
                                          std::vector<caf::Color>,
                                          std::vector<std::time_t>,
-                                         std::vector<caf::PdmPointer<ObjectHandle>>,
-                                         std::vector<std::filesystem::path>>;
+                                         std::vector<caf::PdmPointer<ObjectHandle>>>;
     Variant() {}
 
     template <typename T>
