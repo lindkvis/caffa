@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          submodules: true
       - name: Run vcpkg
         uses: lukka/run-vcpkg@v6
         with:
