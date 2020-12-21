@@ -37,9 +37,6 @@
 
 #include "cafAppEnum.h"
 
-#include <QApplication>
-#include <QDesktopWidget>
-
 #include <cmath>
 
 using namespace caf;
@@ -81,37 +78,25 @@ int FontTools::absolutePointSize( FontSize normalPointSize, DeltaSize relativeSi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int FontTools::pointSizeToPixelSize( int pointSize )
+int FontTools::pointSizeToPixelSize( int pointSize, int dpi )
 {
-    auto app = dynamic_cast<const QApplication*>( QCoreApplication::instance() );
-    if ( app )
-    {
-        int    dpi    = app->desktop()->logicalDpiX();
-        double inches = pointSize / 72.0;
-        return static_cast<int>( std::ceil( inches * dpi ) );
-    }
-    return pointSize;
+    double inches = pointSize / 72.0;
+    return static_cast<int>( std::ceil( inches * dpi ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int FontTools::pointSizeToPixelSize( FontSize pointSize )
+int FontTools::pointSizeToPixelSize( FontSize pointSize, int dpi )
 {
-    return pointSizeToPixelSize( (int)pointSize );
+    return pointSizeToPixelSize( (int)pointSize, dpi );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int FontTools::pixelSizeToPointSize( int pixelSize )
+int FontTools::pixelSizeToPointSize( int pixelSize, int dpi )
 {
-    auto app = dynamic_cast<const QApplication*>( QCoreApplication::instance() );
-    if ( app )
-    {
-        int    dpi    = app->desktop()->logicalDpiX();
-        double inches = pixelSize / dpi;
-        return static_cast<int>( std::ceil( inches * 72.0 ) );
-    }
-    return pixelSize;
+    double inches = pixelSize / dpi;
+    return static_cast<int>( std::ceil( inches * 72.0 ) );
 }

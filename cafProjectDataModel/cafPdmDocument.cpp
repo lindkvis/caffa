@@ -34,10 +34,11 @@
 //
 //##################################################################################################
 
+#include "cafFieldScriptingCapability.h"
+#include "cafObjectScriptingCapability.h"
 #include "cafPdmDocument.h"
 
-#include <QFile>
-#include <QXmlStreamReader>
+#include <fstream>
 
 namespace caf
 {
@@ -48,52 +49,24 @@ CAF_SOURCE_INIT( PdmDocument, "PdmDocument" );
 //--------------------------------------------------------------------------------------------------
 PdmDocument::PdmDocument()
 {
-    CAF_InitFieldNoDefault( &fileName, "DocumentFileName", "File Name", "", "", "" );
+    CAF_InitScriptableObject( "Document", "", "Basic Document", "" );
+    CAF_InitScriptableFieldNoDefault( &fileName, "DocumentFileName", "File Name", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmDocument::readFile()
+bool PdmDocument::read( ObjectIoCapability::IoType ioType /*= ObjectIoCapability::IoType::JSON */ )
 {
-    QFile file( fileName );
-    if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) return;
-
-    readFile( &file );
+    return ObjectIoCapability::readFile( fileName, ioType );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmDocument::readFile(
-    QIODevice*                                       file,
-    caf::ObjectIoCapability::IoParameters::IoType ioType /*= ObjectIoCapability::IoParameters::IoType::XML */ )
+bool PdmDocument::write( ObjectIoCapability::IoType ioType /*= ObjectIoCapability::IoType::JSON */ )
 {
-    ObjectIoCapability::IoParameters params = { ioType, file };
-    ObjectIoCapability::readFile( params );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool PdmDocument::writeFile()
-{
-    QFile inputFile( fileName );
-    if ( !inputFile.open( QIODevice::WriteOnly | QIODevice::Text ) ) return false;
-
-    writeFile( &inputFile );
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void PdmDocument::writeFile( QIODevice* file, caf::ObjectIoCapability::IoParameters::IoType ioType )
-{
-    ObjectIoCapability::IoParameters params = { ioType, file };
-
-    ObjectIoCapability::writeFile( params );
+    return ObjectIoCapability::writeFile( fileName, ioType );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,7 +79,7 @@ void PdmDocument::updateUiIconStateRecursively( ObjectHandle* object )
     object->fields( fields );
 
     std::vector<ObjectHandle*> children;
-    size_t                        fIdx;
+    size_t                     fIdx;
     for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
     {
         if ( fields[fIdx] ) fields[fIdx]->childObjects( &children );

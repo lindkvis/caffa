@@ -197,27 +197,27 @@ static const QIcon& stepUpIcon()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiComboBoxEditor::configureAndUpdateUi()
 {
     if ( !m_label.isNull() )
     {
-        UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+        UiFieldEditorHandle::updateLabelFromField( m_label );
     }
 
     // Handle attributes
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+        uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
     }
 
     if ( !m_comboBox.isNull() )
     {
-        m_comboBox->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
-        m_comboBox->setToolTip( uiField()->uiToolTip( uiConfigName ) );
+        m_comboBox->setEnabled( !uiField()->isUiReadOnly() );
+        m_comboBox->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
-        bool                     fromMenuOnly = true;
-        QList<PdmOptionItemInfo> options      = uiField()->valueOptions( &fromMenuOnly );
+        bool                       fromMenuOnly = true;
+        std::deque<OptionItemInfo> options      = uiField()->valueOptions( &fromMenuOnly );
         CAF_ASSERT( fromMenuOnly ); // Not supported
 
         m_comboBox->blockSignals( true );
@@ -228,22 +228,31 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
             listView->setSpacing( 2 );
         }
 
-        if ( !options.isEmpty() )
+        if ( !options.empty() )
         {
+            Variant currentValue = uiField()->uiValue();
+            int     index        = 0;
             for ( const auto& option : options )
             {
-                auto icon = option.icon();
+                auto icon = option.iconProvider();
                 if ( icon )
-                    m_comboBox->addItem( *icon, option.optionUiText() );
+                    m_comboBox->addItem( QIcon( QString::fromStdString( icon->iconResourceString() ) ),
+                                         QString::fromStdString( option.optionUiText() ) );
                 else
-                    m_comboBox->addItem( option.optionUiText() );
-                m_comboBox->setIconSize( m_attributes.iconSize );
+                    m_comboBox->addItem( QString::fromStdString( option.optionUiText() ) );
+                auto [width, height] = m_attributes.iconSize;
+
+                m_comboBox->setIconSize( QSize( width, height ) );
+                if ( option.value() == currentValue )
+                {
+                    m_comboBox->setCurrentIndex( index );
+                }
+                index++;
             }
-            m_comboBox->setCurrentIndex( uiField()->uiValue().toInt() );
         }
         else
         {
-            m_comboBox->addItem( uiField()->uiValue().toString() );
+            m_comboBox->addItem( QString::fromStdString( uiField()->uiValue().textValue() ) );
             m_comboBox->setCurrentIndex( 0 );
         }
 
@@ -260,9 +269,9 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
 
             int  maxTextWidth = 0;
             bool labelsElided = false;
-            for ( const PdmOptionItemInfo& option : options )
+            for ( const OptionItemInfo& option : options )
             {
-                QString label = option.optionUiText();
+                QString label = QString::fromStdString( option.optionUiText() );
                 if ( label.size() > m_attributes.maximumMenuContentsLength )
                 {
                     label.resize( m_attributes.maximumMenuContentsLength );
@@ -280,7 +289,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
         {
             m_comboBox->setEditable( true );
 
-            m_comboBox->lineEdit()->setPlaceholderText( m_attributes.placeholderText );
+            m_comboBox->lineEdit()->setPlaceholderText( QString::fromStdString( m_attributes.placeholderText ) );
         }
 
         if ( m_attributes.minimumWidth != -1 )
@@ -335,14 +344,14 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
             }
 
             // Update button texts
-            if ( !m_attributes.nextButtonText.isEmpty() )
+            if ( !m_attributes.nextButtonText.empty() )
             {
-                m_nextItemButton->setToolTip( m_attributes.nextButtonText );
+                m_nextItemButton->setToolTip( QString::fromStdString( m_attributes.nextButtonText ) );
             }
 
-            if ( !m_attributes.prevButtonText.isEmpty() )
+            if ( !m_attributes.prevButtonText.empty() )
             {
-                m_previousItemButton->setToolTip( m_attributes.prevButtonText );
+                m_previousItemButton->setToolTip( QString::fromStdString( m_attributes.prevButtonText ) );
             }
         }
         else
@@ -469,19 +478,17 @@ void PdmUiComboBoxEditor::slotIndexActivated( int index )
     {
         // Use the text directly, as the item text could be entered directly by the user
 
-        auto text = m_comboBox->itemText( index );
+        auto text = m_comboBox->itemText( index ).toStdString();
         this->setValueToField( text );
     }
     else
     {
         // Use index as data carrier to PDM field
         // The index will be used as a lookup in a list of option items
-
-        QVariant v;
-        v = index;
-
-        QVariant uintValue( v.toUInt() );
-        this->setValueToField( uintValue );
+        bool dummy        = false;
+        auto valueOptions = uiField()->valueOptions( &dummy );
+        if ( index < (int)valueOptions.size() )
+            this->setValueToField( valueOptions[index].value() );
     }
 }
 

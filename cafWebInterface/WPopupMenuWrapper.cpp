@@ -1,41 +1,42 @@
 #include "WPopupMenuWrapper.h"
 
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
+
 #include "cafIconProvider.h"
 
 #include <Wt/WPopupMenu.h>
 #include <Wt/WString.h>
 
-#include <QString>
-
 #include <memory>
+#include <string>
 
 using namespace caf;
-
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 WAction::WAction()
-    : m_enabled(false)
-    , m_checked(false)
-    , m_checkable(false)
+    : m_enabled( false )
+    , m_checked( false )
+    , m_checkable( false )
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void WAction::init(const QString& text, QObject* parent /*= nullptr*/)
+void WAction::init( const std::string& text, void* )
 {
     m_text = text;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QVariant WAction::data() const
+Variant WAction::data() const
 {
     return m_data;
 }
@@ -43,7 +44,7 @@ QVariant WAction::data() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void WAction::setData(const QVariant& data)
+void WAction::setData( const Variant& data )
 {
     m_data = data;
 }
@@ -51,7 +52,7 @@ void WAction::setData(const QVariant& data)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void WAction::setText(const QString& text)
+void WAction::setText( const std::string& text )
 {
     m_text = text;
 }
@@ -59,7 +60,7 @@ void WAction::setText(const QString& text)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString WAction::text() const
+std::string WAction::text() const
 {
     return m_text;
 }
@@ -67,7 +68,7 @@ QString WAction::text() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void WAction::setEnabled(bool enabled)
+void WAction::setEnabled( bool enabled )
 {
     m_enabled = enabled;
 }
@@ -83,7 +84,7 @@ bool WAction::isEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void WAction::setChecked(bool checked)
+void WAction::setChecked( bool checked )
 {
     m_checked = checked;
 }
@@ -99,7 +100,7 @@ bool WAction::isCheckable() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void WAction::setShortcut(QKeySequence::StandardKey keySequence)
+void WAction::setShortcut( caf::StandardKey keySequence )
 {
     m_shortcut = keySequence;
 }
@@ -107,18 +108,19 @@ void WAction::setShortcut(QKeySequence::StandardKey keySequence)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QKeySequence WAction::shortcut() const
+std::string WAction::shortcut() const
 {
-    return m_shortcut;
+    // TODO: implement
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool WAction::isEqualTo(const ActionWrapper* wrapper) const
+bool WAction::isEqualTo( const ActionWrapper* wrapper ) const
 {
-    auto wAction = dynamic_cast<const WAction*>(wrapper);
-    if (wAction)
+    auto wAction = dynamic_cast<const WAction*>( wrapper );
+    if ( wAction )
     {
         return wAction->text() == m_text;
     }
@@ -128,7 +130,7 @@ bool WAction::isEqualTo(const ActionWrapper* wrapper) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void WAction::setIcon(const IconProvider& iconProvider)
+void WAction::setIcon( const IconProvider& iconProvider )
 {
     m_icon = iconProvider;
 }
@@ -136,17 +138,17 @@ void WAction::setIcon(const IconProvider& iconProvider)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void WAction::connect(const std::function<void(bool) >& trigger)
+void WAction::connect( const std::function<void( bool )>& trigger )
 {
-    m_trigger = trigger;    
+    m_trigger = trigger;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void WAction::actionTriggered(Wt::WMenuItem* menuItem)
+void WAction::actionTriggered( Wt::WMenuItem* menuItem )
 {
-    m_trigger(menuItem->isChecked());
+    m_trigger( menuItem->isChecked() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,20 +170,20 @@ IconProvider WAction::icon() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void WAction::trigger(bool checked) const
+void WAction::trigger( bool checked ) const
 {
-    m_trigger(checked);
+    m_trigger( checked );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-WPopupMenuItem::WPopupMenuItem(const QString& label, std::shared_ptr<ActionWrapper> action)
-    : Wt::WMenuItem(label.toStdString())
-    , m_action(action)
+WPopupMenuItem::WPopupMenuItem( const std::string& label, std::shared_ptr<ActionWrapper> action )
+    : Wt::WMenuItem( label )
+    , m_action( action )
 {
     refreshStateFromAction();
-    triggered().connect([&]{m_action->trigger(this->isChecked()); });
+    triggered().connect( [&] { m_action->trigger( this->isChecked() ); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -197,21 +199,20 @@ std::shared_ptr<ActionWrapper> WPopupMenuItem::action()
 //--------------------------------------------------------------------------------------------------
 void WPopupMenuItem::refreshStateFromAction()
 {
-    setText(m_action->text().toStdString());
-    setIcon(m_action->icon().iconResourceString().toStdString());
-    setCheckable(m_action->isCheckable());
-    setChecked(m_action->isChecked());
-    setSelectable(m_action->isEnabled());
+    setText( m_action->text() );
+    setIcon( m_action->icon().iconResourceString() );
+    setCheckable( m_action->isCheckable() );
+    setChecked( m_action->isChecked() );
+    setSelectable( m_action->isEnabled() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 WPopupMenuWrapper::WPopupMenuWrapper()
-    : m_menu(new Wt::WPopupMenu)
-    , m_takesOwnership(true)
+    : m_menu( new Wt::WPopupMenu )
+    , m_takesOwnership( true )
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,12 +226,11 @@ Wt::WPopupMenu* WPopupMenuWrapper::menu()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<ActionWrapper> WPopupMenuWrapper::findAction(const QString& actionName) const
+std::shared_ptr<ActionWrapper> WPopupMenuWrapper::findAction( const std::string& actionName ) const
 {
-    auto it = std::find_if(m_actions.begin(), m_actions.end(), [actionName](std::shared_ptr<ActionWrapper> action)
-    {
+    auto it = std::find_if( m_actions.begin(), m_actions.end(), [actionName]( std::shared_ptr<ActionWrapper> action ) {
         return action->text() == actionName;
-    });
+    } );
     return it != m_actions.end() ? *it : nullptr;
 }
 
@@ -239,13 +239,13 @@ std::shared_ptr<ActionWrapper> WPopupMenuWrapper::findAction(const QString& acti
 //--------------------------------------------------------------------------------------------------
 void WPopupMenuWrapper::refreshEnabledState()
 {
-    for (auto menuItem : m_menu->items())
+    for ( auto menuItem : m_menu->items() )
     {
-        auto popupItem = dynamic_cast<WPopupMenuItem*>(menuItem);
-        if (popupItem)
+        auto popupItem = dynamic_cast<WPopupMenuItem*>( menuItem );
+        if ( popupItem )
         {
             bool enabled = popupItem->action()->isEnabled();
-            popupItem->setDisabled(!enabled);
+            popupItem->setDisabled( !enabled );
         }
     }
 }
@@ -255,7 +255,7 @@ void WPopupMenuWrapper::refreshEnabledState()
 //--------------------------------------------------------------------------------------------------
 WPopupMenuWrapper::~WPopupMenuWrapper()
 {
-    if (m_takesOwnership)
+    if ( m_takesOwnership )
     {
         delete m_menu;
     }
@@ -264,28 +264,27 @@ WPopupMenuWrapper::~WPopupMenuWrapper()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-MenuInterface* WPopupMenuWrapper::addMenu(const IconProvider& icon, const QString& subMenuName)
+MenuInterface* WPopupMenuWrapper::addMenu( const IconProvider& icon, const std::string& subMenuName )
 {
-    auto subMenu = new Wt::WPopupMenu;
-    std::string stdName = subMenuName.toStdString();
-    std::string iconName = icon.iconResourceString().toStdString();
-    m_menu->addMenu(iconName, stdName, std::unique_ptr<Wt::WPopupMenu>(subMenu));
-    return new WPopupMenuWrapper(subMenu);
+    auto        subMenu  = new Wt::WPopupMenu;
+    std::string stdName  = subMenuName;
+    std::string iconName = icon.iconResourceString();
+    m_menu->addMenu( iconName, stdName, std::unique_ptr<Wt::WPopupMenu>( subMenu ) );
+    return new WPopupMenuWrapper( subMenu );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void WPopupMenuWrapper::addAction(std::shared_ptr<ActionWrapper> action)
+void WPopupMenuWrapper::addAction( std::shared_ptr<ActionWrapper> action )
 {
-    m_actions.push_back(action);
-    QString label = action->text();
-    std::string stdLabel = label.toStdString();
-    WPopupMenuItem* menuItem = new WPopupMenuItem(label, action);
-    bool enabled = action->isEnabled();
-    menuItem->setDisabled(!enabled);
-    m_menu->addItem(std::unique_ptr<WPopupMenuItem>(menuItem));
-    
+    m_actions.push_back( action );
+    std::string     label    = action->text();
+    std::string     stdLabel = label;
+    WPopupMenuItem* menuItem = new WPopupMenuItem( label, action );
+    bool            enabled  = action->isEnabled();
+    menuItem->setDisabled( !enabled );
+    m_menu->addItem( std::unique_ptr<WPopupMenuItem>( menuItem ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -299,9 +298,9 @@ std::shared_ptr<ActionWrapper> WPopupMenuWrapper::menuAction() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void WPopupMenuWrapper::removeAction(std::shared_ptr<ActionWrapper> action)
+void WPopupMenuWrapper::removeAction( std::shared_ptr<ActionWrapper> action )
 {
-    m_actions.remove(action);
+    m_actions.remove( action );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -320,24 +319,23 @@ std::list<std::shared_ptr<ActionWrapper>> WPopupMenuWrapper::actions() const
     return m_actions;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-WPopupMenuWrapper::WPopupMenuWrapper(Wt::WPopupMenu* menu)
-    : m_menu(menu)
-    , m_menuAction(new WAction)
-    , m_takesOwnership(false)
+WPopupMenuWrapper::WPopupMenuWrapper( Wt::WPopupMenu* menu )
+    : m_menu( menu )
+    , m_menuAction( new WAction )
+    , m_takesOwnership( false )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<ActionWrapper> WActionCreator::createAction(const QString& actionName, QObject* parent /*= nullptr*/) const
+std::shared_ptr<ActionWrapper> WActionCreator::createAction( const std::string& actionName, void* parent /*= nullptr*/ ) const
 {
     auto wrapper = std::make_shared<WAction>();
-    wrapper->init(actionName, parent);
+    wrapper->init( actionName, reinterpret_cast<Wt::WWidget*>( parent ) );
     return wrapper;
 }
 
@@ -349,3 +347,7 @@ WActionCreator* WActionCreator::instance()
     static WActionCreator* creator = new WActionCreator;
     return creator;
 }
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

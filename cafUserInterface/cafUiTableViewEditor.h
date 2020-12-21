@@ -35,10 +35,9 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafPdmDocument.h"
-#include "cafUiFieldEditorHandle.h"
 #include "cafSelectionChangedReceiver.h"
+#include "cafUiFieldEditorHandle.h"
 
 #include <QAbstractItemModel>
 #include <QPointer>
@@ -63,13 +62,13 @@ class ChildArrayFieldHandle;
 class PdmUiTableViewPushButtonEditorAttribute : public UiEditorAttribute
 {
 public:
-    void registerPushButtonTextForFieldKeyword( const QString& keyword, const QString& text );
+    void registerPushButtonTextForFieldKeyword( const std::string& keyword, const std::string& text );
 
-    bool    showPushButtonForFieldKeyword( const QString& keyword ) const;
-    QString pushButtonText( const QString& keyword ) const;
+    bool        showPushButtonForFieldKeyword( const std::string& keyword ) const;
+    std::string pushButtonText( const std::string& keyword ) const;
 
 private:
-    std::map<QString, QString> m_fieldKeywordAndPushButtonText;
+    std::map<std::string, std::string> m_fieldKeywordAndPushButtonText;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -112,7 +111,7 @@ public:
 ///
 //--------------------------------------------------------------------------------------------------
 
-class cafUserInterface_EXPORT PdmUiTableViewEditor : public UiFieldEditorHandle, public SelectionChangedReceiver
+class PdmUiTableViewEditor : public UiFieldEditorHandle, public SelectionChangedReceiver
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -126,12 +125,12 @@ public:
     void setRowSelectionLevel( int selectionLevel );
 
     ObjectHandle* pdmObjectFromModelIndex( const QModelIndex& mi );
-    QTableView*      tableView();
+    QTableView*   tableView();
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
     QWidget* createLabelWidget( QWidget* parent ) override;
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    void     configureAndUpdateUi() override;
 
     void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
     bool isMultiRowEditor() const override;
@@ -141,7 +140,7 @@ private:
     bool isSelectionRoleDefined() const;
     void updateSelectionManagerFromTableSelection();
 
-    bool                      eventFilter( QObject* obj, QEvent* event ) override;
+    bool                   eventFilter( QObject* obj, QEvent* event ) override;
     ChildArrayFieldHandle* childArrayFieldHandle();
 
 private slots:
@@ -151,7 +150,7 @@ private:
     friend class FocusEventHandler;
 
     QPointer<QLabel> m_tableHeading;
-    QPointer<QLabel>          m_tableHeadingIcon;
+    QPointer<QLabel> m_tableHeadingIcon;
 
     QTableView*           m_tableView;
     PdmUiTableViewQModel* m_tableModelPdm;

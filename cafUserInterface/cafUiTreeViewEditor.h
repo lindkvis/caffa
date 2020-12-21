@@ -35,7 +35,6 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafUiFieldEditorHandle.h"
 #include "cafUiTreeEditorHandle.h"
 #include "cafUiTreeViewQModel.h"
@@ -80,7 +79,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class cafUserInterface_EXPORT PdmUiTreeViewEditor : public PdmUiTreeEditorHandle
+class PdmUiTreeViewEditor : public PdmUiTreeEditorHandle
 {
     Q_OBJECT
 public:
@@ -101,7 +100,7 @@ public:
     void selectedUiItems( std::vector<UiItem*>& objects );
     void setExpanded( const UiItem* uiItem, bool doExpand ) const;
 
-    UiItem*  uiItemFromModelIndex( const QModelIndex& index ) const;
+    UiItem*     uiItemFromModelIndex( const QModelIndex& index ) const;
     QModelIndex findModelIndex( const UiItem* object ) const;
 
     QWidget* createWidget( QWidget* parent ) override;
@@ -112,7 +111,7 @@ signals:
     void selectionChanged();
 
 protected:
-    void configureAndUpdateUi( const QString& uiConfigName ) override;
+    void configureAndUpdateUi() override;
 
     void updateMySubTree( UiItem* uiItem ) override;
 

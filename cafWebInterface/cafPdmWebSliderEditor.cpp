@@ -34,8 +34,12 @@
 //   for more details.
 //
 //##################################################################################################
-
 #include "cafPdmWebSliderEditor.h"
+
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
 
 #include "cafAssert.h"
 #include "cafField.h"
@@ -59,34 +63,34 @@ CAF_PDM_WEB_FIELD_EDITOR_SOURCE_INIT( PdmWebSliderEditor );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebSliderEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmWebSliderEditor::configureAndUpdateUi()
 {
-    applyTextToLabel( m_label.get(), uiConfigName );
+    applyTextToLabel( m_label.get() );
 
     if ( m_spinBox )
     {
-        m_spinBox->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
-        m_spinBox->setToolTip( uiField()->uiToolTip( uiConfigName ).toStdString() );
+        m_spinBox->setEnabled( !uiField()->isUiReadOnly() );
+        m_spinBox->setToolTip( uiField()->uiToolTip() );
     }
     if ( m_slider )
     {
-        m_slider->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
-        m_slider->setToolTip( uiField()->uiToolTip( uiConfigName ).toStdString() );
+        m_slider->setEnabled( !uiField()->isUiReadOnly() );
+        m_slider->setToolTip( uiField()->uiToolTip() );
     }
 
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+        uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
     }
 
     {
         if ( m_spinBox ) m_spinBox->setRange( m_attributes.m_minimum, m_attributes.m_maximum );
         if ( m_slider ) m_slider->setRange( m_attributes.m_minimum, m_attributes.m_maximum );
 
-        QString textValue = uiField()->uiValue().toString();
-        if ( m_spinBox ) m_spinBox->setValue( textValue.toInt() );
-        if ( m_slider ) m_slider->setValue( textValue.toInt() );
+        int value = uiField()->uiValue().value<int>();
+        if ( m_spinBox ) m_spinBox->setValue( value );
+        if ( m_slider ) m_slider->setValue( value );
     }
 }
 
@@ -164,10 +168,13 @@ void PdmWebSliderEditor::slotSpinBoxValueChanged( int value )
 //--------------------------------------------------------------------------------------------------
 void PdmWebSliderEditor::writeValueToField()
 {
-    int      value = m_slider->value();
-    QVariant v;
-    v = QString( "%1" ).arg( value );
+    int     value = m_slider->value();
+    Variant v( value );
     this->setValueToField( v );
 }
 
 } // end namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

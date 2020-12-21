@@ -65,7 +65,7 @@ PdmUiTableRowEditor::~PdmUiTableRowEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableRowEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiTableRowEditor::configureAndUpdateUi()
 {
     caf::ObjectUiCapability* uiObject = dynamic_cast<caf::ObjectUiCapability*>( this->pdmItem() );
     if ( uiObject )
@@ -73,8 +73,8 @@ void PdmUiTableRowEditor::configureAndUpdateUi( const QString& uiConfigName )
         // Call uiOrdering method, as this method is responsible for control of
         // object states like hidden/readOnly, etc...
 
-        caf::PdmUiOrdering dummy;
-        uiObject->uiOrdering( uiConfigName, dummy );
+        caf::UiOrdering dummy;
+        uiObject->uiOrdering( dummy );
     }
 
     if ( m_model )

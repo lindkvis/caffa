@@ -69,26 +69,27 @@ PdmUiDoubleValueEditor::~PdmUiDoubleValueEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDoubleValueEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiDoubleValueEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_lineEdit.isNull() );
 
-    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label );
 
-    m_lineEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
+    m_lineEdit->setEnabled( !uiField()->isUiReadOnly() );
 
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+        uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
         if ( m_attributes.m_validator )
         {
             m_lineEdit->setValidator( m_attributes.m_validator );
         }
     }
 
-    bool    valueOk = false;
-    double  value   = uiField()->uiValue().toDouble( &valueOk );
+    bool   valueOk = uiField()->uiValue().canConvert<double>();
+    double value   = valueOk ? uiField()->uiValue().value<double>() : 0.0;
+
     QString textValue;
     if ( valueOk )
     {
@@ -98,13 +99,8 @@ void PdmUiDoubleValueEditor::configureAndUpdateUi( const QString& uiConfigName )
             textValue = QString::number( value, 'e', m_attributes.m_decimals );
         else
             textValue = QString::number( value, 'g', m_attributes.m_decimals );
+        m_lineEdit->setText( textValue );
     }
-    else
-    {
-        textValue = uiField()->uiValue().toString();
-    }
-
-    m_lineEdit->setText( textValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,9 +144,8 @@ void PdmUiDoubleValueEditor::slotEditingFinished()
 //--------------------------------------------------------------------------------------------------
 void PdmUiDoubleValueEditor::writeValueToField()
 {
-    QString  textValue = m_lineEdit->text();
-    QVariant v;
-    v = textValue;
+    QString textValue = m_lineEdit->text();
+    Variant v( textValue.toStdString() );
     this->setValueToField( v );
 }
 

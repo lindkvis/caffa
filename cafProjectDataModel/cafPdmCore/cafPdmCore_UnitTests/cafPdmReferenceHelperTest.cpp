@@ -7,9 +7,9 @@
 #include "cafChildField.h"
 #include "cafDataValueField.h"
 #include "cafObjectHandle.h"
+#include "cafPdmReferenceHelper.h"
 #include "cafProxyValueField.h"
 #include "cafPtrField.h"
-#include "cafPdmReferenceHelper.h"
 
 class SimpleObj : public caf::ObjectHandle
 {
@@ -60,8 +60,8 @@ public:
     }
 
     // Fields
-    caf::ChildField<ObjectHandle*> m_pointersField;
-    caf::ChildArrayField<SimpleObj*>  m_simpleObjPtrField;
+    caf::ChildField<ObjectHandle*>   m_pointersField;
+    caf::ChildArrayField<SimpleObj*> m_simpleObjPtrField;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -118,7 +118,7 @@ TEST( PdmReferenceHelperTest, ReferenceFrommRootToField )
     {
         caf::ObjectHandle* obj         = NULL;
         caf::FieldHandle*  fieldHandle = NULL;
-        EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromRootToField( obj, fieldHandle ).isEmpty() );
+        EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromRootToField( obj, fieldHandle ).empty() );
     }
 
     {
@@ -130,12 +130,12 @@ TEST( PdmReferenceHelperTest, ReferenceFrommRootToField )
         ihd1->m_simpleObjPtrField.push_back( s2 );
         ihd1->m_simpleObjPtrField.push_back( s3 );
 
-        EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromRootToField( NULL, &s3->m_dir ).isEmpty() );
-        EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromRootToField( ihd1, NULL ).isEmpty() );
+        EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromRootToField( NULL, &s3->m_dir ).empty() );
+        EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromRootToField( ihd1, NULL ).empty() );
 
-        QString refString      = caf::PdmReferenceHelper::referenceFromRootToField( ihd1, &s3->m_dir );
-        QString expectedString = "m_dir m_simpleObjPtrField 2";
-        EXPECT_STREQ( expectedString.toLatin1(), refString.toLatin1() );
+        std::string refString      = caf::PdmReferenceHelper::referenceFromRootToField( ihd1, &s3->m_dir );
+        std::string expectedString = "m_dir m_simpleObjPtrField 2";
+        EXPECT_STREQ( expectedString.c_str(), refString.c_str() );
 
         delete ihd1;
     }
@@ -149,7 +149,7 @@ TEST( PdmReferenceHelperTest, ReferenceFrommRootToObject )
     {
         caf::ObjectHandle* root = NULL;
         caf::ObjectHandle* obj  = NULL;
-        EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromRootToObject( root, obj ).isEmpty() );
+        EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromRootToObject( root, obj ).empty() );
     }
 
     {
@@ -161,18 +161,18 @@ TEST( PdmReferenceHelperTest, ReferenceFrommRootToObject )
         ihd1->m_simpleObjPtrField.push_back( s2 );
         ihd1->m_simpleObjPtrField.push_back( s3 );
 
-        EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromRootToObject( NULL, s3 ).isEmpty() );
-        EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromRootToObject( ihd1, NULL ).isEmpty() );
+        EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromRootToObject( NULL, s3 ).empty() );
+        EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromRootToObject( ihd1, NULL ).empty() );
 
-        QString refString      = caf::PdmReferenceHelper::referenceFromRootToObject( ihd1, s3 );
-        QString expectedString = "m_simpleObjPtrField 2";
-        EXPECT_STREQ( expectedString.toLatin1(), refString.toLatin1() );
+        std::string refString      = caf::PdmReferenceHelper::referenceFromRootToObject( ihd1, s3 );
+        std::string expectedString = "m_simpleObjPtrField 2";
+        EXPECT_STREQ( expectedString.c_str(), refString.c_str() );
 
         ReferenceSimpleObj* ihd2 = new ReferenceSimpleObj;
         SimpleObj*          s4   = new SimpleObj;
         ihd2->m_simpleObjPtrField.push_back( s4 );
 
-        EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromRootToObject( ihd1, s4 ).isEmpty() );
+        EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromRootToObject( ihd1, s4 ).empty() );
 
         delete ihd1;
         delete ihd2;
@@ -200,7 +200,7 @@ TEST( PdmReferenceHelperTest, ObjectFromReference )
         EXPECT_EQ( NULL, caf::PdmReferenceHelper::objectFromReference( ihd1, "" ) );
         EXPECT_EQ( NULL, caf::PdmReferenceHelper::objectFromReference( ihd1, "a 2 b 4" ) );
 
-        QString refString = caf::PdmReferenceHelper::referenceFromRootToObject( ihd1, s2 );
+        std::string refString = caf::PdmReferenceHelper::referenceFromRootToObject( ihd1, s2 );
         EXPECT_EQ( s2, caf::PdmReferenceHelper::objectFromReference( ihd1, refString ) );
 
         ihd1->m_simpleObjPtrField.removeChildObject( s2 );
@@ -238,7 +238,7 @@ TEST( PdmReferenceHelperTest, FieldFromReference )
 
         caf::FieldHandle* fHandle = &s2->m_position;
 
-        QString refString = caf::PdmReferenceHelper::referenceFromRootToField( ihd1, fHandle );
+        std::string refString = caf::PdmReferenceHelper::referenceFromRootToField( ihd1, fHandle );
         EXPECT_EQ( fHandle, caf::PdmReferenceHelper::fieldFromReference( ihd1, refString ) );
 
         ihd1->m_simpleObjPtrField.removeChildObject( s2 );
@@ -262,7 +262,7 @@ TEST( PdmReferenceHelperTest, ReferenceFromFieldToObject )
         caf::ObjectHandle* root        = NULL;
         caf::FieldHandle*  fieldHandle = NULL;
 
-        EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromFieldToObject( fieldHandle, root ).isEmpty() );
+        EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromFieldToObject( fieldHandle, root ).empty() );
     }
 
     {
@@ -272,7 +272,7 @@ TEST( PdmReferenceHelperTest, ReferenceFromFieldToObject )
         caf::FieldHandle* s2FieldHandle = &s2->m_dir;
 
         // Unrelated objects
-        EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromFieldToObject( s2FieldHandle, s1 ).isEmpty() );
+        EXPECT_TRUE( caf::PdmReferenceHelper::referenceFromFieldToObject( s2FieldHandle, s1 ).empty() );
 
         ReferenceSimpleObj* root    = new ReferenceSimpleObj;
         SimpleObj*          root_s1 = new SimpleObj;
@@ -284,7 +284,7 @@ TEST( PdmReferenceHelperTest, ReferenceFromFieldToObject )
         ihd1->m_simpleObjPtrField.push_back( s1 );
         ihd1->m_simpleObjPtrField.push_back( s2 );
 
-        QString               refString = caf::PdmReferenceHelper::referenceFromFieldToObject( s2FieldHandle, root_s1 );
+        std::string        refString = caf::PdmReferenceHelper::referenceFromFieldToObject( s2FieldHandle, root_s1 );
         caf::ObjectHandle* obj       = caf::PdmReferenceHelper::objectFromFieldReference( s2FieldHandle, refString );
         EXPECT_EQ( root_s1, obj );
 

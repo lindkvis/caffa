@@ -116,26 +116,6 @@ PdmUiPropertyView::~PdmUiPropertyView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiPropertyView::setUiConfigurationName( QString uiConfigName )
-{
-    // Reset everything, and possibly create widgets etc afresh
-    if ( m_uiConfigName != uiConfigName )
-    {
-        m_uiConfigName = uiConfigName;
-
-        if ( m_defaultObjectEditor )
-        {
-            ObjectHandle* object = m_defaultObjectEditor->pdmObject();
-            delete m_defaultObjectEditor;
-            m_defaultObjectEditor = nullptr;
-            this->showProperties( object );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void PdmUiPropertyView::showProperties( ObjectHandle* object )
 {
     // Find specialized object view handle
@@ -153,8 +133,7 @@ void PdmUiPropertyView::showProperties( ObjectHandle* object )
             ObjectUiCapability* uiObject1 = uiObj( m_defaultObjectEditor->pdmObject() );
             ObjectUiCapability* uiObject2 = uiObj( object );
 
-            if ( uiObject1 && uiObject2 &&
-                 ( uiObject1->uiEditorTypeName( m_uiConfigName ) != uiObject2->uiEditorTypeName( m_uiConfigName ) ) )
+            if ( uiObject1 && uiObject2 && ( uiObject1->uiEditorTypeName() != uiObject2->uiEditorTypeName() ) )
             {
                 rebuildWidget = true;
             }
@@ -189,7 +168,7 @@ void PdmUiPropertyView::showProperties( ObjectHandle* object )
 
     m_defaultObjectEditor->setObject( object );
 
-    m_defaultObjectEditor->updateUi( m_uiConfigName );
+    m_defaultObjectEditor->updateUi();
     m_scrollArea->updateGeometry();
 }
 

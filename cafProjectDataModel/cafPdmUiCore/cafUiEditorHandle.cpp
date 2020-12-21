@@ -42,8 +42,10 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 UiEditorHandle::UiEditorHandle()
-    : m_pdmItem( nullptr )
+    : uiUpdated( this )
+    , m_pdmItem( nullptr )
     , m_isConfiguringUi( false )
+    , m_containingEditor( nullptr )
 {
 }
 
@@ -58,28 +60,14 @@ UiEditorHandle::~UiEditorHandle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiEditorHandle::updateUi( const QString& uiConfigName )
-{
-    CAF_ASSERT( !m_isConfiguringUi );
-    m_isConfiguringUi   = true;
-    m_currentConfigName = uiConfigName;
-    this->configureAndUpdateUi( uiConfigName );
-    m_isConfiguringUi = false;
-
-    emit uiUpdated();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void UiEditorHandle::updateUi()
 {
     CAF_ASSERT( !m_isConfiguringUi );
     m_isConfiguringUi = true;
-    this->configureAndUpdateUi( m_currentConfigName );
+    this->configureAndUpdateUi();
     m_isConfiguringUi = false;
 
-    emit uiUpdated();
+    uiUpdated.send();
 }
 
 //--------------------------------------------------------------------------------------------------

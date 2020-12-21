@@ -50,13 +50,13 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeOrdering::add( FieldHandle* field, QString uiConfigName )
+void PdmUiTreeOrdering::add( FieldHandle* field)
 {
     CAF_ASSERT( field );
 
-    if ( field->capability<FieldUiCapability>()->isUiTreeHidden( uiConfigName ) )
+    if ( field->capability<FieldUiCapability>()->isUiTreeHidden( ) )
     {
-        if ( !field->capability<FieldUiCapability>()->isUiTreeChildrenHidden( uiConfigName ) )
+        if ( !field->capability<FieldUiCapability>()->isUiTreeChildrenHidden() )
         {
             std::vector<ObjectHandle*> children;
             field->childObjects( &children );
@@ -86,7 +86,7 @@ void PdmUiTreeOrdering::add( ObjectHandle* object )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeOrdering* PdmUiTreeOrdering::add( const QString& title, const QString& iconResourceName )
+PdmUiTreeOrdering* PdmUiTreeOrdering::add( const std::string& title, const std::string& iconResourceName )
 {
     PdmUiTreeOrdering* child = new PdmUiTreeOrdering( title, iconResourceName );
     CAF_ASSERT( child->isValid() );
@@ -165,7 +165,7 @@ PdmUiTreeOrdering::PdmUiTreeOrdering( FieldHandle* pdmField )
 //--------------------------------------------------------------------------------------------------
 /// Creates an new root PdmUiTreeOrdering item, as a display item only
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeOrdering::PdmUiTreeOrdering( const QString& title, const QString& iconResourceName )
+PdmUiTreeOrdering::PdmUiTreeOrdering( const std::string& title, const std::string& iconResourceName )
     : m_object( nullptr )
     , m_field( nullptr )
     , m_uiItem( nullptr )
@@ -174,9 +174,9 @@ PdmUiTreeOrdering::PdmUiTreeOrdering( const QString& title, const QString& iconR
     , m_treeItemEditor( nullptr )
     , m_parentItem( nullptr )
 {
-    m_uiItem = new UiItem();
+    m_uiItem = std::make_unique<UiItem>();
     m_uiItem->setUiName( title );
-    m_uiItem->setUiIcon( IconProvider( iconResourceName ) );
+    m_uiItem->setUiIconFromResourceString( iconResourceName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,10 +205,8 @@ PdmUiTreeOrdering::PdmUiTreeOrdering( PdmUiTreeOrdering* parent, ObjectHandle* p
 PdmUiTreeOrdering::PdmUiTreeOrdering( PdmUiTreeOrdering* parent, FieldHandle* pdmField )
     : m_object( nullptr )
     , m_field( pdmField )
-    , m_uiItem( nullptr )
     , m_forgetRemainingFields( false )
     , m_isToIgnoreSubTree( false )
-    , m_treeItemEditor( nullptr )
     , m_parentItem( parent )
 {
     if ( m_parentItem )
@@ -224,17 +222,6 @@ PdmUiTreeOrdering::PdmUiTreeOrdering( PdmUiTreeOrdering* parent, FieldHandle* pd
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeOrdering::~PdmUiTreeOrdering()
 {
-    if ( m_uiItem )
-    {
-        delete m_uiItem;
-    }
-
-    if ( m_treeItemEditor )
-    {
-        delete m_treeItemEditor;
-    }
-
-    qDeleteAll( m_childItems );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -261,7 +248,7 @@ FieldHandle* PdmUiTreeOrdering::field() const
 UiItem* PdmUiTreeOrdering::uiItem() const
 {
     CAF_ASSERT( isDisplayItemOnly() );
-    return m_uiItem;
+    return m_uiItem.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -271,16 +258,16 @@ UiItem* PdmUiTreeOrdering::activeItem() const
 {
     if ( isRepresentingObject() ) return uiObj( m_object );
     if ( isRepresentingField() ) return m_field->capability<FieldUiCapability>();
-    if ( isDisplayItemOnly() ) return m_uiItem;
+    if ( isDisplayItemOnly() ) return m_uiItem.get();
     return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeOrdering::setEditor( UiEditorHandle* editor )
+void PdmUiTreeOrdering::setEditor( std::unique_ptr<UiEditorHandle> editor )
 {
-    m_treeItemEditor = editor;
+    m_treeItemEditor = std::move(editor);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -288,7 +275,7 @@ void PdmUiTreeOrdering::setEditor( UiEditorHandle* editor )
 //--------------------------------------------------------------------------------------------------
 UiEditorHandle* PdmUiTreeOrdering::editor()
 {
-    return m_treeItemEditor;
+    return m_treeItemEditor.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -308,7 +295,7 @@ void PdmUiTreeOrdering::debugDump( int level ) const
         if ( isRepresentingField() ) type = 'F';
         if ( isDisplayItemOnly() ) type = 'D';
 
-        std::cout << type << ": " << activeItem()->uiName().toLatin1().data() << std::endl;
+        std::cout << type << ": " << activeItem()->uiName() << std::endl;
     }
     else
     {
@@ -327,15 +314,15 @@ void PdmUiTreeOrdering::debugDump( int level ) const
 PdmUiTreeOrdering* PdmUiTreeOrdering::child( int index ) const
 {
     CAF_ASSERT( index < m_childItems.size() );
-    return m_childItems.value( index );
+    return m_childItems[index];
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int PdmUiTreeOrdering::childCount() const
+size_t PdmUiTreeOrdering::childCount() const
 {
-    return m_childItems.count();
+    return m_childItems.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -349,11 +336,12 @@ PdmUiTreeOrdering* PdmUiTreeOrdering::parent() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int PdmUiTreeOrdering::indexInParent() const
+size_t PdmUiTreeOrdering::indexInParent() const
 {
     if ( m_parentItem )
     {
-        return m_parentItem->m_childItems.indexOf( const_cast<PdmUiTreeOrdering*>( this ) );
+        auto it = std::find( m_parentItem->m_childItems.begin(), m_parentItem->m_childItems.end(), this );
+        return it - m_parentItem->m_childItems.begin();
     }
 
     return 0;
@@ -364,7 +352,7 @@ int PdmUiTreeOrdering::indexInParent() const
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeOrdering::appendChild( PdmUiTreeOrdering* child )
 {
-    m_childItems.append( child );
+    m_childItems.push_back( child );
     child->m_parentItem = this;
 }
 
@@ -373,7 +361,7 @@ void PdmUiTreeOrdering::appendChild( PdmUiTreeOrdering* child )
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeOrdering::insertChild( int position, PdmUiTreeOrdering* child )
 {
-    m_childItems.insert( position, child );
+    m_childItems.insert( m_childItems.begin() + position, child );
     child->m_parentItem = this;
 }
 
@@ -386,7 +374,8 @@ bool PdmUiTreeOrdering::removeChildren( int position, int count )
 
     for ( int row = 0; row < count; ++row )
     {
-        PdmUiTreeOrdering* uiItem = m_childItems.takeAt( position );
+        PdmUiTreeOrdering* uiItem = m_childItems[position];
+        m_childItems.erase( m_childItems.begin() + position );
 
         delete uiItem;
     }
@@ -403,7 +392,7 @@ bool PdmUiTreeOrdering::removeChildrenNoDelete( int position, int count )
 
     for ( int row = 0; row < count; ++row )
     {
-        m_childItems.removeAt( position );
+        m_childItems.erase( m_childItems.begin() + position );
     }
     return true;
 }

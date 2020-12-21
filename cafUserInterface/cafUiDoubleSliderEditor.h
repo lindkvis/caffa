@@ -35,7 +35,6 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafUiFieldEditorHandle.h"
 #include "cafUiSliderEditorAttribute.h"
 
@@ -51,7 +50,7 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class cafUserInterface_EXPORT PdmUiDoubleSliderEditor : public UiFieldEditorHandle
+class PdmUiDoubleSliderEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -61,7 +60,7 @@ public:
     ~PdmUiDoubleSliderEditor() override {}
 
 protected:
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    void     configureAndUpdateUi() override;
     QWidget* createEditorWidget( QWidget* parent ) override;
     QWidget* createLabelWidget( QWidget* parent ) override;
 
@@ -78,10 +77,10 @@ private:
     double convertFromSliderValue( int sliderValue );
 
 private:
-    QPointer<QLineEdit>       m_lineEdit;
-    QPointer<QSlider>         m_slider;
-    QPointer<QLabel> m_label;
-    double                    m_sliderValue;
+    QPointer<QLineEdit> m_lineEdit;
+    QPointer<QSlider>   m_slider;
+    QPointer<QLabel>    m_label;
+    double              m_sliderValue;
 
     PdmUiDoubleSliderEditorAttribute m_attributes;
 };

@@ -57,11 +57,11 @@ PdmUiLabelEditor::~PdmUiLabelEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiLabelEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiLabelEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_label.isNull() );
 
-    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label );
 }
 
 //--------------------------------------------------------------------------------------------------

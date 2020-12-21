@@ -36,7 +36,6 @@
 
 #pragma once
 #include "cafUiTreeOrdering.h"
-#include "cafUserInterface_export.h"
 
 #include "cafFieldUiCapability.h"
 #include "cafUiTableViewEditor.h"
@@ -58,7 +57,7 @@ class PdmUiTreeViewEditor;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class cafUserInterface_EXPORT TableViewPushButton : public QPushButton
+class TableViewPushButton : public QPushButton
 {
     Q_OBJECT
 public:
@@ -81,10 +80,10 @@ class PdmUiTableViewQModel : public QAbstractTableModel
 public:
     explicit PdmUiTableViewQModel( QWidget* parent );
 
-    QItemSelection   modelIndexFromObject( ObjectHandle* pdmObject );
-    FieldHandle*  getField( const QModelIndex& index ) const;
-    void             setArrayFieldAndBuildEditors( ChildArrayFieldHandle* pdmObject, const QString& configName );
-    ObjectHandle* pdmObjectForRow( int row ) const;
+    QItemSelection modelIndexFromObject( ObjectHandle* pdmObject );
+    FieldHandle*   getField( const QModelIndex& index ) const;
+    void           setArrayFieldAndBuildEditors( ChildArrayFieldHandle* pdmObject );
+    ObjectHandle*  pdmObjectForRow( int row ) const;
 
     // Qt overrides
     int      rowCount( const QModelIndex& parent = QModelIndex() ) const override;
@@ -102,12 +101,12 @@ public:
     void createPersistentPushButtonWidgets( QTableView* tableView );
 
 private:
-    int                   getFieldIndex( FieldHandle* field ) const;
-    void                  recreateTableItemEditors();
+    int                getFieldIndex( FieldHandle* field ) const;
+    void               recreateTableItemEditors();
     FieldUiCapability* getUiFieldHandle( const QModelIndex& index ) const;
 
     friend class PdmUiTableViewDelegate;
-    QWidget*                getEditorWidgetAndTransferOwnership( QWidget* parent, const QModelIndex& index );
+    QWidget*             getEditorWidgetAndTransferOwnership( QWidget* parent, const QModelIndex& index );
     UiFieldEditorHandle* getEditor( const QModelIndex& index );
 
     ChildArrayFieldHandle* childArrayFieldHandle() const;
@@ -116,10 +115,9 @@ private:
     // Required to have a PdmPointer to the owner object. Used to guard access to a field inside this object
     PdmPointer<ObjectHandle> m_ownerObject;
     ChildArrayFieldHandle*   m_pdmList;
-    QString                     m_currentConfigName;
 
-    std::map<QString, UiFieldEditorHandle*> m_fieldEditors;
-    std::vector<int>                           m_modelColumnIndexToFieldIndex;
+    std::map<std::string, UiFieldEditorHandle*> m_fieldEditors;
+    std::vector<int>                            m_modelColumnIndexToFieldIndex;
 
     std::vector<PdmUiTableRowEditor*> m_tableRowEditors;
 

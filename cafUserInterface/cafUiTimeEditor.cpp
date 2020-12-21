@@ -39,10 +39,10 @@
 #include "cafFactory.h"
 #include "cafField.h"
 #include "cafObject.h"
+#include "cafSelectionManager.h"
 #include "cafUiDefaultObjectEditor.h"
 #include "cafUiFieldEditorHandle.h"
 #include "cafUiOrdering.h"
-#include "cafSelectionManager.h"
 
 #include <QApplication>
 #include <QGridLayout>
@@ -62,18 +62,18 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiTimeEditor );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTimeEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiTimeEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_timeEdit.isNull() );
 
-    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label );
 
-    m_timeEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
+    m_timeEdit->setEnabled( !uiField()->isUiReadOnly() );
 
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+        uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
     }
 
     if ( !m_attributes.timeFormat.isEmpty() )
@@ -81,7 +81,9 @@ void PdmUiTimeEditor::configureAndUpdateUi( const QString& uiConfigName )
         m_timeEdit->setDisplayFormat( m_attributes.timeFormat );
     }
 
-    m_timeEdit->setTime( uiField()->uiValue().toTime() );
+    std::time_t secsSinceEpoch = uiField()->uiValue().value<std::time_t>();
+    QTime       time           = QTime::fromMSecsSinceStartOfDay( secsSinceEpoch * 1000 );
+    m_timeEdit->setTime( time );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,7 +111,9 @@ QWidget* PdmUiTimeEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void PdmUiTimeEditor::slotEditingFinished()
 {
-    this->setValueToField( m_timeEdit->time() );
+    std::time_t time = m_timeEdit->time().msecsSinceStartOfDay() / 1000;
+    Variant     v( time );
+    this->setValueToField( v );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,7 +121,9 @@ void PdmUiTimeEditor::slotEditingFinished()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTimeEditor::slotTimeChanged( const QTime& time )
 {
-    this->setValueToField( m_timeEdit->time() );
+    std::time_t timet = m_timeEdit->time().msecsSinceStartOfDay() / 1000;
+    Variant     v( timet );
+    this->setValueToField( v );
 }
 
 } // end namespace caf

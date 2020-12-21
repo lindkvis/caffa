@@ -34,9 +34,9 @@
 //
 //##################################################################################################
 
-#include "cafUiItem.h"
 #include "cafPtrField.h"
 #include "cafUiEditorHandle.h"
+#include "cafUiItem.h"
 #include "cafUiObjectEditorHandle.h"
 
 namespace caf
@@ -44,11 +44,11 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-UiItemInfo::UiItemInfo( const QString& uiName,
-                              IconProvider   iconProvider /*= IconProvider() */,
-                              QString        toolTip /*= ""*/,
-                              QString        whatsThis /*= ""*/,
-                              QString        extraDebugText /*= ""*/ )
+UiItemInfo::UiItemInfo( const std::string&            uiName,
+                        std::shared_ptr<IconProvider> iconProvider,
+                        std::string                   toolTip /*= ""*/,
+                        std::string                   whatsThis /*= ""*/,
+                        std::string                   extraDebugText /*= ""*/ )
     : m_uiName( uiName )
     , m_iconProvider( iconProvider )
     , m_toolTip( toolTip )
@@ -66,13 +66,13 @@ UiItemInfo::UiItemInfo( const QString& uiName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-UiItemInfo::UiItemInfo( const QString& uiName,
-                              QString        iconResourceLocation /*= ""*/,
-                              QString        toolTip /*= ""*/,
-                              QString        whatsThis /*= ""*/,
-                              QString        extraDebugText /*= ""*/ )
+UiItemInfo::UiItemInfo( const std::string& uiName,
+                        std::string        iconResourceLocation /*= ""*/,
+                        std::string        toolTip /*= ""*/,
+                        std::string        whatsThis /*= ""*/,
+                        std::string        extraDebugText /*= ""*/ )
     : m_uiName( uiName )
-    , m_iconProvider( iconResourceLocation )
+    , m_iconProvider( std::make_shared<IconProvider>( iconResourceLocation ) )
     , m_toolTip( toolTip )
     , m_whatsThis( whatsThis )
     , m_extraDebugText( extraDebugText )
@@ -88,26 +88,18 @@ UiItemInfo::UiItemInfo( const QString& uiName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<QIcon> UiItemInfo::icon() const
+const IconProvider* UiItemInfo::iconProvider() const
 {
-    return m_iconProvider.icon();
+    return m_iconProvider.get();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const IconProvider& UiItemInfo::iconProvider() const
-{
-    return m_iconProvider;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-PdmOptionItemInfo::PdmOptionItemInfo( const QString&      anOptionUiText,
-                                      const QVariant&     aValue,
-                                      bool                isReadOnly /* = false */,
-                                      const IconProvider& anIcon /* = IconProvider()*/ )
+OptionItemInfo::OptionItemInfo( const std::string&            anOptionUiText,
+                                      const Variant&                aValue,
+                                      bool                          isReadOnly /* = false */,
+                                      std::shared_ptr<IconProvider> anIcon )
     : m_optionUiText( anOptionUiText )
     , m_value( aValue )
     , m_isReadOnly( isReadOnly )
@@ -119,26 +111,26 @@ PdmOptionItemInfo::PdmOptionItemInfo( const QString&      anOptionUiText,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmOptionItemInfo::PdmOptionItemInfo( const QString&        anOptionUiText,
-                                      caf::ObjectHandle* obj,
-                                      bool                  isReadOnly /*= false*/,
-                                      const IconProvider&   anIcon /*= IconProvider()*/ )
+OptionItemInfo::OptionItemInfo( const std::string&            anOptionUiText,
+                                      caf::ObjectHandle*            obj,
+                                      bool                          isReadOnly /*= false*/,
+                                      std::shared_ptr<IconProvider> anIcon )
     : m_optionUiText( anOptionUiText )
     , m_isReadOnly( isReadOnly )
     , m_iconProvider( anIcon )
     , m_level( 0 )
 {
-    m_value = QVariant::fromValue( caf::PdmPointer<caf::ObjectHandle>( obj ) );
+    m_value = Variant( caf::PdmPointer<caf::ObjectHandle>( obj ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmOptionItemInfo PdmOptionItemInfo::createHeader( const QString&      anOptionUiText,
-                                                   bool                isReadOnly /*= false*/,
-                                                   const IconProvider& anIcon /*= IconProvider()*/ )
+OptionItemInfo OptionItemInfo::createHeader( const std::string&            anOptionUiText,
+                                                   bool                          isReadOnly /*= false*/,
+                                                   std::shared_ptr<IconProvider> anIcon )
 {
-    PdmOptionItemInfo header( anOptionUiText, QVariant(), isReadOnly, anIcon );
+    OptionItemInfo header( anOptionUiText, Variant(), isReadOnly, anIcon );
 
     return header;
 }
@@ -146,7 +138,7 @@ PdmOptionItemInfo PdmOptionItemInfo::createHeader( const QString&      anOptionU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmOptionItemInfo::setLevel( int level )
+void OptionItemInfo::setLevel( int level )
 {
     m_level = level;
 }
@@ -154,7 +146,15 @@ void PdmOptionItemInfo::setLevel( int level )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString PdmOptionItemInfo::optionUiText() const
+std::shared_ptr<IconProvider> OptionItemInfo::iconProvider() const
+{
+    return m_iconProvider;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::string OptionItemInfo::optionUiText() const
 {
     return m_optionUiText;
 }
@@ -162,7 +162,7 @@ const QString PdmOptionItemInfo::optionUiText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QVariant PdmOptionItemInfo::value() const
+const Variant OptionItemInfo::value() const
 {
     return m_value;
 }
@@ -170,7 +170,7 @@ const QVariant PdmOptionItemInfo::value() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmOptionItemInfo::isReadOnly() const
+bool OptionItemInfo::isReadOnly() const
 {
     return m_isReadOnly;
 }
@@ -178,7 +178,7 @@ bool PdmOptionItemInfo::isReadOnly() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmOptionItemInfo::isHeading() const
+bool OptionItemInfo::isHeading() const
 {
     return !m_value.isValid();
 }
@@ -186,15 +186,7 @@ bool PdmOptionItemInfo::isHeading() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<QIcon> PdmOptionItemInfo::icon() const
-{
-    return m_iconProvider.icon();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int PdmOptionItemInfo::level() const
+int OptionItemInfo::level() const
 {
     return m_level;
 }
@@ -202,9 +194,9 @@ int PdmOptionItemInfo::level() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList PdmOptionItemInfo::extractUiTexts( const QList<PdmOptionItemInfo>& optionList )
+std::deque<std::string> OptionItemInfo::extractUiTexts( const std::deque<OptionItemInfo>& optionList )
 {
-    QStringList texts;
+    std::deque<std::string> texts;
 
     for ( const auto& option : optionList )
     {
@@ -223,125 +215,71 @@ bool UiItem::sm_showExtraDebugText = false;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString UiItem::uiName( const QString& uiConfigName ) const
+const std::string UiItem::uiName() const
 {
-    const UiItemInfo* conInfo = configInfo( uiConfigName );
-    const UiItemInfo* defInfo = defaultInfo();
-    const UiItemInfo* sttInfo = m_staticItemInfo;
-
-    if ( conInfo && !( conInfo->m_uiName.isNull() ) ) return conInfo->m_uiName;
-    if ( defInfo && !( defInfo->m_uiName.isNull() ) ) return defInfo->m_uiName;
-    if ( sttInfo && !( sttInfo->m_uiName.isNull() ) ) return sttInfo->m_uiName;
-
-    return QString( "" );
+    return m_itemInfo.m_uiName;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiItem::setUiName( const QString& uiName, const QString& uiConfigName /*= ""*/ )
+void UiItem::setUiName( const std::string& uiName )
 {
-    m_configItemInfos[uiConfigName].m_uiName = uiName;
+    m_itemInfo.m_uiName = uiName;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<QIcon> UiItem::uiIcon( const QString& uiConfigName ) const
+const IconProvider* UiItem::uiIconProvider() const
 {
-    return uiIconProvider( uiConfigName ).icon();
+    return m_itemInfo.m_iconProvider.get();
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void UiItem::setUiIcon( std::shared_ptr<IconProvider> uiIconProvider )
+{
+    m_itemInfo.m_iconProvider = uiIconProvider;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const IconProvider UiItem::uiIconProvider( const QString& uiConfigName ) const
+void UiItem::setUiIconFromResourceString( const std::string& uiIconResourceName )
 {
-    const UiItemInfo* conInfo = configInfo( uiConfigName );
-    const UiItemInfo* defInfo = defaultInfo();
-    const UiItemInfo* sttInfo = m_staticItemInfo;
-
-    if ( conInfo && conInfo->iconProvider().valid() ) return conInfo->iconProvider();
-    if ( defInfo && defInfo->iconProvider().valid() ) return defInfo->iconProvider();
-    if ( sttInfo && sttInfo->iconProvider().valid() ) return sttInfo->iconProvider();
-
-    return IconProvider();
-}
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void UiItem::setUiIcon( const IconProvider& uiIconProvider, const QString& uiConfigName /*= ""*/ )
-{
-    m_configItemInfos[uiConfigName].m_iconProvider = uiIconProvider;
+    setUiIcon( std::make_shared<IconProvider>( uiIconResourceName ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiItem::setUiIconFromResourceString( const QString& uiIconResourceName, const QString& uiConfigName /*= ""*/ )
+const Color UiItem::uiContentTextColor() const
 {
-    setUiIcon( caf::IconProvider( uiIconResourceName ), uiConfigName );
+    return m_itemInfo.m_contentTextColor;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QColor UiItem::uiContentTextColor( const QString& uiConfigName ) const
+void UiItem::setUiContentTextColor( const Color& color )
 {
-    const UiItemInfo* conInfo = configInfo( uiConfigName );
-    const UiItemInfo* defInfo = defaultInfo();
-    const UiItemInfo* sttInfo = m_staticItemInfo;
-
-    if ( conInfo && ( conInfo->m_contentTextColor.isValid() ) ) return conInfo->m_contentTextColor;
-    if ( defInfo && ( defInfo->m_contentTextColor.isValid() ) ) return defInfo->m_contentTextColor;
-    if ( sttInfo && ( sttInfo->m_contentTextColor.isValid() ) ) return sttInfo->m_contentTextColor;
-
-    return QColor();
+    m_itemInfo.m_contentTextColor = color;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiItem::setUiContentTextColor( const QColor& color, const QString& uiConfigName /*= ""*/ )
+const std::string UiItem::uiToolTip() const
 {
-    m_configItemInfos[uiConfigName].m_contentTextColor = color;
-}
+    std::string text;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const QString UiItem::uiToolTip( const QString& uiConfigName ) const
-{
-    const UiItemInfo* conInfo = configInfo( uiConfigName );
-    const UiItemInfo* defInfo = defaultInfo();
-    const UiItemInfo* sttInfo = m_staticItemInfo;
-
-    QString text;
-
-    if ( conInfo && !( conInfo->m_toolTip.isNull() ) )
+    if ( !m_itemInfo.m_toolTip.empty() )
     {
-        text = conInfo->m_toolTip;
-        if ( UiItem::showExtraDebugText() && !conInfo->m_extraDebugText.isEmpty() )
+        text = m_itemInfo.m_toolTip;
+        if ( UiItem::showExtraDebugText() && !m_itemInfo.m_extraDebugText.empty() )
         {
-            text += QString( " (%1)" ).arg( conInfo->m_extraDebugText );
-        }
-    }
-
-    if ( text.isEmpty() && defInfo && !( defInfo->m_toolTip.isNull() ) )
-    {
-        text = defInfo->m_toolTip;
-        if ( UiItem::showExtraDebugText() && !defInfo->m_extraDebugText.isEmpty() )
-        {
-            text += QString( " (%1)" ).arg( defInfo->m_extraDebugText );
-        }
-    }
-
-    if ( text.isEmpty() && sttInfo && !( sttInfo->m_toolTip.isNull() ) )
-    {
-        text = sttInfo->m_toolTip;
-        if ( UiItem::showExtraDebugText() && !sttInfo->m_extraDebugText.isEmpty() )
-        {
-            text += QString( " (%1)" ).arg( sttInfo->m_extraDebugText );
+            text += "(" + m_itemInfo.m_extraDebugText + ")";
         }
     }
 
@@ -351,171 +289,106 @@ const QString UiItem::uiToolTip( const QString& uiConfigName ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiItem::setUiToolTip( const QString& uiToolTip, const QString& uiConfigName /*= ""*/ )
+void UiItem::setUiToolTip( const std::string& uiToolTip )
 {
-    m_configItemInfos[uiConfigName].m_toolTip = uiToolTip;
+    m_itemInfo.m_toolTip = uiToolTip;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString UiItem::uiWhatsThis( const QString& uiConfigName ) const
+const std::string UiItem::uiWhatsThis() const
 {
-    const UiItemInfo* conInfo = configInfo( uiConfigName );
-    const UiItemInfo* defInfo = defaultInfo();
-    const UiItemInfo* sttInfo = m_staticItemInfo;
-
-    if ( conInfo && !( conInfo->m_whatsThis.isNull() ) ) return conInfo->m_whatsThis;
-    if ( defInfo && !( defInfo->m_whatsThis.isNull() ) ) return defInfo->m_whatsThis;
-    if ( sttInfo && !( sttInfo->m_whatsThis.isNull() ) ) return sttInfo->m_whatsThis;
-
-    return QString( "" );
+    return m_itemInfo.m_whatsThis;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiItem::setUiWhatsThis( const QString& uiWhatsThis, const QString& uiConfigName /*= ""*/ )
+void UiItem::setUiWhatsThis( const std::string& uiWhatsThis )
 {
-    m_configItemInfos[uiConfigName].m_whatsThis = uiWhatsThis;
+    m_itemInfo.m_whatsThis = uiWhatsThis;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool UiItem::isUiHidden( const QString& uiConfigName ) const
+bool UiItem::isUiHidden() const
 {
-    const UiItemInfo* conInfo = configInfo( uiConfigName );
-    const UiItemInfo* defInfo = defaultInfo();
-    const UiItemInfo* sttInfo = m_staticItemInfo;
-
-    if ( conInfo && !( conInfo->m_isHidden == -1 ) ) return conInfo->m_isHidden;
-    if ( defInfo && !( defInfo->m_isHidden == -1 ) ) return defInfo->m_isHidden;
-    if ( sttInfo && !( sttInfo->m_isHidden == -1 ) ) return sttInfo->m_isHidden;
-
-    return false;
+    return m_itemInfo.m_isHidden;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiItem::setUiHidden( bool isHidden, const QString& uiConfigName /*= ""*/ )
+void UiItem::setUiHidden( bool isHidden )
 {
-    m_configItemInfos[uiConfigName].m_isHidden = isHidden;
+    m_itemInfo.m_isHidden = isHidden;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool UiItem::isUiTreeHidden( const QString& uiConfigName ) const
+bool UiItem::isUiTreeHidden() const
 {
     // TODO: Must be separated from uiHidden when childField object embedding is implemented
-
-    return isUiHidden( uiConfigName );
+    return isUiHidden();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiItem::setUiTreeHidden( bool isHidden, const QString& uiConfigName /*= ""*/ )
+void UiItem::setUiTreeHidden( bool isHidden )
 {
-    m_configItemInfos[uiConfigName].m_isHidden = isHidden;
+    setUiHidden( isHidden );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool UiItem::isUiTreeChildrenHidden( const QString& uiConfigName ) const
+bool UiItem::isUiTreeChildrenHidden() const
 {
-    const UiItemInfo* conInfo = configInfo( uiConfigName );
-    const UiItemInfo* defInfo = defaultInfo();
-    const UiItemInfo* sttInfo = m_staticItemInfo;
-
-    if ( conInfo && !( conInfo->m_isTreeChildrenHidden == -1 ) ) return conInfo->m_isTreeChildrenHidden;
-    if ( defInfo && !( defInfo->m_isTreeChildrenHidden == -1 ) ) return defInfo->m_isTreeChildrenHidden;
-    if ( sttInfo && !( sttInfo->m_isTreeChildrenHidden == -1 ) ) return sttInfo->m_isTreeChildrenHidden;
-
-    return false;
+    return m_itemInfo.m_isTreeChildrenHidden;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiItem::setUiTreeChildrenHidden( bool isTreeChildrenHidden, const QString& uiConfigName /*= ""*/ )
+void UiItem::setUiTreeChildrenHidden( bool isTreeChildrenHidden )
 {
-    m_configItemInfos[uiConfigName].m_isTreeChildrenHidden = isTreeChildrenHidden;
+    m_itemInfo.m_isTreeChildrenHidden = isTreeChildrenHidden;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool UiItem::isUiReadOnly( const QString& uiConfigName /*= ""*/ ) const
+bool UiItem::isUiReadOnly( /*= ""*/ ) const
 {
-    const UiItemInfo* conInfo = configInfo( uiConfigName );
-    const UiItemInfo* defInfo = defaultInfo();
-    const UiItemInfo* sttInfo = m_staticItemInfo;
-
-    if ( conInfo && !( conInfo->m_isReadOnly == -1 ) ) return conInfo->m_isReadOnly;
-    if ( defInfo && !( defInfo->m_isReadOnly == -1 ) ) return defInfo->m_isReadOnly;
-    if ( sttInfo && !( sttInfo->m_isReadOnly == -1 ) ) return sttInfo->m_isReadOnly;
-
-    return false;
+    return m_itemInfo.m_isReadOnly;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiItem::setUiReadOnly( bool isReadOnly, const QString& uiConfigName /*= ""*/ )
+void UiItem::setUiReadOnly( bool isReadOnly )
 {
-    m_configItemInfos[uiConfigName].m_isReadOnly = isReadOnly;
+    m_itemInfo.m_isReadOnly = isReadOnly;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString UiItem::uiEditorTypeName( const QString& uiConfigName ) const
+std::string UiItem::uiEditorTypeName() const
 {
-    const UiItemInfo* conInfo = configInfo( uiConfigName );
-    const UiItemInfo* defInfo = defaultInfo();
-    const UiItemInfo* sttInfo = m_staticItemInfo;
-
-    if ( conInfo && !( conInfo->m_editorTypeName.isEmpty() ) ) return conInfo->m_editorTypeName;
-    if ( defInfo && !( defInfo->m_editorTypeName.isEmpty() ) ) return defInfo->m_editorTypeName;
-    if ( sttInfo && !( sttInfo->m_editorTypeName.isEmpty() ) ) return sttInfo->m_editorTypeName;
-
-    return QString();
+    return m_itemInfo.m_editorTypeName;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiItem::setUiEditorTypeName( const QString& editorTypeName, const QString& uiConfigName /*= ""*/ )
+void UiItem::setUiEditorTypeName( const std::string& editorTypeName )
 {
-    m_configItemInfos[uiConfigName].m_editorTypeName = editorTypeName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString UiItem::ui3dEditorTypeName( const QString& uiConfigName ) const
-{
-    const UiItemInfo* conInfo = configInfo( uiConfigName );
-    const UiItemInfo* defInfo = defaultInfo();
-    const UiItemInfo* sttInfo = m_staticItemInfo;
-
-    if ( conInfo && !( conInfo->m_3dEditorTypeName.isEmpty() ) ) return conInfo->m_3dEditorTypeName;
-    if ( defInfo && !( defInfo->m_3dEditorTypeName.isEmpty() ) ) return defInfo->m_3dEditorTypeName;
-    if ( sttInfo && !( sttInfo->m_3dEditorTypeName.isEmpty() ) ) return sttInfo->m_3dEditorTypeName;
-
-    return QString();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void UiItem::setUi3dEditorTypeName( const QString& editorTypeName, const QString& uiConfigName /*= ""*/ )
-{
-    m_configItemInfos[uiConfigName].m_3dEditorTypeName = editorTypeName;
+    m_itemInfo.m_editorTypeName = editorTypeName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -529,79 +402,42 @@ bool UiItem::isUiGroup() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-UiItemInfo::LabelPosType UiItem::uiLabelPosition( const QString& uiConfigName ) const
+UiItemInfo::LabelPosType UiItem::uiLabelPosition() const
 {
-    const UiItemInfo* conInfo = configInfo( uiConfigName );
-    const UiItemInfo* defInfo = defaultInfo();
-    const UiItemInfo* sttInfo = m_staticItemInfo;
-
-    if ( conInfo ) return conInfo->m_labelAlignment;
-    if ( defInfo ) return defInfo->m_labelAlignment;
-    if ( sttInfo ) return sttInfo->m_labelAlignment;
-
-    return UiItemInfo::LEFT;
+    return m_itemInfo.m_labelAlignment;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiItem::setUiLabelPosition( UiItemInfo::LabelPosType alignment, const QString& uiConfigName /*= ""*/ )
+void UiItem::setUiLabelPosition( UiItemInfo::LabelPosType alignment )
 {
-    m_configItemInfos[uiConfigName].m_labelAlignment = alignment;
+    m_itemInfo.m_labelAlignment = alignment;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool UiItem::isCustomContextMenuEnabled( const QString& uiConfigName /*= ""*/ ) const
+bool UiItem::isCustomContextMenuEnabled( /*= ""*/ ) const
 {
-    const UiItemInfo* conInfo = configInfo( uiConfigName );
-    const UiItemInfo* defInfo = defaultInfo();
-    const UiItemInfo* sttInfo = m_staticItemInfo;
-
-    if ( conInfo && ( conInfo->m_isCustomContextMenuEnabled != -1 ) ) return conInfo->m_isCustomContextMenuEnabled;
-    if ( defInfo && ( defInfo->m_isCustomContextMenuEnabled != -1 ) ) return defInfo->m_isCustomContextMenuEnabled;
-    if ( sttInfo && ( sttInfo->m_isCustomContextMenuEnabled != -1 ) ) return sttInfo->m_isCustomContextMenuEnabled;
-
-    return false;
+    return m_itemInfo.m_isCustomContextMenuEnabled;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiItem::setCustomContextMenuEnabled( bool enableCustomContextMenu, const QString& uiConfigName /*= ""*/ )
+void UiItem::setCustomContextMenuEnabled( bool enableCustomContextMenu )
 {
-    m_configItemInfos[uiConfigName].m_isCustomContextMenuEnabled = enableCustomContextMenu;
+    m_itemInfo.m_isCustomContextMenuEnabled = enableCustomContextMenu;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 
-const UiItemInfo* UiItem::configInfo( const QString& uiConfigName ) const
+const UiItemInfo& UiItem::configInfo() const
 {
-    if ( uiConfigName == "" || uiConfigName.isNull() ) return nullptr;
-
-    std::map<QString, UiItemInfo>::const_iterator it;
-    it = m_configItemInfos.find( uiConfigName );
-
-    if ( it != m_configItemInfos.end() ) return &( it->second );
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-
-const UiItemInfo* UiItem::defaultInfo() const
-{
-    std::map<QString, UiItemInfo>::const_iterator it;
-    it = m_configItemInfos.find( "" );
-
-    if ( it != m_configItemInfos.end() ) return &( it->second );
-
-    return nullptr;
+    return m_itemInfo;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -622,8 +458,6 @@ void UiItem::updateConnectedEditors() const
 void UiItem::updateAllRequiredEditors() const
 {
     updateConnectedEditors();
-
-    PdmUiObjectEditorHandle::updateUiAllObjectEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -642,18 +476,18 @@ UiItem::~UiItem()
 ///
 //--------------------------------------------------------------------------------------------------
 UiItem::UiItem()
-    : m_staticItemInfo( nullptr )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiItem::updateUiIconFromState( bool isActive, const QString& uiConfigName )
+void UiItem::updateUiIconFromState( bool isActive )
 {
-    IconProvider normalIconProvider = this->uiIconProvider( uiConfigName );
-    normalIconProvider.setActive( isActive );
-    this->setUiIcon( normalIconProvider, uiConfigName );
+    if ( m_itemInfo.m_iconProvider )
+    {
+        m_itemInfo.m_iconProvider->setActive( isActive );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -697,9 +531,9 @@ void UiItem::enableExtraDebugText( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiItem::setUiItemInfo( UiItemInfo* itemInfo )
+void UiItem::setUiItemInfo( const UiItemInfo& itemInfo )
 {
-    m_staticItemInfo = itemInfo;
+    m_itemInfo = itemInfo;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -39,10 +39,10 @@
 #include "cafFactory.h"
 #include "cafField.h"
 #include "cafObject.h"
+#include "cafSelectionManager.h"
 #include "cafUiDefaultObjectEditor.h"
 #include "cafUiFieldEditorHandle.h"
 #include "cafUiOrdering.h"
-#include "cafSelectionManager.h"
 
 #include <QApplication>
 #include <QDate>
@@ -55,6 +55,7 @@
 #include <QPalette>
 #include <QStatusBar>
 #include <QString>
+#include <QTimeZone>
 
 namespace caf
 {
@@ -63,27 +64,31 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiDateEditor );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDateEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiDateEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_dateEdit.isNull() );
 
-    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label );
 
-    m_dateEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
+    m_dateEdit->setEnabled( !uiField()->isUiReadOnly() );
 
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+        uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
     }
 
-    if ( !m_attributes.dateFormat.isEmpty() )
+    if ( !m_attributes.dateFormat.empty() )
     {
-        m_dateEdit->setDisplayFormat( m_attributes.dateFormat );
+        m_dateEdit->setDisplayFormat( QString::fromStdString( m_attributes.dateFormat ) );
     }
 
-    m_dateEdit->setDate( uiField()->uiValue().toDate() );
-    m_dateEdit->setTime( uiField()->uiValue().toTime() );
+    Variant     v = uiField()->uiValue();
+    std::time_t t = v.value<std::time_t>();
+
+    QDateTime dateTime = QDateTime::fromSecsSinceEpoch( t );
+
+    m_dateEdit->setDateTime( dateTime );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,7 +116,9 @@ QWidget* PdmUiDateEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void PdmUiDateEditor::slotEditingFinished()
 {
-    this->setValueToField( m_dateEdit->dateTime() );
+    std::time_t t = (std::time_t)m_dateEdit->dateTime().toSecsSinceEpoch();
+    Variant     v( t );
+    this->setValueToField( v );
 }
 
 } // end namespace caf

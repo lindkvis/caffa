@@ -36,9 +36,8 @@
 
 #pragma once
 
-//#include <QAbstractItemModel>
-#include <QList>
 #include <iostream>
+#include <vector>
 
 namespace caf
 {
@@ -59,7 +58,7 @@ public:
             if ( position < 0 )
                 m_parentItem->m_childItems.push_back( this );
             else
-                m_parentItem->m_childItems.insert( position, this );
+                m_parentItem->m_childItems.insert( m_parentItem->m_childItems.begin() + (size_t)position, this );
         }
 
         setDataObject( dataObject );
@@ -70,7 +69,7 @@ public:
     UiTreeItem* child( int row ) const
     {
         CAF_ASSERT( row < m_childItems.size() );
-        return m_childItems.value( row );
+        return m_childItems[row];
     }
 
     bool hasGrandChildren() const
@@ -85,13 +84,19 @@ public:
         return false;
     }
 
-    int childCount() const { return m_childItems.count(); }
+    int childCount() const { return static_cast<int>( m_childItems.size() ); }
 
     int columnCount() const { return 1; }
 
     int row() const
     {
-        if ( m_parentItem ) return m_parentItem->m_childItems.indexOf( const_cast<UiTreeItem*>( this ) );
+        if ( m_parentItem )
+        {
+            auto it = std::find( m_parentItem->m_childItems.begin(),
+                                 m_parentItem->m_childItems.end(),
+                                 const_cast<UiTreeItem*>( this ) );
+            return it != m_parentItem->m_childItems.end() ? static_cast<int>( it - m_parentItem->m_childItems.begin() ) : -1;
+        }
 
         return 0;
     }
@@ -155,9 +160,9 @@ public:
     }
 
 private:
-    QList<UiTreeItem*> m_childItems;
-    UiTreeItem*        m_parentItem;
-    T                  m_dataObject;
+    std::vector<UiTreeItem*> m_childItems;
+    UiTreeItem*              m_parentItem;
+    T                        m_dataObject;
 };
 
 } // End of namespace caf

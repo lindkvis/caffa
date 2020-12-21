@@ -50,7 +50,7 @@ private slots:
     void slotLoadProject();
     void slotSaveProject();
 
-    void slotCustomMenuRequestedForProjectTree(const QPoint&);
+    //void slotCustomMenuRequestedForProjectTree(const QPoint&);
 
 private:
     static MainWindow* sm_mainWindowInstance;

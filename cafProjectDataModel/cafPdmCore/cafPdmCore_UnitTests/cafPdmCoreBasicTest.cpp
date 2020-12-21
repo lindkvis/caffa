@@ -7,11 +7,12 @@
 #include "cafChildField.h"
 #include "cafDataValueField.h"
 #include "cafObjectHandle.h"
+#include "cafPdmReferenceHelper.h"
 #include "cafProxyValueField.h"
 #include "cafPtrField.h"
-#include "cafPdmReferenceHelper.h"
 #include "cafValueField.h"
 
+#include <filesystem>
 #include <vector>
 
 class DemoObject : public caf::ObjectHandle
@@ -48,13 +49,13 @@ public:
     ~DemoObject() {}
 
     // Fields
-    caf::ProxyValueField<double>  m_proxyDoubleField;
-    caf::ProxyValueField<int>     m_proxyIntField;
-    caf::ProxyValueField<QString> m_proxyStringField;
+    caf::ProxyValueField<double>      m_proxyDoubleField;
+    caf::ProxyValueField<int>         m_proxyIntField;
+    caf::ProxyValueField<std::string> m_proxyStringField;
 
-    caf::DataValueField<double>  m_memberDoubleField;
-    caf::DataValueField<int>     m_memberIntField;
-    caf::DataValueField<QString> m_memberStringField;
+    caf::DataValueField<double>      m_memberDoubleField;
+    caf::DataValueField<int>         m_memberIntField;
+    caf::DataValueField<std::string> m_memberStringField;
 
     // Internal class members accessed by proxy fields
     double doubleMember() const
@@ -71,13 +72,13 @@ public:
     int  intMember() const { return m_intMember; }
     void setIntMember( const int& val ) { m_intMember = val; }
 
-    QString stringMember() const { return m_stringMember; }
-    void    setStringMember( const QString& val ) { m_stringMember = val; }
+    std::string stringMember() const { return m_stringMember; }
+    void        setStringMember( const std::string& val ) { m_stringMember = val; }
 
 private:
-    double  m_doubleMember;
-    int     m_intMember;
-    QString m_stringMember;
+    double      m_doubleMember;
+    int         m_intMember;
+    std::string m_stringMember;
 };
 
 class InheritedDemoObj : public DemoObject
@@ -93,12 +94,12 @@ public:
         this->addField( &m_multipleFilePath, "m_multipleFilePath" );
     }
 
-    caf::DataValueField<QString>         m_texts;
+    caf::DataValueField<std::string>  m_texts;
     caf::ChildArrayField<DemoObject*> m_childArrayField;
-    caf::PtrField<InheritedDemoObj*>     m_ptrField;
+    caf::PtrField<InheritedDemoObj*>  m_ptrField;
 
-    caf::DataValueField<caf::FilePath>              m_singleFilePath;
-    caf::DataValueField<std::vector<caf::FilePath>> m_multipleFilePath;
+    caf::DataValueField<std::filesystem::path>              m_singleFilePath;
+    caf::DataValueField<std::vector<std::filesystem::path>> m_multipleFilePath;
 };
 
 TEST( BaseTest, Delete )
@@ -122,7 +123,7 @@ TEST( BaseTest, TestDataValueField )
     a->m_memberIntField.setValue( 11 );
     ASSERT_EQ( 11, a->m_memberIntField.value() );
 
-    ASSERT_TRUE( a->m_memberStringField.value().isEmpty() );
+    ASSERT_TRUE( a->m_memberStringField.value().empty() );
     a->m_memberStringField.setValue( "123" );
     ASSERT_TRUE( a->m_memberStringField.value() == "123" );
 }
@@ -154,51 +155,51 @@ TEST( BaseTest, TestValueFieldInterface )
     DemoObject* a = new DemoObject;
 
     {
-        caf::ValueField* valField = dynamic_cast<caf::ValueField*>( a->findField( "m_proxyDoubleField" ) );
-        QVariant            newVal   = 3.4;
-        valField->setFromQVariant( newVal );
-        QVariant var = valField->toQVariant();
-        ASSERT_TRUE( newVal == var );
+        caf::ValueField* valField    = dynamic_cast<caf::ValueField*>( a->findField( "m_proxyDoubleField" ) );
+        caf::Variant         originalVal = 3.4;
+        valField->setFromVariant( originalVal );
+        caf::Variant newVal = valField->toVariant();
+        ASSERT_EQ( originalVal.value<double>(), newVal.value<double>());
     }
 
     {
-        caf::ValueField* valField = dynamic_cast<caf::ValueField*>( a->findField( "m_proxyIntField" ) );
-        QVariant            newVal   = 3;
-        valField->setFromQVariant( newVal );
-        QVariant var = valField->toQVariant();
-        ASSERT_TRUE( newVal == var );
+        caf::ValueField* valField    = dynamic_cast<caf::ValueField*>( a->findField( "m_proxyIntField" ) );
+        caf::Variant         originalVal = 3;
+        valField->setFromVariant( originalVal );
+        caf::Variant newVal = valField->toVariant();
+        ASSERT_EQ( originalVal.value<int>(), newVal.value<int>() );
     }
 
     {
-        caf::ValueField* valField = dynamic_cast<caf::ValueField*>( a->findField( "m_proxyStringField" ) );
-        QVariant            newVal   = "test";
-        valField->setFromQVariant( newVal );
-        QVariant var = valField->toQVariant();
-        ASSERT_TRUE( newVal == var );
+        caf::ValueField* valField    = dynamic_cast<caf::ValueField*>( a->findField( "m_proxyStringField" ) );
+        caf::Variant         originalVal = "test";
+        valField->setFromVariant( originalVal );
+        caf::Variant newVal = valField->toVariant();
+        ASSERT_EQ( originalVal.value<std::string>(), newVal.value<std::string>() );
     }
 
     {
-        caf::ValueField* valField = dynamic_cast<caf::ValueField*>( a->findField( "m_memberDoubleField" ) );
-        QVariant            newVal   = 3.4;
-        valField->setFromQVariant( newVal );
-        QVariant var = valField->toQVariant();
-        ASSERT_TRUE( newVal == var );
+        caf::ValueField* valField    = dynamic_cast<caf::ValueField*>( a->findField( "m_memberDoubleField" ) );
+        caf::Variant         originalVal = 3.4;
+        valField->setFromVariant( originalVal );
+        caf::Variant newVal = valField->toVariant();
+        ASSERT_EQ( originalVal.value<double>(), newVal.value<double>() );
     }
 
     {
-        caf::ValueField* valField = dynamic_cast<caf::ValueField*>( a->findField( "m_memberIntField" ) );
-        QVariant            newVal   = 3;
-        valField->setFromQVariant( newVal );
-        QVariant var = valField->toQVariant();
-        ASSERT_TRUE( newVal == var );
+        caf::ValueField* valField    = dynamic_cast<caf::ValueField*>( a->findField( "m_memberIntField" ) );
+        caf::Variant         originalVal = 3;
+        valField->setFromVariant( originalVal );
+        caf::Variant newVal = valField->toVariant();
+        ASSERT_EQ( originalVal.value<int>(), newVal.value<int>() );
     }
 
     {
-        caf::ValueField* valField = dynamic_cast<caf::ValueField*>( a->findField( "m_memberStringField" ) );
-        QVariant            newVal   = "test";
-        valField->setFromQVariant( newVal );
-        QVariant var = valField->toQVariant();
-        ASSERT_TRUE( newVal == var );
+        caf::ValueField* valField    = dynamic_cast<caf::ValueField*>( a->findField( "m_memberStringField" ) );
+        caf::Variant         originalVal = "test";
+        valField->setFromVariant( originalVal );
+        caf::Variant newVal = valField->toVariant();
+        ASSERT_EQ( originalVal.value<std::string>(), newVal.value<std::string>() );
     }
 }
 
@@ -387,19 +388,19 @@ TEST( BaseTest, ChildArrayFieldHandle )
     //     virtual Object*  at(size_t index) = 0;
     //
     //     bool                hasSameFieldCountForAllObjects();
-    DemoObject* s0       = new DemoObject;
+    DemoObject* s0          = new DemoObject;
     s0->m_memberDoubleField = 1000;
 
-    DemoObject* s1       = new DemoObject;
+    DemoObject* s1          = new DemoObject;
     s1->m_memberDoubleField = 1000;
 
-    DemoObject* s2       = new DemoObject;
+    DemoObject* s2          = new DemoObject;
     s2->m_memberDoubleField = 2000;
 
-    DemoObject* s3       = new DemoObject;
+    DemoObject* s3          = new DemoObject;
     s3->m_memberDoubleField = 3000;
 
-    InheritedDemoObj*              ihd1      = new InheritedDemoObj;
+    InheritedDemoObj*           ihd1      = new InheritedDemoObj;
     caf::ChildArrayFieldHandle* listField = &( ihd1->m_childArrayField );
 
     EXPECT_EQ( 0u, listField->size() );
@@ -448,7 +449,7 @@ TEST( BaseTest, ChildField )
         ~A() { delete field2(); }
 
         caf::ChildField<Child*> field2;
-        int                        b;
+        int                     b;
     };
 
     {
@@ -593,11 +594,11 @@ TEST( BaseTest, PdmFilePath )
 {
     InheritedDemoObj* d = new InheritedDemoObj;
 
-    QVariant newVal = "path with space";
-    d->m_singleFilePath.setFromQVariant( newVal );
+    caf::Variant origVal = std::filesystem::path( "path with space" );
+    d->m_singleFilePath.setFromVariant( origVal );
 
-    QVariant var = d->m_singleFilePath.toQVariant();
-    ASSERT_TRUE( newVal == var );
+    caf::Variant var = d->m_singleFilePath.toVariant();
+    ASSERT_EQ( origVal.value<std::filesystem::path>(), var.value<std::filesystem::path>() );
 
     delete d;
 }
@@ -609,12 +610,12 @@ TEST( BaseTest, MultiplePdmFilePath )
 {
     InheritedDemoObj* d = new InheritedDemoObj;
 
-    QString newVal = "path with space";
+    std::string newVal = "path with space";
     d->m_multipleFilePath.v().push_back( newVal );
     d->m_multipleFilePath.v().push_back( newVal );
 
-    QVariant    var = d->m_multipleFilePath.toQVariant();
-    QStringList str = var.toStringList();
+    caf::Variant                           var = d->m_multipleFilePath.toVariant();
+    std::vector<std::filesystem::path> str = var.value<std::vector<std::filesystem::path>>();
 
     EXPECT_EQ( 2, str.size() );
 

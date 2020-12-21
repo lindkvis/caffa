@@ -45,13 +45,13 @@ namespace caf
 /// Class representing a group of fields communicated to the Gui
 //==================================================================================================
 
-class PdmUiGroup : public UiItem, public PdmUiOrdering
+class UiGroup : public UiItem, public UiOrdering
 {
 public:
-    PdmUiGroup();
+    UiGroup();
 
-    void    setKeyword( const QString& keyword );
-    QString keyword() const;
+    void        setKeyword( const std::string& keyword );
+    std::string keyword() const;
 
     bool isUiGroup() const override;
 
@@ -73,7 +73,7 @@ private:
     bool m_forcedCollapseState;
     bool m_enableFrame;
 
-    QString m_keyword;
+    std::string m_keyword;
 };
 
 } // End of namespace caf

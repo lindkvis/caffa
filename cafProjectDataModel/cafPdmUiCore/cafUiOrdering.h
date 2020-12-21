@@ -38,12 +38,12 @@
 
 #include "cafUiItem.h"
 
-#include <QString>
+#include <string>
 #include <vector>
 
 namespace caf
 {
-class PdmUiGroup;
+class UiGroup;
 class FieldHandle;
 class ObjectHandle;
 
@@ -51,7 +51,7 @@ class ObjectHandle;
 /// Class storing the order and grouping of fields and groups of fields etc. to be used in the Gui
 //==================================================================================================
 
-class PdmUiOrdering
+class UiOrdering
 {
 public:
     struct LayoutOptions
@@ -69,54 +69,53 @@ public:
         int  leftLabelColumnSpan;
     };
     typedef std::pair<UiItem*, LayoutOptions> FieldAndLayout;
-    typedef std::vector<FieldAndLayout>          RowLayout;
-    typedef std::vector<RowLayout>               TableLayout;
+    typedef std::vector<FieldAndLayout>       RowLayout;
+    typedef std::vector<RowLayout>            TableLayout;
 
-    PdmUiOrdering()
+    UiOrdering()
         : m_skipRemainingFields( false ){};
-    virtual ~PdmUiOrdering();
+    virtual ~UiOrdering();
 
-    PdmUiOrdering( const PdmUiOrdering& ) = delete;
-    PdmUiOrdering& operator=( const PdmUiOrdering& ) = delete;
+    UiOrdering( const UiOrdering& ) = delete;
+    UiOrdering& operator=( const UiOrdering& ) = delete;
 
     void add( const FieldHandle* field, LayoutOptions layout = LayoutOptions() );
     void add( const ObjectHandle* obj, LayoutOptions layout = LayoutOptions() );
-    bool insertBeforeGroup( const QString&        groupId,
+    bool insertBeforeGroup( const std::string& groupId,
                             const FieldHandle* fieldToInsert,
-                            LayoutOptions         layout = LayoutOptions() );
-    bool insertBeforeItem( const UiItem*      item,
-                           const FieldHandle* fieldToInsert,
-                           LayoutOptions         layout = LayoutOptions() );
+                            LayoutOptions      layout = LayoutOptions() );
+    bool insertBeforeItem( const UiItem* item, const FieldHandle* fieldToInsert, LayoutOptions layout = LayoutOptions() );
 
-    PdmUiGroup* addNewGroup( const QString& displayName, LayoutOptions layout = LayoutOptions() );
-    PdmUiGroup* createGroupBeforeGroup( const QString& groupId,
-                                        const QString& displayName,
-                                        LayoutOptions  layout = LayoutOptions() );
-    PdmUiGroup*
-        createGroupBeforeItem( const UiItem* item, const QString& displayName, LayoutOptions layout = LayoutOptions() );
+    UiGroup* addNewGroup( const std::string& displayName, LayoutOptions layout = LayoutOptions() );
+    UiGroup* createGroupBeforeGroup( const std::string& groupId,
+                                     const std::string& displayName,
+                                     LayoutOptions      layout = LayoutOptions() );
+    UiGroup* createGroupBeforeItem( const UiItem*      item,
+                                    const std::string& displayName,
+                                    LayoutOptions      layout = LayoutOptions() );
 
-    PdmUiGroup* addNewGroupWithKeyword( const QString& displayName,
-                                        const QString& groupKeyword,
-                                        LayoutOptions  layout = LayoutOptions() );
-    PdmUiGroup* createGroupWithIdBeforeGroup( const QString& groupId,
-                                              const QString& displayName,
-                                              const QString& newGroupId,
-                                              LayoutOptions  layout = LayoutOptions() );
-    PdmUiGroup* createGroupWithIdBeforeItem( const UiItem* item,
-                                             const QString&   displayName,
-                                             const QString&   newGroupId,
-                                             LayoutOptions    layout = LayoutOptions() );
+    UiGroup* addNewGroupWithKeyword( const std::string& displayName,
+                                     const std::string& groupKeyword,
+                                     LayoutOptions      layout = LayoutOptions() );
+    UiGroup* createGroupWithIdBeforeGroup( const std::string& groupId,
+                                           const std::string& displayName,
+                                           const std::string& newGroupId,
+                                           LayoutOptions      layout = LayoutOptions() );
+    UiGroup* createGroupWithIdBeforeItem( const UiItem*      item,
+                                          const std::string& displayName,
+                                          const std::string& newGroupId,
+                                          LayoutOptions      layout = LayoutOptions() );
 
-    PdmUiGroup* findGroup( const QString& groupId ) const;
+    UiGroup* findGroup( const std::string& groupId ) const;
 
     void skipRemainingFields( bool doSkip = true );
 
     // Pdm internal methods
 
-    const std::vector<UiItem*>      uiItems() const;
+    const std::vector<UiItem*>         uiItems() const;
     const std::vector<FieldAndLayout>& uiItemsWithLayout() const;
 
-    std::vector<std::vector<FieldAndLayout>> calculateTableLayout( const QString& uiConfigName ) const;
+    std::vector<std::vector<FieldAndLayout>> calculateTableLayout() const;
     int                                      nrOfColumns( const TableLayout& tableLayout ) const;
     int                                      nrOfRequiredColumnsInRow( const RowLayout& rowItems ) const;
     int                                      nrOfExpandingItemsInRow( const RowLayout& rowItems ) const;
@@ -130,24 +129,24 @@ public:
 protected:
     struct PositionFound
     {
-        PdmUiOrdering* parent;
-        size_t         indexInParent;
+        UiOrdering* parent;
+        size_t      indexInParent;
         UiItem*     item();
-        PdmUiGroup*    group();
+        UiGroup*    group();
     };
 
-    PositionFound findGroupPosition( const QString& groupKeyword ) const;
+    PositionFound findGroupPosition( const std::string& groupKeyword ) const;
     PositionFound findItemPosition( const UiItem* item ) const;
 
 private:
-    void        insert( size_t index, const FieldHandle* field, LayoutOptions layout = LayoutOptions() );
-    PdmUiGroup* insertNewGroupWithKeyword( size_t         index,
-                                           const QString& displayName,
-                                           const QString& groupKeyword,
-                                           LayoutOptions  layout = LayoutOptions() );
+    void     insert( size_t index, const FieldHandle* field, LayoutOptions layout = LayoutOptions() );
+    UiGroup* insertNewGroupWithKeyword( size_t             index,
+                                        const std::string& displayName,
+                                        const std::string& groupKeyword,
+                                        LayoutOptions      layout = LayoutOptions() );
 
     std::vector<FieldAndLayout> m_ordering; ///< The order of groups and fields
-    std::vector<PdmUiGroup*>    m_createdGroups; ///< Owned PdmUiGroups, for memory management only
+    std::vector<UiGroup*>       m_createdGroups; ///< Owned UiGroups, for memory management only
     bool                        m_skipRemainingFields;
 };
 

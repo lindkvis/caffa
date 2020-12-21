@@ -18,8 +18,8 @@ namespace caf
 class PdmUiTabbedPropertyViewDialog : public QDialog
 {
 public:
-    PdmUiTabbedPropertyViewDialog( caf::Object*    object,
-                                   const QStringList& uiConfigNameForTabs,
+    PdmUiTabbedPropertyViewDialog( caf::Object*       object,
+                                   const QStringList& tabLabels,
                                    const QString&     windowTitle,
                                    QWidget*           parent );
     ~PdmUiTabbedPropertyViewDialog() override;

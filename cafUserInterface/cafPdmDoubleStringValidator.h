@@ -35,7 +35,6 @@
 //##################################################################################################
 #pragma once
 
-#include "cafUserInterface_export.h"
 #include <QDoubleValidator>
 #include <QString>
 
@@ -45,7 +44,7 @@ namespace caf
 /// Class that validates text strings containing double values but allows
 /// a default text string that isn't necessarily a double.
 //////////////////////////////////////////////////////////////////////////
-class cafUserInterface_EXPORT PdmDoubleStringValidator : public QDoubleValidator
+class PdmDoubleStringValidator : public QDoubleValidator
 {
     Q_OBJECT
 public:

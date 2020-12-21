@@ -39,6 +39,8 @@
 #include "cafChildArrayField.h"
 #include "cafField.h"
 #include "cafObject.h"
+#include "cafQVariantConverter.h"
+#include "cafSelectionManager.h"
 #include "cafUiComboBoxEditor.h"
 #include "cafUiCommandSystemProxy.h"
 #include "cafUiDateEditor.h"
@@ -46,7 +48,6 @@
 #include "cafUiLineEditor.h"
 #include "cafUiTableRowEditor.h"
 #include "cafUiTableView.h"
-#include "cafSelectionManager.h"
 
 #include <QTableView>
 
@@ -96,7 +97,7 @@ QVariant PdmUiTableViewQModel::headerData( int section, Qt::Orientation orientat
             FieldUiCapability* uiFieldHandle = getUiFieldHandle( createIndex( 0, section ) );
             if ( uiFieldHandle )
             {
-                return uiFieldHandle->uiName( m_currentConfigName );
+                return QVariant::fromValue( QString::fromStdString( uiFieldHandle->uiName() ) );
             }
         }
         else if ( orientation == Qt::Vertical )
@@ -129,7 +130,7 @@ Qt::ItemFlags PdmUiTableViewQModel::flags( const QModelIndex& index ) const
     FieldUiCapability* uiFieldHandle = getUiFieldHandle( index );
     if ( uiFieldHandle )
     {
-        if ( uiFieldHandle->isUiReadOnly( m_currentConfigName ) )
+        if ( uiFieldHandle->isUiReadOnly() )
         {
             if ( flagMask & Qt::ItemIsUserCheckable )
             {
@@ -178,9 +179,10 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
         FieldHandle* fieldHandle = getField( index );
         if ( fieldHandle && fieldHandle->capability<FieldUiCapability>() )
         {
-            QColor textColor = fieldHandle->capability<FieldUiCapability>()->uiContentTextColor( m_currentConfigName );
+            Color  storedColor = fieldHandle->capability<FieldUiCapability>()->uiContentTextColor();
+            QColor textColor   = storedColor.to<QColor>();
 
-            if ( fieldHandle->capability<FieldUiCapability>()->isUiReadOnly( m_currentConfigName ) )
+            if ( fieldHandle->capability<FieldUiCapability>()->isUiReadOnly() )
             {
                 if ( textColor.isValid() )
                 {
@@ -205,30 +207,32 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
         FieldUiCapability* uiFieldHandle = fieldHandle->capability<FieldUiCapability>();
         if ( uiFieldHandle )
         {
-            QVariant fieldValue = uiFieldHandle->uiValue();
-            if ( fieldValue.type() == QVariant::List )
+            Variant fieldValue = uiFieldHandle->uiValue();
+
+            std::deque<OptionItemInfo> options;
+            bool                       useOptionsOnly = true;
+
+            options = uiFieldHandle->valueOptions( &useOptionsOnly );
+            CAF_ASSERT( useOptionsOnly ); // Not supported
+
+            if ( fieldValue.isVector() )
             {
-                QString         displayText;
-                QList<QVariant> valuesSelectedInField = fieldValue.toList();
+                QString displayText;
+
+                std::vector<Variant> valuesSelectedInField = fieldValue.toVector();
 
                 if ( !valuesSelectedInField.empty() )
                 {
-                    QList<PdmOptionItemInfo> options;
-                    bool                     useOptionsOnly = true;
-                    options                                 = uiFieldHandle->valueOptions( &useOptionsOnly );
-                    CAF_ASSERT( useOptionsOnly ); // Not supported
-
-                    for ( const QVariant& v : valuesSelectedInField )
+                    for ( const Variant& v : valuesSelectedInField )
                     {
-                        int optionIndex = v.toInt();
-                        if ( optionIndex != -1 )
+                        auto opit = std::find_if( options.begin(), options.end(), [&v]( const auto& option ) {
+                            return option.value() == v;
+                        } );
+                        if ( opit != options.end() )
                         {
                             if ( !displayText.isEmpty() ) displayText += ", ";
 
-                            if ( optionIndex < options.size() )
-                            {
-                                displayText += options.at( optionIndex ).optionUiText();
-                            }
+                            displayText += QString::fromStdString( opit->optionUiText() );
                         }
                     }
                 }
@@ -236,19 +240,19 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
                 return displayText;
             }
 
-            bool                     useOptionsOnly = true;
-            QList<PdmOptionItemInfo> valueOptions   = uiFieldHandle->valueOptions( &useOptionsOnly );
-            CAF_ASSERT( useOptionsOnly ); // Not supported
-
-            if ( !valueOptions.isEmpty() )
+            if ( !options.empty() )
             {
-                int listIndex = uiFieldHandle->uiValue().toInt();
-                if ( listIndex == -1 )
+                QString displayText;
+                auto    opit = std::find_if( options.begin(), options.end(), [&fieldValue]( const auto& option ) {
+                    return option.value() == fieldValue;
+                } );
+
+                if ( opit != options.end() )
                 {
-                    return "";
+                    displayText = QString::fromStdString( opit->optionUiText() );
                 }
 
-                return valueOptions[listIndex].optionUiText();
+                return displayText;
             }
 
             QVariant val;
@@ -260,43 +264,44 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
                 // NOTE: Redesign
                 // To be able to get formatted string, an editor attribute concept is used
                 // TODO: Create a function in pdmObject like this
-                // virtual void            defineDisplayString(const FieldHandle* field, QString uiConfigName) {}
+                // virtual void            defineDisplayString(const FieldHandle* field, QString ) {}
 
                 {
                     PdmUiLineEditorAttributeUiDisplayString leab;
-                    uiObjForRow->editorAttribute( fieldHandle, m_currentConfigName, &leab );
+                    uiObjForRow->editorAttribute( fieldHandle, &leab );
 
-                    if ( !leab.m_displayString.isEmpty() )
+                    if ( !leab.m_displayString.empty() )
                     {
-                        val = leab.m_displayString;
+                        val = QVariant( QString::fromStdString( leab.m_displayString ) );
                     }
                 }
 
                 if ( val.isNull() )
                 {
                     PdmUiDateEditorAttribute leab;
-                    uiObjForRow->editorAttribute( fieldHandle, m_currentConfigName, &leab );
+                    uiObjForRow->editorAttribute( fieldHandle, &leab );
 
-                    QString dateFormat = leab.dateFormat;
-                    if ( !dateFormat.isEmpty() )
+                    auto dateFormat = leab.dateFormat;
+                    if ( !dateFormat.empty() )
                     {
-                        QDate date = uiFieldHandle->uiValue().toDate();
+                        std::time_t time     = uiFieldHandle->uiValue().value<std::time_t>();
+                        QDateTime   dateTime = QDateTime::fromTime_t( time );
+                        QDate       date     = dateTime.date();
                         if ( date.isValid() )
                         {
-                            QString displayString = date.toString( dateFormat );
+                            QString displayString = date.toString( QString::fromStdString( dateFormat ) );
                             val                   = displayString;
                         }
                     }
                 }
-
                 if ( val.isNull() )
                 {
-                    val = uiFieldHandle->uiValue();
+                    val = QString::fromStdString( uiFieldHandle->uiValue().value<std::string>( "" ) );
                 }
             }
             else
             {
-                val = uiFieldHandle->uiValue();
+                val = QString::fromStdString( uiFieldHandle->uiValue().value<std::string>( "" ) );
             }
 
             return val;
@@ -313,8 +318,8 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
             FieldUiCapability* uiFieldHandle = getField( index )->capability<FieldUiCapability>();
             if ( uiFieldHandle )
             {
-                QVariant val         = uiFieldHandle->uiValue();
-                bool     isToggledOn = val.toBool();
+                Variant val         = uiFieldHandle->uiValue();
+                bool    isToggledOn = val.value<bool>();
                 if ( isToggledOn )
                 {
                     return Qt::Checked;
@@ -335,7 +340,7 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
         FieldUiCapability* uiFieldHandle = getField( index )->capability<FieldUiCapability>();
         if ( uiFieldHandle )
         {
-            return uiFieldHandle->uiToolTip();
+            return QString::fromStdString( uiFieldHandle->uiToolTip() );
         }
         else
         {
@@ -348,7 +353,7 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( ChildArrayFieldHandle* listField, const QString& configName )
+void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( ChildArrayFieldHandle* listField )
 {
     beginResetModel();
 
@@ -371,9 +376,7 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( ChildArrayFieldHandle* 
         }
     }
 
-    m_currentConfigName = configName;
-
-    PdmUiOrdering configForFirstObject;
+    UiOrdering configForFirstObject;
 
     if ( m_pdmList && !m_pdmList->empty() )
     {
@@ -381,20 +384,20 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( ChildArrayFieldHandle* 
         ObjectUiCapability* uiHandleForFirstObject = firstObject->capability<ObjectUiCapability>();
         if ( uiHandleForFirstObject )
         {
-            uiHandleForFirstObject->uiOrdering( configName, configForFirstObject );
-            uiHandleForFirstObject->objectEditorAttribute( m_currentConfigName, &m_pushButtonEditorAttributes );
+            uiHandleForFirstObject->uiOrdering( configForFirstObject );
+            uiHandleForFirstObject->objectEditorAttribute( &m_pushButtonEditorAttributes );
         }
     }
 
     const std::vector<UiItem*>& uiItems = configForFirstObject.uiItems();
 
-    std::set<QString> usedFieldKeywords;
+    std::set<std::string> usedFieldKeywords;
 
     m_modelColumnIndexToFieldIndex.clear();
 
     for ( auto uiItem : uiItems )
     {
-        if ( uiItem->isUiHidden( configName ) ) continue;
+        if ( uiItem->isUiHidden() ) continue;
 
         if ( uiItem->isUiGroup() ) continue;
 
@@ -407,7 +410,7 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( ChildArrayFieldHandle* 
 
             if ( it == m_fieldEditors.end() )
             {
-                fieldEditor = UiFieldEditorHelper::createFieldEditorForField( field, configName );
+                fieldEditor = UiFieldEditorHelper::createFieldEditorForField( field );
 
                 if ( fieldEditor )
                 {
@@ -429,7 +432,7 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( ChildArrayFieldHandle* 
                 // getEditorWidgetAndTransferOwnership()
                 // Can be moved, but a move will require changes in UiFieldEditorHandle
                 fieldEditor->createWidgets( nullptr );
-                fieldEditor->updateUi( configName );
+                fieldEditor->updateUi();
 
                 int fieldIndex = getFieldIndex( field->fieldHandle() );
                 m_modelColumnIndexToFieldIndex.push_back( fieldIndex );
@@ -439,7 +442,7 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( ChildArrayFieldHandle* 
 
     // Remove all fieldViews not mentioned by the configuration from the layout
 
-    std::vector<QString> fvhToRemoveFromMap;
+    std::vector<std::string> fvhToRemoveFromMap;
     for ( auto it = m_fieldEditors.begin(); it != m_fieldEditors.end(); ++it )
     {
         if ( usedFieldKeywords.count( it->first ) == 0 )
@@ -466,7 +469,7 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( ChildArrayFieldHandle* 
 
         for ( auto tableItemEditor : m_tableRowEditors )
         {
-            tableItemEditor->updateUi( configName );
+            tableItemEditor->updateUi();
         }
     }
 }
@@ -514,7 +517,7 @@ UiFieldEditorHandle* PdmUiTableViewQModel::getEditor( const QModelIndex& index )
 
     UiFieldEditorHandle* editor = nullptr;
 
-    std::map<QString, UiFieldEditorHandle*>::iterator it;
+    std::map<std::string, UiFieldEditorHandle*>::iterator it;
     it = m_fieldEditors.find( field->keyword() );
 
     if ( it != m_fieldEditors.end() )
@@ -624,8 +627,8 @@ bool PdmUiTableViewQModel::isRepresentingBoolean( const QModelIndex& index ) con
             return false;
         }
 
-        QVariant val = fieldHandle->capability<FieldUiCapability>()->uiValue();
-        if ( val.type() == QVariant::Bool )
+        Variant val = fieldHandle->capability<FieldUiCapability>()->uiValue();
+        if ( val.canConvert<bool>() )
         {
             return true;
         }
@@ -652,8 +655,9 @@ void PdmUiTableViewQModel::createPersistentPushButtonWidgets( QTableView* tableV
 
                     tableView->setIndexWidget( mi,
                                                new TableViewPushButton( getField( mi )->capability<FieldUiCapability>(),
-                                                                        m_pushButtonEditorAttributes.pushButtonText(
-                                                                            fieldHandle->keyword() ) ) );
+                                                                        QString::fromStdString(
+                                                                            m_pushButtonEditorAttributes.pushButtonText(
+                                                                                fieldHandle->keyword() ) ) ) );
                     tableView->openPersistentEditor( mi );
                 }
             }
@@ -741,10 +745,10 @@ void TableViewPushButton::slotPressed()
 {
     if ( m_fieldHandle )
     {
-        QVariant val = m_fieldHandle->uiValue();
-        if ( val.type() == QVariant::Bool )
+        Variant val = m_fieldHandle->uiValue();
+        if ( val.canConvert<bool>() )
         {
-            bool currentValue = val.toBool();
+            bool currentValue = val.value<bool>();
             caf::UiCommandSystemProxy::instance()->setUiValueToField( m_fieldHandle, !currentValue );
         }
     }

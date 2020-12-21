@@ -35,7 +35,6 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafUiFieldEditorHandle.h"
 
 #include <QLabel>
@@ -46,6 +45,8 @@ class QHBoxLayout;
 
 namespace caf
 {
+class FieldHandle;
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -59,7 +60,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class cafUserInterface_EXPORT PdmUiPushButtonEditor : public UiFieldEditorHandle
+class PdmUiPushButtonEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -73,15 +74,15 @@ public:
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
     QWidget* createLabelWidget( QWidget* parent ) override;
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    void     configureAndUpdateUi() override;
 
 protected slots:
     void slotClicked( bool checked );
 
 private:
-    QPointer<QPushButton>     m_pushButton;
-    QPointer<QLabel> m_label;
-    QPointer<QHBoxLayout>     m_buttonLayout;
+    QPointer<QPushButton> m_pushButton;
+    QPointer<QLabel>      m_label;
+    QPointer<QHBoxLayout> m_buttonLayout;
 };
 
 } // end namespace caf

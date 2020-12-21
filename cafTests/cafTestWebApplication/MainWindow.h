@@ -10,7 +10,8 @@
 #include "Wt/WProgressBar.h"
 #include "Wt/WTextArea.h"
 
-class QString;
+#include <string>
+
 class DemoObjectGroup;
 
 namespace caf
@@ -30,7 +31,7 @@ public:
 
     static MainWindow* instance();
     void               setPdmRoot(caf::ObjectHandle* pdmRoot);
-    void               debug(const QString& string);
+    void               debug(const std::string& string);
 
 private:
     void               buildTestModel();
@@ -39,7 +40,7 @@ private:
     void               slotOnActionSelection();
     static MainWindow* sm_mainWindowInstance;
 
-    std::unique_ptr<Wt::WPanel> createPlotPanel();
+    //std::unique_ptr<Wt::WPanel> createPlotPanel();
 
 private:
     DemoObjectGroup* m_testRoot;
@@ -49,5 +50,5 @@ private:
     caf::PdmWebTreeView*                    m_pdmUiTreeView;
     std::unique_ptr<caf::WPopupMenuWrapper> m_popup;
 
-    std::unique_ptr<caf::WebPlotViewer> m_plot;
+    // std::unique_ptr<caf::WebPlotViewer> m_plot;
 };

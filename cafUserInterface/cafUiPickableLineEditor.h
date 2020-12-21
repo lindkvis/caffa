@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafUiLineEditor.h"
 
 #include <memory>
@@ -62,7 +61,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class cafUserInterface_EXPORT PdmUiPickableLineEditor : public PdmUiLineEditor
+class PdmUiPickableLineEditor : public PdmUiLineEditor
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -72,7 +71,7 @@ public:
     ~PdmUiPickableLineEditor() override;
 
 protected:
-    void configureAndUpdateUi( const QString& uiConfigName ) override;
+    void configureAndUpdateUi() override;
 
 private:
     PdmUiPickableLineEditorAttribute m_attribute;

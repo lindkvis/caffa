@@ -34,10 +34,15 @@
 //   for more details.
 //
 //##################################################################################################
-
 #pragma once
-#include "cafUiSliderEditorAttribute.h"
+
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
+
 #include "cafPdmWebFieldEditorHandle.h"
+#include "cafUiSliderEditorAttribute.h"
 
 #include <Wt/Core/observing_ptr.hpp>
 #include <Wt/WLabel.h>
@@ -55,7 +60,7 @@ public:
     ~PdmWebSliderEditor() override {}
 
 protected:
-    void         configureAndUpdateUi( const QString& uiConfigName ) override;
+    void         configureAndUpdateUi() override;
     Wt::WWidget* createEditorWidget() override;
     Wt::WLabel*  createLabelWidget() override;
 
@@ -76,3 +81,7 @@ private:
 };
 
 } // end namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

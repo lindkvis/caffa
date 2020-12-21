@@ -1,26 +1,30 @@
-#include <QVariant>
-
 namespace caf
 {
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-QVariant caf::PtrField<DataType*>::toQVariant() const
+Variant caf::PtrField<DataType*>::toVariant() const
 {
     caf::ObjectHandle*                 objectHandle = m_fieldValue.rawPtr();
     caf::PdmPointer<caf::ObjectHandle> ptrHandle( objectHandle );
-    return QVariant::fromValue( ptrHandle );
+    return Variant( ptrHandle );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::PtrField<DataType*>::setFromQVariant( const QVariant& variant )
+void caf::PtrField<DataType*>::setFromVariant( const Variant& variant )
 {
-    caf::PdmPointer<caf::ObjectHandle> variantHandle = variant.value<caf::PdmPointer<caf::ObjectHandle>>();
-    m_fieldValue.setRawPtr( variantHandle.rawPtr() );
+    try
+    {
+        caf::PdmPointer<caf::ObjectHandle> variantHandle = variant.value<caf::PdmPointer<caf::ObjectHandle>>();
+        m_fieldValue.setRawPtr( variantHandle.rawPtr() );
+    }
+    catch ( std::bad_any_cast& )
+    {
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

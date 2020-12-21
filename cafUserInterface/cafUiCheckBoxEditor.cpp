@@ -54,34 +54,34 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiCheckBoxEditor );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiCheckBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiCheckBoxEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_checkBox.isNull() );
     CAF_ASSERT( !m_label.isNull() );
 
     PdmUiCheckBoxEditorAttribute attributes;
-    caf::ObjectUiCapability*  uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::ObjectUiCapability*     uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
+        uiObject->editorAttribute( uiField()->fieldHandle(), &attributes );
     }
 
     if ( attributes.m_useNativeCheckBoxLabel )
     {
-        m_checkBox->setText( uiField()->uiName( uiConfigName ) );
+        m_checkBox->setText( QString::fromStdString( uiField()->uiName() ) );
 
-        m_label->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
-        m_label->setToolTip( uiField()->uiToolTip( uiConfigName ) );
+        m_label->setEnabled( !uiField()->isUiReadOnly() );
+        m_label->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
     }
     else
     {
-        UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+        UiFieldEditorHandle::updateLabelFromField( m_label );
     }
 
-    m_checkBox->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
-    m_checkBox->setToolTip( uiField()->uiToolTip( uiConfigName ) );
+    m_checkBox->setEnabled( !uiField()->isUiReadOnly() );
+    m_checkBox->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
-    m_checkBox->setChecked( uiField()->uiValue().toBool() );
+    m_checkBox->setChecked( uiField()->uiValue().value<bool>() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,8 +108,7 @@ QWidget* PdmUiCheckBoxEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void PdmUiCheckBoxEditor::slotClicked( bool checked )
 {
-    QVariant v;
-    v = checked;
+    Variant v( checked );
     this->setValueToField( v );
 }
 

@@ -38,17 +38,18 @@
 
 #include "cafAssert.h"
 #include "cafFieldHandle.h"
-
-#include <QStringList>
+#include "cafStringTools.h"
 
 #include <algorithm>
+#include <numeric>
+#include <sstream>
 
 namespace caf
 {
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString rootIdentifierString()
+std::string rootIdentifierString()
 {
     return "$ROOT$";
 }
@@ -56,42 +57,43 @@ QString rootIdentifierString()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmReferenceHelper::referenceFromRootToObject( ObjectHandle* root, ObjectHandle* obj )
+std::string PdmReferenceHelper::referenceFromRootToObject( ObjectHandle* root, ObjectHandle* obj )
 {
-    if ( obj == nullptr || root == nullptr ) return QString();
+    if ( obj == nullptr || root == nullptr ) return std::string();
 
-    QStringList objectNames = referenceFromRootToObjectAsStringList( root, obj );
+    std::list<std::string> objectNames = referenceFromRootToObjectAsStringList( root, obj );
 
-    QString completeReference = objectNames.join( " " );
+    std::string completeReference = caf::StringTools::join( objectNames.begin(), objectNames.end(), " " );
+
     return completeReference;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmReferenceHelper::referenceFromRootToField( ObjectHandle* root, FieldHandle* field )
+std::string PdmReferenceHelper::referenceFromRootToField( ObjectHandle* root, FieldHandle* field )
 {
-    if ( field == nullptr || root == nullptr ) return QString();
+    if ( field == nullptr || root == nullptr ) return std::string();
 
     ObjectHandle* owner = field->ownerObject();
-    if ( !owner ) return QString(); // Should be assert ?
+    if ( !owner ) return std::string(); // Should be assert ?
 
-    QStringList refFromRootToField;
+    std::list<std::string> refFromRootToField;
 
     refFromRootToField = referenceFromRootToObjectAsStringList( root, owner );
 
     refFromRootToField.push_front( field->keyword() );
 
-    QString completeReference = refFromRootToField.join( " " );
+    std::string completeReference = caf::StringTools::join( refFromRootToField.begin(), refFromRootToField.end(), " " );
     return completeReference;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle* PdmReferenceHelper::objectFromReference( ObjectHandle* root, const QString& reference )
+ObjectHandle* PdmReferenceHelper::objectFromReference( ObjectHandle* root, const std::string& reference )
 {
-    QStringList decodedReference = reference.split( " " );
+    std::list<std::string> decodedReference = caf::StringTools::split( reference, " " );
 
     return objectFromReferenceStringList( root, decodedReference );
 }
@@ -99,7 +101,7 @@ ObjectHandle* PdmReferenceHelper::objectFromReference( ObjectHandle* root, const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FieldHandle* PdmReferenceHelper::findField( ObjectHandle* object, const QString& fieldKeyword )
+FieldHandle* PdmReferenceHelper::findField( ObjectHandle* object, const std::string& fieldKeyword )
 {
     if ( object == nullptr ) return nullptr;
 
@@ -120,9 +122,9 @@ FieldHandle* PdmReferenceHelper::findField( ObjectHandle* object, const QString&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList( ObjectHandle* root, ObjectHandle* obj )
+std::list<std::string> PdmReferenceHelper::referenceFromRootToObjectAsStringList( ObjectHandle* root, ObjectHandle* obj )
 {
-    QStringList objectNames;
+    std::list<std::string> objectNames;
 
     if ( obj != nullptr && root )
     {
@@ -137,7 +139,7 @@ QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList( ObjectHan
             if ( !parentField )
             {
                 // Could not find a path from obj to root, obj and root are unrelated objects
-                return QStringList();
+                return std::list<std::string>();
             }
 
             std::vector<ObjectHandle*> childObjects;
@@ -155,7 +157,7 @@ QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList( ObjectHan
                     }
                 }
 
-                objectNames.push_front( QString::number( index ) );
+                objectNames.push_front( std::to_string( index ) );
                 objectNames.push_front( parentField->keyword() );
             }
             else
@@ -168,7 +170,7 @@ QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList( ObjectHan
             if ( !ownerObject )
             {
                 // Could not find a path from obj to root, obj and root are unrelated objects
-                return QStringList();
+                return std::list<std::string>();
             }
 
             if ( ownerObject == root )
@@ -187,12 +189,12 @@ QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList( ObjectHan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FieldHandle* PdmReferenceHelper::fieldFromReference( ObjectHandle* root, const QString& reference )
+FieldHandle* PdmReferenceHelper::fieldFromReference( ObjectHandle* root, const std::string& reference )
 {
-    QStringList decodedReference = reference.split( " " );
+    std::list<std::string> decodedReference = caf::StringTools::split( reference, " " );
     if ( decodedReference.size() == 0 ) return nullptr;
 
-    QString fieldKeyword = decodedReference[0];
+    std::string fieldKeyword = decodedReference.front();
     decodedReference.pop_front();
 
     ObjectHandle* parentObject = objectFromReferenceStringList( root, decodedReference );
@@ -202,16 +204,16 @@ FieldHandle* PdmReferenceHelper::fieldFromReference( ObjectHandle* root, const Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle* PdmReferenceHelper::objectFromReferenceStringList( ObjectHandle* root, const QStringList& reference )
+ObjectHandle* PdmReferenceHelper::objectFromReferenceStringList( ObjectHandle* root, const std::list<std::string>& reference )
 {
     if ( !root ) return nullptr;
 
     ObjectHandle* currentObject = root;
 
-    int i = 0;
-    while ( i < reference.size() )
+    auto it = reference.begin();
+    while ( it != reference.end() )
     {
-        QString fieldKeyword = reference.at( i++ );
+        std::string fieldKeyword = *it++;
 
         FieldHandle* fieldHandle = findField( currentObject, fieldKeyword );
         if ( !fieldHandle )
@@ -227,10 +229,14 @@ ObjectHandle* PdmReferenceHelper::objectFromReferenceStringList( ObjectHandle* r
             return nullptr;
         }
 
-        QString fieldIndex   = reference.at( i++ );
-        bool    conversionOk = true;
-        int     index        = fieldIndex.toInt( &conversionOk );
-        if ( !conversionOk )
+        std::string fieldIndex = *it++;
+
+        int index = std::numeric_limits<int>::infinity();
+        try
+        {
+            index = std::stoi( fieldIndex );
+        }
+        catch ( std::exception& )
         {
             return nullptr;
         }
@@ -274,7 +280,7 @@ std::vector<ObjectHandle*> findPathToObjectFromRoot( ObjectHandle* obj )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmReferenceHelper::referenceFromFieldToObject( FieldHandle* fromField, ObjectHandle* toObj )
+std::string PdmReferenceHelper::referenceFromFieldToObject( FieldHandle* fromField, ObjectHandle* toObj )
 {
     if ( !fromField || !toObj ) return "";
 
@@ -284,8 +290,10 @@ QString PdmReferenceHelper::referenceFromFieldToObject( FieldHandle* fromField, 
     std::vector<ObjectHandle*> fromObjPath = findPathToObjectFromRoot( fromObj );
     std::vector<ObjectHandle*> toObjPath   = findPathToObjectFromRoot( toObj );
 
+    if ( fromObjPath.empty() || toObjPath.empty() ) return std::string();
+
     // Make sure the objects actually have at least one common ancestor
-    if ( fromObjPath.front() != toObjPath.front() ) return nullptr;
+    if ( fromObjPath.front() != toObjPath.front() ) return std::string();
 
     bool   anchestorIsEqual         = true;
     size_t idxToLastCommonAnchestor = 0;
@@ -304,7 +312,7 @@ QString PdmReferenceHelper::referenceFromFieldToObject( FieldHandle* fromField, 
 
     ObjectHandle* lastCommonAnchestor = fromObjPath[idxToLastCommonAnchestor];
 
-    QStringList referenceList = referenceFromRootToObjectAsStringList( lastCommonAnchestor, toObj );
+    std::list<std::string> referenceList = referenceFromRootToObjectAsStringList( lastCommonAnchestor, toObj );
 
     if ( idxToLastCommonAnchestor == 0 )
     {
@@ -318,7 +326,7 @@ QString PdmReferenceHelper::referenceFromFieldToObject( FieldHandle* fromField, 
         }
     }
 
-    QString completeReference = referenceList.join( " " );
+    std::string completeReference = caf::StringTools::join( referenceList.begin(), referenceList.end(), " " );
 
     return completeReference;
 }
@@ -326,14 +334,15 @@ QString PdmReferenceHelper::referenceFromFieldToObject( FieldHandle* fromField, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle* PdmReferenceHelper::objectFromFieldReference( FieldHandle* fromField, const QString& reference )
+ObjectHandle* PdmReferenceHelper::objectFromFieldReference( FieldHandle* fromField, const std::string& reference )
 {
     if ( !fromField ) return nullptr;
-    if ( reference.isEmpty() ) return nullptr;
-    if ( reference.trimmed().isEmpty() ) return nullptr;
+    if ( reference.empty() ) return nullptr;
 
-    QStringList      decodedReference    = reference.split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
-    ObjectHandle* lastCommonAnchestor = fromField->ownerObject();
+    if ( caf::StringTools::trim( reference ).empty() ) return nullptr;
+
+    std::list<std::string> decodedReference    = caf::StringTools::split( reference, std::regex( "\\s+" ), true );
+    ObjectHandle*          lastCommonAnchestor = fromField->ownerObject();
     CAF_ASSERT( lastCommonAnchestor );
 
     if ( !decodedReference.empty() && decodedReference.front() == rootIdentifierString() )
@@ -368,8 +377,8 @@ ObjectHandle* PdmReferenceHelper::findRoot( ObjectHandle* obj )
 {
     std::vector<ObjectHandle*> path = findPathToObjectFromRoot( obj );
 
-    if ( path.size() )
-        return path[0];
+    if ( !path.empty() )
+        return path.front();
     else
         return nullptr;
 }

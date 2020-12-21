@@ -28,11 +28,17 @@ add_executable ( ${PROJECT_NAME}
 	${PROJECT_FILES}
 )
 
+set_target_properties(${PROJECT_NAME} PROPERTIES AUTOMOC ON)
+set_target_properties(${PROJECT_NAME} PROPERTIES AUTORCC ON)
+
+if (CAFFA_BUILD_SHARED AND MSVC)
+    add_definitions(-DQT_DLL)
+endif()
+
 target_link_libraries ( ${PROJECT_NAME}
     ${THREAD_LIBRARY}
     ${QT_LIBRARIES}
     cafUserInterface
-    cafCommand
 )
 
 source_group("" FILES ${PROJECT_FILES})

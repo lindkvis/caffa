@@ -35,7 +35,6 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include <QDateTime>
 #include <QtCore/QProcess>
 
@@ -49,7 +48,7 @@ const int PROCESS_STATE_ERROR   = 2; // Message sent for error messages
 //
 //
 //=================================================================================================================================
-class cafUserInterface_EXPORT UiProcess : public QProcess
+class UiProcess : public QProcess
 {
     Q_OBJECT
 

@@ -14,6 +14,7 @@ if (MSVC)
 endif (MSVC)
 
 set( PUBLIC_HEADERS
+    cafWebValueFieldSpecializations.h
     cafPdmWebFieldEditorHandle.h
     cafPdmWebDefaultObjectEditor.h
     cafPdmWebFormLayoutObjectEditor.h
@@ -23,9 +24,6 @@ set( PUBLIC_HEADERS
     cafPdmWebTreeItemEditor.h
     cafPdmWebTreeEditorHandle.h
     cafPdmWebTreeViewWModel.h
-
-    cafWebPlotViewer.h
-    cafWebPlotCurve.h
 
     # field editors
     cafPdmWebCheckBoxEditor.h
@@ -43,6 +41,7 @@ set( PUBLIC_HEADERS
 
 set( PROJECT_FILES
     ${PUBLIC_HEADERS}
+    cafWebValueFieldSpecializations.cpp
     cafPdmWebFieldEditorHandle.cpp
     cafPdmWebDefaultObjectEditor.cpp
     cafPdmWebFormLayoutObjectEditor.cpp
@@ -52,9 +51,6 @@ set( PROJECT_FILES
     cafPdmWebTreeItemEditor.cpp
     cafPdmWebTreeEditorHandle.cpp
     cafPdmWebTreeViewWModel.cpp
-
-    cafWebPlotViewer.cpp
-    cafWebPlotCurve.cpp
 
     # field editors
     cafPdmWebCheckBoxEditor.cpp
@@ -75,21 +71,19 @@ add_library( ${PROJECT_NAME}
 )
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
 
-#set(Boost_USE_MULTITHREADED ON)
-#set(Boost_USE_STATIC_RUNTIME OFF)
-
-find_package(Qt5 COMPONENTS REQUIRED Core)
-set(QT_LIBRARIES Qt5::Core)
+if(VCPKG_AUTO_INSTALL)
+  vcpkg_install(wt)
+endif()
 
 find_package(ZLIB REQUIRED)
 find_package(OpenSSL REQUIRED)
 
-find_package(Boost 1.60 COMPONENTS system regex program_options thread filesystem date_time REQUIRED)
+find_package(Boost COMPONENTS system regex program_options thread filesystem date_time REQUIRED)
 
 find_package(wt COMPONENTS Wt HTTP REQUIRED)
 
 if (MSVC) 
-    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127 /wd4267")
+    target_compile_definitions(${PROJECT_NAME} PRIVATE "/wd4100 /wd4127 /wd4267 /wd4251 /wd4275")
     set( OTHER_DEPENDENCIES d2d1 Shlwapi windowscodecs Dwrite)
 endif() 
 
@@ -99,14 +93,11 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries ( ${PROJECT_NAME}	
-    ${QT_LIBRARIES}
-    ${Boost_LIBRARIES}
-    Wt::Wt Wt::HTTP
+    PRIVATE
     cafProjectDataModel
-    cafCommonInterface
+    ${Boost_LIBRARIES}
+    Wt::Wt Wt::HTTP    
 )
-
-target_compile_definitions(${PROJECT_NAME} PUBLIC -DQT_NO_EMIT)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 

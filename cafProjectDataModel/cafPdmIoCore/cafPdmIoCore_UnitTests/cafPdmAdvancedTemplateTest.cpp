@@ -2,18 +2,17 @@
 #include "gtest/gtest.h"
 
 #include "cafAppEnum.h"
-#include "cafFilePath.h"
 #include "cafChildArrayField.h"
 #include "cafDataValueField.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
+#include "cafPdmReferenceHelper.h"
 #include "cafProxyValueField.h"
 #include "cafPtrField.h"
-#include "cafPdmReferenceHelper.h"
 
-#include <QXmlStreamWriter>
+#include <filesystem>
 
 class ItemObject : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
@@ -27,7 +26,7 @@ public:
         CAF_PDM_IO_InitField( &m_name, "Name" );
     }
 
-    explicit ItemObject( QString name )
+    explicit ItemObject( std::string name )
         : ObjectHandle()
         , ObjectIoCapability( this, false )
     {
@@ -38,7 +37,7 @@ public:
     ~ItemObject() {}
 
     // Fields
-    caf::DataValueField<QString> m_name;
+    caf::DataValueField<std::string> m_name;
 };
 CAF_IO_SOURCE_INIT( ItemObject, "ItemObject" );
 
@@ -94,11 +93,11 @@ public:
     ~DemoObjectA() {}
 
     // Fields
-    caf::ProxyValueField<double>         m_doubleField;
+    caf::ProxyValueField<double>      m_doubleField;
     caf::PtrField<caf::ObjectHandle*> m_pointerToItem;
     caf::PtrField<caf::ObjectHandle*> m_pointerToDemoObj;
 
-    caf::DataValueField<caf::FilePath> m_singleFilePath;
+    caf::DataValueField<std::filesystem::path> m_singleFilePath;
 
     void setDoubleMember( const double& d )
     {
@@ -129,7 +128,7 @@ void AppEnum<DemoObjectA::TestEnumType>::setUp()
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
-/// Read/write fields to a valid Xml document encoded in a QString
+/// Read/write fields to a valid Xml document encoded in a std::string
 //--------------------------------------------------------------------------------------------------
 TEST( AdvancedObjectTest, FieldWrite )
 {
@@ -141,36 +140,35 @@ TEST( AdvancedObjectTest, FieldWrite )
 
     {
         ItemObject* item = new ItemObject();
-        item->m_name        = "Obj A";
+        item->m_name     = "Obj A";
 
         container->m_items.push_back( item );
     }
     {
         ItemObject* item = new ItemObject();
-        item->m_name        = "Obj B";
+        item->m_name     = "Obj B";
 
         container->m_items.push_back( item );
     }
 
     {
         ItemObject* item = new ItemObject();
-        item->m_name        = "Obj C";
+        item->m_name     = "Obj C";
 
         container->m_items.push_back( item );
     }
 
-    std::vector<caf::ObjectIoCapability::IoParameters::IoType> ioTypes =
-        { caf::ObjectIoCapability::IoParameters::IoType::XML, caf::ObjectIoCapability::IoParameters::IoType::JSON };
+    std::vector<caf::ObjectIoCapability::IoType> ioTypes = { caf::ObjectIoCapability::IoType::JSON };
 
     // Test with empty ptr field
     for ( auto ioType : ioTypes )
     {
-        QString serializedString;
+        std::string serializedString;
         {
             DemoObjectA* a = new DemoObjectA;
             sibling->m_demoObjs.push_back( a );
             serializedString = a->writeObjectToString( ioType );
-            std::cout << serializedString.toStdString() << std::endl;
+            std::cout << serializedString << std::endl;
             delete a;
         }
 
@@ -178,7 +176,7 @@ TEST( AdvancedObjectTest, FieldWrite )
             DemoObjectA* a = new DemoObjectA;
             sibling->m_demoObjs.push_back( a );
 
-            a->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance(), ioType );
+            a->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance(), ioType );
 
             ASSERT_TRUE( a->m_pointerToItem() == NULL );
         }
@@ -186,7 +184,7 @@ TEST( AdvancedObjectTest, FieldWrite )
 
     for ( auto ioType : ioTypes )
     {
-        QString serializedString;
+        std::string serializedString;
         {
             DemoObjectA* a = new DemoObjectA;
             sibling->m_demoObjs.push_back( a );
@@ -194,7 +192,7 @@ TEST( AdvancedObjectTest, FieldWrite )
             a->m_pointerToItem = container->m_items[1];
 
             serializedString = a->writeObjectToString( ioType );
-            std::cout << serializedString.toStdString() << std::endl;
+            std::cout << serializedString << std::endl;
             delete a;
         }
 
@@ -202,7 +200,7 @@ TEST( AdvancedObjectTest, FieldWrite )
             DemoObjectA* a = new DemoObjectA;
             sibling->m_demoObjs.push_back( a );
 
-            a->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance(), ioType );
+            a->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance(), ioType );
             a->capability<caf::ObjectIoCapability>()->resolveReferencesRecursively();
 
             ASSERT_TRUE( a->m_pointerToItem() == container->m_items[1] );
@@ -211,14 +209,14 @@ TEST( AdvancedObjectTest, FieldWrite )
 
     for ( auto ioType : ioTypes )
     {
-        QString string = root->writeObjectToString( ioType );
-        std::cout << string.toStdString() << std::endl;
+        std::string string = root->writeObjectToString( ioType );
+        std::cout << string << std::endl;
 
         caf::ObjectHandle* objCopy =
             caf::ObjectIoCapability::readUnknownObjectFromString( string,
-                                                                     caf::PdmDefaultObjectFactory::instance(),
-                                                                     true,
-                                                                     ioType );
+                                                                  caf::DefaultObjectFactory::instance(),
+                                                                  true,
+                                                                  ioType );
         auto rootCopy = dynamic_cast<ContainerObject*>( objCopy );
         ASSERT_TRUE( rootCopy != nullptr );
     }
@@ -237,26 +235,24 @@ TEST( AdvancedObjectTest, CopyOfObjects )
 
     {
         ItemObject* item = new ItemObject();
-        item->m_name        = "Obj A";
+        item->m_name     = "Obj A";
 
         container->m_items.push_back( item );
     }
     {
         ItemObject* item = new ItemObject();
-        item->m_name        = "Obj B";
+        item->m_name     = "Obj B";
 
         container->m_items.push_back( item );
     }
 
     {
         ItemObject* item = new ItemObject();
-        item->m_name        = "Obj C";
+        item->m_name     = "Obj C";
 
         container->m_items.push_back( item );
 
-        std::vector<caf::ObjectIoCapability::IoParameters::IoType> ioTypes =
-            { caf::ObjectIoCapability::IoParameters::IoType::XML,
-              caf::ObjectIoCapability::IoParameters::IoType::JSON };
+        std::vector<caf::ObjectIoCapability::IoType> ioTypes = { caf::ObjectIoCapability::IoType::JSON };
 
         for ( auto ioType : ioTypes )
         {
@@ -269,7 +265,7 @@ TEST( AdvancedObjectTest, CopyOfObjects )
                 {
                     auto* objCopy = dynamic_cast<DemoObjectA*>(
                         a->capability<caf::ObjectIoCapability>()
-                            ->copyBySerialization( caf::PdmDefaultObjectFactory::instance(), ioType ) );
+                            ->copyBySerialization( caf::DefaultObjectFactory::instance(), ioType ) );
                     std::vector<caf::FieldHandle*> fieldWithFailingResolve;
                     objCopy->resolveReferencesRecursively( &fieldWithFailingResolve );
                     ASSERT_FALSE( fieldWithFailingResolve.empty() );
@@ -279,7 +275,7 @@ TEST( AdvancedObjectTest, CopyOfObjects )
                 {
                     auto* objCopy = dynamic_cast<DemoObjectA*>(
                         a->capability<caf::ObjectIoCapability>()
-                            ->copyBySerialization( caf::PdmDefaultObjectFactory::instance(), ioType ) );
+                            ->copyBySerialization( caf::DefaultObjectFactory::instance(), ioType ) );
 
                     sibling->m_demoObjs.push_back( objCopy );
 

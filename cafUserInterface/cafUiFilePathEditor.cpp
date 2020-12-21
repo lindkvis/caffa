@@ -57,24 +57,27 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiFilePathEditor );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFilePathEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiFilePathEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_lineEdit.isNull() );
     CAF_ASSERT( !m_label.isNull() );
 
-    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label );
 
-    m_lineEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
-    m_lineEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
-    m_button->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
+    m_lineEdit->setEnabled( !uiField()->isUiReadOnly() );
+    m_lineEdit->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
+    m_button->setEnabled( !uiField()->isUiReadOnly() );
 
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+        uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
     }
 
-    m_lineEdit->setText( uiField()->uiValue().toString() );
+    if ( uiField()->uiValue().canConvert<std::string>() )
+    {
+        m_lineEdit->setText( QString::fromStdString( uiField()->uiValue().value<std::string>() ) );
+    }
 
     if ( m_attributes.m_appendUiSelectedFolderToText )
     {
@@ -122,10 +125,8 @@ QWidget* PdmUiFilePathEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void PdmUiFilePathEditor::slotEditingFinished()
 {
-    QVariant v;
-    QString  textValue = m_lineEdit->text();
-    v                  = textValue;
-    this->setValueToField( v );
+    std::filesystem::path textValue = m_lineEdit->text().toStdString();
+    this->setValueToField( Variant( textValue ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,13 +137,13 @@ void PdmUiFilePathEditor::fileSelectionClicked()
     QString defaultPath;
     if ( m_lineEdit->text().isEmpty() )
     {
-        if ( m_attributes.m_defaultPath.isNull() )
+        if ( m_attributes.m_defaultPath.empty() )
         {
             defaultPath = QDir::homePath();
         }
         else
         {
-            defaultPath = m_attributes.m_defaultPath;
+            defaultPath = QString::fromStdString( m_attributes.m_defaultPath );
         }
     }
     else
@@ -182,18 +183,15 @@ void PdmUiFilePathEditor::fileSelectionClicked()
     }
     else
     {
+        QString filter = QString::fromStdString( m_attributes.m_fileSelectionFilter );
         QString filePath;
         if ( m_attributes.m_selectSaveFileName )
         {
-            filePath =
-                QFileDialog::getSaveFileName( m_lineEdit, tr( "Save File" ), defaultPath, m_attributes.m_fileSelectionFilter );
+            filePath = QFileDialog::getSaveFileName( m_lineEdit, tr( "Save File" ), defaultPath, filter );
         }
         else
         {
-            filePath = QFileDialog::getOpenFileName( m_lineEdit,
-                                                     tr( "Choose a file" ),
-                                                     defaultPath,
-                                                     m_attributes.m_fileSelectionFilter );
+            filePath = QFileDialog::getOpenFileName( m_lineEdit, tr( "Choose a file" ), defaultPath, filter );
         }
 
         if ( !filePath.isEmpty() )

@@ -4,33 +4,18 @@ project (caffa VERSION 0.1 DESCRIPTION "Caffa Application Framework")
 
 set(CMAKE_CXX_STANDARD 17)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/scripts")
+option(VCPKG_AUTO_INSTALL "Automatically download build pre-requisites with VCPKG" OFF)
+if (VCPKG_AUTO_INSTALL)
+    include (AutoVcpkg)
+    set (AUTO_VCPKG_ROOT "${CMAKE_SOURCE_DIR}/ThirdParty/vcpkg")
+endif()
+
+option(CAFFA_GRPC_INTERFACE "Enable the gRPC interface to the Project Data Model" OFF)
 option(CAFFA_WEB_DEPLOYMENT "Turn this on to build for web deployment with the Web Toolkit" OFF)
-set(CAFFA_DESKTOP_DEPLOYMENT OFF)
-if (NOT CAFFA_WEB_DEPLOYMENT)
-    set(CAFFA_DESKTOP_DEPLOYMENT ON)
-endif()
+option(CAFFA_DESKTOP_DEPLOYMENT "Turn this on to build for desktop deployment with the Qt Toolkit" OFF)
 
-if (UNIX)
-    option(CAFFA_GPIO "Build the Caffa Hardware GPIO library (Raspberry PI)" OFF)
-endif()
-
-option(BUILD_SHARED_LIBS "Create a shared Caffa library" ON)
-find_package(Qt5 COMPONENTS REQUIRED Core)
-
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-
-if (CAFFA_DESKTOP_DEPLOYMENT)
-    find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
-    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-    add_definitions(-DDESKTOP_DEPLOYMENT)
-else()
-    set(QT_LIBRARIES Qt5::Core)
-endif()
-
-if (MSVC)
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-endif()
+option(CAFFA_BUILD_SHARED "Create a shared Caffa library" ON)
 
 if (CAFFA_WEB_DEPLOYMENT)
     add_definitions(-DWEB_DEPLOYMENT)
@@ -48,43 +33,41 @@ endif()
 add_subdirectory (cafProjectDataModel/cafPdmCore)
 add_subdirectory (cafProjectDataModel/cafPdmUiCore)
 add_subdirectory (cafProjectDataModel/cafPdmIoCore)
+add_subdirectory (cafProjectDataModel/cafPdmObject)
+add_subdirectory (cafProjectDataModel/cafPdmScriptCore)
+
 
 add_subdirectory(cafProjectDataModel)
-add_subdirectory(cafCommand)
-add_subdirectory(cafCommandFeatures)
-add_subdirectory(cafPdmScripting)
-add_subdirectory(cafCommonInterface)
+
+if (CAFFA_GRPC_INTERFACE)
+    add_subdirectory(cafGrpcInterface)
+    #add_subdirectory(cafGrpcServerApp)
+endif()
 
 #executables
 if (CAFFA_WEB_DEPLOYMENT)
     add_subdirectory(cafWebInterface)
+    #add_subdirectory(cafWebApp)
     add_subdirectory(cafTests/cafTestWebApplication)
 endif(CAFFA_WEB_DEPLOYMENT)
 
 if (CAFFA_DESKTOP_DEPLOYMENT)
-    option(CAFFA_DESKTOP_PLOTTING ON)
-    add_subdirectory(cafUserInterface)
-
-    if (CAFFA_DESKTOP_PLOTTING)
-        add_subdirectory(ThirdParty/qwt)
-        set_property(TARGET qwt PROPERTY FOLDER "ThirdParty")
-        add_subdirectory(cafUiPlotViewer)
-    endif(CAFFA_DESKTOP_PLOTTING)
-
-    add_subdirectory(cafTests/cafTestApplication)
+    add_subdirectory (cafUserInterface)
+    #add_subdirectory (cafQtApp)
+    add_subdirectory (cafTests/cafTestApplication)
     add_subdirectory (cafUserInterface/cafUserInterface_UnitTests)
 endif()
 
 add_subdirectory (cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests)
 add_subdirectory (cafProjectDataModel/cafPdmIoCore/cafPdmIoCore_UnitTests)
+add_subdirectory (cafProjectDataModel/cafPdmScriptCore/cafPdmScriptCore_UnitTests)
 add_subdirectory (cafProjectDataModel/cafProjectDataModel_UnitTests)
-if (CAFFA_HARDWARE_IO AND UNIX)
-    add_subdirectory (cafGPIO)
+if (CAFFA_GRPC_INTERFACE)
+    add_subdirectory(cafGrpcInterface/cafGrpcInterface_UnitTests)
 endif()
-#add_subdirectory(cafPdmScripting/cafPdmScripting_UnitTests)
 
 # Organize sub-projects into folders on Visual Studio
 # Turn on using solution folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set_property(TARGET  cafPdmCore cafPdmCore_UnitTests cafPdmIoCore cafPdmIoCore_UnitTests  cafPdmUiCore  PROPERTY FOLDER "PdmCore")
+set_property(TARGET  cafPdmCore cafPdmCore_UnitTests cafPdmIoCore cafPdmIoCore_UnitTests  cafPdmUiCore  cafPdmObject cafPdmScriptCore cafPdmScriptCore_UnitTests PROPERTY FOLDER "PdmCore")

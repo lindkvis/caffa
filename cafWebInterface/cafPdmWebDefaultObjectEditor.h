@@ -35,20 +35,20 @@
 //
 //##################################################################################################
 
-
 #pragma once
+
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4275 4564 )
+#endif
 
 #include "cafPdmWebFormLayoutObjectEditor.h"
 
-class QString;
-
-namespace caf 
+namespace caf
 {
-
 class UiFieldEditorHandle;
 class UiItem;
-class PdmUiGroup;
-
+class UiGroup;
 
 //==================================================================================================
 /// The default editor for Objects. Manages the field editors in a grid layout vertically
@@ -61,14 +61,14 @@ public:
 
 private:
     Wt::WContainerWidget* createWidget() override;
-    void     recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiItems,
-                                                             const QString& uiConfigName) override;
+    void                  recursivelyConfigureAndUpdateTopLevelUiOrdering( const UiOrdering& topLevelUiItems ) override;
 
 protected:
-    void resetWidget(Wt::WContainerWidget* widget);
+    void         resetWidget( Wt::WContainerWidget* widget );
     virtual void cleanupBeforeSettingObject() override;
-
 };
 
-
 } // end namespace caf
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

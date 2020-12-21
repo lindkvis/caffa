@@ -34,14 +34,17 @@
 //   for more details.
 //
 //##################################################################################################
-
-
 #pragma once
 
-#include "cafPdmWebTreeEditorHandle.h"
-#include "cafPdmWebFieldEditorHandle.h"
-#include "cafPdmWebTreeViewWModel.h"
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
+
 #include "WPopupMenuWrapper.h"
+#include "cafPdmWebFieldEditorHandle.h"
+#include "cafPdmWebTreeEditorHandle.h"
+#include "cafPdmWebTreeViewWModel.h"
 
 #include <Wt/WAbstractItemModel.h>
 #include <Wt/WColor.h>
@@ -52,18 +55,16 @@
 
 class MySortFilterProxyModel;
 
-namespace caf 
+namespace caf
 {
-
 class ChildArrayFieldHandle;
-class PdmUiDragDropInterface;
 class UiItem;
 class PdmWebTreeViewEditor;
 class PdmWebTreeViewWModel;
 class PdmUiTreeViewWidget;
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmWebTreeViewEditor : public PdmWebTreeEditorHandle
 {
@@ -71,55 +72,55 @@ public:
     PdmWebTreeViewEditor();
     ~PdmWebTreeViewEditor() override;
 
-    void        enableDefaultContextMenu(bool enable);
-    void        enableSelectionManagerUpdating(bool enable);
-    
-    void        enableAppendOfClassNameToUiItemText(bool enable);
-    bool        isAppendOfClassNameToUiItemTextEnabled();
+    void enableDefaultContextMenu( bool enable );
+    void enableSelectionManagerUpdating( bool enable );
 
-    Wt::WTreeView*  treeView();
+    void enableAppendOfClassNameToUiItemText( bool enable );
+    bool isAppendOfClassNameToUiItemTextEnabled();
 
-    void        selectAsCurrentItem(const UiItem* uiItem);
-    void        selectItems(std::vector<const UiItem*> uiItems);
-    void        selectedUiItems(std::vector<UiItem*>& objects);
-    void        setExpanded(const UiItem* uiItem, bool doExpand) const;
+    Wt::WTreeView* treeView();
 
-    UiItem*  uiItemFromModelIndex(const Wt::WModelIndex& index) const;
-    Wt::WModelIndex findModelIndex(const UiItem* object) const;
+    void selectAsCurrentItem( const UiItem* uiItem );
+    void selectItems( std::vector<const UiItem*> uiItems );
+    void selectedUiItems( std::vector<UiItem*>& objects );
+    void setExpanded( const UiItem* uiItem, bool doExpand ) const;
+
+    UiItem*         uiItemFromModelIndex( const Wt::WModelIndex& index ) const;
+    Wt::WModelIndex findModelIndex( const UiItem* object ) const;
 
     Wt::WWidget* createWidget() override;
 
-    void        setDragDropInterface(PdmUiDragDropInterface* dragDropInterface);
+    // void setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
 
     Wt::Signal<>& selectionChanged();
 
 protected:
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
-    void        updateMySubTree(UiItem* uiItem) override;
-    void        updateContextMenuSignals();
+    void configureAndUpdateUi() override;
+    void updateMySubTree( UiItem* uiItem ) override;
+    void updateContextMenuSignals();
 
-    void        slotCustomMenuRequested(const Wt::WModelIndex& item, const Wt::WMouseEvent& event);
-    void        slotOnSelectionChanged();
-    void        slotOnActionSelection();
+    void slotCustomMenuRequested( const Wt::WModelIndex& item, const Wt::WMouseEvent& event );
+    void slotOnSelectionChanged();
+    void slotOnActionSelection();
 
 private:
     ChildArrayFieldHandle* currentChildArrayFieldHandle();
 
-    void        updateSelectionManager();
-
-    bool        eventFilter(QObject *obj, QEvent *event) override;
+    void updateSelectionManager();
 
 private:
-    Wt::Core::observing_ptr<Wt::WTreeView>        m_treeView;
-    std::shared_ptr<PdmWebTreeViewWModel>         m_treeViewModel;
-    Wt::Signal<>                                  m_selectionChanged;
-    std::unique_ptr<WPopupMenuWrapper>            m_popup;
+    Wt::Core::observing_ptr<Wt::WTreeView> m_treeView;
+    std::shared_ptr<PdmWebTreeViewWModel>  m_treeViewModel;
+    Wt::Signal<>                           m_selectionChanged;
+    std::unique_ptr<WPopupMenuWrapper>     m_popup;
 
-    bool                            m_useDefaultContextMenu;
-    bool                            m_updateSelectionManager;
-    bool                            m_appendClassNameToUiItemText;
+    bool m_useDefaultContextMenu;
+    bool m_updateSelectionManager;
+    bool m_appendClassNameToUiItemText;
 };
 
-
-
 } // end namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

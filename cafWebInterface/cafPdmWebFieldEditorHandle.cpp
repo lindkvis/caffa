@@ -37,16 +37,20 @@
 
 #include "cafPdmWebFieldEditorHandle.h"
 
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
+
 #include "cafFieldUiCapability.h"
 #include "cafObjectHandle.h"
 #include "cafObjectUiCapability.h"
 #include "cafUiCommandSystemProxy.h"
+#include "cafVariant.h"
 
 #include <Wt/WContainerWidget.h>
 #include <Wt/WLabel.h>
 #include <Wt/WWidget.h>
-
-#include <QVariant>
 
 namespace caf
 {
@@ -83,14 +87,14 @@ bool PdmWebFieldEditorHandle::hasLabel() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebFieldEditorHandle::applyTextToLabel( Wt::WLabel* label, const QString& uiConfigName ) const
+void PdmWebFieldEditorHandle::applyTextToLabel( Wt::WLabel* label ) const
 {
     if ( label )
     {
         const FieldUiCapability* fieldHandle = dynamic_cast<const FieldUiCapability*>( pdmItem() );
         if ( fieldHandle )
         {
-            std::string labelText = fieldHandle->uiName( uiConfigName ).toStdString();
+            std::string labelText = fieldHandle->uiName();
             label->setText( labelText );
         }
     }
@@ -199,7 +203,7 @@ FieldUiCapability* PdmWebFieldEditorHandle::uiField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebFieldEditorHandle::setValueToField( const QVariant& newUiValue )
+void PdmWebFieldEditorHandle::setValueToField( const Variant& newUiValue )
 {
     UiCommandSystemProxy::instance()->setUiValueToField( uiField(), newUiValue );
 }
@@ -213,3 +217,7 @@ bool PdmWebFieldEditorHandle::isMultiRowEditor() const
 }
 
 } // End of namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

@@ -56,25 +56,25 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiPushButtonEditor );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiPushButtonEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_pushButton.isNull() );
     CAF_ASSERT( !m_label.isNull() );
 
-    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label );
 
     m_pushButton->setCheckable( true );
-    m_pushButton->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
-    m_pushButton->setToolTip( uiField()->uiToolTip( uiConfigName ) );
+    m_pushButton->setEnabled( !uiField()->isUiReadOnly() );
+    m_pushButton->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
     PdmUiPushButtonEditorAttribute attributes;
-    caf::ObjectUiCapability*    uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caf::ObjectUiCapability*       uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
+        uiObject->editorAttribute( uiField()->fieldHandle(), &attributes );
     }
 
-    QVariant variantFieldValue = uiField()->uiValue();
+    Variant variantFieldValue = uiField()->uiValue();
 
     if ( !attributes.m_buttonIcon.isNull() )
     {
@@ -87,26 +87,26 @@ void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
     }
     else
     {
-        if ( variantFieldValue.type() == QVariant::Bool )
+        if ( variantFieldValue.canConvert<bool>() )
         {
-            m_pushButton->setText( variantFieldValue.toBool() ? "On" : "Off" );
+            m_pushButton->setText( variantFieldValue.value<bool>() ? "On" : "Off" );
         }
         else
         {
-            m_pushButton->setText( variantFieldValue.toString() );
+            m_pushButton->setText( QString::fromStdString( variantFieldValue.value<std::string>() ) );
         }
     }
 
-    if ( uiField()->uiLabelPosition( uiConfigName ) != UiItemInfo::HIDDEN )
+    if ( uiField()->uiLabelPosition() != UiItemInfo::HIDDEN )
     {
         QSize defaultSize = m_pushButton->sizeHint();
         m_pushButton->setMinimumWidth( 10 * std::round( 0.1 * ( defaultSize.width() + 10 ) ) );
         m_buttonLayout->setAlignment( m_pushButton, Qt::AlignRight );
     }
 
-    if ( variantFieldValue.type() == QVariant::Bool )
+    if ( variantFieldValue.canConvert<bool>() )
     {
-        m_pushButton->setChecked( uiField()->uiValue().toBool() );
+        m_pushButton->setChecked( uiField()->uiValue().value<bool>() );
     }
 }
 
@@ -167,8 +167,7 @@ void PdmUiPushButtonEditor::slotClicked( bool checked )
 {
     if ( uiField() && dynamic_cast<Field<bool>*>( uiField()->fieldHandle() ) )
     {
-        QVariant v;
-        v = checked;
+        Variant v( checked );
         this->setValueToField( v );
     }
 }

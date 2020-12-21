@@ -35,7 +35,6 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafUiComboBoxEditorAttribute.h"
 #include "cafUiFieldEditorHandle.h"
 
@@ -52,7 +51,7 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class cafUserInterface_EXPORT PdmUiComboBoxEditor : public UiFieldEditorHandle
+class PdmUiComboBoxEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -64,7 +63,7 @@ public:
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
     QWidget* createLabelWidget( QWidget* parent ) override;
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    void     configureAndUpdateUi() override;
     QMargins calculateLabelContentMargins() const override;
 
 protected slots:

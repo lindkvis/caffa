@@ -36,14 +36,16 @@
 
 #pragma once
 
-#include <vector>
+#include "cafObjectHandle.h"
+#include "cafObjectIoCapability.h"
+#include "cafPdmPointer.h"
 
-class QString;
+#include <list>
+#include <string>
+#include <vector>
 
 namespace caf
 {
-class ObjectHandle;
-
 //==================================================================================================
 //
 // Factory interface for creating PDM objects derived from ObjectHandle based on class name keyword
@@ -52,12 +54,64 @@ class ObjectHandle;
 class ObjectFactory
 {
 public:
-    virtual ObjectHandle*     create( const QString& classNameKeyword ) = 0;
-    virtual std::vector<QString> classKeywords() const                     = 0;
+    ObjectHandle* create( const std::string& classNameKeyword, uint64_t serverAddress = 0u)
+    {
+        ObjectHandle* object = doCreate( classNameKeyword, serverAddress );
+        if ( object ) m_objects.push_back( PdmPointer<ObjectHandle>( object ) );
+        return object;
+    }
+
+    virtual std::vector<std::string> classKeywords() const = 0;
+
+    std::list<ObjectHandle*> objects() const
+    {
+        std::list<ObjectHandle*> objects;
+        for ( auto object : m_objects )
+        {
+            if ( object.notNull() )
+            {
+                objects.push_back( object.p() );
+            }
+        }
+        return objects;
+    }
+
+    template <typename T>
+    std::list<T*> objectsOfType() const
+    {
+        std::list<T*> typedObjects;
+        for ( auto object : m_objects )
+        {
+            T* typedObject = dynamic_cast<T*>( object.p() );
+            if ( typedObject )
+            {
+                typedObjects.push_back( typedObject );
+            }
+        }
+        return typedObjects;
+    }
+
+    std::list<ObjectHandle*> objectsWithClassKeyword( const std::string& classKeyword ) const
+    {
+        std::list<ObjectHandle*> objects;
+        for ( auto object : m_objects )
+        {
+            if ( object.notNull() && object->capability<ObjectIoCapability>()->matchesClassKeyword( classKeyword ) )
+            {
+                objects.push_back( object.p() );
+            }
+        }
+        return objects;
+    }
 
 protected:
     ObjectFactory() {}
     virtual ~ObjectFactory() {}
+
+private:
+    virtual ObjectHandle* doCreate( const std::string& classNameKeyword, uint64_t serverAddress = 0u ) = 0;
+
+    std::list<PdmPointer<ObjectHandle>> m_objects;
 };
 
 } // End of namespace caf

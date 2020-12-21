@@ -33,16 +33,20 @@
 //   for more details.
 //
 //##################################################################################################
-
 #include "cafPdmWebFormLayoutObjectEditor.h"
+
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
 
 #include "cafFieldUiCapability.h"
 #include "cafObjectHandle.h"
+#include "cafObjectIoCapability.h"
 #include "cafObjectUiCapability.h"
-#include "cafObjectXmlCapability.h"
-#include "cafUiOrdering.h"
 #include "cafPdmWebComboBoxEditor.h"
 #include "cafPdmWebFieldEditorHandle.h"
+#include "cafUiOrdering.h"
 
 #include "cafAssert.h"
 
@@ -53,26 +57,27 @@
 #include "Wt/WVBoxLayout.h"
 #include "Wt/WWidget.h"
 
+using namespace caf;
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmWebFormLayoutObjectEditor::PdmWebFormLayoutObjectEditor()
+PdmWebFormLayoutObjectEditor::PdmWebFormLayoutObjectEditor()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmWebFormLayoutObjectEditor::~PdmWebFormLayoutObjectEditor()
+PdmWebFormLayoutObjectEditor::~PdmWebFormLayoutObjectEditor()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmWebFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGridLayout( const PdmUiOrdering& uiOrdering,
-                                                                                             Wt::WGridLayout* parentLayout,
-                                                                                             const QString& uiConfigName )
+void PdmWebFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGridLayout( const UiOrdering& uiOrdering,
+                                                                                        Wt::WGridLayout*  parentLayout )
 {
     std::list<std::unique_ptr<Wt::WWidget>> existingWidgets;
     parentLayout->iterateWidgets( [&]( Wt::WWidget* widget ) {
@@ -83,17 +88,17 @@ void caf::PdmWebFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingI
     {
         if ( item->isUiGroup() )
         {
-            auto group = recursivelyCreateGroup( existingWidgets, item, uiConfigName );
+            auto group = recursivelyCreateGroup( existingWidgets, item );
         }
         FieldUiCapability* field = dynamic_cast<FieldUiCapability*>( item );
         if ( !field ) continue;
 
-        PdmWebFieldEditorHandle* fieldEditor = findOrCreateFieldEditor( field, uiConfigName );
+        PdmWebFieldEditorHandle* fieldEditor = findOrCreateFieldEditor( field );
         if ( !fieldEditor ) continue;
 
         existingWidgets.push_back( fieldEditor->findOrCreateLabelWidget( existingWidgets ) );
         existingWidgets.push_back( fieldEditor->findOrCreateEditorWidget( existingWidgets ) );
-        fieldEditor->updateUi( uiConfigName );
+        fieldEditor->updateUi();
     }
 
     for ( int currentRowIndex = 0; currentRowIndex < (int)uiOrdering.uiItems().size(); ++currentRowIndex )
@@ -102,7 +107,7 @@ void caf::PdmWebFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingI
 
         if ( currentItem->isUiGroup() )
         {
-            auto group = recursivelyCreateGroup( existingWidgets, currentItem, uiConfigName );
+            auto group = recursivelyCreateGroup( existingWidgets, currentItem );
 
             /// Insert the group box at the correct position of the parent layout
             parentLayout->addWidget( std::move( group ), currentRowIndex, 0, 1, 2 );
@@ -110,21 +115,21 @@ void caf::PdmWebFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingI
         else
         {
             PdmWebFieldEditorHandle* fieldEditor = nullptr;
-            FieldUiCapability*    field       = dynamic_cast<FieldUiCapability*>( currentItem );
+            FieldUiCapability*       field       = dynamic_cast<FieldUiCapability*>( currentItem );
 
-            if ( field ) fieldEditor = findOrCreateFieldEditor( field, uiConfigName );
+            if ( field ) fieldEditor = findOrCreateFieldEditor( field );
 
             if ( fieldEditor )
             {
                 auto fieldEditorWidget = fieldEditor->findOrCreateEditorWidget( existingWidgets );
                 if ( !fieldEditorWidget ) continue;
 
-                auto                        fieldLabelWidget = fieldEditor->findOrCreateLabelWidget( existingWidgets );
+                auto                     fieldLabelWidget = fieldEditor->findOrCreateLabelWidget( existingWidgets );
                 UiItemInfo::LabelPosType labelPos         = UiItemInfo::HIDDEN;
 
                 if ( fieldLabelWidget )
                 {
-                    labelPos = field->uiLabelPosition( uiConfigName );
+                    labelPos = field->uiLabelPosition();
 
                     CAF_ASSERT( labelPos == UiItemInfo::LEFT );
 
@@ -155,16 +160,15 @@ void caf::PdmWebFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingI
 ///
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<Wt::WPanel>
-    caf::PdmWebFormLayoutObjectEditor::recursivelyCreateGroup( std::list<std::unique_ptr<Wt::WWidget>>& existingWidgets,
-                                                               UiItem*                               currentItem,
-                                                               const QString&                           uiConfigName )
+    PdmWebFormLayoutObjectEditor::recursivelyCreateGroup( std::list<std::unique_ptr<Wt::WWidget>>& existingWidgets,
+                                                          UiItem*                                  currentItem )
 {
-    PdmUiGroup* group = static_cast<PdmUiGroup*>( currentItem );
+    UiGroup* group = static_cast<UiGroup*>( currentItem );
 
     std::unique_ptr<Wt::WPanel> groupBox;
     for ( std::unique_ptr<Wt::WWidget>& widgetPtr : existingWidgets )
     {
-        if ( dynamic_cast<Wt::WPanel*>( widgetPtr.get() ) && widgetPtr->objectName() == group->keyword().toStdString() )
+        if ( dynamic_cast<Wt::WPanel*>( widgetPtr.get() ) && widgetPtr->objectName() == group->keyword() )
         {
             groupBox = std::unique_ptr<Wt::WPanel>( static_cast<Wt::WPanel*>( widgetPtr.release() ) );
             return groupBox;
@@ -172,15 +176,15 @@ std::unique_ptr<Wt::WPanel>
     }
     if ( !groupBox )
     {
-        groupBox = createGroupBox( group, uiConfigName );
+        groupBox = createGroupBox( group );
     }
 
-    groupBox->setTitle( group->uiName( uiConfigName ).toStdString() );
+    groupBox->setTitle( group->uiName() );
     auto centralWidget = dynamic_cast<Wt::WContainerWidget*>( groupBox->centralWidget() );
     CAF_ASSERT( centralWidget );
     auto gridLayout = dynamic_cast<Wt::WGridLayout*>( centralWidget->layout() );
     CAF_ASSERT( gridLayout );
-    recursivelyConfigureAndUpdateUiOrderingInGridLayout( *group, gridLayout, uiConfigName );
+    recursivelyConfigureAndUpdateUiOrderingInGridLayout( *group, gridLayout );
 
     return groupBox;
 }
@@ -188,15 +192,14 @@ std::unique_ptr<Wt::WPanel>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<Wt::WPanel> caf::PdmWebFormLayoutObjectEditor::createGroupBox( PdmUiGroup*    group,
-                                                                               const QString& uiConfigName )
+std::unique_ptr<Wt::WPanel> PdmWebFormLayoutObjectEditor::createGroupBox( UiGroup* group )
 {
     auto groupBox = std::make_unique<Wt::WPanel>();
     groupBox->setMargin( 0 );
     groupBox->setCollapsible( true );
     groupBox->collapseIcon()->setFloatSide( Wt::Side::Right );
-    groupBox->setTitle( group->uiName( uiConfigName ).toStdString() );
-    groupBox->setObjectName( group->keyword().toStdString() );
+    groupBox->setTitle( group->uiName() );
+    groupBox->setObjectName( group->keyword() );
     auto centralWidget = groupBox->setCentralWidget( std::make_unique<Wt::WContainerWidget>() );
     centralWidget->setMargin( 0 );
     centralWidget->setPadding( 0 );
@@ -211,40 +214,38 @@ std::unique_ptr<Wt::WPanel> caf::PdmWebFormLayoutObjectEditor::createGroupBox( P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmWebFieldEditorHandle* caf::PdmWebFormLayoutObjectEditor::findOrCreateFieldEditor( FieldUiCapability* field,
-                                                                                          const QString& uiConfigName )
+PdmWebFieldEditorHandle* PdmWebFormLayoutObjectEditor::findOrCreateFieldEditor( FieldUiCapability* field )
 {
-    caf::PdmWebFieldEditorHandle* fieldEditor = nullptr;
+    PdmWebFieldEditorHandle* fieldEditor = nullptr;
 
     std::map<FieldHandle*, PdmWebFieldEditorHandle*>::iterator it = m_fieldViews.find( field->fieldHandle() );
 
     if ( it == m_fieldViews.end() )
     {
         // If editor type is specified, find in factory
-        if ( !field->uiEditorTypeName( uiConfigName ).isEmpty() )
+        if ( !field->uiEditorTypeName().empty() )
         {
-            fieldEditor = caf::Factory<PdmWebFieldEditorHandle, QString>::instance()->create(
-                field->uiEditorTypeName( uiConfigName ) );
+            fieldEditor = Factory<PdmWebFieldEditorHandle, std::string>::instance()->create( field->uiEditorTypeName() );
         }
         else
         {
             // Find the default field editor
-            QString fieldTypeName = qStringTypeName( *( field->fieldHandle() ) );
-            if ( field->toUiBasedQVariant().type() != QVariant::List )
+            std::string fieldTypeName = typeid( *( field->fieldHandle() ) ).name();
+            if ( !field->toUiBasedVariant().isVector() )
             {
                 // Handle a single value field with valueOptions: Make a combobox
 
-                bool                     useOptionsOnly = true;
-                QList<PdmOptionItemInfo> options        = field->valueOptions( &useOptionsOnly );
+                bool                          useOptionsOnly = true;
+                std::deque<OptionItemInfo> options        = field->valueOptions( &useOptionsOnly );
                 CAF_ASSERT( useOptionsOnly ); // Not supported
 
                 if ( !options.empty() )
                 {
-                    fieldTypeName = caf::PdmWebComboBoxEditor::uiEditorTypeName();
+                    fieldTypeName = PdmWebComboBoxEditor::uiEditorTypeName();
                 }
             }
 
-            fieldEditor = caf::Factory<PdmWebFieldEditorHandle, QString>::instance()->create( fieldTypeName );
+            fieldEditor = Factory<PdmWebFieldEditorHandle, std::string>::instance()->create( fieldTypeName );
         }
         CAF_ASSERT( fieldEditor );
         fieldEditor->setContainingEditor( this );
@@ -262,23 +263,27 @@ caf::PdmWebFieldEditorHandle* caf::PdmWebFormLayoutObjectEditor::findOrCreateFie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmWebFormLayoutObjectEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmWebFormLayoutObjectEditor::configureAndUpdateUi()
 {
-    caf::PdmUiOrdering config;
+    UiOrdering config;
     if ( pdmObject() )
     {
-        caf::ObjectUiCapability* uiObject = uiObj( pdmObject() );
+        ObjectUiCapability* uiObject = uiObj( pdmObject() );
         if ( uiObject )
         {
-            uiObject->uiOrdering( uiConfigName, config );
+            uiObject->uiOrdering( config );
         }
     }
-    recursivelyConfigureAndUpdateTopLevelUiOrdering( config, uiConfigName );
+    recursivelyConfigureAndUpdateTopLevelUiOrdering( config );
 
     // Notify pdm object when widgets have been created
-    caf::ObjectUiCapability* uiObject = uiObj( pdmObject() );
+    ObjectUiCapability* uiObject = uiObj( pdmObject() );
     if ( uiObject )
     {
         uiObject->onEditorWidgetsCreated();
     }
 }
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

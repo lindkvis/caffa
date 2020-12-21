@@ -1,53 +1,47 @@
 #include "cafObjectJsonCapability.h"
 
 #include "cafAssert.h"
-#include "cafPdmDefaultObjectFactory.h"
 #include "cafObjectHandle.h"
 #include "cafObjectIoCapability.h"
+#include "cafDefaultObjectFactory.h"
 
 #include "cafFieldHandle.h"
 
-#include <QByteArray>
-#include <QIODevice>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QVariant>
+#include <nlohmann/json.hpp>
 
 using namespace caf;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectJsonCapability::readObjectFromString( ObjectHandle*  object,
-                                                    const QString&    string,
-                                                    ObjectFactory* objectFactory )
+void ObjectJsonCapability::readObjectFromString( ObjectHandle* object, const std::string& string, ObjectFactory* objectFactory )
 {
-    QJsonDocument document = QJsonDocument::fromJson( string.toUtf8() );
-    readFields( object, document.object(), objectFactory, false );
+    nlohmann::json jsonValue = nlohmann::json::parse( string );
+    readFields( object, jsonValue, objectFactory, false );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString ObjectJsonCapability::writeObjectToString( const ObjectHandle* object )
+std::string ObjectJsonCapability::writeObjectToString( const ObjectHandle* object, bool writeServerAddress )
 {
-    QJsonObject jsonObject;
+    nlohmann::json jsonObject  = nlohmann::json::object();
     jsonObject["classKeyword"] = object->capability<ObjectIoCapability>()->classKeyword();
-    writeFields( object, jsonObject );
-    QJsonDocument document( jsonObject );
-    return QString( document.toJson() );
+
+    writeFields( object, jsonObject, writeServerAddress );
+
+    return jsonObject.dump();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle* ObjectJsonCapability::copyByJsonSerialization( const ObjectHandle* object,
-                                                                   ObjectFactory*      objectFactory )
+ObjectHandle* ObjectJsonCapability::copyByJsonSerialization( const ObjectHandle* object, ObjectFactory* objectFactory )
 {
     auto ioCapability = object->capability<ObjectIoCapability>();
     ioCapability->setupBeforeSaveRecursively();
 
-    QString string = writeObjectToString( object );
+    std::string string = writeObjectToString( object, false );
 
     ObjectHandle* objectCopy = readUnknownObjectFromString( string, objectFactory, true );
     if ( !objectCopy ) return nullptr;
@@ -61,20 +55,21 @@ ObjectHandle* ObjectJsonCapability::copyByJsonSerialization( const ObjectHandle*
 ///
 //--------------------------------------------------------------------------------------------------
 ObjectHandle* ObjectJsonCapability::copyAndCastByJsonSerialization( const ObjectHandle* object,
-                                                                          const QString&    destinationClassKeyword,
-                                                                          const QString&    sourceClassKeyword,
-                                                                          ObjectFactory* objectFactory )
+                                                                    const std::string&  destinationClassKeyword,
+                                                                    const std::string&  sourceClassKeyword,
+                                                                    ObjectFactory*      objectFactory )
 {
     auto ioCapability = object->capability<ObjectIoCapability>();
     ioCapability->setupBeforeSaveRecursively();
 
-    QString string = writeObjectToString( object );
+    std::string string = writeObjectToString( object, false );
 
     ObjectHandle* upgradedObject = objectFactory->create( destinationClassKeyword );
     if ( !upgradedObject ) return nullptr;
 
-    QJsonDocument document = QJsonDocument::fromJson( string.toUtf8() );
-    readFields( upgradedObject, document.object(), objectFactory, true );
+    nlohmann::json jsonObject = nlohmann::json::parse( string );
+
+    readFields( upgradedObject, jsonObject, objectFactory, true );
 
     upgradedObject->capability<ObjectIoCapability>()->initAfterReadRecursively();
 
@@ -84,18 +79,24 @@ ObjectHandle* ObjectJsonCapability::copyAndCastByJsonSerialization( const Object
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle* ObjectJsonCapability::readUnknownObjectFromString( const QString&    string,
-                                                                       ObjectFactory* objectFactory,
-                                                                       bool              isCopyOperation )
+ObjectHandle* ObjectJsonCapability::readUnknownObjectFromString( const std::string& string,
+                                                                 ObjectFactory*     objectFactory,
+                                                                 bool               isCopyOperation )
 {
-    QJsonDocument document   = QJsonDocument::fromJson( string.toUtf8() );
-    QJsonObject   jsonObject = document.object();
+    nlohmann::json jsonObject = nlohmann::json::parse( string );
+    const auto&    jsonClassKeyword  = jsonObject["classKeyword"];
+    
+    CAF_ASSERT( jsonClassKeyword.is_string() );
+    std::string classKeyword = jsonClassKeyword.get<std::string>();
+    
+    uint64_t serverAddress = 0u;
+    auto it = jsonObject.find( "serverAddress" );
+    if (it != jsonObject.end())
+    {
+        serverAddress = it->get<uint64_t>();
+    }
 
-    auto jsonValue = jsonObject["classKeyword"];
-    CAF_ASSERT( jsonValue.isString() );
-    QString classKeyword = jsonValue.toString();
-
-    ObjectHandle* newObject = objectFactory->create( classKeyword );
+    ObjectHandle* newObject = objectFactory->create( classKeyword, serverAddress );
 
     if ( !newObject ) return nullptr;
 
@@ -107,45 +108,44 @@ ObjectHandle* ObjectJsonCapability::readUnknownObjectFromString( const QString& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectJsonCapability::readFile( ObjectHandle* object, QIODevice* file )
+void ObjectJsonCapability::readFile( ObjectHandle* object, std::istream& file, ObjectFactory* objectFactory )
 {
     CAF_ASSERT( file );
 
-    QByteArray fullFile = file->readAll();
+    nlohmann::json document;
+    file >> document;
 
-    QJsonDocument document = QJsonDocument::fromJson( fullFile );
-    readFields( object, document.object(), PdmDefaultObjectFactory::instance(), false );
+    readFields( object, document, objectFactory ? objectFactory : DefaultObjectFactory::instance(), false );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectJsonCapability::writeFile( const ObjectHandle* object, QIODevice* file )
+void ObjectJsonCapability::writeFile( const ObjectHandle* object, std::ostream& file, bool writeServerAddress )
 {
-    QJsonDocument document;
-    QJsonObject   docObject;
+    nlohmann::json document;
+    writeFields( object, document, writeServerAddress );
 
-    writeFields( object, docObject );
-    document.setObject( docObject );
-    file->write( document.toJson() );
+    file << document;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectJsonCapability::readFields( ObjectHandle*   object,
-                                          const QJsonObject& jsonObject,
-                                          ObjectFactory*  objectFactory,
-                                          bool               isCopyOperation )
+void ObjectJsonCapability::readFields( ObjectHandle*         object,
+                                       const nlohmann::json& jsonObject,
+                                       ObjectFactory*        objectFactory,
+                                       bool                  isCopyOperation )
 {
-    auto classKeyword = jsonObject["classKeyword"];
-    CAF_ASSERT( classKeyword.toString() == object->capability<ObjectIoCapability>()->classKeyword() );
-    for ( auto it = jsonObject.begin(); it != jsonObject.end(); ++it )
+    CAF_ASSERT( jsonObject.is_object() );
+    const auto& classKeyword = jsonObject["classKeyword"];
+
+    CAF_ASSERT( classKeyword.is_string() &&
+                classKeyword.get<std::string>() == object->capability<ObjectIoCapability>()->classKeyword() );
+
+    for ( const auto& [key, value] : jsonObject.items() )
     {
-        QString fieldName  = it.key();
-        auto    fieldValue = it.value();
-
-        auto fieldHandle = object->findField( fieldName );
+        auto fieldHandle = object->findField( key );
         if ( fieldHandle && fieldHandle->capability<FieldIoCapability>() )
         {
             auto ioFieldHandle = fieldHandle->capability<FieldIoCapability>();
@@ -161,7 +161,7 @@ void ObjectJsonCapability::readFields( ObjectHandle*   object,
                 // readFieldData assumes that the xmlStream points to first token of field content.
                 // After reading, the xmlStream is supposed to point to the first token after the field content.
                 // (typically an "endElement")
-                ioFieldHandle->readFieldData( fieldValue, objectFactory );
+                ioFieldHandle->readFieldData( value, objectFactory );
             }
         }
     }
@@ -170,20 +170,28 @@ void ObjectJsonCapability::readFields( ObjectHandle*   object,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectJsonCapability::writeFields( const ObjectHandle* object, QJsonObject& jsonObject )
+void ObjectJsonCapability::writeFields( const ObjectHandle* object, nlohmann::json& jsonObject, bool writeServerAddress )
 {
     std::vector<FieldHandle*> fields;
     object->fields( fields );
+    std::string classKeyword = object->capability<ObjectIoCapability>()->classKeyword();
+    CAF_ASSERT( ObjectIoCapability::isValidElementName( classKeyword ) );
+    jsonObject["classKeyword"] = classKeyword;
+    if (writeServerAddress)
+    {
+        jsonObject["serverAddress"] = reinterpret_cast<uint64_t>( object );
+    }
+
     for ( size_t it = 0; it < fields.size(); ++it )
     {
         const FieldIoCapability* ioCapability = fields[it]->capability<FieldIoCapability>();
         if ( ioCapability && ioCapability->isIOWritable() )
         {
-            QString keyword = ioCapability->fieldHandle()->keyword();
+            std::string keyword = ioCapability->fieldHandle()->keyword();
             CAF_ASSERT( ObjectIoCapability::isValidElementName( keyword ) );
 
-            QJsonValue value;
-            ioCapability->writeFieldData( value );
+            nlohmann::json value;
+            ioCapability->writeFieldData( value, writeServerAddress );
             jsonObject[keyword] = value;
         }
     }

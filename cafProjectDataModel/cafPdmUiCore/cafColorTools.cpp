@@ -8,7 +8,7 @@ using namespace caf;
 //--------------------------------------------------------------------------------------------------
 /// Checks if W3 luminance is above halfway
 //--------------------------------------------------------------------------------------------------
-bool ColorTools::isColorBright( QColor color )
+bool ColorTools::isColorBright( Color color )
 {
     if ( luminance( color ) >= 0.5 )
     {
@@ -20,24 +20,24 @@ bool ColorTools::isColorBright( QColor color )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QColor ColorTools::blackOrWhiteContrastColor( QColor color )
+Color ColorTools::blackOrWhiteContrastColor( Color color )
 {
     if ( isColorBright( color ) )
     {
-        return QColor( Qt::black );
+        return Color( 0, 0, 0, 0 );
     }
-    return QColor( Qt::white );
+    return Color( 255, 255, 255, 255 );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// W3 relative luminance
 /// https://www.w3.org/TR/WCAG20-TECHS/G18.html
 //--------------------------------------------------------------------------------------------------
-float ColorTools::luminance( QColor color )
+float ColorTools::luminance( Color color )
 {
-    float redValue   = w3NonLinearColorValue( color.redF() );
-    float greenValue = w3NonLinearColorValue( color.greenF() );
-    float blueValue  = w3NonLinearColorValue( color.blueF() );
+    float redValue   = w3NonLinearColorValue( color.getf<Color::RED>() );
+    float greenValue = w3NonLinearColorValue( color.getf<Color::GREEN>() );
+    float blueValue  = w3NonLinearColorValue( color.getf<Color::BLUE>() );
 
     return 0.2126f * redValue + 0.7152f * greenValue + 0.0722f * blueValue;
 }

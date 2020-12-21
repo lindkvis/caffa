@@ -34,19 +34,23 @@
 //   for more details.
 //
 //##################################################################################################
-
 #include "cafPdmWebTreeViewEditor.h"
+
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
 
 #include "cafChildArrayField.h"
 #include "cafField.h"
 #include "cafObject.h"
+#include "cafPdmWebTreeViewWModel.h"
+#include "cafSelectionManager.h"
 #include "cafUiCommandSystemProxy.h"
-#include "cafUiDragDropInterface.h"
+//#include "cafUiDragDropInterface.h"
 #include "cafUiEditorHandle.h"
 #include "cafUiTreeOrdering.h"
 #include "cafUiTreeViewAttribute.h"
-#include "cafPdmWebTreeViewWModel.h"
-#include "cafSelectionManager.h"
 
 #include <Wt/WEvent.h>
 #include <Wt/WFitLayout.h>
@@ -104,7 +108,7 @@ Wt::WWidget* PdmWebTreeViewEditor::createWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmWebTreeViewEditor::configureAndUpdateUi()
 {
     PdmUiTreeViewEditorAttribute editorAttributes;
 
@@ -112,7 +116,7 @@ void PdmWebTreeViewEditor::configureAndUpdateUi( const QString& uiConfigName )
         ObjectUiCapability* uiObjectHandle = dynamic_cast<ObjectUiCapability*>( this->pdmItemRoot() );
         if ( uiObjectHandle )
         {
-            uiObjectHandle->objectEditorAttribute( uiConfigName, &editorAttributes );
+            uiObjectHandle->objectEditorAttribute( &editorAttributes );
         }
     }
     if ( editorAttributes.columnHeaders.empty() )
@@ -123,7 +127,6 @@ void PdmWebTreeViewEditor::configureAndUpdateUi( const QString& uiConfigName )
     {
         m_treeViewModel->setColumnHeaders( editorAttributes.columnHeaders );
     }
-    m_treeViewModel->setUiConfigName( uiConfigName );
     m_treeViewModel->setPdmItemRoot( this->pdmItemRoot() );
 
     if ( editorAttributes.currentObject )
@@ -225,7 +228,7 @@ void PdmWebTreeViewEditor::slotCustomMenuRequested( const Wt::WModelIndex& item,
         }
 
         m_popup = std::make_unique<WPopupMenuWrapper>();
-        caf::UiCommandSystemProxy::instance()->populateMenuWithDefaultCommands( "PdmUiTreeViewEditor", m_popup.get() );
+        caf::UiCommandSystemProxy::instance()->populateMenuWithDefaultCommands( m_popup.get() );
         m_popup->menu()->aboutToHide().connect( std::bind( &PdmWebTreeViewEditor::slotOnActionSelection, this ) );
 
         m_popup->refreshEnabledState();
@@ -318,7 +321,7 @@ void PdmWebTreeViewEditor::slotOnActionSelection()
     if ( m_popup->menu()->result() )
     {
         Wt::WString                    text   = m_popup->menu()->result()->text();
-        std::shared_ptr<ActionWrapper> action = m_popup->findAction( QString::fromStdString( text.narrow() ) );
+        std::shared_ptr<ActionWrapper> action = m_popup->findAction( text.narrow() );
     }
 }
 
@@ -355,10 +358,10 @@ Wt::WModelIndex PdmWebTreeViewEditor::findModelIndex( const UiItem* object ) con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewEditor::setDragDropInterface( PdmUiDragDropInterface* dragDropInterface )
+/* void PdmWebTreeViewEditor::setDragDropInterface( PdmUiDragDropInterface* dragDropInterface )
 {
     m_treeViewModel->setDragDropInterface( dragDropInterface );
-}
+} */
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -366,20 +369,6 @@ void PdmWebTreeViewEditor::setDragDropInterface( PdmUiDragDropInterface* dragDro
 Wt::Signal<>& PdmWebTreeViewEditor::selectionChanged()
 {
     return m_selectionChanged;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool PdmWebTreeViewEditor::eventFilter( QObject* obj, QEvent* event )
-{
-    if ( event->type() == QEvent::FocusIn )
-    {
-        this->updateSelectionManager();
-    }
-
-    // standard event processing
-    return QObject::eventFilter( obj, event );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -412,3 +401,7 @@ bool PdmWebTreeViewEditor::isAppendOfClassNameToUiItemTextEnabled()
 }
 
 } // end namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

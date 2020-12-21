@@ -1,16 +1,16 @@
 #pragma once
 
-#include "cafInternalIoFieldReaderWriter.h"
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafFieldIoCapability.h"
+#include "cafInternalIoFieldReaderWriter.h"
 #include "cafPtrArrayField.h"
 #include "cafPtrField.h"
 
-#include <typeinfo>
+#include <nlohmann/json.hpp>
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
+#include <string>
+#include <typeinfo>
 
 namespace caf
 {
@@ -32,17 +32,13 @@ public:
         : FieldIoCapability( field, giveOwnership )
     {
         m_field        = field;
-        m_dataTypeName = QString( "%1" ).arg( typeid( typename FieldType::FieldDataType ).name() );
+        m_dataTypeName = typeid( typename FieldType::FieldDataType ).name();
     }
 
 public:
-    // Xml Serializing
-    void readFieldData( QXmlStreamReader& xmlStream, ObjectFactory* objectFactory ) override;
-    void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
-
     // Json Serializing
-    void readFieldData( const QJsonValue& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( QJsonValue& jsonValue ) const override;
+    void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
+    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress ) const override;
 
     bool resolveReferences() override;
     bool isVectorField() const override;
@@ -69,25 +65,20 @@ public:
         m_referenceString = "";
     }
 
-    // Xml Serializing
 public:
-    // Xml Serializing
-    void readFieldData( QXmlStreamReader& xmlStream, ObjectFactory* objectFactory ) override;
-    void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
-
     // Json Serializing
-    void readFieldData( const QJsonValue& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( QJsonValue& jsonValue ) const override;
+    void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
+    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress ) const override;
 
-    bool    resolveReferences() override;
-    QString referenceString() const override;
+    bool        resolveReferences() override;
+    std::string referenceString() const override;
 
 private:
     FieldType* m_field;
 
     // Resolving
-    QString m_referenceString;
-    bool    m_isResolved;
+    std::string m_referenceString;
+    bool        m_isResolved;
 };
 
 template <typename DataType>
@@ -109,24 +100,20 @@ public:
     }
 
 public:
-    // Xml Serializing
-    void readFieldData( QXmlStreamReader& xmlStream, ObjectFactory* objectFactory ) override;
-    void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
-
     // Json Serializing
-    void readFieldData( const QJsonValue& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( QJsonValue& jsonValue ) const override;
+    void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
+    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress ) const override;
 
-    bool    resolveReferences() override;
-    QString referenceString() const override;
-    bool    isVectorField() const override;
+    bool        resolveReferences() override;
+    std::string referenceString() const override;
+    bool        isVectorField() const override;
 
 private:
     FieldType* m_field;
 
     // Resolving
-    QString m_referenceString;
-    bool    m_isResolved;
+    std::string m_referenceString;
+    bool        m_isResolved;
 };
 
 template <typename DataType>
@@ -146,13 +133,9 @@ public:
     }
 
 public:
-    // Xml Serializing
-    void readFieldData( QXmlStreamReader& xmlStream, ObjectFactory* objectFactory ) override;
-    void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
-
     // Json Serializing
-    void readFieldData( const QJsonValue& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( QJsonValue& jsonValue ) const override;
+    void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
+    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress ) const override;
 
     bool resolveReferences() override;
 
@@ -177,13 +160,9 @@ public:
     }
 
 public:
-    // Xml Serializing
-    void readFieldData( QXmlStreamReader& xmlStream, ObjectFactory* objectFactory ) override;
-    void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
-
     // Json Serializing
-    void readFieldData( const QJsonValue& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( QJsonValue& jsonValue ) const override;
+    void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
+    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress ) const override;
 
     bool resolveReferences() override;
     bool isVectorField() const override;
@@ -206,17 +185,13 @@ public:
     {
         m_field = field;
 
-        m_dataTypeName = QString( "%1" ).arg( typeid( DataType ).name() );
+        m_dataTypeName = typeid( DataType ).name();
     }
 
 public:
-    // Xml Serializing
-    void readFieldData( QXmlStreamReader& xmlStream, ObjectFactory* objectFactory ) override;
-    void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
-
     // Json Serializing
-    void readFieldData( const QJsonValue& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( QJsonValue& jsonValue ) const override;
+    void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
+    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress ) const override;
 
     bool resolveReferences() override;
     bool isVectorField() const override;
@@ -235,7 +210,7 @@ void AddIoCapabilityToField( FieldType* field )
 }
 
 template <typename FieldType>
-void RegisterClassWithField( const QString& classKeyword, FieldType* field )
+void RegisterClassWithField( const std::string& classKeyword, FieldType* field )
 {
     field->setOwnerClass( classKeyword );
 }

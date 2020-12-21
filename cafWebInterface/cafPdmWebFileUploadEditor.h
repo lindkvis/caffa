@@ -34,11 +34,15 @@
 //   for more details.
 //
 //##################################################################################################
-
 #pragma once
 
-#include "cafUiFilePathEditorAttribute.h"
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
+
 #include "cafPdmWebFieldEditorHandle.h"
+#include "cafUiFilePathEditorAttribute.h"
 
 #include <Wt/Core/observing_ptr.hpp>
 #include <Wt/WAnchor.h>
@@ -46,33 +50,33 @@
 #include <Wt/WLabel.h>
 #include <Wt/WPushButton.h>
 
-#include <QDir>
+#include <filesystem>
 
-namespace caf 
+namespace caf
 {
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class PdmWebFileUploadEditor : public PdmWebFieldEditorHandle
 {
     CAF_PDM_WEB_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmWebFileUploadEditor()          {} 
-    ~PdmWebFileUploadEditor() override {} 
+    PdmWebFileUploadEditor() {}
+    ~PdmWebFileUploadEditor() override {}
 
 protected:
-    Wt::WWidget*    createEditorWidget() override;
-    Wt::WLabel* createLabelWidget() override;
-    void            configureAndUpdateUi(const QString& uiConfigName) override;
+    Wt::WWidget* createEditorWidget() override;
+    Wt::WLabel*  createLabelWidget() override;
+    void         configureAndUpdateUi() override;
 
-    void        slotFileSelectionOpen();
-    void        slotFileSelectionFinished();
-    void        slotFileUploaded();
-    void        slotFileTooLargeError();
+    void slotFileSelectionOpen();
+    void slotFileSelectionFinished();
+    void slotFileUploaded();
+    void slotFileTooLargeError();
 
-    static QDir uploadDir();
+    static std::filesystem::path uploadDir();
+
 private:
     Wt::Core::observing_ptr<Wt::WLabel>      m_label;
     Wt::Core::observing_ptr<Wt::WAnchor>     m_fileLink;
@@ -82,5 +86,8 @@ private:
     PdmUiFilePathEditorAttribute m_attributes;
 };
 
-
 } // end namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

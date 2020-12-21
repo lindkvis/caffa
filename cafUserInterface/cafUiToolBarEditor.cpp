@@ -104,7 +104,7 @@ bool PdmUiToolBarEditor::isEditorDataValid( const std::vector<caf::FieldHandle*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiToolBarEditor::configureAndUpdateUi()
 {
     {
         // Find set of owner objects. Can be several objects, make a set to avoid calling uiOrdering more than once for
@@ -121,10 +121,10 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
             }
         }
 
-        PdmUiOrdering config;
+        UiOrdering config;
         for ( caf::ObjectUiCapability* ownerUiObject : ownerUiObjects )
         {
-            ownerUiObject->uiOrdering( uiConfigName, config );
+            ownerUiObject->uiOrdering( config );
         }
     }
 
@@ -133,7 +133,7 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
         UiFieldEditorHandle* fieldEditor = nullptr;
 
         // Find or create FieldEditor
-        std::map<QString, UiFieldEditorHandle*>::iterator it;
+        std::map<std::string, UiFieldEditorHandle*>::iterator it;
         it = m_fieldViews.find( field->keyword() );
         if ( it == m_fieldViews.end() )
         {
@@ -142,17 +142,16 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
             bool addSpace = false;
             if ( uiFieldHandle )
             {
-                if ( uiFieldHandle->uiValue().type() == QVariant::Bool )
+                if ( uiFieldHandle->uiValue().canConvert<bool>() )
                 {
-                    QString editorTypeName = caf::PdmUiToolButtonEditor::uiEditorTypeName();
+                    auto editorTypeName = caf::PdmUiToolButtonEditor::uiEditorTypeName();
 
-                    fieldEditor = caf::Factory<UiFieldEditorHandle, QString>::instance()->create( editorTypeName );
+                    fieldEditor = caf::Factory<UiFieldEditorHandle, std::string>::instance()->create( editorTypeName );
                 }
                 else
                 {
                     fieldEditor =
-                        caf::UiFieldEditorHelper::createFieldEditorForField( field->capability<FieldUiCapability>(),
-                                                                                uiConfigName );
+                        caf::UiFieldEditorHelper::createFieldEditorForField( field->capability<FieldUiCapability>() );
 
                     addSpace = true;
                 }
@@ -172,14 +171,14 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
                     m_toolbar->addWidget( widget );
                 }
 
-                fieldEditor->updateUi( uiConfigName );
+                fieldEditor->updateUi();
             }
         }
         else
         {
             if ( it->second )
             {
-                it->second->updateUi( uiConfigName );
+                it->second->updateUi();
             }
         }
     }
@@ -199,11 +198,11 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
         caf::FieldUiCapability* uiFieldHandle = field->capability<FieldUiCapability>();
         if ( uiFieldHandle )
         {
-            action->setEnabled( !uiFieldHandle->isUiReadOnly( uiConfigName ) );
+            action->setEnabled( !uiFieldHandle->isUiReadOnly() );
         }
 
         // TODO: Show/hide of tool bar items can be done by
-        // action->setVisible(!field->isUiHidden(uiConfigName));
+        // action->setVisible(!field->isUiHidden());
     }
 }
 
@@ -265,7 +264,7 @@ void PdmUiToolBarEditor::clear()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiToolBarEditor::setFocusWidgetFromKeyword( const QString& fieldKeyword )
+void PdmUiToolBarEditor::setFocusWidgetFromKeyword( const std::string& fieldKeyword )
 {
     if ( !m_toolbar->isVisible() ) return;
 
@@ -287,7 +286,7 @@ void PdmUiToolBarEditor::setFocusWidgetFromKeyword( const QString& fieldKeyword 
                     caf::ObjectUiCapability* uiObject = uiObj( field->ownerObject() );
                     if ( uiObject )
                     {
-                        uiObject->editorAttribute( field, uiEditorConfigName(), &attributes );
+                        uiObject->editorAttribute( field, &attributes );
                     }
                 }
             }
@@ -327,19 +326,11 @@ void PdmUiToolBarEditor::hide()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Special config name used to configure toolbar UI (tooltip etc.)
-//--------------------------------------------------------------------------------------------------
-QString PdmUiToolBarEditor::uiEditorConfigName()
-{
-    return "ToolbarConfigName";
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmUiToolBarEditor::keywordForFocusWidget()
+std::string PdmUiToolBarEditor::keywordForFocusWidget()
 {
-    QString keyword;
+    std::string keyword;
 
     if ( m_toolbar->isVisible() )
     {

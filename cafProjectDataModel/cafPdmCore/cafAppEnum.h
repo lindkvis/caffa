@@ -36,9 +36,9 @@
 
 #pragma once
 
-#include <QString>
-#include <QStringList>
-#include <QTextStream>
+#include <iostream>
+#include <list>
+#include <string>
 #include <vector>
 
 namespace caf
@@ -87,10 +87,10 @@ namespace caf
 ///
 ///
 ///   Create a list of OptionItemInfos from AppEnum
-///     QList<caf::PdmOptionItemInfo> options;
+///     QList<caf::OptionItemInfo> options;
 ///     for (size_t i = 0; i < caf::AppEnum<TestEnumType>::size(); ++i)
 ///     {
-///         options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<TestEnumType>::uiTextFromIndex(i),
+///         options.push_back(caf::OptionItemInfo(caf::AppEnum<TestEnumType>::uiTextFromIndex(i),
 ///         caf::AppEnum<TestEnumType>::fromIndex(i)));
 ///     }
 //==================================================================================================
@@ -108,45 +108,43 @@ public:
     bool operator==( T value ) const { return m_value == value; }
     bool operator!=( T value ) const { return m_value != value; }
 
-    operator T() const { return m_value; }
-
-    T       value() const { return m_value; }
-    size_t  index() const { return EnumMapper::instance()->index( m_value ); }
-    QString text() const { return EnumMapper::instance()->text( m_value ); }
-    QString uiText() const { return EnumMapper::instance()->uiText( m_value ); }
+    T           value() const { return m_value; }
+    size_t      index() const { return EnumMapper::instance()->index( m_value ); }
+    std::string text() const { return EnumMapper::instance()->text( m_value ); }
+    std::string uiText() const { return EnumMapper::instance()->uiText( m_value ); }
 
     AppEnum& operator=( T value )
     {
         m_value = value;
         return *this;
     }
-    bool setFromText( const QString& text ) { return EnumMapper::instance()->enumVal( m_value, text ); }
+    bool setFromText( const std::string& text ) { return EnumMapper::instance()->enumVal( m_value, text ); }
     bool setFromIndex( size_t index ) { return EnumMapper::instance()->enumVal( m_value, index ); }
 
     // Static interface to access the properties of the enum definition
 
-    static bool   isValid( const QString& text ) { return EnumMapper::instance()->isValid( text ); }
+    static bool   isValid( const std::string& text ) { return EnumMapper::instance()->isValid( text ); }
     static bool   isValid( size_t index ) { return index < EnumMapper::instance()->size(); }
     static size_t size() { return EnumMapper::instance()->size(); }
 
-    static QStringList uiTexts() { return EnumMapper::instance()->uiTexts(); }
-    static T           fromIndex( size_t idx )
+    static std::list<std::string> uiTexts() { return EnumMapper::instance()->uiTexts(); }
+    static AppEnum<T> fromIndex( size_t idx )
     {
         T val;
         EnumMapper::instance()->enumVal( val, idx );
-        return val;
+        return AppEnum<T>(val);
     }
-    static T fromText( const QString& text )
+    static AppEnum<T> fromText( const std::string& text )
     {
         T val;
         EnumMapper::instance()->enumVal( val, text );
-        return val;
+        return AppEnum<T>( val );
     }
-    static size_t  index( T enumValue ) { return EnumMapper::instance()->index( enumValue ); }
-    static QString text( T enumValue ) { return EnumMapper::instance()->text( enumValue ); }
-    static QString textFromIndex( size_t idx ) { return text( fromIndex( idx ) ); }
-    static QString uiText( T enumValue ) { return EnumMapper::instance()->uiText( enumValue ); }
-    static QString uiTextFromIndex( size_t idx ) { return uiText( fromIndex( idx ) ); }
+    static size_t      index( T enumValue ) { return EnumMapper::instance()->index( enumValue ); }
+    static std::string text( T enumValue ) { return EnumMapper::instance()->text( enumValue ); }
+    static std::string textFromIndex( size_t idx ) { return text( fromIndex( idx ).value() ); }
+    static std::string uiText( T enumValue ) { return EnumMapper::instance()->uiText( enumValue ); }
+    static std::string uiTextFromIndex( size_t idx ) { return uiText( fromIndex( idx ).value() ); }
 
 private:
     //==================================================================================================
@@ -155,7 +153,7 @@ private:
     /// method. It may also set a default value using \m setDefault
     //==================================================================================================
     static void setUp();
-    static void addItem( T enumVal, const QString& text, const QString& uiText )
+    static void addItem( T enumVal, const std::string& text, const std::string& uiText )
     {
         EnumMapper::instance()->addItem( enumVal, text, uiText );
     }
@@ -176,20 +174,20 @@ private:
     private:
         struct Triplet
         {
-            Triplet( T enumVal, const QString& text, QString uiText )
+            Triplet( T enumVal, const std::string& text, std::string uiText )
                 : m_enumVal( enumVal )
                 , m_text( text )
                 , m_uiText( uiText )
             {
             }
 
-            T       m_enumVal;
-            QString m_text;
-            QString m_uiText;
+            T           m_enumVal;
+            std::string m_text;
+            std::string m_uiText;
         };
 
     public:
-        void addItem( T enumVal, const QString& text, QString uiText )
+        void addItem( T enumVal, const std::string& text, std::string uiText )
         {
             instance()->m_mapping.push_back( Triplet( enumVal, text, uiText ) );
         }
@@ -225,7 +223,7 @@ private:
             }
         }
 
-        bool isValid( const QString& text ) const
+        bool isValid( const std::string& text ) const
         {
             size_t idx;
             for ( idx = 0; idx < m_mapping.size(); ++idx )
@@ -238,7 +236,7 @@ private:
 
         size_t size() const { return m_mapping.size(); }
 
-        bool enumVal( T& value, const QString& text ) const
+        bool enumVal( T& value, const std::string& text ) const
         {
             value = defaultValue();
             size_t idx;
@@ -276,7 +274,7 @@ private:
             return idx;
         }
 
-        QString uiText( T value ) const
+        std::string uiText( T value ) const
         {
             size_t idx;
             for ( idx = 0; idx < m_mapping.size(); ++idx )
@@ -286,18 +284,18 @@ private:
             return "";
         }
 
-        QStringList uiTexts() const
+        std::list<std::string> uiTexts() const
         {
-            QStringList uiTextList;
-            size_t      idx;
+            std::list<std::string> uiTextList;
+            size_t                 idx;
             for ( idx = 0; idx < m_mapping.size(); ++idx )
             {
-                uiTextList.append( m_mapping[idx].m_uiText );
+                uiTextList.push_back( m_mapping[idx].m_uiText );
             }
             return uiTextList;
         }
 
-        QString text( T value ) const
+        std::string text( T value ) const
         {
             size_t idx;
             for ( idx = 0; idx < m_mapping.size(); ++idx )
@@ -345,9 +343,9 @@ bool operator!=( T value, const caf::AppEnum<T>& appEnum )
 //==================================================================================================
 
 template <typename T>
-QTextStream& operator>>( QTextStream& str, caf::AppEnum<T>& appEnum )
+std::istream& operator>>( std::istream& str, caf::AppEnum<T>& appEnum )
 {
-    QString text;
+    std::string text;
     str >> text;
     appEnum.setFromText( text );
 
@@ -355,9 +353,9 @@ QTextStream& operator>>( QTextStream& str, caf::AppEnum<T>& appEnum )
 }
 
 template <typename T>
-QTextStream& operator<<( QTextStream& str, const caf::AppEnum<T>& appEnum )
+std::ostream& operator<<( std::ostream& str, const caf::AppEnum<T>& appEnum )
 {
-    str << appEnum.text();
-
+    std::string text = appEnum.text();
+    str << text;
     return str;
 }

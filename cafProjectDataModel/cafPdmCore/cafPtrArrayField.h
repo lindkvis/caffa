@@ -91,7 +91,7 @@ private:
     friend class FieldIoCap<PtrArrayField<DataType*>>;
 
     std::vector<PdmPointer<DataType>> m_pointers;
-    QString                           m_referenceString;
+    std::string                       m_referenceString;
     bool                              m_isResolved;
 };
 

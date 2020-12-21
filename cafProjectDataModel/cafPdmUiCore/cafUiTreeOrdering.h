@@ -38,10 +38,9 @@
 
 #include "cafPdmPointer.h"
 
-#include <QList>
-#include <QString>
-
-#include <vector>
+#include <deque>
+#include <memory>
+#include <string>
 
 namespace caf
 {
@@ -61,16 +60,16 @@ class PdmUiTreeOrdering
 public:
     explicit PdmUiTreeOrdering( ObjectHandle* pdmItem );
     explicit PdmUiTreeOrdering( FieldHandle* pdmField );
-    PdmUiTreeOrdering( const QString& title, const QString& iconResourceName );
+    PdmUiTreeOrdering( const std::string& title, const std::string& iconResourceName );
 
     ~PdmUiTreeOrdering();
 
     PdmUiTreeOrdering( const PdmUiTreeOrdering& ) = delete;
     PdmUiTreeOrdering& operator=( const PdmUiTreeOrdering& ) = delete;
 
-    void               add( FieldHandle* field, QString uiConfigName = "" );
+    void               add( FieldHandle* field );
     void               add( ObjectHandle* object );
-    PdmUiTreeOrdering* add( const QString& title, const QString& iconResourceName );
+    PdmUiTreeOrdering* add( const std::string& title, const std::string& iconResourceName );
 
     /// If the rest of the fields containing children is supposed to be omitted, set skipRemainingFields to true.
     void skipRemainingChildren( bool doSkip = true ) { m_forgetRemainingFields = doSkip; }
@@ -91,9 +90,9 @@ public:
 
     // Tree structure traversal access
     PdmUiTreeOrdering* child( int index ) const;
-    int                childCount() const;
+    size_t             childCount() const;
     PdmUiTreeOrdering* parent() const;
-    int                indexInParent() const;
+    size_t             indexInParent() const;
 
     // Debug helper
     void debugDump( int level ) const;
@@ -110,10 +109,10 @@ private:
     friend class PdmUiTreeViewQModel;
     friend class PdmWebTreeViewWModel;
     UiEditorHandle* editor();
-    void               setEditor( UiEditorHandle* editor );
-    void               insertChild( int position, PdmUiTreeOrdering* child );
-    bool               removeChildren( int position, int count );
-    bool               removeChildrenNoDelete( int position, int count );
+    void            setEditor( std::unique_ptr<UiEditorHandle> editor );
+    void            insertChild( int position, PdmUiTreeOrdering* child );
+    bool            removeChildren( int position, int count );
+    bool            removeChildrenNoDelete( int position, int count );
 
 private:
     PdmUiTreeOrdering( PdmUiTreeOrdering* parent, ObjectHandle* pdmItem );
@@ -121,19 +120,19 @@ private:
 
     // Item that we represent
     PdmPointer<ObjectHandle> m_object; // We keep both pointer to object and pointer to field when representing a field
-    FieldHandle* m_field; // because m_object is guarded while FieldHandle::ownerObject() is not guarded
-    UiItem*      m_uiItem;
+    FieldHandle*             m_field; // because m_object is guarded while FieldHandle::ownerObject() is not guarded
+    std::unique_ptr<UiItem>  m_uiItem;
 
     // Tree generation control
     bool m_forgetRemainingFields;
     bool m_isToIgnoreSubTree;
 
     // Editor propagating changes from PdmItem to TreeViewEditor
-    UiEditorHandle* m_treeItemEditor;
+    std::unique_ptr<UiEditorHandle> m_treeItemEditor;
 
     // Tree data
-    QList<PdmUiTreeOrdering*> m_childItems;
-    PdmUiTreeOrdering*        m_parentItem;
+    std::deque<PdmUiTreeOrdering*> m_childItems;
+    PdmUiTreeOrdering*             m_parentItem;
 };
 
 } // End of namespace caf

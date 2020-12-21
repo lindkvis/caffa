@@ -36,7 +36,6 @@
 
 #include "cafUiDefaultObjectEditor.h"
 
-#include "cafFilePath.h"
 #include "cafField.h"
 #include "cafProxyValueField.h"
 #include "cafUiCheckBoxEditor.h"
@@ -48,26 +47,24 @@
 #include "cafUiTimeEditor.h"
 
 #include <QGridLayout>
+#include <filesystem>
 
 namespace caf
 {
 // Register default field editor for selected types
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiCheckBoxEditor, bool );
 
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, QString );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiDateEditor, QDate );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiDateEditor, QDateTime );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiTimeEditor, QTime );
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, std::string );
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiDateEditor, std::time_t );
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, int );
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, double );
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, float );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, quint64 );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<QString> );
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, uint64_t );
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<std::string> );
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<int> );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<unsigned int> );
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<float> );
 
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiFilePathEditor, FilePath );
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiFilePathEditor, std::filesystem::path );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -96,12 +93,11 @@ QWidget* PdmUiDefaultObjectEditor::createWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering( const PdmUiOrdering& topLevelUiOrdering,
-                                                                                const QString&       uiConfigName )
+void PdmUiDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering( const UiOrdering& topLevelUiOrdering )
 {
     CAF_ASSERT( this->widget() );
 
-    recursivelyConfigureAndUpdateUiOrderingInNewGridLayout( topLevelUiOrdering, this->widget(), uiConfigName );
+    recursivelyConfigureAndUpdateUiOrderingInNewGridLayout( topLevelUiOrdering, this->widget() );
 }
 
 } // end namespace caf

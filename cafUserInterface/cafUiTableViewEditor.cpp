@@ -38,11 +38,11 @@
 #include "cafChildArrayField.h"
 #include "cafField.h"
 #include "cafObject.h"
+#include "cafSelectionManager.h"
 #include "cafUiCheckBoxDelegate.h"
 #include "cafUiEditorHandle.h"
 #include "cafUiTableViewDelegate.h"
 #include "cafUiTableViewQModel.h"
-#include "cafSelectionManager.h"
 
 #include <QApplication>
 #include <QEvent>
@@ -140,7 +140,7 @@ QWidget* PdmUiTableViewEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiTableViewEditor::configureAndUpdateUi()
 {
     if ( !m_tableModelPdm ) return;
 
@@ -151,9 +151,7 @@ void PdmUiTableViewEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     if ( childArrayFH && childArrayFH->ownerObject() && childArrayFH->ownerObject()->capability<FieldUiCapability>() )
     {
-        childArrayFH->ownerObject()->capability<ObjectUiCapability>()->editorAttribute( childArrayFH,
-                                                                                           uiConfigName,
-                                                                                           &editorAttrib );
+        childArrayFH->ownerObject()->capability<ObjectUiCapability>()->editorAttribute( childArrayFH, &editorAttrib );
         editorAttribLoaded = true;
 
         this->setTableSelectionLevel( editorAttrib.tableSelectionLevel );
@@ -165,7 +163,7 @@ void PdmUiTableViewEditor::configureAndUpdateUi( const QString& uiConfigName )
         m_tableView->setPalette( myPalette );
     }
 
-    m_tableModelPdm->setArrayFieldAndBuildEditors( childArrayFH, uiConfigName );
+    m_tableModelPdm->setArrayFieldAndBuildEditors( childArrayFH );
 
     if ( m_tableModelPdm->rowCount() > 0 )
     {
@@ -184,17 +182,18 @@ void PdmUiTableViewEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     if ( childArrayFH && childArrayFH->capability<FieldUiCapability>() )
     {
-        QString text = "";
-        auto    icon = childArrayFH->capability<FieldUiCapability>()->uiIcon( uiConfigName );
-        if ( icon )
+        QString text         = "";
+        auto    iconProvider = childArrayFH->capability<FieldUiCapability>()->uiIconProvider();
+        QIcon   icon( QString::fromStdString( iconProvider->iconResourceString() ) );
+        if ( !icon.isNull() )
         {
-            m_tableHeadingIcon->setPixmap( icon->pixmap( 16, 16 ) );
-            m_tableHeading->setText( childArrayFH->capability<FieldUiCapability>()->uiName( uiConfigName ) +
+            m_tableHeadingIcon->setPixmap( icon.pixmap( 16, 16 ) );
+            m_tableHeading->setText( QString::fromStdString( childArrayFH->capability<FieldUiCapability>()->uiName() ) +
                                      QString( " (%1)" ).arg( childArrayFH->size() ) );
         }
         else
         {
-            m_tableHeadingIcon->setText( childArrayFH->capability<FieldUiCapability>()->uiName( uiConfigName ) +
+            m_tableHeadingIcon->setText( QString::fromStdString( childArrayFH->capability<FieldUiCapability>()->uiName() ) +
                                          QString( " (%1)" ).arg( childArrayFH->size() ) );
             m_tableHeading->setText( "" );
         }
@@ -315,7 +314,7 @@ void PdmUiTableViewEditor::onSelectionManagerSelectionChanged( const std::set<in
         QItemSelection totalSelection;
         for ( auto item : items )
         {
-            Object*     pdmObj        = dynamic_cast<Object*>( item );
+            Object*        pdmObj        = dynamic_cast<Object*>( item );
             QItemSelection itemSelection = m_tableModelPdm->modelIndexFromObject( pdmObj );
             totalSelection.merge( itemSelection, QItemSelectionModel::Select );
         }
@@ -377,7 +376,7 @@ void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
     if ( isSelectionRoleDefined() )
     {
         std::set<UiItem*> selectedRowObjects;
-        QModelIndexList      modelIndexList = m_tableView->selectionModel()->selectedIndexes();
+        QModelIndexList   modelIndexList = m_tableView->selectionModel()->selectedIndexes();
         for ( const QModelIndex& mi : modelIndexList )
         {
             ObjectHandle* obj = m_tableModelPdm->pdmObjectForRow( mi.row() );
@@ -437,8 +436,8 @@ caf::ChildArrayFieldHandle* PdmUiTableViewEditor::childArrayFieldHandle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewPushButtonEditorAttribute::registerPushButtonTextForFieldKeyword( const QString& keyword,
-                                                                                     const QString& text )
+void PdmUiTableViewPushButtonEditorAttribute::registerPushButtonTextForFieldKeyword( const std::string& keyword,
+                                                                                     const std::string& text )
 {
     m_fieldKeywordAndPushButtonText[keyword] = text;
 }
@@ -446,7 +445,7 @@ void PdmUiTableViewPushButtonEditorAttribute::registerPushButtonTextForFieldKeyw
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTableViewPushButtonEditorAttribute::showPushButtonForFieldKeyword( const QString& keyword ) const
+bool PdmUiTableViewPushButtonEditorAttribute::showPushButtonForFieldKeyword( const std::string& keyword ) const
 {
     if ( m_fieldKeywordAndPushButtonText.count( keyword ) > 0 ) return true;
 
@@ -456,7 +455,7 @@ bool PdmUiTableViewPushButtonEditorAttribute::showPushButtonForFieldKeyword( con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmUiTableViewPushButtonEditorAttribute::pushButtonText( const QString& keyword ) const
+std::string PdmUiTableViewPushButtonEditorAttribute::pushButtonText( const std::string& keyword ) const
 {
     if ( showPushButtonForFieldKeyword( keyword ) )
     {

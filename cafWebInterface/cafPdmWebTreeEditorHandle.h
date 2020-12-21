@@ -36,50 +36,53 @@
 //##################################################################################################
 #pragma once
 
-#include "cafUiEditorHandle.h"
-#include "cafPdmPointer.h"
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
 
-#include <QString>
+#include "cafPdmPointer.h"
+#include "cafUiEditorHandle.h"
 
 #include <Wt/Core/observing_ptr.hpp>
 #include <Wt/WContainerWidget.h>
 
 #include <vector>
 
-namespace caf 
+namespace caf
 {
-
 class ObjectHandle;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 
-class PdmWebTreeEditorHandle: public UiEditorHandle
+class PdmWebTreeEditorHandle : public UiEditorHandle
 {
 public:
     PdmWebTreeEditorHandle() {}
     ~PdmWebTreeEditorHandle() override {}
-   
+
     Wt::WWidget* getOrCreateWidget();
     Wt::WWidget* widget();
 
-    void                setPdmItemRoot(UiItem* root);
-    UiItem*          pdmItemRoot();
-    void                updateSubTree(UiItem* root) { this->updateMySubTree(root); }
+    void    setPdmItemRoot( UiItem* root );
+    UiItem* pdmItemRoot();
+    void    updateSubTree( UiItem* root ) { this->updateMySubTree( root ); }
 
 protected:
     virtual Wt::WWidget* createWidget() = 0;
 
     /// Supposed to update the representation of the tree from root and downwards, as gracefully as possible.
     /// Will be called when the content of root might have been changed
-    virtual void        updateMySubTree(UiItem* root) = 0;
+    virtual void updateMySubTree( UiItem* root ) = 0;
 
 protected:
     Wt::Core::observing_ptr<Wt::WWidget> m_widget;
 };
 
-
-
 } // End of namespace caf
 
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

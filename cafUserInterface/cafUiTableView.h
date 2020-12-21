@@ -35,7 +35,6 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafUiFieldEditorHandle.h"
 
 #include <QModelIndex>
@@ -54,7 +53,7 @@ class ChildArrayFieldHandle;
 //==================================================================================================
 ///
 //==================================================================================================
-class cafUserInterface_EXPORT PdmUiTableView : public QWidget
+class PdmUiTableView : public QWidget
 {
     Q_OBJECT
 public:
@@ -62,7 +61,6 @@ public:
     ~PdmUiTableView() override;
 
     void setChildArrayField( ChildArrayFieldHandle* childArrayField );
-    void setUiConfigurationName( QString uiConfigName );
     void enableHeaderText( bool enable );
     void setTableSelectionLevel( int selectionLevel );
     void setRowSelectionLevel( int selectionLevel );
@@ -75,7 +73,7 @@ public:
 
 private:
     PdmUiTableViewEditor* m_listViewEditor;
-    QString               m_uiConfigName;
+    QString               m_;
 };
 
 } // End of namespace caf

@@ -11,11 +11,11 @@
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
+#include "cafPdmReferenceHelper.h"
 #include "cafProxyValueField.h"
 #include "cafPtrField.h"
-#include "cafPdmReferenceHelper.h"
 
-#include <QXmlStreamWriter>
+#include <filesystem>
 
 class DemoObject : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
@@ -62,7 +62,7 @@ private:
         return m_doubleMember;
     }
 
-    void                       setEnumMember( const caf::AppEnum<TestEnumType>& val ) { m_enumMember = val; }
+    void                       setEnumMember( const caf::AppEnum<TestEnumType>& val ) { m_enumMember = val.value(); }
     caf::AppEnum<TestEnumType> enumMember() const { return m_enumMember; }
 
     double       m_doubleMember;
@@ -96,7 +96,7 @@ TEST( BaseTest, Delete )
 //--------------------------------------------------------------------------------------------------
 TEST(BaseTest, Start)
 {
-    QString serializedString;
+    std::string serializedString;
     {
         DemoObject* a = new DemoObject;
 
@@ -112,7 +112,7 @@ TEST(BaseTest, Start)
         xmlStream.setAutoFormatting(true);
         objGroup.writeFields(xmlStream, NULL);
 
-        std::cout << serializedString.toStdString() << std::endl;
+        std::cout << serializedString << std::endl;
 
         delete a;
     }
@@ -129,7 +129,7 @@ TEST(BaseTest, Start)
     {
         caf::ObjectGroup destinationObjectGroup;
         QXmlStreamReader xmlStream(serializedString);
-        destinationObjectGroup.readFields(xmlStream, caf::PdmDefaultObjectFactory::instance(), NULL);
+        destinationObjectGroup.readFields(xmlStream, caf::DefaultObjectFactory::instance(), NULL);
 
         DemoObject* a = dynamic_cast<DemoObject*>(destinationObjectGroup.objects[0]);
 
@@ -140,16 +140,15 @@ TEST(BaseTest, Start)
 }
 #endif
 //--------------------------------------------------------------------------------------------------
-/// Read/write fields to a valid Xml document encoded in a QString
+/// Read/write fields to a valid Xml document encoded in a std::string
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, FieldWrite )
 {
-    std::vector<caf::ObjectIoCapability::IoParameters::IoType> ioTypes =
-        { caf::ObjectIoCapability::IoParameters::IoType::XML, caf::ObjectIoCapability::IoParameters::IoType::JSON };
+    std::vector<caf::ObjectIoCapability::IoType> ioTypes = { caf::ObjectIoCapability::IoType::JSON };
 
     for ( auto ioType : ioTypes )
     {
-        QString serializedString;
+        std::string serializedString;
         {
             DemoObject* a = new DemoObject;
 
@@ -158,7 +157,7 @@ TEST( BaseTest, FieldWrite )
 
             serializedString = a->writeObjectToString( ioType );
 
-            std::cout << serializedString.toStdString() << std::endl;
+            std::cout << serializedString << std::endl;
 
             delete a;
         }
@@ -173,7 +172,7 @@ TEST( BaseTest, FieldWrite )
         {
             DemoObject* a = new DemoObject;
 
-            a->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance(), ioType );
+            a->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance(), ioType );
         }
     }
 }
@@ -191,7 +190,7 @@ public:
 
     ~InheritedDemoObj() { m_childArrayField.deleteAllChildObjects(); }
 
-    caf::DataValueField<QString>         m_texts;
+    caf::DataValueField<std::string>  m_texts;
     caf::ChildArrayField<DemoObject*> m_childArrayField;
 };
 CAF_IO_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj" );
@@ -223,8 +222,8 @@ public:
     caf::DataValueField<int>     m_up;
     caf::ProxyValueField<double> m_proxyDouble;
 
-    caf::DataValueField<caf::FilePath>              m_singleFilePath;
-    caf::DataValueField<std::vector<caf::FilePath>> m_multipleFilePath;
+    caf::DataValueField<std::filesystem::path>              m_singleFilePath;
+    caf::DataValueField<std::vector<std::filesystem::path>> m_multipleFilePath;
 
     void setDoubleMember( const double& d )
     {
@@ -261,8 +260,8 @@ public:
     }
 
     // Fields
-    caf::ChildField<ObjectHandle*> m_pointersField;
-    caf::ChildArrayField<SimpleObj*>  m_simpleObjPtrField2;
+    caf::ChildField<ObjectHandle*>   m_pointersField;
+    caf::ChildArrayField<SimpleObj*> m_simpleObjPtrField2;
 };
 
 CAF_IO_SOURCE_INIT( ReferenceDemoObject, "ReferenceDemoObject" );
@@ -284,19 +283,19 @@ TEST( BaseTest, PdmReferenceHelper )
     ihd1->m_childArrayField.push_back( s3 );
 
     {
-        QString refString      = caf::PdmReferenceHelper::referenceFromRootToObject( ihd1, s3 );
-        QString expectedString = ihd1->m_childArrayField.keyword() + " 3";
-        EXPECT_STREQ( refString.toLatin1(), expectedString.toLatin1() );
+        std::string refString      = caf::PdmReferenceHelper::referenceFromRootToObject( ihd1, s3 );
+        std::string expectedString = ihd1->m_childArrayField.keyword() + " 3";
+        EXPECT_STREQ( refString.c_str(), expectedString.c_str() );
 
         caf::ObjectHandle* fromRef = caf::PdmReferenceHelper::objectFromReference( ihd1, refString );
         EXPECT_TRUE( fromRef == s3 );
     }
 
     ReferenceDemoObject* objA = new ReferenceDemoObject;
-    objA->m_pointersField        = ihd1;
+    objA->m_pointersField     = ihd1;
 
     {
-        QString refString = caf::PdmReferenceHelper::referenceFromRootToObject( objA, s3 );
+        std::string refString = caf::PdmReferenceHelper::referenceFromRootToObject( objA, s3 );
 
         caf::ObjectHandle* fromRef = caf::PdmReferenceHelper::objectFromReference( objA, refString );
         EXPECT_TRUE( fromRef == s3 );
@@ -304,7 +303,7 @@ TEST( BaseTest, PdmReferenceHelper )
 
     // Test reference to field
     {
-        QString refString = caf::PdmReferenceHelper::referenceFromRootToField( objA, &( ihd1->m_childArrayField ) );
+        std::string refString = caf::PdmReferenceHelper::referenceFromRootToField( objA, &( ihd1->m_childArrayField ) );
 
         caf::FieldHandle* fromRef = caf::PdmReferenceHelper::fieldFromReference( objA, refString );
         EXPECT_TRUE( fromRef == &( ihd1->m_childArrayField ) );
@@ -325,16 +324,16 @@ TEST( BaseTest, ChildArrayFieldSerializing )
     DemoObject* s3 = new DemoObject;
     s3->m_proxyDoubleField.setValue( 30 );
 
-    InheritedDemoObj* ihd1 = new InheritedDemoObj;
-    ihd1->m_childArrayField.push_back( s1 );
-    ihd1->m_childArrayField.push_back( s2 );
-    ihd1->m_childArrayField.push_back( s3 );
-
-    QString serializedString;
+    std::string serializedString;
     {
+        InheritedDemoObj* ihd1 = new InheritedDemoObj;
+        ihd1->m_childArrayField.push_back( s1 );
+        ihd1->m_childArrayField.push_back( s2 );
+        ihd1->m_childArrayField.push_back( s3 );
+
         serializedString = ihd1->writeObjectToString();
 
-        std::cout << serializedString.toStdString() << std::endl;
+        std::cout << serializedString << std::endl;
 
         delete ihd1;
     }
@@ -343,36 +342,11 @@ TEST( BaseTest, ChildArrayFieldSerializing )
         InheritedDemoObj* ihd1 = new InheritedDemoObj;
         ASSERT_EQ( 0u, ihd1->m_childArrayField.size() );
 
-        QXmlStreamReader xmlStream( serializedString );
-
-        ihd1->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance() );
+        ihd1->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance() );
 
         ASSERT_DOUBLE_EQ( 10, ihd1->m_childArrayField[0]->m_proxyDoubleField.value() );
         ASSERT_DOUBLE_EQ( 20, ihd1->m_childArrayField[1]->m_proxyDoubleField.value() );
         ASSERT_DOUBLE_EQ( 30, ihd1->m_childArrayField[2]->m_proxyDoubleField.value() );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Testing that the QXmlStreamReader actually can not just read a list of fields.
-//--------------------------------------------------------------------------------------------------
-TEST( BaseTest, QXMLStreamTest )
-{
-    QString xmlText =
-        //"<DemoObject>"
-        "<BigNumber>2.5</BigNumber>"
-        "<TestEnumValue>T3</TestEnumValue>"
-        "<TestEnumValue2>T3</TestEnumValue2>"
-        //"</DemoObject>"
-        ;
-
-    QXmlStreamReader inputStream( xmlText );
-
-    QXmlStreamReader::TokenType tt;
-    while ( !inputStream.atEnd() )
-    {
-        tt = inputStream.readNext();
-        std::cout << inputStream.name().toString().toStdString() << std::endl;
     }
 }
 
@@ -383,23 +357,21 @@ TEST( BaseTest, FilePathSerializing )
 {
     SimpleObj* s1 = new SimpleObj;
 
-    QString newVal = "path with space";
+    std::filesystem::path newVal = "path with space";
     s1->m_multipleFilePath.v().push_back( newVal );
     s1->m_multipleFilePath.v().push_back( newVal );
 
     s1->m_singleFilePath = newVal;
 
-    QString serializedString = s1->writeObjectToString();
+    std::string serializedString = s1->writeObjectToString();
 
     {
         SimpleObj* ihd1 = new SimpleObj;
 
-        QXmlStreamReader xmlStream( serializedString );
-
-        ihd1->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance() );
+        ihd1->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance() );
 
         EXPECT_EQ( 2u, ihd1->m_multipleFilePath.v().size() );
-        EXPECT_EQ( newVal.toStdString(), ihd1->m_singleFilePath().path().toStdString() );
+        EXPECT_EQ( newVal, ihd1->m_singleFilePath() );
 
         delete ihd1;
     }
@@ -418,28 +390,28 @@ TEST( BaseTest, TestDataType )
 
     {
         auto dataTypeNameDouble = s1->m_position.capability<caf::FieldIoCapability>()->dataTypeName();
-        EXPECT_EQ( "double", dataTypeNameDouble.toStdString() );
+        EXPECT_EQ( "double", dataTypeNameDouble );
     }
 
     {
         auto dataTypeNameDouble = s1->m_proxyDouble.capability<caf::FieldIoCapability>()->dataTypeName();
-        EXPECT_EQ( "double", dataTypeNameDouble.toStdString() );
+        EXPECT_EQ( "double", dataTypeNameDouble );
     }
 
     {
         auto dataTypeNameDouble = s1->m_up.capability<caf::FieldIoCapability>()->dataTypeName();
-        EXPECT_EQ( "int", dataTypeNameDouble.toStdString() );
+        EXPECT_EQ( "int", dataTypeNameDouble );
     }
 
     {
         auto dataTypeNameDouble = s1->m_singleFilePath.capability<caf::FieldIoCapability>()->dataTypeName();
-        EXPECT_EQ( "class caf::FilePath", dataTypeNameDouble.toStdString() );
+        EXPECT_EQ( "class std::filesystem::path", dataTypeNameDouble );
     }
 
     {
         InheritedDemoObj* obj                = new InheritedDemoObj;
         auto              dataTypeNameDouble = obj->m_texts.capability<caf::FieldIoCapability>()->dataTypeName();
-        EXPECT_EQ( "class QString", dataTypeNameDouble.toStdString() );
+        EXPECT_EQ( typeid( std::string ).name(), dataTypeNameDouble );
     }
 
     delete s1;

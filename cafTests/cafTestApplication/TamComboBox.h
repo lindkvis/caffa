@@ -18,22 +18,22 @@ class TamComboBox : public caf::Object
 public:
     TamComboBox();
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
-                                                                bool*                      useOptionsOnly) override;
+    virtual std::deque<caf::OptionItemInfo> calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
+                                                                  bool*                   useOptionsOnly) override;
 
-    virtual void
-        fieldChangedByUi(const caf::FieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void onFieldChangedByCapability(const caf::FieldHandle*     changedField,
+                                    const caf::FieldCapability* changedCapability,
+                                    const caf::Variant&         oldValue,
+                                    const caf::Variant&         newValue) override;
 
 private:
-    caf::Field<QString> m_name;
+    caf::Field<std::string> m_name;
 
 protected:
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void defineUiOrdering(caf::UiOrdering& uiOrdering) override;
 
-    virtual void defineEditorAttribute(const caf::FieldHandle* field,
-                                       QString                    uiConfigName,
-                                       caf::UiEditorAttribute* attribute) override;
+    virtual void defineEditorAttribute(const caf::FieldHandle* field, caf::UiEditorAttribute* attribute) override;
 
 private:
-    QStringList m_historyItems;
+    std::deque<std::string> m_historyItems;
 };

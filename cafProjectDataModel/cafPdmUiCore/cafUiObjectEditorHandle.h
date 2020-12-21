@@ -40,8 +40,6 @@
 #include "cafPdmPointer.h"
 #include "cafUiEditorHandle.h"
 
-#include <QPointer>
-
 namespace caf
 {
 class ObjectHandle;
@@ -50,13 +48,13 @@ class ObjectHandle;
 /// Abstract class to handle editors for complete Objects
 //==================================================================================================
 
-class cafPdmUiCore_EXPORT PdmUiObjectEditorHandle : public UiEditorHandle
+class PdmUiObjectEditorHandle : public UiEditorHandle
 {
 public:
     PdmUiObjectEditorHandle();
     ~PdmUiObjectEditorHandle() override;
 
-    void                   setObject( ObjectHandle* object );
+    void                setObject( ObjectHandle* object );
     ObjectHandle*       pdmObject();
     const ObjectHandle* pdmObject() const;
 
@@ -67,7 +65,7 @@ protected:
     virtual void cleanupBeforeSettingObject(){};
 
 private:
-    static std::set<QPointer<PdmUiObjectEditorHandle>> m_sRegisteredObjectEditors;
+    static std::set<PdmUiObjectEditorHandle*> m_sRegisteredObjectEditors;
 };
 
 } // End of namespace caf

@@ -5,9 +5,6 @@
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
-#include "cafObjectXmlCapability.h"
-
-#include <QXmlStreamWriter>
 
 #include <cmath>
 
@@ -46,12 +43,11 @@ TEST( SerializeNumbers, SimpleObjectWithDoubleValues )
     double valueA = 0.123456789;
     double valueB = 123456789 + valueA;
 
-    std::vector<caf::ObjectIoCapability::IoParameters::IoType> ioTypes =
-        { caf::ObjectIoCapability::IoParameters::IoType::XML, caf::ObjectIoCapability::IoParameters::IoType::JSON };
+    std::vector<caf::ObjectIoCapability::IoType> ioTypes = { caf::ObjectIoCapability::IoType::JSON };
 
     for ( auto ioType : ioTypes )
     {
-        QString objectAsText;
+        std::string objectAsText;
 
         {
             SimpleObjectWithNumbers obj1;
@@ -65,7 +61,7 @@ TEST( SerializeNumbers, SimpleObjectWithDoubleValues )
         {
             SimpleObjectWithNumbers obj1;
 
-            obj1.readObjectFromString( objectAsText, caf::PdmDefaultObjectFactory::instance(), ioType );
+            obj1.readObjectFromString( objectAsText, caf::DefaultObjectFactory::instance(), ioType );
 
             {
                 double epsilon = 1e-7;
@@ -92,12 +88,11 @@ TEST( SerializeNumbers, SimpleObjectWithFloatValues )
     float valueA = 0.123456789f;
     float valueB = 123456 + valueA;
 
-    std::vector<caf::ObjectIoCapability::IoParameters::IoType> ioTypes =
-        { caf::ObjectIoCapability::IoParameters::IoType::XML, caf::ObjectIoCapability::IoParameters::IoType::JSON };
+    std::vector<caf::ObjectIoCapability::IoType> ioTypes = { caf::ObjectIoCapability::IoType::JSON };
 
     for ( auto ioType : ioTypes )
     {
-        QString objectAsText;
+        std::string objectAsText;
 
         {
             SimpleObjectWithNumbers obj1;
@@ -111,7 +106,7 @@ TEST( SerializeNumbers, SimpleObjectWithFloatValues )
         {
             SimpleObjectWithNumbers obj1;
 
-            obj1.readObjectFromString( objectAsText, caf::PdmDefaultObjectFactory::instance(), ioType );
+            obj1.readObjectFromString( objectAsText, caf::DefaultObjectFactory::instance(), ioType );
 
             double epsilon = 1e-7;
 

@@ -8,13 +8,11 @@ if (CAF_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
-find_package(Qt5 COMPONENTS REQUIRED Core)
-set(QT_LIBRARIES Qt5::Core)
-
 set (PUBLIC_HEADERS 
     cafAssert.h
     cafAppEnum.h
-    cafClassTypeName.h
+    cafColor.h
+    cafFactory.h
     cafPdmBase.h
     cafChildArrayField.h
     cafChildArrayField.inl
@@ -40,9 +38,10 @@ set (PUBLIC_HEADERS
     cafValueFieldSpecializations.h
 
     cafSignal.h
+    cafStringTools.h
+    cafVariant.h
 
     cafTristate.h
-    cafFilePath.h
     cafAsyncObjectDeleter.h
     cafAsyncObjectDeleter.inl
 	cafAsyncWorkerManager.h
@@ -50,6 +49,7 @@ set (PUBLIC_HEADERS
 
 set( PROJECT_FILES
     ${PUBLIC_HEADERS}
+    cafColor.cpp
     cafChildArrayFieldHandle.cpp
     cafFieldHandle.cpp
     cafFieldReorderCapability.cpp
@@ -57,29 +57,38 @@ set( PROJECT_FILES
     cafPdmPointer.cpp
     cafPdmReferenceHelper.cpp
     cafSignal.cpp
+    cafStringTools.cpp
+    cafVariant.cpp
     cafTristate.cpp
-    cafFilePath.cpp
 	cafAsyncWorkerManager.cpp
 )
 
-add_library( ${PROJECT_NAME}
-    ${PROJECT_FILES}
-)
+if (CAFFA_BUILD_SHARED)
+    message(STATUS "Building ${PROJECT_NAME} shared")
+    add_library( ${PROJECT_NAME} SHARED
+        ${PROJECT_FILES}
+    )
+else()
+    add_library( ${PROJECT_NAME} STATIC
+        ${PROJECT_FILES}
+    )
+endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${CMAKE_PROJECT_VERSION})
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
+
+if (MSVC)
+    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
+    set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+endif()
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES})
-
-if (MSVC) 
-    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
-endif()
+target_link_libraries(${PROJECT_NAME})
 
 install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

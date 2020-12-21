@@ -1,41 +1,33 @@
 #include "MainWindow.h"
 
 #include "cafAppEnum.h"
-#include "cafCmdExecCommandManager.h"
-#include "cafCmdFeatureManager.h"
-#include "cafCmdFeatureMenuBuilder.h"
-#include "cafCmdSelectionHelper.h"
 
 #include "WPopupMenuWrapper.h"
-#include "cafFilePath.h"
-#include "cafPdmDocument.h"
+#include "cafColor.h"
+#include "cafCoreColor.h"
 #include "cafObject.h"
 #include "cafObjectGroup.h"
-#include "cafProxyValueField.h"
-#include "cafPtrField.h"
+#include "cafPdmDocument.h"
 #include "cafPdmReferenceHelper.h"
-#include "cafUiItem.h"
-#include "cafUiOrdering.h"
 #include "cafPdmWebDefaultObjectEditor.h"
 #include "cafPdmWebSliderEditor.h"
-#include "cafPdmXmlColor.h"
+#include "cafProxyValueField.h"
+#include "cafPtrField.h"
 #include "cafSelectionManager.h"
-#include "cafWebPlotCurve.h"
-#include "cafWebPlotViewer.h"
+#include "cafUiItem.h"
+#include "cafUiOrdering.h"
 
 #include "Wt/Chart/WCartesianChart.h"
 #include <Wt/WContainerWidget.h>
+#include <Wt/WDate.h>
 #include <Wt/WStandardItemModel.h>
 #include <Wt/WTimer.h>
 #include <Wt/WVBoxLayout.h>
 
-#include <QColor>
-#include <QDate>
-#include <QString>
-
 #include <cmath>
 #include <functional>
 #include <memory>
+#include <string>
 
 using namespace std::placeholders;
 
@@ -73,35 +65,35 @@ public:
     SmallDemoObject()
     {
         CAF_InitObject("Small Demo Object  with a very long title",
-                           ":/images/win/filenew.png",
-                           "This object is a demo of the CAF framework",
-                           "This object is a demo of the CAF framework");
+                       ":/images/win/filenew.png",
+                       "This object is a demo of the CAF framework",
+                       "This object is a demo of the CAF framework");
 
         CAF_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
         CAF_InitField(&m_doubleField,
-                          "BigNumber",
-                          0.123,
-                          "Big Number",
-                          "",
-                          "Enter a big number here",
-                          "This is a place you can enter a big real value if you want");
+                      "BigNumber",
+                      0.123,
+                      "Big Number",
+                      "",
+                      "Enter a big number here",
+                      "This is a place you can enter a big real value if you want");
         m_doubleField.capability<caf::FieldUiCapability>()->setCustomContextMenuEnabled(true);
 
         CAF_InitField(&m_intField,
-                          "IntNumber",
-                          3,
-                          "Small Number",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "IntNumber",
+                      3,
+                      "Small Number",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         m_intField.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmWebSliderEditor::uiEditorTypeName());
         CAF_InitField(&m_textField,
-                          "TextField",
-                          QString("A cow jumped over whatever"),
-                          "Text",
-                          "",
-                          "Text tooltip",
-                          "This is a place you can enter a small integer value if you want");
+                      "TextField",
+                      std::string("A cow jumped over whatever"),
+                      "Text",
+                      "",
+                      "Text tooltip",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitFieldNoDefault(&m_testEnumField, "TestEnumValue", "EnumField", "", "", "");
 
         m_proxyDoubleField.registerSetMethod(this, &SmallDemoObject::setDoubleMember);
@@ -113,42 +105,47 @@ public:
 
     caf::Field<double>                     m_doubleField;
     caf::Field<int>                        m_intField;
-    caf::Field<QString>                    m_textField;
+    caf::Field<std::string>                m_textField;
     caf::Field<bool>                       m_toggleField;
     caf::Field<caf::AppEnum<TestEnumType>> m_testEnumField;
 
     caf::ProxyValueField<double> m_proxyDoubleField;
 
-    void fieldChangedByUi(const caf::FieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override
+    void onFieldChangedByCapability(const caf::FieldHandle*     changedField,
+                                    const caf::FieldCapability* capability,
+                                    const caf::Variant&         oldValue,
+                                    const caf::Variant&         newValue) override
     {
         if (changedField == &m_doubleField)
         {
-            if (MainWindow::instance()) MainWindow::instance()->debug(QString("Double Field changed to %1").arg(m_doubleField()));
+            if (MainWindow::instance())
+                MainWindow::instance()->debug(std::string("Double Field changed to ") + std::to_string(m_doubleField()));
         }
         else if (changedField == &m_intField)
         {
-            if (MainWindow::instance()) MainWindow::instance()->debug(QString("Int Field changed to %1").arg(m_intField()));
+            if (MainWindow::instance())
+                MainWindow::instance()->debug(std::string("Int Field changed to ") + std::to_string(m_intField()));
         }
         else if (changedField == &m_textField)
         {
-            if (MainWindow::instance()) MainWindow::instance()->debug(QString("Text Field changed to %1").arg(m_textField()));
+            if (MainWindow::instance()) MainWindow::instance()->debug(std::string("Text Field changed to ") + m_textField());
         }
         else if (changedField == &m_toggleField)
         {
             if (MainWindow::instance())
-                MainWindow::instance()->debug(QString("Toggle Field changed to %1").arg(m_toggleField() ? "TRUE" : "FALSE"));
+                MainWindow::instance()->debug(std::string("Toggle Field changed to ") + (m_toggleField() ? "TRUE" : "FALSE"));
         }
         else if (changedField == &m_testEnumField)
         {
             if (MainWindow::instance())
-                MainWindow::instance()->debug(QString("Enum field changed to %1").arg(m_testEnumField().uiText()));
+                MainWindow::instance()->debug(std::string("Enum field changed to ") + (m_testEnumField().uiText()));
         }
     }
 
     void setDoubleMember(const double& d)
     {
         m_doubleMember = d;
-        if (MainWindow::instance()) MainWindow::instance()->debug(QString("setDoubleMember(%1)").arg(d));
+        if (MainWindow::instance()) MainWindow::instance()->debug(std::string("setDoubleMember ") + std::to_string(d));
     }
     double doubleMember() const
     {
@@ -172,14 +169,14 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
+    void defineUiOrdering(caf::UiOrdering& uiOrdering) override
     {
         uiOrdering.add(&m_toggleField);
         uiOrdering.add(&m_doubleField);
         uiOrdering.add(&m_intField);
-        QString dynamicGroupName = QString("Dynamic Group Text (%1)").arg(m_intField);
+        std::string dynamicGroupName = std::string("Dynamic Group Text (") + std::to_string(m_intField) + ")";
 
-        caf::PdmUiGroup* group = uiOrdering.addNewGroupWithKeyword(dynamicGroupName, "MyTest");
+        caf::UiGroup* group = uiOrdering.addNewGroupWithKeyword(dynamicGroupName, "MyTest");
         group->add(&m_textField);
         group->add(&m_proxyDoubleField);
         group->add(&m_testEnumField);
@@ -189,9 +186,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineEditorAttribute(const caf::FieldHandle* field,
-                               QString                    uiConfigName,
-                               caf::UiEditorAttribute* attribute) override
+    void defineEditorAttribute(const caf::FieldHandle* field, caf::UiEditorAttribute* attribute) override
     {
         if (field == &m_intField)
         {
@@ -215,57 +210,60 @@ public:
     ColorAndDateEditorObject()
     {
         CAF_InitObject("Color And Date and File Upload Editor Object",
-                           "",
-                           "This object is a demo of the CAF framework",
-                           "This object is a demo of the CAF framework");
+                       "",
+                       "This object is a demo of the CAF framework",
+                       "This object is a demo of the CAF framework");
 
         CAF_InitField(&m_intFieldStandard,
-                          "Standard",
-                          0,
-                          "Fairly Wide Label",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
-        CAF_InitField(&m_colorField, "ColorField", QColor(50, 100, 150), "Color Field", "", "Click to set color", "");
-        CAF_InitField(&m_dateField, "DateField", QDate(2012, 05, 19), "Date Field", "", "Set a date", "");
+                      "Standard",
+                      0,
+                      "Fairly Wide Label",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
+        CAF_InitField(&m_colorField, "ColorField", caf::Color(50, 100, 150), "Color Field", "", "Click to set color", "");
+        //CAF_InitField(&m_dateField, "DateField", QDate(2012, 05, 19), "Date Field", "", "Set a date", "");
         CAF_InitFieldNoDefault(
             &m_fileUploadField, "FileUploadField", "Upload File", "", "This editor lets you upload a file", "");
     }
 
     // Outside group
-    caf::Field<int>           m_intFieldStandard;
-    caf::Field<QColor>        m_colorField;
-    caf::Field<QDate>         m_dateField;
-    caf::Field<caf::FilePath> m_fileUploadField;
+    caf::Field<int>        m_intFieldStandard;
+    caf::Field<caf::Color> m_colorField;
+    // caf::Field<Wt::WDate>             m_dateField;
+    caf::Field<std::filesystem::path> m_fileUploadField;
 
 protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
+    void defineUiOrdering(caf::UiOrdering& uiOrdering) override
     {
         uiOrdering.add(&m_intFieldStandard);
         uiOrdering.add(&m_colorField);
-        uiOrdering.add(&m_dateField);
+        // uiOrdering.add(&m_dateField);
         uiOrdering.add(&m_fileUploadField);
         uiOrdering.skipRemainingFields(true);
     }
-    void fieldChangedByUi(const caf::FieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override
+    void onFieldChangedByCapability(const caf::FieldHandle*     changedField,
+                                    const caf::FieldCapability* capability,
+                                    const caf::Variant&         oldValue,
+                                    const caf::Variant&         newValue) override
     {
         if (changedField == &m_colorField)
         {
             if (MainWindow::instance())
-                MainWindow::instance()->debug(QString("Color changed to:  %1").arg(m_colorField().name()));
+                MainWindow::instance()->debug(std::string("Color changed to: ") + m_colorField().hexString());
         }
-        else if (changedField == &m_dateField)
+        /* else if (changedField == &m_dateField)
         {
             if (MainWindow::instance())
-                MainWindow::instance()->debug(QString("Date changed to: %1").arg(m_dateField().toString(Qt::ISODate)));
-        }
+                MainWindow::instance()->debug(std::string("Date changed to: ") + m_dateField().
+        }*/
         else if (changedField == &m_fileUploadField)
         {
             if (MainWindow::instance())
-                MainWindow::instance()->debug(QString("File uploaded to: %1").arg(m_fileUploadField().path()));
+                MainWindow::instance()->debug(std::string("File uploaded to: ") + m_fileUploadField().string());
         }
     }
 };
@@ -289,6 +287,7 @@ MainWindow* MainWindow::sm_mainWindowInstance = nullptr;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+#if 0
 std::unique_ptr<Wt::WPanel> MainWindow::createPlotPanel()
 {
     m_plot.reset(new caf::WebPlotViewer);
@@ -349,6 +348,7 @@ std::unique_ptr<Wt::WPanel> MainWindow::createPlotPanel()
     panel->setTitle("Plot");
     return panel;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -386,7 +386,7 @@ MainWindow::MainWindow()
     auto rightColumnLayout = std::make_unique<Wt::WVBoxLayout>();
     rightColumnLayout->setContentsMargins(2, 2, 2, 2);
 
-    auto plotPanel = createPlotPanel();
+    //auto plotPanel = createPlotPanel();
 
     auto debugPanel = std::make_unique<Wt::WPanel>();
     debugPanel->setTitle("Debug Information");
@@ -401,7 +401,7 @@ MainWindow::MainWindow()
 
     leftColumnLayout->addWidget(std::unique_ptr<caf::PdmWebTreeView>(m_pdmUiTreeView), 1);
 
-    centreColumnLayout->addWidget(std::move(plotPanel), 2);
+    //centreColumnLayout->addWidget(std::move(plotPanel), 2);
     centreColumnLayout->addWidget(std::move(debugPanel), 0);
     rightColumnLayout->addWidget(std::move(objectWidget), 5);
     rightColumnLayout->addWidget(std::make_unique<Wt::WContainerWidget>(), 0);
@@ -454,17 +454,17 @@ void MainWindow::setPdmRoot(caf::ObjectHandle* pdmRoot)
     m_objectEditor->setObject(obj[0]);
 
     caf::SelectionManager::instance()->setPdmRootObject(m_testRoot);
-    caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
+    //caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void MainWindow::debug(const QString& string)
+void MainWindow::debug(const std::string& string)
 {
     if (m_debugWindow)
     {
-        m_debugWindow->setText(m_debugWindow->text() + string.toStdString() + "\n");
+        m_debugWindow->setText(m_debugWindow->text() + string + "\n");
         m_debugWindow->doJavaScript(m_debugWindow->jsRef() + ".scrollTop = " + m_debugWindow->jsRef() + ".scrollHeight;");
     }
 }
@@ -524,14 +524,15 @@ void MainWindow::slotCustomMenuRequested(const Wt::WModelIndex& item, const Wt::
         m_popup = std::make_unique<caf::WPopupMenuWrapper>();
         m_popup->menu()->aboutToHide().connect(std::bind(&MainWindow::slotOnActionSelection, this));
 
-        caf::CmdFeatureMenuBuilder menuBuilder;
+        /*        caf::CmdFeatureMenuBuilder menuBuilder;
 
-        menuBuilder << "cafToggleItemsOnFeature";
-        menuBuilder << "cafToggleItemsOffFeature";
-        menuBuilder << "cafToggleItemsFeature";
-        menuBuilder << "Separator";
-        menuBuilder << "cafToggleItemsOnOthersOffFeature";
-        menuBuilder.appendToMenu(m_popup.get());
+                menuBuilder << "cafToggleItemsOnFeature";
+                menuBuilder << "cafToggleItemsOffFeature";
+                menuBuilder << "cafToggleItemsFeature";
+                menuBuilder << "Separator";
+                menuBuilder << "cafToggleItemsOnOthersOffFeature";
+                menuBuilder.appendToMenu(m_popup.get());
+                */
 
         m_popup->refreshEnabledState();
         if (m_popup->menu()->isHidden())
@@ -549,7 +550,7 @@ void MainWindow::slotOnActionSelection()
     if (m_popup->menu()->result())
     {
         Wt::WString                         text   = m_popup->menu()->result()->text();
-        std::shared_ptr<caf::ActionWrapper> action = m_popup->findAction(QString::fromStdString(text.narrow()));
+        std::shared_ptr<caf::ActionWrapper> action = m_popup->findAction(text.narrow());
         action->trigger(m_popup->menu()->result()->isChecked());
     }
 }

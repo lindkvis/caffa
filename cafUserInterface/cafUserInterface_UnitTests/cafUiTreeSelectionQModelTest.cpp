@@ -3,38 +3,38 @@
 
 #include "cafUiTreeSelectionQModel.h"
 
-QList<caf::PdmOptionItemInfo> createOptions()
+std::deque<caf::OptionItemInfo> createOptions()
 {
-    QList<caf::PdmOptionItemInfo> options;
+    std::deque<caf::OptionItemInfo> options;
 
     {
-        QString text;
+        std::string text;
 
         text = "First";
-        options.push_back( caf::PdmOptionItemInfo( text, text ) );
+        options.push_back( caf::OptionItemInfo( text, text ) );
 
         text = "Second";
-        options.push_back( caf::PdmOptionItemInfo( text, text ) );
+        options.push_back( caf::OptionItemInfo( text, text ) );
 
         {
-            text                            = "Second_a";
-            caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo( text, text );
+            text                         = "Second_a";
+            caf::OptionItemInfo itemInfo = caf::OptionItemInfo( text, text );
             itemInfo.setLevel( 1 );
             options.push_back( itemInfo );
         }
 
         {
-            text                            = "Second_b";
-            caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo( text, text );
+            text                         = "Second_b";
+            caf::OptionItemInfo itemInfo = caf::OptionItemInfo( text, text );
             itemInfo.setLevel( 1 );
             options.push_back( itemInfo );
         }
 
         text = "Third";
-        options.push_back( caf::PdmOptionItemInfo( text, text ) );
+        options.push_back( caf::OptionItemInfo( text, text ) );
 
         text = "Fourth";
-        options.push_back( caf::PdmOptionItemInfo( text, text ) );
+        options.push_back( caf::OptionItemInfo( text, text ) );
     }
 
     return options;
@@ -45,7 +45,7 @@ QList<caf::PdmOptionItemInfo> createOptions()
 //--------------------------------------------------------------------------------------------------
 TEST( PdmUiTreeSelectionQModelTest, BasicUsage )
 {
-    QList<caf::PdmOptionItemInfo> options = createOptions();
+    auto options = createOptions();
 
     caf::PdmUiTreeSelectionQModel myModel;
     myModel.setOptions( nullptr, options );
@@ -68,7 +68,7 @@ TEST( PdmUiTreeSelectionQModelTest, BasicUsage )
 //--------------------------------------------------------------------------------------------------
 TEST( PdmUiTreeSelectionQModelTest, ParentBehaviour )
 {
-    QList<caf::PdmOptionItemInfo> options = createOptions();
+    auto options = createOptions();
 
     caf::PdmUiTreeSelectionQModel myModel;
     myModel.setOptions( nullptr, options );
@@ -94,7 +94,7 @@ TEST( PdmUiTreeSelectionQModelTest, ParentBehaviour )
 //--------------------------------------------------------------------------------------------------
 TEST( PdmUiTreeSelectionQModelTest, SetDataAndSignal )
 {
-    QList<caf::PdmOptionItemInfo> options = createOptions();
+    auto options = createOptions();
 
     caf::PdmUiTreeSelectionQModel myModel;
     myModel.setOptions( nullptr, options );
@@ -109,7 +109,7 @@ TEST( PdmUiTreeSelectionQModelTest, SetDataAndSignal )
 //--------------------------------------------------------------------------------------------------
 TEST( PdmUiTreeSelectionQModelTest, SetCheckedStateForItems )
 {
-    QList<caf::PdmOptionItemInfo> options = createOptions();
+    auto options = createOptions();
 
     caf::PdmUiTreeSelectionQModel myModel;
     myModel.setOptions( nullptr, options );

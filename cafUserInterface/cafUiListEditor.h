@@ -35,7 +35,6 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafUiFieldEditorHandle.h"
 
 class QItemSelection;
@@ -71,7 +70,7 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class cafUserInterface_EXPORT PdmUiListEditor : public UiFieldEditorHandle
+class PdmUiListEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -83,7 +82,7 @@ public:
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
     QWidget* createLabelWidget( QWidget* parent ) override;
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    void     configureAndUpdateUi() override;
     bool     eventFilter( QObject* listView, QEvent* event ) override; // To catch delete key press in list view.
     bool     isMultiRowEditor() const override;
 
@@ -100,12 +99,12 @@ private:
 
 private:
     QPointer<QListViewHeightHint> m_listView;
-    QPointer<QLabel>     m_label;
+    QPointer<QLabel>              m_label;
     QPointer<QStringListModel>    m_model;
 
-    bool m_isEditOperationsAvailable;
-    int  m_optionItemCount;
-    bool m_isScrollToItemAllowed;
+    bool   m_isEditOperationsAvailable;
+    size_t m_optionItemCount;
+    bool   m_isScrollToItemAllowed;
 };
 
 } // end namespace caf

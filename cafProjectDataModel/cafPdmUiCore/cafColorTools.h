@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QColor>
+#include "cafColor.h"
 
 namespace caf
 {
@@ -11,9 +11,9 @@ namespace caf
 class ColorTools
 {
 public:
-    static float  luminance( QColor color );
-    static bool   isColorBright( QColor color );
-    static QColor blackOrWhiteContrastColor( QColor color );
+    static float luminance( Color color );
+    static bool  isColorBright( Color color );
+    static Color blackOrWhiteContrastColor( Color color );
 
 private:
     static float w3NonLinearColorValue( float colorFraction );

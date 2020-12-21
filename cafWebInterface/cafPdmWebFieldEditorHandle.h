@@ -36,8 +36,12 @@
 //##################################################################################################
 #pragma once
 
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
+
 #include "cafAssert.h"
-#include "cafClassTypeName.h"
 #include "cafFactory.h"
 #include "cafUiEditorHandle.h"
 
@@ -45,7 +49,7 @@
 
 #include <Wt/Core/observing_ptr.hpp>
 
-#include <QString>
+#include <string>
 
 namespace Wt
 {
@@ -65,29 +69,26 @@ namespace caf
 
 #define CAF_PDM_WEB_FIELD_EDITOR_HEADER_INIT \
 public:                                      \
-    static QString uiEditorTypeName()
+    static std::string uiEditorTypeName()
 
 /// CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT implements editorTypeName() and registers the field editor in the field editor
 /// factory Place this in the cpp file, preferably above the constructor
 
-#define CAF_PDM_WEB_FIELD_EDITOR_SOURCE_INIT( EditorClassName )              \
-    QString EditorClassName::uiEditorTypeName() { return #EditorClassName; } \
-    CAF_FACTORY_REGISTER( caf::PdmWebFieldEditorHandle, EditorClassName, QString, EditorClassName::uiEditorTypeName() )
+#define CAF_PDM_WEB_FIELD_EDITOR_SOURCE_INIT( EditorClassName )                  \
+    std::string EditorClassName::uiEditorTypeName() { return #EditorClassName; } \
+    CAF_FACTORY_REGISTER( caf::PdmWebFieldEditorHandle, EditorClassName, std::string, EditorClassName::uiEditorTypeName() )
 
 /// CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR registers what default editor to use with a field of a certain type
 /// Place this in the cpp file, preferably above the constructor
 
-#define CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( EditorClassName, TypeName ) \
-    CAF_FACTORY_REGISTER( caf::PdmWebFieldEditorHandle,                        \
-                          EditorClassName,                                     \
-                          QString,                                             \
-                          qStringTypeName( caf::Field<TypeName> ) );        \
-    CAF_FACTORY_REGISTER2( caf::PdmWebFieldEditorHandle,                       \
-                           EditorClassName,                                    \
-                           QString,                                            \
-                           qStringTypeName( caf::ProxyValueField<TypeName> ) )
+#define CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( EditorClassName, TypeName )                                                 \
+    CAF_FACTORY_REGISTER( caf::PdmWebFieldEditorHandle, EditorClassName, std::string, typeid( caf::Field<TypeName> ).name() ); \
+    CAF_FACTORY_REGISTER2( caf::PdmWebFieldEditorHandle,                                                                       \
+                           EditorClassName,                                                                                    \
+                           std::string,                                                                                        \
+                           typeid( caf::ProxyValueField<TypeName> ).name() );
 
-class PdmUiGroup;
+class UiGroup;
 class FieldUiCapability;
 
 //==================================================================================================
@@ -101,10 +102,10 @@ public:
     ~PdmWebFieldEditorHandle() override;
 
     FieldUiCapability* uiField();
-    void                  setUiField( FieldUiCapability* uiFieldHandle );
+    void               setUiField( FieldUiCapability* uiFieldHandle );
 
     virtual bool                 hasLabel() const;
-    void                         applyTextToLabel( Wt::WLabel* label, const QString& uiConfigName ) const;
+    void                         applyTextToLabel( Wt::WLabel* label ) const;
     std::unique_ptr<Wt::WWidget> findOrCreateCombinedWidget( std::list<std::unique_ptr<Wt::WWidget>>& existingWidgets );
     std::unique_ptr<Wt::WWidget> findOrCreateEditorWidget( std::list<std::unique_ptr<Wt::WWidget>>& existingWidgets );
     std::unique_ptr<Wt::WLabel>  findOrCreateLabelWidget( std::list<std::unique_ptr<Wt::WWidget>>& existingWidgets );
@@ -118,7 +119,7 @@ protected: // Virtual interface to override
     virtual Wt::WWidget*          createEditorWidget() { return nullptr; }
     virtual Wt::WLabel*           createLabelWidget() { return nullptr; }
 
-    void         setValueToField( const QVariant& value );
+    void         setValueToField( const Variant& value );
     virtual bool isMultiRowEditor() const;
 
 private:
@@ -130,3 +131,7 @@ private:
 };
 
 } // End of namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

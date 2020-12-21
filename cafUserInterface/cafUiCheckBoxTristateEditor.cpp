@@ -21,15 +21,15 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiCheckBoxTristateEditor );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiCheckBoxTristateEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiCheckBoxTristateEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_checkBox.isNull() );
     CAF_ASSERT( !m_label.isNull() );
 
-    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label );
 
-    m_checkBox->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
-    m_checkBox->setToolTip( uiField()->uiToolTip( uiConfigName ) );
+    m_checkBox->setEnabled( !uiField()->isUiReadOnly() );
+    m_checkBox->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
     Tristate state = uiField()->uiValue().value<Tristate>();
 
@@ -88,7 +88,7 @@ void PdmUiCheckBoxTristateEditor::slotClicked( bool )
         state = Tristate::State::False;
     }
 
-    QVariant v = QVariant::fromValue( state );
+    Variant v( state );
 
     this->setValueToField( v );
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QColor>
+#include "cafColor.h"
 
 #include <vector>
 
@@ -14,17 +14,17 @@ namespace caf
 class ColorTable
 {
 public:
-    ColorTable( const std::vector<QColor>& colors );
+    ColorTable( const std::vector<Color>& colors );
     ColorTable( const ColorTable& colors );
 
     size_t size() const;
 
-    QColor cycledColor( size_t index ) const;
+    Color cycledColor( size_t index ) const;
 
     ColorTable reversed() const;
 
 private:
-    std::vector<QColor> m_colors;
+    std::vector<Color> m_colors;
 };
 
 } // namespace caf

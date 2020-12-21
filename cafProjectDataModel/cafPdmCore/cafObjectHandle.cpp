@@ -12,6 +12,7 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 ObjectHandle::ObjectHandle()
+    : fieldChanged( this )
 {
     m_parentField = nullptr;
     m_isDeletable = false;
@@ -28,7 +29,7 @@ ObjectHandle::~ObjectHandle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString ObjectHandle::classKeywordStatic()
+std::string ObjectHandle::classKeywordStatic()
 {
     return classKeywordAliases().front();
 }
@@ -36,9 +37,9 @@ QString ObjectHandle::classKeywordStatic()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> ObjectHandle::classKeywordAliases()
+std::vector<std::string> ObjectHandle::classKeywordAliases()
 {
-    return { QString( "ObjectHandle" ) };
+    return { std::string( "ObjectHandle" ) };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,11 +162,24 @@ void ObjectHandle::prepareForDelete()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectHandle::addField( FieldHandle* field, const QString& keyword )
+void ObjectHandle::fieldChangedByCapability( const FieldHandle*     field,
+                                             const FieldCapability* changedCapability,
+                                             const Variant&         oldValue,
+                                             const Variant&         newValue )
+{
+    fieldChanged.send( { changedCapability, oldValue, newValue } );
+
+    onFieldChangedByCapability( field, changedCapability, oldValue, newValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void ObjectHandle::addField( FieldHandle* field, const std::string& keyword )
 {
     field->m_ownerObject = this;
 
-    CAF_ASSERT( !keyword.isEmpty() );
+    CAF_ASSERT( !keyword.empty() );
     CAF_ASSERT( this->findField( keyword ) == nullptr );
 
     field->setKeyword( keyword );
@@ -175,7 +189,7 @@ void ObjectHandle::addField( FieldHandle* field, const QString& keyword )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FieldHandle* ObjectHandle::findField( const QString& keyword ) const
+FieldHandle* ObjectHandle::findField( const std::string& keyword ) const
 {
     std::vector<FieldHandle*> fields;
     this->fields( fields );
@@ -219,8 +233,7 @@ bool ObjectHandle::isDeletable() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectHandle::onChildDeleted( ChildArrayFieldHandle*           childArray,
-                                      std::vector<caf::ObjectHandle*>& referringObjects )
+void ObjectHandle::onChildDeleted( ChildArrayFieldHandle* childArray, std::vector<caf::ObjectHandle*>& referringObjects )
 {
 }
 

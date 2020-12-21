@@ -49,8 +49,7 @@ class FieldUiCapability;
 class UiFieldEditorHelper
 {
 public:
-    static UiFieldEditorHandle* createFieldEditorForField( FieldUiCapability* fieldHandle,
-                                                              const QString&        uiConfigName );
+    static UiFieldEditorHandle* createFieldEditorForField( FieldUiCapability* fieldHandle );
 };
 
 } // end namespace caf

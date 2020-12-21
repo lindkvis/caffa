@@ -39,11 +39,11 @@
 #include "cafFactory.h"
 #include "cafField.h"
 #include "cafObject.h"
+#include "cafPdmUniqueIdValidator.h"
+#include "cafSelectionManager.h"
 #include "cafUiDefaultObjectEditor.h"
 #include "cafUiFieldEditorHandle.h"
 #include "cafUiOrdering.h"
-#include "cafPdmUniqueIdValidator.h"
-#include "cafSelectionManager.h"
 
 #include <QAbstractItemView>
 #include <QAbstractProxyModel>
@@ -86,16 +86,16 @@ QWidget* PdmUiLineEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiLineEditor::configureAndUpdateUi()
 {
     if ( !m_label.isNull() )
     {
-        UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+        UiFieldEditorHandle::updateLabelFromField( m_label );
     }
 
     if ( !m_lineEdit.isNull() )
     {
-        bool isReadOnly = uiField()->isUiReadOnly( uiConfigName );
+        bool isReadOnly = uiField()->isUiReadOnly();
         if ( isReadOnly )
         {
             m_lineEdit->setReadOnly( true );
@@ -110,14 +110,14 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
             m_lineEdit->setStyleSheet( "" );
         }
 
-        m_lineEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
+        m_lineEdit->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
         PdmUiLineEditorAttribute leab;
         {
             caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
             if ( uiObject )
             {
-                uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &leab );
+                uiObject->editorAttribute( uiField()->fieldHandle(), &leab );
             }
 
             if ( leab.validator )
@@ -132,9 +132,9 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
                 m_lineEdit->setMaximumWidth( leab.maximumWidth );
             }
 
-            if ( !leab.placeholderText.isEmpty() )
+            if ( !leab.placeholderText.empty() )
             {
-                m_lineEdit->setPlaceholderText( leab.placeholderText );
+                m_lineEdit->setPlaceholderText( QString::fromStdString( leab.placeholderText ) );
             }
         }
 
@@ -142,7 +142,7 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
         m_optionCache     = uiField()->valueOptions( &fromMenuOnly );
         CAF_ASSERT( fromMenuOnly ); // Not supported
 
-        if ( !m_optionCache.isEmpty() && fromMenuOnly == true )
+        if ( !m_optionCache.empty() && fromMenuOnly == true )
         {
             if ( !m_completer )
             {
@@ -162,18 +162,18 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
             }
 
             QStringList optionNames;
-            for ( const PdmOptionItemInfo& item : m_optionCache )
+            for ( const OptionItemInfo& item : m_optionCache )
             {
-                optionNames.push_back( item.optionUiText() );
+                optionNames.push_back( QString::fromStdString( item.optionUiText() ) );
             }
 
             m_completerTextList->setStringList( optionNames );
 
-            int enumValue = uiField()->uiValue().toInt();
+            int enumValue = uiField()->uiValue().value<int>();
 
             if ( enumValue < m_optionCache.size() && enumValue > -1 )
             {
-                m_lineEdit->setText( m_optionCache[enumValue].optionUiText() );
+                m_lineEdit->setText( QString::fromStdString( m_optionCache[enumValue].optionUiText() ) );
             }
         }
         else
@@ -184,35 +184,20 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
             m_optionCache.clear();
 
             PdmUiLineEditorAttributeUiDisplayString displayStringAttrib;
-            caf::ObjectUiCapability*             uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+            caf::ObjectUiCapability*                uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
             if ( uiObject )
             {
-                uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &displayStringAttrib );
+                uiObject->editorAttribute( uiField()->fieldHandle(), &displayStringAttrib );
             }
 
             QString displayString;
-            if ( displayStringAttrib.m_displayString.isEmpty() )
+            if ( displayStringAttrib.m_displayString.empty() )
             {
-#if ( QT_VERSION >= QT_VERSION_CHECK( 5, 0, 0 ) && QT_VERSION < QT_VERSION_CHECK( 5, 9, 0 ) )
-                bool   valueOk = false;
-                double value   = uiField()->uiValue().toDouble( &valueOk );
-                if ( valueOk )
-                {
-                    // Workaround for issue seen on Qt 5.6.1 on Linux
-                    int precision = 8;
-                    displayString = QString::number( value, 'g', precision );
-                }
-                else
-                {
-                    displayString = uiField()->uiValue().toString();
-                }
-#else
-                displayString = uiField()->uiValue().toString();
-#endif
+                displayString = QString::fromStdString( uiField()->uiValue().textValue() );
             }
             else
             {
-                displayString = displayStringAttrib.m_displayString;
+                displayString = QString::fromStdString( displayStringAttrib.m_displayString );
             }
 
             m_lineEdit->setText( displayString );
@@ -243,15 +228,12 @@ QMargins PdmUiLineEditor::calculateLabelContentMargins() const
 //--------------------------------------------------------------------------------------------------
 void PdmUiLineEditor::slotEditingFinished()
 {
-    QVariant v;
-
-    if ( m_optionCache.size() )
+    if ( !m_optionCache.empty() )
     {
-        int index = findIndexToOption( m_lineEdit->text() );
-        if ( index > -1 )
+        auto item = findOption( m_lineEdit->text() );
+        if ( item )
         {
-            v = QVariant( static_cast<unsigned int>( index ) );
-            this->setValueToField( v );
+            this->setValueToField( item->value() );
         }
         else
         {
@@ -266,17 +248,16 @@ void PdmUiLineEditor::slotEditingFinished()
                 {
                     // If the existing value in the field is the same as the completer will hit, we need to echo the
                     // choice into the text field because the field values are equal, so the normal echoing is
-                    // considered unneccessary by the caf system.
-                    int currentFieldIndexValue = uiField()->uiValue().toInt();
-                    if ( currentRow == currentFieldIndexValue )
+                    // considered unnecessary by the caf system.
+                    Variant currentFieldValue = uiField()->uiValue();
+                    if ( m_optionCache[currentRow].value() == currentFieldValue )
                     {
                         m_lineEdit->setText(
                             m_completer->completionModel()->data( m_completer->currentIndex() ).toString() );
                     }
                 }
 
-                v = QVariant( static_cast<unsigned int>( sourceindex.row() ) );
-                this->setValueToField( v );
+                this->setValueToField( m_optionCache[currentRow].value() );
             }
             else
             {
@@ -288,8 +269,7 @@ void PdmUiLineEditor::slotEditingFinished()
     else
     {
         QString textValue = m_lineEdit->text();
-        v                 = textValue;
-        this->setValueToField( v );
+        this->setValueToField( Variant( textValue.toStdString() ) );
     }
 }
 
@@ -396,18 +376,18 @@ void PdmUiLineEditor::slotCompleterActivated( const QModelIndex& index )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int PdmUiLineEditor::findIndexToOption( const QString& uiText )
+const OptionItemInfo* PdmUiLineEditor::findOption( const QString& uiText )
 {
     QString uiTextTrimmed = uiText.trimmed();
     for ( int idx = 0; idx < m_optionCache.size(); ++idx )
     {
-        if ( uiTextTrimmed == m_optionCache[idx].optionUiText() )
+        if ( uiTextTrimmed.toStdString() == m_optionCache[idx].optionUiText() )
         {
-            return idx;
+            return &m_optionCache[idx];
         }
     }
 
-    return -1;
+    return nullptr;
 }
 
 // Define at this location to avoid duplicate symbol definitions in 'cafUiDefaultObjectEditor.cpp' in a cotire build.

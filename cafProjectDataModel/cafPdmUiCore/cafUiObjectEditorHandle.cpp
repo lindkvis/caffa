@@ -40,7 +40,7 @@
 
 namespace caf
 {
-std::set<QPointer<PdmUiObjectEditorHandle>> PdmUiObjectEditorHandle::m_sRegisteredObjectEditors;
+std::set<PdmUiObjectEditorHandle*> PdmUiObjectEditorHandle::m_sRegisteredObjectEditors;
 
 //--------------------------------------------------------------------------------------------------
 ///

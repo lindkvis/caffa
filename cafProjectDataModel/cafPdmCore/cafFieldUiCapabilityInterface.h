@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QVariant>
+#include "cafVariant.h"
 
 namespace caf
 {
@@ -10,8 +10,8 @@ public:
     FieldUiCapabilityInterface() {}
     virtual ~FieldUiCapabilityInterface() {}
 
-    virtual QVariant toUiBasedQVariant() const { return QVariant(); }
-    virtual void     notifyFieldChanged( const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant ){};
+    virtual Variant toUiBasedVariant() const { return Variant(); }
+    virtual void    notifyFieldChanged( const Variant& oldUiBasedAny, const Variant& newUiBasedAny ){};
 };
 
 } // End of namespace caf

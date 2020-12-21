@@ -3,9 +3,9 @@
 #include "cafAssert.h"
 #include "cafPdmBase.h"
 #include "cafSignal.h"
+#include "cafVariant.h"
 
-#include <QString>
-
+#include <any>
 #include <set>
 #include <vector>
 
@@ -15,6 +15,7 @@ class ObjectCapability;
 class FieldHandle;
 class ObjectUiCapability;
 class FieldIoCapability;
+class FieldCapability;
 class ObjectXmlCapability;
 class ChildArrayFieldHandle;
 
@@ -24,15 +25,18 @@ class ChildArrayFieldHandle;
 class ObjectHandle : public SignalObserver, public SignalEmitter
 {
 public:
+    Signal<std::tuple<const FieldCapability*, Variant, Variant>> fieldChanged;
+
+public:
     ObjectHandle();
     virtual ~ObjectHandle();
 
-    static QString classKeywordStatic(); // For PdmXmlFieldCap to be able to handle fields of ObjectHandle directly
-    static std::vector<QString> classKeywordAliases();
+    static std::string classKeywordStatic(); // For PdmXmlFieldCap to be able to handle fields of ObjectHandle directly
+    static std::vector<std::string> classKeywordAliases();
 
     /// The registered fields contained in this Object.
-    void            fields( std::vector<FieldHandle*>& fields ) const;
-    FieldHandle* findField( const QString& keyword ) const;
+    void         fields( std::vector<FieldHandle*>& fields ) const;
+    FieldHandle* findField( const std::string& keyword ) const;
 
     /// The field referencing this object as a child
     FieldHandle* parentField() const;
@@ -80,6 +84,11 @@ public:
     // Detach object from all referring fields
     void prepareForDelete();
 
+    void fieldChangedByCapability( const FieldHandle*     field,
+                                   const FieldCapability* changedCapability,
+                                   const Variant&         oldValue,
+                                   const Variant&         newValue );
+
     // Object capabilities
     void addCapability( ObjectCapability* capability, bool takeOwnership )
     {
@@ -99,11 +108,23 @@ public:
 
     virtual void setDeletable( bool isDeletable );
     virtual bool isDeletable() const;
-    virtual void onChildDeleted( ChildArrayFieldHandle*           childArray,
-                                 std::vector<caf::ObjectHandle*>& referringObjects );
+    virtual void onChildDeleted( ChildArrayFieldHandle* childArray, std::vector<caf::ObjectHandle*>& referringObjects );
+
+    /// Field used to toggle object enabled/disabled
+    virtual caf::FieldHandle* objectToggleField() { return nullptr; }
+    /// Field holding the object description
+    virtual caf::FieldHandle* userDescriptionField() { return nullptr; }
 
 protected:
-    void addField( FieldHandle* field, const QString& keyword );
+    void addField( FieldHandle* field, const std::string& keyword );
+
+    /// Method to reimplement to catch when the field has changed due to changes in capability
+    virtual void onFieldChangedByCapability( const FieldHandle*     field,
+                                             const FieldCapability* changedCapability,
+                                             const Variant&         oldValue,
+                                             const Variant&         newValue )
+    {
+    }
 
 private:
     PDM_DISABLE_COPY_AND_ASSIGN( ObjectHandle );
@@ -122,8 +143,8 @@ private:
     FieldHandle* m_parentField;
 
     // PtrReferences
-    void                           addReferencingPtrField( FieldHandle* fieldReferringToMe );
-    void                           removeReferencingPtrField( FieldHandle* fieldReferringToMe );
+    void                        addReferencingPtrField( FieldHandle* fieldReferringToMe );
+    void                        removeReferencingPtrField( FieldHandle* fieldReferringToMe );
     std::multiset<FieldHandle*> m_referencingPtrFields;
 
     // Give access to set/removeAsParentField

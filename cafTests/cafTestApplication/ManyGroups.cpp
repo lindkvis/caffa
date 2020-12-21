@@ -2,6 +2,7 @@
 #include "ManyGroups.h"
 #include "cafUiListEditor.h"
 #include "cafUiTreeSelectionEditor.h"
+#include "cafVariant.h"
 
 CAF_SOURCE_INIT(ManyGroups, "LargeObject");
 
@@ -11,33 +12,33 @@ CAF_SOURCE_INIT(ManyGroups, "LargeObject");
 ManyGroups::ManyGroups()
 {
     CAF_InitObject("Many Groups",
-                       ":/images/win/filenew.png",
-                       "This object is a demo of the CAF framework",
-                       "This object is a demo of the CAF framework");
+                   ":/images/win/filenew.png",
+                   "This object is a demo of the CAF framework",
+                   "This object is a demo of the CAF framework");
 
     CAF_InitField(
         &m_toggleField, "Toggle", false, "Add Items To Multi Select", "", "Toggle Field tooltip", " Toggle Field whatsthis");
     CAF_InitField(&m_doubleField,
-                      "BigNumber",
-                      0.0,
-                      "Big Number",
-                      "",
-                      "Enter a big number here",
-                      "This is a place you can enter a big real value if you want");
+                  "BigNumber",
+                  0.0,
+                  "Big Number",
+                  "",
+                  "Enter a big number here",
+                  "This is a place you can enter a big real value if you want");
     CAF_InitField(&m_intField,
-                      "IntNumber",
-                      0,
-                      "Small Number",
-                      "",
-                      "Enter some small number here",
-                      "This is a place you can enter a small integer value if you want");
+                  "IntNumber",
+                  0,
+                  "Small Number",
+                  "",
+                  "Enter some small number here",
+                  "This is a place you can enter a small integer value if you want");
     CAF_InitField(&m_textField,
-                      "TextField",
-                      QString(""),
-                      "Text",
-                      "",
-                      "Text tooltip",
-                      "This is a place you can enter a small integer value if you want");
+                  "TextField",
+                  std::string(""),
+                  "Text",
+                  "",
+                  "Text tooltip",
+                  "This is a place you can enter a small integer value if you want");
 
     m_proxyDoubleField.registerSetMethod(this, &ManyGroups::setDoubleMember);
     m_proxyDoubleField.registerGetMethod(this, &ManyGroups::doubleMember);
@@ -50,7 +51,6 @@ ManyGroups::ManyGroups()
     }
 
     CAF_InitFieldNoDefault(&m_multiSelectList, "SelectedItems", "Multi Select Field", "", "", "");
-    m_multiSelectList.capability<caf::FieldUiCapability>()->setAutoAddingOptionFromValue(false);
 
     m_multiSelectList.capability<caf::FieldIoCapability>()->setIOReadable(false);
     m_multiSelectList.capability<caf::FieldIoCapability>()->setIOWritable(false);
@@ -62,7 +62,7 @@ ManyGroups::ManyGroups()
     m_multiSelectList.v().push_back("Third");
 
     CAF_InitField(
-        &m_stringWithMultipleOptions, "m_stringWithMultipleOptions", QString(""), "Text with many items", "", "", "");
+        &m_stringWithMultipleOptions, "m_stringWithMultipleOptions", std::string(""), "Text with many items", "", "", "");
     m_stringWithMultipleOptions.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
         caf::PdmUiListEditor::uiEditorTypeName());
 }
@@ -78,7 +78,10 @@ caf::FieldHandle* ManyGroups::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ManyGroups::fieldChangedByUi(const caf::FieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void ManyGroups::onFieldChangedByCapability(const caf::FieldHandle*     changedField,
+                                            const caf::FieldCapability* changedFieldCapability,
+                                            const caf::Variant&         oldValue,
+                                            const caf::Variant&         newValue)
 {
     if (changedField == &m_toggleField)
     {
@@ -89,18 +92,18 @@ void ManyGroups::fieldChangedByUi(const caf::FieldHandle* changedField, const QV
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> ManyGroups::calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
-                                                                bool*                      useOptionsOnly)
+std::deque<caf::OptionItemInfo> ManyGroups::calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
+                                                                  bool*                   useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> options;
+    std::deque<caf::OptionItemInfo> options;
 
     // Test code used to switch between two lists with different content, but same item count
     if (fieldNeedingOptions == &m_stringWithMultipleOptions)
     {
         for (int i = 0; i < 100; i++)
         {
-            QString text = QString("item %1").arg(i);
-            options.push_back(caf::PdmOptionItemInfo(text, text));
+            std::string text = std::string("item ") + std::to_string(i);
+            options.push_back(caf::OptionItemInfo(text, text));
         }
 
         return options;
@@ -111,19 +114,19 @@ QList<caf::PdmOptionItemInfo> ManyGroups::calculateValueOptions(const caf::Field
     {
         if (m_intField < 10)
         {
-            QString text = "Apple 1";
-            options.push_back(caf::PdmOptionItemInfo(text, text));
+            std::string text = "Apple 1";
+            options.push_back(caf::OptionItemInfo(text, text));
 
             text = "Apple 2";
-            options.push_back(caf::PdmOptionItemInfo(text, text));
+            options.push_back(caf::OptionItemInfo(text, text));
         }
         else
         {
-            QString text = "Car 1";
-            options.push_back(caf::PdmOptionItemInfo(text, text));
+            std::string text = "Car 1";
+            options.push_back(caf::OptionItemInfo(text, text));
 
             text = "Car 2";
-            options.push_back(caf::PdmOptionItemInfo(text, text));
+            options.push_back(caf::OptionItemInfo(text, text));
         }
 
         return options;
@@ -131,25 +134,26 @@ QList<caf::PdmOptionItemInfo> ManyGroups::calculateValueOptions(const caf::Field
 
     if (fieldNeedingOptions == &m_multiSelectList)
     {
-        QString text;
+        std::string text;
 
         text = "First";
-        options.push_back(caf::PdmOptionItemInfo(text, text));
+        options.push_back(caf::OptionItemInfo(text, text));
 
         text = "Second";
-        options.push_back(caf::PdmOptionItemInfo::createHeader(text, false, caf::IconProvider(":/images/win/textbold.png")));
+        options.push_back(
+            caf::OptionItemInfo::createHeader(text, false, std::make_shared<caf::IconProvider>(":/images/win/textbold.png")));
 
         {
-            text                            = "Second_a";
-            caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text, true);
+            text                         = "Second_a";
+            caf::OptionItemInfo itemInfo = caf::OptionItemInfo(text, text, true);
             itemInfo.setLevel(1);
             options.push_back(itemInfo);
         }
 
         {
             text = "Second_b";
-            caf::PdmOptionItemInfo itemInfo =
-                caf::PdmOptionItemInfo(text, text, false, caf::IconProvider(":/images/win/filenew.png"));
+            caf::OptionItemInfo itemInfo =
+                caf::OptionItemInfo(text, text, false, std::make_shared<caf::IconProvider>(":/images/win/filenew.png"));
             itemInfo.setLevel(1);
             options.push_back(itemInfo);
         }
@@ -157,8 +161,8 @@ QList<caf::PdmOptionItemInfo> ManyGroups::calculateValueOptions(const caf::Field
         int additionalSubItems = 2;
         for (auto i = 0; i < additionalSubItems; i++)
         {
-            text                            = "Second_b_" + QString::number(i);
-            caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text);
+            text                         = "Second_b_" + std::to_string(i);
+            caf::OptionItemInfo itemInfo = caf::OptionItemInfo(text, text);
             itemInfo.setLevel(1);
             options.push_back(itemInfo);
         }
@@ -170,17 +174,17 @@ QList<caf::PdmOptionItemInfo> ManyGroups::calculateValueOptions(const caf::Field
         }
         for (auto i = 0; i < s_additionalSubItems; i++)
         {
-            text                            = "Second_b_" + QString::number(i);
-            caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text);
+            text                         = "Second_b_" + std::to_string(i);
+            caf::OptionItemInfo itemInfo = caf::OptionItemInfo(text, text);
             itemInfo.setLevel(1);
             options.push_back(itemInfo);
         }
 
         text = "Third";
-        options.push_back(caf::PdmOptionItemInfo(text, text));
+        options.push_back(caf::OptionItemInfo(text, text));
 
         text = "Fourth";
-        options.push_back(caf::PdmOptionItemInfo(text, text));
+        options.push_back(caf::OptionItemInfo(text, text));
     }
 
     return options;
@@ -189,44 +193,44 @@ QList<caf::PdmOptionItemInfo> ManyGroups::calculateValueOptions(const caf::Field
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ManyGroups::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void ManyGroups::defineUiOrdering(caf::UiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_toggleField);
     uiOrdering.add(&m_multiSelectList);
 
     /*
         {
-            caf::PdmUiGroup* group = uiOrdering.addNewGroup("First");
+            caf::UiGroup* group = uiOrdering.addNewGroup("First");
 
-            caf::PdmUiGroup* subGroup = group->addNewGroup("First_Content");
+            caf::UiGroup* subGroup = group->addNewGroup("First_Content");
 
             subGroup->add(&m_doubleField);
             subGroup->add(&m_intField);
 
-            caf::PdmUiGroup* subGroup2 = group->addNewGroup("First_Content_2");
+            caf::UiGroup* subGroup2 = group->addNewGroup("First_Content_2");
 
         }
 
         {
-            caf::PdmUiGroup* group = uiOrdering.addNewGroup("Second");
-            caf::PdmUiGroup* subGroup = group->addNewGroup("Second_Content");
+            caf::UiGroup* group = uiOrdering.addNewGroup("Second");
+            caf::UiGroup* subGroup = group->addNewGroup("Second_Content");
         }
 
         {
-            caf::PdmUiGroup* group = uiOrdering.addNewGroup("Third");
-            caf::PdmUiGroup* subGroup = group->addNewGroup("Third_Content");
+            caf::UiGroup* group = uiOrdering.addNewGroup("Third");
+            caf::UiGroup* subGroup = group->addNewGroup("Third_Content");
         }
 
         {
-            caf::PdmUiGroup* group = uiOrdering.addNewGroup("Fourth");
-            caf::PdmUiGroup* subGroup = group->addNewGroup("Fourth_Content");
+            caf::UiGroup* group = uiOrdering.addNewGroup("Fourth");
+            caf::UiGroup* subGroup = group->addNewGroup("Fourth_Content");
 
             subGroup->add(&m_textField);
         }
 
         {
-            caf::PdmUiGroup* group = uiOrdering.addNewGroup("Fifth");
-            caf::PdmUiGroup* subGroup = group->addNewGroup("Fifth_Content");
+            caf::UiGroup* group = uiOrdering.addNewGroup("Fifth");
+            caf::UiGroup* subGroup = group->addNewGroup("Fifth_Content");
 
             subGroup->add(&m_proxyDoubleField);
         }
@@ -236,9 +240,7 @@ void ManyGroups::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ManyGroups::defineEditorAttribute(const caf::FieldHandle* field,
-                                       QString                    uiConfigName,
-                                       caf::UiEditorAttribute* attribute)
+void ManyGroups::defineEditorAttribute(const caf::FieldHandle* field, caf::UiEditorAttribute* attribute)
 {
     if (field == &m_multiSelectList)
     {

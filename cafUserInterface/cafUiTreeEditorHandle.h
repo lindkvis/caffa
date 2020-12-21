@@ -35,9 +35,9 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafPdmPointer.h"
 #include "cafUiEditorHandle.h"
+#include <QObject>
 #include <QPointer>
 #include <QString>
 #include <QWidget>
@@ -51,8 +51,9 @@ class ObjectHandle;
 ///
 //==================================================================================================
 
-class cafUserInterface_EXPORT PdmUiTreeEditorHandle : public UiEditorHandle
+class PdmUiTreeEditorHandle : public QObject, public UiEditorHandle
 {
+    Q_OBJECT
 public:
     PdmUiTreeEditorHandle() {}
     ~PdmUiTreeEditorHandle() override {}
@@ -60,9 +61,9 @@ public:
     QWidget* getOrCreateWidget( QWidget* parent );
     QWidget* widget() { return m_widget; }
 
-    void       setPdmItemRoot( UiItem* root );
+    void    setPdmItemRoot( UiItem* root );
     UiItem* pdmItemRoot();
-    void       updateSubTree( UiItem* root ) { this->updateMySubTree( root ); }
+    void    updateSubTree( UiItem* root ) { this->updateMySubTree( root ); }
 
 protected:
     virtual QWidget* createWidget( QWidget* parent ) = 0;

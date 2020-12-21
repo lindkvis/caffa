@@ -11,7 +11,7 @@
 #include "cafPtrField.h"
 #include "cafPdmReferenceHelper.h"
 
-#include <QDebug>
+#include <string>
 
 class MsjSimpleObj : public caf::ObjectHandle
 {
@@ -25,10 +25,10 @@ public:
         static int a = 0;
 
         id   = a++;
-        name = QString( "Name %1" ).arg( id );
+        name = std::string("Name" ) + std::to_string( id );
     }
 
-    caf::DataValueField<QString> name;
+    caf::DataValueField<std::string> name;
     caf::DataValueField<int>     id;
 };
 

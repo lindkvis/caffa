@@ -40,16 +40,15 @@
 #include "cafAppEnum.h"
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
-#include "cafPdmDocument.h"
 #include "cafField.h"
 #include "cafObject.h"
 #include "cafObjectGroup.h"
+#include "cafPdmDocument.h"
 #include "cafPdmPointer.h"
-#include "cafProxyValueField.h"
 #include "cafPdmReferenceHelper.h"
+#include "cafProxyValueField.h"
 
-#include <QFile>
-
+#include <fstream>
 #include <memory>
 
 /// Demo objects to show the usage of the Pdm system
@@ -129,22 +128,22 @@ public:
         CAF_InitObject( "DemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
 
         CAF_InitField( &m_doubleField,
-                           "BigNumber",
-                           0.0,
-                           "",
-                           "",
-                           "Enter a big number here",
-                           "This is a place you can enter a big real value if you want" );
+                       "BigNumber",
+                       0.0,
+                       "",
+                       "",
+                       "Enter a big number here",
+                       "This is a place you can enter a big real value if you want" );
 
         CAF_InitField( &m_intField,
-                           "IntNumber",
-                           0,
-                           "",
-                           "",
-                           "Enter some small number here",
-                           "This is a place you can enter a small integer value if you want" );
+                       "IntNumber",
+                       0,
+                       "",
+                       "",
+                       "Enter some small number here",
+                       "This is a place you can enter a small integer value if you want" );
 
-        CAF_InitField( &m_textField, "TextField", QString( "∆ÿ≈ Test text   end" ), "TextField", "", "Tooltip", "WhatsThis" );
+        CAF_InitField( &m_textField, "TextField", std::string( u8"∆ÿ≈ Test text   end" ), "TextField", "", "Tooltip", "WhatsThis" );
         CAF_InitFieldNoDefault( &m_simpleObjPtrField, "SimpleObjPtrField", "SimpleObjPtrField", "", "Tooltip", "WhatsThis" );
         CAF_InitFieldNoDefault( &m_simpleObjPtrField2, "SimpleObjPtrField2", "SimpleObjPtrField2", "", "Tooltip", "WhatsThis" );
         m_simpleObjPtrField2 = new SimpleObj;
@@ -157,9 +156,9 @@ public:
     }
 
     // Fields
-    caf::Field<double>  m_doubleField;
-    caf::Field<int>     m_intField;
-    caf::Field<QString> m_textField;
+    caf::Field<double>      m_doubleField;
+    caf::Field<int>         m_intField;
+    caf::Field<std::string> m_textField;
 
     caf::ChildField<SimpleObj*> m_simpleObjPtrField;
     caf::ChildField<SimpleObj*> m_simpleObjPtrField2;
@@ -186,16 +185,16 @@ public:
         CAF_InitFieldNoDefault( &m_texts, "Texts", "Some words", "", "", "" );
         CAF_InitFieldNoDefault( &m_testEnumField, "TestEnumValue", "An Enum", "", "", "" );
         CAF_InitFieldNoDefault( &m_simpleObjectsField,
-                                    "SimpleObjects",
-                                    "SimpleObjectsField",
-                                    "",
-                                    "ToolTip SimpleObjectsField",
-                                    "Whatsthis SimpleObjectsField" );
+                                "SimpleObjects",
+                                "SimpleObjectsField",
+                                "",
+                                "ToolTip SimpleObjectsField",
+                                "Whatsthis SimpleObjectsField" );
     }
 
     ~InheritedDemoObj() { m_simpleObjectsField.deleteAllChildObjects(); }
 
-    caf::Field<std::vector<QString>>       m_texts;
+    caf::Field<std::vector<std::string>>   m_texts;
     caf::Field<caf::AppEnum<TestEnumType>> m_testEnumField;
     caf::ChildArrayField<SimpleObj*>       m_simpleObjectsField;
 };
@@ -423,9 +422,9 @@ TEST(BaseTest, ChildArrayField)
 }
 #endif
 
-void PrintTo( const QString& val, std::ostream* os )
+void PrintTo( const std::string& val, std::ostream* os )
 {
-    *os << val.toLatin1().data();
+    *os << val;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -433,14 +432,14 @@ void PrintTo( const QString& val, std::ostream* os )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ReadWrite )
 {
-    QString xmlDocumentContentWithErrors;
+    std::string xmlDocumentContentWithErrors;
 
     {
-        MyPdmDocument xmlDoc;
+        MyPdmDocument doc;
 
         // Create objects
-        DemoObject*    d1  = new DemoObject;
-        DemoObject*    d2  = new DemoObject;
+        DemoObject*       d1  = new DemoObject;
+        DemoObject*       d2  = new DemoObject;
         InheritedDemoObj* id1 = new InheritedDemoObj;
         InheritedDemoObj* id2 = new InheritedDemoObj;
 
@@ -457,7 +456,7 @@ TEST( BaseTest, ReadWrite )
 
         id1->m_texts.v().push_back( "Hei" );
         id1->m_texts.v().push_back( "og" );
-        id1->m_texts.v().push_back( "HÂ test with whitespace" );
+        id1->m_texts.v().push_back( u8"HÂ test with whitespace" );
 
         d2->m_simpleObjPtrField  = &s2;
         d2->m_simpleObjPtrField2 = s1;
@@ -476,20 +475,20 @@ TEST( BaseTest, ReadWrite )
 
         // Add to document
 
-        xmlDoc.objects.push_back( d1 );
-        xmlDoc.objects.push_back( d2 );
-        xmlDoc.objects.push_back( new SimpleObj );
-        xmlDoc.objects.push_back( id1 );
-        xmlDoc.objects.push_back( id2 );
+        doc.objects.push_back( d1 );
+        doc.objects.push_back( d2 );
+        doc.objects.push_back( new SimpleObj );
+        doc.objects.push_back( id1 );
+        doc.objects.push_back( id2 );
 
         // Write file
-        xmlDoc.fileName = "PdmTestFil.xml";
-        xmlDoc.writeFile();
+        doc.fileName = "PdmTestFile.json";
+        doc.write();
 
         caf::ObjectGroup pog;
-        for ( size_t i = 0; i < xmlDoc.objects.size(); i++ )
+        for ( size_t i = 0; i < doc.objects.size(); i++ )
         {
-            pog.addObject( xmlDoc.objects[i] );
+            pog.addObject( doc.objects[i] );
         }
 
         {
@@ -509,20 +508,20 @@ TEST( BaseTest, ReadWrite )
         }
 
         d2->m_simpleObjPtrField = NULL;
-        xmlDoc.objects.deleteAllChildObjects();
+        doc.objects.deleteAllChildObjects();
     }
 
     {
-        MyPdmDocument xmlDoc;
+        MyPdmDocument doc;
 
         // Read file
-        xmlDoc.fileName = "PdmTestFil.xml";
-        xmlDoc.readFile();
+        doc.fileName = "PdmTestFile.json";
+        ASSERT_TRUE( doc.read() );
 
         caf::ObjectGroup pog;
-        for ( size_t i = 0; i < xmlDoc.objects.size(); i++ )
+        for ( size_t i = 0; i < doc.objects.size(); i++ )
         {
-            pog.addObject( xmlDoc.objects[i] );
+            pog.addObject( doc.objects[i] );
         }
 
         // Test sample of that writing actually took place
@@ -534,137 +533,23 @@ TEST( BaseTest, ReadWrite )
         ASSERT_EQ( size_t( 4 ), ihDObjs[0]->m_simpleObjectsField[1]->m_numbers().size() );
         EXPECT_EQ( 3.13, ihDObjs[0]->m_simpleObjectsField[1]->m_numbers()[3] );
 
-        EXPECT_EQ( QString( "∆ÿ≈ Test text   end" ), ihDObjs[0]->m_textField() );
+        EXPECT_EQ( std::string( u8"∆ÿ≈ Test text   end" ), ihDObjs[0]->m_textField() );
 
         // Write file
-        QFile xmlFile( "PdmTestFil2.xml" );
-        xmlFile.open( QIODevice::WriteOnly | QIODevice::Text );
-        xmlDoc.writeFile( &xmlFile );
-        xmlFile.close();
+        std::ofstream file( "PdmTestFile2.json" );
+        doc.writeFile( file );
+        file.close();
     }
 
     // Check that the files are identical
     {
-        QFile f1( "PdmTestFil.xml" );
-        QFile f2( "PdmTestFil2.xml" );
-        f1.open( QIODevice::ReadOnly | QIODevice::Text );
-        f2.open( QIODevice::ReadOnly | QIODevice::Text );
-        QByteArray ba1   = f1.readAll();
-        QByteArray ba2   = f2.readAll();
-        bool       equal = ba1 == ba2;
+        std::ifstream f1( "PdmTestFile.json" );
+        std::ifstream f2( "PdmTestFile2.json" );
+        std::string   str1( ( std::istreambuf_iterator<char>( f1 ) ), std::istreambuf_iterator<char>() );
+        std::string   str2( ( std::istreambuf_iterator<char>( f2 ) ), std::istreambuf_iterator<char>() );
+
+        bool equal = str1 == str2;
         EXPECT_TRUE( equal );
-
-        // Then test how errors are handled
-        {
-            int pos            = 0;
-            int occurenceCount = 0;
-            while ( occurenceCount < 1 )
-            {
-                pos = ba1.indexOf( "<SimpleObj>", pos + 1 );
-                occurenceCount++;
-            }
-            ba1.insert( pos + 1, "Error" );
-        }
-
-        {
-            int pos            = 0;
-            int occurenceCount = 0;
-            while ( occurenceCount < 1 )
-            {
-                pos = ba1.indexOf( "</SimpleObj>", pos + 1 );
-                occurenceCount++;
-            }
-            ba1.insert( pos + 2, "Error" );
-        }
-
-        {
-            int pos            = 0;
-            int occurenceCount = 0;
-            while ( occurenceCount < 6 ) // Second position in a pointersfield
-            {
-                pos = ba1.indexOf( "<SimpleObj>", pos + 1 );
-                occurenceCount++;
-            }
-            ba1.insert( pos + 1, "Error" );
-        }
-
-        {
-            int pos            = 0;
-            int occurenceCount = 0;
-            while ( occurenceCount < 6 ) // Second position in a pointersfield
-            {
-                pos = ba1.indexOf( "</SimpleObj>", pos + 1 );
-                occurenceCount++;
-            }
-            ba1.insert( pos + 2, "Error" );
-        }
-        {
-            int pos = ba1.indexOf( "<BigNumber>" );
-            ba1.insert( pos + 1, "Error" );
-            pos = ba1.indexOf( "</BigNumber>" );
-            ba1.insert( pos + 2, "Error" );
-        }
-        {
-            int pos            = 0;
-            int occurenceCount = 0;
-            while ( occurenceCount < 4 )
-            {
-                pos = ba1.indexOf( "<Numbers>", pos + 1 );
-                occurenceCount++;
-            }
-            ba1.insert( pos + 1, "Error" );
-        }
-
-        {
-            int pos            = 0;
-            int occurenceCount = 0;
-            while ( occurenceCount < 4 )
-            {
-                pos = ba1.indexOf( "</Numbers>", pos + 1 );
-                occurenceCount++;
-            }
-            ba1.insert( pos + 2, "Error" );
-        }
-
-        // Write the edited document
-
-        QFile f3( "PdmTestFilWithError.xml" );
-        f3.open( QIODevice::WriteOnly | QIODevice::Text );
-        f3.write( ba1 );
-        f3.close();
-
-        // Read the document containing errors
-
-        MyPdmDocument xmlErrorDoc;
-        xmlErrorDoc.fileName = "PdmTestFilWithError.xml";
-        xmlErrorDoc.readFile();
-
-        caf::ObjectGroup pog;
-        for ( size_t i = 0; i < xmlErrorDoc.objects.size(); i++ )
-        {
-            pog.addObject( xmlErrorDoc.objects[i] );
-        }
-
-        // Check the pointersfield
-        std::vector<caf::PdmPointer<InheritedDemoObj>> ihDObjs;
-        pog.objectsByType( &ihDObjs );
-
-        EXPECT_EQ( size_t( 2 ), ihDObjs.size() );
-        ASSERT_EQ( size_t( 3 ), ihDObjs[0]->m_simpleObjectsField.size() );
-
-        // check single pointer field
-        std::vector<caf::PdmPointer<DemoObject>> demoObjs;
-        pog.objectsByType( &demoObjs );
-
-        EXPECT_EQ( size_t( 4 ), demoObjs.size() );
-        EXPECT_TRUE( demoObjs[0]->m_simpleObjPtrField == NULL );
-        EXPECT_TRUE( demoObjs[0]->m_simpleObjPtrField2 != NULL );
-
-        // check single pointer field
-        std::vector<caf::PdmPointer<SimpleObj>> simpleObjs;
-        pog.objectsByType( &simpleObjs );
-        EXPECT_EQ( size_t( 1 ), simpleObjs.size() );
-        EXPECT_EQ( size_t( 0 ), simpleObjs[0]->m_numbers().size() );
     }
 }
 
@@ -707,30 +592,29 @@ TEST( BaseTest, PdmPointer )
 TEST( BaseTest, ObjectFactory )
 {
     {
-        SimpleObj* s = dynamic_cast<SimpleObj*>( caf::PdmDefaultObjectFactory::instance()->create( "SimpleObj" ) );
+        SimpleObj* s = dynamic_cast<SimpleObj*>( caf::DefaultObjectFactory::instance()->create( "SimpleObj" ) );
         EXPECT_TRUE( s != NULL );
     }
     {
-        DemoObject* s =
-            dynamic_cast<DemoObject*>( caf::PdmDefaultObjectFactory::instance()->create( "DemoObject" ) );
+        DemoObject* s = dynamic_cast<DemoObject*>( caf::DefaultObjectFactory::instance()->create( "DemoObject" ) );
         EXPECT_TRUE( s != NULL );
         delete s;
     }
     {
         InheritedDemoObj* s =
-            dynamic_cast<InheritedDemoObj*>( caf::PdmDefaultObjectFactory::instance()->create( "InheritedDemoObj" ) );
+            dynamic_cast<InheritedDemoObj*>( caf::DefaultObjectFactory::instance()->create( "InheritedDemoObj" ) );
         EXPECT_TRUE( s != NULL );
     }
 
     {
         caf::PdmDocument* s =
-            dynamic_cast<caf::PdmDocument*>( caf::PdmDefaultObjectFactory::instance()->create( "PdmDocument" ) );
+            dynamic_cast<caf::PdmDocument*>( caf::DefaultObjectFactory::instance()->create( "PdmDocument" ) );
         EXPECT_TRUE( s != NULL );
     }
 
     {
         caf::ObjectGroup* s =
-            dynamic_cast<caf::ObjectGroup*>( caf::PdmDefaultObjectFactory::instance()->create( "ObjectGroup" ) );
+            dynamic_cast<caf::ObjectGroup*>( caf::DefaultObjectFactory::instance()->create( "ObjectGroup" ) );
         EXPECT_TRUE( s != NULL );
     }
 }
@@ -797,17 +681,17 @@ TEST( BaseTest, ObjectGroupCopyOfTypedObjects )
     og.objects.push_back( ihd1 );
 
     std::vector<caf::PdmPointer<SimpleObj>> simpleObjList;
-    og.createCopyByType( &simpleObjList, caf::PdmDefaultObjectFactory::instance() );
+    og.createCopyByType( &simpleObjList, caf::DefaultObjectFactory::instance() );
     EXPECT_EQ( size_t( 3 ), simpleObjList.size() );
-    EXPECT_EQ( 1000, simpleObjList[0]->m_position );
+    EXPECT_EQ( 1000.0, simpleObjList[0]->m_position() );
     EXPECT_EQ( size_t( 1 ), simpleObjList[0]->m_numbers.v().size() );
-    EXPECT_EQ( 10, simpleObjList[0]->m_numbers.v()[0] );
+    EXPECT_EQ( 10.0, simpleObjList[0]->m_numbers.v()[0] );
 
-    EXPECT_EQ( 2000, simpleObjList[1]->m_position );
-    EXPECT_EQ( 3000, simpleObjList[2]->m_position );
+    EXPECT_EQ( 2000.0, simpleObjList[1]->m_position() );
+    EXPECT_EQ( 3000.0, simpleObjList[2]->m_position() );
 
     std::vector<caf::PdmPointer<InheritedDemoObj>> inheritObjList;
-    og.createCopyByType( &inheritObjList, caf::PdmDefaultObjectFactory::instance() );
+    og.createCopyByType( &inheritObjList, caf::DefaultObjectFactory::instance() );
     EXPECT_EQ( size_t( 1 ), inheritObjList.size() );
 
     og.deleteObjects();
@@ -841,7 +725,7 @@ TEST( BaseTest, ChildArrayFieldHandle )
     SimpleObj* s3  = new SimpleObj;
     s3->m_position = 3000;
 
-    InheritedDemoObj*              ihd1      = new InheritedDemoObj;
+    InheritedDemoObj*           ihd1      = new InheritedDemoObj;
     caf::ChildArrayFieldHandle* listField = &( ihd1->m_simpleObjectsField );
 
     EXPECT_EQ( 0u, listField->size() );
@@ -886,8 +770,8 @@ public:
     }
 
     // Fields
-    caf::ChildField<ObjectHandle*> m_pointersField;
-    caf::ChildArrayField<SimpleObj*>  m_simpleObjPtrField2;
+    caf::ChildField<ObjectHandle*>   m_pointersField;
+    caf::ChildArrayField<SimpleObj*> m_simpleObjPtrField2;
 };
 
 CAF_SOURCE_INIT( ReferenceDemoObject, "ReferenceDemoObject" );
@@ -915,22 +799,22 @@ TEST( BaseTest, PdmReferenceHelper )
     ihd1->m_simpleObjectsField.push_back( s3 );
 
     {
-        QString refString = caf::PdmReferenceHelper::referenceFromRootToObject( NULL, s3 );
-        EXPECT_TRUE( refString.isEmpty() );
+        std::string refString = caf::PdmReferenceHelper::referenceFromRootToObject( NULL, s3 );
+        EXPECT_TRUE( refString.empty() );
 
-        refString              = caf::PdmReferenceHelper::referenceFromRootToObject( ihd1, s3 );
-        QString expectedString = ihd1->m_simpleObjectsField.keyword() + " 3";
-        EXPECT_STREQ( refString.toLatin1(), expectedString.toLatin1() );
+        refString                  = caf::PdmReferenceHelper::referenceFromRootToObject( ihd1, s3 );
+        std::string expectedString = ihd1->m_simpleObjectsField.keyword() + " 3";
+        EXPECT_STREQ( refString.c_str(), expectedString.c_str() );
 
         caf::ObjectHandle* fromRef = caf::PdmReferenceHelper::objectFromReference( ihd1, refString );
         EXPECT_TRUE( fromRef == s3 );
     }
 
     ReferenceDemoObject* objA = new ReferenceDemoObject;
-    objA->m_pointersField        = ihd1;
+    objA->m_pointersField     = ihd1;
 
     {
-        QString refString = caf::PdmReferenceHelper::referenceFromRootToObject( objA, s3 );
+        std::string refString = caf::PdmReferenceHelper::referenceFromRootToObject( objA, s3 );
 
         caf::ObjectHandle* fromRef = caf::PdmReferenceHelper::objectFromReference( objA, refString );
         EXPECT_TRUE( fromRef == s3 );
@@ -938,7 +822,7 @@ TEST( BaseTest, PdmReferenceHelper )
 
     // Test reference to field
     {
-        QString refString = caf::PdmReferenceHelper::referenceFromRootToField( objA, &( ihd1->m_simpleObjectsField ) );
+        std::string refString = caf::PdmReferenceHelper::referenceFromRootToField( objA, &( ihd1->m_simpleObjectsField ) );
 
         caf::FieldHandle* fromRef = caf::PdmReferenceHelper::fieldFromReference( objA, refString );
         EXPECT_TRUE( fromRef == &( ihd1->m_simpleObjectsField ) );

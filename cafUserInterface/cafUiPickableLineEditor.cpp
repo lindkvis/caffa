@@ -37,11 +37,13 @@
 
 #include "cafField.h"
 #include "cafObject.h"
+#include "cafPickEventHandler.h"
 #include "cafUiDefaultObjectEditor.h"
 #include "cafUiFieldEditorHandle.h"
-#include "cafPickEventHandler.h"
 
 using namespace caf;
+
+CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiPickableLineEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -57,14 +59,14 @@ caf::PdmUiPickableLineEditor::~PdmUiPickableLineEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiPickableLineEditor::configureAndUpdateUi( const QString& uiConfigName )
+void caf::PdmUiPickableLineEditor::configureAndUpdateUi()
 {
-    PdmUiLineEditor::configureAndUpdateUi( uiConfigName );
+    PdmUiLineEditor::configureAndUpdateUi();
 
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attribute );
+        uiObject->editorAttribute( uiField()->fieldHandle(), &m_attribute );
     }
 
     if ( m_attribute.pickEventHandler )
@@ -83,10 +85,5 @@ void caf::PdmUiPickableLineEditor::configureAndUpdateUi( const QString& uiConfig
         }
     }
 
-    m_lineEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
+    m_lineEdit->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 }
-
-// Define at this location to avoid duplicate symbol definitions in 'cafUiDefaultObjectEditor.cpp' in a cotire build.
-// The variables defined by the macro are prefixed by line numbers causing a crash if the macro is defined at the same
-// line number.
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiPickableLineEditor );

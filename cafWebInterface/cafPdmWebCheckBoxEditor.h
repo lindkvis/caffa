@@ -36,12 +36,18 @@
 //##################################################################################################
 #pragma once
 
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
+
 #include "cafPdmWebFieldEditorHandle.h"
 
 #include <Wt/Core/observing_ptr.hpp>
 #include <Wt/WCheckBox.h>
 #include <Wt/WLabel.h>
 #include <Wt/WWidget.h>
+
 namespace caf
 {
 class PdmWebCheckBoxEditor : public PdmWebFieldEditorHandle
@@ -55,7 +61,7 @@ public:
 protected:
     Wt::WWidget* createEditorWidget() override;
     Wt::WLabel*  createLabelWidget() override;
-    void         configureAndUpdateUi( const QString& uiConfigName ) override;
+    void         configureAndUpdateUi() override;
 
 protected:
     void slotClicked();
@@ -66,3 +72,7 @@ private:
 };
 
 } // end namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

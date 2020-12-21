@@ -51,7 +51,7 @@ PdmUiTreeItemEditor::PdmUiTreeItemEditor( UiItem* uiItem )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeItemEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiTreeItemEditor::configureAndUpdateUi(  )
 {
     if ( m_treeViewEditor )
     {

@@ -76,24 +76,10 @@ PdmUiTreeView::~PdmUiTreeView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::setUiConfigurationName( QString uiConfigName )
-{
-    // Reset everything, and possibly create widgets etc afresh
-    if ( m_uiConfigName != uiConfigName )
-    {
-        m_uiConfigName = uiConfigName;
-
-        m_treeViewEditor->updateUi( m_uiConfigName );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void PdmUiTreeView::setPdmItem( caf::UiItem* object )
 {
     m_treeViewEditor->setPdmItemRoot( object );
-    m_treeViewEditor->updateUi( m_uiConfigName );
+    m_treeViewEditor->updateUi();
 }
 
 //--------------------------------------------------------------------------------------------------

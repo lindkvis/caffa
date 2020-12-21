@@ -35,7 +35,6 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmWebLineEditor.h"
 
 #include "cafFactory.h"
@@ -43,8 +42,8 @@
 #include "cafObject.h"
 #include "cafPdmWebDefaultObjectEditor.h"
 #include "cafPdmWebFieldEditorHandle.h"
-#include "cafUiOrdering.h"
 #include "cafSelectionManager.h"
+#include "cafUiOrdering.h"
 
 #include <Wt/WApplication.h>
 #include <Wt/WLabel.h>
@@ -55,7 +54,6 @@
 //#include <QDebug>
 //#include <QString>
 
-
 using namespace caf;
 
 //--------------------------------------------------------------------------------------------------
@@ -64,7 +62,7 @@ using namespace caf;
 Wt::WWidget* PdmWebLineEditor::createEditorWidget()
 {
     m_lineEdit = new Wt::WLineEdit;
-    m_lineEdit->changed().connect(std::bind(&PdmWebLineEditor::slotEditingFinished, this));
+    m_lineEdit->changed().connect( std::bind( &PdmWebLineEditor::slotEditingFinished, this ) );
 
     return m_lineEdit.get();
 }
@@ -79,41 +77,42 @@ Wt::WLabel* caf::PdmWebLineEditor::createLabelWidget()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebLineEditor::configureAndUpdateUi(const QString& uiConfigName)
+void PdmWebLineEditor::configureAndUpdateUi()
 {
-    applyTextToLabel(m_label.get(), uiConfigName);
+    applyTextToLabel( m_label.get() );
 
-    if (m_lineEdit)
+    if ( m_lineEdit )
     {
-        bool isReadOnly = uiField()->isUiReadOnly(uiConfigName);
-        if (isReadOnly)
+        bool isReadOnly = uiField()->isUiReadOnly();
+        if ( isReadOnly )
         {
-            m_lineEdit->setReadOnly(true);
+            m_lineEdit->setReadOnly( true );
         }
         else
         {
-            m_lineEdit->setReadOnly(false);
+            m_lineEdit->setReadOnly( false );
         }
 
-        m_lineEdit->setToolTip(uiField()->uiToolTip(uiConfigName).toStdString());
+        m_lineEdit->setToolTip( uiField()->uiToolTip() );
 
-        QString displayString = uiField()->uiValue().toString();
-        m_lineEdit->setText(displayString.toStdString());
+        std::string displayString = uiField()->uiValue().value<std::string>();
+        m_lineEdit->setText( displayString );
     }
 }
 
-// Define at this location to avoid duplicate symbol definitions in 'cafUiDefaultObjectEditor.cpp' in a cotire build. The
-// variables defined by the macro are prefixed by line numbers causing a crash if the macro is defined at the same line number.
-CAF_PDM_WEB_FIELD_EDITOR_SOURCE_INIT(PdmWebLineEditor);
+// Define at this location to avoid duplicate symbol definitions in 'cafUiDefaultObjectEditor.cpp' in a cotire build.
+// The variables defined by the macro are prefixed by line numbers causing a crash if the macro is defined at the same
+// line number.
+CAF_PDM_WEB_FIELD_EDITOR_SOURCE_INIT( PdmWebLineEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void caf::PdmWebLineEditor::slotEditingFinished()
 {
-    QString textValue = QString::fromStdString(m_lineEdit->text().narrow());
-    QVariant v = textValue;
-    this->setValueToField(v);
+    auto    textValue = m_lineEdit->text().narrow();
+    Variant v( textValue );
+    this->setValueToField( v );
 }

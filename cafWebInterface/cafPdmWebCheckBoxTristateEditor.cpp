@@ -36,61 +36,62 @@
 
 #include "cafPdmWebCheckBoxTristateEditor.h"
 
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
+
 #include "cafPdmWebDefaultObjectEditor.h"
 
+#include "cafField.h"
 #include "cafObject.h"
 #include "cafPdmWebFieldEditorHandle.h"
 #include "cafUiOrdering.h"
-#include "cafField.h"
 
 #include "cafFactory.h"
 #include "cafTristate.h"
 
-
-
 namespace caf
 {
-
-CAF_PDM_WEB_FIELD_EDITOR_SOURCE_INIT(PdmWebCheckBoxTristateEditor);
-
+CAF_PDM_WEB_FIELD_EDITOR_SOURCE_INIT( PdmWebCheckBoxTristateEditor );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebCheckBoxTristateEditor::configureAndUpdateUi(const QString& uiConfigName)
+void PdmWebCheckBoxTristateEditor::configureAndUpdateUi()
 {
-    CAF_ASSERT(m_checkBox);
-    CAF_ASSERT(m_label);
+    CAF_ASSERT( m_checkBox );
+    CAF_ASSERT( m_label );
 
-    applyTextToLabel(m_label.get(), uiConfigName);
+    applyTextToLabel( m_label.get() );
 
-    m_checkBox->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
-    m_checkBox->setToolTip(uiField()->uiToolTip(uiConfigName).toStdString());
+    m_checkBox->setEnabled( !uiField()->isUiReadOnly() );
+    m_checkBox->setToolTip( uiField()->uiToolTip() );
 
     Tristate state = uiField()->uiValue().value<Tristate>();
-    
-    if (state == Tristate::State::True)
+
+    if ( state == Tristate::State::True )
     {
-        m_checkBox->setCheckState(Wt::CheckState::Checked);
+        m_checkBox->setCheckState( Wt::CheckState::Checked );
     }
-    else if (state == Tristate::State::PartiallyTrue)
+    else if ( state == Tristate::State::PartiallyTrue )
     {
-        m_checkBox->setCheckState(Wt::CheckState::PartiallyChecked);
+        m_checkBox->setCheckState( Wt::CheckState::PartiallyChecked );
     }
-    else if (state == Tristate::State::False)
+    else if ( state == Tristate::State::False )
     {
-        m_checkBox->setCheckState(Wt::CheckState::Unchecked);
+        m_checkBox->setCheckState( Wt::CheckState::Unchecked );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Wt::WWidget* PdmWebCheckBoxTristateEditor::createEditorWidget()
 {
     m_checkBox = new Wt::WCheckBox;
-    m_checkBox->setTristate(true);
-    m_checkBox->changed().connect(std::bind(&PdmWebCheckBoxTristateEditor::slotClicked, this));
+    m_checkBox->setTristate( true );
+    m_checkBox->changed().connect( std::bind( &PdmWebCheckBoxTristateEditor::slotClicked, this ) );
 
     return m_checkBox.get();
 }
@@ -105,29 +106,32 @@ Wt::WLabel* PdmWebCheckBoxTristateEditor::createLabelWidget()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmWebCheckBoxTristateEditor::slotClicked()
 {
     Tristate state;
 
-    if (m_checkBox->checkState() == Wt::CheckState::Checked)
+    if ( m_checkBox->checkState() == Wt::CheckState::Checked )
     {
         state = Tristate::State::True;
     }
-    else if (m_checkBox->checkState() == Wt::CheckState::PartiallyChecked)
+    else if ( m_checkBox->checkState() == Wt::CheckState::PartiallyChecked )
     {
         state = Tristate::State::PartiallyTrue;
     }
-    else if (m_checkBox->checkState() == Wt::CheckState::Unchecked)
+    else if ( m_checkBox->checkState() == Wt::CheckState::Unchecked )
     {
         state = Tristate::State::False;
     }
 
-    QVariant v = QVariant::fromValue(state);
+    Variant v( state );
 
-    this->setValueToField(v);
+    this->setValueToField( v );
 }
 
-
 } // end namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

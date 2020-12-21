@@ -37,8 +37,13 @@
 
 #pragma once
 
-#include "cafUiComboBoxEditorAttribute.h"
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
+
 #include "cafPdmWebFieldEditorHandle.h"
+#include "cafUiComboBoxEditorAttribute.h"
 
 #include <Wt/Core/observing_ptr.hpp>
 #include <Wt/WComboBox.h>
@@ -61,9 +66,9 @@ public:
 protected:
     Wt::WWidget* createEditorWidget() override;
     Wt::WLabel*  createLabelWidget() override;
-    void         configureAndUpdateUi( const QString& uiConfigName ) override;
+    void         configureAndUpdateUi() override;
 
-protected slots:
+protected:
     void slotIndexActivated( int index );
 
     void slotNextButtonPressed();
@@ -81,3 +86,7 @@ private:
 };
 
 } // end namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

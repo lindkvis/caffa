@@ -46,30 +46,26 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiPropertyViewDialog::PdmUiPropertyViewDialog( QWidget*       parent,
-                                                  Object*     object,
-                                                  const QString& windowTitle,
-                                                  const QString& uiConfigName )
+PdmUiPropertyViewDialog::PdmUiPropertyViewDialog( QWidget* parent, Object* object, const QString& windowTitle )
     : QDialog( parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint )
 {
     m_buttonBox = new QDialogButtonBox( QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
 
-    initialize( object, windowTitle, uiConfigName );
+    initialize( object, windowTitle );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 PdmUiPropertyViewDialog::PdmUiPropertyViewDialog( QWidget*                                 parent,
-                                                  Object*                               object,
+                                                  Object*                                  object,
                                                   const QString&                           windowTitle,
-                                                  const QString&                           uiConfigName,
                                                   const QDialogButtonBox::StandardButtons& standardButtons )
     : QDialog( parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint )
 {
     m_buttonBox = new QDialogButtonBox( standardButtons );
 
-    initialize( object, windowTitle, uiConfigName );
+    initialize( object, windowTitle );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,11 +87,10 @@ QDialogButtonBox* PdmUiPropertyViewDialog::dialogButtonBox()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiPropertyViewDialog::initialize( Object* object, const QString& windowTitle, const QString& uiConfigName )
+void PdmUiPropertyViewDialog::initialize( Object* object, const QString& windowTitle )
 {
-    m_pdmObject    = object;
-    m_windowTitle  = windowTitle;
-    m_uiConfigName = uiConfigName;
+    m_pdmObject   = object;
+    m_windowTitle = windowTitle;
 
     setWindowModality( Qt::WindowModal );
 
@@ -110,7 +105,6 @@ void PdmUiPropertyViewDialog::setupUi()
     setWindowTitle( m_windowTitle );
 
     m_pdmUiPropertyView = new PdmUiPropertyView( this );
-    m_pdmUiPropertyView->setUiConfigurationName( m_uiConfigName );
 
     QVBoxLayout* dialogLayout = new QVBoxLayout;
     setLayout( dialogLayout );

@@ -34,16 +34,20 @@
 //   for more details.
 //
 //##################################################################################################
-
 #include "cafPdmWebTreeViewWModel.h"
+
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
 
 #include "cafField.h"
 #include "cafObject.h"
-#include "cafUiCommandSystemProxy.h"
-#include "cafUiDragDropInterface.h"
-#include "cafUiTreeOrdering.h"
 #include "cafPdmWebTreeItemEditor.h"
 #include "cafPdmWebTreeViewEditor.h"
+#include "cafUiCommandSystemProxy.h"
+//#include "cafUiDragDropInterface.h"
+#include "cafUiTreeOrdering.h"
 
 #include <Wt/WEvent.h>
 #include <Wt/WTreeView.h>
@@ -55,8 +59,8 @@ using namespace caf;
 //--------------------------------------------------------------------------------------------------
 PdmWebTreeViewWModel::PdmWebTreeViewWModel( PdmWebTreeViewEditor* treeViewEditor )
 {
-    m_treeOrderingRoot  = nullptr;
-    m_dragDropInterface = nullptr;
+    m_treeOrderingRoot = nullptr;
+    // m_dragDropInterface = nullptr;
 
     m_treeViewEditor = treeViewEditor;
 }
@@ -74,20 +78,20 @@ void PdmWebTreeViewWModel::setPdmItemRoot( UiItem* rootItem )
         return;
     }
 
-    PdmUiTreeOrdering*    newRoot = nullptr;
+    PdmUiTreeOrdering* newRoot = nullptr;
     FieldUiCapability* field   = dynamic_cast<FieldUiCapability*>( rootItem );
 
     if ( field )
     {
         newRoot = new PdmUiTreeOrdering( field->fieldHandle() );
-        ObjectUiCapability::expandUiTree( newRoot, m_uiConfigName );
+        ObjectUiCapability::expandUiTree( newRoot );
     }
     else
     {
         ObjectUiCapability* obj = dynamic_cast<ObjectUiCapability*>( rootItem );
         if ( obj )
         {
-            newRoot = obj->uiTreeOrdering( m_uiConfigName );
+            newRoot = obj->uiTreeOrdering();
         }
     }
 
@@ -118,7 +122,7 @@ void PdmWebTreeViewWModel::resetTree( PdmUiTreeOrdering* newRoot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewWModel::setColumnHeaders( const QStringList& columnHeaders )
+void PdmWebTreeViewWModel::setColumnHeaders( const std::vector<std::string>& columnHeaders )
 {
     m_columnHeaders = columnHeaders;
 }
@@ -138,7 +142,7 @@ void PdmWebTreeViewWModel::updateSubTree( UiItem* pdmRoot )
 {
     // Build the new "Correct" Tree
 
-    PdmUiTreeOrdering*    newTreeRootTmp = nullptr;
+    PdmUiTreeOrdering* newTreeRootTmp = nullptr;
     FieldUiCapability* field          = dynamic_cast<FieldUiCapability*>( pdmRoot );
     if ( field )
     {
@@ -153,7 +157,7 @@ void PdmWebTreeViewWModel::updateSubTree( UiItem* pdmRoot )
         }
     }
 
-    ObjectUiCapability::expandUiTree( newTreeRootTmp, m_uiConfigName );
+    ObjectUiCapability::expandUiTree( newTreeRootTmp );
 
 #if CAF_PDM_TREE_VIEW_DEBUG_PRINT
     std::cout << std::endl << "New Stuff: " << std::endl;
@@ -304,8 +308,8 @@ void PdmWebTreeViewWModel::updateSubTreeRecursive( const Wt::WModelIndex& existi
             std::vector<int> indicesToRemoveFromSource;
             for ( int i = 0; i < sourceSubTreeRoot->childCount(); ++i )
             {
-                PdmUiTreeOrdering*                       sourceChild = sourceSubTreeRoot->child( i );
-                std::map<caf::UiItem*, int>::iterator it = existingTreeMap.find( sourceChild->activeItem() );
+                PdmUiTreeOrdering*                    sourceChild = sourceSubTreeRoot->child( i );
+                std::map<caf::UiItem*, int>::iterator it          = existingTreeMap.find( sourceChild->activeItem() );
                 if ( it != existingTreeMap.end() )
                 {
                     newMergedOrdering.push_back( existingSubTreeRoot->child( it->second ) );
@@ -380,8 +384,8 @@ void PdmWebTreeViewWModel::updateEditorsForSubTree( PdmUiTreeOrdering* root )
 
     if ( !root->editor() )
     {
-        PdmWebTreeItemEditor* treeItemEditor = new PdmWebTreeItemEditor( root->activeItem() );
-        root->setEditor( treeItemEditor );
+        auto treeItemEditor = std::make_unique<PdmWebTreeItemEditor>( root->activeItem() );
+        root->setEditor( std::move( treeItemEditor ) );
         CAF_ASSERT( root->editor() );
     }
 
@@ -456,7 +460,7 @@ Wt::WModelIndex caf::PdmWebTreeViewWModel::findModelIndex( const UiItem* object 
 ///
 //--------------------------------------------------------------------------------------------------
 Wt::WModelIndex caf::PdmWebTreeViewWModel::findModelIndexRecursive( const Wt::WModelIndex& currentIndex,
-                                                                    const UiItem*       pdmItem ) const
+                                                                    const UiItem*          pdmItem ) const
 {
     if ( currentIndex.internalPointer() )
     {
@@ -564,27 +568,27 @@ Wt::cpp17::any PdmWebTreeViewWModel::data( const Wt::WModelIndex& index, Wt::Ite
 
     if ( role == Wt::ItemDataRole::Display && !uitreeOrdering->isValid() )
     {
-        QString str;
+        std::string str;
 
 #ifdef DEBUG
         str = "Invalid uiordering";
 #endif
 
-        return str.toStdString();
+        return str;
     }
 
     if ( role == Wt::ItemDataRole::Display || role == Wt::ItemDataRole::Edit )
     {
         if ( isObjRep )
         {
-            ObjectUiCapability* pdmUiObject = uiObj( uitreeOrdering->object() );
-            if ( pdmUiObject )
+            ObjectHandle* object = uitreeOrdering->object();
+            if ( object )
             {
-                QVariant v;
-                if ( pdmUiObject->userDescriptionField() )
+                Variant v;
+                if ( object->userDescriptionField() )
                 {
                     caf::FieldUiCapability* uiFieldHandle =
-                        pdmUiObject->userDescriptionField()->capability<FieldUiCapability>();
+                        object->userDescriptionField()->capability<FieldUiCapability>();
                     if ( uiFieldHandle )
                     {
                         v = uiFieldHandle->uiValue();
@@ -592,22 +596,21 @@ Wt::cpp17::any PdmWebTreeViewWModel::data( const Wt::WModelIndex& index, Wt::Ite
                 }
                 else
                 {
-                    v = pdmUiObject->uiName();
+                    v = object->classKeywordStatic();
                 }
 
-                QString txt = v.toString();
+                std::string txt = v.value<std::string>();
 
                 if ( m_treeViewEditor->isAppendOfClassNameToUiItemTextEnabled() )
                 {
-                    ObjectHandle* pdmObjHandle = pdmUiObject->objectHandle();
-                    if ( pdmObjHandle )
+                    if ( object )
                     {
                         txt += " - ";
-                        txt += typeid( *pdmObjHandle ).name();
+                        txt += typeid( *object ).name();
                     }
                 }
 
-                return txt.toStdString();
+                return txt;
             }
             else
             {
@@ -617,7 +620,7 @@ Wt::cpp17::any PdmWebTreeViewWModel::data( const Wt::WModelIndex& index, Wt::Ite
 
         if ( uitreeOrdering->activeItem() )
         {
-            return uitreeOrdering->activeItem()->uiName().toStdString();
+            return uitreeOrdering->activeItem()->uiName();
         }
         else
         {
@@ -626,9 +629,9 @@ Wt::cpp17::any PdmWebTreeViewWModel::data( const Wt::WModelIndex& index, Wt::Ite
     }
     else if ( role == Wt::ItemDataRole::Decoration )
     {
-        if ( uitreeOrdering->activeItem() )
+        if ( uitreeOrdering->activeItem() && uitreeOrdering->activeItem()->uiIconProvider() )
         {
-            return uitreeOrdering->activeItem()->uiIconProvider().iconResourceString().toStdString();
+            return uitreeOrdering->activeItem()->uiIconProvider()->iconResourceString();
         }
         else
         {
@@ -639,7 +642,7 @@ Wt::cpp17::any PdmWebTreeViewWModel::data( const Wt::WModelIndex& index, Wt::Ite
     {
         if ( uitreeOrdering->activeItem() )
         {
-            return uitreeOrdering->activeItem()->uiToolTip().toStdString();
+            return uitreeOrdering->activeItem()->uiToolTip();
         }
         else
         {
@@ -650,7 +653,7 @@ Wt::cpp17::any PdmWebTreeViewWModel::data( const Wt::WModelIndex& index, Wt::Ite
     {
         if ( uitreeOrdering->activeItem() )
         {
-            return uitreeOrdering->activeItem()->uiWhatsThis().toStdString();
+            return uitreeOrdering->activeItem()->uiWhatsThis();
         }
         else
         {
@@ -661,14 +664,13 @@ Wt::cpp17::any PdmWebTreeViewWModel::data( const Wt::WModelIndex& index, Wt::Ite
     {
         if ( isObjRep )
         {
-            ObjectUiCapability* pdmUiObj = uiObj( uitreeOrdering->object() );
-            if ( pdmUiObj && pdmUiObj->objectToggleField() )
+            auto object = uitreeOrdering->object();
+            if ( object && object->objectToggleField() )
             {
-                caf::FieldUiCapability* uiFieldHandle =
-                    pdmUiObj->objectToggleField()->capability<FieldUiCapability>();
+                caf::FieldUiCapability* uiFieldHandle = object->objectToggleField()->capability<FieldUiCapability>();
                 if ( uiFieldHandle )
                 {
-                    bool isToggledOn = uiFieldHandle->uiValue().toBool();
+                    bool isToggledOn = uiFieldHandle->uiValue().value<bool>();
                     return Wt::cpp17::any( isToggledOn );
                 }
                 else
@@ -699,28 +701,27 @@ bool PdmWebTreeViewWModel::setData( const Wt::WModelIndex& index,
 
     if ( !treeItem->isRepresentingObject() ) return false;
 
-    ObjectUiCapability* uiObject = uiObj( treeItem->object() );
-    if ( uiObject )
+    auto object = treeItem->object();
+    if ( object )
     {
-        if ( role == Wt::ItemDataRole::Edit && uiObject->userDescriptionField() )
+        if ( role == Wt::ItemDataRole::Edit && object->userDescriptionField() )
         {
-            FieldUiCapability* userDescriptionUiField =
-                uiObject->userDescriptionField()->capability<FieldUiCapability>();
+            FieldUiCapability* userDescriptionUiField = object->userDescriptionField()->capability<FieldUiCapability>();
             if ( userDescriptionUiField )
             {
                 Wt::WString text = Wt::cpp17::any_cast<Wt::WString>( value );
-                QVariant    qValue( QString::fromStdString( text.narrow() ) );
-                UiCommandSystemProxy::instance()->setUiValueToField( userDescriptionUiField, qValue );
+                Variant     value( text.narrow() );
+                UiCommandSystemProxy::instance()->setUiValueToField( userDescriptionUiField, value );
             }
 
             return true;
         }
-        else if ( role == Wt::ItemDataRole::Checked && uiObject->objectToggleField() &&
-                  !uiObject->objectToggleField()->capability<FieldUiCapability>()->isUiReadOnly( m_uiConfigName ) )
+        else if ( role == Wt::ItemDataRole::Checked && object->objectToggleField() &&
+                  !object->objectToggleField()->capability<FieldUiCapability>()->isUiReadOnly() )
         {
             bool toggleOn = Wt::cpp17::any_cast<bool>( value );
 
-            FieldUiCapability* toggleUiField = uiObject->objectToggleField()->capability<FieldUiCapability>();
+            FieldUiCapability* toggleUiField = object->objectToggleField()->capability<FieldUiCapability>();
             if ( toggleUiField )
             {
                 UiCommandSystemProxy::instance()->setUiValueToField( toggleUiField, toggleOn );
@@ -751,17 +752,17 @@ Wt::WFlags<Wt::ItemFlag> PdmWebTreeViewWModel::flags( const Wt::WModelIndex& ind
 
     if ( treeItem->isRepresentingObject() )
     {
-        ObjectUiCapability* pdmUiObject = uiObj( treeItem->object() );
-        if ( pdmUiObject )
+        ObjectHandle* object = treeItem->object();
+        if ( object )
         {
             flagMask |= Wt::ItemFlag::Selectable;
-            if ( pdmUiObject->userDescriptionField() &&
-                 !pdmUiObject->userDescriptionField()->capability<FieldUiCapability>()->isUiReadOnly() )
+            if ( object->userDescriptionField() &&
+                 !object->userDescriptionField()->capability<FieldUiCapability>()->isUiReadOnly() )
             {
                 flagMask = flagMask | Wt::ItemFlag::Editable;
             }
 
-            if ( pdmUiObject->objectToggleField() )
+            if ( object->objectToggleField() )
             {
                 flagMask = flagMask | Wt::ItemFlag::UserCheckable;
             }
@@ -819,15 +820,19 @@ UiItem* PdmWebTreeViewWModel::uiItemFromModelIndex( const Wt::WModelIndex& index
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeViewWModel::setDragDropInterface( PdmUiDragDropInterface* dragDropInterface )
+/* void PdmWebTreeViewWModel::setDragDropInterface( PdmUiDragDropInterface* dragDropInterface )
 {
     m_dragDropInterface = dragDropInterface;
-}
+} */
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiDragDropInterface* PdmWebTreeViewWModel::dragDropInterface()
+/* PdmUiDragDropInterface* PdmWebTreeViewWModel::dragDropInterface()
 {
     return m_dragDropInterface;
-}
+} */
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif
