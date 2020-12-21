@@ -37,6 +37,7 @@
 #include <cctype>
 #include <functional>
 #include <locale>
+#include <numeric>
 #include <regex>
 #include <string>
 
