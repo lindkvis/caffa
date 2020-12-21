@@ -8,7 +8,7 @@
 
 #include <filesystem>
 #include <list>
-
+#include <string>
 #include <type_traits>
 
 namespace caf
@@ -234,7 +234,7 @@ public:
     /// Convert the field value into a Variant
     static Variant convert( const std::filesystem::path& value )
     {
-        return ValueFieldSpecialization<std::filesystem::path>::convert( value );
+        return ValueFieldSpecialization<std::string>::convert( value.string() );
     }
 
     static Variant convertToUiVariant( const std::filesystem::path& value ) { return convert( value ); }
@@ -242,12 +242,14 @@ public:
     /// Set the field value from a Variant
     static void setFromVariant( const Variant& variantValue, std::filesystem::path& value )
     {
-        return ValueFieldSpecialization<std::filesystem::path>::setFromVariant( variantValue, value );
+        std::string pathString;
+        ValueFieldSpecialization<std::string>::setFromVariant( variantValue, pathString );
+        value = pathString;
     }
 
     static bool isDataElementEqual( const Variant& variantValue, const Variant& variantValue2 )
     {
-        return ValueFieldSpecialization<std::filesystem::path>::isEqual( variantValue, variantValue2 );
+        return ValueFieldSpecialization<std::string>::isEqual( variantValue, variantValue2 );
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
