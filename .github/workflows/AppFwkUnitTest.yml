@@ -37,6 +37,7 @@ jobs:
           cmakeAppendedArgs: '-DCAFFA_GRPC_INTERFACE=ON -DVCPKG_AUTO_INSTALL=ON'
           buildDirectory: ${{ github.workspace }}/cmakebuild
           buildWithCMakeArgs: '--config Release'
+          useVcpkgToolchainFile: true
       - name: Run Unit Tests Linux/MacOS
         if: "!contains( matrix.os, 'windows')"
         shell: bash
