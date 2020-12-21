@@ -5,6 +5,9 @@ project (caffa VERSION 0.1 DESCRIPTION "Caffa Application Framework")
 set(CMAKE_CXX_STANDARD 17)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/scripts")
+
+configure_file(vcpkg.json.cmake vcpkg.json)
+
 option(VCPKG_AUTO_INSTALL "Automatically download build pre-requisites with VCPKG" OFF)
 if (VCPKG_AUTO_INSTALL)
     include (AutoVcpkg)

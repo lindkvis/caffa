@@ -7,11 +7,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-20.04, windows-latest, macos-latest]
         include:
           - os: windows-latest
             triplet: x64-windows
-          - os: ubuntu-latest
+          - os: ubuntu-20.04
             triplet: x64-linux
           - os: macos-latest
             triplet: x64-osx
@@ -28,9 +28,10 @@ jobs:
           setupOnly: true
           # Location of the vcpkg as submodule of the repository.
           vcpkgDirectory: '${{ github.workspace }}/ThirdParty/vcpkg'
+          appendedCacheKey: ${{ hashFiles( '**/vcpkg.json' ) }}
           vcpkgTriplet: ${{ matrix.triplet }}
       - name: Build Caffa with Unit Tests
-        uses: lukka/run-cmake@v1
+        uses: lukka/run-cmake@v3
         with:
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
           cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
