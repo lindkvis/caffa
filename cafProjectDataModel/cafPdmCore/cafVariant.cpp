@@ -160,7 +160,7 @@ std::vector<Variant> caf::Variant::toVectorT( const Variant& variant )
     }
     else
     {
-        static_assert( false );
+        CAF_ASSERT( false );
         return {};
     }
 }

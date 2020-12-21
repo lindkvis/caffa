@@ -47,4 +47,13 @@ jobs:
           cmakebuild/bin/cafPdmIoCore_UnitTests
           cmakebuild/bin/cafProjectDataModel_UnitTests
           cmakebuild/bin/cafGrpcInterface_UnitTests
+            - name: Run Unit Tests Windows
+      -name: Run Unit Tests Windows
+        if: contains( matrix.os, 'windows')  
+        shell: bash
+        run: |
+          cmakebuild/bin/Release/cafPdmCore_UnitTests.exe
+          cmakebuild/bin/Release/cafPdmXml_UnitTests.exe
+          cmakebuild/bin/Release/cafProjectDataModel_UnitTests.exe
+          cmakebuild/bin/Release/cafGrpcInterface_UnitTests.exe
           
