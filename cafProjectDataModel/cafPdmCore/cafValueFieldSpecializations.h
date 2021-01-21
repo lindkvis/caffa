@@ -71,7 +71,7 @@ class ValueFieldSpecialization<PdmPointer<T>>
 public:
     static Variant convert( const PdmPointer<T>& value )
     {
-        return Variant::fromValue( PdmPointer<ObjectHandle>( value.rawPtr() ) );
+        return Variant( PdmPointer<ObjectHandle>( value.rawPtr() ) );
     }
 
     static void setFromVariant( const Variant& variantValue, caf::PdmPointer<T>& value )
