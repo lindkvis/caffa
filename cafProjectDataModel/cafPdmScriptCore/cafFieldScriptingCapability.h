@@ -42,8 +42,10 @@
 #include "cafPdmScriptIOMessages.h"
 #include "cafPtrArrayField.h"
 #include "cafPtrField.h"
+#include "cafStringTools.h"
 
 #include <iostream>
+#include <string>
 #include <type_traits>
 
 #define CAF_InitScriptableField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis ) \
@@ -152,10 +154,10 @@ struct FieldScriptingCapabilityIOHandler<AppEnum<T>>
         std::string accumulatedFieldValue;
         char        nextChar;
         char        currentChar;
-        while ( !inputStream.atEnd() )
+        while ( !inputStream.eof() )
         {
             nextChar = errorMessageContainer->peekNextChar( inputStream );
-            if ( nextChar.isLetterOrNumber() || nextChar == char( '_' ) )
+            if ( std::isalpha(nextChar) || nextChar == char( '_' ) )
             {
                 currentChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
                 accumulatedFieldValue += currentChar;
@@ -261,7 +263,9 @@ struct FieldScriptingCapabilityIOHandler<std::vector<T*>>
         char chr = errorMessageContainer->readCharWithLineNumberCount( inputStream );
         if ( chr == '[' )
         {
-            while ( !inputStream.atEnd() )
+            std::vector<std::string> allValues;
+            std::string              currentValue;
+            while ( !inputStream.eof() )
             {
                 errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
                 char nextChar = errorMessageContainer->peekNextChar( inputStream );
@@ -274,14 +278,23 @@ struct FieldScriptingCapabilityIOHandler<std::vector<T*>>
                 {
                     nextChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
                     errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
+                    if ( !currentValue.empty() ) allValues.push_back( currentValue );
+                    currentValue = "";
                 }
-
-                T* value;
-                FieldScriptingCapabilityIOHandler<T*>::writeToField( value,
-                                                                     allObjectsOfType,
-                                                                     inputStream,
-                                                                     errorMessageContainer );
-                fieldValue.push_back( value );
+                else
+                {
+                    currentValue += errorMessageContainer->readCharWithLineNumberCount( inputStream );
+                }
+                for ( std::string textValue : allValues )
+                {
+                    std::istringstream sstream( textValue );
+                    T*                 singleValue;
+                    FieldScriptingCapabilityIOHandler<T*>::writeToField( singleValue,
+                                                                         allObjectsOfType,
+                                                                         sstream,
+                                                                         errorMessageContainer );
+                    fieldValue.push_back( singleValue );
+                }
             }
         }
         else
@@ -333,19 +346,19 @@ struct FieldScriptingCapabilityIOHandler<DataType*>
                                              errorMessageContainer->currentArgument + "\" in the command: \"" +
                                              errorMessageContainer->currentCommand + "\"" );
 
-            inputStream.setstate( std::ios_base::good() );
+            inputStream.setstate( std::ios_base::goodbit );
             return;
         }
 
-        if ( fieldString.isEmpty() ) return;
+        if ( fieldString.empty() ) return;
 
-        std::stringList classAndAddress = fieldString.split( ":" );
+        std::list<std::string> classAndAddress = caf::StringTools::split(fieldString, ":" );
         CAF_ASSERT( classAndAddress.size() == 2 );
 
-        qulonglong address = classAndAddress[1].toULongLong();
+        unsigned long long address = std::stoull( classAndAddress.back() );
         for ( DataType* object : allObjectsOfType )
         {
-            if ( reinterpret_cast<qulonglong>( object ) == address )
+            if ( reinterpret_cast<unsigned long long>( object ) == address )
             {
                 fieldValue = object;
                 break;
