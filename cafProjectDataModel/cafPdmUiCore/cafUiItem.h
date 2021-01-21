@@ -38,6 +38,8 @@
 
 #include "cafColor.h"
 #include "cafIconProvider.h"
+#include "cafOptionItemInfo.h"
+#include "cafUiFieldSpecialization.h"
 #include "cafVariant.h"
 
 #include <deque>
@@ -49,6 +51,70 @@
 
 namespace caf
 {
+//--------------------------------------------------------------------------------------------------
+/// Finds the indexes into the optionList that the field value(s) corresponds to.
+/// In the case where the field is some kind of array, several indexes might be returned
+/// The returned bool is true if all the fieldValues were found.
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+bool findOptionItemValues( const std::deque<OptionItemInfo>& optionList, Variant fieldValue, std::vector<int>& foundIndexes )
+{
+    foundIndexes.clear();
+
+    // Find this fieldvalue in the optionlist if present
+
+    // First handle lists/arrays of values
+    if ( fieldValue.isVector() )
+    {
+        std::vector<Variant> valuesSelectedInField = fieldValue.toVector();
+
+        if ( valuesSelectedInField.size() )
+        {
+            // Create a list to be able to remove items as they are matched with values
+            std::vector<std::pair<Variant, int>> optionVariantAndIndexPairs;
+
+            for ( int i = 0; i < optionList.size(); ++i )
+            {
+                Variant optionVariant( optionList[i].value() );
+                optionVariantAndIndexPairs.push_back( std::make_pair( optionVariant, i ) );
+            }
+
+            for ( int i = 0; i < valuesSelectedInField.size(); ++i )
+            {
+                for ( auto it = optionVariantAndIndexPairs.begin(); it != optionVariantAndIndexPairs.end(); ++it )
+                {
+                    if ( UiFieldSpecialization<T>::isDataElementEqual( valuesSelectedInField[i], it->first ) )
+                    {
+                        foundIndexes.push_back( it->second );
+
+                        // Assuming that one option is referenced only once, the option is erased. Then break
+                        // out of the inner loop, as this operation can be costly for fields with many options and many
+                        // values
+
+                        optionVariantAndIndexPairs.erase( it );
+                        break;
+                    }
+                }
+            }
+        }
+
+        return ( static_cast<size_t>( valuesSelectedInField.size() ) <= foundIndexes.size() );
+    }
+    else // Then handle single value fields
+    {
+        for ( int opIdx = 0; opIdx < static_cast<int>( optionList.size() ); ++opIdx )
+        {
+            if ( UiFieldSpecialization<T>::isDataElementEqual( optionList[opIdx].value(), fieldValue ) )
+            {
+                foundIndexes.push_back( opIdx );
+                break;
+            }
+        }
+        return ( foundIndexes.size() > (size_t)0 );
+    }
+}
+
+
 //==================================================================================================
 /// Class to keep (principally static) gui presentation information
 /// of a data structure item (field or object) used by UiItem
@@ -105,130 +171,8 @@ private:
     int          m_isCustomContextMenuEnabled;
 };
 
-//==================================================================================================
-/// Class to keep Ui information about an option /choice in a Combobox or similar.
-//==================================================================================================
-
-class OptionItemInfo
-{
-public:
-    // Template pass-through for enum types, ensuring the T type gets cast to an int before storing in the Variant
-    // Note the extra dummy parameter. This ensures compilation fails for non-enum types and these variants get removed
-    // due to SFINAE (https://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error)
-    template <typename T>
-    OptionItemInfo( const std::string&            anOptionUiText,
-                       T                             aValue,
-                       bool                          isReadOnly               = false,
-                       std::shared_ptr<IconProvider> anIcon                   = nullptr,
-                       typename std::enable_if<std::is_enum<T>::value>::type* = 0 )
-        : OptionItemInfo( anOptionUiText, Variant( static_cast<int>( aValue ) ), isReadOnly, anIcon )
-    {
-    }
-    OptionItemInfo( const std::string&            anOptionUiText,
-                       const Variant&                aValue,
-                       bool                          isReadOnly = false,
-                       std::shared_ptr<IconProvider> anIcon     = nullptr );
-    OptionItemInfo( const std::string&            anOptionUiText,
-                       caf::ObjectHandle*            obj,
-                       bool                          isReadOnly = false,
-                       std::shared_ptr<IconProvider> anIcon     = nullptr );
-
-    static OptionItemInfo createHeader( const std::string&            anOptionUiText,
-                                           bool                          isReadOnly = false,
-                                           std::shared_ptr<IconProvider> anIcon     = nullptr );
-
-    void setLevel( int level );
-
-    std::shared_ptr<IconProvider> iconProvider() const;
-    const std::string             optionUiText() const;
-    const Variant                 value() const;
-    bool                          isReadOnly() const;
-    bool                          isHeading() const;
-    int                           level() const;
-
-    // Static utility methods to handle std::list of OptionItemInfo
-    // Please regard as private to the PDM system
-
-    static std::deque<std::string> extractUiTexts( const std::deque<OptionItemInfo>& optionList );
-    template <typename T>
-    static bool findValues( const std::deque<OptionItemInfo>& optionList,
-                            Variant                           fieldValue,
-                            std::vector<int>&                 foundIndexes );
-
-private:
-    std::string                   m_optionUiText;
-    Variant                       m_value;
-    bool                          m_isReadOnly;
-    std::shared_ptr<IconProvider> m_iconProvider;
-    int                           m_level;
-};
-
 class UiEditorHandle;
 
-//--------------------------------------------------------------------------------------------------
-/// Finds the indexes into the optionList that the field value(s) corresponds to.
-/// In the case where the field is some kind of array, several indexes might be returned
-/// The returned bool is true if all the fieldValues were found.
-//--------------------------------------------------------------------------------------------------
-template <typename T>
-bool OptionItemInfo::findValues( const std::deque<OptionItemInfo>& optionList,
-                                 Variant                           fieldValue,
-                                 std::vector<int>&                 foundIndexes )
-{
-    foundIndexes.clear();
-
-    // Find this fieldvalue in the optionlist if present
-
-    // First handle lists/arrays of values
-    if ( fieldValue.isVector() )
-    {
-        std::vector<Variant> valuesSelectedInField = fieldValue.toVector();
-
-        if ( valuesSelectedInField.size() )
-        {
-            // Create a list to be able to remove items as they are matched with values
-            std::vector<std::pair<Variant, int>> optionVariantAndIndexPairs;
-
-            for ( int i = 0; i < optionList.size(); ++i )
-            {
-                Variant optionVariant( optionList[i].value() );
-                optionVariantAndIndexPairs.push_back( std::make_pair(optionVariant , i ) );
-            }
-
-            for ( int i = 0; i < valuesSelectedInField.size(); ++i )
-            {
-                for (auto it = optionVariantAndIndexPairs.begin(); it != optionVariantAndIndexPairs.end(); ++it )
-                {
-                    if ( UiFieldSpecialization<T>::isDataElementEqual( valuesSelectedInField[i], it->first ) )
-                    {
-                        foundIndexes.push_back( it->second );
-
-                        // Assuming that one option is referenced only once, the option is erased. Then break
-                        // out of the inner loop, as this operation can be costly for fields with many options and many
-                        // values
-
-                        optionVariantAndIndexPairs.erase( it );
-                        break;
-                    }
-                }
-            }
-        }
-
-        return ( static_cast<size_t>( valuesSelectedInField.size() ) <= foundIndexes.size() );
-    }
-    else // Then handle single value fields
-    {
-        for ( int opIdx = 0; opIdx < static_cast<int>( optionList.size() ); ++opIdx )
-        {
-            if ( UiFieldSpecialization<T>::isDataElementEqual( optionList[opIdx].value(), fieldValue ) )
-            {
-                foundIndexes.push_back( opIdx );
-                break;
-            }
-        }
-        return ( foundIndexes.size() > (size_t) 0 );
-    }
-}
 
 //==================================================================================================
 /// Base class for all data structure items (fields or objects) to make them have information on

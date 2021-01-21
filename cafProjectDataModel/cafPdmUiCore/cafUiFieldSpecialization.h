@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cafUiItem.h"
+#include "cafOptionItemInfo.h"
 #include "cafVariant.h"
 
 #include <deque>

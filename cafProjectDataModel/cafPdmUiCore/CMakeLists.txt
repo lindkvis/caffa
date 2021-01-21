@@ -21,6 +21,7 @@ set (PUBLIC_HEADERS
     cafIconProvider.h
 
     cafActionWrapper.h
+    cafOptionItemInfo.h
     cafUiEditorAttribute.h
     cafUiEditorHandle.h
     cafFieldUiCapability.h
@@ -67,6 +68,7 @@ set( PROJECT_FILES
 
     cafUiEditorHandle.cpp
     cafFieldUiCapability.cpp
+    cafOptionItemInfo.cpp
     cafUiItem.cpp
     cafUiObjectEditorHandle.cpp
     cafObjectUiCapability.cpp

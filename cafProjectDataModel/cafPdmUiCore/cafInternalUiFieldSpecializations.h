@@ -2,7 +2,6 @@
 
 #include "cafObjectHandle.h"
 #include "cafPdmPointer.h"
-#include "cafUiItem.h"
 #include "cafValueFieldSpecializations.h"
 #include "cafVariant.h"
 
