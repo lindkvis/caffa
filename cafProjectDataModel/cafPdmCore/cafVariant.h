@@ -350,4 +350,46 @@ private:
     std::optional<SerializableWrapper> m_serializableData;
 };
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+std::vector<Variant> Variant::toVectorT( const Variant& variant )
+{
+    if constexpr ( isVariantMember<T, InternalVariant>::value )
+    {
+        CAF_ASSERT( variant.canConvert<std::vector<T>>() );
+        std::vector<Variant> vectorOfVariants;
+        std::vector<T>       vectorOfValues = variant.value<std::vector<T>>();
+        for ( T val : vectorOfValues )
+        {
+            vectorOfVariants.push_back( Variant( val ) );
+        }
+        return vectorOfVariants;
+    }
+    else
+    {
+        CAF_ASSERT( false );
+        return {};
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+Variant Variant::fromVectorT( const std::vector<Variant>& variantVector )
+{
+    static_assert( !is_std_vector<T>::value );
+    std::vector<T> vectorOfValues;
+    for ( const Variant& variant : variantVector )
+    {
+        CAF_ASSERT( variant.canConvert<T>() );
+        T value = variant.value<T>();
+        vectorOfValues.push_back( value );
+    }
+    return Variant( vectorOfValues );
+}
+
 } // namespace caf
