@@ -52,7 +52,7 @@ jobs:
         shell: bash
         run: |
           cmakebuild/bin/Release/cafPdmCore_UnitTests.exe
-          cmakebuild/bin/Release/cafPdmXml_UnitTests.exe
+          cmakebuild/bin/Release/cafPdmIoCore_UnitTests.exe
           cmakebuild/bin/Release/cafProjectDataModel_UnitTests.exe
           cmakebuild/bin/Release/cafGrpcInterface_UnitTests.exe
           
