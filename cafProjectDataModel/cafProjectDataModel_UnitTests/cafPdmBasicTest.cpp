@@ -143,7 +143,7 @@ public:
                        "Enter some small number here",
                        "This is a place you can enter a small integer value if you want" );
 
-        CAF_InitField( &m_textField, "TextField", std::string( u8"ÆØÅ Test text   end" ), "TextField", "", "Tooltip", "WhatsThis" );
+        CAF_InitField( &m_textField, "TextField", std::string( "Test text   end" ), "TextField", "", "Tooltip", "WhatsThis" );
         CAF_InitFieldNoDefault( &m_simpleObjPtrField, "SimpleObjPtrField", "SimpleObjPtrField", "", "Tooltip", "WhatsThis" );
         CAF_InitFieldNoDefault( &m_simpleObjPtrField2, "SimpleObjPtrField2", "SimpleObjPtrField2", "", "Tooltip", "WhatsThis" );
         m_simpleObjPtrField2 = new SimpleObj;
@@ -454,9 +454,9 @@ TEST( BaseTest, ReadWrite )
         s2.m_numbers.v().push_back( 2.6 );
         s2.m_numbers.v().push_back( 2.7 );
 
-        id1->m_texts.v().push_back( "Hei" );
-        id1->m_texts.v().push_back( "og" );
-        id1->m_texts.v().push_back( u8"Hå test with whitespace" );
+        id1->m_texts.v().push_back( "Hi" );
+        id1->m_texts.v().push_back( "and" );
+        id1->m_texts.v().push_back( "Test with whitespace" );
 
         d2->m_simpleObjPtrField  = &s2;
         d2->m_simpleObjPtrField2 = s1;
@@ -533,7 +533,7 @@ TEST( BaseTest, ReadWrite )
         ASSERT_EQ( size_t( 4 ), ihDObjs[0]->m_simpleObjectsField[1]->m_numbers().size() );
         EXPECT_EQ( 3.13, ihDObjs[0]->m_simpleObjectsField[1]->m_numbers()[3] );
 
-        EXPECT_EQ( std::string( u8"ÆØÅ Test text   end" ), ihDObjs[0]->m_textField() );
+        EXPECT_EQ( std::string( "Test text   end" ), ihDObjs[0]->m_textField() );
 
         // Write file
         std::ofstream file( "PdmTestFile2.json" );
