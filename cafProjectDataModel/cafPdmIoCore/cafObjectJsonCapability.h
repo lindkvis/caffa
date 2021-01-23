@@ -3,13 +3,11 @@
 #include "cafObjectCapability.h"
 #include "cafObjectIoCapability.h"
 
-#include <QString>
+#include <nlohmann/json.hpp>
 
+#include <iostream>
 #include <list>
 #include <vector>
-
-class QIODevice;
-class QJsonObject;
 
 namespace caf
 {
@@ -28,27 +26,27 @@ class ObjectJsonCapability
 {
 public:
     /// Convenience methods to serialize/de-serialize this particular object (with children)
-    static void readObjectFromString( ObjectHandle* object, const QString& string, ObjectFactory* objectFactory );
-    static QString          writeObjectToString( const ObjectHandle* object );
+    static void readObjectFromString( ObjectHandle* object, const std::string& string, ObjectFactory* objectFactory );
+    static std::string   writeObjectToString( const ObjectHandle* object, bool writeServerAddress );
     static ObjectHandle* copyByJsonSerialization( const ObjectHandle* object, ObjectFactory* objectFactory );
     static ObjectHandle* copyAndCastByJsonSerialization( const ObjectHandle* object,
-                                                            const QString&         destinationClassKeyword,
-                                                            const QString&         sourceClassKeyword,
-                                                            ObjectFactory*      objectFactory );
+                                                         const std::string&  destinationClassKeyword,
+                                                         const std::string&  sourceClassKeyword,
+                                                         ObjectFactory*      objectFactory );
 
     static ObjectHandle*
-        readUnknownObjectFromString( const QString& string, ObjectFactory* objectFactory, bool isCopyOperation );
+        readUnknownObjectFromString( const std::string& string, ObjectFactory* objectFactory, bool isCopyOperation );
 
-    static void readFile( ObjectHandle* object, QIODevice* file );
-    static void writeFile( const ObjectHandle* object, QIODevice* file );
+    static void readFile( ObjectHandle* object, std::istream& file, ObjectFactory* objectFactory = nullptr);
+    static void writeFile( const ObjectHandle* object, std::ostream& file, bool writeServerAddress );
 
     // Main XML serialization methods that is used internally by the document serialization system
     // Not supposed to be used directly.
-    static void readFields( ObjectHandle*   object,
-                            const QJsonObject& jsonObject,
-                            ObjectFactory*  objectFactory,
-                            bool               isCopyOperation );
-    static void writeFields( const ObjectHandle* object, QJsonObject& jsonObject );
+    static void readFields( ObjectHandle*         object,
+                            const nlohmann::json& jsonObject,
+                            ObjectFactory*        objectFactory,
+                            bool                  isCopyOperation );
+    static void writeFields( const ObjectHandle* object, nlohmann::json& jsonObject, bool writeServerAddress );
 };
 
 } // End of namespace caf

@@ -1,4 +1,3 @@
-#include "cafCmdFeature.h"
 #include "WPopupMenuWrapper.h"
 
 #include "MainWindow.h"
@@ -23,7 +22,6 @@ public:
         theme->setFormControlStyleEnabled(true);
         theme->setResponsive(true);
         setTheme(theme);
-        caf::CmdFeature::setActionCreator(caf::WActionCreator::instance());
         std::unique_ptr<MainWindow> window = std::make_unique<MainWindow>();
         setTitle("Ceetron Application Framework Test Application");
         auto layout = root()->setLayout<Wt::WFitLayout>(std::make_unique<Wt::WFitLayout>());
@@ -37,7 +35,6 @@ std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment& env)
     std::unique_ptr<ThemedApp> app = std::make_unique<ThemedApp>(env);
     return app;
 }
-
 
 int main(int argc, char* argv[])
 {

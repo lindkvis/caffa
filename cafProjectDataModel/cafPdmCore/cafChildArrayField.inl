@@ -1,5 +1,4 @@
 #include "cafAsyncObjectDeleter.h"
-#include "cafClassTypeName.h"
 #include "cafObjectHandle.h"
 
 namespace caf

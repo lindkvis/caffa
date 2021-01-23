@@ -1,13 +1,13 @@
 #include "cafObjectIoCapability.h"
 
 #include "cafAssert.h"
+#include "cafFieldHandle.h"
 #include "cafFieldIoCapability.h"
 #include "cafObjectHandle.h"
 #include "cafObjectJsonCapability.h"
-#include "cafObjectXmlCapability.h"
+#include "cafStringTools.h"
 
-#include "cafFieldHandle.h"
-
+#include <fstream>
 #include <iostream>
 
 namespace caf
@@ -24,11 +24,10 @@ ObjectIoCapability::ObjectIoCapability( ObjectHandle* owner, bool giveOwnership 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle*
-    ObjectIoCapability::readUnknownObjectFromString( const QString&       string,
-                                                        ObjectFactory*    objectFactory,
-                                                        bool                 isCopyOperation,
-                                                        IoParameters::IoType ioType /*= IoParameters::IoType::XML */ )
+ObjectHandle* ObjectIoCapability::readUnknownObjectFromString( const std::string& string,
+                                                               ObjectFactory*     objectFactory,
+                                                               bool               isCopyOperation,
+                                                               IoType             ioType /*= IoType::JSON */ )
 {
     ObjectHandle* object = nullptr;
 
@@ -36,13 +35,10 @@ ObjectHandle*
     {
         default:
             break;
-        case IoParameters::IoType::XML:
-            object = ObjectXmlCapability::readUnknownObjectFromXmlString( string, objectFactory, isCopyOperation );
-            break;
-        case IoParameters::IoType::JSON:
+        case IoType::JSON:
             object = ObjectJsonCapability::readUnknownObjectFromString( string, objectFactory, isCopyOperation );
             break;
-        case IoParameters::IoType::SQL:
+        case IoType::SQL:
             CAF_ASSERT( "SQL writing is not implemented" );
             break;
     }
@@ -52,21 +48,18 @@ ObjectHandle*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectIoCapability::readObjectFromString( const QString&       string,
-                                                  ObjectFactory*    objectFactory,
-                                                  IoParameters::IoType ioType /*= IoParameters::IoType::XML */ )
+void ObjectIoCapability::readObjectFromString( const std::string& string,
+                                               ObjectFactory*     objectFactory,
+                                               IoType             ioType /*= IoType::JSON */ )
 {
     switch ( ioType )
     {
         default:
             break;
-        case IoParameters::IoType::XML:
-            ObjectXmlCapability::readObjectFromXmlString( m_owner, string, objectFactory );
-            break;
-        case IoParameters::IoType::JSON:
+        case IoType::JSON:
             ObjectJsonCapability::readObjectFromString( m_owner, string, objectFactory );
             break;
-        case IoParameters::IoType::SQL:
+        case IoType::SQL:
             CAF_ASSERT( "SQL writing is not implemented" );
             break;
     }
@@ -75,20 +68,17 @@ void ObjectIoCapability::readObjectFromString( const QString&       string,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString ObjectIoCapability::writeObjectToString( IoParameters::IoType ioType /*= IoParameters::IoType::XML */ ) const
+std::string ObjectIoCapability::writeObjectToString( IoType ioType /*= IoType::JSON */, bool writeServerAddress /*= false */ ) const
 {
-    QString string;
+    std::string string;
     switch ( ioType )
     {
         default:
             break;
-        case IoParameters::IoType::XML:
-            string = ObjectXmlCapability::writeObjectToXmlString( m_owner );
+        case IoType::JSON:
+            string = ObjectJsonCapability::writeObjectToString( m_owner, writeServerAddress );
             break;
-        case IoParameters::IoType::JSON:
-            string = ObjectJsonCapability::writeObjectToString( m_owner );
-            break;
-        case IoParameters::IoType::SQL:
+        case IoType::SQL:
             CAF_ASSERT( "SQL writing is not implemented" );
             break;
     }
@@ -98,20 +88,17 @@ QString ObjectIoCapability::writeObjectToString( IoParameters::IoType ioType /*=
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::ObjectHandle*
-    ObjectIoCapability::copyBySerialization( ObjectFactory*    objectFactory,
-                                                IoParameters::IoType ioType /*= IoParameters::IoType::XML */ )
+caf::ObjectHandle* ObjectIoCapability::copyBySerialization( ObjectFactory* objectFactory,
+                                                            IoType         ioType /*= IoType::JSON */ )
 {
     switch ( ioType )
     {
         default:
             break;
-        case IoParameters::IoType::XML:
-            return ObjectXmlCapability::copyByXmlSerialization( m_owner, objectFactory );
-        case IoParameters::IoType::JSON:
+        case IoType::JSON:
             return ObjectJsonCapability::copyByJsonSerialization( m_owner, objectFactory );
             break;
-        case IoParameters::IoType::SQL:
+        case IoType::SQL:
             CAF_ASSERT( "SQL writing is not implemented" );
             break;
     }
@@ -121,28 +108,22 @@ caf::ObjectHandle*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::ObjectHandle*
-    ObjectIoCapability::copyAndCastBySerialization( const QString&       destinationClassKeyword,
-                                                       const QString&       sourceClassKeyword,
-                                                       ObjectFactory*    objectFactory,
-                                                       IoParameters::IoType ioType /*= IoParameters::IoType::XML */ )
+caf::ObjectHandle* ObjectIoCapability::copyAndCastBySerialization( const std::string& destinationClassKeyword,
+                                                                   const std::string& sourceClassKeyword,
+                                                                   ObjectFactory*     objectFactory,
+                                                                   IoType             ioType /*= IoType::JSON */ )
 {
     switch ( ioType )
     {
         default:
             break;
-        case IoParameters::IoType::XML:
-            return ObjectXmlCapability::copyAndCastByXmlSerialization( m_owner,
-                                                                          destinationClassKeyword,
-                                                                          sourceClassKeyword,
-                                                                          objectFactory );
-        case IoParameters::IoType::JSON:
+        case IoType::JSON:
             return ObjectJsonCapability::copyAndCastByJsonSerialization( m_owner,
-                                                                            destinationClassKeyword,
-                                                                            sourceClassKeyword,
-                                                                            objectFactory );
+                                                                         destinationClassKeyword,
+                                                                         sourceClassKeyword,
+                                                                         objectFactory );
             break;
-        case IoParameters::IoType::SQL:
+        case IoType::SQL:
             CAF_ASSERT( "SQL writing is not implemented" );
             break;
     }
@@ -154,23 +135,23 @@ caf::ObjectHandle*
 //
 /// http://www.w3schools.com/xml/xml_elements.asp
 ///
-/// XML elements must follow these naming rules:
+/// JSON elements must follow these naming rules:
 ///   Names can contain letters, numbers, and other characters
 ///   Names cannot start with a number or punctuation character
-///   Names cannot start with the letters xml (or XML, or Xml, etc)
+///   Names cannot start with the letters xml (or JSON, or Xml, etc)
 ///   Names cannot contain spaces
 //--------------------------------------------------------------------------------------------------
-bool ObjectIoCapability::isValidElementName( const QString& name )
+bool ObjectIoCapability::isValidElementName( const std::string& name )
 {
-    if ( name.isEmpty() )
+    if ( name.empty() )
     {
         return false;
     }
 
-    if ( name.size() > 0 )
+    if ( name.length() > 0 )
     {
-        QChar firstChar = name[0];
-        if ( firstChar.isDigit() || firstChar == '.' )
+        char firstChar = name[0];
+        if ( std::isdigit( firstChar ) || firstChar == '.' )
         {
             return false;
         }
@@ -178,13 +159,14 @@ bool ObjectIoCapability::isValidElementName( const QString& name )
 
     if ( name.size() >= 3 )
     {
-        if ( name.left( 3 ).compare( "xml", Qt::CaseInsensitive ) == 0 )
+        auto lower = caf::StringTools::tolower( name );
+        if ( lower.compare( 0, 3, "xml" ) == 0 )
         {
             return false;
         }
     }
 
-    if ( name.contains( ' ' ) )
+    if ( name.find( ' ' ) != std::string::npos )
     {
         return false;
     }
@@ -195,7 +177,7 @@ bool ObjectIoCapability::isValidElementName( const QString& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectIoCapability::registerClassKeyword( const QString& registerKeyword )
+void ObjectIoCapability::registerClassKeyword( const std::string& registerKeyword )
 {
     m_classInheritanceStack.push_back( registerKeyword );
 }
@@ -203,7 +185,7 @@ void ObjectIoCapability::registerClassKeyword( const QString& registerKeyword )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ObjectIoCapability::inheritsClassWithKeyword( const QString& testClassKeyword ) const
+bool ObjectIoCapability::inheritsClassWithKeyword( const std::string& testClassKeyword ) const
 {
     return std::find( m_classInheritanceStack.begin(), m_classInheritanceStack.end(), testClassKeyword ) !=
            m_classInheritanceStack.end();
@@ -212,7 +194,7 @@ bool ObjectIoCapability::inheritsClassWithKeyword( const QString& testClassKeywo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::list<QString>& ObjectIoCapability::classInheritanceStack() const
+const std::list<std::string>& ObjectIoCapability::classInheritanceStack() const
 {
     return m_classInheritanceStack;
 }
@@ -220,47 +202,77 @@ const std::list<QString>& ObjectIoCapability::classInheritanceStack() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectIoCapability::readFile( const IoParameters& parameters )
+bool ObjectIoCapability::readFile( const std::string& fileName, IoType ioType /*= IoType::JSON */ )
 {
-    switch ( parameters.ioType )
-    {
-        default:
-            break;
-        case IoParameters::IoType::XML:
-            ObjectXmlCapability::readFile( m_owner, parameters.ioDevice );
-            break;
-        case IoParameters::IoType::JSON:
-            ObjectJsonCapability::readFile( m_owner, parameters.ioDevice );
-            break;
-        case IoParameters::IoType::SQL:
-            CAF_ASSERT( "SQL writing is not implemented" );
-            break;
-    }
-    initAfterReadRecursively();
+    std::ifstream inStream( fileName );
+    if ( !inStream.good() ) return false;
+    return readFile( inStream, ioType );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectIoCapability::writeFile( const IoParameters& parameters )
+bool ObjectIoCapability::writeFile( const std::string& fileName, IoType ioType /*= IoType::JSON */ )
+{
+    std::ofstream outStream( fileName );
+    if ( !outStream.good() ) return false;
+    return writeFile( outStream, ioType );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool ObjectIoCapability::readFile( std::istream& stream, IoType ioType)
+{
+    try
+    {
+        switch ( ioType )
+        {
+            default:
+                break;
+            case IoType::JSON:
+                ObjectJsonCapability::readFile( m_owner, stream);
+                break;
+            case IoType::SQL:
+                CAF_ASSERT( "SQL writing is not implemented" );
+                break;
+        }
+        initAfterReadRecursively();
+    }
+    catch ( ... )
+    {
+        return false;
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool ObjectIoCapability::writeFile( std::ostream& stream, IoType ioType, bool writeAddress )
 {
     // Ask all objects to make them ready to write themselves to file
     setupBeforeSaveRecursively();
 
-    switch ( parameters.ioType )
+    try
     {
-        default:
-            break;
-        case IoParameters::IoType::XML:
-            ObjectXmlCapability::writeFile( m_owner, parameters.ioDevice );
-            break;
-        case IoParameters::IoType::JSON:
-            ObjectJsonCapability::writeFile( m_owner, parameters.ioDevice );
-            break;
-        case IoParameters::IoType::SQL:
-            CAF_ASSERT( "SQL writing is not implemented" );
-            break;
+        switch ( ioType )
+        {
+            default:
+                break;
+            case IoType::JSON:
+                ObjectJsonCapability::writeFile( m_owner, stream, writeAddress );
+                break;
+            case IoType::SQL:
+                CAF_ASSERT( "SQL writing is not implemented" );
+                break;
+        }
     }
+    catch ( ... )
+    {
+        return false;
+    }
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -274,7 +286,7 @@ void ObjectIoCapability::initAfterReadRecursively( ObjectHandle* object )
     object->fields( fields );
 
     std::vector<ObjectHandle*> children;
-    size_t                        fIdx;
+    size_t                     fIdx;
     for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
     {
         if ( fields[fIdx] ) fields[fIdx]->childObjects( &children );
@@ -297,7 +309,7 @@ void ObjectIoCapability::initAfterReadRecursively( ObjectHandle* object )
 ///
 //--------------------------------------------------------------------------------------------------
 void ObjectIoCapability::resolveReferencesRecursively( ObjectHandle*              object,
-                                                          std::vector<FieldHandle*>* fieldWithFailingResolve )
+                                                       std::vector<FieldHandle*>* fieldWithFailingResolve )
 {
     if ( object == nullptr ) return;
 
@@ -305,7 +317,7 @@ void ObjectIoCapability::resolveReferencesRecursively( ObjectHandle*            
     object->fields( fields );
 
     std::vector<ObjectHandle*> children;
-    size_t                        fIdx;
+    size_t                     fIdx;
     for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
     {
         FieldHandle* field = fields[fIdx];
@@ -331,8 +343,7 @@ void ObjectIoCapability::resolveReferencesRecursively( ObjectHandle*            
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectIoCapability::resolveReferencesRecursively(
-    std::vector<FieldHandle*>* fieldWithFailingResolve /*= nullptr*/ )
+void ObjectIoCapability::resolveReferencesRecursively( std::vector<FieldHandle*>* fieldWithFailingResolve /*= nullptr*/ )
 {
     std::vector<FieldHandle*> tempFields;
     resolveReferencesRecursively( this->m_owner, &tempFields );
@@ -357,7 +368,7 @@ void ObjectIoCapability::setupBeforeSaveRecursively( ObjectHandle* object )
     object->fields( fields );
 
     std::vector<ObjectHandle*> children;
-    size_t                        fIdx;
+    size_t                     fIdx;
     for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
     {
         if ( fields[fIdx] ) fields[fIdx]->childObjects( &children );

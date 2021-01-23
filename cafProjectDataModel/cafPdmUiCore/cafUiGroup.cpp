@@ -41,7 +41,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiGroup::PdmUiGroup()
+UiGroup::UiGroup()
 {
     m_isCollapsedByDefault   = false;
     m_hasForcedExpandedState = false;
@@ -52,7 +52,7 @@ PdmUiGroup::PdmUiGroup()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiGroup::setKeyword( const QString& keyword )
+void UiGroup::setKeyword( const std::string& keyword )
 {
     m_keyword = keyword;
 }
@@ -60,21 +60,21 @@ void PdmUiGroup::setKeyword( const QString& keyword )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmUiGroup::keyword() const
+std::string UiGroup::keyword() const
 {
-    if ( !m_keyword.isEmpty() )
+    if ( !m_keyword.empty() )
     {
         return m_keyword;
     }
 
-    // Fallback to uiName with default uiConfigName
+    // Fallback to uiName with default 
     return uiName();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiGroup::isUiGroup() const
+bool UiGroup::isUiGroup() const
 {
     return true;
 }
@@ -82,7 +82,7 @@ bool PdmUiGroup::isUiGroup() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiGroup::setCollapsedByDefault( bool doCollapse )
+void UiGroup::setCollapsedByDefault( bool doCollapse )
 {
     m_isCollapsedByDefault = doCollapse;
 }
@@ -90,7 +90,7 @@ void PdmUiGroup::setCollapsedByDefault( bool doCollapse )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiGroup::setCollapsed( bool doCollapse )
+void UiGroup::setCollapsed( bool doCollapse )
 {
     m_hasForcedExpandedState = true;
     m_forcedCollapseState    = doCollapse;
@@ -99,7 +99,7 @@ void PdmUiGroup::setCollapsed( bool doCollapse )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiGroup::setEnableFrame( bool enableFrame )
+void UiGroup::setEnableFrame( bool enableFrame )
 {
     m_enableFrame = enableFrame;
 }
@@ -107,7 +107,7 @@ void PdmUiGroup::setEnableFrame( bool enableFrame )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiGroup::isExpandedByDefault() const
+bool UiGroup::isExpandedByDefault() const
 {
     return !m_isCollapsedByDefault;
 }
@@ -115,7 +115,7 @@ bool PdmUiGroup::isExpandedByDefault() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiGroup::hasForcedExpandedState() const
+bool UiGroup::hasForcedExpandedState() const
 {
     return m_hasForcedExpandedState;
 }
@@ -123,7 +123,7 @@ bool PdmUiGroup::hasForcedExpandedState() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiGroup::forcedExpandedState() const
+bool UiGroup::forcedExpandedState() const
 {
     return !m_forcedCollapseState;
 }
@@ -131,7 +131,7 @@ bool PdmUiGroup::forcedExpandedState() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiGroup::enableFrame() const
+bool UiGroup::enableFrame() const
 {
     return m_enableFrame;
 }

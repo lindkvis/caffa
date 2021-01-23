@@ -36,47 +36,40 @@
 
 #pragma once
 
-#include "cafPdmUiCore_export.h"
+#include "cafSignal.h"
 #include "cafUiItem.h"
-
-#include <QObject>
-#include <QPointer>
 
 namespace caf
 {
 class UiItem;
 
 //==================================================================================================
-/// Abstract class to handle editors. Inherits QObject to be able to use signals and slots
+/// Abstract class to handle editors.
 //==================================================================================================
 
-class cafPdmUiCore_EXPORT UiEditorHandle : public QObject
+class UiEditorHandle : public SignalEmitter
 {
-    Q_OBJECT
+    caf::Signal<> uiUpdated;
+
 public:
     UiEditorHandle();
     ~UiEditorHandle() override;
 
 public:
-    void updateUi( const QString& uiConfigName );
-    ;
     void updateUi();
 
     UiEditorHandle* topMostContainingEditor();
-
-signals:
-    void uiUpdated();
 
 protected:
     // Interface to override:
     /// Virtual method to be overridden. Needs to set up the supplied widget
     /// with all signals etc to make it communicate with this object
     /// Supposed to update all parts of the widgets, both visibility, sensitivity, decorations and field data
-    virtual void configureAndUpdateUi( const QString& uiConfigName ) = 0;
+    virtual void configureAndUpdateUi() = 0;
 
 protected:
     /// This needs to be called from subclass when connecting to a Field or Object
-    void             bindToPdmItem( UiItem* item );
+    void          bindToPdmItem( UiItem* item );
     UiItem*       pdmItem() { return m_pdmItem; }
     const UiItem* pdmItem() const { return m_pdmItem; }
 
@@ -85,11 +78,9 @@ public: // PDM Internal
 
 private:
     friend UiItem::~UiItem();
-    UiItem* m_pdmItem;
-    QString    m_currentConfigName;
-
-    QPointer<UiEditorHandle> m_containingEditor; // Editor containing this editor. Will be asked to updateUi (instead
-                                                    // of this) if it exists
+    UiItem*     m_pdmItem;
+    UiEditorHandle* m_containingEditor; // Editor containing this editor. Will be asked to updateUi (instead
+                                        // of this) if it exists
 
     bool m_isConfiguringUi;
 };

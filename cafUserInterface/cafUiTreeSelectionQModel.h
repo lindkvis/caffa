@@ -36,7 +36,6 @@
 #pragma once
 #include "cafUiFieldEditorHandle.h"
 #include "cafUiTreeItem.h"
-#include "cafUserInterface_export.h"
 
 #include <QAbstractItemModel>
 
@@ -45,13 +44,13 @@
 
 namespace caf
 {
-class PdmOptionItemInfo;
+class OptionItemInfo;
 class FieldUiCapability;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class cafUserInterface_EXPORT PdmUiTreeSelectionQModel : public QAbstractItemModel
+class PdmUiTreeSelectionQModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
@@ -64,12 +63,12 @@ public:
     void setCheckedStateForItems( const QModelIndexList& indices, bool checked );
     void enableSingleSelectionMode( bool enable );
 
-    int  optionItemCount() const;
-    void setOptions( caf::UiFieldEditorHandle* field, const QList<caf::PdmOptionItemInfo>& options );
-    void setUiValueCache( const QVariant* uiValuesCache );
-    void resetUiValueCache();
-    bool isReadOnly( const QModelIndex& index ) const;
-    bool isChecked( const QModelIndex& index ) const;
+    size_t optionItemCount() const;
+    void   setOptions( caf::UiFieldEditorHandle* field, const std::deque<OptionItemInfo>& options );
+    void   setUiValueCache( const Variant& uiValuesCache );
+    void   resetUiValueCache();
+    bool   isReadOnly( const QModelIndex& index ) const;
+    bool   isChecked( const QModelIndex& index ) const;
 
     bool hasGrandChildren() const;
 
@@ -84,25 +83,21 @@ public:
     QModelIndex indexForLastUncheckedItem() const;
     void        clearIndexForLastUncheckedItem();
 
-    // Consider moving these functions to UiFieldHandle
-    static bool isSingleValueField( const QVariant& fieldValue );
-    static bool isMultipleValueField( const QVariant& fieldValue );
-
 private:
     typedef caf::UiTreeItem<int> TreeItemType;
 
-    const caf::PdmOptionItemInfo* optionItem( const QModelIndex& index ) const;
-    int                           optionIndex( const QModelIndex& index ) const;
-    void                          buildOptionItemTree( int optionIndex, TreeItemType* parentNode );
+    const caf::OptionItemInfo* optionItem( const QModelIndex& index ) const;
+    int                        optionIndex( const QModelIndex& index ) const;
+    void                       buildOptionItemTree( int optionIndex, TreeItemType* parentNode );
 
     void notifyChangedForAllModelIndices();
     void recursiveNotifyChildren( const QModelIndex& index );
 
 private:
-    QList<caf::PdmOptionItemInfo>         m_options;
-    QPointer<caf::UiFieldEditorHandle> m_uiFieldHandle;
+    std::deque<OptionItemInfo>    m_options;
+    QPointer<UiFieldEditorHandle> m_uiFieldHandle;
 
-    const QVariant* m_uiValueCache;
+    Variant m_uiValueCache;
 
     TreeItemType* m_tree;
 

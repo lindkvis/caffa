@@ -55,22 +55,22 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiSliderEditor );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiSliderEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiSliderEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_spinBox.isNull() );
 
-    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label );
 
-    m_spinBox->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
-    m_spinBox->setToolTip( uiField()->uiToolTip( uiConfigName ) );
+    m_spinBox->setEnabled( !uiField()->isUiReadOnly() );
+    m_spinBox->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
-    m_slider->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
-    m_slider->setToolTip( uiField()->uiToolTip( uiConfigName ) );
+    m_slider->setEnabled( !uiField()->isUiReadOnly() );
+    m_slider->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+        uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
     }
 
     {
@@ -78,7 +78,7 @@ void PdmUiSliderEditor::configureAndUpdateUi( const QString& uiConfigName )
         m_spinBox->setMinimum( m_attributes.m_minimum );
         m_spinBox->setMaximum( m_attributes.m_maximum );
 
-        QString textValue = uiField()->uiValue().toString();
+        QString textValue = QString::fromStdString( uiField()->uiValue().value<std::string>() );
         m_spinBox->setValue( textValue.toInt() );
         m_spinBox->blockSignals( false );
     }
@@ -166,9 +166,8 @@ void PdmUiSliderEditor::updateSliderPosition()
 //--------------------------------------------------------------------------------------------------
 void PdmUiSliderEditor::writeValueToField()
 {
-    QString  textValue = m_spinBox->text();
-    QVariant v;
-    v = textValue;
+    QString textValue = m_spinBox->text();
+    Variant v( textValue.toStdString() );
     this->setValueToField( v );
 }
 

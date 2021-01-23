@@ -1,19 +1,18 @@
 #pragma once
 
 #include "cafAppEnum.h"
-#include "cafFilePath.h"
 #include "cafPdmPointer.h"
+#include "cafVariant.h"
 
 #include <assert.h>
 #include <type_traits>
 #include <vector>
 
-#include <QVariant>
 
 namespace caf
 {
 //==================================================================================================
-/// A proxy class that implements the generic QVariant interface for a field
+/// A proxy class that implements the generic Variant interface for a field
 ///
 /// This class collects methods that need specialization when introducing a new type in a Field.
 /// Having those methods in a separate class makes it possible to "partially specialize" the methods
@@ -27,19 +26,15 @@ template <typename T>
 class ValueFieldSpecialization
 {
 public:
-    /// Convert the field value into a QVariant
-    static QVariant convert( const T& value ) { return QVariant::fromValue( value ); }
+    /// Convert the field value into a Variant
+    static Variant convert( const T& value ) { return Variant( value ); }
 
-    /// Set the field value from a QVariant
-    static void setFromVariant( const QVariant& variantValue, T& value ) { value = variantValue.value<T>(); }
+    /// Set the field value from a Variant
+    static void setFromVariant( const Variant& variantValue, T& value ) { value = variantValue.value<T>(); }
 
-    /// Check equality between QVariants that carries a Field Value.
-    /// The == operator will normally work, but does not support custom types in the QVariant
-    /// See http://qt-project.org/doc/qt-4.8/qvariant.html#operator-eq-eq-64
-    /// Using the == between the real types is more safe.
-    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
+    static bool isEqual( const Variant& variantValue, const Variant& variantValue2 )
     {
-        return variantValue.value<T>() == variantValue2.value<T>();
+        return variantValue == variantValue2;
     }
 };
 
@@ -50,19 +45,17 @@ template <typename T>
 class ValueFieldSpecialization<caf::AppEnum<T>>
 {
 public:
-    static QVariant convert( const caf::AppEnum<T>& value )
+    static Variant convert( const caf::AppEnum<T>& value )
     {
-        T enumValue = value;
-        // Explicit cast to an int before storage in a QVariant. This allows the use of enum class instead of enum
-        return QVariant( static_cast<int>( enumValue ) );
+        return Variant( value );
     }
 
-    static void setFromVariant( const QVariant& variantValue, caf::AppEnum<T>& value )
+    static void setFromVariant( const Variant& variantValue, caf::AppEnum<T>& value )
     {
-        value = static_cast<T>( variantValue.toInt() );
+        value = variantValue.value<caf::AppEnum<T>>();
     }
 
-    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
+    static bool isEqual( const Variant& variantValue, const Variant& variantValue2 )
     {
         return variantValue == variantValue2;
     }
@@ -70,87 +63,25 @@ public:
 
 //==================================================================================================
 /// Partial specialization for caf::PdmPointer<T>
-/// Used internally to avoid havning to declare everything Q_DECLARE_METATYPE()
 /// User must use PdmPtrField or ChildField
 //==================================================================================================
 template <typename T>
 class ValueFieldSpecialization<PdmPointer<T>>
 {
 public:
-    static QVariant convert( const PdmPointer<T>& value )
+    static Variant convert( const PdmPointer<T>& value )
     {
-        return QVariant::fromValue( PdmPointer<ObjectHandle>( value.rawPtr() ) );
+        return Variant( PdmPointer<ObjectHandle>( value.rawPtr() ) );
     }
 
-    static void setFromVariant( const QVariant& variantValue, caf::PdmPointer<T>& value )
+    static void setFromVariant( const Variant& variantValue, caf::PdmPointer<T>& value )
     {
         value.setRawPtr( variantValue.value<PdmPointer<ObjectHandle>>().rawPtr() );
     }
 
-    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
+    static bool isEqual( const Variant& variantValue, const Variant& variantValue2 )
     {
         return variantValue.value<PdmPointer<ObjectHandle>>() == variantValue2.value<PdmPointer<ObjectHandle>>();
-    }
-};
-
-//==================================================================================================
-/// Partial specialization for std::vector
-//==================================================================================================
-template <typename T>
-class ValueFieldSpecialization<std::vector<T>>
-{
-public:
-    static QVariant convert( const std::vector<T>& value )
-    {
-        QList<QVariant>                         returnList;
-        typename std::vector<T>::const_iterator it;
-        for ( it = value.begin(); it != value.end(); ++it )
-        {
-            returnList.push_back( ValueFieldSpecialization<T>::convert( *it ) );
-        }
-
-        return returnList;
-    }
-
-    static void setFromVariant( const QVariant& variantValue, std::vector<T>& value )
-    {
-        if ( variantValue.canConvert<QList<QVariant>>() )
-        {
-            value.clear();
-            QList<QVariant> lst = variantValue.toList();
-            for ( int i = 0; i < lst.size(); ++i )
-            {
-                T val;
-                ValueFieldSpecialization<T>::setFromVariant( lst[i], val );
-
-                value.push_back( val );
-            }
-        }
-    }
-
-    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
-    {
-        return variantValue == variantValue2;
-    }
-};
-
-//==================================================================================================
-/// Partial specialization for caf::FilePath
-//==================================================================================================
-template <>
-class ValueFieldSpecialization<FilePath>
-{
-public:
-    static QVariant convert( const FilePath& value ) { return QVariant( value.path() ); }
-
-    static void setFromVariant( const QVariant& variantValue, FilePath& value )
-    {
-        value.setPath( variantValue.toString() );
-    }
-
-    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
-    {
-        return variantValue.toString() == variantValue2.toString();
     }
 };
 

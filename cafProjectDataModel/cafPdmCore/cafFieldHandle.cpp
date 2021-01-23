@@ -4,32 +4,19 @@
 
 namespace caf
 {
-#if 0
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool FieldHandle::assertValid() const
+FieldHandle::FieldHandle()
+    : changed( this )
 {
-    if (m_keyword == "UNDEFINED")
-    {
-        std::cout << "Field: Detected use of non-initialized field. Did you forget to do CAF_InitField() on this field ?\n";
-        return false;
-    }
-
-    if (!PdmXmlSerializable::isValidElementName(m_keyword))
-    {
-        std::cout << "Field: The supplied keyword: \"" << m_keyword.toStdString() << "\" is an invalid XML element name, and will break your file format!\n";
-        return false;
-    }
-
-    return true;
+    m_ownerObject = nullptr;
 }
-#endif
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void FieldHandle::setKeyword( const QString& keyword )
+void FieldHandle::setKeyword( const std::string& keyword )
 {
     m_keyword = keyword;
 }
@@ -58,7 +45,7 @@ FieldHandle::~FieldHandle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool FieldHandle::matchesKeyword( const QString& keyword ) const
+bool FieldHandle::matchesKeyword( const std::string& keyword ) const
 {
     if ( m_keyword == keyword ) return true;
 
@@ -78,7 +65,7 @@ caf::ObjectHandle* FieldHandle::ownerObject()
 /// Get the class in the class hierarchy the field actually belongs to.
 /// This can be different to ownerObject's class, which may be a sub-class.
 //--------------------------------------------------------------------------------------------------
-QString FieldHandle::ownerClass() const
+std::string FieldHandle::ownerClass() const
 {
     return m_ownerClass;
 }
@@ -87,7 +74,7 @@ QString FieldHandle::ownerClass() const
 /// Set the class in the class hierarchy the field actually belongs to.
 /// This can be different to ownerObject's class, which may be a sub-class.
 //--------------------------------------------------------------------------------------------------
-void FieldHandle::setOwnerClass( const QString& ownerClass )
+void FieldHandle::setOwnerClass( const std::string& ownerClass )
 {
     m_ownerClass = ownerClass;
 }
@@ -105,7 +92,7 @@ bool FieldHandle::hasPtrReferencedObjects()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void FieldHandle::registerKeywordAlias( const QString& alias )
+void FieldHandle::registerKeywordAlias( const std::string& alias )
 {
     m_keywordAliases.push_back( alias );
 }
@@ -113,9 +100,9 @@ void FieldHandle::registerKeywordAlias( const QString& alias )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool FieldHandle::matchesKeywordAlias( const QString& keyword ) const
+bool FieldHandle::matchesKeywordAlias( const std::string& keyword ) const
 {
-    for ( const QString& alias : m_keywordAliases )
+    for ( const std::string& alias : m_keywordAliases )
     {
         if ( alias == keyword ) return true;
     }
@@ -125,22 +112,9 @@ bool FieldHandle::matchesKeywordAlias( const QString& keyword ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> FieldHandle::keywordAliases() const
+std::vector<std::string> FieldHandle::keywordAliases() const
 {
     return m_keywordAliases;
 }
-
-// These two functions can be used when PdmCore is used standalone without PdmUi/PdmXml
-/*
-FieldUiCapability* FieldHandle::capability<FieldUiCapability>()
-{
-    return NULL;
-}
-
-PdmXmlFieldHandle* FieldHandle::capability<ObjectXmlCapability>()
-{
-    return NULL;
-}
-*/
 
 } // End of namespace caf

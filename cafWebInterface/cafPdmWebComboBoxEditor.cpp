@@ -35,6 +35,11 @@
 //##################################################################################################
 #include "cafPdmWebComboBoxEditor.h"
 
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
+
 #include "cafField.h"
 #include "cafObject.h"
 #include "cafPdmWebFieldEditorHandle.h"
@@ -57,39 +62,39 @@ CAF_PDM_WEB_FIELD_EDITOR_SOURCE_INIT( PdmWebComboBoxEditor );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmWebComboBoxEditor::configureAndUpdateUi()
 {
-    applyTextToLabel( m_label.get(), uiConfigName );
+    applyTextToLabel( m_label.get() );
 
     // Handle attributes
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+        uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
     }
 
     if ( m_comboBox )
     {
-        m_comboBox->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
-        m_comboBox->setToolTip( uiField()->uiToolTip( uiConfigName ).toStdString() );
+        m_comboBox->setEnabled( !uiField()->isUiReadOnly() );
+        m_comboBox->setToolTip( uiField()->uiToolTip() );
 
-        bool                     fromMenuOnly = true;
-        QList<PdmOptionItemInfo> options      = uiField()->valueOptions( &fromMenuOnly );
+        bool                          fromMenuOnly = true;
+        std::deque<OptionItemInfo> options      = uiField()->valueOptions( &fromMenuOnly );
         CAF_ASSERT( fromMenuOnly ); // Not supported
 
         m_comboBox->clear();
 
-        if ( !options.isEmpty() )
+        if ( !options.empty() )
         {
             for ( const auto& option : options )
             {
-                m_comboBox->addItem( option.optionUiText().toStdString() );
+                m_comboBox->addItem( option.optionUiText() );
             }
-            m_comboBox->setCurrentIndex( uiField()->uiValue().toInt() );
+            m_comboBox->setCurrentIndex( uiField()->uiValue().value<int>() );
         }
         else
         {
-            m_comboBox->addItem( uiField()->uiValue().toString().toStdString() );
+            m_comboBox->addItem( uiField()->uiValue().value<std::string>() );
             m_comboBox->setCurrentIndex( 0 );
         }
     }
@@ -121,14 +126,14 @@ void PdmWebComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
                                            m_comboBox->currentIndex() >= m_comboBox->count() - 1 );
 
             // Update button texts
-            if ( !m_attributes.nextButtonText.isEmpty() )
+            if ( !m_attributes.nextButtonText.empty() )
             {
-                m_nextItemButton->setToolTip( m_attributes.nextButtonText.toStdString() );
+                m_nextItemButton->setToolTip( m_attributes.nextButtonText );
             }
 
-            if ( !m_attributes.prevButtonText.isEmpty() )
+            if ( !m_attributes.prevButtonText.empty() )
             {
-                m_previousItemButton->setToolTip( m_attributes.prevButtonText.toStdString() );
+                m_previousItemButton->setToolTip( m_attributes.prevButtonText );
             }
         }
         else
@@ -179,18 +184,17 @@ void PdmWebComboBoxEditor::slotIndexActivated( int index )
         // Use the text directly, as the item text could be entered directly by the user
 
         auto text = m_comboBox->itemText( index );
-        this->setValueToField( QString::fromStdString( text.narrow() ) );
+        this->setValueToField( text.toUTF8() );
     }
     else
     {
         // Use index as data carrier to PDM field
         // The index will be used as a lookup in a list of option items
 
-        QVariant v;
+        Variant v;
         v = index;
 
-        QVariant uintValue( v.toUInt() );
-        this->setValueToField( uintValue );
+        this->setValueToField( v );
     }
 }
 
@@ -221,3 +225,7 @@ void PdmWebComboBoxEditor::slotPreviousButtonPressed()
 }
 
 } // end namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

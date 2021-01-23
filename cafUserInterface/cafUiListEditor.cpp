@@ -143,7 +143,7 @@ PdmUiListEditor::~PdmUiListEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiListEditor::configureAndUpdateUi()
 {
     // TODO: Fix CAF_ASSERT( here when undoing in testapp
     // See PdmUiComboBoxEditor for pattern
@@ -153,15 +153,15 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
     CAF_ASSERT( !m_label.isNull() );
     CAF_ASSERT( m_listView->selectionModel() );
 
-    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label );
 
-    m_listView->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
-    m_listView->setToolTip( uiField()->uiToolTip( uiConfigName ) );
+    m_listView->setEnabled( !uiField()->isUiReadOnly() );
+    m_listView->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
-    bool                     optionsOnly = true;
-    QList<PdmOptionItemInfo> options     = uiField()->valueOptions( &optionsOnly );
-    m_optionItemCount                    = options.size();
-    if ( options.size() > 0 || uiField()->isUiReadOnly( uiConfigName ) )
+    bool                       optionsOnly = true;
+    std::deque<OptionItemInfo> options     = uiField()->valueOptions( &optionsOnly );
+    m_optionItemCount                      = options.size();
+    if ( options.size() > 0 || uiField()->isUiReadOnly() )
     {
         m_isEditOperationsAvailable = false;
     }
@@ -170,11 +170,11 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
         m_isEditOperationsAvailable = true;
     }
 
-    PdmUiListEditorAttribute    attributes;
+    PdmUiListEditorAttribute attributes;
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
+        uiObject->editorAttribute( uiField()->fieldHandle(), &attributes );
 
         QPalette myPalette;
 
@@ -198,20 +198,34 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     CAF_ASSERT( strListModel );
 
-    if ( !options.isEmpty() )
+    if ( !options.empty() )
     {
         CAF_ASSERT( optionsOnly ); // Handling Additions on the fly not implemented
 
         strListModel->setItemsEditable( false );
-        QModelIndex currentItem = m_listView->selectionModel()->currentIndex();
-        QStringList texts       = PdmOptionItemInfo::extractUiTexts( options );
-        strListModel->setStringList( texts );
+        QModelIndex             currentItem = m_listView->selectionModel()->currentIndex();
+        std::deque<std::string> texts       = OptionItemInfo::extractUiTexts( options );
+        QStringList             textList;
+        for ( auto text : texts )
+        {
+            textList.push_back( QString::fromStdString( text ) );
+        }
+        strListModel->setStringList( textList );
 
-        QVariant fieldValue = uiField()->uiValue();
-        if ( fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt )
+        Variant fieldValue = uiField()->uiValue();
+
+        int row = -1;
+        if ( fieldValue.canConvert<int>() )
+        {
+            row = fieldValue.value<int>();
+        }
+        else if ( fieldValue.canConvert<unsigned int>() )
+        {
+            row = static_cast<int>( fieldValue.value<unsigned int>() );
+        }
+        if (row >= 0)
         {
             int col = 0;
-            int row = uiField()->uiValue().toInt();
 
             QModelIndex mi = strListModel->index( row, col );
 
@@ -229,14 +243,14 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
 
             m_listView->selectionModel()->blockSignals( false );
         }
-        else if ( fieldValue.type() == QVariant::List )
+        else if ( fieldValue.isVector() )
         {
-            QList<QVariant> valuesSelectedInField = fieldValue.toList();
-            QItemSelection  selection;
+            std::vector<Variant> valuesSelectedInField = fieldValue.toVector();
+            QItemSelection       selection;
 
             for ( int i = 0; i < valuesSelectedInField.size(); ++i )
             {
-                QModelIndex mi = strListModel->index( valuesSelectedInField[i].toInt(), 0 );
+                QModelIndex mi = strListModel->index( valuesSelectedInField[i].value<int>(), 0 );
                 selection.append( QItemSelectionRange( mi ) );
             }
 
@@ -253,12 +267,17 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
     {
         m_listView->selectionModel()->blockSignals( true );
 
-        QItemSelection selection   = m_listView->selectionModel()->selection();
-        QModelIndex    currentItem = m_listView->selectionModel()->currentIndex();
-        QVariant       fieldValue  = uiField()->uiValue();
-        QStringList    texts       = fieldValue.toStringList();
-        texts.push_back( "" );
-        strListModel->setStringList( texts );
+        QItemSelection          selection   = m_listView->selectionModel()->selection();
+        QModelIndex             currentItem = m_listView->selectionModel()->currentIndex();
+        Variant                 fieldValue  = uiField()->uiValue();
+        std::deque<std::string> texts       = OptionItemInfo::extractUiTexts( options );
+        QStringList             textList;
+        for ( auto text : texts )
+        {
+            textList.push_back( QString::fromStdString( text ) );
+        }
+        textList.push_back( "" );
+        strListModel->setStringList( textList );
 
         strListModel->setItemsEditable( true );
 
@@ -318,8 +337,8 @@ void PdmUiListEditor::slotSelectionChanged( const QItemSelection& selected, cons
 
     m_isScrollToItemAllowed = false;
 
-    QVariant fieldValue = uiField()->uiValue();
-    if ( fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt )
+    Variant fieldValue = uiField()->uiValue();
+    if ( fieldValue.canConvert<int>() || fieldValue.canConvert<unsigned int>() )
     {
         // NOTE : Workaround for update issue seen on RHEL6 with Qt 4.6.2
         // An invalid call to setSelection() from QAbstractItemView::keyPressEvent() causes the stepping using arrow
@@ -335,15 +354,15 @@ void PdmUiListEditor::slotSelectionChanged( const QItemSelection& selected, cons
         {
             if ( idxList[0].row() < m_optionItemCount )
             {
-                this->setValueToField( QVariant( static_cast<unsigned int>( idxList[0].row() ) ) );
+                this->setValueToField( Variant( static_cast<unsigned int>( idxList[0].row() ) ) );
             }
         }
     }
-    else if ( fieldValue.type() == QVariant::List )
+    else if ( fieldValue.isVector() )
     {
         QModelIndexList idxList = m_listView->selectionModel()->selectedIndexes();
 
-        QList<QVariant> valuesSelectedInField = fieldValue.toList();
+        std::vector<Variant> valuesSelectedInField = fieldValue.toVector();
 
         if ( idxList.size() == 1 && valuesSelectedInField.size() == 1 )
         {
@@ -360,16 +379,16 @@ void PdmUiListEditor::slotSelectionChanged( const QItemSelection& selected, cons
             idxList = m_listView->selectionModel()->selectedIndexes();
         }
 
-        QList<QVariant> valuesToSetInField;
+        std::vector<Variant> valuesToSetInField;
         for ( int i = 0; i < idxList.size(); ++i )
         {
             if ( idxList[i].row() < m_optionItemCount )
             {
-                valuesToSetInField.push_back( QVariant( static_cast<unsigned int>( idxList[i].row() ) ) );
+                valuesToSetInField.push_back( Variant( static_cast<unsigned int>( idxList[i].row() ) ) );
             }
         }
-
-        this->setValueToField( valuesToSetInField );
+        Variant variantOfVector = Variant::fromVector( valuesToSetInField );
+        this->setValueToField( variantOfVector );
     }
 
     m_isScrollToItemAllowed = true;
@@ -434,10 +453,10 @@ void PdmUiListEditor::pasteFromString( const QString& content )
 //--------------------------------------------------------------------------------------------------
 void PdmUiListEditor::trimAndSetValuesToField( const QStringList& stringList )
 {
-    QStringList result;
+    std::vector<std::string> result;
     for ( const auto& str : stringList )
     {
-        if ( str != "" && str != " " ) result += str;
+        if ( str != "" && str != " " ) result.push_back( str.toStdString() );
     }
 
     this->setValueToField( result );

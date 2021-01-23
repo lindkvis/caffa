@@ -11,19 +11,15 @@
 
 #include "cafAppEnum.h"
 
-#include "cafCmdExecCommandManager.h"
-#include "cafCmdFeatureManager.h"
-#include "cafCmdSelectionHelper.h"
-
-#include "cafCmdFeatureMenuBuilder.h"
-#include "cafFilePath.h"
-#include "cafPdmDocument.h"
 #include "cafFieldUiCapability.h"
 #include "cafObject.h"
 #include "cafObjectGroup.h"
+#include "cafPdmDocument.h"
+#include "cafPdmReferenceHelper.h"
 #include "cafProxyValueField.h"
 #include "cafPtrField.h"
-#include "cafPdmReferenceHelper.h"
+#include "cafQActionWrapper.h"
+#include "cafSelectionManager.h"
 #include "cafUiComboBoxEditor.h"
 #include "cafUiFilePathEditor.h"
 #include "cafUiItem.h"
@@ -36,8 +32,6 @@
 #include "cafUiTextEditor.h"
 #include "cafUiTreeSelectionEditor.h"
 #include "cafUiTreeView.h"
-#include "cafQActionWrapper.h"
-#include "cafSelectionManager.h"
 
 #include <QAction>
 #include <QDebug>
@@ -47,6 +41,8 @@
 #include <QTreeView>
 #include <QUndoView>
 
+#include <filesystem>
+
 class DemoObjectGroup : public caf::PdmDocument
 {
     CAF_HEADER_INIT;
@@ -54,14 +50,23 @@ class DemoObjectGroup : public caf::PdmDocument
 public:
     DemoObjectGroup()
     {
-        CAF_InitFieldNoDefault(&objects, "Objects", "", "", "", "")
+        CAF_InitObject("Project", "", "Test Project", "");
+        CAF_InitFieldNoDefault(&objects, "Objects", "", "", "", "");
+        CAF_InitField(&m_textField, "Description", std::string("Project"), "", "", "", "");
+        objects.capability<caf::FieldUiCapability>()->setUiHidden(true);
+    }
 
-            objects.capability<caf::FieldUiCapability>()
-                ->setUiHidden(true);
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    caf::FieldHandle* userDescriptionField() override
+    {
+        return &m_textField;
     }
 
 public:
     caf::ChildArrayField<ObjectHandle*> objects;
+    caf::Field<std::string>             m_textField;
 };
 
 CAF_SOURCE_INIT(DemoObjectGroup, "DemoObjectGroup");
@@ -85,12 +90,12 @@ TinyDemoObject::TinyDemoObject()
     CAF_InitObject("Tiny Demo Object", "", "This object is a demo of the CAF framework", "");
     CAF_InitField(&m_toggleField, "Toggle", false, "Toggle Item", "", "Tooltip", " Whatsthis?");
     CAF_InitField(&m_doubleField,
-                      "Number",
-                      0.0,
-                      "Number",
-                      "",
-                      "Enter a floating point number here",
-                      "Double precision floating point number");
+                  "Number",
+                  0.0,
+                  "Number",
+                  "",
+                  "Enter a floating point number here",
+                  "Double precision floating point number");
 }
 
 class SmallDemoObject : public caf::Object
@@ -101,41 +106,41 @@ public:
     SmallDemoObject()
     {
         CAF_InitObject("Small Demo Object",
-                           ":/images/win/filenew.png",
-                           "This object is a demo of the CAF framework",
-                           "This object is a demo of the CAF framework");
+                       ":/images/win/filenew.png",
+                       "This object is a demo of the CAF framework",
+                       "This object is a demo of the CAF framework");
 
         CAF_InitField(
             &m_toggleField, "Toggle", false, "Add Items To Multi Select", "", "Toggle Field tooltip", " Toggle Field whatsthis");
         CAF_InitField(&m_doubleField,
-                          "BigNumber",
-                          0.0,
-                          "Big Number",
-                          "",
-                          "Enter a big number here",
-                          "This is a place you can enter a big real value if you want");
+                      "BigNumber",
+                      0.0,
+                      "Big Number",
+                      "",
+                      "Enter a big number here",
+                      "This is a place you can enter a big real value if you want");
         m_doubleField.capability<caf::FieldUiCapability>()->setCustomContextMenuEnabled(true);
 
         CAF_InitField(&m_intField,
-                          "IntNumber",
-                          0,
-                          "Small Number",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "IntNumber",
+                      0,
+                      "Small Number",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_textField,
-                          "TextField",
-                          QString(""),
-                          "Text",
-                          "",
-                          "Text tooltip",
-                          "This is a place you can enter a small integer value if you want");
+                      "TextField",
+                      std::string(""),
+                      "Text",
+                      "",
+                      "Text tooltip",
+                      "This is a place you can enter a small integer value if you want");
 
         m_proxyDoubleField.registerSetMethod(this, &SmallDemoObject::setDoubleMember);
         m_proxyDoubleField.registerGetMethod(this, &SmallDemoObject::doubleMember);
         CAF_InitFieldNoDefault(&m_proxyDoubleField, "ProxyDouble", "Proxy Double", "", "", "");
 
-        CAF_InitField(&m_fileName, "FileName", caf::FilePath("filename"), "File Name", "", "", "");
+        CAF_InitField(&m_fileName, "FileName", std::filesystem::path("filename"), "File Name", "", "", "");
 
         CAF_InitFieldNoDefault(&m_fileNameList, "FileNameList", "File Name List", "", "", "");
         m_fileNameList.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
@@ -157,15 +162,15 @@ public:
         m_multiSelectList.v().push_back("Third");
     }
 
-    caf::Field<double>  m_doubleField;
-    caf::Field<int>     m_intField;
-    caf::Field<QString> m_textField;
+    caf::Field<double>      m_doubleField;
+    caf::Field<int>         m_intField;
+    caf::Field<std::string> m_textField;
 
-    caf::ProxyValueField<double>           m_proxyDoubleField;
-    caf::Field<caf::FilePath>              m_fileName;
-    caf::Field<std::vector<caf::FilePath>> m_fileNameList;
+    caf::ProxyValueField<double>                   m_proxyDoubleField;
+    caf::Field<std::filesystem::path>              m_fileName;
+    caf::Field<std::vector<std::filesystem::path>> m_fileNameList;
 
-    caf::Field<std::vector<QString>> m_multiSelectList;
+    caf::Field<std::vector<std::string>> m_multiSelectList;
 
     caf::Field<bool>  m_toggleField;
     caf::FieldHandle* objectToggleField() override
@@ -173,7 +178,10 @@ public:
         return &m_toggleField;
     }
 
-    void fieldChangedByUi(const caf::FieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override
+    void onFieldChangedByCapability(const caf::FieldHandle*     changedField,
+                                    const caf::FieldCapability* changedCapability,
+                                    const caf::Variant&         oldValue,
+                                    const caf::Variant&         newValue) override
     {
         if (changedField == &m_toggleField)
         {
@@ -195,32 +203,33 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly) override
+    std::deque<caf::OptionItemInfo> calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
+                                                          bool*                   useOptionsOnly) override
     {
-        QList<caf::PdmOptionItemInfo> options;
+        std::deque<caf::OptionItemInfo> options;
 
         if (fieldNeedingOptions == &m_multiSelectList)
         {
-            QString text;
+            std::string text;
 
             text = "First";
-            options.push_back(caf::PdmOptionItemInfo(text, text));
+            options.push_back(caf::OptionItemInfo(text, text));
 
             text = "Second";
-            options.push_back(caf::PdmOptionItemInfo::createHeader(text, false, caf::IconProvider(":/images/win/textbold.png")));
+            options.push_back(
+                caf::OptionItemInfo::createHeader(text, false, std::make_shared<caf::IconProvider>(":/images/win/textbold.png")));
 
             {
-                text                            = "Second_a";
-                caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text, true);
+                text                         = "Second_a";
+                caf::OptionItemInfo itemInfo = caf::OptionItemInfo(text, text, true);
                 itemInfo.setLevel(1);
                 options.push_back(itemInfo);
             }
 
             {
                 text = "Second_b";
-                caf::PdmOptionItemInfo itemInfo =
-                    caf::PdmOptionItemInfo(text, text, false, caf::IconProvider(":/images/win/filenew.png"));
+                caf::OptionItemInfo itemInfo =
+                    caf::OptionItemInfo(text, text, false, std::make_shared<caf::IconProvider>(":/images/win/filenew.png"));
                 itemInfo.setLevel(1);
                 options.push_back(itemInfo);
             }
@@ -228,8 +237,8 @@ public:
             int additionalSubItems = 2;
             for (auto i = 0; i < additionalSubItems; i++)
             {
-                text                            = "Second_b_" + QString::number(i);
-                caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text);
+                text                         = "Second_b_" + std::to_string(i);
+                caf::OptionItemInfo itemInfo = caf::OptionItemInfo(text, text);
                 itemInfo.setLevel(1);
                 options.push_back(itemInfo);
             }
@@ -241,17 +250,17 @@ public:
             }
             for (auto i = 0; i < s_additionalSubItems; i++)
             {
-                text                            = "Second_b_" + QString::number(i);
-                caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text);
+                text                         = "Second_b_" + std::to_string(i);
+                caf::OptionItemInfo itemInfo = caf::OptionItemInfo(text, text);
                 itemInfo.setLevel(1);
                 options.push_back(itemInfo);
             }
 
             text = "Third";
-            options.push_back(caf::PdmOptionItemInfo(text, text));
+            options.push_back(caf::OptionItemInfo(text, text));
 
             text = "Fourth";
-            options.push_back(caf::PdmOptionItemInfo(text, text));
+            options.push_back(caf::OptionItemInfo(text, text));
         }
 
         return options;
@@ -260,14 +269,14 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineCustomContextMenu(const caf::FieldHandle* fieldNeedingMenu,
-                                 caf::MenuInterface*        menu,
-                                 QWidget*                   fieldEditorWidget) override
-    {
-        menu->addAction(caf::CmdFeatureManager::instance()->action("test", "nothing"));
-        menu->addAction(caf::CmdFeatureManager::instance()->action("other test <<>>", "still nothing"));
-    }
-
+    /*    void defineCustomContextMenu(const caf::FieldHandle* fieldNeedingMenu,
+                                     caf::MenuInterface*     menu,
+                                     QWidget*                fieldEditorWidget) override
+        {
+            menu->addAction(caf::CmdFeatureManager::instance()->action("test", "nothing"));
+            menu->addAction(caf::CmdFeatureManager::instance()->action("other test <<>>", "still nothing"));
+        }
+        */
 private:
     double m_doubleMember;
 
@@ -275,13 +284,13 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
+    void defineUiOrdering(caf::UiOrdering& uiOrdering) override
     {
         uiOrdering.add(&m_doubleField);
         uiOrdering.add(&m_intField);
-        QString dynamicGroupName = QString("Dynamic Group Text (%1)").arg(m_intField);
+        std::string dynamicGroupName = std::string("Dynamic Group Text (") + std::to_string(m_intField()) + ")";
 
-        caf::PdmUiGroup* group = uiOrdering.addNewGroupWithKeyword(dynamicGroupName, "MyTest");
+        caf::UiGroup* group = uiOrdering.addNewGroupWithKeyword(dynamicGroupName, "MyTest");
         group->add(&m_textField);
         group->add(&m_proxyDoubleField);
     }
@@ -297,221 +306,221 @@ public:
     SmallGridDemoObject()
     {
         CAF_InitObject("Small Grid Demo Object",
-                           "",
-                           "This object is a demo of the CAF framework",
-                           "This object is a demo of the CAF framework");
+                       "",
+                       "This object is a demo of the CAF framework",
+                       "This object is a demo of the CAF framework");
 
         CAF_InitField(&m_intFieldStandard,
-                          "Standard",
-                          0,
-                          "Standard",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "Standard",
+                      0,
+                      "Standard",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldUseFullSpace,
-                          "FullSpace",
-                          0,
-                          "Use Full Space For Both",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "FullSpace",
+                      0,
+                      "Use Full Space For Both",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldUseFullSpaceLabel,
-                          "FullSpaceLabel",
-                          0,
-                          "Total 3, Label MAX",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "FullSpaceLabel",
+                      0,
+                      "Total 3, Label MAX",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldUseFullSpaceField,
-                          "FullSpaceField",
-                          0,
-                          "Total MAX, Label 1",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "FullSpaceField",
+                      0,
+                      "Total MAX, Label 1",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldWideLabel,
-                          "WideLabel",
-                          0,
-                          "Wide Label",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "WideLabel",
+                      0,
+                      "Wide Label",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldWideField,
-                          "WideField",
-                          0,
-                          "Wide Field",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "WideField",
+                      0,
+                      "Wide Field",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldLeft,
-                          "LeftField",
-                          0,
-                          "Left Field",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "LeftField",
+                      0,
+                      "Left Field",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldRight,
-                          "RightField",
-                          0,
-                          "Right Field With More Text",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "RightField",
+                      0,
+                      "Right Field With More Text",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldWideBoth,
-                          "WideBoth",
-                          0,
-                          "Wide Both",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "WideBoth",
+                      0,
+                      "Wide Both",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
 
         CAF_InitField(&m_intFieldWideBoth2,
-                          "WideBoth2",
-                          0,
-                          "Wide Both",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "WideBoth2",
+                      0,
+                      "Wide Both",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldLeft2,
-                          "LeftFieldInGrp",
-                          0,
-                          "Left Field",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "LeftFieldInGrp",
+                      0,
+                      "Left Field",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldCenter,
-                          "CenterFieldInGrp",
-                          0,
-                          "Center Field",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "CenterFieldInGrp",
+                      0,
+                      "Center Field",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldRight2,
-                          "RightFieldInGrp",
-                          0,
-                          "Right Field",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "RightFieldInGrp",
+                      0,
+                      "Right Field",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldLabelTop,
-                          "FieldLabelTop",
-                          0,
-                          "Field Label Top",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "FieldLabelTop",
+                      0,
+                      "Field Label Top",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         m_intFieldLabelTop.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::TOP);
         CAF_InitField(&m_stringFieldLabelHidden,
-                          "FieldLabelHidden",
-                          QString("Hidden Label Field"),
-                          "Field Label Hidden",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "FieldLabelHidden",
+                      std::string("Hidden Label Field"),
+                      "Field Label Hidden",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         m_stringFieldLabelHidden.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::HIDDEN);
 
         CAF_InitField(&m_intFieldWideBothAuto,
-                          "WideBothAuto",
-                          0,
-                          "Wide ",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "WideBothAuto",
+                      0,
+                      "Wide ",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldLeftAuto,
-                          "LeftFieldInGrpAuto",
-                          0,
-                          "Left Field",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "LeftFieldInGrpAuto",
+                      0,
+                      "Left Field",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldCenterAuto,
-                          "CenterFieldInGrpAuto",
-                          0,
-                          "Center Field",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "CenterFieldInGrpAuto",
+                      0,
+                      "Center Field",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldRightAuto,
-                          "RightFieldInGrpAuto",
-                          0,
-                          "Right Field",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "RightFieldInGrpAuto",
+                      0,
+                      "Right Field",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldLabelTopAuto,
-                          "FieldLabelTopAuto",
-                          0,
-                          "Field Label Top",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "FieldLabelTopAuto",
+                      0,
+                      "Field Label Top",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         m_intFieldLabelTopAuto.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::TOP);
         CAF_InitField(&m_stringFieldLabelHiddenAuto,
-                          "FieldLabelHiddenAuto",
-                          QString("Hidden Label Field"),
-                          "Field Label Hidden",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "FieldLabelHiddenAuto",
+                      std::string("Hidden Label Field"),
+                      "Field Label Hidden",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         m_stringFieldLabelHiddenAuto.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::HIDDEN);
 
         CAF_InitField(&m_intFieldLeftOfGroup,
-                          "FieldLeftOfGrp",
-                          0,
-                          "Left of group",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "FieldLeftOfGrp",
+                      0,
+                      "Left of group",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldRightOfGroup,
-                          "FieldRightOfGrp",
-                          0,
-                          "Right of group wide label",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "FieldRightOfGrp",
+                      0,
+                      "Right of group wide label",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
 
         CAF_InitField(&m_intFieldInsideGroup1,
-                          "FieldInGrp1",
-                          0,
-                          "Inside Group",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "FieldInGrp1",
+                      0,
+                      "Inside Group",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldInsideGroup2,
-                          "FieldInGrp2",
-                          0,
-                          "Inside Group",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "FieldInGrp2",
+                      0,
+                      "Inside Group",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldInsideGroup3,
-                          "FieldInGrp3",
-                          0,
-                          "Inside Group",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "FieldInGrp3",
+                      0,
+                      "Inside Group",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldInsideGroup4,
-                          "FieldInGrp4",
-                          0,
-                          "Inside Group",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "FieldInGrp4",
+                      0,
+                      "Inside Group",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldInsideGroup5,
-                          "FieldInGrp5",
-                          0,
-                          "Inside Group",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "FieldInGrp5",
+                      0,
+                      "Inside Group",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_intFieldInsideGroup6,
-                          "FieldInGrp6",
-                          0,
-                          "Inside Group",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "FieldInGrp6",
+                      0,
+                      "Inside Group",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
     }
 
     // Outside group
@@ -526,20 +535,20 @@ public:
     caf::Field<int> m_intFieldRight;
 
     // First group
-    caf::Field<int>     m_intFieldWideBoth2;
-    caf::Field<int>     m_intFieldLeft2;
-    caf::Field<int>     m_intFieldCenter;
-    caf::Field<int>     m_intFieldRight2;
-    caf::Field<int>     m_intFieldLabelTop;
-    caf::Field<QString> m_stringFieldLabelHidden;
+    caf::Field<int>         m_intFieldWideBoth2;
+    caf::Field<int>         m_intFieldLeft2;
+    caf::Field<int>         m_intFieldCenter;
+    caf::Field<int>         m_intFieldRight2;
+    caf::Field<int>         m_intFieldLabelTop;
+    caf::Field<std::string> m_stringFieldLabelHidden;
 
     // Auto group
-    caf::Field<int>     m_intFieldWideBothAuto;
-    caf::Field<int>     m_intFieldLeftAuto;
-    caf::Field<int>     m_intFieldCenterAuto;
-    caf::Field<int>     m_intFieldRightAuto;
-    caf::Field<int>     m_intFieldLabelTopAuto;
-    caf::Field<QString> m_stringFieldLabelHiddenAuto;
+    caf::Field<int>         m_intFieldWideBothAuto;
+    caf::Field<int>         m_intFieldLeftAuto;
+    caf::Field<int>         m_intFieldCenterAuto;
+    caf::Field<int>         m_intFieldRightAuto;
+    caf::Field<int>         m_intFieldLabelTopAuto;
+    caf::Field<std::string> m_stringFieldLabelHiddenAuto;
 
     // Combination with groups
     caf::Field<int> m_intFieldLeftOfGroup;
@@ -557,55 +566,54 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
+    void defineUiOrdering(caf::UiOrdering& uiOrdering) override
     {
         uiOrdering.add(&m_intFieldStandard);
         uiOrdering.add(&m_intFieldUseFullSpace,
-                       caf::PdmUiOrdering::LayoutOptions(true,
-                                                         caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN,
-                                                         caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN));
+                       caf::UiOrdering::LayoutOptions(true,
+                                                      caf::UiOrdering::LayoutOptions::MAX_COLUMN_SPAN,
+                                                      caf::UiOrdering::LayoutOptions::MAX_COLUMN_SPAN));
         uiOrdering.add(&m_intFieldUseFullSpaceLabel,
-                       caf::PdmUiOrdering::LayoutOptions(true, 3, caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN));
+                       caf::UiOrdering::LayoutOptions(true, 3, caf::UiOrdering::LayoutOptions::MAX_COLUMN_SPAN));
         uiOrdering.add(&m_intFieldUseFullSpaceField,
-                       caf::PdmUiOrdering::LayoutOptions(true, caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN, 1));
-        uiOrdering.add(&m_intFieldWideLabel, caf::PdmUiOrdering::LayoutOptions(true, 4, 3));
-        uiOrdering.add(&m_intFieldWideField, caf::PdmUiOrdering::LayoutOptions(true, 4, 1));
-        uiOrdering.add(&m_intFieldLeft, caf::PdmUiOrdering::LayoutOptions(true));
-        uiOrdering.add(&m_intFieldRight, caf::PdmUiOrdering::LayoutOptions(false));
-        uiOrdering.add(&m_intFieldWideBoth, caf::PdmUiOrdering::LayoutOptions(true, 4, 2));
+                       caf::UiOrdering::LayoutOptions(true, caf::UiOrdering::LayoutOptions::MAX_COLUMN_SPAN, 1));
+        uiOrdering.add(&m_intFieldWideLabel, caf::UiOrdering::LayoutOptions(true, 4, 3));
+        uiOrdering.add(&m_intFieldWideField, caf::UiOrdering::LayoutOptions(true, 4, 1));
+        uiOrdering.add(&m_intFieldLeft, caf::UiOrdering::LayoutOptions(true));
+        uiOrdering.add(&m_intFieldRight, caf::UiOrdering::LayoutOptions(false));
+        uiOrdering.add(&m_intFieldWideBoth, caf::UiOrdering::LayoutOptions(true, 4, 2));
 
-        QString dynamicGroupName = QString("Dynamic Group Text (%1)").arg(m_intFieldStandard);
+        std::string dynamicGroupName = std::string("Dynamic Group Text (") + std::to_string(m_intFieldStandard) + ")";
 
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Wide Group", {true, 4});
-        group->add(&m_intFieldWideBoth2, caf::PdmUiOrdering::LayoutOptions(true, 6, 3));
-        group->add(&m_intFieldLeft2, caf::PdmUiOrdering::LayoutOptions(true));
-        group->add(&m_intFieldCenter, caf::PdmUiOrdering::LayoutOptions(false));
-        group->add(&m_intFieldRight2, caf::PdmUiOrdering::LayoutOptions(false));
-        group->add(&m_intFieldLabelTop, caf::PdmUiOrdering::LayoutOptions(true, 6));
-        group->add(&m_stringFieldLabelHidden, caf::PdmUiOrdering::LayoutOptions(true, 6));
+        caf::UiGroup* group = uiOrdering.addNewGroup("Wide Group", {true, 4});
+        group->add(&m_intFieldWideBoth2, caf::UiOrdering::LayoutOptions(true, 6, 3));
+        group->add(&m_intFieldLeft2, caf::UiOrdering::LayoutOptions(true));
+        group->add(&m_intFieldCenter, caf::UiOrdering::LayoutOptions(false));
+        group->add(&m_intFieldRight2, caf::UiOrdering::LayoutOptions(false));
+        group->add(&m_intFieldLabelTop, caf::UiOrdering::LayoutOptions(true, 6));
+        group->add(&m_stringFieldLabelHidden, caf::UiOrdering::LayoutOptions(true, 6));
 
-        caf::PdmUiGroup* autoGroup =
-            uiOrdering.addNewGroup("Automatic Full Width Group", caf::PdmUiOrdering::LayoutOptions(true));
-        autoGroup->add(&m_intFieldWideBothAuto, caf::PdmUiOrdering::LayoutOptions(true));
-        autoGroup->add(&m_intFieldLeftAuto, caf::PdmUiOrdering::LayoutOptions(true));
+        caf::UiGroup* autoGroup = uiOrdering.addNewGroup("Automatic Full Width Group", caf::UiOrdering::LayoutOptions(true));
+        autoGroup->add(&m_intFieldWideBothAuto, caf::UiOrdering::LayoutOptions(true));
+        autoGroup->add(&m_intFieldLeftAuto, caf::UiOrdering::LayoutOptions(true));
         autoGroup->add(&m_intFieldCenterAuto, false);
-        autoGroup->add(&m_intFieldRightAuto, caf::PdmUiOrdering::LayoutOptions(false));
+        autoGroup->add(&m_intFieldRightAuto, caf::UiOrdering::LayoutOptions(false));
         autoGroup->add(&m_intFieldLabelTopAuto, true);
         autoGroup->add(&m_stringFieldLabelHiddenAuto, true);
 
         uiOrdering.add(&m_intFieldLeftOfGroup);
-        caf::PdmUiGroup* group2 = uiOrdering.addNewGroup("Right Group", caf::PdmUiOrdering::LayoutOptions(false, 2, 0));
+        caf::UiGroup* group2 = uiOrdering.addNewGroup("Right Group", caf::UiOrdering::LayoutOptions(false, 2, 0));
         group2->setEnableFrame(false);
         group2->add(&m_intFieldInsideGroup1);
 
-        caf::PdmUiGroup* group3 = uiOrdering.addNewGroup("Narrow L", caf::PdmUiOrdering::LayoutOptions(true, 1));
+        caf::UiGroup* group3 = uiOrdering.addNewGroup("Narrow L", caf::UiOrdering::LayoutOptions(true, 1));
         group3->add(&m_intFieldInsideGroup2);
-        uiOrdering.add(&m_intFieldRightOfGroup, caf::PdmUiOrdering::LayoutOptions(false, 3, 2));
+        uiOrdering.add(&m_intFieldRightOfGroup, caf::UiOrdering::LayoutOptions(false, 3, 2));
 
-        caf::PdmUiGroup* groupL = uiOrdering.addNewGroup("Left Group", caf::PdmUiOrdering::LayoutOptions(true, 1));
+        caf::UiGroup* groupL = uiOrdering.addNewGroup("Left Group", caf::UiOrdering::LayoutOptions(true, 1));
         groupL->add(&m_intFieldInsideGroup3);
         groupL->add(&m_intFieldInsideGroup5);
-        caf::PdmUiGroup* groupR = uiOrdering.addNewGroup("Right Wide Group", caf::PdmUiOrdering::LayoutOptions(false, 3));
+        caf::UiGroup* groupR = uiOrdering.addNewGroup("Right Wide Group", caf::UiOrdering::LayoutOptions(false, 3));
         groupR->setEnableFrame(false);
         groupR->add(&m_intFieldInsideGroup4);
         groupR->add(&m_intFieldInsideGroup6);
@@ -622,17 +630,17 @@ public:
     SingleEditorObject()
     {
         CAF_InitObject("Single Editor Object",
-                           "",
-                           "This object is a demo of the CAF framework",
-                           "This object is a demo of the CAF framework");
+                       "",
+                       "This object is a demo of the CAF framework",
+                       "This object is a demo of the CAF framework");
 
         CAF_InitField(&m_intFieldStandard,
-                          "Standard",
-                          0,
-                          "Fairly Wide Label",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "Standard",
+                      0,
+                      "Fairly Wide Label",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
     }
 
     // Outside group
@@ -642,7 +650,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
+    void defineUiOrdering(caf::UiOrdering& uiOrdering) override
     {
         uiOrdering.add(&m_intFieldStandard);
     }
@@ -665,27 +673,27 @@ public:
     SmallDemoObjectA()
     {
         CAF_InitObject("Small Demo Object A",
-                           "",
-                           "This object is a demo of the CAF framework",
-                           "This object is a demo of the CAF framework");
+                       "",
+                       "This object is a demo of the CAF framework",
+                       "This object is a demo of the CAF framework");
 
         CAF_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
         CAF_InitField(&m_pushButtonField, "Push", false, "Button Field", "", "", " ");
         CAF_InitField(&m_doubleField,
-                          "BigNumber",
-                          0.0,
-                          "Big Number",
-                          "",
-                          "Enter a big number here",
-                          "This is a place you can enter a big real value if you want");
+                      "BigNumber",
+                      0.0,
+                      "Big Number",
+                      "",
+                      "Enter a big number here",
+                      "This is a place you can enter a big real value if you want");
         CAF_InitField(&m_intField,
-                          "IntNumber",
-                          0,
-                          "Small Number",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
-        CAF_InitField(&m_textField, "TextField", QString("Small Demo Object A"), "Name Text Field", "", "", "");
+                      "IntNumber",
+                      0,
+                      "Small Number",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
+        CAF_InitField(&m_textField, "TextField", std::string("Small Demo Object A"), "Name Text Field", "", "", "");
         CAF_InitField(&m_testEnumField, "TestEnumValue", caf::AppEnum<TestEnumType>(T1), "EnumField", "", "", "");
         CAF_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "", "");
 
@@ -705,14 +713,14 @@ public:
 
     caf::Field<double>                     m_doubleField;
     caf::Field<int>                        m_intField;
-    caf::Field<QString>                    m_textField;
+    caf::Field<std::string>                m_textField;
     caf::Field<caf::AppEnum<TestEnumType>> m_testEnumField;
-    caf::PtrField<SmallDemoObjectA*>    m_ptrField;
+    caf::PtrField<SmallDemoObjectA*>       m_ptrField;
 
     caf::ProxyValueField<caf::AppEnum<TestEnumType>> m_proxyEnumField;
-    void                                                setEnumMember(const caf::AppEnum<TestEnumType>& val)
+    void                                             setEnumMember(const caf::AppEnum<TestEnumType>& val)
     {
-        m_proxyEnumMember = val;
+        m_proxyEnumMember = val.value();
     }
     caf::AppEnum<TestEnumType> enumMember() const
     {
@@ -732,7 +740,10 @@ public:
         return &m_toggleField;
     }
 
-    void fieldChangedByUi(const caf::FieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override
+    void onFieldChangedByCapability(const caf::FieldHandle*     changedField,
+                                    const caf::FieldCapability* changedCapability,
+                                    const caf::Variant&         oldValue,
+                                    const caf::Variant&         newValue) override
     {
         if (changedField == &m_toggleField)
         {
@@ -740,7 +751,7 @@ public:
         }
         else if (changedField == &m_highlightedEnum)
         {
-            qDebug() << "Highlight value " << m_highlightedEnum();
+            qDebug() << "Highlight value " << QString::fromStdString(m_highlightedEnum().text());
         }
         else if (changedField == &m_pushButtonField)
         {
@@ -748,10 +759,10 @@ public:
         }
     }
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly) override
+    std::deque<caf::OptionItemInfo> calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
+                                                          bool*                   useOptionsOnly) override
     {
-        QList<caf::PdmOptionItemInfo> options;
+        std::deque<caf::OptionItemInfo> options;
 
         if (&m_ptrField == fieldNeedingOptions)
         {
@@ -763,24 +774,23 @@ public:
 
             for (size_t i = 0; i < objects.size(); ++i)
             {
-                QString userDesc;
+                std::string userDesc;
 
                 caf::ObjectUiCapability* uiObject = caf::uiObj(objects[i]);
                 if (uiObject)
                 {
-                    if (uiObject->userDescriptionField())
+                    if (objects[i]->userDescriptionField())
                     {
                         caf::FieldUiCapability* uiFieldHandle =
-                            uiObject->userDescriptionField()->capability<caf::FieldUiCapability>();
+                            objects[i]->userDescriptionField()->capability<caf::FieldUiCapability>();
                         if (uiFieldHandle)
                         {
-                            userDesc = uiFieldHandle->uiValue().toString();
+                            userDesc = uiFieldHandle->uiValue().value<std::string>();
                         }
                     }
 
                     options.push_back(
-                        caf::PdmOptionItemInfo(uiObject->uiName() + "(" + userDesc + ")",
-                                               QVariant::fromValue(caf::PdmPointer<caf::ObjectHandle>(objects[i]))));
+                        caf::OptionItemInfo(userDesc, caf::Variant(caf::PdmPointer<caf::ObjectHandle>(objects[i]))));
                 }
             }
         }
@@ -788,8 +798,8 @@ public:
         {
             for (size_t i = 0; i < caf::AppEnum<TestEnumType>::size(); ++i)
             {
-                options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<TestEnumType>::uiTextFromIndex(i),
-                                                         caf::AppEnum<TestEnumType>::fromIndex(i)));
+                options.push_back(caf::OptionItemInfo(caf::AppEnum<TestEnumType>::uiTextFromIndex(i),
+                                                      caf::AppEnum<TestEnumType>::fromIndex(i)));
             }
         }
 
@@ -810,9 +820,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineEditorAttribute(const caf::FieldHandle* field,
-                               QString                    uiConfigName,
-                               caf::UiEditorAttribute* attribute) override
+    void defineEditorAttribute(const caf::FieldHandle* field, caf::UiEditorAttribute* attribute) override
     {
         if (field == &m_multipleAppEnum)
         {
@@ -835,7 +843,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineObjectEditorAttribute(QString uiConfigName, caf::UiEditorAttribute* attribute) override
+    void defineObjectEditorAttribute(caf::UiEditorAttribute* attribute) override
     {
         caf::PdmUiTableViewPushButtonEditorAttribute* attr =
             dynamic_cast<caf::PdmUiTableViewPushButtonEditorAttribute*>(attribute);
@@ -860,7 +868,6 @@ void AppEnum<SmallDemoObjectA::TestEnumType>::setUp()
 }
 
 } // namespace caf
-Q_DECLARE_METATYPE(caf::AppEnum<SmallDemoObjectA::TestEnumType>);
 
 class DemoObject : public caf::Object
 {
@@ -874,39 +881,38 @@ public:
 
         CAF_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
         CAF_InitField(&m_doubleField,
-                          "BigNumber",
-                          0.0,
-                          "Big Number",
-                          "",
-                          "Enter a big number here",
-                          "This is a place you can enter a big real value if you want");
+                      "BigNumber",
+                      0.0,
+                      "Big Number",
+                      "",
+                      "Enter a big number here",
+                      "This is a place you can enter a big real value if you want");
         CAF_InitField(&m_intField,
-                          "IntNumber",
-                          0,
-                          "Small Number",
-                          "",
-                          "Enter some small number here",
-                          "This is a place you can enter a small integer value if you want");
+                      "IntNumber",
+                      0,
+                      "Small Number",
+                      "",
+                      "Enter some small number here",
+                      "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_boolField,
-                          "BooleanValue",
-                          false,
-                          "Boolean:",
-                          "",
-                          "Boolean:Enter some small number here",
-                          "Boolean:This is a place you can enter a small integer value if you want");
-        CAF_InitField(&m_textField, "TextField", QString("Demo Object Description Field"), "Description Field", "", "", "");
-        CAF_InitField(&m_filePath, "FilePath", QString(""), "Filename", "", "", "");
-        CAF_InitField(&m_longText, "LongText", QString("Test text"), "Long Text", "", "", "");
+                      "BooleanValue",
+                      false,
+                      "Boolean:",
+                      "",
+                      "Boolean:Enter some small number here",
+                      "Boolean:This is a place you can enter a small integer value if you want");
+        CAF_InitField(&m_textField, "TextField", std::string("Demo Object Description Field"), "Description Field", "", "", "");
+        CAF_InitField(&m_filePath, "FilePath", std::string(""), "Filename", "", "", "");
+        CAF_InitField(&m_longText, "LongText", std::string("Test text"), "Long Text", "", "", "");
 
-        CAF_InitFieldNoDefault(
-            &m_multiSelectList, "MultiSelect", "Selection List", "", "List", "This is a multi selection list");
+        CAF_InitFieldNoDefault(&m_multiSelectList, "MultiSelect", "Selection List", "", "List", "This is a multi selection list");
         CAF_InitFieldNoDefault(&m_objectList, "ObjectList", "Objects list Field", "", "List", "This is a list of Objects");
         CAF_InitFieldNoDefault(&m_objectListOfSameType,
-                                   "m_objectListOfSameType",
-                                   "Same type Objects list Field",
-                                   "",
-                                   "Same type List",
-                                   "Same type list of Objects");
+                               "m_objectListOfSameType",
+                               "Same type Objects list Field",
+                               "",
+                               "Same type List",
+                               "Same type list of Objects");
         m_objectListOfSameType.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
             caf::PdmUiTableViewEditor::uiEditorTypeName());
         m_objectListOfSameType.capability<caf::FieldUiCapability>()->setCustomContextMenuEnabled(true);
@@ -924,16 +930,16 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
+    void defineUiOrdering(caf::UiOrdering& uiOrdering) override
     {
         uiOrdering.add(&m_objectListOfSameType);
         uiOrdering.add(&m_ptrField);
         uiOrdering.add(&m_boolField);
-        caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Name1");
+        caf::UiGroup* group1 = uiOrdering.addNewGroup("Name1");
         group1->add(&m_doubleField);
-        caf::PdmUiGroup* group2 = uiOrdering.addNewGroup("Name2");
+        caf::UiGroup* group2 = uiOrdering.addNewGroup("Name2");
         group2->add(&m_intField);
-        caf::PdmUiGroup* group3 = group2->addNewGroup("Name3");
+        caf::UiGroup* group3 = group2->addNewGroup("Name3");
         // group3->add(&m_textField);
 
         uiOrdering.skipRemainingFields();
@@ -942,18 +948,18 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly) override
+    std::deque<caf::OptionItemInfo> calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
+                                                          bool*                   useOptionsOnly) override
     {
-        QList<caf::PdmOptionItemInfo> options;
+        std::deque<caf::OptionItemInfo> options;
         if (&m_multiSelectList == fieldNeedingOptions)
         {
-            options.push_back(caf::PdmOptionItemInfo("Choice 1", "Choice1"));
-            options.push_back(caf::PdmOptionItemInfo("Choice 2", "Choice2"));
-            options.push_back(caf::PdmOptionItemInfo("Choice 3", "Choice3"));
-            options.push_back(caf::PdmOptionItemInfo("Choice 4", "Choice4"));
-            options.push_back(caf::PdmOptionItemInfo("Choice 5", "Choice5"));
-            options.push_back(caf::PdmOptionItemInfo("Choice 6", "Choice6"));
+            options.push_back(caf::OptionItemInfo("Choice 1", "Choice1"));
+            options.push_back(caf::OptionItemInfo("Choice 2", "Choice2"));
+            options.push_back(caf::OptionItemInfo("Choice 3", "Choice3"));
+            options.push_back(caf::OptionItemInfo("Choice 4", "Choice4"));
+            options.push_back(caf::OptionItemInfo("Choice 5", "Choice5"));
+            options.push_back(caf::OptionItemInfo("Choice 6", "Choice6"));
         }
 
         if (&m_ptrField == fieldNeedingOptions)
@@ -963,9 +969,15 @@ public:
                 caf::ObjectUiCapability* uiObject = caf::uiObj(m_objectListOfSameType[i]);
                 if (uiObject)
                 {
-                    options.push_back(caf::PdmOptionItemInfo(
-                        uiObject->uiName(),
-                        QVariant::fromValue(caf::PdmPointer<caf::ObjectHandle>(m_objectListOfSameType[i]))));
+                    std::string userDesc;
+
+                    caf::FieldUiCapability* uiFieldHandle = this->userDescriptionField()->capability<caf::FieldUiCapability>();
+                    if (uiFieldHandle)
+                    {
+                        userDesc = uiFieldHandle->uiValue().value<std::string>();
+                    }
+                    options.push_back(caf::OptionItemInfo(
+                        userDesc, caf::Variant(caf::PdmPointer<caf::ObjectHandle>(m_objectListOfSameType[i]))));
                 }
             }
         }
@@ -984,15 +996,15 @@ public:
     }
 
     // Fields
-    caf::Field<bool>    m_boolField;
-    caf::Field<double>  m_doubleField;
-    caf::Field<int>     m_intField;
-    caf::Field<QString> m_textField;
+    caf::Field<bool>        m_boolField;
+    caf::Field<double>      m_doubleField;
+    caf::Field<int>         m_intField;
+    caf::Field<std::string> m_textField;
 
-    caf::Field<QString> m_filePath;
+    caf::Field<std::string> m_filePath;
 
-    caf::Field<QString>              m_longText;
-    caf::Field<std::vector<QString>> m_multiSelectList;
+    caf::Field<std::string>              m_longText;
+    caf::Field<std::vector<std::string>> m_multiSelectList;
 
     caf::ChildArrayField<caf::ObjectHandle*> m_objectList;
     caf::ChildArrayField<SmallDemoObjectA*>  m_objectListOfSameType;
@@ -1007,7 +1019,10 @@ public:
         return &m_toggleField;
     }
 
-    void fieldChangedByUi(const caf::FieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override
+    void onFieldChangedByCapability(const caf::FieldHandle*     changedField,
+                                    const caf::FieldCapability* changedCapability,
+                                    const caf::Variant&         oldValue,
+                                    const caf::Variant&         newValue) override
     {
         if (changedField == &m_toggleField)
         {
@@ -1043,15 +1058,15 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineCustomContextMenu(const caf::FieldHandle* fieldNeedingMenu,
-                                 caf::MenuInterface*        menu,
-                                 QWidget*                   fieldEditorWidget) override
+    /* void defineCustomContextMenu(const caf::FieldHandle* fieldNeedingMenu,
+                                 caf::MenuInterface*     menu,
+                                 QWidget*                fieldEditorWidget) override
     {
         if (fieldNeedingMenu == &m_objectListOfSameType)
         {
             caf::PdmUiTableView::addActionsToMenu(menu, &m_objectListOfSameType);
         }
-    }
+    } */
 };
 
 CAF_SOURCE_INIT(DemoObject, "DemoObject");
@@ -1087,8 +1102,8 @@ MainWindow::MainWindow()
     sm_mainWindowInstance = this;
     caf::SelectionManager::instance()->setPdmRootObject(m_testRoot);
 
-    caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
-    undoView->setStack(caf::CmdExecCommandManager::instance()->undoStack());
+    // caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
+    // undoView->setStack(caf::CmdExecCommandManager::instance()->undoStack());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1104,10 +1119,9 @@ void MainWindow::createDockPanels()
         m_pdmUiTreeView = new caf::PdmUiTreeView(dockWidget);
         dockWidget->setWidget(m_pdmUiTreeView);
         m_pdmUiTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
-
-        QObject::connect(m_pdmUiTreeView->treeView(),
+        /* QObject::connect(m_pdmUiTreeView->treeView(),
                          SIGNAL(customContextMenuRequested(const QPoint&)),
-                         SLOT(slotCustomMenuRequestedForProjectTree(const QPoint&)));
+                         SLOT(slotCustomMenuRequestedForProjectTree(const QPoint&))); */
 
         m_pdmUiTreeView->treeView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
         m_pdmUiTreeView->enableSelectionManagerUpdating(true);
@@ -1367,7 +1381,7 @@ void MainWindow::slotInsert()
 
     for (size_t i = 0; i < selection.size(); ++i)
     {
-        caf::FieldUiCapability*                      uiFh  = dynamic_cast<caf::FieldUiCapability*>(selection[i]);
+        caf::FieldUiCapability*                   uiFh  = dynamic_cast<caf::FieldUiCapability*>(selection[i]);
         caf::ChildArrayField<caf::ObjectHandle*>* field = nullptr;
 
         if (uiFh) field = dynamic_cast<caf::ChildArrayField<caf::ObjectHandle*>*>(uiFh->fieldHandle());
@@ -1491,16 +1505,17 @@ void MainWindow::slotShowTableView()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::slotLoadProject()
 {
-    QString fileName =
-        QFileDialog::getOpenFileName(nullptr, tr("Open Project File"), "test.proj", "Project Files (*.proj);;All files(*.*)");
-    if (!fileName.isEmpty())
+    std::string fileName =
+        QFileDialog::getOpenFileName(nullptr, tr("Open Project File"), "test.proj", "Project Files (*.proj);;All files(*.*)")
+            .toStdString();
+    if (!fileName.empty())
     {
         setPdmRoot(nullptr);
         releaseTestData();
 
         m_testRoot           = new DemoObjectGroup;
         m_testRoot->fileName = fileName;
-        m_testRoot->readFile();
+        m_testRoot->read();
 
         setPdmRoot(m_testRoot);
     }
@@ -1511,19 +1526,20 @@ void MainWindow::slotLoadProject()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::slotSaveProject()
 {
-    QString fileName =
-        QFileDialog::getSaveFileName(nullptr, tr("Save Project File"), "test.proj", "Project Files (*.proj);;All files(*.*)");
-    if (!fileName.isEmpty())
+    std::string fileName =
+        QFileDialog::getSaveFileName(nullptr, tr("Save Project File"), "test.proj", "Project Files (*.proj);;All files(*.*)")
+            .toStdString();
+    if (!fileName.empty())
     {
         m_testRoot->fileName = fileName;
-        m_testRoot->writeFile();
+        m_testRoot->write();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void MainWindow::slotCustomMenuRequestedForProjectTree(const QPoint&)
+/* void MainWindow::slotCustomMenuRequestedForProjectTree(const QPoint&)
 {
     QObject*   senderObj = this->sender();
     QTreeView* treeView  = dynamic_cast<QTreeView*>(senderObj);
@@ -1545,4 +1561,4 @@ void MainWindow::slotCustomMenuRequestedForProjectTree(const QPoint&)
         menuWrapper.menu()->exec(QCursor::pos());
         caf::CmdFeatureManager::instance()->setCurrentContextMenuTargetWidget(nullptr);
     }
-}
+} */

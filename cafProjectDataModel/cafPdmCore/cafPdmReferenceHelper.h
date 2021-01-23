@@ -39,7 +39,8 @@
 #include "cafObjectHandle.h"
 #include "cafPdmPointer.h"
 
-class QStringList;
+#include <list>
+#include <string>
 
 namespace caf
 {
@@ -52,19 +53,19 @@ public:
     static ObjectHandle* findRoot( ObjectHandle* obj );
     static ObjectHandle* findRoot( FieldHandle* field );
 
-    static QString          referenceFromRootToField( ObjectHandle* root, FieldHandle* field );
-    static QString          referenceFromRootToObject( ObjectHandle* root, ObjectHandle* obj );
-    static ObjectHandle* objectFromReference( ObjectHandle* root, const QString& reference );
-    static FieldHandle*  fieldFromReference( ObjectHandle* root, const QString& reference );
+    static std::string   referenceFromRootToField( ObjectHandle* root, FieldHandle* field );
+    static std::string   referenceFromRootToObject( ObjectHandle* root, ObjectHandle* obj );
+    static ObjectHandle* objectFromReference( ObjectHandle* root, const std::string& reference );
+    static FieldHandle*  fieldFromReference( ObjectHandle* root, const std::string& reference );
 
-    static QString          referenceFromFieldToObject( FieldHandle* fromField, ObjectHandle* toObj );
-    static ObjectHandle* objectFromFieldReference( FieldHandle* fromField, const QString& reference );
+    static std::string   referenceFromFieldToObject( FieldHandle* fromField, ObjectHandle* toObj );
+    static ObjectHandle* objectFromFieldReference( FieldHandle* fromField, const std::string& reference );
 
 private:
-    static QStringList      referenceFromRootToObjectAsStringList( ObjectHandle* root, ObjectHandle* obj );
-    static ObjectHandle* objectFromReferenceStringList( ObjectHandle* root, const QStringList& reference );
+    static std::list<std::string> referenceFromRootToObjectAsStringList( ObjectHandle* root, ObjectHandle* obj );
+    static ObjectHandle* objectFromReferenceStringList( ObjectHandle* root, const std::list<std::string>& reference );
 
-    static FieldHandle* findField( ObjectHandle* object, const QString& fieldKeyword );
+    static FieldHandle* findField( ObjectHandle* object, const std::string& fieldKeyword );
 };
 
 } // end namespace caf

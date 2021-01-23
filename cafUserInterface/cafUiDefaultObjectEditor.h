@@ -35,7 +35,6 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafUiFormLayoutObjectEditor.h"
 
 #include <QPointer>
@@ -47,12 +46,12 @@ namespace caf
 {
 class UiFieldEditorHandle;
 class UiItem;
-class PdmUiGroup;
+class UiGroup;
 
 //==================================================================================================
 /// The default editor for Objects. Manages the field editors in a grid layout vertically
 //==================================================================================================
-class cafUserInterface_EXPORT PdmUiDefaultObjectEditor : public PdmUiFormLayoutObjectEditor
+class PdmUiDefaultObjectEditor : public PdmUiFormLayoutObjectEditor
 {
     Q_OBJECT
 public:
@@ -61,8 +60,7 @@ public:
 
 private:
     QWidget* createWidget( QWidget* parent ) override;
-    void     recursivelyConfigureAndUpdateTopLevelUiOrdering( const PdmUiOrdering& topLevelUiItems,
-                                                              const QString&       uiConfigName ) override;
+    void     recursivelyConfigureAndUpdateTopLevelUiOrdering( const UiOrdering& topLevelUiItems ) override;
 };
 
 } // end namespace caf

@@ -150,30 +150,29 @@ QWidget* CustomObjectEditor::createWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void CustomObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering,
-                                                                         const QString&       uiConfigName)
+void CustomObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const UiOrdering& topLevelUiOrdering)
 {
     resetCellId();
 
     QWidget* previousTabOrderWidget = nullptr;
 
-    const std::vector<PdmUiOrdering::FieldAndLayout>& topLevelUiItems = topLevelUiOrdering.uiItemsWithLayout();
+    const std::vector<UiOrdering::FieldAndLayout>& topLevelUiItems = topLevelUiOrdering.uiItemsWithLayout();
 
     for (size_t i = 0; i < topLevelUiItems.size(); ++i)
     {
-        if (topLevelUiItems[i].first->isUiHidden(uiConfigName)) continue;
+        if (topLevelUiItems[i].first->isUiHidden()) continue;
 
         if (topLevelUiItems[i].first->isUiGroup())
         {
-            PdmUiGroup*     group    = static_cast<PdmUiGroup*>(topLevelUiItems[i].first);
-            QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);
+            UiGroup*        group    = static_cast<UiGroup*>(topLevelUiItems[i].first);
+            QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group);
 
             /// Insert the group box at the correct position of the parent layout
             int                 nextCellId = getNextAvailableCellId();
             std::pair<int, int> rowCol     = rowAndColumn(nextCellId);
             m_layout->addWidget(groupBox, rowCol.first, rowCol.second, 1, 1);
 
-            recursivelyConfigureAndUpdateUiOrderingInNewGridLayout(*group, groupBox->contentFrame(), uiConfigName);
+            recursivelyConfigureAndUpdateUiOrderingInNewGridLayout(*group, groupBox->contentFrame());
         }
 
         // NB! Only groups at top level are handled, fields at top level are not added to layout

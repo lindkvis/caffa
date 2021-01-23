@@ -9,7 +9,7 @@ using namespace caf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ColorTable::ColorTable( const std::vector<QColor>& colors )
+ColorTable::ColorTable( const std::vector<Color>& colors )
     : m_colors( colors )
 {
     CAF_ASSERT( m_colors.size() > 0 );
@@ -34,7 +34,7 @@ size_t ColorTable::size() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QColor ColorTable::cycledColor( size_t index ) const
+Color ColorTable::cycledColor( size_t index ) const
 {
     size_t cycledIndex = index % m_colors.size();
 
@@ -46,7 +46,7 @@ QColor ColorTable::cycledColor( size_t index ) const
 //--------------------------------------------------------------------------------------------------
 ColorTable ColorTable::reversed() const
 {
-    std::vector<QColor> invertedColors = m_colors;
+    std::vector<Color> invertedColors = m_colors;
     std::reverse( invertedColors.begin(), invertedColors.end() );
     return ColorTable( invertedColors );
 }

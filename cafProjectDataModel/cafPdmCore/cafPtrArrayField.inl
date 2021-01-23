@@ -1,6 +1,5 @@
 #pragma once
 
-#include "cafClassTypeName.h"
 #include "cafObjectHandle.h"
 
 namespace caf

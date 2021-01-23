@@ -35,37 +35,40 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
-#include "cafUiDateEditorAttribute.h"
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
+
 #include "cafPdmWebFieldEditorHandle.h"
+#include "cafUiDateEditorAttribute.h"
 
 #include <Wt/Core/observing_ptr.hpp>
 #include <Wt/WDateEdit.h>
 #include <Wt/WLabel.h>
 
-namespace caf 
+namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmWebDateEditor : public PdmWebFieldEditorHandle
 {
     CAF_PDM_WEB_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmWebDateEditor()          {} 
-    ~PdmWebDateEditor() override {} 
+    PdmWebDateEditor() {}
+    ~PdmWebDateEditor() override {}
 
 protected:
-    Wt::WWidget*    createEditorWidget() override;
-    Wt::WLabel* createLabelWidget() override;
-    void            configureAndUpdateUi(const QString& uiConfigName) override;
+    Wt::WWidget* createEditorWidget() override;
+    Wt::WLabel*  createLabelWidget() override;
+    void         configureAndUpdateUi() override;
 
-//protected slots:
-    void                slotEditingFinished();
+    // protected slots:
+    void slotEditingFinished();
 
 private:
     Wt::Core::observing_ptr<Wt::WLabel>    m_label;
@@ -74,5 +77,8 @@ private:
     PdmUiDateEditorAttribute m_attributes;
 };
 
-
 } // end namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

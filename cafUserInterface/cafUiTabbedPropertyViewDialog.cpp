@@ -16,8 +16,8 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTabbedPropertyViewDialog::PdmUiTabbedPropertyViewDialog( caf::Object*    object,
-                                                              const QStringList& uiConfigNameForTabs,
+PdmUiTabbedPropertyViewDialog::PdmUiTabbedPropertyViewDialog( caf::Object*       object,
+                                                              const QStringList& tabLabels,
                                                               const QString&     windowTitle,
                                                               QWidget*           parent )
     : QDialog( parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint )
@@ -26,7 +26,7 @@ PdmUiTabbedPropertyViewDialog::PdmUiTabbedPropertyViewDialog( caf::Object*    ob
 
     QTabWidget* tabWidget = new QTabWidget;
 
-    for ( int i = 0; i < uiConfigNameForTabs.size(); i++ )
+    for ( int i = 0; i < tabLabels.size(); i++ )
     {
         QHBoxLayout* widgetLayout = new QHBoxLayout;
         widgetLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -35,11 +35,10 @@ PdmUiTabbedPropertyViewDialog::PdmUiTabbedPropertyViewDialog( caf::Object*    ob
         containerWidget->setLayout( widgetLayout );
 
         caf::PdmUiPropertyView* pdmUiPropertyView = new caf::PdmUiPropertyView();
-        pdmUiPropertyView->setUiConfigurationName( uiConfigNameForTabs[i] );
 
         widgetLayout->addWidget( pdmUiPropertyView );
 
-        tabWidget->addTab( containerWidget, uiConfigNameForTabs[i] );
+        tabWidget->addTab( containerWidget, tabLabels[i] );
         pdmUiPropertyView->showProperties( object );
 
         m_propertyViewTabs.push_back( pdmUiPropertyView );

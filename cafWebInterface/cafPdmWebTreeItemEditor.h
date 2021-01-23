@@ -34,36 +34,41 @@
 //   for more details.
 //
 //##################################################################################################
-
-
 #pragma once
+
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
+
 #include "cafUiEditorHandle.h"
 
-namespace caf 
+namespace caf
 {
-    class PdmWebTreeEditorHandle;
+class PdmWebTreeEditorHandle;
 
 //==================================================================================================
-/// A class that tells the treeViewEditor to update the sub tree of its associate UiItem, when 
+/// A class that tells the treeViewEditor to update the sub tree of its associate UiItem, when
 /// needed. (Typically because of a direct call to updateConnectedEditors() )
 //==================================================================================================
 
-class PdmWebTreeItemEditor: public UiEditorHandle
+class PdmWebTreeItemEditor : public UiEditorHandle
 {
 public:
-    explicit PdmWebTreeItemEditor(UiItem* uiItem);
-    ~PdmWebTreeItemEditor() override {};
+    explicit PdmWebTreeItemEditor( UiItem* uiItem );
+    ~PdmWebTreeItemEditor() override{};
 
-    void setTreeViewEditor(PdmWebTreeEditorHandle* treeViewEditor) { m_treeViewEditor = treeViewEditor; } 
+    void setTreeViewEditor( PdmWebTreeEditorHandle* treeViewEditor ) { m_treeViewEditor = treeViewEditor; }
 
 protected: // Interface to override:
-
-    void configureAndUpdateUi(const QString& uiConfigName) override;
+    void configureAndUpdateUi() override;
 
 private:
     PdmWebTreeEditorHandle* m_treeViewEditor;
 };
 
-
 } // End of namespace caf
 
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

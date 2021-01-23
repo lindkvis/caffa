@@ -36,25 +36,21 @@
 
 #pragma once
 
+#include <string>
 #include <vector>
-
-class QVariant;
-class QString;
-class QWidget;
 
 namespace caf
 {
-class MenuInterface;
 class FieldHandle;
 class FieldUiCapability;
+class MenuInterface;
+class Variant;
 
 class UiCommandSystemInterface
 {
 public:
-    virtual void fieldChangedCommand( const std::vector<FieldHandle*>& fieldsToUpdate, const QVariant& newUiValue ) = 0;
-    virtual void setCurrentContextMenuTargetWidget( QWidget* targetWidget ) = 0;
-
-    virtual void populateMenuWithDefaultCommands( const QString& uiConfigName, MenuInterface* menu ) = 0;
+    virtual void fieldChangedCommand( const std::vector<FieldHandle*>& fieldsToUpdate, const Variant& newUiValue ) = 0;
+    virtual void populateMenuWithDefaultCommands( MenuInterface* menu )                                            = 0;
 };
 
 } // End of namespace caf

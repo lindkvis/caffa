@@ -37,10 +37,13 @@
 
 #include "cafPdmWebDefaultObjectEditor.h"
 
-#include "cafFilePath.h"
-#include "cafPdmCoreColor.h"
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4275 4564 )
+#endif
+
+#include "cafCoreColor.h"
 #include "cafField.h"
-#include "cafProxyValueField.h"
 #include "cafPdmWebCheckBoxEditor.h"
 #include "cafPdmWebCheckBoxTristateEditor.h"
 #include "cafPdmWebColorEditor.h"
@@ -48,6 +51,8 @@
 #include "cafPdmWebFieldEditorHandle.h"
 #include "cafPdmWebFileUploadEditor.h"
 #include "cafPdmWebLineEditor.h"
+#include "cafProxyValueField.h"
+#include "cafWebValueFieldSpecializations.h"
 
 #include "cafTristate.h"
 
@@ -55,22 +60,20 @@
 #include "Wt/WGridLayout.h"
 #include "Wt/WPanel.h"
 
-#include <QColor>
-#include <QDate>
+#include <filesystem>
 
 namespace caf
 {
 // Register default field editor for selected types
 CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebCheckBoxEditor, bool );
 CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebCheckBoxTristateEditor, caf::Tristate );
-CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebLineEditor, QString );
+CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebLineEditor, std::string );
 CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebLineEditor, int );
 CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebLineEditor, double );
 CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebLineEditor, float );
-CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebLineEditor, quint64 );
-CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebColorEditor, QColor );
-CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebDateEditor, QDate );
-CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebFileUploadEditor, caf::FilePath );
+CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebColorEditor, caf::Color );
+CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebDateEditor, Wt::WDate );
+CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebFileUploadEditor, std::filesystem::path );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -107,8 +110,7 @@ Wt::WContainerWidget* PdmWebDefaultObjectEditor::createWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering( const PdmUiOrdering& topLevelUiOrdering,
-                                                                                 const QString&       uiConfigName )
+void PdmWebDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering( const UiOrdering& topLevelUiOrdering )
 {
     Wt::WPanel* panel = dynamic_cast<Wt::WPanel*>( this->widget()->widget( 0 ) );
     CAF_ASSERT( panel );
@@ -117,7 +119,7 @@ void PdmWebDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(
     CAF_ASSERT( panelContent );
     Wt::WGridLayout* gridLayout = dynamic_cast<Wt::WGridLayout*>( panelContent->layout() );
     CAF_ASSERT( gridLayout );
-    recursivelyConfigureAndUpdateUiOrderingInGridLayout( topLevelUiOrdering, gridLayout, uiConfigName );
+    recursivelyConfigureAndUpdateUiOrderingInGridLayout( topLevelUiOrdering, gridLayout );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,3 +152,7 @@ void PdmWebDefaultObjectEditor::cleanupBeforeSettingObject()
 }
 
 } // end namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

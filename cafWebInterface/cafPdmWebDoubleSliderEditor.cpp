@@ -34,8 +34,12 @@
 //   for more details.
 //
 //##################################################################################################
-
 #include "cafPdmWebDoubleSliderEditor.h"
+
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
 
 #include "cafAssert.h"
 #include "cafField.h"
@@ -54,23 +58,22 @@ CAF_PDM_WEB_FIELD_EDITOR_SOURCE_INIT( PdmWebDoubleSliderEditor );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebDoubleSliderEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmWebDoubleSliderEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( m_spinBox );
 
-    applyTextToLabel( m_label.get(), uiConfigName );
+    applyTextToLabel( m_label.get() );
 
-    m_spinBox->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
-    m_slider->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
+    m_spinBox->setEnabled( !uiField()->isUiReadOnly() );
+    m_slider->setEnabled( !uiField()->isUiReadOnly() );
 
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+        uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
     }
 
-    double  doubleValue = uiField()->uiValue().toDouble();
-    QString textValue   = uiField()->uiValue().toString();
+    double doubleValue = uiField()->uiValue().value<double>();
 
     m_slider->setMaximum( m_attributes.m_sliderTickCount );
     m_spinBox->setRange( m_attributes.m_minimum, m_attributes.m_maximum );
@@ -122,10 +125,10 @@ Wt::WLabel* PdmWebDoubleSliderEditor::createLabelWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebDoubleSliderEditor::slotEditingFinished( int value )
+void PdmWebDoubleSliderEditor::slotEditingFinished( double value )
 {
     double doubleVal = m_spinBox->value();
-    doubleVal        = qBound( m_attributes.m_minimum, doubleVal, m_attributes.m_maximum );
+    doubleVal        = std::clamp( doubleVal, m_attributes.m_minimum, m_attributes.m_maximum );
     m_sliderValue    = doubleVal;
 
     writeValueToField( doubleVal );
@@ -152,6 +155,11 @@ void PdmWebDoubleSliderEditor::slotSliderMoved( int value )
 //--------------------------------------------------------------------------------------------------
 void PdmWebDoubleSliderEditor::slotSliderReleased( int value )
 {
+    double newDoubleValue = convertFromSliderValue( value );
+    m_sliderValue         = newDoubleValue;
+
+    m_spinBox->setValue( m_sliderValue );
+
     writeValueToField( value );
 }
 
@@ -172,7 +180,7 @@ void PdmWebDoubleSliderEditor::updateSliderPosition( double value )
 //--------------------------------------------------------------------------------------------------
 void PdmWebDoubleSliderEditor::writeValueToField( double value )
 {
-    QVariant v = value;
+    Variant v( value );
     this->setValueToField( v );
 }
 
@@ -193,7 +201,7 @@ int PdmWebDoubleSliderEditor::convertToSliderValue( double value ) const
         m_slider->maximum() * ( value - m_attributes.m_minimum ) / ( m_attributes.m_maximum - m_attributes.m_minimum );
 
     int sliderValue = static_cast<int>( exactSliderValue + 0.5 );
-    sliderValue     = qBound( m_slider->minimum(), sliderValue, m_slider->maximum() );
+    sliderValue     = std::clamp( sliderValue, m_slider->minimum(), m_slider->maximum() );
 
     return sliderValue;
 }
@@ -204,9 +212,13 @@ int PdmWebDoubleSliderEditor::convertToSliderValue( double value ) const
 double PdmWebDoubleSliderEditor::convertFromSliderValue( int sliderValue ) const
 {
     double newDoubleValue = m_attributes.m_minimum + sliderValue * stepSize();
-    newDoubleValue        = qBound( m_attributes.m_minimum, newDoubleValue, m_attributes.m_maximum );
+    newDoubleValue        = std::clamp( newDoubleValue, m_attributes.m_minimum, m_attributes.m_maximum );
 
     return newDoubleValue;
 }
 
 } // end namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

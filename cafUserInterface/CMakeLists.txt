@@ -17,13 +17,23 @@ endif (MSVC)
 
 add_definitions(-D${PROJECT_NAME}_LIBRARY)
 
+find_package(
+  Qt5
+  COMPONENTS
+  REQUIRED Core Gui Widgets)
+set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
+
+
 find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 
-set( PROJECT_FILES
-    cafUserInterface_export.h
+find_package(nlohmann_json CONFIG REQUIRED)
 
+set( PROJECT_FILES
     # field editors
+    cafUiFieldEditorHandle.h
+    cafUiFieldEditorHandle.cpp
     cafUiCheckBoxDelegate.cpp
     cafUiCheckBoxDelegate.h
     cafUiCheckBoxEditor.cpp
@@ -64,11 +74,13 @@ set( PROJECT_FILES
     cafUiFieldEditorHelper.cpp
     cafUiLabelEditor.h
     cafUiLabelEditor.cpp
-	
+    cafUiDragDropInterface.h
 
     # object editors
     cafUiDefaultObjectEditor.cpp
     cafUiDefaultObjectEditor.h
+    cafUiWidgetObjectEditorHandle.h
+    cafUiWidgetObjectEditorHandle.cpp
     cafUiListView.cpp
     cafUiListView.h
     cafUiListViewEditor.cpp
@@ -102,7 +114,6 @@ set( PROJECT_FILES
     cafUiDoubleValueEditor.cpp
     cafUiDoubleValueEditor.h
 
-
     # div
     cafAboutDialog.cpp
     cafAboutDialog.h
@@ -112,6 +123,8 @@ set( PROJECT_FILES
     cafUiProcess.h
     QMinimizePanel.cpp
     QMinimizePanel.h
+    cafQActionWrapper.cpp
+    cafQActionWrapper.h
     cafQTreeViewStateSerializer.h
     cafQTreeViewStateSerializer.cpp
     cafMemoryInspector.h
@@ -125,16 +138,29 @@ set( PROJECT_FILES
     cafUiPickableLineEditor.cpp
     cafUiTabbedPropertyViewDialog.h
     cafUiTabbedPropertyViewDialog.cpp
+
+    cafQVariantConverter.cpp
+    cafQVariantConverter.h
 )
 
-add_library( ${PROJECT_NAME}
-    ${PROJECT_FILES}
-)
+if (CAFFA_BUILD_SHARED)
+    message(STATUS "Building ${PROJECT_NAME} shared")
+    add_library( ${PROJECT_NAME} SHARED
+        ${PROJECT_FILES}
+    )
+else()
+    add_library( ${PROJECT_NAME} STATIC
+        ${PROJECT_FILES}
+    )
+endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
+set_target_properties(${PROJECT_NAME} PROPERTIES AUTOMOC ON)
+set_target_properties(${PROJECT_NAME} PROPERTIES AUTORCC ON)
 
 if (MSVC) 
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
+    set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif() 
 
 target_include_directories(${PROJECT_NAME}
@@ -143,10 +169,10 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries ( ${PROJECT_NAME}
-    cafProjectDataModel
-    cafCommonInterface
-    cafPdmUiCore
     ${QT_LIBRARIES}
+    nlohmann_json::nlohmann_json
+    cafProjectDataModel
+    cafPdmUiCore
 )
 
 install(TARGETS ${PROJECT_NAME}

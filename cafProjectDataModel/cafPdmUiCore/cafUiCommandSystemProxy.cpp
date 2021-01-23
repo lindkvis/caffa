@@ -44,6 +44,7 @@
 #include "cafObjectHandle.h"
 #include "cafObjectUiCapability.h"
 #include "cafSelectionManager.h"
+#include "cafVariant.h"
 
 #include <cstddef>
 #include <typeinfo>
@@ -79,13 +80,13 @@ void UiCommandSystemProxy::setCommandInterface( UiCommandSystemInterface* comman
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiCommandSystemProxy::setUiValueToField( FieldUiCapability* uiFieldHandle, const QVariant& newUiValue )
+void UiCommandSystemProxy::setUiValueToField( FieldUiCapability* uiFieldHandle, const Variant& newUiValue )
 {
     if ( uiFieldHandle )
     {
         // Handle editing multiple objects when several objects are selected
         FieldHandle* editorField = uiFieldHandle->fieldHandle();
-        auto            ownerObject = editorField->ownerObject();
+        auto         ownerObject = editorField->ownerObject();
 
         CAF_ASSERT( ownerObject );
         auto&                 ownerRef         = *ownerObject;
@@ -150,22 +151,11 @@ void UiCommandSystemProxy::setUiValueToField( FieldUiCapability* uiFieldHandle, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiCommandSystemProxy::setCurrentContextMenuTargetWidget( QWidget* targetWidget )
+void UiCommandSystemProxy::populateMenuWithDefaultCommands( MenuInterface* menu )
 {
     if ( m_commandInterface )
     {
-        m_commandInterface->setCurrentContextMenuTargetWidget( targetWidget );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void UiCommandSystemProxy::populateMenuWithDefaultCommands( const QString& uiConfigName, MenuInterface* menu )
-{
-    if ( m_commandInterface )
-    {
-        m_commandInterface->populateMenuWithDefaultCommands( uiConfigName, menu );
+        m_commandInterface->populateMenuWithDefaultCommands( menu );
     }
 }
 

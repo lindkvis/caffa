@@ -7,8 +7,8 @@
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
-#include "cafPtrArrayField.h"
 #include "cafPdmReferenceHelper.h"
+#include "cafPtrArrayField.h"
 
 class MyItemObject : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
@@ -22,7 +22,7 @@ public:
         CAF_PDM_IO_InitField( &m_name, "Name" );
     }
 
-    explicit MyItemObject( QString name )
+    explicit MyItemObject( std::string name )
         : ObjectHandle()
         , ObjectIoCapability( this, false )
     {
@@ -33,7 +33,7 @@ public:
     ~MyItemObject() {}
 
     // Fields
-    caf::DataValueField<QString> m_name;
+    caf::DataValueField<std::string> m_name;
 };
 CAF_IO_SOURCE_INIT( MyItemObject, "MyItemObject" );
 
@@ -79,24 +79,21 @@ TEST( PtrArrayBaseTest, PtrArraySerializeTest )
 
     // delete s2;
 
-    std::vector<caf::ObjectIoCapability::IoParameters::IoType> ioTypes =
-        { caf::ObjectIoCapability::IoParameters::IoType::XML, caf::ObjectIoCapability::IoParameters::IoType::JSON };
+    std::vector<caf::ObjectIoCapability::IoType> ioTypes = { caf::ObjectIoCapability::IoType::JSON };
 
     for ( auto ioType : ioTypes )
     {
-        QString serializedString;
+        std::string serializedString;
         {
             serializedString = objA->writeObjectToString( ioType );
 
-            std::cout << serializedString.toStdString() << std::endl;
+            std::cout << serializedString << std::endl;
         }
 
         {
             MyContainerObject* ihd1 = new MyContainerObject;
 
-            QXmlStreamReader xmlStream( serializedString );
-
-            ihd1->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance(), ioType );
+            ihd1->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance(), ioType );
             ihd1->resolveReferencesRecursively();
         }
     }
@@ -123,24 +120,21 @@ TEST( PtrArrayBaseTest, DeleteObjectPtrArraySerializeTest )
 
     delete s2;
 
-    std::vector<caf::ObjectIoCapability::IoParameters::IoType> ioTypes =
-        { caf::ObjectIoCapability::IoParameters::IoType::XML, caf::ObjectIoCapability::IoParameters::IoType::JSON };
+    std::vector<caf::ObjectIoCapability::IoType> ioTypes = { caf::ObjectIoCapability::IoType::JSON };
 
     for ( auto ioType : ioTypes )
     {
-        QString serializedString;
+        std::string serializedString;
         {
             serializedString = objA->writeObjectToString( ioType );
 
-            std::cout << serializedString.toStdString() << std::endl;
+            std::cout << serializedString << std::endl;
         }
 
         {
             MyContainerObject* ihd1 = new MyContainerObject;
 
-            QXmlStreamReader xmlStream( serializedString );
-
-            ihd1->readObjectFromString( serializedString, caf::PdmDefaultObjectFactory::instance(), ioType );
+            ihd1->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance(), ioType );
             ihd1->resolveReferencesRecursively();
 
             EXPECT_TRUE( ihd1->m_containers.at( 0 ) != nullptr );

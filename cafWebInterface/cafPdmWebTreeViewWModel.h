@@ -34,25 +34,26 @@
 //   for more details.
 //
 //##################################################################################################
-
 #pragma once
+
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
 
 #include "cafUiTreeItem.h"
 
 #include <Wt/WAbstractItemModel.h>
-#include <QStringList>
 
 #include <string>
 #include <vector>
 
 namespace caf
 {
-
 class ObjectHandle;
 class UiItem;
 class PdmWebTreeViewEditor;
 class PdmUiTreeOrdering;
-class PdmUiDragDropInterface;
 
 //==================================================================================================
 //
@@ -62,64 +63,69 @@ class PdmUiDragDropInterface;
 class PdmWebTreeViewWModel : public Wt::WAbstractItemModel
 {
 public:
-    explicit PdmWebTreeViewWModel(PdmWebTreeViewEditor* treeViewEditor);
+    explicit PdmWebTreeViewWModel( PdmWebTreeViewEditor* treeViewEditor );
 
-    void                    setPdmItemRoot(UiItem* rootItem);
-    void                    updateSubTree(UiItem* subTreeRoot);
+    void setPdmItemRoot( UiItem* rootItem );
+    void updateSubTree( UiItem* subTreeRoot );
 
-    void                    setColumnHeaders(const QStringList& columnHeaders);
-    void                    setUiConfigName(const QString& uiConfigName) { m_uiConfigName = uiConfigName; }
- 
+    void setColumnHeaders( const std::vector<std::string>& columnHeaders );
+
     // These are supposed to be used from the Editor only, and to implement selection support.
- 
-    UiItem*              uiItemFromModelIndex(const Wt::WModelIndex& index) const;
-    Wt::WModelIndex         findModelIndex(const UiItem* object) const;
 
-    void                    setDragDropInterface(PdmUiDragDropInterface* dragDropInterface);
-    PdmUiDragDropInterface* dragDropInterface();
+    UiItem*         uiItemFromModelIndex( const Wt::WModelIndex& index ) const;
+    Wt::WModelIndex findModelIndex( const UiItem* object ) const;
 
-    std::list<Wt::WModelIndex>  allIndicesRecursive(const Wt::WModelIndex& current = Wt::WModelIndex()) const;
-    
-private:
-    void                    updateSubTreeRecursive(const Wt::WModelIndex& uiSubTreeRootModelIdx, PdmUiTreeOrdering* uiModelSubTreeRoot, PdmUiTreeOrdering* updatedPdmSubTreeRoot);
+    // void                    setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
+    // PdmUiDragDropInterface* dragDropInterface();
 
-    PdmUiTreeOrdering*      treeItemFromIndex(const Wt::WModelIndex& index) const;
-    Wt::WModelIndex         findModelIndexRecursive(const Wt::WModelIndex& currentIndex, const UiItem * object) const;
-
-    void                    resetTree(PdmUiTreeOrdering* root);
-    void                    emitDataChanged(const Wt::WModelIndex& index);
-    void                    updateEditorsForSubTree(PdmUiTreeOrdering* root);
-
-    PdmUiTreeOrdering*      m_treeOrderingRoot;
-    QStringList             m_columnHeaders;
-    QString                 m_uiConfigName;
-
-    PdmWebTreeViewEditor*    m_treeViewEditor;
-
-    PdmUiDragDropInterface* m_dragDropInterface;
+    std::list<Wt::WModelIndex> allIndicesRecursive( const Wt::WModelIndex& current = Wt::WModelIndex() ) const;
 
 private:
+    void updateSubTreeRecursive( const Wt::WModelIndex& uiSubTreeRootModelIdx,
+                                 PdmUiTreeOrdering*     uiModelSubTreeRoot,
+                                 PdmUiTreeOrdering*     updatedPdmSubTreeRoot );
 
+    PdmUiTreeOrdering* treeItemFromIndex( const Wt::WModelIndex& index ) const;
+    Wt::WModelIndex    findModelIndexRecursive( const Wt::WModelIndex& currentIndex, const UiItem* object ) const;
+
+    void resetTree( PdmUiTreeOrdering* root );
+    void emitDataChanged( const Wt::WModelIndex& index );
+    void updateEditorsForSubTree( PdmUiTreeOrdering* root );
+
+    PdmUiTreeOrdering*       m_treeOrderingRoot;
+    std::vector<std::string> m_columnHeaders;
+
+    PdmWebTreeViewEditor* m_treeViewEditor;
+
+    //    PdmUiDragDropInterface* m_dragDropInterface;
+
+private:
     // Overrides from Wt::WAbstractItemModel
 
-    Wt::WModelIndex index(int row, int column, const Wt::WModelIndex &parentIndex = Wt::WModelIndex( )) const override;
-    Wt::WModelIndex parent(const Wt::WModelIndex &index) const override;
+    Wt::WModelIndex index( int row, int column, const Wt::WModelIndex& parentIndex = Wt::WModelIndex() ) const override;
+    Wt::WModelIndex parent( const Wt::WModelIndex& index ) const override;
 
-    int             rowCount(const Wt::WModelIndex &parentIndex = Wt::WModelIndex( ) ) const override;
-    int             columnCount(const Wt::WModelIndex &parentIndex = Wt::WModelIndex( ) ) const override;
+    int rowCount( const Wt::WModelIndex& parentIndex = Wt::WModelIndex() ) const override;
+    int columnCount( const Wt::WModelIndex& parentIndex = Wt::WModelIndex() ) const override;
 
-    Wt::cpp17::any  data(const Wt::WModelIndex &index, Wt::ItemDataRole role = Wt::ItemDataRole::Display ) const override;
-    bool            setData(const Wt::WModelIndex &index, const Wt::cpp17::any &value, Wt::ItemDataRole role = Wt::ItemDataRole::Edit) override;
-    Wt::cpp17::any  headerData(int section, Wt::Orientation orientation, Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
+    Wt::cpp17::any data( const Wt::WModelIndex& index, Wt::ItemDataRole role = Wt::ItemDataRole::Display ) const override;
+    bool           setData( const Wt::WModelIndex& index,
+                            const Wt::cpp17::any&  value,
+                            Wt::ItemDataRole       role = Wt::ItemDataRole::Edit ) override;
+    Wt::cpp17::any headerData( int              section,
+                               Wt::Orientation  orientation,
+                               Wt::ItemDataRole role = Wt::ItemDataRole::Display ) const override;
 
-    Wt::WFlags<Wt::ItemFlag>   flags(const Wt::WModelIndex &index) const override;
+    Wt::WFlags<Wt::ItemFlag> flags( const Wt::WModelIndex& index ) const override;
 
-/*    std::vector<std::string> acceptDropMimeTypes() const override;
-    QMimeData*      mimeData(const Wt::WModelIndexList &indexes) const override;
-    bool            dropEvent(const Wt::MimeData *data, Qt::DropAction action, int row, int column, const Wt::WModelIndex &parent) override;
-    Qt::DropActions supportedDropActions() const override; */
+    /*    std::vector<std::string> acceptDropMimeTypes() const override;
+        QMimeData*      mimeData(const Wt::WModelIndexList &indexes) const override;
+        bool            dropEvent(const Wt::MimeData *data, Qt::DropAction action, int row, int column, const
+       Wt::WModelIndex &parent) override; Qt::DropActions supportedDropActions() const override; */
 };
 
-
-
 } // End of namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

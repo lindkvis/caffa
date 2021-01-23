@@ -34,21 +34,24 @@
 //   for more details.
 //
 //##################################################################################################
-
 #include "cafPdmWebDateEditor.h"
+
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
 
 #include "cafFactory.h"
 #include "cafField.h"
 #include "cafObject.h"
-#include "cafUiOrdering.h"
 #include "cafPdmWebDefaultObjectEditor.h"
 #include "cafPdmWebFieldEditorHandle.h"
 #include "cafSelectionManager.h"
+#include "cafUiOrdering.h"
 
 #include <Wt/WCalendar.h>
+#include <Wt/WDate.h>
 #include <Wt/WLineEdit.h>
-
-#include <QDate>
 
 namespace caf
 {
@@ -57,26 +60,29 @@ CAF_PDM_WEB_FIELD_EDITOR_SOURCE_INIT( PdmWebDateEditor );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebDateEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmWebDateEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( m_dateEdit );
 
-    applyTextToLabel( m_label.get(), uiConfigName );
+    applyTextToLabel( m_label.get() );
 
-    m_dateEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
+    m_dateEdit->setEnabled( !uiField()->isUiReadOnly() );
 
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+        uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
     }
 
-    if ( !m_attributes.dateFormat.isEmpty() )
+    if ( !m_attributes.dateFormat.empty() )
     {
-        m_dateEdit->setFormat( m_attributes.dateFormat.toStdString() );
+        m_dateEdit->setFormat( m_attributes.dateFormat );
     }
+    Variant   v         = uiField()->uiValue();
+    int       julianDay = v.value<int>();
+    Wt::WDate date      = Wt::WDate::fromJulianDay( julianDay );
 
-    m_dateEdit->setDate( Wt::WDate::fromJulianDay( uiField()->uiValue().toDate().toJulianDay() ) );
+    m_dateEdit->setDate( date );
     m_dateEdit->changed().connect( [=] { this->slotEditingFinished(); } );
     // m_dateEdit->setMinimumSize(Wt::WLength(10, Wt::LengthUnit::FontEm), Wt::WLength::Auto);
 }
@@ -106,10 +112,15 @@ void PdmWebDateEditor::slotEditingFinished()
 {
     if ( m_dateEdit->validate() == Wt::ValidationState::Valid )
     {
-        QDate    qDate = QDate::fromJulianDay( m_dateEdit->date().toJulianDay() );
-        QVariant v     = qDate;
+        auto    date      = m_dateEdit->date();
+        int     julianDay = date.toJulianDay();
+        Variant v( julianDay );
         this->setValueToField( v );
     }
 }
 
 } // end namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

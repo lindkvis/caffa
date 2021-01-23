@@ -35,7 +35,6 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafUiFieldEditorHandle.h"
 #include "cafUiWidgetObjectEditorHandle.h"
 
@@ -60,7 +59,7 @@ public:
     PdmUiListViewEditorAttribute() {}
 
 public:
-    QStringList fieldNames;
+    std::vector<std::string> fieldNames;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -73,7 +72,7 @@ class UiListViewModelPdm : public QAbstractTableModel
 public:
     explicit UiListViewModelPdm( QObject* parent );
 
-    void setPdmData( ObjectCollection* objectGroup, const QString& configName );
+    void setPdmData( ObjectCollection* objectGroup );
 
     // Qt overrides
     int      rowCount( const QModelIndex& parent = QModelIndex() ) const override;
@@ -85,8 +84,7 @@ private:
     void computeColumnCount();
 
 private:
-    ObjectCollection*         m_pdmObjectGroup;
-    QString                      m_configName;
+    ObjectCollection*            m_pdmObjectGroup;
     PdmUiListViewEditorAttribute m_editorAttribute;
     int                          m_columnCount;
 };
@@ -94,7 +92,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class cafUserInterface_EXPORT PdmUiListViewEditor : public PdmUiWidgetObjectEditorHandle
+class PdmUiListViewEditor : public PdmUiWidgetObjectEditorHandle
 {
 public:
     PdmUiListViewEditor();
@@ -102,7 +100,7 @@ public:
 
 protected:
     QWidget* createWidget( QWidget* parent ) override;
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    void     configureAndUpdateUi() override;
 
 private:
     QPointer<QTableView> m_tableView;

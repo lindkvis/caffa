@@ -36,7 +36,6 @@
 
 #pragma once
 
-#include "cafUserInterface_export.h"
 #include <QStyledItemDelegate>
 
 namespace caf
@@ -46,7 +45,7 @@ class PdmUiTableViewQModel;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class cafUserInterface_EXPORT PdmUiTableViewDelegate : public QStyledItemDelegate
+class PdmUiTableViewDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 

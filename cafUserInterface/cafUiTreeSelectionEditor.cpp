@@ -37,6 +37,7 @@
 
 #include "cafAssert.h"
 #include "cafObject.h"
+#include "cafQVariantConverter.h"
 #include "cafUiCommandSystemProxy.h"
 #include "cafUiTreeSelectionQModel.h"
 
@@ -167,16 +168,12 @@ private:
         style()->drawPrimitive( QStyle::PE_PanelLineEdit, &panel, &p, this );
         r = style()->subElementRect( QStyle::SE_LineEditContents, &panel, this );
 
-        int left   = 0;
-        int top    = 0;
-        int right  = 0;
-        int bottom = 0;
-        getTextMargins( &left, &top, &right, &bottom );
+        QMargins margins = textMargins();
 
-        r.setX( r.x() + left );
-        r.setY( r.y() + top );
-        r.setRight( r.right() - right );
-        r.setBottom( r.bottom() - bottom );
+        r.setX( r.x() + margins.left() );
+        r.setY( r.y() + margins.top() );
+        r.setRight( r.right() - margins.right() );
+        r.setBottom( r.bottom() - margins.bottom() );
         p.setClipRect( r );
 
         QFontMetrics fm = fontMetrics();
@@ -238,12 +235,12 @@ PdmUiTreeSelectionEditor::~PdmUiTreeSelectionEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiTreeSelectionEditor::configureAndUpdateUi()
 {
     // Label
     CAF_ASSERT( !m_label.isNull() );
 
-    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label );
 
     if ( !m_model )
     {
@@ -256,14 +253,14 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
         m_treeView->setModel( m_proxyModel );
     }
 
-    bool                     optionsOnly = true;
-    QList<PdmOptionItemInfo> options     = uiField()->valueOptions( &optionsOnly );
+    bool optionsOnly = true;
+    auto options     = uiField()->valueOptions( &optionsOnly );
 
     bool itemCountHasChaged = false;
     if ( m_model->optionItemCount() != options.size() ) itemCountHasChaged = true;
 
-    QVariant fieldValue = uiField()->uiValue();
-    m_model->setUiValueCache( &fieldValue );
+    Variant fieldValue = uiField()->uiValue();
+    m_model->setUiValueCache( fieldValue );
 
     // TODO: If the count is different between incoming and current list of items,
     // use cafQTreeViewStateSerializer to restore collapsed state
@@ -274,17 +271,17 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
         m_treeView->expandAll();
     }
 
-    if ( PdmUiTreeSelectionQModel::isSingleValueField( fieldValue ) )
+    if ( !fieldValue.isVector() )
     {
         m_textFilterLineEdit->hide();
         m_toggleAllCheckBox->hide();
     }
-    else if ( PdmUiTreeSelectionQModel::isMultipleValueField( fieldValue ) )
+    else
     {
         caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
         if ( uiObject )
         {
-            uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+            uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
         }
 
         if ( m_attributes.singleSelectionMode )
@@ -352,11 +349,12 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
         if ( uiFieldHandle )
         {
             QModelIndexList indices          = allVisibleSourceModelIndices();
-            QVariant        currentItemValue = uiFieldHandle->uiValue();
+            Variant         currentItemValue = uiFieldHandle->uiValue();
 
             for ( const auto& mi : indices )
             {
-                QVariant itemValue = m_model->data( mi, PdmUiTreeSelectionQModel::optionItemValueRole() );
+                QVariant qItemValue = m_model->data( mi, PdmUiTreeSelectionQModel::optionItemValueRole() );
+                Variant  itemValue  = qItemValue.value<Variant>();
                 if ( currentItemValue == itemValue )
                 {
                     QModelIndex treeViewIndex = m_proxyModel->mapFromSource( mi );
@@ -461,7 +459,7 @@ void PdmUiTreeSelectionEditor::customMenuRequested( const QPoint& pos )
     QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes();
 
     bool onlyHeadersInSelection = true;
-    for ( auto mi : selectedIndexes )
+    for ( const auto& mi : selectedIndexes )
     {
         QVariant v = m_proxyModel->data( mi, PdmUiTreeSelectionQModel::headingRole() );
         if ( v.toBool() == false )
@@ -564,7 +562,7 @@ void PdmUiTreeSelectionEditor::setCheckedStateForSubItemsOfSelected( bool checke
     QModelIndexList selectedProxyIndexes = m_treeView->selectionModel()->selectedIndexes();
     QModelIndexList sourceIndexesToSubItems;
 
-    for ( auto mi : selectedProxyIndexes )
+    for ( const auto& mi : selectedProxyIndexes )
     {
         for ( int i = 0; i < m_proxyModel->rowCount( mi ); i++ )
         {
@@ -701,7 +699,8 @@ void PdmUiTreeSelectionEditor::currentChanged( const QModelIndex& current )
         {
             QVariant v = m_proxyModel->data( current, PdmUiTreeSelectionQModel::optionItemValueRole() );
 
-            UiCommandSystemProxy::instance()->setUiValueToField( uiFieldHandle, v );
+            UiCommandSystemProxy::instance()->setUiValueToField( uiFieldHandle,
+                                                                 v.value<Variant>() );
         }
     }
 }

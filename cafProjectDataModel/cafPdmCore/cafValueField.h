@@ -37,16 +37,16 @@
 
 #include "cafFieldHandle.h"
 
-class QVariant;
+#include <any>
 
 namespace caf
 {
 class ValueField : public FieldHandle
 {
 public:
-    virtual QVariant toQVariant() const                         = 0;
-    virtual void     setFromQVariant( const QVariant& variant ) = 0;
-    virtual bool     isReadOnly() const                         = 0;
+    virtual Variant toVariant() const                            = 0;
+    virtual void    setFromVariant( const Variant& variant ) = 0;
+    virtual bool    isReadOnly() const                       = 0;
 };
 
 // class ProxyValueField : public ValueField

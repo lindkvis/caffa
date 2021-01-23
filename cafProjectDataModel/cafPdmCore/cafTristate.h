@@ -1,10 +1,6 @@
-
-
 #pragma once
 
-#include <QMetaType>
-
-class QTextStream;
+#include <iostream>
 
 namespace caf
 {
@@ -28,6 +24,7 @@ public:
     bool operator==( const Tristate& other ) const;
     bool operator==( State state ) const;
     bool operator!=( const Tristate& other ) const;
+    bool operator<( const Tristate& other ) const;
 
     State state() const;
 
@@ -35,8 +32,8 @@ public:
     bool isPartiallyTrue() const;
     bool isFalse() const;
 
-    QString text() const;
-    void    setFromText( const QString& valueText );
+    std::string text() const;
+    void        setFromText( const std::string& valueText );
 
 protected:
     State m_state;
@@ -45,9 +42,7 @@ protected:
 } // end namespace caf
 
 //==================================================================================================
-// Overload of QTextStream for caf::Triplet
+// Overload of QTextStream for caf::Tristate
 //==================================================================================================
-QTextStream& operator>>( QTextStream& str, caf::Tristate& triplet );
-QTextStream& operator<<( QTextStream& str, const caf::Tristate& triplet );
-
-Q_DECLARE_METATYPE( caf::Tristate );
+std::istream& operator>>( std::istream& str, caf::Tristate& triplet );
+std::ostream& operator<<( std::ostream& str, const caf::Tristate& triplet );

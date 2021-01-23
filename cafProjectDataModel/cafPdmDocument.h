@@ -33,11 +33,12 @@
 //   for more details.
 //
 //##################################################################################################
-
 #pragma once
 #include "cafField.h"
 #include "cafObject.h"
 #include "cafPdmPointer.h"
+
+#include <string>
 
 namespace caf
 {
@@ -52,16 +53,10 @@ class PdmDocument : public Object
 public:
     PdmDocument();
 
-    Field<QString> fileName;
+    Field<std::string> fileName;
 
-    void readFile();
-    bool writeFile();
-
-    void readFile( QIODevice*                                       device,
-                   caf::ObjectIoCapability::IoParameters::IoType ioType = ObjectIoCapability::IoParameters::IoType::XML );
-
-    void writeFile( QIODevice*                                       device,
-                    caf::ObjectIoCapability::IoParameters::IoType ioType = ObjectIoCapability::IoParameters::IoType::XML );
+    bool read( ObjectIoCapability::IoType ioType = ObjectIoCapability::IoType::JSON );
+    bool write( ObjectIoCapability::IoType ioType = ObjectIoCapability::IoType::JSON );
 
     static void updateUiIconStateRecursively( ObjectHandle* root );
 };

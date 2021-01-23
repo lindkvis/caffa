@@ -35,7 +35,6 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include <QPointer>
 #include <QScrollArea>
 #include <QString>
@@ -66,14 +65,13 @@ class PdmUiDefaultObjectEditor;
 ///
 //==================================================================================================
 
-class cafUserInterface_EXPORT PdmUiPropertyView : public QWidget
+class PdmUiPropertyView : public QWidget
 {
     Q_OBJECT
 public:
     PdmUiPropertyView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
     ~PdmUiPropertyView() override;
 
-    void             setUiConfigurationName( QString uiConfigName );
     ObjectHandle* currentObject();
 
     QSize sizeHint() const override;
@@ -84,7 +82,6 @@ public slots:
 
 private:
     PdmUiDefaultObjectEditor*     m_defaultObjectEditor;
-    QString                       m_uiConfigName;
     QPointer<QVBoxLayout>         m_placeHolderLayout;
     QPointer<QWidget>             m_placeholder;
     QPointer<QVerticalScrollArea> m_scrollArea;

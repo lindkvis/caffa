@@ -2,20 +2,17 @@
 
 #include "cafFieldCapability.h"
 
-#include <QString>
+#include <nlohmann/json.hpp>
 
+#include <chrono>
 #include <memory>
+#include <string>
 #include <vector>
-
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
-class QJsonValue;
 
 namespace caf
 {
 class FieldHandle;
-class FieldXmlCapability;
+// class FieldXmlCapability;
 class ObjectFactory;
 class ObjectHandle;
 class PdmReferenceHelper;
@@ -46,22 +43,19 @@ public:
     void setIOReadable( bool isReadable ) { m_isIOReadable = isReadable; }
     void setCopyable( bool isCopyable ) { m_isCopyable = isCopyable; }
 
-    QString dataTypeName() const;
+    std::string dataTypeName() const;
 
     virtual bool resolveReferences() = 0;
 
-    virtual QString referenceString() const { return QString(); }
+    virtual std::string referenceString() const { return std::string(); }
 
-    virtual void readFieldData( QXmlStreamReader& xmlStream, ObjectFactory* objectFactory ) = 0;
-    virtual void writeFieldData( QXmlStreamWriter& xmlStream ) const                           = 0;
-
-    virtual void readFieldData( const QJsonValue& value, ObjectFactory* objectFactory ) = 0;
-    virtual void writeFieldData( QJsonValue& value ) const                                 = 0;
+    virtual void readFieldData( const nlohmann::json& value, ObjectFactory* objectFactory ) = 0;
+    virtual void writeFieldData( nlohmann::json& value, bool writeServerAddress ) const     = 0;
 
 protected:
     bool assertValid() const;
 
-    QString m_dataTypeName; ///< Must be set in constructor of derived XmlFieldHandle
+    std::string m_dataTypeName; ///< Must be set in constructor of derived XmlFieldHandle
 
 protected:
     bool m_isIOReadable;
@@ -69,5 +63,7 @@ protected:
     bool m_isCopyable;
 
     FieldHandle* m_owner;
+
+    std::chrono::high_resolution_clock::time_point m_lastChanged;
 };
 } // End of namespace caf

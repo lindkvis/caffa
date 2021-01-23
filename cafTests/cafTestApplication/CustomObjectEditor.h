@@ -51,7 +51,7 @@ class WidgetCellIds;
 namespace caf
 {
 class UiItem;
-class PdmUiGroup;
+class UiGroup;
 
 //==================================================================================================
 /// Automatically layout top level groups into a grid layout
@@ -76,8 +76,7 @@ public:
 
 private:
     QWidget* createWidget(QWidget* parent) override;
-    void     recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering,
-                                                             const QString&       uiConfigName) override;
+    void     recursivelyConfigureAndUpdateTopLevelUiOrdering(const UiOrdering& topLevelUiOrdering) override;
 
     bool                isAreaAvailable(int row, int column, int rowSpan, int columnSpan) const;
     bool                isCellIdAvailable(int cellId) const;

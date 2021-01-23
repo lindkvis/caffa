@@ -34,23 +34,25 @@
 //   for more details.
 //
 //##################################################################################################
-
-
 #include "cafPdmWebTreeEditorHandle.h"
+
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
+
 #include "cafObject.h"
 
 #include <Wt/WWidget.h>
 
 namespace caf
 {
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Wt::WWidget* PdmWebTreeEditorHandle::getOrCreateWidget()
 {
-    if (!m_widget) 
+    if ( !m_widget )
     {
         m_widget = this->createWidget();
     }
@@ -66,20 +68,23 @@ Wt::WWidget* PdmWebTreeEditorHandle::widget()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeEditorHandle::setPdmItemRoot(UiItem* root)
+void PdmWebTreeEditorHandle::setPdmItemRoot( UiItem* root )
 {
-    this->bindToPdmItem(root);
+    this->bindToPdmItem( root );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 UiItem* PdmWebTreeEditorHandle::pdmItemRoot()
 {
     return this->pdmItem();
 }
 
-} //End of namespace caf
+} // End of namespace caf
 
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

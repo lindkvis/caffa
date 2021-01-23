@@ -35,7 +35,6 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafUiFieldEditorHandle.h"
 #include <QLabel>
 #include <QPointer>
@@ -88,7 +87,7 @@ public:
 //==================================================================================================
 /// Override focus out event and emit editinghFinished to avoid multiple field changed events
 //==================================================================================================
-class cafUserInterface_EXPORT TextEdit : public QTextEdit
+class TextEdit : public QTextEdit
 {
     Q_OBJECT
 public:
@@ -110,7 +109,7 @@ private:
 //==================================================================================================
 /// An editor to show (and possibly edit?) formatted larger portions of text
 //==================================================================================================
-class cafUserInterface_EXPORT PdmUiTextEditor : public UiFieldEditorHandle
+class PdmUiTextEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -122,7 +121,7 @@ public:
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
     QWidget* createLabelWidget( QWidget* parent ) override;
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    void     configureAndUpdateUi() override;
     bool     isMultiRowEditor() const override;
 
 protected slots:
@@ -132,9 +131,9 @@ private:
     QTextOption::WrapMode toQTextOptionWrapMode( PdmUiTextEditorAttribute::WrapMode wrapMode );
 
 private:
-    QPointer<TextEdit>        m_textEdit;
-    QPointer<QPushButton>     m_saveButton;
-    QPointer<QLabel> m_label;
+    QPointer<TextEdit>    m_textEdit;
+    QPointer<QPushButton> m_saveButton;
+    QPointer<QLabel>      m_label;
 
     PdmUiTextEditorAttribute::TextMode m_textMode;
 };

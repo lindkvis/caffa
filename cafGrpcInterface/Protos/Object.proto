@@ -1,0 +1,101 @@
+syntax = "proto3";
+
+package caf.rpc;
+
+service ObjectAccess
+{
+    rpc Sync( Object ) returns( Object ) {}
+    rpc GetDocument( DocumentRequest ) returns( Object ) {}
+    rpc ExecuteMethod( MethodRequest ) returns( Object ) {}
+    rpc ExecuteSetter( stream SetterChunk ) returns( SetterReply ) {}
+    rpc ExecuteGetter( MethodRequest ) returns( stream GetterReply ) {}
+}
+
+message Object
+{
+    string class_keyword = 1;
+    uint64 address       = 2;
+    string json          = 3;
+}
+
+message ObjectList
+{
+    repeated Object objects = 1;
+}
+
+message DocumentRequest
+{
+    string document_id = 1;
+}
+
+message DescendantsRequest
+{
+    Object self                      = 1;
+    string descendants_class_keyword = 2;
+}
+
+message AncestorsRequest
+{
+    Object self                    = 1;
+    string ancestors_class_keyword = 2;
+}
+
+message ChildRequest
+{
+    Object self       = 1;
+    string field_name = 2;
+}
+
+message MethodRequest
+{
+    Object self   = 1;
+    string method = 2;
+    Object params = 3;
+}
+
+message SetterRequest
+{
+    MethodRequest request     = 1;
+    int32         value_count = 2;
+}
+
+message IntArray
+{
+    repeated int32 data = 1;
+}
+
+message DoubleArray
+{
+    repeated double data = 1;
+}
+
+message StringArray
+{
+    repeated string data = 1;
+}
+
+message SetterChunk
+{
+    oneof data
+    {
+        SetterRequest set_request = 1;
+        IntArray      ints        = 2;
+        DoubleArray   doubles     = 3;
+        StringArray   strings     = 4;
+    }
+}
+
+message GetterReply
+{
+    oneof data
+    {
+        IntArray    ints    = 1;
+        DoubleArray doubles = 2;
+        StringArray strings = 3;
+    }
+}
+
+message SetterReply
+{
+    int64 value_count = 1;
+}

@@ -36,8 +36,7 @@
 
 #include "cafUiFieldEditorHelper.h"
 
-#include "cafClassTypeName.h"
-
+#include "cafFieldHandle.h"
 #include "cafFieldUiCapability.h"
 #include "cafUiComboBoxEditor.h"
 #include "cafUiFieldEditorHandle.h"
@@ -46,36 +45,34 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::UiFieldEditorHandle* caf::UiFieldEditorHelper::createFieldEditorForField( caf::FieldUiCapability* field,
-                                                                                     const QString& uiConfigName )
+caf::UiFieldEditorHandle* caf::UiFieldEditorHelper::createFieldEditorForField( caf::FieldUiCapability* field )
 {
     caf::UiFieldEditorHandle* fieldEditor = nullptr;
 
     // If editor type is specified, find in factory
-    if ( !field->uiEditorTypeName( uiConfigName ).isEmpty() )
+    if ( !field->uiEditorTypeName().empty() )
     {
-        fieldEditor =
-            caf::Factory<UiFieldEditorHandle, QString>::instance()->create( field->uiEditorTypeName( uiConfigName ) );
+        fieldEditor = caf::Factory<UiFieldEditorHandle, std::string>::instance()->create( field->uiEditorTypeName() );
     }
     else
     {
         // Find the default field editor
-        QString fieldTypeName = qStringTypeName( *( field->fieldHandle() ) );
+        std::string fieldTypeName = typeid( *( field->fieldHandle() ) ).name();
 
-        if ( fieldTypeName.indexOf( "PtrField" ) != -1 )
+        if ( fieldTypeName.find( "PtrField" ) != std::string::npos )
         {
             fieldTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
         }
-        else if ( fieldTypeName.indexOf( "PtrArrayField" ) != -1 )
+        else if ( fieldTypeName.find( "PtrArrayField" ) != std::string::npos )
         {
             fieldTypeName = caf::PdmUiListEditor::uiEditorTypeName();
         }
-        else if ( field->toUiBasedQVariant().type() != QVariant::List )
+        else if ( field->toUiBasedVariant().isVector() )
         {
             // Handle a single value field with valueOptions: Make a combobox
 
-            bool                     useOptionsOnly = true;
-            QList<PdmOptionItemInfo> options        = field->valueOptions( &useOptionsOnly );
+            bool                       useOptionsOnly = true;
+            std::deque<OptionItemInfo> options        = field->valueOptions( &useOptionsOnly );
             CAF_ASSERT( useOptionsOnly ); // Not supported
 
             if ( !options.empty() )
@@ -84,7 +81,7 @@ caf::UiFieldEditorHandle* caf::UiFieldEditorHelper::createFieldEditorForField( c
             }
         }
 
-        fieldEditor = caf::Factory<UiFieldEditorHandle, QString>::instance()->create( fieldTypeName );
+        fieldEditor = caf::Factory<UiFieldEditorHandle, std::string>::instance()->create( fieldTypeName );
     }
 
     return fieldEditor;

@@ -35,7 +35,7 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
+#include "cafField.h"
 #include "cafUiFieldEditorHandle.h"
 
 #include <QLabel>
@@ -76,7 +76,7 @@ public:
     Qt::MatchFlags      completerFilterMode;
     int                 maximumWidth;
     bool                selectAllOnFocusEvent;
-    QString             placeholderText;
+    std::string         placeholderText;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -88,13 +88,13 @@ public:
     PdmUiLineEditorAttributeUiDisplayString() {}
 
 public:
-    QString m_displayString;
+    std::string m_displayString;
 };
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class cafUserInterface_EXPORT PdmUiLineEdit : public QLineEdit
+class PdmUiLineEdit : public QLineEdit
 {
     Q_OBJECT
 public:
@@ -126,7 +126,7 @@ public:
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
     QWidget* createLabelWidget( QWidget* parent ) override;
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    void     configureAndUpdateUi() override;
     QMargins calculateLabelContentMargins() const override;
 
     virtual bool eventFilter( QObject* watched, QEvent* event ) override;
@@ -139,15 +139,15 @@ private:
     bool isMultipleFieldsWithSameKeywordSelected( FieldHandle* editorField ) const;
 
 protected:
-    QPointer<PdmUiLineEdit>   m_lineEdit;
-    QPointer<QLabel> m_label;
+    QPointer<PdmUiLineEdit> m_lineEdit;
+    QPointer<QLabel>        m_label;
 
     QPointer<QCompleter>       m_completer;
     QPointer<QStringListModel> m_completerTextList;
-    QList<PdmOptionItemInfo>   m_optionCache;
+    std::deque<OptionItemInfo> m_optionCache;
     bool                       m_ignoreCompleterActivated;
 
-    int findIndexToOption( const QString& uiText );
+    const OptionItemInfo* findOption( const QString& uiText );
 };
 
 } // end namespace caf

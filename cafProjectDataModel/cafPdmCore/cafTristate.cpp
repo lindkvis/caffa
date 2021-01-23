@@ -1,6 +1,8 @@
 #include "cafTristate.h"
 
-#include <QTextStream>
+#include "cafStringTools.h"
+
+#include <cctype>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -45,6 +47,14 @@ bool caf::Tristate::operator!=( const Tristate& other ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool caf::Tristate::operator<( const Tristate& other ) const
+{
+    return m_state < other.m_state;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::Tristate::State caf::Tristate::state() const
 {
     return m_state;
@@ -77,9 +87,9 @@ bool caf::Tristate::isFalse() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString caf::Tristate::text() const
+std::string caf::Tristate::text() const
 {
-    QString txt;
+    std::string txt;
 
     switch ( m_state )
     {
@@ -102,9 +112,9 @@ QString caf::Tristate::text() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::Tristate::setFromText( const QString& valueText )
+void caf::Tristate::setFromText( const std::string& valueText )
 {
-    QString lowerCase = valueText.toLower();
+    std::string lowerCase = caf::StringTools::tolower( valueText );
 
     if ( lowerCase == "false" )
     {
@@ -123,9 +133,9 @@ void caf::Tristate::setFromText( const QString& valueText )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QTextStream& operator>>( QTextStream& str, caf::Tristate& triplet )
+std::istream& operator>>( std::istream& str, caf::Tristate& triplet )
 {
-    QString text;
+    std::string text;
     str >> text;
     triplet.setFromText( text );
 
@@ -135,7 +145,7 @@ QTextStream& operator>>( QTextStream& str, caf::Tristate& triplet )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QTextStream& operator<<( QTextStream& str, const caf::Tristate& triplet )
+std::ostream& operator<<( std::ostream& str, const caf::Tristate& triplet )
 {
     str << triplet.text();
 

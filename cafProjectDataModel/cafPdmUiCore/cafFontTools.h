@@ -78,9 +78,9 @@ public:
     typedef caf::AppEnum<DeltaSize> DeltaSizeEnum;
 
     static int absolutePointSize( FontSize normalPointSize, DeltaSize relativeSize = DeltaSize::Medium );
-    static int pointSizeToPixelSize( FontSize pointSize );
-    static int pointSizeToPixelSize( int pointSize );
-    static int pixelSizeToPointSize( int pixelSize );
+    static int pointSizeToPixelSize( FontSize pointSize, int dpi );
+    static int pointSizeToPixelSize( int pointSize, int dpi );
+    static int pixelSizeToPointSize( int pixelSize, int dpi );
 };
 
 //==================================================================================================

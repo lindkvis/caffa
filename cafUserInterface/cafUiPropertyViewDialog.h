@@ -47,24 +47,22 @@ class PdmUiPropertyView;
 class PdmUiPropertyViewDialog : public QDialog
 {
 public:
-    PdmUiPropertyViewDialog( QWidget* parent, Object* object, const QString& windowTitle, const QString& uiConfigName );
+    PdmUiPropertyViewDialog( QWidget* parent, Object* object, const QString& windowTitle );
     PdmUiPropertyViewDialog( QWidget*                                 parent,
-                             Object*                               object,
+                             Object*                                  object,
                              const QString&                           windowTitle,
-                             const QString&                           uiConfigName,
                              const QDialogButtonBox::StandardButtons& standardButtons );
     ~PdmUiPropertyViewDialog() override;
 
     QDialogButtonBox* dialogButtonBox();
 
 private:
-    void initialize( Object* object, const QString& windowTitle, const QString& uiConfigName );
+    void initialize( Object* object, const QString& windowTitle );
     void setupUi();
 
 private:
     QString            m_windowTitle;
-    QString            m_uiConfigName;
-    Object*         m_pdmObject;
+    Object*            m_pdmObject;
     PdmUiPropertyView* m_pdmUiPropertyView;
     QDialogButtonBox*  m_buttonBox;
 };

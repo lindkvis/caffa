@@ -35,7 +35,6 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafUiTreeItem.h"
 
 #include <QAbstractItemModel>
@@ -54,7 +53,7 @@ class PdmUiDragDropInterface;
 // This class is intended to replace UiTreeModelPdm (cafUiTreeModelPdm)
 //
 //==================================================================================================
-class cafUserInterface_EXPORT PdmUiTreeViewQModel : public QAbstractItemModel
+class PdmUiTreeViewQModel : public QAbstractItemModel
 {
     Q_OBJECT
 
@@ -65,11 +64,10 @@ public:
     void updateSubTree( UiItem* subTreeRoot );
 
     void setColumnHeaders( const QStringList& columnHeaders );
-    void setUiConfigName( const QString& uiConfigName ) { m_uiConfigName = uiConfigName; }
 
     // These are supposed to be used from the Editor only, and to implement selection support.
 
-    UiItem*  uiItemFromModelIndex( const QModelIndex& index ) const;
+    UiItem*     uiItemFromModelIndex( const QModelIndex& index ) const;
     QModelIndex findModelIndex( const UiItem* object ) const;
 
     void                    setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
@@ -89,9 +87,8 @@ private:
     void emitDataChanged( const QModelIndex& index );
     void updateEditorsForSubTree( PdmUiTreeOrdering* root );
 
-    PdmUiTreeOrdering* m_treeOrderingRoot;
+    std::unique_ptr<PdmUiTreeOrdering> m_treeOrderingRoot;
     QStringList        m_columnHeaders;
-    QString            m_uiConfigName;
 
     PdmUiTreeViewEditor* m_treeViewEditor;
 

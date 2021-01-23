@@ -55,7 +55,7 @@ public:
     ~PdmUiTableRowEditor() override;
 
 protected:
-    void configureAndUpdateUi( const QString& uiConfigName ) override;
+    void configureAndUpdateUi(  ) override;
 
 private:
     QPointer<PdmUiTableViewQModel> m_model;

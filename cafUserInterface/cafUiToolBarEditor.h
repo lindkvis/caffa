@@ -65,24 +65,22 @@ public:
     void setFields( std::vector<caf::FieldHandle*>& fields );
     void clear();
 
-    void    setFocusWidgetFromKeyword( const QString& fieldKeyword );
-    QString keywordForFocusWidget();
+    void        setFocusWidgetFromKeyword( const std::string& fieldKeyword );
+    std::string keywordForFocusWidget();
 
     void show();
     void hide();
 
-    static QString uiEditorConfigName();
-
 private:
-    void configureAndUpdateUi( const QString& uiConfigName ) override;
+    void configureAndUpdateUi() override;
 
     static QWidget* focusWidget( UiFieldEditorHandle* uiFieldEditorHandle );
 
 private:
     QPointer<QToolBar> m_toolbar;
 
-    std::vector<caf::FieldHandle*>          m_fields;
-    std::map<QString, UiFieldEditorHandle*> m_fieldViews;
+    std::vector<caf::FieldHandle*>              m_fields;
+    std::map<std::string, UiFieldEditorHandle*> m_fieldViews;
 
     QList<QAction*> m_actions;
 };

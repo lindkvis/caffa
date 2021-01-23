@@ -1,38 +1,7 @@
 #pragma once
 
-#include <QTextStream>
-
-//==================================================================================================
-/// QTextStream Stream operator overloading for bool`s
-/// Prints bool`s as "True"/"False", and reads them too
-//==================================================================================================
-
-QTextStream& operator>>( QTextStream& str, bool& value );
-QTextStream& operator<<( QTextStream& str, const bool& value );
-
-//==================================================================================================
-/// QTextStream Stream operator overloading for QDateTimes`s
-///
-//==================================================================================================
-// class QDateTime;
-QTextStream& operator>>( QTextStream& str, QDateTime& value );
-QTextStream& operator<<( QTextStream& str, const QDateTime& value );
-
-//==================================================================================================
-/// QTextStream Stream operator overloading for QDates
-///
-//==================================================================================================
-// class QDate;
-QTextStream& operator>>( QTextStream& str, QDate& value );
-QTextStream& operator<<( QTextStream& str, const QDate& value );
-
-//==================================================================================================
-/// QTextStream Stream operator overloading for QTimes
-///
-//==================================================================================================
-// class QTime;
-QTextStream& operator>>( QTextStream& str, QTime& value );
-QTextStream& operator<<( QTextStream& str, const QTime& value );
+#include <iostream>
+#include <vector>
 
 //==================================================================================================
 /// QTextStream Stream operator overloading for std::vector of things.
@@ -41,7 +10,7 @@ QTextStream& operator<<( QTextStream& str, const QTime& value );
 //==================================================================================================
 
 template <typename T>
-QTextStream& operator<<( QTextStream& str, const std::vector<T>& sobj )
+std::ostream& operator<<( std::ostream& str, const std::vector<T>& sobj )
 {
     size_t i;
     for ( i = 0; i < sobj.size(); ++i )
@@ -52,13 +21,13 @@ QTextStream& operator<<( QTextStream& str, const std::vector<T>& sobj )
 }
 
 template <typename T>
-QTextStream& operator>>( QTextStream& str, std::vector<T>& sobj )
+std::istream& operator>>( std::istream& str, std::vector<T>& sobj )
 {
-    while ( str.status() == QTextStream::Ok )
+    while ( str.good() )
     {
         T d;
         str >> d;
-        if ( str.status() == QTextStream::Ok ) sobj.push_back( d );
+        if ( str.good() ) sobj.push_back( d );
     }
     return str;
 }

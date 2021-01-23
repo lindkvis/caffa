@@ -35,7 +35,6 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafUiEditorHandle.h"
 
 namespace caf
@@ -47,7 +46,7 @@ class PdmUiTreeEditorHandle;
 /// needed. (Typically because of a direct call to updateConnectedEditors() )
 //==================================================================================================
 
-class cafUserInterface_EXPORT PdmUiTreeItemEditor : public UiEditorHandle
+class PdmUiTreeItemEditor : public UiEditorHandle
 {
 public:
     explicit PdmUiTreeItemEditor( UiItem* uiItem );
@@ -56,7 +55,7 @@ public:
     void setTreeViewEditor( PdmUiTreeEditorHandle* treeViewEditor ) { m_treeViewEditor = treeViewEditor; }
 
 protected: // Interface to override:
-    void configureAndUpdateUi( const QString& uiConfigName ) override;
+    void configureAndUpdateUi(  ) override;
 
 private:
     PdmUiTreeEditorHandle* m_treeViewEditor;

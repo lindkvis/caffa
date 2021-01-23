@@ -68,16 +68,16 @@ PdmUiColorEditor::PdmUiColorEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiColorEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiColorEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_label.isNull() );
 
-    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label );
 
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+        uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
 
         if ( m_attributes.showLabel )
         {
@@ -89,8 +89,8 @@ void PdmUiColorEditor::configureAndUpdateUi( const QString& uiConfigName )
         }
     }
 
-    QColor col = uiField()->uiValue().value<QColor>();
-    setColorOnWidget( col );
+    caf::Color color = uiField()->uiValue().value<caf::Color>();
+    setColorOnWidget( color.to<QColor>() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,8 +174,7 @@ void PdmUiColorEditor::colorSelectionClicked()
     if ( newColor.isValid() && newColor != m_color )
     {
         setColorOnWidget( newColor );
-        QVariant v;
-        v = newColor;
+        Variant v( caf::Color( newColor.red(), newColor.green(), newColor.blue() ) );
         this->setValueToField( v );
     }
 }

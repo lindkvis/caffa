@@ -4,7 +4,6 @@
 #include "cafFieldHandle.h"
 #include "cafObjectUiCapability.h"
 #include "cafUiEditorHandle.h"
-#include "cafUiModelChangeDetector.h"
 
 namespace caf
 {
@@ -12,7 +11,6 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 FieldUiCapability::FieldUiCapability( FieldHandle* owner, bool giveOwnership )
-    : m_isAutoAddingOptionFromValue( true )
 {
     m_owner = owner;
     owner->addCapability( this, giveOwnership );
@@ -36,25 +34,25 @@ caf::FieldHandle* FieldUiCapability::fieldHandle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QVariant FieldUiCapability::uiValue() const
+Variant FieldUiCapability::uiValue() const
 {
-    return QVariant();
+    return Variant();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> FieldUiCapability::valueOptions( bool* useOptionsOnly ) const
+std::deque<OptionItemInfo> FieldUiCapability::valueOptions( bool* useOptionsOnly ) const
 {
-    return QList<PdmOptionItemInfo>();
+    return std::deque<OptionItemInfo>();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void FieldUiCapability::notifyFieldChanged( const QVariant& oldFieldValue, const QVariant& newFieldValue )
+void FieldUiCapability::notifyFieldChanged( const Variant& oldFieldValue, const Variant& newFieldValue )
 {
-    if ( !this->isQVariantDataEqual( oldFieldValue, newFieldValue ) )
+    if ( !this->isVariantDataEqual( oldFieldValue, newFieldValue ) )
     {
         FieldHandle* fieldHandle = this->fieldHandle();
         CAF_ASSERT( fieldHandle && fieldHandle->ownerObject() );
@@ -89,49 +87,20 @@ void FieldUiCapability::notifyFieldChanged( const QVariant& oldFieldValue, const
                 }
             }
         }
-
-        if ( ownerObjectHandle->parentField() && ownerObjectHandle->parentField()->ownerObject() )
-        {
-            ObjectUiCapability* uiObjHandle = uiObj( ownerObjectHandle->parentField()->ownerObject() );
-            if ( uiObjHandle )
-            {
-                uiObjHandle->childFieldChangedByUi( ownerObjectHandle->parentField() );
-
-                // If updateConnectedEditors() is required, this has to be called in childFieldChangedByUi()
-            }
-        }
-
-        PdmUiModelChangeDetector::instance()->setModelChanged();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool FieldUiCapability::isAutoAddingOptionFromValue() const
-{
-    return m_isAutoAddingOptionFromValue;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void FieldUiCapability::setAutoAddingOptionFromValue( bool isAddingValue )
-{
-    m_isAutoAddingOptionFromValue = isAddingValue;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void FieldUiCapability::setValueFromUiEditor( const QVariant& uiValue )
+void FieldUiCapability::setValueFromUiEditor( const Variant& uiValue )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool FieldUiCapability::isQVariantDataEqual( const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant ) const
+bool FieldUiCapability::isVariantDataEqual( const Variant& oldUiBasedVariant, const Variant& newUiBasedVariant ) const
 {
     CAF_ASSERT( false );
     return false;

@@ -36,6 +36,7 @@
 #include "cafUiTreeSelectionQModel.h"
 
 #include "cafObject.h"
+#include "cafQVariantConverter.h"
 #include "cafUiCommandSystemProxy.h"
 #include "cafUiTreeViewQModel.h"
 
@@ -94,47 +95,48 @@ void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems( const QModelIndexLi
 {
     if ( !m_uiFieldHandle || !m_uiFieldHandle->uiField() ) return;
 
-    std::set<unsigned int> selectedIndices;
+    std::set<Variant> selectedItems;
     {
-        QVariant        fieldValue          = m_uiFieldHandle->uiField()->uiValue();
-        QList<QVariant> fieldValueSelection = fieldValue.toList();
+        Variant              fieldValue          = m_uiFieldHandle->uiField()->uiValue();
+        std::vector<Variant> fieldValueSelection = fieldValue.toVector();
 
-        for ( auto v : fieldValueSelection )
+        for ( const auto& v : fieldValueSelection )
         {
-            selectedIndices.insert( v.toUInt() );
+            selectedItems.insert( v );
         }
     }
 
     if ( checked )
     {
-        for ( auto mi : sourceModelIndices )
+        for ( const auto& mi : sourceModelIndices )
         {
-            const caf::PdmOptionItemInfo* optionItemInfo = optionItem( mi );
+            const caf::OptionItemInfo* optionItemInfo = optionItem( mi );
             if ( !optionItemInfo->isReadOnly() )
             {
-                selectedIndices.insert( static_cast<unsigned int>( optionIndex( mi ) ) );
+                selectedItems.insert( optionItem( mi )->value() );
             }
         }
     }
     else
     {
-        for ( auto mi : sourceModelIndices )
+        for ( const auto& mi : sourceModelIndices )
         {
-            const caf::PdmOptionItemInfo* optionItemInfo = optionItem( mi );
+            const caf::OptionItemInfo* optionItemInfo = optionItem( mi );
             if ( !optionItemInfo->isReadOnly() )
             {
-                selectedIndices.erase( static_cast<unsigned int>( optionIndex( mi ) ) );
+                selectedItems.erase( optionItem( mi )->value() );
             }
         }
     }
 
-    QList<QVariant> fieldValueSelection;
-    for ( auto v : selectedIndices )
+    std::vector<Variant> fieldValueSelection;
+    for ( const auto& v : selectedItems )
     {
-        fieldValueSelection.push_back( QVariant( v ) );
+        fieldValueSelection.push_back( v );
     }
 
-    UiCommandSystemProxy::instance()->setUiValueToField( m_uiFieldHandle->uiField(), fieldValueSelection );
+    UiCommandSystemProxy::instance()->setUiValueToField( m_uiFieldHandle->uiField(),
+                                                         Variant::fromVector( fieldValueSelection ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,7 +150,7 @@ void caf::PdmUiTreeSelectionQModel::enableSingleSelectionMode( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int caf::PdmUiTreeSelectionQModel::optionItemCount() const
+size_t caf::PdmUiTreeSelectionQModel::optionItemCount() const
 {
     return m_options.size();
 }
@@ -156,8 +158,8 @@ int caf::PdmUiTreeSelectionQModel::optionItemCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiTreeSelectionQModel::setOptions( caf::UiFieldEditorHandle*         field,
-                                                const QList<caf::PdmOptionItemInfo>& options )
+void caf::PdmUiTreeSelectionQModel::setOptions( caf::UiFieldEditorHandle*              field,
+                                                const std::deque<caf::OptionItemInfo>& options )
 {
     m_uiFieldHandle = field;
 
@@ -191,7 +193,7 @@ void caf::PdmUiTreeSelectionQModel::setOptions( caf::UiFieldEditorHandle*       
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiTreeSelectionQModel::setUiValueCache( const QVariant* uiValuesCache )
+void caf::PdmUiTreeSelectionQModel::setUiValueCache( const Variant& uiValuesCache )
 {
     m_uiValueCache = uiValuesCache;
 }
@@ -201,7 +203,7 @@ void caf::PdmUiTreeSelectionQModel::setUiValueCache( const QVariant* uiValuesCac
 //--------------------------------------------------------------------------------------------------
 void caf::PdmUiTreeSelectionQModel::resetUiValueCache()
 {
-    m_uiValueCache = nullptr;
+    m_uiValueCache = Variant();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -231,7 +233,7 @@ bool caf::PdmUiTreeSelectionQModel::hasGrandChildren() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const caf::PdmOptionItemInfo* caf::PdmUiTreeSelectionQModel::optionItem( const QModelIndex& index ) const
+const caf::OptionItemInfo* caf::PdmUiTreeSelectionQModel::optionItem( const QModelIndex& index ) const
 {
     int opIndex = optionIndex( index );
 
@@ -259,7 +261,7 @@ Qt::ItemFlags caf::PdmUiTreeSelectionQModel::flags( const QModelIndex& index ) c
 {
     if ( index.isValid() )
     {
-        const caf::PdmOptionItemInfo* optionItemInfo = optionItem( index );
+        const caf::OptionItemInfo* optionItemInfo = optionItem( index );
 
         if ( !optionItemInfo->isHeading() )
         {
@@ -344,16 +346,20 @@ QVariant caf::PdmUiTreeSelectionQModel::data( const QModelIndex& index, int role
 {
     if ( index.isValid() )
     {
-        const caf::PdmOptionItemInfo* optionItemInfo = optionItem( index );
+        const caf::OptionItemInfo* optionItemInfo = optionItem( index );
 
         if ( role == Qt::DisplayRole )
         {
-            return optionItemInfo->optionUiText();
+            return QVariant( QString::fromStdString( optionItemInfo->optionUiText() ) );
         }
         else if ( role == Qt::DecorationRole )
         {
-            auto icon = optionItemInfo->icon();
-            return icon ? *icon : QIcon();
+            auto icon = optionItemInfo->iconProvider();
+            if ( icon && !icon->iconResourceString().empty() )
+            {
+                return QIcon( QString::fromStdString( icon->iconResourceString() ) );
+            }
+            return QIcon();
         }
         else if ( role == Qt::CheckStateRole && !optionItemInfo->isHeading() )
         {
@@ -361,26 +367,23 @@ QVariant caf::PdmUiTreeSelectionQModel::data( const QModelIndex& index, int role
             {
                 // Avoid calling the seriously heavy uiValue method if we have a temporary valid cache.
 
-                QVariant fieldValue = m_uiValueCache ? *m_uiValueCache : m_uiFieldHandle->uiField()->uiValue();
-                if ( isSingleValueField( fieldValue ) )
+                Variant fieldValue = m_uiValueCache.isValid() ? m_uiValueCache : m_uiFieldHandle->uiField()->uiValue();
+                if ( !fieldValue.isVector() )
                 {
-                    int row = fieldValue.toInt();
-
-                    if ( row == optionIndex( index ) )
+                    if ( fieldValue == optionItem( index )->value() )
                     {
                         return Qt::Checked;
                     }
                 }
-                else if ( isMultipleValueField( fieldValue ) )
+                else
                 {
-                    QList<QVariant> valuesSelectedInField = fieldValue.toList();
+                    std::vector<Variant> valuesSelectedInField = fieldValue.toVector();
 
-                    int opIndex = optionIndex( index );
+                    auto currentOption = optionItem( index );
 
-                    for ( QVariant v : valuesSelectedInField )
+                    for ( const Variant& v : valuesSelectedInField )
                     {
-                        int indexInField = v.toInt();
-                        if ( indexInField == opIndex )
+                        if ( currentOption->value() == v )
                         {
                             return Qt::Checked;
                         }
@@ -406,9 +409,8 @@ QVariant caf::PdmUiTreeSelectionQModel::data( const QModelIndex& index, int role
         }
         else if ( role == optionItemValueRole() )
         {
-            QVariant v = optionItemInfo->value();
-
-            return v;
+            Variant v = optionItemInfo->value();
+            return QVariant::fromValue( v );
         }
     }
 
@@ -424,29 +426,27 @@ bool caf::PdmUiTreeSelectionQModel::setData( const QModelIndex& index, const QVa
 
     if ( role == Qt::CheckStateRole )
     {
-        QVariant fieldValue = m_uiFieldHandle->uiField()->uiValue();
-        if ( isSingleValueField( fieldValue ) )
+        Variant fieldValue = m_uiFieldHandle->uiField()->uiValue();
+        if ( !fieldValue.isVector() )
         {
             if ( value.toBool() == true )
             {
-                QVariant v = static_cast<unsigned int>( optionIndex( index ) );
-                UiCommandSystemProxy::instance()->setUiValueToField( m_uiFieldHandle->uiField(), v );
-
+                auto item = optionItem( index );
+                if ( item )
+                {
+                    Variant v( item->value() );
+                    UiCommandSystemProxy::instance()->setUiValueToField( m_uiFieldHandle->uiField(), v );
+                }
                 return true;
             }
         }
-        else if ( isMultipleValueField( fieldValue ) )
+        else
         {
-            std::vector<unsigned int> selectedIndices;
+            std::vector<Variant> previouslySelectedItems;
 
             if ( !m_singleSelectionMode )
             {
-                QList<QVariant> fieldValueSelection = fieldValue.toList();
-
-                for ( auto v : fieldValueSelection )
-                {
-                    selectedIndices.push_back( v.toUInt() );
-                }
+                previouslySelectedItems = fieldValue.toVector();
             }
 
             bool setSelected = value.toBool();
@@ -454,39 +454,39 @@ bool caf::PdmUiTreeSelectionQModel::setData( const QModelIndex& index, const QVa
             // Do not allow empty selection in single selection mode
             if ( m_singleSelectionMode ) setSelected = true;
 
-            unsigned int opIndex = static_cast<unsigned int>( optionIndex( index ) );
+            auto opItem = optionItem( index );
 
-            if ( setSelected )
+            if ( setSelected && opItem )
             {
-                bool isIndexPresent = false;
-                for ( auto indexInField : selectedIndices )
+                bool isPresent = false;
+                for ( auto previousItem : previouslySelectedItems )
                 {
-                    if ( indexInField == opIndex )
+                    if ( previousItem == opItem->value() )
                     {
-                        isIndexPresent = true;
+                        isPresent = true;
                     }
                 }
 
-                if ( !isIndexPresent )
+                if ( !isPresent )
                 {
-                    selectedIndices.push_back( opIndex );
+                    previouslySelectedItems.push_back( opItem->value() );
                 }
             }
             else
             {
                 m_indexForLastUncheckedItem = index;
 
-                selectedIndices.erase( std::remove( selectedIndices.begin(), selectedIndices.end(), opIndex ),
-                                       selectedIndices.end() );
+                previouslySelectedItems.erase( std::remove_if( previouslySelectedItems.begin(),
+                                                               previouslySelectedItems.end(),
+                                                               [&opItem]( const auto& v ) {
+                                                                   return opItem->value() == v;
+                                                               } ),
+                                               previouslySelectedItems.end() );
             }
 
-            QList<QVariant> fieldValueSelection;
-            for ( auto v : selectedIndices )
-            {
-                fieldValueSelection.push_back( QVariant( v ) );
-            }
+            Variant v = Variant::fromVector( previouslySelectedItems );
 
-            UiCommandSystemProxy::instance()->setUiValueToField( m_uiFieldHandle->uiField(), fieldValueSelection );
+            UiCommandSystemProxy::instance()->setUiValueToField( m_uiFieldHandle->uiField(), v );
             emit dataChanged( index, index );
             return true;
         }
@@ -568,30 +568,4 @@ void caf::PdmUiTreeSelectionQModel::recursiveNotifyChildren( const QModelIndex& 
     {
         emit dataChanged( index, index );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool caf::PdmUiTreeSelectionQModel::isSingleValueField( const QVariant& fieldValue )
-{
-    if ( fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt )
-    {
-        return true;
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool caf::PdmUiTreeSelectionQModel::isMultipleValueField( const QVariant& fieldValue )
-{
-    if ( fieldValue.type() == QVariant::List )
-    {
-        return true;
-    }
-
-    return false;
 }

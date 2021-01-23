@@ -9,8 +9,6 @@ if (CAF_ENABLE_UNITY_BUILD)
 endif()
 
 set (PUBLIC_HEADERS
-    cafPdmUiCore_export.h
-
     cafInternalUiFieldSpecializations.h
     cafInternalUiFieldCapability.h
     cafInternalUiFieldCapability.inl
@@ -20,19 +18,16 @@ set (PUBLIC_HEADERS
     cafColorTable.h
     cafColorTables.h
     cafColorTools.h
+    cafIconProvider.h
 
     cafActionWrapper.h
-    cafQActionWrapper.h
+    cafOptionItemInfo.h
     cafUiEditorAttribute.h
     cafUiEditorHandle.h
-    cafUiFieldEditorHandle.h
     cafFieldUiCapability.h
     cafUiFieldSpecialization.h
     cafUiItem.h
-    cafUiModelChangeDetector.h
     cafUiObjectEditorHandle.h
-    cafUiWidgetObjectEditorHandle.h
-    cafUi3dObjectEditorHandle.h
     cafObjectUiCapability.h
     cafUiOrdering.h
     cafUiCommandSystemProxy.h
@@ -43,13 +38,19 @@ set (PUBLIC_HEADERS
     cafSelectionManager.h
     cafSelectionChangedReceiver.h
     cafSelectionManagerTools.h
-    cafUiSelection3dEditorVisualizer.h
-    cafIconProvider.h
-)
 
-# Qt
-find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
-set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+ 	cafUiColorEditorAttribute.h
+ 	cafUiComboBoxEditorAttribute.h
+ 	cafUiDateEditorAttribute.h
+ 	cafUiFilePathEditorAttribute.h
+ 	cafUiSliderEditorAttribute.h
+ 	cafUiTreeViewAttribute.h
+
+    cafCoreColor.h
+    cafCoreColorUi.h
+    cafCoreColorIo.h
+    cafFieldColor.h
+)
 
 include_directories (
     ..
@@ -63,16 +64,13 @@ set( PROJECT_FILES
     cafColorTable.cpp
     cafColorTables.cpp
     cafColorTools.cpp
+    cafIconProvider.cpp
 
-    cafQActionWrapper.cpp
     cafUiEditorHandle.cpp
-    cafUiFieldEditorHandle.cpp
     cafFieldUiCapability.cpp
+    cafOptionItemInfo.cpp
     cafUiItem.cpp
-    cafUiModelChangeDetector.cpp
     cafUiObjectEditorHandle.cpp
-    cafUiWidgetObjectEditorHandle.cpp
-    cafUi3dObjectEditorHandle.cpp
     cafObjectUiCapability.cpp
     cafUiOrdering.cpp
     cafUiCommandSystemProxy.cpp
@@ -81,13 +79,21 @@ set( PROJECT_FILES
 
     cafSelectionManager.cpp
     cafSelectionChangedReceiver.cpp
-    cafUiSelection3dEditorVisualizer.cpp
-    cafIconProvider.cpp
+
+    cafCoreColorUi.cpp
+    cafCoreColorIo.cpp
 )
 
-add_library( ${PROJECT_NAME}
-	${PROJECT_FILES}
-)
+if (CAFFA_BUILD_SHARED)
+    message(STATUS "Building ${PROJECT_NAME} shared")
+    add_library( ${PROJECT_NAME} SHARED
+        ${PROJECT_FILES}
+    )
+else()
+    add_library( ${PROJECT_NAME} STATIC
+        ${PROJECT_FILES}
+    )
+endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${CMAKE_PROJECT_VERSION})
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
@@ -95,7 +101,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS
 
 target_link_libraries ( ${PROJECT_NAME}
     cafPdmCore
-	${QT_LIBRARIES}
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -105,6 +110,7 @@ target_include_directories(${PROJECT_NAME}
 
 if (MSVC)
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
+    set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif()
 
 install(TARGETS ${PROJECT_NAME}

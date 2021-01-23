@@ -1,7 +1,12 @@
 #pragma once
 
 #include "cafPdmBase.h"
-#include <QString>
+#include "cafSignal.h"
+#include "cafVariant.h"
+
+#include <any>
+#include <string>
+#include <utility>
 #include <vector>
 
 namespace caf
@@ -15,26 +20,28 @@ class FieldIoCapability;
 //==================================================================================================
 class FieldCapability;
 
-class FieldHandle
+class FieldHandle : public SignalEmitter
 {
+    Signal<std::tuple<const FieldCapability*, Variant, Variant>> changed;
+
 public:
-    FieldHandle() { m_ownerObject = nullptr; }
+    FieldHandle();
     virtual ~FieldHandle();
 
-    QString          keyword() const { return m_keyword; }
-    bool             matchesKeyword( const QString& keyword ) const;
+    std::string   keyword() const { return m_keyword; }
+    bool          matchesKeyword( const std::string& keyword ) const;
     ObjectHandle* ownerObject();
-    QString          ownerClass() const;
+    std::string   ownerClass() const;
 
-    void                 registerKeywordAlias( const QString& alias );
-    bool                 matchesKeywordAlias( const QString& keyword ) const;
-    std::vector<QString> keywordAliases() const;
+    void                     registerKeywordAlias( const std::string& alias );
+    bool                     matchesKeywordAlias( const std::string& keyword ) const;
+    std::vector<std::string> keywordAliases() const;
 
     // Child objects
     bool         hasChildObjects();
     virtual void childObjects( std::vector<ObjectHandle*>* ) {}
     virtual void removeChildObject( ObjectHandle* ) {}
-    void         setOwnerClass( const QString& ownerClass );
+    void         setOwnerClass( const std::string& ownerClass );
 
     // Ptr referenced objects
     bool         hasPtrReferencedObjects();
@@ -58,12 +65,12 @@ private:
     PDM_DISABLE_COPY_AND_ASSIGN( FieldHandle );
 
     friend class ObjectHandle; // Give access to m_ownerObject and set Keyword
-    void             setKeyword( const QString& keyword );
+    void          setKeyword( const std::string& keyword );
     ObjectHandle* m_ownerObject;
-    QString          m_ownerClass;
+    std::string   m_ownerClass;
 
-    QString              m_keyword;
-    std::vector<QString> m_keywordAliases;
+    std::string              m_keyword;
+    std::vector<std::string> m_keywordAliases;
 
     std::vector<std::pair<FieldCapability*, bool>> m_capabilities;
 };

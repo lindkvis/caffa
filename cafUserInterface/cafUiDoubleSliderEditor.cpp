@@ -80,23 +80,23 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiDoubleSliderEditor );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDoubleSliderEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiDoubleSliderEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_lineEdit.isNull() );
 
-    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label );
 
-    m_lineEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
-    m_slider->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
+    m_lineEdit->setEnabled( !uiField()->isUiReadOnly() );
+    m_slider->setEnabled( !uiField()->isUiReadOnly() );
 
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+        uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
     }
 
-    double  doubleValue = uiField()->uiValue().toDouble();
-    QString textValue   = uiField()->uiValue().toString();
+    double  doubleValue = uiField()->uiValue().value<double>();
+    QString textValue   = QString::fromStdString( uiField()->uiValue().value<std::string>() );
 
     m_slider->blockSignals( true );
     m_slider->setMaximum( m_attributes.m_sliderTickCount );
@@ -206,8 +206,7 @@ void PdmUiDoubleSliderEditor::updateSliderPosition( double value )
 //--------------------------------------------------------------------------------------------------
 void PdmUiDoubleSliderEditor::writeValueToField( double value )
 {
-    QVariant v = value;
-    this->setValueToField( v );
+    this->setValueToField( Variant( value ) );
 }
 
 //--------------------------------------------------------------------------------------------------

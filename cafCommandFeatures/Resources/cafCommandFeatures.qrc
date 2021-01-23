@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="cafCommandFeatures">
-        <file>ToggleOnL16x16.png</file>
-        <file>ToggleOffL16x16.png</file>
-        <file>ToggleOnOffL16x16.png</file>
-        <file>ToggleOnOthersOffL16x16.png</file>
-    </qresource>
-</RCC>

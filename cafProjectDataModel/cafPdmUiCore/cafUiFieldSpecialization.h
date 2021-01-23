@@ -1,15 +1,15 @@
 #pragma once
 
-#include <QList>
-#include <QVariant>
+#include "cafOptionItemInfo.h"
+#include "cafVariant.h"
 
+#include <deque>
 #include <vector>
 
 namespace caf
 {
 template <typename T>
 class DataValueField;
-class PdmOptionItemInfo;
 class ObjectHandle;
 
 //==================================================================================================
@@ -27,32 +27,55 @@ template <typename T>
 class UiFieldSpecialization
 {
 public:
-    /// Convert the field value into a QVariant
-    static QVariant convert( const T& value ) { return QVariant::fromValue( value ); }
+    /// Convert the field value into a regular Variant
+    static Variant convert( const T& value ) { return Variant( value ); }
 
-    /// Set the field value from a QVariant
-    static void setFromVariant( const QVariant& variantValue, T& value ) { value = variantValue.value<T>(); }
-
-    /// Check equality between QVariants that carries a Field Value.
-    /// The == operator will normally work, but does not support custom types in the QVariant
-    /// See http://qt-project.org/doc/qt-4.8/qvariant.html#operator-eq-eq-64
-    /// This is needed for the lookup regarding OptionValues
-    static bool isDataElementEqual( const QVariant& variantValue, const QVariant& variantValue2 )
+    static Variant convertToUiVariant( const T& value )
     {
-        if ( variantValue.type() == QVariant::UserType )
+        if constexpr ( std::is_same<T, std::string>::value )
         {
-            return ( variantValue.value<T>() == variantValue2.value<T>() );
+            return Variant( value );
         }
         else
         {
-            return variantValue == variantValue2;
+            std::stringstream ss;
+            ss << value;
+            return Variant( ss.str() );
         }
     }
 
-    /// Methods to get a list of options for a field, specialized for AppEnum
-    static QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly, const T& )
+    /// Set the field value from a Variant
+    static void setFromVariant( const Variant& variantValue, T& value )
     {
-        return QList<PdmOptionItemInfo>();
+        if constexpr ( !std::is_same<T, std::string>::value )
+        {
+            if ( variantValue.canConvert<std::string>() )
+            {
+                std::string       strValue = variantValue.value<std::string>();
+                std::stringstream ss( strValue );
+                ss >> value;
+            }
+            else
+            {
+                value = variantValue.value<T>();
+            }
+        }
+        else
+        {
+            value = variantValue.value<T>();
+        }
+    }
+
+    /// Check equality between Variants that carries a Field Value.
+    static bool isDataElementEqual( const Variant& variantValue, const Variant& variantValue2 )
+    {
+        return variantValue == variantValue2;
+    }
+
+    /// Methods to get a list of options for a field, specialized for AppEnum
+    static std::deque<caf::OptionItemInfo> valueOptions( bool* useOptionsOnly, const T& )
+    {
+        return std::deque<caf::OptionItemInfo>();
     }
 
     /// Methods to retrieve the possible Object pointed to by a field

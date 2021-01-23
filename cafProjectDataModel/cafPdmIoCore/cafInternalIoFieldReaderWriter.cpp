@@ -1,32 +1,15 @@
 #include "cafInternalIoFieldReaderWriter.h"
 
-#include "cafInternalFieldIoHelper.h"
+#include <nlohmann/json.hpp>
 
 namespace caf
 {
 //--------------------------------------------------------------------------------------------------
-/// Specialized read function for QStrings, because the >> operator only can read word by word
+/// Specialized read function for std::strings, because the >> operator only can read word by word
 //--------------------------------------------------------------------------------------------------
 template <>
-void FieldReader<QString>::readFieldData( QString& field, QXmlStreamReader& xmlStream, ObjectFactory* )
+void FieldReader<std::string>::readFieldData( std::string& field, const nlohmann::json& jsonValue, ObjectFactory* )
 {
-    FieldIOHelper::skipComments( xmlStream );
-    if ( !xmlStream.isCharacters() ) return;
-
-    field = xmlStream.text().toString();
-
-    // Make stream point to end of element
-    QXmlStreamReader::TokenType type;
-    type = xmlStream.readNext();
-    FieldIOHelper::skipCharactersAndComments( xmlStream );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Specialized read function for QStrings, because the >> operator only can read word by word
-//--------------------------------------------------------------------------------------------------
-template <>
-void FieldReader<QString>::readFieldData( QString& field, const QJsonValue& jsonValue, ObjectFactory* )
-{
-    field = jsonValue.toString();
+    field = jsonValue.get<std::string>();
 }
 } // End of namespace caf

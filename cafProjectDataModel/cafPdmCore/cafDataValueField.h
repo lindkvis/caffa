@@ -43,8 +43,7 @@
 #include "cafFieldUiCapabilityInterface.h"
 #include "cafValueFieldSpecializations.h"
 
-#include <QVariant>
-
+#include <any>
 #include <typeinfo>
 #include <vector>
 
@@ -104,12 +103,12 @@ public:
 
     // Implementation of ValueField interface
 
-    QVariant toQVariant() const override
+    Variant toVariant() const override
     {
         CAF_ASSERT( isInitializedByInitFieldMacro() );
         return ValueFieldSpecialization<DataType>::convert( m_fieldValue );
     }
-    void setFromQVariant( const QVariant& variant ) override
+    void setFromVariant( const Variant& variant ) override
     {
         CAF_ASSERT( isInitializedByInitFieldMacro() );
         ValueFieldSpecialization<DataType>::setFromVariant( variant, m_fieldValue );
@@ -149,13 +148,13 @@ void caf::DataValueField<DataType>::setValueWithFieldChanged( const DataType& fi
     FieldUiCapabilityInterface* uiFieldHandleInterface = capability<FieldUiCapabilityInterface>();
     if ( uiFieldHandleInterface )
     {
-        QVariant oldValue = uiFieldHandleInterface->toUiBasedQVariant();
+        Variant oldValue = uiFieldHandleInterface->toUiBasedVariant();
 
         m_fieldValue = fieldValue;
 
-        QVariant newUiBasedQVariant = uiFieldHandleInterface->toUiBasedQVariant();
+        Variant newUiBasedVariant = uiFieldHandleInterface->toUiBasedVariant();
 
-        uiFieldHandleInterface->notifyFieldChanged( oldValue, newUiBasedQVariant );
+        uiFieldHandleInterface->notifyFieldChanged( oldValue, newUiBasedVariant );
     }
     else
     {

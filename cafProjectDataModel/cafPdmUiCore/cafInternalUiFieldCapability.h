@@ -4,6 +4,9 @@
 
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
+#include "cafVariant.h"
+
+#include <deque>
 
 namespace caf
 {
@@ -19,16 +22,14 @@ public:
 
     // Gui generalized interface
 public:
-    QVariant                 uiValue() const override;
-    void                     setValueFromUiEditor( const QVariant& uiValue ) override;
-    QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly ) const override;
+    Variant                       uiValue() const override;
+    void                          setValueFromUiEditor( const Variant& uiValue ) override;
+    std::deque<OptionItemInfo> valueOptions( bool* useOptionsOnly ) const override;
 
-    QVariant toUiBasedQVariant() const override;
+    Variant toUiBasedVariant() const override;
 
 private:
-    bool isQVariantDataEqual( const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant ) const override;
-
-    mutable QList<PdmOptionItemInfo> m_optionEntryCache;
+    bool isVariantDataEqual( const Variant& oldUiBasedVariant, const Variant& newUiBasedVariant ) const override;
 
 private:
     FieldType* m_field;
@@ -50,11 +51,14 @@ public:
 
     // Gui generalized interface
 public:
-    QVariant                 uiValue() const override { return QVariant(); }
-    void                     setValueFromUiEditor( const QVariant& uiValue ) override {}
-    QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly ) const override { return QList<PdmOptionItemInfo>(); }
+    Variant                       uiValue() const override { return Variant(); }
+    void                          setValueFromUiEditor( const Variant& uiValue ) override {}
+    std::deque<OptionItemInfo> valueOptions( bool* useOptionsOnly ) const override
+    {
+        return std::deque<OptionItemInfo>();
+    }
 
-    QVariant toUiBasedQVariant() const override { return QVariant(); }
+    Variant toUiBasedVariant() const override { return Variant(); }
 };
 
 //
@@ -73,11 +77,14 @@ public:
 
     // Gui generalized interface
 public:
-    QVariant                 uiValue() const override { return QVariant(); }
-    void                     setValueFromUiEditor( const QVariant& uiValue ) override {}
-    QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly ) const override { return QList<PdmOptionItemInfo>(); }
+    Variant                       uiValue() const override { return Variant(); }
+    void                          setValueFromUiEditor( const Variant& uiValue ) override {}
+    std::deque<OptionItemInfo> valueOptions( bool* useOptionsOnly ) const override
+    {
+        return std::deque<OptionItemInfo>();
+    }
 
-    QVariant toUiBasedQVariant() const override { return QVariant(); }
+    Variant toUiBasedVariant() const override { return Variant(); }
 };
 
 template <typename FieldType>

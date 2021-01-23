@@ -34,15 +34,17 @@
 //   for more details.
 //
 //##################################################################################################
-
 #pragma once
 
-#include "cafUiOrdering.h"
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
+
 #include "cafPdmWebWidgetObjectEditorHandle.h"
 
-#include <QString>
-
 #include <map>
+#include <string>
 #include <utility>
 
 namespace Wt
@@ -56,9 +58,11 @@ class WWidget;
 
 namespace caf
 {
+class FieldHandle;
 class PdmWebFieldEditorHandle;
-class PdmUiGroup;
-class PdmUiOrdering;
+class FieldUiCapability;
+class UiGroup;
+class UiOrdering;
 
 //==================================================================================================
 ///
@@ -72,24 +76,24 @@ public:
 protected:
     /// When overriding this function, use findOrCreateGroupBox() or findOrCreateFieldEditor() for detailed control
     /// Use recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn() for automatic layout of group and field widgets
-    virtual void recursivelyConfigureAndUpdateTopLevelUiOrdering( const PdmUiOrdering& topLevelUiOrdering,
-                                                                  const QString&       uiConfigName ) = 0;
+    virtual void recursivelyConfigureAndUpdateTopLevelUiOrdering( const UiOrdering& topLevelUiOrdering ) = 0;
 
-    void                        recursivelyConfigureAndUpdateUiOrderingInGridLayout( const PdmUiOrdering& uiOrdering,
-                                                                                     Wt::WGridLayout*     parentLayout,
-                                                                                     const QString&       uiConfigName );
+    void recursivelyConfigureAndUpdateUiOrderingInGridLayout( const UiOrdering& uiOrdering, Wt::WGridLayout* parentLayout );
     std::unique_ptr<Wt::WPanel> recursivelyCreateGroup( std::list<std::unique_ptr<Wt::WWidget>>& existingWidgets,
-                                                        UiItem*                               currentItem,
-                                                        const QString&                           uiConfigName );
+                                                        UiItem*                                  currentItem );
 
-    std::unique_ptr<Wt::WPanel> createGroupBox( PdmUiGroup* group, const QString& uiConfigName );
-    PdmWebFieldEditorHandle*    findOrCreateFieldEditor( FieldUiCapability* field, const QString& uiConfigName );
+    std::unique_ptr<Wt::WPanel> createGroupBox( UiGroup* group );
+    PdmWebFieldEditorHandle*    findOrCreateFieldEditor( FieldUiCapability* field );
 
 private:
-    void configureAndUpdateUi( const QString& uiConfigName ) override;
+    void configureAndUpdateUi() override;
 
 private:
     std::map<FieldHandle*, PdmWebFieldEditorHandle*> m_fieldViews;
 };
 
 } // end namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

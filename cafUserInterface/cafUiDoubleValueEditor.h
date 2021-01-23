@@ -35,7 +35,6 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafUiFieldEditorHandle.h"
 
 #include <QDoubleValidator>
@@ -51,7 +50,7 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class cafUserInterface_EXPORT PdmUiDoubleValueEditorAttribute : public UiEditorAttribute
+class PdmUiDoubleValueEditorAttribute : public UiEditorAttribute
 {
 public:
     enum class NumberFormat
@@ -85,7 +84,7 @@ public:
     ~PdmUiDoubleValueEditor() override;
 
 protected:
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    void     configureAndUpdateUi() override;
     QWidget* createEditorWidget( QWidget* parent ) override;
     QWidget* createLabelWidget( QWidget* parent ) override;
 
@@ -96,8 +95,8 @@ private:
     void writeValueToField();
 
 private:
-    QPointer<QLineEdit>       m_lineEdit;
-    QPointer<QLabel> m_label;
+    QPointer<QLineEdit> m_lineEdit;
+    QPointer<QLabel>    m_label;
 
     PdmUiDoubleValueEditorAttribute m_attributes;
 };

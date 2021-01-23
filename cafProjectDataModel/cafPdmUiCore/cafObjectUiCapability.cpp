@@ -1,6 +1,7 @@
 #include "cafObjectUiCapability.h"
 
 #include "cafAssert.h"
+#include "cafField.h"
 #include "cafFieldHandle.h"
 #include "cafFieldUiCapability.h"
 #include "cafObjectHandle.h"
@@ -32,13 +33,13 @@ ObjectUiCapability* uiObj( const ObjectHandle* obj )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectUiCapability::uiOrdering( const QString& uiConfigName, PdmUiOrdering& uiOrdering )
+void ObjectUiCapability::uiOrdering( UiOrdering& uiOrdering )
 {
     // Restore state for includeRemainingFields, as this flag
     // can be changed in defineUiOrdering()
     bool includeRemaining_originalState = uiOrdering.isIncludingRemainingFields();
 
-    this->defineUiOrdering( uiConfigName, uiOrdering );
+    this->defineUiOrdering( uiOrdering );
     if ( uiOrdering.isIncludingRemainingFields() )
     {
         // Add the remaining Fields To UiConfig
@@ -63,19 +64,17 @@ void ObjectUiCapability::uiOrdering( const QString& uiConfigName, PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectUiCapability::editorAttribute( const FieldHandle* field,
-                                             const QString&        uiConfigName,
-                                             UiEditorAttribute* attribute )
+void ObjectUiCapability::editorAttribute( const FieldHandle* field, UiEditorAttribute* attribute )
 {
-    this->defineEditorAttribute( field, uiConfigName, attribute );
+    this->defineEditorAttribute( field, attribute );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectUiCapability::objectEditorAttribute( const QString& uiConfigName, UiEditorAttribute* attribute )
+void ObjectUiCapability::objectEditorAttribute( UiEditorAttribute* attribute )
 {
-    this->defineObjectEditorAttribute( uiConfigName, attribute );
+    this->defineObjectEditorAttribute( attribute );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,14 +86,14 @@ void ObjectUiCapability::objectEditorAttribute( const QString& uiConfigName, UiE
 ///
 /// The caller is responsible to delete the returned PdmUiTreeOrdering
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeOrdering* ObjectUiCapability::uiTreeOrdering( const QString& uiConfigName /*= ""*/ ) const
+PdmUiTreeOrdering* ObjectUiCapability::uiTreeOrdering() const
 {
     CAF_ASSERT( this ); // This method actually is possible to call on a NULL ptr without getting a crash, so we assert
                         // instead.
 
     PdmUiTreeOrdering* uiTreeOrdering = new PdmUiTreeOrdering( nullptr, m_owner );
 
-    expandUiTree( uiTreeOrdering, uiConfigName );
+    expandUiTree( uiTreeOrdering );
 
     return uiTreeOrdering;
 }
@@ -139,7 +138,7 @@ void ObjectUiCapability::addDefaultUiTreeChildren( PdmUiTreeOrdering* uiTreeOrde
                     {
                         if ( children[cIdx] )
                         {
-                            bool                                 isAlreadyAdded = false;
+                            bool                              isAlreadyAdded = false;
                             std::set<ObjectHandle*>::iterator it = objectsAddedByApplication.find( children[cIdx] );
                             if ( it != objectsAddedByApplication.end() )
                             {
@@ -168,7 +167,7 @@ void ObjectUiCapability::addDefaultUiTreeChildren( PdmUiTreeOrdering* uiTreeOrde
 /// Builds the sPdmUiTree for all the children of @param root recursively, and stores the result
 /// in root
 //--------------------------------------------------------------------------------------------------
-void ObjectUiCapability::expandUiTree( PdmUiTreeOrdering* root, const QString& uiConfigName /*= "" */ )
+void ObjectUiCapability::expandUiTree( PdmUiTreeOrdering* root )
 {
 #if 1
     if ( !root || !root->isValid() ) return;
@@ -180,7 +179,7 @@ void ObjectUiCapability::expandUiTree( PdmUiTreeOrdering* root, const QString& u
             PdmUiTreeOrdering* child = root->child( cIdx );
             if ( child->isValid() && !child->ignoreSubTree() )
             {
-                expandUiTree( child, uiConfigName );
+                expandUiTree( child );
             }
         }
     }
@@ -188,8 +187,7 @@ void ObjectUiCapability::expandUiTree( PdmUiTreeOrdering* root, const QString& u
     {
         if ( !root->ignoreSubTree() )
         {
-            if ( root->isRepresentingField() &&
-                 !root->field()->capability<FieldUiCapability>()->isUiTreeChildrenHidden( uiConfigName ) )
+            if ( root->isRepresentingField() && !root->field()->capability<FieldUiCapability>()->isUiTreeChildrenHidden() )
             {
                 std::vector<ObjectHandle*> fieldsChildObjects;
                 root->field()->childObjects( &fieldsChildObjects );
@@ -198,18 +196,18 @@ void ObjectUiCapability::expandUiTree( PdmUiTreeOrdering* root, const QString& u
                     ObjectHandle* childObject = fieldsChildObjects[cIdx];
                     if ( childObject )
                     {
-                        root->appendChild( uiObj( childObject )->uiTreeOrdering( uiConfigName ) );
+                        root->appendChild( uiObj( childObject )->uiTreeOrdering() );
                     }
                 }
             }
             else if ( root->isRepresentingObject() &&
-                      !root->object()->capability<ObjectUiCapability>()->isUiTreeChildrenHidden( uiConfigName ) )
+                      !root->object()->capability<ObjectUiCapability>()->isUiTreeChildrenHidden() )
             {
-                uiObj( root->object() )->defineUiTreeOrdering( *root, uiConfigName );
+                uiObj( root->object() )->defineUiTreeOrdering( *root );
                 uiObj( root->object() )->addDefaultUiTreeChildren( root );
                 if ( root->childCount() )
                 {
-                    expandUiTree( root, uiConfigName );
+                    expandUiTree( root );
                 }
             }
         }
@@ -222,15 +220,23 @@ void ObjectUiCapability::expandUiTree( PdmUiTreeOrdering* root, const QString& u
 //--------------------------------------------------------------------------------------------------
 void ObjectUiCapability::updateUiIconFromToggleField()
 {
-    if ( objectToggleField() )
+    if ( m_owner->objectToggleField() )
     {
-        FieldUiCapability* uiFieldHandle = objectToggleField()->capability<FieldUiCapability>();
-        if ( uiFieldHandle )
+        Field<bool>* toggleField = dynamic_cast<Field<bool>*>( m_owner->objectToggleField() );
+        if ( toggleField )
         {
-            bool active = uiFieldHandle->uiValue().toBool();
+            bool active = toggleField->value();
             updateUiIconFromState( active );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void ObjectUiCapability::fieldChangedByUi( const FieldHandle* changedField, const Variant& oldValue, const Variant& newValue )
+{
+    m_owner->fieldChangedByCapability( changedField, changedField->capability<FieldUiCapability>(), oldValue, newValue );
 }
 
 } // End namespace caf

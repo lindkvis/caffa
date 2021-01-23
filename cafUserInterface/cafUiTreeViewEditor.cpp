@@ -39,14 +39,15 @@
 #include "cafChildArrayField.h"
 #include "cafField.h"
 #include "cafObject.h"
+#include "cafQActionWrapper.h"
+#include "cafSelectionManager.h"
 #include "cafUiCommandSystemProxy.h"
 #include "cafUiDragDropInterface.h"
 #include "cafUiEditorHandle.h"
 #include "cafUiTreeOrdering.h"
 #include "cafUiTreeViewQModel.h"
-#include "cafQActionWrapper.h"
-#include "cafSelectionManager.h"
 
+#include <QApplication>
 #include <QDragMoveEvent>
 #include <QEvent>
 #include <QGridLayout>
@@ -132,7 +133,8 @@ QWidget* PdmUiTreeViewEditor::createWidget( QWidget* parent )
     m_treeView      = new PdmUiTreeViewWidget( m_mainWidget );
     m_treeView->setModel( m_treeViewModel );
     m_treeView->installEventFilter( this );
-
+    m_treeView->setRootIsDecorated( true );
+    m_treeView->setRootIndex( QModelIndex() );
     m_delegate = new PdmUiTreeViewItemDelegate( m_treeView, m_treeViewModel );
 
     m_treeView->setItemDelegate( m_delegate );
@@ -151,7 +153,7 @@ QWidget* PdmUiTreeViewEditor::createWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiTreeViewEditor::configureAndUpdateUi()
 {
     PdmUiTreeViewEditorAttribute editorAttributes;
 
@@ -159,12 +161,21 @@ void PdmUiTreeViewEditor::configureAndUpdateUi( const QString& uiConfigName )
         ObjectUiCapability* uiObjectHandle = dynamic_cast<ObjectUiCapability*>( this->pdmItemRoot() );
         if ( uiObjectHandle )
         {
-            uiObjectHandle->objectEditorAttribute( uiConfigName, &editorAttributes );
+            uiObjectHandle->objectEditorAttribute( &editorAttributes );
         }
     }
 
-    m_treeViewModel->setColumnHeaders( editorAttributes.columnHeaders );
-    m_treeViewModel->setUiConfigName( uiConfigName );
+    QStringList columnHeaders;
+    for ( auto header : editorAttributes.columnHeaders )
+    {
+        columnHeaders.push_back( QString::fromStdString( header ) );
+    }
+    m_treeViewModel->setColumnHeaders( columnHeaders );
+    if (m_treeView)
+    {
+        m_treeView->setHeaderHidden( columnHeaders.empty() );
+    }
+    
     m_treeViewModel->setPdmItemRoot( this->pdmItemRoot() );
 
     if ( editorAttributes.currentObject )
@@ -276,20 +287,21 @@ void PdmUiTreeViewEditor::customMenuRequested( QPoint pos )
     // This seems a bit strange. Why ?
     SelectionManager::instance()->setActiveChildArrayFieldHandle( this->currentChildArrayFieldHandle() );
 
-    UiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( m_mainWidget->parentWidget() );
+    // TODO: abstract away the dependency on Qt and reintroduce the methods
+    /* UiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( m_mainWidget->parentWidget() );
     caf::QMenuWrapper menuWrapper;
 
     caf::UiCommandSystemProxy::instance()->populateMenuWithDefaultCommands( "PdmUiTreeViewEditor", &menuWrapper );
 
     if ( menuWrapper.actions().size() > 0 )
     {
-        // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
-        QPoint globalPos = m_treeView->viewport()->mapToGlobal( pos );
+        // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the
+    viewport(). QPoint globalPos = m_treeView->viewport()->mapToGlobal( pos );
 
         menuWrapper.menu()->exec( globalPos );
     }
 
-    UiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( nullptr );
+    UiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( nullptr ); */
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -441,15 +453,15 @@ void PdmUiTreeViewEditor::updateSelectionManager()
 void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& modelIndex /*= QModelIndex()*/ )
 {
     auto allIndices = m_treeViewModel->allIndicesRecursive();
-    for ( QModelIndex index : allIndices )
+    for ( const QModelIndex& index : allIndices )
     {
         UiItem*             uiItem         = m_treeViewModel->uiItemFromModelIndex( index );
         ObjectUiCapability* uiObjectHandle = dynamic_cast<ObjectUiCapability*>( uiItem );
         if ( uiObjectHandle )
         {
             PdmUiTreeViewItemAttribute attribute;
-            uiObjectHandle->objectEditorAttribute( "", &attribute );
-            if ( !attribute.tag.isEmpty() )
+            uiObjectHandle->objectEditorAttribute( &attribute );
+            if ( !attribute.tag.empty() )
             {
                 m_delegate->addAttribute( index, attribute );
             }
@@ -526,9 +538,9 @@ void PdmUiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionView
     }
     painter->setFont( font );
 
-    QString text    = it->second.tag;
-    QColor  bgColor = it->second.bgColor;
-    QColor  fgColor = it->second.fgColor;
+    QString text    = QString::fromStdString( it->second.tag );
+    QColor  bgColor = it->second.bgColor.to<QColor>();
+    QColor  fgColor = it->second.fgColor.to<QColor>();
 
     QSize textSize( QFontMetrics( font ).size( Qt::TextSingleLine, text ) );
     QRect rect     = option.rect;

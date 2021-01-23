@@ -35,7 +35,6 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafUiColorEditorAttribute.h"
 #include "cafUiFieldEditorHandle.h"
 
@@ -51,7 +50,7 @@ namespace caf
 //==================================================================================================
 /// See cafFieldCvfColor for conversion between cvf::Color3f and QColor
 //==================================================================================================
-class cafUserInterface_EXPORT PdmUiColorEditor : public UiFieldEditorHandle
+class PdmUiColorEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -63,7 +62,7 @@ public:
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
     QWidget* createLabelWidget( QWidget* parent ) override;
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    void     configureAndUpdateUi() override;
 
     QMargins calculateLabelContentMargins() const override;
 

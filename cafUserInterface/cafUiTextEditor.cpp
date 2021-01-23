@@ -96,23 +96,23 @@ void TextEdit::focusOutEvent( QFocusEvent* e )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTextEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmUiTextEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_textEdit.isNull() );
     CAF_ASSERT( !m_label.isNull() );
 
-    UiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    UiFieldEditorHandle::updateLabelFromField( m_label );
 
-    m_textEdit->setReadOnly( uiField()->isUiReadOnly( uiConfigName ) );
-    // m_textEdit->setEnabled(!field()->isUiReadOnly(uiConfigName)); // Neccesary ?
-    m_textEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
+    m_textEdit->setReadOnly( uiField()->isUiReadOnly() );
+    // m_textEdit->setEnabled(!field()->isUiReadOnly()); // Neccesary ?
+    m_textEdit->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
     PdmUiTextEditorAttribute leab;
 
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &leab );
+        uiObject->editorAttribute( uiField()->fieldHandle(), &leab );
     }
 
     m_textMode = leab.textMode;
@@ -132,10 +132,10 @@ void PdmUiTextEditor::configureAndUpdateUi( const QString& uiConfigName )
     switch ( leab.textMode )
     {
         case PdmUiTextEditorAttribute::PLAIN:
-            m_textEdit->setPlainText( uiField()->uiValue().toString() );
+            m_textEdit->setPlainText( QString::fromStdString( uiField()->uiValue().value<std::string>() ) );
             break;
         case PdmUiTextEditorAttribute::HTML:
-            m_textEdit->setHtml( uiField()->uiValue().toString() );
+            m_textEdit->setHtml( QString::fromStdString( uiField()->uiValue().value<std::string>() ) );
             break;
     }
     m_textEdit->blockSignals( false );
@@ -198,8 +198,7 @@ QWidget* PdmUiTextEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void PdmUiTextEditor::slotSetValueToField()
 {
-    QVariant v;
-    QString  textValue;
+    QString textValue;
 
     switch ( m_textMode )
     {
@@ -211,7 +210,7 @@ void PdmUiTextEditor::slotSetValueToField()
             break;
     }
 
-    v = textValue;
+    Variant v( textValue.toStdString() );
 
     this->setValueToField( v );
 }

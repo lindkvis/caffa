@@ -35,7 +35,6 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include <QString>
 #include <QWidget>
 
@@ -56,7 +55,7 @@ class ObjectHandle;
 ///
 //==================================================================================================
 
-class cafUserInterface_EXPORT PdmUiTreeView : public QWidget
+class PdmUiTreeView : public QWidget
 {
     Q_OBJECT
 public:
@@ -67,7 +66,6 @@ public:
     void enableSelectionManagerUpdating( bool enable ); // TODO: rename
     void enableAppendOfClassNameToUiItemText( bool enable );
 
-    void setUiConfigurationName( QString uiConfigName );
     void setPdmItem( caf::UiItem* object );
 
     QTreeView* treeView();
@@ -81,7 +79,7 @@ public:
     // QModelIndex access
     // Use this translation only when it is inconvenient to traverse
     // the Pdm model directly.
-    UiItem*  uiItemFromModelIndex( const QModelIndex& index ) const;
+    UiItem*     uiItemFromModelIndex( const QModelIndex& index ) const;
     QModelIndex findModelIndex( const UiItem* object ) const;
 
     void setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
@@ -96,7 +94,7 @@ private slots:
 
 private:
     PdmUiTreeViewEditor* m_treeViewEditor;
-    QString              m_uiConfigName;
+    QString              m_;
     QVBoxLayout*         m_layout;
 };
 

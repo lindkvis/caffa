@@ -63,7 +63,7 @@ public:
 protected:
     Wt::WWidget* createEditorWidget() override;
     Wt::WLabel*  createLabelWidget() override;
-    void         configureAndUpdateUi( const QString& uiConfigName ) override;
+    void         configureAndUpdateUi() override;
 
 protected:
     void slotEditingFinished();

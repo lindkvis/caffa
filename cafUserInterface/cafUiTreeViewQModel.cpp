@@ -39,6 +39,7 @@
 #include "cafField.h"
 #include "cafObject.h"
 #include "cafObjectUiCapability.h"
+#include "cafQVariantConverter.h"
 #include "cafUiCommandSystemProxy.h"
 #include "cafUiDragDropInterface.h"
 #include "cafUiTreeItemEditor.h"
@@ -74,20 +75,20 @@ void PdmUiTreeViewQModel::setPdmItemRoot( UiItem* rootItem )
         return;
     }
 
-    PdmUiTreeOrdering*    newRoot = nullptr;
+    PdmUiTreeOrdering* newRoot = nullptr;
     FieldUiCapability* field   = dynamic_cast<FieldUiCapability*>( rootItem );
 
     if ( field )
     {
         newRoot = new PdmUiTreeOrdering( field->fieldHandle() );
-        ObjectUiCapability::expandUiTree( newRoot, m_uiConfigName );
+        ObjectUiCapability::expandUiTree( newRoot );
     }
     else
     {
         ObjectUiCapability* obj = dynamic_cast<ObjectUiCapability*>( rootItem );
         if ( obj )
         {
-            newRoot = obj->uiTreeOrdering( m_uiConfigName );
+            newRoot = obj->uiTreeOrdering();
         }
     }
 
@@ -105,14 +106,9 @@ void PdmUiTreeViewQModel::resetTree( PdmUiTreeOrdering* newRoot )
 {
     beginResetModel();
 
-    if ( m_treeOrderingRoot )
-    {
-        delete m_treeOrderingRoot;
-    }
+    m_treeOrderingRoot = std::unique_ptr<PdmUiTreeOrdering>(newRoot);
 
-    m_treeOrderingRoot = newRoot;
-
-    updateEditorsForSubTree( m_treeOrderingRoot );
+    updateEditorsForSubTree( m_treeOrderingRoot.get() );
 
     endResetModel();
 }
@@ -140,7 +136,7 @@ void PdmUiTreeViewQModel::updateSubTree( UiItem* pdmRoot )
 {
     // Build the new "Correct" Tree
 
-    PdmUiTreeOrdering*    newTreeRootTmp = nullptr;
+    PdmUiTreeOrdering* newTreeRootTmp = nullptr;
     FieldUiCapability* field          = dynamic_cast<FieldUiCapability*>( pdmRoot );
     if ( field )
     {
@@ -155,7 +151,7 @@ void PdmUiTreeViewQModel::updateSubTree( UiItem* pdmRoot )
         }
     }
 
-    ObjectUiCapability::expandUiTree( newTreeRootTmp, m_uiConfigName );
+    ObjectUiCapability::expandUiTree( newTreeRootTmp );
 
 #if CAF_PDM_TREE_VIEW_DEBUG_PRINT
     std::cout << std::endl << "New Stuff: " << std::endl;
@@ -173,7 +169,7 @@ void PdmUiTreeViewQModel::updateSubTree( UiItem* pdmRoot )
     }
     else
     {
-        existingSubTreeRoot = m_treeOrderingRoot;
+        existingSubTreeRoot = m_treeOrderingRoot.get();
     }
 
 #if CAF_PDM_TREE_VIEW_DEBUG_PRINT
@@ -306,8 +302,8 @@ void PdmUiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSub
             std::vector<int> indicesToRemoveFromSource;
             for ( int i = 0; i < sourceSubTreeRoot->childCount(); ++i )
             {
-                PdmUiTreeOrdering*                       sourceChild = sourceSubTreeRoot->child( i );
-                std::map<caf::UiItem*, int>::iterator it = existingTreeMap.find( sourceChild->activeItem() );
+                PdmUiTreeOrdering*                    sourceChild = sourceSubTreeRoot->child( i );
+                std::map<caf::UiItem*, int>::iterator it          = existingTreeMap.find( sourceChild->activeItem() );
                 if ( it != existingTreeMap.end() )
                 {
                     newMergedOrdering.push_back( existingSubTreeRoot->child( it->second ) );
@@ -334,7 +330,7 @@ void PdmUiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSub
             }
 
             // Delete all items from existingSubTreeRoot, as the complete list is present in newMergedOrdering
-            existingSubTreeRoot->removeChildrenNoDelete( 0, existingSubTreeRoot->childCount() );
+            existingSubTreeRoot->removeChildrenNoDelete( 0, (int)existingSubTreeRoot->childCount() );
 
             // First, reorder all items in existing tree, as this operation is valid when later emitting the signal
             // layoutChanged() Insert of new items before issuing this signal causes the tree items below the inserted
@@ -382,8 +378,8 @@ void PdmUiTreeViewQModel::updateEditorsForSubTree( PdmUiTreeOrdering* root )
 
     if ( !root->editor() )
     {
-        PdmUiTreeItemEditor* treeItemEditor = new PdmUiTreeItemEditor( root->activeItem() );
-        root->setEditor( treeItemEditor );
+        auto treeItemEditor = std::make_unique<PdmUiTreeItemEditor>( root->activeItem() );
+        root->setEditor( std::move( treeItemEditor ) );
         CAF_ASSERT( root->editor() );
     }
 
@@ -428,7 +424,7 @@ PdmUiTreeOrdering* caf::PdmUiTreeViewQModel::treeItemFromIndex( const QModelInde
 {
     if ( !index.isValid() )
     {
-        return m_treeOrderingRoot;
+        return m_treeOrderingRoot.get();
     }
 
     CAF_ASSERT( index.internalPointer() );
@@ -459,7 +455,12 @@ QModelIndex caf::PdmUiTreeViewQModel::findModelIndex( const UiItem* object ) con
 //--------------------------------------------------------------------------------------------------
 QModelIndex caf::PdmUiTreeViewQModel::findModelIndexRecursive( const QModelIndex& currentIndex, const UiItem* pdmItem ) const
 {
-    if ( currentIndex.internalPointer() )
+    if ( !currentIndex.isValid() )
+    {
+        PdmUiTreeOrdering* treeItem = m_treeOrderingRoot.get();
+        if ( treeItem->activeItem() == pdmItem ) return currentIndex;
+    }
+    else if ( currentIndex.internalPointer() )
     {
         PdmUiTreeOrdering* treeItem = static_cast<PdmUiTreeOrdering*>( currentIndex.internalPointer() );
         if ( treeItem->activeItem() == pdmItem ) return currentIndex;
@@ -485,7 +486,7 @@ QModelIndex PdmUiTreeViewQModel::index( int row, int column, const QModelIndex& 
     PdmUiTreeOrdering* parentItem = nullptr;
 
     if ( !parentIndex.isValid() )
-        parentItem = m_treeOrderingRoot;
+        parentItem = m_treeOrderingRoot.get();
     else
         parentItem = static_cast<PdmUiTreeOrdering*>( parentIndex.internalPointer() );
 
@@ -516,9 +517,9 @@ QModelIndex PdmUiTreeViewQModel::parent( const QModelIndex& childIndex ) const
     PdmUiTreeOrdering* parentItem = childItem->parent();
     if ( !parentItem ) return QModelIndex();
 
-    if ( parentItem == m_treeOrderingRoot ) return QModelIndex();
+    if ( m_treeOrderingRoot.get() == parentItem ) return QModelIndex();
 
-    return createIndex( parentItem->indexInParent(), 0, parentItem );
+    return createIndex( (int)parentItem->indexInParent(), 0, parentItem );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -532,7 +533,7 @@ int PdmUiTreeViewQModel::rowCount( const QModelIndex& parentIndex ) const
 
     PdmUiTreeOrdering* parentItem = this->treeItemFromIndex( parentIndex );
 
-    return parentItem->childCount();
+    return (int)parentItem->childCount();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -550,12 +551,17 @@ int PdmUiTreeViewQModel::columnCount( const QModelIndex& parentIndex ) const
 //--------------------------------------------------------------------------------------------------
 QVariant PdmUiTreeViewQModel::data( const QModelIndex& index, int role ) const
 {
+    PdmUiTreeOrdering* uitreeOrdering = nullptr;
+
     if ( !index.isValid() )
     {
-        return QVariant();
+        uitreeOrdering = m_treeOrderingRoot.get();
+    }
+    else
+    {
+        uitreeOrdering = static_cast<PdmUiTreeOrdering*>( index.internalPointer() );
     }
 
-    PdmUiTreeOrdering* uitreeOrdering = static_cast<PdmUiTreeOrdering*>( index.internalPointer() );
     if ( !uitreeOrdering )
     {
         return QVariant();
@@ -578,37 +584,32 @@ QVariant PdmUiTreeViewQModel::data( const QModelIndex& index, int role ) const
     {
         if ( isObjRep )
         {
-            ObjectUiCapability* pdmUiObject = uiObj( uitreeOrdering->object() );
-            if ( pdmUiObject )
+            auto object = uitreeOrdering->object();
+            if ( object )
             {
-                QVariant v;
-                if ( pdmUiObject->userDescriptionField() )
+                std::string txt                  = "undefined";
+                auto userDescriptionField = object->userDescriptionField();
+                if ( userDescriptionField )
                 {
-                    caf::FieldUiCapability* uiFieldHandle =
-                        pdmUiObject->userDescriptionField()->capability<FieldUiCapability>();
+                    caf::FieldUiCapability* uiFieldHandle = userDescriptionField->capability<FieldUiCapability>();
                     if ( uiFieldHandle )
                     {
-                        v = uiFieldHandle->uiValue();
+                        Variant uiValue = uiFieldHandle->uiValue();
+                        txt            = uiValue.value<std::string>();
                     }
                 }
-                else
+                else if ( object->capability<ObjectUiCapability>() )
                 {
-                    v = pdmUiObject->uiName();
+                    txt = object->capability<ObjectUiCapability>()->uiName();
                 }
-
-                QString txt = v.toString();
 
                 if ( m_treeViewEditor->isAppendOfClassNameToUiItemTextEnabled() )
                 {
-                    ObjectHandle* pdmObjHandle = pdmUiObject->objectHandle();
-                    if ( pdmObjHandle )
-                    {
-                        txt += " - ";
-                        txt += typeid( *pdmObjHandle ).name();
-                    }
+                    txt += " - ";
+                    txt += typeid( *object ).name();
                 }
 
-                return txt;
+                return QString::fromStdString(txt);
             }
             else
             {
@@ -618,7 +619,7 @@ QVariant PdmUiTreeViewQModel::data( const QModelIndex& index, int role ) const
 
         if ( uitreeOrdering->activeItem() )
         {
-            return uitreeOrdering->activeItem()->uiName();
+            return QVariant( QString::fromStdString( uitreeOrdering->activeItem()->uiName() ) );
         }
         else
         {
@@ -629,8 +630,8 @@ QVariant PdmUiTreeViewQModel::data( const QModelIndex& index, int role ) const
     {
         if ( uitreeOrdering->activeItem() )
         {
-            auto icon = uitreeOrdering->activeItem()->uiIcon();
-            return icon ? *icon : QIcon();
+            auto iconProvider = uitreeOrdering->activeItem()->uiIconProvider();
+            return iconProvider ? QIcon( QString::fromStdString( iconProvider->iconResourceString() ) ) : QIcon();
         }
         else
         {
@@ -641,7 +642,7 @@ QVariant PdmUiTreeViewQModel::data( const QModelIndex& index, int role ) const
     {
         if ( uitreeOrdering->activeItem() )
         {
-            return uitreeOrdering->activeItem()->uiToolTip();
+            return QString::fromStdString( uitreeOrdering->activeItem()->uiToolTip() );
         }
         else
         {
@@ -652,7 +653,7 @@ QVariant PdmUiTreeViewQModel::data( const QModelIndex& index, int role ) const
     {
         if ( uitreeOrdering->activeItem() )
         {
-            return uitreeOrdering->activeItem()->uiWhatsThis();
+            return QString::fromStdString( uitreeOrdering->activeItem()->uiWhatsThis() );
         }
         else
         {
@@ -663,14 +664,13 @@ QVariant PdmUiTreeViewQModel::data( const QModelIndex& index, int role ) const
     {
         if ( isObjRep )
         {
-            ObjectUiCapability* pdmUiObj = uiObj( uitreeOrdering->object() );
-            if ( pdmUiObj && pdmUiObj->objectToggleField() )
+            auto object = uitreeOrdering->object();
+            if ( object && object->objectToggleField() )
             {
-                caf::FieldUiCapability* uiFieldHandle =
-                    pdmUiObj->objectToggleField()->capability<FieldUiCapability>();
+                caf::FieldUiCapability* uiFieldHandle = object->objectToggleField()->capability<FieldUiCapability>();
                 if ( uiFieldHandle )
                 {
-                    bool isToggledOn = uiFieldHandle->uiValue().toBool();
+                    bool isToggledOn = uiFieldHandle->uiValue().value<bool>();
                     if ( isToggledOn )
                     {
                         return Qt::Checked;
@@ -706,26 +706,25 @@ bool PdmUiTreeViewQModel::setData( const QModelIndex& index, const QVariant& val
 
     if ( !treeItem->isRepresentingObject() ) return false;
 
-    ObjectUiCapability* uiObject = uiObj( treeItem->object() );
-    if ( uiObject )
+    auto object = treeItem->object();
+    if ( object )
     {
-        if ( role == Qt::EditRole && uiObject->userDescriptionField() )
+        if ( role == Qt::EditRole && object->userDescriptionField() )
         {
-            FieldUiCapability* userDescriptionUiField =
-                uiObject->userDescriptionField()->capability<FieldUiCapability>();
+            FieldUiCapability* userDescriptionUiField = object->userDescriptionField()->capability<FieldUiCapability>();
             if ( userDescriptionUiField )
             {
-                UiCommandSystemProxy::instance()->setUiValueToField( userDescriptionUiField, value );
+                UiCommandSystemProxy::instance()->setUiValueToField( userDescriptionUiField, value.value<Variant>() );
             }
 
             return true;
         }
-        else if ( role == Qt::CheckStateRole && uiObject->objectToggleField() &&
-                  !uiObject->objectToggleField()->capability<FieldUiCapability>()->isUiReadOnly( m_uiConfigName ) )
+        else if ( role == Qt::CheckStateRole && object->objectToggleField() &&
+                  !object->objectToggleField()->capability<FieldUiCapability>()->isUiReadOnly() )
         {
             bool toggleOn = ( value == Qt::Checked );
 
-            FieldUiCapability* toggleUiField = uiObject->objectToggleField()->capability<FieldUiCapability>();
+            FieldUiCapability* toggleUiField = object->objectToggleField()->capability<FieldUiCapability>();
             if ( toggleUiField )
             {
                 UiCommandSystemProxy::instance()->setUiValueToField( toggleUiField, toggleOn );
@@ -756,16 +755,16 @@ Qt::ItemFlags PdmUiTreeViewQModel::flags( const QModelIndex& index ) const
 
     if ( treeItem->isRepresentingObject() )
     {
-        ObjectUiCapability* pdmUiObject = uiObj( treeItem->object() );
-        if ( pdmUiObject )
+        auto object = treeItem->object();
+        if ( object )
         {
-            if ( pdmUiObject->userDescriptionField() &&
-                 !pdmUiObject->userDescriptionField()->capability<FieldUiCapability>()->isUiReadOnly() )
+            if ( object->userDescriptionField() &&
+                 !object->userDescriptionField()->capability<FieldUiCapability>()->isUiReadOnly() )
             {
                 flagMask = flagMask | Qt::ItemIsEditable;
             }
 
-            if ( pdmUiObject->objectToggleField() )
+            if ( object->objectToggleField() )
             {
                 flagMask = flagMask | Qt::ItemIsUserCheckable;
             }

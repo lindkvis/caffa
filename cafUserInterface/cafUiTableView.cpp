@@ -39,8 +39,8 @@
 #include "cafActionWrapper.h"
 #include "cafChildArrayField.h"
 #include "cafObject.h"
-#include "cafUiTableViewEditor.h"
 #include "cafSelectionManager.h"
+#include "cafUiTableViewEditor.h"
 
 #include "cafUiCommandSystemProxy.h"
 #include <QTableView>
@@ -111,20 +111,7 @@ void PdmUiTableView::setChildArrayField( ChildArrayFieldHandle* childArrayField 
     }
 
     // SIG_CAF_HACK
-    m_listViewEditor->updateUi( m_uiConfigName );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// SIG_CAF_HACK
-void PdmUiTableView::setUiConfigurationName( QString uiConfigName )
-{
-    if ( uiConfigName != m_uiConfigName )
-    {
-        m_uiConfigName = uiConfigName;
-        m_listViewEditor->updateUi( uiConfigName );
-    }
+    m_listViewEditor->updateUi();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -178,7 +165,7 @@ void PdmUiTableView::addActionsToMenu( MenuInterface* menu, ChildArrayFieldHandl
     // Several commands rely on the activeChildArrayFieldHandle in the selection manager
     SelectionManager::instance()->setActiveChildArrayFieldHandle( childArrayField );
 
-    caf::UiCommandSystemProxy::instance()->populateMenuWithDefaultCommands( "PdmUiTreeViewEditor", menu );
+    caf::UiCommandSystemProxy::instance()->populateMenuWithDefaultCommands( menu );
 }
 
 } // End of namespace caf

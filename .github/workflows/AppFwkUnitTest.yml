@@ -7,37 +7,52 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-20.04, windows-latest, macos-latest]
+        include:
+          - os: windows-latest
+            triplet: x64-windows
+          - os: ubuntu-20.04
+            triplet: x64-linux
+          - os: macos-latest
+            triplet: x64-osx
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Cache Qt
-        id: cache-qt
-        uses: actions/cache@v2
         with:
-          path: ${{ github.workspace }}/Qt/
-          key: ${{ runner.os }}-QtCache
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+          submodules: true
+      - name: Run vcpkg
+        uses: lukka/run-vcpkg@v6
         with:
-          version: 5.9.9
-          modules: qtscript 
-          dir: '${{ github.workspace }}/Qt/'
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+          # Just install vcpkg for now, do not install any ports in this step yet.
+          setupOnly: true
+          # Location of the vcpkg as submodule of the repository.
+          vcpkgDirectory: '${{ github.workspace }}/ThirdParty/vcpkg'
+          appendedCacheKey: ${{ hashFiles( '**/vcpkg.json' ) }}
+          vcpkgTriplet: ${{ matrix.triplet }}
       - name: Build Caffa with Unit Tests
-        uses: lukka/run-cmake@v1
+        uses: lukka/run-cmake@v3
         with:
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
           cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-          cmakeAppendedArgs:  
+          cmakeAppendedArgs: '-DCAFFA_GRPC_INTERFACE=ON -DVCPKG_AUTO_INSTALL=ON'
           buildDirectory: ${{ github.workspace }}/cmakebuild
           buildWithCMakeArgs: '--config Release'
-          useVcpkgToolchainFile: false
-      - name: Run Unit Tests Linux
+          useVcpkgToolchainFile: true
+      - name: Run Unit Tests Linux/MacOS
         if: "!contains( matrix.os, 'windows')"
         shell: bash
         run: |
           cmakebuild/bin/cafPdmCore_UnitTests
           cmakebuild/bin/cafPdmIoCore_UnitTests
           cmakebuild/bin/cafProjectDataModel_UnitTests
+          cmakebuild/bin/cafGrpcInterface_UnitTests
+      - name: Run Unit Tests Windows
+        if: contains( matrix.os, 'windows')  
+        shell: bash
+        run: |
+          cmakebuild/bin/Release/cafPdmCore_UnitTests.exe
+          cmakebuild/bin/Release/cafPdmIoCore_UnitTests.exe
+          cmakebuild/bin/Release/cafProjectDataModel_UnitTests.exe
+          cmakebuild/bin/Release/cafGrpcInterface_UnitTests.exe
           

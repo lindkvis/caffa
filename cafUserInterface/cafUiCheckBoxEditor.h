@@ -34,8 +34,6 @@
 //
 //##################################################################################################
 #pragma once
-#include "cafUserInterface_export.h"
-
 #include "cafUiFieldEditorHandle.h"
 
 #include <QCheckBox>
@@ -58,7 +56,7 @@ public:
     bool m_useNativeCheckBoxLabel;
 };
 
-class cafUserInterface_EXPORT PdmUiCheckBoxEditor : public UiFieldEditorHandle
+class PdmUiCheckBoxEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -70,7 +68,7 @@ public:
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
     QWidget* createLabelWidget( QWidget* parent ) override;
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    void     configureAndUpdateUi() override;
 
 protected slots:
     void slotClicked( bool checked );

@@ -34,18 +34,23 @@
 //   for more details.
 //
 //##################################################################################################
-
 #include "cafPdmWebColorEditor.h"
 
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
+
 #include "cafAssert.h"
+#include "cafColor.h"
 #include "cafColorTables.h"
 #include "cafColorTools.h"
 
 #include "cafField.h"
 #include "cafObject.h"
-#include "cafUiOrdering.h"
 #include "cafPdmWebDefaultObjectEditor.h"
 #include "cafPdmWebFieldEditorHandle.h"
+#include "cafUiOrdering.h"
 
 #include "cafFactory.h"
 
@@ -57,8 +62,6 @@
 #include <Wt/WFitLayout.h>
 #include <Wt/WHBoxLayout.h>
 #include <Wt/WLineEdit.h>
-
-#include <QColor>
 
 #include <memory>
 
@@ -81,8 +84,8 @@ void PdmWebColorEditor::applyColor( const Wt::WColor& newColor )
     if ( newColor != m_color )
     {
         //        setColorOnWidget(newColor);
-        QColor   qColor( newColor.red(), newColor.green(), newColor.blue() );
-        QVariant v;
+        Color   qColor( newColor.red(), newColor.green(), newColor.blue() );
+        Variant v;
         v = qColor;
         this->setValueToField( v );
     }
@@ -91,20 +94,20 @@ void PdmWebColorEditor::applyColor( const Wt::WColor& newColor )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebColorEditor::configureAndUpdateUi( const QString& uiConfigName )
+void PdmWebColorEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( m_label );
 
-    applyTextToLabel( m_label.get(), uiConfigName );
+    applyTextToLabel( m_label.get() );
 
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+        uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
     }
 
-    QColor col = uiField()->uiValue().value<QColor>();
-    setColorOnWidget( Wt::WColor( col.red(), col.green(), col.blue() ) );
+    Color      col = uiField()->uiValue().value<Color>();
+    Wt::WColor setColorOnWidget( col.to<Wt::WColor>() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -138,16 +141,16 @@ void PdmWebColorEditor::colorSelectionClicked()
     dialog->positionAt( m_colorSelectionButton.get(), Wt::Orientation::Vertical );
     auto colorGrid = std::make_unique<Wt::WGridLayout>();
 
-    size_t columns = 8;
+    size_t columns = 4;
 
-    ColorTable colorTable = ColorTables::svgColors( 64 );
+    ColorTable colorTable = ColorTables::kellyColors();
 
     for ( size_t i = 0; i < colorTable.size(); ++i )
     {
-        QColor     color     = colorTable.cycledColor( i );
-        QColor     fontColor = ColorTools::blackOrWhiteContrastColor( color );
-        Wt::WColor wColor( color.red(), color.green(), color.blue() );
-        Wt::WColor wFontColor( fontColor.red(), fontColor.green(), fontColor.blue() );
+        Color      color      = colorTable.cycledColor( i );
+        Color      fontColor  = ColorTools::blackOrWhiteContrastColor( color );
+        Wt::WColor wColor     = color.to<Wt::WColor>();
+        Wt::WColor wFontColor = fontColor.to<Wt::WColor>();
 
         Wt::WCssDecorationStyle style;
         style.setBackgroundColor( wColor );
@@ -184,12 +187,13 @@ void PdmWebColorEditor::setColorOnWidget( const Wt::WColor& color )
         m_color = color;
     }
 
-    QColor                  qColor( color.red(), color.green(), color.blue() );
-    QColor                  qFontColor = ColorTools::blackOrWhiteContrastColor( qColor );
-    Wt::WColor              fontColor( qFontColor.red(), qFontColor.green(), qFontColor.blue() );
+    Color      cafColor( color.red(), color.green(), color.blue() );
+    Color      cafFontColor = ColorTools::blackOrWhiteContrastColor( cafColor );
+    Wt::WColor wFontColor   = cafFontColor.to<Wt::WColor>();
+
     Wt::WCssDecorationStyle style;
     style.setBackgroundColor( m_color );
-    style.setForegroundColor( fontColor );
+    style.setForegroundColor( wFontColor );
     m_colorSelectionButton->setDecorationStyle( style );
     m_colorSelectionButton->setThemeStyleEnabled( false );
 
@@ -201,3 +205,7 @@ void PdmWebColorEditor::setColorOnWidget( const Wt::WColor& color )
 }
 
 } // end namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

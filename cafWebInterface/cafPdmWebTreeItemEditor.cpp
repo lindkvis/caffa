@@ -34,30 +34,37 @@
 //   for more details.
 //
 //##################################################################################################
-
-
 #include "cafPdmWebTreeItemEditor.h"
+
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
+
 #include "cafPdmWebTreeEditorHandle.h"
 
 using namespace caf;
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-PdmWebTreeItemEditor::PdmWebTreeItemEditor(UiItem* uiItem) 
+PdmWebTreeItemEditor::PdmWebTreeItemEditor( UiItem* uiItem )
 {
-    m_treeViewEditor = nullptr; 
-    this->bindToPdmItem(uiItem);
+    m_treeViewEditor = nullptr;
+    this->bindToPdmItem( uiItem );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmWebTreeItemEditor::configureAndUpdateUi(const QString& uiConfigName)
+void PdmWebTreeItemEditor::configureAndUpdateUi()
 {
-    if (m_treeViewEditor)
+    if ( m_treeViewEditor )
     {
-        m_treeViewEditor->updateSubTree(this->pdmItem());
+        m_treeViewEditor->updateSubTree( this->pdmItem() );
     }
 }
 
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

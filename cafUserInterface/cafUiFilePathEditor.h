@@ -35,7 +35,6 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
 #include "cafUiFieldEditorHandle.h"
 #include "cafUiFilePathEditorAttribute.h"
 
@@ -53,7 +52,7 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class cafUserInterface_EXPORT PdmUiFilePathEditor : public UiFieldEditorHandle
+class PdmUiFilePathEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -65,16 +64,16 @@ public:
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
     QWidget* createLabelWidget( QWidget* parent ) override;
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    void     configureAndUpdateUi() override;
 
 protected slots:
     void slotEditingFinished();
     void fileSelectionClicked();
 
 private:
-    QPointer<QLineEdit>       m_lineEdit;
-    QPointer<QLabel> m_label;
-    QPointer<QToolButton>     m_button;
+    QPointer<QLineEdit>   m_lineEdit;
+    QPointer<QLabel>      m_label;
+    QPointer<QToolButton> m_button;
 
     PdmUiFilePathEditorAttribute m_attributes;
 };

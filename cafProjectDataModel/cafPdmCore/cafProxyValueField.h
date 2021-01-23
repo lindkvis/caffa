@@ -6,8 +6,6 @@
 #include "cafValueField.h"
 #include "cafValueFieldSpecializations.h"
 
-#include <QVariant>
-
 #include <type_traits>
 #include <vector>
 
@@ -18,7 +16,7 @@ namespace caf
 /// Exists only to be able to determine that a field is a proxy field
 //==================================================================================================
 
-class PdmProxyFieldHandle : public ValueField
+class ProxyFieldHandle : public ValueField
 {
 public:
     virtual bool isStreamingField() const = 0;
@@ -32,7 +30,7 @@ public:
 /// read/write-FieldData is supposed to be specialized for types needing specialization
 //==================================================================================================
 template <typename DataType>
-class ProxyValueField : public PdmProxyFieldHandle
+class ProxyValueField : public ProxyFieldHandle
 {
 public:
     // Type traits magic to check if a template argument is a vector
@@ -84,12 +82,12 @@ public:
 
     // Implementation of ValueField interface
 
-    QVariant toQVariant() const override
+    Variant toVariant() const override
     {
         DataType val = value();
         return ValueFieldSpecialization<DataType>::convert( val );
     }
-    void setFromQVariant( const QVariant& variant ) override
+    void setFromVariant( const Variant& variant ) override
     {
         DataType val;
         ValueFieldSpecialization<DataType>::setFromVariant( variant, val );

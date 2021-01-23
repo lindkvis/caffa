@@ -37,33 +37,36 @@
 
 #include "cafPdmWebCheckBoxEditor.h"
 
-#include "cafPdmWebDefaultObjectEditor.h"
-
-#include "cafField.h"
-#include "cafObject.h"
-#include "cafUiFieldEditorHandle.h"
-#include "cafUiOrdering.h"
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
 
 #include "cafFactory.h"
+#include "cafField.h"
+#include "cafObject.h"
+#include "cafPdmWebDefaultObjectEditor.h"
+#include "cafUiOrdering.h"
+#include "cafVariant.h"
 
 namespace caf
 {
-CAF_PDM_WEB_FIELD_EDITOR_SOURCE_INIT(PdmWebCheckBoxEditor);
+CAF_PDM_WEB_FIELD_EDITOR_SOURCE_INIT( PdmWebCheckBoxEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmWebCheckBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
+void PdmWebCheckBoxEditor::configureAndUpdateUi()
 {
-    CAF_ASSERT(m_checkBox);
-    CAF_ASSERT(m_label);
-    
-    applyTextToLabel(m_label.get(), uiConfigName);
+    CAF_ASSERT( m_checkBox );
+    CAF_ASSERT( m_label );
 
-    m_checkBox->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
-    m_checkBox->setToolTip(uiField()->uiToolTip(uiConfigName).toStdString());
+    applyTextToLabel( m_label.get() );
 
-    m_checkBox->setChecked(uiField()->uiValue().toBool());
+    m_checkBox->setEnabled( !uiField()->isUiReadOnly() );
+    m_checkBox->setToolTip( uiField()->uiToolTip() );
+
+    m_checkBox->setChecked( uiField()->uiValue().value<bool>() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,7 +75,7 @@ void PdmWebCheckBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
 Wt::WWidget* PdmWebCheckBoxEditor::createEditorWidget()
 {
     m_checkBox = new Wt::WCheckBox;
-    m_checkBox->changed().connect(std::bind(&PdmWebCheckBoxEditor::slotClicked, this));
+    m_checkBox->changed().connect( std::bind( &PdmWebCheckBoxEditor::slotClicked, this ) );
 
     return m_checkBox.get();
 }
@@ -91,9 +94,13 @@ Wt::WLabel* PdmWebCheckBoxEditor::createLabelWidget()
 //--------------------------------------------------------------------------------------------------
 void PdmWebCheckBoxEditor::slotClicked()
 {
-    QVariant v;
+    Variant v;
     v = m_checkBox->isChecked();
-    this->setValueToField(v);
+    this->setValueToField( v );
 }
 
 } // end namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

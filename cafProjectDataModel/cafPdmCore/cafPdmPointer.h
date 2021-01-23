@@ -118,7 +118,7 @@ public:
     }
     // Private methods used by Field<T*> and PdmPointersField<T*>. Do not use unless you mean it !
     ObjectHandle* rawPtr() const { return m_object; }
-    void             setRawPtr( ObjectHandle* p )
+    void          setRawPtr( ObjectHandle* p )
     {
         if ( m_object != p ) PdmPointerImpl::removeReference( &m_object );
         m_object = p;
@@ -127,6 +127,3 @@ public:
 };
 
 } // End of namespace caf
-
-#include <QMetaType>
-Q_DECLARE_METATYPE( caf::PdmPointer<caf::ObjectHandle> );

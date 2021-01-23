@@ -36,36 +36,43 @@
 //##################################################################################################
 #pragma once
 
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
+
 #include "cafPdmWebFieldEditorHandle.h"
 
 #include <Wt/Core/observing_ptr.hpp>
-#include <Wt/WWidget.h>
 #include <Wt/WCheckBox.h>
 #include <Wt/WLabel.h>
+#include <Wt/WWidget.h>
 
-namespace caf 
+namespace caf
 {
-
 class PdmWebCheckBoxTristateEditor : public PdmWebFieldEditorHandle
 {
     CAF_PDM_WEB_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmWebCheckBoxTristateEditor()          {} 
-    ~PdmWebCheckBoxTristateEditor() override {} 
+    PdmWebCheckBoxTristateEditor() {}
+    ~PdmWebCheckBoxTristateEditor() override {}
 
 protected:
-    Wt::WWidget*    createEditorWidget() override;
-    Wt::WLabel* createLabelWidget() override;
-    void            configureAndUpdateUi(const QString& uiConfigName) override;
+    Wt::WWidget* createEditorWidget() override;
+    Wt::WLabel*  createLabelWidget() override;
+    void         configureAndUpdateUi() override;
 
 protected:
-    void            slotClicked();
+    void slotClicked();
 
 private:
     Wt::Core::observing_ptr<Wt::WCheckBox> m_checkBox;
-    Wt::Core::observing_ptr<Wt::WLabel >   m_label;
+    Wt::Core::observing_ptr<Wt::WLabel>    m_label;
 };
 
-
 } // end namespace caf
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

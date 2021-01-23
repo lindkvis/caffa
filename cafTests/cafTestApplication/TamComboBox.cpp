@@ -12,21 +12,21 @@ TamComboBox::TamComboBox()
 {
     CAF_InitObject("Cell Filter", "", "", "");
 
-    CAF_InitField(&m_name, "UserDescription", QString("Filter Name"), "Name", "", "", "");
+    CAF_InitField(&m_name, "UserDescription", std::string("Filter Name"), "Name", "", "", "");
     m_name.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> TamComboBox::calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
-                                                                 bool*                      useOptionsOnly)
+std::deque<caf::OptionItemInfo> TamComboBox::calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
+                                                                   bool*                   useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> options;
+    std::deque<caf::OptionItemInfo> options;
 
     for (const auto& s : m_historyItems)
     {
-        options.push_back(caf::PdmOptionItemInfo(s, s));
+        options.push_back(caf::OptionItemInfo(s, s));
     }
 
     return options;
@@ -35,13 +35,16 @@ QList<caf::PdmOptionItemInfo> TamComboBox::calculateValueOptions(const caf::Fiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void TamComboBox::fieldChangedByUi(const caf::FieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void TamComboBox::onFieldChangedByCapability(const caf::FieldHandle*     changedField,
+                                             const caf::FieldCapability* changedCapability,
+                                             const caf::Variant&         oldValue,
+                                             const caf::Variant&         newValue)
 {
     if (changedField == &m_name)
     {
-        QString text = m_name();
+        auto text = m_name();
 
-        if (m_historyItems.indexOf(text) == -1)
+        if (std::find(m_historyItems.begin(), m_historyItems.end(), text) == m_historyItems.end())
         {
             m_historyItems.push_front(m_name);
             while (m_historyItems.size() > 5)
@@ -55,14 +58,12 @@ void TamComboBox::fieldChangedByUi(const caf::FieldHandle* changedField, const Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void TamComboBox::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) {}
+void TamComboBox::defineUiOrdering(caf::UiOrdering& uiOrdering) {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void TamComboBox::defineEditorAttribute(const caf::FieldHandle* field,
-                                        QString                    uiConfigName,
-                                        caf::UiEditorAttribute* attribute)
+void TamComboBox::defineEditorAttribute(const caf::FieldHandle* field, caf::UiEditorAttribute* attribute)
 {
     auto attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>(attribute);
     if (attr)

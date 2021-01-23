@@ -36,16 +36,13 @@
 
 #pragma once
 
-class QVariant;
-class QString;
-class QWidget;
-
 namespace caf
 {
 class MenuInterface;
 class FieldHandle;
 class FieldUiCapability;
 class UiCommandSystemInterface;
+class Variant;
 
 class UiCommandSystemProxy
 {
@@ -55,9 +52,8 @@ public:
     static UiCommandSystemProxy* instance();
     void                         setCommandInterface( UiCommandSystemInterface* undoCommandInterface );
 
-    void setUiValueToField( FieldUiCapability* uiFieldHandle, const QVariant& newUiValue );
-    void setCurrentContextMenuTargetWidget( QWidget* targetWidget );
-    void populateMenuWithDefaultCommands( const QString& uiConfigName, MenuInterface* menu );
+    void setUiValueToField( FieldUiCapability* uiFieldHandle, const Variant& newUiValue );
+    void populateMenuWithDefaultCommands( MenuInterface* menu );
 
 private:
     UiCommandSystemInterface* m_commandInterface;

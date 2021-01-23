@@ -34,7 +34,7 @@
 //##################################################################################################
 
 #pragma once
-#include "cafUserInterface_export.h"
+#include "cafFieldHandle.h"
 #include "cafUiFieldEditorHandle.h"
 
 #include <QAbstractItemModel>
@@ -55,7 +55,7 @@ class PdmUiTreeSelectionQModel;
 //==================================================================================================
 ///
 //==================================================================================================
-class cafUserInterface_EXPORT PdmUiTreeSelectionEditorAttribute : public UiEditorAttribute
+class PdmUiTreeSelectionEditorAttribute : public UiEditorAttribute
 {
 public:
     bool showTextFilter;
@@ -94,7 +94,7 @@ public:
     ~PdmUiTreeSelectionEditor() override;
 
 protected:
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    void     configureAndUpdateUi() override;
     QWidget* createEditorWidget( QWidget* parent ) override;
     QWidget* createLabelWidget( QWidget* parent ) override;
     QMargins calculateLabelContentMargins() const override;
@@ -128,10 +128,10 @@ private:
     void recursiveAppendVisibleSourceModelIndices( const QModelIndex& parent, QModelIndexList* sourceModelIndices ) const;
 
 private:
-    QPointer<QTreeView>       m_treeView;
-    QPointer<QLabel> m_label;
-    QPointer<QCheckBox>       m_toggleAllCheckBox;
-    QPointer<QLineEdit>       m_textFilterLineEdit;
+    QPointer<QTreeView> m_treeView;
+    QPointer<QLabel>    m_label;
+    QPointer<QCheckBox> m_toggleAllCheckBox;
+    QPointer<QLineEdit> m_textFilterLineEdit;
 
     PdmUiTreeSelectionQModel* m_model;
     QSortFilterProxyModel*    m_proxyModel;

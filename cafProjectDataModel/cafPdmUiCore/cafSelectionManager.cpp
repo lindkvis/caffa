@@ -40,6 +40,8 @@
 #include "cafObjectUiCapability.h"
 #include "cafPdmReferenceHelper.h"
 
+#include <string>
+
 namespace caf
 {
 //--------------------------------------------------------------------------------------------------
@@ -94,7 +96,7 @@ void SelectionManager::setSelectedItems( const std::vector<UiItem*>& items )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void SelectionManager::extractInternalSelectionItems( const std::vector<UiItem*>& items,
+void SelectionManager::extractInternalSelectionItems( const std::vector<UiItem*>&                                items,
                                                       std::vector<std::pair<PdmPointer<ObjectHandle>, UiItem*>>* newSelection )
 {
     for ( size_t i = 0; i < items.size(); i++ )
@@ -140,7 +142,7 @@ void SelectionManager::setSelectedItemsAtLevel( const std::vector<UiItem*>& item
 void SelectionManager::setSelection( const std::vector<SelectionItem> completeSelection )
 {
     std::map<int, std::vector<std::pair<PdmPointer<ObjectHandle>, UiItem*>>> newCompleteSelectionMap;
-    std::map<int, std::vector<UiItem*>>                                         newSelectionPrLevel;
+    std::map<int, std::vector<UiItem*>>                                      newSelectionPrLevel;
 
     for ( const SelectionItem& item : completeSelection )
     {
@@ -253,7 +255,7 @@ SelectionManager::SelectionManager()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void SelectionManager::selectionAsReferences( std::vector<QString>& referenceList, int selectionLevel /*= 0*/ ) const
+void SelectionManager::selectionAsReferences( std::vector<std::string>& referenceList, int selectionLevel /*= 0*/ ) const
 {
     const auto& levelSelectionPairIt = m_selectionPrLevel.find( selectionLevel );
 
@@ -268,7 +270,7 @@ void SelectionManager::selectionAsReferences( std::vector<QString>& referenceLis
             ObjectUiCapability* pdmObj = dynamic_cast<ObjectUiCapability*>( selection[i].second );
             if ( pdmObj )
             {
-                QString itemRef = PdmReferenceHelper::referenceFromRootToObject( m_rootObject, pdmObj->objectHandle() );
+                std::string itemRef = PdmReferenceHelper::referenceFromRootToObject( m_rootObject, pdmObj->objectHandle() );
 
                 referenceList.push_back( itemRef );
             }
@@ -279,14 +281,14 @@ void SelectionManager::selectionAsReferences( std::vector<QString>& referenceLis
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void SelectionManager::setSelectionAtLevelFromReferences( const std::vector<QString>& referenceList,
-                                                          int                         selectionLevel /*= 0*/ )
+void SelectionManager::setSelectionAtLevelFromReferences( const std::vector<std::string>& referenceList,
+                                                          int                             selectionLevel /*= 0*/ )
 {
     std::vector<UiItem*> uiItems;
 
     for ( size_t i = 0; i < referenceList.size(); i++ )
     {
-        QString reference = referenceList[i];
+        std::string reference = referenceList[i];
 
         ObjectHandle* pdmObj = PdmReferenceHelper::objectFromReference( m_rootObject, reference );
         if ( pdmObj )

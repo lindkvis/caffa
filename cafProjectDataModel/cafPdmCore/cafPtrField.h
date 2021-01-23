@@ -2,8 +2,9 @@
 
 #include "cafAssert.h"
 #include "cafPdmPointer.h"
-
 #include "cafValueField.h"
+
+#include <any>
 
 namespace caf
 {
@@ -56,10 +57,10 @@ public:
     DataType* value() const { return m_fieldValue; }
     void      setValue( const DataTypePtr& fieldValue );
 
-    // QVariant access
-    QVariant toQVariant() const override;
-    void     setFromQVariant( const QVariant& variant ) override;
-    bool     isReadOnly() const override { return false; }
+    // Variant access
+    Variant toVariant() const override;
+    void    setFromVariant( const Variant& variant ) override;
+    bool    isReadOnly() const override { return false; }
 
     // Access operators
 
@@ -82,8 +83,8 @@ private:
     PdmPointer<DataType> m_fieldValue;
 
     // Resolving
-    QString m_referenceString;
-    bool    m_isResolved;
+    std::string m_referenceString;
+    bool        m_isResolved;
 };
 
 } // End of namespace caf

@@ -36,9 +36,13 @@
 //##################################################################################################
 #pragma once
 
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 4267 4275 4564 )
+#endif
+
 #include "cafPdmWebTreeViewEditor.h"
 
-#include <QString>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WPanel.h>
 #include <Wt/WSignal.h>
@@ -47,19 +51,18 @@
 
 namespace Wt
 {
-    class WTreeView;
+class WTreeView;
 }
 
 namespace caf
 {
-
 class UiItem;
 class PdmWebTreeViewEditor;
 class PdmUiDragDropInterface;
 class ObjectHandle;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 
 class PdmWebTreeView : public Wt::WPanel
@@ -68,45 +71,44 @@ public:
     PdmWebTreeView();
     ~PdmWebTreeView() override;
 
-    void        enableDefaultContextMenu(bool enable);
-    void        enableSelectionManagerUpdating(bool enable); // TODO: rename
-    void        enableAppendOfClassNameToUiItemText(bool enable);
+    void enableDefaultContextMenu( bool enable );
+    void enableSelectionManagerUpdating( bool enable ); // TODO: rename
+    void enableAppendOfClassNameToUiItemText( bool enable );
 
-    void        setUiConfigurationName(QString uiConfigName);
-    void        setPdmItem(caf::UiItem* object);
+    void setPdmItem( caf::UiItem* object );
 
-    Wt::WTreeView*  treeView();
+    Wt::WTreeView* treeView();
 
-    void        selectedUiItems(std::vector<UiItem*>& objects); // TODO: rename
-    void        selectAsCurrentItem(const UiItem* uiItem);
-    void        selectItems(const std::vector<const UiItem*>& uiItems);
-    void        setExpanded(const UiItem* uiItem, bool doExpand) const ;
+    void selectedUiItems( std::vector<UiItem*>& objects ); // TODO: rename
+    void selectAsCurrentItem( const UiItem* uiItem );
+    void selectItems( const std::vector<const UiItem*>& uiItems );
+    void setExpanded( const UiItem* uiItem, bool doExpand ) const;
 
-    // QModelIndex access
-    // Use this translation only when it is inconvenient to traverse 
+    // ModelIndex access
+    // Use this translation only when it is inconvenient to traverse
     // the Pdm model directly.
-    UiItem*  uiItemFromModelIndex(const Wt::WModelIndex& index) const;
-    Wt::WModelIndex findModelIndex(const UiItem* object) const;
+    UiItem*         uiItemFromModelIndex( const Wt::WModelIndex& index ) const;
+    Wt::WModelIndex findModelIndex( const UiItem* object ) const;
 
-    //void        setDragDropInterface(PdmUiDragDropInterface* dragDropInterface);
+    // void        setDragDropInterface(PdmUiDragDropInterface* dragDropInterface);
 
-//signals:
+    // signals:
     Wt::Signal<>& selectionChanged();
     // Convenience signal for use with PdmUiPropertyView
     Wt::Signal<caf::ObjectHandle*>& selectedObjectChanged();
 
 private: // slots:
-    void        slotOnSelectionChanged();
+    void slotOnSelectionChanged();
 
 private:
-    std::unique_ptr<PdmWebTreeViewEditor>   m_treeViewEditor; 
-    QString                                 m_uiConfigName;
+    std::unique_ptr<PdmWebTreeViewEditor> m_treeViewEditor;
 
-    Wt::Signal<>                      m_selectionChanged;
+    Wt::Signal<>                   m_selectionChanged;
     Wt::Signal<caf::ObjectHandle*> m_selectedObjectChanged;
 };
 
-
-
 } // End of namespace caf
 
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

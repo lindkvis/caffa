@@ -1,14 +1,13 @@
 #pragma once
 
+#include "cafFieldIoCapability.h"
 #include "cafObjectCapability.h"
 
-#include <QString>
-
+#include <iostream>
 #include <list>
 #include <memory>
+#include <string>
 #include <vector>
-
-class QIODevice;
 
 namespace caf
 {
@@ -26,58 +25,50 @@ class FieldHandle;
 class ObjectIoCapability : public ObjectCapability
 {
 public:
-    struct IoParameters
+    enum class IoType
     {
-    public:
-        enum class IoType
-        {
-            XML,
-            JSON,
-            SQL // Not yet implemented
-        };
-
-        IoType     ioType;
-        QIODevice* ioDevice;
+        JSON,
+        SQL // Not yet implemented
     };
 
 public:
     ObjectIoCapability( ObjectHandle* owner, bool giveOwnership );
     ~ObjectIoCapability() override {}
 
-    /// The classKeyword method is overridden in subclasses by the CAF_PDM_XML_HEADER_INIT macro
-    virtual QString classKeyword() const                                     = 0;
-    virtual bool    matchesClassKeyword( const QString& classKeyword ) const = 0;
+    /// The classKeyword method is overridden in subclasses by the CAF_PDM_IO_HEADER_INIT macro
+    virtual std::string classKeyword() const                                         = 0;
+    virtual bool        matchesClassKeyword( const std::string& classKeyword ) const = 0;
 
-    static ObjectHandle* readUnknownObjectFromString( const QString&       string,
-                                                         ObjectFactory*    objectFactory,
-                                                         bool                 isCopyOperation,
-                                                         IoParameters::IoType ioType = IoParameters::IoType::XML );
-    void                    readObjectFromString( const QString&       string,
-                                                  ObjectFactory*    objectFactory,
-                                                  IoParameters::IoType ioType = IoParameters::IoType::XML );
-    QString                 writeObjectToString( IoParameters::IoType ioType = IoParameters::IoType::XML ) const;
+    static ObjectHandle* readUnknownObjectFromString( const std::string& string,
+                                                      ObjectFactory*     objectFactory,
+                                                      bool               isCopyOperation,
+                                                      IoType             ioType = IoType::JSON );
+    void readObjectFromString( const std::string& string, ObjectFactory* objectFactory, IoType ioType = IoType::JSON );
+    std::string writeObjectToString( IoType ioType = IoType::JSON, bool writeServerAddress = false ) const;
 
-    ObjectHandle* copyBySerialization( ObjectFactory*    objectFactory,
-                                          IoParameters::IoType ioType = IoParameters::IoType::XML );
+    ObjectHandle* copyBySerialization( ObjectFactory* objectFactory, IoType ioType = IoType::JSON );
 
-    ObjectHandle* copyAndCastBySerialization( const QString&       destinationClassKeyword,
-                                                 const QString&       sourceClassKeyword,
-                                                 ObjectFactory*    objectFactory,
-                                                 IoParameters::IoType ioType = IoParameters::IoType::XML );
+    ObjectHandle* copyAndCastBySerialization( const std::string& destinationClassKeyword,
+                                              const std::string& sourceClassKeyword,
+                                              ObjectFactory*     objectFactory,
+                                              IoType             ioType = IoType::JSON );
 
     /// Check if a string is a valid element name
-    static bool isValidElementName( const QString& name );
+    static bool isValidElementName( const std::string& name );
 
     void initAfterReadRecursively() { initAfterReadRecursively( this->m_owner ); };
     void setupBeforeSaveRecursively() { setupBeforeSaveRecursively( this->m_owner ); };
 
     void resolveReferencesRecursively( std::vector<FieldHandle*>* fieldWithFailingResolve = nullptr );
-    bool inheritsClassWithKeyword( const QString& testClassKeyword ) const;
+    bool inheritsClassWithKeyword( const std::string& testClassKeyword ) const;
 
-    const std::list<QString>& classInheritanceStack() const;
+    const std::list<std::string>& classInheritanceStack() const;
 
-    virtual void readFile( const IoParameters& parameters );
-    virtual void writeFile( const IoParameters& parameters );
+    bool readFile( const std::string& fileName, IoType ioType = IoType::JSON );
+    bool writeFile( const std::string& fileName, IoType ioType = IoType::JSON );
+
+    bool readFile( std::istream& istream, IoType ioType = IoType::JSON);
+    bool writeFile( std::ostream& ostream, IoType ioType = IoType::JSON, bool writeServerAddress = false );
 
 protected: // Virtual
     /// Method gets called from PdmDocument after all objects are read.
@@ -89,7 +80,7 @@ protected: // Virtual
 
     bool isInheritedFromSerializable() const { return true; }
 
-    void registerClassKeyword( const QString& registerKeyword );
+    void registerClassKeyword( const std::string& registerKeyword );
 
 private:
     void initAfterReadRecursively( ObjectHandle* object );
@@ -99,10 +90,8 @@ private:
 protected:
     friend class ObjectHandle; // Only temporary for void Object::addFieldNoDefault( ) accessing findField
 
-    std::list<QString> m_classInheritanceStack;
-    ObjectHandle*   m_owner;
+    std::list<std::string> m_classInheritanceStack;
+    ObjectHandle*          m_owner;
 };
 
 } // End of namespace caf
-
-#include "cafFieldIoCapability.h"

@@ -35,12 +35,11 @@
 //##################################################################################################
 
 #pragma once
-
-#include "cafUserInterface_export.h"
-
+#include "cafFieldUiCapability.h"
 #include "cafUiOrdering.h"
 #include "cafUiWidgetObjectEditorHandle.h"
 
+#include <QObject>
 #include <QPointer>
 #include <QString>
 
@@ -50,18 +49,25 @@ class QMinimizePanel;
 class QGridLayout;
 class QWidget;
 
+#ifdef cafUserInterface_LIBRARY
+#define UI_API __declspec( dllexport )
+#else
+#define UI_API __declspec( dllimport )
+#endif
+
 namespace caf
 {
 class UiFieldEditorHandle;
-class PdmUiGroup;
-class PdmUiOrdering;
+class UiGroup;
+class UiOrdering;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class cafUserInterface_EXPORT PdmUiFormLayoutObjectEditor : public PdmUiWidgetObjectEditorHandle
+class UI_API PdmUiFormLayoutObjectEditor : public QObject, public PdmUiWidgetObjectEditorHandle
 {
     Q_OBJECT
+
 public:
     PdmUiFormLayoutObjectEditor();
     ~PdmUiFormLayoutObjectEditor() override;
@@ -69,50 +75,39 @@ public:
 protected:
     /// When overriding this function, use findOrCreateGroupBox() or findOrCreateFieldEditor() for detailed control
     /// Use recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn() for automatic layout of group and field widgets
-    virtual void recursivelyConfigureAndUpdateTopLevelUiOrdering( const PdmUiOrdering& topLevelUiOrdering,
-                                                                  const QString&       uiConfigName ) = 0;
+    virtual void recursivelyConfigureAndUpdateTopLevelUiOrdering( const UiOrdering& topLevelUiOrdering ) = 0;
 
-    bool recursivelyConfigureAndUpdateUiOrderingInNewGridLayout( const PdmUiOrdering& uiOrdering,
-                                                                 QWidget*             containerWidget,
-                                                                 const QString&       uiConfigName );
-    int  recursivelyConfigureAndUpdateUiOrderingInGridLayout( const PdmUiOrdering& uiOrdering,
-                                                              QWidget*             containerWidgetWithGridLayout,
-                                                              const QString&       uiConfigName );
+    bool recursivelyConfigureAndUpdateUiOrderingInNewGridLayout( const UiOrdering& uiOrdering, QWidget* containerWidget );
+    int recursivelyConfigureAndUpdateUiOrderingInGridLayout( const UiOrdering& uiOrdering,
+                                                             QWidget*          containerWidgetWithGridLayout );
 
-    int recursivelyAddGroupToGridLayout( UiItem*     currentItem,
-                                         QWidget*       containerWidget,
-                                         const QString& uiConfigName,
-                                         QGridLayout*   parentLayout,
-                                         int            currentRowIndex,
-                                         int            currentColumn,
-                                         int            itemColumnSpan );
+    int recursivelyAddGroupToGridLayout( UiItem*      currentItem,
+                                         QWidget*     containerWidget,
+                                         QGridLayout* parentLayout,
+                                         int          currentRowIndex,
+                                         int          currentColumn,
+                                         int          itemColumnSpan );
 
-    QMinimizePanel* findOrCreateGroupBox( QWidget* parent, PdmUiGroup* group, const QString& uiConfigName );
-    UiFieldEditorHandle*
-        findOrCreateFieldEditor( QWidget* parent, FieldUiCapability* field, const QString& uiConfigName );
+    QMinimizePanel*      findOrCreateGroupBox( QWidget* parent, UiGroup* group );
+    UiFieldEditorHandle* findOrCreateFieldEditor( QWidget* parent, FieldUiCapability* field );
 
     static void ensureWidgetContainsEmptyGridLayout( QWidget* containerWidget, QMargins contentMargins = QMargins() );
 
-private slots:
+public slots:
     void groupBoxExpandedStateToggled( bool isExpanded );
 
 private:
-    bool isUiGroupExpanded( const PdmUiGroup* uiGroup ) const;
+    bool isUiGroupExpanded( const UiGroup* uiGroup ) const;
     void cleanupBeforeSettingObject() override;
-    void configureAndUpdateUi( const QString& uiConfigName ) override;
-
-    static void recursiveVerifyUniqueNames( const std::vector<UiItem*>& uiItems,
-                                            const QString&                 uiConfigName,
-                                            std::set<QString>*             fieldKeywordNames,
-                                            std::set<QString>*             groupNames );
+    void configureAndUpdateUi() override;
 
 private:
     std::map<FieldHandle*, UiFieldEditorHandle*> m_fieldViews;
     std::set<FieldHandle*> m_usedFields; ///< used temporarily to store the new(complete) set of used fields
-    std::map<QString, QPointer<QMinimizePanel>> m_groupBoxes;
-    std::map<QString, QPointer<QMinimizePanel>> m_newGroupBoxes; ///< used temporarily to store the new(complete) set of
-                                                                 ///< group boxes
-    std::map<QString, std::map<QString, bool>> m_objectKeywordGroupUiNameExpandedState;
+    std::map<std::string, QPointer<QMinimizePanel>> m_groupBoxes;
+    std::map<std::string, QPointer<QMinimizePanel>> m_newGroupBoxes; ///< used temporarily to store the new(complete)
+                                                                     ///< set of group boxes
+    std::map<std::string, std::map<std::string, bool>> m_objectKeywordGroupUiNameExpandedState;
 };
 
 } // end namespace caf

@@ -42,8 +42,8 @@
 #include "cafPdmPointer.h"
 #include "cafUiItem.h"
 
-#include <QString>
 #include <set>
+#include <string>
 #include <vector>
 
 namespace caf
@@ -83,8 +83,8 @@ public:
     };
     void setSelection( const std::vector<SelectionItem> completeSelection );
 
-    void selectionAsReferences( std::vector<QString>& referenceList, int selectionLevel = 0 ) const;
-    void setSelectionAtLevelFromReferences( const std::vector<QString>& referenceList, int selectionLevel );
+    void selectionAsReferences( std::vector<std::string>& referenceList, int selectionLevel = 0 ) const;
+    void setSelectionAtLevelFromReferences( const std::vector<std::string>& referenceList, int selectionLevel );
 
     bool isSelected( UiItem* item, int selectionLevel ) const;
 
