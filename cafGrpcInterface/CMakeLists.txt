@@ -15,6 +15,7 @@ endif()
 
 add_definitions(-DENABLE_GRPC)
 
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/Generated)
 
 if(MSVC)
   add_definitions(-D_WIN32_WINNT=0x600)
