@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.12)
 
 project(cafGrpcInterface)
 
-option(CAFFA_GRPC_PYTHON "Generate Python Client Code" ON)
+option(CAFFA_GRPC_PYTHON "Generate Python Client Code" OFF)
 if (CAFFA_GRPC_PYTHON)
-  option(CAFFA_GRPC_PYTHON_DOWNLOAD "Download Grpc Python Modules" ON)
+  option(CAFFA_GRPC_PYTHON_DOWNLOAD "Download Grpc Python Modules" OFF)
 endif()
 
 message(STATUS "GRPC enabled")
