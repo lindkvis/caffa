@@ -1,4 +1,4 @@
-FROM lindkvis/arm32v7_ubuntu_builder:0.2
+FROM lindkvis/arm32v7_ubuntu_builder:latest
 WORKDIR /usr/src
 ARG COMMIT=master
 RUN git clone https://github.com/lindkvis/caffa.git
