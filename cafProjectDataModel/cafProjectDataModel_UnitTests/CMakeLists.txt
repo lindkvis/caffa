@@ -4,8 +4,6 @@ project ( cafProjectDataModel_UnitTests )
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(nlohmann_json CONFIG REQUIRED)
-
 set( PROJECT_FILES
 	cafPdmBasicTest.cpp
 	cafProjectDataModel_UnitTests.cpp

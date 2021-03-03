@@ -8,8 +8,6 @@ if (CAF_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
-find_package(nlohmann_json CONFIG REQUIRED)
-
 set (PUBLIC_HEADERS
     cafObject.h
     cafObjectGroup.h

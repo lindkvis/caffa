@@ -32,6 +32,9 @@ if( UNIX )
     set(THREAD_LIBRARY "pthread")
 endif()
 
+#Third Party libraries
+add_subdirectory (ThirdParty/json)
+
 #libraries
 add_subdirectory (cafProjectDataModel/cafPdmCore)
 add_subdirectory (cafProjectDataModel/cafPdmUiCore)

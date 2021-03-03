@@ -2,8 +2,6 @@ cmake_minimum_required (VERSION 3.12)
 
 project ( cafPdmIoCore_UnitTests )
 
-find_package(nlohmann_json CONFIG REQUIRED)
-
 # add the executable 
 add_executable (${PROJECT_NAME}
 	cafPdmXml_UnitTests.cpp
