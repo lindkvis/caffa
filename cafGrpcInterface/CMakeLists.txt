@@ -47,17 +47,63 @@ set(SOURCE_GROUP_SOURCE_FILES
     #${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.cpp
     )
 
-find_package(protobuf CONFIG REQUIRED)
-find_package(gRPC CONFIG REQUIRED)
-set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
-set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+find_package(Protobuf 3.0 CONFIG QUIET)
 
-set(_GRPC_GRPCPP gRPC::grpc++ gRPC::grpc gRPC::gpr)
-set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
-set(GRPC_LIBRARIES ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
+if(Protobuf_FOUND)
+  message(STATUS "Using protobuf ${protobuf_VERSION}")
+
+  # Find gRPC installation Looks for gRPCConfig.cmake file installed by gRPC's
+  # cmake installation.
+  find_package(gRPC CONFIG REQUIRED)
+  message(STATUS "Using gRPC ${gRPC_VERSION}")
+
+  set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
+  set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+
+  set(_GRPC_GRPCPP gRPC::grpc++ gRPC::grpc gRPC::gpr)
+  set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
+  set(GRPC_LINK_LIBRARIES ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
+
+  set_target_properties(
+    ${GRPC_LINK_LIBRARIES} PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
+                                 MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
+else()
+  message(STATUS "Using GRPC_INSTALL_PREFIX=${GRPC_INSTALL_PREFIX}")
+  set(GRPC_INSTALL_PREFIX
+      "/usr"
+      CACHE PATH "gRPC : Install prefix for gRPC")
+  if(NOT DEFINED GRPC_INSTALL_PREFIX
+     OR NOT EXISTS ${GRPC_INSTALL_PREFIX})
+    message(
+      FATAL_ERROR
+        "You need a valid GRPC_INSTALL_PREFIX set to build with gRPC"
+    )
+  endif()
+  set(ENV{PKG_CONFIG_PATH} "${GRPC_INSTALL_PREFIX}/lib/pkgconfig")
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(GRPC REQUIRED grpc grpc++>=1.16 grpc gpr
+                    protobuf)
+  if(EXISTS "${GRPC_INSTALL_PREFIX}/bin/protoc")
+    set(_PROTOBUF_PROTOC "${GRPC_INSTALL_PREFIX}/bin/protoc")
+  elseif(EXISTS "${GRPC_INSTALL_PREFIX}/tools/protobuf/protoc")
+    set(_PROTOBUF_PROTOC
+        "${GRPC_INSTALL_PREFIX}/tools/protobuf/protoc")
+  else()
+    message(FATAL_ERROR "Could not find the protobuf compiler (protoc)")
+  endif()
+
+  if(EXISTS "${GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin")
+    set(_GRPC_CPP_PLUGIN_EXECUTABLE
+        "${GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin")
+  elseif(EXISTS "${GRPC_INSTALL_PREFIX}/tools/grpc/grpc_cpp_plugin")
+    set(_GRPC_CPP_PLUGIN_EXECUTABLE
+        "${GRPC_INSTALL_PREFIX}/tools/grpc/grpc_cpp_plugin")
+  endif()
+  include_directories(AFTER ${GRPC_INCLUDE_DIRS})
+endif()
 
 set(LINK_LIBRARIES
-    ${GRPC_LIBRARIES}
+    ${GRPC_LINK_LIBRARIES}
     cafProjectDataModel
     cafPdmScriptCore
     )
@@ -71,7 +117,7 @@ set(PROTO_FILES
 set(GRPC_PYTHON_SOURCE_PATH "${CMAKE_CURRENT_LIST_DIR}/Python")
 
 if (CAFFA_GRPC_PYTHON)
-  find_package(Python3 CONFIG COMPONENTS Interpreter)
+  find_package(Python3 COMPONENTS Interpreter)
 endif()
 
 add_custom_target(PipInstall)
@@ -101,12 +147,12 @@ foreach(proto_file ${PROTO_FILES})
   set(caffa_proto_python "caffa/generated/${proto_file}_pb2.py")
   set(caffa_grpc_python "caffa/generated/${proto_file}_pb2_grpc.py")  
 
-  if(Python3_Interpreter_FOUND)
+  if(Python3_Interpreter_FOUND AND Python3_EXECUTABLE)
     add_custom_command(
       OUTPUT "${GRPC_PYTHON_SOURCE_PATH}/${caffa_proto_python}"
              "${GRPC_PYTHON_SOURCE_PATH}/${caffa_grpc_python}"
       COMMAND
-        ${Python3_EXEXCUTABLE} ARGS -m grpc_tools.protoc -I
+        ${Python3_EXECUTABLE} ARGS -m grpc_tools.protoc -I
         "${caffa_proto_path}" --python_out
         "${GRPC_PYTHON_SOURCE_PATH}/caffa/generated" --grpc_python_out
         "${GRPC_PYTHON_SOURCE_PATH}/caffa/generated" "${caffa_proto}"
