@@ -33,6 +33,9 @@ if( UNIX )
 endif()
 
 #Third Party libraries
+set(JSON_BuildTests OFF)
+set(JSON_Coverage OFF)
+set(JSON_Install OFF)
 add_subdirectory (ThirdParty/json)
 
 #libraries
