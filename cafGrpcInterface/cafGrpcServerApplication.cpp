@@ -36,7 +36,6 @@ void GrpcServerApplication::run()
     {
         m_server->processAllRequests();
     }
-    m_server->forceQuit();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -108,6 +108,7 @@ public:
             m_server.reset();
             m_completionQueue.reset();
 
+
             // Finally clear services
             m_services.clear();
         }

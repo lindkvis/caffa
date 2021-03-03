@@ -34,7 +34,6 @@ public:
         caf::rpc::AppInfoReply reply;
         grpc::ClientContext    context;
         caf::rpc::Null         nullarg;
-        std::cout << "Attempting to contact server" << std::endl;
         auto         status  = m_appInfoStub->GetAppInfo( &context, nullarg, &reply );
         caf::AppInfo appInfo = { reply.name(),
                                  reply.major_version(),
@@ -52,7 +51,6 @@ public:
         caf::rpc::DocumentRequest request;
         request.set_document_id( documentId );
         caf::rpc::Object objectReply;
-        std::cout << "Attempting to get document" << std::endl;
         auto status = m_objectStub->GetDocument( &context, request, &objectReply );
         if ( status.ok() )
         {
@@ -80,7 +78,6 @@ public:
     {
         grpc::ClientContext context;
         caf::rpc::Null      nullarg, nullreply;
-        std::cout << "Attempting to contact server";
         auto status = m_appInfoStub->Quit( &context, nullarg, &nullreply );
         return status.ok();
     }
