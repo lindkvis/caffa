@@ -27,7 +27,7 @@ jobs:
       shell: bash
       run: |
         echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        echo "::set-output name=sha_short::$(git rev-parse --short ${GITHUB_SHA})"
     - name: Set up Docker Buildx      
       uses: docker/setup-buildx-action@v1
       with:        
@@ -38,6 +38,7 @@ jobs:
       with:
           platforms: linux/arm/v7
           push: true
+          build-args: COMMIT=${GITHUB_REF#refs/heads/}.${GITHUB_SHA}
           tags: "lindkvis/caffa_arm32v7:latest,lindkvis/caffa_arm32v7:${{steps.vars.outputs.sha_short}}"
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
