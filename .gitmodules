@@ -4,3 +4,6 @@
 [submodule "ThirdParty/PlatformFolders"]
 	path = ThirdParty/PlatformFolders
 	url = https://github.com/sago007/PlatformFolders.git
+[submodule "ThirdParty/json"]
+	path = ThirdParty/json
+	url = https://github.com/nlohmann/json.git

@@ -198,9 +198,10 @@ TEST( BaseTest, Launch )
     caf::AppInfo appInfo = client->appInfo();
     ASSERT_EQ( serverApp->name(), appInfo.name );
 
+    std::cout << "Confirmed test results" << std::endl;
     bool ok = client->stopServer();
     ASSERT_TRUE( ok );
-
+    std::cout << "Waiting for server thread to join" << std::endl;
     thread.join();
 }
 

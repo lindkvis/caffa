@@ -9,12 +9,6 @@ if (CAF_ENABLE_UNITY_BUILD)
 endif()
 
 # IO Libraries
-if (VCPKG_AUTO_INSTALL)
-    vcpkg_install(nlohmann-json)
-endif()
-
-find_package(nlohmann_json CONFIG REQUIRED)
-
 include_directories (
 	..
 )

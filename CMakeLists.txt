@@ -32,6 +32,12 @@ if( UNIX )
     set(THREAD_LIBRARY "pthread")
 endif()
 
+#Third Party libraries
+set(JSON_BuildTests OFF)
+set(JSON_Coverage OFF)
+set(JSON_Install OFF)
+add_subdirectory (ThirdParty/json)
+
 #libraries
 add_subdirectory (cafProjectDataModel/cafPdmCore)
 add_subdirectory (cafProjectDataModel/cafPdmUiCore)
