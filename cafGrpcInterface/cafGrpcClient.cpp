@@ -109,6 +109,193 @@ public:
         return status.ok();
     }
 
+    bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<int>& values )
+    {
+        auto chunkSize = ServiceInterface::packageByteSize();
+
+        grpc::ClientContext context;
+        auto                self = std::make_unique<Object>();
+        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+
+        auto method = std::make_unique<MethodRequest>();
+        method->set_method( setter );
+        method->set_allocated_self( self.release() );
+
+        auto setterRequest = std::make_unique<SetterRequest>();
+        setterRequest->set_value_count( values.size() );
+        setterRequest->set_allocated_request( method.release() );
+
+        SetterReply                                      reply;
+        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_objectStub->ExecuteSetter( &context, &reply ) );
+        SetterChunk                                      header;
+        header.set_allocated_set_request( setterRequest.release() );
+        if ( !writer->Write( header ) ) return false;
+
+        for ( size_t i = 0; i < values.size(); )
+        {
+            auto currentChunkSize = std::min( chunkSize, values.size() - i );
+
+            SetterChunk chunk;
+            chunk.mutable_ints()->mutable_data()->Reserve( currentChunkSize );
+            for ( size_t n = 0; n < currentChunkSize; ++n )
+            {
+                chunk.mutable_ints()->add_data( values[i + n] );
+            }
+            if ( !writer->Write( chunk ) ) return false;
+
+            i += currentChunkSize;
+        }
+        if ( !writer->WritesDone() ) return false;
+
+        grpc::Status status = writer->Finish();
+        return status.ok();
+    }
+    bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<double>& values )
+    {
+        auto chunkSize = ServiceInterface::packageByteSize();
+
+        grpc::ClientContext context;
+        auto                self = std::make_unique<Object>();
+        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+
+        auto method = std::make_unique<MethodRequest>();
+        method->set_method( setter );
+        method->set_allocated_self( self.release() );
+
+        auto setterRequest = std::make_unique<SetterRequest>();
+        setterRequest->set_value_count( values.size() );
+        setterRequest->set_allocated_request( method.release() );
+
+        SetterReply                                      reply;
+        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_objectStub->ExecuteSetter( &context, &reply ) );
+        SetterChunk                                      header;
+        header.set_allocated_set_request( setterRequest.release() );
+        if ( !writer->Write( header ) ) return false;
+
+        for ( size_t i = 0; i < values.size(); )
+        {
+            auto currentChunkSize = std::min( chunkSize, values.size() - i );
+
+            SetterChunk chunk;
+            chunk.mutable_doubles()->mutable_data()->Reserve( currentChunkSize );
+            for ( size_t n = 0; n < currentChunkSize; ++n )
+            {
+                chunk.mutable_doubles()->add_data( values[i + n] );
+            }
+            if ( !writer->Write( chunk ) ) return false;
+
+            i += currentChunkSize;
+        }
+        if ( !writer->WritesDone() ) return false;
+
+        grpc::Status status = writer->Finish();
+        return status.ok();
+    }
+
+    bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<std::string>& values )
+    {
+        grpc::ClientContext context;
+        auto                self = std::make_unique<Object>();
+        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+
+        auto method = std::make_unique<MethodRequest>();
+        method->set_method( setter );
+        method->set_allocated_self( self.release() );
+
+        auto setterRequest = std::make_unique<SetterRequest>();
+        setterRequest->set_value_count( values.size() );
+        setterRequest->set_allocated_request( method.release() );
+
+        SetterReply                                      reply;
+        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_objectStub->ExecuteSetter( &context, &reply ) );
+        SetterChunk                                      header;
+        header.set_allocated_set_request( setterRequest.release() );
+        if ( !writer->Write( header ) ) return false;
+
+        for ( size_t i = 0; i < values.size(); ++i )
+        {
+            SetterChunk chunk;
+            chunk.mutable_strings()->add_data( values[i] );
+            if ( !writer->Write( chunk ) ) return false;
+        }
+        if ( !writer->WritesDone() ) return false;
+
+        grpc::Status status = writer->Finish();
+        return status.ok();
+    }
+
+    std::vector<int> getInts( const caf::ObjectHandle* objectHandle, const std::string& getter ) const
+    {
+        grpc::ClientContext context;
+        auto                self = std::make_unique<Object>();
+        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+        MethodRequest method;
+        method.set_method( getter );
+        method.set_allocated_self( self.release() );
+
+        std::vector<int> values;
+
+        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_objectStub->ExecuteGetter( &context, method ) );
+        GetterReply                                      reply;
+        while ( reader->Read( &reply ) )
+        {
+            CAF_ASSERT( reply.has_ints() ); // TODO: throw
+            auto ints = reply.ints();
+            values.insert( values.end(), ints.data().begin(), ints.data().end() );
+        }
+        grpc::Status status = reader->Finish();
+        CAF_ASSERT( status.ok() );
+        return values;
+    }
+
+    std::vector<double> getDoubles( const caf::ObjectHandle* objectHandle, const std::string& getter ) const
+    {
+        grpc::ClientContext context;
+        auto                self = std::make_unique<Object>();
+        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+        MethodRequest method;
+        method.set_method( getter );
+        method.set_allocated_self( self.release() );
+
+        std::vector<double> values;
+
+        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_objectStub->ExecuteGetter( &context, method ) );
+        GetterReply                                      reply;
+        while ( reader->Read( &reply ) )
+        {
+            CAF_ASSERT( reply.has_doubles() ); // TODO: throw
+            auto doubles = reply.doubles();
+            values.insert( values.end(), doubles.data().begin(), doubles.data().end() );
+        }
+        grpc::Status status = reader->Finish();
+        CAF_ASSERT( status.ok() );
+        return values;
+    }
+
+    std::vector<std::string> getStrings( const caf::ObjectHandle* objectHandle, const std::string& getter ) const
+    {
+        grpc::ClientContext context;
+        auto                self = std::make_unique<Object>();
+        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+        MethodRequest method;
+        method.set_method( getter );
+        method.set_allocated_self( self.release() );
+
+        std::vector<std::string> values;
+
+        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_objectStub->ExecuteGetter( &context, method ) );
+        GetterReply                                      reply;
+        while ( reader->Read( &reply ) )
+        {
+            CAF_ASSERT( reply.has_strings() ); // TODO: throw
+            auto strings = reply.strings();
+            values.insert( values.end(), strings.data().begin(), strings.data().end() );
+        }
+        grpc::Status status = reader->Finish();
+        CAF_ASSERT( status.ok() );
+        return values;
+    }
+
 private:
     std::shared_ptr<grpc::Channel> m_channel;
 
@@ -145,6 +332,54 @@ caf::AppInfo Client::appInfo() const
 std::unique_ptr<caf::ObjectHandle> Client::document( const std::string& documentId ) const
 {
     return m_clientImpl->document( documentId );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Client::set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<double>& values )
+{
+    return m_clientImpl->set( objectHandle, setter, values );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Client::set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<int>& values )
+{
+    return m_clientImpl->set( objectHandle, setter, values );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Client::set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<std::string>& values )
+{
+    return m_clientImpl->set( objectHandle, setter, values );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<int> Client::getInts( const caf::ObjectHandle* objectHandle, const std::string& getter ) const
+{
+    return m_clientImpl->getInts( objectHandle, getter );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> Client::getDoubles( const caf::ObjectHandle* objectHandle, const std::string& getter ) const
+{
+    return m_clientImpl->getDoubles( objectHandle, getter );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> Client::getStrings( const caf::ObjectHandle* objectHandle, const std::string& getter ) const
+{
+    return m_clientImpl->getStrings( objectHandle, getter );
 }
 
 //--------------------------------------------------------------------------------------------------

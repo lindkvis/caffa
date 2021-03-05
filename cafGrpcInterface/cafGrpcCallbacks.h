@@ -207,7 +207,6 @@ public:
     void              onInitRequestStarted() override;
     void              onInitRequestCompleted() override;
     void              onProcessRequest() override;
-    void              onFinishRequest() override;
 
 protected:
     virtual std::string methodType() const override;

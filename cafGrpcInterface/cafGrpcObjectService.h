@@ -53,6 +53,7 @@ class Object;
 class ObjectFactory;
 class ObjectHandle;
 class ProxyFieldHandle;
+class ValueField;
 } // namespace caf
 
 namespace caf::rpc
@@ -70,7 +71,7 @@ struct AbstractDataHolder
     virtual void   addValueToReply( size_t valueIndex, GetterReply* reply ) const = 0;
 
     virtual size_t getValuesFromChunk( size_t startIndex, const SetterChunk* chunk ) = 0;
-    virtual void   applyValuesToProxyField( caf::ProxyFieldHandle* proxyField )      = 0;
+    virtual void   applyValuesToField( caf::ValueField* field )                      = 0;
 };
 
 /**
@@ -93,7 +94,7 @@ public:
 
 protected:
     caf::Object*                        m_fieldOwner;
-    caf::ProxyFieldHandle*              m_proxyField;
+    caf::ValueField*                    m_field;
     std::unique_ptr<AbstractDataHolder> m_dataHolder;
     size_t                              m_currentDataIndex;
 };
@@ -118,7 +119,7 @@ public:
 
 protected:
     caf::Object*                        m_fieldOwner;
-    caf::ProxyFieldHandle*              m_proxyField;
+    caf::ValueField*                    m_field;
     std::unique_ptr<AbstractDataHolder> m_dataHolder;
     size_t                              m_currentDataIndex;
 };
@@ -147,7 +148,7 @@ public:
     static caf::Object* findCafObjectFromRpcObject( const Object& rpcObject );
     static caf::Object* findCafObjectFromScriptNameAndAddress( const std::string& scriptClassName, uint64_t address );
 
-    static void copyObjectFromCafToRpc( const caf::ObjectHandle* source, Object* destination );
+    static void copyObjectFromCafToRpc( const caf::ObjectHandle* source, Object* destination, bool copyContent = true );
     static void copyObjectFromRpcToCaf( const Object* source, caf::ObjectHandle* destination );
     static std::unique_ptr<caf::ObjectHandle> createCafObjectFromRpc( const Object*       source,
                                                                       caf::ObjectFactory* objectFactory );

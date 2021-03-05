@@ -78,10 +78,10 @@ message SetterChunk
 {
     oneof data
     {
-        SetterRequest set_request = 1;
-        IntArray      ints        = 2;
-        DoubleArray   doubles     = 3;
-        StringArray   strings     = 4;
+        SetterRequest set_request  = 1;
+        IntArray      ints         = 2;
+        DoubleArray   doubles      = 3;
+        StringArray   strings      = 4;
     }
 }
 
