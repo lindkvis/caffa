@@ -10,6 +10,7 @@
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafField.h"
+#include "cafFieldScriptingCapability.h"
 #include "cafObjectHandle.h"
 #include "cafObjectScriptingCapability.h"
 #include "cafPdmDocument.h"
@@ -31,6 +32,7 @@ class DemoObject : public caf::Object
 public:
     DemoObject()
     {
+        CAF_InitObject( "Demo Object", "", "", "" );
         this->addField( &m_proxyDoubleField, "m_proxyDoubleField" );
         m_proxyDoubleField.registerSetMethod( this, &DemoObject::setDoubleMember );
         m_proxyDoubleField.registerGetMethod( this, &DemoObject::doubleMember );
@@ -94,6 +96,59 @@ private:
 
 CAF_SOURCE_INIT( DemoObject, "DemoObject" );
 
+struct DemoObject_copyObjectResult : public caf::Object
+{
+    CAF_HEADER_INIT;
+
+    DemoObject_copyObjectResult() { CAF_InitField( &status, "status", false, "", "", "", "" ); }
+    virtual ~DemoObject_copyObjectResult() = default;
+
+    caf::Field<bool> status;
+};
+
+CAF_SOURCE_INIT( DemoObject_copyObjectResult, "DemoObjectResult" );
+
+class DemoObject_copyObject : public caf::ObjectMethod
+{
+    CAF_HEADER_INIT;
+
+public:
+    DemoObject_copyObject( caf::ObjectHandle* self,
+                           double             doubleValue = -123.0,
+                           int                intValue    = 42,
+                           const std::string& stringValue = "SomeValue" )
+        : caf::ObjectMethod( self )
+    {
+        CAF_InitObject( "Copy values into object", "", "", "Copy all values into the DemoObject" );
+        CAF_InitScriptableField( &m_doubleMember, "doubleMember", doubleValue, "", "", "", "" );
+        CAF_InitScriptableField( &m_intMember, "intMember", intValue, "", "", "", "" );
+        CAF_InitScriptableField( &m_stringMember, "stringMember", stringValue, "", "", "", "" );
+    }
+    caf::ObjectHandle* execute() override
+    {
+        gsl::not_null<DemoObject*> demoObject = self<DemoObject>();
+        demoObject->setDoubleMember( m_doubleMember );
+        demoObject->setIntMember( m_intMember );
+        demoObject->setStringMember( m_stringMember );
+
+        auto demoObjectResult    = std::make_unique<DemoObject_copyObjectResult>();
+        demoObjectResult->status = true;
+        return demoObjectResult.release();
+    }
+    bool                          resultIsPersistent() const override { return false; }
+    std::unique_ptr<ObjectHandle> defaultResult() const override
+    {
+        return std::make_unique<DemoObject_copyObjectResult>();
+    }
+
+private:
+    caf::Field<double>      m_doubleMember;
+    caf::Field<int>         m_intMember;
+    caf::Field<std::string> m_stringMember;
+};
+
+CAF_OBJECT_METHOD_SOURCE_INIT( DemoObject, DemoObject_copyObject, "copyObject" );
+
 class InheritedDemoObj : public DemoObject
 {
     CAF_HEADER_INIT;
@@ -101,6 +156,7 @@ class InheritedDemoObj : public DemoObject
 public:
     InheritedDemoObj()
     {
+        CAF_InitObject( "Inherited Demo Object", "", "", "" );
         this->addField( &m_texts, "Texts" );
         this->addField( &m_childArrayField, "DemoObjectects" );
         this->addField( &m_ptrField, "m_ptrField" );
@@ -135,6 +191,7 @@ public:
     }
 
     void addInheritedObject( InheritedDemoObj* object ) { m_inheritedDemoObjects.push_back( object ); }
+    std::vector<InheritedDemoObj*> inheritedObjects() const { return m_inheritedDemoObjects.childObjects(); }
 
     caf::ChildField<DemoObject*>            m_demoObject;
     caf::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
@@ -311,6 +368,57 @@ TEST( BaseTest, Sync )
     client->sync( clientDocument );
     ASSERT_EQ( newFileName, clientDocument->fileName() );
     ASSERT_EQ( newFileName, serverDocument->fileName() );
+
+    bool ok = client->stopServer();
+    ASSERT_TRUE( ok );
+
+    thread.join();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// TestField
+//--------------------------------------------------------------------------------------------------
+TEST( BaseTest, ObjectMethod )
+{
+    int  portNumber = 50000;
+    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+
+    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+
+    std::cout << "Launching Server" << std::endl;
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    std::cout << "Launching Client" << std::endl;
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+    auto client = std::make_unique<caf::rpc::Client>( "localhost", portNumber );
+
+    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
+    ASSERT_TRUE( serverDocument );
+    std::cout << "Server Document File Name: " << serverDocument->fileName() << std::endl;
+
+    serverDocument->addInheritedObject( new InheritedDemoObj );
+
+    auto objectHandle   = client->document( "testDocument" );
+    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    ASSERT_TRUE( clientDocument != nullptr );
+
+    auto serverObjects = serverDocument->inheritedObjects();
+    ASSERT_EQ( (size_t)1, serverObjects.size() );
+    auto inheritedObjects = clientDocument->inheritedObjects();
+    ASSERT_EQ( (size_t)1, inheritedObjects.size() );
+
+    DemoObject_copyObject method( inheritedObjects.front(), 45.3, 43, "AnotherValue" );
+    auto                  result = client->execute( &method );
+    ASSERT_TRUE( result != nullptr );
+    auto copyObjectResult = dynamic_cast<DemoObject_copyObjectResult*>( result.get() );
+    ASSERT_TRUE( copyObjectResult && copyObjectResult->status() );
+
+    ASSERT_EQ( 45.3, serverObjects.front()->doubleMember() );
+    ASSERT_EQ( 43, serverObjects.front()->intMember() );
+    ASSERT_EQ( "AnotherValue", serverObjects.front()->stringMember() );
 
     bool ok = client->stopServer();
     ASSERT_TRUE( ok );

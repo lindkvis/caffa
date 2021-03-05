@@ -50,6 +50,7 @@ class ChildArrayFieldHandle;
 class ChildFieldHandle;
 class FieldHandle;
 class Object;
+class ObjectFactory;
 class ObjectHandle;
 class ProxyFieldHandle;
 } // namespace caf
@@ -148,7 +149,8 @@ public:
 
     static void copyObjectFromCafToRpc( const caf::ObjectHandle* source, Object* destination );
     static void copyObjectFromRpcToCaf( const Object* source, caf::ObjectHandle* destination );
-    static std::unique_ptr<caf::ObjectHandle> createCafObjectFromRpc( const Object* source );
+    static std::unique_ptr<caf::ObjectHandle> createCafObjectFromRpc( const Object*       source,
+                                                                      caf::ObjectFactory* objectFactory );
 
     std::vector<AbstractCallback*> registerCallbacks() override;
 };

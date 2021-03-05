@@ -43,11 +43,11 @@
 
 #include <string>
 
-/// CAF_PDM_OBJECT_METHOD_SOURCE_INIT associates the self class keyword and the method keyword with the method factory
+/// CAF_OBJECT_METHOD_SOURCE_INIT associates the self class keyword and the method keyword with the method factory
 /// Place this in the cpp file, preferably above the constructor
-#define CAF_PDM_OBJECT_METHOD_SOURCE_INIT( SelfClassName, MethodClassName, methodKeyword ) \
-    CAF_PDM_XML_ABSTRACT_SOURCE_INIT( MethodClassName, methodKeyword )                     \
-    static bool PDM_OBJECT_STRING_CONCATENATE( method##MethodClassName, __LINE__ ) =       \
+#define CAF_OBJECT_METHOD_SOURCE_INIT( SelfClassName, MethodClassName, methodKeyword ) \
+    CAF_IO_ABSTRACT_SOURCE_INIT( MethodClassName, methodKeyword )                      \
+    static bool PDM_OBJECT_STRING_CONCATENATE( method##MethodClassName, __LINE__ ) =   \
         caf::ObjectMethodFactory::instance()->registerMethod<SelfClassName, MethodClassName>()
 
 namespace caf
@@ -84,12 +84,20 @@ public:
     // ... need to provide an implementation that returns the same object type as the execute method.
     virtual std::unique_ptr<ObjectHandle> defaultResult() const = 0;
 
-protected:
     // Basically the "this" pointer to the object the method belongs to
     template <typename ObjectType>
     ObjectType* self()
     {
         ObjectType* object = dynamic_cast<ObjectType*>( m_self.p() );
+        CAF_ASSERT( object );
+        return object;
+    }
+
+    // Basically the "this" pointer to the object the method belongs to
+    template <typename ObjectType>
+    const ObjectType* self() const
+    {
+        const ObjectType* object = dynamic_cast<const ObjectType*>( m_self.p() );
         CAF_ASSERT( object );
         return object;
     }

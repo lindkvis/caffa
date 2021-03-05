@@ -4,8 +4,9 @@
 #include "Object.grpc.pb.h"
 
 #include "cafDefaultObjectFactory.h"
-#include "cafGrpcObjectService.h"
+#include "cafGrpcClientObjectFactory.h"
 #include "cafGrpcObjectClientCapability.h"
+#include "cafGrpcObjectService.h"
 
 #include <grpc/grpc.h>
 #include <grpcpp/channel.h>
@@ -34,8 +35,8 @@ public:
         caf::rpc::AppInfoReply reply;
         grpc::ClientContext    context;
         caf::rpc::Null         nullarg;
-        auto         status  = m_appInfoStub->GetAppInfo( &context, nullarg, &reply );
-        caf::AppInfo appInfo = { reply.name(),
+        auto                   status  = m_appInfoStub->GetAppInfo( &context, nullarg, &reply );
+        caf::AppInfo           appInfo = { reply.name(),
                                  reply.major_version(),
                                  reply.minor_version(),
                                  reply.patch_version(),
@@ -51,18 +52,44 @@ public:
         caf::rpc::DocumentRequest request;
         request.set_document_id( documentId );
         caf::rpc::Object objectReply;
-        auto status = m_objectStub->GetDocument( &context, request, &objectReply );
+        auto             status = m_objectStub->GetDocument( &context, request, &objectReply );
         if ( status.ok() )
         {
-            pdmDocument = caf::rpc::ObjectService::createCafObjectFromRpc( &objectReply );
+            pdmDocument = caf::rpc::ObjectService::createCafObjectFromRpc( &objectReply,
+                                                                           caf::rpc::GrpcClientObjectFactory::instance() );
         }
         return pdmDocument;
     }
 
-    bool sync(caf::ObjectHandle* objectHandle)
+    std::unique_ptr<caf::ObjectHandle> execute( const caf::ObjectMethod* method ) const
     {
-        grpc::ClientContext       context;
-        caf::rpc::Object objectRequest, objectReply;
+        auto self   = std::make_unique<Object>();
+        auto params = std::make_unique<Object>();
+        ObjectService::copyObjectFromCafToRpc( method->self<caf::ObjectHandle>(), self.get() );
+        ObjectService::copyObjectFromCafToRpc( method, params.get() );
+
+        grpc::ClientContext context;
+        MethodRequest       request;
+        request.set_allocated_self( self.release() );
+        request.set_method( method->classKeyword() );
+        request.set_allocated_params( params.release() );
+
+        std::unique_ptr<caf::ObjectHandle> returnValue;
+
+        caf::rpc::Object objectReply;
+        auto             status = m_objectStub->ExecuteMethod( &context, request, &objectReply );
+        if ( status.ok() )
+        {
+            returnValue = caf::rpc::ObjectService::createCafObjectFromRpc( &objectReply,
+                                                                           caf::rpc::GrpcClientObjectFactory::instance() );
+        }
+        return returnValue;
+    }
+
+    bool sync( caf::ObjectHandle* objectHandle )
+    {
+        grpc::ClientContext context;
+        caf::rpc::Object    objectRequest, objectReply;
         caf::rpc::ObjectService::copyObjectFromCafToRpc( objectHandle, &objectRequest );
 
         auto status = m_objectStub->Sync( &context, objectRequest, &objectReply );
@@ -78,7 +105,7 @@ public:
     {
         grpc::ClientContext context;
         caf::rpc::Null      nullarg, nullreply;
-        auto status = m_appInfoStub->Quit( &context, nullarg, &nullreply );
+        auto                status = m_appInfoStub->Quit( &context, nullarg, &nullreply );
         return status.ok();
     }
 
@@ -93,7 +120,7 @@ private:
 ///
 //--------------------------------------------------------------------------------------------------
 Client::Client( const std::string& hostname, int port /*= 55555 */ )
-    : m_clientImpl( new ClientImpl( hostname, port ) )
+    : m_clientImpl( std::make_unique<ClientImpl>( hostname, port ) )
 {
 }
 
@@ -102,11 +129,10 @@ Client::Client( const std::string& hostname, int port /*= 55555 */ )
 //--------------------------------------------------------------------------------------------------
 Client::~Client()
 {
-    delete m_clientImpl;
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Retrieve Application information
 //--------------------------------------------------------------------------------------------------
 caf::AppInfo Client::appInfo() const
 {
@@ -114,15 +140,7 @@ caf::AppInfo Client::appInfo() const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool Client::stopServer() const
-{
-    return m_clientImpl->stopServer();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
+/// Retrieve a top level document (project)
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::ObjectHandle> Client::document( const std::string& documentId ) const
 {
@@ -130,11 +148,27 @@ std::unique_ptr<caf::ObjectHandle> Client::document( const std::string& document
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Execute a general non-streaming method.
 //--------------------------------------------------------------------------------------------------
-bool Client::sync( caf::ObjectHandle* objectHandle )
+std::unique_ptr<caf::ObjectHandle> Client::execute( gsl::not_null<const caf::ObjectMethod*> method ) const
+{
+    return m_clientImpl->execute( method );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Synchronise the object with the server. Returns true if the object was found and synchronised.
+//--------------------------------------------------------------------------------------------------
+bool Client::sync( gsl::not_null<caf::ObjectHandle*> objectHandle )
 {
     return m_clientImpl->sync( objectHandle );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Tell the server to stop operation. Returns a simple boolean status where true is ok.
+//--------------------------------------------------------------------------------------------------
+bool Client::stopServer() const
+{
+    return m_clientImpl->stopServer();
 }
 
 } // namespace caf::rpc
