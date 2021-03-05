@@ -368,6 +368,8 @@ void ClientToServerStreamCallback<ServiceT, RequestT, ReplyT>::onProcessRequest(
         CAF_ASSERT( m_stateHandler->streamedValueCount() <= m_stateHandler->totalValueCount() );
         if ( m_stateHandler->streamedValueCount() == m_stateHandler->totalValueCount() )
         {
+            m_stateHandler->finish();
+
             this->setNextCallState( AbstractCallback::FINISH_REQUEST );
             m_reader.Finish( this->m_reply, grpc::Status::OK, this );
         }
@@ -376,15 +378,6 @@ void ClientToServerStreamCallback<ServiceT, RequestT, ReplyT>::onProcessRequest(
             m_reader.Read( &this->m_request, this );
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename ServiceT, typename RequestT, typename ReplyT>
-void ClientToServerStreamCallback<ServiceT, RequestT, ReplyT>::onFinishRequest()
-{
-    m_stateHandler->finish();
 }
 
 //--------------------------------------------------------------------------------------------------

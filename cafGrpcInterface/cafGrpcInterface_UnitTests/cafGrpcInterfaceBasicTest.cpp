@@ -21,6 +21,7 @@
 
 #include <chrono>
 #include <filesystem>
+#include <random>
 #include <string>
 #include <thread>
 #include <vector>
@@ -33,17 +34,27 @@ public:
     DemoObject()
     {
         CAF_InitObject( "Demo Object", "", "", "" );
-        this->addField( &m_proxyDoubleField, "m_proxyDoubleField" );
+        CAF_InitScriptableFieldNoDefault( &m_proxyDoubleField, "proxyDoubleField", "", "", "", "" );
+        CAF_InitScriptableFieldNoDefault( &m_proxyIntField, "proxyIntField", "", "", "", "" );
+        CAF_InitScriptableFieldNoDefault( &m_proxyStringField, "proxyStringField", "", "", "", "" );
+
         m_proxyDoubleField.registerSetMethod( this, &DemoObject::setDoubleMember );
         m_proxyDoubleField.registerGetMethod( this, &DemoObject::doubleMember );
 
-        this->addField( &m_proxyIntField, "m_proxyIntField" );
         m_proxyIntField.registerSetMethod( this, &DemoObject::setIntMember );
         m_proxyIntField.registerGetMethod( this, &DemoObject::intMember );
 
-        this->addField( &m_proxyStringField, "m_proxyStringField" );
         m_proxyStringField.registerSetMethod( this, &DemoObject::setStringMember );
         m_proxyStringField.registerGetMethod( this, &DemoObject::stringMember );
+
+        CAF_InitScriptableFieldNoDefault( &m_doubleVector, "doubleVector", "", "", "", "" );
+        CAF_InitScriptableFieldNoDefault( &m_intVectorProxy, "proxyIntVector", "", "", "", "" );
+        CAF_InitScriptableFieldNoDefault( &m_stringVectorProxy, "proxyStringVector", "", "", "", "" );
+
+        m_intVectorProxy.registerGetMethod( this, &DemoObject::getIntVector );
+        m_intVectorProxy.registerSetMethod( this, &DemoObject::setIntVector );
+        m_stringVectorProxy.registerGetMethod( this, &DemoObject::getStringVector );
+        m_stringVectorProxy.registerSetMethod( this, &DemoObject::setStringVector );
 
         this->addField( &m_memberDoubleField, "m_memberDoubleField" );
         this->addField( &m_memberIntField, "m_memberIntField" );
@@ -70,17 +81,14 @@ public:
     caf::Field<int>         m_memberIntField;
     caf::Field<std::string> m_memberStringField;
 
+    caf::ProxyValueField<std::vector<int>>         m_intVectorProxy;
+    caf::ProxyValueField<std::vector<std::string>> m_stringVectorProxy;
+
+    caf::Field<std::vector<double>> m_doubleVector;
+
     // Internal class members accessed by proxy fields
-    double doubleMember() const
-    {
-        std::cout << "doubleMember" << std::endl;
-        return m_doubleMember;
-    }
-    void setDoubleMember( const double& d )
-    {
-        m_doubleMember = d;
-        std::cout << "setDoubleMember" << std::endl;
-    }
+    double doubleMember() const { return m_doubleMember; }
+    void   setDoubleMember( const double& d ) { m_doubleMember = d; }
 
     int  intMember() const { return m_intMember; }
     void setIntMember( const int& val ) { m_intMember = val; }
@@ -88,10 +96,22 @@ public:
     std::string stringMember() const { return m_stringMember; }
     void        setStringMember( const std::string& val ) { m_stringMember = val; }
 
+    std::vector<double> getDoubleVector() const { return m_doubleVector; }
+    void                setDoubleVector( const std::vector<double>& values ) { m_doubleVector = values; }
+
+    std::vector<int> getIntVector() const { return m_intVector; }
+    void             setIntVector( const std::vector<int>& values ) { m_intVector = values; }
+
+    std::vector<std::string> getStringVector() const { return m_stringVector; }
+    void                     setStringVector( const std::vector<std::string>& values ) { m_stringVector = values; }
+
 private:
     double      m_doubleMember;
     int         m_intMember;
     std::string m_stringMember;
+
+    std::vector<int>         m_intVector;
+    std::vector<std::string> m_stringVector;
 };
 
 CAF_SOURCE_INIT( DemoObject, "DemoObject" );
@@ -419,6 +439,182 @@ TEST( BaseTest, ObjectMethod )
     ASSERT_EQ( 45.3, serverObjects.front()->doubleMember() );
     ASSERT_EQ( 43, serverObjects.front()->intMember() );
     ASSERT_EQ( "AnotherValue", serverObjects.front()->stringMember() );
+
+    bool ok = client->stopServer();
+    ASSERT_TRUE( ok );
+
+    thread.join();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( BaseTest, ObjectIntGetterAndSetter )
+{
+    int  portNumber = 50000;
+    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+
+    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+
+    std::cout << "Launching Server" << std::endl;
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    std::cout << "Launching Client" << std::endl;
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+    auto client = std::make_unique<caf::rpc::Client>( "localhost", portNumber );
+
+    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
+    ASSERT_TRUE( serverDocument );
+    std::cout << "Server Document File Name: " << serverDocument->fileName() << std::endl;
+
+    std::vector<int> largeIntVector;
+    std::mt19937     rng;
+    std::generate_n( std::back_inserter( largeIntVector ), 100000u, std::ref( rng ) );
+
+    serverDocument->m_demoObject->setIntVector( largeIntVector );
+
+    auto objectHandle   = client->document( "testDocument" );
+    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    ASSERT_TRUE( clientDocument != nullptr );
+    auto clientCapability = clientDocument->capability<caf::rpc::ObjectClientCapability>();
+    ASSERT_TRUE( clientCapability != nullptr );
+    ASSERT_TRUE( clientDocument->m_demoObject->capability<caf::rpc::ObjectClientCapability>() != nullptr );
+    auto clientIntVector =
+        client->getInts( clientDocument->m_demoObject, clientDocument->m_demoObject->m_intVectorProxy.keyword() );
+    ASSERT_EQ( largeIntVector, clientIntVector );
+
+    for ( auto& i : clientIntVector )
+    {
+        i += 2;
+    }
+    ASSERT_NE( largeIntVector, clientIntVector );
+    bool setterWorked = client->set( clientDocument->m_demoObject,
+                                     clientDocument->m_demoObject->m_intVectorProxy.keyword(),
+                                     clientIntVector );
+    ASSERT_TRUE( setterWorked );
+    largeIntVector = serverDocument->m_demoObject->getIntVector();
+    ASSERT_EQ( largeIntVector, clientIntVector );
+
+    bool ok = client->stopServer();
+    ASSERT_TRUE( ok );
+
+    thread.join();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( BaseTest, ObjectDoubleGetterAndSetter )
+{
+    int  portNumber = 50000;
+    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+
+    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+
+    std::cout << "Launching Server" << std::endl;
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    std::cout << "Launching Client" << std::endl;
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+    auto client = std::make_unique<caf::rpc::Client>( "localhost", portNumber );
+
+    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
+    ASSERT_TRUE( serverDocument );
+    std::cout << "Server Document File Name: " << serverDocument->fileName() << std::endl;
+
+    std::vector<double> largeDoubleVector;
+    std::mt19937        rng;
+    std::generate_n( std::back_inserter( largeDoubleVector ), 100000u, std::ref( rng ) );
+
+    serverDocument->m_demoObject->setDoubleVector( largeDoubleVector );
+
+    auto objectHandle   = client->document( "testDocument" );
+    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    ASSERT_TRUE( clientDocument != nullptr );
+    auto clientCapability = clientDocument->capability<caf::rpc::ObjectClientCapability>();
+    ASSERT_TRUE( clientCapability != nullptr );
+    ASSERT_TRUE( clientDocument->m_demoObject->capability<caf::rpc::ObjectClientCapability>() != nullptr );
+    auto clientDoubleVector =
+        client->getDoubles( clientDocument->m_demoObject, clientDocument->m_demoObject->m_doubleVector.keyword() );
+    ASSERT_EQ( largeDoubleVector, clientDoubleVector );
+
+    for ( auto& i : clientDoubleVector )
+    {
+        i += 2;
+    }
+    ASSERT_NE( largeDoubleVector, clientDoubleVector );
+    bool setterWorked = client->set( clientDocument->m_demoObject,
+                                     clientDocument->m_demoObject->m_doubleVector.keyword(),
+                                     clientDoubleVector );
+    ASSERT_TRUE( setterWorked );
+    largeDoubleVector = serverDocument->m_demoObject->getDoubleVector();
+    ASSERT_EQ( largeDoubleVector, clientDoubleVector );
+
+    bool ok = client->stopServer();
+    ASSERT_TRUE( ok );
+
+    thread.join();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( BaseTest, ObjectStringGetterAndSetter )
+{
+    int  portNumber = 50000;
+    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+
+    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+
+    std::cout << "Launching Server" << std::endl;
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    std::cout << "Launching Client" << std::endl;
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+    auto client = std::make_unique<caf::rpc::Client>( "localhost", portNumber );
+
+    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
+    ASSERT_TRUE( serverDocument );
+    std::cout << "Server Document File Name: " << serverDocument->fileName() << std::endl;
+
+    std::vector<std::string> largeStringVector;
+    std::mt19937             rng;
+    std::generate_n( std::back_inserter( largeStringVector ), 10000u, [&rng]() {
+        return std::string( "Test" ) + std::to_string( rng() );
+    } );
+
+    serverDocument->m_demoObject->setStringVector( largeStringVector );
+
+    auto objectHandle   = client->document( "testDocument" );
+    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    ASSERT_TRUE( clientDocument != nullptr );
+    auto clientCapability = clientDocument->capability<caf::rpc::ObjectClientCapability>();
+    ASSERT_TRUE( clientCapability != nullptr );
+    ASSERT_TRUE( clientDocument->m_demoObject->capability<caf::rpc::ObjectClientCapability>() != nullptr );
+    auto clientStringVector =
+        client->getStrings( clientDocument->m_demoObject, clientDocument->m_demoObject->m_stringVectorProxy.keyword() );
+    ASSERT_EQ( largeStringVector, clientStringVector );
+
+    for ( auto& s : clientStringVector )
+    {
+        s += "poff";
+    }
+    ASSERT_NE( largeStringVector, clientStringVector );
+    bool setterWorked = client->set( clientDocument->m_demoObject,
+                                     clientDocument->m_demoObject->m_stringVectorProxy.keyword(),
+                                     clientStringVector );
+    ASSERT_TRUE( setterWorked );
+    largeStringVector = serverDocument->m_demoObject->getStringVector();
+    ASSERT_EQ( largeStringVector, clientStringVector );
 
     bool ok = client->stopServer();
     ASSERT_TRUE( ok );

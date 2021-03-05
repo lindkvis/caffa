@@ -25,7 +25,16 @@ public:
     bool                               sync( gsl::not_null<caf::ObjectHandle*> objectHandle );
     bool                               stopServer() const;
 
+    bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<int>& values );
+    bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<double>& values );
+    bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<std::string>& values );
+
+    std::vector<int>         getInts( const caf::ObjectHandle* objectHandle, const std::string& getter ) const;
+    std::vector<double>      getDoubles( const caf::ObjectHandle* objectHandle, const std::string& getter ) const;
+    std::vector<std::string> getStrings( const caf::ObjectHandle* objectHandle, const std::string& getter ) const;
+
 private:
     std::unique_ptr<ClientImpl> m_clientImpl;
 };
+
 } // namespace caf::rpc

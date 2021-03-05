@@ -70,7 +70,7 @@ struct DataHolder : public AbstractDataHolder
     void   reserveReplyStorage( GetterReply* reply ) const override;
     void   addValueToReply( size_t valueIndex, GetterReply* reply ) const override;
     size_t getValuesFromChunk( size_t startIndex, const SetterChunk* chunk ) override;
-    void   applyValuesToProxyField( ProxyFieldHandle* proxyField ) override;
+    void   applyValuesToField( ValueField* field ) override;
 
     DataType data;
 };
@@ -98,13 +98,17 @@ size_t DataHolder<std::vector<int>>::getValuesFromChunk( size_t startIndex, cons
     return chunkSize;
 }
 template <>
-void DataHolder<std::vector<int>>::applyValuesToProxyField( ProxyFieldHandle* proxyField )
+void DataHolder<std::vector<int>>::applyValuesToField( ValueField* field )
 {
-    auto proxyValueField = dynamic_cast<ProxyValueField<std::vector<int>>*>( proxyField );
-    CAF_ASSERT( proxyValueField );
+    auto proxyValueField = dynamic_cast<ProxyValueField<std::vector<int>>*>( field );
+    auto dataValueField  = dynamic_cast<Field<std::vector<int>>*>( field );
     if ( proxyValueField )
     {
         proxyValueField->setValue( data );
+    }
+    else if ( dataValueField )
+    {
+        dataValueField->setValueWithFieldChanged( data );
     }
 }
 
@@ -131,13 +135,17 @@ size_t DataHolder<std::vector<double>>::getValuesFromChunk( size_t startIndex, c
     return chunkSize;
 }
 template <>
-void DataHolder<std::vector<double>>::applyValuesToProxyField( ProxyFieldHandle* proxyField )
+void DataHolder<std::vector<double>>::applyValuesToField( ValueField* field )
 {
-    auto proxyValueField = dynamic_cast<ProxyValueField<std::vector<double>>*>( proxyField );
-    CAF_ASSERT( proxyValueField );
+    auto proxyValueField = dynamic_cast<ProxyValueField<std::vector<double>>*>( field );
+    auto dataValueField  = dynamic_cast<Field<std::vector<double>>*>( field );
     if ( proxyValueField )
     {
         proxyValueField->setValue( data );
+    }
+    else if ( dataValueField )
+    {
+        dataValueField->setValueWithFieldChanged( data );
     }
 }
 
@@ -155,7 +163,7 @@ void DataHolder<std::vector<std::string>>::addValueToReply( size_t valueIndex, G
 template <>
 size_t DataHolder<std::vector<std::string>>::getValuesFromChunk( size_t startIndex, const SetterChunk* chunk )
 {
-    size_t chunkSize    = chunk->strings().data_size();
+    size_t chunkSize    = 1u;
     size_t currentIndex = startIndex;
     size_t chunkIndex   = 0u;
     for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
@@ -165,13 +173,17 @@ size_t DataHolder<std::vector<std::string>>::getValuesFromChunk( size_t startInd
     return chunkSize;
 }
 template <>
-void DataHolder<std::vector<std::string>>::applyValuesToProxyField( ProxyFieldHandle* proxyField )
+void DataHolder<std::vector<std::string>>::applyValuesToField( ValueField* field )
 {
-    auto proxyValueField = dynamic_cast<ProxyValueField<std::vector<std::string>>*>( proxyField );
-    CAF_ASSERT( proxyValueField );
+    auto proxyValueField = dynamic_cast<ProxyValueField<std::vector<std::string>>*>( field );
+    auto dataValueField  = dynamic_cast<Field<std::vector<std::string>>*>( field );
     if ( proxyValueField )
     {
         proxyValueField->setValue( data );
+    }
+    else if ( dataValueField )
+    {
+        dataValueField->setValueWithFieldChanged( data );
     }
 }
 
@@ -180,7 +192,7 @@ void DataHolder<std::vector<std::string>>::applyValuesToProxyField( ProxyFieldHa
 //--------------------------------------------------------------------------------------------------
 GetterStateHandler::GetterStateHandler()
     : m_fieldOwner( nullptr )
-    , m_proxyField( nullptr )
+    , m_field( nullptr )
     , m_currentDataIndex( 0u )
 {
 }
@@ -191,6 +203,8 @@ GetterStateHandler::GetterStateHandler()
 grpc::Status GetterStateHandler::init( const MethodRequest* request )
 {
     m_fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self() );
+    CAF_ASSERT( m_fieldOwner );
+    if ( !m_fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     std::vector<FieldHandle*> fields;
     m_fieldOwner->fields( fields );
     for ( auto field : fields )
@@ -201,7 +215,7 @@ grpc::Status GetterStateHandler::init( const MethodRequest* request )
             ProxyFieldHandle* proxyField = dynamic_cast<ProxyFieldHandle*>( field );
             if ( proxyField )
             {
-                m_proxyField = proxyField;
+                m_field = proxyField;
 
                 if ( dynamic_cast<ProxyValueField<std::vector<int>>*>( field ) )
                 {
@@ -292,7 +306,7 @@ StateHandler<MethodRequest>* GetterStateHandler::emptyClone() const
 //--------------------------------------------------------------------------------------------------
 SetterStateHandler::SetterStateHandler()
     : m_fieldOwner( nullptr )
-    , m_proxyField( nullptr )
+    , m_field( nullptr )
     , m_currentDataIndex( 0u )
 {
 }
@@ -318,7 +332,7 @@ grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
             ProxyFieldHandle* proxyField = dynamic_cast<ProxyFieldHandle*>( field );
             if ( proxyField )
             {
-                m_proxyField = proxyField;
+                m_field = proxyField;
 
                 if ( dynamic_cast<ProxyValueField<std::vector<int>>*>( field ) )
                 {
@@ -382,14 +396,14 @@ size_t SetterStateHandler::totalValueCount() const
 //--------------------------------------------------------------------------------------------------
 void SetterStateHandler::finish()
 {
-    if ( m_proxyField )
+    if ( m_field )
     {
-        auto scriptingCapability = m_proxyField->capability<AbstractFieldScriptingCapability>();
+        auto scriptingCapability = m_field->capability<AbstractFieldScriptingCapability>();
         CAF_ASSERT( scriptingCapability );
-        Variant before = m_proxyField->toVariant();
-        m_dataHolder->applyValuesToProxyField( m_proxyField );
-        Variant after = m_proxyField->toVariant();
-        m_fieldOwner->fieldChangedByCapability( m_proxyField, scriptingCapability, before, after );
+        Variant before = m_field->toVariant();
+        m_dataHolder->applyValuesToField( m_field );
+        Variant after = m_field->toVariant();
+        m_fieldOwner->fieldChangedByCapability( m_field, scriptingCapability, before, after );
     }
 }
 
@@ -443,7 +457,6 @@ grpc::Status ObjectService::ExecuteGetter( grpc::ServerContext*         context,
 {
     auto getterHandler = dynamic_cast<GetterStateHandler*>( stateHandler );
     CAF_ASSERT( getterHandler );
-
     return getterHandler->assignReply( reply );
 }
 
@@ -545,12 +558,11 @@ caf::Object* ObjectService::findCafObjectFromScriptNameAndAddress( const std::st
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectService::copyObjectFromCafToRpc( const caf::ObjectHandle* source, Object* destination )
+void ObjectService::copyObjectFromCafToRpc( const caf::ObjectHandle* source,
+                                            Object*                  destination,
+                                            bool                     copyContent /* = true */ )
 {
     CAF_ASSERT( source && destination );
-
-    std::stringstream ss;
-    caf::ObjectJsonCapability::writeFile( source, ss, true );
 
     auto ioCapability = source->capability<caf::ObjectIoCapability>();
     CAF_ASSERT( ioCapability );
@@ -565,7 +577,13 @@ void ObjectService::copyObjectFromCafToRpc( const caf::ObjectHandle* source, Obj
     {
         destination->set_address( reinterpret_cast<uint64_t>( source ) );
     }
-    destination->set_json( ss.str() );
+
+    if ( copyContent )
+    {
+        std::stringstream ss;
+        caf::ObjectJsonCapability::writeFile( source, ss, true );
+        destination->set_json( ss.str() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

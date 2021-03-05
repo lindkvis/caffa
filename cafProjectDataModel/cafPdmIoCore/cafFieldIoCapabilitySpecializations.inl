@@ -217,8 +217,7 @@ void FieldIoCap<ChildField<DataType*>>::readFieldData( const nlohmann::json& jso
 
     ObjectHandle* obj = nullptr;
 
-    // Create an object if needed
-    if ( m_field->value() == nullptr )
+    // Create a new object
     {
         CAF_ASSERT( objectFactory );
 
@@ -248,10 +247,6 @@ void FieldIoCap<ChildField<DataType*>>::readFieldData( const nlohmann::json& jso
             m_field->m_fieldValue.setRawPtr( obj );
             obj->setAsParentField( m_field );
         }
-    }
-    else
-    {
-        obj = m_field->m_fieldValue.rawPtr();
     }
 
     auto ioObject = obj->template capability<caf::ObjectIoCapability>();
@@ -285,7 +280,7 @@ void FieldIoCap<ChildField<DataType*>>::writeFieldData( nlohmann::json& jsonValu
 
         nlohmann::json jsonObject  = nlohmann::json::object();
         jsonObject["classKeyword"] = className.c_str();
-        if (writeServerAddress)
+        if ( writeServerAddress )
         {
             jsonObject["serverAddress"] = reinterpret_cast<uint64_t>( object );
         }
@@ -319,10 +314,10 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFieldData( const nlohmann::json
     {
         if ( !jsonObject.is_object() ) continue;
 
-        std::string className = jsonObject["classKeyword"].get<std::string>();        
-        
+        std::string className = jsonObject["classKeyword"].get<std::string>();
+
         uint64_t serverAddress = 0u;
-        auto it = jsonObject.find( "serverAddress" );
+        auto     it            = jsonObject.find( "serverAddress" );
         if ( it != jsonObject.end() ) serverAddress = it->get<uint64_t>();
 
         CAF_ASSERT( objectFactory );

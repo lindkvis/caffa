@@ -44,6 +44,7 @@ target_link_libraries ( ${PROJECT_NAME}
     cafPdmIoCore
     cafPdmUiCore
     nlohmann_json::nlohmann_json
+    Microsoft.GSL::GSL
 )
 
 target_include_directories(${PROJECT_NAME}
