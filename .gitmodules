@@ -7,3 +7,6 @@
 [submodule "ThirdParty/json"]
 	path = ThirdParty/json
 	url = https://github.com/nlohmann/json.git
+[submodule "ThirdParty/GSL"]
+	path = ThirdParty/GSL
+	url = https://github.com/microsoft/GSL.git
