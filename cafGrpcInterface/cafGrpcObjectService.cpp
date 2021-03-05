@@ -240,6 +240,31 @@ grpc::Status GetterStateHandler::init( const MethodRequest* request )
                     CAF_ASSERT( false && "The proxy field data type is not yet supported for streaming fields" );
                 }
             }
+            else
+            {
+                if ( auto dataField = dynamic_cast<Field<std::vector<int>>*>( field ); dataField != nullptr )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<std::vector<int>>( dataField->value() ) );
+                    return grpc::Status::OK;
+                }
+                else if ( auto dataField = dynamic_cast<Field<std::vector<double>>*>( field ) )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<std::vector<double>>( dataField->value() ) );
+                    return grpc::Status::OK;
+                }
+                else if ( auto dataField = dynamic_cast<Field<std::vector<std::string>>*>( field ) )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<std::vector<std::string>>( dataField->value() ) );
+                    return grpc::Status::OK;
+                }
+                else
+                {
+                    CAF_ASSERT( false && "The proxy field data type is not yet supported for streaming fields" );
+                }
+            }
         }
     }
 
@@ -346,6 +371,31 @@ grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
                 }
                 else if ( dynamic_cast<ProxyValueField<std::vector<std::string>>*>( field ) )
                 {
+                    m_dataHolder.reset( new DataHolder<std::vector<std::string>>( std::vector<std::string>( valueCount ) ) );
+                    return grpc::Status::OK;
+                }
+                else
+                {
+                    CAF_ASSERT( false && "The proxy field data type is not yet supported for streaming fields" );
+                }
+            }
+            else
+            {
+                if ( auto dataField = dynamic_cast<Field<std::vector<int>>*>( field ); dataField != nullptr )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<std::vector<int>>( std::vector<int>( valueCount ) ) );
+                    return grpc::Status::OK;
+                }
+                else if ( auto dataField = dynamic_cast<Field<std::vector<double>>*>( field ); dataField != nullptr )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<std::vector<double>>( std::vector<double>( valueCount ) ) );
+                    return grpc::Status::OK;
+                }
+                else if ( auto dataField = dynamic_cast<Field<std::vector<std::string>>*>( field ); dataField != nullptr )
+                {
+                    m_field = dataField;
                     m_dataHolder.reset( new DataHolder<std::vector<std::string>>( std::vector<std::string>( valueCount ) ) );
                     return grpc::Status::OK;
                 }

@@ -268,7 +268,7 @@ TEST( BaseTest, Launch )
     std::cout << "Launching Client" << std::endl;
     while ( !serverApp->running() )
     {
-        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+        std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
     auto client = std::make_unique<caf::rpc::Client>( "localhost", portNumber );
 
@@ -298,7 +298,7 @@ TEST( BaseTest, Document )
     std::cout << "Launching Client" << std::endl;
     while ( !serverApp->running() )
     {
-        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+        std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
     auto client = std::make_unique<caf::rpc::Client>( "localhost", portNumber );
 
@@ -472,7 +472,7 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
 
     std::vector<int> largeIntVector;
     std::mt19937     rng;
-    std::generate_n( std::back_inserter( largeIntVector ), 100000u, std::ref( rng ) );
+    std::generate_n( std::back_inserter( largeIntVector ), 10000u, std::ref( rng ) );
 
     serverDocument->m_demoObject->setIntVector( largeIntVector );
 
@@ -530,7 +530,7 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
 
     std::vector<double> largeDoubleVector;
     std::mt19937        rng;
-    std::generate_n( std::back_inserter( largeDoubleVector ), 100000u, std::ref( rng ) );
+    std::generate_n( std::back_inserter( largeDoubleVector ), 10000u, std::ref( rng ) );
 
     serverDocument->m_demoObject->setDoubleVector( largeDoubleVector );
 
@@ -578,7 +578,7 @@ TEST( BaseTest, ObjectStringGetterAndSetter )
     std::cout << "Launching Client" << std::endl;
     while ( !serverApp->running() )
     {
-        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+        std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
     auto client = std::make_unique<caf::rpc::Client>( "localhost", portNumber );
 
@@ -588,7 +588,7 @@ TEST( BaseTest, ObjectStringGetterAndSetter )
 
     std::vector<std::string> largeStringVector;
     std::mt19937             rng;
-    std::generate_n( std::back_inserter( largeStringVector ), 10000u, [&rng]() {
+    std::generate_n( std::back_inserter( largeStringVector ), 2000u, [&rng]() {
         return std::string( "Test" ) + std::to_string( rng() );
     } );
 
