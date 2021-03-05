@@ -37,6 +37,7 @@ set(JSON_BuildTests OFF)
 set(JSON_Coverage OFF)
 set(JSON_Install OFF)
 add_subdirectory (ThirdParty/json)
+add_subdirectory (ThirdParty/GSL)
 
 #libraries
 add_subdirectory (cafProjectDataModel/cafPdmCore)
