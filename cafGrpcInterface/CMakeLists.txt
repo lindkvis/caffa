@@ -104,6 +104,7 @@ endif()
 
 set(LINK_LIBRARIES
     ${GRPC_LINK_LIBRARIES}
+    Microsoft.GSL::GSL
     cafProjectDataModel
     cafPdmScriptCore
     )

@@ -465,7 +465,8 @@ grpc::Status ObjectService::ExecuteSetter( grpc::ServerContext*       context,
 //--------------------------------------------------------------------------------------------------
 grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, Object* reply )
 {
-    auto matchingObject = findCafObjectFromRpcObject( request->self() );
+    const Object& self           = request->self();
+    auto          matchingObject = findCafObjectFromRpcObject( self );
     if ( matchingObject )
     {
         std::shared_ptr<ObjectMethod> method =
@@ -588,11 +589,12 @@ void ObjectService::copyObjectFromRpcToCaf( const Object* source, caf::ObjectHan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::ObjectHandle> ObjectService::createCafObjectFromRpc( const Object* source )
+std::unique_ptr<caf::ObjectHandle> ObjectService::createCafObjectFromRpc( const Object*       source,
+                                                                          caf::ObjectFactory* objectFactory )
 {
     CAF_ASSERT( source );
     std::unique_ptr<caf::ObjectHandle> destination(
-        caf::ObjectJsonCapability::readUnknownObjectFromString( source->json(), GrpcClientObjectFactory::instance(), false ) );
+        caf::ObjectJsonCapability::readUnknownObjectFromString( source->json(), objectFactory, false ) );
 
     return destination;
 }
