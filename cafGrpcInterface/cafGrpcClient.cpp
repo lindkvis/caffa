@@ -5,6 +5,7 @@
 
 #include "cafDefaultObjectFactory.h"
 #include "cafGrpcClientObjectFactory.h"
+#include "cafGrpcFieldService.h"
 #include "cafGrpcObjectClientCapability.h"
 #include "cafGrpcObjectService.h"
 
@@ -28,6 +29,7 @@ public:
 
         m_appInfoStub = App::NewStub( m_channel );
         m_objectStub  = ObjectAccess::NewStub( m_channel );
+        m_fieldStub   = FieldAccess::NewStub( m_channel );
     }
 
     caf::AppInfo appInfo() const
@@ -117,16 +119,16 @@ public:
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
 
-        auto method = std::make_unique<MethodRequest>();
-        method->set_method( setter );
-        method->set_allocated_self( self.release() );
+        auto field = std::make_unique<FieldRequest>();
+        field->set_method( setter );
+        field->set_allocated_self( self.release() );
 
         auto setterRequest = std::make_unique<SetterRequest>();
         setterRequest->set_value_count( values.size() );
-        setterRequest->set_allocated_request( method.release() );
+        setterRequest->set_allocated_request( field.release() );
 
         SetterReply                                      reply;
-        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_objectStub->ExecuteSetter( &context, &reply ) );
+        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetValue( &context, &reply ) );
         SetterChunk                                      header;
         header.set_allocated_set_request( setterRequest.release() );
         if ( !writer->Write( header ) ) return false;
@@ -158,16 +160,16 @@ public:
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
 
-        auto method = std::make_unique<MethodRequest>();
-        method->set_method( setter );
-        method->set_allocated_self( self.release() );
+        auto field = std::make_unique<FieldRequest>();
+        field->set_method( setter );
+        field->set_allocated_self( self.release() );
 
         auto setterRequest = std::make_unique<SetterRequest>();
         setterRequest->set_value_count( values.size() );
-        setterRequest->set_allocated_request( method.release() );
+        setterRequest->set_allocated_request( field.release() );
 
         SetterReply                                      reply;
-        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_objectStub->ExecuteSetter( &context, &reply ) );
+        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetValue( &context, &reply ) );
         SetterChunk                                      header;
         header.set_allocated_set_request( setterRequest.release() );
         if ( !writer->Write( header ) ) return false;
@@ -198,16 +200,16 @@ public:
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
 
-        auto method = std::make_unique<MethodRequest>();
-        method->set_method( setter );
-        method->set_allocated_self( self.release() );
+        auto field = std::make_unique<FieldRequest>();
+        field->set_method( setter );
+        field->set_allocated_self( self.release() );
 
         auto setterRequest = std::make_unique<SetterRequest>();
         setterRequest->set_value_count( values.size() );
-        setterRequest->set_allocated_request( method.release() );
+        setterRequest->set_allocated_request( field.release() );
 
         SetterReply                                      reply;
-        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_objectStub->ExecuteSetter( &context, &reply ) );
+        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetValue( &context, &reply ) );
         SetterChunk                                      header;
         header.set_allocated_set_request( setterRequest.release() );
         if ( !writer->Write( header ) ) return false;
@@ -229,13 +231,13 @@ public:
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
-        MethodRequest method;
-        method.set_method( getter );
-        method.set_allocated_self( self.release() );
+        FieldRequest field;
+        field.set_method( getter );
+        field.set_allocated_self( self.release() );
 
         std::vector<int> values;
 
-        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_objectStub->ExecuteGetter( &context, method ) );
+        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
         GetterReply                                      reply;
         while ( reader->Read( &reply ) )
         {
@@ -253,13 +255,13 @@ public:
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
-        MethodRequest method;
-        method.set_method( getter );
-        method.set_allocated_self( self.release() );
+        FieldRequest field;
+        field.set_method( getter );
+        field.set_allocated_self( self.release() );
 
         std::vector<double> values;
 
-        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_objectStub->ExecuteGetter( &context, method ) );
+        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
         GetterReply                                      reply;
         while ( reader->Read( &reply ) )
         {
@@ -277,13 +279,13 @@ public:
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
-        MethodRequest method;
-        method.set_method( getter );
-        method.set_allocated_self( self.release() );
+        FieldRequest field;
+        field.set_method( getter );
+        field.set_allocated_self( self.release() );
 
         std::vector<std::string> values;
 
-        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_objectStub->ExecuteGetter( &context, method ) );
+        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
         GetterReply                                      reply;
         while ( reader->Read( &reply ) )
         {
@@ -301,6 +303,7 @@ private:
 
     std::unique_ptr<App::Stub>          m_appInfoStub;
     std::unique_ptr<ObjectAccess::Stub> m_objectStub;
+    std::unique_ptr<FieldAccess::Stub>  m_fieldStub;
 };
 
 //--------------------------------------------------------------------------------------------------

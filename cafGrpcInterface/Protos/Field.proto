@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package caf.rpc;
+
+import "Object.proto";
+
+service FieldAccess
+{
+    rpc SetValue( stream SetterChunk ) returns( SetterReply ) {}
+    rpc GetValue( FieldRequest ) returns( stream GetterReply ) {}
+}
+
+message IntArray
+{
+    repeated int32 data = 1;
+}
+
+message DoubleArray
+{
+    repeated double data = 1;
+}
+
+message StringArray
+{
+    repeated string data = 1;
+}
+
+message FieldRequest
+{
+    Object self   = 1;
+    string method = 2;
+    Object params = 3;
+}
+
+message SetterRequest
+{
+    FieldRequest request     = 1;
+    int32        value_count = 2;
+}
+
+message SetterChunk
+{
+    oneof data
+    {
+        SetterRequest set_request  = 1;
+        string        scalar       = 2;
+        IntArray      ints         = 3;
+        DoubleArray   doubles      = 4;
+        StringArray   strings      = 5;
+    }
+}
+
+message GetterReply
+{
+    oneof data
+    {
+        string       scalar = 1;
+        IntArray    ints    = 2;
+        DoubleArray doubles = 3;
+        StringArray strings = 4;
+    }
+}
+
+message SetterReply
+{
+    int64 value_count = 1;
+}

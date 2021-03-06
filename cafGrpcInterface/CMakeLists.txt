@@ -29,6 +29,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcCallbacks.inl
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcServiceInterface.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcAppService.h
+    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcFieldService.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcObjectService.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcServerApplication.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClient.h
@@ -40,6 +41,7 @@ set(SOURCE_GROUP_HEADER_FILES
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcServer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcAppService.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcFieldService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcObjectService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcServerApplication.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClient.cpp
@@ -112,6 +114,7 @@ set(LINK_LIBRARIES
 # Proto files
 set(PROTO_FILES
     "App"
+    "Field"
     "Object"
 )
 

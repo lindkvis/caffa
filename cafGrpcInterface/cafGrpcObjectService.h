@@ -58,71 +58,7 @@ class ValueField;
 
 namespace caf::rpc
 {
-class GetterReply;
 class MethodRequest;
-class SetterChunk;
-class SetterReply;
-
-struct AbstractDataHolder
-{
-    virtual size_t valueCount() const                                             = 0;
-    virtual size_t valueSizeOf() const                                            = 0;
-    virtual void   reserveReplyStorage( GetterReply* reply ) const                = 0;
-    virtual void   addValueToReply( size_t valueIndex, GetterReply* reply ) const = 0;
-
-    virtual size_t getValuesFromChunk( size_t startIndex, const SetterChunk* chunk ) = 0;
-    virtual void   applyValuesToField( caf::ValueField* field )                      = 0;
-};
-
-/**
- *
- * State handler for client to server streaming
- *
- */
-class GetterStateHandler : public StateHandler<MethodRequest>
-{
-public:
-    GetterStateHandler();
-
-    grpc::Status init( const MethodRequest* request ) override;
-    grpc::Status assignReply( GetterReply* reply );
-    size_t       streamedValueCount() const override;
-    size_t       totalValueCount() const override;
-    void         finish() override;
-
-    StateHandler<MethodRequest>* emptyClone() const override;
-
-protected:
-    caf::Object*                        m_fieldOwner;
-    caf::ValueField*                    m_field;
-    std::unique_ptr<AbstractDataHolder> m_dataHolder;
-    size_t                              m_currentDataIndex;
-};
-
-/**
- *
- * State handler for client to server streaming
- *
- */
-class SetterStateHandler : public StateHandler<SetterChunk>
-{
-public:
-    SetterStateHandler();
-
-    grpc::Status init( const SetterChunk* chunk ) override;
-    grpc::Status receiveRequest( const SetterChunk* chunk, SetterReply* reply );
-    size_t       streamedValueCount() const override;
-    size_t       totalValueCount() const override;
-    void         finish() override;
-
-    StateHandler<SetterChunk>* emptyClone() const override;
-
-protected:
-    caf::Object*                        m_fieldOwner;
-    caf::ValueField*                    m_field;
-    std::unique_ptr<AbstractDataHolder> m_dataHolder;
-    size_t                              m_currentDataIndex;
-};
 
 //==================================================================================================
 //
@@ -135,14 +71,6 @@ public:
     grpc::Status Sync( grpc::ServerContext* context, const Object* request, Object* reply ) override;
     grpc::Status GetDocument( grpc::ServerContext* context, const DocumentRequest* request, Object* reply );
 
-    grpc::Status ExecuteGetter( grpc::ServerContext*         context,
-                                const MethodRequest*         request,
-                                GetterReply*                 reply,
-                                StateHandler<MethodRequest>* stateHandler );
-    grpc::Status ExecuteSetter( grpc::ServerContext*       context,
-                                const SetterChunk*         chunk,
-                                SetterReply*               reply,
-                                StateHandler<SetterChunk>* stateHandler );
     grpc::Status ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, Object* reply ) override;
 
     static caf::Object* findCafObjectFromRpcObject( const Object& rpcObject );

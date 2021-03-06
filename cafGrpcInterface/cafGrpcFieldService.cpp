@@ -1,0 +1,512 @@
+//##################################################################################################
+//
+//   Caffa
+//   Copyright (C) Gaute Lindkvist
+//
+//   This library may be used under the terms of either the GNU General Public License or
+//   the GNU Lesser General Public License as follows:
+//
+//   GNU General Public License Usage
+//   This library is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
+//
+//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//   FITNESS FOR A PARTICULAR PURPOSE.
+//
+//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
+//   for more details.
+//
+//   GNU Lesser General Public License Usage
+//   This library is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU Lesser General Public License as published by
+//   the Free Software Foundation; either version 2.1 of the License, or
+//   (at your option) any later version.
+//
+//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//   FITNESS FOR A PARTICULAR PURPOSE.
+//
+//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//   for more details.
+//
+#include "cafGrpcFieldService.h"
+
+#include "cafGrpcCallbacks.h"
+#include "cafGrpcFieldService.h"
+#include "cafGrpcServerApplication.h"
+
+#include "cafAbstractFieldScriptingCapability.h"
+#include "cafApplication.h"
+#include "cafField.h"
+#include "cafGrpcObjectService.h"
+#include "cafObject.h"
+#include "cafPdmScriptIOMessages.h"
+#include "cafProxyValueField.h"
+
+#include <grpcpp/grpcpp.h>
+
+#include <vector>
+
+namespace caf::rpc
+{
+template <typename DataType>
+struct DataHolder : public AbstractDataHolder
+{
+    DataHolder( const DataType& data )
+        : data( data )
+    {
+    }
+
+    size_t valueCount() const override { return data.size(); }
+    size_t valueSizeOf() const override { return sizeof( typename DataType::value_type ); }
+
+    void   reserveReplyStorage( GetterReply* reply ) const override;
+    void   addValueToReply( size_t valueIndex, GetterReply* reply ) const override;
+    size_t getValuesFromChunk( size_t startIndex, const SetterChunk* chunk ) override;
+    void   applyValuesToField( ValueField* field ) override;
+
+    DataType data;
+};
+
+template <>
+void DataHolder<std::vector<int>>::reserveReplyStorage( GetterReply* reply ) const
+{
+    reply->mutable_ints()->mutable_data()->Reserve( data.size() );
+}
+template <>
+void DataHolder<std::vector<int>>::addValueToReply( size_t valueIndex, GetterReply* reply ) const
+{
+    reply->mutable_ints()->add_data( data[valueIndex] );
+}
+template <>
+size_t DataHolder<std::vector<int>>::getValuesFromChunk( size_t startIndex, const SetterChunk* chunk )
+{
+    size_t chunkSize    = chunk->ints().data_size();
+    size_t currentIndex = startIndex;
+    size_t chunkIndex   = 0u;
+    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
+    {
+        data[currentIndex] = chunk->ints().data()[chunkIndex];
+    }
+    return chunkSize;
+}
+template <>
+void DataHolder<std::vector<int>>::applyValuesToField( ValueField* field )
+{
+    auto proxyValueField = dynamic_cast<ProxyValueField<std::vector<int>>*>( field );
+    auto dataValueField  = dynamic_cast<Field<std::vector<int>>*>( field );
+    if ( proxyValueField )
+    {
+        proxyValueField->setValue( data );
+    }
+    else if ( dataValueField )
+    {
+        dataValueField->setValueWithFieldChanged( data );
+    }
+}
+
+template <>
+void DataHolder<std::vector<double>>::reserveReplyStorage( GetterReply* reply ) const
+{
+    reply->mutable_doubles()->mutable_data()->Reserve( data.size() );
+}
+template <>
+void DataHolder<std::vector<double>>::addValueToReply( size_t valueIndex, GetterReply* reply ) const
+{
+    reply->mutable_doubles()->add_data( data[valueIndex] );
+}
+template <>
+size_t DataHolder<std::vector<double>>::getValuesFromChunk( size_t startIndex, const SetterChunk* chunk )
+{
+    size_t chunkSize    = chunk->doubles().data_size();
+    size_t currentIndex = startIndex;
+    size_t chunkIndex   = 0u;
+    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
+    {
+        data[currentIndex] = chunk->doubles().data()[chunkIndex];
+    }
+    return chunkSize;
+}
+template <>
+void DataHolder<std::vector<double>>::applyValuesToField( ValueField* field )
+{
+    auto proxyValueField = dynamic_cast<ProxyValueField<std::vector<double>>*>( field );
+    auto dataValueField  = dynamic_cast<Field<std::vector<double>>*>( field );
+    if ( proxyValueField )
+    {
+        proxyValueField->setValue( data );
+    }
+    else if ( dataValueField )
+    {
+        dataValueField->setValueWithFieldChanged( data );
+    }
+}
+
+template <>
+void DataHolder<std::vector<std::string>>::reserveReplyStorage( GetterReply* reply ) const
+{
+    reply->mutable_strings()->mutable_data()->Reserve( data.size() );
+}
+template <>
+void DataHolder<std::vector<std::string>>::addValueToReply( size_t valueIndex, GetterReply* reply ) const
+{
+    reply->mutable_strings()->add_data( data[valueIndex] );
+}
+
+template <>
+size_t DataHolder<std::vector<std::string>>::getValuesFromChunk( size_t startIndex, const SetterChunk* chunk )
+{
+    size_t chunkSize    = 1u;
+    size_t currentIndex = startIndex;
+    size_t chunkIndex   = 0u;
+    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
+    {
+        data[currentIndex] = chunk->strings().data()[chunkIndex];
+    }
+    return chunkSize;
+}
+template <>
+void DataHolder<std::vector<std::string>>::applyValuesToField( ValueField* field )
+{
+    auto proxyValueField = dynamic_cast<ProxyValueField<std::vector<std::string>>*>( field );
+    auto dataValueField  = dynamic_cast<Field<std::vector<std::string>>*>( field );
+    if ( proxyValueField )
+    {
+        proxyValueField->setValue( data );
+    }
+    else if ( dataValueField )
+    {
+        dataValueField->setValueWithFieldChanged( data );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+GetterStateHandler::GetterStateHandler()
+    : m_fieldOwner( nullptr )
+    , m_field( nullptr )
+    , m_currentDataIndex( 0u )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status GetterStateHandler::init( const FieldRequest* request )
+{
+    m_fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self() );
+    CAF_ASSERT( m_fieldOwner );
+    if ( !m_fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
+    std::vector<FieldHandle*> fields;
+    m_fieldOwner->fields( fields );
+    for ( auto field : fields )
+    {
+        auto scriptability = field->capability<AbstractFieldScriptingCapability>();
+        if ( scriptability && request->method() == scriptability->scriptFieldName() )
+        {
+            ProxyFieldHandle* proxyField = dynamic_cast<ProxyFieldHandle*>( field );
+            if ( proxyField )
+            {
+                m_field = proxyField;
+
+                if ( dynamic_cast<ProxyValueField<std::vector<int>>*>( field ) )
+                {
+                    auto dataField = dynamic_cast<ProxyValueField<std::vector<int>>*>( field );
+                    m_dataHolder.reset( new DataHolder<std::vector<int>>( dataField->value() ) );
+                    return grpc::Status::OK;
+                }
+                else if ( dynamic_cast<ProxyValueField<std::vector<double>>*>( field ) )
+                {
+                    auto dataField = dynamic_cast<ProxyValueField<std::vector<double>>*>( field );
+                    m_dataHolder.reset( new DataHolder<std::vector<double>>( dataField->value() ) );
+                    return grpc::Status::OK;
+                }
+                else if ( dynamic_cast<ProxyValueField<std::vector<std::string>>*>( field ) )
+                {
+                    auto dataField = dynamic_cast<ProxyValueField<std::vector<std::string>>*>( field );
+                    m_dataHolder.reset( new DataHolder<std::vector<std::string>>( dataField->value() ) );
+                    return grpc::Status::OK;
+                }
+                else
+                {
+                    CAF_ASSERT( false && "The proxy field data type is not yet supported for streaming fields" );
+                }
+            }
+            else
+            {
+                if ( auto dataField = dynamic_cast<Field<std::vector<int>>*>( field ); dataField != nullptr )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<std::vector<int>>( dataField->value() ) );
+                    return grpc::Status::OK;
+                }
+                else if ( auto dataField = dynamic_cast<Field<std::vector<double>>*>( field ) )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<std::vector<double>>( dataField->value() ) );
+                    return grpc::Status::OK;
+                }
+                else if ( auto dataField = dynamic_cast<Field<std::vector<std::string>>*>( field ) )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<std::vector<std::string>>( dataField->value() ) );
+                    return grpc::Status::OK;
+                }
+                else
+                {
+                    CAF_ASSERT( false && "The proxy field data type is not yet supported for streaming fields" );
+                }
+            }
+        }
+    }
+
+    return grpc::Status( grpc::NOT_FOUND, "Proxy field not found" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status GetterStateHandler::assignReply( GetterReply* reply )
+{
+    CAF_ASSERT( m_dataHolder );
+    size_t dataUnitsInPackage = ServiceInterface::packageByteSize() / m_dataHolder->valueSizeOf();
+
+    size_t indexInPackage = 0u;
+    m_dataHolder->reserveReplyStorage( reply );
+
+    for ( ; indexInPackage < dataUnitsInPackage && m_currentDataIndex < m_dataHolder->valueCount(); ++indexInPackage )
+    {
+        m_dataHolder->addValueToReply( m_currentDataIndex, reply );
+        m_currentDataIndex++;
+    }
+    if ( indexInPackage > 0u )
+    {
+        return grpc::Status::OK;
+    }
+    return grpc::Status( grpc::OUT_OF_RANGE,
+                         "We've reached the end. This is not an error but means transmission is finished" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t GetterStateHandler::streamedValueCount() const
+{
+    return m_currentDataIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t GetterStateHandler::totalValueCount() const
+{
+    return m_dataHolder->valueCount();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void GetterStateHandler::finish()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+StateHandler<FieldRequest>* GetterStateHandler::emptyClone() const
+{
+    return new GetterStateHandler;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+SetterStateHandler::SetterStateHandler()
+    : m_fieldOwner( nullptr )
+    , m_field( nullptr )
+    , m_currentDataIndex( 0u )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
+{
+    CAF_ASSERT( chunk->has_set_request() );
+    auto setRequest   = chunk->set_request();
+    auto FieldRequest = setRequest.request();
+    m_fieldOwner      = ObjectService::findCafObjectFromRpcObject( FieldRequest.self() );
+    int valueCount    = setRequest.value_count();
+
+    std::vector<FieldHandle*> fields;
+    m_fieldOwner->fields( fields );
+    for ( auto field : fields )
+    {
+        auto scriptability = field->capability<AbstractFieldScriptingCapability>();
+        if ( scriptability && FieldRequest.method() == scriptability->scriptFieldName() )
+        {
+            ProxyFieldHandle* proxyField = dynamic_cast<ProxyFieldHandle*>( field );
+            if ( proxyField )
+            {
+                m_field = proxyField;
+
+                if ( dynamic_cast<ProxyValueField<std::vector<int>>*>( field ) )
+                {
+                    m_dataHolder.reset( new DataHolder<std::vector<int>>( std::vector<int>( valueCount ) ) );
+                    return grpc::Status::OK;
+                }
+                else if ( dynamic_cast<ProxyValueField<std::vector<double>>*>( field ) )
+                {
+                    m_dataHolder.reset( new DataHolder<std::vector<double>>( std::vector<double>( valueCount ) ) );
+                    return grpc::Status::OK;
+                }
+                else if ( dynamic_cast<ProxyValueField<std::vector<std::string>>*>( field ) )
+                {
+                    m_dataHolder.reset( new DataHolder<std::vector<std::string>>( std::vector<std::string>( valueCount ) ) );
+                    return grpc::Status::OK;
+                }
+                else
+                {
+                    CAF_ASSERT( false && "The proxy field data type is not yet supported for streaming fields" );
+                }
+            }
+            else
+            {
+                if ( auto dataField = dynamic_cast<Field<std::vector<int>>*>( field ); dataField != nullptr )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<std::vector<int>>( std::vector<int>( valueCount ) ) );
+                    return grpc::Status::OK;
+                }
+                else if ( auto dataField = dynamic_cast<Field<std::vector<double>>*>( field ); dataField != nullptr )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<std::vector<double>>( std::vector<double>( valueCount ) ) );
+                    return grpc::Status::OK;
+                }
+                else if ( auto dataField = dynamic_cast<Field<std::vector<std::string>>*>( field ); dataField != nullptr )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<std::vector<std::string>>( std::vector<std::string>( valueCount ) ) );
+                    return grpc::Status::OK;
+                }
+                else
+                {
+                    CAF_ASSERT( false && "The proxy field data type is not yet supported for streaming fields" );
+                }
+            }
+        }
+    }
+    return grpc::Status( grpc::NOT_FOUND, "Proxy field not found" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status SetterStateHandler::receiveRequest( const SetterChunk* chunk, SetterReply* reply )
+{
+    size_t valuesWritten = m_dataHolder->getValuesFromChunk( m_currentDataIndex, chunk );
+    m_currentDataIndex += valuesWritten;
+
+    if ( m_currentDataIndex > totalValueCount() )
+    {
+        return grpc::Status( grpc::OUT_OF_RANGE, "Attempting to write out of bounds" );
+    }
+    reply->set_value_count( static_cast<int64_t>( m_currentDataIndex ) );
+    return grpc::Status::OK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t SetterStateHandler::streamedValueCount() const
+{
+    return m_currentDataIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t SetterStateHandler::totalValueCount() const
+{
+    return m_dataHolder->valueCount();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void SetterStateHandler::finish()
+{
+    if ( m_field )
+    {
+        auto scriptingCapability = m_field->capability<AbstractFieldScriptingCapability>();
+        CAF_ASSERT( scriptingCapability );
+        Variant before = m_field->toVariant();
+        m_dataHolder->applyValuesToField( m_field );
+        Variant after = m_field->toVariant();
+        m_fieldOwner->fieldChangedByCapability( m_field, scriptingCapability, before, after );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+StateHandler<SetterChunk>* SetterStateHandler::emptyClone() const
+{
+    return new SetterStateHandler;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status FieldService::GetValue( grpc::ServerContext*        context,
+                                     const FieldRequest*         request,
+                                     GetterReply*                reply,
+                                     StateHandler<FieldRequest>* stateHandler )
+{
+    auto getterHandler = dynamic_cast<GetterStateHandler*>( stateHandler );
+    CAF_ASSERT( getterHandler );
+    return getterHandler->assignReply( reply );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status FieldService::SetValue( grpc::ServerContext*       context,
+                                     const SetterChunk*         chunk,
+                                     SetterReply*               reply,
+                                     StateHandler<SetterChunk>* stateHandler )
+{
+    auto setterHandler = dynamic_cast<SetterStateHandler*>( stateHandler );
+    CAF_ASSERT( setterHandler );
+    return setterHandler->receiveRequest( chunk, reply );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<AbstractCallback*> FieldService::registerCallbacks()
+{
+    typedef FieldService Self;
+    return {
+        new ServerToClientStreamCallback<Self, FieldRequest, GetterReply>( this,
+                                                                           &Self::GetValue,
+                                                                           &Self::RequestGetValue,
+                                                                           new GetterStateHandler ),
+
+        new ClientToServerStreamCallback<Self, SetterChunk, SetterReply>( this,
+                                                                          &Self::SetValue,
+                                                                          &Self::RequestSetValue,
+                                                                          new SetterStateHandler ),
+    };
+}
+
+static bool FieldService_init =
+    ServiceFactory::instance()->registerCreator<FieldService>( typeid( FieldService ).hash_code() );
+
+} // namespace caf::rpc
