@@ -208,63 +208,32 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
         auto scriptability = field->capability<AbstractFieldScriptingCapability>();
         if ( scriptability && request->method() == scriptability->scriptFieldName() )
         {
-            ProxyFieldHandle* proxyField = dynamic_cast<ProxyFieldHandle*>( field );
-            if ( proxyField )
+            if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int>>*>( field ); dataField != nullptr )
             {
-                m_field = proxyField;
-
-                if ( dynamic_cast<ProxyValueField<std::vector<int>>*>( field ) )
-                {
-                    auto dataField = dynamic_cast<ProxyValueField<std::vector<int>>*>( field );
-                    m_dataHolder.reset( new DataHolder<std::vector<int>>( dataField->value() ) );
-                    return grpc::Status::OK;
-                }
-                else if ( dynamic_cast<ProxyValueField<std::vector<double>>*>( field ) )
-                {
-                    auto dataField = dynamic_cast<ProxyValueField<std::vector<double>>*>( field );
-                    m_dataHolder.reset( new DataHolder<std::vector<double>>( dataField->value() ) );
-                    return grpc::Status::OK;
-                }
-                else if ( dynamic_cast<ProxyValueField<std::vector<std::string>>*>( field ) )
-                {
-                    auto dataField = dynamic_cast<ProxyValueField<std::vector<std::string>>*>( field );
-                    m_dataHolder.reset( new DataHolder<std::vector<std::string>>( dataField->value() ) );
-                    return grpc::Status::OK;
-                }
-                else
-                {
-                    CAF_ASSERT( false && "The proxy field data type is not yet supported for streaming fields" );
-                }
+                m_field = dataField;
+                m_dataHolder.reset( new DataHolder<std::vector<int>>( dataField->value() ) );
+                return grpc::Status::OK;
+            }
+            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<double>>*>( field ) )
+            {
+                m_field = dataField;
+                m_dataHolder.reset( new DataHolder<std::vector<double>>( dataField->value() ) );
+                return grpc::Status::OK;
+            }
+            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<std::string>>*>( field ) )
+            {
+                m_field = dataField;
+                m_dataHolder.reset( new DataHolder<std::vector<std::string>>( dataField->value() ) );
+                return grpc::Status::OK;
             }
             else
             {
-                if ( auto dataField = dynamic_cast<Field<std::vector<int>>*>( field ); dataField != nullptr )
-                {
-                    m_field = dataField;
-                    m_dataHolder.reset( new DataHolder<std::vector<int>>( dataField->value() ) );
-                    return grpc::Status::OK;
-                }
-                else if ( auto dataField = dynamic_cast<Field<std::vector<double>>*>( field ) )
-                {
-                    m_field = dataField;
-                    m_dataHolder.reset( new DataHolder<std::vector<double>>( dataField->value() ) );
-                    return grpc::Status::OK;
-                }
-                else if ( auto dataField = dynamic_cast<Field<std::vector<std::string>>*>( field ) )
-                {
-                    m_field = dataField;
-                    m_dataHolder.reset( new DataHolder<std::vector<std::string>>( dataField->value() ) );
-                    return grpc::Status::OK;
-                }
-                else
-                {
-                    CAF_ASSERT( false && "The proxy field data type is not yet supported for streaming fields" );
-                }
+                CAF_ASSERT( false && "Field data type is not yet supported for streaming fields" );
             }
         }
     }
 
-    return grpc::Status( grpc::NOT_FOUND, "Proxy field not found" );
+    return grpc::Status( grpc::NOT_FOUND, "Field not found" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -350,55 +319,28 @@ grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
         auto scriptability = field->capability<AbstractFieldScriptingCapability>();
         if ( scriptability && FieldRequest.method() == scriptability->scriptFieldName() )
         {
-            ProxyFieldHandle* proxyField = dynamic_cast<ProxyFieldHandle*>( field );
-            if ( proxyField )
+            if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int>>*>( field ); dataField != nullptr )
             {
-                m_field = proxyField;
-
-                if ( dynamic_cast<ProxyValueField<std::vector<int>>*>( field ) )
-                {
-                    m_dataHolder.reset( new DataHolder<std::vector<int>>( std::vector<int>( valueCount ) ) );
-                    return grpc::Status::OK;
-                }
-                else if ( dynamic_cast<ProxyValueField<std::vector<double>>*>( field ) )
-                {
-                    m_dataHolder.reset( new DataHolder<std::vector<double>>( std::vector<double>( valueCount ) ) );
-                    return grpc::Status::OK;
-                }
-                else if ( dynamic_cast<ProxyValueField<std::vector<std::string>>*>( field ) )
-                {
-                    m_dataHolder.reset( new DataHolder<std::vector<std::string>>( std::vector<std::string>( valueCount ) ) );
-                    return grpc::Status::OK;
-                }
-                else
-                {
-                    CAF_ASSERT( false && "The proxy field data type is not yet supported for streaming fields" );
-                }
+                m_field = dataField;
+                m_dataHolder.reset( new DataHolder<std::vector<int>>( std::vector<int>( valueCount ) ) );
+                return grpc::Status::OK;
+            }
+            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<double>>*>( field ); dataField != nullptr )
+            {
+                m_field = dataField;
+                m_dataHolder.reset( new DataHolder<std::vector<double>>( std::vector<double>( valueCount ) ) );
+                return grpc::Status::OK;
+            }
+            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<std::string>>*>( field );
+                      dataField != nullptr )
+            {
+                m_field = dataField;
+                m_dataHolder.reset( new DataHolder<std::vector<std::string>>( std::vector<std::string>( valueCount ) ) );
+                return grpc::Status::OK;
             }
             else
             {
-                if ( auto dataField = dynamic_cast<Field<std::vector<int>>*>( field ); dataField != nullptr )
-                {
-                    m_field = dataField;
-                    m_dataHolder.reset( new DataHolder<std::vector<int>>( std::vector<int>( valueCount ) ) );
-                    return grpc::Status::OK;
-                }
-                else if ( auto dataField = dynamic_cast<Field<std::vector<double>>*>( field ); dataField != nullptr )
-                {
-                    m_field = dataField;
-                    m_dataHolder.reset( new DataHolder<std::vector<double>>( std::vector<double>( valueCount ) ) );
-                    return grpc::Status::OK;
-                }
-                else if ( auto dataField = dynamic_cast<Field<std::vector<std::string>>*>( field ); dataField != nullptr )
-                {
-                    m_field = dataField;
-                    m_dataHolder.reset( new DataHolder<std::vector<std::string>>( std::vector<std::string>( valueCount ) ) );
-                    return grpc::Status::OK;
-                }
-                else
-                {
-                    CAF_ASSERT( false && "The proxy field data type is not yet supported for streaming fields" );
-                }
+                CAF_ASSERT( false && "The proxy field data type is not yet supported for streaming fields" );
             }
         }
     }

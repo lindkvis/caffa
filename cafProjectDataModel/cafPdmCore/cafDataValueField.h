@@ -45,7 +45,6 @@
 #include "cafValueFieldSpecializations.h"
 
 #include <any>
-#include <typeinfo>
 #include <vector>
 
 namespace caf
@@ -58,30 +57,27 @@ class ObjectHandle;
 //==================================================================================================
 
 template <typename DataType>
-class DataValueField : public ValueField
+class DataValueField : public TypedValueField<DataType>
 {
 public:
-    // Type traits magic to check if a template argument is a vector
-    template <typename T>
-    struct is_vector : public std::false_type
-    {
-    };
-    template <typename T, typename A>
-    struct is_vector<std::vector<T, A>> : public std::true_type
-    {
-    };
-
-    using FieldDataType         = DataType;
-    using DataAccessor          = DataFieldAccessorInterface<DataType>;
+    using DataAccessor          = typename TypedValueField<DataType>::DataAccessor;
     using DirectStorageAccessor = DataFieldDirectStorageAccessor<DataType>;
 
     DataValueField()
         : m_fieldDataAccessor( std::make_unique<DirectStorageAccessor>() )
     {
     }
-    DataValueField( const DataValueField& other ) { m_fieldDataAccessor = other.m_fieldDataAccessor; }
+    DataValueField( const DataValueField& other )
+    {
+        m_fieldDataAccessor = std::move( other.m_fieldDataAccessor->clone() );
+    }
     explicit DataValueField( const DataType& fieldValue )
         : m_fieldDataAccessor( std::make_unique<DirectStorageAccessor>( fieldValue ) )
+    {
+    }
+
+    DataValueField( std::unique_ptr<DataAccessor> accessor )
+        : m_fieldDataAccessor( std::move( accessor ) )
     {
     }
     ~DataValueField() override {}
@@ -103,8 +99,9 @@ public:
 
     // Basic access
 
-    DataType& value() const { return m_fieldDataAccessor->value(); }
-    void      setValue( const DataType& fieldValue )
+    DataType value() const override { return m_fieldDataAccessor->value(); }
+    DataType v() const { return m_fieldDataAccessor->value(); }
+    void     setValue( const DataType& fieldValue ) override
     {
         CAF_ASSERT( isInitializedByInitFieldMacro() );
         m_fieldDataAccessor->setValue( fieldValue );
@@ -121,28 +118,31 @@ public:
     void setFromVariant( const Variant& variant ) override
     {
         CAF_ASSERT( isInitializedByInitFieldMacro() );
-        ValueFieldSpecialization<DataType>::setFromVariant( variant, m_fieldDataAccessor->value() );
+        DataType value;
+        ValueFieldSpecialization<DataType>::setFromVariant( variant, value );
+        m_fieldDataAccessor->setValue( value );
     }
     bool isReadOnly() const override { return false; }
 
     // Access operators
 
-    /*Conversion */ operator DataType() const { return m_fieldDataAccessor->value(); }
-    const DataType& operator()() const { return m_fieldDataAccessor->value(); }
-
-    DataType&       v() { return m_fieldDataAccessor->value(); }
-    const DataType& v() const { return m_fieldDataAccessor->value(); }
+    /*Conversion */ operator DataType() const
+    {
+        CAF_ASSERT( m_fieldDataAccessor );
+        return m_fieldDataAccessor->value();
+    }
+    DataType operator()() const
+    {
+        CAF_ASSERT( m_fieldDataAccessor );
+        return m_fieldDataAccessor->value();
+    }
 
     bool operator==( const DataType& fieldValue ) const { return m_fieldDataAccessor->value() == fieldValue; }
     bool operator!=( const DataType& fieldValue ) const { return m_fieldDataAccessor->value() != fieldValue; }
 
     // Replace accessor
-    void setFieldDataAccessor( std::unique_ptr<DataAccessor> accessor )
+    void setFieldDataAccessor( std::unique_ptr<DataAccessor> accessor ) override
     {
-        // Copy existing values
-        accessor->setValue( m_fieldDataAccessor->value() );
-        if ( accessor->defaultValue().has_value() ) accessor->setDefaultValue( m_fieldDataAccessor->defaultValue() );
-        // Assign new accessor
         m_fieldDataAccessor = std::move( accessor );
     }
 

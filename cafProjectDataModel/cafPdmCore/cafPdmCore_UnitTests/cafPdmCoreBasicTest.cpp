@@ -611,8 +611,10 @@ TEST( BaseTest, MultiplePdmFilePath )
     InheritedDemoObj* d = new InheritedDemoObj;
 
     std::string newVal = "path with space";
-    d->m_multipleFilePath.v().push_back( newVal );
-    d->m_multipleFilePath.v().push_back( newVal );
+    auto        v      = d->m_multipleFilePath();
+    v.push_back( newVal );
+    v.push_back( newVal );
+    d->m_multipleFilePath.setValue( v );
 
     caf::Variant                           var = d->m_multipleFilePath.toVariant();
     std::vector<std::filesystem::path> str = var.value<std::vector<std::filesystem::path>>();

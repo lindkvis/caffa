@@ -35,25 +35,44 @@
 //##################################################################################################
 #pragma once
 
+#include "cafDataFieldAccessor.h"
 #include "cafFieldHandle.h"
 
 #include <any>
+#include <typeinfo>
 
 namespace caf
 {
 class ValueField : public FieldHandle
 {
 public:
-    virtual Variant toVariant() const                            = 0;
+    virtual Variant toVariant() const                        = 0;
     virtual void    setFromVariant( const Variant& variant ) = 0;
     virtual bool    isReadOnly() const                       = 0;
 };
 
-// class ProxyValueField : public ValueField
-// {
-//     DataType        value() const                      { CAF_ASSERT(m_valueGetter);  return
-//     m_valueGetter->getValue(); } void            setValue(const DataType& fieldValue)  { if (m_valueSetter)
-//     m_valueSetter->setValue(fieldValue); }
-// }
+template <typename DataType>
+class TypedValueField : public ValueField
+{
+public:
+    // Type traits magic to check if a template argument is a vector
+    template <typename T>
+    struct is_vector : public std::false_type
+    {
+    };
+    template <typename T, typename A>
+    struct is_vector<std::vector<T, A>> : public std::true_type
+    {
+    };
+
+    using FieldDataType = DataType;
+    using DataAccessor  = DataFieldAccessorInterface<DataType>;
+
+public:
+    virtual DataType value() const                          = 0;
+    virtual void     setValue( const DataType& fieldValue ) = 0;
+
+    virtual void setFieldDataAccessor( std::unique_ptr<DataAccessor> accessor ) = 0;
+};
 
 } // End of namespace caf

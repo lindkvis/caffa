@@ -358,10 +358,11 @@ TEST( BaseTest, FilePathSerializing )
     SimpleObj* s1 = new SimpleObj;
 
     std::filesystem::path newVal = "path with space";
-    s1->m_multipleFilePath.v().push_back( newVal );
-    s1->m_multipleFilePath.v().push_back( newVal );
-
-    s1->m_singleFilePath = newVal;
+    auto                  v      = s1->m_multipleFilePath.v();
+    v.push_back( newVal );
+    v.push_back( newVal );
+    s1->m_multipleFilePath = v;
+    s1->m_singleFilePath   = newVal;
 
     std::string serializedString = s1->writeObjectToString();
 
