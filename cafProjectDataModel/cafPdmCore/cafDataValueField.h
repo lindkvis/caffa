@@ -40,6 +40,7 @@
 #include "cafValueField.h"
 
 #include "cafAssert.h"
+#include "cafDataFieldAccessor.h"
 #include "cafFieldUiCapabilityInterface.h"
 #include "cafValueFieldSpecializations.h"
 
@@ -70,10 +71,19 @@ public:
     {
     };
 
-    typedef DataType FieldDataType;
-    DataValueField() {}
-    DataValueField( const DataValueField& other ) { m_fieldValue = other.m_fieldValue; }
-    explicit DataValueField( const DataType& fieldValue ) { m_fieldValue = fieldValue; }
+    using FieldDataType         = DataType;
+    using DataAccessor          = DataFieldAccessorInterface<DataType>;
+    using DirectStorageAccessor = DataFieldDirectStorageAccessor<DataType>;
+
+    DataValueField()
+        : m_fieldDataAccessor( std::make_unique<DirectStorageAccessor>() )
+    {
+    }
+    DataValueField( const DataValueField& other ) { m_fieldDataAccessor = other.m_fieldDataAccessor; }
+    explicit DataValueField( const DataType& fieldValue )
+        : m_fieldDataAccessor( std::make_unique<DirectStorageAccessor>( fieldValue ) )
+    {
+    }
     ~DataValueField() override {}
 
     // Assignment
@@ -81,23 +91,23 @@ public:
     DataValueField& operator=( const DataValueField& other )
     {
         CAF_ASSERT( isInitializedByInitFieldMacro() );
-        m_fieldValue = other.m_fieldValue;
+        m_fieldDataAccessor = other.m_fieldDataAccessor->clone();
         return *this;
     }
     DataValueField& operator=( const DataType& fieldValue )
     {
         CAF_ASSERT( isInitializedByInitFieldMacro() );
-        m_fieldValue = fieldValue;
+        m_fieldDataAccessor->setValue( fieldValue );
         return *this;
     }
 
     // Basic access
 
-    DataType value() const { return m_fieldValue; }
-    void     setValue( const DataType& fieldValue )
+    DataType& value() const { return m_fieldDataAccessor->value(); }
+    void      setValue( const DataType& fieldValue )
     {
         CAF_ASSERT( isInitializedByInitFieldMacro() );
-        m_fieldValue = fieldValue;
+        m_fieldDataAccessor->setValue( fieldValue );
     }
     void setValueWithFieldChanged( const DataType& fieldValue );
 
@@ -106,35 +116,42 @@ public:
     Variant toVariant() const override
     {
         CAF_ASSERT( isInitializedByInitFieldMacro() );
-        return ValueFieldSpecialization<DataType>::convert( m_fieldValue );
+        return ValueFieldSpecialization<DataType>::convert( m_fieldDataAccessor->value() );
     }
     void setFromVariant( const Variant& variant ) override
     {
         CAF_ASSERT( isInitializedByInitFieldMacro() );
-        ValueFieldSpecialization<DataType>::setFromVariant( variant, m_fieldValue );
+        ValueFieldSpecialization<DataType>::setFromVariant( variant, m_fieldDataAccessor->value() );
     }
     bool isReadOnly() const override { return false; }
 
     // Access operators
 
-    /*Conversion */ operator DataType() const { return m_fieldValue; }
-    const DataType& operator()() const { return m_fieldValue; }
+    /*Conversion */ operator DataType() const { return m_fieldDataAccessor->value(); }
+    const DataType& operator()() const { return m_fieldDataAccessor->value(); }
 
-    DataType&       v() { return m_fieldValue; } // This one breaches encapsulation. Remove ?
-    const DataType& v() const { return m_fieldValue; }
+    DataType&       v() { return m_fieldDataAccessor->value(); }
+    const DataType& v() const { return m_fieldDataAccessor->value(); }
 
-    bool operator==( const DataType& fieldValue ) const { return m_fieldValue == fieldValue; }
-    bool operator!=( const DataType& fieldValue ) const { return m_fieldValue != fieldValue; }
+    bool operator==( const DataType& fieldValue ) const { return m_fieldDataAccessor->value() == fieldValue; }
+    bool operator!=( const DataType& fieldValue ) const { return m_fieldDataAccessor->value() != fieldValue; }
 
-protected:
-    DataType m_fieldValue;
+    // Replace accessor
+    void setFieldDataAccessor( std::unique_ptr<DataAccessor> accessor )
+    {
+        // Copy existing values
+        accessor->setValue( m_fieldDataAccessor->value() );
+        if ( accessor->defaultValue().has_value() ) accessor->setDefaultValue( m_fieldDataAccessor->defaultValue() );
+        // Assign new accessor
+        m_fieldDataAccessor = std::move( accessor );
+    }
 
 public:
-    const DataType& defaultValue() const { return m_defaultFieldValue; }
-    void            setDefaultValue( const DataType& val ) { m_defaultFieldValue = val; }
+    std::optional<DataType> defaultValue() const { return m_fieldDataAccessor->defaultValue(); }
+    void                    setDefaultValue( const DataType& val ) { m_fieldDataAccessor->setDefaultValue( val ); }
 
 protected:
-    DataType m_defaultFieldValue;
+    std::unique_ptr<DataAccessor> m_fieldDataAccessor;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -150,7 +167,7 @@ void caf::DataValueField<DataType>::setValueWithFieldChanged( const DataType& fi
     {
         Variant oldValue = uiFieldHandleInterface->toUiBasedVariant();
 
-        m_fieldValue = fieldValue;
+        m_fieldDataAccessor->setValue( fieldValue );
 
         Variant newUiBasedVariant = uiFieldHandleInterface->toUiBasedVariant();
 
@@ -158,7 +175,7 @@ void caf::DataValueField<DataType>::setValueWithFieldChanged( const DataType& fi
     }
     else
     {
-        m_fieldValue = fieldValue;
+        m_fieldDataAccessor->setValue( fieldValue );
     }
 }
 
