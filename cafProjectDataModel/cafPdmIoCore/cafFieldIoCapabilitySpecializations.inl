@@ -22,7 +22,7 @@ namespace caf
 template <typename FieldType>
 bool FieldIoCap<FieldType>::isVectorField() const
 {
-    return is_vector<FieldType>();
+    return caf::is_vector<FieldType>();
 }
 
 //--------------------------------------------------------------------------------------------------

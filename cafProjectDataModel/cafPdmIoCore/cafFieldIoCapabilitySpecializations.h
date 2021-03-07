@@ -18,16 +18,6 @@ template <typename FieldType>
 class FieldIoCap : public FieldIoCapability
 {
 public:
-    // Type traits magic to check if a template argument is a vector
-    template <typename T>
-    struct is_vector : public std::false_type
-    {
-    };
-    template <typename T, typename A>
-    struct is_vector<std::vector<T, A>> : public std::true_type
-    {
-    };
-
     FieldIoCap( FieldType* field, bool giveOwnership )
         : FieldIoCapability( field, giveOwnership )
     {

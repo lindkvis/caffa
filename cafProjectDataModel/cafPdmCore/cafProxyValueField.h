@@ -29,8 +29,8 @@ class SetValueInterface
 {
 public:
     virtual ~SetValueInterface() {}
-    virtual void                               setValue( const DataType& value ) = 0;
-    virtual std::unique_ptr<SetValueInterface> clone() const                     = 0;
+    virtual void                                         setValue( const DataType& value ) = 0;
+    virtual std::unique_ptr<SetValueInterface<DataType>> clone() const                     = 0;
 };
 
 template <typename DataType, typename ObjectType>
@@ -47,7 +47,7 @@ public:
 
     void setValue( const DataType& value ) { ( m_obj->*m_setterMethod )( value ); }
 
-    virtual std::unique_ptr<SetValueInterface> clone() const
+    virtual std::unique_ptr<SetValueInterface<DataType>> clone() const
     {
         return std::make_unique<SetterMethodCB<DataType, ObjectType>>( m_obj, m_setterMethod );
     }
@@ -62,8 +62,8 @@ class GetValueInterface
 {
 public:
     virtual ~GetValueInterface() {}
-    virtual DataType                           getValue() const = 0;
-    virtual std::unique_ptr<GetValueInterface> clone() const    = 0;
+    virtual DataType                                     getValue() const = 0;
+    virtual std::unique_ptr<GetValueInterface<DataType>> clone() const    = 0;
 };
 
 template <typename DataType, typename ObjectType>
@@ -80,7 +80,7 @@ public:
 
     DataType getValue() const { return ( m_obj->*m_getterMethod )(); }
 
-    virtual std::unique_ptr<GetValueInterface> clone() const
+    virtual std::unique_ptr<GetValueInterface<DataType>> clone() const
     {
         return std::make_unique<GetterMethodCB<DataType, ObjectType>>( m_obj, m_getterMethod );
     }
@@ -91,10 +91,10 @@ private:
 };
 
 template <typename DataType>
-class ProxyFieldDataAccessor : public DataFieldAccessorInterface<DataType>
+class ProxyFieldDataAccessor : public DataFieldAccessor<DataType>
 {
 public:
-    std::unique_ptr<DataFieldAccessorInterface> clone() const override
+    std::unique_ptr<DataFieldAccessor<DataType>> clone() const override
     {
         auto copy           = std::make_unique<ProxyFieldDataAccessor>();
         copy->m_valueSetter = std::move( m_valueSetter->clone() );
@@ -156,7 +156,7 @@ public:
     {
     }
 
-    bool isStreamingField() const override { return is_vector<DataType>(); }
+    bool isStreamingField() const override { return caf::is_vector<DataType>(); }
     bool hasGetter() const override { return proxyAccessor()->hasGetter(); }
     bool hasSetter() const override { return proxyAccessor()->hasSetter(); }
 
@@ -174,9 +174,9 @@ public:
 
     // Access operators
 
-    DataType operator()() const { return value(); }
-    DataType v() const { return value(); }
-    bool     operator==( const DataType& otherValue ) const { return value() == otherValue; }
+    DataType operator()() const { return this->value(); }
+    DataType v() const { return this->value(); }
+    bool     operator==( const DataType& otherValue ) const { return this->value() == otherValue; }
 
     template <typename OwnerObjectType>
     void registerSetMethod( OwnerObjectType*                                                     obj,
@@ -193,10 +193,10 @@ public:
     }
 
 private:
-    ProxyAccessor*       proxyAccessor() { return static_cast<ProxyAccessor*>( m_fieldDataAccessor.get() ); }
+    ProxyAccessor*       proxyAccessor() { return static_cast<ProxyAccessor*>( this->m_fieldDataAccessor.get() ); }
     const ProxyAccessor* proxyAccessor() const
     {
-        return static_cast<const ProxyAccessor*>( m_fieldDataAccessor.get() );
+        return static_cast<const ProxyAccessor*>( this->m_fieldDataAccessor.get() );
     }
 
     PDM_DISABLE_COPY_AND_ASSIGN( ProxyValueField );

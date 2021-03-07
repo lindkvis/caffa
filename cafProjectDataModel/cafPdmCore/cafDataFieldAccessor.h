@@ -3,22 +3,6 @@
 //   Caffa
 //   Copyright (C) Gaute Lindkvist
 //
-//   This library may be used under the terms of either the GNU General Public License or
-//   the GNU Lesser General Public License as follows:
-//
-//   GNU General Public License Usage
-//   This library is free software: you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation, either version 3 of the License, or
-//   (at your option) any later version.
-//
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
-//
-//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
-//   for more details.
-//
 //   GNU Lesser General Public License Usage
 //   This library is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU Lesser General Public License as published by
@@ -39,13 +23,17 @@
 
 namespace caf
 {
-template <class DataType>
 class DataFieldAccessorInterface
 {
 public:
     virtual ~DataFieldAccessorInterface() = default;
+};
 
-    virtual std::unique_ptr<DataFieldAccessorInterface> clone() const = 0;
+template <class DataType>
+class DataFieldAccessor : public DataFieldAccessorInterface
+{
+public:
+    virtual std::unique_ptr<DataFieldAccessor<DataType>> clone() const = 0;
 
     virtual DataType value()                           = 0;
     virtual void     setValue( const DataType& value ) = 0;
@@ -55,7 +43,7 @@ public:
 };
 
 template <class DataType>
-class DataFieldDirectStorageAccessor : public DataFieldAccessorInterface<DataType>
+class DataFieldDirectStorageAccessor : public DataFieldAccessor<DataType>
 {
 public:
     DataFieldDirectStorageAccessor() = default;
@@ -66,9 +54,9 @@ public:
     {
     }
 
-    std::unique_ptr<DataFieldAccessorInterface<DataType>> clone() const override
+    std::unique_ptr<DataFieldAccessor<DataType>> clone() const override
     {
-        std::unique_ptr<DataFieldAccessorInterface<DataType>> copy;
+        std::unique_ptr<DataFieldAccessor<DataType>> copy;
         if ( m_defaultValue.has_value() )
             copy = std::make_unique<DataFieldDirectStorageAccessor<DataType>>( *m_defaultValue );
         else

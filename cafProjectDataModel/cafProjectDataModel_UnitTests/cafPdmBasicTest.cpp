@@ -270,10 +270,10 @@ TEST( BaseTest, NormalField )
 
     // Constructors
     myObj.field2 = testValue;
-    EXPECT_EQ( 1.3, myObj.field2.v()[2] );
+    EXPECT_EQ( 1.3, myObj.field2.value()[2] );
 
     myObj.field3 = myObj.field2;
-    EXPECT_EQ( 1.3, myObj.field3.v()[2] );
+    EXPECT_EQ( 1.3, myObj.field3.value()[2] );
     EXPECT_EQ( size_t( 0 ), myObj.field1().size() );
 
     // Operators
@@ -446,32 +446,45 @@ TEST( BaseTest, ReadWrite )
         SimpleObj* s1 = new SimpleObj;
         SimpleObj  s2;
 
-        s1->m_numbers.v().push_back( 1.7 );
+        s1->m_numbers = { 1.7 };
 
         // set some values
-        s2.m_numbers.v().push_back( 2.4 );
-        s2.m_numbers.v().push_back( 2.5 );
-        s2.m_numbers.v().push_back( 2.6 );
-        s2.m_numbers.v().push_back( 2.7 );
+        s2.m_numbers = { 2.4, 2.5, 2.6, 2.7 };
 
-        id1->m_texts.v().push_back( "Hi" );
-        id1->m_texts.v().push_back( "and" );
-        id1->m_texts.v().push_back( "Test with whitespace" );
+        id1->m_texts = { "Hi", "and", "Test with whitespace" };
 
         d2->m_simpleObjPtrField  = &s2;
         d2->m_simpleObjPtrField2 = s1;
 
         id1->m_simpleObjectsField.push_back( new SimpleObj );
-        id1->m_simpleObjectsField[0]->m_numbers.v().push_back( 3.0 );
+        {
+            auto v = id1->m_simpleObjectsField[0]->m_numbers();
+            v.push_back( 3.0 );
+            id1->m_simpleObjectsField[0]->m_numbers = v;
+        }
+
         id1->m_simpleObjectsField.push_back( new SimpleObj );
-        id1->m_simpleObjectsField[1]->m_numbers.v().push_back( 3.1 );
-        id1->m_simpleObjectsField[1]->m_numbers.v().push_back( 3.11 );
-        id1->m_simpleObjectsField[1]->m_numbers.v().push_back( 3.12 );
-        id1->m_simpleObjectsField[1]->m_numbers.v().push_back( 3.13 );
+        {
+            auto v = id1->m_simpleObjectsField[1]->m_numbers();
+            v.push_back( 3.1 );
+            v.push_back( 3.11 );
+            v.push_back( 3.12 );
+            v.push_back( 3.13 );
+            id1->m_simpleObjectsField[1]->m_numbers = v;
+        }
         id1->m_simpleObjectsField.push_back( new SimpleObj );
-        id1->m_simpleObjectsField[2]->m_numbers.v().push_back( 3.2 );
+        {
+            auto v = id1->m_simpleObjectsField[2]->m_numbers();
+            v.push_back( 3.2 );
+            id1->m_simpleObjectsField[2]->m_numbers = v;
+        }
+
         id1->m_simpleObjectsField.push_back( new SimpleObj );
-        id1->m_simpleObjectsField[3]->m_numbers.v().push_back( 3.3 );
+        {
+            auto v = id1->m_simpleObjectsField[3]->m_numbers();
+            v.push_back( 3.3 );
+            id1->m_simpleObjectsField[3]->m_numbers = v;
+        }
 
         // Add to document
 
@@ -664,7 +677,9 @@ TEST( BaseTest, ObjectGroupCopyOfTypedObjects )
 {
     SimpleObj* s1  = new SimpleObj;
     s1->m_position = 1000;
-    s1->m_numbers.v().push_back( 10 );
+    auto v         = s1->m_numbers();
+    v.push_back( 10 );
+    s1->m_numbers = v;
 
     SimpleObj* s2  = new SimpleObj;
     s2->m_position = 2000;
@@ -684,8 +699,8 @@ TEST( BaseTest, ObjectGroupCopyOfTypedObjects )
     og.createCopyByType( &simpleObjList, caf::DefaultObjectFactory::instance() );
     EXPECT_EQ( size_t( 3 ), simpleObjList.size() );
     EXPECT_EQ( 1000.0, simpleObjList[0]->m_position() );
-    EXPECT_EQ( size_t( 1 ), simpleObjList[0]->m_numbers.v().size() );
-    EXPECT_EQ( 10.0, simpleObjList[0]->m_numbers.v()[0] );
+    EXPECT_EQ( size_t( 1 ), simpleObjList[0]->m_numbers.value().size() );
+    EXPECT_EQ( 10.0, simpleObjList[0]->m_numbers.value()[0] );
 
     EXPECT_EQ( 2000.0, simpleObjList[1]->m_position() );
     EXPECT_EQ( 3000.0, simpleObjList[2]->m_position() );
@@ -717,7 +732,9 @@ TEST( BaseTest, ChildArrayFieldHandle )
 
     SimpleObj* s1  = new SimpleObj;
     s1->m_position = 1000;
-    s1->m_numbers.v().push_back( 10 );
+    auto v         = s1->m_numbers();
+    v.push_back( 10 );
+    s1->m_numbers = v;
 
     SimpleObj* s2  = new SimpleObj;
     s2->m_position = 2000;
@@ -783,7 +800,9 @@ TEST( BaseTest, PdmReferenceHelper )
 {
     SimpleObj* s1  = new SimpleObj;
     s1->m_position = 1000;
-    s1->m_numbers.v().push_back( 10 );
+    auto v         = s1->m_numbers();
+    v.push_back( 10 );
+    s1->m_numbers = v;
 
     SimpleObj* s2  = new SimpleObj;
     s2->m_position = 2000;
