@@ -100,7 +100,6 @@ public:
     // Basic access
 
     DataType value() const override { return m_fieldDataAccessor->value(); }
-    DataType v() const { return m_fieldDataAccessor->value(); }
     void     setValue( const DataType& fieldValue ) override
     {
         CAF_ASSERT( this->isInitializedByInitFieldMacro() );

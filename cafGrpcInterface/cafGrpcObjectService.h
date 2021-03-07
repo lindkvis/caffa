@@ -68,7 +68,6 @@ class MethodRequest;
 class ObjectService final : public ObjectAccess::AsyncService, public ServiceInterface
 {
 public:
-    grpc::Status Sync( grpc::ServerContext* context, const Object* request, Object* reply ) override;
     grpc::Status GetDocument( grpc::ServerContext* context, const DocumentRequest* request, Object* reply );
 
     grpc::Status ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, Object* reply ) override;
@@ -76,7 +75,10 @@ public:
     static caf::Object* findCafObjectFromRpcObject( const Object& rpcObject );
     static caf::Object* findCafObjectFromScriptNameAndAddress( const std::string& scriptClassName, uint64_t address );
 
-    static void copyObjectFromCafToRpc( const caf::ObjectHandle* source, Object* destination, bool copyContent = true );
+    static void copyObjectFromCafToRpc( const caf::ObjectHandle* source,
+                                        Object*                  destination,
+                                        bool                     copyContent = true,
+                                        bool                     writeValues = true );
     static void copyObjectFromRpcToCaf( const Object* source, caf::ObjectHandle* destination );
     static std::unique_ptr<caf::ObjectHandle> createCafObjectFromRpc( const Object*       source,
                                                                       caf::ObjectFactory* objectFactory );

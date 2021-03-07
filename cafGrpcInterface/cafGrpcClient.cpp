@@ -39,6 +39,7 @@
 
 #include "cafDefaultObjectFactory.h"
 #include "cafGrpcClientObjectFactory.h"
+#include "cafGrpcException.h"
 #include "cafGrpcFieldService.h"
 #include "cafGrpcObjectClientCapability.h"
 #include "cafGrpcObjectService.h"
@@ -101,8 +102,10 @@ public:
     {
         auto self   = std::make_unique<Object>();
         auto params = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( method->self<caf::ObjectHandle>(), self.get() );
-        ObjectService::copyObjectFromCafToRpc( method, params.get() );
+        ObjectService::copyObjectFromCafToRpc( method->self<caf::ObjectHandle>(),
+                                               self.get(),
+                                               caf::DefaultObjectFactory::instance() );
+        ObjectService::copyObjectFromCafToRpc( method, params.get(), caf::DefaultObjectFactory::instance() );
 
         grpc::ClientContext context;
         MethodRequest       request;
@@ -116,25 +119,10 @@ public:
         auto             status = m_objectStub->ExecuteMethod( &context, request, &objectReply );
         if ( status.ok() )
         {
-            returnValue = caf::rpc::ObjectService::createCafObjectFromRpc( &objectReply,
-                                                                           caf::rpc::GrpcClientObjectFactory::instance() );
+            returnValue =
+                caf::rpc::ObjectService::createCafObjectFromRpc( &objectReply, caf::DefaultObjectFactory::instance() );
         }
         return returnValue;
-    }
-
-    bool sync( caf::ObjectHandle* objectHandle )
-    {
-        grpc::ClientContext context;
-        caf::rpc::Object    objectRequest, objectReply;
-        caf::rpc::ObjectService::copyObjectFromCafToRpc( objectHandle, &objectRequest );
-
-        auto status = m_objectStub->Sync( &context, objectRequest, &objectReply );
-        if ( status.ok() )
-        {
-            ObjectService::copyObjectFromRpcToCaf( &objectReply, objectHandle );
-            return true;
-        }
-        return false;
     }
 
     bool stopServer() const
@@ -145,6 +133,72 @@ public:
         return status.ok();
     }
 
+    void setJson( const caf::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& jsonValue )
+    {
+        size_t chunkSize = 1;
+
+        grpc::ClientContext context;
+        auto                self = std::make_unique<Object>();
+        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+
+        auto field = std::make_unique<FieldRequest>();
+        field->set_method( fieldName );
+        field->set_allocated_self( self.release() );
+
+        auto setterRequest = std::make_unique<SetterRequest>();
+        setterRequest->set_value_count( 1u );
+        setterRequest->set_allocated_request( field.release() );
+
+        SetterReply                                      reply;
+        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetValue( &context, &reply ) );
+        SetterChunk                                      header;
+        header.set_allocated_set_request( setterRequest.release() );
+
+        if ( writer->Write( header ) )
+        {
+            SetterChunk value;
+            if ( jsonValue.is_string() )
+                value.set_scalar( jsonValue.get<std::string>() );
+            else
+                value.set_scalar( jsonValue.dump() );
+            writer->Write( value );
+        }
+        writer->WritesDone();
+        auto status = writer->Finish();
+
+        if ( !status.ok() )
+        {
+            throw Exception( status );
+        }
+    }
+
+    nlohmann::json getJson( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
+    {
+        grpc::ClientContext context;
+        auto                self = std::make_unique<Object>();
+        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+        FieldRequest field;
+        field.set_method( fieldName );
+        field.set_allocated_self( self.release() );
+
+        std::vector<int> values;
+
+        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
+        GetterReply                                      reply;
+
+        nlohmann::json jsonValue;
+
+        if ( reader->Read( &reply ) )
+        {
+            jsonValue = nlohmann::json::parse( reply.scalar() );
+        }
+        grpc::Status status = reader->Finish();
+        if ( !status.ok() )
+        {
+            throw Exception( status );
+        }
+        return jsonValue;
+    }
     bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<int>& values )
     {
         auto chunkSize = ServiceInterface::packageByteSize();
@@ -372,54 +426,6 @@ std::unique_ptr<caf::ObjectHandle> Client::document( const std::string& document
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool Client::set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<double>& values )
-{
-    return m_clientImpl->set( objectHandle, setter, values );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool Client::set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<int>& values )
-{
-    return m_clientImpl->set( objectHandle, setter, values );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool Client::set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<std::string>& values )
-{
-    return m_clientImpl->set( objectHandle, setter, values );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<int> Client::getInts( const caf::ObjectHandle* objectHandle, const std::string& getter ) const
-{
-    return m_clientImpl->getInts( objectHandle, getter );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> Client::getDoubles( const caf::ObjectHandle* objectHandle, const std::string& getter ) const
-{
-    return m_clientImpl->getDoubles( objectHandle, getter );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<std::string> Client::getStrings( const caf::ObjectHandle* objectHandle, const std::string& getter ) const
-{
-    return m_clientImpl->getStrings( objectHandle, getter );
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Execute a general non-streaming method.
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::ObjectHandle> Client::execute( gsl::not_null<const caf::ObjectMethod*> method ) const
@@ -428,19 +434,87 @@ std::unique_ptr<caf::ObjectHandle> Client::execute( gsl::not_null<const caf::Obj
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Synchronise the object with the server. Returns true if the object was found and synchronised.
-//--------------------------------------------------------------------------------------------------
-bool Client::sync( gsl::not_null<caf::ObjectHandle*> objectHandle )
-{
-    return m_clientImpl->sync( objectHandle );
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Tell the server to stop operation. Returns a simple boolean status where true is ok.
 //--------------------------------------------------------------------------------------------------
 bool Client::stopServer() const
 {
     return m_clientImpl->stopServer();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Client::setJson( const caf::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value )
+{
+    m_clientImpl->setJson( objectHandle, fieldName, value );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+nlohmann::json Client::getJson( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
+{
+    return m_clientImpl->getJson( objectHandle, fieldName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <>
+void caf::rpc::Client::set( const caf::ObjectHandle* objectHandle, const std::string& fieldName, const std::vector<int>& value )
+{
+    m_clientImpl->set( objectHandle, fieldName, value );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <>
+void caf::rpc::Client::set( const caf::ObjectHandle*   objectHandle,
+                            const std::string&         fieldName,
+                            const std::vector<double>& value )
+{
+    m_clientImpl->set( objectHandle, fieldName, value );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <>
+void caf::rpc::Client::set( const caf::ObjectHandle*        objectHandle,
+                            const std::string&              fieldName,
+                            const std::vector<std::string>& value )
+{
+    m_clientImpl->set( objectHandle, fieldName, value );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <>
+std::vector<int> Client::get<std::vector<int>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
+{
+    return m_clientImpl->getInts( objectHandle, fieldName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <>
+std::vector<double>
+    Client::get<std::vector<double>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
+{
+    return m_clientImpl->getDoubles( objectHandle, fieldName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <>
+std::vector<std::string>
+    Client::get<std::vector<std::string>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
+{
+    return m_clientImpl->getStrings( objectHandle, fieldName );
 }
 
 } // namespace caf::rpc

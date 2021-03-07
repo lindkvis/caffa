@@ -49,8 +49,8 @@ public:
 
     virtual std::string referenceString() const { return std::string(); }
 
-    virtual void readFieldData( const nlohmann::json& value, ObjectFactory* objectFactory ) = 0;
-    virtual void writeFieldData( nlohmann::json& value, bool writeServerAddress ) const     = 0;
+    virtual void readFieldData( const nlohmann::json& value, ObjectFactory* objectFactory )               = 0;
+    virtual void writeFieldData( nlohmann::json& value, bool writeServerAddress, bool writeValues ) const = 0;
 
 protected:
     bool assertValid() const;

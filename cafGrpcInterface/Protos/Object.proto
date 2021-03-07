@@ -4,7 +4,6 @@ package caf.rpc;
 
 service ObjectAccess
 {
-    rpc Sync( Object ) returns( Object ) {}
     rpc GetDocument( DocumentRequest ) returns( Object ) {}
     rpc ExecuteMethod( MethodRequest ) returns( Object ) {}
 }

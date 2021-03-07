@@ -48,6 +48,7 @@
 
 #include <grpcpp/grpcpp.h>
 
+#include <variant>
 #include <vector>
 
 namespace caf::rpc
@@ -60,16 +61,26 @@ struct DataHolder : public AbstractDataHolder
     {
     }
 
-    size_t valueCount() const override { return data.size(); }
-    size_t valueSizeOf() const override { return sizeof( typename DataType::value_type ); }
+    size_t valueCount() const override;
+    size_t valueSizeOf() const override;
 
-    void   reserveReplyStorage( GetterReply* reply ) const override;
-    void   addValueToReply( size_t valueIndex, GetterReply* reply ) const override;
-    size_t getValuesFromChunk( size_t startIndex, const SetterChunk* chunk ) override;
-    void   applyValuesToField( ValueField* field ) override;
-
+    void     reserveReplyStorage( GetterReply* reply ) const override {}
+    void     addValueToReply( size_t valueIndex, GetterReply* reply ) const override;
+    size_t   getValuesFromChunk( size_t startIndex, const SetterChunk* chunk ) override;
+    void     applyValuesToField( ValueField* field ) override;
     DataType data;
 };
+
+template <>
+size_t DataHolder<std::vector<int>>::valueCount() const
+{
+    return data.size();
+}
+template <>
+size_t DataHolder<std::vector<int>>::valueSizeOf() const
+{
+    return sizeof( int );
+}
 
 template <>
 void DataHolder<std::vector<int>>::reserveReplyStorage( GetterReply* reply ) const
@@ -106,6 +117,16 @@ void DataHolder<std::vector<int>>::applyValuesToField( ValueField* field )
     {
         dataValueField->setValueWithFieldChanged( data );
     }
+}
+template <>
+size_t DataHolder<std::vector<double>>::valueCount() const
+{
+    return data.size();
+}
+template <>
+size_t DataHolder<std::vector<double>>::valueSizeOf() const
+{
+    return sizeof( double );
 }
 
 template <>
@@ -146,6 +167,17 @@ void DataHolder<std::vector<double>>::applyValuesToField( ValueField* field )
 }
 
 template <>
+size_t DataHolder<std::vector<std::string>>::valueCount() const
+{
+    return data.size();
+}
+template <>
+size_t DataHolder<std::vector<std::string>>::valueSizeOf() const
+{
+    return sizeof( std::string );
+}
+
+template <>
 void DataHolder<std::vector<std::string>>::reserveReplyStorage( GetterReply* reply ) const
 {
     reply->mutable_strings()->mutable_data()->Reserve( data.size() );
@@ -183,6 +215,38 @@ void DataHolder<std::vector<std::string>>::applyValuesToField( ValueField* field
     }
 }
 
+template <>
+size_t DataHolder<std::string>::valueCount() const
+{
+    return 1u;
+}
+template <>
+size_t DataHolder<std::string>::valueSizeOf() const
+{
+    return sizeof( std::string );
+}
+
+template <>
+void DataHolder<std::string>::addValueToReply( size_t valueIndex, GetterReply* reply ) const
+{
+    reply->set_scalar( data );
+}
+
+template <>
+size_t DataHolder<std::string>::getValuesFromChunk( size_t startIndex, const SetterChunk* chunk )
+{
+    auto scalar = chunk->scalar();
+    data        = scalar;
+    return 1u;
+}
+template <>
+void DataHolder<std::string>::applyValuesToField( ValueField* field )
+{
+    auto ioCapability = field->capability<FieldIoCapability>();
+    CAF_ASSERT( ioCapability );
+    ioCapability->readFieldData( data, caf::DefaultObjectFactory::instance() );
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -214,21 +278,31 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
                 m_dataHolder.reset( new DataHolder<std::vector<int>>( dataField->value() ) );
                 return grpc::Status::OK;
             }
-            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<double>>*>( field ) )
+            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<double>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
                 m_dataHolder.reset( new DataHolder<std::vector<double>>( dataField->value() ) );
                 return grpc::Status::OK;
             }
-            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<std::string>>*>( field ) )
+            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<std::string>>*>( field );
+                      dataField != nullptr )
             {
                 m_field = dataField;
                 m_dataHolder.reset( new DataHolder<std::vector<std::string>>( dataField->value() ) );
                 return grpc::Status::OK;
             }
+            else if ( auto dataField = dynamic_cast<ValueField*>( field ); dataField != nullptr )
+            {
+                m_field = dataField;
+                nlohmann::json jsonValue;
+                auto           ioCapability = field->capability<caf::FieldIoCapability>();
+                ioCapability->writeFieldData( jsonValue, true, true );
+                m_dataHolder.reset( new DataHolder<std::string>( jsonValue.dump() ) );
+                return grpc::Status::OK;
+            }
             else
             {
-                CAF_ASSERT( false && "Field data type is not yet supported for streaming fields" );
+                return grpc::Status( grpc::UNIMPLEMENTED, "Data type not implemented for grpc streaming fields" );
             }
         }
     }
@@ -338,9 +412,15 @@ grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
                 m_dataHolder.reset( new DataHolder<std::vector<std::string>>( std::vector<std::string>( valueCount ) ) );
                 return grpc::Status::OK;
             }
+            else if ( auto dataField = dynamic_cast<ValueField*>( field ); dataField != nullptr )
+            {
+                m_field = dataField;
+                m_dataHolder.reset( new DataHolder<std::string>( std::string() ) );
+                return grpc::Status::OK;
+            }
             else
             {
-                CAF_ASSERT( false && "The proxy field data type is not yet supported for streaming fields" );
+                return grpc::Status( grpc::UNIMPLEMENTED, "Data type not implemented for grpc streaming fields" );
             }
         }
     }

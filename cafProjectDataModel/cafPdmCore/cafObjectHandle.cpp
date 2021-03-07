@@ -53,6 +53,15 @@ void ObjectHandle::fields( std::vector<FieldHandle*>& fields ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<caf::FieldHandle*> ObjectHandle::fields() const
+{
+    auto fields = m_fields;
+    return fields;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void ObjectHandle::setAsParentField( FieldHandle* parentField )
 {
     CAF_ASSERT( m_parentField == nullptr );

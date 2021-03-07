@@ -64,28 +64,10 @@ grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const Doc
     PdmDocument* document = caf::Application::instance()->document( request->document_id() );
     if ( document )
     {
-        copyObjectFromCafToRpc( document, reply );
+        copyObjectFromCafToRpc( document, reply, true, false );
         return grpc::Status::OK;
     }
     return grpc::Status( grpc::NOT_FOUND, "Document not found" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-grpc::Status ObjectService::Sync( grpc::ServerContext* context, const Object* request, Object* reply )
-{
-    auto matchingObject = findCafObjectFromRpcObject( *request );
-
-    if ( matchingObject )
-    {
-        copyObjectFromRpcToCaf( request, matchingObject );
-        copyObjectFromCafToRpc( matchingObject, reply );
-        matchingObject->updateAllRequiredEditors();
-
-        return grpc::Status::OK;
-    }
-    return grpc::Status( grpc::NOT_FOUND, "Object not found" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,7 +88,7 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
             ObjectHandle* result = method->execute();
             if ( result )
             {
-                copyObjectFromCafToRpc( result, reply );
+                copyObjectFromCafToRpc( result, reply, true, true );
                 if ( !method->resultIsPersistent() )
                 {
                     delete result;
@@ -175,7 +157,8 @@ caf::Object* ObjectService::findCafObjectFromScriptNameAndAddress( const std::st
 //--------------------------------------------------------------------------------------------------
 void ObjectService::copyObjectFromCafToRpc( const caf::ObjectHandle* source,
                                             Object*                  destination,
-                                            bool                     copyContent /* = true */ )
+                                            bool                     copyContent /* = true */,
+                                            bool                     writeValues /* = true */ )
 {
     CAF_ASSERT( source && destination );
 
@@ -196,7 +179,7 @@ void ObjectService::copyObjectFromCafToRpc( const caf::ObjectHandle* source,
     if ( copyContent )
     {
         std::stringstream ss;
-        caf::ObjectJsonCapability::writeFile( source, ss, true );
+        caf::ObjectJsonCapability::writeFile( source, ss, true, writeValues );
         destination->set_json( ss.str() );
     }
 }
@@ -240,7 +223,6 @@ std::vector<AbstractCallback*> ObjectService::registerCallbacks()
     typedef ObjectService Self;
     return {
         new UnaryCallback<Self, DocumentRequest, Object>( this, &Self::GetDocument, &Self::RequestGetDocument ),
-        new UnaryCallback<Self, Object, Object>( this, &Self::Sync, &Self::RequestSync ),
         new UnaryCallback<Self, MethodRequest, Object>( this, &Self::ExecuteMethod, &Self::RequestExecuteMethod ),
 
     };

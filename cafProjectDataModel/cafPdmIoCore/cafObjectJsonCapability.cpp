@@ -1,9 +1,9 @@
 #include "cafObjectJsonCapability.h"
 
 #include "cafAssert.h"
+#include "cafDefaultObjectFactory.h"
 #include "cafObjectHandle.h"
 #include "cafObjectIoCapability.h"
-#include "cafDefaultObjectFactory.h"
 
 #include "cafFieldHandle.h"
 
@@ -83,15 +83,15 @@ ObjectHandle* ObjectJsonCapability::readUnknownObjectFromString( const std::stri
                                                                  ObjectFactory*     objectFactory,
                                                                  bool               isCopyOperation )
 {
-    nlohmann::json jsonObject = nlohmann::json::parse( string );
-    const auto&    jsonClassKeyword  = jsonObject["classKeyword"];
-    
+    nlohmann::json jsonObject       = nlohmann::json::parse( string );
+    const auto&    jsonClassKeyword = jsonObject["classKeyword"];
+
     CAF_ASSERT( jsonClassKeyword.is_string() );
     std::string classKeyword = jsonClassKeyword.get<std::string>();
-    
+
     uint64_t serverAddress = 0u;
-    auto it = jsonObject.find( "serverAddress" );
-    if (it != jsonObject.end())
+    auto     it            = jsonObject.find( "serverAddress" );
+    if ( it != jsonObject.end() )
     {
         serverAddress = it->get<uint64_t>();
     }
@@ -121,10 +121,10 @@ void ObjectJsonCapability::readFile( ObjectHandle* object, std::istream& file, O
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectJsonCapability::writeFile( const ObjectHandle* object, std::ostream& file, bool writeServerAddress )
+void ObjectJsonCapability::writeFile( const ObjectHandle* object, std::ostream& file, bool writeServerAddress, bool writeValues )
 {
     nlohmann::json document;
-    writeFields( object, document, writeServerAddress );
+    writeFields( object, document, writeServerAddress, writeValues );
 
     file << document;
 }
@@ -145,6 +145,8 @@ void ObjectJsonCapability::readFields( ObjectHandle*         object,
 
     for ( const auto& [key, value] : jsonObject.items() )
     {
+        if ( value.is_null() ) continue;
+
         auto fieldHandle = object->findField( key );
         if ( fieldHandle && fieldHandle->capability<FieldIoCapability>() )
         {
@@ -170,14 +172,17 @@ void ObjectJsonCapability::readFields( ObjectHandle*         object,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectJsonCapability::writeFields( const ObjectHandle* object, nlohmann::json& jsonObject, bool writeServerAddress )
+void ObjectJsonCapability::writeFields( const ObjectHandle* object,
+                                        nlohmann::json&     jsonObject,
+                                        bool                writeServerAddress,
+                                        bool                writeValues )
 {
     std::vector<FieldHandle*> fields;
     object->fields( fields );
     std::string classKeyword = object->capability<ObjectIoCapability>()->classKeyword();
     CAF_ASSERT( ObjectIoCapability::isValidElementName( classKeyword ) );
     jsonObject["classKeyword"] = classKeyword;
-    if (writeServerAddress)
+    if ( writeServerAddress )
     {
         jsonObject["serverAddress"] = reinterpret_cast<uint64_t>( object );
     }
@@ -191,7 +196,7 @@ void ObjectJsonCapability::writeFields( const ObjectHandle* object, nlohmann::js
             CAF_ASSERT( ObjectIoCapability::isValidElementName( keyword ) );
 
             nlohmann::json value;
-            ioCapability->writeFieldData( value, writeServerAddress );
+            ioCapability->writeFieldData( value, writeServerAddress, writeValues );
             jsonObject[keyword] = value;
         }
     }

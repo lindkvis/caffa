@@ -41,10 +41,10 @@ void FieldIoCap<FieldType>::readFieldData( const nlohmann::json& jsonValue, Obje
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void FieldIoCap<FieldType>::writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress ) const
+void FieldIoCap<FieldType>::writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const
 {
     this->assertValid();
-    FieldWriter<typename FieldType::FieldDataType>::writeFieldData( m_field->value(), jsonValue );
+    if ( writeValues ) FieldWriter<typename FieldType::FieldDataType>::writeFieldData( m_field->value(), jsonValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ void FieldIoCap<PtrField<DataType*>>::readFieldData( const nlohmann::json& jsonV
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PtrField<DataType*>>::writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress ) const
+void FieldIoCap<PtrField<DataType*>>::writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const
 {
     this->assertValid();
 
@@ -143,7 +143,9 @@ void FieldIoCap<PtrArrayField<DataType*>>::readFieldData( const nlohmann::json& 
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PtrArrayField<DataType*>>::writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress ) const
+void FieldIoCap<PtrArrayField<DataType*>>::writeFieldData( nlohmann::json& jsonValue,
+                                                           bool            writeServerAddress,
+                                                           bool            writeValues ) const
 {
     this->assertValid();
 
@@ -268,7 +270,9 @@ void FieldIoCap<ChildField<DataType*>>::readFieldData( const nlohmann::json& jso
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildField<DataType*>>::writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress ) const
+void FieldIoCap<ChildField<DataType*>>::writeFieldData( nlohmann::json& jsonValue,
+                                                        bool            writeServerAddress,
+                                                        bool            writeValues ) const
 {
     auto object = m_field->m_fieldValue.rawPtr();
     if ( !object ) return;
@@ -284,7 +288,7 @@ void FieldIoCap<ChildField<DataType*>>::writeFieldData( nlohmann::json& jsonValu
         {
             jsonObject["serverAddress"] = reinterpret_cast<uint64_t>( object );
         }
-        ObjectJsonCapability::writeFields( object, jsonObject, writeServerAddress );
+        ObjectJsonCapability::writeFields( object, jsonObject, writeServerAddress, writeValues );
         CAF_ASSERT( jsonObject.is_object() );
         jsonValue = jsonObject;
         CAF_ASSERT( jsonValue.is_object() );
@@ -354,7 +358,9 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFieldData( const nlohmann::json
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildArrayField<DataType*>>::writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress ) const
+void FieldIoCap<ChildArrayField<DataType*>>::writeFieldData( nlohmann::json& jsonValue,
+                                                             bool            writeServerAddress,
+                                                             bool            writeValues ) const
 {
     typename std::vector<PdmPointer<DataType>>::iterator it;
 
@@ -374,7 +380,7 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeFieldData( nlohmann::json& jso
             {
                 jsonObject["serverAddress"] = reinterpret_cast<uint64_t>( it->rawPtr() );
             }
-            ObjectJsonCapability::writeFields( it->rawPtr(), jsonObject, writeServerAddress );
+            ObjectJsonCapability::writeFields( it->rawPtr(), jsonObject, writeServerAddress, writeValues );
             jsonArray.push_back( jsonObject );
         }
     }
@@ -429,10 +435,12 @@ void FieldIoCap<Field<std::vector<DataType>>>::readFieldData( const nlohmann::js
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<Field<std::vector<DataType>>>::writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress ) const
+void FieldIoCap<Field<std::vector<DataType>>>::writeFieldData( nlohmann::json& jsonValue,
+                                                               bool            writeServerAddress,
+                                                               bool            writeValues ) const
 {
     this->assertValid();
-    FieldWriter<typename FieldType::FieldDataType>::writeFieldData( m_field->value(), jsonValue );
+    if ( writeValues ) FieldWriter<typename FieldType::FieldDataType>::writeFieldData( m_field->value(), jsonValue );
 }
 
 //--------------------------------------------------------------------------------------------------

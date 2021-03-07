@@ -29,6 +29,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcCallbacks.inl
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcServiceInterface.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcAppService.h
+    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcDataFieldAccessor.h
+    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcException.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcFieldService.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcObjectService.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcServerApplication.h

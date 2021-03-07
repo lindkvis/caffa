@@ -28,7 +28,7 @@ public:
 public:
     // Json Serializing
     void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress ) const override;
+    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
 
     bool resolveReferences() override;
     bool isVectorField() const override;
@@ -58,7 +58,7 @@ public:
 public:
     // Json Serializing
     void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress ) const override;
+    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
 
     bool        resolveReferences() override;
     std::string referenceString() const override;
@@ -92,7 +92,7 @@ public:
 public:
     // Json Serializing
     void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress ) const override;
+    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
 
     bool        resolveReferences() override;
     std::string referenceString() const override;
@@ -125,7 +125,7 @@ public:
 public:
     // Json Serializing
     void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress ) const override;
+    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
 
     bool resolveReferences() override;
 
@@ -152,7 +152,7 @@ public:
 public:
     // Json Serializing
     void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress ) const override;
+    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
 
     bool resolveReferences() override;
     bool isVectorField() const override;
@@ -181,7 +181,7 @@ public:
 public:
     // Json Serializing
     void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress ) const override;
+    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
 
     bool resolveReferences() override;
     bool isVectorField() const override;

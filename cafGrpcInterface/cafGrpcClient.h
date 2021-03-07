@@ -37,6 +37,7 @@
 #include "cafApplication.h"
 #include "cafObjectMethod.h"
 #include "cafPdmDocument.h"
+#include "cafVariant.h"
 
 #include <gsl/gsl>
 
@@ -56,19 +57,66 @@ public:
     caf::AppInfo                       appInfo() const;
     std::unique_ptr<caf::ObjectHandle> document( const std::string& documentId ) const;
     std::unique_ptr<caf::ObjectHandle> execute( gsl::not_null<const caf::ObjectMethod*> method ) const;
-    bool                               sync( gsl::not_null<caf::ObjectHandle*> objectHandle );
     bool                               stopServer() const;
 
-    bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<int>& values );
-    bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<double>& values );
-    bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<std::string>& values );
+    template <typename DataType>
+    void set( const caf::ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value );
 
-    std::vector<int>         getInts( const caf::ObjectHandle* objectHandle, const std::string& getter ) const;
-    std::vector<double>      getDoubles( const caf::ObjectHandle* objectHandle, const std::string& getter ) const;
-    std::vector<std::string> getStrings( const caf::ObjectHandle* objectHandle, const std::string& getter ) const;
+    template <typename DataType>
+    DataType get( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const;
+
+private:
+    void setJson( const caf::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value );
+    nlohmann::json getJson( const caf::ObjectHandle*, const std::string& fieldName ) const;
 
 private:
     std::unique_ptr<ClientImpl> m_clientImpl;
 };
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+DataType caf::rpc::Client::get( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
+{
+    nlohmann::json jsonValue = getJson( objectHandle, fieldName );
+    return jsonValue.get<DataType>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void caf::rpc::Client::set( const caf::ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value )
+{
+    nlohmann::json jsonValue = value;
+    setJson( objectHandle, fieldName, jsonValue );
+}
+
+template <>
+void Client::set<std::vector<int>>( const caf::ObjectHandle* objectHandle,
+                                    const std::string&       fieldName,
+                                    const std::vector<int>&  value );
+
+template <>
+void Client::set<std::vector<double>>( const caf::ObjectHandle*   objectHandle,
+                                       const std::string&         fieldName,
+                                       const std::vector<double>& value );
+
+template <>
+void Client::set<std::vector<std::string>>( const caf::ObjectHandle*        objectHandle,
+                                            const std::string&              fieldName,
+                                            const std::vector<std::string>& value );
+
+template <>
+std::vector<int> Client::get<std::vector<int>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const;
+
+template <>
+std::vector<double>
+    Client::get<std::vector<double>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const;
+
+template <>
+std::vector<std::string>
+    Client::get<std::vector<std::string>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
 } // namespace caf::rpc

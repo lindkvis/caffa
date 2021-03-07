@@ -1,7 +1,7 @@
 //##################################################################################################
 //
-//   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Caffa
+//   Copyright (C) Gaute Lindkvist
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -31,49 +31,19 @@
 //
 //   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
 //   for more details.
-//
-//##################################################################################################
-
 #pragma once
 
-#include "cafObjectFactory.h"
+#include <stdexcept>
 
-#include "cafAssert.h"
-#include "cafGrpcClient.h"
-
-#include <map>
-#include <string>
-#include <vector>
-
-namespace caf::rpc
+namespace caf
 {
-//==================================================================================================
-/// "Private" class for implementation of a factory for ObjectBase derived objects
-/// Every Object must register with this factory to be readable
-/// This class can be considered private in the Pdm system
-//==================================================================================================
-
-class GrpcClientObjectFactory : public ObjectFactory
+class Exception : public std::runtime_error
 {
 public:
-    static GrpcClientObjectFactory* instance();
-
-    std::vector<std::string> classKeywords() const override;
-    void                     setGrpcClient( Client* client );
-
-private:
-    ObjectHandle* doCreate( const std::string& classNameKeyword, uint64_t addressOnServer ) override;
-
-    GrpcClientObjectFactory()
-        : m_grpcClient( nullptr )
+    Exception( const std::string& message )
+        : std::runtime_error(message)
     {
     }
-    ~GrpcClientObjectFactory() override = default;
-
-    void applyAccessorToField( caf::ObjectHandle* objectHandle, caf::FieldHandle* fieldHandle );
-
-private:
-    Client* m_grpcClient;
+    virtual ~Exception()                    = default;
 };
-
-} // namespace caf::rpc
+} // namespace caf
