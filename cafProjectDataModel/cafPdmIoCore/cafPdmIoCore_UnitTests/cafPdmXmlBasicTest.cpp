@@ -358,10 +358,11 @@ TEST( BaseTest, FilePathSerializing )
     SimpleObj* s1 = new SimpleObj;
 
     std::filesystem::path newVal = "path with space";
-    s1->m_multipleFilePath.v().push_back( newVal );
-    s1->m_multipleFilePath.v().push_back( newVal );
-
-    s1->m_singleFilePath = newVal;
+    auto                  v      = s1->m_multipleFilePath.value();
+    v.push_back( newVal );
+    v.push_back( newVal );
+    s1->m_multipleFilePath = v;
+    s1->m_singleFilePath   = newVal;
 
     std::string serializedString = s1->writeObjectToString();
 
@@ -370,7 +371,7 @@ TEST( BaseTest, FilePathSerializing )
 
         ihd1->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance() );
 
-        EXPECT_EQ( 2u, ihd1->m_multipleFilePath.v().size() );
+        EXPECT_EQ( 2u, ihd1->m_multipleFilePath.value().size() );
         EXPECT_EQ( newVal, ihd1->m_singleFilePath() );
 
         delete ihd1;

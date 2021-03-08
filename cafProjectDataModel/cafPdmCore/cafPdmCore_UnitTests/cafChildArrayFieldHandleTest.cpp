@@ -7,9 +7,9 @@
 #include "cafChildField.h"
 #include "cafDataValueField.h"
 #include "cafObjectHandle.h"
+#include "cafPdmReferenceHelper.h"
 #include "cafProxyValueField.h"
 #include "cafPtrField.h"
-#include "cafPdmReferenceHelper.h"
 
 #include <string>
 
@@ -25,11 +25,11 @@ public:
         static int a = 0;
 
         id   = a++;
-        name = std::string("Name" ) + std::to_string( id );
+        name = std::string( "Name" ) + std::to_string( id );
     }
 
     caf::DataValueField<std::string> name;
-    caf::DataValueField<int>     id;
+    caf::DataValueField<int>         id;
 };
 
 class SimpleObjDerived : public MsjSimpleObj
@@ -81,7 +81,7 @@ U findObjectById( T start, T end, int id )
 {
     for ( T it = start; it != end; it++ )
     {
-        if ( id == it->p()->id() )
+        if ( id == it->p()->id.value() )
         {
             return it->p();
         }

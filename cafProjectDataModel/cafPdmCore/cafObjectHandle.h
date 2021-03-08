@@ -35,8 +35,9 @@ public:
     static std::vector<std::string> classKeywordAliases();
 
     /// The registered fields contained in this Object.
-    void         fields( std::vector<FieldHandle*>& fields ) const;
-    FieldHandle* findField( const std::string& keyword ) const;
+    void                      fields( std::vector<FieldHandle*>& fields ) const;
+    std::vector<FieldHandle*> fields() const;
+    FieldHandle*              findField( const std::string& keyword ) const;
 
     /// The field referencing this object as a child
     FieldHandle* parentField() const;

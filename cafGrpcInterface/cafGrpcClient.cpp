@@ -1,3 +1,37 @@
+//##################################################################################################
+//
+//   Caffa
+//   Copyright (C) Gaute Lindkvist
+//
+//   This library may be used under the terms of either the GNU General Public License or
+//   the GNU Lesser General Public License as follows:
+//
+//   GNU General Public License Usage
+//   This library is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
+//
+//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//   FITNESS FOR A PARTICULAR PURPOSE.
+//
+//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
+//   for more details.
+//
+//   GNU Lesser General Public License Usage
+//   This library is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU Lesser General Public License as published by
+//   the Free Software Foundation; either version 2.1 of the License, or
+//   (at your option) any later version.
+//
+//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//   FITNESS FOR A PARTICULAR PURPOSE.
+//
+//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//   for more details.
+//
 #include "cafGrpcClient.h"
 
 #include "App.grpc.pb.h"
@@ -5,6 +39,8 @@
 
 #include "cafDefaultObjectFactory.h"
 #include "cafGrpcClientObjectFactory.h"
+#include "cafGrpcException.h"
+#include "cafGrpcFieldService.h"
 #include "cafGrpcObjectClientCapability.h"
 #include "cafGrpcObjectService.h"
 
@@ -28,6 +64,7 @@ public:
 
         m_appInfoStub = App::NewStub( m_channel );
         m_objectStub  = ObjectAccess::NewStub( m_channel );
+        m_fieldStub   = FieldAccess::NewStub( m_channel );
     }
 
     caf::AppInfo appInfo() const
@@ -65,8 +102,10 @@ public:
     {
         auto self   = std::make_unique<Object>();
         auto params = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( method->self<caf::ObjectHandle>(), self.get() );
-        ObjectService::copyObjectFromCafToRpc( method, params.get() );
+        ObjectService::copyObjectFromCafToRpc( method->self<caf::ObjectHandle>(),
+                                               self.get(),
+                                               caf::DefaultObjectFactory::instance() );
+        ObjectService::copyObjectFromCafToRpc( method, params.get(), caf::DefaultObjectFactory::instance() );
 
         grpc::ClientContext context;
         MethodRequest       request;
@@ -80,25 +119,10 @@ public:
         auto             status = m_objectStub->ExecuteMethod( &context, request, &objectReply );
         if ( status.ok() )
         {
-            returnValue = caf::rpc::ObjectService::createCafObjectFromRpc( &objectReply,
-                                                                           caf::rpc::GrpcClientObjectFactory::instance() );
+            returnValue =
+                caf::rpc::ObjectService::createCafObjectFromRpc( &objectReply, caf::DefaultObjectFactory::instance() );
         }
         return returnValue;
-    }
-
-    bool sync( caf::ObjectHandle* objectHandle )
-    {
-        grpc::ClientContext context;
-        caf::rpc::Object    objectRequest, objectReply;
-        caf::rpc::ObjectService::copyObjectFromCafToRpc( objectHandle, &objectRequest );
-
-        auto status = m_objectStub->Sync( &context, objectRequest, &objectReply );
-        if ( status.ok() )
-        {
-            ObjectService::copyObjectFromRpcToCaf( &objectReply, objectHandle );
-            return true;
-        }
-        return false;
     }
 
     bool stopServer() const
@@ -109,6 +133,72 @@ public:
         return status.ok();
     }
 
+    void setJson( const caf::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& jsonValue )
+    {
+        size_t chunkSize = 1;
+
+        grpc::ClientContext context;
+        auto                self = std::make_unique<Object>();
+        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+
+        auto field = std::make_unique<FieldRequest>();
+        field->set_method( fieldName );
+        field->set_allocated_self( self.release() );
+
+        auto setterRequest = std::make_unique<SetterRequest>();
+        setterRequest->set_value_count( 1u );
+        setterRequest->set_allocated_request( field.release() );
+
+        SetterReply                                      reply;
+        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetValue( &context, &reply ) );
+        SetterChunk                                      header;
+        header.set_allocated_set_request( setterRequest.release() );
+
+        if ( writer->Write( header ) )
+        {
+            SetterChunk value;
+            if ( jsonValue.is_string() )
+                value.set_scalar( jsonValue.get<std::string>() );
+            else
+                value.set_scalar( jsonValue.dump() );
+            writer->Write( value );
+        }
+        writer->WritesDone();
+        auto status = writer->Finish();
+
+        if ( !status.ok() )
+        {
+            throw Exception( status );
+        }
+    }
+
+    nlohmann::json getJson( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
+    {
+        grpc::ClientContext context;
+        auto                self = std::make_unique<Object>();
+        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+        FieldRequest field;
+        field.set_method( fieldName );
+        field.set_allocated_self( self.release() );
+
+        std::vector<int> values;
+
+        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
+        GetterReply                                      reply;
+
+        nlohmann::json jsonValue;
+
+        if ( reader->Read( &reply ) )
+        {
+            jsonValue = nlohmann::json::parse( reply.scalar() );
+        }
+        grpc::Status status = reader->Finish();
+        if ( !status.ok() )
+        {
+            throw Exception( status );
+        }
+        return jsonValue;
+    }
     bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<int>& values )
     {
         auto chunkSize = ServiceInterface::packageByteSize();
@@ -117,16 +207,16 @@ public:
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
 
-        auto method = std::make_unique<MethodRequest>();
-        method->set_method( setter );
-        method->set_allocated_self( self.release() );
+        auto field = std::make_unique<FieldRequest>();
+        field->set_method( setter );
+        field->set_allocated_self( self.release() );
 
         auto setterRequest = std::make_unique<SetterRequest>();
         setterRequest->set_value_count( values.size() );
-        setterRequest->set_allocated_request( method.release() );
+        setterRequest->set_allocated_request( field.release() );
 
         SetterReply                                      reply;
-        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_objectStub->ExecuteSetter( &context, &reply ) );
+        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetValue( &context, &reply ) );
         SetterChunk                                      header;
         header.set_allocated_set_request( setterRequest.release() );
         if ( !writer->Write( header ) ) return false;
@@ -158,16 +248,16 @@ public:
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
 
-        auto method = std::make_unique<MethodRequest>();
-        method->set_method( setter );
-        method->set_allocated_self( self.release() );
+        auto field = std::make_unique<FieldRequest>();
+        field->set_method( setter );
+        field->set_allocated_self( self.release() );
 
         auto setterRequest = std::make_unique<SetterRequest>();
         setterRequest->set_value_count( values.size() );
-        setterRequest->set_allocated_request( method.release() );
+        setterRequest->set_allocated_request( field.release() );
 
         SetterReply                                      reply;
-        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_objectStub->ExecuteSetter( &context, &reply ) );
+        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetValue( &context, &reply ) );
         SetterChunk                                      header;
         header.set_allocated_set_request( setterRequest.release() );
         if ( !writer->Write( header ) ) return false;
@@ -198,16 +288,16 @@ public:
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
 
-        auto method = std::make_unique<MethodRequest>();
-        method->set_method( setter );
-        method->set_allocated_self( self.release() );
+        auto field = std::make_unique<FieldRequest>();
+        field->set_method( setter );
+        field->set_allocated_self( self.release() );
 
         auto setterRequest = std::make_unique<SetterRequest>();
         setterRequest->set_value_count( values.size() );
-        setterRequest->set_allocated_request( method.release() );
+        setterRequest->set_allocated_request( field.release() );
 
         SetterReply                                      reply;
-        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_objectStub->ExecuteSetter( &context, &reply ) );
+        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetValue( &context, &reply ) );
         SetterChunk                                      header;
         header.set_allocated_set_request( setterRequest.release() );
         if ( !writer->Write( header ) ) return false;
@@ -229,13 +319,13 @@ public:
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
-        MethodRequest method;
-        method.set_method( getter );
-        method.set_allocated_self( self.release() );
+        FieldRequest field;
+        field.set_method( getter );
+        field.set_allocated_self( self.release() );
 
         std::vector<int> values;
 
-        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_objectStub->ExecuteGetter( &context, method ) );
+        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
         GetterReply                                      reply;
         while ( reader->Read( &reply ) )
         {
@@ -253,13 +343,13 @@ public:
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
-        MethodRequest method;
-        method.set_method( getter );
-        method.set_allocated_self( self.release() );
+        FieldRequest field;
+        field.set_method( getter );
+        field.set_allocated_self( self.release() );
 
         std::vector<double> values;
 
-        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_objectStub->ExecuteGetter( &context, method ) );
+        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
         GetterReply                                      reply;
         while ( reader->Read( &reply ) )
         {
@@ -277,13 +367,13 @@ public:
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
-        MethodRequest method;
-        method.set_method( getter );
-        method.set_allocated_self( self.release() );
+        FieldRequest field;
+        field.set_method( getter );
+        field.set_allocated_self( self.release() );
 
         std::vector<std::string> values;
 
-        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_objectStub->ExecuteGetter( &context, method ) );
+        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
         GetterReply                                      reply;
         while ( reader->Read( &reply ) )
         {
@@ -301,6 +391,7 @@ private:
 
     std::unique_ptr<App::Stub>          m_appInfoStub;
     std::unique_ptr<ObjectAccess::Stub> m_objectStub;
+    std::unique_ptr<FieldAccess::Stub>  m_fieldStub;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -335,54 +426,6 @@ std::unique_ptr<caf::ObjectHandle> Client::document( const std::string& document
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool Client::set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<double>& values )
-{
-    return m_clientImpl->set( objectHandle, setter, values );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool Client::set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<int>& values )
-{
-    return m_clientImpl->set( objectHandle, setter, values );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool Client::set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<std::string>& values )
-{
-    return m_clientImpl->set( objectHandle, setter, values );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<int> Client::getInts( const caf::ObjectHandle* objectHandle, const std::string& getter ) const
-{
-    return m_clientImpl->getInts( objectHandle, getter );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> Client::getDoubles( const caf::ObjectHandle* objectHandle, const std::string& getter ) const
-{
-    return m_clientImpl->getDoubles( objectHandle, getter );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<std::string> Client::getStrings( const caf::ObjectHandle* objectHandle, const std::string& getter ) const
-{
-    return m_clientImpl->getStrings( objectHandle, getter );
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Execute a general non-streaming method.
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::ObjectHandle> Client::execute( gsl::not_null<const caf::ObjectMethod*> method ) const
@@ -391,19 +434,87 @@ std::unique_ptr<caf::ObjectHandle> Client::execute( gsl::not_null<const caf::Obj
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Synchronise the object with the server. Returns true if the object was found and synchronised.
-//--------------------------------------------------------------------------------------------------
-bool Client::sync( gsl::not_null<caf::ObjectHandle*> objectHandle )
-{
-    return m_clientImpl->sync( objectHandle );
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Tell the server to stop operation. Returns a simple boolean status where true is ok.
 //--------------------------------------------------------------------------------------------------
 bool Client::stopServer() const
 {
     return m_clientImpl->stopServer();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Client::setJson( const caf::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value )
+{
+    m_clientImpl->setJson( objectHandle, fieldName, value );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+nlohmann::json Client::getJson( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
+{
+    return m_clientImpl->getJson( objectHandle, fieldName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <>
+void caf::rpc::Client::set( const caf::ObjectHandle* objectHandle, const std::string& fieldName, const std::vector<int>& value )
+{
+    m_clientImpl->set( objectHandle, fieldName, value );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <>
+void caf::rpc::Client::set( const caf::ObjectHandle*   objectHandle,
+                            const std::string&         fieldName,
+                            const std::vector<double>& value )
+{
+    m_clientImpl->set( objectHandle, fieldName, value );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <>
+void caf::rpc::Client::set( const caf::ObjectHandle*        objectHandle,
+                            const std::string&              fieldName,
+                            const std::vector<std::string>& value )
+{
+    m_clientImpl->set( objectHandle, fieldName, value );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <>
+std::vector<int> Client::get<std::vector<int>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
+{
+    return m_clientImpl->getInts( objectHandle, fieldName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <>
+std::vector<double>
+    Client::get<std::vector<double>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
+{
+    return m_clientImpl->getDoubles( objectHandle, fieldName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <>
+std::vector<std::string>
+    Client::get<std::vector<std::string>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
+{
+    return m_clientImpl->getStrings( objectHandle, fieldName );
 }
 
 } // namespace caf::rpc

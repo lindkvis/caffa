@@ -156,15 +156,15 @@ TEST( BaseTest, TestValueFieldInterface )
 
     {
         caf::ValueField* valField    = dynamic_cast<caf::ValueField*>( a->findField( "m_proxyDoubleField" ) );
-        caf::Variant         originalVal = 3.4;
+        caf::Variant     originalVal = 3.4;
         valField->setFromVariant( originalVal );
         caf::Variant newVal = valField->toVariant();
-        ASSERT_EQ( originalVal.value<double>(), newVal.value<double>());
+        ASSERT_EQ( originalVal.value<double>(), newVal.value<double>() );
     }
 
     {
         caf::ValueField* valField    = dynamic_cast<caf::ValueField*>( a->findField( "m_proxyIntField" ) );
-        caf::Variant         originalVal = 3;
+        caf::Variant     originalVal = 3;
         valField->setFromVariant( originalVal );
         caf::Variant newVal = valField->toVariant();
         ASSERT_EQ( originalVal.value<int>(), newVal.value<int>() );
@@ -172,7 +172,7 @@ TEST( BaseTest, TestValueFieldInterface )
 
     {
         caf::ValueField* valField    = dynamic_cast<caf::ValueField*>( a->findField( "m_proxyStringField" ) );
-        caf::Variant         originalVal = "test";
+        caf::Variant     originalVal = "test";
         valField->setFromVariant( originalVal );
         caf::Variant newVal = valField->toVariant();
         ASSERT_EQ( originalVal.value<std::string>(), newVal.value<std::string>() );
@@ -180,7 +180,7 @@ TEST( BaseTest, TestValueFieldInterface )
 
     {
         caf::ValueField* valField    = dynamic_cast<caf::ValueField*>( a->findField( "m_memberDoubleField" ) );
-        caf::Variant         originalVal = 3.4;
+        caf::Variant     originalVal = 3.4;
         valField->setFromVariant( originalVal );
         caf::Variant newVal = valField->toVariant();
         ASSERT_EQ( originalVal.value<double>(), newVal.value<double>() );
@@ -188,7 +188,7 @@ TEST( BaseTest, TestValueFieldInterface )
 
     {
         caf::ValueField* valField    = dynamic_cast<caf::ValueField*>( a->findField( "m_memberIntField" ) );
-        caf::Variant         originalVal = 3;
+        caf::Variant     originalVal = 3;
         valField->setFromVariant( originalVal );
         caf::Variant newVal = valField->toVariant();
         ASSERT_EQ( originalVal.value<int>(), newVal.value<int>() );
@@ -196,7 +196,7 @@ TEST( BaseTest, TestValueFieldInterface )
 
     {
         caf::ValueField* valField    = dynamic_cast<caf::ValueField*>( a->findField( "m_memberStringField" ) );
-        caf::Variant         originalVal = "test";
+        caf::Variant     originalVal = "test";
         valField->setFromVariant( originalVal );
         caf::Variant newVal = valField->toVariant();
         ASSERT_EQ( originalVal.value<std::string>(), newVal.value<std::string>() );
@@ -239,8 +239,8 @@ TEST( BaseTest, NormalField )
 
     A a( testValue );
 
-    EXPECT_EQ( 1.3, a.field2.v()[2] );
-    EXPECT_EQ( 1.3, a.field3.v()[2] );
+    EXPECT_EQ( 1.3, a.field2.value()[2] );
+    EXPECT_EQ( 1.3, a.field3.value()[2] );
     EXPECT_EQ( size_t( 0 ), a.field1().size() );
 
     // Operators
@@ -253,7 +253,7 @@ TEST( BaseTest, NormalField )
     // = value to field
     a.field1 = testValue2;
     // v()
-    EXPECT_EQ( 2.3, a.field1.v()[2] );
+    EXPECT_EQ( 2.3, a.field1.value()[2] );
     // ==
     a.field3 = a.field1;
     EXPECT_TRUE( a.field1 == a.field3 );
@@ -611,10 +611,12 @@ TEST( BaseTest, MultiplePdmFilePath )
     InheritedDemoObj* d = new InheritedDemoObj;
 
     std::string newVal = "path with space";
-    d->m_multipleFilePath.v().push_back( newVal );
-    d->m_multipleFilePath.v().push_back( newVal );
+    auto        v      = d->m_multipleFilePath();
+    v.push_back( newVal );
+    v.push_back( newVal );
+    d->m_multipleFilePath.setValue( v );
 
-    caf::Variant                           var = d->m_multipleFilePath.toVariant();
+    caf::Variant                       var = d->m_multipleFilePath.toVariant();
     std::vector<std::filesystem::path> str = var.value<std::vector<std::filesystem::path>>();
 
     EXPECT_EQ( 2, str.size() );

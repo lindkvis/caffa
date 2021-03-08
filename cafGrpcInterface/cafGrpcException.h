@@ -1,0 +1,51 @@
+//##################################################################################################
+//
+//   Caffa
+//   Copyright (C) Gaute Lindkvist
+//
+//   GNU Lesser General Public License Usage
+//   This library is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU Lesser General Public License as published by
+//   the Free Software Foundation; either version 2.1 of the License, or
+//   (at your option) any later version.
+//
+//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//   FITNESS FOR A PARTICULAR PURPOSE.
+//
+//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//   for more details.
+//
+#pragma once
+
+#include "cafException.h"
+
+#include <grpcpp/grpcpp.h>
+
+#include <string>
+
+namespace caf::rpc
+{
+class Exception : public caf::Exception
+{
+public:
+    enum class Type
+    {
+        BadConnection,
+        BadConfiguration,
+        CorruptedData
+    };
+
+public:
+    Exception( grpc::Status status )
+        : caf::Exception( status.error_message() )
+        , m_status( status )
+    {
+    }
+
+    const grpc::Status& status() const { return m_status; }
+
+private:
+    grpc::Status m_status;
+};
+} // namespace caf::rpc

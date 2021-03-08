@@ -40,11 +40,11 @@
 #include "cafValueField.h"
 
 #include "cafAssert.h"
+#include "cafDataFieldAccessor.h"
 #include "cafFieldUiCapabilityInterface.h"
 #include "cafValueFieldSpecializations.h"
 
 #include <any>
-#include <typeinfo>
 #include <vector>
 
 namespace caf
@@ -57,47 +57,53 @@ class ObjectHandle;
 //==================================================================================================
 
 template <typename DataType>
-class DataValueField : public ValueField
+class DataValueField : public TypedValueField<DataType>
 {
 public:
-    // Type traits magic to check if a template argument is a vector
-    template <typename T>
-    struct is_vector : public std::false_type
-    {
-    };
-    template <typename T, typename A>
-    struct is_vector<std::vector<T, A>> : public std::true_type
-    {
-    };
+    typedef DataFieldAccessor<DataType>              DataAccessor;
+    typedef DataFieldDirectStorageAccessor<DataType> DirectStorageAccessor;
 
-    typedef DataType FieldDataType;
-    DataValueField() {}
-    DataValueField( const DataValueField& other ) { m_fieldValue = other.m_fieldValue; }
-    explicit DataValueField( const DataType& fieldValue ) { m_fieldValue = fieldValue; }
+    DataValueField()
+        : m_fieldDataAccessor( std::make_unique<DirectStorageAccessor>() )
+    {
+    }
+    DataValueField( const DataValueField& other )
+    {
+        m_fieldDataAccessor = std::move( other.m_fieldDataAccessor->clone() );
+    }
+    explicit DataValueField( const DataType& fieldValue )
+        : m_fieldDataAccessor( std::make_unique<DirectStorageAccessor>( fieldValue ) )
+    {
+    }
+
+    DataValueField( std::unique_ptr<DataAccessor> accessor )
+        : m_fieldDataAccessor( std::move( accessor ) )
+    {
+    }
     ~DataValueField() override {}
 
     // Assignment
 
     DataValueField& operator=( const DataValueField& other )
     {
-        CAF_ASSERT( isInitializedByInitFieldMacro() );
-        m_fieldValue = other.m_fieldValue;
+        CAF_ASSERT( this->isInitializedByInitFieldMacro() );
+        m_fieldDataAccessor = std::move( other.m_fieldDataAccessor->clone() );
         return *this;
     }
     DataValueField& operator=( const DataType& fieldValue )
     {
-        CAF_ASSERT( isInitializedByInitFieldMacro() );
-        m_fieldValue = fieldValue;
+        CAF_ASSERT( this->isInitializedByInitFieldMacro() );
+        m_fieldDataAccessor->setValue( fieldValue );
         return *this;
     }
 
     // Basic access
 
-    DataType value() const { return m_fieldValue; }
-    void     setValue( const DataType& fieldValue )
+    DataType value() const override { return m_fieldDataAccessor->value(); }
+    void     setValue( const DataType& fieldValue ) override
     {
-        CAF_ASSERT( isInitializedByInitFieldMacro() );
-        m_fieldValue = fieldValue;
+        CAF_ASSERT( this->isInitializedByInitFieldMacro() );
+        m_fieldDataAccessor->setValue( fieldValue );
     }
     void setValueWithFieldChanged( const DataType& fieldValue );
 
@@ -105,36 +111,43 @@ public:
 
     Variant toVariant() const override
     {
-        CAF_ASSERT( isInitializedByInitFieldMacro() );
-        return ValueFieldSpecialization<DataType>::convert( m_fieldValue );
+        CAF_ASSERT( this->isInitializedByInitFieldMacro() );
+        return ValueFieldSpecialization<DataType>::convert( m_fieldDataAccessor->value() );
     }
     void setFromVariant( const Variant& variant ) override
     {
-        CAF_ASSERT( isInitializedByInitFieldMacro() );
-        ValueFieldSpecialization<DataType>::setFromVariant( variant, m_fieldValue );
+        CAF_ASSERT( this->isInitializedByInitFieldMacro() );
+        DataType value;
+        ValueFieldSpecialization<DataType>::setFromVariant( variant, value );
+        m_fieldDataAccessor->setValue( value );
     }
     bool isReadOnly() const override { return false; }
 
     // Access operators
 
-    /*Conversion */ operator DataType() const { return m_fieldValue; }
-    const DataType& operator()() const { return m_fieldValue; }
+    /*Conversion */ operator DataType() const
+    {
+        CAF_ASSERT( m_fieldDataAccessor );
+        return m_fieldDataAccessor->value();
+    }
+    DataType operator()() const
+    {
+        CAF_ASSERT( m_fieldDataAccessor );
+        return m_fieldDataAccessor->value();
+    }
 
-    DataType&       v() { return m_fieldValue; } // This one breaches encapsulation. Remove ?
-    const DataType& v() const { return m_fieldValue; }
+    bool operator==( const DataType& fieldValue ) const { return m_fieldDataAccessor->value() == fieldValue; }
+    bool operator!=( const DataType& fieldValue ) const { return m_fieldDataAccessor->value() != fieldValue; }
 
-    bool operator==( const DataType& fieldValue ) const { return m_fieldValue == fieldValue; }
-    bool operator!=( const DataType& fieldValue ) const { return m_fieldValue != fieldValue; }
-
-protected:
-    DataType m_fieldValue;
+    // Replace accessor
+    void setFieldDataAccessor( std::unique_ptr<DataAccessor> accessor ) { m_fieldDataAccessor = std::move( accessor ); }
 
 public:
-    const DataType& defaultValue() const { return m_defaultFieldValue; }
-    void            setDefaultValue( const DataType& val ) { m_defaultFieldValue = val; }
+    std::optional<DataType> defaultValue() const { return m_fieldDataAccessor->defaultValue(); }
+    void                    setDefaultValue( const DataType& val ) { m_fieldDataAccessor->setDefaultValue( val ); }
 
 protected:
-    DataType m_defaultFieldValue;
+    std::unique_ptr<DataAccessor> m_fieldDataAccessor;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -143,14 +156,14 @@ protected:
 template <typename DataType>
 void caf::DataValueField<DataType>::setValueWithFieldChanged( const DataType& fieldValue )
 {
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    CAF_ASSERT( this->isInitializedByInitFieldMacro() );
 
-    FieldUiCapabilityInterface* uiFieldHandleInterface = capability<FieldUiCapabilityInterface>();
+    FieldUiCapabilityInterface* uiFieldHandleInterface = this->template capability<FieldUiCapabilityInterface>();
     if ( uiFieldHandleInterface )
     {
         Variant oldValue = uiFieldHandleInterface->toUiBasedVariant();
 
-        m_fieldValue = fieldValue;
+        m_fieldDataAccessor->setValue( fieldValue );
 
         Variant newUiBasedVariant = uiFieldHandleInterface->toUiBasedVariant();
 
@@ -158,7 +171,7 @@ void caf::DataValueField<DataType>::setValueWithFieldChanged( const DataType& fi
     }
     else
     {
-        m_fieldValue = fieldValue;
+        m_fieldDataAccessor->setValue( fieldValue );
     }
 }
 
