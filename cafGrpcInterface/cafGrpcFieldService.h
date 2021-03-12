@@ -38,8 +38,8 @@
 #include "cafGrpcServiceInterface.h"
 #include "cafVariant.h"
 
-#include "Field.grpc.pb.h"
-#include "Field.pb.h"
+#include "FieldService.grpc.pb.h"
+#include "FieldService.pb.h"
 
 #include <string>
 #include <vector>

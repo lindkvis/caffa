@@ -165,6 +165,53 @@ void DataHolder<std::vector<double>>::applyValuesToField( ValueField* field )
         dataValueField->setValueWithFieldChanged( data );
     }
 }
+template <>
+size_t DataHolder<std::vector<float>>::valueCount() const
+{
+    return data.size();
+}
+template <>
+size_t DataHolder<std::vector<float>>::valueSizeOf() const
+{
+    return sizeof( float );
+}
+
+template <>
+void DataHolder<std::vector<float>>::reserveReplyStorage( GetterReply* reply ) const
+{
+    reply->mutable_floats()->mutable_data()->Reserve( data.size() );
+}
+template <>
+void DataHolder<std::vector<float>>::addValueToReply( size_t valueIndex, GetterReply* reply ) const
+{
+    reply->mutable_floats()->add_data( data[valueIndex] );
+}
+template <>
+size_t DataHolder<std::vector<float>>::getValuesFromChunk( size_t startIndex, const SetterChunk* chunk )
+{
+    size_t chunkSize    = chunk->floats().data_size();
+    size_t currentIndex = startIndex;
+    size_t chunkIndex   = 0u;
+    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
+    {
+        data[currentIndex] = chunk->floats().data()[chunkIndex];
+    }
+    return chunkSize;
+}
+template <>
+void DataHolder<std::vector<float>>::applyValuesToField( ValueField* field )
+{
+    auto proxyValueField = dynamic_cast<ProxyValueField<std::vector<float>>*>( field );
+    auto dataValueField  = dynamic_cast<Field<std::vector<float>>*>( field );
+    if ( proxyValueField )
+    {
+        proxyValueField->setValue( data );
+    }
+    else if ( dataValueField )
+    {
+        dataValueField->setValueWithFieldChanged( data );
+    }
+}
 
 template <>
 size_t DataHolder<std::vector<std::string>>::valueCount() const
@@ -282,6 +329,12 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
             {
                 m_field = dataField;
                 m_dataHolder.reset( new DataHolder<std::vector<double>>( dataField->value() ) );
+                return grpc::Status::OK;
+            }
+            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<float>>*>( field ); dataField != nullptr )
+            {
+                m_field = dataField;
+                m_dataHolder.reset( new DataHolder<std::vector<float>>( dataField->value() ) );
                 return grpc::Status::OK;
             }
             else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<std::string>>*>( field );
@@ -403,6 +456,12 @@ grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
             {
                 m_field = dataField;
                 m_dataHolder.reset( new DataHolder<std::vector<double>>( std::vector<double>( valueCount ) ) );
+                return grpc::Status::OK;
+            }
+            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<float>>*>( field ); dataField != nullptr )
+            {
+                m_field = dataField;
+                m_dataHolder.reset( new DataHolder<std::vector<float>>( std::vector<float>( valueCount ) ) );
                 return grpc::Status::OK;
             }
             else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<std::string>>*>( field );

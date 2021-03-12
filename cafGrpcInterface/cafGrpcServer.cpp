@@ -125,7 +125,7 @@ public:
     {
         CAF_ASSERT( m_portNumber > 0 && m_portNumber <= (int)std::numeric_limits<uint16_t>::max() );
 
-        std::string serverAddress = "localhost:" + std::to_string( m_portNumber );
+        std::string serverAddress = "0.0.0.0:" + std::to_string( m_portNumber );
 
         ServerBuilder builder;
         builder.AddListeningPort( serverAddress, grpc::InsecureServerCredentials() );

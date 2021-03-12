@@ -2,7 +2,10 @@ syntax = "proto3";
 
 package caf.rpc;
 
-import "Object.proto";
+option java_multiple_files = true;
+option java_package = "org.caffa.rpc";
+
+import "ObjectService.proto";
 
 service FieldAccess
 {
@@ -15,9 +18,19 @@ message IntArray
     repeated int32 data = 1;
 }
 
+message Int64Array
+{
+    repeated int64 data = 1;
+}
+
 message DoubleArray
 {
     repeated double data = 1;
+}
+
+message FloatArray
+{
+    repeated float data = 1;
 }
 
 message StringArray
@@ -47,6 +60,8 @@ message SetterChunk
         IntArray      ints         = 3;
         DoubleArray   doubles      = 4;
         StringArray   strings      = 5;
+        FloatArray    floats       = 6;
+        Int64Array    int64s       = 7;
     }
 }
 
@@ -58,6 +73,9 @@ message GetterReply
         IntArray    ints    = 2;
         DoubleArray doubles = 3;
         StringArray strings = 4;
+        FloatArray  floats  = 5;
+        Int64Array  int64s  = 6;
+
     }
 }
 

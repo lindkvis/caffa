@@ -89,6 +89,13 @@ void GrpcClientObjectFactory::applyAccessorToField( caf::ObjectHandle* fieldOwne
                                                                                       fieldHandle->keyword() );
         dataField->setFieldDataAccessor( std::move( accessor ) );
     }
+    if ( auto dataField = dynamic_cast<caf::Field<std::vector<float>>*>( fieldHandle ); dataField )
+    {
+        auto accessor =
+            std::make_unique<GrpcDataFieldAccessor<std::vector<float>>>( m_grpcClient, fieldOwner, fieldHandle->keyword() );
+        dataField->setFieldDataAccessor( std::move( accessor ) );
+    }
+
     else if ( auto dataField = dynamic_cast<caf::Field<std::vector<int>>*>( fieldHandle ); dataField )
     {
         auto accessor =

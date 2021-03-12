@@ -54,12 +54,10 @@ set(SOURCE_GROUP_SOURCE_FILES
 find_package(Protobuf 3.0 CONFIG QUIET)
 
 if(Protobuf_FOUND)
-  message(STATUS "Using protobuf ${protobuf_VERSION}")
 
   # Find gRPC installation Looks for gRPCConfig.cmake file installed by gRPC's
   # cmake installation.
   find_package(gRPC CONFIG REQUIRED)
-  message(STATUS "Using gRPC ${gRPC_VERSION}")
 
   set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
   set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
@@ -71,6 +69,9 @@ if(Protobuf_FOUND)
   set_target_properties(
     ${GRPC_LINK_LIBRARIES} PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
                                  MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
+
+  set(CURRENT_GRPC_VERSION ${gRPC_VERSION})
+  set(CURRENT_PROTOBUF_VERSION ${Protobuf_VERSION})
 else()
   message(STATUS "Using GRPC_INSTALL_PREFIX=${GRPC_INSTALL_PREFIX}")
   set(GRPC_INSTALL_PREFIX
@@ -85,7 +86,7 @@ else()
   endif()
   set(ENV{PKG_CONFIG_PATH} "${GRPC_INSTALL_PREFIX}/lib/pkgconfig")
   find_package(PkgConfig REQUIRED)
-  pkg_check_modules(GRPC REQUIRED grpc grpc++>=1.16 grpc gpr
+  pkg_check_modules(GRPC REQUIRED grpc++>=1.16 grpc gpr
                     protobuf)
   if(EXISTS "${GRPC_INSTALL_PREFIX}/bin/protoc")
     set(_PROTOBUF_PROTOC "${GRPC_INSTALL_PREFIX}/bin/protoc")
@@ -104,7 +105,15 @@ else()
         "${GRPC_INSTALL_PREFIX}/tools/grpc/grpc_cpp_plugin")
   endif()
   include_directories(AFTER ${GRPC_INCLUDE_DIRS})
+
+  set(CURRENT_GRPC_VERSION ${GRPC_grpc++_VERSION})
+  set(CURRENT_PROTOBUF_VERSION ${GRPC_protobuf_VERSION})
+
 endif()
+
+message(STATUS "Using protobuf ${CURRENT_PROTOBUF_VERSION}")
+message(STATUS "Using gRPC ${CURRENT_GRPC_VERSION}")
+
 
 set(LINK_LIBRARIES
     ${GRPC_LINK_LIBRARIES}
@@ -115,9 +124,9 @@ set(LINK_LIBRARIES
 
 # Proto files
 set(PROTO_FILES
-    "App"
-    "Field"
-    "Object"
+    "AppInfo"
+    "FieldService"
+    "ObjectService"
 )
 
 set(GRPC_PYTHON_SOURCE_PATH "${CMAKE_CURRENT_LIST_DIR}/Python")
@@ -182,6 +191,10 @@ else()
         "Python3 not found. Will not install Python client code"
     )
 endif()
+
+message(STATUS "Configuring Java gradle build file")
+configure_file("${CMAKE_CURRENT_LIST_DIR}/Java/build.gradle.cmake" "${CMAKE_CURRENT_LIST_DIR}/Java/build.gradle")
+
 list(
   APPEND
   GRPC_PYTHON_SOURCES

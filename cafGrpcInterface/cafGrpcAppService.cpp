@@ -38,17 +38,17 @@
 #include "cafGrpcServer.h"
 #include "cafGrpcServerApplication.h"
 
-#include "App.pb.h"
+#include "AppInfo.pb.h"
 
 using namespace caf::rpc;
 
-grpc::Status AppService::Quit( grpc::ServerContext* context, const Null* request, Null* reply )
+grpc::Status AppService::Quit( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply )
 {
     caf::GrpcServerApplication::instance()->quit();
     return grpc::Status::OK;
 }
 
-grpc::Status AppService::GetAppInfo( grpc::ServerContext* context, const Null* request, AppInfoReply* reply )
+grpc::Status AppService::GetAppInfo( grpc::ServerContext* context, const NullMessage* request, AppInfoReply* reply )
 {
     Application* app = Application::instance();
     reply->set_name( app->name() );
@@ -69,8 +69,8 @@ grpc::Status AppService::GetAppInfo( grpc::ServerContext* context, const Null* r
 std::vector<AbstractCallback*> AppService::registerCallbacks()
 {
     typedef AppService Self;
-    return { new UnaryCallback<Self, Null, Null>( this, &Self::Quit, &Self::RequestQuit ),
-             new UnaryCallback<Self, Null, AppInfoReply>( this, &Self::GetAppInfo, &Self::RequestGetAppInfo ) };
+    return { new UnaryCallback<Self, NullMessage, NullMessage>( this, &Self::Quit, &Self::RequestQuit ),
+             new UnaryCallback<Self, NullMessage, AppInfoReply>( this, &Self::GetAppInfo, &Self::RequestGetAppInfo ) };
 }
 
 static bool AppInfoService_init =

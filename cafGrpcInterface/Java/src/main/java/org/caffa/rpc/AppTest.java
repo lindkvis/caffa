@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Caffa
-//   Copyright (C) Gaute Lindkvist
+//   Copyright (C) 2021- 3D-Radar
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -32,31 +32,45 @@
 //   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
 //   for more details.
 //
-#pragma once
+package org.caffa.rpc;
 
-#include "cafGrpcServiceInterface.h"
+import org.caffa.rpc.AppInfo;
+import org.caffa.rpc.AppGrpc;
 
-#include "AppInfo.grpc.pb.h"
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import com.google.protobuf.Empty;
 
-#include <google/protobuf/empty.pb.h>
-#include <grpcpp/grpcpp.h>
+import java.util.logging.Logger;
 
-#include <vector>
+public class AppTest {
+    private static final Logger logger = Logger.getLogger(AppTest.class.getName());
+    private final AppGrpc.AppBlockingStub appStub;
+    private final ManagedChannel channel;
 
-namespace caf::rpc
-{
-class AbstractCallback;
-class Version;
+    public AppTest(String host, int port) {
+        this.channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
+        this.appStub = AppGrpc.newBlockingStub(channel);
+    }
 
-/**
- * Implementation of the App.proto-service
- */
-class AppService : public ServiceInterface, public App::AsyncService
-{
-public:
-    grpc::Status Quit( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply ) override;
-    grpc::Status GetAppInfo( grpc::ServerContext* context, const NullMessage* request, AppInfoReply* reply ) override;
+    public String appName()
+    {
+        Empty message = Empty.getDefaultInstance();
+        AppInfoReply appInfo = this.appStub.getAppInfo(message);
+        StringBuilder sb = new StringBuilder();
+        sb.append(appInfo.getName());
+        sb.append(" version ");
+        sb.append(appInfo.getMajorVersion());
+        sb.append(".");
+        sb.append(appInfo.getMinorVersion());
+        return sb.toString();
+    }
 
-    std::vector<AbstractCallback*> registerCallbacks() override;
-};
-} // namespace caf::rpc
+    public static void main(String[] args) throws InterruptedException {
+        AppTest test = new AppTest("localhost", 55555);
+        String appName = test.appName();
+        logger.info("Application Name and Version: " + appName);
+    }
+}

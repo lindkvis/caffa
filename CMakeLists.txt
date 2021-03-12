@@ -74,6 +74,7 @@ add_subdirectory (cafProjectDataModel/cafPdmScriptCore/cafPdmScriptCore_UnitTest
 add_subdirectory (cafProjectDataModel/cafProjectDataModel_UnitTests)
 if (CAFFA_GRPC_INTERFACE)
     add_subdirectory(cafGrpcInterface/cafGrpcInterface_UnitTests)
+    add_subdirectory(cafGrpcInterface/cafGrpcInterface_Example)
 endif()
 
 # Organize sub-projects into folders on Visual Studio

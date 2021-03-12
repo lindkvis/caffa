@@ -104,6 +104,11 @@ void Client::set<std::vector<double>>( const caf::ObjectHandle*   objectHandle,
                                        const std::vector<double>& value );
 
 template <>
+void Client::set<std::vector<float>>( const caf::ObjectHandle*  objectHandle,
+                                      const std::string&        fieldName,
+                                      const std::vector<float>& value );
+
+template <>
 void Client::set<std::vector<std::string>>( const caf::ObjectHandle*        objectHandle,
                                             const std::string&              fieldName,
                                             const std::vector<std::string>& value );
@@ -114,6 +119,10 @@ std::vector<int> Client::get<std::vector<int>>( const caf::ObjectHandle* objectH
 template <>
 std::vector<double>
     Client::get<std::vector<double>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const;
+
+template <>
+std::vector<float>
+    Client::get<std::vector<float>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
 template <>
 std::vector<std::string>

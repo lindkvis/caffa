@@ -52,6 +52,7 @@
 
 #include <grpcpp/grpcpp.h>
 
+#include <iostream>
 #include <vector>
 
 namespace caf::rpc
@@ -61,9 +62,12 @@ namespace caf::rpc
 //--------------------------------------------------------------------------------------------------
 grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const DocumentRequest* request, Object* reply )
 {
+    std::cout << "Got document request" << std::endl;
     PdmDocument* document = caf::Application::instance()->document( request->document_id() );
+    std::cout << "Found document" << std::endl;
     if ( document )
     {
+        std::cout << "Copying document to gRPC data structure" << std::endl;
         copyObjectFromCafToRpc( document, reply, true, false );
         return grpc::Status::OK;
     }
