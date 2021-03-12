@@ -1,5 +1,5 @@
 # About Caffa
-Caffa is an Application Framework for Web and Desktop Applications written in C++. Caffa is based on the Qt5-based Ceetron Application Framework used in ResInsight (http://www.resinsight.org) but supports deploying to the web via the Web Toolkit (https://www.webtoolkit.eu/wt) as well as desktop deployment with Qt5, has a simplified API and uses JSON for serialisation.
+Caffa is an Application Framework for Embedded, Web and Desktop Applications written in C++. Caffa is based on the Qt5-based Ceetron Application Framework used in ResInsight (http://www.resinsight.org) but supports deploying to the web via the Web Toolkit (https://www.webtoolkit.eu/wt) as well as desktop deployment with Qt5, has a simplified API and uses JSON for serialisation.
 
 It allows you to write applications both for desktop and web deployment with one code base. The main target for Caffa is to create simple control applications for embedded Linux systems with an embedded Web Interface.
 
