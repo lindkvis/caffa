@@ -1,7 +1,11 @@
 #include "cafGrpcServerApplication.h"
 
 #include "cafAssert.h"
+#include "cafGrpcAppService.h"
+#include "cafGrpcFieldService.h"
+#include "cafGrpcObjectService.h"
 #include "cafGrpcServer.h"
+#include "cafGrpcServiceInterface.h"
 
 using namespace caf;
 
@@ -13,6 +17,12 @@ GrpcServerApplication::GrpcServerApplication( int portNumber )
 
 {
     m_server = std::make_unique<caf::rpc::Server>( portNumber );
+
+    caf::rpc::ServiceFactory::instance()->registerCreator<caf::rpc::AppService>( typeid( caf::rpc::AppService ).hash_code() );
+    caf::rpc::ServiceFactory::instance()->registerCreator<caf::rpc::FieldService>(
+        typeid( caf::rpc::FieldService ).hash_code() );
+    caf::rpc::ServiceFactory::instance()->registerCreator<caf::rpc::ObjectService>(
+        typeid( caf::rpc::ObjectService ).hash_code() );
 }
 
 //--------------------------------------------------------------------------------------------------

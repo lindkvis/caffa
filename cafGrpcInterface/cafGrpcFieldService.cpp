@@ -587,7 +587,4 @@ std::vector<AbstractCallback*> FieldService::registerCallbacks()
     };
 }
 
-static bool FieldService_init =
-    ServiceFactory::instance()->registerCreator<FieldService>( typeid( FieldService ).hash_code() );
-
 } // namespace caf::rpc

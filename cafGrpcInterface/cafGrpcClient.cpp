@@ -63,7 +63,7 @@ public:
     {
         // Created new server
         m_channel = grpc::CreateChannel( hostname + ":" + std::to_string( port ), grpc::InsecureChannelCredentials() );
-        std::cout << "Created channel" << std::endl;
+        std::cout << "Created channel for " << hostname << ":" << port << std::endl;
         m_appInfoStub = App::NewStub( m_channel );
         m_objectStub  = ObjectAccess::NewStub( m_channel );
         m_fieldStub   = FieldAccess::NewStub( m_channel );

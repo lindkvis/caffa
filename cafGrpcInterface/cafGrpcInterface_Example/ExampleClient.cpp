@@ -30,7 +30,7 @@
 int main( int argc, char** argv )
 {
     std::string hostname = argc == 2 ? argv[1] : "localhost";
-    int  portNumber = 50000;
+    int  portNumber = 55555;
     
     std::cout << "Launching Client connecting to " << hostname << ":" << portNumber << std::endl;
     auto client = std::make_unique<caf::rpc::Client>( hostname, portNumber );

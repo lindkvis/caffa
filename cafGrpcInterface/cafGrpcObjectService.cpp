@@ -232,7 +232,4 @@ std::vector<AbstractCallback*> ObjectService::registerCallbacks()
     };
 }
 
-static bool ObjectService_init =
-    ServiceFactory::instance()->registerCreator<ObjectService>( typeid( ObjectService ).hash_code() );
-
 } // namespace caf::rpc

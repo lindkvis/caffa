@@ -133,7 +133,9 @@ public:
         for ( auto key : ServiceFactory::instance()->allKeys() )
         {
             std::shared_ptr<ServiceInterface> service( ServiceFactory::instance()->create( key ) );
-            builder.RegisterService( dynamic_cast<grpc::Service*>( service.get() ) );
+            auto                              grpcService = dynamic_cast<grpc::Service*>( service.get() );
+            CAF_ASSERT( grpcService );
+            builder.RegisterService( grpcService );
             m_services.push_back( service );
         }
 

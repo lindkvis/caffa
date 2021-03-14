@@ -72,6 +72,3 @@ std::vector<AbstractCallback*> AppService::registerCallbacks()
     return { new UnaryCallback<Self, NullMessage, NullMessage>( this, &Self::Quit, &Self::RequestQuit ),
              new UnaryCallback<Self, NullMessage, AppInfoReply>( this, &Self::GetAppInfo, &Self::RequestGetAppInfo ) };
 }
-
-static bool AppInfoService_init =
-    ServiceFactory::instance()->registerCreator<AppService>( typeid( AppService ).hash_code() );

@@ -70,7 +70,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-    int  portNumber = 50000;
+    int  portNumber = 55555;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
     std::cout << "Launching Server listening on port " << portNumber << std::endl;
@@ -89,5 +89,7 @@ int main( int argc, char** argv )
 
     serverDocument->m_demoObject->setIntVector({42});
     serverDocument->m_demoObject->setFloatVector( serverVector );
-    ServerApp::instance()->run();
+    std::cout << "Running server thread" << std::endl;
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread.join();
 }
