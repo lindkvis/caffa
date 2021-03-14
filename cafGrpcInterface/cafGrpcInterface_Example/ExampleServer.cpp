@@ -90,6 +90,5 @@ int main( int argc, char** argv )
     serverDocument->m_demoObject->setIntVector({42});
     serverDocument->m_demoObject->setFloatVector( serverVector );
     std::cout << "Running server thread" << std::endl;
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
-    thread.join();
+    serverApp->run();
 }

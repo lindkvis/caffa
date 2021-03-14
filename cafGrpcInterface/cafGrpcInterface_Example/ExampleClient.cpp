@@ -22,6 +22,7 @@
 
 #include "DemoObject.h"
 
+#include <cstdlib>
 #include <iostream>
 
 //--------------------------------------------------------------------------------------------------
@@ -29,8 +30,8 @@
 //--------------------------------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-    std::string hostname = argc == 2 ? argv[1] : "localhost";
-    int  portNumber = 55555;
+    std::string hostname = argc >= 2 ? argv[1] : "localhost";
+    int         portNumber = argc >= 3 ? std::atoi( argv[2] ) : 55555;
     
     std::cout << "Launching Client connecting to " << hostname << ":" << portNumber << std::endl;
     auto client = std::make_unique<caf::rpc::Client>( hostname, portNumber );
@@ -38,7 +39,11 @@ int main( int argc, char** argv )
     std::cout << "Getting document" << std::endl;
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
-
+    if (!clientDocument)
+    {
+        std::cerr << "Failed to get main document" << std::endl;
+        return 1;
+    }
     {
         auto start_time = std::chrono::system_clock::now();
         auto clientVector    = clientDocument->m_demoObject->getIntVector();
