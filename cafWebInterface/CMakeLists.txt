@@ -32,7 +32,6 @@ set( PUBLIC_HEADERS
     cafPdmWebLineEditor.h
     cafPdmWebColorEditor.h
     cafPdmWebDateEditor.h
-    cafPdmWebFileUploadEditor.h
     cafPdmWebSliderEditor.h
     cafPdmWebDoubleSliderEditor.h
 
@@ -59,7 +58,6 @@ set( PROJECT_FILES
     cafPdmWebLineEditor.cpp
     cafPdmWebColorEditor.cpp
     cafPdmWebDateEditor.cpp
-    cafPdmWebFileUploadEditor.cpp
     cafPdmWebSliderEditor.cpp
     cafPdmWebDoubleSliderEditor.cpp
 

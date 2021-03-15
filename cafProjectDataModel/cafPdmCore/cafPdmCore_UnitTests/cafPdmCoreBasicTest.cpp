@@ -12,7 +12,6 @@
 #include "cafPtrField.h"
 #include "cafValueField.h"
 
-#include <filesystem>
 #include <vector>
 
 class DemoObject : public caf::ObjectHandle
@@ -89,17 +88,11 @@ public:
         this->addField( &m_texts, "Texts" );
         this->addField( &m_childArrayField, "DemoObjectects" );
         this->addField( &m_ptrField, "m_ptrField" );
-
-        this->addField( &m_singleFilePath, "m_singleFilePath" );
-        this->addField( &m_multipleFilePath, "m_multipleFilePath" );
     }
 
     caf::DataValueField<std::string>  m_texts;
     caf::ChildArrayField<DemoObject*> m_childArrayField;
     caf::PtrField<InheritedDemoObj*>  m_ptrField;
-
-    caf::DataValueField<std::filesystem::path>              m_singleFilePath;
-    caf::DataValueField<std::vector<std::filesystem::path>> m_multipleFilePath;
 };
 
 TEST( BaseTest, Delete )
@@ -585,41 +578,4 @@ TEST( BaseTest, PdmPointer )
     caf::PdmPointer<DemoObject> p3( new DemoObject() );
 
     delete p3;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-TEST( BaseTest, PdmFilePath )
-{
-    InheritedDemoObj* d = new InheritedDemoObj;
-
-    caf::Variant origVal = std::filesystem::path( "path with space" );
-    d->m_singleFilePath.setFromVariant( origVal );
-
-    caf::Variant var = d->m_singleFilePath.toVariant();
-    ASSERT_EQ( origVal.value<std::filesystem::path>(), var.value<std::filesystem::path>() );
-
-    delete d;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-TEST( BaseTest, MultiplePdmFilePath )
-{
-    InheritedDemoObj* d = new InheritedDemoObj;
-
-    std::string newVal = "path with space";
-    auto        v      = d->m_multipleFilePath();
-    v.push_back( newVal );
-    v.push_back( newVal );
-    d->m_multipleFilePath.setValue( v );
-
-    caf::Variant                       var = d->m_multipleFilePath.toVariant();
-    std::vector<std::filesystem::path> str = var.value<std::vector<std::filesystem::path>>();
-
-    EXPECT_EQ( 2, str.size() );
-
-    delete d;
 }

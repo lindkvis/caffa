@@ -21,7 +21,6 @@
 #include "cafValueField.h"
 
 #include <chrono>
-#include <filesystem>
 #include <random>
 #include <string>
 #include <thread>
@@ -187,16 +186,11 @@ public:
         this->addField( &m_childArrayField, "DemoObjectects" );
         this->addField( &m_ptrField, "m_ptrField" );
 
-        this->addField( &m_singleFilePath, "m_singleFilePath" );
-        this->addField( &m_multipleFilePath, "m_multipleFilePath" );
     }
 
     caf::Field<std::string>           m_texts;
     caf::ChildArrayField<DemoObject*> m_childArrayField;
     caf::PtrField<InheritedDemoObj*>  m_ptrField;
-
-    caf::Field<std::filesystem::path>              m_singleFilePath;
-    caf::Field<std::vector<std::filesystem::path>> m_multipleFilePath;
 };
 
 CAF_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject" );

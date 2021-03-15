@@ -29,7 +29,6 @@
 #include "cafPtrField.h"
 #include "cafValueField.h"
 
-#include <filesystem>
 #include <iostream>
 #include <string>
 
@@ -71,9 +70,6 @@ public:
     caf::Field<std::string>           m_texts;
     caf::ChildArrayField<DemoObject*> m_childArrayField;
     caf::PtrField<InheritedDemoObj*>  m_ptrField;
-
-    caf::Field<std::filesystem::path>              m_singleFilePath;
-    caf::Field<std::vector<std::filesystem::path>> m_multipleFilePath;
 };
 
 class DemoDocument : public caf::PdmDocument

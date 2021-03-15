@@ -12,8 +12,6 @@
 #include "cafProxyValueField.h"
 #include "cafPtrField.h"
 
-#include <filesystem>
-
 class ItemObject : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
     CAF_IO_HEADER_INIT;
@@ -96,8 +94,6 @@ public:
     caf::ProxyValueField<double>      m_doubleField;
     caf::PtrField<caf::ObjectHandle*> m_pointerToItem;
     caf::PtrField<caf::ObjectHandle*> m_pointerToDemoObj;
-
-    caf::DataValueField<std::filesystem::path> m_singleFilePath;
 
     void setDoubleMember( const double& d )
     {

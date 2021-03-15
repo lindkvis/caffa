@@ -21,7 +21,6 @@
 #include "cafQActionWrapper.h"
 #include "cafSelectionManager.h"
 #include "cafUiComboBoxEditor.h"
-#include "cafUiFilePathEditor.h"
 #include "cafUiItem.h"
 #include "cafUiListEditor.h"
 #include "cafUiOrdering.h"
@@ -140,8 +139,6 @@ public:
         m_proxyDoubleField.registerGetMethod(this, &SmallDemoObject::doubleMember);
         CAF_InitFieldNoDefault(&m_proxyDoubleField, "ProxyDouble", "Proxy Double", "", "", "");
 
-        CAF_InitField(&m_fileName, "FileName", std::filesystem::path("filename"), "File Name", "", "", "");
-
         CAF_InitFieldNoDefault(&m_fileNameList, "FileNameList", "File Name List", "", "", "");
         m_fileNameList.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
@@ -167,8 +164,6 @@ public:
     caf::Field<std::string> m_textField;
 
     caf::ProxyValueField<double>                   m_proxyDoubleField;
-    caf::Field<std::filesystem::path>              m_fileName;
-    caf::Field<std::vector<std::filesystem::path>> m_fileNameList;
 
     caf::Field<std::vector<std::string>> m_multiSelectList;
 
@@ -902,7 +897,6 @@ public:
                       "Boolean:Enter some small number here",
                       "Boolean:This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_textField, "TextField", std::string("Demo Object Description Field"), "Description Field", "", "", "");
-        CAF_InitField(&m_filePath, "FilePath", std::string(""), "Filename", "", "", "");
         CAF_InitField(&m_longText, "LongText", std::string("Test text"), "Long Text", "", "", "");
 
         CAF_InitFieldNoDefault(&m_multiSelectList, "MultiSelect", "Selection List", "", "List", "This is a multi selection list");
@@ -919,8 +913,6 @@ public:
         ;
         CAF_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "Same type List", "Same type list of Objects");
 
-        m_filePath.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
-        m_filePath.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::TOP);
         m_longText.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
         m_longText.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::HIDDEN);
 
@@ -1000,8 +992,6 @@ public:
     caf::Field<double>      m_doubleField;
     caf::Field<int>         m_intField;
     caf::Field<std::string> m_textField;
-
-    caf::Field<std::string> m_filePath;
 
     caf::Field<std::string>              m_longText;
     caf::Field<std::vector<std::string>> m_multiSelectList;

@@ -223,15 +223,12 @@ public:
                       "This is a place you can enter a small integer value if you want");
         CAF_InitField(&m_colorField, "ColorField", caf::Color(50, 100, 150), "Color Field", "", "Click to set color", "");
         //CAF_InitField(&m_dateField, "DateField", QDate(2012, 05, 19), "Date Field", "", "Set a date", "");
-        CAF_InitFieldNoDefault(
-            &m_fileUploadField, "FileUploadField", "Upload File", "", "This editor lets you upload a file", "");
     }
 
     // Outside group
     caf::Field<int>        m_intFieldStandard;
     caf::Field<caf::Color> m_colorField;
     // caf::Field<Wt::WDate>             m_dateField;
-    caf::Field<std::filesystem::path> m_fileUploadField;
 
 protected:
     //--------------------------------------------------------------------------------------------------
@@ -242,7 +239,6 @@ protected:
         uiOrdering.add(&m_intFieldStandard);
         uiOrdering.add(&m_colorField);
         // uiOrdering.add(&m_dateField);
-        uiOrdering.add(&m_fileUploadField);
         uiOrdering.skipRemainingFields(true);
     }
     void onFieldChangedByCapability(const caf::FieldHandle*     changedField,
@@ -260,11 +256,6 @@ protected:
             if (MainWindow::instance())
                 MainWindow::instance()->debug(std::string("Date changed to: ") + m_dateField().
         }*/
-        else if (changedField == &m_fileUploadField)
-        {
-            if (MainWindow::instance())
-                MainWindow::instance()->debug(std::string("File uploaded to: ") + m_fileUploadField().string());
-        }
     }
 };
 

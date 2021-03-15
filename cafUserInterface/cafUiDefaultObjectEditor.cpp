@@ -47,7 +47,6 @@
 #include "cafUiTimeEditor.h"
 
 #include <QGridLayout>
-#include <filesystem>
 
 namespace caf
 {
@@ -63,8 +62,6 @@ CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, uint64_t );
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<std::string> );
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<int> );
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<float> );
-
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiFilePathEditor, std::filesystem::path );
 
 //--------------------------------------------------------------------------------------------------
 ///
