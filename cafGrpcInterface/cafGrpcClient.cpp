@@ -426,14 +426,22 @@ public:
 
         std::vector<float> values;
 
-        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
-        GetterReply                                      reply;
+        auto start_time = std::chrono::system_clock::now();
+
+        std::unique_ptr<grpc::ClientReader<FloatArray>> reader( m_fieldStub->GetFloatValue( &context, field ) );
+        FloatArray                                      reply;
         while ( reader->Read( &reply ) )
         {
-            CAF_ASSERT( reply.has_floats() ); // TODO: throw
-            auto floats = reply.floats();
-            values.insert( values.end(), floats.data().begin(), floats.data().end() );
+            values.insert( values.end(), reply.data().begin(), reply.data().end() );
         }
+
+        auto   end_time       = std::chrono::system_clock::now();
+        auto duration   = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
+        size_t numberOfFloats = values.size();
+        size_t MB = numberOfFloats * sizeof(float) / (1024u * 1024u);
+        std::cout << "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" << std::endl;        
+        std::cout << "Time spent: " << duration << "ms" << std::endl;
+
         grpc::Status status = reader->Finish();
         if (!status.ok()) std::cout << status.error_code() << ", " << status.error_message() << std::endl;
         CAF_ASSERT( status.ok() );

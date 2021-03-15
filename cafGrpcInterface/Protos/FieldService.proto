@@ -4,6 +4,7 @@ package caf.rpc;
 
 option java_multiple_files = true;
 option java_package = "org.caffa.rpc";
+option optimize_for = SPEED;
 
 import "ObjectService.proto";
 
@@ -11,6 +12,7 @@ service FieldAccess
 {
     rpc SetValue( stream SetterChunk ) returns( SetterReply ) {}
     rpc GetValue( FieldRequest ) returns( stream GetterReply ) {}
+    rpc GetFloatValue( FieldRequest ) returns( stream FloatArray ) {}
 }
 
 message IntArray
@@ -69,7 +71,7 @@ message GetterReply
 {
     oneof data
     {
-        string       scalar = 1;
+        string      scalar = 1;
         IntArray    ints    = 2;
         DoubleArray doubles = 3;
         StringArray strings = 4;
