@@ -22,11 +22,13 @@ using namespace caf::rpc;
 
 Application::Application( const unsigned int& capabilities )
     : caf::Application(capabilities)
+    , m_packageByteSize(1024u * 64u)
 {
 }
 
 Application::Application( const AppCapability& capability )
     : caf::Application(capability)
+    , m_packageByteSize(1024u * 64u)
 {
 }
 

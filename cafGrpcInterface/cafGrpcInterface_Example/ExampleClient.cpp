@@ -72,6 +72,7 @@ int main( int argc, char** argv )
     {
         int packageByteSize = std::atoi(argv[3]);
         clientApp->setPackageByteSize((size_t) packageByteSize);
+        std::cout << "Package size: " << packageByteSize << std::endl;
     }
 
     auto client = clientApp->client();

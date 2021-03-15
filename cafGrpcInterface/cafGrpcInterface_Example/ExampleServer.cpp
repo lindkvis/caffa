@@ -77,6 +77,7 @@ int main( int argc, char** argv )
     {
         int packageByteSize = std::atoi(argv[2]);
         serverApp->setPackageByteSize((size_t) packageByteSize);
+        std::cout << "Using package size " << packageByteSize << " B" << std::endl;
     }
 
     std::cout << "Launching Server listening on port " << portNumber << std::endl;

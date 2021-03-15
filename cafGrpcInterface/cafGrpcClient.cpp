@@ -435,6 +435,7 @@ public:
             values.insert( values.end(), floats.data().begin(), floats.data().end() );
         }
         grpc::Status status = reader->Finish();
+        if (!status.ok()) std::cout << status.error_code() << ", " << status.error_message() << std::endl;
         CAF_ASSERT( status.ok() );
         return values;
     }
