@@ -76,10 +76,6 @@ public:
     virtual std::string        name() const = 0;
     bool                       hasCapability( AppCapability typeToCheck ) const;
     AppInfo                    appInfo() const;
-    virtual PdmDocument*       document( const std::string& documentId )       = 0;
-    virtual const PdmDocument* document( const std::string& documentId ) const = 0;
-    virtual std::list<PdmDocument*> documents()                                = 0;
-    virtual std::list<const PdmDocument*> documents() const                    = 0;
 
     virtual int majorVersion() const = 0;
     virtual int minorVersion() const = 0;

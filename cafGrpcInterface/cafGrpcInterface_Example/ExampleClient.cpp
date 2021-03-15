@@ -16,6 +16,7 @@
 //   for more details.
 //
 
+#include "../cafGrpcClientApplication.h"
 #include "../cafGrpcClient.h"
 #include "../cafGrpcClientObjectFactory.h"
 #include "../cafGrpcObjectClientCapability.h"
@@ -25,6 +26,37 @@
 #include <cstdlib>
 #include <iostream>
 
+class ClientApp : public caf::rpc::ClientApplication
+{
+public:
+    ClientApp( const std::string& hostname, int port )
+        : caf::rpc::ClientApplication( hostname, port )
+    {
+    }
+    ~ClientApp() = default;
+
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    std::string name() const override { return "Client Test Example"; }
+
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    int majorVersion() const override { return 5; }
+
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    int minorVersion() const override { return 1; }
+
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    int patchVersion() const override { return 0; }
+};
+
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -32,10 +64,17 @@ int main( int argc, char** argv )
 {
     std::string hostname = argc >= 2 ? argv[1] : "localhost";
     int         portNumber = argc >= 3 ? std::atoi( argv[2] ) : 55555;
-    
+
+    auto clientApp = std::make_unique<ClientApp>(hostname, portNumber);    
     std::cout << "Launching Client connecting to " << hostname << ":" << portNumber << std::endl;
-    auto client = std::make_unique<caf::rpc::Client>( hostname, portNumber );
-    caf::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get());
+
+    if (argc >= 4)
+    {
+        int packageByteSize = std::atoi(argv[3]);
+        clientApp->setPackageByteSize((size_t) packageByteSize);
+    }
+
+    auto client = clientApp->client();
     std::cout << "Getting document" << std::endl;
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );

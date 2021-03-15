@@ -21,30 +21,22 @@
 #include "cafGrpcApplication.h"
 
 #include <memory>
+#include <string>
 
 namespace caf::rpc
 {
-class Server;
-}
+class Client;
 
-namespace caf::rpc
-{
-class ServerApplication : public Application
+class ClientApplication : public Application
 {
 public:
-    ServerApplication( int portNumber );
-    static ServerApplication* instance();
+    ClientApplication( const std::string& hostname, int portNumber );
+    static ClientApplication* instance();
 
-    void run();
-    bool running() const;
-    void quit();
-
-    virtual PdmDocument*       document( const std::string& documentId )       = 0;
-    virtual const PdmDocument* document( const std::string& documentId ) const = 0;
-    virtual std::list<PdmDocument*> documents()                                = 0;
-    virtual std::list<const PdmDocument*> documents() const                    = 0;
+    Client*       client();
+    const Client* client() const;
 
 private:
-    std::unique_ptr<Server> m_server;
+    std::unique_ptr<Client> m_client;
 };
 } // namespace caf

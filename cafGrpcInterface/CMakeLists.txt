@@ -33,11 +33,12 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcException.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcFieldService.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcObjectService.h
+    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcApplication.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcServerApplication.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClient.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcObjectClientCapability.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientObjectFactory.h
-    #${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.h
+    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.h
     )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -45,10 +46,11 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcAppService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcFieldService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcObjectService.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcApplication.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcServerApplication.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClient.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientObjectFactory.cpp
-    #${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.cpp
     )
 
 find_package(Protobuf 3.0 CONFIG QUIET)

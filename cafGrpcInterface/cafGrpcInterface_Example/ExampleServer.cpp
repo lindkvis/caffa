@@ -22,16 +22,17 @@
 
 #include "DemoObject.h"
 
+#include <cstdlib>
 #include <filesystem>
 #include <iostream>
 #include <random>
 #include <string>
 
-class ServerApp : public caf::GrpcServerApplication
+class ServerApp : public caf::rpc::ServerApplication
 {
 public:
     ServerApp( int port )
-        : caf::GrpcServerApplication( port )
+        : caf::rpc::ServerApplication( port )
     {
     }
     ~ServerApp() = default;
@@ -70,8 +71,14 @@ private:
 //--------------------------------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-    int  portNumber = 55555;
+    int  portNumber = argc >= 2 ? std::atoi(argv[1]) : 55555;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
+
+    if (argc >= 3)
+    {
+        int packageByteSize = std::atoi(argv[2]);
+        serverApp->setPackageByteSize((size_t) packageByteSize);
+    }
 
     std::cout << "Launching Server listening on port " << portNumber << std::endl;
 

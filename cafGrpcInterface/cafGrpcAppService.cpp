@@ -44,7 +44,7 @@ using namespace caf::rpc;
 
 grpc::Status AppService::Quit( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply )
 {
-    caf::GrpcServerApplication::instance()->quit();
+    ServerApplication::instance()->quit();
     return grpc::Status::OK;
 }
 

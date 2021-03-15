@@ -38,6 +38,7 @@
 #include "ObjectService.grpc.pb.h"
 
 #include "cafDefaultObjectFactory.h"
+#include "cafGrpcApplication.h"
 #include "cafGrpcClientObjectFactory.h"
 #include "cafGrpcException.h"
 #include "cafGrpcFieldService.h"
@@ -210,7 +211,7 @@ public:
     }
     bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<int>& values )
     {
-        auto chunkSize = ServiceInterface::packageByteSize();
+        auto chunkSize = Application::instance()->packageByteSize();
 
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
@@ -252,7 +253,7 @@ public:
 
     bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<double>& values )
     {
-        auto chunkSize = ServiceInterface::packageByteSize();
+        auto chunkSize = Application::instance()->packageByteSize();
 
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
@@ -294,7 +295,7 @@ public:
 
     bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<float>& values )
     {
-        auto chunkSize = ServiceInterface::packageByteSize();
+        auto chunkSize = Application::instance()->packageByteSize();
 
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();

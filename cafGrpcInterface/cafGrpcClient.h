@@ -34,7 +34,6 @@
 //
 #pragma once
 
-#include "cafApplication.h"
 #include "cafObjectMethod.h"
 #include "cafPdmDocument.h"
 #include "cafVariant.h"
@@ -43,6 +42,11 @@
 
 #include <memory>
 #include <string>
+
+namespace caf
+{
+class AppInfo;
+}
 
 namespace caf::rpc
 {

@@ -39,7 +39,7 @@
 #include "cafGrpcServerApplication.h"
 
 #include "cafAbstractFieldScriptingCapability.h"
-#include "cafApplication.h"
+#include "cafGrpcApplication.h"
 #include "cafField.h"
 #include "cafGrpcObjectService.h"
 #include "cafObject.h"
@@ -369,7 +369,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
 grpc::Status GetterStateHandler::assignReply( GetterReply* reply )
 {
     CAF_ASSERT( m_dataHolder );
-    size_t dataUnitsInPackage = ServiceInterface::packageByteSize() / m_dataHolder->valueSizeOf();
+    size_t dataUnitsInPackage = Application::instance()->packageByteSize() / m_dataHolder->valueSizeOf();
 
     size_t indexInPackage = 0u;
     m_dataHolder->reserveReplyStorage( reply );

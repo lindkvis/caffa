@@ -225,11 +225,11 @@ public:
 
 CAF_SOURCE_INIT( DemoDocument, "DemoDocument" );
 
-class ServerApp : public caf::GrpcServerApplication
+class ServerApp : public caf::rpc::ServerApplication
 {
 public:
     ServerApp( int port )
-        : caf::GrpcServerApplication( port )
+        : caf::rpc::ServerApplication( port )
     {
     }
     //--------------------------------------------------------------------------------------------------
@@ -266,7 +266,7 @@ TEST( BaseTest, Launch )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
     std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -297,7 +297,7 @@ TEST( BaseTest, Document )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
     std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -358,7 +358,7 @@ TEST( BaseTest, Sync )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
     std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -409,7 +409,7 @@ TEST( BaseTest, ObjectMethod )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
     std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -460,7 +460,7 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
     std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -516,7 +516,7 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
     std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -575,7 +575,7 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
     std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -629,7 +629,7 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
     std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
