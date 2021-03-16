@@ -75,37 +75,24 @@ if(Protobuf_FOUND)
   set(CURRENT_GRPC_VERSION ${gRPC_VERSION})
   set(CURRENT_PROTOBUF_VERSION ${Protobuf_VERSION})
 else()
-  message(STATUS "Using GRPC_INSTALL_PREFIX=${GRPC_INSTALL_PREFIX}")
-  set(GRPC_INSTALL_PREFIX
-      "/usr"
-      CACHE PATH "gRPC : Install prefix for gRPC")
-  if(NOT DEFINED GRPC_INSTALL_PREFIX
-     OR NOT EXISTS ${GRPC_INSTALL_PREFIX})
-    message(
-      FATAL_ERROR
-        "You need a valid GRPC_INSTALL_PREFIX set to build with gRPC"
-    )
-  endif()
-  set(ENV{PKG_CONFIG_PATH} "${GRPC_INSTALL_PREFIX}/lib/pkgconfig")
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(GRPC REQUIRED grpc++>=1.16 grpc gpr
                     protobuf)
-  if(EXISTS "${GRPC_INSTALL_PREFIX}/bin/protoc")
-    set(_PROTOBUF_PROTOC "${GRPC_INSTALL_PREFIX}/bin/protoc")
-  elseif(EXISTS "${GRPC_INSTALL_PREFIX}/tools/protobuf/protoc")
-    set(_PROTOBUF_PROTOC
-        "${GRPC_INSTALL_PREFIX}/tools/protobuf/protoc")
+  if(EXISTS "${GRPC_protobuf_PREFIX}/bin/protoc")
+    set(_PROTOBUF_PROTOC "${GRPC_protobuf_PREFIX}/bin/protoc")
+    message("Using protoc: ${GRPC_protobuf_PREFIX}/bin/protoc")
   else()
     message(FATAL_ERROR "Could not find the protobuf compiler (protoc)")
   endif()
 
-  if(EXISTS "${GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin")
+  if(EXISTS "${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
     set(_GRPC_CPP_PLUGIN_EXECUTABLE
-        "${GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin")
-  elseif(EXISTS "${GRPC_INSTALL_PREFIX}/tools/grpc/grpc_cpp_plugin")
-    set(_GRPC_CPP_PLUGIN_EXECUTABLE
-        "${GRPC_INSTALL_PREFIX}/tools/grpc/grpc_cpp_plugin")
+        "${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
+    message("Using grpc_cpp_plugin: ${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
+  else()
+    message(FATAL_ERROR "Could not find the grpc_cpp_plugin")
   endif()
+
   include_directories(AFTER ${GRPC_INCLUDE_DIRS})
 
   set(CURRENT_GRPC_VERSION ${GRPC_grpc++_VERSION})
