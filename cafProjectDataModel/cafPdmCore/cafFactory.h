@@ -116,12 +116,7 @@ public:
             m_factoryMap[key] = new ObjectCreator<TypeToCreate>();
             return true;
         }
-        else
-        {
-            CAF_ASSERT( key != entryIt->first ); // classNameKeyword has already been used
-            CAF_ASSERT( false ); // To be sure ..
-            return false;
-        }
+        return false;
     }
 
     BaseType* create( const KeyType& key )
