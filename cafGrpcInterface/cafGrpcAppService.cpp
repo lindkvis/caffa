@@ -63,6 +63,11 @@ grpc::Status AppService::GetAppInfo( grpc::ServerContext* context, const NullMes
     return grpc::Status::OK;
 }
 
+grpc::Status AppService::Ping(grpc::ServerContext* context, const NullMessage* request, NullMessage* reply) 
+{
+    return grpc::Status::OK;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -70,5 +75,6 @@ std::vector<AbstractCallback*> AppService::registerCallbacks()
 {
     typedef AppService Self;
     return { new UnaryCallback<Self, NullMessage, NullMessage>( this, &Self::Quit, &Self::RequestQuit ),
-             new UnaryCallback<Self, NullMessage, AppInfoReply>( this, &Self::GetAppInfo, &Self::RequestGetAppInfo ) };
+             new UnaryCallback<Self, NullMessage, AppInfoReply>( this, &Self::GetAppInfo, &Self::RequestGetAppInfo ),
+             new UnaryCallback<Self, NullMessage, NullMessage>( this, &Self::Ping, &Self::RequestPing ) };
 }

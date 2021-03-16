@@ -62,6 +62,7 @@ public:
     std::unique_ptr<caf::ObjectHandle> document( const std::string& documentId ) const;
     std::unique_ptr<caf::ObjectHandle> execute( gsl::not_null<const caf::ObjectMethod*> method ) const;
     bool                               stopServer() const;
+    bool                               ping() const;
 
     template <typename DataType>
     void set( const caf::ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value );

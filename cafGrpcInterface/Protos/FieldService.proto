@@ -17,22 +17,22 @@ service FieldAccess
 
 message IntArray
 {
-    repeated int32 data = 1;
+    repeated int32 data = 1 [packed=true];
 }
 
 message Int64Array
 {
-    repeated int64 data = 1;
+    repeated int64 data = 1 [packed=true];
 }
 
 message DoubleArray
 {
-    repeated double data = 1;
+    repeated double data = 1  [packed=true];
 }
 
 message FloatArray
 {
-    repeated float data = 1;
+    repeated float data = 1 [packed=true];
 }
 
 message StringArray

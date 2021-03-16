@@ -143,6 +143,14 @@ public:
         return status.ok();
     }
 
+    bool ping() const
+    {
+        grpc::ClientContext context;
+        NullMessage         nullarg, nullreply;
+        auto                status = m_appInfoStub->Ping( &context, nullarg, &nullreply );
+        return status.ok();
+    }
+
     void setJson( const caf::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& jsonValue )
     {
         size_t chunkSize = 1;
@@ -525,6 +533,11 @@ std::unique_ptr<caf::ObjectHandle> Client::execute( gsl::not_null<const caf::Obj
 bool Client::stopServer() const
 {
     return m_clientImpl->stopServer();
+}
+
+bool Client::ping() const
+{
+    return m_clientImpl->ping();
 }
 
 //--------------------------------------------------------------------------------------------------

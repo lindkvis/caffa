@@ -56,6 +56,7 @@ class AppService : public ServiceInterface, public App::AsyncService
 public:
     grpc::Status Quit( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply ) override;
     grpc::Status GetAppInfo( grpc::ServerContext* context, const NullMessage* request, AppInfoReply* reply ) override;
+    grpc::Status Ping(grpc::ServerContext* context, const NullMessage* request, NullMessage* reply) override;
 
     std::vector<AbstractCallback*> registerCallbacks() override;
 };

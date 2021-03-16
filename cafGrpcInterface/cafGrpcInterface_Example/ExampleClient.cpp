@@ -86,13 +86,10 @@ int main( int argc, char** argv )
     }
     {
         auto start_time = std::chrono::system_clock::now();
-        auto clientVector    = clientDocument->m_demoObject->getIntVector();
+        bool worked = client->ping();
         auto end_time   = std::chrono::system_clock::now();
         auto duration   = std::chrono::duration_cast<std::chrono::microseconds>( end_time - start_time ).count();
-        std::cout << "Client vector: " << clientVector[0] << std::endl;
-        assert( clientVector.size() == 1u && clientVector[0] == 42 );
-
-        std::cout << "Getting vector containing single integer took " << duration << "µs" << std::endl;
+        std::cout << "Ping time: " << duration << "µs" << std::endl;
     }
 
     {
@@ -107,6 +104,7 @@ int main( int argc, char** argv )
         double fps = static_cast<float>( numberOfFloats ) / static_cast<float>( duration ) * 1000;
         std::cout << "floats per second: " << fps << std::endl;
         std::cout << "MB per second: " << static_cast<float>(MB) / static_cast<float>(duration) * 1000 << std::endl;
+        std::cout << "Mbit per second: " << static_cast<float>(MB) / static_cast<float>(duration) * 1000 * 8 << std::endl;
     }
     return 0;
 }
