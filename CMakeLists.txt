@@ -17,6 +17,7 @@ endif()
 option(CAFFA_GRPC_INTERFACE "Enable the gRPC interface to the Project Data Model" OFF)
 option(CAFFA_WEB_DEPLOYMENT "Turn this on to build for web deployment with the Web Toolkit" OFF)
 option(CAFFA_DESKTOP_DEPLOYMENT "Turn this on to build for desktop deployment with the Qt Toolkit" OFF)
+option(CAFFA_BUILD_UNIT_TESTS "Build unit tests" OFF)
 
 option(CAFFA_BUILD_SHARED "Create a shared Caffa library" ON)
 
@@ -56,6 +57,20 @@ if (CAFFA_GRPC_INTERFACE)
     #add_subdirectory(cafGrpcServerApp)
 endif()
 
+if(CAFFA_BUILD_UNIT_TESTS)
+    add_subdirectory (cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests)
+    add_subdirectory (cafProjectDataModel/cafPdmIoCore/cafPdmIoCore_UnitTests)
+    add_subdirectory (cafProjectDataModel/cafPdmScriptCore/cafPdmScriptCore_UnitTests)
+    add_subdirectory (cafProjectDataModel/cafProjectDataModel_UnitTests)
+endif()
+
+if (CAFFA_GRPC_INTERFACE)
+    if (CAFFA_BUILD_UNIT_TESTS)
+        add_subdirectory(cafGrpcInterface/cafGrpcInterface_UnitTests)
+        add_subdirectory(cafGrpcInterface/cafGrpcInterface_Example)
+    endif()
+endif()
+
 #executables
 if (CAFFA_WEB_DEPLOYMENT)
     add_subdirectory(cafWebInterface)
@@ -67,20 +82,17 @@ if (CAFFA_DESKTOP_DEPLOYMENT)
     add_subdirectory (cafUserInterface)
     #add_subdirectory (cafQtApp)
     add_subdirectory (cafTests/cafTestApplication)
-    add_subdirectory (cafUserInterface/cafUserInterface_UnitTests)
+    if (CAFFA_BUILD_UNIT_TESTS)
+        add_subdirectory (cafUserInterface/cafUserInterface_UnitTests)
+    endif()
 endif()
 
-add_subdirectory (cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests)
-add_subdirectory (cafProjectDataModel/cafPdmIoCore/cafPdmIoCore_UnitTests)
-add_subdirectory (cafProjectDataModel/cafPdmScriptCore/cafPdmScriptCore_UnitTests)
-add_subdirectory (cafProjectDataModel/cafProjectDataModel_UnitTests)
-if (CAFFA_GRPC_INTERFACE)
-    add_subdirectory(cafGrpcInterface/cafGrpcInterface_UnitTests)
-    add_subdirectory(cafGrpcInterface/cafGrpcInterface_Example)
-endif()
 
 # Organize sub-projects into folders on Visual Studio
 # Turn on using solution folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set_property(TARGET  cafPdmCore cafPdmCore_UnitTests cafPdmIoCore cafPdmIoCore_UnitTests  cafPdmUiCore  cafPdmObject cafPdmScriptCore cafPdmScriptCore_UnitTests PROPERTY FOLDER "PdmCore")
+set_property(TARGET  cafPdmCore cafPdmIoCore cafPdmUiCore cafPdmObject cafPdmScriptCore PROPERTY FOLDER "PdmCore")
+if (CAFFA_BUILD_UNIT_TESTS)
+    set_property(TARGET  cafPdmCore_UnitTests cafPdmIoCore_UnitTests  cafPdmScriptCore_UnitTests PROPERTY FOLDER "PdmCore")
+endif()
