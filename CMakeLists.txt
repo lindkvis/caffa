@@ -32,6 +32,8 @@ if( UNIX )
     set(THREAD_LIBRARY "pthread")
 endif()
 
+add_definitions(-DGTEST_HAS_STD_WSTRING=0)
+
 #Third Party libraries
 set(JSON_BuildTests OFF)
 set(JSON_Coverage OFF)
