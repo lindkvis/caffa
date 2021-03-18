@@ -52,6 +52,7 @@ CMakeCache.txt
 cmake_install.cmake
 CPack*.cmake
 CTest*.cmake
+build.gradle
 
 #Unit test binaries
 *_UnitTests

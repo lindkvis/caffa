@@ -16,68 +16,46 @@
 //   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
 //   for more details.
 //
-#include "cafGrpcServerApplication.h"
+#include "cafGrpcClientApplication.h"
+#include "cafGrpcClientObjectFactory.h"
 
 #include "cafAssert.h"
-#include "cafGrpcAppService.h"
-#include "cafGrpcFieldService.h"
-#include "cafGrpcObjectService.h"
-#include "cafGrpcServer.h"
-#include "cafGrpcServiceInterface.h"
+#include "cafGrpcClient.h"
 
 using namespace caf::rpc;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ServerApplication::ServerApplication( int portNumber )
-    : Application( AppCapability::GRPC_SERVER )
+ClientApplication::ClientApplication( const std::string& hostname, int portNumber )
+    : Application( { AppCapability::GRPC_CLIENT } )
 
 {
-    m_server = std::make_unique<caf::rpc::Server>( portNumber );
-
-    caf::rpc::ServiceFactory::instance()->registerCreator<caf::rpc::AppService>( typeid( caf::rpc::AppService ).hash_code() );
-    caf::rpc::ServiceFactory::instance()->registerCreator<caf::rpc::FieldService>(
-        typeid( caf::rpc::FieldService ).hash_code() );
-    caf::rpc::ServiceFactory::instance()->registerCreator<caf::rpc::ObjectService>(
-        typeid( caf::rpc::ObjectService ).hash_code() );
+    m_client = std::make_unique<caf::rpc::Client>( hostname, portNumber );
+    caf::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( m_client.get());
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ServerApplication* ServerApplication::instance()
+ClientApplication* ClientApplication::instance()
 {
     Application* appInstance = Application::instance();
-    return dynamic_cast<ServerApplication*>( appInstance );
+    return dynamic_cast<ClientApplication*>( appInstance );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ServerApplication::run()
+Client* ClientApplication::client() 
 {
-    CAF_ASSERT( m_server );
-    m_server->run();
-
-    while ( !m_server->quitting() )
-    {
-        m_server->processAllRequests();
-    }
+    return m_client.get();    
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ServerApplication::quit()
+const Client* ClientApplication::client() const
 {
-    m_server->quit();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool ServerApplication::running() const
-{
-    return m_server->running();
+    return m_client.get();    
 }

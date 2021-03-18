@@ -125,7 +125,7 @@ public:
     {
         CAF_ASSERT( m_portNumber > 0 && m_portNumber <= (int)std::numeric_limits<uint16_t>::max() );
 
-        std::string serverAddress = "localhost:" + std::to_string( m_portNumber );
+        std::string serverAddress = "0.0.0.0:" + std::to_string( m_portNumber );
 
         ServerBuilder builder;
         builder.AddListeningPort( serverAddress, grpc::InsecureServerCredentials() );
@@ -133,7 +133,9 @@ public:
         for ( auto key : ServiceFactory::instance()->allKeys() )
         {
             std::shared_ptr<ServiceInterface> service( ServiceFactory::instance()->create( key ) );
-            builder.RegisterService( dynamic_cast<grpc::Service*>( service.get() ) );
+            auto                              grpcService = dynamic_cast<grpc::Service*>( service.get() );
+            CAF_ASSERT( grpcService );
+            builder.RegisterService( grpcService );
             m_services.push_back( service );
         }
 

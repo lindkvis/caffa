@@ -2,6 +2,10 @@ syntax = "proto3";
 
 package caf.rpc;
 
+option optimize_for = SPEED;
+option java_multiple_files = true;
+option java_package = "org.caffa.rpc";
+
 service ObjectAccess
 {
     rpc GetDocument( DocumentRequest ) returns( Object ) {}

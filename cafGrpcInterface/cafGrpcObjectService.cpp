@@ -39,7 +39,7 @@
 #include "cafGrpcServerApplication.h"
 
 #include "cafAbstractFieldScriptingCapability.h"
-#include "cafApplication.h"
+#include "cafGrpcServerApplication.h"
 #include "cafField.h"
 #include "cafGrpcObjectClientCapability.h"
 #include "cafObject.h"
@@ -52,6 +52,7 @@
 
 #include <grpcpp/grpcpp.h>
 
+#include <iostream>
 #include <vector>
 
 namespace caf::rpc
@@ -61,9 +62,12 @@ namespace caf::rpc
 //--------------------------------------------------------------------------------------------------
 grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const DocumentRequest* request, Object* reply )
 {
-    PdmDocument* document = caf::Application::instance()->document( request->document_id() );
+    std::cout << "Got document request" << std::endl;
+    PdmDocument* document = ServerApplication::instance()->document( request->document_id() );
+    std::cout << "Found document" << std::endl;
     if ( document )
     {
+        std::cout << "Copying document to gRPC data structure" << std::endl;
         copyObjectFromCafToRpc( document, reply, true, false );
         return grpc::Status::OK;
     }
@@ -130,7 +134,7 @@ caf::Object* ObjectService::findCafObjectFromScriptNameAndAddress( const std::st
         objectsOfCurrentClass = GrpcClientObjectFactory::instance()->objectsWithClassKeyword( scriptClassName );
     }
 
-    for ( auto doc : caf::Application::instance()->documents() )
+    for ( auto doc : ServerApplication::instance()->documents() )
     {
         std::vector<caf::Object*> objects;
         doc->descendantsIncludingThisFromClassKeyword( scriptClassName, objects );
@@ -227,8 +231,5 @@ std::vector<AbstractCallback*> ObjectService::registerCallbacks()
 
     };
 }
-
-static bool ObjectService_init =
-    ServiceFactory::instance()->registerCreator<ObjectService>( typeid( ObjectService ).hash_code() );
 
 } // namespace caf::rpc

@@ -5,7 +5,6 @@
 #include "cafValueFieldSpecializations.h"
 #include "cafVariant.h"
 
-#include <filesystem>
 #include <list>
 #include <string>
 #include <type_traits>
@@ -220,47 +219,6 @@ public:
 
     /// Methods to retrieve the possible Object pointed to by a field
     static void childObjects( const DataValueField<caf::AppEnum<T>>& field, std::vector<ObjectHandle*>* objects ) {}
-};
-
-//==================================================================================================
-/// Partial specialization for Filepath
-//==================================================================================================
-
-template <>
-class UiFieldSpecialization<std::filesystem::path>
-{
-public:
-    /// Convert the field value into a Variant
-    static Variant convert( const std::filesystem::path& value )
-    {
-        return ValueFieldSpecialization<std::string>::convert( value.string() );
-    }
-
-    static Variant convertToUiVariant( const std::filesystem::path& value ) { return convert( value ); }
-
-    /// Set the field value from a Variant
-    static void setFromVariant( const Variant& variantValue, std::filesystem::path& value )
-    {
-        std::string pathString;
-        ValueFieldSpecialization<std::string>::setFromVariant( variantValue, pathString );
-        value = pathString;
-    }
-
-    static bool isDataElementEqual( const Variant& variantValue, const Variant& variantValue2 )
-    {
-        return ValueFieldSpecialization<std::string>::isEqual( variantValue, variantValue2 );
-    }
-
-    /// Methods to get a list of options for a field, specialized for AppEnum
-    static std::deque<OptionItemInfo> valueOptions( bool* useOptionsOnly, const std::filesystem::path& )
-    {
-        return std::deque<OptionItemInfo>();
-    }
-
-    /// Methods to retrieve the possible Object pointed to by a field
-    static void childObjects( const DataValueField<std::filesystem::path>& field, std::vector<ObjectHandle*>* objects )
-    {
-    }
 };
 
 } // End namespace caf

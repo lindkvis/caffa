@@ -34,7 +34,6 @@
 //
 #pragma once
 
-#include "cafApplication.h"
 #include "cafObjectMethod.h"
 #include "cafPdmDocument.h"
 #include "cafVariant.h"
@@ -43,6 +42,11 @@
 
 #include <memory>
 #include <string>
+
+namespace caf
+{
+class AppInfo;
+}
 
 namespace caf::rpc
 {
@@ -58,6 +62,7 @@ public:
     std::unique_ptr<caf::ObjectHandle> document( const std::string& documentId ) const;
     std::unique_ptr<caf::ObjectHandle> execute( gsl::not_null<const caf::ObjectMethod*> method ) const;
     bool                               stopServer() const;
+    bool                               ping() const;
 
     template <typename DataType>
     void set( const caf::ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value );
@@ -104,6 +109,11 @@ void Client::set<std::vector<double>>( const caf::ObjectHandle*   objectHandle,
                                        const std::vector<double>& value );
 
 template <>
+void Client::set<std::vector<float>>( const caf::ObjectHandle*  objectHandle,
+                                      const std::string&        fieldName,
+                                      const std::vector<float>& value );
+
+template <>
 void Client::set<std::vector<std::string>>( const caf::ObjectHandle*        objectHandle,
                                             const std::string&              fieldName,
                                             const std::vector<std::string>& value );
@@ -114,6 +124,10 @@ std::vector<int> Client::get<std::vector<int>>( const caf::ObjectHandle* objectH
 template <>
 std::vector<double>
     Client::get<std::vector<double>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const;
+
+template <>
+std::vector<float>
+    Client::get<std::vector<float>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
 template <>
 std::vector<std::string>

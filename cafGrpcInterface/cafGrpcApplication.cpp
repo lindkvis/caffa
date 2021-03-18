@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Caffa
-//   Copyright (C) 2021- 3D-Radar AS
+//   Copyright (C) 2021- 3d Radar AS
 //
 //   GNU Lesser General Public License Usage
 //   This library is free software; you can redistribute it and/or modify
@@ -16,35 +16,34 @@
 //   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
 //   for more details.
 //
-#pragma once
-
 #include "cafGrpcApplication.h"
 
-#include <memory>
+using namespace caf::rpc;
 
-namespace caf::rpc
+Application::Application( const unsigned int& capabilities )
+    : caf::Application(capabilities)
+    , m_packageByteSize(1024u * 64u)
 {
-class Server;
 }
 
-namespace caf::rpc
+Application::Application( const AppCapability& capability )
+    : caf::Application(capability)
+    , m_packageByteSize(1024u * 64u)
 {
-class ServerApplication : public Application
+}
+
+Application* Application::instance()
 {
-public:
-    ServerApplication( int portNumber );
-    static ServerApplication* instance();
+    caf::Application* appInstance = caf::Application::instance();
+    return dynamic_cast<Application*>( appInstance );        
+}
 
-    void run();
-    bool running() const;
-    void quit();
+size_t Application::packageByteSize() const
+{
+    return m_packageByteSize;
+}
 
-    virtual PdmDocument*       document( const std::string& documentId )       = 0;
-    virtual const PdmDocument* document( const std::string& documentId ) const = 0;
-    virtual std::list<PdmDocument*> documents()                                = 0;
-    virtual std::list<const PdmDocument*> documents() const                    = 0;
-
-private:
-    std::unique_ptr<Server> m_server;
-};
-} // namespace caf
+void Application::setPackageByteSize(size_t packageByteSize) 
+{
+    m_packageByteSize = packageByteSize;
+}

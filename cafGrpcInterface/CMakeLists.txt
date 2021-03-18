@@ -33,11 +33,12 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcException.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcFieldService.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcObjectService.h
+    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcApplication.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcServerApplication.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClient.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcObjectClientCapability.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientObjectFactory.h
-    #${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.h
+    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.h
     )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -45,21 +46,20 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcAppService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcFieldService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcObjectService.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcApplication.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcServerApplication.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClient.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientObjectFactory.cpp
-    #${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.cpp
     )
 
 find_package(Protobuf 3.0 CONFIG QUIET)
 
 if(Protobuf_FOUND)
-  message(STATUS "Using protobuf ${protobuf_VERSION}")
 
   # Find gRPC installation Looks for gRPCConfig.cmake file installed by gRPC's
   # cmake installation.
   find_package(gRPC CONFIG REQUIRED)
-  message(STATUS "Using gRPC ${gRPC_VERSION}")
 
   set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
   set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
@@ -71,40 +71,42 @@ if(Protobuf_FOUND)
   set_target_properties(
     ${GRPC_LINK_LIBRARIES} PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
                                  MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
+
+  set(CURRENT_GRPC_VERSION ${gRPC_VERSION})
+  set(CURRENT_PROTOBUF_VERSION ${Protobuf_VERSION})
 else()
-  message(STATUS "Using GRPC_INSTALL_PREFIX=${GRPC_INSTALL_PREFIX}")
-  set(GRPC_INSTALL_PREFIX
-      "/usr"
-      CACHE PATH "gRPC : Install prefix for gRPC")
-  if(NOT DEFINED GRPC_INSTALL_PREFIX
-     OR NOT EXISTS ${GRPC_INSTALL_PREFIX})
-    message(
-      FATAL_ERROR
-        "You need a valid GRPC_INSTALL_PREFIX set to build with gRPC"
-    )
+  if (PKG_CONFIG_PATH)
+    message("Setting environment before calling pkgconfig to: " ${PKG_CONFIG_PATH})
+    set(ENV{PKG_CONFIG_PATH} ${PKG_CONFIG_PATH})
   endif()
-  set(ENV{PKG_CONFIG_PATH} "${GRPC_INSTALL_PREFIX}/lib/pkgconfig")
   find_package(PkgConfig REQUIRED)
-  pkg_check_modules(GRPC REQUIRED grpc grpc++>=1.16 grpc gpr
-                    protobuf)
-  if(EXISTS "${GRPC_INSTALL_PREFIX}/bin/protoc")
-    set(_PROTOBUF_PROTOC "${GRPC_INSTALL_PREFIX}/bin/protoc")
-  elseif(EXISTS "${GRPC_INSTALL_PREFIX}/tools/protobuf/protoc")
-    set(_PROTOBUF_PROTOC
-        "${GRPC_INSTALL_PREFIX}/tools/protobuf/protoc")
+  pkg_check_modules(GRPC REQUIRED grpc++>=1.16 grpc gpr
+                    protobuf NO_CMAKE_ENVIRONMENT_PATH)
+  if(EXISTS "${GRPC_protobuf_PREFIX}/bin/protoc")
+    set(_PROTOBUF_PROTOC "${GRPC_protobuf_PREFIX}/bin/protoc")
+    message("Using protoc: ${GRPC_protobuf_PREFIX}/bin/protoc")
   else()
     message(FATAL_ERROR "Could not find the protobuf compiler (protoc)")
   endif()
 
-  if(EXISTS "${GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin")
+  if(EXISTS "${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
     set(_GRPC_CPP_PLUGIN_EXECUTABLE
-        "${GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin")
-  elseif(EXISTS "${GRPC_INSTALL_PREFIX}/tools/grpc/grpc_cpp_plugin")
-    set(_GRPC_CPP_PLUGIN_EXECUTABLE
-        "${GRPC_INSTALL_PREFIX}/tools/grpc/grpc_cpp_plugin")
+        "${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
+    message("Using grpc_cpp_plugin: ${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
+  else()
+    message(FATAL_ERROR "Could not find the grpc_cpp_plugin")
   endif()
+
   include_directories(AFTER ${GRPC_INCLUDE_DIRS})
+
+  set(CURRENT_GRPC_VERSION ${GRPC_grpc++_VERSION})
+  set(CURRENT_PROTOBUF_VERSION ${GRPC_protobuf_VERSION})
+
 endif()
+
+message(STATUS "Using protobuf ${CURRENT_PROTOBUF_VERSION}")
+message(STATUS "Using gRPC ${CURRENT_GRPC_VERSION}")
+
 
 set(LINK_LIBRARIES
     ${GRPC_LINK_LIBRARIES}
@@ -115,9 +117,9 @@ set(LINK_LIBRARIES
 
 # Proto files
 set(PROTO_FILES
-    "App"
-    "Field"
-    "Object"
+    "AppInfo"
+    "FieldService"
+    "ObjectService"
 )
 
 set(GRPC_PYTHON_SOURCE_PATH "${CMAKE_CURRENT_LIST_DIR}/Python")
@@ -182,6 +184,10 @@ else()
         "Python3 not found. Will not install Python client code"
     )
 endif()
+
+message(STATUS "Configuring Java gradle build file")
+configure_file("${CMAKE_CURRENT_LIST_DIR}/Java/build.gradle.cmake" "${CMAKE_CURRENT_LIST_DIR}/Java/build.gradle")
+
 list(
   APPEND
   GRPC_PYTHON_SOURCES

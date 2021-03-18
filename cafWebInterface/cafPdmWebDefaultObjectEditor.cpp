@@ -49,7 +49,6 @@
 #include "cafPdmWebColorEditor.h"
 #include "cafPdmWebDateEditor.h"
 #include "cafPdmWebFieldEditorHandle.h"
-#include "cafPdmWebFileUploadEditor.h"
 #include "cafPdmWebLineEditor.h"
 #include "cafProxyValueField.h"
 #include "cafWebValueFieldSpecializations.h"
@@ -59,8 +58,6 @@
 #include "Wt/WContainerWidget.h"
 #include "Wt/WGridLayout.h"
 #include "Wt/WPanel.h"
-
-#include <filesystem>
 
 namespace caf
 {
@@ -73,7 +70,6 @@ CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebLineEditor, double );
 CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebLineEditor, float );
 CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebColorEditor, caf::Color );
 CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebDateEditor, Wt::WDate );
-CAF_PDM_WEB_REGISTER_DEFAULT_FIELD_EDITOR( PdmWebFileUploadEditor, std::filesystem::path );
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -49,7 +49,6 @@ public:
     virtual std::vector<AbstractCallback*> registerCallbacks() = 0;
     virtual ~ServiceInterface()                                = default;
 
-    static size_t packageByteSize() { return 64u * 1024u; }
 };
 
 typedef caf::Factory<ServiceInterface, size_t> ServiceFactory;

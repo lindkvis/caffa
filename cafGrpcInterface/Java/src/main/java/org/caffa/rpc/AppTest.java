@@ -1,7 +1,7 @@
 //##################################################################################################
 //
-//   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Caffa
+//   Copyright (C) 2021- 3D-Radar
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -32,50 +32,45 @@
 //   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
 //   for more details.
 //
-//##################################################################################################
+package org.caffa.rpc;
 
-#pragma once
-#include "cafUiFieldEditorHandle.h"
-#include "cafUiFilePathEditorAttribute.h"
+import org.caffa.rpc.AppInfo;
+import org.caffa.rpc.AppGrpc;
 
-#include <QLabel>
-#include <QLineEdit>
-#include <QPointer>
-#include <QString>
-#include <QToolButton>
-#include <QWidget>
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import com.google.protobuf.Empty;
 
-class QGridLayout;
+import java.util.logging.Logger;
 
-namespace caf
-{
-//==================================================================================================
-///
-//==================================================================================================
-class PdmUiFilePathEditor : public UiFieldEditorHandle
-{
-    Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+public class AppTest {
+    private static final Logger logger = Logger.getLogger(AppTest.class.getName());
+    private final AppGrpc.AppBlockingStub appStub;
+    private final ManagedChannel channel;
 
-public:
-    PdmUiFilePathEditor() {}
-    ~PdmUiFilePathEditor() override {}
+    public AppTest(String host, int port) {
+        this.channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
+        this.appStub = AppGrpc.newBlockingStub(channel);
+    }
 
-protected:
-    QWidget* createEditorWidget( QWidget* parent ) override;
-    QWidget* createLabelWidget( QWidget* parent ) override;
-    void     configureAndUpdateUi() override;
+    public String appName()
+    {
+        Empty message = Empty.getDefaultInstance();
+        AppInfoReply appInfo = this.appStub.getAppInfo(message);
+        StringBuilder sb = new StringBuilder();
+        sb.append(appInfo.getName());
+        sb.append(" version ");
+        sb.append(appInfo.getMajorVersion());
+        sb.append(".");
+        sb.append(appInfo.getMinorVersion());
+        return sb.toString();
+    }
 
-protected slots:
-    void slotEditingFinished();
-    void fileSelectionClicked();
-
-private:
-    QPointer<QLineEdit>   m_lineEdit;
-    QPointer<QLabel>      m_label;
-    QPointer<QToolButton> m_button;
-
-    PdmUiFilePathEditorAttribute m_attributes;
-};
-
-} // end namespace caf
+    public static void main(String[] args) throws InterruptedException {
+        AppTest test = new AppTest("localhost", 55555);
+        String appName = test.appName();
+        logger.info("Application Name and Version: " + appName);
+    }
+}

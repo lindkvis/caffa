@@ -21,7 +21,6 @@
 #include "cafValueField.h"
 
 #include <chrono>
-#include <filesystem>
 #include <random>
 #include <string>
 #include <thread>
@@ -49,6 +48,7 @@ public:
         m_proxyStringField.registerGetMethod( this, &DemoObject::stringMember );
 
         CAF_InitScriptableFieldNoDefault( &m_doubleVector, "doubleVector", "", "", "", "" );
+        CAF_InitScriptableFieldNoDefault( &m_floatVector, "floatVector", "", "", "", "" );
         CAF_InitScriptableFieldNoDefault( &m_intVectorProxy, "proxyIntVector", "", "", "", "" );
         CAF_InitScriptableFieldNoDefault( &m_stringVectorProxy, "proxyStringVector", "", "", "", "" );
 
@@ -86,6 +86,7 @@ public:
     caf::ProxyValueField<std::vector<std::string>> m_stringVectorProxy;
 
     caf::Field<std::vector<double>> m_doubleVector;
+    caf::Field<std::vector<float>>  m_floatVector;
 
     // Internal class members accessed by proxy fields
     double doubleMember() const { return m_doubleMember; }
@@ -99,6 +100,9 @@ public:
 
     std::vector<double> getDoubleVector() const { return m_doubleVector; }
     void                setDoubleVector( const std::vector<double>& values ) { m_doubleVector = values; }
+
+    std::vector<float> getFloatVector() const { return m_floatVector; }
+    void               setFloatVector( const std::vector<float>& values ) { m_floatVector = values; }
 
     std::vector<int> getIntVector() const { return m_intVector; }
     void             setIntVector( const std::vector<int>& values ) { m_intVector = values; }
@@ -182,16 +186,11 @@ public:
         this->addField( &m_childArrayField, "DemoObjectects" );
         this->addField( &m_ptrField, "m_ptrField" );
 
-        this->addField( &m_singleFilePath, "m_singleFilePath" );
-        this->addField( &m_multipleFilePath, "m_multipleFilePath" );
     }
 
     caf::Field<std::string>           m_texts;
     caf::ChildArrayField<DemoObject*> m_childArrayField;
     caf::PtrField<InheritedDemoObj*>  m_ptrField;
-
-    caf::Field<std::filesystem::path>              m_singleFilePath;
-    caf::Field<std::vector<std::filesystem::path>> m_multipleFilePath;
 };
 
 CAF_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject" );
@@ -220,11 +219,11 @@ public:
 
 CAF_SOURCE_INIT( DemoDocument, "DemoDocument" );
 
-class ServerApp : public caf::GrpcServerApplication
+class ServerApp : public caf::rpc::ServerApplication
 {
 public:
     ServerApp( int port )
-        : caf::GrpcServerApplication( port )
+        : caf::rpc::ServerApplication( port )
     {
     }
     //--------------------------------------------------------------------------------------------------
@@ -261,7 +260,7 @@ TEST( BaseTest, Launch )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
     std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -292,7 +291,7 @@ TEST( BaseTest, Document )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
     std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -353,7 +352,7 @@ TEST( BaseTest, Sync )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
     std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -404,7 +403,7 @@ TEST( BaseTest, ObjectMethod )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
     std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -455,7 +454,7 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
     std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -511,7 +510,7 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
     std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -570,7 +569,7 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::GrpcServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
     std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -609,6 +608,75 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
 
     serverVector = serverDocument->m_demoObject->getDoubleVector();
     ASSERT_EQ( serverVector, clientVector );
+
+    bool ok = client->stopServer();
+    ASSERT_TRUE( ok );
+
+    thread.join();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( BaseTest, LocalResponseTimeAndDataTransfer )
+{
+    int  portNumber = 50000;
+    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+
+    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
+
+    std::cout << "Launching Server" << std::endl;
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    std::cout << "Launching Client" << std::endl;
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+    auto client = std::make_unique<caf::rpc::Client>( "localhost", portNumber );
+    caf::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
+
+    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
+    ASSERT_TRUE( serverDocument );
+    std::cout << "Server Document File Name: " << serverDocument->fileName() << std::endl;
+
+    auto objectHandle   = client->document( "testDocument" );
+    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    ASSERT_TRUE( clientDocument != nullptr );
+
+    {
+        serverDocument->m_demoObject->setFloatVector({42.0f});
+        auto start_time = std::chrono::system_clock::now();
+        auto clientVector    = clientDocument->m_demoObject->getFloatVector();
+        auto end_time   = std::chrono::system_clock::now();
+        auto duration   = std::chrono::duration_cast<std::chrono::microseconds>( end_time - start_time ).count();
+        std::cout << "Getting single float vector took " << duration << "µs" << std::endl;        
+        ASSERT_EQ(serverDocument->m_demoObject->getFloatVector(), clientDocument->m_demoObject->getFloatVector());
+    }
+
+    std::vector<float> serverVector;
+    std::mt19937       rng;
+    size_t             numberOfFloats = 1024u * 1024u * 128;
+    serverVector.reserve( numberOfFloats );
+    for ( size_t i = 0; i < numberOfFloats; ++i )
+    {
+        serverVector.push_back( (float)rng() );
+    }
+
+    serverDocument->m_demoObject->setFloatVector( serverVector );
+
+    {
+        auto start_time = std::chrono::system_clock::now();
+        auto clientVector    = clientDocument->m_demoObject->getFloatVector();
+        auto end_time   = std::chrono::system_clock::now();
+        auto duration   = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
+        size_t MB = numberOfFloats * sizeof(float) / (1024u * 1024u);
+        std::cout << "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" << std::endl;        
+        std::cout << "Time spent: " << duration << "ms" << std::endl;
+        double fps = static_cast<float>( numberOfFloats ) / static_cast<float>( duration ) * 1000;
+        std::cout << "floats per second: " << fps << std::endl;
+        std::cout << "MB per second: " << static_cast<float>(MB) / static_cast<float>(duration) * 1000 << std::endl;
+    }
 
     bool ok = client->stopServer();
     ASSERT_TRUE( ok );

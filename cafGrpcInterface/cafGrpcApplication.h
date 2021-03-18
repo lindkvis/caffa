@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Caffa
-//   Copyright (C) 2021- 3D-Radar AS
+//   Copyright (C) 2021- 3d Radar AS
 //
 //   GNU Lesser General Public License Usage
 //   This library is free software; you can redistribute it and/or modify
@@ -18,33 +18,26 @@
 //
 #pragma once
 
-#include "cafGrpcApplication.h"
+#include "cafApplication.h"
 
 #include <memory>
 
 namespace caf::rpc
 {
 class Server;
-}
 
-namespace caf::rpc
-{
-class ServerApplication : public Application
+class Application : public caf::Application
 {
 public:
-    ServerApplication( int portNumber );
-    static ServerApplication* instance();
-
-    void run();
-    bool running() const;
-    void quit();
-
-    virtual PdmDocument*       document( const std::string& documentId )       = 0;
-    virtual const PdmDocument* document( const std::string& documentId ) const = 0;
-    virtual std::list<PdmDocument*> documents()                                = 0;
-    virtual std::list<const PdmDocument*> documents() const                    = 0;
+    Application( const unsigned int& capabilities );
+    Application( const AppCapability& capability );
+    
+    static Application* instance();
+    size_t packageByteSize() const;
+    void   setPackageByteSize(size_t packageByteSize);
 
 private:
-    std::unique_ptr<Server> m_server;
+    size_t m_packageByteSize;
+
 };
 } // namespace caf

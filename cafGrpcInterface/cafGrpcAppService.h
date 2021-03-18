@@ -36,8 +36,9 @@
 
 #include "cafGrpcServiceInterface.h"
 
-#include "App.grpc.pb.h"
+#include "AppInfo.grpc.pb.h"
 
+#include <google/protobuf/empty.pb.h>
 #include <grpcpp/grpcpp.h>
 
 #include <vector>
@@ -45,7 +46,6 @@
 namespace caf::rpc
 {
 class AbstractCallback;
-class Null;
 class Version;
 
 /**
@@ -54,8 +54,9 @@ class Version;
 class AppService : public ServiceInterface, public App::AsyncService
 {
 public:
-    grpc::Status Quit( grpc::ServerContext* context, const Null* request, Null* reply ) override;
-    grpc::Status GetAppInfo( grpc::ServerContext* context, const Null* request, AppInfoReply* reply ) override;
+    grpc::Status Quit( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply ) override;
+    grpc::Status GetAppInfo( grpc::ServerContext* context, const NullMessage* request, AppInfoReply* reply ) override;
+    grpc::Status Ping(grpc::ServerContext* context, const NullMessage* request, NullMessage* reply) override;
 
     std::vector<AbstractCallback*> registerCallbacks() override;
 };

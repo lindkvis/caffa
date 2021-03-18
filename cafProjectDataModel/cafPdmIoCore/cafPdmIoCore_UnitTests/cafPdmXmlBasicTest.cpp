@@ -15,8 +15,6 @@
 #include "cafProxyValueField.h"
 #include "cafPtrField.h"
 
-#include <filesystem>
-
 class DemoObject : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
     CAF_IO_HEADER_INIT;
@@ -209,9 +207,6 @@ public:
         CAF_PDM_IO_InitField( &m_dir, "Dir" );
         CAF_PDM_IO_InitField( &m_up, "Up" );
 
-        CAF_PDM_IO_InitField( &m_singleFilePath, "m_singleFilePath" );
-        CAF_PDM_IO_InitField( &m_multipleFilePath, "m_multipleFilePath" );
-
         CAF_PDM_IO_InitField( &m_proxyDouble, "m_proxyDouble" );
         m_proxyDouble.registerSetMethod( this, &SimpleObj::setDoubleMember );
         m_proxyDouble.registerGetMethod( this, &SimpleObj::doubleMember );
@@ -221,9 +216,6 @@ public:
     caf::DataValueField<double>  m_dir;
     caf::DataValueField<int>     m_up;
     caf::ProxyValueField<double> m_proxyDouble;
-
-    caf::DataValueField<std::filesystem::path>              m_singleFilePath;
-    caf::DataValueField<std::vector<std::filesystem::path>> m_multipleFilePath;
 
     void setDoubleMember( const double& d )
     {
@@ -350,36 +342,6 @@ TEST( BaseTest, ChildArrayFieldSerializing )
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-TEST( BaseTest, FilePathSerializing )
-{
-    SimpleObj* s1 = new SimpleObj;
-
-    std::filesystem::path newVal = "path with space";
-    auto                  v      = s1->m_multipleFilePath.value();
-    v.push_back( newVal );
-    v.push_back( newVal );
-    s1->m_multipleFilePath = v;
-    s1->m_singleFilePath   = newVal;
-
-    std::string serializedString = s1->writeObjectToString();
-
-    {
-        SimpleObj* ihd1 = new SimpleObj;
-
-        ihd1->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance() );
-
-        EXPECT_EQ( 2u, ihd1->m_multipleFilePath.value().size() );
-        EXPECT_EQ( newVal, ihd1->m_singleFilePath() );
-
-        delete ihd1;
-    }
-
-    delete s1;
-}
-
 // Type deduction is different on other platforms than Windows
 #ifdef WIN32
 //--------------------------------------------------------------------------------------------------
@@ -402,11 +364,6 @@ TEST( BaseTest, TestDataType )
     {
         auto dataTypeNameDouble = s1->m_up.capability<caf::FieldIoCapability>()->dataTypeName();
         EXPECT_EQ( "int", dataTypeNameDouble );
-    }
-
-    {
-        auto dataTypeNameDouble = s1->m_singleFilePath.capability<caf::FieldIoCapability>()->dataTypeName();
-        EXPECT_EQ( "class std::filesystem::path", dataTypeNameDouble );
     }
 
     {

@@ -50,8 +50,6 @@ set( PROJECT_FILES
     cafUiTimeEditor.h   
     cafUiDoubleSliderEditor.cpp
     cafUiDoubleSliderEditor.h
-	cafUiFilePathEditor.cpp
-    cafUiFilePathEditor.h
     cafUiLineEditor.cpp
     cafUiLineEditor.h
     cafUiListEditor.cpp
