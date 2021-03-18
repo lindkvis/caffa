@@ -17,7 +17,7 @@ endif()
 option(CAFFA_GRPC_INTERFACE "Enable the gRPC interface to the Project Data Model" OFF)
 option(CAFFA_WEB_DEPLOYMENT "Turn this on to build for web deployment with the Web Toolkit" OFF)
 option(CAFFA_DESKTOP_DEPLOYMENT "Turn this on to build for desktop deployment with the Qt Toolkit" OFF)
-option(CAFFA_BUILD_UNIT_TESTS "Build unit tests" OFF)
+option(CAFFA_BUILD_UNIT_TESTS "Build unit tests" ON)
 
 option(CAFFA_BUILD_SHARED "Create a shared Caffa library" ON)
 
