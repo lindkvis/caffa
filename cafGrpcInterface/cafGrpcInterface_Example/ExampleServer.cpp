@@ -87,7 +87,7 @@ int main( int argc, char** argv )
  
     std::vector<float> serverVector;
     std::mt19937       rng;
-    size_t             numberOfFloats = 1024u * 1024u * 2;
+    size_t             numberOfFloats = 1024u * 1024u * 4;
     serverVector.reserve( numberOfFloats );
     for (size_t i = 0; i < numberOfFloats; ++i)
     {
