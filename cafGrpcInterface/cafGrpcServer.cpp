@@ -71,7 +71,7 @@ public:
 
     ~ServerImpl() { forceQuit(); }
 
-    void run() { m_thread = std::thread( &ServerImpl::initializeAndWaitForNextRequest, this ); }
+    void run() { initializeAndWaitForNextRequest(); }
 
     void quit()
     {
@@ -196,7 +196,7 @@ private:
             {
                 method->setNextCallState( AbstractCallback::FINISH_REQUEST );
             }
-            m_queuedRequests.push_back( method );
+            process(method);
         }
     }
 
