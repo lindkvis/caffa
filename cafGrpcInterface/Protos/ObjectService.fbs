@@ -1,0 +1,44 @@
+// Generated from ObjectService.proto
+
+namespace caf.rpc;
+
+table Object {
+  class_keyword:string;
+  address:ulong;
+  json:string;
+}
+
+table ObjectList {
+  objects:[caf.rpc.Object];
+}
+
+table DocumentRequest {
+  document_id:string;
+}
+
+table DescendantsRequest {
+  self:caf.rpc.Object;
+  descendants_class_keyword:string;
+}
+
+table AncestorsRequest {
+  self:caf.rpc.Object;
+  ancestors_class_keyword:string;
+}
+
+table ChildRequest {
+  self:caf.rpc.Object;
+  field_name:string;
+}
+
+table MethodRequest {
+  self:caf.rpc.Object;
+  method:string;
+  params:caf.rpc.Object;
+}
+
+rpc_service ObjectAccess
+{
+    GetDocument( DocumentRequest ): Object;
+    ExecuteMethod( MethodRequest ): Object;
+}

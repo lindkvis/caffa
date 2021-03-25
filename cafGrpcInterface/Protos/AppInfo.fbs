@@ -1,0 +1,28 @@
+// Generated from AppInfo.proto
+
+namespace caf.rpc;
+
+enum AppType : int {
+  CONSOLE = 0,
+  GRPC_SERVER = 1,
+  GRPC_CLIENT = 2,
+  GUI = 4,
+  WEB = 8,
+}
+
+table NullMessage {
+}
+
+table AppInfoReply {
+  name:string;
+  type:uint;
+  major_version:int;
+  minor_version:int;
+  patch_version:int;
+}
+
+rpc_service App {
+  Quit(NullMessage): NullMessage;
+  GetAppInfo(NullMessage): AppInfoReply;
+  Ping(NullMessage): NullMessage;
+}
