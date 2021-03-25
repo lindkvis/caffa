@@ -10,7 +10,7 @@ endif()
 message(STATUS "GRPC enabled")
 
 if(VCPKG_AUTO_INSTALL)
-  vcpkg_install(grpc protobuf)
+  vcpkg_install(grpc flatbuffers)
 endif()
 
 add_definitions(-DENABLE_GRPC)
@@ -53,27 +53,27 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.cpp
     )
 
-find_package(Protobuf 3.0 CONFIG QUIET)
+find_package(Flatbuffers CONFIG QUIET)
 
-if(Protobuf_FOUND)
+if(Flatbuffers_FOUND)
 
   # Find gRPC installation Looks for gRPCConfig.cmake file installed by gRPC's
   # cmake installation.
   find_package(gRPC CONFIG REQUIRED)
 
-  set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
-  set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+  set(_FLATBUFFERS_LIBFLATBUFFERS flatbuffers::flatbuffers)
+  set(_FLATBUFFERS_FLATC $<TARGET_FILE:flatbuffers::flatc>)
 
-  set(_GRPC_GRPCPP gRPC::grpc++ gRPC::grpc gRPC::gpr)
+  set(_GRPC_GRPCPP gRPC::grpc++ gRPC::grpc gRPC::gpr gRPC::grpc++_alts)
   set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
-  set(GRPC_LINK_LIBRARIES ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
+  set(GRPC_LINK_LIBRARIES ${_GRPC_GRPCPP} ${_FLATBUFFERS_LIBFLATBUFFERS})
 
   set_target_properties(
     ${GRPC_LINK_LIBRARIES} PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
                                  MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
 
   set(CURRENT_GRPC_VERSION ${gRPC_VERSION})
-  set(CURRENT_PROTOBUF_VERSION ${Protobuf_VERSION})
+  set(CURRENT_FLATBUFFERS_VERSION ${Flatbuffers_VERSION})
 else()
   if (PKG_CONFIG_PATH)
     message("Setting environment before calling pkgconfig to: " ${PKG_CONFIG_PATH})
@@ -81,12 +81,12 @@ else()
   endif()
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(GRPC REQUIRED grpc++>=1.16 grpc gpr
-                    protobuf NO_CMAKE_ENVIRONMENT_PATH)
-  if(EXISTS "${GRPC_protobuf_PREFIX}/bin/protoc")
-    set(_PROTOBUF_PROTOC "${GRPC_protobuf_PREFIX}/bin/protoc")
-    message("Using protoc: ${GRPC_protobuf_PREFIX}/bin/protoc")
+                    flatbuffers NO_CMAKE_ENVIRONMENT_PATH)
+  if(EXISTS "${GRPC_flatbuffers_PREFIX}/bin/flatc")
+    set(_FLATBUFFERS_FLATC "${GRPC_flatbuffers_PREFIX}/bin/flatc")
+    message("Using flatc: ${GRPC_flatbuffers_PREFIX}/bin/flatc")
   else()
-    message(FATAL_ERROR "Could not find the protobuf compiler (protoc)")
+    message(FATAL_ERROR "Could not find the flatbuffers compiler (flatc)")
   endif()
 
   if(EXISTS "${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
@@ -100,11 +100,11 @@ else()
   include_directories(AFTER ${GRPC_INCLUDE_DIRS})
 
   set(CURRENT_GRPC_VERSION ${GRPC_grpc++_VERSION})
-  set(CURRENT_PROTOBUF_VERSION ${GRPC_protobuf_VERSION})
+  set(CURRENT_FLATBUFFERS_VERSION ${GRPC_flatbuffers_VERSION})
 
 endif()
 
-message(STATUS "Using protobuf ${CURRENT_PROTOBUF_VERSION}")
+message(STATUS "Using flatbuffers ${CURRENT_FLATBUFFERS_VERSION}")
 message(STATUS "Using gRPC ${CURRENT_GRPC_VERSION}")
 
 
@@ -132,24 +132,23 @@ add_custom_target(PipInstall)
 
 foreach(proto_file ${PROTO_FILES})
   get_filename_component(
-    caffa_proto "${CMAKE_CURRENT_LIST_DIR}/Protos/${proto_file}.proto"
+    caffa_proto "${CMAKE_CURRENT_LIST_DIR}/Protos/${proto_file}.fbs"
     ABSOLUTE)
   get_filename_component(caffa_proto_path "${caffa_proto}" PATH)
 
   list(APPEND GRPC_PROTO_FILES_FULL_PATH ${caffa_proto})
 
-  set(caffa_proto_srcs "${CMAKE_BINARY_DIR}/Generated/${proto_file}.pb.cc")
-  set(caffa_proto_hdrs "${CMAKE_BINARY_DIR}/Generated/${proto_file}.pb.h")
-  set(caffa_grpc_srcs "${CMAKE_BINARY_DIR}/Generated/${proto_file}.grpc.pb.cc")
-  set(caffa_grpc_hdrs "${CMAKE_BINARY_DIR}/Generated/${proto_file}.grpc.pb.h")
+  set(caffa_proto_hdrs "${CMAKE_BINARY_DIR}/Generated/${proto_file}_generated.h")
+  set(caffa_grpc_srcs "${CMAKE_BINARY_DIR}/Generated/${proto_file}.grpc.fb.cc")
+  set(caffa_grpc_hdrs "${CMAKE_BINARY_DIR}/Generated/${proto_file}.grpc.fb.h")
 
   add_custom_command(
-    OUTPUT "${caffa_proto_srcs}" "${caffa_proto_hdrs}" "${caffa_grpc_srcs}"
+    OUTPUT "${caffa_proto_hdrs}" "${caffa_grpc_srcs}"
            "${caffa_grpc_hdrs}"
     COMMAND
-      ${_PROTOBUF_PROTOC} ARGS --grpc_out "${CMAKE_BINARY_DIR}/Generated"
-      --cpp_out "${CMAKE_BINARY_DIR}/Generated" -I "${caffa_proto_path}"
-      --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}" "${caffa_proto}"
+      ${_FLATBUFFERS_FLATC} ARGS --cpp --grpc -o "${CMAKE_BINARY_DIR}/Generated"
+      -I "${caffa_proto_path}"
+      "${caffa_proto}"
     DEPENDS "${caffa_proto}")
 
   set(caffa_proto_python "caffa/generated/${proto_file}_pb2.py")
@@ -172,7 +171,7 @@ foreach(proto_file ${PROTO_FILES})
   endif()
 
   list(APPEND GRPC_HEADER_FILES ${caffa_proto_hdrs} ${caffa_grpc_hdrs})
-  list(APPEND GRPC_CPP_SOURCES ${caffa_proto_srcs} ${caffa_grpc_srcs})  
+  list(APPEND GRPC_CPP_SOURCES ${caffa_grpc_srcs})  
 endforeach(proto_file)
 
 if (Python3_Interpreter_FOUND)
@@ -226,6 +225,8 @@ else()
                  ${GRPC_HEADER_FILES} ${GRPC_CPP_SOURCES}
     )
 endif()
+
+message(STATUS ${LINK_LIBRARIES})
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY AUTOMOC OFF)
 

@@ -43,6 +43,13 @@ set(JSON_Install OFF)
 add_subdirectory (ThirdParty/json)
 add_subdirectory (ThirdParty/GSL)
 
+add_subdirectory (ThirdParty/grpc)
+
+
+set(FLATBUFFERS_BUILD_CPP17 ON)
+set(FLATBUFFERS_BUILD_GRPCTEST ON)
+add_subdirectory (ThirdParty/flatbuffers)
+
 #libraries
 add_subdirectory (cafProjectDataModel/cafPdmCore)
 add_subdirectory (cafProjectDataModel/cafPdmUiCore)

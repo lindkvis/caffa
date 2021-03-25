@@ -36,7 +36,7 @@
 
 #include "cafGrpcServiceInterface.h"
 
-#include "AppInfo.grpc.pb.h"
+#include "AppInfo.grpc.fb.h"
 
 #include <google/protobuf/empty.pb.h>
 #include <grpcpp/grpcpp.h>

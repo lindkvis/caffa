@@ -38,7 +38,7 @@
 #include "cafGrpcServer.h"
 #include "cafGrpcServerApplication.h"
 
-#include "AppInfo.pb.h"
+#include "AppInfo_generated.h"
 
 using namespace caf::rpc;
 
