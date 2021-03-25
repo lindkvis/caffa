@@ -36,9 +36,3 @@ table MethodRequest {
   method:string;
   params:caf.rpc.Object;
 }
-
-rpc_service ObjectAccess
-{
-    GetDocument( DocumentRequest ): Object;
-    ExecuteMethod( MethodRequest ): Object;
-}

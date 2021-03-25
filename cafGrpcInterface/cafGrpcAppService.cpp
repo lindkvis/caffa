@@ -38,32 +38,35 @@
 #include "cafGrpcServer.h"
 #include "cafGrpcServerApplication.h"
 
+#include <grpcpp/impl/codegen/method_handler.h>
 #include "AppInfo_generated.h"
 
 using namespace caf::rpc;
 
-grpc::Status AppService::Quit( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply )
+grpc::Status AppService::Quit( grpc::ServerContext* context, const NullMessageT* request, NullMessageT* reply )
 {
     ServerApplication::instance()->quit();
     return grpc::Status::OK;
 }
 
-grpc::Status AppService::GetAppInfo( grpc::ServerContext* context, const NullMessage* request, AppInfoReply* reply )
+grpc::Status AppService::GetAppInfo( grpc::ServerContext* context, const NullMessageT* request, AppInfoReplyT* reply )
 {
     Application* app = Application::instance();
-    reply->set_name( app->name() );
     CAF_ASSERT( app->hasCapability( AppCapability::GRPC_SERVER ) );
-
     AppInfo appInfo = app->appInfo();
-    reply->set_type( appInfo.appType );
-    reply->set_major_version( appInfo.majorVersion );
-    reply->set_minor_version( appInfo.minorVersion );
-    reply->set_patch_version( appInfo.patchVersion );
+
+    flatbuffers::grpc::MessageBuilder mb;
+
+    auto appName = mb.CreateString(app->name());
+    auto reply_offset = CreateAppInfoReply(mb, appName, appInfo.appType, appInfo.majorVersion, appInfo.minorVersion, appInfo.patchVersion);
+
+    *reply = mb.ReleaseMessage<AppInfoReply>();
+    CAF_ASSERT(reply->Verify());
 
     return grpc::Status::OK;
 }
 
-grpc::Status AppService::Ping(grpc::ServerContext* context, const NullMessage* request, NullMessage* reply) 
+grpc::Status AppService::Ping(grpc::ServerContext* context, const NullMessageT* request, NullMessageT* reply) 
 {
     return grpc::Status::OK;
 }
@@ -74,7 +77,7 @@ grpc::Status AppService::Ping(grpc::ServerContext* context, const NullMessage* r
 std::vector<AbstractCallback*> AppService::registerCallbacks()
 {
     typedef AppService Self;
-    return { new UnaryCallback<Self, NullMessage, NullMessage>( this, &Self::Quit, &Self::RequestQuit ),
-             new UnaryCallback<Self, NullMessage, AppInfoReply>( this, &Self::GetAppInfo, &Self::RequestGetAppInfo ),
-             new UnaryCallback<Self, NullMessage, NullMessage>( this, &Self::Ping, &Self::RequestPing ) };
+    return { new UnaryCallback<Self, NullMessageT, NullMessageT>( this, &Self::Quit),
+             new UnaryCallback<Self, NullMessageT, AppInfoReplyT>( this, &Self::GetAppInfo),
+             new UnaryCallback<Self, NullMessageT, NullMessageT>( this, &Self::Ping) };
 }

@@ -1,0 +1,75 @@
+// Generated from FieldService.proto
+
+include "Object.fbs";
+
+namespace caf.rpc;
+
+table IntArray {
+  data:[int];
+}
+
+table Int64Array {
+  data:[long];
+}
+
+table DoubleArray {
+  data:[double];
+}
+
+table FloatArray {
+  data:[float];
+}
+
+table StringArray {
+  data:[string];
+}
+
+table Scalar {
+  data:string;
+}
+
+table FieldRequest {
+  self:caf.rpc.Object;
+  method:string;
+  params:caf.rpc.Object;
+}
+
+table SetterRequest {
+  request:caf.rpc.FieldRequest;
+  value_count:int;
+}
+
+union AnySetterValue
+{
+  SetterRequest,
+  IntArray,
+  Int64Array,
+  DoubleArray,
+  FloatArray,
+  StringArray,
+  Scalar
+}
+
+table SetterChunk {
+  data:AnySetterValue;
+}
+
+union AnyGetterValue
+{
+  IntArray,
+  Int64Array,
+  DoubleArray,
+  FloatArray,
+  StringArray,
+  Scalar
+}
+
+table GetterReply {
+  data:AnyGetterValue;
+}
+
+namespace caf.rpc;
+
+table SetterReply {
+  value_count:long;
+}

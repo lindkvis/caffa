@@ -34,8 +34,12 @@
 //
 #include "cafGrpcClient.h"
 
-#include "AppInfo.grpc.pb.h"
-#include "ObjectService.grpc.pb.h"
+#include "AppInfo.grpc.fb.h"
+#include "AppInfo_generated.h"
+#include "FieldAccess.grpc.fb.h"
+#include "Field_generated.h"
+#include "ObjectAccess.grpc.fb.h"
+#include "Object_generated.h"
 
 #include "cafDefaultObjectFactory.h"
 #include "cafGrpcApplication.h"
@@ -50,13 +54,19 @@
 #include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
-#include <google/protobuf/empty.pb.h>
 
 #include <iostream>
 #include <memory>
 
 namespace caf::rpc
 {
+using AppInfoReplyT = flatbuffers::grpc::Message<AppInfoReply>;
+using FieldRequestT = flatbuffers::grpc::Message<FieldRequest>;
+using GetterReplyT  = flatbuffers::grpc::Message<GetterReply>;
+using NullMessageT  = flatbuffers::grpc::Message<NullMessage>;
+using SetterReplyT  = flatbuffers::grpc::Message<SetterReply>;
+using SetterChunkT  = flatbuffers::grpc::Message<SetterChunk>;
+
 class ClientImpl
 {
 public:
@@ -73,32 +83,37 @@ public:
 
     caf::AppInfo appInfo() const
     {
-        caf::rpc::AppInfoReply reply;
-        grpc::ClientContext    context;
-        NullMessage         nullarg;
-        auto                   status  = m_appInfoStub->GetAppInfo( &context, nullarg, &reply );
-        caf::AppInfo           appInfo = { reply.name(),
-                                 reply.major_version(),
-                                 reply.minor_version(),
-                                 reply.patch_version(),
-                                 reply.type() };
+        caf::rpc::AppInfoReplyT reply;
+        grpc::ClientContext     context;
+        NullMessageT            nullarg;
+        auto                    status = m_appInfoStub->GetAppInfo( &context, nullarg, &reply );
+
+        auto appInfoReply = reply.GetRoot();
+
+        caf::AppInfo appInfo = { appInfoReply->name()->str(),
+                                 appInfoReply->major_version(),
+                                 appInfoReply->minor_version(),
+                                 appInfoReply->patch_version(),
+                                 appInfoReply->type() };
         return appInfo;
     }
 
     std::unique_ptr<caf::ObjectHandle> document( const std::string& documentId ) const
     {
         std::unique_ptr<caf::ObjectHandle> pdmDocument;
+        grpc::ClientContext                context;
+        flatbuffers::grpc::MessageBuilder  mb;
 
-        grpc::ClientContext       context;
-        caf::rpc::DocumentRequest request;
-        request.set_document_id( documentId );
-        caf::rpc::Object objectReply;
+        CreateDocumentRequest( mb, mb.CreateString( documentId ) );
+        auto request = mb.ReleaseMessage<DocumentRequest>();
+
+        caf::rpc::ObjectService::ObjectReply objectReply;
         std::cout << "Calling GetDocument()" << std::endl;
-        auto             status = m_objectStub->GetDocument( &context, request, &objectReply );
+        auto status = m_objectStub->GetDocument( &context, request, &objectReply );
         if ( status.ok() )
         {
             std::cout << "Got document" << std::endl;
-            pdmDocument = caf::rpc::ObjectService::createCafObjectFromRpc( &objectReply,
+            pdmDocument = caf::rpc::ObjectService::createCafObjectFromRpc( objectReply.GetRoot(),
                                                                            caf::rpc::GrpcClientObjectFactory::instance() );
         }
         else
@@ -110,27 +125,25 @@ public:
 
     std::unique_ptr<caf::ObjectHandle> execute( const caf::ObjectMethod* method ) const
     {
-        auto self   = std::make_unique<Object>();
-        auto params = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( method->self<caf::ObjectHandle>(),
-                                               self.get(),
-                                               caf::DefaultObjectFactory::instance() );
-        ObjectService::copyObjectFromCafToRpc( method, params.get(), caf::DefaultObjectFactory::instance() );
+        flatbuffers::grpc::MessageBuilder mb;
 
-        grpc::ClientContext context;
-        MethodRequest       request;
-        request.set_allocated_self( self.release() );
-        request.set_method( method->classKeyword() );
-        request.set_allocated_params( params.release() );
+        auto self = ObjectService::copyObjectFromCafToRpc( mb, method->self<caf::ObjectHandle>() );
+
+        auto params = ObjectService::copyObjectFromCafToRpc( mb, method );
+
+        CreateMethodRequest( mb, self, mb.CreateString( method->classKeyword() ), params );
+        auto methodRequest = mb.ReleaseMessage<MethodRequest>();
 
         std::unique_ptr<caf::ObjectHandle> returnValue;
 
-        caf::rpc::Object objectReply;
-        auto             status = m_objectStub->ExecuteMethod( &context, request, &objectReply );
+        grpc::ClientContext                  context;
+        caf::rpc::ObjectService::ObjectReply objectReply;
+
+        auto status = m_objectStub->ExecuteMethod( &context, methodRequest, &objectReply );
         if ( status.ok() )
         {
-            returnValue =
-                caf::rpc::ObjectService::createCafObjectFromRpc( &objectReply, caf::DefaultObjectFactory::instance() );
+            returnValue = caf::rpc::ObjectService::createCafObjectFromRpc( objectReply.GetRoot(),
+                                                                           caf::DefaultObjectFactory::instance() );
         }
         return returnValue;
     }
@@ -138,7 +151,7 @@ public:
     bool stopServer() const
     {
         grpc::ClientContext context;
-        NullMessage      nullarg, nullreply;
+        NullMessageT        nullarg, nullreply;
         auto                status = m_appInfoStub->Quit( &context, nullarg, &nullreply );
         return status.ok();
     }
@@ -146,18 +159,19 @@ public:
     bool ping() const
     {
         grpc::ClientContext context;
-        NullMessage         nullarg, nullreply;
+        NullMessageT        nullarg, nullreply;
         auto                status = m_appInfoStub->Ping( &context, nullarg, &nullreply );
         return status.ok();
     }
 
     void setJson( const caf::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& jsonValue )
     {
+        /*
         size_t chunkSize = 1;
 
         grpc::ClientContext context;
-        auto                self = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+
+        auto self = ObjectService::copyObjectFromCafToRpc( mb, objectHandle, false );
 
         auto field = std::make_unique<FieldRequest>();
         field->set_method( fieldName );
@@ -187,12 +201,12 @@ public:
         if ( !status.ok() )
         {
             throw Exception( status );
-        }
+        }*/
     }
 
     nlohmann::json getJson( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
     {
-        grpc::ClientContext context;
+        /* grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
         FieldRequest field;
@@ -215,11 +229,12 @@ public:
         {
             throw Exception( status );
         }
-        return jsonValue;
+        return jsonValue; */
+        return nlohmann::json();
     }
     bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<int>& values )
     {
-        auto chunkSize = Application::instance()->packageByteSize();
+        /* auto chunkSize = Application::instance()->packageByteSize();
 
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
@@ -256,12 +271,13 @@ public:
         if ( !writer->WritesDone() ) return false;
 
         grpc::Status status = writer->Finish();
-        return status.ok();
+        return status.ok(); */
+        return false;
     }
 
     bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<double>& values )
     {
-        auto chunkSize = Application::instance()->packageByteSize();
+        /* auto chunkSize = Application::instance()->packageByteSize();
 
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
@@ -298,12 +314,13 @@ public:
         if ( !writer->WritesDone() ) return false;
 
         grpc::Status status = writer->Finish();
-        return status.ok();
+        return status.ok(); */
+        return false;
     }
 
     bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<float>& values )
     {
-        auto chunkSize = Application::instance()->packageByteSize();
+        /* auto chunkSize = Application::instance()->packageByteSize();
 
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
@@ -341,11 +358,13 @@ public:
 
         grpc::Status status = writer->Finish();
         return status.ok();
+        */
+        return false;
     }
 
     bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<std::string>& values )
     {
-        grpc::ClientContext context;
+        /* grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
 
@@ -372,12 +391,13 @@ public:
         if ( !writer->WritesDone() ) return false;
 
         grpc::Status status = writer->Finish();
-        return status.ok();
+        return status.ok(); */
+        return false;
     }
 
     std::vector<int> getInts( const caf::ObjectHandle* objectHandle, const std::string& getter ) const
     {
-        grpc::ClientContext context;
+        /* grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
         FieldRequest field;
@@ -386,8 +406,8 @@ public:
 
         std::vector<int> values;
 
-        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
-        GetterReply                                      reply;
+        std::unique_ptr<grpc::ClientReader<GetterReplyT>> reader( m_fieldStub->GetValue( &context, field ) );
+        GetterReply                                       reply;
         while ( reader->Read( &reply ) )
         {
             CAF_ASSERT( reply.has_ints() ); // TODO: throw
@@ -396,12 +416,13 @@ public:
         }
         grpc::Status status = reader->Finish();
         CAF_ASSERT( status.ok() );
-        return values;
+        return values; */
+        return {};
     }
 
     std::vector<double> getDoubles( const caf::ObjectHandle* objectHandle, const std::string& getter ) const
     {
-        grpc::ClientContext context;
+        /* grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
         FieldRequest field;
@@ -410,8 +431,8 @@ public:
 
         std::vector<double> values;
 
-        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
-        GetterReply                                      reply;
+        std::unique_ptr<grpc::ClientReader<GetterReplyT>> reader( m_fieldStub->GetValue( &context, field ) );
+        GetterReply                                       reply;
         while ( reader->Read( &reply ) )
         {
             CAF_ASSERT( reply.has_doubles() ); // TODO: throw
@@ -420,45 +441,41 @@ public:
         }
         grpc::Status status = reader->Finish();
         CAF_ASSERT( status.ok() );
-        return values;
+        return values; */
+        return {};
     }
 
     std::vector<float> getFloats( const caf::ObjectHandle* objectHandle, const std::string& getter ) const
     {
         grpc::ClientContext context;
-        auto                self = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
-        FieldRequest field;
-        field.set_method( getter );
-        field.set_allocated_self( self.release() );
+
+        flatbuffers::grpc::MessageBuilder mb;
+        auto                              self = ObjectService::copyObjectFromCafToRpc( mb, objectHandle, false );
+
+        CreateFieldRequest( mb, self );
+        auto methodRequest = mb.ReleaseMessage<MethodRequest>();
+
+        auto field        = CreateFieldRequest( mb, self, mb.CreateString( getter ) );
+        auto fieldRequest = mb.ReleaseMessage<FieldRequest>();
 
         std::vector<float> values;
 
-        auto start_time = std::chrono::system_clock::now();
-
-        std::unique_ptr<grpc::ClientReader<FloatArray>> reader( m_fieldStub->GetFloatValue( &context, field ) );
-        FloatArray                                      reply;
+        std::unique_ptr<grpc::ClientReader<GetterReplyT>> reader( m_fieldStub->GetValue( &context, fieldRequest ) );
+        GetterReplyT                                      reply;
         while ( reader->Read( &reply ) )
         {
-            values.insert( values.end(), reply.data().begin(), reply.data().end() );
+            auto doubles = reply.GetRoot()->data_as_FloatArray();
+            CAF_ASSERT( doubles ); // TODO: throw
+            values.insert( values.end(), doubles->data()->begin(), doubles->data()->end() );
         }
-
-        auto   end_time       = std::chrono::system_clock::now();
-        auto duration   = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
-        size_t numberOfFloats = values.size();
-        size_t MB = numberOfFloats * sizeof(float) / (1024u * 1024u);
-        std::cout << "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" << std::endl;        
-        std::cout << "Time spent: " << duration << "ms" << std::endl;
-
         grpc::Status status = reader->Finish();
-        if (!status.ok()) std::cout << status.error_code() << ", " << status.error_message() << std::endl;
         CAF_ASSERT( status.ok() );
         return values;
     }
 
     std::vector<std::string> getStrings( const caf::ObjectHandle* objectHandle, const std::string& getter ) const
     {
-        grpc::ClientContext context;
+        /* grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
         FieldRequest field;
@@ -477,7 +494,8 @@ public:
         }
         grpc::Status status = reader->Finish();
         CAF_ASSERT( status.ok() );
-        return values;
+        return values; */
+        return {};
     }
 
 private:
@@ -580,8 +598,8 @@ void caf::rpc::Client::set( const caf::ObjectHandle*   objectHandle,
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-void caf::rpc::Client::set( const caf::ObjectHandle*   objectHandle,
-                            const std::string&         fieldName,
+void caf::rpc::Client::set( const caf::ObjectHandle*  objectHandle,
+                            const std::string&        fieldName,
                             const std::vector<float>& value )
 {
     m_clientImpl->set( objectHandle, fieldName, value );
@@ -621,8 +639,7 @@ std::vector<double>
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-std::vector<float>
-    Client::get<std::vector<float>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
+std::vector<float> Client::get<std::vector<float>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     return m_clientImpl->getFloats( objectHandle, fieldName );
 }

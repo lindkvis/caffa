@@ -38,8 +38,10 @@
 #include "cafGrpcServiceInterface.h"
 #include "cafVariant.h"
 
-#include "ObjectService.grpc.pb.h"
-#include "ObjectService.pb.h"
+#include "ObjectAccess.grpc.fb.h"
+#include "Object_generated.h"
+#include <grpcpp/impl/codegen/byte_buffer.h>
+#include <grpcpp/impl/codegen/method_handler.h>
 
 #include <string>
 #include <vector>
@@ -65,21 +67,25 @@ class MethodRequest;
 // gRPC-service answering request searching for Objects in property tree
 //
 //==================================================================================================
-class ObjectService final : public ObjectAccess::AsyncService, public ServiceInterface
+class ObjectService final : public ObjectAccess::Service, public ServiceInterface
 {
 public:
-    grpc::Status GetDocument( grpc::ServerContext* context, const DocumentRequest* request, Object* reply );
+    using DocumentRequestT = flatbuffers::grpc::Message<DocumentRequest>;
+    using MethodRequestT   = flatbuffers::grpc::Message<MethodRequest>;
+    using ObjectReply      = flatbuffers::grpc::Message<Object>;
 
-    grpc::Status ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, Object* reply ) override;
+    grpc::Status GetDocument( grpc::ServerContext* context, const DocumentRequestT* request, ObjectReply* reply );
+
+    grpc::Status ExecuteMethod( grpc::ServerContext* context, const MethodRequestT* request, ObjectReply* reply ) override;
 
     static caf::Object* findCafObjectFromRpcObject( const Object& rpcObject );
     static caf::Object* findCafObjectFromScriptNameAndAddress( const std::string& scriptClassName, uint64_t address );
 
-    static void copyObjectFromCafToRpc( const caf::ObjectHandle* source,
-                                        Object*                  destination,
-                                        bool                     copyContent = true,
-                                        bool                     writeValues = true );
-    static void copyObjectFromRpcToCaf( const Object* source, caf::ObjectHandle* destination );
+    static flatbuffers::Offset<Object> copyObjectFromCafToRpc( flatbuffers::grpc::MessageBuilder& builder,
+                                                               const caf::ObjectHandle*           source,
+                                                               bool                               copyContent = true,
+                                                               bool                               writeValues = true );
+    static void                        copyObjectFromRpcToCaf( const Object* source, caf::ObjectHandle* destination );
     static std::unique_ptr<caf::ObjectHandle> createCafObjectFromRpc( const Object*       source,
                                                                       caf::ObjectFactory* objectFactory );
 

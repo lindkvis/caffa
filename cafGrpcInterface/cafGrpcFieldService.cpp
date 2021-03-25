@@ -39,8 +39,8 @@
 #include "cafGrpcServerApplication.h"
 
 #include "cafAbstractFieldScriptingCapability.h"
-#include "cafGrpcApplication.h"
 #include "cafField.h"
+#include "cafGrpcApplication.h"
 #include "cafGrpcObjectService.h"
 #include "cafObject.h"
 #include "cafPdmScriptIOMessages.h"
@@ -53,7 +53,7 @@
 
 namespace caf::rpc
 {
-template <typename DataType>
+template <typename DataType, typename DataTypeContainer>
 struct DataHolder : public AbstractDataHolder
 {
     DataHolder( const DataType& data )
@@ -61,262 +61,126 @@ struct DataHolder : public AbstractDataHolder
     {
     }
 
-    size_t valueCount() const override;
-    size_t valueSizeOf() const override;
+    size_t valueCount() const override { return data.size(); }
 
-    void     reserveReplyStorage( GetterReply* reply, size_t numberOfDataUnits ) const override {}
-    void     addValueToReply( size_t valueIndex, GetterReply* reply ) const override;
-    void     addPackageValuesToReply( GetterReply* reply, size_t startIndex, size_t numberOfDataUnits ) const override {}
+    size_t valueSizeOf() const override { return sizeof( DataType ); }
 
-    size_t   getValuesFromChunk( size_t startIndex, const SetterChunk* chunk ) override;
-    void     applyValuesToField( ValueField* field ) override;
+    void addPackageValuesToReply( GetterReplyT* reply, size_t startIndex, size_t numberOfDataUnits ) const override;
+
+    size_t getValuesFromChunk( size_t startIndex, const SetterChunkT* chunk ) override
+    {
+        auto   array        = chunk->GetRoot()->data_as<DataTypeContainer>();
+        auto   vector       = array->data();
+        size_t chunkSize    = vector->size();
+        size_t currentIndex = startIndex;
+        size_t chunkIndex   = 0u;
+        for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
+        {
+            data[currentIndex] = ( *vector )[chunkIndex];
+        }
+        return chunkSize;
+    }
+    void applyValuesToField( ValueField* field ) override
+    {
+        auto proxyValueField = dynamic_cast<ProxyValueField<DataType>*>( field );
+        auto dataValueField  = dynamic_cast<Field<DataType>*>( field );
+        if ( proxyValueField )
+        {
+            proxyValueField->setValue( data );
+        }
+        else if ( dataValueField )
+        {
+            dataValueField->setValueWithFieldChanged( data );
+        }
+    }
+
     DataType data;
 };
 
 template <>
-size_t DataHolder<std::vector<int>>::valueCount() const
+void DataHolder<std::vector<int>, IntArray>::addPackageValuesToReply( GetterReplyT* reply,
+                                                                      size_t        startIndex,
+                                                                      size_t        numberOfDataUnits ) const
 {
-    return data.size();
-}
-template <>
-size_t DataHolder<std::vector<int>>::valueSizeOf() const
-{
-    return sizeof( int );
+    flatbuffers::grpc::MessageBuilder mb;
+
+    const int* dataPtr = &data[startIndex];
+    auto       vector  = mb.CreateVector<int>( dataPtr, numberOfDataUnits );
+    auto       array   = CreateIntArray( mb, vector );
+
+    CreateGetterReply( mb, AnyGetterValueTraits<IntArray>::enum_value, array.Union() );
+    *reply = mb.ReleaseMessage<GetterReply>();
 }
 
 template <>
-void DataHolder<std::vector<int>>::reserveReplyStorage( GetterReply* reply, size_t numberOfDataUnits ) const
+void DataHolder<std::vector<double>, DoubleArray>::addPackageValuesToReply( GetterReplyT* reply,
+                                                                            size_t        startIndex,
+                                                                            size_t        numberOfDataUnits ) const
 {
-    reply->mutable_ints()->mutable_data()->Reserve( numberOfDataUnits );
-}
-template <>
-void DataHolder<std::vector<int>>::addValueToReply( size_t valueIndex, GetterReply* reply ) const
-{
-    reply->mutable_ints()->add_data( data[valueIndex] );
-}
+    flatbuffers::grpc::MessageBuilder mb;
 
+    const double* dataPtr = &data[startIndex];
+    auto          vector  = mb.CreateVector<double>( dataPtr, numberOfDataUnits );
+    auto          array   = CreateDoubleArray( mb, vector );
 
-template <>
-void DataHolder<std::vector<int>>::addPackageValuesToReply( GetterReply* reply, size_t startIndex, size_t numberOfDataUnits ) const
-{
-    *(reply->mutable_ints()->mutable_data()) = {data.begin() + startIndex, data.begin() + startIndex + numberOfDataUnits};
+    CreateGetterReply( mb, AnyGetterValueTraits<DoubleArray>::enum_value, array.Union() );
+    *reply = mb.ReleaseMessage<GetterReply>();
 }
+template <>
+void DataHolder<std::vector<float>, FloatArray>::addPackageValuesToReply( GetterReplyT* reply,
+                                                                          size_t        startIndex,
+                                                                          size_t        numberOfDataUnits ) const
+{
+    flatbuffers::grpc::MessageBuilder mb;
 
-template <>
-size_t DataHolder<std::vector<int>>::getValuesFromChunk( size_t startIndex, const SetterChunk* chunk )
-{
-    size_t chunkSize    = chunk->ints().data_size();
-    size_t currentIndex = startIndex;
-    size_t chunkIndex   = 0u;
-    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
-    {
-        data[currentIndex] = chunk->ints().data()[chunkIndex];
-    }
-    return chunkSize;
-}
-template <>
-void DataHolder<std::vector<int>>::applyValuesToField( ValueField* field )
-{
-    auto proxyValueField = dynamic_cast<ProxyValueField<std::vector<int>>*>( field );
-    auto dataValueField  = dynamic_cast<Field<std::vector<int>>*>( field );
-    if ( proxyValueField )
-    {
-        proxyValueField->setValue( data );
-    }
-    else if ( dataValueField )
-    {
-        dataValueField->setValueWithFieldChanged( data );
-    }
-}
-template <>
-size_t DataHolder<std::vector<double>>::valueCount() const
-{
-    return data.size();
-}
-template <>
-size_t DataHolder<std::vector<double>>::valueSizeOf() const
-{
-    return sizeof( double );
+    const float* dataPtr = &data[startIndex];
+    auto         vector  = mb.CreateVector<float>( dataPtr, numberOfDataUnits );
+    auto         array   = CreateFloatArray( mb, vector );
+
+    CreateGetterReply( mb, AnyGetterValueTraits<FloatArray>::enum_value, array.Union() );
+    *reply = mb.ReleaseMessage<GetterReply>();
 }
 
 template <>
-void DataHolder<std::vector<double>>::reserveReplyStorage( GetterReply* reply, size_t numberOfDataUnits ) const
+void DataHolder<std::vector<std::string>, StringArray>::addPackageValuesToReply( GetterReplyT* reply,
+                                                                                 size_t        startIndex,
+                                                                                 size_t        numberOfDataUnits ) const
 {
-    reply->mutable_doubles()->mutable_data()->Reserve( numberOfDataUnits );
-}
-template <>
-void DataHolder<std::vector<double>>::addValueToReply( size_t valueIndex, GetterReply* reply ) const
-{
-    reply->mutable_doubles()->add_data( data[valueIndex] );
 }
 
 template <>
-void DataHolder<std::vector<double>>::addPackageValuesToReply( GetterReply* reply, size_t startIndex, size_t numberOfDataUnits ) const
+size_t DataHolder<std::vector<std::string>, StringArray>::getValuesFromChunk( size_t startIndex, const SetterChunkT* chunk )
 {
-    *(reply->mutable_doubles()->mutable_data()) = {data.begin() + startIndex, data.begin() + startIndex + numberOfDataUnits};
-}
-template <>
-size_t DataHolder<std::vector<double>>::getValuesFromChunk( size_t startIndex, const SetterChunk* chunk )
-{
-    size_t chunkSize    = chunk->doubles().data_size();
-    size_t currentIndex = startIndex;
-    size_t chunkIndex   = 0u;
-    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
-    {
-        data[currentIndex] = chunk->doubles().data()[chunkIndex];
-    }
-    return chunkSize;
-}
-template <>
-void DataHolder<std::vector<double>>::applyValuesToField( ValueField* field )
-{
-    auto proxyValueField = dynamic_cast<ProxyValueField<std::vector<double>>*>( field );
-    auto dataValueField  = dynamic_cast<Field<std::vector<double>>*>( field );
-    if ( proxyValueField )
-    {
-        proxyValueField->setValue( data );
-    }
-    else if ( dataValueField )
-    {
-        dataValueField->setValueWithFieldChanged( data );
-    }
-}
-template <>
-size_t DataHolder<std::vector<float>>::valueCount() const
-{
-    return data.size();
-}
-template <>
-size_t DataHolder<std::vector<float>>::valueSizeOf() const
-{
-    return sizeof( float );
+    return 0u;
 }
 
 template <>
-void DataHolder<std::vector<float>>::reserveReplyStorage( GetterReply* reply, size_t numberOfDataUnits ) const
+size_t DataHolder<std::string, Scalar>::valueCount() const
 {
-    reply->mutable_floats()->mutable_data()->Reserve( numberOfDataUnits );
+    return 1u;
 }
 template <>
-void DataHolder<std::vector<float>>::addValueToReply( size_t valueIndex, GetterReply* reply ) const
-{
-    reply->mutable_floats()->add_data( data[valueIndex] );
-}
-
-template <>
-void DataHolder<std::vector<float>>::addPackageValuesToReply( GetterReply* reply, size_t startIndex, size_t numberOfDataUnits ) const
-{
-    *(reply->mutable_floats()->mutable_data()) = {data.begin() + startIndex, data.begin() + startIndex + numberOfDataUnits};
-}
-
-template <>
-size_t DataHolder<std::vector<float>>::getValuesFromChunk( size_t startIndex, const SetterChunk* chunk )
-{
-    size_t chunkSize    = chunk->floats().data_size();
-    size_t currentIndex = startIndex;
-    size_t chunkIndex   = 0u;
-    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
-    {
-        data[currentIndex] = chunk->floats().data()[chunkIndex];
-    }
-    return chunkSize;
-}
-template <>
-void DataHolder<std::vector<float>>::applyValuesToField( ValueField* field )
-{
-    auto proxyValueField = dynamic_cast<ProxyValueField<std::vector<float>>*>( field );
-    auto dataValueField  = dynamic_cast<Field<std::vector<float>>*>( field );
-    if ( proxyValueField )
-    {
-        proxyValueField->setValue( data );
-    }
-    else if ( dataValueField )
-    {
-        dataValueField->setValueWithFieldChanged( data );
-    }
-}
-
-template <>
-size_t DataHolder<std::vector<std::string>>::valueCount() const
-{
-    return data.size();
-}
-template <>
-size_t DataHolder<std::vector<std::string>>::valueSizeOf() const
+size_t DataHolder<std::string, Scalar>::valueSizeOf() const
 {
     return sizeof( std::string );
 }
 
 template <>
-void DataHolder<std::vector<std::string>>::reserveReplyStorage( GetterReply* reply, size_t numberOfDataUnits ) const
+void DataHolder<std::string, Scalar>::addPackageValuesToReply( GetterReplyT* reply,
+                                                               size_t        startIndex,
+                                                               size_t        numberOfDataUnits ) const
 {
-    reply->mutable_strings()->mutable_data()->Reserve( numberOfDataUnits );
-}
-template <>
-void DataHolder<std::vector<std::string>>::addValueToReply( size_t valueIndex, GetterReply* reply ) const
-{
-    reply->mutable_strings()->add_data( data[valueIndex] );
 }
 
 template <>
-void DataHolder<std::vector<std::string>>::addPackageValuesToReply( GetterReply* reply, size_t startIndex, size_t numberOfDataUnits ) const
+size_t DataHolder<std::string, Scalar>::getValuesFromChunk( size_t startIndex, const SetterChunkT* chunk )
 {
-    *(reply->mutable_strings()->mutable_data()) = {data.begin() + startIndex, data.begin() + startIndex + numberOfDataUnits};
-}
-
-template <>
-size_t DataHolder<std::vector<std::string>>::getValuesFromChunk( size_t startIndex, const SetterChunk* chunk )
-{
-    size_t chunkSize    = 1u;
-    size_t currentIndex = startIndex;
-    size_t chunkIndex   = 0u;
-    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
-    {
-        data[currentIndex] = chunk->strings().data()[chunkIndex];
-    }
-    return chunkSize;
-}
-template <>
-void DataHolder<std::vector<std::string>>::applyValuesToField( ValueField* field )
-{
-    auto proxyValueField = dynamic_cast<ProxyValueField<std::vector<std::string>>*>( field );
-    auto dataValueField  = dynamic_cast<Field<std::vector<std::string>>*>( field );
-    if ( proxyValueField )
-    {
-        proxyValueField->setValue( data );
-    }
-    else if ( dataValueField )
-    {
-        dataValueField->setValueWithFieldChanged( data );
-    }
-}
-
-template <>
-size_t DataHolder<std::string>::valueCount() const
-{
+    auto scalar = chunk->GetRoot()->data_as_Scalar();
+    this->data  = scalar->data()->str();
     return 1u;
 }
 template <>
-size_t DataHolder<std::string>::valueSizeOf() const
-{
-    return sizeof( std::string );
-}
-
-template <>
-void DataHolder<std::string>::addValueToReply( size_t valueIndex, GetterReply* reply ) const
-{
-    reply->set_scalar( data );
-}
-
-template <>
-size_t DataHolder<std::string>::getValuesFromChunk( size_t startIndex, const SetterChunk* chunk )
-{
-    auto scalar = chunk->scalar();
-    data        = scalar;
-    return 1u;
-}
-template <>
-void DataHolder<std::string>::applyValuesToField( ValueField* field )
+void DataHolder<std::string, Scalar>::applyValuesToField( ValueField* field )
 {
     auto ioCapability = field->capability<FieldIoCapability>();
     CAF_ASSERT( ioCapability );
@@ -336,9 +200,10 @@ GetterStateHandler::GetterStateHandler()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status GetterStateHandler::init( const FieldRequest* request )
+grpc::Status GetterStateHandler::init( const FieldRequestT* request )
 {
-    m_fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self() );
+    auto fieldRequest = request->GetRoot();
+    m_fieldOwner      = ObjectService::findCafObjectFromRpcObject( *fieldRequest->self() );
     CAF_ASSERT( m_fieldOwner );
     if ( !m_fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     std::vector<FieldHandle*> fields;
@@ -346,31 +211,31 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
     for ( auto field : fields )
     {
         auto scriptability = field->capability<AbstractFieldScriptingCapability>();
-        if ( scriptability && request->method() == scriptability->scriptFieldName() )
+        if ( scriptability && fieldRequest->method()->str() == scriptability->scriptFieldName() )
         {
             if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
-                m_dataHolder.reset( new DataHolder<std::vector<int>>( dataField->value() ) );
+                m_dataHolder.reset( new DataHolder<std::vector<int>, IntArray>( dataField->value() ) );
                 return grpc::Status::OK;
             }
             else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<double>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
-                m_dataHolder.reset( new DataHolder<std::vector<double>>( dataField->value() ) );
+                m_dataHolder.reset( new DataHolder<std::vector<double>, DoubleArray>( dataField->value() ) );
                 return grpc::Status::OK;
             }
             else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<float>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
-                m_dataHolder.reset( new DataHolder<std::vector<float>>( dataField->value() ) );
+                m_dataHolder.reset( new DataHolder<std::vector<float>, FloatArray>( dataField->value() ) );
                 return grpc::Status::OK;
             }
             else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<std::string>>*>( field );
                       dataField != nullptr )
             {
                 m_field = dataField;
-                m_dataHolder.reset( new DataHolder<std::vector<std::string>>( dataField->value() ) );
+                m_dataHolder.reset( new DataHolder<std::vector<std::string>, StringArray>( dataField->value() ) );
                 return grpc::Status::OK;
             }
             else if ( auto dataField = dynamic_cast<ValueField*>( field ); dataField != nullptr )
@@ -379,7 +244,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
                 nlohmann::json jsonValue;
                 auto           ioCapability = field->capability<caf::FieldIoCapability>();
                 ioCapability->writeFieldData( jsonValue, true, true );
-                m_dataHolder.reset( new DataHolder<std::string>( jsonValue.dump() ) );
+                m_dataHolder.reset( new DataHolder<std::string, Scalar>( jsonValue.dump() ) );
                 return grpc::Status::OK;
             }
             else
@@ -395,52 +260,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status GetterStateHandler::assignReply( GetterReply* reply )
-{
-    CAF_ASSERT( m_dataHolder );
-
-#if 0
-    size_t remainingData             = m_dataHolder->valueCount() - m_currentDataIndex;
-    size_t defaultDataUnitsInPackage = Application::instance()->packageByteSize() / m_dataHolder->valueSizeOf();
-
-    size_t dataUnitsInPackage = std::min(defaultDataUnitsInPackage, remainingData);
-    if (dataUnitsInPackage == 0u)
-    {
-            return grpc::Status( grpc::OUT_OF_RANGE,
-                         "We've reached the end. This is not an error but means transmission is finished" );
-    }
-    m_dataHolder->addPackageValuesToReply(reply, m_currentDataIndex, dataUnitsInPackage);
-    m_currentDataIndex += dataUnitsInPackage;
-        return grpc::Status::OK;
-
-#else
-    size_t remainingData             = m_dataHolder->valueCount() - m_currentDataIndex;
-    size_t defaultDataUnitsInPackage = Application::instance()->packageByteSize() / m_dataHolder->valueSizeOf();
-    size_t dataUnitsInPackage = std::min(defaultDataUnitsInPackage, remainingData);
-
-    size_t indexInPackage = 0u;
-    m_dataHolder->reserveReplyStorage( reply, dataUnitsInPackage );
-
-    for ( ; indexInPackage < dataUnitsInPackage; ++indexInPackage )
-    {
-        m_dataHolder->addValueToReply( m_currentDataIndex, reply );
-        m_currentDataIndex++;
-    }
-    if ( indexInPackage > 0u )
-    {
-        return grpc::Status::OK;
-    }
-    return grpc::Status( grpc::OUT_OF_RANGE,
-                         "We've reached the end. This is not an error but means transmission is finished" );
-
-#endif
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template<>
-grpc::Status GetterStateHandler::assignTypedReply<FloatArray>( FloatArray* reply )
+grpc::Status GetterStateHandler::assignReply( GetterReplyT* reply )
 {
     CAF_ASSERT( m_dataHolder );
 
@@ -453,15 +273,10 @@ grpc::Status GetterStateHandler::assignTypedReply<FloatArray>( FloatArray* reply
         return grpc::Status( grpc::OUT_OF_RANGE,
                              "We've reached the end. This is not an error but means transmission is finished" );
     }
-
-    DataHolder<std::vector<float>>* dataHolder = static_cast<DataHolder<std::vector<float>>*>( m_dataHolder.get() );
-
-    *( reply->mutable_data() ) = { dataHolder->data.begin() + m_currentDataIndex,
-                                   dataHolder->data.begin() + m_currentDataIndex + dataUnitsInPackage };
+    m_dataHolder->addPackageValuesToReply( reply, m_currentDataIndex, dataUnitsInPackage );
     m_currentDataIndex += dataUnitsInPackage;
     return grpc::Status::OK;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -489,7 +304,7 @@ void GetterStateHandler::finish()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-StateHandler<FieldRequest>* GetterStateHandler::emptyClone() const
+StateHandler<FieldRequestT>* GetterStateHandler::emptyClone() const
 {
     return new GetterStateHandler;
 }
@@ -507,50 +322,53 @@ SetterStateHandler::SetterStateHandler()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
+grpc::Status SetterStateHandler::init( const SetterChunkT* chunk )
 {
-    CAF_ASSERT( chunk->has_set_request() );
-    auto setRequest   = chunk->set_request();
-    auto FieldRequest = setRequest.request();
-    m_fieldOwner      = ObjectService::findCafObjectFromRpcObject( FieldRequest.self() );
-    int valueCount    = setRequest.value_count();
+    auto request = chunk->GetRoot();
+    CAF_ASSERT( request->data_type() == AnySetterValue_SetterRequest );
+
+    auto setRequest   = request->data_as_SetterRequest();
+    auto fieldRequest = setRequest->request();
+    m_fieldOwner      = ObjectService::findCafObjectFromRpcObject( *fieldRequest->self() );
+    int valueCount    = setRequest->value_count();
 
     std::vector<FieldHandle*> fields;
     m_fieldOwner->fields( fields );
     for ( auto field : fields )
     {
         auto scriptability = field->capability<AbstractFieldScriptingCapability>();
-        if ( scriptability && FieldRequest.method() == scriptability->scriptFieldName() )
+        if ( scriptability && fieldRequest->method()->str() == scriptability->scriptFieldName() )
         {
             if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
-                m_dataHolder.reset( new DataHolder<std::vector<int>>( std::vector<int>( valueCount ) ) );
+                m_dataHolder.reset( new DataHolder<std::vector<int>, IntArray>( std::vector<int>( valueCount ) ) );
                 return grpc::Status::OK;
             }
             else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<double>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
-                m_dataHolder.reset( new DataHolder<std::vector<double>>( std::vector<double>( valueCount ) ) );
+                m_dataHolder.reset( new DataHolder<std::vector<double>, DoubleArray>( std::vector<double>( valueCount ) ) );
                 return grpc::Status::OK;
             }
             else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<float>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
-                m_dataHolder.reset( new DataHolder<std::vector<float>>( std::vector<float>( valueCount ) ) );
+                m_dataHolder.reset( new DataHolder<std::vector<float>, FloatArray>( std::vector<float>( valueCount ) ) );
                 return grpc::Status::OK;
             }
             else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<std::string>>*>( field );
                       dataField != nullptr )
             {
                 m_field = dataField;
-                m_dataHolder.reset( new DataHolder<std::vector<std::string>>( std::vector<std::string>( valueCount ) ) );
+                m_dataHolder.reset(
+                    new DataHolder<std::vector<std::string>, StringArray>( std::vector<std::string>( valueCount ) ) );
                 return grpc::Status::OK;
             }
             else if ( auto dataField = dynamic_cast<ValueField*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
-                m_dataHolder.reset( new DataHolder<std::string>( std::string() ) );
+                m_dataHolder.reset( new DataHolder<std::string, Scalar>( std::string() ) );
                 return grpc::Status::OK;
             }
             else
@@ -565,7 +383,7 @@ grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status SetterStateHandler::receiveRequest( const SetterChunk* chunk, SetterReply* reply )
+grpc::Status SetterStateHandler::receiveRequest( const SetterChunkT* chunk, SetterReplyT* reply )
 {
     size_t valuesWritten = m_dataHolder->getValuesFromChunk( m_currentDataIndex, chunk );
     m_currentDataIndex += valuesWritten;
@@ -574,7 +392,11 @@ grpc::Status SetterStateHandler::receiveRequest( const SetterChunk* chunk, Sette
     {
         return grpc::Status( grpc::OUT_OF_RANGE, "Attempting to write out of bounds" );
     }
-    reply->set_value_count( static_cast<int64_t>( m_currentDataIndex ) );
+
+    flatbuffers::grpc::MessageBuilder mb;
+
+    CreateSetterReply( mb, static_cast<int64_t>( m_currentDataIndex ) );
+    *reply = mb.ReleaseMessage<SetterReply>();
     return grpc::Status::OK;
 }
 
@@ -613,7 +435,7 @@ void SetterStateHandler::finish()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-StateHandler<SetterChunk>* SetterStateHandler::emptyClone() const
+StateHandler<SetterChunkT>* SetterStateHandler::emptyClone() const
 {
     return new SetterStateHandler;
 }
@@ -621,10 +443,10 @@ StateHandler<SetterChunk>* SetterStateHandler::emptyClone() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status FieldService::GetValue( grpc::ServerContext*        context,
-                                     const FieldRequest*         request,
-                                     GetterReply*                reply,
-                                     StateHandler<FieldRequest>* stateHandler )
+grpc::Status FieldService::GetValue( grpc::ServerContext*         context,
+                                     const FieldRequestT*         request,
+                                     GetterReplyT*                reply,
+                                     StateHandler<FieldRequestT>* stateHandler )
 {
     auto getterHandler = dynamic_cast<GetterStateHandler*>( stateHandler );
     CAF_ASSERT( getterHandler );
@@ -634,24 +456,10 @@ grpc::Status FieldService::GetValue( grpc::ServerContext*        context,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status FieldService::GetFloatValue( grpc::ServerContext*        context,
-                                     const FieldRequest*         request,
-                                     FloatArray*                 reply,
-                                     StateHandler<FieldRequest>* stateHandler )
-{
-    auto getterHandler = dynamic_cast<GetterStateHandler*>( stateHandler );
-    CAF_ASSERT( getterHandler );
-    return getterHandler->assignTypedReply( reply );
-}
-
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-grpc::Status FieldService::SetValue( grpc::ServerContext*       context,
-                                     const SetterChunk*         chunk,
-                                     SetterReply*               reply,
-                                     StateHandler<SetterChunk>* stateHandler )
+grpc::Status FieldService::SetValue( grpc::ServerContext*        context,
+                                     const SetterChunkT*         chunk,
+                                     SetterReplyT*               reply,
+                                     StateHandler<SetterChunkT>* stateHandler )
 {
     auto setterHandler = dynamic_cast<SetterStateHandler*>( stateHandler );
     CAF_ASSERT( setterHandler );
@@ -665,18 +473,14 @@ std::vector<AbstractCallback*> FieldService::registerCallbacks()
 {
     typedef FieldService Self;
     return {
-        new ServerToClientStreamCallback<Self, FieldRequest, GetterReply>( this,
-                                                                           &Self::GetValue,
-                                                                           &Self::RequestGetValue,
-                                                                           new GetterStateHandler ),
-        new ServerToClientStreamCallback<Self, FieldRequest, FloatArray>( this,
-                                                                           &Self::GetFloatValue,
-                                                                           &Self::RequestGetFloatValue,
-                                                                           new GetterStateHandler ),
-        new ClientToServerStreamCallback<Self, SetterChunk, SetterReply>( this,
-                                                                          &Self::SetValue,
-                                                                          &Self::RequestSetValue,
-                                                                          new SetterStateHandler ),
+        new ServerToClientStreamCallback<Self, FieldRequestT, GetterReplyT>( this,
+                                                                             &Self::GetValue,
+                                                                             &Self::RequestGetValue,
+                                                                             new GetterStateHandler ),
+        new ClientToServerStreamCallback<Self, SetterChunkT, SetterReplyT>( this,
+                                                                            &Self::SetValue,
+                                                                            &Self::RequestSetValue,
+                                                                            new SetterStateHandler ),
     };
 }
 

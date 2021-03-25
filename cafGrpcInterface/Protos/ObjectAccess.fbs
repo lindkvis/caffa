@@ -1,0 +1,11 @@
+// Generated from ObjectService.proto
+
+include "Object.fbs";
+
+namespace caf.rpc;
+
+rpc_service ObjectAccess
+{
+    GetDocument( DocumentRequest ): Object;
+    ExecuteMethod( MethodRequest ): Object;
+}

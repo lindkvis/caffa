@@ -39,9 +39,9 @@
 #include "cafGrpcServerApplication.h"
 
 #include "cafAbstractFieldScriptingCapability.h"
-#include "cafGrpcServerApplication.h"
 #include "cafField.h"
 #include "cafGrpcObjectClientCapability.h"
+#include "cafGrpcServerApplication.h"
 #include "cafObject.h"
 #include "cafObjectMethod.h"
 #include "cafObjectScriptingCapability.h"
@@ -60,15 +60,20 @@ namespace caf::rpc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const DocumentRequest* request, Object* reply )
+grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const DocumentRequestT* request, ObjectReply* reply )
 {
     std::cout << "Got document request" << std::endl;
-    PdmDocument* document = ServerApplication::instance()->document( request->document_id() );
+    auto docRequest = request->GetRoot();
+
+    PdmDocument* document = ServerApplication::instance()->document( docRequest->document_id()->str() );
     std::cout << "Found document" << std::endl;
     if ( document )
     {
         std::cout << "Copying document to gRPC data structure" << std::endl;
-        copyObjectFromCafToRpc( document, reply, true, false );
+        flatbuffers::grpc::MessageBuilder mb;
+
+        auto object = copyObjectFromCafToRpc( mb, document, true, false );
+        *reply      = mb.ReleaseMessage<Object>();
         return grpc::Status::OK;
     }
     return grpc::Status( grpc::NOT_FOUND, "Document not found" );
@@ -77,22 +82,29 @@ grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const Doc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, Object* reply )
+grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const MethodRequestT* request, ObjectReply* reply )
 {
-    const Object& self           = request->self();
-    auto          matchingObject = findCafObjectFromRpcObject( self );
+    auto methodRequest = request->GetRoot();
+    auto self          = methodRequest->self();
+
+    auto matchingObject = findCafObjectFromRpcObject( *self );
     if ( matchingObject )
     {
         std::shared_ptr<ObjectMethod> method =
-            ObjectMethodFactory::instance()->createMethod( matchingObject, request->method() );
+            ObjectMethodFactory::instance()->createMethod( matchingObject, methodRequest->method()->str() );
         if ( method )
         {
-            copyObjectFromRpcToCaf( &( request->params() ), method.get() );
+            auto params = methodRequest->params();
+            copyObjectFromRpcToCaf( params, method.get() );
 
             ObjectHandle* result = method->execute();
             if ( result )
             {
-                copyObjectFromCafToRpc( result, reply, true, true );
+                flatbuffers::grpc::MessageBuilder mb;
+
+                auto object = copyObjectFromCafToRpc( mb, result, true, false );
+                *reply      = mb.ReleaseMessage<Object>();
+
                 if ( !method->resultIsPersistent() )
                 {
                     delete result;
@@ -119,7 +131,7 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
 //--------------------------------------------------------------------------------------------------
 caf::Object* ObjectService::findCafObjectFromRpcObject( const Object& rpcObject )
 {
-    return findCafObjectFromScriptNameAndAddress( rpcObject.class_keyword(), rpcObject.address() );
+    return findCafObjectFromScriptNameAndAddress( rpcObject.class_keyword()->str(), rpcObject.address() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,33 +171,36 @@ caf::Object* ObjectService::findCafObjectFromScriptNameAndAddress( const std::st
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectService::copyObjectFromCafToRpc( const caf::ObjectHandle* source,
-                                            Object*                  destination,
-                                            bool                     copyContent /* = true */,
-                                            bool                     writeValues /* = true */ )
+flatbuffers::Offset<Object> ObjectService::copyObjectFromCafToRpc( flatbuffers::grpc::MessageBuilder& builder,
+                                                                   const caf::ObjectHandle*           source,
+                                                                   bool copyContent /* = true */,
+                                                                   bool writeValues /* = true */ )
 {
-    CAF_ASSERT( source && destination );
+    ObjectBuilder objectBuilder( builder );
+
+    CAF_ASSERT( source );
 
     auto ioCapability = source->capability<caf::ObjectIoCapability>();
     CAF_ASSERT( ioCapability );
 
-    destination->set_class_keyword( ioCapability->classKeyword() );
+    objectBuilder.add_class_keyword( builder.CreateString( ioCapability->classKeyword() ) );
     auto clientCapability = source->capability<caf::rpc::ObjectClientCapability>();
     if ( clientCapability )
     {
-        destination->set_address( clientCapability->addressOnServer() );
+        objectBuilder.add_address( clientCapability->addressOnServer() );
     }
     else
     {
-        destination->set_address( reinterpret_cast<uint64_t>( source ) );
+        objectBuilder.add_address( reinterpret_cast<uint64_t>( source ) );
     }
 
     if ( copyContent )
     {
         std::stringstream ss;
         caf::ObjectJsonCapability::writeFile( source, ss, true, writeValues );
-        destination->set_json( ss.str() );
+        objectBuilder.add_json( builder.CreateString( ss.str() ) );
     }
+    return objectBuilder.Finish();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -196,7 +211,7 @@ void ObjectService::copyObjectFromRpcToCaf( const Object* source, caf::ObjectHan
     CAF_ASSERT( source );
 
     auto              ioCapability = destination->capability<caf::ObjectIoCapability>();
-    std::stringstream str( source->json() );
+    std::stringstream str( source->json()->data() );
     ioCapability->readFile( str );
 
     auto clientCapability = destination->capability<caf::rpc::ObjectClientCapability>();
@@ -214,7 +229,7 @@ std::unique_ptr<caf::ObjectHandle> ObjectService::createCafObjectFromRpc( const 
 {
     CAF_ASSERT( source );
     std::unique_ptr<caf::ObjectHandle> destination(
-        caf::ObjectJsonCapability::readUnknownObjectFromString( source->json(), objectFactory, false ) );
+        caf::ObjectJsonCapability::readUnknownObjectFromString( source->json()->str(), objectFactory, false ) );
 
     return destination;
 }
@@ -226,8 +241,8 @@ std::vector<AbstractCallback*> ObjectService::registerCallbacks()
 {
     typedef ObjectService Self;
     return {
-        new UnaryCallback<Self, DocumentRequest, Object>( this, &Self::GetDocument, &Self::RequestGetDocument ),
-        new UnaryCallback<Self, MethodRequest, Object>( this, &Self::ExecuteMethod, &Self::RequestExecuteMethod ),
+        new UnaryCallback<Self, DocumentRequestT, ObjectReply>( this, &Self::GetDocument ),
+        new UnaryCallback<Self, MethodRequestT, ObjectReply>( this, &Self::ExecuteMethod ),
 
     };
 }

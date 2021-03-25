@@ -111,23 +111,20 @@ class UnaryCallback : public ServiceCallback<ServiceT, RequestT, ReplyT>
 public:
     using ResponseWriterT = grpc::ServerAsyncResponseWriter<ReplyT>;
     using MethodImplT     = std::function<grpc::Status( ServiceT&, grpc::ServerContext*, const RequestT*, ReplyT* )>;
-    using MethodRequestT  = std::function<
-        void( ServiceT&, grpc::ServerContext*, RequestT*, ResponseWriterT*, grpc::CompletionQueue*, grpc::ServerCompletionQueue*, void* )>;
 
-    UnaryCallback( ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest );
+    UnaryCallback( ServiceT* service, MethodImplT methodImpl );
 
     AbstractCallback* emptyClone() const override;
-    void              createRequestHandler( grpc::ServerCompletionQueue* completionQueue ) override;
+    void              createRequestHandler( grpc::ServerCompletionQueue*) override;
     void              onProcessRequest() override;
 
 protected:
     virtual std::string methodType() const override;
 
 private:
-    grpc::ServerContext m_context;
-    ResponseWriterT     m_responder;
-    MethodImplT         m_methodImpl;
-    MethodRequestT      m_methodRequest;
+    grpc::ServerContext          m_context;
+    ResponseWriterT              m_responder;
+    MethodImplT                  m_methodImpl;
 };
 
 /**

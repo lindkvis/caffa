@@ -1,0 +1,12 @@
+// Generated from FieldService.proto
+
+include "Field.fbs";
+include "Object.fbs";
+
+namespace caf.rpc;
+
+rpc_service FieldAccess
+{
+    SetValue( SetterChunk ): SetterReply (streaming: "client");
+    GetValue( FieldRequest ): GetterReply (streaming: "server");
+}

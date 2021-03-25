@@ -51,13 +51,17 @@ class Version;
 /**
  * Implementation of the App.proto-service
  */
-class AppService : public ServiceInterface, public App::AsyncService
+class AppService : public ServiceInterface, public App::Service
 {
+    using NullMessageT  = flatbuffers::grpc::Message<NullMessage>;
+    using AppInfoReplyT = flatbuffers::grpc::Message<AppInfoReply>;
+
 public:
-    grpc::Status Quit( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply ) override;
-    grpc::Status GetAppInfo( grpc::ServerContext* context, const NullMessage* request, AppInfoReply* reply ) override;
-    grpc::Status Ping(grpc::ServerContext* context, const NullMessage* request, NullMessage* reply) override;
+    grpc::Status Quit( grpc::ServerContext* context, const NullMessageT* request, NullMessageT* reply ) override;
+    grpc::Status GetAppInfo( grpc::ServerContext* context, const NullMessageT* request, AppInfoReplyT* reply ) override;
+    grpc::Status Ping( grpc::ServerContext* context, const NullMessageT* request, NullMessageT* reply ) override;
 
     std::vector<AbstractCallback*> registerCallbacks() override;
+    
 };
 } // namespace caf::rpc

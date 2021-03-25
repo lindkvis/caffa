@@ -115,12 +115,10 @@ ReplyT& ServiceCallback<ServiceT, RequestT, ReplyT>::reply()
 //--------------------------------------------------------------------------------------------------
 template <typename ServiceT, typename RequestT, typename ReplyT>
 UnaryCallback<ServiceT, RequestT, ReplyT>::UnaryCallback( ServiceT*      service,
-                                                          MethodImplT    methodImpl,
-                                                          MethodRequestT methodRequest )
+                                                          MethodImplT    methodImpl)
     : ServiceCallback<ServiceT, RequestT, ReplyT>( service )
     , m_responder( &m_context )
     , m_methodImpl( methodImpl )
-    , m_methodRequest( methodRequest )
 {
 }
 
@@ -130,17 +128,15 @@ UnaryCallback<ServiceT, RequestT, ReplyT>::UnaryCallback( ServiceT*      service
 template <typename ServiceT, typename RequestT, typename ReplyT>
 AbstractCallback* UnaryCallback<ServiceT, RequestT, ReplyT>::emptyClone() const
 {
-    return new UnaryCallback<ServiceT, RequestT, ReplyT>( this->m_service, this->m_methodImpl, this->m_methodRequest );
+    return new UnaryCallback<ServiceT, RequestT, ReplyT>( this->m_service, this->m_methodImpl);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename ServiceT, typename RequestT, typename ReplyT>
-void UnaryCallback<ServiceT, RequestT, ReplyT>::createRequestHandler( grpc::ServerCompletionQueue* completionQueue )
+void UnaryCallback<ServiceT, RequestT, ReplyT>::createRequestHandler( grpc::ServerCompletionQueue*)
 {
-    // The Request-method is where the service gets registered to respond to a given request.
-    m_methodRequest( *this->m_service, &m_context, &this->m_request, &m_responder, completionQueue, completionQueue, this );
     // Simple unary requests don't need initialisation, so proceed to process as soon as a request turns up.
     this->setNextCallState( AbstractCallback::PROCESS_REQUEST );
 }
