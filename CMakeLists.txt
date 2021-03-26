@@ -42,6 +42,9 @@ set(JSON_Coverage OFF)
 set(JSON_Install OFF)
 add_subdirectory (ThirdParty/json)
 add_subdirectory (ThirdParty/GSL)
+if (CAFFA_GRPC_INTERFACE)
+    add_subdirectory (ThirdParty/grpc)
+endif()
 
 #libraries
 add_subdirectory (cafProjectDataModel/cafPdmCore)

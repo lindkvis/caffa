@@ -1,12 +1,10 @@
-[submodule "ThirdParty/vcpkg"]
-	path = ThirdParty/vcpkg
-	url = https://github.com/microsoft/vcpkg.git
-[submodule "ThirdParty/PlatformFolders"]
-	path = ThirdParty/PlatformFolders
-	url = https://github.com/sago007/PlatformFolders.git
 [submodule "ThirdParty/json"]
 	path = ThirdParty/json
 	url = https://github.com/nlohmann/json.git
 [submodule "ThirdParty/GSL"]
 	path = ThirdParty/GSL
 	url = https://github.com/microsoft/GSL.git
+
+[submodule "ThirdParty/grpc"]
+	path = ThirdParty/grpc
+	url = https://github.com/grpc/grpc.git

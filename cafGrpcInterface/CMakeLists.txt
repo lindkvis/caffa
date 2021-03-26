@@ -2,16 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 
 project(cafGrpcInterface)
 
-option(CAFFA_GRPC_PYTHON "Generate Python Client Code" OFF)
-if (CAFFA_GRPC_PYTHON)
-  option(CAFFA_GRPC_PYTHON_DOWNLOAD "Download Grpc Python Modules" OFF)
-endif()
-
 message(STATUS "GRPC enabled")
-
-if(VCPKG_AUTO_INSTALL)
-  vcpkg_install(grpc protobuf)
-endif()
 
 add_definitions(-DENABLE_GRPC)
 
@@ -53,63 +44,13 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.cpp
     )
 
-find_package(Protobuf 3.0 CONFIG QUIET)
-
-if(Protobuf_FOUND)
-
-  # Find gRPC installation Looks for gRPCConfig.cmake file installed by gRPC's
-  # cmake installation.
-  find_package(gRPC CONFIG REQUIRED)
-
-  set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
-  set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
-
-  set(_GRPC_GRPCPP gRPC::grpc++ gRPC::grpc gRPC::gpr)
-  set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
-  set(GRPC_LINK_LIBRARIES ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
-
-  set_target_properties(
-    ${GRPC_LINK_LIBRARIES} PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
-                                 MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
-
-  set(CURRENT_GRPC_VERSION ${gRPC_VERSION})
-  set(CURRENT_PROTOBUF_VERSION ${Protobuf_VERSION})
-else()
-  if (PKG_CONFIG_PATH)
-    message("Setting environment before calling pkgconfig to: " ${PKG_CONFIG_PATH})
-    set(ENV{PKG_CONFIG_PATH} ${PKG_CONFIG_PATH})
-  endif()
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(GRPC REQUIRED grpc++>=1.16 grpc gpr
-                    protobuf NO_CMAKE_ENVIRONMENT_PATH)
-  if(EXISTS "${GRPC_protobuf_PREFIX}/bin/protoc")
-    set(_PROTOBUF_PROTOC "${GRPC_protobuf_PREFIX}/bin/protoc")
-    message("Using protoc: ${GRPC_protobuf_PREFIX}/bin/protoc")
-  else()
-    message(FATAL_ERROR "Could not find the protobuf compiler (protoc)")
-  endif()
-
-  if(EXISTS "${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
-    set(_GRPC_CPP_PLUGIN_EXECUTABLE
-        "${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
-    message("Using grpc_cpp_plugin: ${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
-  else()
-    message(FATAL_ERROR "Could not find the grpc_cpp_plugin")
-  endif()
-
-  include_directories(AFTER ${GRPC_INCLUDE_DIRS})
-
-  set(CURRENT_GRPC_VERSION ${GRPC_grpc++_VERSION})
-  set(CURRENT_PROTOBUF_VERSION ${GRPC_protobuf_VERSION})
-
-endif()
-
 message(STATUS "Using protobuf ${CURRENT_PROTOBUF_VERSION}")
 message(STATUS "Using gRPC ${CURRENT_GRPC_VERSION}")
 
 
 set(LINK_LIBRARIES
-    ${GRPC_LINK_LIBRARIES}
+    grpc++ grpc gpr grpc++_alts
+    protobuf
     Microsoft.GSL::GSL
     cafProjectDataModel
     cafPdmScriptCore
@@ -121,14 +62,6 @@ set(PROTO_FILES
     "FieldService"
     "ObjectService"
 )
-
-set(GRPC_PYTHON_SOURCE_PATH "${CMAKE_CURRENT_LIST_DIR}/Python")
-
-if (CAFFA_GRPC_PYTHON)
-  find_package(Python3 COMPONENTS Interpreter)
-endif()
-
-add_custom_target(PipInstall)
 
 foreach(proto_file ${PROTO_FILES})
   get_filename_component(
@@ -151,68 +84,12 @@ foreach(proto_file ${PROTO_FILES})
       --cpp_out "${CMAKE_BINARY_DIR}/Generated" -I "${caffa_proto_path}"
       --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}" "${caffa_proto}"
     DEPENDS "${caffa_proto}")
-
-  set(caffa_proto_python "caffa/generated/${proto_file}_pb2.py")
-  set(caffa_grpc_python "caffa/generated/${proto_file}_pb2_grpc.py")  
-
-  if(Python3_Interpreter_FOUND AND Python3_EXECUTABLE)
-    add_custom_command(
-      OUTPUT "${GRPC_PYTHON_SOURCE_PATH}/${caffa_proto_python}"
-             "${GRPC_PYTHON_SOURCE_PATH}/${caffa_grpc_python}"
-      COMMAND
-        ${Python3_EXECUTABLE} ARGS -m grpc_tools.protoc -I
-        "${caffa_proto_path}" --python_out
-        "${GRPC_PYTHON_SOURCE_PATH}/caffa/generated" --grpc_python_out
-        "${GRPC_PYTHON_SOURCE_PATH}/caffa/generated" "${caffa_proto}"
-      DEPENDS "${caffa_proto}"
-      COMMENT "Generating ${caffa_proto_python} and ${caffa_grpc_python}"
-      VERBATIM)
-    list(APPEND GRPC_PYTHON_GENERATED_SOURCES ${caffa_proto_python}
-         ${caffa_grpc_python})
-  endif()
-
   list(APPEND GRPC_HEADER_FILES ${caffa_proto_hdrs} ${caffa_grpc_hdrs})
   list(APPEND GRPC_CPP_SOURCES ${caffa_proto_srcs} ${caffa_grpc_srcs})  
 endforeach(proto_file)
 
-if (Python3_Interpreter_FOUND)
-  configure_file(${GRPC_PYTHON_SOURCE_PATH}/setup.py.cmake
-                 ${GRPC_PYTHON_SOURCE_PATH}/setup.py)
-else()
-    message(
-        STATUS
-        "Python3 not found. Will not install Python client code"
-    )
-endif()
-
 message(STATUS "Configuring Java gradle build file")
 configure_file("${CMAKE_CURRENT_LIST_DIR}/Java/build.gradle.cmake" "${CMAKE_CURRENT_LIST_DIR}/Java/build.gradle")
-
-list(
-  APPEND
-  GRPC_PYTHON_SOURCES
-  "caffa/__init__.py"
-  "caffa/app.py"
-  "caffa/pdmobject.py"
-  "caffa/PythonExamples/app_example.py"
-  "caffa/PythonExamples/pdm_object_example.py"
-  "caffa/tests/test_app.py"
-  "caffa/tests/test_pdm_object.py"
-  "caffa/tests/conftest.py"
-  "requirements.txt"
-  "setup.py"
-  "README.md"
-  "LICENSE")
-
-list(APPEND GRPC_PYTHON_SOURCES ${GRPC_PYTHON_GENERATED_SOURCES})
-
-if(Python3_Interpreter_FOUND)
-  foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
-    list(APPEND GRPC_PYTHON_SOURCES_FULL_PATH
-         "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
-  endforeach()
-endif()
-
 
 if (CAFFA_BUILD_SHARED)
     message(STATUS "Building ${PROJECT_NAME} shared")
@@ -248,37 +125,7 @@ else()
                                                    "-Wno-overloaded-virtual")
 endif()
 
-# install gRPC Python files
-if(Python3_EXECUTABLE AND CAFFA_GRPC_PYTHON_DOWNLOAD)
-  message(STATUS "Installing Python modules")
-  add_custom_command(
-    TARGET PipInstall
-    COMMAND ${Python3_EXECUTABLE} ARGS -m pip install --upgrade
-            pip
-    COMMAND ${Python3_EXECUTABLE} ARGS -m pip install --user
-            wheel setuptools pytest
-    COMMAND ${Python3_EXECUTABLE} ARGS -m pip install --user
-            grpcio-tools)
-endif()
-
-if(Python3_EXECUTABLE)
-  add_custom_target(GeneratedPythonSources ALL
-                    DEPENDS ${GRPC_PYTHON_SOURCES_FULL_PATH})
-  add_dependencies(${PROJECT_NAME} GeneratedPythonSources)
-
-  if(CAFFA_GRPC_PYTHON_DOWNLOAD)
-    add_dependencies(${PROJECT_NAME} PipInstall)
-    add_dependencies(GeneratedPythonSources PipInstall)
-  endif()
-endif()
-
 source_group("Protos" FILES ${GRPC_PROTO_FILES_FULL_PATH})
-if(Python3_EXECUTABLE)
-  source_group(
-    TREE ${GRPC_PYTHON_SOURCE_PATH}
-    FILES ${GRPC_PYTHON_SOURCES_FULL_PATH}
-    PREFIX "Python")
-endif()
 
 install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
