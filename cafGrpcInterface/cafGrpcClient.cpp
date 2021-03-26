@@ -50,7 +50,6 @@
 #include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
-#include <google/protobuf/empty.pb.h>
 
 #include <iostream>
 #include <memory>
@@ -75,7 +74,7 @@ public:
     {
         caf::rpc::AppInfoReply reply;
         grpc::ClientContext    context;
-        NullMessage         nullarg;
+        NullMessage            nullarg;
         auto                   status  = m_appInfoStub->GetAppInfo( &context, nullarg, &reply );
         caf::AppInfo           appInfo = { reply.name(),
                                  reply.major_version(),
@@ -94,7 +93,7 @@ public:
         request.set_document_id( documentId );
         caf::rpc::Object objectReply;
         std::cout << "Calling GetDocument()" << std::endl;
-        auto             status = m_objectStub->GetDocument( &context, request, &objectReply );
+        auto status = m_objectStub->GetDocument( &context, request, &objectReply );
         if ( status.ok() )
         {
             std::cout << "Got document" << std::endl;
@@ -138,7 +137,7 @@ public:
     bool stopServer() const
     {
         grpc::ClientContext context;
-        NullMessage      nullarg, nullreply;
+        NullMessage         nullarg, nullreply;
         auto                status = m_appInfoStub->Quit( &context, nullarg, &nullreply );
         return status.ok();
     }
@@ -444,14 +443,14 @@ public:
         }
 
         auto   end_time       = std::chrono::system_clock::now();
-        auto duration   = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
+        auto   duration       = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
         size_t numberOfFloats = values.size();
-        size_t MB = numberOfFloats * sizeof(float) / (1024u * 1024u);
-        std::cout << "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" << std::endl;        
+        size_t MB             = numberOfFloats * sizeof( float ) / ( 1024u * 1024u );
+        std::cout << "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" << std::endl;
         std::cout << "Time spent: " << duration << "ms" << std::endl;
 
         grpc::Status status = reader->Finish();
-        if (!status.ok()) std::cout << status.error_code() << ", " << status.error_message() << std::endl;
+        if ( !status.ok() ) std::cout << status.error_code() << ", " << status.error_message() << std::endl;
         CAF_ASSERT( status.ok() );
         return values;
     }
@@ -580,8 +579,8 @@ void caf::rpc::Client::set( const caf::ObjectHandle*   objectHandle,
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-void caf::rpc::Client::set( const caf::ObjectHandle*   objectHandle,
-                            const std::string&         fieldName,
+void caf::rpc::Client::set( const caf::ObjectHandle*  objectHandle,
+                            const std::string&        fieldName,
                             const std::vector<float>& value )
 {
     m_clientImpl->set( objectHandle, fieldName, value );
@@ -621,8 +620,7 @@ std::vector<double>
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-std::vector<float>
-    Client::get<std::vector<float>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
+std::vector<float> Client::get<std::vector<float>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     return m_clientImpl->getFloats( objectHandle, fieldName );
 }
