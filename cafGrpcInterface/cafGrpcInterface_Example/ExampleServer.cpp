@@ -24,7 +24,6 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <random>
 #include <string>
 
 class ServerApp : public caf::rpc::ServerApplication
@@ -70,31 +69,29 @@ private:
 //--------------------------------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-    int  portNumber = argc >= 2 ? std::atoi(argv[1]) : 55555;
+    int  portNumber = argc >= 2 ? std::atoi( argv[1] ) : 55555;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    if (argc >= 3)
+    if ( argc >= 3 )
     {
-        int packageByteSize = std::atoi(argv[2]);
-        serverApp->setPackageByteSize((size_t) packageByteSize);
+        int packageByteSize = std::atoi( argv[2] );
+        serverApp->setPackageByteSize( (size_t)packageByteSize );
         std::cout << "Using package size " << packageByteSize << " B" << std::endl;
     }
 
     std::cout << "Launching Server listening on port " << portNumber << std::endl;
 
-
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
- 
+
     std::vector<float> serverVector;
-    std::mt19937       rng;
     size_t             numberOfFloats = 1024u * 1024u * 4;
     serverVector.reserve( numberOfFloats );
-    for (size_t i = 0; i < numberOfFloats; ++i)
+    for ( size_t i = 0; i < numberOfFloats; ++i )
     {
-        serverVector.push_back( (float) rng() );
+        serverVector.push_back( (float)i );
     }
 
-    serverDocument->m_demoObject->setIntVector({42});
+    serverDocument->m_demoObject->setIntVector( { 42 } );
     serverDocument->m_demoObject->setFloatVector( serverVector );
     std::cout << "Running server thread" << std::endl;
     serverApp->run();
