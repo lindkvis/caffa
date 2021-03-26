@@ -47,10 +47,12 @@ set(SOURCE_GROUP_SOURCE_FILES
 message(STATUS "Using protobuf ${CURRENT_PROTOBUF_VERSION}")
 message(STATUS "Using gRPC ${CURRENT_GRPC_VERSION}")
 
+set(CAFFA_PROTOC $<TARGET_FILE:protoc> CACHE FILEPATH "Path to Protobuffer compiler which works on the build machine architecture")
+set(CAFFA_GRPC_CPP_PLUGIN $<TARGET_FILE:grpc_cpp_plugin> CACHE FILEPATH "Path to GRPC protobuf c++ plugin which works on the build machine architecture")
 
 set(LINK_LIBRARIES
     grpc++ grpc gpr grpc++_alts
-    protobuf
+    libprotobuf
     Microsoft.GSL::GSL
     cafProjectDataModel
     cafPdmScriptCore
@@ -80,10 +82,11 @@ foreach(proto_file ${PROTO_FILES})
     OUTPUT "${caffa_proto_srcs}" "${caffa_proto_hdrs}" "${caffa_grpc_srcs}"
            "${caffa_grpc_hdrs}"
     COMMAND
-      ${_PROTOBUF_PROTOC} ARGS --grpc_out "${CMAKE_BINARY_DIR}/Generated"
+      ${CAFFA_PROTOC} ARGS --grpc_out "${CMAKE_BINARY_DIR}/Generated"
       --cpp_out "${CMAKE_BINARY_DIR}/Generated" -I "${caffa_proto_path}"
-      --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}" "${caffa_proto}"
-    DEPENDS "${caffa_proto}")
+      --plugin=protoc-gen-grpc=${CAFFA_GRPC_CPP_PLUGIN} "${caffa_proto}"
+    DEPENDS "${caffa_proto}"
+    )
   list(APPEND GRPC_HEADER_FILES ${caffa_proto_hdrs} ${caffa_grpc_hdrs})
   list(APPEND GRPC_CPP_SOURCES ${caffa_proto_srcs} ${caffa_grpc_srcs})  
 endforeach(proto_file)

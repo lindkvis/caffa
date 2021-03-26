@@ -54,9 +54,9 @@ class Version;
 class AppService : public ServiceInterface, public App::AsyncService
 {
 public:
-    grpc::Status Quit( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply ) override;
-    grpc::Status GetAppInfo( grpc::ServerContext* context, const NullMessage* request, AppInfoReply* reply ) override;
-    grpc::Status Ping(grpc::ServerContext* context, const NullMessage* request, NullMessage* reply) override;
+    grpc::Status PerformQuit( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply );
+    grpc::Status PerformGetAppInfo( grpc::ServerContext* context, const NullMessage* request, AppInfoReply* reply );
+    grpc::Status PerformPing( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply );
 
     std::vector<AbstractCallback*> registerCallbacks() override;
 };
