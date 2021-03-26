@@ -21,24 +21,14 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Run vcpkg
-        uses: lukka/run-vcpkg@v6
-        with:
-          # Just install vcpkg for now, do not install any ports in this step yet.
-          setupOnly: true
-          # Location of the vcpkg as submodule of the repository.
-          vcpkgDirectory: '${{ github.workspace }}/ThirdParty/vcpkg'
-          appendedCacheKey: ${{ hashFiles( '**/vcpkg.json' ) }}
-          vcpkgTriplet: ${{ matrix.triplet }}
       - name: Build Caffa with Unit Tests
         uses: lukka/run-cmake@v3
         with:
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
           cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-          cmakeAppendedArgs: '-DCAFFA_GRPC_INTERFACE=ON -DVCPKG_AUTO_INSTALL=ON'
+          cmakeAppendedArgs: '-DCAFFA_GRPC_INTERFACE=ON -DCAFFA_BUILD_UNIT_TESTS=ON'
           buildDirectory: ${{ github.workspace }}/cmakebuild
           buildWithCMakeArgs: '--config Release'
-          useVcpkgToolchainFile: true
       - name: Run Unit Tests Linux/MacOS
         if: "!contains( matrix.os, 'windows')"
         shell: bash

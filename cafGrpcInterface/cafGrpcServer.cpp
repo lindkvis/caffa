@@ -43,6 +43,7 @@
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
 
+#include <condition_variable>
 #include <thread>
 
 using grpc::CompletionQueue;
@@ -52,6 +53,8 @@ using grpc::ServerBuilder;
 using grpc::ServerCompletionQueue;
 using grpc::ServerContext;
 using grpc::Status;
+
+using namespace std::chrono_literals;
 
 namespace caf::rpc
 {
@@ -71,7 +74,13 @@ public:
 
     ~ServerImpl() { forceQuit(); }
 
-    void run() { m_thread = std::thread( &ServerImpl::initializeAndWaitForNextRequest, this ); }
+    void run()
+    {
+        m_thread           = std::thread( &ServerImpl::initializeAndWaitForNextRequest, this );
+        m_processingThread = std::thread( &ServerImpl::processAllRequests, this );
+        m_thread.join();
+        m_processingThread.join();
+    }
 
     void quit()
     {
@@ -162,20 +171,31 @@ public:
 
     size_t processAllRequests()
     {
-        std::list<AbstractCallback*> waitingRequests;
+        size_t count = 0u;
+        while ( !quitting() )
         {
-            // Block only while transferring the unprocessed requests to a local function list
-            std::lock_guard<std::mutex> requestLock( m_requestMutex );
-            waitingRequests.swap( m_queuedRequests );
-        }
-        size_t count = waitingRequests.size();
+            std::unique_lock<std::mutex> processingLock( m_processingMutex );
+            auto                         now = std::chrono::system_clock::now();
+            while (
+                m_processingGuard.wait_until( processingLock, now + 1ms, [this]() { return !m_queuedRequests.empty(); } ) )
+            {
+                std::list<AbstractCallback*> waitingRequests;
+                {
+                    // Block only while transferring the unprocessed requests to a local function list
+                    std::lock_guard<std::mutex> requestLock( m_requestMutex );
 
-        // Now free to receive new requests from client while processing the current ones.
-        while ( !waitingRequests.empty() )
-        {
-            AbstractCallback* method = waitingRequests.front();
-            waitingRequests.pop_front();
-            process( method );
+                    waitingRequests.swap( m_queuedRequests );
+                }
+                count = waitingRequests.size();
+
+                // Now free to receive new requests from client while processing the current ones.
+                while ( !waitingRequests.empty() )
+                {
+                    AbstractCallback* method = waitingRequests.front();
+                    waitingRequests.pop_front();
+                    process( method );
+                }
+            }
         }
         return count;
     }
@@ -186,8 +206,9 @@ private:
         void* tag;
         bool  ok = false;
         {
-            std::lock_guard<std::mutex> requestLock( m_appStateMutex );
+            std::lock_guard<std::mutex> requestLock( m_requestMutex );
         }
+
         while ( m_completionQueue->Next( &tag, &ok ) )
         {
             std::lock_guard<std::mutex> requestLock( m_requestMutex );
@@ -197,6 +218,7 @@ private:
                 method->setNextCallState( AbstractCallback::FINISH_REQUEST );
             }
             m_queuedRequests.push_back( method );
+            m_processingGuard.notify_one();
         }
     }
 
@@ -235,6 +257,10 @@ private:
     std::mutex                                   m_requestMutex;
     mutable std::mutex                           m_appStateMutex;
     std::thread                                  m_thread;
+    std::thread                                  m_processingThread;
+
+    std::mutex              m_processingMutex;
+    std::condition_variable m_processingGuard;
 
     bool m_receivedQuitRequest;
 };
