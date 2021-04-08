@@ -16,7 +16,7 @@ endif()
 
 option(CAFFA_GRPC_INTERFACE "Enable the gRPC interface to the Project Data Model" OFF)
 if (CAFFA_GRPC_INTERFACE)
-    option(CAFFA_GRPC_INTERFACE_SUBMODULE "Use gRPC as a sub module" OFF)
+    option(CAFFA_GRPC_INTERFACE_SUBMODULE "Use gRPC as a sub module" ON)
 endif()
 option(CAFFA_WEB_DEPLOYMENT "Turn this on to build for web deployment with the Web Toolkit" OFF)
 option(CAFFA_DESKTOP_DEPLOYMENT "Turn this on to build for desktop deployment with the Qt Toolkit" OFF)
