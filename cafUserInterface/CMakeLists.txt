@@ -28,8 +28,6 @@ qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
 find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 
-find_package(nlohmann_json CONFIG REQUIRED)
-
 set( PROJECT_FILES
     # field editors
     cafUiFieldEditorHandle.h

@@ -40,11 +40,11 @@
 
 #include "cafAbstractFieldScriptingCapability.h"
 #include "cafField.h"
+#include "cafFieldProxyAccessor.h"
 #include "cafGrpcApplication.h"
 #include "cafGrpcObjectService.h"
 #include "cafObject.h"
 #include "cafPdmScriptIOMessages.h"
-#include "cafProxyValueField.h"
 
 #include <grpcpp/grpcpp.h>
 
@@ -117,13 +117,8 @@ size_t DataHolder<std::vector<int>>::getValuesFromChunk( size_t startIndex, cons
 template <>
 void DataHolder<std::vector<int>>::applyValuesToField( ValueField* field )
 {
-    auto proxyValueField = dynamic_cast<ProxyValueField<std::vector<int>>*>( field );
-    auto dataValueField  = dynamic_cast<Field<std::vector<int>>*>( field );
-    if ( proxyValueField )
-    {
-        proxyValueField->setValue( data );
-    }
-    else if ( dataValueField )
+    auto dataValueField = dynamic_cast<Field<std::vector<int>>*>( field );
+    if ( dataValueField )
     {
         dataValueField->setValueWithFieldChanged( data );
     }
@@ -173,13 +168,8 @@ size_t DataHolder<std::vector<double>>::getValuesFromChunk( size_t startIndex, c
 template <>
 void DataHolder<std::vector<double>>::applyValuesToField( ValueField* field )
 {
-    auto proxyValueField = dynamic_cast<ProxyValueField<std::vector<double>>*>( field );
-    auto dataValueField  = dynamic_cast<Field<std::vector<double>>*>( field );
-    if ( proxyValueField )
-    {
-        proxyValueField->setValue( data );
-    }
-    else if ( dataValueField )
+    auto dataValueField = dynamic_cast<Field<std::vector<double>>*>( field );
+    if ( dataValueField )
     {
         dataValueField->setValueWithFieldChanged( data );
     }
@@ -230,13 +220,8 @@ size_t DataHolder<std::vector<float>>::getValuesFromChunk( size_t startIndex, co
 template <>
 void DataHolder<std::vector<float>>::applyValuesToField( ValueField* field )
 {
-    auto proxyValueField = dynamic_cast<ProxyValueField<std::vector<float>>*>( field );
-    auto dataValueField  = dynamic_cast<Field<std::vector<float>>*>( field );
-    if ( proxyValueField )
-    {
-        proxyValueField->setValue( data );
-    }
-    else if ( dataValueField )
+    auto dataValueField = dynamic_cast<Field<std::vector<float>>*>( field );
+    if ( dataValueField )
     {
         dataValueField->setValueWithFieldChanged( data );
     }
@@ -288,13 +273,8 @@ size_t DataHolder<std::vector<std::string>>::getValuesFromChunk( size_t startInd
 template <>
 void DataHolder<std::vector<std::string>>::applyValuesToField( ValueField* field )
 {
-    auto proxyValueField = dynamic_cast<ProxyValueField<std::vector<std::string>>*>( field );
-    auto dataValueField  = dynamic_cast<Field<std::vector<std::string>>*>( field );
-    if ( proxyValueField )
-    {
-        proxyValueField->setValue( data );
-    }
-    else if ( dataValueField )
+    auto dataValueField = dynamic_cast<Field<std::vector<std::string>>*>( field );
+    if ( dataValueField )
     {
         dataValueField->setValueWithFieldChanged( data );
     }

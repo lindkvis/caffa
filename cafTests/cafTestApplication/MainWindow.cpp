@@ -11,12 +11,12 @@
 
 #include "cafAppEnum.h"
 
+#include "cafFieldProxyAccessor.h"
 #include "cafFieldUiCapability.h"
 #include "cafObject.h"
 #include "cafObjectGroup.h"
 #include "cafPdmDocument.h"
 #include "cafPdmReferenceHelper.h"
-#include "cafProxyValueField.h"
 #include "cafPtrField.h"
 #include "cafQActionWrapper.h"
 #include "cafSelectionManager.h"
@@ -135,15 +135,14 @@ public:
                       "Text tooltip",
                       "This is a place you can enter a small integer value if you want");
 
-        m_proxyDoubleField.registerSetMethod(this, &SmallDemoObject::setDoubleMember);
-        m_proxyDoubleField.registerGetMethod(this, &SmallDemoObject::doubleMember);
         CAF_InitFieldNoDefault(&m_proxyDoubleField, "ProxyDouble", "Proxy Double", "", "", "");
+        auto proxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
+        proxyAccessor->registerSetMethod(this, &SmallDemoObject::setDoubleMember);
+        proxyAccessor->registerGetMethod(this, &SmallDemoObject::doubleMember);
+        m_proxyDoubleField.setFieldDataAccessor(std::move(proxyAccessor));
 
-        CAF_InitFieldNoDefault(&m_fileNameList, "FileNameList", "File Name List", "", "", "");
-        m_fileNameList.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
-
-        m_proxyDoubleField = 0;
-        if (!(m_proxyDoubleField == 3))
+        m_proxyDoubleField = 0.0;
+        if (!(m_proxyDoubleField == 3.0))
         {
             qDebug() << "Double is not 3 ";
         }
@@ -154,16 +153,14 @@ public:
         m_multiSelectList.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
             caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
 
-        m_multiSelectList.v().push_back("First");
-        m_multiSelectList.v().push_back("Second");
-        m_multiSelectList.v().push_back("Third");
+        m_multiSelectList = {"First", "Second", "Third"};
     }
 
     caf::Field<double>      m_doubleField;
     caf::Field<int>         m_intField;
     caf::Field<std::string> m_textField;
 
-    caf::ProxyValueField<double>                   m_proxyDoubleField;
+    caf::Field<double> m_proxyDoubleField;
 
     caf::Field<std::vector<std::string>> m_multiSelectList;
 
@@ -693,8 +690,11 @@ public:
         CAF_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "", "");
 
         CAF_InitFieldNoDefault(&m_proxyEnumField, "ProxyEnumValue", "ProxyEnum", "", "", "");
-        m_proxyEnumField.registerSetMethod(this, &SmallDemoObjectA::setEnumMember);
-        m_proxyEnumField.registerGetMethod(this, &SmallDemoObjectA::enumMember);
+        auto enumProxyAccessor = std::make_unique<caf::FieldProxyAccessor<caf::AppEnum<TestEnumType>>>();
+
+        enumProxyAccessor->registerSetMethod(this, &SmallDemoObjectA::setEnumMember);
+        enumProxyAccessor->registerGetMethod(this, &SmallDemoObjectA::enumMember);
+        m_proxyEnumField.setFieldDataAccessor(std::move(enumProxyAccessor));
         m_proxyEnumMember = T2;
 
         m_testEnumField.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
@@ -712,8 +712,8 @@ public:
     caf::Field<caf::AppEnum<TestEnumType>> m_testEnumField;
     caf::PtrField<SmallDemoObjectA*>       m_ptrField;
 
-    caf::ProxyValueField<caf::AppEnum<TestEnumType>> m_proxyEnumField;
-    void                                             setEnumMember(const caf::AppEnum<TestEnumType>& val)
+    caf::DataValueField<caf::AppEnum<TestEnumType>> m_proxyEnumField;
+    void                                            setEnumMember(const caf::AppEnum<TestEnumType>& val)
     {
         m_proxyEnumMember = val.value();
     }

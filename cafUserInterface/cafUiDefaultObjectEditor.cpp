@@ -37,11 +37,10 @@
 #include "cafUiDefaultObjectEditor.h"
 
 #include "cafField.h"
-#include "cafProxyValueField.h"
+#include "cafFieldProxyAccessor.h"
 #include "cafUiCheckBoxEditor.h"
 #include "cafUiDateEditor.h"
 #include "cafUiFieldEditorHandle.h"
-#include "cafUiFilePathEditor.h"
 #include "cafUiLineEditor.h"
 #include "cafUiListEditor.h"
 #include "cafUiTimeEditor.h"

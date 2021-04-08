@@ -11,12 +11,12 @@
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafField.h"
+#include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafObjectHandle.h"
 #include "cafObjectScriptingCapability.h"
 #include "cafPdmDocument.h"
 #include "cafPdmReferenceHelper.h"
-#include "cafProxyValueField.h"
 #include "cafPtrField.h"
 #include "cafValueField.h"
 
@@ -38,24 +38,35 @@ public:
         CAF_InitScriptableFieldNoDefault( &m_proxyIntField, "proxyIntField", "", "", "", "" );
         CAF_InitScriptableFieldNoDefault( &m_proxyStringField, "proxyStringField", "", "", "", "" );
 
-        m_proxyDoubleField.registerSetMethod( this, &DemoObject::setDoubleMember );
-        m_proxyDoubleField.registerGetMethod( this, &DemoObject::doubleMember );
+        auto doubleProxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
+        doubleProxyAccessor->registerSetMethod( this, &DemoObject::setDoubleMember );
+        doubleProxyAccessor->registerGetMethod( this, &DemoObject::doubleMember );
+        m_proxyDoubleField.setFieldDataAccessor( std::move( doubleProxyAccessor ) );
 
-        m_proxyIntField.registerSetMethod( this, &DemoObject::setIntMember );
-        m_proxyIntField.registerGetMethod( this, &DemoObject::intMember );
+        auto intProxyAccessor = std::make_unique<caf::FieldProxyAccessor<int>>();
+        intProxyAccessor->registerSetMethod( this, &DemoObject::setIntMember );
+        intProxyAccessor->registerGetMethod( this, &DemoObject::intMember );
+        m_proxyIntField.setFieldDataAccessor( std::move( intProxyAccessor ) );
 
-        m_proxyStringField.registerSetMethod( this, &DemoObject::setStringMember );
-        m_proxyStringField.registerGetMethod( this, &DemoObject::stringMember );
+        auto stringProxyAccessor = std::make_unique<caf::FieldProxyAccessor<std::string>>();
+        stringProxyAccessor->registerSetMethod( this, &DemoObject::setStringMember );
+        stringProxyAccessor->registerGetMethod( this, &DemoObject::stringMember );
+        m_proxyStringField.setFieldDataAccessor( std::move( stringProxyAccessor ) );
 
         CAF_InitScriptableFieldNoDefault( &m_doubleVector, "doubleVector", "", "", "", "" );
         CAF_InitScriptableFieldNoDefault( &m_floatVector, "floatVector", "", "", "", "" );
         CAF_InitScriptableFieldNoDefault( &m_intVectorProxy, "proxyIntVector", "", "", "", "" );
         CAF_InitScriptableFieldNoDefault( &m_stringVectorProxy, "proxyStringVector", "", "", "", "" );
 
-        m_intVectorProxy.registerGetMethod( this, &DemoObject::getIntVector );
-        m_intVectorProxy.registerSetMethod( this, &DemoObject::setIntVector );
-        m_stringVectorProxy.registerGetMethod( this, &DemoObject::getStringVector );
-        m_stringVectorProxy.registerSetMethod( this, &DemoObject::setStringVector );
+        auto intVectorProxyAccessor = std::make_unique<caf::FieldProxyAccessor<std::vector<int>>>();
+        intVectorProxyAccessor->registerSetMethod( this, &DemoObject::setIntVector );
+        intVectorProxyAccessor->registerGetMethod( this, &DemoObject::getIntVector );
+        m_intVectorProxy.setFieldDataAccessor( std::move( intVectorProxyAccessor ) );
+
+        auto stringVectorProxyAccessor = std::make_unique<caf::FieldProxyAccessor<std::vector<std::string>>>();
+        stringVectorProxyAccessor->registerSetMethod( this, &DemoObject::setStringVector );
+        stringVectorProxyAccessor->registerGetMethod( this, &DemoObject::getStringVector );
+        m_stringVectorProxy.setFieldDataAccessor( std::move( stringVectorProxyAccessor ) );
 
         this->addField( &m_memberDoubleField, "m_memberDoubleField" );
         this->addField( &m_memberIntField, "m_memberIntField" );
@@ -71,19 +82,19 @@ public:
         m_memberStringField = "";
     }
 
-    ~DemoObject() {}
+    ~DemoObject() override {}
 
     // Fields
-    caf::ProxyValueField<double>      m_proxyDoubleField;
-    caf::ProxyValueField<int>         m_proxyIntField;
-    caf::ProxyValueField<std::string> m_proxyStringField;
+    caf::Field<double>      m_proxyDoubleField;
+    caf::Field<int>         m_proxyIntField;
+    caf::Field<std::string> m_proxyStringField;
 
     caf::Field<double>      m_memberDoubleField;
     caf::Field<int>         m_memberIntField;
     caf::Field<std::string> m_memberStringField;
 
-    caf::ProxyValueField<std::vector<int>>         m_intVectorProxy;
-    caf::ProxyValueField<std::vector<std::string>> m_stringVectorProxy;
+    caf::Field<std::vector<int>>         m_intVectorProxy;
+    caf::Field<std::vector<std::string>> m_stringVectorProxy;
 
     caf::Field<std::vector<double>> m_doubleVector;
     caf::Field<std::vector<float>>  m_floatVector;
@@ -185,7 +196,6 @@ public:
         this->addField( &m_texts, "Texts" );
         this->addField( &m_childArrayField, "DemoObjectects" );
         this->addField( &m_ptrField, "m_ptrField" );
-
     }
 
     caf::Field<std::string>           m_texts;
@@ -645,13 +655,13 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
     ASSERT_TRUE( clientDocument != nullptr );
 
     {
-        serverDocument->m_demoObject->setFloatVector({42.0f});
-        auto start_time = std::chrono::system_clock::now();
-        auto clientVector    = clientDocument->m_demoObject->getFloatVector();
-        auto end_time   = std::chrono::system_clock::now();
-        auto duration   = std::chrono::duration_cast<std::chrono::microseconds>( end_time - start_time ).count();
-        std::cout << "Getting single float vector took " << duration << "µs" << std::endl;        
-        ASSERT_EQ(serverDocument->m_demoObject->getFloatVector(), clientDocument->m_demoObject->getFloatVector());
+        serverDocument->m_demoObject->setFloatVector( { 42.0f } );
+        auto start_time   = std::chrono::system_clock::now();
+        auto clientVector = clientDocument->m_demoObject->getFloatVector();
+        auto end_time     = std::chrono::system_clock::now();
+        auto duration     = std::chrono::duration_cast<std::chrono::microseconds>( end_time - start_time ).count();
+        std::cout << "Getting single float vector took " << duration << "µs" << std::endl;
+        ASSERT_EQ( serverDocument->m_demoObject->getFloatVector(), clientDocument->m_demoObject->getFloatVector() );
     }
 
     std::vector<float> serverVector;
@@ -666,16 +676,16 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
     serverDocument->m_demoObject->setFloatVector( serverVector );
 
     {
-        auto start_time = std::chrono::system_clock::now();
-        auto clientVector    = clientDocument->m_demoObject->getFloatVector();
-        auto end_time   = std::chrono::system_clock::now();
-        auto duration   = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
-        size_t MB = numberOfFloats * sizeof(float) / (1024u * 1024u);
-        std::cout << "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" << std::endl;        
+        auto   start_time   = std::chrono::system_clock::now();
+        auto   clientVector = clientDocument->m_demoObject->getFloatVector();
+        auto   end_time     = std::chrono::system_clock::now();
+        auto   duration     = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
+        size_t MB           = numberOfFloats * sizeof( float ) / ( 1024u * 1024u );
+        std::cout << "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" << std::endl;
         std::cout << "Time spent: " << duration << "ms" << std::endl;
         double fps = static_cast<float>( numberOfFloats ) / static_cast<float>( duration ) * 1000;
         std::cout << "floats per second: " << fps << std::endl;
-        std::cout << "MB per second: " << static_cast<float>(MB) / static_cast<float>(duration) * 1000 << std::endl;
+        std::cout << "MB per second: " << static_cast<float>( MB ) / static_cast<float>( duration ) * 1000 << std::endl;
     }
 
     bool ok = client->stopServer();

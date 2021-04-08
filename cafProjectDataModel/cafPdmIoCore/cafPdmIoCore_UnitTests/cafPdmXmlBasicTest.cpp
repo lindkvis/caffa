@@ -8,11 +8,11 @@
 #include "cafDataValueField.h"
 #include "cafFieldIoCapability.h"
 #include "cafFieldIoCapabilitySpecializations.h"
+#include "cafFieldProxyAccessor.h"
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
 #include "cafPdmReferenceHelper.h"
-#include "cafProxyValueField.h"
 #include "cafPtrField.h"
 
 class DemoObject : public caf::ObjectHandle, public caf::ObjectIoCapability
@@ -32,12 +32,18 @@ public:
         , ObjectIoCapability( this, false )
     {
         CAF_PDM_IO_InitField( &m_proxyDoubleField, "BigNumber" );
-        m_proxyDoubleField.registerSetMethod( this, &DemoObject::setDoubleMember );
-        m_proxyDoubleField.registerGetMethod( this, &DemoObject::doubleMember );
+
+        auto doubleProxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
+        doubleProxyAccessor->registerSetMethod( this, &DemoObject::setDoubleMember );
+        doubleProxyAccessor->registerGetMethod( this, &DemoObject::doubleMember );
+        m_proxyDoubleField.setFieldDataAccessor( std::move( doubleProxyAccessor ) );
 
         CAF_PDM_IO_InitField( &m_proxyEnumField, "AppEnum" );
-        m_proxyEnumField.registerSetMethod( this, &DemoObject::setEnumMember );
-        m_proxyEnumField.registerGetMethod( this, &DemoObject::enumMember );
+        auto proxyEnumAccessor = std::make_unique<caf::FieldProxyAccessor<caf::AppEnum<TestEnumType>>>();
+        proxyEnumAccessor->registerSetMethod( this, &DemoObject::setEnumMember );
+        proxyEnumAccessor->registerGetMethod( this, &DemoObject::enumMember );
+        m_proxyEnumField.setFieldDataAccessor( std::move( proxyEnumAccessor ) );
+
         m_enumMember = T1;
     }
 
@@ -45,8 +51,8 @@ public:
 
     // Fields
 
-    caf::ProxyValueField<double>                     m_proxyDoubleField;
-    caf::ProxyValueField<caf::AppEnum<TestEnumType>> m_proxyEnumField;
+    caf::DataValueField<double>                     m_proxyDoubleField;
+    caf::DataValueField<caf::AppEnum<TestEnumType>> m_proxyEnumField;
 
 private:
     void setDoubleMember( const double& d )
@@ -208,14 +214,16 @@ public:
         CAF_PDM_IO_InitField( &m_up, "Up" );
 
         CAF_PDM_IO_InitField( &m_proxyDouble, "m_proxyDouble" );
-        m_proxyDouble.registerSetMethod( this, &SimpleObj::setDoubleMember );
-        m_proxyDouble.registerGetMethod( this, &SimpleObj::doubleMember );
+        auto doubleProxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
+        doubleProxyAccessor->registerSetMethod( this, &SimpleObj::setDoubleMember );
+        doubleProxyAccessor->registerGetMethod( this, &SimpleObj::doubleMember );
+        m_proxyDouble.setFieldDataAccessor( std::move( doubleProxyAccessor ) );
     }
 
-    caf::DataValueField<double>  m_position;
-    caf::DataValueField<double>  m_dir;
-    caf::DataValueField<int>     m_up;
-    caf::ProxyValueField<double> m_proxyDouble;
+    caf::DataValueField<double> m_position;
+    caf::DataValueField<double> m_dir;
+    caf::DataValueField<int>    m_up;
+    caf::DataValueField<double> m_proxyDouble;
 
     void setDoubleMember( const double& d )
     {

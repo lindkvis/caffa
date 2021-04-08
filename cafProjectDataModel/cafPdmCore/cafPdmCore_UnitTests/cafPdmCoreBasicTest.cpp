@@ -6,9 +6,9 @@
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafDataValueField.h"
+#include "cafFieldProxyAccessor.h"
 #include "cafObjectHandle.h"
 #include "cafPdmReferenceHelper.h"
-#include "cafProxyValueField.h"
 #include "cafPtrField.h"
 #include "cafValueField.h"
 
@@ -20,16 +20,22 @@ public:
     DemoObject()
     {
         this->addField( &m_proxyDoubleField, "m_proxyDoubleField" );
-        m_proxyDoubleField.registerSetMethod( this, &DemoObject::setDoubleMember );
-        m_proxyDoubleField.registerGetMethod( this, &DemoObject::doubleMember );
+        auto doubleProxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
+        doubleProxyAccessor->registerSetMethod( this, &DemoObject::setDoubleMember );
+        doubleProxyAccessor->registerGetMethod( this, &DemoObject::doubleMember );
+        m_proxyDoubleField.setFieldDataAccessor( std::move( doubleProxyAccessor ) );
 
         this->addField( &m_proxyIntField, "m_proxyIntField" );
-        m_proxyIntField.registerSetMethod( this, &DemoObject::setIntMember );
-        m_proxyIntField.registerGetMethod( this, &DemoObject::intMember );
+        auto intProxyAccessor = std::make_unique<caf::FieldProxyAccessor<int>>();
+        intProxyAccessor->registerSetMethod( this, &DemoObject::setIntMember );
+        intProxyAccessor->registerGetMethod( this, &DemoObject::intMember );
+        m_proxyIntField.setFieldDataAccessor( std::move( intProxyAccessor ) );
 
         this->addField( &m_proxyStringField, "m_proxyStringField" );
-        m_proxyStringField.registerSetMethod( this, &DemoObject::setStringMember );
-        m_proxyStringField.registerGetMethod( this, &DemoObject::stringMember );
+        auto stringProxyAccessor = std::make_unique<caf::FieldProxyAccessor<std::string>>();
+        stringProxyAccessor->registerSetMethod( this, &DemoObject::setStringMember );
+        stringProxyAccessor->registerGetMethod( this, &DemoObject::stringMember );
+        m_proxyStringField.setFieldDataAccessor( std::move( stringProxyAccessor ) );
 
         this->addField( &m_memberDoubleField, "m_memberDoubleField" );
         this->addField( &m_memberIntField, "m_memberIntField" );
@@ -48,9 +54,9 @@ public:
     ~DemoObject() {}
 
     // Fields
-    caf::ProxyValueField<double>      m_proxyDoubleField;
-    caf::ProxyValueField<int>         m_proxyIntField;
-    caf::ProxyValueField<std::string> m_proxyStringField;
+    caf::DataValueField<double>      m_proxyDoubleField;
+    caf::DataValueField<int>         m_proxyIntField;
+    caf::DataValueField<std::string> m_proxyStringField;
 
     caf::DataValueField<double>      m_memberDoubleField;
     caf::DataValueField<int>         m_memberIntField;

@@ -39,11 +39,11 @@
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafFieldIoCapability.h"
+#include "cafFieldProxyAccessor.h"
 #include "cafObject.h"
 #include "cafObjectFactory.h"
 #include "cafObjectMethod.h"
 #include "cafObjectScriptingCapabilityRegister.h"
-#include "cafProxyValueField.h"
 
 #include <QRegularExpression>
 #include <QTextStream>
