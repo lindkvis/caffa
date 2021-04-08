@@ -6,6 +6,8 @@ message(STATUS "GRPC enabled")
 
 add_definitions(-DENABLE_GRPC)
 
+option(CAFFA_GRPC_FETCHCONTENT "Use CMAKE FetchContent to get gRPC" OFF)
+
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/Generated)
 
 if(MSVC)
@@ -44,13 +46,27 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.cpp
     )
 
-find_package(protobuf)
-find_package(absl CONFIG)
-find_package(gRPC REQUIRED grpc++>=1.25 grpc gpr protobuf)
-
-set(CAFFA_PROTOC $<TARGET_FILE:protobuf::protoc>)
-set(CAFFA_GRPC_CPP_PLUGIN $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
-set(GRPC_LINK_LIBRARIES gRPC::grpc++ gRPC::grpc gRPC::gpr protobuf::libprotobuf)
+if (CAFFA_GRPC_FETCHCONTENT)
+  include(FetchContent)
+  FetchContent_Declare(
+    gRPC
+    GIT_REPOSITORY https://github.com/grpc/grpc
+    GIT_TAG        v1.37.0
+  )
+  set(FETCHCONTENT_QUIET OFF)
+  FetchContent_MakeAvailable(gRPC)
+  set(CAFFA_PROTOC $<TARGET_FILE:protoc>)
+  set(CAFFA_GRPC_CPP_PLUGIN $<TARGET_FILE:grpc_cpp_plugin>)
+  set(GRPC_LINK_LIBRARIES grpc++ grpc gpr libprotobuf)
+else()
+  find_package(Threads)
+  find_package(protobuf)
+  find_package(absl CONFIG)
+  find_package(gRPC REQUIRED grpc++>=1.16.1 grpc gpr protobuf)
+  set(CAFFA_PROTOC $<TARGET_FILE:protobuf::protoc>)
+  set(CAFFA_GRPC_CPP_PLUGIN $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
+  set(GRPC_LINK_LIBRARIES gRPC::grpc++ gRPC::grpc gRPC::gpr protobuf::libprotobuf)
+endif()
 
 set(CURRENT_GRPC_VERSION ${GRPC_grpc++_VERSION})
 set(CURRENT_PROTOBUF_VERSION ${GRPC_protobuf_VERSION})
