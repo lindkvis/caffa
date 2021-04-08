@@ -12,7 +12,6 @@ service FieldAccess
 {
     rpc SetValue( stream SetterChunk ) returns( SetterReply ) {}
     rpc GetValue( FieldRequest ) returns( stream GetterReply ) {}
-    rpc GetFloatValue( FieldRequest ) returns( stream FloatArray ) {}
 }
 
 message IntArray
