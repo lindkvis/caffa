@@ -1,8 +1,8 @@
 #pragma once
 
 #include "cafField.h"
+#include "cafFieldProxyAccessor.h"
 #include "cafObject.h"
-#include "cafProxyValueField.h"
 
 namespace caf
 {
@@ -16,10 +16,10 @@ class ManyGroups : public caf::Object
 public:
     ManyGroups();
 
-    caf::Field<double>           m_doubleField;
-    caf::Field<int>              m_intField;
-    caf::Field<std::string>      m_textField;
-    caf::ProxyValueField<double> m_proxyDoubleField;
+    caf::Field<double>      m_doubleField;
+    caf::Field<int>         m_intField;
+    caf::Field<std::string> m_textField;
+    caf::Field<double>      m_proxyDoubleField;
 
     caf::Field<std::vector<std::string>> m_multiSelectList;
     caf::Field<std::string>              m_stringWithMultipleOptions;

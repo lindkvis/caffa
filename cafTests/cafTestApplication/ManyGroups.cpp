@@ -40,12 +40,15 @@ ManyGroups::ManyGroups()
                   "Text tooltip",
                   "This is a place you can enter a small integer value if you want");
 
-    m_proxyDoubleField.registerSetMethod(this, &ManyGroups::setDoubleMember);
-    m_proxyDoubleField.registerGetMethod(this, &ManyGroups::doubleMember);
     CAF_InitFieldNoDefault(&m_proxyDoubleField, "ProxyDouble", "Proxy Double", "", "", "");
+    auto proxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
+    proxyAccessor->registerSetMethod(this, &ManyGroups::setDoubleMember);
+    proxyAccessor->registerGetMethod(this, &ManyGroups::doubleMember);
+    m_proxyDoubleField.setFieldDataAccessor(std::move(proxyAccessor));
 
-    m_proxyDoubleField = 0;
-    if (!(m_proxyDoubleField == 3))
+    m_doubleField      = 0.0;
+    m_proxyDoubleField = 0.0;
+    if (!(m_proxyDoubleField == 3.0))
     {
         std::cout << "Double is not 3 " << std::endl;
     }
@@ -57,9 +60,7 @@ ManyGroups::ManyGroups()
     m_multiSelectList.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
         caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
 
-    m_multiSelectList.v().push_back("First");
-    m_multiSelectList.v().push_back("Second");
-    m_multiSelectList.v().push_back("Third");
+    m_multiSelectList = {"First", "Second", "Third"};
 
     CAF_InitField(
         &m_stringWithMultipleOptions, "m_stringWithMultipleOptions", std::string(""), "Text with many items", "", "", "");

@@ -41,12 +41,12 @@
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafField.h"
+#include "cafFieldProxyAccessor.h"
 #include "cafObject.h"
 #include "cafObjectGroup.h"
 #include "cafPdmDocument.h"
 #include "cafPdmPointer.h"
 #include "cafPdmReferenceHelper.h"
-#include "cafProxyValueField.h"
 
 #include <fstream>
 #include <memory>
@@ -69,8 +69,11 @@ public:
         CAF_InitField( &m_up, "Up", 0.0, "Up value", "", "Tooltip", "WhatsThis" );
         CAF_InitFieldNoDefault( &m_numbers, "Numbers", "Important Numbers", "", "Tooltip", "WhatsThis" );
 #if 1
-        m_proxyDouble.registerSetMethod( this, &SimpleObj::setDoubleMember );
-        m_proxyDouble.registerGetMethod( this, &SimpleObj::doubleMember );
+        auto doubleProxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
+        doubleProxyAccessor->registerSetMethod( this, &SimpleObj::setDoubleMember );
+        doubleProxyAccessor->registerGetMethod( this, &SimpleObj::doubleMember );
+        m_proxyDouble.setFieldDataAccessor( std::move( doubleProxyAccessor ) );
+
         AddUiCapabilityToField( &m_proxyDouble );
         AddIoCapabilityToField( &m_proxyDouble );
         CAF_InitFieldNoDefault( &m_proxyDouble, "ProxyDouble", "ProxyDouble", "", "", "" );
@@ -101,7 +104,7 @@ public:
     caf::Field<double>              m_dir;
     caf::Field<double>              m_up;
     caf::Field<std::vector<double>> m_numbers;
-    caf::ProxyValueField<double>    m_proxyDouble;
+    caf::DataValueField<double>     m_proxyDouble;
 
     void setDoubleMember( const double& d )
     {
