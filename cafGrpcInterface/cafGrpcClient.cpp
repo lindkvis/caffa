@@ -435,11 +435,13 @@ public:
 
         auto start_time = std::chrono::system_clock::now();
 
-        std::unique_ptr<grpc::ClientReader<FloatArray>> reader( m_fieldStub->GetFloatValue( &context, field ) );
-        FloatArray                                      reply;
+        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
+        GetterReply                                      reply;
         while ( reader->Read( &reply ) )
         {
-            values.insert( values.end(), reply.data().begin(), reply.data().end() );
+            CAF_ASSERT( reply.has_floats() ); // TODO: throw
+            auto floats = reply.floats();
+            values.insert( values.end(), floats.data().begin(), floats.data().end() );
         }
 
         auto   end_time       = std::chrono::system_clock::now();
