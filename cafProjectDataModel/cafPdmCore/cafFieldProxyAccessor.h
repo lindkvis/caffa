@@ -11,19 +11,6 @@
 
 namespace caf
 {
-//==================================================================================================
-/// Abstract non-templated base class for ProxyValueField
-/// Exists only to be able to determine that a field is a proxy field
-//==================================================================================================
-
-class ProxyFieldHandle
-{
-public:
-    virtual bool isStreamingField() const = 0;
-    virtual bool hasGetter() const        = 0;
-    virtual bool hasSetter() const        = 0;
-};
-
 template <typename DataType>
 class SetValueInterface
 {
@@ -91,12 +78,12 @@ private:
 };
 
 template <typename DataType>
-class ProxyFieldDataAccessor : public DataFieldAccessor<DataType>
+class FieldProxyAccessor : public DataFieldAccessor<DataType>
 {
 public:
     std::unique_ptr<DataFieldAccessor<DataType>> clone() const override
     {
-        auto copy           = std::make_unique<ProxyFieldDataAccessor>();
+        auto copy           = std::make_unique<FieldProxyAccessor>();
         copy->m_valueSetter = std::move( m_valueSetter->clone() );
         copy->m_valueGetter = std::move( m_valueGetter->clone() );
         return copy;
@@ -138,68 +125,6 @@ public:
 private:
     std::unique_ptr<SetValueInterface<DataType>> m_valueSetter;
     std::unique_ptr<GetValueInterface<DataType>> m_valueGetter;
-};
-
-//==================================================================================================
-/// Field class encapsulating data access through object setter/getter with input and output of this
-/// data to/from a QXmlStream
-/// read/write-FieldData is supposed to be specialized for types needing specialization
-//==================================================================================================
-template <typename DataType>
-class ProxyValueField : public DataValueField<DataType>, public ProxyFieldHandle
-{
-public:
-    using ProxyAccessor = ProxyFieldDataAccessor<DataType>;
-
-    ProxyValueField()
-        : DataValueField<DataType>( std::make_unique<ProxyAccessor>() )
-    {
-    }
-
-    bool isStreamingField() const override { return caf::is_vector<DataType>(); }
-    bool hasGetter() const override { return proxyAccessor()->hasGetter(); }
-    bool hasSetter() const override { return proxyAccessor()->hasSetter(); }
-
-    bool isReadOnly() const override
-    {
-        if ( !hasSetter() )
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    // Access operators
-
-    DataType operator()() const { return this->value(); }
-    DataType v() const { return this->value(); }
-    bool     operator==( const DataType& otherValue ) const { return this->value() == otherValue; }
-
-    template <typename OwnerObjectType>
-    void registerSetMethod( OwnerObjectType*                                                     obj,
-                            typename SetterMethodCB<DataType, OwnerObjectType>::SetterMethodType setterMethod )
-    {
-        proxyAccessor()->registerSetMethod( obj, setterMethod );
-    }
-
-    template <typename OwnerObjectType>
-    void registerGetMethod( OwnerObjectType*                                                     obj,
-                            typename GetterMethodCB<DataType, OwnerObjectType>::GetterMethodType getterMethod )
-    {
-        proxyAccessor()->registerGetMethod( obj, getterMethod );
-    }
-
-private:
-    ProxyAccessor*       proxyAccessor() { return static_cast<ProxyAccessor*>( this->m_fieldDataAccessor.get() ); }
-    const ProxyAccessor* proxyAccessor() const
-    {
-        return static_cast<const ProxyAccessor*>( this->m_fieldDataAccessor.get() );
-    }
-
-    PDM_DISABLE_COPY_AND_ASSIGN( ProxyValueField );
 };
 
 } // End of namespace caf

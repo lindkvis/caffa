@@ -5,11 +5,11 @@
 #include "cafChildArrayField.h"
 #include "cafDataValueField.h"
 #include "cafFieldIoCapabilitySpecializations.h"
+#include "cafFieldProxyAccessor.h"
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
 #include "cafPdmReferenceHelper.h"
-#include "cafProxyValueField.h"
 #include "cafPtrField.h"
 
 class ItemObject : public caf::ObjectHandle, public caf::ObjectIoCapability
@@ -81,8 +81,10 @@ public:
         , ObjectIoCapability( this, false )
     {
         CAF_PDM_IO_InitField( &m_doubleField, "BigNumber" );
-        m_doubleField.registerSetMethod( this, &DemoObjectA::setDoubleMember );
-        m_doubleField.registerGetMethod( this, &DemoObjectA::doubleMember );
+        auto doubleProxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
+        doubleProxyAccessor->registerSetMethod( this, &DemoObjectA::setDoubleMember );
+        doubleProxyAccessor->registerGetMethod( this, &DemoObjectA::doubleMember );
+        m_doubleField.setFieldDataAccessor( std::move( doubleProxyAccessor ) );
 
         CAF_PDM_IO_InitField( &m_pointerToItem, "TestPointerToItem" );
         CAF_PDM_IO_InitField( &m_pointerToDemoObj, "TestPointerToDemo" );
@@ -91,7 +93,7 @@ public:
     ~DemoObjectA() {}
 
     // Fields
-    caf::ProxyValueField<double>      m_doubleField;
+    caf::DataValueField<double>       m_doubleField;
     caf::PtrField<caf::ObjectHandle*> m_pointerToItem;
     caf::PtrField<caf::ObjectHandle*> m_pointerToDemoObj;
 
@@ -209,10 +211,7 @@ TEST( AdvancedObjectTest, FieldWrite )
         std::cout << string << std::endl;
 
         caf::ObjectHandle* objCopy =
-            caf::ObjectIoCapability::readUnknownObjectFromString( string,
-                                                                  caf::DefaultObjectFactory::instance(),
-                                                                  true,
-                                                                  ioType );
+            caf::ObjectIoCapability::readUnknownObjectFromString( string, caf::DefaultObjectFactory::instance(), true, ioType );
         auto rootCopy = dynamic_cast<ContainerObject*>( objCopy );
         ASSERT_TRUE( rootCopy != nullptr );
     }
@@ -260,8 +259,8 @@ TEST( AdvancedObjectTest, CopyOfObjects )
 
                 {
                     auto* objCopy = dynamic_cast<DemoObjectA*>(
-                        a->capability<caf::ObjectIoCapability>()
-                            ->copyBySerialization( caf::DefaultObjectFactory::instance(), ioType ) );
+                        a->capability<caf::ObjectIoCapability>()->copyBySerialization( caf::DefaultObjectFactory::instance(),
+                                                                                       ioType ) );
                     std::vector<caf::FieldHandle*> fieldWithFailingResolve;
                     objCopy->resolveReferencesRecursively( &fieldWithFailingResolve );
                     ASSERT_FALSE( fieldWithFailingResolve.empty() );
@@ -270,8 +269,8 @@ TEST( AdvancedObjectTest, CopyOfObjects )
 
                 {
                     auto* objCopy = dynamic_cast<DemoObjectA*>(
-                        a->capability<caf::ObjectIoCapability>()
-                            ->copyBySerialization( caf::DefaultObjectFactory::instance(), ioType ) );
+                        a->capability<caf::ObjectIoCapability>()->copyBySerialization( caf::DefaultObjectFactory::instance(),
+                                                                                       ioType ) );
 
                     sibling->m_demoObjs.push_back( objCopy );
 

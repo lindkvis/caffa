@@ -20,12 +20,12 @@
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafField.h"
+#include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafObjectHandle.h"
 #include "cafObjectScriptingCapability.h"
 #include "cafPdmDocument.h"
 #include "cafPdmReferenceHelper.h"
-#include "cafProxyValueField.h"
 #include "cafPtrField.h"
 #include "cafValueField.h"
 
@@ -45,17 +45,16 @@ public:
     caf::Field<int>         m_memberIntField;
     caf::Field<std::string> m_memberStringField;
 
-
     caf::Field<std::vector<double>> m_doubleVector;
     caf::Field<std::vector<float>>  m_floatVector;
-    caf::Field<std::vector<int>> m_intVector;
+    caf::Field<std::vector<int>>    m_intVector;
 
     std::vector<double> getDoubleVector() const { return m_doubleVector; }
     void                setDoubleVector( const std::vector<double>& values ) { m_doubleVector = values; }
-  
+
     std::vector<float> getFloatVector() const { return m_floatVector; }
     void               setFloatVector( const std::vector<float>& values ) { m_floatVector = values; }
-  
+
     std::vector<int> getIntVector() const { return m_intVector; }
     void             setIntVector( const std::vector<int>& values ) { m_intVector = values; }
 };
@@ -86,4 +85,3 @@ public:
     caf::ChildField<DemoObject*>            m_demoObject;
     caf::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
 };
-

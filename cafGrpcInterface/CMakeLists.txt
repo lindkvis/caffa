@@ -44,38 +44,16 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.cpp
     )
 
-if (CAFFA_GRPC_INTERFACE_SUBMODULE)
-  set(CAFFA_PROTOC $<TARGET_FILE:protoc> CACHE FILEPATH "Path to Protobuffer compiler which works on the build machine architecture")
-  set(CAFFA_GRPC_CPP_PLUGIN $<TARGET_FILE:grpc_cpp_plugin> CACHE FILEPATH "Path to GRPC protobuf c++ plugin which works on the build machine architecture")
-  set(GRPC_LINK_LIBRARIES grpc++ grpc gpr grpc++_alts libprotobuf)
-else()
-if (PKG_CONFIG_PATH)
-    message("Setting environment before calling pkgconfig to: " ${PKG_CONFIG_PATH})
-    set(ENV{PKG_CONFIG_PATH} ${PKG_CONFIG_PATH})
-  endif()
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(GRPC REQUIRED grpc++>=1.16 grpc gpr
-                    protobuf NO_CMAKE_ENVIRONMENT_PATH)
-  if(EXISTS "${GRPC_protobuf_PREFIX}/bin/protoc")
-    set(CAFFA_PROTOC "${GRPC_protobuf_PREFIX}/bin/protoc")
-    message("Using protoc: ${GRPC_protobuf_PREFIX}/bin/protoc")
-  else()
-    message(FATAL_ERROR "Could not find the protobuf compiler (protoc)")
-  endif()
+find_package(protobuf)
+find_package(absl CONFIG)
+find_package(gRPC REQUIRED grpc++>=1.25 grpc gpr protobuf)
 
-  if(EXISTS "${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
-    set(CAFFA_GRPC_CPP_PLUGIN
-        "${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
-    message("Using grpc_cpp_plugin: ${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
-  else()
-    message(FATAL_ERROR "Could not find the grpc_cpp_plugin")
-  endif()
+set(CAFFA_PROTOC $<TARGET_FILE:protobuf::protoc>)
+set(CAFFA_GRPC_CPP_PLUGIN $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
+set(GRPC_LINK_LIBRARIES gRPC::grpc++ gRPC::grpc gRPC::gpr protobuf::libprotobuf)
 
-  include_directories(AFTER ${GRPC_INCLUDE_DIRS})
-
-  set(CURRENT_GRPC_VERSION ${GRPC_grpc++_VERSION})
-  set(CURRENT_PROTOBUF_VERSION ${GRPC_protobuf_VERSION})
-endif()
+set(CURRENT_GRPC_VERSION ${GRPC_grpc++_VERSION})
+set(CURRENT_PROTOBUF_VERSION ${GRPC_protobuf_VERSION})
 
 message(STATUS "Using protobuf ${CURRENT_PROTOBUF_VERSION}")
 message(STATUS "Using gRPC ${CURRENT_GRPC_VERSION}")

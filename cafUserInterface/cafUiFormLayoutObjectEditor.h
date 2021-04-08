@@ -49,12 +49,6 @@ class QMinimizePanel;
 class QGridLayout;
 class QWidget;
 
-#ifdef cafUserInterface_LIBRARY
-#define UI_API __declspec( dllexport )
-#else
-#define UI_API __declspec( dllimport )
-#endif
-
 namespace caf
 {
 class UiFieldEditorHandle;
@@ -64,7 +58,7 @@ class UiOrdering;
 //==================================================================================================
 ///
 //==================================================================================================
-class UI_API PdmUiFormLayoutObjectEditor : public QObject, public PdmUiWidgetObjectEditorHandle
+class PdmUiFormLayoutObjectEditor : public QObject, public PdmUiWidgetObjectEditorHandle
 {
     Q_OBJECT
 

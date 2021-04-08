@@ -72,12 +72,8 @@ public:                                     \
 /// CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR registers what default editor to use with a field of a certain type
 /// Place this in the cpp file, preferably above the constructor
 
-#define CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( EditorClassName, TypeName )                                              \
-    CAF_FACTORY_REGISTER( caf::UiFieldEditorHandle, EditorClassName, std::string, typeid( caf::Field<TypeName> ).name() ); \
-    CAF_FACTORY_REGISTER2( caf::UiFieldEditorHandle,                                                                       \
-                           EditorClassName,                                                                                \
-                           std::string,                                                                                    \
-                           typeid( caf::ProxyValueField<TypeName> ).name() )
+#define CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( EditorClassName, TypeName ) \
+    CAF_FACTORY_REGISTER( caf::UiFieldEditorHandle, EditorClassName, std::string, typeid( caf::Field<TypeName> ).name() );
 
 class UiGroup;
 class FieldUiCapability;

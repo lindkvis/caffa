@@ -6,9 +6,9 @@
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafDataValueField.h"
+#include "cafFieldProxyAccessor.h"
 #include "cafObjectHandle.h"
 #include "cafPdmReferenceHelper.h"
-#include "cafProxyValueField.h"
 #include "cafPtrField.h"
 
 #include <string>

@@ -4,6 +4,7 @@
 #include "cafVariant.h"
 
 #include <functional>
+#include <list>
 #include <memory>
 #include <string>
 

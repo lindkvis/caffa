@@ -40,6 +40,8 @@
 #include <QAbstractItemModel>
 #include <QStringList>
 
+#include <memory>
+
 namespace caf
 {
 class ObjectHandle;
@@ -88,7 +90,7 @@ private:
     void updateEditorsForSubTree( PdmUiTreeOrdering* root );
 
     std::unique_ptr<PdmUiTreeOrdering> m_treeOrderingRoot;
-    QStringList        m_columnHeaders;
+    QStringList                        m_columnHeaders;
 
     PdmUiTreeViewEditor* m_treeViewEditor;
 

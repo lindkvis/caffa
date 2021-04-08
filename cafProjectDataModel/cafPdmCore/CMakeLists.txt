@@ -28,7 +28,7 @@ set (PUBLIC_HEADERS
     cafFieldReorderCapability.h
     cafObjectHandle.h
     cafPdmPointer.h
-    cafProxyValueField.h
+    cafFieldProxyAccessor.h
     cafPtrArrayField.h
     cafPtrArrayField.inl
     cafPtrArrayFieldHandle.h
