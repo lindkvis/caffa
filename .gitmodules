@@ -4,7 +4,3 @@
 [submodule "ThirdParty/GSL"]
 	path = ThirdParty/GSL
 	url = https://github.com/microsoft/GSL.git
-
-[submodule "ThirdParty/grpc"]
-	path = ThirdParty/grpc
-	url = https://github.com/grpc/grpc.git
