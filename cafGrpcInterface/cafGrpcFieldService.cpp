@@ -43,6 +43,7 @@
 #include "cafFieldProxyAccessor.h"
 #include "cafGrpcApplication.h"
 #include "cafGrpcObjectService.h"
+#include "cafLogger.h"
 #include "cafObject.h"
 #include "cafPdmScriptIOMessages.h"
 
@@ -65,8 +66,12 @@ struct DataHolder : public AbstractDataHolder
     size_t valueSizeOf() const override;
 
     void reserveReplyStorage( GetterReply* reply, size_t numberOfDataUnits ) const override {}
-    void addValueToReply( size_t valueIndex, GetterReply* reply ) const override;
-    void addPackageValuesToReply( GetterReply* reply, size_t startIndex, size_t numberOfDataUnits ) const override {}
+    // Default implementation deals with scalar values
+    void addPackageValuesToReply( GetterReply* reply, size_t startIndex, size_t numberOfDataUnits ) const override
+    {
+        CAF_TRACE( "Assign scalar result of type: " << typeid( DataType ).name() << " with value " << data );
+        reply->set_scalar( data );
+    }
 
     size_t   getValuesFromChunk( size_t startIndex, const SetterChunk* chunk ) override;
     void     applyValuesToField( ValueField* field ) override;
@@ -88,11 +93,6 @@ template <>
 void DataHolder<std::vector<int>>::reserveReplyStorage( GetterReply* reply, size_t numberOfDataUnits ) const
 {
     reply->mutable_ints()->mutable_data()->Reserve( numberOfDataUnits );
-}
-template <>
-void DataHolder<std::vector<int>>::addValueToReply( size_t valueIndex, GetterReply* reply ) const
-{
-    reply->mutable_ints()->add_data( data[valueIndex] );
 }
 
 template <>
@@ -139,11 +139,6 @@ void DataHolder<std::vector<double>>::reserveReplyStorage( GetterReply* reply, s
 {
     reply->mutable_doubles()->mutable_data()->Reserve( numberOfDataUnits );
 }
-template <>
-void DataHolder<std::vector<double>>::addValueToReply( size_t valueIndex, GetterReply* reply ) const
-{
-    reply->mutable_doubles()->add_data( data[valueIndex] );
-}
 
 template <>
 void DataHolder<std::vector<double>>::addPackageValuesToReply( GetterReply* reply,
@@ -189,11 +184,6 @@ template <>
 void DataHolder<std::vector<float>>::reserveReplyStorage( GetterReply* reply, size_t numberOfDataUnits ) const
 {
     reply->mutable_floats()->mutable_data()->Reserve( numberOfDataUnits );
-}
-template <>
-void DataHolder<std::vector<float>>::addValueToReply( size_t valueIndex, GetterReply* reply ) const
-{
-    reply->mutable_floats()->add_data( data[valueIndex] );
 }
 
 template <>
@@ -243,11 +233,6 @@ void DataHolder<std::vector<std::string>>::reserveReplyStorage( GetterReply* rep
 {
     reply->mutable_strings()->mutable_data()->Reserve( numberOfDataUnits );
 }
-template <>
-void DataHolder<std::vector<std::string>>::addValueToReply( size_t valueIndex, GetterReply* reply ) const
-{
-    reply->mutable_strings()->add_data( data[valueIndex] );
-}
 
 template <>
 void DataHolder<std::vector<std::string>>::addPackageValuesToReply( GetterReply* reply,
@@ -289,12 +274,6 @@ template <>
 size_t DataHolder<std::string>::valueSizeOf() const
 {
     return sizeof( std::string );
-}
-
-template <>
-void DataHolder<std::string>::addValueToReply( size_t valueIndex, GetterReply* reply ) const
-{
-    reply->set_scalar( data );
 }
 
 template <>
@@ -388,7 +367,6 @@ grpc::Status GetterStateHandler::assignReply( GetterReply* reply )
 {
     CAF_ASSERT( m_dataHolder );
 
-#if 1
     size_t remainingData             = m_dataHolder->valueCount() - m_currentDataIndex;
     size_t defaultDataUnitsInPackage = Application::instance()->packageByteSize() / m_dataHolder->valueSizeOf();
 
@@ -399,54 +377,6 @@ grpc::Status GetterStateHandler::assignReply( GetterReply* reply )
                              "We've reached the end. This is not an error but means transmission is finished" );
     }
     m_dataHolder->addPackageValuesToReply( reply, m_currentDataIndex, dataUnitsInPackage );
-    m_currentDataIndex += dataUnitsInPackage;
-    return grpc::Status::OK;
-
-#else
-    size_t remainingData             = m_dataHolder->valueCount() - m_currentDataIndex;
-    size_t defaultDataUnitsInPackage = Application::instance()->packageByteSize() / m_dataHolder->valueSizeOf();
-    size_t dataUnitsInPackage        = std::min( defaultDataUnitsInPackage, remainingData );
-
-    size_t indexInPackage = 0u;
-    m_dataHolder->reserveReplyStorage( reply, dataUnitsInPackage );
-
-    for ( ; indexInPackage < dataUnitsInPackage; ++indexInPackage )
-    {
-        m_dataHolder->addValueToReply( m_currentDataIndex, reply );
-        m_currentDataIndex++;
-    }
-    if ( indexInPackage > 0u )
-    {
-        return grpc::Status::OK;
-    }
-    return grpc::Status( grpc::OUT_OF_RANGE,
-                         "We've reached the end. This is not an error but means transmission is finished" );
-
-#endif
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <>
-grpc::Status GetterStateHandler::assignTypedReply<FloatArray>( FloatArray* reply )
-{
-    CAF_ASSERT( m_dataHolder );
-
-    size_t remainingData             = m_dataHolder->valueCount() - m_currentDataIndex;
-    size_t defaultDataUnitsInPackage = Application::instance()->packageByteSize() / m_dataHolder->valueSizeOf();
-
-    size_t dataUnitsInPackage = std::min( defaultDataUnitsInPackage, remainingData );
-    if ( dataUnitsInPackage == 0u )
-    {
-        return grpc::Status( grpc::OUT_OF_RANGE,
-                             "We've reached the end. This is not an error but means transmission is finished" );
-    }
-
-    DataHolder<std::vector<float>>* dataHolder = static_cast<DataHolder<std::vector<float>>*>( m_dataHolder.get() );
-
-    *( reply->mutable_data() ) = { dataHolder->data.begin() + m_currentDataIndex,
-                                   dataHolder->data.begin() + m_currentDataIndex + dataUnitsInPackage };
     m_currentDataIndex += dataUnitsInPackage;
     return grpc::Status::OK;
 }
@@ -617,19 +547,6 @@ grpc::Status FieldService::GetValue( grpc::ServerContext*        context,
     auto getterHandler = dynamic_cast<GetterStateHandler*>( stateHandler );
     CAF_ASSERT( getterHandler );
     return getterHandler->assignReply( reply );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-grpc::Status FieldService::GetFloatValue( grpc::ServerContext*        context,
-                                          const FieldRequest*         request,
-                                          FloatArray*                 reply,
-                                          StateHandler<FieldRequest>* stateHandler )
-{
-    auto getterHandler = dynamic_cast<GetterStateHandler*>( stateHandler );
-    CAF_ASSERT( getterHandler );
-    return getterHandler->assignTypedReply( reply );
 }
 
 //--------------------------------------------------------------------------------------------------

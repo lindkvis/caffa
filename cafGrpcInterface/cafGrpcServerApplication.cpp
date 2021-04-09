@@ -36,7 +36,8 @@ ServerApplication::ServerApplication( int portNumber )
 {
     m_server = std::make_unique<caf::rpc::Server>( portNumber );
 
-    caf::rpc::ServiceFactory::instance()->registerCreator<caf::rpc::AppService>( typeid( caf::rpc::AppService ).hash_code() );
+    caf::rpc::ServiceFactory::instance()->registerCreator<caf::rpc::AppService>(
+        typeid( caf::rpc::AppService ).hash_code() );
     caf::rpc::ServiceFactory::instance()->registerCreator<caf::rpc::FieldService>(
         typeid( caf::rpc::FieldService ).hash_code() );
     caf::rpc::ServiceFactory::instance()->registerCreator<caf::rpc::ObjectService>(
@@ -59,11 +60,6 @@ void ServerApplication::run()
 {
     CAF_ASSERT( m_server );
     m_server->run();
-
-    while ( !m_server->quitting() )
-    {
-        m_server->processAllRequests();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

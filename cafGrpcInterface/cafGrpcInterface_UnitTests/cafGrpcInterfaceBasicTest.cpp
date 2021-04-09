@@ -10,9 +10,11 @@
 #include "../cafGrpcServerApplication.h"
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
+#include "cafException.h"
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
+#include "cafLogger.h"
 #include "cafObjectHandle.h"
 #include "cafObjectScriptingCapability.h"
 #include "cafPdmDocument.h"
@@ -99,7 +101,6 @@ public:
     caf::Field<std::vector<double>> m_doubleVector;
     caf::Field<std::vector<float>>  m_floatVector;
 
-    // Internal class members accessed by proxy fields
     double doubleMember() const { return m_doubleMember; }
     void   setDoubleMember( const double& d ) { m_doubleMember = d; }
 
@@ -162,6 +163,7 @@ public:
     }
     caf::ObjectHandle* execute() override
     {
+        CAF_DEBUG( "Executing object method on server" );
         gsl::not_null<DemoObject*> demoObject = self<DemoObject>();
         demoObject->setDoubleMember( m_doubleMember );
         demoObject->setIntMember( m_intMember );
@@ -272,10 +274,8 @@ TEST( BaseTest, Launch )
 
     ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
-    std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
-    std::cout << "Launching Client" << std::endl;
     while ( !serverApp->running() )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
@@ -286,11 +286,12 @@ TEST( BaseTest, Launch )
     caf::AppInfo appInfo = client->appInfo();
     ASSERT_EQ( serverApp->name(), appInfo.name );
 
-    std::cout << "Confirmed test results" << std::endl;
+    CAF_DEBUG( "Confirmed test results!" );
     bool ok = client->stopServer();
     ASSERT_TRUE( ok );
-    std::cout << "Waiting for server thread to join" << std::endl;
+    CAF_DEBUG( "Waiting for server thread to join" );
     thread.join();
+    CAF_DEBUG( "Finishing test" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -303,10 +304,10 @@ TEST( BaseTest, Document )
 
     ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
-    std::cout << "Launching Server" << std::endl;
+    CAF_DEBUG( "Launching Server" );
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
-    std::cout << "Launching Client" << std::endl;
+    CAF_DEBUG( "Launching Client" );
     while ( !serverApp->running() )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
@@ -315,7 +316,7 @@ TEST( BaseTest, Document )
     caf::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
-    std::cout << "Server Document File Name: " << serverDocument->fileName() << std::endl;
+    CAF_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
     size_t childCount = 11u;
     for ( size_t i = 0; i < childCount; ++i )
@@ -326,7 +327,22 @@ TEST( BaseTest, Document )
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<caf::PdmDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
-    std::cout << "Client Document File Name: " << clientDocument->fileName() << std::endl;
+
+    try
+    {
+        auto clientFileName = clientDocument->fileName();
+        CAF_DEBUG( "Client Document File Name: " << clientFileName );
+    }
+    catch ( const caf::Exception& e )
+    {
+        CAF_ERROR( "Exception caught: " << e.what() );
+        return;
+    }
+    catch ( ... )
+    {
+        CAF_ERROR( "Exception caught" );
+        return;
+    }
     ASSERT_EQ( serverApp->document( "testDocument" )->fileName(), clientDocument->fileName() );
 
     auto clientCapability = clientDocument->capability<caf::rpc::ObjectClientCapability>();
@@ -348,10 +364,12 @@ TEST( BaseTest, Document )
         ASSERT_EQ( reinterpret_cast<uint64_t>( serverDescendants[i] ), childClientCapability->addressOnServer() );
     }
 
+    CAF_DEBUG( "Confirmed test results!" );
     bool ok = client->stopServer();
     ASSERT_TRUE( ok );
-
+    CAF_DEBUG( "Waiting for server thread to join" );
     thread.join();
+    CAF_DEBUG( "Finishing test" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -364,10 +382,8 @@ TEST( BaseTest, Sync )
 
     ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
-    std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
-    std::cout << "Launching Client" << std::endl;
     while ( !serverApp->running() )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
@@ -376,7 +392,6 @@ TEST( BaseTest, Sync )
     caf::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
-    std::cout << "Server Document File Name: " << serverDocument->fileName() << std::endl;
 
     size_t childCount = 11u;
     for ( size_t i = 0; i < childCount; ++i )
@@ -387,7 +402,7 @@ TEST( BaseTest, Sync )
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<caf::PdmDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
-    std::cout << "Client Document File Name: " << clientDocument->fileName() << std::endl;
+    CAF_DEBUG( "Client Document File Name: " << clientDocument->fileName() );
     ASSERT_EQ( serverApp->document( "testDocument" )->fileName(), clientDocument->fileName() );
 
     auto clientCapability = clientDocument->capability<caf::rpc::ObjectClientCapability>();
@@ -415,10 +430,8 @@ TEST( BaseTest, ObjectMethod )
 
     ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
-    std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
-    std::cout << "Launching Client" << std::endl;
     while ( !serverApp->running() )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
@@ -427,8 +440,8 @@ TEST( BaseTest, ObjectMethod )
     caf::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
-    std::cout << "Server Document File Name: " << serverDocument->fileName() << std::endl;
 
+    CAF_DEBUG( "Adding object to server" );
     serverDocument->addInheritedObject( new InheritedDemoObj );
 
     auto objectHandle   = client->document( "testDocument" );
@@ -437,16 +450,21 @@ TEST( BaseTest, ObjectMethod )
 
     auto serverObjects = serverDocument->inheritedObjects();
     ASSERT_EQ( (size_t)1, serverObjects.size() );
+    CAF_DEBUG( "Getting client objects" );
     auto inheritedObjects = clientDocument->inheritedObjects();
     ASSERT_EQ( (size_t)1, inheritedObjects.size() );
 
+    CAF_DEBUG( "Creating object method" );
     DemoObject_copyObject method( inheritedObjects.front(), 45.3, 43, "AnotherValue" );
-    auto                  result = client->execute( &method );
+    CAF_DEBUG( "Execute" );
+    auto result = client->execute( &method );
     ASSERT_TRUE( result != nullptr );
     auto copyObjectResult = dynamic_cast<DemoObject_copyObjectResult*>( result.get() );
     ASSERT_TRUE( copyObjectResult && copyObjectResult->status() );
 
+    CAF_DEBUG( "Get double member" );
     ASSERT_EQ( 45.3, serverObjects.front()->doubleMember() );
+    CAF_DEBUG( "Get int member" );
     ASSERT_EQ( 43, serverObjects.front()->intMember() );
     ASSERT_EQ( "AnotherValue", serverObjects.front()->stringMember() );
 
@@ -466,10 +484,8 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
 
     ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
-    std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
-    std::cout << "Launching Client" << std::endl;
     while ( !serverApp->running() )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
@@ -478,7 +494,7 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
     caf::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
-    std::cout << "Server Document File Name: " << serverDocument->fileName() << std::endl;
+    CAF_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
     std::vector<int> largeIntVector;
     std::mt19937     rng;
@@ -522,10 +538,8 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
 
     ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
-    std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
-    std::cout << "Launching Client" << std::endl;
     while ( !serverApp->running() )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
@@ -535,7 +549,7 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
-    std::cout << "Server Document File Name: " << serverDocument->fileName() << std::endl;
+    CAF_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
     std::vector<double> largeDoubleVector;
     std::mt19937        rng;
@@ -581,10 +595,8 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
 
     ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
-    std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
-    std::cout << "Launching Client" << std::endl;
     while ( !serverApp->running() )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
@@ -594,7 +606,7 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
-    std::cout << "Server Document File Name: " << serverDocument->fileName() << std::endl;
+    CAF_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
     std::vector<double> serverVector;
     std::mt19937        rng;
@@ -635,10 +647,8 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
 
     ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
 
-    std::cout << "Launching Server" << std::endl;
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
-    std::cout << "Launching Client" << std::endl;
     while ( !serverApp->running() )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
@@ -648,7 +658,7 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
-    std::cout << "Server Document File Name: " << serverDocument->fileName() << std::endl;
+    CAF_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
@@ -660,13 +670,13 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
         auto clientVector = clientDocument->m_demoObject->getFloatVector();
         auto end_time     = std::chrono::system_clock::now();
         auto duration     = std::chrono::duration_cast<std::chrono::microseconds>( end_time - start_time ).count();
-        std::cout << "Getting single float vector took " << duration << "µs" << std::endl;
+        CAF_INFO( "Getting single float vector took " << duration << "µs" );
         ASSERT_EQ( serverDocument->m_demoObject->getFloatVector(), clientDocument->m_demoObject->getFloatVector() );
     }
 
     std::vector<float> serverVector;
     std::mt19937       rng;
-    size_t             numberOfFloats = 1024u * 1024u * 128;
+    size_t             numberOfFloats = 1024u * 1024u * 4;
     serverVector.reserve( numberOfFloats );
     for ( size_t i = 0; i < numberOfFloats; ++i )
     {
@@ -681,11 +691,11 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
         auto   end_time     = std::chrono::system_clock::now();
         auto   duration     = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
         size_t MB           = numberOfFloats * sizeof( float ) / ( 1024u * 1024u );
-        std::cout << "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" << std::endl;
-        std::cout << "Time spent: " << duration << "ms" << std::endl;
+        CAF_INFO( "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" );
+        CAF_INFO( "Time spent: " << duration << "ms" );
         double fps = static_cast<float>( numberOfFloats ) / static_cast<float>( duration ) * 1000;
-        std::cout << "floats per second: " << fps << std::endl;
-        std::cout << "MB per second: " << static_cast<float>( MB ) / static_cast<float>( duration ) * 1000 << std::endl;
+        CAF_INFO( "floats per second: " << fps );
+        CAF_INFO( "MB per second: " << static_cast<float>( MB ) / static_cast<float>( duration ) * 1000 );
     }
 
     bool ok = client->stopServer();

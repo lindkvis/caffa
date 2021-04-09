@@ -37,6 +37,7 @@
 #include "cafGrpcCallbacks.h"
 #include "cafGrpcServer.h"
 #include "cafGrpcServerApplication.h"
+#include "cafLogger.h"
 
 #include "AppInfo.pb.h"
 
@@ -44,12 +45,14 @@ using namespace caf::rpc;
 
 grpc::Status AppService::PerformQuit( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply )
 {
+    CAF_DEBUG( "Received quit request" );
     ServerApplication::instance()->quit();
     return grpc::Status::OK;
 }
 
 grpc::Status AppService::PerformGetAppInfo( grpc::ServerContext* context, const NullMessage* request, AppInfoReply* reply )
 {
+    CAF_DEBUG( "Received app info request" );
     Application* app = Application::instance();
     reply->set_name( app->name() );
     CAF_ASSERT( app->hasCapability( AppCapability::GRPC_SERVER ) );
@@ -65,6 +68,7 @@ grpc::Status AppService::PerformGetAppInfo( grpc::ServerContext* context, const 
 
 grpc::Status AppService::PerformPing( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply )
 {
+    CAF_DEBUG( "Received ping request" );
     return grpc::Status::OK;
 }
 

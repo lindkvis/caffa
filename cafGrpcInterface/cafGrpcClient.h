@@ -34,6 +34,7 @@
 //
 #pragma once
 
+#include "cafLogger.h"
 #include "cafObjectMethod.h"
 #include "cafPdmDocument.h"
 #include "cafVariant.h"
@@ -85,6 +86,7 @@ template <typename DataType>
 DataType caf::rpc::Client::get( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     nlohmann::json jsonValue = getJson( objectHandle, fieldName );
+    CAF_DEBUG( "Attempting to get datatype " << typeid( DataType ).name() << " from json value " << jsonValue );
     return jsonValue.get<DataType>();
 }
 

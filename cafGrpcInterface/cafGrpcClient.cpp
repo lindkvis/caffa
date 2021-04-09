@@ -44,6 +44,7 @@
 #include "cafGrpcFieldService.h"
 #include "cafGrpcObjectClientCapability.h"
 #include "cafGrpcObjectService.h"
+#include "cafLogger.h"
 
 #include <grpc/grpc.h>
 #include <grpcpp/channel.h>
@@ -63,15 +64,16 @@ public:
     {
         // Created new server
         m_channel = grpc::CreateChannel( hostname + ":" + std::to_string( port ), grpc::InsecureChannelCredentials() );
-        std::cout << "Created channel for " << hostname << ":" << port << std::endl;
+        CAF_DEBUG( "Created channel for " << hostname << ":" << port );
         m_appInfoStub = App::NewStub( m_channel );
         m_objectStub  = ObjectAccess::NewStub( m_channel );
         m_fieldStub   = FieldAccess::NewStub( m_channel );
-        std::cout << "Created stubs" << std::endl;
+        CAF_TRACE( "Created stubs" );
     }
 
     caf::AppInfo appInfo() const
     {
+        CAF_TRACE( "Trying to get app info" );
         caf::rpc::AppInfoReply reply;
         grpc::ClientContext    context;
         NullMessage            nullarg;
@@ -92,17 +94,18 @@ public:
         caf::rpc::DocumentRequest request;
         request.set_document_id( documentId );
         caf::rpc::Object objectReply;
-        std::cout << "Calling GetDocument()" << std::endl;
+        CAF_TRACE( "Calling GetDocument()" );
         auto status = m_objectStub->GetDocument( &context, request, &objectReply );
         if ( status.ok() )
         {
-            std::cout << "Got document" << std::endl;
+            CAF_TRACE( "Got document" );
             pdmDocument = caf::rpc::ObjectService::createCafObjectFromRpc( &objectReply,
                                                                            caf::rpc::GrpcClientObjectFactory::instance() );
+            CAF_TRACE( "Document completed" );
         }
         else
         {
-            std::cout << "Failed to get document" << std::endl;
+            CAF_ERROR( "Failed to get document" );
         }
         return pdmDocument;
     }
@@ -111,10 +114,10 @@ public:
     {
         auto self   = std::make_unique<Object>();
         auto params = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( method->self<caf::ObjectHandle>(),
-                                               self.get(),
-                                               caf::DefaultObjectFactory::instance() );
-        ObjectService::copyObjectFromCafToRpc( method, params.get(), caf::DefaultObjectFactory::instance() );
+        CAF_TRACE( "Copying self" );
+        ObjectService::copyObjectFromCafToRpc( method->self<caf::ObjectHandle>(), self.get(), false, false );
+        CAF_TRACE( "Copying parameters" );
+        ObjectService::copyObjectFromCafToRpc( method, params.get(), true, true );
 
         grpc::ClientContext context;
         MethodRequest       request;
@@ -138,7 +141,8 @@ public:
     {
         grpc::ClientContext context;
         NullMessage         nullarg, nullreply;
-        auto                status = m_appInfoStub->Quit( &context, nullarg, &nullreply );
+        CAF_DEBUG( "Telling server to quit" );
+        auto status = m_appInfoStub->Quit( &context, nullarg, &nullreply );
         return status.ok();
     }
 
@@ -191,6 +195,7 @@ public:
 
     nlohmann::json getJson( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
     {
+        CAF_TRACE( "Get JSON value for field " << fieldName );
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
@@ -207,6 +212,8 @@ public:
 
         if ( reader->Read( &reply ) )
         {
+            if ( !reply.has_scalar() ) throw caf::Exception( "Received malformed reply" );
+            CAF_TRACE( "Got scalar reply: " << reply.scalar() );
             jsonValue = nlohmann::json::parse( reply.scalar() );
         }
         grpc::Status status = reader->Finish();
@@ -214,6 +221,7 @@ public:
         {
             throw Exception( status );
         }
+        CAF_TRACE( "Got json value: " << jsonValue )
         return jsonValue;
     }
     bool set( const caf::ObjectHandle* objectHandle, const std::string& setter, const std::vector<int>& values )
@@ -448,11 +456,9 @@ public:
         auto   duration       = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
         size_t numberOfFloats = values.size();
         size_t MB             = numberOfFloats * sizeof( float ) / ( 1024u * 1024u );
-        std::cout << "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" << std::endl;
-        std::cout << "Time spent: " << duration << "ms" << std::endl;
 
         grpc::Status status = reader->Finish();
-        if ( !status.ok() ) std::cout << status.error_code() << ", " << status.error_message() << std::endl;
+        if ( !status.ok() ) CAF_ERROR( "GRPC: " << status.error_code() << ", " << status.error_message() );
         CAF_ASSERT( status.ok() );
         return values;
     }
