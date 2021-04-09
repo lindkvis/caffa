@@ -39,7 +39,6 @@
 #include "cafObject.h"
 #include "cafObjectFactory.h"
 #include "cafPdmPointer.h"
-#include "cafPdmScriptResponse.h"
 
 #include <string>
 
