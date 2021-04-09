@@ -44,11 +44,9 @@
 #include "cafFieldScriptingCapability.h"
 #include "cafObject.h"
 #include "cafObjectGroup.h"
-#include "cafPdmCodeGenerator.h"
 #include "cafPdmPointer.h"
 #include "cafPdmReferenceHelper.h"
 
-#include "cafObjectScriptingCapability.h"
 #include <memory>
 
 /// Demo objects to show the usage of the Pdm system
@@ -182,12 +180,7 @@ public:
 
     InheritedDemoObj()
     {
-        CAF_InitScriptableObjectWithNameAndComment( "InheritedDemoObj",
-                                                    "",
-                                                    "ToolTip InheritedDemoObj",
-                                                    "Whatsthis InheritedDemoObj",
-                                                    "ScriptClassName_InheritedDemoObj",
-                                                    "Script comment test" );
+        CAF_InitObject( "InheritedDemoObj", "", "ToolTip InheritedDemoObj", "Whatsthis InheritedDemoObj" );
 
         CAF_InitScriptableFieldNoDefault( &m_texts, "Texts", "Some words", "", "", "" );
         CAF_InitScriptableFieldNoDefault( &m_numbers, "Numbers", "Some words", "", "", "" );

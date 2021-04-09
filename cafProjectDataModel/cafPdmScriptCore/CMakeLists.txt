@@ -9,21 +9,10 @@ if (CAF_ENABLE_UNITY_BUILD)
 endif()
 
 set( PROJECT_FILES
-     cafPdmCodeGenerator.h
-     cafAbstractFieldScriptingCapability.h
-     cafAbstractFieldScriptingCapability.cpp
      cafFieldScriptingCapability.h
      cafFieldScriptingCapability.cpp
      cafObjectMethod.h
      cafObjectMethod.cpp
-     cafObjectScriptingCapabilityRegister.h
-     cafObjectScriptingCapabilityRegister.cpp
-     cafPdmScriptIOMessages.h
-     cafPdmScriptIOMessages.cpp
-     cafObjectScriptingCapability.h
-     cafObjectScriptingCapability.cpp
-     cafPdmScriptResponse.h
-     cafPdmScriptResponse.cpp
 )
 
 

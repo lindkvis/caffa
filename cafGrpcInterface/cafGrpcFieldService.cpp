@@ -34,18 +34,16 @@
 //
 #include "cafGrpcFieldService.h"
 
-#include "cafGrpcCallbacks.h"
-#include "cafGrpcFieldService.h"
-#include "cafGrpcServerApplication.h"
-
-#include "cafAbstractFieldScriptingCapability.h"
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
+#include "cafFieldScriptingCapability.h"
 #include "cafGrpcApplication.h"
+#include "cafGrpcCallbacks.h"
+#include "cafGrpcFieldService.h"
 #include "cafGrpcObjectService.h"
+#include "cafGrpcServerApplication.h"
 #include "cafLogger.h"
 #include "cafObject.h"
-#include "cafPdmScriptIOMessages.h"
 
 #include <grpcpp/grpcpp.h>
 
@@ -313,7 +311,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
     m_fieldOwner->fields( fields );
     for ( auto field : fields )
     {
-        auto scriptability = field->capability<AbstractFieldScriptingCapability>();
+        auto scriptability = field->capability<FieldScriptingCapability>();
         if ( scriptability && request->method() == scriptability->scriptFieldName() )
         {
             if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int>>*>( field ); dataField != nullptr )
@@ -429,16 +427,16 @@ grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
 {
     CAF_ASSERT( chunk->has_set_request() );
     auto setRequest   = chunk->set_request();
-    auto FieldRequest = setRequest.request();
-    m_fieldOwner      = ObjectService::findCafObjectFromRpcObject( FieldRequest.self() );
+    auto fieldRequest = setRequest.request();
+    m_fieldOwner      = ObjectService::findCafObjectFromRpcObject( fieldRequest.self() );
     int valueCount    = setRequest.value_count();
 
     std::vector<FieldHandle*> fields;
     m_fieldOwner->fields( fields );
     for ( auto field : fields )
     {
-        auto scriptability = field->capability<AbstractFieldScriptingCapability>();
-        if ( scriptability && FieldRequest.method() == scriptability->scriptFieldName() )
+        auto scriptability = field->capability<FieldScriptingCapability>();
+        if ( scriptability && scriptability->scriptFieldName() == fieldRequest.method() )
         {
             if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int>>*>( field ); dataField != nullptr )
             {
@@ -519,7 +517,7 @@ void SetterStateHandler::finish()
 {
     if ( m_field )
     {
-        auto scriptingCapability = m_field->capability<AbstractFieldScriptingCapability>();
+        auto scriptingCapability = m_field->capability<FieldScriptingCapability>();
         CAF_ASSERT( scriptingCapability );
         Variant before = m_field->toVariant();
         m_dataHolder->applyValuesToField( m_field );

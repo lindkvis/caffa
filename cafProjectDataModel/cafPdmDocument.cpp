@@ -34,9 +34,8 @@
 //
 //##################################################################################################
 
-#include "cafFieldScriptingCapability.h"
-#include "cafObjectScriptingCapability.h"
 #include "cafPdmDocument.h"
+#include "cafFieldScriptingCapability.h"
 
 #include <fstream>
 
@@ -49,7 +48,7 @@ CAF_SOURCE_INIT( PdmDocument, "PdmDocument" );
 //--------------------------------------------------------------------------------------------------
 PdmDocument::PdmDocument()
 {
-    CAF_InitScriptableObject( "Document", "", "Basic Document", "" );
+    CAF_InitObject( "Document", "", "Basic Document", "" );
     CAF_InitScriptableFieldNoDefault( &fileName, "DocumentFileName", "File Name", "", "", "" );
 }
 
