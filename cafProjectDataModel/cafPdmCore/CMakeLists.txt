@@ -24,6 +24,7 @@ set (PUBLIC_HEADERS
     cafField.h
     cafFieldCapability.h
     cafFieldHandle.h
+    cafLogger.h
     cafObjectCapability.h
     cafFieldReorderCapability.h
     cafObjectHandle.h
@@ -55,6 +56,7 @@ set( PROJECT_FILES
     cafChildArrayFieldHandle.cpp
     cafFieldHandle.cpp
     cafFieldReorderCapability.cpp
+    cafLogger.cpp
     cafObjectHandle.cpp
     cafPdmPointer.cpp
     cafPdmReferenceHelper.cpp
