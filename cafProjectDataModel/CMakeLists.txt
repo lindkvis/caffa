@@ -9,7 +9,6 @@ if (CAF_ENABLE_UNITY_BUILD)
 endif()
 
 set(PUBLIC_HEADERS
-	cafOmpMutex.h
 	cafPdmDocument.h
     cafApplication.h
 )

@@ -38,17 +38,14 @@
 #include "cafGrpcClientObjectFactory.h"
 #include "cafGrpcServerApplication.h"
 
-#include "cafAbstractFieldScriptingCapability.h"
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
+#include "cafFieldScriptingCapability.h"
 #include "cafGrpcObjectClientCapability.h"
 #include "cafGrpcServerApplication.h"
 #include "cafObject.h"
 #include "cafObjectMethod.h"
-#include "cafObjectScriptingCapability.h"
-#include "cafObjectScriptingCapabilityRegister.h"
 #include "cafPdmDocument.h"
-#include "cafPdmScriptIOMessages.h"
 
 #include <grpcpp/grpcpp.h>
 

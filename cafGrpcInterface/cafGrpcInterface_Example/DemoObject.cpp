@@ -18,6 +18,8 @@
 //##################################################################################################
 #include "DemoObject.h"
 
+#include "cafFieldScriptingCapability.h"
+
 DemoObject::DemoObject()
 {
     CAF_InitObject( "Demo Object", "", "", "" );
@@ -41,9 +43,9 @@ CAF_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject" );
 
 DemoDocument::DemoDocument()
 {
-    CAF_InitScriptableObject( "DemoDocument", "", "Demo Document", "" );
-    CAF_InitFieldNoDefault( &m_demoObject, "DemoObject", "", "", "", "" );
-    CAF_InitFieldNoDefault( &m_inheritedDemoObjects, "InheritedDemoObject", "", "", "", "" );
+    CAF_InitObject( "DemoDocument", "", "Demo Document", "" );
+    CAF_InitScriptableFieldNoDefault( &m_demoObject, "DemoObject", "", "", "", "" );
+    CAF_InitScriptableFieldNoDefault( &m_inheritedDemoObjects, "InheritedDemoObject", "", "", "", "" );
     m_demoObject = new DemoObject;
 
     this->fileName = "dummyFileName";

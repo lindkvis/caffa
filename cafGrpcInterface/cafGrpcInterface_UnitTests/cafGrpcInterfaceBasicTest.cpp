@@ -16,7 +16,6 @@
 #include "cafFieldScriptingCapability.h"
 #include "cafLogger.h"
 #include "cafObjectHandle.h"
-#include "cafObjectScriptingCapability.h"
 #include "cafPdmDocument.h"
 #include "cafPdmReferenceHelper.h"
 #include "cafPtrField.h"
@@ -214,7 +213,7 @@ class DemoDocument : public caf::PdmDocument
 public:
     DemoDocument()
     {
-        CAF_InitScriptableObject( "DemoDocument", "", "Demo Document", "" );
+        CAF_InitObject( "DemoDocument", "", "Demo Document", "" );
         CAF_InitFieldNoDefault( &m_demoObject, "DemoObject", "", "", "", "" );
         CAF_InitFieldNoDefault( &m_inheritedDemoObjects, "InheritedDemoObject", "", "", "", "" );
         m_demoObject = new DemoObject;
