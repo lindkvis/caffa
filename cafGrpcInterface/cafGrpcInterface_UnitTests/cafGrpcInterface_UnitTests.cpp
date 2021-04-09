@@ -34,6 +34,8 @@
 //
 //##################################################################################################
 
+#include "cafLogger.h"
+
 #include "gtest/gtest.h"
 #include <iostream>
 #include <stdio.h>
@@ -45,6 +47,9 @@
 int main( int argc, char** argv )
 {
     testing::InitGoogleTest( &argc, argv );
+
+    caf::Logger::setApplicationLogLevel( caf::Logger::Level::INFO );
+
     int result = RUN_ALL_TESTS();
 
     return result;

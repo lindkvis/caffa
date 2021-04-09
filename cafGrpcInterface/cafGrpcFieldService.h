@@ -65,10 +65,9 @@ class SetterReply;
 
 struct AbstractDataHolder
 {
-    virtual size_t valueCount() const                                                        = 0;
-    virtual size_t valueSizeOf() const                                                       = 0;
-    virtual void   reserveReplyStorage( GetterReply* reply, size_t numberOfDataUnits ) const = 0;
-    virtual void   addValueToReply( size_t valueIndex, GetterReply* reply ) const            = 0;
+    virtual size_t valueCount() const                                                                               = 0;
+    virtual size_t valueSizeOf() const                                                                              = 0;
+    virtual void   reserveReplyStorage( GetterReply* reply, size_t numberOfDataUnits ) const                        = 0;
     virtual void   addPackageValuesToReply( GetterReply* reply, size_t startIndex, size_t numberOfDataUnits ) const = 0;
 
     virtual size_t getValuesFromChunk( size_t startIndex, const SetterChunk* chunk ) = 0;
@@ -87,8 +86,6 @@ public:
 
     grpc::Status init( const FieldRequest* request ) override;
     grpc::Status assignReply( GetterReply* reply );
-    template<typename ReplyType>
-    grpc::Status assignTypedReply( ReplyType* reply );
     size_t       streamedValueCount() const override;
     size_t       totalValueCount() const override;
     void         finish() override;
@@ -101,9 +98,6 @@ protected:
     std::unique_ptr<AbstractDataHolder> m_dataHolder;
     size_t                              m_currentDataIndex;
 };
-
-template<>
-grpc::Status GetterStateHandler::assignTypedReply<FloatArray>(FloatArray* reply);
 
 /**
  *
@@ -141,10 +135,6 @@ public:
     grpc::Status GetValue( grpc::ServerContext*        context,
                            const FieldRequest*         request,
                            GetterReply*                reply,
-                           StateHandler<FieldRequest>* stateHandler );
-    grpc::Status GetFloatValue( grpc::ServerContext*   context,
-                           const FieldRequest*         request,
-                           FloatArray*                 reply,
                            StateHandler<FieldRequest>* stateHandler );
 
     grpc::Status SetValue( grpc::ServerContext*       context,

@@ -62,12 +62,12 @@ namespace caf::rpc
 //--------------------------------------------------------------------------------------------------
 grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const DocumentRequest* request, Object* reply )
 {
-    std::cout << "Got document request" << std::endl;
+    CAF_TRACE( "Got document request" );
     PdmDocument* document = ServerApplication::instance()->document( request->document_id() );
-    std::cout << "Found document" << std::endl;
+    CAF_TRACE( "Found document" );
     if ( document )
     {
-        std::cout << "Copying document to gRPC data structure" << std::endl;
+        CAF_TRACE( "Copying document to gRPC data structure" );
         copyObjectFromCafToRpc( document, reply, true, false );
         return grpc::Status::OK;
     }

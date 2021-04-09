@@ -39,6 +39,7 @@
 #include "cafGrpcServiceInterface.h"
 
 #include "cafAssert.h"
+#include "cafLogger.h"
 
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
@@ -72,19 +73,25 @@ public:
     {
     }
 
-    ~ServerImpl() { forceQuit(); }
+    ~ServerImpl() {}
 
     void run()
     {
-        m_thread           = std::thread( &ServerImpl::initializeAndWaitForNextRequest, this );
+        m_waitingThread    = std::thread( &ServerImpl::initializeAndWaitForNextRequest, this );
         m_processingThread = std::thread( &ServerImpl::processAllRequests, this );
-        m_thread.join();
+
+        // Wait for thread to join after handling the shutdown call
         m_processingThread.join();
+
+        forceQuit();
+
+        CAF_DEBUG( "Threads joined" );
     }
 
     void quit()
     {
         std::lock_guard<std::mutex> launchLock( m_appStateMutex );
+        CAF_DEBUG( "Received quit request" );
         m_receivedQuitRequest = true;
     }
 
@@ -96,6 +103,7 @@ public:
 
     void forceQuit()
     {
+        CAF_DEBUG( "Shutting down" );
         if ( m_server )
         {
             // Clear unhandled requests
@@ -110,16 +118,18 @@ public:
             m_server->Shutdown();
             m_completionQueue->Shutdown();
 
-            // Wait for thread to join after handling the shutdown call
-            m_thread.join();
+            m_waitingThread.join();
 
             // Must destroy server before services
             m_server.reset();
+            CAF_TRACE( "Attempting to clear queue" );
             m_completionQueue.reset();
 
+            CAF_TRACE( "Attempting to clear services" );
             // Finally clear services
             m_services.clear();
         }
+        CAF_DEBUG( "Finished shutting down" );
     }
 
     int port() const { return m_portNumber; }
@@ -135,6 +145,7 @@ public:
         CAF_ASSERT( m_portNumber > 0 && m_portNumber <= (int)std::numeric_limits<uint16_t>::max() );
 
         std::string serverAddress = "0.0.0.0:" + std::to_string( m_portNumber );
+        CAF_DEBUG( "Initialising new server with address: " << serverAddress );
 
         ServerBuilder builder;
         builder.AddListeningPort( serverAddress, grpc::InsecureServerCredentials() );
@@ -176,9 +187,14 @@ public:
         {
             std::unique_lock<std::mutex> processingLock( m_processingMutex );
             auto                         now = std::chrono::system_clock::now();
-            while (
-                m_processingGuard.wait_until( processingLock, now + 1ms, [this]() { return !m_queuedRequests.empty(); } ) )
+
+            CAF_TRACE( "Waiting to process requests" );
+            while ( m_processingGuard.wait_until( processingLock, now + 100ms, [this]() {
+                return !m_queuedRequests.empty();
+            } ) )
             {
+                CAF_TRACE( "Request processor is dealing with message" );
+
                 std::list<AbstractCallback*> waitingRequests;
                 {
                     // Block only while transferring the unprocessed requests to a local function list
@@ -195,8 +211,10 @@ public:
                     waitingRequests.pop_front();
                     process( method );
                 }
+                CAF_TRACE( "Request processor is going back to sleep" );
             }
         }
+        CAF_DEBUG( "Processing thread quitting" );
         return count;
     }
 
@@ -209,39 +227,55 @@ private:
             std::lock_guard<std::mutex> requestLock( m_requestMutex );
         }
 
-        while ( m_completionQueue->Next( &tag, &ok ) )
+        CAF_DEBUG( "Waiting for requests" );
+        while ( true )
         {
-            std::lock_guard<std::mutex> requestLock( m_requestMutex );
-            AbstractCallback*           method = static_cast<AbstractCallback*>( tag );
-            if ( !ok )
+            auto nextStatus = m_completionQueue->Next( &tag, &ok );
+            CAF_TRACE( "Received request with status: " << nextStatus );
+            if ( nextStatus == grpc::CompletionQueue::SHUTDOWN ) break;
+            if ( !quitting() )
             {
-                method->setNextCallState( AbstractCallback::FINISH_REQUEST );
+                std::lock_guard<std::mutex> requestLock( m_requestMutex );
+                AbstractCallback*           method = static_cast<AbstractCallback*>( tag );
+                if ( !ok )
+                {
+                    CAF_ERROR( "Erronous request!" );
+                    method->setNextCallState( AbstractCallback::FINISH_REQUEST );
+                }
+                m_queuedRequests.push_back( method );
+                CAF_TRACE( "Notifying request processor that a new request is waiting" );
+                m_processingGuard.notify_one();
             }
-            m_queuedRequests.push_back( method );
-            m_processingGuard.notify_one();
         }
+        CAF_DEBUG( "Request handler quitting" );
     }
 
     void process( AbstractCallback* method )
     {
         if ( method->callState() == AbstractCallback::CREATE )
         {
+            CAF_TRACE( "Create request handler: " << method->name() );
             method->createRequestHandler( m_completionQueue.get() );
+            CAF_TRACE( "Request handler created" );
         }
         else if ( method->callState() == AbstractCallback::INIT_REQUEST_STARTED )
         {
+            CAF_TRACE( "Init request: " << method->name() );
             method->onInitRequestStarted();
         }
         else if ( method->callState() == AbstractCallback::INIT_REQUEST_COMPLETED )
         {
+            CAF_TRACE( "Init request completed: " << method->name() );
             method->onInitRequestCompleted();
         }
         else if ( method->callState() == AbstractCallback::PROCESS_REQUEST )
         {
+            CAF_TRACE( "Processing request: " << method->name() );
             method->onProcessRequest();
         }
         else
         {
+            CAF_TRACE( "Finishing request: " << method->name() );
             method->onFinishRequest();
             process( method->emptyClone() );
             delete method;
@@ -256,7 +290,7 @@ private:
     std::list<AbstractCallback*>                 m_queuedRequests;
     std::mutex                                   m_requestMutex;
     mutable std::mutex                           m_appStateMutex;
-    std::thread                                  m_thread;
+    std::thread                                  m_waitingThread;
     std::thread                                  m_processingThread;
 
     std::mutex              m_processingMutex;
