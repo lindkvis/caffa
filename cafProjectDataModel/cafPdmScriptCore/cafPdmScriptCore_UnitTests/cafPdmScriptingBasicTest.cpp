@@ -60,7 +60,7 @@ public:
         : Object()
         , m_doubleMember( 0.0 )
     {
-        CAF_InitObject( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
+        initObject( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
 
         CAF_InitField( &m_position, "Position", 8765.2, "Position", "", "Tooltip", "WhatsThis" );
         CAF_InitField( &m_dir, "Dir", 123.56, "Direction", "", "Tooltip", "WhatsThis" );
@@ -125,7 +125,7 @@ class DemoObject : public caf::Object
 public:
     DemoObject()
     {
-        CAF_InitObject( "DemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
+        initObject( "DemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
 
         CAF_InitField( &m_doubleField,
                        "BigNumber",
@@ -180,7 +180,7 @@ public:
 
     InheritedDemoObj()
     {
-        CAF_InitObject( "InheritedDemoObj", "", "ToolTip InheritedDemoObj", "Whatsthis InheritedDemoObj" );
+        initObject( "InheritedDemoObj", "", "ToolTip InheritedDemoObj", "Whatsthis InheritedDemoObj" );
 
         CAF_InitScriptableFieldNoDefault( &m_texts, "Texts", "Some words", "", "", "" );
         CAF_InitScriptableFieldNoDefault( &m_numbers, "Numbers", "Some words", "", "", "" );

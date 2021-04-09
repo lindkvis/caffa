@@ -22,7 +22,7 @@
 
 DemoObject::DemoObject()
 {
-    CAF_InitObject( "Demo Object", "", "", "" );
+    initObject( "Demo Object", "", "", "" );
 
     CAF_InitScriptableFieldNoDefault( &m_doubleVector, "doubleVector", "", "", "", "" );
     CAF_InitScriptableFieldNoDefault( &m_floatVector, "floatVector", "", "", "", "" );
@@ -33,7 +33,7 @@ CAF_SOURCE_INIT( DemoObject, "DemoObject" );
 
 InheritedDemoObj::InheritedDemoObj()
 {
-    CAF_InitObject( "Inherited Demo Object", "", "", "" );
+    initObject( "Inherited Demo Object", "", "", "" );
     this->addField( &m_texts, "Texts" );
     this->addField( &m_childArrayField, "DemoObjectects" );
     this->addField( &m_ptrField, "m_ptrField" );
@@ -43,7 +43,7 @@ CAF_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject" );
 
 DemoDocument::DemoDocument()
 {
-    CAF_InitObject( "DemoDocument", "", "Demo Document", "" );
+    initObject( "DemoDocument", "", "Demo Document", "" );
     CAF_InitScriptableFieldNoDefault( &m_demoObject, "DemoObject", "", "", "", "" );
     CAF_InitScriptableFieldNoDefault( &m_inheritedDemoObjects, "InheritedDemoObject", "", "", "", "" );
     m_demoObject = new DemoObject;

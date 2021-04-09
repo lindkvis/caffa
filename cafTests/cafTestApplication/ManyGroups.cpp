@@ -11,10 +11,10 @@ CAF_SOURCE_INIT(ManyGroups, "LargeObject");
 //--------------------------------------------------------------------------------------------------
 ManyGroups::ManyGroups()
 {
-    CAF_InitObject("Many Groups",
-                   ":/images/win/filenew.png",
-                   "This object is a demo of the CAF framework",
-                   "This object is a demo of the CAF framework");
+    initObject("Many Groups",
+               ":/images/win/filenew.png",
+               "This object is a demo of the CAF framework",
+               "This object is a demo of the CAF framework");
 
     CAF_InitField(
         &m_toggleField, "Toggle", false, "Add Items To Multi Select", "", "Toggle Field tooltip", " Toggle Field whatsthis");

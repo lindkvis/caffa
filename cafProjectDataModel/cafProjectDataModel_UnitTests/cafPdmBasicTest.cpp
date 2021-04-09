@@ -62,9 +62,10 @@ public:
         : Object()
         , m_doubleMember( 0.0 )
     {
-        CAF_InitObject( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
+        initObject( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
+        initField( m_position, "Position" );
 
-        CAF_InitField( &m_position, "Position", 8765.2, "Position", "", "Tooltip", "WhatsThis" );
+        // CAF_InitField( &m_position, "Position", 8765.2, "Position", "", "Tooltip", "WhatsThis" );
         CAF_InitField( &m_dir, "Dir", 123.56, "Direction", "", "Tooltip", "WhatsThis" );
         CAF_InitField( &m_up, "Up", 0.0, "Up value", "", "Tooltip", "WhatsThis" );
         CAF_InitFieldNoDefault( &m_numbers, "Numbers", "Important Numbers", "", "Tooltip", "WhatsThis" );
@@ -128,7 +129,7 @@ class DemoObject : public caf::Object
 public:
     DemoObject()
     {
-        CAF_InitObject( "DemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
+        initObject( "DemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
 
         CAF_InitField( &m_doubleField,
                        "BigNumber",
@@ -183,7 +184,7 @@ public:
 
     InheritedDemoObj()
     {
-        CAF_InitObject( "InheritedDemoObj", "", "ToolTip InheritedDemoObj", "Whatsthis InheritedDemoObj" );
+        initObject( "InheritedDemoObj", "", "ToolTip InheritedDemoObj", "Whatsthis InheritedDemoObj" );
 
         CAF_InitFieldNoDefault( &m_texts, "Texts", "Some words", "", "", "" );
         CAF_InitFieldNoDefault( &m_testEnumField, "TestEnumValue", "An Enum", "", "", "" );
@@ -210,7 +211,7 @@ class MyPdmDocument : public caf::PdmDocument
 public:
     MyPdmDocument()
     {
-        CAF_InitObject( "ObjectCollection", "", "", "" );
+        initObject( "ObjectCollection", "", "", "" );
         CAF_InitFieldNoDefault( &objects, "Objects", "", "", "", "" )
     }
 
@@ -783,7 +784,7 @@ class ReferenceDemoObject : public caf::Object
 public:
     ReferenceDemoObject()
     {
-        CAF_InitObject( "ReferenceDemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
+        initObject( "ReferenceDemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
 
         CAF_InitFieldNoDefault( &m_pointersField, "SimpleObjPtrField", "SimpleObjPtrField", "", "Tooltip", "WhatsThis" );
         CAF_InitFieldNoDefault( &m_simpleObjPtrField2, "SimpleObjPtrField2", "SimpleObjPtrField2", "", "Tooltip", "WhatsThis" );
