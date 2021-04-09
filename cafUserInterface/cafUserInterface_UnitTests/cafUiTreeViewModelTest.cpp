@@ -18,7 +18,7 @@ public:
     SimpleObj()
         : Object()
     {
-        CAF_InitObject( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
+        initObject( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
     }
     ~SimpleObj() {}
 };
@@ -31,7 +31,7 @@ class DemoObject : public caf::Object
 public:
     DemoObject()
     {
-        CAF_InitObject( "DemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
+        initObject( "DemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
 
         CAF_InitFieldNoDefault( &m_simpleObjPtrField, "SimpleObjPtrField", "SimpleObjPtrField", "", "Tooltip", "WhatsThis" );
     }

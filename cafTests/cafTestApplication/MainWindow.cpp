@@ -49,7 +49,7 @@ class DemoObjectGroup : public caf::PdmDocument
 public:
     DemoObjectGroup()
     {
-        CAF_InitObject("Project", "", "Test Project", "");
+        initObject("Project", "", "Test Project", "");
         CAF_InitFieldNoDefault(&objects, "Objects", "", "", "", "");
         CAF_InitField(&m_textField, "Description", std::string("Project"), "", "", "", "");
         objects.capability<caf::FieldUiCapability>()->setUiHidden(true);
@@ -86,7 +86,7 @@ CAF_SOURCE_INIT(TinyDemoObject, "TinyDemoObject");
 
 TinyDemoObject::TinyDemoObject()
 {
-    CAF_InitObject("Tiny Demo Object", "", "This object is a demo of the CAF framework", "");
+    initObject("Tiny Demo Object", "", "This object is a demo of the CAF framework", "");
     CAF_InitField(&m_toggleField, "Toggle", false, "Toggle Item", "", "Tooltip", " Whatsthis?");
     CAF_InitField(&m_doubleField,
                   "Number",
@@ -104,10 +104,10 @@ class SmallDemoObject : public caf::Object
 public:
     SmallDemoObject()
     {
-        CAF_InitObject("Small Demo Object",
-                       ":/images/win/filenew.png",
-                       "This object is a demo of the CAF framework",
-                       "This object is a demo of the CAF framework");
+        initObject("Small Demo Object",
+                   ":/images/win/filenew.png",
+                   "This object is a demo of the CAF framework",
+                   "This object is a demo of the CAF framework");
 
         CAF_InitField(
             &m_toggleField, "Toggle", false, "Add Items To Multi Select", "", "Toggle Field tooltip", " Toggle Field whatsthis");
@@ -297,10 +297,10 @@ class SmallGridDemoObject : public caf::Object
 public:
     SmallGridDemoObject()
     {
-        CAF_InitObject("Small Grid Demo Object",
-                       "",
-                       "This object is a demo of the CAF framework",
-                       "This object is a demo of the CAF framework");
+        initObject("Small Grid Demo Object",
+                   "",
+                   "This object is a demo of the CAF framework",
+                   "This object is a demo of the CAF framework");
 
         CAF_InitField(&m_intFieldStandard,
                       "Standard",
@@ -621,10 +621,10 @@ class SingleEditorObject : public caf::Object
 public:
     SingleEditorObject()
     {
-        CAF_InitObject("Single Editor Object",
-                       "",
-                       "This object is a demo of the CAF framework",
-                       "This object is a demo of the CAF framework");
+        initObject("Single Editor Object",
+                   "",
+                   "This object is a demo of the CAF framework",
+                   "This object is a demo of the CAF framework");
 
         CAF_InitField(&m_intFieldStandard,
                       "Standard",
@@ -664,10 +664,10 @@ public:
 
     SmallDemoObjectA()
     {
-        CAF_InitObject("Small Demo Object A",
-                       "",
-                       "This object is a demo of the CAF framework",
-                       "This object is a demo of the CAF framework");
+        initObject("Small Demo Object A",
+                   "",
+                   "This object is a demo of the CAF framework",
+                   "This object is a demo of the CAF framework");
 
         CAF_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
         CAF_InitField(&m_pushButtonField, "Push", false, "Button Field", "", "", " ");
@@ -871,8 +871,7 @@ class DemoObject : public caf::Object
 public:
     DemoObject()
     {
-        CAF_InitObject(
-            "Demo Object", "", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
+        initObject("Demo Object", "", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
 
         CAF_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
         CAF_InitField(&m_doubleField,

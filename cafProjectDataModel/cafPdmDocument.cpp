@@ -48,7 +48,7 @@ CAF_SOURCE_INIT( PdmDocument, "PdmDocument" );
 //--------------------------------------------------------------------------------------------------
 PdmDocument::PdmDocument()
 {
-    CAF_InitObject( "Document", "", "Basic Document", "" );
+    initObject( "Document", "", "Basic Document", "" );
     CAF_InitScriptableFieldNoDefault( &fileName, "DocumentFileName", "File Name", "", "", "" );
 }
 

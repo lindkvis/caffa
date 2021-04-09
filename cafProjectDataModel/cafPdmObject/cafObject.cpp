@@ -12,7 +12,29 @@ caf::Object::Object()
     , ObjectIoCapability( this, false )
     , ObjectUiCapability( this, false )
 {
-    CAF_InitObject( "Base PDM Object", "", "", "The Abstract Base Class for the Project Data Model" );
+    initObject( "Base PDM Object", "", "", "The Abstract Base Class for the Project Data Model" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Object& Object::initObject()
+{
+    this->isInheritedFromSerializable();
+    this->registerClassKeyword( classKeyword() );
+    return *this;
+}
+
+Object& Object::initUi( const std::string& uiName,
+                        const std::string& iconResourceName,
+                        const std::string& toolTip,
+                        const std::string& whatsThis )
+{
+    std::string validUiName = uiName.empty() ? classKeyword() : uiName;
+    this->isInheritedFromPdmUiObject();
+    caf::UiItemInfo objDescr( validUiName, iconResourceName, toolTip, whatsThis );
+    this->setUiItemInfo( objDescr );
+    return *this;
 }
 
 //--------------------------------------------------------------------------------------------------

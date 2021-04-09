@@ -64,21 +64,6 @@ class ObjectCapability;
 #define CAF_SOURCE_INIT CAF_IO_SOURCE_INIT
 #define CAF_ABSTRACT_SOURCE_INIT CAF_IO_ABSTRACT_SOURCE_INIT
 
-/// InitObject sets up the user interface related information for the object
-/// Placed in the constructor of your Object
-/// Note that classKeyword() is not virtual in the constructor of the Object
-/// This is expected and fine.
-
-#define CAF_InitObject( uiName, iconResourceName, toolTip, whatsThis )                           \
-    {                                                                                            \
-        this->isInheritedFromPdmUiObject();                                                      \
-        this->isInheritedFromSerializable();                                                     \
-        this->registerClassKeyword( classKeyword() );                                            \
-                                                                                                 \
-        caf::UiItemInfo objDescr( uiName, std::string( iconResourceName ), toolTip, whatsThis ); \
-        this->setUiItemInfo( objDescr );                                                         \
-    }
-
 /// InitField sets the file keyword for the field,
 /// adds the field to the internal data structure in the Object,
 /// sets the default value for the field,
@@ -109,8 +94,6 @@ class ObjectCapability;
 
 #define CAF_InitFieldNoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis )                                \
     {                                                                                                                         \
-        CAF_PDM_VERIFY_IO_KEYWORD( keyword )                                                                                  \
-                                                                                                                              \
         static bool checkingThePresenceOfHeaderAndSourceInitMacros =                                                          \
             Error_You_forgot_to_add_the_macro_CAF_IO_HEADER_INIT_and_or_CAF_IO_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
         this->isInheritedFromPdmUiObject();                                                                                   \
@@ -135,6 +118,30 @@ public:
 
     Object();
     ~Object() override {}
+
+    /// InitObject sets up the user interface related information for the object
+    /// Placed in the constructor of your Object
+    /// Note that classKeyword() is not virtual in the constructor of the Object
+    /// This is expected and fine.
+    Object& initObject();
+
+    Object& initUi( const std::string& uiName           = "",
+                    const std::string& iconResourceName = "",
+                    const std::string& toolTip          = "",
+                    const std::string& whatsThis        = "" );
+
+    template <typename FieldType>
+    FieldType& initField( FieldType& field, const std::string& keyword )
+    {
+        isInheritedFromPdmUiObject();
+        isInheritedFromSerializable();
+        AddIoCapabilityToField( &field );
+        AddUiCapabilityToField( &field );
+
+        RegisterClassWithField( classKeyword(), &field );
+        addField( &field, keyword );
+        return field;
+    }
 
     /// Adds field to the internal data structure and sets the file keyword and Ui information
     /// Consider this method private. Please use the CAF_InitField() macro instead

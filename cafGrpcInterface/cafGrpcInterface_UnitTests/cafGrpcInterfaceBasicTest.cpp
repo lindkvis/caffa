@@ -34,7 +34,7 @@ class DemoObject : public caf::Object
 public:
     DemoObject()
     {
-        CAF_InitObject( "Demo Object", "", "", "" );
+        initObject( "Demo Object", "", "", "" );
         CAF_InitScriptableFieldNoDefault( &m_proxyDoubleField, "proxyDoubleField", "", "", "", "" );
         CAF_InitScriptableFieldNoDefault( &m_proxyIntField, "proxyIntField", "", "", "", "" );
         CAF_InitScriptableFieldNoDefault( &m_proxyStringField, "proxyStringField", "", "", "", "" );
@@ -155,7 +155,7 @@ public:
                            const std::string& stringValue = "SomeValue" )
         : caf::ObjectMethod( self )
     {
-        CAF_InitObject( "Copy values into object", "", "", "Copy all values into the DemoObject" );
+        initObject( "Copy values into object", "", "", "Copy all values into the DemoObject" );
         CAF_InitScriptableField( &m_doubleMember, "doubleMember", doubleValue, "", "", "", "" );
         CAF_InitScriptableField( &m_intMember, "intMember", intValue, "", "", "", "" );
         CAF_InitScriptableField( &m_stringMember, "stringMember", stringValue, "", "", "", "" );
@@ -193,7 +193,7 @@ class InheritedDemoObj : public DemoObject
 public:
     InheritedDemoObj()
     {
-        CAF_InitObject( "Inherited Demo Object", "", "", "" );
+        initObject( "Inherited Demo Object", "", "", "" );
         this->addField( &m_texts, "Texts" );
         this->addField( &m_childArrayField, "DemoObjectects" );
         this->addField( &m_ptrField, "m_ptrField" );
@@ -213,7 +213,8 @@ class DemoDocument : public caf::PdmDocument
 public:
     DemoDocument()
     {
-        CAF_InitObject( "DemoDocument", "", "Demo Document", "" );
+        initObject( "DemoDocument", "", "Demo Document", "" );
+
         CAF_InitFieldNoDefault( &m_demoObject, "DemoObject", "", "", "", "" );
         CAF_InitFieldNoDefault( &m_inheritedDemoObjects, "InheritedDemoObject", "", "", "", "" );
         m_demoObject = new DemoObject;
