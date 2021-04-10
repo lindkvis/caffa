@@ -1,4 +1,4 @@
-name: Build with Unit Tests
+name: Build with Unit Tests Windows/MacOS
 
 on: [push, pull_request]
 jobs:
@@ -7,16 +7,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, windows-latest, macos-latest]
+        os: [windows-latest, macos-latest]
         include:
           - os: windows-latest
             triplet: x64-windows
-          - os: ubuntu-20.04
-            triplet: x64-linux
-
+          - os: macos-latest
+            triplet: x64-osx
     steps:
-      - name: Install gRPC
-        run: sudo apt-get install libgrpc++-dev libprotoc-dev protobuf-compiler-grpc
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -26,14 +23,20 @@ jobs:
         with:
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
           cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-          cmakeAppendedArgs: '-DCAFFA_GRPC_INTERFACE=ON -DCAFFA_BUILD_UNIT_TESTS=ON'
+          cmakeAppendedArgs: '-DCAFFA_GRPC_INTERFACE=OFF -DCAFFA_BUILD_UNIT_TESTS=ON'
           buildDirectory: ${{ github.workspace }}/cmakebuild
           buildWithCMakeArgs: '--config Release'
-      - name: Run Unit Tests Linux
+      - name: Run Unit Tests MacOS
         shell: bash
         run: |
           cmakebuild/bin/cafCore_UnitTests
           cmakebuild/bin/cafIoCore_UnitTests
           cmakebuild/bin/cafProjectDataModel_UnitTests
-          cmakebuild/bin/cafGrpcInterface_UnitTests
+      - name: Run Unit Tests Windows
+        if: contains( matrix.os, 'windows')  
+        shell: bash
+        run: |
+          cmakebuild/bin/Release/cafCore_UnitTests.exe
+          cmakebuild/bin/Release/cafIoCore_UnitTests.exe
+          cmakebuild/bin/Release/cafProjectDataModel_UnitTests.exe
 
