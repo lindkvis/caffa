@@ -45,14 +45,12 @@ ManyGroups::ManyGroups()
 
     m_multiSelectList.capability<caf::FieldIoCapability>()->setIOReadable(false);
     m_multiSelectList.capability<caf::FieldIoCapability>()->setIOWritable(false);
-    m_multiSelectList.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
-        caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+    m_multiSelectList.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::UiTreeSelectionEditor::uiEditorTypeName());
 
     m_multiSelectList = {"First", "Second", "Third"};
 
     initField(m_stringWithMultipleOptions, "m_stringWithMultipleOptions").withUi("Text with many items", "", "", "");
-    m_stringWithMultipleOptions.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
-        caf::PdmUiListEditor::uiEditorTypeName());
+    m_stringWithMultipleOptions.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::UiListEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -232,7 +230,7 @@ void ManyGroups::defineEditorAttribute(const caf::FieldHandle* field, caf::UiEdi
 {
     if (field == &m_multiSelectList)
     {
-        caf::PdmUiTreeSelectionEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>(attribute);
+        caf::UiTreeSelectionEditorAttribute* myAttr = dynamic_cast<caf::UiTreeSelectionEditorAttribute*>(attribute);
         if (myAttr)
         {
             // myAttr->showTextFilter = false;

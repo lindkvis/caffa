@@ -50,12 +50,12 @@
 
 namespace caf
 {
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiSliderEditor );
+CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiSliderEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiSliderEditor::configureAndUpdateUi()
+void UiSliderEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_spinBox.isNull() );
 
@@ -94,7 +94,7 @@ void PdmUiSliderEditor::configureAndUpdateUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiSliderEditor::createEditorWidget( QWidget* parent )
+QWidget* UiSliderEditor::createEditorWidget( QWidget* parent )
 {
     QWidget* containerWidget = new QWidget( parent );
 
@@ -119,7 +119,7 @@ QWidget* PdmUiSliderEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiSliderEditor::createLabelWidget( QWidget* parent )
+QWidget* UiSliderEditor::createLabelWidget( QWidget* parent )
 {
     m_label = new QLabel( parent );
     return m_label;
@@ -128,7 +128,7 @@ QWidget* PdmUiSliderEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiSliderEditor::slotSliderValueChanged( int position )
+void UiSliderEditor::slotSliderValueChanged( int position )
 {
     m_spinBox->setValue( position );
 
@@ -138,7 +138,7 @@ void PdmUiSliderEditor::slotSliderValueChanged( int position )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiSliderEditor::slotSpinBoxValueChanged( int spinBoxValue )
+void UiSliderEditor::slotSpinBoxValueChanged( int spinBoxValue )
 {
     updateSliderPosition();
 
@@ -148,7 +148,7 @@ void PdmUiSliderEditor::slotSpinBoxValueChanged( int spinBoxValue )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiSliderEditor::updateSliderPosition()
+void UiSliderEditor::updateSliderPosition()
 {
     QString textValue = m_spinBox->text();
 
@@ -164,7 +164,7 @@ void PdmUiSliderEditor::updateSliderPosition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiSliderEditor::writeValueToField()
+void UiSliderEditor::writeValueToField()
 {
     QString textValue = m_spinBox->text();
     Variant v( textValue.toStdString() );

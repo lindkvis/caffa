@@ -57,34 +57,34 @@ class QVBoxLayout;
 namespace caf
 {
 class ChildArrayFieldHandle;
-class PdmUiDragDropInterface;
+class UiDragDropInterface;
 class UiItem;
-class PdmUiTreeViewEditor;
-class PdmUiTreeViewQModel;
-class PdmUiTreeViewWidget;
+class UiTreeViewEditor;
+class UiTreeViewQModel;
+class UiTreeViewWidget;
 
-class PdmUiTreeViewItemDelegate : public QStyledItemDelegate
+class UiTreeViewItemDelegate : public QStyledItemDelegate
 {
 public:
-    PdmUiTreeViewItemDelegate( QObject* parent, PdmUiTreeViewQModel* model );
+    UiTreeViewItemDelegate( QObject* parent, UiTreeViewQModel* model );
     void clearAttributes();
-    void addAttribute( QModelIndex index, const PdmUiTreeViewItemAttribute& attribute );
+    void addAttribute( QModelIndex index, const UiTreeViewItemAttribute& attribute );
     void paint( QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index ) const override;
 
 private:
-    PdmUiTreeViewQModel*                              m_model;
-    std::map<QModelIndex, PdmUiTreeViewItemAttribute> m_attributes;
+    UiTreeViewQModel*                              m_model;
+    std::map<QModelIndex, UiTreeViewItemAttribute> m_attributes;
 };
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiTreeViewEditor : public PdmUiTreeEditorHandle
+class UiTreeViewEditor : public UiTreeEditorHandle
 {
     Q_OBJECT
 public:
-    PdmUiTreeViewEditor();
-    ~PdmUiTreeViewEditor() override;
+    UiTreeViewEditor();
+    ~UiTreeViewEditor() override;
 
     void enableDefaultContextMenu( bool enable );
     void enableSelectionManagerUpdating( bool enable );
@@ -105,7 +105,7 @@ public:
 
     QWidget* createWidget( QWidget* parent ) override;
 
-    void setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
+    void setDragDropInterface( UiDragDropInterface* dragDropInterface );
 
 signals:
     void selectionChanged();
@@ -133,9 +133,9 @@ private:
     QPointer<QWidget> m_mainWidget;
     QVBoxLayout*      m_layout;
 
-    PdmUiTreeViewWidget*       m_treeView;
-    PdmUiTreeViewQModel*       m_treeViewModel;
-    PdmUiTreeViewItemDelegate* m_delegate;
+    UiTreeViewWidget*       m_treeView;
+    UiTreeViewQModel*       m_treeViewModel;
+    UiTreeViewItemDelegate* m_delegate;
 
     bool m_useDefaultContextMenu;
     bool m_updateSelectionManager;

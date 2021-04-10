@@ -43,12 +43,12 @@
 
 using namespace caf;
 
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiPickableLineEditor );
+CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiPickableLineEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiPickableLineEditor::~PdmUiPickableLineEditor()
+caf::UiPickableLineEditor::~UiPickableLineEditor()
 {
     if ( m_attribute.pickEventHandler )
     {
@@ -59,9 +59,9 @@ caf::PdmUiPickableLineEditor::~PdmUiPickableLineEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiPickableLineEditor::configureAndUpdateUi()
+void caf::UiPickableLineEditor::configureAndUpdateUi()
 {
-    PdmUiLineEditor::configureAndUpdateUi();
+    UiLineEditor::configureAndUpdateUi();
 
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )

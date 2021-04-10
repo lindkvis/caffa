@@ -54,10 +54,10 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiLineEditorAttribute : public UiEditorAttribute
+class UiLineEditorAttribute : public UiEditorAttribute
 {
 public:
-    PdmUiLineEditorAttribute()
+    UiLineEditorAttribute()
     {
         avoidSendingEnterEventToParentWidget = false;
         completerCaseSensitivity             = Qt::CaseInsensitive;
@@ -82,10 +82,10 @@ public:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiLineEditorAttributeUiDisplayString : public UiEditorAttribute
+class UiLineEditorAttributeUiDisplayString : public UiEditorAttribute
 {
 public:
-    PdmUiLineEditorAttributeUiDisplayString() {}
+    UiLineEditorAttributeUiDisplayString() {}
 
 public:
     std::string m_displayString;
@@ -94,11 +94,11 @@ public:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiLineEdit : public QLineEdit
+class UiLineEdit : public QLineEdit
 {
     Q_OBJECT
 public:
-    PdmUiLineEdit( QWidget* parent );
+    UiLineEdit( QWidget* parent );
     void setAvoidSendingEnterEventToParentWidget( bool avoidSendingEnter );
 
 protected:
@@ -111,17 +111,17 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiLineEditor : public UiFieldEditorHandle
+class UiLineEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    CAF_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiLineEditor()
+    UiLineEditor()
         : m_ignoreCompleterActivated( false )
     {
     }
-    ~PdmUiLineEditor() override {}
+    ~UiLineEditor() override {}
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
@@ -139,8 +139,8 @@ private:
     bool isMultipleFieldsWithSameKeywordSelected( FieldHandle* editorField ) const;
 
 protected:
-    QPointer<PdmUiLineEdit> m_lineEdit;
-    QPointer<QLabel>        m_label;
+    QPointer<UiLineEdit> m_lineEdit;
+    QPointer<QLabel>     m_label;
 
     QPointer<QCompleter>       m_completer;
     QPointer<QStringListModel> m_completerTextList;

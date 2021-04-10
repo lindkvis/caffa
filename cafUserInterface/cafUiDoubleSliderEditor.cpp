@@ -46,20 +46,20 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmDoubleValidator : public QDoubleValidator
+class DoubleValidator : public QDoubleValidator
 {
 public:
-    explicit PdmDoubleValidator( QObject* parent = nullptr )
+    explicit DoubleValidator( QObject* parent = nullptr )
         : QDoubleValidator( parent )
     {
     }
 
-    PdmDoubleValidator( double bottom, double top, int decimals, QObject* parent )
+    DoubleValidator( double bottom, double top, int decimals, QObject* parent )
         : QDoubleValidator( bottom, top, decimals, parent )
     {
     }
 
-    ~PdmDoubleValidator() override {}
+    ~DoubleValidator() override {}
 
     //--------------------------------------------------------------------------------------------------
     ///
@@ -75,12 +75,12 @@ public:
 
 namespace caf
 {
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiDoubleSliderEditor );
+CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiDoubleSliderEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDoubleSliderEditor::configureAndUpdateUi()
+void UiDoubleSliderEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_lineEdit.isNull() );
 
@@ -102,11 +102,11 @@ void PdmUiDoubleSliderEditor::configureAndUpdateUi()
     m_slider->setMaximum( m_attributes.m_sliderTickCount );
     m_slider->blockSignals( false );
 
-    PdmDoubleValidator* pdmValidator =
-        new PdmDoubleValidator( m_attributes.m_minimum, m_attributes.m_maximum, m_attributes.m_decimals, this );
-    pdmValidator->fixup( textValue );
+    DoubleValidator* validator =
+        new DoubleValidator( m_attributes.m_minimum, m_attributes.m_maximum, m_attributes.m_decimals, this );
+    validator->fixup( textValue );
 
-    m_lineEdit->setValidator( pdmValidator );
+    m_lineEdit->setValidator( validator );
     m_lineEdit->setText( textValue );
 
     m_sliderValue = doubleValue;
@@ -116,7 +116,7 @@ void PdmUiDoubleSliderEditor::configureAndUpdateUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDoubleSliderEditor::createEditorWidget( QWidget* parent )
+QWidget* UiDoubleSliderEditor::createEditorWidget( QWidget* parent )
 {
     QWidget* containerWidget = new QWidget( parent );
 
@@ -141,7 +141,7 @@ QWidget* PdmUiDoubleSliderEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDoubleSliderEditor::createLabelWidget( QWidget* parent )
+QWidget* UiDoubleSliderEditor::createLabelWidget( QWidget* parent )
 {
     m_label = new QLabel( parent );
     return m_label;
@@ -150,7 +150,7 @@ QWidget* PdmUiDoubleSliderEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDoubleSliderEditor::slotEditingFinished()
+void UiDoubleSliderEditor::slotEditingFinished()
 {
     QString textValue = m_lineEdit->text();
 
@@ -164,7 +164,7 @@ void PdmUiDoubleSliderEditor::slotEditingFinished()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDoubleSliderEditor::slotSliderValueChanged( int value )
+void UiDoubleSliderEditor::slotSliderValueChanged( int value )
 {
     double newDoubleValue = convertFromSliderValue( value );
     m_sliderValue         = newDoubleValue;
@@ -182,7 +182,7 @@ void PdmUiDoubleSliderEditor::slotSliderValueChanged( int value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDoubleSliderEditor::slotSliderReleased()
+void UiDoubleSliderEditor::slotSliderReleased()
 {
     writeValueToField( m_sliderValue );
 }
@@ -190,7 +190,7 @@ void PdmUiDoubleSliderEditor::slotSliderReleased()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDoubleSliderEditor::updateSliderPosition( double value )
+void UiDoubleSliderEditor::updateSliderPosition( double value )
 {
     int newSliderPosition = convertToSliderValue( value );
     if ( m_slider->value() != newSliderPosition )
@@ -204,7 +204,7 @@ void PdmUiDoubleSliderEditor::updateSliderPosition( double value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDoubleSliderEditor::writeValueToField( double value )
+void UiDoubleSliderEditor::writeValueToField( double value )
 {
     this->setValueToField( Variant( value ) );
 }
@@ -212,7 +212,7 @@ void PdmUiDoubleSliderEditor::writeValueToField( double value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int PdmUiDoubleSliderEditor::convertToSliderValue( double value )
+int UiDoubleSliderEditor::convertToSliderValue( double value )
 {
     double exactSliderValue =
         m_slider->maximum() * ( value - m_attributes.m_minimum ) / ( m_attributes.m_maximum - m_attributes.m_minimum );
@@ -226,7 +226,7 @@ int PdmUiDoubleSliderEditor::convertToSliderValue( double value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double PdmUiDoubleSliderEditor::convertFromSliderValue( int sliderValue )
+double UiDoubleSliderEditor::convertFromSliderValue( int sliderValue )
 {
     double newDoubleValue = m_attributes.m_minimum +
                             sliderValue * ( m_attributes.m_maximum - m_attributes.m_minimum ) / m_slider->maximum();

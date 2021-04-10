@@ -48,14 +48,14 @@
 
 namespace caf
 {
-class PdmUiSliderEditor : public UiFieldEditorHandle
+class UiSliderEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    CAF_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiSliderEditor() {}
-    ~PdmUiSliderEditor() override {}
+    UiSliderEditor() {}
+    ~UiSliderEditor() override {}
 
 protected:
     void     configureAndUpdateUi() override;
@@ -75,7 +75,7 @@ private:
     QPointer<QSlider>  m_slider;
     QPointer<QLabel>   m_label;
 
-    PdmUiSliderEditorAttribute m_attributes;
+    UiSliderEditorAttribute m_attributes;
 };
 
 } // end namespace caf

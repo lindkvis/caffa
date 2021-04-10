@@ -16,12 +16,12 @@
 
 namespace caf
 {
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiCheckBoxTristateEditor );
+CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiCheckBoxTristateEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiCheckBoxTristateEditor::configureAndUpdateUi()
+void UiCheckBoxTristateEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_checkBox.isNull() );
     CAF_ASSERT( !m_label.isNull() );
@@ -50,7 +50,7 @@ void PdmUiCheckBoxTristateEditor::configureAndUpdateUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiCheckBoxTristateEditor::createEditorWidget( QWidget* parent )
+QWidget* UiCheckBoxTristateEditor::createEditorWidget( QWidget* parent )
 {
     m_checkBox = new QCheckBox( parent );
     m_checkBox->setTristate( true );
@@ -62,7 +62,7 @@ QWidget* PdmUiCheckBoxTristateEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiCheckBoxTristateEditor::createLabelWidget( QWidget* parent )
+QWidget* UiCheckBoxTristateEditor::createLabelWidget( QWidget* parent )
 {
     m_label = new QLabel( parent );
     return m_label;
@@ -71,7 +71,7 @@ QWidget* PdmUiCheckBoxTristateEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiCheckBoxTristateEditor::slotClicked( bool )
+void UiCheckBoxTristateEditor::slotClicked( bool )
 {
     Tristate state;
 

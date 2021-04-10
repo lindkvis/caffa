@@ -38,26 +38,26 @@
 
 namespace caf
 {
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiLabelEditor );
+CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiLabelEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiLabelEditor::PdmUiLabelEditor()
+UiLabelEditor::UiLabelEditor()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiLabelEditor::~PdmUiLabelEditor()
+UiLabelEditor::~UiLabelEditor()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiLabelEditor::configureAndUpdateUi()
+void UiLabelEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_label.isNull() );
 
@@ -67,7 +67,7 @@ void PdmUiLabelEditor::configureAndUpdateUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiLabelEditor::createEditorWidget( QWidget* parent )
+QWidget* UiLabelEditor::createEditorWidget( QWidget* parent )
 {
     return createLabelWidget( parent );
 }
@@ -75,7 +75,7 @@ QWidget* PdmUiLabelEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiLabelEditor::createLabelWidget( QWidget* parent )
+QWidget* UiLabelEditor::createLabelWidget( QWidget* parent )
 {
     if ( m_label.isNull() )
     {

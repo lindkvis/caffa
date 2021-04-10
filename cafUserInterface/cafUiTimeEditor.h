@@ -48,26 +48,26 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiTimeEditorAttribute : public UiEditorAttribute
+class UiTimeEditorAttribute : public UiEditorAttribute
 {
 public:
     QString timeFormat;
 
 public:
-    PdmUiTimeEditorAttribute() {}
+    UiTimeEditorAttribute() {}
 };
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiTimeEditor : public UiFieldEditorHandle
+class UiTimeEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    CAF_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiTimeEditor() {}
-    ~PdmUiTimeEditor() override {}
+    UiTimeEditor() {}
+    ~UiTimeEditor() override {}
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
@@ -79,10 +79,10 @@ protected slots:
     void slotTimeChanged( const QTime& time );
 
 private:
-    QPointer<QTimeEdit>       m_timeEdit;
-    QPointer<QLabel> m_label;
+    QPointer<QTimeEdit> m_timeEdit;
+    QPointer<QLabel>    m_label;
 
-    PdmUiTimeEditorAttribute m_attributes;
+    UiTimeEditorAttribute m_attributes;
 };
 
 } // end namespace caf

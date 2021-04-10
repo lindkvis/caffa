@@ -47,23 +47,23 @@ namespace caf
 /// The default editor for several Fields.
 //==================================================================================================
 
-class PdmUiCheckBoxEditorAttribute : public UiEditorAttribute
+class UiCheckBoxEditorAttribute : public UiEditorAttribute
 {
 public:
-    PdmUiCheckBoxEditorAttribute() { m_useNativeCheckBoxLabel = false; }
+    UiCheckBoxEditorAttribute() { m_useNativeCheckBoxLabel = false; }
 
 public:
     bool m_useNativeCheckBoxLabel;
 };
 
-class PdmUiCheckBoxEditor : public UiFieldEditorHandle
+class UiCheckBoxEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    CAF_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiCheckBoxEditor() {}
-    ~PdmUiCheckBoxEditor() override {}
+    UiCheckBoxEditor() {}
+    ~UiCheckBoxEditor() override {}
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
@@ -74,8 +74,8 @@ protected slots:
     void slotClicked( bool checked );
 
 private:
-    QPointer<QCheckBox>       m_checkBox;
-    QPointer<QLabel> m_label;
+    QPointer<QCheckBox> m_checkBox;
+    QPointer<QLabel>    m_label;
 };
 
 } // end namespace caf

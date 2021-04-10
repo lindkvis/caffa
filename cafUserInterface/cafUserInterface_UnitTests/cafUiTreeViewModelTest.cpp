@@ -43,7 +43,7 @@ CAF_SOURCE_INIT( DemoObject, "DemoObject" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( PdmUiTreeViewModelTest, DeleteOneItemAndVerifyTreeOrdering )
+TEST( UiTreeViewModelTest, DeleteOneItemAndVerifyTreeOrdering )
 {
     SimpleObj* obj1 = new SimpleObj;
     SimpleObj* obj2 = new SimpleObj;
@@ -56,8 +56,8 @@ TEST( PdmUiTreeViewModelTest, DeleteOneItemAndVerifyTreeOrdering )
     demoObj->m_simpleObjPtrField.push_back( obj3 );
     demoObj->m_simpleObjPtrField.push_back( obj4 );
 
-    PdmUiTreeView treeView;
-    treeView.setPdmItem( demoObj );
+    UiTreeView treeView;
+    treeView.setItem( demoObj );
 
     QModelIndex mi;
     mi = treeView.findModelIndex( obj1 );
@@ -73,7 +73,7 @@ TEST( PdmUiTreeViewModelTest, DeleteOneItemAndVerifyTreeOrdering )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( PdmUiTreeViewModelTest, AddOneItemAndVerifyTreeOrdering )
+TEST( UiTreeViewModelTest, AddOneItemAndVerifyTreeOrdering )
 {
     SimpleObj* obj1 = new SimpleObj;
     SimpleObj* obj2 = new SimpleObj;
@@ -85,8 +85,8 @@ TEST( PdmUiTreeViewModelTest, AddOneItemAndVerifyTreeOrdering )
     demoObj->m_simpleObjPtrField.push_back( obj2 );
     demoObj->m_simpleObjPtrField.push_back( obj3 );
 
-    PdmUiTreeView treeView;
-    treeView.setPdmItem( demoObj );
+    UiTreeView treeView;
+    treeView.setItem( demoObj );
 
     QModelIndex mi;
     mi = treeView.findModelIndex( obj4 );
@@ -102,7 +102,7 @@ TEST( PdmUiTreeViewModelTest, AddOneItemAndVerifyTreeOrdering )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( PdmUiTreeViewModelTest, ChangeOrderingAndVerifyTreeOrdering )
+TEST( UiTreeViewModelTest, ChangeOrderingAndVerifyTreeOrdering )
 {
     SimpleObj* obj1 = new SimpleObj;
     SimpleObj* obj2 = new SimpleObj;
@@ -115,8 +115,8 @@ TEST( PdmUiTreeViewModelTest, ChangeOrderingAndVerifyTreeOrdering )
     demoObj->m_simpleObjPtrField.push_back( obj3 );
     demoObj->m_simpleObjPtrField.push_back( obj4 );
 
-    PdmUiTreeView treeView;
-    treeView.setPdmItem( demoObj );
+    UiTreeView treeView;
+    treeView.setItem( demoObj );
 
     QModelIndex mi;
     mi = treeView.findModelIndex( obj4 );
@@ -137,7 +137,7 @@ TEST( PdmUiTreeViewModelTest, ChangeOrderingAndVerifyTreeOrdering )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( PdmUiTreeViewModelTest, ChangeDeepInTreeNotifyRootAndVerifyTreeOrdering )
+TEST( UiTreeViewModelTest, ChangeDeepInTreeNotifyRootAndVerifyTreeOrdering )
 {
     DemoObject* root = new DemoObject;
 
@@ -156,8 +156,8 @@ TEST( PdmUiTreeViewModelTest, ChangeDeepInTreeNotifyRootAndVerifyTreeOrdering )
     demoObj->m_simpleObjPtrField.push_back( obj3 );
     demoObj->m_simpleObjPtrField.push_back( obj4 );
 
-    PdmUiTreeView treeView;
-    treeView.setPdmItem( root );
+    UiTreeView treeView;
+    treeView.setItem( root );
 
     QModelIndex mi;
     mi = treeView.findModelIndex( obj4 );
@@ -174,7 +174,7 @@ TEST( PdmUiTreeViewModelTest, ChangeDeepInTreeNotifyRootAndVerifyTreeOrdering )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( PdmUiTreeViewModelTest, DISABLED_PerformanceLargeNumberOfItems )
+TEST( UiTreeViewModelTest, DISABLED_PerformanceLargeNumberOfItems )
 {
     // int objCount = 20000;
     int objCount = 100000;
@@ -185,7 +185,7 @@ TEST( PdmUiTreeViewModelTest, DISABLED_PerformanceLargeNumberOfItems )
         demoObj->m_simpleObjPtrField.push_back( new SimpleObj );
     }
 
-    PdmUiTreeView treeView;
-    treeView.setPdmItem( demoObj );
+    UiTreeView treeView;
+    treeView.setItem( demoObj );
     demoObj->m_simpleObjPtrField().capability<FieldUiCapability>()->updateConnectedEditors();
 }

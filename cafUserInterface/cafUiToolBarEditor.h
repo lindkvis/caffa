@@ -55,11 +55,11 @@ class FieldHandle;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiToolBarEditor : public UiEditorHandle
+class UiToolBarEditor : public UiEditorHandle
 {
 public:
-    PdmUiToolBarEditor( const QString& title, QMainWindow* mainWindow );
-    ~PdmUiToolBarEditor() override;
+    UiToolBarEditor( const QString& title, QMainWindow* mainWindow );
+    ~UiToolBarEditor() override;
 
     bool isEditorDataValid( const std::vector<caf::FieldHandle*>& fields ) const;
     void setFields( std::vector<caf::FieldHandle*>& fields );

@@ -9,13 +9,13 @@ if (CAF_ENABLE_UNITY_BUILD)
 endif()
 
 set(PUBLIC_HEADERS
-	cafPdmDocument.h
+	cafDocument.h
     cafApplication.h
 )
 
 set( PROJECT_FILES
 	${PUBLIC_HEADERS}
-	cafPdmDocument.cpp
+	cafDocument.cpp
     cafApplication.cpp
 )
 
@@ -37,10 +37,10 @@ endif()
 
 target_link_libraries ( ${PROJECT_NAME}
     PUBLIC
-	cafPdmCore
-    cafPdmIoCore
-    cafPdmUiCore
-    cafPdmObject
+	cafCore
+    cafIoCore
+    cafUiCore
+    cafObject
     PRIVATE
     nlohmann_json::nlohmann_json
 )

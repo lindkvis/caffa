@@ -52,27 +52,27 @@ class QLabel;
 namespace caf
 {
 //==================================================================================================
-/// Macros helping in development of PDM UI editors
+/// Macros helping in development of CAF UI editors
 //==================================================================================================
 
-/// CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT assists the factory used when creating editors
+/// CAF_UI_FIELD_EDITOR_HEADER_INIT assists the factory used when creating editors
 /// Place this in the header file inside the class definition of your UiEditor
 
-#define CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT \
-public:                                     \
+#define CAF_UI_FIELD_EDITOR_HEADER_INIT \
+public:                                 \
     static std::string uiEditorTypeName()
 
-/// CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT implements editorTypeName() and registers the field editor in the field editor
+/// CAF_UI_FIELD_EDITOR_SOURCE_INIT implements editorTypeName() and registers the field editor in the field editor
 /// factory Place this in the cpp file, preferably above the constructor
 
-#define CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( EditorClassName )                   \
+#define CAF_UI_FIELD_EDITOR_SOURCE_INIT( EditorClassName )                       \
     std::string EditorClassName::uiEditorTypeName() { return #EditorClassName; } \
     CAF_FACTORY_REGISTER( caf::UiFieldEditorHandle, EditorClassName, std::string, EditorClassName::uiEditorTypeName() )
 
-/// CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR registers what default editor to use with a field of a certain type
+/// CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR registers what default editor to use with a field of a certain type
 /// Place this in the cpp file, preferably above the constructor
 
-#define CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( EditorClassName, TypeName ) \
+#define CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( EditorClassName, TypeName ) \
     CAF_FACTORY_REGISTER( caf::UiFieldEditorHandle, EditorClassName, std::string, typeid( caf::Field<TypeName> ).name() );
 
 class UiGroup;

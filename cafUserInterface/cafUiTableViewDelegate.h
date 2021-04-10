@@ -40,18 +40,18 @@
 
 namespace caf
 {
-class PdmUiTableViewQModel;
+class UiTableViewQModel;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiTableViewDelegate : public QStyledItemDelegate
+class UiTableViewDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 
 public:
-    PdmUiTableViewDelegate( QObject* parent, PdmUiTableViewQModel* model );
-    ~PdmUiTableViewDelegate() override;
+    UiTableViewDelegate( QObject* parent, UiTableViewQModel* model );
+    ~UiTableViewDelegate() override;
 
     QWidget* createEditor( QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index ) const override;
     void     setEditorData( QWidget* editor, const QModelIndex& index ) const override;
@@ -66,7 +66,7 @@ protected:
     void paint( QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index ) const override;
 
 private:
-    PdmUiTableViewQModel* m_model;
+    UiTableViewQModel* m_model;
 
     // Counter for active table cell editors
     mutable int m_activeEditorCount;

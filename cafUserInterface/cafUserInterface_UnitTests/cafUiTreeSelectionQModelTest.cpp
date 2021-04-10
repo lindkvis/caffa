@@ -43,11 +43,11 @@ std::deque<caf::OptionItemInfo> createOptions()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( PdmUiTreeSelectionQModelTest, BasicUsage )
+TEST( UiTreeSelectionQModelTest, BasicUsage )
 {
     auto options = createOptions();
 
-    caf::PdmUiTreeSelectionQModel myModel;
+    caf::UiTreeSelectionQModel myModel;
     myModel.setOptions( nullptr, options );
 
     EXPECT_EQ( options.size(), myModel.optionItemCount() );
@@ -66,11 +66,11 @@ TEST( PdmUiTreeSelectionQModelTest, BasicUsage )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( PdmUiTreeSelectionQModelTest, ParentBehaviour )
+TEST( UiTreeSelectionQModelTest, ParentBehaviour )
 {
     auto options = createOptions();
 
-    caf::PdmUiTreeSelectionQModel myModel;
+    caf::UiTreeSelectionQModel myModel;
     myModel.setOptions( nullptr, options );
 
     QModelIndex parentIndex = myModel.index( 1, 0 );
@@ -92,11 +92,11 @@ TEST( PdmUiTreeSelectionQModelTest, ParentBehaviour )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( PdmUiTreeSelectionQModelTest, SetDataAndSignal )
+TEST( UiTreeSelectionQModelTest, SetDataAndSignal )
 {
     auto options = createOptions();
 
-    caf::PdmUiTreeSelectionQModel myModel;
+    caf::UiTreeSelectionQModel myModel;
     myModel.setOptions( nullptr, options );
 
     QModelIndex parentIndex = myModel.index( 0, 0 );
@@ -107,11 +107,11 @@ TEST( PdmUiTreeSelectionQModelTest, SetDataAndSignal )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( PdmUiTreeSelectionQModelTest, SetCheckedStateForItems )
+TEST( UiTreeSelectionQModelTest, SetCheckedStateForItems )
 {
     auto options = createOptions();
 
-    caf::PdmUiTreeSelectionQModel myModel;
+    caf::UiTreeSelectionQModel myModel;
     myModel.setOptions( nullptr, options );
 
     QModelIndex parentIndex     = myModel.index( 1, 0 );

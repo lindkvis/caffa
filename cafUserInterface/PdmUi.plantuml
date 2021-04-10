@@ -2,67 +2,67 @@
 
 namespace Inheritance{
 
-QObject <|-- PdmUiEditorHandle
-PdmUiEditorHandle <|-- PdmUiObjectEditorHandle
-PdmUiObjectEditorHandle  <|-- PdmUiWidgetObjectEditorHandle
-PdmUiObjectEditorHandle  <|-- PdmUi3dObjectEditorHandle
-PdmUiWidgetObjectEditorHandle <|-- PdmUiFormLayoutObjectEditor
-PdmUiFormLayoutObjectEditor <|-- PdmUiDefaultObjectEditor
-PdmUiFieldEditorHandle <|-- "Tons of field editors"
-PdmUiEditorHandle <|-- PdmUiTreeItemEditor
-PdmUiEditorHandle <|-- PdmUiTreeEditorHandle
-PdmUiEditorHandle <|-- PdmUiToolBarEditor
-PdmUiEditorHandle <|-- PdmUiTableRowEditor
-PdmUiEditorHandle <|-- PdmUiFieldEditorHandle 
+QObject <|-- UiEditorHandle
+UiEditorHandle <|-- UiObjectEditorHandle
+UiObjectEditorHandle  <|-- UiWidgetObjectEditorHandle
+UiObjectEditorHandle  <|-- Ui3dObjectEditorHandle
+UiWidgetObjectEditorHandle <|-- UiFormLayoutObjectEditor
+UiFormLayoutObjectEditor <|-- UiDefaultObjectEditor
+UiFieldEditorHandle <|-- "Tons of field editors"
+UiEditorHandle <|-- UiTreeItemEditor
+UiEditorHandle <|-- UiTreeEditorHandle
+UiEditorHandle <|-- UiToolBarEditor
+UiEditorHandle <|-- UiTableRowEditor
+UiEditorHandle <|-- UiFieldEditorHandle 
 
-PdmUiTreeEditorHandle  <|-- PdmUiTreeViewEditor
+UiTreeEditorHandle  <|-- UiTreeViewEditor
 }
 
 Namespace TreeView{
 
-QWidget <|-- PdmUiTreeView
+QWidget <|-- UiTreeView
 
-PdmUiTreeView --* PdmUiTreeViewEditor
+UiTreeView --* UiTreeViewEditor
 
-PdmUiTreeViewEditor --* 		PdmUiTreeViewWidget 
-PdmUiTreeViewEditor --* 		PdmUiTreeViewQModel 
+UiTreeViewEditor --* 		UiTreeViewWidget 
+UiTreeViewEditor --* 		UiTreeViewQModel 
 
-PdmUiTreeItemEditor -->  PdmUiTreeViewEditor
-PdmUiTreeViewQModel --* "root"  PdmUiTreeOrdering
+UiTreeItemEditor -->  UiTreeViewEditor
+UiTreeViewQModel --* "root"  UiTreeOrdering
 
-PdmUiTreeOrdering --> 	PdmUiItem 
-PdmUiTreeOrdering --*  			PdmUiTreeItemEditor
+UiTreeOrdering --> 	UiItem 
+UiTreeOrdering --*  			UiTreeItemEditor
 
-QTreeView <|-- PdmUiTreeViewWidget
+QTreeView <|-- UiTreeViewWidget
 
 }
 
 namespace Properties{
 
-QWidget <|-- PdmUiPropertyView
+QWidget <|-- UiPropertyView
 
-PdmUiPropertyView --* PdmUiDefaultObjectEditor
-PdmUiDefaultObjectEditor ---* "N" PdmUiFieldEditorHandle
+UiPropertyView --* UiDefaultObjectEditor
+UiDefaultObjectEditor ---* "N" UiFieldEditorHandle
 
-PdmField --> "N" PdmUiFieldEditorHandle
+Field --> "N" UiFieldEditorHandle
 
-PdmUiFieldEditorHandle --> "1" PdmField 
-PdmUiDefaultObjectEditor  "N" <--> "1" edited_PdmObject
+UiFieldEditorHandle --> "1" Field 
+UiDefaultObjectEditor  "N" <--> "1" edited_Object
 
-edited_PdmObject --* "N" PdmField
+edited_Object --* "N" Field
 
-PdmUiFieldEditorHandle --* QWidget_UsedByEditor
+UiFieldEditorHandle --* QWidget_UsedByEditor
 }
 
 namespace 3DEditors{
 
-SomeViewer --* PdmUiSelection3dEditorVisualizer
+SomeViewer --* UiSelection3dEditorVisualizer
 
-PdmUiSelection3dEditorVisualizer --* PdmUi3dObjectEditorHandle : "Creates on SelectionChanged()"
+UiSelection3dEditorVisualizer --* Ui3dObjectEditorHandle : "Creates on SelectionChanged()"
 
-PdmUi3dObjectEditorHandle --> SomeViewer
-PdmUi3dObjectEditorHandle --> 3DVisualizationStuff
-PdmUi3dObjectEditorHandle -->edited_PdmObject
+Ui3dObjectEditorHandle --> SomeViewer
+Ui3dObjectEditorHandle --> 3DVisualizationStuff
+Ui3dObjectEditorHandle -->edited_Object
 
 }
 

@@ -50,12 +50,12 @@ class QItemSelection;
 
 namespace caf
 {
-class PdmUiTreeSelectionQModel;
+class UiTreeSelectionQModel;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiTreeSelectionEditorAttribute : public UiEditorAttribute
+class UiTreeSelectionEditorAttribute : public UiEditorAttribute
 {
 public:
     bool showTextFilter;
@@ -66,11 +66,11 @@ public:
     /// currentIndexFieldHandle is used to communicate the value of current item in the tree view
     /// This is useful when displaying a list of appEnums, and a dependent view is displaying content based on
     /// the current item in the tree view
-    /// Make sure the type of the receiving field is of the same type as the field used in PdmUiTreeSelectionEditor
+    /// Make sure the type of the receiving field is of the same type as the field used in UiTreeSelectionEditor
     caf::FieldHandle* currentIndexFieldHandle;
 
 public:
-    PdmUiTreeSelectionEditorAttribute()
+    UiTreeSelectionEditorAttribute()
     {
         showTextFilter                   = true;
         showToggleAllCheckbox            = true;
@@ -84,14 +84,14 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiTreeSelectionEditor : public UiFieldEditorHandle
+class UiTreeSelectionEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    CAF_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiTreeSelectionEditor();
-    ~PdmUiTreeSelectionEditor() override;
+    UiTreeSelectionEditor();
+    ~UiTreeSelectionEditor() override;
 
 protected:
     void     configureAndUpdateUi() override;
@@ -133,10 +133,10 @@ private:
     QPointer<QCheckBox> m_toggleAllCheckBox;
     QPointer<QLineEdit> m_textFilterLineEdit;
 
-    PdmUiTreeSelectionQModel* m_model;
-    QSortFilterProxyModel*    m_proxyModel;
+    UiTreeSelectionQModel* m_model;
+    QSortFilterProxyModel* m_proxyModel;
 
-    PdmUiTreeSelectionEditorAttribute m_attributes;
+    UiTreeSelectionEditorAttribute m_attributes;
 };
 
 } // end namespace caf

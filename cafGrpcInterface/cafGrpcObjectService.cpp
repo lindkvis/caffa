@@ -38,6 +38,7 @@
 #include "cafGrpcClientObjectFactory.h"
 #include "cafGrpcServerApplication.h"
 
+#include "cafDocument.h"
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
@@ -45,7 +46,6 @@
 #include "cafGrpcServerApplication.h"
 #include "cafObject.h"
 #include "cafObjectMethod.h"
-#include "cafPdmDocument.h"
 
 #include <grpcpp/grpcpp.h>
 
@@ -60,7 +60,7 @@ namespace caf::rpc
 grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const DocumentRequest* request, Object* reply )
 {
     CAF_TRACE( "Got document request" );
-    PdmDocument* document = ServerApplication::instance()->document( request->document_id() );
+    Document* document = ServerApplication::instance()->document( request->document_id() );
     CAF_TRACE( "Found document" );
     if ( document )
     {
@@ -108,7 +108,7 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
         }
         return grpc::Status( grpc::NOT_FOUND, "Could not find Method" );
     }
-    return grpc::Status( grpc::NOT_FOUND, "Could not find PdmObject" );
+    return grpc::Status( grpc::NOT_FOUND, "Could not find Object" );
 }
 
 //--------------------------------------------------------------------------------------------------

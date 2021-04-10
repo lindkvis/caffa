@@ -50,12 +50,12 @@ class FieldUiCapability;
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiTreeSelectionQModel : public QAbstractItemModel
+class UiTreeSelectionQModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    explicit PdmUiTreeSelectionQModel( QObject* parent = nullptr );
-    ~PdmUiTreeSelectionQModel() override;
+    explicit UiTreeSelectionQModel( QObject* parent = nullptr );
+    ~UiTreeSelectionQModel() override;
 
     static int headingRole();
     static int optionItemValueRole();

@@ -42,7 +42,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTreeEditorHandle::getOrCreateWidget( QWidget* parent )
+QWidget* UiTreeEditorHandle::getOrCreateWidget( QWidget* parent )
 {
     if ( m_widget.isNull() )
     {
@@ -54,17 +54,17 @@ QWidget* PdmUiTreeEditorHandle::getOrCreateWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeEditorHandle::setPdmItemRoot( UiItem* root )
+void UiTreeEditorHandle::setItemRoot( UiItem* root )
 {
-    this->bindToPdmItem( root );
+    this->bindToItem( root );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-UiItem* PdmUiTreeEditorHandle::pdmItemRoot()
+UiItem* UiTreeEditorHandle::itemRoot()
 {
-    return this->pdmItem();
+    return this->item();
 }
 
 } // End of namespace caf

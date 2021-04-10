@@ -50,36 +50,36 @@
 namespace caf
 {
 // Register default field editor for selected types
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiCheckBoxEditor, bool );
+CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiCheckBoxEditor, bool );
 
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, std::string );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiDateEditor, std::time_t );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, int );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, double );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, float );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, uint64_t );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<std::string> );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<int> );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<float> );
+CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiLineEditor, std::string );
+CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiDateEditor, std::time_t );
+CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiLineEditor, int );
+CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiLineEditor, double );
+CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiLineEditor, float );
+CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiLineEditor, uint64_t );
+CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiListEditor, std::vector<std::string> );
+CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiListEditor, std::vector<int> );
+CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiListEditor, std::vector<float> );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiDefaultObjectEditor::PdmUiDefaultObjectEditor()
+UiDefaultObjectEditor::UiDefaultObjectEditor()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiDefaultObjectEditor::~PdmUiDefaultObjectEditor()
+UiDefaultObjectEditor::~UiDefaultObjectEditor()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDefaultObjectEditor::createWidget( QWidget* parent )
+QWidget* UiDefaultObjectEditor::createWidget( QWidget* parent )
 {
     QWidget* widget = new QWidget( parent );
     widget->setObjectName( "ObjectEditor" );
@@ -89,7 +89,7 @@ QWidget* PdmUiDefaultObjectEditor::createWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering( const UiOrdering& topLevelUiOrdering )
+void UiDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering( const UiOrdering& topLevelUiOrdering )
 {
     CAF_ASSERT( this->widget() );
 

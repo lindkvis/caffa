@@ -125,10 +125,10 @@ set( PROJECT_FILES
     cafQTreeViewStateSerializer.cpp
     cafMemoryInspector.h
     cafMemoryInspector.cpp
-    cafPdmUniqueIdValidator.h
-    cafPdmUniqueIdValidator.cpp
-    cafPdmDoubleStringValidator.h
-    cafPdmDoubleStringValidator.cpp
+    cafUniqueIdValidator.h
+    cafUniqueIdValidator.cpp
+    cafDoubleStringValidator.h
+    cafDoubleStringValidator.cpp
     cafPickEventHandler.h
     cafUiPickableLineEditor.h
     cafUiPickableLineEditor.cpp
@@ -168,7 +168,7 @@ target_link_libraries ( ${PROJECT_NAME}
     ${QT_LIBRARIES}
     nlohmann_json::nlohmann_json
     cafProjectDataModel
-    cafPdmUiCore
+    cafUiCore
 )
 
 install(TARGETS ${PROJECT_NAME}

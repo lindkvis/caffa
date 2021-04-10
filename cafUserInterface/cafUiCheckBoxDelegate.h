@@ -46,13 +46,13 @@ namespace caf
 /// Based on http://qt-project.org/faq/answer/how_can_i_align_the_checkboxes_in_a_view
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiCheckBoxDelegate : public QStyledItemDelegate
+class UiCheckBoxDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 
 public:
-    explicit PdmUiCheckBoxDelegate( QObject* pParent = nullptr );
-    ~PdmUiCheckBoxDelegate() override;
+    explicit UiCheckBoxDelegate( QObject* pParent = nullptr );
+    ~UiCheckBoxDelegate() override;
 
     void paint( QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index ) const override;
     bool editorEvent( QEvent*                     event,

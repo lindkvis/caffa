@@ -50,26 +50,26 @@
 
 namespace caf
 {
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiDoubleValueEditor );
+CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiDoubleValueEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiDoubleValueEditor::PdmUiDoubleValueEditor()
+UiDoubleValueEditor::UiDoubleValueEditor()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiDoubleValueEditor::~PdmUiDoubleValueEditor()
+UiDoubleValueEditor::~UiDoubleValueEditor()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDoubleValueEditor::configureAndUpdateUi()
+void UiDoubleValueEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_lineEdit.isNull() );
 
@@ -93,9 +93,9 @@ void PdmUiDoubleValueEditor::configureAndUpdateUi()
     QString textValue;
     if ( valueOk )
     {
-        if ( m_attributes.m_numberFormat == PdmUiDoubleValueEditorAttribute::NumberFormat::FIXED )
+        if ( m_attributes.m_numberFormat == UiDoubleValueEditorAttribute::NumberFormat::FIXED )
             textValue = QString::number( value, 'f', m_attributes.m_decimals );
-        else if ( m_attributes.m_numberFormat == PdmUiDoubleValueEditorAttribute::NumberFormat::SCIENTIFIC )
+        else if ( m_attributes.m_numberFormat == UiDoubleValueEditorAttribute::NumberFormat::SCIENTIFIC )
             textValue = QString::number( value, 'e', m_attributes.m_decimals );
         else
             textValue = QString::number( value, 'g', m_attributes.m_decimals );
@@ -106,7 +106,7 @@ void PdmUiDoubleValueEditor::configureAndUpdateUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDoubleValueEditor::createEditorWidget( QWidget* parent )
+QWidget* UiDoubleValueEditor::createEditorWidget( QWidget* parent )
 {
     QWidget* containerWidget = new QWidget( parent );
 
@@ -125,7 +125,7 @@ QWidget* PdmUiDoubleValueEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDoubleValueEditor::createLabelWidget( QWidget* parent )
+QWidget* UiDoubleValueEditor::createLabelWidget( QWidget* parent )
 {
     m_label = new QLabel( parent );
     return m_label;
@@ -134,7 +134,7 @@ QWidget* PdmUiDoubleValueEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDoubleValueEditor::slotEditingFinished()
+void UiDoubleValueEditor::slotEditingFinished()
 {
     writeValueToField();
 }
@@ -142,7 +142,7 @@ void PdmUiDoubleValueEditor::slotEditingFinished()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDoubleValueEditor::writeValueToField()
+void UiDoubleValueEditor::writeValueToField()
 {
     QString textValue = m_lineEdit->text();
     Variant v( textValue.toStdString() );

@@ -49,10 +49,10 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiListEditorAttribute : public UiEditorAttribute
+class UiListEditorAttribute : public UiEditorAttribute
 {
 public:
-    PdmUiListEditorAttribute()
+    UiListEditorAttribute()
         : m_heightHint( 2000 )
         , m_allowHorizontalScrollBar( true )
     {
@@ -70,14 +70,14 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiListEditor : public UiFieldEditorHandle
+class UiListEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    CAF_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiListEditor();
-    ~PdmUiListEditor() override;
+    UiListEditor();
+    ~UiListEditor() override;
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;

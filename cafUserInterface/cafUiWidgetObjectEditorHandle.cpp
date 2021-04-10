@@ -41,21 +41,21 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiWidgetObjectEditorHandle::PdmUiWidgetObjectEditorHandle()
+UiWidgetObjectEditorHandle::UiWidgetObjectEditorHandle()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiWidgetObjectEditorHandle::~PdmUiWidgetObjectEditorHandle()
+UiWidgetObjectEditorHandle::~UiWidgetObjectEditorHandle()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiWidgetObjectEditorHandle::getOrCreateWidget( QWidget* parent )
+QWidget* UiWidgetObjectEditorHandle::getOrCreateWidget( QWidget* parent )
 {
     if ( m_widget.isNull() )
     {
@@ -67,7 +67,7 @@ QWidget* PdmUiWidgetObjectEditorHandle::getOrCreateWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiWidgetObjectEditorHandle::widget() const
+QWidget* UiWidgetObjectEditorHandle::widget() const
 {
     return m_widget;
 }

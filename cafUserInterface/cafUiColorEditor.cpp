@@ -55,12 +55,12 @@
 
 namespace caf
 {
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiColorEditor );
+CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiColorEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiColorEditor::PdmUiColorEditor()
+UiColorEditor::UiColorEditor()
 {
     m_color = QColor::Invalid;
 }
@@ -68,7 +68,7 @@ PdmUiColorEditor::PdmUiColorEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiColorEditor::configureAndUpdateUi()
+void UiColorEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_label.isNull() );
 
@@ -96,7 +96,7 @@ void PdmUiColorEditor::configureAndUpdateUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QMargins PdmUiColorEditor::calculateLabelContentMargins() const
+QMargins UiColorEditor::calculateLabelContentMargins() const
 {
     QSize editorSize = m_colorSelectionButton->sizeHint();
     QSize labelSize  = m_label->sizeHint();
@@ -114,7 +114,7 @@ QMargins PdmUiColorEditor::calculateLabelContentMargins() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiColorEditor::createEditorWidget( QWidget* parent )
+QWidget* UiColorEditor::createEditorWidget( QWidget* parent )
 {
     QWidget*     placeholder = new QWidget( parent );
     QHBoxLayout* layout      = new QHBoxLayout( placeholder );
@@ -153,7 +153,7 @@ QWidget* PdmUiColorEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiColorEditor::createLabelWidget( QWidget* parent )
+QWidget* UiColorEditor::createLabelWidget( QWidget* parent )
 {
     m_label = new QLabel( parent );
     return m_label;
@@ -162,7 +162,7 @@ QWidget* PdmUiColorEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiColorEditor::colorSelectionClicked()
+void UiColorEditor::colorSelectionClicked()
 {
     QColorDialog::ColorDialogOptions flags;
     if ( m_attributes.showAlpha )
@@ -182,7 +182,7 @@ void PdmUiColorEditor::colorSelectionClicked()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiColorEditor::setColorOnWidget( const QColor& color )
+void UiColorEditor::setColorOnWidget( const QColor& color )
 {
     if ( m_color != color )
     {
@@ -222,7 +222,7 @@ void PdmUiColorEditor::setColorOnWidget( const QColor& color )
 //--------------------------------------------------------------------------------------------------
 /// Based on http://www.codeproject.com/cs/media/IdealTextColor.asp
 //--------------------------------------------------------------------------------------------------
-QColor PdmUiColorEditor::getFontColor( const QColor& backgroundColor ) const
+QColor UiColorEditor::getFontColor( const QColor& backgroundColor ) const
 {
     const int THRESHOLD       = 105;
     int       backgroundDelta = ( backgroundColor.red() * 0.299 ) + ( backgroundColor.green() * 0.587 ) +

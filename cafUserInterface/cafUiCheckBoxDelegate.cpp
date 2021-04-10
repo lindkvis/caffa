@@ -44,7 +44,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiCheckBoxDelegate::PdmUiCheckBoxDelegate( QObject* pParent )
+UiCheckBoxDelegate::UiCheckBoxDelegate( QObject* pParent )
     : QStyledItemDelegate( pParent )
 {
 }
@@ -52,7 +52,7 @@ PdmUiCheckBoxDelegate::PdmUiCheckBoxDelegate( QObject* pParent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiCheckBoxDelegate::~PdmUiCheckBoxDelegate()
+UiCheckBoxDelegate::~UiCheckBoxDelegate()
 {
 }
 
@@ -75,7 +75,7 @@ QRect adjustedPaintRect( const QStyleOptionViewItem& option )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiCheckBoxDelegate::paint( QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index ) const
+void UiCheckBoxDelegate::paint( QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index ) const
 {
     QStyleOptionViewItem viewItemOption( option );
 
@@ -87,10 +87,10 @@ void PdmUiCheckBoxDelegate::paint( QPainter* painter, const QStyleOptionViewItem
 //--------------------------------------------------------------------------------------------------
 /// Returns true to avoid other factories to produce editors for a check box
 //--------------------------------------------------------------------------------------------------
-bool PdmUiCheckBoxDelegate::editorEvent( QEvent*                     event,
-                                         QAbstractItemModel*         model,
-                                         const QStyleOptionViewItem& option,
-                                         const QModelIndex&          index )
+bool UiCheckBoxDelegate::editorEvent( QEvent*                     event,
+                                      QAbstractItemModel*         model,
+                                      const QStyleOptionViewItem& option,
+                                      const QModelIndex&          index )
 {
     Q_ASSERT( event );
     Q_ASSERT( model );
@@ -129,7 +129,7 @@ bool PdmUiCheckBoxDelegate::editorEvent( QEvent*                     event,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QSize PdmUiCheckBoxDelegate::sizeHint( const QStyleOptionViewItem& option, const QModelIndex& index ) const
+QSize UiCheckBoxDelegate::sizeHint( const QStyleOptionViewItem& option, const QModelIndex& index ) const
 {
     return QSize( option.decorationSize.width(), option.decorationSize.height() );
 }

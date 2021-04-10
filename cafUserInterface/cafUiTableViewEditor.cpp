@@ -55,23 +55,23 @@
 
 namespace caf
 {
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiTableViewEditor );
+CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiTableViewEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTableViewEditor::PdmUiTableViewEditor()
+UiTableViewEditor::UiTableViewEditor()
 {
     m_tableView           = nullptr;
     m_tableHeading        = nullptr;
-    m_tableModelPdm       = nullptr;
+    m_tableModel          = nullptr;
     m_tableHeadingIcon    = nullptr;
     m_delegate            = nullptr;
     m_previousFieldHandle = nullptr;
 
     m_useDefaultContextMenu = false;
 
-    m_checkboxDelegate = new PdmUiCheckBoxDelegate();
+    m_checkboxDelegate = new UiCheckBoxDelegate();
 
     m_tableSelectionLevel               = SelectionManager::BASE_LEVEL;
     m_rowSelectionLevel                 = SelectionManager::FIRST_LEVEL;
@@ -82,7 +82,7 @@ PdmUiTableViewEditor::PdmUiTableViewEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTableViewEditor::~PdmUiTableViewEditor()
+UiTableViewEditor::~UiTableViewEditor()
 {
     if ( m_checkboxDelegate ) m_checkboxDelegate->deleteLater();
     if ( m_delegate ) m_delegate->deleteLater();
@@ -91,15 +91,15 @@ PdmUiTableViewEditor::~PdmUiTableViewEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTableViewEditor::createEditorWidget( QWidget* parent )
+QWidget* UiTableViewEditor::createEditorWidget( QWidget* parent )
 {
-    m_tableModelPdm = new PdmUiTableViewQModel( parent );
+    m_tableModel = new UiTableViewQModel( parent );
 
-    m_delegate = new PdmUiTableViewDelegate( nullptr, m_tableModelPdm );
+    m_delegate = new UiTableViewDelegate( nullptr, m_tableModel );
 
     m_tableView = new QTableView( parent );
     m_tableView->setShowGrid( true );
-    m_tableView->setModel( m_tableModelPdm );
+    m_tableView->setModel( m_tableModel );
     m_tableView->installEventFilter( this );
 
     connect( m_tableView->selectionModel(),
@@ -112,7 +112,7 @@ QWidget* PdmUiTableViewEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTableViewEditor::createLabelWidget( QWidget* parent )
+QWidget* UiTableViewEditor::createLabelWidget( QWidget* parent )
 {
     if ( m_tableHeading.isNull() )
     {
@@ -140,14 +140,14 @@ QWidget* PdmUiTableViewEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewEditor::configureAndUpdateUi()
+void UiTableViewEditor::configureAndUpdateUi()
 {
-    if ( !m_tableModelPdm ) return;
+    if ( !m_tableModel ) return;
 
     auto childArrayFH = childArrayFieldHandle();
 
-    PdmUiTableViewEditorAttribute editorAttrib;
-    bool                          editorAttribLoaded = false;
+    UiTableViewEditorAttribute editorAttrib;
+    bool                       editorAttribLoaded = false;
 
     if ( childArrayFH && childArrayFH->ownerObject() && childArrayFH->ownerObject()->capability<FieldUiCapability>() )
     {
@@ -163,13 +163,13 @@ void PdmUiTableViewEditor::configureAndUpdateUi()
         m_tableView->setPalette( myPalette );
     }
 
-    m_tableModelPdm->setArrayFieldAndBuildEditors( childArrayFH );
+    m_tableModel->setArrayFieldAndBuildEditors( childArrayFH );
 
-    if ( m_tableModelPdm->rowCount() > 0 )
+    if ( m_tableModel->rowCount() > 0 )
     {
-        for ( int i = 0; i < m_tableModelPdm->columnCount(); i++ )
+        for ( int i = 0; i < m_tableModel->columnCount(); i++ )
         {
-            if ( m_tableModelPdm->isRepresentingBoolean( m_tableModelPdm->index( 0, i ) ) )
+            if ( m_tableModel->isRepresentingBoolean( m_tableModel->index( 0, i ) ) )
             {
                 m_tableView->setItemDelegateForColumn( i, m_checkboxDelegate );
             }
@@ -197,7 +197,7 @@ void PdmUiTableViewEditor::configureAndUpdateUi()
                                          QString( " (%1)" ).arg( childArrayFH->size() ) );
             m_tableHeading->setText( "" );
         }
-        m_tableModelPdm->createPersistentPushButtonWidgets( m_tableView );
+        m_tableModel->createPersistentPushButtonWidgets( m_tableView );
     }
     else
     {
@@ -217,7 +217,7 @@ void PdmUiTableViewEditor::configureAndUpdateUi()
         // Set specified widths (if any)
         if ( editorAttribLoaded )
         {
-            int colCount = m_tableModelPdm->columnCount();
+            int colCount = m_tableModel->columnCount();
             for ( int c = 0; c < colCount && c < static_cast<int>( editorAttrib.columnWidths.size() ); c++ )
             {
                 auto w = editorAttrib.columnWidths[c];
@@ -228,12 +228,12 @@ void PdmUiTableViewEditor::configureAndUpdateUi()
 
     if ( firstTimeConfiguringField || editorAttrib.alwaysEnforceResizePolicy )
     {
-        if ( editorAttrib.resizePolicy == PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT )
+        if ( editorAttrib.resizePolicy == UiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT )
         {
             // Set default column widths
             m_tableView->resizeColumnsToContents();
         }
-        else if ( editorAttrib.resizePolicy == PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER )
+        else if ( editorAttrib.resizePolicy == UiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER )
         {
 #if QT_VERSION >= 0x050000
             m_tableView->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch );
@@ -252,13 +252,13 @@ void PdmUiTableViewEditor::configureAndUpdateUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewEditor::selectedUiItems( const QModelIndexList& modelIndexList, std::vector<UiItem*>& objects )
+void UiTableViewEditor::selectedUiItems( const QModelIndexList& modelIndexList, std::vector<UiItem*>& objects )
 {
     for ( const QModelIndex& mi : modelIndexList )
     {
         int row = mi.row();
 
-        caf::ObjectUiCapability* uiObject = uiObj( m_tableModelPdm->pdmObjectForRow( row ) );
+        caf::ObjectUiCapability* uiObject = uiObj( m_tableModel->objectForRow( row ) );
         if ( uiObject )
         {
             objects.push_back( uiObject );
@@ -269,7 +269,7 @@ void PdmUiTableViewEditor::selectedUiItems( const QModelIndexList& modelIndexLis
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QTableView* PdmUiTableViewEditor::tableView()
+QTableView* UiTableViewEditor::tableView()
 {
     return m_tableView;
 }
@@ -277,7 +277,7 @@ QTableView* PdmUiTableViewEditor::tableView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewEditor::enableHeaderText( bool enable )
+void UiTableViewEditor::enableHeaderText( bool enable )
 {
     m_tableHeading->setVisible( enable );
     m_tableHeadingIcon->setVisible( enable );
@@ -286,7 +286,7 @@ void PdmUiTableViewEditor::enableHeaderText( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewEditor::setTableSelectionLevel( int selectionLevel )
+void UiTableViewEditor::setTableSelectionLevel( int selectionLevel )
 {
     m_tableSelectionLevel = selectionLevel;
 }
@@ -294,7 +294,7 @@ void PdmUiTableViewEditor::setTableSelectionLevel( int selectionLevel )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewEditor::setRowSelectionLevel( int selectionLevel )
+void UiTableViewEditor::setRowSelectionLevel( int selectionLevel )
 {
     m_rowSelectionLevel = selectionLevel;
 }
@@ -302,7 +302,7 @@ void PdmUiTableViewEditor::setRowSelectionLevel( int selectionLevel )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewEditor::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
+void UiTableViewEditor::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
 {
     if ( !m_tableView->isVisible() || m_isBlockingSelectionManagerChanged ) return;
 
@@ -314,8 +314,8 @@ void PdmUiTableViewEditor::onSelectionManagerSelectionChanged( const std::set<in
         QItemSelection totalSelection;
         for ( auto item : items )
         {
-            Object*        pdmObj        = dynamic_cast<Object*>( item );
-            QItemSelection itemSelection = m_tableModelPdm->modelIndexFromObject( pdmObj );
+            Object*        obj           = dynamic_cast<Object*>( item );
+            QItemSelection itemSelection = m_tableModel->modelIndexFromObject( obj );
             totalSelection.merge( itemSelection, QItemSelectionModel::Select );
         }
 
@@ -328,7 +328,7 @@ void PdmUiTableViewEditor::onSelectionManagerSelectionChanged( const std::set<in
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTableViewEditor::isMultiRowEditor() const
+bool UiTableViewEditor::isMultiRowEditor() const
 {
     return true;
 }
@@ -337,7 +337,7 @@ bool PdmUiTableViewEditor::isMultiRowEditor() const
 /// NOTE: If no selection role is defined, the selection manager is not changed, the selection in the
 /// editor is local to the editor
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewEditor::slotSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected )
+void UiTableViewEditor::slotSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected )
 {
     if ( !m_isUpdatingSelectionQModel ) updateSelectionManagerFromTableSelection();
 
@@ -350,7 +350,7 @@ void PdmUiTableViewEditor::slotSelectionChanged( const QItemSelection& selected,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTableViewEditor::isSelectionRoleDefined() const
+bool UiTableViewEditor::isSelectionRoleDefined() const
 {
     return m_rowSelectionLevel != SelectionManager::UNDEFINED;
 }
@@ -358,11 +358,11 @@ bool PdmUiTableViewEditor::isSelectionRoleDefined() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle* PdmUiTableViewEditor::pdmObjectFromModelIndex( const QModelIndex& mi )
+ObjectHandle* UiTableViewEditor::objectFromModelIndex( const QModelIndex& mi )
 {
     if ( mi.isValid() )
     {
-        return m_tableModelPdm->pdmObjectForRow( mi.row() );
+        return m_tableModel->objectForRow( mi.row() );
     }
 
     return nullptr;
@@ -371,7 +371,7 @@ ObjectHandle* PdmUiTableViewEditor::pdmObjectFromModelIndex( const QModelIndex& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
+void UiTableViewEditor::updateSelectionManagerFromTableSelection()
 {
     if ( isSelectionRoleDefined() )
     {
@@ -379,7 +379,7 @@ void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
         QModelIndexList   modelIndexList = m_tableView->selectionModel()->selectedIndexes();
         for ( const QModelIndex& mi : modelIndexList )
         {
-            ObjectHandle* obj = m_tableModelPdm->pdmObjectForRow( mi.row() );
+            ObjectHandle* obj = m_tableModel->objectForRow( mi.row() );
 
             if ( obj && obj->capability<FieldUiCapability>() )
             {
@@ -409,7 +409,7 @@ void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTableViewEditor::eventFilter( QObject* obj, QEvent* event )
+bool UiTableViewEditor::eventFilter( QObject* obj, QEvent* event )
 {
     if ( event->type() == QEvent::FocusIn )
     {
@@ -422,7 +422,7 @@ bool PdmUiTableViewEditor::eventFilter( QObject* obj, QEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::ChildArrayFieldHandle* PdmUiTableViewEditor::childArrayFieldHandle()
+caf::ChildArrayFieldHandle* UiTableViewEditor::childArrayFieldHandle()
 {
     caf::ChildArrayFieldHandle* fieldHandle = nullptr;
     if ( this->uiField() )
@@ -436,8 +436,8 @@ caf::ChildArrayFieldHandle* PdmUiTableViewEditor::childArrayFieldHandle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewPushButtonEditorAttribute::registerPushButtonTextForFieldKeyword( const std::string& keyword,
-                                                                                     const std::string& text )
+void UiTableViewPushButtonEditorAttribute::registerPushButtonTextForFieldKeyword( const std::string& keyword,
+                                                                                  const std::string& text )
 {
     m_fieldKeywordAndPushButtonText[keyword] = text;
 }
@@ -445,7 +445,7 @@ void PdmUiTableViewPushButtonEditorAttribute::registerPushButtonTextForFieldKeyw
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTableViewPushButtonEditorAttribute::showPushButtonForFieldKeyword( const std::string& keyword ) const
+bool UiTableViewPushButtonEditorAttribute::showPushButtonForFieldKeyword( const std::string& keyword ) const
 {
     if ( m_fieldKeywordAndPushButtonText.count( keyword ) > 0 ) return true;
 
@@ -455,7 +455,7 @@ bool PdmUiTableViewPushButtonEditorAttribute::showPushButtonForFieldKeyword( con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string PdmUiTableViewPushButtonEditorAttribute::pushButtonText( const std::string& keyword ) const
+std::string UiTableViewPushButtonEditorAttribute::pushButtonText( const std::string& keyword ) const
 {
     if ( showPushButtonForFieldKeyword( keyword ) )
     {

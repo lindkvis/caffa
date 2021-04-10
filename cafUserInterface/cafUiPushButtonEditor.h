@@ -50,7 +50,7 @@ class FieldHandle;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiPushButtonEditorAttribute : public UiEditorAttribute
+class UiPushButtonEditorAttribute : public UiEditorAttribute
 {
 public:
     QIcon   m_buttonIcon;
@@ -60,14 +60,14 @@ public:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiPushButtonEditor : public UiFieldEditorHandle
+class UiPushButtonEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    CAF_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiPushButtonEditor() {}
-    ~PdmUiPushButtonEditor() override {}
+    UiPushButtonEditor() {}
+    ~UiPushButtonEditor() override {}
 
     static void configureEditorForField( FieldHandle* fieldHandle );
 

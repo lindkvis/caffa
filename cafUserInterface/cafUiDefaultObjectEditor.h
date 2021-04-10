@@ -51,12 +51,12 @@ class UiGroup;
 //==================================================================================================
 /// The default editor for Objects. Manages the field editors in a grid layout vertically
 //==================================================================================================
-class PdmUiDefaultObjectEditor : public PdmUiFormLayoutObjectEditor
+class UiDefaultObjectEditor : public UiFormLayoutObjectEditor
 {
     Q_OBJECT
 public:
-    PdmUiDefaultObjectEditor();
-    ~PdmUiDefaultObjectEditor() override;
+    UiDefaultObjectEditor();
+    ~UiDefaultObjectEditor() override;
 
 private:
     QWidget* createWidget( QWidget* parent ) override;

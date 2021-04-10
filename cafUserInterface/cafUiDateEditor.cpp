@@ -59,12 +59,12 @@
 
 namespace caf
 {
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiDateEditor );
+CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiDateEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDateEditor::configureAndUpdateUi()
+void UiDateEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_dateEdit.isNull() );
 
@@ -94,7 +94,7 @@ void PdmUiDateEditor::configureAndUpdateUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDateEditor::createEditorWidget( QWidget* parent )
+QWidget* UiDateEditor::createEditorWidget( QWidget* parent )
 {
     m_dateEdit = new QDateTimeEdit( parent );
     m_dateEdit->setCalendarPopup( true );
@@ -105,7 +105,7 @@ QWidget* PdmUiDateEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDateEditor::createLabelWidget( QWidget* parent )
+QWidget* UiDateEditor::createLabelWidget( QWidget* parent )
 {
     m_label = new QLabel( parent );
     return m_label;
@@ -114,7 +114,7 @@ QWidget* PdmUiDateEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDateEditor::slotEditingFinished()
+void UiDateEditor::slotEditingFinished()
 {
     std::time_t t = (std::time_t)m_dateEdit->dateTime().toSecsSinceEpoch();
     Variant     v( t );

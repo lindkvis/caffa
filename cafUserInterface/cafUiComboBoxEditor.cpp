@@ -52,7 +52,7 @@
 
 namespace caf
 {
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiComboBoxEditor );
+CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiComboBoxEditor );
 
 /* GIMP RGBA C-Source image dump (StepDown.c) */
 
@@ -197,7 +197,7 @@ static const QIcon& stepUpIcon()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiComboBoxEditor::configureAndUpdateUi()
+void UiComboBoxEditor::configureAndUpdateUi()
 {
     if ( !m_label.isNull() )
     {
@@ -374,7 +374,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QMargins PdmUiComboBoxEditor::calculateLabelContentMargins() const
+QMargins UiComboBoxEditor::calculateLabelContentMargins() const
 {
     QSize editorSize = m_comboBox->sizeHint();
     QSize labelSize  = m_label->sizeHint();
@@ -443,7 +443,7 @@ protected:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiComboBoxEditor::createEditorWidget( QWidget* parent )
+QWidget* UiComboBoxEditor::createEditorWidget( QWidget* parent )
 {
     m_comboBox = new CustomQComboBox( parent );
     m_comboBox->setFocusPolicy( Qt::StrongFocus );
@@ -463,7 +463,7 @@ QWidget* PdmUiComboBoxEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiComboBoxEditor::createLabelWidget( QWidget* parent )
+QWidget* UiComboBoxEditor::createLabelWidget( QWidget* parent )
 {
     m_label = new QLabel( parent );
     return m_label;
@@ -472,7 +472,7 @@ QWidget* PdmUiComboBoxEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiComboBoxEditor::slotIndexActivated( int index )
+void UiComboBoxEditor::slotIndexActivated( int index )
 {
     if ( m_attributes.enableEditableContent )
     {
@@ -483,19 +483,18 @@ void PdmUiComboBoxEditor::slotIndexActivated( int index )
     }
     else
     {
-        // Use index as data carrier to PDM field
+        // Use index as data carrier to CAF field
         // The index will be used as a lookup in a list of option items
         bool dummy        = false;
         auto valueOptions = uiField()->valueOptions( &dummy );
-        if ( index < (int)valueOptions.size() )
-            this->setValueToField( valueOptions[index].value() );
+        if ( index < (int)valueOptions.size() ) this->setValueToField( valueOptions[index].value() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiComboBoxEditor::slotNextButtonPressed()
+void UiComboBoxEditor::slotNextButtonPressed()
 {
     int indexCandidate = m_comboBox->currentIndex() + 1;
 
@@ -508,7 +507,7 @@ void PdmUiComboBoxEditor::slotNextButtonPressed()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiComboBoxEditor::slotPreviousButtonPressed()
+void UiComboBoxEditor::slotPreviousButtonPressed()
 {
     int indexCandidate = m_comboBox->currentIndex() - 1;
 

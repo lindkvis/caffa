@@ -51,7 +51,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTableView::PdmUiTableView( QWidget* parent, Qt::WindowFlags f )
+UiTableView::UiTableView( QWidget* parent, Qt::WindowFlags f )
     : QWidget( parent, f )
 {
     QVBoxLayout* layout = new QVBoxLayout( this );
@@ -60,7 +60,7 @@ PdmUiTableView::PdmUiTableView( QWidget* parent, Qt::WindowFlags f )
 
     setLayout( layout );
 
-    m_listViewEditor = new PdmUiTableViewEditor();
+    m_listViewEditor = new UiTableViewEditor();
 
     m_listViewEditor->createWidgets( this );
 
@@ -78,7 +78,7 @@ PdmUiTableView::PdmUiTableView( QWidget* parent, Qt::WindowFlags f )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTableView::~PdmUiTableView()
+UiTableView::~UiTableView()
 {
     if ( m_listViewEditor ) delete m_listViewEditor;
 }
@@ -86,14 +86,14 @@ PdmUiTableView::~PdmUiTableView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableView::setChildArrayField( ChildArrayFieldHandle* childArrayField )
+void UiTableView::setChildArrayField( ChildArrayFieldHandle* childArrayField )
 {
     CAF_ASSERT( m_listViewEditor );
 
     if ( childArrayField )
     {
         // Keep the possible custom context menu setting from the user of the table view.
-        // setUIField will set it based on the PdmUIItem settings, but turning the custom menu off should not
+        // setUIField will set it based on the UiItem settings, but turning the custom menu off should not
         // be respected when using the field in a separate view.
         auto orgContextPolicy = m_listViewEditor->tableView()->contextMenuPolicy();
 
@@ -117,7 +117,7 @@ void PdmUiTableView::setChildArrayField( ChildArrayFieldHandle* childArrayField 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QTableView* PdmUiTableView::tableView()
+QTableView* UiTableView::tableView()
 {
     CAF_ASSERT( m_listViewEditor );
 
@@ -127,7 +127,7 @@ QTableView* PdmUiTableView::tableView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableView::enableHeaderText( bool enable )
+void UiTableView::enableHeaderText( bool enable )
 {
     m_listViewEditor->enableHeaderText( enable );
 }
@@ -135,7 +135,7 @@ void PdmUiTableView::enableHeaderText( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableView::setTableSelectionLevel( int selectionLevel )
+void UiTableView::setTableSelectionLevel( int selectionLevel )
 {
     m_listViewEditor->setTableSelectionLevel( selectionLevel );
 }
@@ -143,7 +143,7 @@ void PdmUiTableView::setTableSelectionLevel( int selectionLevel )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableView::setRowSelectionLevel( int selectionLevel )
+void UiTableView::setRowSelectionLevel( int selectionLevel )
 {
     m_listViewEditor->setRowSelectionLevel( selectionLevel );
 }
@@ -151,15 +151,15 @@ void PdmUiTableView::setRowSelectionLevel( int selectionLevel )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle* PdmUiTableView::pdmObjectFromModelIndex( const QModelIndex& mi )
+ObjectHandle* UiTableView::objectFromModelIndex( const QModelIndex& mi )
 {
-    return m_listViewEditor->pdmObjectFromModelIndex( mi );
+    return m_listViewEditor->objectFromModelIndex( mi );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableView::addActionsToMenu( MenuInterface* menu, ChildArrayFieldHandle* childArrayField )
+void UiTableView::addActionsToMenu( MenuInterface* menu, ChildArrayFieldHandle* childArrayField )
 {
     // This is function is required to execute before populating the menu
     // Several commands rely on the activeChildArrayFieldHandle in the selection manager

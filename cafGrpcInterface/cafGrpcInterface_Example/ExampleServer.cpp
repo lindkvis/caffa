@@ -54,10 +54,10 @@ public:
     //--------------------------------------------------------------------------------------------------
     int patchVersion() const override { return 0; }
 
-    caf::PdmDocument*            document( const std::string& documentId ) override { return &m_demoDocument; }
-    const caf::PdmDocument*      document( const std::string& documentId ) const override { return &m_demoDocument; }
-    std::list<caf::PdmDocument*> documents() override { return { document( "" ) }; }
-    std::list<const caf::PdmDocument*> documents() const override { return { document( "" ) }; }
+    caf::Document*                  document( const std::string& documentId ) override { return &m_demoDocument; }
+    const caf::Document*            document( const std::string& documentId ) const override { return &m_demoDocument; }
+    std::list<caf::Document*>       documents() override { return { document( "" ) }; }
+    std::list<const caf::Document*> documents() const override { return { document( "" ) }; }
 
 private:
     DemoDocument m_demoDocument;

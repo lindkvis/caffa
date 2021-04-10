@@ -5,7 +5,7 @@ project ( cafProjectDataModel_UnitTests )
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set( PROJECT_FILES
-	cafPdmBasicTest.cpp
+	cafBasicTest.cpp
 	cafProjectDataModel_UnitTests.cpp
     Child.cpp
     Parent.cpp

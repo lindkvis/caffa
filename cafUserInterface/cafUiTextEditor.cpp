@@ -49,7 +49,7 @@
 
 namespace caf
 {
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiTextEditor );
+CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiTextEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -96,7 +96,7 @@ void TextEdit::focusOutEvent( QFocusEvent* e )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTextEditor::configureAndUpdateUi()
+void UiTextEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_textEdit.isNull() );
     CAF_ASSERT( !m_label.isNull() );
@@ -107,7 +107,7 @@ void PdmUiTextEditor::configureAndUpdateUi()
     // m_textEdit->setEnabled(!field()->isUiReadOnly()); // Neccesary ?
     m_textEdit->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
-    PdmUiTextEditorAttribute leab;
+    UiTextEditorAttribute leab;
 
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
@@ -131,10 +131,10 @@ void PdmUiTextEditor::configureAndUpdateUi()
     m_textEdit->blockSignals( true );
     switch ( leab.textMode )
     {
-        case PdmUiTextEditorAttribute::PLAIN:
+        case UiTextEditorAttribute::PLAIN:
             m_textEdit->setPlainText( QString::fromStdString( uiField()->uiValue().value<std::string>() ) );
             break;
-        case PdmUiTextEditorAttribute::HTML:
+        case UiTextEditorAttribute::HTML:
             m_textEdit->setHtml( QString::fromStdString( uiField()->uiValue().value<std::string>() ) );
             break;
     }
@@ -152,7 +152,7 @@ void PdmUiTextEditor::configureAndUpdateUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTextEditor::isMultiRowEditor() const
+bool UiTextEditor::isMultiRowEditor() const
 {
     return true;
 }
@@ -160,7 +160,7 @@ bool PdmUiTextEditor::isMultiRowEditor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTextEditor::createEditorWidget( QWidget* parent )
+QWidget* UiTextEditor::createEditorWidget( QWidget* parent )
 {
     QWidget* containerWidget = new QWidget( parent );
 
@@ -187,7 +187,7 @@ QWidget* PdmUiTextEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTextEditor::createLabelWidget( QWidget* parent )
+QWidget* UiTextEditor::createLabelWidget( QWidget* parent )
 {
     m_label = new QLabel( parent );
     return m_label;
@@ -196,16 +196,16 @@ QWidget* PdmUiTextEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTextEditor::slotSetValueToField()
+void UiTextEditor::slotSetValueToField()
 {
     QString textValue;
 
     switch ( m_textMode )
     {
-        case PdmUiTextEditorAttribute::PLAIN:
+        case UiTextEditorAttribute::PLAIN:
             textValue = m_textEdit->toPlainText();
             break;
-        case PdmUiTextEditorAttribute::HTML:
+        case UiTextEditorAttribute::HTML:
             textValue = m_textEdit->toHtml();
             break;
     }
@@ -218,19 +218,19 @@ void PdmUiTextEditor::slotSetValueToField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QTextOption::WrapMode PdmUiTextEditor::toQTextOptionWrapMode( PdmUiTextEditorAttribute::WrapMode wrapMode )
+QTextOption::WrapMode UiTextEditor::toQTextOptionWrapMode( UiTextEditorAttribute::WrapMode wrapMode )
 {
     switch ( wrapMode )
     {
-        case PdmUiTextEditorAttribute::NoWrap:
+        case UiTextEditorAttribute::NoWrap:
             return QTextOption::WrapMode::NoWrap;
-        case PdmUiTextEditorAttribute::WordWrap:
+        case UiTextEditorAttribute::WordWrap:
             return QTextOption::WrapMode::WordWrap;
-        case PdmUiTextEditorAttribute::ManualWrap:
+        case UiTextEditorAttribute::ManualWrap:
             return QTextOption::WrapMode::ManualWrap;
-        case PdmUiTextEditorAttribute::WrapAnywhere:
+        case UiTextEditorAttribute::WrapAnywhere:
             return QTextOption::WrapMode::WrapAnywhere;
-        case PdmUiTextEditorAttribute::WrapAtWordBoundaryOrAnywhere:
+        case UiTextEditorAttribute::WrapAtWordBoundaryOrAnywhere:
         default:
             return QTextOption::WrapMode::WrapAtWordBoundaryOrAnywhere;
     }

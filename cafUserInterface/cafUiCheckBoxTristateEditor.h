@@ -10,14 +10,14 @@
 
 namespace caf
 {
-class PdmUiCheckBoxTristateEditor : public UiFieldEditorHandle
+class UiCheckBoxTristateEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    CAF_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiCheckBoxTristateEditor() {}
-    ~PdmUiCheckBoxTristateEditor() override {}
+    UiCheckBoxTristateEditor() {}
+    ~UiCheckBoxTristateEditor() override {}
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
@@ -28,8 +28,8 @@ protected slots:
     void slotClicked( bool );
 
 private:
-    QPointer<QCheckBox>       m_checkBox;
-    QPointer<QLabel> m_label;
+    QPointer<QCheckBox> m_checkBox;
+    QPointer<QLabel>    m_label;
 };
 
 } // end namespace caf

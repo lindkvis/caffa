@@ -5,7 +5,7 @@
 namespace caf
 {
 class Object;
-class PdmUiPropertyView;
+class UiPropertyView;
 } // namespace caf
 
 class QDialogButtonBox;
@@ -15,14 +15,11 @@ class QStringList;
 
 namespace caf
 {
-class PdmUiTabbedPropertyViewDialog : public QDialog
+class UiTabbedPropertyViewDialog : public QDialog
 {
 public:
-    PdmUiTabbedPropertyViewDialog( caf::Object*       object,
-                                   const QStringList& tabLabels,
-                                   const QString&     windowTitle,
-                                   QWidget*           parent );
-    ~PdmUiTabbedPropertyViewDialog() override;
+    UiTabbedPropertyViewDialog( caf::Object* object, const QStringList& tabLabels, const QString& windowTitle, QWidget* parent );
+    ~UiTabbedPropertyViewDialog() override;
 
     QDialogButtonBox* dialogButtonBox();
 
@@ -31,8 +28,8 @@ protected:
     QSize sizeHint() const override;
 
 private:
-    std::vector<PdmUiPropertyView*> m_propertyViewTabs;
-    QDialogButtonBox*               m_dialogButtonBox;
+    std::vector<UiPropertyView*> m_propertyViewTabs;
+    QDialogButtonBox*            m_dialogButtonBox;
 };
 
 } // namespace caf

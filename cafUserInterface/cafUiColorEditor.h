@@ -50,14 +50,14 @@ namespace caf
 //==================================================================================================
 /// See cafFieldCvfColor for conversion between cvf::Color3f and QColor
 //==================================================================================================
-class PdmUiColorEditor : public UiFieldEditorHandle
+class UiColorEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    CAF_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiColorEditor();
-    ~PdmUiColorEditor() override {}
+    UiColorEditor();
+    ~UiColorEditor() override {}
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
@@ -81,7 +81,7 @@ private:
     QPointer<QToolButton> m_colorSelectionButton;
     QPointer<QLabel>      m_colorPreviewLabel;
 
-    PdmUiColorEditorAttribute m_attributes;
+    UiColorEditorAttribute m_attributes;
 };
 
 } // end namespace caf

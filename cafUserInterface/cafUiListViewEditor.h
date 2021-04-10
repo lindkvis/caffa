@@ -53,10 +53,10 @@ class ObjectCollection;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiListViewEditorAttribute : public UiEditorAttribute
+class UiListViewEditorAttribute : public UiEditorAttribute
 {
 public:
-    PdmUiListViewEditorAttribute() {}
+    UiListViewEditorAttribute() {}
 
 public:
     std::vector<std::string> fieldNames;
@@ -65,14 +65,14 @@ public:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class UiListViewModelPdm : public QAbstractTableModel
+class UiListViewModel : public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
-    explicit UiListViewModelPdm( QObject* parent );
+    explicit UiListViewModel( QObject* parent );
 
-    void setPdmData( ObjectCollection* objectGroup );
+    void setData( ObjectCollection* objectGroup );
 
     // Qt overrides
     int      rowCount( const QModelIndex& parent = QModelIndex() ) const override;
@@ -84,19 +84,19 @@ private:
     void computeColumnCount();
 
 private:
-    ObjectCollection*            m_pdmObjectGroup;
-    PdmUiListViewEditorAttribute m_editorAttribute;
-    int                          m_columnCount;
+    ObjectCollection*         m_objectGroup;
+    UiListViewEditorAttribute m_editorAttribute;
+    int                       m_columnCount;
 };
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiListViewEditor : public PdmUiWidgetObjectEditorHandle
+class UiListViewEditor : public UiWidgetObjectEditorHandle
 {
 public:
-    PdmUiListViewEditor();
-    ~PdmUiListViewEditor() override;
+    UiListViewEditor();
+    ~UiListViewEditor() override;
 
 protected:
     QWidget* createWidget( QWidget* parent ) override;
@@ -104,7 +104,7 @@ protected:
 
 private:
     QPointer<QTableView> m_tableView;
-    UiListViewModelPdm*  m_tableModelPdm;
+    UiListViewModel*     m_tableModel;
 };
 
 } // end namespace caf
