@@ -43,7 +43,7 @@ class AsyncObjectVectorDeleter
 {
 public:
     AsyncObjectVectorDeleter( std::vector<ObjectType*>& pointerVector );
-    AsyncObjectVectorDeleter( std::vector<PdmPointer<ObjectType>>& pdmPointerVector );
+    AsyncObjectVectorDeleter( std::vector<Pointer<ObjectType>>& pdmPointerVector );
     ~AsyncObjectVectorDeleter();
     void start();
 

@@ -28,10 +28,10 @@ AsyncObjectVectorDeleter<ObjectType>::AsyncObjectVectorDeleter( std::vector<Obje
 /// Constructor that takes ownership of the data in the provided vector
 //--------------------------------------------------------------------------------------------------
 template <typename ObjectType>
-AsyncObjectVectorDeleter<ObjectType>::AsyncObjectVectorDeleter( std::vector<PdmPointer<ObjectType>>& pdmPointerVector )
+AsyncObjectVectorDeleter<ObjectType>::AsyncObjectVectorDeleter( std::vector<Pointer<ObjectType>>& pdmPointerVector )
 {
     m_pointersToDelete.reserve( pdmPointerVector.size() );
-    for ( PdmPointer<ObjectType>& pdmPointer : pdmPointerVector )
+    for ( Pointer<ObjectType>& pdmPointer : pdmPointerVector )
     {
         if ( pdmPointer.notNull() )
         {

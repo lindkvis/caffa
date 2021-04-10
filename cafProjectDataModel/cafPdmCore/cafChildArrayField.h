@@ -4,7 +4,7 @@
 
 #include "cafAssert.h"
 #include "cafFieldHandle.h"
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 
 namespace caf
 {
@@ -39,8 +39,8 @@ class ChildArrayField : public FieldHandle
 public:
     ChildArrayField()
     {
-        bool doNotUsePdmPointersFieldForAnythingButPointersToObject = false;
-        CAF_ASSERT( doNotUsePdmPointersFieldForAnythingButPointersToObject );
+        bool doNotUsePointersFieldForAnythingButPointersToObject = false;
+        CAF_ASSERT( doNotUsePointersFieldForAnythingButPointersToObject );
     }
 };
 
@@ -58,7 +58,7 @@ public:
     ChildArrayField&       operator()() { return *this; }
     const ChildArrayField& operator()() const { return *this; }
 
-    // Reimplementation of PdmPointersFieldHandle methods
+    // Reimplementation of PointersFieldHandle methods
 
     size_t        size() const override { return m_pointers.size(); }
     bool          empty() const override { return m_pointers.empty(); }
@@ -77,17 +77,17 @@ public:
     void   push_back( DataType* pointer );
     void   set( size_t index, DataType* pointer );
     void   insert( size_t indexAfter, DataType* pointer );
-    void   insert( size_t indexAfter, const std::vector<PdmPointer<DataType>>& objects );
+    void   insert( size_t indexAfter, const std::vector<Pointer<DataType>>& objects );
     size_t count( const DataType* pointer ) const;
 
     void   erase( size_t index ) override;
     size_t index( const DataType* pointer ) const;
 
-    typename std::vector<PdmPointer<DataType>>::iterator begin() { return m_pointers.begin(); };
-    typename std::vector<PdmPointer<DataType>>::iterator end() { return m_pointers.end(); };
+    typename std::vector<Pointer<DataType>>::iterator begin() { return m_pointers.begin(); };
+    typename std::vector<Pointer<DataType>>::iterator end() { return m_pointers.end(); };
 
-    typename std::vector<PdmPointer<DataType>>::const_iterator begin() const { return m_pointers.begin(); };
-    typename std::vector<PdmPointer<DataType>>::const_iterator end() const { return m_pointers.end(); };
+    typename std::vector<Pointer<DataType>>::const_iterator begin() const { return m_pointers.begin(); };
+    typename std::vector<Pointer<DataType>>::const_iterator end() const { return m_pointers.end(); };
 
     // Child objects
     std::vector<DataType*> childObjects() const;
@@ -104,7 +104,7 @@ private:
 
 private:
     friend class FieldIoCap<ChildArrayField<DataType*>>;
-    std::vector<PdmPointer<DataType>> m_pointers;
+    std::vector<Pointer<DataType>> m_pointers;
 };
 
 } // End of namespace caf

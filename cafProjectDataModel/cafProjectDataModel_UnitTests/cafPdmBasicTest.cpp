@@ -45,8 +45,8 @@
 #include "cafObject.h"
 #include "cafObjectGroup.h"
 #include "cafPdmDocument.h"
-#include "cafPdmPointer.h"
 #include "cafPdmReferenceHelper.h"
+#include "cafPointer.h"
 
 #include <fstream>
 #include <memory>
@@ -299,7 +299,7 @@ TEST(BaseTest, PointerField)
 #endif
 
 //--------------------------------------------------------------------------------------------------
-/// Test of PdmPointersField operations
+/// Test of PointersField operations
 //--------------------------------------------------------------------------------------------------
 #if 0
 TEST(BaseTest, ChildArrayField)
@@ -476,17 +476,17 @@ TEST( BaseTest, ReadWrite )
         }
 
         {
-            std::vector<caf::PdmPointer<DemoObject>> demoObjs;
+            std::vector<caf::Pointer<DemoObject>> demoObjs;
             pog.objectsByType( &demoObjs );
             EXPECT_EQ( size_t( 4 ), demoObjs.size() );
         }
         {
-            std::vector<caf::PdmPointer<InheritedDemoObj>> demoObjs;
+            std::vector<caf::Pointer<InheritedDemoObj>> demoObjs;
             pog.objectsByType( &demoObjs );
             EXPECT_EQ( size_t( 2 ), demoObjs.size() );
         }
         {
-            std::vector<caf::PdmPointer<SimpleObj>> demoObjs;
+            std::vector<caf::Pointer<SimpleObj>> demoObjs;
             pog.objectsByType( &demoObjs );
             EXPECT_EQ( size_t( 1 ), demoObjs.size() );
         }
@@ -510,7 +510,7 @@ TEST( BaseTest, ReadWrite )
 
         // Test sample of that writing actually took place
 
-        std::vector<caf::PdmPointer<InheritedDemoObj>> ihDObjs;
+        std::vector<caf::Pointer<InheritedDemoObj>> ihDObjs;
         pog.objectsByType( &ihDObjs );
         EXPECT_EQ( size_t( 2 ), ihDObjs.size() );
         ASSERT_EQ( size_t( 4 ), ihDObjs[0]->m_simpleObjectsField.size() );
@@ -538,20 +538,20 @@ TEST( BaseTest, ReadWrite )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Tests the features of PdmPointer
+/// Tests the features of Pointer
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, PdmPointer )
+TEST( BaseTest, Pointer )
 {
     caf::PdmDocument* d = new caf::PdmDocument;
 
     {
-        caf::PdmPointer<caf::PdmDocument> p;
+        caf::Pointer<caf::PdmDocument> p;
         EXPECT_TRUE( p == NULL );
     }
 
     {
-        caf::PdmPointer<caf::PdmDocument> p( d );
-        caf::PdmPointer<caf::PdmDocument> p2( p );
+        caf::Pointer<caf::PdmDocument> p( d );
+        caf::Pointer<caf::PdmDocument> p2( p );
 
         EXPECT_TRUE( p == d && p2 == d );
         EXPECT_TRUE( p.p() == d );
@@ -565,7 +565,7 @@ TEST( BaseTest, PdmPointer )
         EXPECT_TRUE( p.isNull() && p2.isNull() );
     }
 
-    caf::PdmPointer<DemoObject> p3( new DemoObject() );
+    caf::Pointer<DemoObject> p3( new DemoObject() );
 
     delete p3;
 }
@@ -616,7 +616,7 @@ TEST( BaseTest, ValidXmlKeywords )
     EXPECT_FALSE( caf::ObjectIoCapability::isValidElementName( "Valid_name_with_space " ) );
 }
 
-TEST( BaseTest, PdmPointersFieldInsertVector )
+TEST( BaseTest, PointersFieldInsertVector )
 {
     InheritedDemoObj* ihd1 = new InheritedDemoObj;
 
@@ -629,11 +629,11 @@ TEST( BaseTest, PdmPointersFieldInsertVector )
     pdmGroup.addObject( s2 );
     pdmGroup.addObject( s3 );
 
-    std::vector<caf::PdmPointer<SimpleObj>> typedObjects;
+    std::vector<caf::Pointer<SimpleObj>> typedObjects;
     pdmGroup.objectsByType( &typedObjects );
     EXPECT_EQ( size_t( 3 ), typedObjects.size() );
 
-    std::vector<caf::PdmPointer<SimpleObj>> objs;
+    std::vector<caf::Pointer<SimpleObj>> objs;
     objs.push_back( new SimpleObj );
     objs.push_back( new SimpleObj );
     objs.push_back( new SimpleObj );
@@ -666,7 +666,7 @@ TEST( BaseTest, ObjectGroupCopyOfTypedObjects )
     og.objects.push_back( s3 );
     og.objects.push_back( ihd1 );
 
-    std::vector<caf::PdmPointer<SimpleObj>> simpleObjList;
+    std::vector<caf::Pointer<SimpleObj>> simpleObjList;
     og.createCopyByType( &simpleObjList, caf::DefaultObjectFactory::instance() );
     EXPECT_EQ( size_t( 3 ), simpleObjList.size() );
     EXPECT_EQ( 1000.0, simpleObjList[0]->m_position() );
@@ -676,7 +676,7 @@ TEST( BaseTest, ObjectGroupCopyOfTypedObjects )
     EXPECT_EQ( 2000.0, simpleObjList[1]->m_position() );
     EXPECT_EQ( 3000.0, simpleObjList[2]->m_position() );
 
-    std::vector<caf::PdmPointer<InheritedDemoObj>> inheritObjList;
+    std::vector<caf::Pointer<InheritedDemoObj>> inheritObjList;
     og.createCopyByType( &inheritObjList, caf::DefaultObjectFactory::instance() );
     EXPECT_EQ( size_t( 1 ), inheritObjList.size() );
 

@@ -266,9 +266,9 @@ TEST( BaseTest, ChildArrayField )
 {
     InheritedDemoObj* ihd1 = new InheritedDemoObj;
 
-    caf::PdmPointer<DemoObject> s1 = new DemoObject;
-    caf::PdmPointer<DemoObject> s2 = new DemoObject;
-    caf::PdmPointer<DemoObject> s3 = new DemoObject;
+    caf::Pointer<DemoObject> s1 = new DemoObject;
+    caf::Pointer<DemoObject> s2 = new DemoObject;
+    caf::Pointer<DemoObject> s3 = new DemoObject;
 
     // empty() number 1
     EXPECT_TRUE( ihd1->m_childArrayField.empty() );
@@ -351,7 +351,7 @@ TEST( BaseTest, PdmChildArrayParentField )
 
 #include "Child.h"
 
-TEST( BaseTest, PdmPointersFieldInsertVector )
+TEST( BaseTest, PointersFieldInsertVector )
 {
     Parent* ihd1 = new Parent;
 
@@ -359,7 +359,7 @@ TEST( BaseTest, PdmPointersFieldInsertVector )
     Child* s2 = new Child;
     Child* s3 = new Child;
 
-    std::vector<caf::PdmPointer<Child>> typedObjects;
+    std::vector<caf::Pointer<Child>> typedObjects;
     typedObjects.push_back( s1 );
     typedObjects.push_back( s2 );
     typedObjects.push_back( s3 );
@@ -493,7 +493,7 @@ TEST( BaseTest, PtrField )
     InheritedDemoObj* accessedIhd = ihd1->m_ptrField;
     EXPECT_EQ( ihd1, accessedIhd );
 
-    ihd1->m_ptrField = caf::PdmPointer<InheritedDemoObj>( ihd2 );
+    ihd1->m_ptrField = caf::Pointer<InheritedDemoObj>( ihd2 );
     accessedIhd      = ihd1->m_ptrField;
     EXPECT_EQ( ihd2, accessedIhd );
 
@@ -503,7 +503,7 @@ TEST( BaseTest, PtrField )
     accessedIhd = ihd1->m_ptrField.value();
     EXPECT_EQ( ihd2, accessedIhd );
 
-    caf::PdmPointer<InheritedDemoObj> accessedPtr;
+    caf::Pointer<InheritedDemoObj> accessedPtr;
     EXPECT_EQ( ihd2, accessedIhd );
     accessedPtr = ihd1->m_ptrField();
     EXPECT_EQ( ihd2, accessedPtr.p() );
@@ -514,7 +514,7 @@ TEST( BaseTest, PtrField )
     EXPECT_TRUE( ihd1->m_ptrField == ihd2 );
     EXPECT_FALSE( ihd1->m_ptrField == ihd1 );
 
-    EXPECT_TRUE( ihd1->m_ptrField == caf::PdmPointer<InheritedDemoObj>( ihd2 ) );
+    EXPECT_TRUE( ihd1->m_ptrField == caf::Pointer<InheritedDemoObj>( ihd2 ) );
 
     // Generic access
     {
@@ -554,20 +554,20 @@ TEST( BaseTest, PtrField )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Tests the features of PdmPointer
+/// Tests the features of Pointer
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, PdmPointer )
+TEST( BaseTest, Pointer )
 {
     InheritedDemoObj* d = new InheritedDemoObj;
 
     {
-        caf::PdmPointer<InheritedDemoObj> p;
+        caf::Pointer<InheritedDemoObj> p;
         EXPECT_TRUE( p == NULL );
     }
 
     {
-        caf::PdmPointer<InheritedDemoObj> p( d );
-        caf::PdmPointer<InheritedDemoObj> p2( p );
+        caf::Pointer<InheritedDemoObj> p( d );
+        caf::Pointer<InheritedDemoObj> p2( p );
 
         EXPECT_TRUE( p == d && p2 == d );
         EXPECT_TRUE( p.p() == d );
@@ -581,7 +581,7 @@ TEST( BaseTest, PdmPointer )
         EXPECT_TRUE( p.isNull() && p2.isNull() );
     }
 
-    caf::PdmPointer<DemoObject> p3( new DemoObject() );
+    caf::Pointer<DemoObject> p3( new DemoObject() );
 
     delete p3;
 }

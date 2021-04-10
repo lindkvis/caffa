@@ -1,13 +1,12 @@
 #pragma once
 
 #include "cafAppEnum.h"
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 #include "cafVariant.h"
 
 #include <assert.h>
 #include <type_traits>
 #include <vector>
-
 
 namespace caf
 {
@@ -45,10 +44,7 @@ template <typename T>
 class ValueFieldSpecialization<caf::AppEnum<T>>
 {
 public:
-    static Variant convert( const caf::AppEnum<T>& value )
-    {
-        return Variant( value );
-    }
+    static Variant convert( const caf::AppEnum<T>& value ) { return Variant( value ); }
 
     static void setFromVariant( const Variant& variantValue, caf::AppEnum<T>& value )
     {
@@ -62,26 +58,23 @@ public:
 };
 
 //==================================================================================================
-/// Partial specialization for caf::PdmPointer<T>
+/// Partial specialization for caf::Pointer<T>
 /// User must use PdmPtrField or ChildField
 //==================================================================================================
 template <typename T>
-class ValueFieldSpecialization<PdmPointer<T>>
+class ValueFieldSpecialization<Pointer<T>>
 {
 public:
-    static Variant convert( const PdmPointer<T>& value )
-    {
-        return Variant( PdmPointer<ObjectHandle>( value.rawPtr() ) );
-    }
+    static Variant convert( const Pointer<T>& value ) { return Variant( Pointer<ObjectHandle>( value.rawPtr() ) ); }
 
-    static void setFromVariant( const Variant& variantValue, caf::PdmPointer<T>& value )
+    static void setFromVariant( const Variant& variantValue, caf::Pointer<T>& value )
     {
-        value.setRawPtr( variantValue.value<PdmPointer<ObjectHandle>>().rawPtr() );
+        value.setRawPtr( variantValue.value<Pointer<ObjectHandle>>().rawPtr() );
     }
 
     static bool isEqual( const Variant& variantValue, const Variant& variantValue2 )
     {
-        return variantValue.value<PdmPointer<ObjectHandle>>() == variantValue2.value<PdmPointer<ObjectHandle>>();
+        return variantValue.value<Pointer<ObjectHandle>>() == variantValue2.value<Pointer<ObjectHandle>>();
     }
 };
 

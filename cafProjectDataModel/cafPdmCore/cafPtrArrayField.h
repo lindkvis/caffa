@@ -2,7 +2,7 @@
 
 #include "cafAssert.h"
 #include "cafFieldHandle.h"
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 
 #include "cafPtrArrayFieldHandle.h"
 namespace caf
@@ -33,7 +33,7 @@ class PtrArrayField<DataType*> : public PtrArrayFieldHandle
     typedef DataType* DataTypePtr;
 
 public:
-    typedef std::vector<PdmPointer<DataType>> FieldDataType;
+    typedef std::vector<Pointer<DataType>> FieldDataType;
 
     PtrArrayField()
         : m_isResolved( false )
@@ -43,12 +43,12 @@ public:
 
     PtrArrayField& operator()() { return *this; }
 
-    void                                     setValue( const std::vector<PdmPointer<DataType>>& fieldValue );
-    const std::vector<PdmPointer<DataType>>& value() const;
+    void                                  setValue( const std::vector<Pointer<DataType>>& fieldValue );
+    const std::vector<Pointer<DataType>>& value() const;
 
     void setValue( const std::vector<DataType*>& fieldValue );
 
-    // Reimplementation of PdmPointersFieldHandle methods
+    // Reimplementation of PointersFieldHandle methods
 
     virtual size_t        size() const { return m_pointers.size(); }
     virtual bool          empty() const { return m_pointers.empty(); }
@@ -63,18 +63,18 @@ public:
     void   push_back( DataType* pointer );
     void   set( size_t index, DataType* pointer );
     void   insert( size_t indexAfter, DataType* pointer );
-    void   insert( size_t indexAfter, const std::vector<PdmPointer<DataType>>& objects );
+    void   insert( size_t indexAfter, const std::vector<Pointer<DataType>>& objects );
     size_t count( const DataType* pointer ) const;
 
     void   erase( size_t index );
     size_t index( DataType* pointer );
     void   removePtr( ObjectHandle* object );
 
-    typename std::vector<PdmPointer<DataType>>::iterator begin() { return m_pointers.begin(); };
-    typename std::vector<PdmPointer<DataType>>::iterator end() { return m_pointers.end(); };
+    typename std::vector<Pointer<DataType>>::iterator begin() { return m_pointers.begin(); };
+    typename std::vector<Pointer<DataType>>::iterator end() { return m_pointers.end(); };
 
-    typename std::vector<PdmPointer<DataType>>::const_iterator begin() const { return m_pointers.begin(); };
-    typename std::vector<PdmPointer<DataType>>::const_iterator end() const { return m_pointers.end(); };
+    typename std::vector<Pointer<DataType>>::const_iterator begin() const { return m_pointers.begin(); };
+    typename std::vector<Pointer<DataType>>::const_iterator end() const { return m_pointers.end(); };
 
     std::vector<DataType*> ptrReferencedObjects() const;
 
@@ -90,9 +90,9 @@ private: // To be disabled
 private:
     friend class FieldIoCap<PtrArrayField<DataType*>>;
 
-    std::vector<PdmPointer<DataType>> m_pointers;
-    std::string                       m_referenceString;
-    bool                              m_isResolved;
+    std::vector<Pointer<DataType>> m_pointers;
+    std::string                    m_referenceString;
+    bool                           m_isResolved;
 };
 
 } // End of namespace caf

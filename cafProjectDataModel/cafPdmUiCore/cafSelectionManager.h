@@ -39,7 +39,7 @@
 
 #include "cafField.h"
 #include "cafObjectHandle.h"
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 #include "cafUiItem.h"
 
 #include <set>
@@ -68,7 +68,7 @@ public:
     static SelectionManager* instance();
 
     UiItem* selectedItem( int selectionLevel = 0 );
-    void       selectedItems( std::vector<UiItem*>& items, int selectionLevel = 0 );
+    void    selectedItems( std::vector<UiItem*>& items, int selectionLevel = 0 );
 
     void setSelectedItem( UiItem* item );
     void setSelectedItemAtLevel( UiItem* item, int selectionLevel );
@@ -79,7 +79,7 @@ public:
     struct SelectionItem
     {
         UiItem* item;
-        int        selectionLevel;
+        int     selectionLevel;
     };
     void setSelection( const std::vector<SelectionItem> completeSelection );
 
@@ -149,22 +149,22 @@ public:
         return nullptr;
     }
 
-    void                      setActiveChildArrayFieldHandle( ChildArrayFieldHandle* childArray );
+    void                   setActiveChildArrayFieldHandle( ChildArrayFieldHandle* childArray );
     ChildArrayFieldHandle* activeChildArrayFieldHandle();
 
-    void             setPdmRootObject( ObjectHandle* root );
+    void          setPdmRootObject( ObjectHandle* root );
     ObjectHandle* pdmRootObject() { return m_rootObject; }
 
 private:
     SelectionManager();
 
-    static void extractInternalSelectionItems(
-        const std::vector<UiItem*>&                                   items,
-        std::vector<std::pair<PdmPointer<ObjectHandle>, UiItem*>>* internalSelectionItems );
+    static void
+        extractInternalSelectionItems( const std::vector<UiItem*>&                             items,
+                                       std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>* internalSelectionItems );
 
     void          notifySelectionChanged( const std::set<int>& changedSelectionLevels );
     std::set<int> findChangedLevels(
-        const std::map<int, std::vector<std::pair<PdmPointer<ObjectHandle>, UiItem*>>>& newCompleteSelectionMap ) const;
+        const std::map<int, std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>>& newCompleteSelectionMap ) const;
 
     friend class SelectionChangedReceiver;
     void registerSelectionChangedReceiver( SelectionChangedReceiver* receiver )
@@ -177,10 +177,10 @@ private:
     }
 
 private:
-    std::map<int, std::vector<std::pair<PdmPointer<ObjectHandle>, UiItem*>>> m_selectionPrLevel;
+    std::map<int, std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>> m_selectionPrLevel;
 
-    ChildArrayFieldHandle*   m_activeChildArrayFieldHandle;
-    PdmPointer<ObjectHandle> m_rootObject;
+    ChildArrayFieldHandle* m_activeChildArrayFieldHandle;
+    Pointer<ObjectHandle>  m_rootObject;
 
     std::set<SelectionChangedReceiver*> m_selectionReceivers;
 };

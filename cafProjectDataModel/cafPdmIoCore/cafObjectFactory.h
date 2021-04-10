@@ -38,7 +38,7 @@
 
 #include "cafObjectHandle.h"
 #include "cafObjectIoCapability.h"
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 
 #include <list>
 #include <string>
@@ -54,10 +54,10 @@ namespace caf
 class ObjectFactory
 {
 public:
-    ObjectHandle* create( const std::string& classNameKeyword, uint64_t serverAddress = 0u)
+    ObjectHandle* create( const std::string& classNameKeyword, uint64_t serverAddress = 0u )
     {
         ObjectHandle* object = doCreate( classNameKeyword, serverAddress );
-        if ( object ) m_objects.push_back( PdmPointer<ObjectHandle>( object ) );
+        if ( object ) m_objects.push_back( Pointer<ObjectHandle>( object ) );
         return object;
     }
 
@@ -111,7 +111,7 @@ protected:
 private:
     virtual ObjectHandle* doCreate( const std::string& classNameKeyword, uint64_t serverAddress = 0u ) = 0;
 
-    std::list<PdmPointer<ObjectHandle>> m_objects;
+    std::list<Pointer<ObjectHandle>> m_objects;
 };
 
 } // End of namespace caf

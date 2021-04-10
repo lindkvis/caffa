@@ -2,7 +2,7 @@
 
 #include "cafAssert.h"
 #include "cafDataValueField.h"
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 #include "cafValueField.h"
 #include "cafValueFieldSpecializations.h"
 
@@ -40,8 +40,8 @@ public:
     }
 
 private:
-    SetterMethodType       m_setterMethod;
-    PdmPointer<ObjectType> m_obj;
+    SetterMethodType    m_setterMethod;
+    Pointer<ObjectType> m_obj;
 };
 
 template <typename DataType>
@@ -73,8 +73,8 @@ public:
     }
 
 private:
-    GetterMethodType       m_getterMethod;
-    PdmPointer<ObjectType> m_obj;
+    GetterMethodType    m_getterMethod;
+    Pointer<ObjectType> m_obj;
 };
 
 template <typename DataType>

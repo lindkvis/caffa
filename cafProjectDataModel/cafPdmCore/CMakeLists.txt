@@ -28,7 +28,7 @@ set (PUBLIC_HEADERS
     cafObjectCapability.h
     cafFieldReorderCapability.h
     cafObjectHandle.h
-    cafPdmPointer.h
+    cafPointer.h
     cafFieldProxyAccessor.h
     cafPtrArrayField.h
     cafPtrArrayField.inl
@@ -58,7 +58,7 @@ set( PROJECT_FILES
     cafFieldReorderCapability.cpp
     cafLogger.cpp
     cafObjectHandle.cpp
-    cafPdmPointer.cpp
+    cafPointer.cpp
     cafPdmReferenceHelper.cpp
     cafSignal.cpp
     cafStringTools.cpp

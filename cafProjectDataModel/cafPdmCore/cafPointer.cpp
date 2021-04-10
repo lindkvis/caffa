@@ -34,7 +34,7 @@
 //
 //##################################################################################################
 
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 #include "cafObjectHandle.h"
 
 namespace caf
@@ -42,7 +42,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmPointerImpl::addReference( ObjectHandle** addressToObjectPointer )
+void PointerImpl::addReference( ObjectHandle** addressToObjectPointer )
 {
     if ( *addressToObjectPointer )
         ( *addressToObjectPointer )->m_pointersReferencingMe.insert( addressToObjectPointer );
@@ -51,7 +51,7 @@ void PdmPointerImpl::addReference( ObjectHandle** addressToObjectPointer )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmPointerImpl::removeReference( ObjectHandle** addressToObjectPointer )
+void PointerImpl::removeReference( ObjectHandle** addressToObjectPointer )
 {
     if ( *addressToObjectPointer ) ( *addressToObjectPointer )->m_pointersReferencingMe.erase( addressToObjectPointer );
 }

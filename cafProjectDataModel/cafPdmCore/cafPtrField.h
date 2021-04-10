@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cafAssert.h"
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 #include "cafValueField.h"
 
 #include <any>
@@ -38,7 +38,7 @@ class PtrField<DataType*> : public ValueField
     typedef DataType* DataTypePtr;
 
 public:
-    typedef PdmPointer<DataType> FieldDataType;
+    typedef Pointer<DataType> FieldDataType;
 
     PtrField()
         : m_isResolved( false )
@@ -80,7 +80,7 @@ private:
     friend class FieldIoCap<PtrField<DataType*>>;
     void setRawPtr( ObjectHandle* obj );
 
-    PdmPointer<DataType> m_fieldValue;
+    Pointer<DataType> m_fieldValue;
 
     // Resolving
     std::string m_referenceString;

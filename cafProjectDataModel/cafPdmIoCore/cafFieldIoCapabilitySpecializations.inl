@@ -349,7 +349,7 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFieldData( const nlohmann::json
 
         ObjectJsonCapability::readFields( obj, jsonObject, objectFactory, false );
 
-        m_field->m_pointers.push_back( PdmPointer<DataType>() );
+        m_field->m_pointers.push_back( Pointer<DataType>() );
         m_field->m_pointers.back().setRawPtr( obj );
         obj->setAsParentField( m_field );
     }
@@ -362,7 +362,7 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeFieldData( nlohmann::json& jso
                                                              bool            writeServerAddress,
                                                              bool            writeValues ) const
 {
-    typename std::vector<PdmPointer<DataType>>::iterator it;
+    typename std::vector<Pointer<DataType>>::iterator it;
 
     nlohmann::json jsonArray = nlohmann::json::array();
 

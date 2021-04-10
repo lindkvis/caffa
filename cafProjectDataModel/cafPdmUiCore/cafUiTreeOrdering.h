@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 
 #include <deque>
 #include <memory>
@@ -119,9 +119,9 @@ private:
     PdmUiTreeOrdering( PdmUiTreeOrdering* parent, FieldHandle* pdmField );
 
     // Item that we represent
-    PdmPointer<ObjectHandle> m_object; // We keep both pointer to object and pointer to field when representing a field
-    FieldHandle*             m_field; // because m_object is guarded while FieldHandle::ownerObject() is not guarded
-    std::unique_ptr<UiItem>  m_uiItem;
+    Pointer<ObjectHandle>   m_object; // We keep both pointer to object and pointer to field when representing a field
+    FieldHandle*            m_field; // because m_object is guarded while FieldHandle::ownerObject() is not guarded
+    std::unique_ptr<UiItem> m_uiItem;
 
     // Tree generation control
     bool m_forgetRemainingFields;

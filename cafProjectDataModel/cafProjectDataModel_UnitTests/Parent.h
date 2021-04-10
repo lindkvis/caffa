@@ -3,17 +3,17 @@
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafObject.h"
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 
 #if 0
-class PdmPointerTarget
+class PointerTarget
 {
 public:
-   PdmPointerTarget() {}
-   PdmPointerTarget(const PdmPointerTarget& ) {}
-   PdmPointerTarget& operator=(const PdmPointerTarget& ) {}
+   PointerTarget() {}
+   PointerTarget(const PointerTarget& ) {}
+   PointerTarget& operator=(const PointerTarget& ) {}
 
-   virtual ~PdmPointerTarget()
+   virtual ~PointerTarget()
    {
       // Set all guarded pointers pointing to this to NULL
 
@@ -26,10 +26,10 @@ public:
 
 private:
 
-   // Support system for PdmPointer
+   // Support system for Pointer
 
-   friend class PdmPointerImpl;
-   std::set<PdmPointerTarget**>         m_pointersReferencingMe;
+   friend class PointerImpl;
+   std::set<PointerTarget**>         m_pointersReferencingMe;
 };
 
 #endif

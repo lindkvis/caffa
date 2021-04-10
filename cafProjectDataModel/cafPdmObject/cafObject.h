@@ -48,7 +48,7 @@
 #include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
 #include "cafObjectUiCapability.h"
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 #include "cafUiFieldSpecialization.h"
 #include "cafUiOrdering.h"
 
