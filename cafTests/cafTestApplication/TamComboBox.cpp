@@ -10,9 +10,9 @@ CAF_SOURCE_INIT(TamComboBox, "TamComboBox");
 //--------------------------------------------------------------------------------------------------
 TamComboBox::TamComboBox()
 {
-    initObject("Cell Filter", "", "", "");
+    initObject().withUi("Cell Filter", "", "", "");
 
-    CAF_InitField(&m_name, "UserDescription", std::string("Filter Name"), "Name", "", "", "");
+    initField(m_name, "UserDescription", "Filter Name").withUi("Name", "", "", "");
     m_name.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 }
 

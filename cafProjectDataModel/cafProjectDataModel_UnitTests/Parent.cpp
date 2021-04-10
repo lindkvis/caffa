@@ -7,9 +7,9 @@ CAF_SOURCE_INIT( Parent, "Parent" );
 
 Parent::Parent()
 {
-    initObject( "Parent", "", "", "" );
-    CAF_InitFieldNoDefault( &m_simpleObjectsField, "SimpleObjects", "A child object", "", "", "" );
-    CAF_InitFieldNoDefault( &m_simpleObjectF, "SimpleObject", "A child object", "", "", "" );
+    initObject();
+    initField( m_simpleObjectsField, "SimpleObjects" );
+    initField( m_simpleObjectF, "SimpleObject" );
 }
 
 Parent::~Parent()

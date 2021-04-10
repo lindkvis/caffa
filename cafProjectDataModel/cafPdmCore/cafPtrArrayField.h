@@ -50,10 +50,10 @@ public:
 
     // Reimplementation of PdmPointersFieldHandle methods
 
-    virtual size_t           size() const { return m_pointers.size(); }
-    virtual bool             empty() const { return m_pointers.empty(); }
-    virtual void             clear();
-    virtual void             insertAt( int indexAfter, ObjectHandle* obj );
+    virtual size_t        size() const { return m_pointers.size(); }
+    virtual bool          empty() const { return m_pointers.empty(); }
+    virtual void          clear();
+    virtual void          insertAt( int indexAfter, ObjectHandle* obj );
     virtual ObjectHandle* at( size_t index );
 
     // std::vector-like access

@@ -62,23 +62,17 @@ public:
         : Object()
         , m_doubleMember( 0.0 )
     {
-        initObject( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
-        initField( m_position, "Position" );
+        initObject();
+        initField( m_position, "Position" ).withDefault( 8765.2 );
+        initField( m_dir, "Dir" ).withDefault( 123.56 );
+        initField( m_up, "Up" ).withDefault( 0.0 );
+        initField( m_numbers, "Numbers" );
 
-        // CAF_InitField( &m_position, "Position", 8765.2, "Position", "", "Tooltip", "WhatsThis" );
-        CAF_InitField( &m_dir, "Dir", 123.56, "Direction", "", "Tooltip", "WhatsThis" );
-        CAF_InitField( &m_up, "Up", 0.0, "Up value", "", "Tooltip", "WhatsThis" );
-        CAF_InitFieldNoDefault( &m_numbers, "Numbers", "Important Numbers", "", "Tooltip", "WhatsThis" );
-#if 1
         auto doubleProxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
         doubleProxyAccessor->registerSetMethod( this, &SimpleObj::setDoubleMember );
         doubleProxyAccessor->registerGetMethod( this, &SimpleObj::doubleMember );
-        m_proxyDouble.setFieldDataAccessor( std::move( doubleProxyAccessor ) );
 
-        AddUiCapabilityToField( &m_proxyDouble );
-        AddIoCapabilityToField( &m_proxyDouble );
-        CAF_InitFieldNoDefault( &m_proxyDouble, "ProxyDouble", "ProxyDouble", "", "", "" );
-#endif
+        initField( m_proxyDouble, "ProxyDouble" ).withAccessor( std::move( doubleProxyAccessor ) );
     }
 
     /// Assignment and copying of PDM objects is not focus for the features. This is only a
@@ -86,11 +80,11 @@ public:
     SimpleObj( const SimpleObj& other )
         : Object()
     {
-        CAF_InitField( &m_position, "Position", 8765.2, "Position", "", "", "WhatsThis" );
-        CAF_InitField( &m_dir, "Dir", 123.56, "Direction", "", "", "WhatsThis" );
-        CAF_InitField( &m_up, "Up", 0.0, "Up value", "", "", "WhatsThis" );
-
-        CAF_InitFieldNoDefault( &m_numbers, "Numbers", "Important Numbers", "", "", "WhatsThis" );
+        initObject();
+        initField( m_position, "Position" );
+        initField( m_dir, "Dir" );
+        initField( m_up, "Up" );
+        initField( m_numbers, "Numbers" );
 
         m_position     = other.m_position;
         m_dir          = other.m_dir;
@@ -129,34 +123,16 @@ class DemoObject : public caf::Object
 public:
     DemoObject()
     {
-        initObject( "DemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
+        initObject();
 
-        CAF_InitField( &m_doubleField,
-                       "BigNumber",
-                       0.0,
-                       "",
-                       "",
-                       "Enter a big number here",
-                       "This is a place you can enter a big real value if you want" );
+        initField( m_doubleField, "BigNumber" ).withDefault( 0.0 );
 
-        CAF_InitField( &m_intField,
-                       "IntNumber",
-                       0,
-                       "",
-                       "",
-                       "Enter some small number here",
-                       "This is a place you can enter a small integer value if you want" );
+        initField( m_intField, "IntNumber" ).withDefault( 0 );
 
-        CAF_InitField( &m_textField, "TextField", std::string( "Test text   end" ), "TextField", "", "Tooltip", "WhatsThis" );
-        CAF_InitFieldNoDefault( &m_simpleObjPtrField, "SimpleObjPtrField", "SimpleObjPtrField", "", "Tooltip", "WhatsThis" );
-        CAF_InitFieldNoDefault( &m_simpleObjPtrField2, "SimpleObjPtrField2", "SimpleObjPtrField2", "", "Tooltip", "WhatsThis" );
+        initField( m_textField, "TextField" ).withDefault( "Test text   end" );
+        initField( m_simpleObjPtrField, "SimpleObjPtrField" );
+        initField( m_simpleObjPtrField2, "SimpleObjPtrField2" );
         m_simpleObjPtrField2 = new SimpleObj;
-    }
-
-    ~DemoObject()
-    {
-        delete m_simpleObjPtrField();
-        delete m_simpleObjPtrField2();
     }
 
     // Fields
@@ -184,19 +160,12 @@ public:
 
     InheritedDemoObj()
     {
-        initObject( "InheritedDemoObj", "", "ToolTip InheritedDemoObj", "Whatsthis InheritedDemoObj" );
+        initObject();
 
-        CAF_InitFieldNoDefault( &m_texts, "Texts", "Some words", "", "", "" );
-        CAF_InitFieldNoDefault( &m_testEnumField, "TestEnumValue", "An Enum", "", "", "" );
-        CAF_InitFieldNoDefault( &m_simpleObjectsField,
-                                "SimpleObjects",
-                                "SimpleObjectsField",
-                                "",
-                                "ToolTip SimpleObjectsField",
-                                "Whatsthis SimpleObjectsField" );
+        initField( m_texts, "Texts" ).withDefault( { "Some", "words" } );
+        initField( m_testEnumField, "TestEnumValue" );
+        initField( m_simpleObjectsField, "SimpleObjects" );
     }
-
-    ~InheritedDemoObj() { m_simpleObjectsField.deleteAllChildObjects(); }
 
     caf::Field<std::vector<std::string>>   m_texts;
     caf::Field<caf::AppEnum<TestEnumType>> m_testEnumField;
@@ -211,11 +180,9 @@ class MyPdmDocument : public caf::PdmDocument
 public:
     MyPdmDocument()
     {
-        initObject( "ObjectCollection", "", "", "" );
-        CAF_InitFieldNoDefault( &objects, "Objects", "", "", "", "" )
+        initObject();
+        initField( objects, "Objects" );
     }
-
-    ~MyPdmDocument() { objects.deleteAllChildObjects(); }
 
     caf::ChildArrayField<ObjectHandle*> objects;
 };
@@ -784,10 +751,10 @@ class ReferenceDemoObject : public caf::Object
 public:
     ReferenceDemoObject()
     {
-        initObject( "ReferenceDemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
+        initObject();
 
-        CAF_InitFieldNoDefault( &m_pointersField, "SimpleObjPtrField", "SimpleObjPtrField", "", "Tooltip", "WhatsThis" );
-        CAF_InitFieldNoDefault( &m_simpleObjPtrField2, "SimpleObjPtrField2", "SimpleObjPtrField2", "", "Tooltip", "WhatsThis" );
+        initField( m_pointersField, "SimpleObjPtrField" );
+        initField( m_simpleObjPtrField2, "SimpleObjPtrField2" );
     }
 
     // Fields

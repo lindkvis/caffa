@@ -35,8 +35,6 @@ add_subdirectory (cafProjectDataModel/cafPdmCore)
 add_subdirectory (cafProjectDataModel/cafPdmUiCore)
 add_subdirectory (cafProjectDataModel/cafPdmIoCore)
 add_subdirectory (cafProjectDataModel/cafPdmObject)
-add_subdirectory (cafProjectDataModel/cafPdmScriptCore)
-
 
 add_subdirectory(cafProjectDataModel)
 
@@ -48,7 +46,6 @@ endif()
 if(CAFFA_BUILD_UNIT_TESTS)
     add_subdirectory (cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests)
     add_subdirectory (cafProjectDataModel/cafPdmIoCore/cafPdmIoCore_UnitTests)
-    add_subdirectory (cafProjectDataModel/cafPdmScriptCore/cafPdmScriptCore_UnitTests)
     add_subdirectory (cafProjectDataModel/cafProjectDataModel_UnitTests)
 endif()
 
@@ -74,7 +71,7 @@ endif()
 # Turn on using solution folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set_property(TARGET  cafPdmCore cafPdmIoCore cafPdmUiCore cafPdmObject cafPdmScriptCore PROPERTY FOLDER "PdmCore")
+set_property(TARGET  cafPdmCore cafPdmIoCore cafPdmUiCore cafPdmObject PROPERTY FOLDER "PdmCore")
 if (CAFFA_BUILD_UNIT_TESTS)
-    set_property(TARGET  cafPdmCore_UnitTests cafPdmIoCore_UnitTests  cafPdmScriptCore_UnitTests PROPERTY FOLDER "PdmCore")
+    set_property(TARGET  cafPdmCore_UnitTests cafPdmIoCore_UnitTests PROPERTY FOLDER "PdmCore")
 endif()

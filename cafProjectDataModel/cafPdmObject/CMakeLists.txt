@@ -11,6 +11,8 @@ endif()
 set (PUBLIC_HEADERS
     cafObject.h
     cafObjectGroup.h
+    cafFieldScriptingCapability.h
+    cafObjectMethod.h
 )
 
 include_directories (
@@ -21,7 +23,8 @@ set( PROJECT_FILES
     ${PUBLIC_HEADERS}    
     cafObject.cpp
     cafObjectGroup.cpp
-
+    cafFieldScriptingCapability.cpp
+    cafObjectMethod.cpp
 )
 
 if (CAFFA_BUILD_SHARED)

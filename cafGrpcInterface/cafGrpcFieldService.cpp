@@ -355,7 +355,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
         }
     }
 
-    return grpc::Status( grpc::NOT_FOUND, "Field not found" );
+    return grpc::Status( grpc::NOT_FOUND, "Field not found " + request->method() );
 }
 
 //--------------------------------------------------------------------------------------------------

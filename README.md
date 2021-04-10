@@ -16,6 +16,7 @@ public:
 private:
     caf::Field<bool>   m_toggleField;
     caf::Field<double> m_doubleField;
+    caf::Field<int>    m_scriptableIntField;
 };
 ```
 
@@ -25,8 +26,11 @@ CAF_SOURCE_INIT(TinyDemoObject, "TinyDemoObject");
 
 TinyDemoObject::TinyDemoObject()
 {
-    CAF_InitField(&m_toggleField, "Toggle", false, "Toggle Item", "", "Tooltip", " Whatsthis?");
-    CAF_InitField(&m_doubleField, "Number", 0.0, "Number", "", "Enter a number here", "Double precision number");
+    InitObject();
+
+    InitField(m_toggleField, "Toggle").withDefault(false);
+    InitField(m_doubleField, "Number").withDefault(0.0).withUi("Number", "", "Enter a number here", "Double precision number");
+    InitField(m_scriptableIntField, "Integer").withDefault(42).withScripting("AnInteger");
 }
 ```
 # Requirements

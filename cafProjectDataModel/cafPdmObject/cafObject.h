@@ -36,8 +36,11 @@
 
 #pragma once
 
+#include "cafDataFieldAccessor.h"
 #include "cafFieldHandle.h"
 #include "cafFieldIoCapabilitySpecializations.h"
+#include "cafFieldScriptingCapability.h"
+#include "cafFieldUiCapability.h"
 #include "cafIconProvider.h"
 #include "cafInternalUiFieldCapability.h"
 #include "cafObjectCapability.h"
@@ -53,7 +56,6 @@
 
 namespace caf
 {
-class FieldHandle;
 template <class FieldDataType>
 class Field;
 class UiEditorAttribute;
@@ -64,53 +66,65 @@ class ObjectCapability;
 #define CAF_SOURCE_INIT CAF_IO_SOURCE_INIT
 #define CAF_ABSTRACT_SOURCE_INIT CAF_IO_ABSTRACT_SOURCE_INIT
 
-/// InitField sets the file keyword for the field,
-/// adds the field to the internal data structure in the Object,
-/// sets the default value for the field,
-/// and sets up the static user interface related information for the field
-/// Note that classKeyword() is not virtual in the constructor of the Object
-/// This is expected and fine.
-
-#define CAF_InitField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis )                                \
-    {                                                                                                                         \
-        CAF_PDM_VERIFY_IO_KEYWORD( keyword )                                                                                  \
-                                                                                                                              \
-        static bool checkingThePresenceOfHeaderAndSourceInitMacros =                                                          \
-            Error_You_forgot_to_add_the_macro_CAF_IO_HEADER_INIT_and_or_CAF_IO_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
-        this->isInheritedFromPdmUiObject();                                                                                   \
-        this->isInheritedFromSerializable();                                                                                  \
-                                                                                                                              \
-        AddIoCapabilityToField( field );                                                                                      \
-        AddUiCapabilityToField( field );                                                                                      \
-        RegisterClassWithField( classKeyword(), field );                                                                      \
-                                                                                                                              \
-        caf::UiItemInfo objDescr( uiName, std::string( iconResourceName ), toolTip, whatsThis, keyword );                     \
-        addFieldUi( field, keyword, default, objDescr );                                                                      \
-    }
-
-/// InitFieldNoDefault does the same as InitField but omits the default value.
-/// Note that classKeyword() is not virtual in the constructor of the Object
-/// This is expected and fine.
-
-#define CAF_InitFieldNoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis )                                \
-    {                                                                                                                         \
-        static bool checkingThePresenceOfHeaderAndSourceInitMacros =                                                          \
-            Error_You_forgot_to_add_the_macro_CAF_IO_HEADER_INIT_and_or_CAF_IO_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
-        this->isInheritedFromPdmUiObject();                                                                                   \
-        this->isInheritedFromSerializable();                                                                                  \
-                                                                                                                              \
-        AddIoCapabilityToField( field );                                                                                      \
-        AddUiCapabilityToField( field );                                                                                      \
-        RegisterClassWithField( classKeyword(), field );                                                                      \
-                                                                                                                              \
-        caf::UiItemInfo objDescr( uiName, std::string( iconResourceName ), toolTip, whatsThis, keyword );                     \
-        addFieldUiNoDefault( field, keyword, objDescr );                                                                      \
-    }
-
-} // End of namespace caf
-
-namespace caf
+/**
+ * Helper class that is initialised with Object::initField and allows
+ * .. addding additional features to the field.
+ */
+template <typename FieldType>
+class FieldInitHelper
 {
+public:
+    FieldInitHelper( FieldType& field, const std::string& keyword )
+        : m_field( field )
+        , m_keyword( keyword )
+    {
+    }
+
+    FieldInitHelper& withDefault( const typename FieldType::FieldDataType& defaultValue )
+    {
+        m_field.setDefaultValue( defaultValue );
+        m_field = defaultValue;
+        return *this;
+    }
+
+    FieldInitHelper& withUi( const std::string& uiName           = "",
+                             const std::string& iconResourceName = "",
+                             const std::string& toolTip          = "",
+                             const std::string& whatsThis        = "" )
+    {
+        caf::UiItemInfo         fieldDescription( uiName, iconResourceName, toolTip, whatsThis, m_keyword );
+        caf::FieldUiCapability* uiFieldHandle = m_field.template capability<caf::FieldUiCapability>();
+        if ( uiFieldHandle )
+        {
+            uiFieldHandle->setUiItemInfo( fieldDescription );
+        }
+        return *this;
+    }
+
+    FieldInitHelper& withScripting( const std::string& scriptFieldKeyword = "" )
+    {
+        FieldScriptingCapability::addToField( &m_field, scriptFieldKeyword.empty() ? m_keyword : scriptFieldKeyword );
+        return *this;
+    }
+
+    FieldInitHelper& withAccessor( std::unique_ptr<DataFieldAccessor<typename FieldType::FieldDataType>> accessor )
+    {
+        m_field.setFieldDataAccessor( std::move( accessor ) );
+        return *this;
+    }
+
+private:
+    FieldInitHelper()                         = delete;
+    FieldInitHelper( const FieldInitHelper& ) = delete;
+    FieldInitHelper( FieldInitHelper&& )      = delete;
+
+    FieldInitHelper& operator=( const FieldInitHelper& ) = delete;
+    FieldInitHelper& operator=( FieldInitHelper&& ) = delete;
+
+    FieldType&         m_field;
+    const std::string& m_keyword;
+};
+
 class Object : public ObjectHandle, public ObjectIoCapability, public ObjectUiCapability
 {
 public:
@@ -125,13 +139,18 @@ public:
     /// This is expected and fine.
     Object& initObject();
 
-    Object& initUi( const std::string& uiName           = "",
+    Object& withUi( const std::string& uiName           = "",
                     const std::string& iconResourceName = "",
                     const std::string& toolTip          = "",
                     const std::string& whatsThis        = "" );
 
+    /// InitField sets the file keyword for the field,
+    /// adds the field to the internal data structure in the Object.
+    /// and sets up the static user interface related information for the field
+    /// Note that classKeyword() is not virtual in the constructor of the Object
+    /// This is expected and fine.
     template <typename FieldType>
-    FieldType& initField( FieldType& field, const std::string& keyword )
+    FieldInitHelper<FieldType> initField( FieldType& field, const std::string& keyword )
     {
         isInheritedFromPdmUiObject();
         isInheritedFromSerializable();
@@ -140,33 +159,31 @@ public:
 
         RegisterClassWithField( classKeyword(), &field );
         addField( &field, keyword );
-        return field;
+        return FieldInitHelper( field, keyword );
     }
 
-    /// Adds field to the internal data structure and sets the file keyword and Ui information
-    /// Consider this method private. Please use the CAF_InitField() macro instead
-    template <typename FieldDataType>
-    void addFieldUi( Field<FieldDataType>* field,
-                     const std::string&    keyword,
-                     const FieldDataType&  defaultValue,
-                     const UiItemInfo&     fieldDescription )
+    /// InitField sets the file keyword for the field,
+    /// adds the field to the internal data structure in the Object,
+    /// sets the default value for the field,
+    /// and sets up the static user interface related information for the field
+    /// Note that classKeyword() is not virtual in the constructor of the Object
+    /// This is expected and fine.
+    template <typename FieldType>
+    FieldInitHelper<FieldType>
+        initField( FieldType& field, const std::string& keyword, const typename FieldType::FieldDataType& defaultValue )
     {
-        addFieldUiNoDefault( field, keyword, fieldDescription );
-        field->setDefaultValue( defaultValue );
-        *field = defaultValue;
-    }
+        isInheritedFromPdmUiObject();
+        isInheritedFromSerializable();
+        AddIoCapabilityToField( &field );
+        AddUiCapabilityToField( &field );
 
-    /// Does the same as the above method, but omits the default value.
-    /// Consider this method private. Please use the CAF_InitFieldNoDefault() macro instead.
-    void addFieldUiNoDefault( FieldHandle* field, const std::string& keyword, const UiItemInfo& fieldDescription )
-    {
-        addField( field, keyword );
+        RegisterClassWithField( classKeyword(), &field );
+        addField( &field, keyword );
 
-        FieldUiCapability* uiFieldHandle = field->capability<FieldUiCapability>();
-        if ( uiFieldHandle )
-        {
-            uiFieldHandle->setUiItemInfo( fieldDescription );
-        }
+        field.setDefaultValue( defaultValue );
+        field = defaultValue;
+
+        return FieldInitHelper( field, keyword );
     }
 
     /// Returns _this_ if _this_ has requested class keyword

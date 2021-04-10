@@ -53,12 +53,6 @@ public:
         this->addField( &m_simpleObjPtrField, "m_simpleObjPtrField" );
     }
 
-    ~ReferenceSimpleObj()
-    {
-        delete m_pointersField();
-        m_simpleObjPtrField.deleteAllChildObjects();
-    }
-
     // Fields
     caf::ChildField<ObjectHandle*>   m_pointersField;
     caf::ChildArrayField<SimpleObj*> m_simpleObjPtrField;

@@ -9,7 +9,6 @@
 
 using namespace caf;
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -52,7 +51,7 @@ bool FieldIoCapability::assertValid() const
 {
     if ( m_owner->keyword().empty() )
     {
-        std::cout << "Field: Detected use of non-initialized field. Did you forget to do CAF_InitField() on "
+        std::cout << "Field: Detected use of non-initialized field. Did you forget to do initField() on "
                      "this field ?\n";
         return false;
     }

@@ -27,6 +27,8 @@ template <typename DataType>
 class ChildField : public ChildFieldHandle
 {
 public:
+    using FieldDataType = DataType*;
+
     ChildField()
     {
         bool doNotUsePtrFieldForAnythingButPointersToObject = false;
@@ -40,6 +42,8 @@ class ChildField<DataType*> : public ChildFieldHandle
     typedef DataType* DataTypePtr;
 
 public:
+    using FieldDataType = DataType*;
+
     ChildField() {}
     explicit ChildField( const DataTypePtr& fieldValue );
     virtual ~ChildField();

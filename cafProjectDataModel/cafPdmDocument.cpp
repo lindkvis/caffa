@@ -48,8 +48,8 @@ CAF_SOURCE_INIT( PdmDocument, "PdmDocument" );
 //--------------------------------------------------------------------------------------------------
 PdmDocument::PdmDocument()
 {
-    initObject( "Document", "", "Basic Document", "" );
-    CAF_InitScriptableFieldNoDefault( &fileName, "DocumentFileName", "File Name", "", "", "" );
+    initObject().withUi( "Document", "", "Basic Document", "" );
+    initField( fileName, "DocumentFileName" ).withScripting();
 }
 
 //--------------------------------------------------------------------------------------------------

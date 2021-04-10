@@ -50,6 +50,8 @@ class ChildArrayField<DataType*> : public ChildArrayFieldHandle
     typedef DataType* DataTypePtr;
 
 public:
+    using FieldDataType = DataType*;
+
     ChildArrayField() {}
     ~ChildArrayField() override;
 
@@ -58,13 +60,13 @@ public:
 
     // Reimplementation of PdmPointersFieldHandle methods
 
-    size_t           size() const override { return m_pointers.size(); }
-    bool             empty() const override { return m_pointers.empty(); }
-    void             clear() override;
-    void             deleteAllChildObjects() override;
-    void             insertAt( int indexAfter, ObjectHandle* obj ) override;
+    size_t        size() const override { return m_pointers.size(); }
+    bool          empty() const override { return m_pointers.empty(); }
+    void          clear() override;
+    void          deleteAllChildObjects() override;
+    void          insertAt( int indexAfter, ObjectHandle* obj ) override;
     ObjectHandle* at( size_t index ) override;
-    void             setValue( const std::vector<DataType*>& objects );
+    void          setValue( const std::vector<DataType*>& objects );
 
     virtual void deleteAllChildObjectsAsync();
 
