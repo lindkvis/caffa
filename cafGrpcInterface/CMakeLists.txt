@@ -44,6 +44,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.cpp
     )
 
+find_package(Threads)
 find_package(protobuf)
 find_package(absl CONFIG)
 find_package(gRPC REQUIRED grpc++>=1.25 grpc gpr protobuf)
