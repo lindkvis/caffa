@@ -27,6 +27,7 @@ jobs:
           buildDirectory: ${{ github.workspace }}/cmakebuild
           buildWithCMakeArgs: '--config Release'
       - name: Run Unit Tests MacOS
+        if: "!contains( matrix.os, 'windows')"
         shell: bash
         run: |
           cmakebuild/bin/cafCore_UnitTests
