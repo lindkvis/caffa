@@ -18,9 +18,8 @@ public:
     SimpleObj()
         : Object()
     {
-        initObject( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
+        initObject().withUi( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
     }
-    ~SimpleObj() {}
 };
 CAF_SOURCE_INIT( SimpleObj, "SimpleObj" );
 
@@ -31,12 +30,10 @@ class DemoObject : public caf::Object
 public:
     DemoObject()
     {
-        initObject( "DemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
+        initObject().withUi( "DemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
 
-        CAF_InitFieldNoDefault( &m_simpleObjPtrField, "SimpleObjPtrField", "SimpleObjPtrField", "", "Tooltip", "WhatsThis" );
+        initField( m_simpleObjPtrField, "SimpleObjPtrField" ).withUi( "SimpleObjPtrField", "", "Tooltip", "WhatsThis" );
     }
-
-    ~DemoObject() { m_simpleObjPtrField.deleteAllChildObjects(); }
 
     caf::ChildArrayField<caf::ObjectHandle*> m_simpleObjPtrField;
 };

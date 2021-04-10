@@ -7,12 +7,6 @@ Parent::Parent()
     this->addField( &m_simpleObjectF, "SimpleObject" );
 }
 
-Parent::~Parent()
-{
-    delete m_simpleObjectF();
-    m_simpleObjectsField.deleteAllChildObjects();
-}
-
 void Parent::doSome()
 {
     size_t i = m_simpleObjectsField.size();

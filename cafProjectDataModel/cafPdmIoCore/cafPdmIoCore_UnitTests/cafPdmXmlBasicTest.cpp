@@ -192,8 +192,6 @@ public:
         CAF_PDM_IO_InitField( &m_childArrayField, "DemoObjectects" );
     }
 
-    ~InheritedDemoObj() { m_childArrayField.deleteAllChildObjects(); }
-
     caf::DataValueField<std::string>  m_texts;
     caf::ChildArrayField<DemoObject*> m_childArrayField;
 };
@@ -251,12 +249,6 @@ public:
     {
         CAF_PDM_IO_InitField( &m_pointersField, "SimpleObjPtrField" );
         CAF_PDM_IO_InitField( &m_simpleObjPtrField2, "SimpleObjPtrField2" );
-    }
-
-    ~ReferenceDemoObject()
-    {
-        delete m_pointersField();
-        m_simpleObjPtrField2.deleteAllChildObjects();
     }
 
     // Fields

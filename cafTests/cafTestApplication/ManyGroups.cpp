@@ -11,36 +11,24 @@ CAF_SOURCE_INIT(ManyGroups, "LargeObject");
 //--------------------------------------------------------------------------------------------------
 ManyGroups::ManyGroups()
 {
-    initObject("Many Groups",
-               ":/images/win/filenew.png",
-               "This object is a demo of the CAF framework",
-               "This object is a demo of the CAF framework");
+    initObject().withUi("Many Groups",
+                        ":/images/win/filenew.png",
+                        "This object is a demo of the CAF framework",
+                        "This object is a demo of the CAF framework");
 
-    CAF_InitField(
-        &m_toggleField, "Toggle", false, "Add Items To Multi Select", "", "Toggle Field tooltip", " Toggle Field whatsthis");
-    CAF_InitField(&m_doubleField,
-                  "BigNumber",
-                  0.0,
-                  "Big Number",
-                  "",
-                  "Enter a big number here",
-                  "This is a place you can enter a big real value if you want");
-    CAF_InitField(&m_intField,
-                  "IntNumber",
-                  0,
-                  "Small Number",
-                  "",
-                  "Enter some small number here",
-                  "This is a place you can enter a small integer value if you want");
-    CAF_InitField(&m_textField,
-                  "TextField",
-                  std::string(""),
-                  "Text",
-                  "",
-                  "Text tooltip",
-                  "This is a place you can enter a small integer value if you want");
+    initField(m_toggleField, "Toggle", false)
+        .withUi("Add Items To Multi Select", "", "Toggle Field tooltip", " Toggle Field whatsthis");
+    initField(m_doubleField, "BigNumber", 0.0)
+        .withUi("Big Number", "", "Enter a big number here", "This is a place you can enter a big real value if you want");
+    initField(m_intField, "IntNumber", 0)
+        .withUi("Small Number",
+                "",
+                "Enter some small number here",
+                "This is a place you can enter a small integer value if you want");
+    initField(m_textField, "TextField")
+        .withUi("Text", "", "Text tooltip", "This is a place you can enter a small integer value if you want");
 
-    CAF_InitFieldNoDefault(&m_proxyDoubleField, "ProxyDouble", "Proxy Double", "", "", "");
+    initField(m_proxyDoubleField, "ProxyDouble").withUi("Proxy Double", "", "", "");
     auto proxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
     proxyAccessor->registerSetMethod(this, &ManyGroups::setDoubleMember);
     proxyAccessor->registerGetMethod(this, &ManyGroups::doubleMember);
@@ -53,7 +41,7 @@ ManyGroups::ManyGroups()
         std::cout << "Double is not 3 " << std::endl;
     }
 
-    CAF_InitFieldNoDefault(&m_multiSelectList, "SelectedItems", "Multi Select Field", "", "", "");
+    initField(m_multiSelectList, "SelectedItems").withUi("Multi Select Field", "", "", "");
 
     m_multiSelectList.capability<caf::FieldIoCapability>()->setIOReadable(false);
     m_multiSelectList.capability<caf::FieldIoCapability>()->setIOWritable(false);
@@ -62,8 +50,7 @@ ManyGroups::ManyGroups()
 
     m_multiSelectList = {"First", "Second", "Third"};
 
-    CAF_InitField(
-        &m_stringWithMultipleOptions, "m_stringWithMultipleOptions", std::string(""), "Text with many items", "", "", "");
+    initField(m_stringWithMultipleOptions, "m_stringWithMultipleOptions").withUi("Text with many items", "", "", "");
     m_stringWithMultipleOptions.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
         caf::PdmUiListEditor::uiEditorTypeName());
 }

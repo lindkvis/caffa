@@ -41,7 +41,6 @@ target_link_libraries ( ${PROJECT_NAME}
     cafPdmIoCore
     cafPdmUiCore
     cafPdmObject
-    cafPdmScriptCore
     PRIVATE
     nlohmann_json::nlohmann_json
 )

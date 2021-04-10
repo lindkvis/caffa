@@ -4,8 +4,8 @@ CAF_SOURCE_INIT( TestObj, "TestObj" );
 
 TestObj::TestObj()
 {
-    initObject( "TestObj", "", "", "" );
-    CAF_InitField( &m_position, "Position", 8765.2, "Position", "", "", "" );
+    initObject();
+    initField( m_position, "Position" ).withDefault( 8765.2 );
 }
 
 TestObj::~TestObj()

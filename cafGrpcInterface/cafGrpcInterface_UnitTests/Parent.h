@@ -10,7 +10,6 @@ class Parent : public caf::ObjectHandle
 {
 public:
     Parent();
-    ~Parent();
 
     void doSome();
 

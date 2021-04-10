@@ -33,19 +33,36 @@
 //   for more details.
 //
 //##################################################################################################
+#pragma once
 
-#include "gtest/gtest.h"
-#include <iostream>
-#include <stdio.h>
+#include "cafFieldCapability.h"
+#include "cafFieldHandle.h"
+
 #include <string>
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int main( int argc, char** argv )
+namespace caf
 {
-    testing::InitGoogleTest( &argc, argv );
-    int result = RUN_ALL_TESTS();
+class FieldHandle;
+class ObjectFactory;
+class ObjectHandle;
+class PdmScriptIOMessages;
 
-    return result;
-}
+class FieldScriptingCapability : public FieldCapability
+{
+public:
+    FieldScriptingCapability( caf::FieldHandle* owner, const std::string& scriptFieldName, bool giveOwnership );
+    virtual ~FieldScriptingCapability();
+
+    const std::string scriptFieldName() const;
+
+    bool        isIOWriteable() const;
+    void        setIOWriteable( bool writeable );
+    static void addToField( caf::FieldHandle* field, const std::string& fieldName );
+
+protected:
+    FieldHandle* m_owner;
+    std::string  m_scriptFieldName;
+    bool         m_IOWriteable;
+};
+
+} // namespace caf

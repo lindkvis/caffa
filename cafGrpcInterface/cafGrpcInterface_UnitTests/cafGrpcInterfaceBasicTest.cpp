@@ -34,10 +34,11 @@ class DemoObject : public caf::Object
 public:
     DemoObject()
     {
-        initObject( "Demo Object", "", "", "" );
-        CAF_InitScriptableFieldNoDefault( &m_proxyDoubleField, "proxyDoubleField", "", "", "", "" );
-        CAF_InitScriptableFieldNoDefault( &m_proxyIntField, "proxyIntField", "", "", "", "" );
-        CAF_InitScriptableFieldNoDefault( &m_proxyStringField, "proxyStringField", "", "", "", "" );
+        initObject();
+
+        initField( m_proxyDoubleField, "proxyDoubleField" ).withScripting();
+        initField( m_proxyIntField, "proxyIntField" ).withScripting();
+        initField( m_proxyStringField, "proxyStringField" ).withScripting();
 
         auto doubleProxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
         doubleProxyAccessor->registerSetMethod( this, &DemoObject::setDoubleMember );
@@ -54,10 +55,10 @@ public:
         stringProxyAccessor->registerGetMethod( this, &DemoObject::stringMember );
         m_proxyStringField.setFieldDataAccessor( std::move( stringProxyAccessor ) );
 
-        CAF_InitScriptableFieldNoDefault( &m_doubleVector, "doubleVector", "", "", "", "" );
-        CAF_InitScriptableFieldNoDefault( &m_floatVector, "floatVector", "", "", "", "" );
-        CAF_InitScriptableFieldNoDefault( &m_intVectorProxy, "proxyIntVector", "", "", "", "" );
-        CAF_InitScriptableFieldNoDefault( &m_stringVectorProxy, "proxyStringVector", "", "", "", "" );
+        initField( m_doubleVector, "doubleVector" ).withScripting();
+        initField( m_floatVector, "floatVector" ).withScripting();
+        initField( m_intVectorProxy, "proxyIntVector" ).withScripting();
+        initField( m_stringVectorProxy, "proxyStringVector" ).withScripting();
 
         auto intVectorProxyAccessor = std::make_unique<caf::FieldProxyAccessor<std::vector<int>>>();
         intVectorProxyAccessor->registerSetMethod( this, &DemoObject::setIntVector );
@@ -69,9 +70,9 @@ public:
         stringVectorProxyAccessor->registerGetMethod( this, &DemoObject::getStringVector );
         m_stringVectorProxy.setFieldDataAccessor( std::move( stringVectorProxyAccessor ) );
 
-        this->addField( &m_memberDoubleField, "m_memberDoubleField" );
-        this->addField( &m_memberIntField, "m_memberIntField" );
-        this->addField( &m_memberStringField, "m_memberStringField" );
+        initField( m_memberDoubleField, "memberDoubleField" ).withScripting();
+        initField( m_memberIntField, "memberIntField" ).withScripting();
+        initField( m_memberStringField, "memberStringField" ).withScripting();
 
         // Default values
         m_doubleMember = 2.1;
@@ -136,8 +137,7 @@ struct DemoObject_copyObjectResult : public caf::Object
 {
     CAF_HEADER_INIT;
 
-    DemoObject_copyObjectResult() { CAF_InitField( &status, "status", false, "", "", "", "" ); }
-    virtual ~DemoObject_copyObjectResult() = default;
+    DemoObject_copyObjectResult() { initField( status, "status" ).withDefault( false ); }
 
     caf::Field<bool> status;
 };
@@ -155,10 +155,11 @@ public:
                            const std::string& stringValue = "SomeValue" )
         : caf::ObjectMethod( self )
     {
-        initObject( "Copy values into object", "", "", "Copy all values into the DemoObject" );
-        CAF_InitScriptableField( &m_doubleMember, "doubleMember", doubleValue, "", "", "", "" );
-        CAF_InitScriptableField( &m_intMember, "intMember", intValue, "", "", "", "" );
-        CAF_InitScriptableField( &m_stringMember, "stringMember", stringValue, "", "", "", "" );
+        initObject();
+
+        initField( m_doubleMember, "doubleMember" ).withScripting().withDefault( doubleValue );
+        initField( m_intMember, "intMember" ).withScripting().withDefault( intValue );
+        initField( m_stringMember, "stringMember" ).withScripting().withDefault( stringValue );
     }
     caf::ObjectHandle* execute() override
     {
@@ -193,7 +194,7 @@ class InheritedDemoObj : public DemoObject
 public:
     InheritedDemoObj()
     {
-        initObject( "Inherited Demo Object", "", "", "" );
+        initObject();
         this->addField( &m_texts, "Texts" );
         this->addField( &m_childArrayField, "DemoObjectects" );
         this->addField( &m_ptrField, "m_ptrField" );
@@ -213,10 +214,10 @@ class DemoDocument : public caf::PdmDocument
 public:
     DemoDocument()
     {
-        initObject( "DemoDocument", "", "Demo Document", "" );
+        initObject();
 
-        CAF_InitFieldNoDefault( &m_demoObject, "DemoObject", "", "", "", "" );
-        CAF_InitFieldNoDefault( &m_inheritedDemoObjects, "InheritedDemoObject", "", "", "", "" );
+        initField( m_demoObject, "DemoObject" );
+        initField( m_inheritedDemoObjects, "InheritedDemoObjects" );
         m_demoObject = new DemoObject;
 
         this->fileName = "dummyFileName";

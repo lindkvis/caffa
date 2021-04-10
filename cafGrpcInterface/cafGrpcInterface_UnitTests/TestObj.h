@@ -1,14 +1,14 @@
 #pragma once
 
-#include "cafDataValueField.h"
-#include "cafObjectHandle.h"
+#include "cafField.h"
+#include "cafObject.h"
 #include "cafPdmPointer.h"
 
-class TestObj : public caf::ObjectHandle
+class TestObj : public caf::Object
 {
 public:
     TestObj();
     ~TestObj();
 
-    caf::DataValueField<double> m_position;
+    caf::Field<double> m_position;
 };

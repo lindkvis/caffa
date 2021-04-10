@@ -12,7 +12,7 @@ caf::Object::Object()
     , ObjectIoCapability( this, false )
     , ObjectUiCapability( this, false )
 {
-    initObject( "Base PDM Object", "", "", "The Abstract Base Class for the Project Data Model" );
+    initObject();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ Object& Object::initObject()
     return *this;
 }
 
-Object& Object::initUi( const std::string& uiName,
+Object& Object::withUi( const std::string& uiName,
                         const std::string& iconResourceName,
                         const std::string& toolTip,
                         const std::string& whatsThis )

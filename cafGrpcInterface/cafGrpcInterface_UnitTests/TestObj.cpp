@@ -2,7 +2,7 @@
 
 TestObj::TestObj()
 {
-    this->addField( &m_position, "Position" );
+    initField( m_position, "Position" );
 }
 
 TestObj::~TestObj()

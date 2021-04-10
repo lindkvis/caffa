@@ -22,30 +22,32 @@
 
 DemoObject::DemoObject()
 {
-    initObject( "Demo Object", "", "", "" );
+    initObject();
 
-    CAF_InitScriptableFieldNoDefault( &m_doubleVector, "doubleVector", "", "", "", "" );
-    CAF_InitScriptableFieldNoDefault( &m_floatVector, "floatVector", "", "", "", "" );
-    CAF_InitScriptableFieldNoDefault( &m_intVector, "intVector", "", "", "", "" );
+    initField( m_doubleVector, "doubleVector" );
+    initField( m_floatVector, "floatVector" );
+    initField( m_intVector, "intVector" );
 }
 
 CAF_SOURCE_INIT( DemoObject, "DemoObject" );
 
 InheritedDemoObj::InheritedDemoObj()
 {
-    initObject( "Inherited Demo Object", "", "", "" );
-    this->addField( &m_texts, "Texts" );
-    this->addField( &m_childArrayField, "DemoObjectects" );
-    this->addField( &m_ptrField, "m_ptrField" );
+    initObject();
+
+    initField( m_texts, "Texts" );
+    initField( m_childArrayField, "DemoObjects" );
+    initField( m_ptrField, "m_ptrField" );
 }
 
 CAF_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject" );
 
 DemoDocument::DemoDocument()
 {
-    initObject( "DemoDocument", "", "Demo Document", "" );
-    CAF_InitScriptableFieldNoDefault( &m_demoObject, "DemoObject", "", "", "", "" );
-    CAF_InitScriptableFieldNoDefault( &m_inheritedDemoObjects, "InheritedDemoObject", "", "", "", "" );
+    initObject();
+
+    initField( m_demoObject, "DemoObject" ).withScripting();
+    initField( m_inheritedDemoObjects, "InheritedDemoObjects" ).withScripting();
     m_demoObject = new DemoObject;
 
     this->fileName = "dummyFileName";
