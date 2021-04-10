@@ -3,7 +3,7 @@
 #include "cafAssert.h"
 #include "cafColor.h"
 #include "cafFactory.h"
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 #include "cafTristate.h"
 
 #include <algorithm>
@@ -217,7 +217,7 @@ public:
                                          caf::Tristate,
                                          caf::Color,
                                          std::time_t,
-                                         caf::PdmPointer<ObjectHandle>,
+                                         caf::Pointer<ObjectHandle>,
                                          std::vector<bool>,
                                          std::vector<int>,
                                          std::vector<unsigned char>,
@@ -229,7 +229,7 @@ public:
                                          std::vector<caf::Tristate>,
                                          std::vector<caf::Color>,
                                          std::vector<std::time_t>,
-                                         std::vector<caf::PdmPointer<ObjectHandle>>>;
+                                         std::vector<caf::Pointer<ObjectHandle>>>;
     Variant() {}
 
     template <typename T>
@@ -349,7 +349,6 @@ private:
     std::optional<InternalVariant>     m_data;
     std::optional<SerializableWrapper> m_serializableData;
 };
-
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -38,7 +38,7 @@
 #include "cafAssert.h"
 #include "cafObject.h"
 #include "cafObjectFactory.h"
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 
 #include <string>
 
@@ -103,7 +103,7 @@ public:
 
 private:
     friend class ObjectScriptingCapability;
-    PdmPointer<ObjectHandle> m_self;
+    Pointer<ObjectHandle> m_self;
 };
 
 //==================================================================================================

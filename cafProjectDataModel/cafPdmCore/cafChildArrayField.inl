@@ -70,13 +70,13 @@ void ChildArrayField<DataType*>::insert( size_t index, DataType* pointer )
 /// the preceding values backwards
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void ChildArrayField<DataType*>::insert( size_t index, const std::vector<PdmPointer<DataType>>& objects )
+void ChildArrayField<DataType*>::insert( size_t index, const std::vector<Pointer<DataType>>& objects )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
     m_pointers.insert( m_pointers.begin() + index, objects.begin(), objects.end() );
 
-    typename std::vector<PdmPointer<DataType>>::iterator it;
+    typename std::vector<Pointer<DataType>>::iterator it;
     for ( it = m_pointers.begin() + index; it != m_pointers.end(); ++it )
     {
         if ( !it->isNull() )
@@ -94,7 +94,7 @@ size_t ChildArrayField<DataType*>::count( const DataType* pointer ) const
 {
     size_t itemCount = 0;
 
-    typename std::vector<PdmPointer<DataType>>::const_iterator it;
+    typename std::vector<Pointer<DataType>>::const_iterator it;
     for ( it = m_pointers.begin(); it != m_pointers.end(); ++it )
     {
         if ( *it == pointer )
@@ -202,7 +202,7 @@ void ChildArrayField<DataType*>::removeChildObject( ObjectHandle* object )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
-    std::vector<PdmPointer<DataType>> tempPointers;
+    std::vector<Pointer<DataType>> tempPointers;
 
     tempPointers = m_pointers;
     m_pointers.clear();
@@ -267,16 +267,16 @@ void ChildArrayField<DataType*>::insertAt( int indexAfter, ObjectHandle* obj )
     // This method should assert if obj to insert is not castable to the container type, but since this
     // is a virtual method, its implementation is always created and that makes a dyn_cast add the need for
     // #include of the header file "everywhere"
-    typename std::vector<PdmPointer<DataType>>::iterator it;
+    typename std::vector<Pointer<DataType>>::iterator it;
 
     if ( indexAfter == -1 )
     {
-        m_pointers.push_back( PdmPointer<DataType>() );
+        m_pointers.push_back( Pointer<DataType>() );
         it = m_pointers.end() - 1;
     }
     else
     {
-        m_pointers.insert( m_pointers.begin() + indexAfter, PdmPointer<DataType>() );
+        m_pointers.insert( m_pointers.begin() + indexAfter, Pointer<DataType>() );
         it = m_pointers.begin() + indexAfter;
     }
 
@@ -299,7 +299,7 @@ ObjectHandle* ChildArrayField<DataType*>::at( size_t index )
 template <typename DataType>
 void ChildArrayField<DataType*>::removeThisAsParentField()
 {
-    typename std::vector<PdmPointer<DataType>>::iterator it;
+    typename std::vector<Pointer<DataType>>::iterator it;
     for ( it = m_pointers.begin(); it != m_pointers.end(); ++it )
     {
         if ( !it->isNull() )
@@ -315,7 +315,7 @@ void ChildArrayField<DataType*>::removeThisAsParentField()
 template <typename DataType>
 void ChildArrayField<DataType*>::addThisAsParentField()
 {
-    typename std::vector<PdmPointer<DataType>>::iterator it;
+    typename std::vector<Pointer<DataType>>::iterator it;
     for ( it = m_pointers.begin(); it != m_pointers.end(); ++it )
     {
         if ( !it->isNull() )

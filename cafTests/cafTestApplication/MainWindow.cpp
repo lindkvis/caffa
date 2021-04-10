@@ -698,8 +698,7 @@ public:
                         }
                     }
 
-                    options.push_back(
-                        caf::OptionItemInfo(userDesc, caf::Variant(caf::PdmPointer<caf::ObjectHandle>(objects[i]))));
+                    options.push_back(caf::OptionItemInfo(userDesc, caf::Variant(caf::Pointer<caf::ObjectHandle>(objects[i]))));
                 }
             }
         }
@@ -869,8 +868,8 @@ public:
                     {
                         userDesc = uiFieldHandle->uiValue().value<std::string>();
                     }
-                    options.push_back(caf::OptionItemInfo(
-                        userDesc, caf::Variant(caf::PdmPointer<caf::ObjectHandle>(m_objectListOfSameType[i]))));
+                    options.push_back(
+                        caf::OptionItemInfo(userDesc, caf::Variant(caf::Pointer<caf::ObjectHandle>(m_objectListOfSameType[i]))));
                 }
             }
         }

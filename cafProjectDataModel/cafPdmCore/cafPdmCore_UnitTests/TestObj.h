@@ -2,7 +2,7 @@
 
 #include "cafDataValueField.h"
 #include "cafObjectHandle.h"
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 
 class TestObj : public caf::ObjectHandle
 {

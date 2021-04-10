@@ -35,7 +35,7 @@
 //##################################################################################################
 #pragma once
 
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 
 namespace caf
 {
@@ -65,11 +65,11 @@ public:
     PdmInterfacePointer<T>& operator=( T* iface )
     {
         m_implementingObject = nullptr;
-        m_iface                 = nullptr;
+        m_iface              = nullptr;
         if ( iface != nullptr )
         {
             m_implementingObject = iface->implementingObject();
-            m_iface                 = iface;
+            m_iface              = iface;
         }
         return *this;
     }
@@ -81,8 +81,8 @@ public:
     PdmInterfacePointer<T>& operator=( const PdmInterfacePointer<T>& other ) { return *this = other.p(); }
 
 private:
-    T*                               m_iface;
-    PdmPointer<caf::ObjectHandle> m_implementingObject;
+    T*                         m_iface;
+    Pointer<caf::ObjectHandle> m_implementingObject;
 };
 
 } // namespace caf

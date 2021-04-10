@@ -3,7 +3,7 @@
 #include "cafFieldHandle.h"
 
 #include "cafAssert.h"
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 
 namespace caf
 {
@@ -62,8 +62,8 @@ public:
     /*Conversion*/ operator DataType*() const { return m_fieldValue; }
     DataType*      operator->() const { return m_fieldValue; }
 
-    const PdmPointer<DataType>& operator()() const { return m_fieldValue; }
-    const PdmPointer<DataType>& v() const { return m_fieldValue; }
+    const Pointer<DataType>& operator()() const { return m_fieldValue; }
+    const Pointer<DataType>& v() const { return m_fieldValue; }
 
     // Child objects
     virtual void childObjects( std::vector<ObjectHandle*>* objects ) override;
@@ -74,7 +74,7 @@ private:
     PDM_DISABLE_COPY_AND_ASSIGN( ChildField );
 
     friend class FieldIoCap<ChildField<DataType*>>;
-    PdmPointer<DataType> m_fieldValue;
+    Pointer<DataType> m_fieldValue;
 };
 
 } // End of namespace caf

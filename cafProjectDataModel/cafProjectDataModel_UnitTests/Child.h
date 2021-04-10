@@ -2,7 +2,7 @@
 
 #include "cafChildField.h"
 #include "cafObject.h"
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 
 class TestObj;
 

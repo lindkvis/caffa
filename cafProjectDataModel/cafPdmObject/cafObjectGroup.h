@@ -24,7 +24,7 @@ public:
     void addObject( ObjectHandle* obj );
 
     template <typename T>
-    void objectsByType( std::vector<PdmPointer<T>>* typedObjects ) const
+    void objectsByType( std::vector<Pointer<T>>* typedObjects ) const
     {
         if ( !typedObjects ) return;
         size_t it;
@@ -36,16 +36,16 @@ public:
     }
 
     template <typename T>
-    void createCopyByType( std::vector<PdmPointer<T>>* copyOfTypedObjects, ObjectFactory* objectFactory ) const;
+    void createCopyByType( std::vector<Pointer<T>>* copyOfTypedObjects, ObjectFactory* objectFactory ) const;
 };
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void ObjectGroup::createCopyByType( std::vector<PdmPointer<T>>* copyOfTypedObjects, ObjectFactory* objectFactory ) const
+void ObjectGroup::createCopyByType( std::vector<Pointer<T>>* copyOfTypedObjects, ObjectFactory* objectFactory ) const
 {
-    std::vector<PdmPointer<T>> sourceTypedObjects;
+    std::vector<Pointer<T>> sourceTypedObjects;
     objectsByType( &sourceTypedObjects );
 
     for ( size_t i = 0; i < sourceTypedObjects.size(); i++ )

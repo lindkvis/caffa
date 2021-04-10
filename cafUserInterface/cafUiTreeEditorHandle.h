@@ -35,7 +35,7 @@
 //##################################################################################################
 
 #pragma once
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 #include "cafUiEditorHandle.h"
 #include <QObject>
 #include <QPointer>

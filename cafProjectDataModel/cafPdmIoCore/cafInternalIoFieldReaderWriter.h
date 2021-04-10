@@ -11,7 +11,7 @@ namespace caf
 {
 class ObjectFactory;
 template <typename T>
-class PdmPointer;
+class Pointer;
 
 //--------------------------------------------------------------------------------------------------
 /// Generic write method for fields. Will work as long as DataType supports the stream operator

@@ -43,7 +43,7 @@ namespace caf
 class ObjectHandle;
 
 //==================================================================================================
-/// Helper class for the PdmPointer class
+/// Helper class for the Pointer class
 /// The add and removing of references is put into a pure static class to
 /// resolve circular include problems.
 //
@@ -53,76 +53,76 @@ class ObjectHandle;
 /// it has addresses to to NULL
 //==================================================================================================
 
-class PdmPointerImpl
+class PointerImpl
 {
 private:
     template <class T>
-    friend class PdmPointer;
+    friend class Pointer;
     static void addReference( ObjectHandle** addressToObjectPointer );
     static void removeReference( ObjectHandle** addressToObjectPointer );
 };
 
 //==================================================================================================
 /// Guarded pointer class to point at Objects
-/// Use a PdmPointer<SomeObject> in the same way as a normal pointer.
+/// Use a Pointer<SomeObject> in the same way as a normal pointer.
 /// The guarding sets the pointer to NULL if the object pointed to dies
 ///
 //==================================================================================================
 
 template <class T>
-class PdmPointer
+class Pointer
 {
     ObjectHandle* m_object;
 
 public:
-    inline PdmPointer()
+    inline Pointer()
         : m_object( nullptr )
     {
     }
-    inline PdmPointer( T* p )
+    inline Pointer( T* p )
         : m_object( p )
     {
-        PdmPointerImpl::addReference( &m_object );
+        PointerImpl::addReference( &m_object );
     }
-    inline PdmPointer( const PdmPointer<T>& p )
+    inline Pointer( const Pointer<T>& p )
         : m_object( p.m_object )
     {
-        PdmPointerImpl::addReference( &m_object );
+        PointerImpl::addReference( &m_object );
     }
-    inline ~PdmPointer() { PdmPointerImpl::removeReference( &m_object ); }
+    inline ~Pointer() { PointerImpl::removeReference( &m_object ); }
 
-    T*             p() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
-    bool           isNull() const { return !m_object; }
-    bool           notNull() const { return !isNull(); }
-                   operator T*() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
-    T&             operator*() const { return *static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
-    T*             operator->() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
-    PdmPointer<T>& operator=( const PdmPointer<T>& p )
+    T*          p() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
+    bool        isNull() const { return !m_object; }
+    bool        notNull() const { return !isNull(); }
+                operator T*() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
+    T&          operator*() const { return *static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
+    T*          operator->() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
+    Pointer<T>& operator=( const Pointer<T>& p )
     {
-        if ( this != &p ) PdmPointerImpl::removeReference( &m_object );
+        if ( this != &p ) PointerImpl::removeReference( &m_object );
         m_object = p.m_object;
-        PdmPointerImpl::addReference( &m_object );
+        PointerImpl::addReference( &m_object );
         return *this;
     }
-    PdmPointer<T>& operator=( T* p )
+    Pointer<T>& operator=( T* p )
     {
-        if ( m_object != p ) PdmPointerImpl::removeReference( &m_object );
+        if ( m_object != p ) PointerImpl::removeReference( &m_object );
         m_object = p;
-        PdmPointerImpl::addReference( &m_object );
+        PointerImpl::addReference( &m_object );
         return *this;
     }
     template <class S>
-    bool operator==( const PdmPointer<S>& rhs ) const
+    bool operator==( const Pointer<S>& rhs ) const
     {
         return m_object == rhs.rawPtr();
     }
-    // Private methods used by Field<T*> and PdmPointersField<T*>. Do not use unless you mean it !
+    // Private methods used by Field<T*> and PointersField<T*>. Do not use unless you mean it !
     ObjectHandle* rawPtr() const { return m_object; }
     void          setRawPtr( ObjectHandle* p )
     {
-        if ( m_object != p ) PdmPointerImpl::removeReference( &m_object );
+        if ( m_object != p ) PointerImpl::removeReference( &m_object );
         m_object = p;
-        PdmPointerImpl::addReference( &m_object );
+        PointerImpl::addReference( &m_object );
     }
 };
 

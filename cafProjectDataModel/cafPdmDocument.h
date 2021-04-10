@@ -36,7 +36,7 @@
 #pragma once
 #include "cafField.h"
 #include "cafObject.h"
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 
 #include <string>
 

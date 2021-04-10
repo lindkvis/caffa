@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cafObjectHandle.h"
-#include "cafPdmPointer.h"
+#include "cafPointer.h"
 #include "cafValueFieldSpecializations.h"
 #include "cafVariant.h"
 
@@ -14,42 +14,39 @@ namespace caf
 template <typename T>
 class DataValueField;
 template <typename T>
-class PdmPointer;
+class Pointer;
 template <typename T>
 class AppEnum;
 
 //==================================================================================================
-/// Partial specialization for Field< PdmPointer<T> >
+/// Partial specialization for Field< Pointer<T> >
 ///
-/// Will package the PdmPointer<T> into Variant as PdmPointer<Object>
-/// Needed to support arbitrary types in PdmPointer without
+/// Will package the Pointer<T> into Variant as Pointer<Object>
+/// Needed to support arbitrary types in Pointer without
 /// havning to declare everything Q_DECLARE_METATYPE()
 /// Also introduces the need for a isEqual() method, as this was the first
 /// custom type embedded in Variant
 //==================================================================================================
 
 template <typename T>
-class UiFieldSpecialization<PdmPointer<T>>
+class UiFieldSpecialization<Pointer<T>>
 {
 public:
-    static Variant convert( const PdmPointer<T>& value )
-    {
-        return Variant( PdmPointer<ObjectHandle>( value.rawPtr() ) );
-    }
+    static Variant convert( const Pointer<T>& value ) { return Variant( Pointer<ObjectHandle>( value.rawPtr() ) ); }
 
-    static Variant convertToUiVariant( const PdmPointer<T>& value ) { return convert( value ); }
+    static Variant convertToUiVariant( const Pointer<T>& value ) { return convert( value ); }
 
-    static void setFromVariant( const Variant& variantValue, PdmPointer<T>& value )
+    static void setFromVariant( const Variant& variantValue, Pointer<T>& value )
     {
-        value.setRawPtr( variantValue.value<PdmPointer<ObjectHandle>>().rawPtr() );
+        value.setRawPtr( variantValue.value<Pointer<ObjectHandle>>().rawPtr() );
     }
 
     static bool isDataElementEqual( const Variant& variantValue, const Variant& variantValue2 )
     {
-        return variantValue.value<PdmPointer<ObjectHandle>>() == variantValue2.value<PdmPointer<ObjectHandle>>();
+        return variantValue.value<Pointer<ObjectHandle>>() == variantValue2.value<Pointer<ObjectHandle>>();
     }
 
-    static std::deque<OptionItemInfo> valueOptions( bool* useOptionsOnly, const PdmPointer<T>& )
+    static std::deque<OptionItemInfo> valueOptions( bool* useOptionsOnly, const Pointer<T>& )
     {
         return std::deque<OptionItemInfo>();
     }

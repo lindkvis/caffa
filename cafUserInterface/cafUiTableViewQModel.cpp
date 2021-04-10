@@ -690,8 +690,8 @@ QItemSelection PdmUiTableViewQModel::modelIndexFromObject( ObjectHandle* pdmObje
 //--------------------------------------------------------------------------------------------------
 caf::ChildArrayFieldHandle* PdmUiTableViewQModel::childArrayFieldHandle() const
 {
-    // Required to have a PdmPointer to the owner object. Used to guard access to a field inside this object. It is not
-    // possible to use a PdmPointer on a field pointer
+    // Required to have a Pointer to the owner object. Used to guard access to a field inside this object. It is not
+    // possible to use a Pointer on a field pointer
     if ( m_ownerObject.isNull() )
     {
         return nullptr;

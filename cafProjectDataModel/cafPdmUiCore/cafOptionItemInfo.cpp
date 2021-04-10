@@ -64,7 +64,7 @@ OptionItemInfo::OptionItemInfo( const std::string&            anOptionUiText,
     , m_iconProvider( anIcon )
     , m_level( 0 )
 {
-    m_value = Variant( caf::PdmPointer<caf::ObjectHandle>( obj ) );
+    m_value = Variant( caf::Pointer<caf::ObjectHandle>( obj ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,5 +149,4 @@ std::deque<std::string> OptionItemInfo::extractUiTexts( const std::deque<OptionI
 
     return texts;
 }
-
 

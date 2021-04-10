@@ -6,8 +6,8 @@ namespace caf
 template <typename DataType>
 Variant caf::PtrField<DataType*>::toVariant() const
 {
-    caf::ObjectHandle*                 objectHandle = m_fieldValue.rawPtr();
-    caf::PdmPointer<caf::ObjectHandle> ptrHandle( objectHandle );
+    caf::ObjectHandle*              objectHandle = m_fieldValue.rawPtr();
+    caf::Pointer<caf::ObjectHandle> ptrHandle( objectHandle );
     return Variant( ptrHandle );
 }
 
@@ -19,7 +19,7 @@ void caf::PtrField<DataType*>::setFromVariant( const Variant& variant )
 {
     try
     {
-        caf::PdmPointer<caf::ObjectHandle> variantHandle = variant.value<caf::PdmPointer<caf::ObjectHandle>>();
+        caf::Pointer<caf::ObjectHandle> variantHandle = variant.value<caf::Pointer<caf::ObjectHandle>>();
         m_fieldValue.setRawPtr( variantHandle.rawPtr() );
     }
     catch ( std::bad_any_cast& )

@@ -163,8 +163,8 @@ private:
     template <class T>
     friend class FieldIoCap;
 
-    // Support system for PdmPointer
-    friend class PdmPointerImpl;
+    // Support system for Pointer
+    friend class PointerImpl;
     std::set<ObjectHandle**> m_pointersReferencingMe;
 
     bool m_isDeletable;

@@ -112,9 +112,9 @@ private:
     ChildArrayFieldHandle* childArrayFieldHandle() const;
 
 private:
-    // Required to have a PdmPointer to the owner object. Used to guard access to a field inside this object
-    PdmPointer<ObjectHandle> m_ownerObject;
-    ChildArrayFieldHandle*   m_pdmList;
+    // Required to have a Pointer to the owner object. Used to guard access to a field inside this object
+    Pointer<ObjectHandle>  m_ownerObject;
+    ChildArrayFieldHandle* m_pdmList;
 
     std::map<std::string, UiFieldEditorHandle*> m_fieldEditors;
     std::vector<int>                            m_modelColumnIndexToFieldIndex;
