@@ -46,7 +46,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiPropertyViewDialog::PdmUiPropertyViewDialog( QWidget* parent, Object* object, const QString& windowTitle )
+UiPropertyViewDialog::UiPropertyViewDialog( QWidget* parent, Object* object, const QString& windowTitle )
     : QDialog( parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint )
 {
     m_buttonBox = new QDialogButtonBox( QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
@@ -57,10 +57,10 @@ PdmUiPropertyViewDialog::PdmUiPropertyViewDialog( QWidget* parent, Object* objec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiPropertyViewDialog::PdmUiPropertyViewDialog( QWidget*                                 parent,
-                                                  Object*                                  object,
-                                                  const QString&                           windowTitle,
-                                                  const QDialogButtonBox::StandardButtons& standardButtons )
+UiPropertyViewDialog::UiPropertyViewDialog( QWidget*                                 parent,
+                                            Object*                                  object,
+                                            const QString&                           windowTitle,
+                                            const QDialogButtonBox::StandardButtons& standardButtons )
     : QDialog( parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint )
 {
     m_buttonBox = new QDialogButtonBox( standardButtons );
@@ -71,15 +71,15 @@ PdmUiPropertyViewDialog::PdmUiPropertyViewDialog( QWidget*                      
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiPropertyViewDialog::~PdmUiPropertyViewDialog()
+UiPropertyViewDialog::~UiPropertyViewDialog()
 {
-    m_pdmUiPropertyView->showProperties( nullptr );
+    m_uiPropertyView->showProperties( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDialogButtonBox* PdmUiPropertyViewDialog::dialogButtonBox()
+QDialogButtonBox* UiPropertyViewDialog::dialogButtonBox()
 {
     return m_buttonBox;
 }
@@ -87,9 +87,9 @@ QDialogButtonBox* PdmUiPropertyViewDialog::dialogButtonBox()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiPropertyViewDialog::initialize( Object* object, const QString& windowTitle )
+void UiPropertyViewDialog::initialize( Object* object, const QString& windowTitle )
 {
-    m_pdmObject   = object;
+    m_object      = object;
     m_windowTitle = windowTitle;
 
     setWindowModality( Qt::WindowModal );
@@ -100,17 +100,17 @@ void PdmUiPropertyViewDialog::initialize( Object* object, const QString& windowT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiPropertyViewDialog::setupUi()
+void UiPropertyViewDialog::setupUi()
 {
     setWindowTitle( m_windowTitle );
 
-    m_pdmUiPropertyView = new PdmUiPropertyView( this );
+    m_uiPropertyView = new UiPropertyView( this );
 
     QVBoxLayout* dialogLayout = new QVBoxLayout;
     setLayout( dialogLayout );
 
-    dialogLayout->addWidget( m_pdmUiPropertyView );
-    m_pdmUiPropertyView->showProperties( m_pdmObject );
+    dialogLayout->addWidget( m_uiPropertyView );
+    m_uiPropertyView->showProperties( m_object );
 
     // Buttons
     // CAF_ASSERT(m_buttonBox->buttons().size() > 0);

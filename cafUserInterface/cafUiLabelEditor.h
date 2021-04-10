@@ -49,14 +49,14 @@ namespace caf
 //==================================================================================================
 /// An editor to show (and possibly edit?) formatted larger portions of text
 //==================================================================================================
-class PdmUiLabelEditor : public UiFieldEditorHandle
+class UiLabelEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    CAF_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiLabelEditor();
-    ~PdmUiLabelEditor() override;
+    UiLabelEditor();
+    ~UiLabelEditor() override;
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;

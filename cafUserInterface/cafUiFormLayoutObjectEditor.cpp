@@ -56,14 +56,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiFormLayoutObjectEditor::PdmUiFormLayoutObjectEditor()
+caf::UiFormLayoutObjectEditor::UiFormLayoutObjectEditor()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiFormLayoutObjectEditor::~PdmUiFormLayoutObjectEditor()
+caf::UiFormLayoutObjectEditor::~UiFormLayoutObjectEditor()
 {
     // If there are field editor present, the usage of this editor has not cleared correctly
     // The intended usage is to call the method setObject(NULL) before closing the dialog
@@ -73,8 +73,8 @@ caf::PdmUiFormLayoutObjectEditor::~PdmUiFormLayoutObjectEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInNewGridLayout( const UiOrdering& uiOrdering,
-                                                                                               QWidget* containerWidget )
+bool caf::UiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInNewGridLayout( const UiOrdering& uiOrdering,
+                                                                                            QWidget* containerWidget )
 {
     QSize beforeSize = containerWidget->sizeHint();
 
@@ -94,8 +94,8 @@ bool caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
 /// Add all widgets at a recursion level in the form.
 /// Returns the stretch factor that should be applied at the level above.
 //--------------------------------------------------------------------------------------------------
-int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGridLayout( const UiOrdering& uiOrdering,
-                                                                                           QWidget* containerWidgetWithGridLayout )
+int caf::UiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGridLayout( const UiOrdering& uiOrdering,
+                                                                                        QWidget* containerWidgetWithGridLayout )
 {
     int sumRowStretch = 0;
     CAF_ASSERT( containerWidgetWithGridLayout );
@@ -284,12 +284,12 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
 //--------------------------------------------------------------------------------------------------
 /// Create a group and add widgets. Return true if the containing row needs to be stretched.
 //--------------------------------------------------------------------------------------------------
-int caf::PdmUiFormLayoutObjectEditor::recursivelyAddGroupToGridLayout( UiItem*      currentItem,
-                                                                       QWidget*     containerWidgetWithGridLayout,
-                                                                       QGridLayout* parentLayout,
-                                                                       int          currentRowIndex,
-                                                                       int          currentColumn,
-                                                                       int          itemColumnSpan )
+int caf::UiFormLayoutObjectEditor::recursivelyAddGroupToGridLayout( UiItem*      currentItem,
+                                                                    QWidget*     containerWidgetWithGridLayout,
+                                                                    QGridLayout* parentLayout,
+                                                                    int          currentRowIndex,
+                                                                    int          currentColumn,
+                                                                    int          itemColumnSpan )
 {
     UiGroup* group = static_cast<UiGroup*>( currentItem );
 
@@ -306,12 +306,12 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyAddGroupToGridLayout( UiItem*  
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::PdmUiFormLayoutObjectEditor::isUiGroupExpanded( const UiGroup* uiGroup ) const
+bool caf::UiFormLayoutObjectEditor::isUiGroupExpanded( const UiGroup* uiGroup ) const
 {
     if ( uiGroup->hasForcedExpandedState() ) return uiGroup->forcedExpandedState();
 
     auto kwMapPair =
-        m_objectKeywordGroupUiNameExpandedState.find( pdmObject()->capability<ObjectIoCapability>()->classKeyword() );
+        m_objectKeywordGroupUiNameExpandedState.find( object()->capability<ObjectIoCapability>()->classKeyword() );
     if ( kwMapPair != m_objectKeywordGroupUiNameExpandedState.end() )
     {
         auto keyword = uiGroup->keyword();
@@ -329,7 +329,7 @@ bool caf::PdmUiFormLayoutObjectEditor::isUiGroupExpanded( const UiGroup* uiGroup
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QMinimizePanel* caf::PdmUiFormLayoutObjectEditor::findOrCreateGroupBox( QWidget* parent, UiGroup* group )
+QMinimizePanel* caf::UiFormLayoutObjectEditor::findOrCreateGroupBox( QWidget* parent, UiGroup* group )
 {
     auto            groupBoxKey = group->keyword();
     QMinimizePanel* groupBox    = nullptr;
@@ -375,8 +375,7 @@ QMinimizePanel* caf::PdmUiFormLayoutObjectEditor::findOrCreateGroupBox( QWidget*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::UiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateFieldEditor( QWidget*           parent,
-                                                                                     FieldUiCapability* field )
+caf::UiFieldEditorHandle* caf::UiFormLayoutObjectEditor::findOrCreateFieldEditor( QWidget* parent, FieldUiCapability* field )
 {
     caf::UiFieldEditorHandle* fieldEditor = nullptr;
 
@@ -423,8 +422,7 @@ caf::UiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateFieldEdi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiFormLayoutObjectEditor::ensureWidgetContainsEmptyGridLayout( QWidget* containerWidget,
-                                                                            QMargins contentMargins )
+void caf::UiFormLayoutObjectEditor::ensureWidgetContainsEmptyGridLayout( QWidget* containerWidget, QMargins contentMargins )
 {
     CAF_ASSERT( containerWidget );
     QLayout* layout = containerWidget->layout();
@@ -447,11 +445,11 @@ void caf::PdmUiFormLayoutObjectEditor::ensureWidgetContainsEmptyGridLayout( QWid
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiFormLayoutObjectEditor::groupBoxExpandedStateToggled( bool isExpanded )
+void caf::UiFormLayoutObjectEditor::groupBoxExpandedStateToggled( bool isExpanded )
 {
-    if ( !this->pdmObject()->capability<ObjectIoCapability>() ) return;
+    if ( !this->object()->capability<ObjectIoCapability>() ) return;
 
-    auto            objKeyword = this->pdmObject()->capability<ObjectIoCapability>()->classKeyword();
+    auto            objKeyword = this->object()->capability<ObjectIoCapability>()->classKeyword();
     QMinimizePanel* panel      = dynamic_cast<QMinimizePanel*>( this->sender() );
 
     if ( !panel ) return;
@@ -462,7 +460,7 @@ void caf::PdmUiFormLayoutObjectEditor::groupBoxExpandedStateToggled( bool isExpa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiFormLayoutObjectEditor::cleanupBeforeSettingObject()
+void caf::UiFormLayoutObjectEditor::cleanupBeforeSettingObject()
 {
     std::map<FieldHandle*, UiFieldEditorHandle*>::iterator it;
     for ( it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it )
@@ -485,12 +483,12 @@ void caf::PdmUiFormLayoutObjectEditor::cleanupBeforeSettingObject()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiFormLayoutObjectEditor::configureAndUpdateUi()
+void caf::UiFormLayoutObjectEditor::configureAndUpdateUi()
 {
     caf::UiOrdering config;
-    if ( pdmObject() )
+    if ( object() )
     {
-        caf::ObjectUiCapability* uiObject = uiObj( pdmObject() );
+        caf::ObjectUiCapability* uiObject = uiObj( object() );
         if ( uiObject )
         {
             uiObject->uiOrdering( config );
@@ -536,8 +534,8 @@ void caf::PdmUiFormLayoutObjectEditor::configureAndUpdateUi()
     }
     m_groupBoxes = m_newGroupBoxes;
 
-    // Notify pdm object when widgets have been created
-    caf::ObjectUiCapability* uiObject = uiObj( pdmObject() );
+    // Notify object when widgets have been created
+    caf::ObjectUiCapability* uiObject = uiObj( object() );
     if ( uiObject )
     {
         uiObject->onEditorWidgetsCreated();

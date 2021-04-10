@@ -31,10 +31,10 @@ add_subdirectory (ThirdParty/json)
 add_subdirectory (ThirdParty/GSL)
 
 #libraries
-add_subdirectory (cafProjectDataModel/cafPdmCore)
-add_subdirectory (cafProjectDataModel/cafPdmUiCore)
-add_subdirectory (cafProjectDataModel/cafPdmIoCore)
-add_subdirectory (cafProjectDataModel/cafPdmObject)
+add_subdirectory (cafProjectDataModel/cafCore)
+add_subdirectory (cafProjectDataModel/cafUiCore)
+add_subdirectory (cafProjectDataModel/cafIoCore)
+add_subdirectory (cafProjectDataModel/cafObject)
 
 add_subdirectory(cafProjectDataModel)
 
@@ -44,8 +44,8 @@ if (CAFFA_GRPC_INTERFACE)
 endif()
 
 if(CAFFA_BUILD_UNIT_TESTS)
-    add_subdirectory (cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests)
-    add_subdirectory (cafProjectDataModel/cafPdmIoCore/cafPdmIoCore_UnitTests)
+    add_subdirectory (cafProjectDataModel/cafCore/cafCore_UnitTests)
+    add_subdirectory (cafProjectDataModel/cafIoCore/cafIoCore_UnitTests)
     add_subdirectory (cafProjectDataModel/cafProjectDataModel_UnitTests)
 endif()
 
@@ -71,7 +71,7 @@ endif()
 # Turn on using solution folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set_property(TARGET  cafPdmCore cafPdmIoCore cafPdmUiCore cafPdmObject PROPERTY FOLDER "PdmCore")
+set_property(TARGET  cafCore cafIoCore cafUiCore cafObject PROPERTY FOLDER "Core")
 if (CAFFA_BUILD_UNIT_TESTS)
-    set_property(TARGET  cafPdmCore_UnitTests cafPdmIoCore_UnitTests PROPERTY FOLDER "PdmCore")
+    set_property(TARGET  cafCore_UnitTests cafIoCore_UnitTests PROPERTY FOLDER "Core")
 endif()

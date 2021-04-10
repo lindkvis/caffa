@@ -10,14 +10,13 @@
 #include "../cafGrpcServerApplication.h"
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
+#include "cafDocument.h"
 #include "cafException.h"
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafLogger.h"
 #include "cafObjectHandle.h"
-#include "cafPdmDocument.h"
-#include "cafPdmReferenceHelper.h"
 #include "cafPtrField.h"
 #include "cafValueField.h"
 
@@ -207,7 +206,7 @@ public:
 
 CAF_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject" );
 
-class DemoDocument : public caf::PdmDocument
+class DemoDocument : public caf::Document
 {
     CAF_HEADER_INIT;
 
@@ -259,10 +258,10 @@ public:
     //--------------------------------------------------------------------------------------------------
     int patchVersion() const override { return 0; }
 
-    caf::PdmDocument*            document( const std::string& documentId ) override { return &m_demoDocument; }
-    const caf::PdmDocument*      document( const std::string& documentId ) const override { return &m_demoDocument; }
-    std::list<caf::PdmDocument*> documents() override { return { document( "" ) }; }
-    std::list<const caf::PdmDocument*> documents() const override { return { document( "" ) }; }
+    caf::Document*                  document( const std::string& documentId ) override { return &m_demoDocument; }
+    const caf::Document*            document( const std::string& documentId ) const override { return &m_demoDocument; }
+    std::list<caf::Document*>       documents() override { return { document( "" ) }; }
+    std::list<const caf::Document*> documents() const override { return { document( "" ) }; }
 
 private:
     DemoDocument m_demoDocument;
@@ -326,7 +325,7 @@ TEST( BaseTest, Document )
     }
 
     auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<caf::PdmDocument*>( objectHandle.get() );
+    auto clientDocument = dynamic_cast<caf::Document*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
 
     try
@@ -401,7 +400,7 @@ TEST( BaseTest, Sync )
     }
 
     auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<caf::PdmDocument*>( objectHandle.get() );
+    auto clientDocument = dynamic_cast<caf::Document*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
     CAF_DEBUG( "Client Document File Name: " << clientDocument->fileName() );
     ASSERT_EQ( serverApp->document( "testDocument" )->fileName(), clientDocument->fileName() );

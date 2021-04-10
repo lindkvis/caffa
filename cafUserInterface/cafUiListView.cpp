@@ -47,7 +47,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiListView::PdmUiListView( QWidget* parent, Qt::WindowFlags f )
+UiListView::UiListView( QWidget* parent, Qt::WindowFlags f )
     : QWidget( parent, f )
 {
     m_layout = new QVBoxLayout( this );
@@ -57,7 +57,7 @@ PdmUiListView::PdmUiListView( QWidget* parent, Qt::WindowFlags f )
 
     setLayout( m_layout );
 
-    m_listViewEditor = new PdmUiListViewEditor();
+    m_listViewEditor = new UiListViewEditor();
 
     QWidget* widget = m_listViewEditor->getOrCreateWidget( this );
     m_layout->addWidget( widget );
@@ -68,7 +68,7 @@ PdmUiListView::PdmUiListView( QWidget* parent, Qt::WindowFlags f )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiListView::~PdmUiListView()
+UiListView::~UiListView()
 {
     if ( m_listViewEditor ) delete m_listViewEditor;
 }
@@ -76,7 +76,7 @@ PdmUiListView::~PdmUiListView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiListView::setObject( caf::ObjectCollection* object )
+void UiListView::setObject( caf::ObjectCollection* object )
 {
     CAF_ASSERT( m_listViewEditor );
 

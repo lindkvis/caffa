@@ -41,7 +41,7 @@
 
 namespace caf
 {
-class PdmDocument;
+class Document;
 
 enum class AppCapability : unsigned int
 {
@@ -73,9 +73,9 @@ public:
     Application( const AppCapability& capability );
     virtual ~Application();
 
-    virtual std::string        name() const = 0;
-    bool                       hasCapability( AppCapability typeToCheck ) const;
-    AppInfo                    appInfo() const;
+    virtual std::string name() const = 0;
+    bool                hasCapability( AppCapability typeToCheck ) const;
+    AppInfo             appInfo() const;
 
     virtual int majorVersion() const = 0;
     virtual int minorVersion() const = 0;

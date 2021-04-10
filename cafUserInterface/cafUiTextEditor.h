@@ -50,7 +50,7 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiTextEditorAttribute : public UiEditorAttribute
+class UiTextEditorAttribute : public UiEditorAttribute
 {
 public:
     enum WrapMode
@@ -62,7 +62,7 @@ public:
         WrapAtWordBoundaryOrAnywhere
     };
 
-    PdmUiTextEditorAttribute()
+    UiTextEditorAttribute()
     {
         textMode       = PLAIN;
         showSaveButton = false;
@@ -109,14 +109,14 @@ private:
 //==================================================================================================
 /// An editor to show (and possibly edit?) formatted larger portions of text
 //==================================================================================================
-class PdmUiTextEditor : public UiFieldEditorHandle
+class UiTextEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    CAF_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiTextEditor() { m_textMode = PdmUiTextEditorAttribute::PLAIN; }
-    ~PdmUiTextEditor() override {}
+    UiTextEditor() { m_textMode = UiTextEditorAttribute::PLAIN; }
+    ~UiTextEditor() override {}
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
@@ -128,14 +128,14 @@ protected slots:
     void slotSetValueToField();
 
 private:
-    QTextOption::WrapMode toQTextOptionWrapMode( PdmUiTextEditorAttribute::WrapMode wrapMode );
+    QTextOption::WrapMode toQTextOptionWrapMode( UiTextEditorAttribute::WrapMode wrapMode );
 
 private:
     QPointer<TextEdit>    m_textEdit;
     QPointer<QPushButton> m_saveButton;
     QPointer<QLabel>      m_label;
 
-    PdmUiTextEditorAttribute::TextMode m_textMode;
+    UiTextEditorAttribute::TextMode m_textMode;
 };
 
 } // end namespace caf

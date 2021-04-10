@@ -49,14 +49,14 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiDateEditor : public UiFieldEditorHandle
+class UiDateEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    CAF_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiDateEditor() {}
-    ~PdmUiDateEditor() override {}
+    UiDateEditor() {}
+    ~UiDateEditor() override {}
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
@@ -67,10 +67,10 @@ protected slots:
     void slotEditingFinished();
 
 private:
-    QPointer<QDateTimeEdit>   m_dateEdit;
-    QPointer<QLabel> m_label;
+    QPointer<QDateTimeEdit> m_dateEdit;
+    QPointer<QLabel>        m_label;
 
-    PdmUiDateEditorAttribute m_attributes;
+    UiDateEditorAttribute m_attributes;
 };
 
 } // end namespace caf

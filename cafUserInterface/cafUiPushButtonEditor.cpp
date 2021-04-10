@@ -51,12 +51,12 @@
 
 namespace caf
 {
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiPushButtonEditor );
+CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiPushButtonEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiPushButtonEditor::configureAndUpdateUi()
+void UiPushButtonEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_pushButton.isNull() );
     CAF_ASSERT( !m_label.isNull() );
@@ -67,8 +67,8 @@ void PdmUiPushButtonEditor::configureAndUpdateUi()
     m_pushButton->setEnabled( !uiField()->isUiReadOnly() );
     m_pushButton->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
-    PdmUiPushButtonEditorAttribute attributes;
-    caf::ObjectUiCapability*       uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    UiPushButtonEditorAttribute attributes;
+    caf::ObjectUiCapability*    uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), &attributes );
@@ -113,7 +113,7 @@ void PdmUiPushButtonEditor::configureAndUpdateUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiPushButtonEditor::configureEditorForField( FieldHandle* fieldHandle )
+void UiPushButtonEditor::configureEditorForField( FieldHandle* fieldHandle )
 {
     if ( fieldHandle )
     {
@@ -124,8 +124,7 @@ void PdmUiPushButtonEditor::configureEditorForField( FieldHandle* fieldHandle )
 
         if ( fieldHandle->capability<FieldUiCapability>() )
         {
-            fieldHandle->capability<FieldUiCapability>()->setUiEditorTypeName(
-                caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+            fieldHandle->capability<FieldUiCapability>()->setUiEditorTypeName( caf::UiPushButtonEditor::uiEditorTypeName() );
             fieldHandle->capability<FieldUiCapability>()->setUiLabelPosition( caf::UiItemInfo::LEFT );
         }
     }
@@ -134,7 +133,7 @@ void PdmUiPushButtonEditor::configureEditorForField( FieldHandle* fieldHandle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiPushButtonEditor::createEditorWidget( QWidget* parent )
+QWidget* UiPushButtonEditor::createEditorWidget( QWidget* parent )
 {
     QWidget* containerWidget = new QWidget( parent );
 
@@ -154,7 +153,7 @@ QWidget* PdmUiPushButtonEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiPushButtonEditor::createLabelWidget( QWidget* parent )
+QWidget* UiPushButtonEditor::createLabelWidget( QWidget* parent )
 {
     m_label = new QLabel( parent );
     return m_label;
@@ -163,7 +162,7 @@ QWidget* PdmUiPushButtonEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiPushButtonEditor::slotClicked( bool checked )
+void UiPushButtonEditor::slotClicked( bool checked )
 {
     if ( uiField() && dynamic_cast<Field<bool>*>( uiField()->fieldHandle() ) )
     {

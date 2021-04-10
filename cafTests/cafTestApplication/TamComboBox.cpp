@@ -13,7 +13,7 @@ TamComboBox::TamComboBox()
     initObject().withUi("Cell Filter", "", "", "");
 
     initField(m_name, "UserDescription", "Filter Name").withUi("Name", "", "", "");
-    m_name.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+    m_name.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::UiComboBoxEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ void TamComboBox::defineUiOrdering(caf::UiOrdering& uiOrdering) {}
 //--------------------------------------------------------------------------------------------------
 void TamComboBox::defineEditorAttribute(const caf::FieldHandle* field, caf::UiEditorAttribute* attribute)
 {
-    auto attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>(attribute);
+    auto attr = dynamic_cast<caf::UiComboBoxEditorAttribute*>(attribute);
     if (attr)
     {
         attr->enableEditableContent = true;

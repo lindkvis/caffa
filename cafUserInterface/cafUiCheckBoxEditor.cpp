@@ -49,18 +49,18 @@
 
 namespace caf
 {
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiCheckBoxEditor );
+CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiCheckBoxEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiCheckBoxEditor::configureAndUpdateUi()
+void UiCheckBoxEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_checkBox.isNull() );
     CAF_ASSERT( !m_label.isNull() );
 
-    PdmUiCheckBoxEditorAttribute attributes;
-    caf::ObjectUiCapability*     uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    UiCheckBoxEditorAttribute attributes;
+    caf::ObjectUiCapability*  uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), &attributes );
@@ -87,7 +87,7 @@ void PdmUiCheckBoxEditor::configureAndUpdateUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiCheckBoxEditor::createEditorWidget( QWidget* parent )
+QWidget* UiCheckBoxEditor::createEditorWidget( QWidget* parent )
 {
     m_checkBox = new QCheckBox( parent );
     connect( m_checkBox, SIGNAL( clicked( bool ) ), this, SLOT( slotClicked( bool ) ) );
@@ -97,7 +97,7 @@ QWidget* PdmUiCheckBoxEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiCheckBoxEditor::createLabelWidget( QWidget* parent )
+QWidget* UiCheckBoxEditor::createLabelWidget( QWidget* parent )
 {
     m_label = new QLabel( parent );
     return m_label;
@@ -106,7 +106,7 @@ QWidget* PdmUiCheckBoxEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiCheckBoxEditor::slotClicked( bool checked )
+void UiCheckBoxEditor::slotClicked( bool checked )
 {
     Variant v( checked );
     this->setValueToField( v );

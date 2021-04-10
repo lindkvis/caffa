@@ -48,7 +48,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeView::PdmUiTreeView( QWidget* parent, Qt::WindowFlags f )
+UiTreeView::UiTreeView( QWidget* parent, Qt::WindowFlags f )
     : QWidget( parent, f )
 {
     m_layout = new QVBoxLayout( this );
@@ -56,7 +56,7 @@ PdmUiTreeView::PdmUiTreeView( QWidget* parent, Qt::WindowFlags f )
 
     setLayout( m_layout );
 
-    m_treeViewEditor = new PdmUiTreeViewEditor();
+    m_treeViewEditor = new UiTreeViewEditor();
 
     QWidget* widget = m_treeViewEditor->getOrCreateWidget( this );
 
@@ -68,7 +68,7 @@ PdmUiTreeView::PdmUiTreeView( QWidget* parent, Qt::WindowFlags f )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeView::~PdmUiTreeView()
+UiTreeView::~UiTreeView()
 {
     if ( m_treeViewEditor ) delete m_treeViewEditor;
 }
@@ -76,16 +76,16 @@ PdmUiTreeView::~PdmUiTreeView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::setPdmItem( caf::UiItem* object )
+void UiTreeView::setItem( caf::UiItem* object )
 {
-    m_treeViewEditor->setPdmItemRoot( object );
+    m_treeViewEditor->setItemRoot( object );
     m_treeViewEditor->updateUi();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QTreeView* PdmUiTreeView::treeView()
+QTreeView* UiTreeView::treeView()
 {
     return m_treeViewEditor->treeView();
 }
@@ -93,7 +93,7 @@ QTreeView* PdmUiTreeView::treeView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTreeView::isTreeItemEditWidgetActive() const
+bool UiTreeView::isTreeItemEditWidgetActive() const
 {
     return m_treeViewEditor->isTreeItemEditWidgetActive();
 }
@@ -101,7 +101,7 @@ bool PdmUiTreeView::isTreeItemEditWidgetActive() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::selectedUiItems( std::vector<UiItem*>& objects )
+void UiTreeView::selectedUiItems( std::vector<UiItem*>& objects )
 {
     m_treeViewEditor->selectedUiItems( objects );
 }
@@ -109,7 +109,7 @@ void PdmUiTreeView::selectedUiItems( std::vector<UiItem*>& objects )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::slotOnSelectionChanged()
+void UiTreeView::slotOnSelectionChanged()
 {
     emit selectionChanged();
 
@@ -132,7 +132,7 @@ void PdmUiTreeView::slotOnSelectionChanged()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::enableDefaultContextMenu( bool enable )
+void UiTreeView::enableDefaultContextMenu( bool enable )
 {
     m_treeViewEditor->enableDefaultContextMenu( enable );
 }
@@ -141,7 +141,7 @@ void PdmUiTreeView::enableDefaultContextMenu( bool enable )
 /// Enables or disables automatic updating of the SelectionManager selection state based on
 /// the selections in this tree view
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::enableSelectionManagerUpdating( bool enable )
+void UiTreeView::enableSelectionManagerUpdating( bool enable )
 {
     m_treeViewEditor->enableSelectionManagerUpdating( enable );
 }
@@ -149,7 +149,7 @@ void PdmUiTreeView::enableSelectionManagerUpdating( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::selectAsCurrentItem( const UiItem* uiItem )
+void UiTreeView::selectAsCurrentItem( const UiItem* uiItem )
 {
     m_treeViewEditor->selectAsCurrentItem( uiItem );
 }
@@ -157,7 +157,7 @@ void PdmUiTreeView::selectAsCurrentItem( const UiItem* uiItem )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::selectItems( const std::vector<const UiItem*>& uiItems )
+void UiTreeView::selectItems( const std::vector<const UiItem*>& uiItems )
 {
     m_treeViewEditor->selectItems( uiItems );
 }
@@ -165,7 +165,7 @@ void PdmUiTreeView::selectItems( const std::vector<const UiItem*>& uiItems )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::setExpanded( const UiItem* uiItem, bool doExpand ) const
+void UiTreeView::setExpanded( const UiItem* uiItem, bool doExpand ) const
 {
     m_treeViewEditor->setExpanded( uiItem, doExpand );
 }
@@ -173,7 +173,7 @@ void PdmUiTreeView::setExpanded( const UiItem* uiItem, bool doExpand ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-UiItem* PdmUiTreeView::uiItemFromModelIndex( const QModelIndex& index ) const
+UiItem* UiTreeView::uiItemFromModelIndex( const QModelIndex& index ) const
 {
     return m_treeViewEditor->uiItemFromModelIndex( index );
 }
@@ -181,7 +181,7 @@ UiItem* PdmUiTreeView::uiItemFromModelIndex( const QModelIndex& index ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QModelIndex PdmUiTreeView::findModelIndex( const UiItem* object ) const
+QModelIndex UiTreeView::findModelIndex( const UiItem* object ) const
 {
     return m_treeViewEditor->findModelIndex( object );
 }
@@ -189,7 +189,7 @@ QModelIndex PdmUiTreeView::findModelIndex( const UiItem* object ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::setDragDropInterface( PdmUiDragDropInterface* dragDropInterface )
+void UiTreeView::setDragDropInterface( UiDragDropInterface* dragDropInterface )
 {
     m_treeViewEditor->setDragDropInterface( dragDropInterface );
 }
@@ -197,7 +197,7 @@ void PdmUiTreeView::setDragDropInterface( PdmUiDragDropInterface* dragDropInterf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::enableAppendOfClassNameToUiItemText( bool enable )
+void UiTreeView::enableAppendOfClassNameToUiItemText( bool enable )
 {
     m_treeViewEditor->enableAppendOfClassNameToUiItemText( enable );
 }

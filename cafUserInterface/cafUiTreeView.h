@@ -47,26 +47,26 @@ class QModelIndex;
 namespace caf
 {
 class UiItem;
-class PdmUiTreeViewEditor;
-class PdmUiDragDropInterface;
+class UiTreeViewEditor;
+class UiDragDropInterface;
 class ObjectHandle;
 
 //==================================================================================================
 ///
 //==================================================================================================
 
-class PdmUiTreeView : public QWidget
+class UiTreeView : public QWidget
 {
     Q_OBJECT
 public:
-    PdmUiTreeView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
-    ~PdmUiTreeView() override;
+    UiTreeView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
+    ~UiTreeView() override;
 
     void enableDefaultContextMenu( bool enable );
     void enableSelectionManagerUpdating( bool enable ); // TODO: rename
     void enableAppendOfClassNameToUiItemText( bool enable );
 
-    void setPdmItem( caf::UiItem* object );
+    void setItem( caf::UiItem* object );
 
     QTreeView* treeView();
     bool       isTreeItemEditWidgetActive() const;
@@ -82,20 +82,20 @@ public:
     UiItem*     uiItemFromModelIndex( const QModelIndex& index ) const;
     QModelIndex findModelIndex( const UiItem* object ) const;
 
-    void setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
+    void setDragDropInterface( UiDragDropInterface* dragDropInterface );
 
 signals:
     void selectionChanged();
-    // Convenience signal for use with PdmUiPropertyView
+    // Convenience signal for use with UiPropertyView
     void selectedObjectChanged( caf::ObjectHandle* object ); // Signal/Slot system needs caf:: prefix in some cases
 
 private slots:
     void slotOnSelectionChanged();
 
 private:
-    PdmUiTreeViewEditor* m_treeViewEditor;
-    QString              m_;
-    QVBoxLayout*         m_layout;
+    UiTreeViewEditor* m_treeViewEditor;
+    QString           m_;
+    QVBoxLayout*      m_layout;
 };
 
 } // End of namespace caf

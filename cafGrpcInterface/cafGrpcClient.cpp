@@ -88,7 +88,7 @@ public:
 
     std::unique_ptr<caf::ObjectHandle> document( const std::string& documentId ) const
     {
-        std::unique_ptr<caf::ObjectHandle> pdmDocument;
+        std::unique_ptr<caf::ObjectHandle> document;
 
         grpc::ClientContext       context;
         caf::rpc::DocumentRequest request;
@@ -99,15 +99,15 @@ public:
         if ( status.ok() )
         {
             CAF_TRACE( "Got document" );
-            pdmDocument = caf::rpc::ObjectService::createCafObjectFromRpc( &objectReply,
-                                                                           caf::rpc::GrpcClientObjectFactory::instance() );
+            document = caf::rpc::ObjectService::createCafObjectFromRpc( &objectReply,
+                                                                        caf::rpc::GrpcClientObjectFactory::instance() );
             CAF_TRACE( "Document completed" );
         }
         else
         {
             CAF_ERROR( "Failed to get document" );
         }
-        return pdmDocument;
+        return document;
     }
 
     std::unique_ptr<caf::ObjectHandle> execute( const caf::ObjectMethod* method ) const

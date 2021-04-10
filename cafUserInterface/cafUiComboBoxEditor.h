@@ -51,14 +51,14 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiComboBoxEditor : public UiFieldEditorHandle
+class UiComboBoxEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    CAF_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiComboBoxEditor() {}
-    ~PdmUiComboBoxEditor() override {}
+    UiComboBoxEditor() {}
+    ~UiComboBoxEditor() override {}
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
@@ -73,15 +73,15 @@ protected slots:
     void slotPreviousButtonPressed();
 
 private:
-    QPointer<QComboBox>       m_comboBox;
-    QPointer<QLabel> m_label;
+    QPointer<QComboBox> m_comboBox;
+    QPointer<QLabel>    m_label;
 
     QPointer<QToolButton> m_previousItemButton;
     QPointer<QToolButton> m_nextItemButton;
     QPointer<QHBoxLayout> m_layout;
     QPointer<QWidget>     m_placeholder;
 
-    PdmUiComboBoxEditorAttribute m_attributes;
+    UiComboBoxEditorAttribute m_attributes;
 };
 
 } // end namespace caf

@@ -59,7 +59,7 @@ class UiGroup;
 /// User defined external widgets can be inserted into grid layout cells, and these cells
 /// are excluded for automatic layout
 //==================================================================================================
-class CustomObjectEditor : public PdmUiFormLayoutObjectEditor
+class CustomObjectEditor : public UiFormLayoutObjectEditor
 {
     Q_OBJECT
 public:

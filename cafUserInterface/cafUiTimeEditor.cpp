@@ -57,12 +57,12 @@
 
 namespace caf
 {
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiTimeEditor );
+CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiTimeEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTimeEditor::configureAndUpdateUi()
+void UiTimeEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_timeEdit.isNull() );
 
@@ -89,7 +89,7 @@ void PdmUiTimeEditor::configureAndUpdateUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTimeEditor::createEditorWidget( QWidget* parent )
+QWidget* UiTimeEditor::createEditorWidget( QWidget* parent )
 {
     m_timeEdit = new QTimeEdit( parent );
     connect( m_timeEdit, SIGNAL( editingFinished() ), this, SLOT( slotEditingFinished() ) );
@@ -100,7 +100,7 @@ QWidget* PdmUiTimeEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTimeEditor::createLabelWidget( QWidget* parent )
+QWidget* UiTimeEditor::createLabelWidget( QWidget* parent )
 {
     m_label = new QLabel( parent );
     return m_label;
@@ -109,7 +109,7 @@ QWidget* PdmUiTimeEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTimeEditor::slotEditingFinished()
+void UiTimeEditor::slotEditingFinished()
 {
     std::time_t time = m_timeEdit->time().msecsSinceStartOfDay() / 1000;
     Variant     v( time );
@@ -119,7 +119,7 @@ void PdmUiTimeEditor::slotEditingFinished()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTimeEditor::slotTimeChanged( const QTime& time )
+void UiTimeEditor::slotTimeChanged( const QTime& time )
 {
     std::time_t timet = m_timeEdit->time().msecsSinceStartOfDay() / 1000;
     Variant     v( timet );

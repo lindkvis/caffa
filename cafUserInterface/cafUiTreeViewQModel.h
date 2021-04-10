@@ -46,23 +46,23 @@ namespace caf
 {
 class ObjectHandle;
 class UiItem;
-class PdmUiTreeViewEditor;
-class PdmUiTreeOrdering;
-class PdmUiDragDropInterface;
+class UiTreeViewEditor;
+class UiTreeOrdering;
+class UiDragDropInterface;
 
 //==================================================================================================
 //
-// This class is intended to replace UiTreeModelPdm (cafUiTreeModelPdm)
+// This class is intended to replace UiTreeModel (cafUiTreeModel)
 //
 //==================================================================================================
-class PdmUiTreeViewQModel : public QAbstractItemModel
+class UiTreeViewQModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    explicit PdmUiTreeViewQModel( PdmUiTreeViewEditor* treeViewEditor );
+    explicit UiTreeViewQModel( UiTreeViewEditor* treeViewEditor );
 
-    void setPdmItemRoot( UiItem* rootItem );
+    void setItemRoot( UiItem* rootItem );
     void updateSubTree( UiItem* subTreeRoot );
 
     void setColumnHeaders( const QStringList& columnHeaders );
@@ -72,29 +72,29 @@ public:
     UiItem*     uiItemFromModelIndex( const QModelIndex& index ) const;
     QModelIndex findModelIndex( const UiItem* object ) const;
 
-    void                    setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
-    PdmUiDragDropInterface* dragDropInterface();
+    void                 setDragDropInterface( UiDragDropInterface* dragDropInterface );
+    UiDragDropInterface* dragDropInterface();
 
     std::list<QModelIndex> allIndicesRecursive( const QModelIndex& current = QModelIndex() ) const;
 
 private:
     void updateSubTreeRecursive( const QModelIndex& uiSubTreeRootModelIdx,
-                                 PdmUiTreeOrdering* uiModelSubTreeRoot,
-                                 PdmUiTreeOrdering* updatedPdmSubTreeRoot );
+                                 UiTreeOrdering*    uiModelSubTreeRoot,
+                                 UiTreeOrdering*    updatedSubTreeRoot );
 
-    PdmUiTreeOrdering* treeItemFromIndex( const QModelIndex& index ) const;
-    QModelIndex        findModelIndexRecursive( const QModelIndex& currentIndex, const UiItem* object ) const;
+    UiTreeOrdering* treeItemFromIndex( const QModelIndex& index ) const;
+    QModelIndex     findModelIndexRecursive( const QModelIndex& currentIndex, const UiItem* object ) const;
 
-    void resetTree( PdmUiTreeOrdering* root );
+    void resetTree( UiTreeOrdering* root );
     void emitDataChanged( const QModelIndex& index );
-    void updateEditorsForSubTree( PdmUiTreeOrdering* root );
+    void updateEditorsForSubTree( UiTreeOrdering* root );
 
-    std::unique_ptr<PdmUiTreeOrdering> m_treeOrderingRoot;
-    QStringList                        m_columnHeaders;
+    std::unique_ptr<UiTreeOrdering> m_treeOrderingRoot;
+    QStringList                     m_columnHeaders;
 
-    PdmUiTreeViewEditor* m_treeViewEditor;
+    UiTreeViewEditor* m_treeViewEditor;
 
-    PdmUiDragDropInterface* m_dragDropInterface;
+    UiDragDropInterface* m_dragDropInterface;
 
 private:
     // Overrides from QAbstractItemModel

@@ -61,11 +61,11 @@ caf::UiFieldEditorHandle* caf::UiFieldEditorHelper::createFieldEditorForField( c
 
         if ( fieldTypeName.find( "PtrField" ) != std::string::npos )
         {
-            fieldTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
+            fieldTypeName = caf::UiComboBoxEditor::uiEditorTypeName();
         }
         else if ( fieldTypeName.find( "PtrArrayField" ) != std::string::npos )
         {
-            fieldTypeName = caf::PdmUiListEditor::uiEditorTypeName();
+            fieldTypeName = caf::UiListEditor::uiEditorTypeName();
         }
         else if ( field->toUiBasedVariant().isVector() )
         {
@@ -77,7 +77,7 @@ caf::UiFieldEditorHandle* caf::UiFieldEditorHelper::createFieldEditorForField( c
 
             if ( !options.empty() )
             {
-                fieldTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
+                fieldTypeName = caf::UiComboBoxEditor::uiEditorTypeName();
             }
         }
 

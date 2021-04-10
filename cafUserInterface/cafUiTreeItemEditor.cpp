@@ -42,20 +42,20 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeItemEditor::PdmUiTreeItemEditor( UiItem* uiItem )
+UiTreeItemEditor::UiTreeItemEditor( UiItem* uiItem )
 {
     m_treeViewEditor = nullptr;
-    this->bindToPdmItem( uiItem );
+    this->bindToItem( uiItem );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeItemEditor::configureAndUpdateUi(  )
+void UiTreeItemEditor::configureAndUpdateUi()
 {
     if ( m_treeViewEditor )
     {
-        m_treeViewEditor->updateSubTree( this->pdmItem() );
+        m_treeViewEditor->updateSubTree( this->item() );
     }
 }
 

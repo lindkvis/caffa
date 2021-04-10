@@ -56,16 +56,16 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTableViewQModel::PdmUiTableViewQModel( QWidget* parent )
+UiTableViewQModel::UiTableViewQModel( QWidget* parent )
     : QAbstractTableModel( parent )
 {
-    m_pdmList = nullptr;
+    m_list = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int PdmUiTableViewQModel::rowCount( const QModelIndex& parent /*= QModelIndex( ) */ ) const
+int UiTableViewQModel::rowCount( const QModelIndex& parent /*= QModelIndex( ) */ ) const
 {
     auto childArrayField = childArrayFieldHandle();
     if ( childArrayField )
@@ -80,7 +80,7 @@ int PdmUiTableViewQModel::rowCount( const QModelIndex& parent /*= QModelIndex( )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int PdmUiTableViewQModel::columnCount( const QModelIndex& parent /*= QModelIndex( ) */ ) const
+int UiTableViewQModel::columnCount( const QModelIndex& parent /*= QModelIndex( ) */ ) const
 {
     return static_cast<int>( m_modelColumnIndexToFieldIndex.size() );
 }
@@ -88,7 +88,7 @@ int PdmUiTableViewQModel::columnCount( const QModelIndex& parent /*= QModelIndex
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QVariant PdmUiTableViewQModel::headerData( int section, Qt::Orientation orientation, int role /*= Qt::DisplayRole */ ) const
+QVariant UiTableViewQModel::headerData( int section, Qt::Orientation orientation, int role /*= Qt::DisplayRole */ ) const
 {
     if ( role == Qt::DisplayRole )
     {
@@ -112,7 +112,7 @@ QVariant PdmUiTableViewQModel::headerData( int section, Qt::Orientation orientat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Qt::ItemFlags PdmUiTableViewQModel::flags( const QModelIndex& index ) const
+Qt::ItemFlags UiTableViewQModel::flags( const QModelIndex& index ) const
 {
     if ( !index.isValid() ) return Qt::ItemIsEnabled;
 
@@ -148,7 +148,7 @@ Qt::ItemFlags PdmUiTableViewQModel::flags( const QModelIndex& index ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTableViewQModel::setData( const QModelIndex& index, const QVariant& value, int role /*= Qt::EditRole*/ )
+bool UiTableViewQModel::setData( const QModelIndex& index, const QVariant& value, int role /*= Qt::EditRole*/ )
 {
     if ( role == Qt::CheckStateRole )
     {
@@ -172,7 +172,7 @@ bool PdmUiTableViewQModel::setData( const QModelIndex& index, const QVariant& va
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::DisplayRole */ ) const
+QVariant UiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::DisplayRole */ ) const
 {
     if ( role == Qt::ForegroundRole )
     {
@@ -257,17 +257,17 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
 
             QVariant val;
 
-            ObjectHandle*       objForRow   = this->pdmObjectForRow( index.row() );
+            ObjectHandle*       objForRow   = this->objectForRow( index.row() );
             ObjectUiCapability* uiObjForRow = uiObj( objForRow );
             if ( uiObjForRow )
             {
                 // NOTE: Redesign
                 // To be able to get formatted string, an editor attribute concept is used
-                // TODO: Create a function in pdmObject like this
+                // TODO: Create a function in object like this
                 // virtual void            defineDisplayString(const FieldHandle* field, QString ) {}
 
                 {
-                    PdmUiLineEditorAttributeUiDisplayString leab;
+                    UiLineEditorAttributeUiDisplayString leab;
                     uiObjForRow->editorAttribute( fieldHandle, &leab );
 
                     if ( !leab.m_displayString.empty() )
@@ -278,7 +278,7 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
 
                 if ( val.isNull() )
                 {
-                    PdmUiDateEditorAttribute leab;
+                    UiDateEditorAttribute leab;
                     uiObjForRow->editorAttribute( fieldHandle, &leab );
 
                     auto dateFormat = leab.dateFormat;
@@ -353,7 +353,7 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( ChildArrayFieldHandle* listField )
+void UiTableViewQModel::setArrayFieldAndBuildEditors( ChildArrayFieldHandle* listField )
 {
     beginResetModel();
 
@@ -366,21 +366,21 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( ChildArrayFieldHandle* 
 
         if ( ownerObject )
         {
-            m_pdmList     = listField;
+            m_list        = listField;
             m_ownerObject = ownerObject;
         }
         else
         {
             m_ownerObject = nullptr;
-            m_pdmList     = nullptr;
+            m_list        = nullptr;
         }
     }
 
     UiOrdering configForFirstObject;
 
-    if ( m_pdmList && !m_pdmList->empty() )
+    if ( m_list && !m_list->empty() )
     {
-        ObjectHandle*       firstObject            = m_pdmList->at( 0 );
+        ObjectHandle*       firstObject            = m_list->at( 0 );
         ObjectUiCapability* uiHandleForFirstObject = firstObject->capability<ObjectUiCapability>();
         if ( uiHandleForFirstObject )
         {
@@ -462,7 +462,7 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( ChildArrayFieldHandle* 
 
     endResetModel();
 
-    if ( m_pdmList )
+    if ( m_list )
     {
         // Update UI for all cells, as the content potentially has changed
         // This will probably cause performance issues for large tables
@@ -477,17 +477,17 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( ChildArrayFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FieldHandle* PdmUiTableViewQModel::getField( const QModelIndex& index ) const
+FieldHandle* UiTableViewQModel::getField( const QModelIndex& index ) const
 {
     auto childArrayField = childArrayFieldHandle();
 
     if ( childArrayField && index.row() < static_cast<int>( childArrayField->size() ) )
     {
-        ObjectHandle* pdmObject = childArrayField->at( index.row() );
-        if ( pdmObject )
+        ObjectHandle* object = childArrayField->at( index.row() );
+        if ( object )
         {
             std::vector<FieldHandle*> fields;
-            pdmObject->fields( fields );
+            object->fields( fields );
 
             int fieldIndex = m_modelColumnIndexToFieldIndex[index.column()];
             if ( fieldIndex < static_cast<int>( fields.size() ) )
@@ -507,7 +507,7 @@ FieldHandle* PdmUiTableViewQModel::getField( const QModelIndex& index ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-UiFieldEditorHandle* PdmUiTableViewQModel::getEditor( const QModelIndex& index )
+UiFieldEditorHandle* UiTableViewQModel::getEditor( const QModelIndex& index )
 {
     FieldHandle* field = getField( index );
     if ( !field )
@@ -538,7 +538,7 @@ UiFieldEditorHandle* PdmUiTableViewQModel::getEditor( const QModelIndex& index )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTableViewQModel::getEditorWidgetAndTransferOwnership( QWidget* parent, const QModelIndex& index )
+QWidget* UiTableViewQModel::getEditorWidgetAndTransferOwnership( QWidget* parent, const QModelIndex& index )
 {
     UiFieldEditorHandle* editor = getEditor( index );
     if ( editor )
@@ -559,7 +559,7 @@ QWidget* PdmUiTableViewQModel::getEditorWidgetAndTransferOwnership( QWidget* par
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewQModel::notifyDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
+void UiTableViewQModel::notifyDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
 {
     emit dataChanged( topLeft, bottomRight );
 }
@@ -567,9 +567,9 @@ void PdmUiTableViewQModel::notifyDataChanged( const QModelIndex& topLeft, const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewQModel::recreateTableItemEditors()
+void UiTableViewQModel::recreateTableItemEditors()
 {
-    for ( PdmUiTableRowEditor* tableItemEditor : m_tableRowEditors )
+    for ( UiTableRowEditor* tableItemEditor : m_tableRowEditors )
     {
         delete tableItemEditor;
     }
@@ -580,8 +580,8 @@ void PdmUiTableViewQModel::recreateTableItemEditors()
     {
         for ( size_t i = 0; i < childArrayField->size(); i++ )
         {
-            ObjectHandle* pdmObject = childArrayField->at( i );
-            m_tableRowEditors.push_back( new PdmUiTableRowEditor( this, pdmObject, static_cast<int>( i ) ) );
+            ObjectHandle* object = childArrayField->at( i );
+            m_tableRowEditors.push_back( new UiTableRowEditor( this, object, static_cast<int>( i ) ) );
         }
     }
 }
@@ -589,7 +589,7 @@ void PdmUiTableViewQModel::recreateTableItemEditors()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::FieldUiCapability* PdmUiTableViewQModel::getUiFieldHandle( const QModelIndex& index ) const
+caf::FieldUiCapability* UiTableViewQModel::getUiFieldHandle( const QModelIndex& index ) const
 {
     auto fieldHandle = getField( index );
     if ( fieldHandle )
@@ -603,7 +603,7 @@ caf::FieldUiCapability* PdmUiTableViewQModel::getUiFieldHandle( const QModelInde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle* PdmUiTableViewQModel::pdmObjectForRow( int row ) const
+ObjectHandle* UiTableViewQModel::objectForRow( int row ) const
 {
     auto childArrayField = childArrayFieldHandle();
     if ( childArrayField && row < static_cast<int>( childArrayField->size() ) )
@@ -617,7 +617,7 @@ ObjectHandle* PdmUiTableViewQModel::pdmObjectForRow( int row ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTableViewQModel::isRepresentingBoolean( const QModelIndex& index ) const
+bool UiTableViewQModel::isRepresentingBoolean( const QModelIndex& index ) const
 {
     FieldHandle* fieldHandle = getField( index );
     if ( fieldHandle )
@@ -640,7 +640,7 @@ bool PdmUiTableViewQModel::isRepresentingBoolean( const QModelIndex& index ) con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewQModel::createPersistentPushButtonWidgets( QTableView* tableView )
+void UiTableViewQModel::createPersistentPushButtonWidgets( QTableView* tableView )
 {
     if ( rowCount() > 0 )
     {
@@ -668,14 +668,14 @@ void PdmUiTableViewQModel::createPersistentPushButtonWidgets( QTableView* tableV
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QItemSelection PdmUiTableViewQModel::modelIndexFromObject( ObjectHandle* pdmObject )
+QItemSelection UiTableViewQModel::modelIndexFromObject( ObjectHandle* object )
 {
     QItemSelection itemSelection;
 
     for ( int i = 0; i < this->rowCount(); i++ )
     {
-        ObjectHandle* obj = this->pdmObjectForRow( i );
-        if ( obj == pdmObject )
+        ObjectHandle* obj = this->objectForRow( i );
+        if ( obj == object )
         {
             // Select whole row
             itemSelection.select( this->createIndex( i, 0 ), this->createIndex( i, this->columnCount() ) );
@@ -688,7 +688,7 @@ QItemSelection PdmUiTableViewQModel::modelIndexFromObject( ObjectHandle* pdmObje
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::ChildArrayFieldHandle* PdmUiTableViewQModel::childArrayFieldHandle() const
+caf::ChildArrayFieldHandle* UiTableViewQModel::childArrayFieldHandle() const
 {
     // Required to have a Pointer to the owner object. Used to guard access to a field inside this object. It is not
     // possible to use a Pointer on a field pointer
@@ -697,23 +697,23 @@ caf::ChildArrayFieldHandle* PdmUiTableViewQModel::childArrayFieldHandle() const
         return nullptr;
     }
 
-    return m_pdmList;
+    return m_list;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int PdmUiTableViewQModel::getFieldIndex( FieldHandle* field ) const
+int UiTableViewQModel::getFieldIndex( FieldHandle* field ) const
 {
     auto childArrayField = childArrayFieldHandle();
 
     if ( childArrayField && !childArrayField->empty() )
     {
-        ObjectHandle* pdmObject = childArrayField->at( 0 );
-        if ( pdmObject )
+        ObjectHandle* object = childArrayField->at( 0 );
+        if ( object )
         {
             std::vector<FieldHandle*> fields;
-            pdmObject->fields( fields );
+            object->fields( fields );
 
             for ( size_t i = 0; i < fields.size(); i++ )
             {

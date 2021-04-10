@@ -16,10 +16,10 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTabbedPropertyViewDialog::PdmUiTabbedPropertyViewDialog( caf::Object*       object,
-                                                              const QStringList& tabLabels,
-                                                              const QString&     windowTitle,
-                                                              QWidget*           parent )
+UiTabbedPropertyViewDialog::UiTabbedPropertyViewDialog( caf::Object*       object,
+                                                        const QStringList& tabLabels,
+                                                        const QString&     windowTitle,
+                                                        QWidget*           parent )
     : QDialog( parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint )
 {
     this->setWindowTitle( windowTitle );
@@ -34,14 +34,14 @@ PdmUiTabbedPropertyViewDialog::PdmUiTabbedPropertyViewDialog( caf::Object*      
         QWidget* containerWidget = new QWidget;
         containerWidget->setLayout( widgetLayout );
 
-        caf::PdmUiPropertyView* pdmUiPropertyView = new caf::PdmUiPropertyView();
+        caf::UiPropertyView* uiPropertyView = new caf::UiPropertyView();
 
-        widgetLayout->addWidget( pdmUiPropertyView );
+        widgetLayout->addWidget( uiPropertyView );
 
         tabWidget->addTab( containerWidget, tabLabels[i] );
-        pdmUiPropertyView->showProperties( object );
+        uiPropertyView->showProperties( object );
 
-        m_propertyViewTabs.push_back( pdmUiPropertyView );
+        m_propertyViewTabs.push_back( uiPropertyView );
     }
 
     QVBoxLayout* dialogLayout = new QVBoxLayout;
@@ -59,7 +59,7 @@ PdmUiTabbedPropertyViewDialog::PdmUiTabbedPropertyViewDialog( caf::Object*      
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTabbedPropertyViewDialog::~PdmUiTabbedPropertyViewDialog()
+UiTabbedPropertyViewDialog::~UiTabbedPropertyViewDialog()
 {
     for ( auto propView : m_propertyViewTabs )
     {
@@ -70,7 +70,7 @@ PdmUiTabbedPropertyViewDialog::~PdmUiTabbedPropertyViewDialog()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QSize PdmUiTabbedPropertyViewDialog::minimumSizeHint() const
+QSize UiTabbedPropertyViewDialog::minimumSizeHint() const
 {
     QSize minSizeHint( 0, 0 );
 
@@ -88,7 +88,7 @@ QSize PdmUiTabbedPropertyViewDialog::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QSize PdmUiTabbedPropertyViewDialog::sizeHint() const
+QSize UiTabbedPropertyViewDialog::sizeHint() const
 {
     QSize maxSizeHint( 0, 0 );
 
@@ -106,7 +106,7 @@ QSize PdmUiTabbedPropertyViewDialog::sizeHint() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDialogButtonBox* PdmUiTabbedPropertyViewDialog::dialogButtonBox()
+QDialogButtonBox* UiTabbedPropertyViewDialog::dialogButtonBox()
 {
     return m_dialogButtonBox;
 }

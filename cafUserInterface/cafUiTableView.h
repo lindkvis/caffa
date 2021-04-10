@@ -47,33 +47,33 @@ namespace caf
 {
 class MenuInterface;
 class ObjectHandle;
-class PdmUiTableViewEditor;
+class UiTableViewEditor;
 class ChildArrayFieldHandle;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiTableView : public QWidget
+class UiTableView : public QWidget
 {
     Q_OBJECT
 public:
-    PdmUiTableView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
-    ~PdmUiTableView() override;
+    UiTableView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
+    ~UiTableView() override;
 
     void setChildArrayField( ChildArrayFieldHandle* childArrayField );
     void enableHeaderText( bool enable );
     void setTableSelectionLevel( int selectionLevel );
     void setRowSelectionLevel( int selectionLevel );
 
-    ObjectHandle* pdmObjectFromModelIndex( const QModelIndex& mi );
+    ObjectHandle* objectFromModelIndex( const QModelIndex& mi );
 
     QTableView* tableView();
 
     static void addActionsToMenu( MenuInterface* menu, ChildArrayFieldHandle* childArrayField );
 
 private:
-    PdmUiTableViewEditor* m_listViewEditor;
-    QString               m_;
+    UiTableViewEditor* m_listViewEditor;
+    QString            m_;
 };
 
 } // End of namespace caf

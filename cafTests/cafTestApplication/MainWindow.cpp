@@ -11,14 +11,14 @@
 
 #include "cafAppEnum.h"
 
+#include "cafDocument.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldUiCapability.h"
 #include "cafObject.h"
 #include "cafObjectGroup.h"
-#include "cafPdmDocument.h"
-#include "cafPdmReferenceHelper.h"
 #include "cafPtrField.h"
 #include "cafQActionWrapper.h"
+#include "cafReferenceHelper.h"
 #include "cafSelectionManager.h"
 #include "cafUiComboBoxEditor.h"
 #include "cafUiItem.h"
@@ -42,7 +42,7 @@
 
 #include <filesystem>
 
-class DemoObjectGroup : public caf::PdmDocument
+class DemoObjectGroup : public caf::Document
 {
     CAF_HEADER_INIT;
 
@@ -134,7 +134,7 @@ public:
         m_multiSelectList.capability<caf::FieldIoCapability>()->setIOReadable(false);
         m_multiSelectList.capability<caf::FieldIoCapability>()->setIOWritable(false);
         m_multiSelectList.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
-            caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+            caf::UiTreeSelectionEditor::uiEditorTypeName());
 
         m_multiSelectList = {"First", "Second", "Third"};
     }
@@ -611,11 +611,11 @@ public:
         m_proxyEnumField.setFieldDataAccessor(std::move(enumProxyAccessor));
         m_proxyEnumMember = T2;
 
-        m_testEnumField.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+        m_testEnumField.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::UiListEditor::uiEditorTypeName());
 
         initField(m_multipleAppEnum, "MultipleAppEnumValue").withUi("MultipleAppEnumValue", "", "", "");
         m_multipleAppEnum.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
-            caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+            caf::UiTreeSelectionEditor::uiEditorTypeName());
         initField(m_highlightedEnum, "HighlightedEnum").withUi("HighlightedEnum", "", "", "");
         m_highlightedEnum.capability<caf::FieldUiCapability>()->setUiHidden(true);
     }
@@ -732,7 +732,7 @@ protected:
     {
         if (field == &m_multipleAppEnum)
         {
-            caf::PdmUiTreeSelectionEditorAttribute* attr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>(attribute);
+            caf::UiTreeSelectionEditorAttribute* attr = dynamic_cast<caf::UiTreeSelectionEditorAttribute*>(attribute);
             if (attr)
             {
                 attr->currentIndexFieldHandle = &m_highlightedEnum;
@@ -740,7 +740,7 @@ protected:
         }
         else if (field == &m_proxyEnumField)
         {
-            caf::PdmUiComboBoxEditorAttribute* attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>(attribute);
+            caf::UiComboBoxEditorAttribute* attr = dynamic_cast<caf::UiComboBoxEditorAttribute*>(attribute);
             if (attr)
             {
                 attr->showPreviousAndNextButtons = true;
@@ -753,8 +753,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     void defineObjectEditorAttribute(caf::UiEditorAttribute* attribute) override
     {
-        caf::PdmUiTableViewPushButtonEditorAttribute* attr =
-            dynamic_cast<caf::PdmUiTableViewPushButtonEditorAttribute*>(attribute);
+        caf::UiTableViewPushButtonEditorAttribute* attr = dynamic_cast<caf::UiTableViewPushButtonEditorAttribute*>(attribute);
         if (attr)
         {
             attr->registerPushButtonTextForFieldKeyword(m_pushButtonField.keyword(), "Edit");
@@ -808,12 +807,12 @@ public:
         initField(m_objectListOfSameType, "m_objectListOfSameType")
             .withUi("Same type Objects list Field", "", "Same type List", "Same type list of Objects");
         m_objectListOfSameType.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
-            caf::PdmUiTableViewEditor::uiEditorTypeName());
+            caf::UiTableViewEditor::uiEditorTypeName());
         m_objectListOfSameType.capability<caf::FieldUiCapability>()->setCustomContextMenuEnabled(true);
         ;
         initField(m_ptrField, "m_ptrField").withUi("PtrField", "", "Same type List", "Same type list of Objects");
 
-        m_longText.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+        m_longText.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::UiTextEditor::uiEditorTypeName());
         m_longText.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::HIDDEN);
 
         m_menuItemProducer = new MenuItemProducer;
@@ -927,7 +926,7 @@ public:
     {
         for (auto e : m_longText.capability<caf::FieldUiCapability>()->connectedEditors())
         {
-            caf::PdmUiTextEditor* textEditor = dynamic_cast<caf::PdmUiTextEditor*>(e);
+            caf::UiTextEditor* textEditor = dynamic_cast<caf::UiTextEditor*>(e);
             if (!textEditor) continue;
 
             QWidget* containerWidget = textEditor->editorWidget();
@@ -954,7 +953,7 @@ protected:
     {
         if (fieldNeedingMenu == &m_objectListOfSameType)
         {
-            caf::PdmUiTableView::addActionsToMenu(menu, &m_objectListOfSameType);
+            caf::UiTableView::addActionsToMenu(menu, &m_objectListOfSameType);
         }
     } */
 };
@@ -987,10 +986,10 @@ MainWindow::MainWindow()
     createDockPanels();
     buildTestModel();
 
-    setPdmRoot(m_testRoot);
+    setRoot(m_testRoot);
 
     sm_mainWindowInstance = this;
-    caf::SelectionManager::instance()->setPdmRootObject(m_testRoot);
+    caf::SelectionManager::instance()->setRootObject(m_testRoot);
 
     // caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
     // undoView->setStack(caf::CmdExecCommandManager::instance()->undoStack());
@@ -1002,19 +1001,19 @@ MainWindow::MainWindow()
 void MainWindow::createDockPanels()
 {
     {
-        QDockWidget* dockWidget = new QDockWidget("PdmTreeView - controls property view", this);
+        QDockWidget* dockWidget = new QDockWidget("TreeView - controls property view", this);
         dockWidget->setObjectName("dockWidget");
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-        m_pdmUiTreeView = new caf::PdmUiTreeView(dockWidget);
-        dockWidget->setWidget(m_pdmUiTreeView);
-        m_pdmUiTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
-        /* QObject::connect(m_pdmUiTreeView->treeView(),
+        m_uiTreeView = new caf::UiTreeView(dockWidget);
+        dockWidget->setWidget(m_uiTreeView);
+        m_uiTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
+        /* QObject::connect(m_uiTreeView->treeView(),
                          SIGNAL(customContextMenuRequested(const QPoint&)),
                          SLOT(slotCustomMenuRequestedForProjectTree(const QPoint&))); */
 
-        m_pdmUiTreeView->treeView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
-        m_pdmUiTreeView->enableSelectionManagerUpdating(true);
+        m_uiTreeView->treeView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
+        m_uiTreeView->enableSelectionManagerUpdating(true);
 
         addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
     }
@@ -1036,21 +1035,21 @@ void MainWindow::createDockPanels()
         dockWidget->setObjectName("dockWidget");
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-        m_pdmUiPropertyView = new caf::PdmUiPropertyView(dockWidget);
-        dockWidget->setWidget(m_pdmUiPropertyView);
+        m_uiPropertyView = new caf::UiPropertyView(dockWidget);
+        dockWidget->setWidget(m_uiPropertyView);
 
         addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
     }
 
     {
-        QDockWidget* dockWidget = new QDockWidget("PdmTreeView2  - controls table view", this);
+        QDockWidget* dockWidget = new QDockWidget("TreeView2  - controls table view", this);
         dockWidget->setObjectName("dockWidget");
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-        m_pdmUiTreeView2 = new caf::PdmUiTreeView(dockWidget);
-        m_pdmUiTreeView2->enableDefaultContextMenu(true);
-        m_pdmUiTreeView2->enableSelectionManagerUpdating(true);
-        dockWidget->setWidget(m_pdmUiTreeView2);
+        m_uiTreeView2 = new caf::UiTreeView(dockWidget);
+        m_uiTreeView2->enableDefaultContextMenu(true);
+        m_uiTreeView2->enableSelectionManagerUpdating(true);
+        dockWidget->setWidget(m_uiTreeView2);
 
         addDockWidget(Qt::RightDockWidgetArea, dockWidget);
     }
@@ -1060,9 +1059,9 @@ void MainWindow::createDockPanels()
         dockWidget->setObjectName("dockWidget");
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-        m_pdmUiTableView = new caf::PdmUiTableView(dockWidget);
+        m_uiTableView = new caf::UiTableView(dockWidget);
 
-        dockWidget->setWidget(m_pdmUiTableView);
+        dockWidget->setWidget(m_uiTableView);
 
         addDockWidget(Qt::RightDockWidgetArea, dockWidget);
     }
@@ -1131,21 +1130,21 @@ void MainWindow::buildTestModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void MainWindow::setPdmRoot(caf::ObjectHandle* pdmRoot)
+void MainWindow::setRoot(caf::ObjectHandle* root)
 {
-    caf::ObjectUiCapability* uiObject = uiObj(pdmRoot);
+    caf::ObjectUiCapability* uiObject = uiObj(root);
 
-    m_pdmUiTreeView->setPdmItem(uiObject);
+    m_uiTreeView->setItem(uiObject);
 
-    connect(m_pdmUiTreeView, SIGNAL(selectionChanged()), SLOT(slotSimpleSelectionChanged()));
+    connect(m_uiTreeView, SIGNAL(selectionChanged()), SLOT(slotSimpleSelectionChanged()));
 
     // Set up test of using a field as a root item
-    // Hack, because we know that pdmRoot is a ObjectGroup ...
+    // Hack, because we know that root is a ObjectGroup ...
 
     std::vector<caf::FieldHandle*> fields;
-    if (pdmRoot)
+    if (root)
     {
-        pdmRoot->fields(fields);
+        root->fields(fields);
     }
 
     if (fields.size())
@@ -1154,20 +1153,20 @@ void MainWindow::setPdmRoot(caf::ObjectHandle* pdmRoot)
         caf::FieldUiCapability* uiFieldHandle = field->capability<caf::FieldUiCapability>();
         if (uiFieldHandle)
         {
-            m_pdmUiTreeView2->setPdmItem(uiFieldHandle);
+            m_uiTreeView2->setItem(uiFieldHandle);
             uiFieldHandle->updateConnectedEditors();
         }
     }
 
-    m_pdmUiTreeView2->setPdmItem(uiObject);
+    m_uiTreeView2->setItem(uiObject);
 
-    connect(m_pdmUiTreeView2, SIGNAL(selectionChanged()), SLOT(slotShowTableView()));
+    connect(m_uiTreeView2, SIGNAL(selectionChanged()), SLOT(slotShowTableView()));
 
     // Wire up ManyGroups object
     std::vector<ManyGroups*> obj;
-    if (pdmRoot)
+    if (root)
     {
-        pdmRoot->descendantsIncludingThisOfType(obj);
+        root->descendantsIncludingThisOfType(obj);
     }
 
     m_customObjectEditor->removeWidget(m_plotLabel);
@@ -1196,15 +1195,15 @@ void MainWindow::setPdmRoot(caf::ObjectHandle* pdmRoot)
 //--------------------------------------------------------------------------------------------------
 MainWindow::~MainWindow()
 {
-    m_pdmUiTreeView->setPdmItem(nullptr);
-    m_pdmUiTreeView2->setPdmItem(nullptr);
-    m_pdmUiPropertyView->showProperties(nullptr);
-    m_pdmUiTableView->setChildArrayField(nullptr);
+    m_uiTreeView->setItem(nullptr);
+    m_uiTreeView2->setItem(nullptr);
+    m_uiPropertyView->showProperties(nullptr);
+    m_uiTableView->setChildArrayField(nullptr);
 
-    delete m_pdmUiTreeView;
-    delete m_pdmUiTreeView2;
-    delete m_pdmUiPropertyView;
-    delete m_pdmUiTableView;
+    delete m_uiTreeView;
+    delete m_uiTreeView2;
+    delete m_uiPropertyView;
+    delete m_uiTableView;
     delete m_customObjectEditor;
 }
 
@@ -1267,7 +1266,7 @@ void MainWindow::createActions()
 void MainWindow::slotInsert()
 {
     std::vector<caf::UiItem*> selection;
-    m_pdmUiTreeView->selectedUiItems(selection);
+    m_uiTreeView->selectedUiItems(selection);
 
     for (size_t i = 0; i < selection.size(); ++i)
     {
@@ -1303,7 +1302,7 @@ void MainWindow::slotInsert()
 void MainWindow::slotRemove()
 {
     std::vector<caf::UiItem*> selection;
-    m_pdmUiTreeView->selectedUiItems(selection);
+    m_uiTreeView->selectedUiItems(selection);
 
     for (size_t i = 0; i < selection.size(); ++i)
     {
@@ -1338,17 +1337,17 @@ void MainWindow::slotRemoveAll() {}
 void MainWindow::slotSimpleSelectionChanged()
 {
     std::vector<caf::UiItem*> selection;
-    m_pdmUiTreeView->selectedUiItems(selection);
+    m_uiTreeView->selectedUiItems(selection);
     caf::ObjectHandle*          obj       = nullptr;
     caf::ChildArrayFieldHandle* listField = nullptr;
 
     if (selection.size())
     {
-        caf::ObjectUiCapability* pdmUiObj = dynamic_cast<caf::ObjectUiCapability*>(selection[0]);
-        if (pdmUiObj) obj = pdmUiObj->objectHandle();
+        caf::ObjectUiCapability* uiObj = dynamic_cast<caf::ObjectUiCapability*>(selection[0]);
+        if (uiObj) obj = uiObj->objectHandle();
     }
 
-    m_pdmUiPropertyView->showProperties(obj);
+    m_uiPropertyView->showProperties(obj);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1357,16 +1356,16 @@ void MainWindow::slotSimpleSelectionChanged()
 void MainWindow::slotShowTableView()
 {
     std::vector<caf::UiItem*> selection;
-    m_pdmUiTreeView2->selectedUiItems(selection);
+    m_uiTreeView2->selectedUiItems(selection);
     caf::ObjectHandle*          obj                   = nullptr;
     caf::FieldUiCapability*     uiFieldHandle         = nullptr;
     caf::ChildArrayFieldHandle* childArrayFieldHandle = nullptr;
 
     if (selection.size())
     {
-        caf::UiItem* pdmUiItem = selection[0];
+        caf::UiItem* uiItem = selection[0];
 
-        uiFieldHandle = dynamic_cast<caf::FieldUiCapability*>(pdmUiItem);
+        uiFieldHandle = dynamic_cast<caf::FieldUiCapability*>(uiItem);
         if (uiFieldHandle)
         {
             childArrayFieldHandle = dynamic_cast<caf::ChildArrayFieldHandle*>(uiFieldHandle->fieldHandle());
@@ -1382,7 +1381,7 @@ void MainWindow::slotShowTableView()
         }
     }
 
-    m_pdmUiTableView->setChildArrayField(childArrayFieldHandle);
+    m_uiTableView->setChildArrayField(childArrayFieldHandle);
 
     if (uiFieldHandle)
     {
@@ -1400,14 +1399,14 @@ void MainWindow::slotLoadProject()
             .toStdString();
     if (!fileName.empty())
     {
-        setPdmRoot(nullptr);
+        setRoot(nullptr);
         releaseTestData();
 
         m_testRoot           = new DemoObjectGroup;
         m_testRoot->fileName = fileName;
         m_testRoot->read();
 
-        setPdmRoot(m_testRoot);
+        setRoot(m_testRoot);
     }
 }
 
@@ -1435,7 +1434,7 @@ void MainWindow::slotSaveProject()
     QTreeView* treeView  = dynamic_cast<QTreeView*>(senderObj);
     if (treeView)
     {
-        caf::CmdFeatureManager::instance()->setCurrentContextMenuTargetWidget(m_pdmUiTreeView);
+        caf::CmdFeatureManager::instance()->setCurrentContextMenuTargetWidget(m_uiTreeView);
 
         caf::CmdFeatureMenuBuilder menuBuilder;
 

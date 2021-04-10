@@ -58,13 +58,13 @@ class UiOrdering;
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiFormLayoutObjectEditor : public QObject, public PdmUiWidgetObjectEditorHandle
+class UiFormLayoutObjectEditor : public QObject, public UiWidgetObjectEditorHandle
 {
     Q_OBJECT
 
 public:
-    PdmUiFormLayoutObjectEditor();
-    ~PdmUiFormLayoutObjectEditor() override;
+    UiFormLayoutObjectEditor();
+    ~UiFormLayoutObjectEditor() override;
 
 protected:
     /// When overriding this function, use findOrCreateGroupBox() or findOrCreateFieldEditor() for detailed control

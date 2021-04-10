@@ -34,9 +34,9 @@
 //
 #pragma once
 
+#include "cafDocument.h"
 #include "cafLogger.h"
 #include "cafObjectMethod.h"
-#include "cafPdmDocument.h"
 #include "cafVariant.h"
 
 #include <gsl/gsl>

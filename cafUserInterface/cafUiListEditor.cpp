@@ -121,12 +121,12 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiListEditor );
+CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiListEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiListEditor::PdmUiListEditor()
+UiListEditor::UiListEditor()
     : m_isEditOperationsAvailable( true )
     , m_optionItemCount( 0 )
     , m_isScrollToItemAllowed( true )
@@ -136,17 +136,17 @@ PdmUiListEditor::PdmUiListEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiListEditor::~PdmUiListEditor()
+UiListEditor::~UiListEditor()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiListEditor::configureAndUpdateUi()
+void UiListEditor::configureAndUpdateUi()
 {
     // TODO: Fix CAF_ASSERT( here when undoing in testapp
-    // See PdmUiComboBoxEditor for pattern
+    // See UiComboBoxEditor for pattern
     // This might also apply to other editors
 
     CAF_ASSERT( !m_listView.isNull() );
@@ -170,7 +170,7 @@ void PdmUiListEditor::configureAndUpdateUi()
         m_isEditOperationsAvailable = true;
     }
 
-    PdmUiListEditorAttribute attributes;
+    UiListEditorAttribute    attributes;
     caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
@@ -223,7 +223,7 @@ void PdmUiListEditor::configureAndUpdateUi()
         {
             row = static_cast<int>( fieldValue.value<unsigned int>() );
         }
-        if (row >= 0)
+        if ( row >= 0 )
         {
             int col = 0;
 
@@ -294,7 +294,7 @@ void PdmUiListEditor::configureAndUpdateUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiListEditor::createEditorWidget( QWidget* parent )
+QWidget* UiListEditor::createEditorWidget( QWidget* parent )
 {
     m_listView = new QListViewHeightHint( parent );
 
@@ -322,7 +322,7 @@ QWidget* PdmUiListEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiListEditor::createLabelWidget( QWidget* parent )
+QWidget* UiListEditor::createLabelWidget( QWidget* parent )
 {
     m_label = new QLabel( parent );
     return m_label;
@@ -331,7 +331,7 @@ QWidget* PdmUiListEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiListEditor::slotSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected )
+void UiListEditor::slotSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected )
 {
     if ( m_optionItemCount == 0 ) return;
 
@@ -397,7 +397,7 @@ void PdmUiListEditor::slotSelectionChanged( const QItemSelection& selected, cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiListEditor::slotListItemEdited( const QModelIndex&, const QModelIndex& )
+void UiListEditor::slotListItemEdited( const QModelIndex&, const QModelIndex& )
 {
     CAF_ASSERT( m_isEditOperationsAvailable );
 
@@ -409,7 +409,7 @@ void PdmUiListEditor::slotListItemEdited( const QModelIndex&, const QModelIndex&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiListEditor::slotScrollToSelectedItem() const
+void UiListEditor::slotScrollToSelectedItem() const
 {
     if ( m_isScrollToItemAllowed )
     {
@@ -424,7 +424,7 @@ void PdmUiListEditor::slotScrollToSelectedItem() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmUiListEditor::contentAsString() const
+QString UiListEditor::contentAsString() const
 {
     QString str;
 
@@ -441,7 +441,7 @@ QString PdmUiListEditor::contentAsString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiListEditor::pasteFromString( const QString& content )
+void UiListEditor::pasteFromString( const QString& content )
 {
     QStringList strList = content.split( "\n" );
 
@@ -451,7 +451,7 @@ void PdmUiListEditor::pasteFromString( const QString& content )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiListEditor::trimAndSetValuesToField( const QStringList& stringList )
+void UiListEditor::trimAndSetValuesToField( const QStringList& stringList )
 {
     std::vector<std::string> result;
     for ( const auto& str : stringList )
@@ -465,7 +465,7 @@ void PdmUiListEditor::trimAndSetValuesToField( const QStringList& stringList )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiListEditor::eventFilter( QObject* object, QEvent* event )
+bool UiListEditor::eventFilter( QObject* object, QEvent* event )
 {
     if ( !m_listView )
     {
@@ -549,7 +549,7 @@ bool PdmUiListEditor::eventFilter( QObject* object, QEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiListEditor::isMultiRowEditor() const
+bool UiListEditor::isMultiRowEditor() const
 {
     return true;
 }

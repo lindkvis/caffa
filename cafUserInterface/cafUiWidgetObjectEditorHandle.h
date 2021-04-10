@@ -46,11 +46,11 @@ namespace caf
 /// Abstract class to handle widget based editors for complete Objects
 //==================================================================================================
 
-class PdmUiWidgetObjectEditorHandle : public PdmUiObjectEditorHandle
+class UiWidgetObjectEditorHandle : public UiObjectEditorHandle
 {
 public:
-    PdmUiWidgetObjectEditorHandle();
-    ~PdmUiWidgetObjectEditorHandle() override;
+    UiWidgetObjectEditorHandle();
+    ~UiWidgetObjectEditorHandle() override;
 
     QWidget* getOrCreateWidget( QWidget* parent );
     QWidget* widget() const;

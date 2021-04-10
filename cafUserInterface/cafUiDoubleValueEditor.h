@@ -50,7 +50,7 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiDoubleValueEditorAttribute : public UiEditorAttribute
+class UiDoubleValueEditorAttribute : public UiEditorAttribute
 {
 public:
     enum class NumberFormat
@@ -59,7 +59,7 @@ public:
         SCIENTIFIC,
         AUTOMATIC
     };
-    PdmUiDoubleValueEditorAttribute()
+    UiDoubleValueEditorAttribute()
     {
         m_decimals     = 6;
         m_numberFormat = NumberFormat::AUTOMATIC;
@@ -74,14 +74,14 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiDoubleValueEditor : public UiFieldEditorHandle
+class UiDoubleValueEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    CAF_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiDoubleValueEditor();
-    ~PdmUiDoubleValueEditor() override;
+    UiDoubleValueEditor();
+    ~UiDoubleValueEditor() override;
 
 protected:
     void     configureAndUpdateUi() override;
@@ -98,7 +98,7 @@ private:
     QPointer<QLineEdit> m_lineEdit;
     QPointer<QLabel>    m_label;
 
-    PdmUiDoubleValueEditorAttribute m_attributes;
+    UiDoubleValueEditorAttribute m_attributes;
 };
 
 } // end namespace caf

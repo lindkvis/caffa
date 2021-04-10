@@ -214,12 +214,12 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiTreeSelectionEditor );
+CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiTreeSelectionEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeSelectionEditor::PdmUiTreeSelectionEditor()
+UiTreeSelectionEditor::UiTreeSelectionEditor()
     : m_model( nullptr )
     , m_proxyModel( nullptr )
 {
@@ -228,14 +228,14 @@ PdmUiTreeSelectionEditor::PdmUiTreeSelectionEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeSelectionEditor::~PdmUiTreeSelectionEditor()
+UiTreeSelectionEditor::~UiTreeSelectionEditor()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::configureAndUpdateUi()
+void UiTreeSelectionEditor::configureAndUpdateUi()
 {
     // Label
     CAF_ASSERT( !m_label.isNull() );
@@ -244,7 +244,7 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi()
 
     if ( !m_model )
     {
-        m_model = new caf::PdmUiTreeSelectionQModel( this );
+        m_model = new caf::UiTreeSelectionQModel( this );
 
         m_proxyModel = new FilterLeafNodesOnlyProxyModel( this );
         m_proxyModel->setSourceModel( m_model );
@@ -353,7 +353,7 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi()
 
             for ( const auto& mi : indices )
             {
-                QVariant qItemValue = m_model->data( mi, PdmUiTreeSelectionQModel::optionItemValueRole() );
+                QVariant qItemValue = m_model->data( mi, UiTreeSelectionQModel::optionItemValueRole() );
                 Variant  itemValue  = qItemValue.value<Variant>();
                 if ( currentItemValue == itemValue )
                 {
@@ -372,7 +372,7 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTreeSelectionEditor::createEditorWidget( QWidget* parent )
+QWidget* UiTreeSelectionEditor::createEditorWidget( QWidget* parent )
 {
     QFrame*      frame  = new QFrame( parent );
     QVBoxLayout* layout = new QVBoxLayout;
@@ -384,7 +384,7 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget( QWidget* parent )
         headerLayout->setContentsMargins( 0, 0, 0, 0 );
         layout->addLayout( headerLayout );
 
-        PdmUiTreeSelectionEditorAttribute attrib;
+        UiTreeSelectionEditorAttribute attrib;
 
         m_toggleAllCheckBox = new QCheckBox();
         headerLayout->addWidget( m_toggleAllCheckBox );
@@ -418,7 +418,7 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTreeSelectionEditor::createLabelWidget( QWidget* parent )
+QWidget* UiTreeSelectionEditor::createLabelWidget( QWidget* parent )
 {
     m_label = new QLabel( parent );
     return m_label;
@@ -427,7 +427,7 @@ QWidget* PdmUiTreeSelectionEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QMargins PdmUiTreeSelectionEditor::calculateLabelContentMargins() const
+QMargins UiTreeSelectionEditor::calculateLabelContentMargins() const
 {
     QSize    editorSize     = m_textFilterLineEdit->sizeHint();
     QSize    labelSize      = m_label->sizeHint();
@@ -444,7 +444,7 @@ QMargins PdmUiTreeSelectionEditor::calculateLabelContentMargins() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTreeSelectionEditor::isMultiRowEditor() const
+bool UiTreeSelectionEditor::isMultiRowEditor() const
 {
     return true;
 }
@@ -452,7 +452,7 @@ bool PdmUiTreeSelectionEditor::isMultiRowEditor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::customMenuRequested( const QPoint& pos )
+void UiTreeSelectionEditor::customMenuRequested( const QPoint& pos )
 {
     QMenu menu;
 
@@ -461,7 +461,7 @@ void PdmUiTreeSelectionEditor::customMenuRequested( const QPoint& pos )
     bool onlyHeadersInSelection = true;
     for ( const auto& mi : selectedIndexes )
     {
-        QVariant v = m_proxyModel->data( mi, PdmUiTreeSelectionQModel::headingRole() );
+        QVariant v = m_proxyModel->data( mi, UiTreeSelectionQModel::headingRole() );
         if ( v.toBool() == false )
         {
             onlyHeadersInSelection = false;
@@ -513,7 +513,7 @@ void PdmUiTreeSelectionEditor::customMenuRequested( const QPoint& pos )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::slotSetSelectedOn()
+void UiTreeSelectionEditor::slotSetSelectedOn()
 {
     this->setCheckedStateOfSelected( true );
 }
@@ -521,7 +521,7 @@ void PdmUiTreeSelectionEditor::slotSetSelectedOn()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::slotSetSelectedOff()
+void UiTreeSelectionEditor::slotSetSelectedOff()
 {
     this->setCheckedStateOfSelected( false );
 }
@@ -529,7 +529,7 @@ void PdmUiTreeSelectionEditor::slotSetSelectedOff()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::setCheckedStateOfSelected( bool checked )
+void UiTreeSelectionEditor::setCheckedStateOfSelected( bool checked )
 {
     if ( !m_proxyModel ) return;
 
@@ -541,7 +541,7 @@ void PdmUiTreeSelectionEditor::setCheckedStateOfSelected( bool checked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::slotSetSubItemsOn()
+void UiTreeSelectionEditor::slotSetSubItemsOn()
 {
     this->setCheckedStateForSubItemsOfSelected( true );
 }
@@ -549,7 +549,7 @@ void PdmUiTreeSelectionEditor::slotSetSubItemsOn()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::slotSetSubItemsOff()
+void UiTreeSelectionEditor::slotSetSubItemsOff()
 {
     this->setCheckedStateForSubItemsOfSelected( false );
 }
@@ -557,7 +557,7 @@ void PdmUiTreeSelectionEditor::slotSetSubItemsOff()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::setCheckedStateForSubItemsOfSelected( bool checked )
+void UiTreeSelectionEditor::setCheckedStateForSubItemsOfSelected( bool checked )
 {
     QModelIndexList selectedProxyIndexes = m_treeView->selectionModel()->selectedIndexes();
     QModelIndexList sourceIndexesToSubItems;
@@ -577,7 +577,7 @@ void PdmUiTreeSelectionEditor::setCheckedStateForSubItemsOfSelected( bool checke
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::slotToggleAll()
+void UiTreeSelectionEditor::slotToggleAll()
 {
     if ( m_toggleAllCheckBox->isChecked() )
     {
@@ -592,7 +592,7 @@ void PdmUiTreeSelectionEditor::slotToggleAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::slotTextFilterChanged()
+void UiTreeSelectionEditor::slotTextFilterChanged()
 {
     QString searchString = m_textFilterLineEdit->text();
     searchString += "*";
@@ -612,7 +612,7 @@ void PdmUiTreeSelectionEditor::slotTextFilterChanged()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::slotClicked( const QModelIndex& index )
+void UiTreeSelectionEditor::slotClicked( const QModelIndex& index )
 {
     QModelIndex lastUncheckedIndex = m_model->indexForLastUncheckedItem();
     m_model->clearIndexForLastUncheckedItem();
@@ -642,7 +642,7 @@ void PdmUiTreeSelectionEditor::slotClicked( const QModelIndex& index )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::slotScrollToFirstCheckedItem()
+void UiTreeSelectionEditor::slotScrollToFirstCheckedItem()
 {
     auto firstVisibleIndex = m_treeView->indexAt( m_treeView->viewport()->rect().topLeft() );
     auto lastVisibleIndex  = m_treeView->indexAt( m_treeView->viewport()->rect().bottomRight() );
@@ -685,7 +685,7 @@ void PdmUiTreeSelectionEditor::slotScrollToFirstCheckedItem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::currentChanged( const QModelIndex& current )
+void UiTreeSelectionEditor::currentChanged( const QModelIndex& current )
 {
     if ( m_attributes.singleSelectionMode )
     {
@@ -697,10 +697,9 @@ void PdmUiTreeSelectionEditor::currentChanged( const QModelIndex& current )
         FieldUiCapability* uiFieldHandle = m_attributes.currentIndexFieldHandle->capability<FieldUiCapability>();
         if ( uiFieldHandle )
         {
-            QVariant v = m_proxyModel->data( current, PdmUiTreeSelectionQModel::optionItemValueRole() );
+            QVariant v = m_proxyModel->data( current, UiTreeSelectionQModel::optionItemValueRole() );
 
-            UiCommandSystemProxy::instance()->setUiValueToField( uiFieldHandle,
-                                                                 v.value<Variant>() );
+            UiCommandSystemProxy::instance()->setUiValueToField( uiFieldHandle, v.value<Variant>() );
         }
     }
 }
@@ -708,7 +707,7 @@ void PdmUiTreeSelectionEditor::currentChanged( const QModelIndex& current )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::checkAllItems()
+void UiTreeSelectionEditor::checkAllItems()
 {
     QModelIndexList indices = allVisibleSourceModelIndices();
 
@@ -718,7 +717,7 @@ void PdmUiTreeSelectionEditor::checkAllItems()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::unCheckAllItems()
+void UiTreeSelectionEditor::unCheckAllItems()
 {
     QModelIndexList indices = allVisibleSourceModelIndices();
 
@@ -728,7 +727,7 @@ void PdmUiTreeSelectionEditor::unCheckAllItems()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QModelIndexList PdmUiTreeSelectionEditor::allVisibleSourceModelIndices() const
+QModelIndexList UiTreeSelectionEditor::allVisibleSourceModelIndices() const
 {
     QModelIndexList indices;
 
@@ -740,15 +739,15 @@ QModelIndexList PdmUiTreeSelectionEditor::allVisibleSourceModelIndices() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::recursiveAppendVisibleSourceModelIndices( const QModelIndex& parent,
-                                                                         QModelIndexList*   sourceModelIndices ) const
+void UiTreeSelectionEditor::recursiveAppendVisibleSourceModelIndices( const QModelIndex& parent,
+                                                                      QModelIndexList*   sourceModelIndices ) const
 {
     for ( int row = 0; row < m_proxyModel->rowCount( parent ); row++ )
     {
         QModelIndex mi = m_proxyModel->index( row, 0, parent );
         if ( mi.isValid() )
         {
-            QVariant v = m_proxyModel->data( mi, PdmUiTreeSelectionQModel::headingRole() );
+            QVariant v = m_proxyModel->data( mi, UiTreeSelectionQModel::headingRole() );
             if ( v.toBool() == false )
             {
                 sourceModelIndices->push_back( m_proxyModel->mapToSource( mi ) );

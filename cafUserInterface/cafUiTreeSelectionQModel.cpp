@@ -51,7 +51,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiTreeSelectionQModel::PdmUiTreeSelectionQModel( QObject* parent /*= 0*/ )
+caf::UiTreeSelectionQModel::UiTreeSelectionQModel( QObject* parent /*= 0*/ )
     : QAbstractItemModel( parent )
     , m_uiFieldHandle( nullptr )
     , m_uiValueCache( nullptr )
@@ -64,7 +64,7 @@ caf::PdmUiTreeSelectionQModel::PdmUiTreeSelectionQModel( QObject* parent /*= 0*/
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiTreeSelectionQModel::~PdmUiTreeSelectionQModel()
+caf::UiTreeSelectionQModel::~UiTreeSelectionQModel()
 {
     m_uiFieldHandle = nullptr;
 
@@ -75,7 +75,7 @@ caf::PdmUiTreeSelectionQModel::~PdmUiTreeSelectionQModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int caf::PdmUiTreeSelectionQModel::headingRole()
+int caf::UiTreeSelectionQModel::headingRole()
 {
     return Qt::UserRole + 1;
 }
@@ -83,7 +83,7 @@ int caf::PdmUiTreeSelectionQModel::headingRole()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int caf::PdmUiTreeSelectionQModel::optionItemValueRole()
+int caf::UiTreeSelectionQModel::optionItemValueRole()
 {
     return Qt::UserRole + 2;
 }
@@ -91,7 +91,7 @@ int caf::PdmUiTreeSelectionQModel::optionItemValueRole()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems( const QModelIndexList& sourceModelIndices, bool checked )
+void caf::UiTreeSelectionQModel::setCheckedStateForItems( const QModelIndexList& sourceModelIndices, bool checked )
 {
     if ( !m_uiFieldHandle || !m_uiFieldHandle->uiField() ) return;
 
@@ -142,7 +142,7 @@ void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems( const QModelIndexLi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiTreeSelectionQModel::enableSingleSelectionMode( bool enable )
+void caf::UiTreeSelectionQModel::enableSingleSelectionMode( bool enable )
 {
     m_singleSelectionMode = enable;
 }
@@ -150,7 +150,7 @@ void caf::PdmUiTreeSelectionQModel::enableSingleSelectionMode( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t caf::PdmUiTreeSelectionQModel::optionItemCount() const
+size_t caf::UiTreeSelectionQModel::optionItemCount() const
 {
     return m_options.size();
 }
@@ -158,8 +158,7 @@ size_t caf::PdmUiTreeSelectionQModel::optionItemCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiTreeSelectionQModel::setOptions( caf::UiFieldEditorHandle*              field,
-                                                const std::deque<caf::OptionItemInfo>& options )
+void caf::UiTreeSelectionQModel::setOptions( caf::UiFieldEditorHandle* field, const std::deque<caf::OptionItemInfo>& options )
 {
     m_uiFieldHandle = field;
 
@@ -193,7 +192,7 @@ void caf::PdmUiTreeSelectionQModel::setOptions( caf::UiFieldEditorHandle*       
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiTreeSelectionQModel::setUiValueCache( const Variant& uiValuesCache )
+void caf::UiTreeSelectionQModel::setUiValueCache( const Variant& uiValuesCache )
 {
     m_uiValueCache = uiValuesCache;
 }
@@ -201,7 +200,7 @@ void caf::PdmUiTreeSelectionQModel::setUiValueCache( const Variant& uiValuesCach
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiTreeSelectionQModel::resetUiValueCache()
+void caf::UiTreeSelectionQModel::resetUiValueCache()
 {
     m_uiValueCache = Variant();
 }
@@ -209,7 +208,7 @@ void caf::PdmUiTreeSelectionQModel::resetUiValueCache()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::PdmUiTreeSelectionQModel::isReadOnly( const QModelIndex& index ) const
+bool caf::UiTreeSelectionQModel::isReadOnly( const QModelIndex& index ) const
 {
     return optionItem( index )->isReadOnly();
 }
@@ -217,7 +216,7 @@ bool caf::PdmUiTreeSelectionQModel::isReadOnly( const QModelIndex& index ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::PdmUiTreeSelectionQModel::isChecked( const QModelIndex& index ) const
+bool caf::UiTreeSelectionQModel::isChecked( const QModelIndex& index ) const
 {
     return data( index, Qt::CheckStateRole ).toBool();
 }
@@ -225,7 +224,7 @@ bool caf::PdmUiTreeSelectionQModel::isChecked( const QModelIndex& index ) const
 //--------------------------------------------------------------------------------------------------
 /// Checks if this is a real tree with grand children or just a list of children.
 //--------------------------------------------------------------------------------------------------
-bool caf::PdmUiTreeSelectionQModel::hasGrandChildren() const
+bool caf::UiTreeSelectionQModel::hasGrandChildren() const
 {
     return m_tree && m_tree->hasGrandChildren();
 }
@@ -233,7 +232,7 @@ bool caf::PdmUiTreeSelectionQModel::hasGrandChildren() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const caf::OptionItemInfo* caf::PdmUiTreeSelectionQModel::optionItem( const QModelIndex& index ) const
+const caf::OptionItemInfo* caf::UiTreeSelectionQModel::optionItem( const QModelIndex& index ) const
 {
     int opIndex = optionIndex( index );
 
@@ -243,7 +242,7 @@ const caf::OptionItemInfo* caf::PdmUiTreeSelectionQModel::optionItem( const QMod
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int caf::PdmUiTreeSelectionQModel::optionIndex( const QModelIndex& index ) const
+int caf::UiTreeSelectionQModel::optionIndex( const QModelIndex& index ) const
 {
     CAF_ASSERT( index.isValid() );
 
@@ -257,7 +256,7 @@ int caf::PdmUiTreeSelectionQModel::optionIndex( const QModelIndex& index ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Qt::ItemFlags caf::PdmUiTreeSelectionQModel::flags( const QModelIndex& index ) const
+Qt::ItemFlags caf::UiTreeSelectionQModel::flags( const QModelIndex& index ) const
 {
     if ( index.isValid() )
     {
@@ -280,7 +279,7 @@ Qt::ItemFlags caf::PdmUiTreeSelectionQModel::flags( const QModelIndex& index ) c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QModelIndex caf::PdmUiTreeSelectionQModel::index( int row, int column, const QModelIndex& parent /*= QModelIndex()*/ ) const
+QModelIndex caf::UiTreeSelectionQModel::index( int row, int column, const QModelIndex& parent /*= QModelIndex()*/ ) const
 {
     if ( !hasIndex( row, column, parent ) ) return QModelIndex();
 
@@ -301,7 +300,7 @@ QModelIndex caf::PdmUiTreeSelectionQModel::index( int row, int column, const QMo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int caf::PdmUiTreeSelectionQModel::columnCount( const QModelIndex& parent /*= QModelIndex()*/ ) const
+int caf::UiTreeSelectionQModel::columnCount( const QModelIndex& parent /*= QModelIndex()*/ ) const
 {
     return 1;
 }
@@ -309,7 +308,7 @@ int caf::PdmUiTreeSelectionQModel::columnCount( const QModelIndex& parent /*= QM
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QModelIndex caf::PdmUiTreeSelectionQModel::parent( const QModelIndex& index ) const
+QModelIndex caf::UiTreeSelectionQModel::parent( const QModelIndex& index ) const
 {
     if ( !index.isValid() ) return QModelIndex();
 
@@ -324,7 +323,7 @@ QModelIndex caf::PdmUiTreeSelectionQModel::parent( const QModelIndex& index ) co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int caf::PdmUiTreeSelectionQModel::rowCount( const QModelIndex& parent /*= QModelIndex()*/ ) const
+int caf::UiTreeSelectionQModel::rowCount( const QModelIndex& parent /*= QModelIndex()*/ ) const
 {
     if ( !m_tree ) return 0;
 
@@ -342,7 +341,7 @@ int caf::PdmUiTreeSelectionQModel::rowCount( const QModelIndex& parent /*= QMode
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QVariant caf::PdmUiTreeSelectionQModel::data( const QModelIndex& index, int role /*= Qt::DisplayRole*/ ) const
+QVariant caf::UiTreeSelectionQModel::data( const QModelIndex& index, int role /*= Qt::DisplayRole*/ ) const
 {
     if ( index.isValid() )
     {
@@ -420,7 +419,7 @@ QVariant caf::PdmUiTreeSelectionQModel::data( const QModelIndex& index, int role
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::PdmUiTreeSelectionQModel::setData( const QModelIndex& index, const QVariant& value, int role /*= Qt::EditRole*/ )
+bool caf::UiTreeSelectionQModel::setData( const QModelIndex& index, const QVariant& value, int role /*= Qt::EditRole*/ )
 {
     if ( !m_uiFieldHandle || !m_uiFieldHandle->uiField() ) return false;
 
@@ -498,7 +497,7 @@ bool caf::PdmUiTreeSelectionQModel::setData( const QModelIndex& index, const QVa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QModelIndex caf::PdmUiTreeSelectionQModel::indexForLastUncheckedItem() const
+QModelIndex caf::UiTreeSelectionQModel::indexForLastUncheckedItem() const
 {
     return m_indexForLastUncheckedItem;
 }
@@ -506,7 +505,7 @@ QModelIndex caf::PdmUiTreeSelectionQModel::indexForLastUncheckedItem() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiTreeSelectionQModel::clearIndexForLastUncheckedItem()
+void caf::UiTreeSelectionQModel::clearIndexForLastUncheckedItem()
 {
     m_indexForLastUncheckedItem = QModelIndex();
 }
@@ -514,7 +513,7 @@ void caf::PdmUiTreeSelectionQModel::clearIndexForLastUncheckedItem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiTreeSelectionQModel::buildOptionItemTree( int parentOptionIndex, TreeItemType* parentNode )
+void caf::UiTreeSelectionQModel::buildOptionItemTree( int parentOptionIndex, TreeItemType* parentNode )
 {
     if ( parentNode == m_tree )
     {
@@ -548,7 +547,7 @@ void caf::PdmUiTreeSelectionQModel::buildOptionItemTree( int parentOptionIndex, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiTreeSelectionQModel::notifyChangedForAllModelIndices()
+void caf::UiTreeSelectionQModel::notifyChangedForAllModelIndices()
 {
     recursiveNotifyChildren( QModelIndex() );
 }
@@ -556,7 +555,7 @@ void caf::PdmUiTreeSelectionQModel::notifyChangedForAllModelIndices()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiTreeSelectionQModel::recursiveNotifyChildren( const QModelIndex& index )
+void caf::UiTreeSelectionQModel::recursiveNotifyChildren( const QModelIndex& index )
 {
     for ( int r = 0; r < rowCount( index ); r++ )
     {

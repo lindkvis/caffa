@@ -14,10 +14,9 @@ namespace caf
 {
 class ObjectCollection;
 class ObjectHandle;
-class UiTreeModelPdm;
-class PdmUiPropertyView;
-class PdmUiTreeView;
-class PdmUiTableView;
+class UiPropertyView;
+class UiTreeView;
+class UiTableView;
 class CustomObjectEditor;
 } // namespace caf
 
@@ -30,7 +29,7 @@ public:
     ~MainWindow() override;
 
     static MainWindow* instance();
-    void               setPdmRoot(caf::ObjectHandle* pdmRoot);
+    void               setRoot(caf::ObjectHandle* root);
 
 private:
     void createActions();
@@ -50,7 +49,7 @@ private slots:
     void slotLoadProject();
     void slotSaveProject();
 
-    //void slotCustomMenuRequestedForProjectTree(const QPoint&);
+    // void slotCustomMenuRequestedForProjectTree(const QPoint&);
 
 private:
     static MainWindow* sm_mainWindowInstance;
@@ -58,10 +57,10 @@ private:
 private:
     QUndoView* undoView;
 
-    caf::PdmUiTreeView*     m_pdmUiTreeView;
-    caf::PdmUiTreeView*     m_pdmUiTreeView2;
-    caf::PdmUiPropertyView* m_pdmUiPropertyView;
-    caf::PdmUiTableView*    m_pdmUiTableView;
+    caf::UiTreeView*     m_uiTreeView;
+    caf::UiTreeView*     m_uiTreeView2;
+    caf::UiPropertyView* m_uiPropertyView;
+    caf::UiTableView*    m_uiTableView;
     DemoObjectGroup*     m_testRoot;
 
     caf::CustomObjectEditor* m_customObjectEditor;

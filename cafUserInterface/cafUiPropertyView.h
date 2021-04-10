@@ -59,18 +59,18 @@ public:
 namespace caf
 {
 class ObjectHandle;
-class PdmUiDefaultObjectEditor;
+class UiDefaultObjectEditor;
 
 //==================================================================================================
 ///
 //==================================================================================================
 
-class PdmUiPropertyView : public QWidget
+class UiPropertyView : public QWidget
 {
     Q_OBJECT
 public:
-    PdmUiPropertyView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
-    ~PdmUiPropertyView() override;
+    UiPropertyView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
+    ~UiPropertyView() override;
 
     ObjectHandle* currentObject();
 
@@ -81,7 +81,7 @@ public slots:
     void showProperties( caf::ObjectHandle* object ); // Signal/Slot system needs caf:: prefix in some cases
 
 private:
-    PdmUiDefaultObjectEditor*     m_defaultObjectEditor;
+    UiDefaultObjectEditor*        m_defaultObjectEditor;
     QPointer<QVBoxLayout>         m_placeHolderLayout;
     QPointer<QWidget>             m_placeholder;
     QPointer<QVerticalScrollArea> m_scrollArea;

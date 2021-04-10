@@ -39,26 +39,26 @@
 
 namespace caf
 {
-class PdmUiTreeEditorHandle;
+class UiTreeEditorHandle;
 
 //==================================================================================================
 /// A class that tells the treeViewEditor to update the sub tree of its associate UiItem, when
 /// needed. (Typically because of a direct call to updateConnectedEditors() )
 //==================================================================================================
 
-class PdmUiTreeItemEditor : public UiEditorHandle
+class UiTreeItemEditor : public UiEditorHandle
 {
 public:
-    explicit PdmUiTreeItemEditor( UiItem* uiItem );
-    ~PdmUiTreeItemEditor() override{};
+    explicit UiTreeItemEditor( UiItem* uiItem );
+    ~UiTreeItemEditor() override{};
 
-    void setTreeViewEditor( PdmUiTreeEditorHandle* treeViewEditor ) { m_treeViewEditor = treeViewEditor; }
+    void setTreeViewEditor( UiTreeEditorHandle* treeViewEditor ) { m_treeViewEditor = treeViewEditor; }
 
 protected: // Interface to override:
-    void configureAndUpdateUi(  ) override;
+    void configureAndUpdateUi() override;
 
 private:
-    PdmUiTreeEditorHandle* m_treeViewEditor;
+    UiTreeEditorHandle* m_treeViewEditor;
 };
 
 } // End of namespace caf

@@ -19,12 +19,12 @@
 
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
+#include "cafDocument.h"
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafObjectHandle.h"
-#include "cafPdmDocument.h"
-#include "cafPdmReferenceHelper.h"
 #include "cafPtrField.h"
+#include "cafReferenceHelper.h"
 #include "cafValueField.h"
 
 #include <iostream>
@@ -69,7 +69,7 @@ public:
     caf::PtrField<InheritedDemoObj*>  m_ptrField;
 };
 
-class DemoDocument : public caf::PdmDocument
+class DemoDocument : public caf::Document
 {
     CAF_HEADER_INIT;
 

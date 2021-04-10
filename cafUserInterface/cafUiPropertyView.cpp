@@ -84,7 +84,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiPropertyView::PdmUiPropertyView( QWidget* parent, Qt::WindowFlags f )
+UiPropertyView::UiPropertyView( QWidget* parent, Qt::WindowFlags f )
     : QWidget( parent, f )
 {
     m_scrollArea = new QVerticalScrollArea( this );
@@ -108,7 +108,7 @@ PdmUiPropertyView::PdmUiPropertyView( QWidget* parent, Qt::WindowFlags f )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiPropertyView::~PdmUiPropertyView()
+UiPropertyView::~UiPropertyView()
 {
     if ( m_defaultObjectEditor ) delete m_defaultObjectEditor;
 }
@@ -116,7 +116,7 @@ PdmUiPropertyView::~PdmUiPropertyView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiPropertyView::showProperties( ObjectHandle* object )
+void UiPropertyView::showProperties( ObjectHandle* object )
 {
     // Find specialized object view handle
 
@@ -126,11 +126,11 @@ void PdmUiPropertyView::showProperties( ObjectHandle* object )
 
     if ( !m_defaultObjectEditor ) rebuildWidget = true;
 
-    if ( m_defaultObjectEditor && m_defaultObjectEditor->pdmObject() )
+    if ( m_defaultObjectEditor && m_defaultObjectEditor->object() )
     {
         if ( object )
         {
-            ObjectUiCapability* uiObject1 = uiObj( m_defaultObjectEditor->pdmObject() );
+            ObjectUiCapability* uiObject1 = uiObj( m_defaultObjectEditor->object() );
             ObjectUiCapability* uiObject2 = uiObj( object );
 
             if ( uiObject1 && uiObject2 && ( uiObject1->uiEditorTypeName() != uiObject2->uiEditorTypeName() ) )
@@ -152,7 +152,7 @@ void PdmUiPropertyView::showProperties( ObjectHandle* object )
 
         if ( !m_defaultObjectEditor )
         {
-            m_defaultObjectEditor = new PdmUiDefaultObjectEditor();
+            m_defaultObjectEditor = new UiDefaultObjectEditor();
         }
 
         // Create widget to handle this
@@ -175,16 +175,16 @@ void PdmUiPropertyView::showProperties( ObjectHandle* object )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle* PdmUiPropertyView::currentObject()
+ObjectHandle* UiPropertyView::currentObject()
 {
     if ( !m_defaultObjectEditor ) return nullptr;
-    return m_defaultObjectEditor->pdmObject();
+    return m_defaultObjectEditor->object();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QSize PdmUiPropertyView::sizeHint() const
+QSize UiPropertyView::sizeHint() const
 {
     QSize scrollSize  = m_scrollArea->sizeHint();
     QSize contentSize = m_placeholder->sizeHint();
@@ -194,7 +194,7 @@ QSize PdmUiPropertyView::sizeHint() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QSize PdmUiPropertyView::minimumSizeHint() const
+QSize UiPropertyView::minimumSizeHint() const
 {
     return m_scrollArea->minimumSizeHint();
 }

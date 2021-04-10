@@ -39,12 +39,12 @@ public:
     bool running() const;
     void quit();
 
-    virtual PdmDocument*       document( const std::string& documentId )       = 0;
-    virtual const PdmDocument* document( const std::string& documentId ) const = 0;
-    virtual std::list<PdmDocument*> documents()                                = 0;
-    virtual std::list<const PdmDocument*> documents() const                    = 0;
+    virtual Document*                  document( const std::string& documentId )       = 0;
+    virtual const Document*            document( const std::string& documentId ) const = 0;
+    virtual std::list<Document*>       documents()                                     = 0;
+    virtual std::list<const Document*> documents() const                               = 0;
 
 private:
     std::unique_ptr<Server> m_server;
 };
-} // namespace caf
+} // namespace caf::rpc

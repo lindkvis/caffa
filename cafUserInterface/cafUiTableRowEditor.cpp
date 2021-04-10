@@ -46,28 +46,28 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTableRowEditor::PdmUiTableRowEditor( PdmUiTableViewQModel* model, caf::ObjectHandle* pdmObject, int row )
+UiTableRowEditor::UiTableRowEditor( UiTableViewQModel* model, caf::ObjectHandle* object, int row )
 {
     m_model = model;
     m_row   = row;
 
-    caf::ObjectUiCapability* uiObject = uiObj( pdmObject );
-    this->bindToPdmItem( uiObject );
+    caf::ObjectUiCapability* uiObject = uiObj( object );
+    this->bindToItem( uiObject );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTableRowEditor::~PdmUiTableRowEditor()
+UiTableRowEditor::~UiTableRowEditor()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableRowEditor::configureAndUpdateUi()
+void UiTableRowEditor::configureAndUpdateUi()
 {
-    caf::ObjectUiCapability* uiObject = dynamic_cast<caf::ObjectUiCapability*>( this->pdmItem() );
+    caf::ObjectUiCapability* uiObject = dynamic_cast<caf::ObjectUiCapability*>( this->item() );
     if ( uiObject )
     {
         // Call uiOrdering method, as this method is responsible for control of

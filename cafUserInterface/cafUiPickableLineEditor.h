@@ -45,10 +45,10 @@ class PickEventHandler;
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiPickableLineEditorAttribute : public UiEditorAttribute
+class UiPickableLineEditorAttribute : public UiEditorAttribute
 {
 public:
-    PdmUiPickableLineEditorAttribute()
+    UiPickableLineEditorAttribute()
         : enablePicking( false )
     {
     }
@@ -61,20 +61,20 @@ public:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiPickableLineEditor : public PdmUiLineEditor
+class UiPickableLineEditor : public UiLineEditor
 {
     Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    CAF_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiPickableLineEditor() {}
-    ~PdmUiPickableLineEditor() override;
+    UiPickableLineEditor() {}
+    ~UiPickableLineEditor() override;
 
 protected:
     void configureAndUpdateUi() override;
 
 private:
-    PdmUiPickableLineEditorAttribute m_attribute;
+    UiPickableLineEditorAttribute m_attribute;
 };
 
 } // end namespace caf

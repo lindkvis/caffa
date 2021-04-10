@@ -43,12 +43,12 @@
 
 namespace caf
 {
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiToolButtonEditor );
+CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiToolButtonEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiToolButtonEditor::configureAndUpdateUi()
+void UiToolButtonEditor::configureAndUpdateUi()
 {
     CAF_ASSERT( !m_toolButton.isNull() );
 
@@ -64,12 +64,12 @@ void PdmUiToolButtonEditor::configureAndUpdateUi()
     m_toolButton->setEnabled( !uiField()->isUiReadOnly() );
     m_toolButton->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
-    PdmUiToolButtonEditorAttribute attributes;
+    UiToolButtonEditorAttribute attributes;
 
-    ObjectUiCapability* pdmUiOjectHandle = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( pdmUiOjectHandle )
+    ObjectUiCapability* uiOjectHandle = uiObj( uiField()->fieldHandle()->ownerObject() );
+    if ( uiOjectHandle )
     {
-        pdmUiOjectHandle->editorAttribute( uiField()->fieldHandle(), &attributes );
+        uiOjectHandle->editorAttribute( uiField()->fieldHandle(), &attributes );
     }
     bool isCheckable = attributes.m_checkable;
     m_toolButton->setCheckable( isCheckable );
@@ -85,7 +85,7 @@ void PdmUiToolButtonEditor::configureAndUpdateUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiToolButtonEditor::createEditorWidget( QWidget* parent )
+QWidget* UiToolButtonEditor::createEditorWidget( QWidget* parent )
 {
     m_toolButton = new QToolButton( parent );
     connect( m_toolButton, SIGNAL( clicked( bool ) ), this, SLOT( slotClicked( bool ) ) );
@@ -95,7 +95,7 @@ QWidget* PdmUiToolButtonEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiToolButtonEditor::createLabelWidget( QWidget* parent )
+QWidget* UiToolButtonEditor::createLabelWidget( QWidget* parent )
 {
     return nullptr;
 }
@@ -103,7 +103,7 @@ QWidget* PdmUiToolButtonEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiToolButtonEditor::slotClicked( bool checked )
+void UiToolButtonEditor::slotClicked( bool checked )
 {
     Variant v( checked );
     this->setValueToField( v );

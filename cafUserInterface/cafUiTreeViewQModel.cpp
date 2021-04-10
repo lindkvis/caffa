@@ -54,7 +54,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeViewQModel::PdmUiTreeViewQModel( PdmUiTreeViewEditor* treeViewEditor )
+UiTreeViewQModel::UiTreeViewQModel( UiTreeViewEditor* treeViewEditor )
 {
     m_treeOrderingRoot  = nullptr;
     m_dragDropInterface = nullptr;
@@ -66,7 +66,7 @@ PdmUiTreeViewQModel::PdmUiTreeViewQModel( PdmUiTreeViewEditor* treeViewEditor )
 /// Will populate the tree with the contents of the Pdm data structure rooted at rootItem.
 /// Will not show the rootItem itself, only the children and downwards
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewQModel::setPdmItemRoot( UiItem* rootItem )
+void UiTreeViewQModel::setItemRoot( UiItem* rootItem )
 {
     // Check if we are already watching this root
     if ( rootItem && m_treeOrderingRoot && m_treeOrderingRoot->activeItem() == rootItem )
@@ -75,12 +75,12 @@ void PdmUiTreeViewQModel::setPdmItemRoot( UiItem* rootItem )
         return;
     }
 
-    PdmUiTreeOrdering* newRoot = nullptr;
+    UiTreeOrdering*    newRoot = nullptr;
     FieldUiCapability* field   = dynamic_cast<FieldUiCapability*>( rootItem );
 
     if ( field )
     {
-        newRoot = new PdmUiTreeOrdering( field->fieldHandle() );
+        newRoot = new UiTreeOrdering( field->fieldHandle() );
         ObjectUiCapability::expandUiTree( newRoot );
     }
     else
@@ -102,11 +102,11 @@ void PdmUiTreeViewQModel::setPdmItemRoot( UiItem* rootItem )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewQModel::resetTree( PdmUiTreeOrdering* newRoot )
+void UiTreeViewQModel::resetTree( UiTreeOrdering* newRoot )
 {
     beginResetModel();
 
-    m_treeOrderingRoot = std::unique_ptr<PdmUiTreeOrdering>(newRoot);
+    m_treeOrderingRoot = std::unique_ptr<UiTreeOrdering>( newRoot );
 
     updateEditorsForSubTree( m_treeOrderingRoot.get() );
 
@@ -116,7 +116,7 @@ void PdmUiTreeViewQModel::resetTree( PdmUiTreeOrdering* newRoot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewQModel::setColumnHeaders( const QStringList& columnHeaders )
+void UiTreeViewQModel::setColumnHeaders( const QStringList& columnHeaders )
 {
     m_columnHeaders = columnHeaders;
 }
@@ -124,7 +124,7 @@ void PdmUiTreeViewQModel::setColumnHeaders( const QStringList& columnHeaders )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewQModel::emitDataChanged( const QModelIndex& index )
+void UiTreeViewQModel::emitDataChanged( const QModelIndex& index )
 {
     emit dataChanged( index, index );
 }
@@ -132,37 +132,37 @@ void PdmUiTreeViewQModel::emitDataChanged( const QModelIndex& index )
 //--------------------------------------------------------------------------------------------------
 /// Refreshes the UI-tree below the supplied root UiItem
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewQModel::updateSubTree( UiItem* pdmRoot )
+void UiTreeViewQModel::updateSubTree( UiItem* root )
 {
     // Build the new "Correct" Tree
 
-    PdmUiTreeOrdering* newTreeRootTmp = nullptr;
-    FieldUiCapability* field          = dynamic_cast<FieldUiCapability*>( pdmRoot );
+    UiTreeOrdering*    newTreeRootTmp = nullptr;
+    FieldUiCapability* field          = dynamic_cast<FieldUiCapability*>( root );
     if ( field )
     {
-        newTreeRootTmp = new PdmUiTreeOrdering( field->fieldHandle() );
+        newTreeRootTmp = new UiTreeOrdering( field->fieldHandle() );
     }
     else
     {
-        ObjectUiCapability* obj = dynamic_cast<ObjectUiCapability*>( pdmRoot );
+        ObjectUiCapability* obj = dynamic_cast<ObjectUiCapability*>( root );
         if ( obj )
         {
-            newTreeRootTmp = new PdmUiTreeOrdering( obj->objectHandle() );
+            newTreeRootTmp = new UiTreeOrdering( obj->objectHandle() );
         }
     }
 
     ObjectUiCapability::expandUiTree( newTreeRootTmp );
 
-#if CAF_PDM_TREE_VIEW_DEBUG_PRINT
+#if CAF_TREE_VIEW_DEBUG_PRINT
     std::cout << std::endl << "New Stuff: " << std::endl;
     newTreeRootTmp->debugDump( 0 );
 #endif
 
     // Find the corresponding entry for "root" in the existing Ui tree
 
-    QModelIndex existingSubTreeRootModIdx = findModelIndex( pdmRoot );
+    QModelIndex existingSubTreeRootModIdx = findModelIndex( root );
 
-    PdmUiTreeOrdering* existingSubTreeRoot = nullptr;
+    UiTreeOrdering* existingSubTreeRoot = nullptr;
     if ( existingSubTreeRootModIdx.isValid() )
     {
         existingSubTreeRoot = treeItemFromIndex( existingSubTreeRootModIdx );
@@ -172,7 +172,7 @@ void PdmUiTreeViewQModel::updateSubTree( UiItem* pdmRoot )
         existingSubTreeRoot = m_treeOrderingRoot.get();
     }
 
-#if CAF_PDM_TREE_VIEW_DEBUG_PRINT
+#if CAF_TREE_VIEW_DEBUG_PRINT
     std::cout << std::endl << "Old :" << std::endl;
     existingSubTreeRoot->debugDump( 0 );
 #endif
@@ -183,7 +183,7 @@ void PdmUiTreeViewQModel::updateSubTree( UiItem* pdmRoot )
 
     updateEditorsForSubTree( existingSubTreeRoot );
 
-#if CAF_PDM_TREE_VIEW_DEBUG_PRINT
+#if CAF_TREE_VIEW_DEBUG_PRINT
     std::cout << std::endl << "Result :" << std::endl;
     existingSubTreeRoot->debugDump( 0 );
 #endif
@@ -192,14 +192,14 @@ void PdmUiTreeViewQModel::updateSubTree( UiItem* pdmRoot )
 class RecursiveUpdateData
 {
 public:
-    RecursiveUpdateData( int row, PdmUiTreeOrdering* existingChild, PdmUiTreeOrdering* sourceChild )
+    RecursiveUpdateData( int row, UiTreeOrdering* existingChild, UiTreeOrdering* sourceChild )
         : m_row( row )
         , m_existingChild( existingChild )
         , m_sourceChild( sourceChild ){};
 
-    int                m_row;
-    PdmUiTreeOrdering* m_existingChild;
-    PdmUiTreeOrdering* m_sourceChild;
+    int             m_row;
+    UiTreeOrdering* m_existingChild;
+    UiTreeOrdering* m_sourceChild;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -207,15 +207,15 @@ public:
 /// calling begin..() end..() to make the UI update accordingly.
 /// This assumes that all the items have a pointer an unique Object
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSubTreeRootModIdx,
-                                                  PdmUiTreeOrdering* existingSubTreeRoot,
-                                                  PdmUiTreeOrdering* sourceSubTreeRoot )
+void UiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSubTreeRootModIdx,
+                                               UiTreeOrdering*    existingSubTreeRoot,
+                                               UiTreeOrdering*    sourceSubTreeRoot )
 {
     // Build map for source items
     std::map<caf::UiItem*, int> sourceTreeMap;
     for ( int i = 0; i < sourceSubTreeRoot->childCount(); ++i )
     {
-        PdmUiTreeOrdering* child = sourceSubTreeRoot->child( i );
+        UiTreeOrdering* child = sourceSubTreeRoot->child( i );
 
         if ( child && child->activeItem() )
         {
@@ -227,7 +227,7 @@ void PdmUiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSub
     std::vector<int> indicesToRemoveFromExisting;
     for ( int i = 0; i < existingSubTreeRoot->childCount(); ++i )
     {
-        PdmUiTreeOrdering* child = existingSubTreeRoot->child( i );
+        UiTreeOrdering* child = existingSubTreeRoot->child( i );
 
         std::map<caf::UiItem*, int>::iterator it = sourceTreeMap.find( child->activeItem() );
         if ( it == sourceTreeMap.end() )
@@ -250,7 +250,7 @@ void PdmUiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSub
     std::map<caf::UiItem*, int> existingTreeMap;
     for ( int i = 0; i < existingSubTreeRoot->childCount(); ++i )
     {
-        PdmUiTreeOrdering* child = existingSubTreeRoot->child( i );
+        UiTreeOrdering* child = existingSubTreeRoot->child( i );
 
         if ( child && child->activeItem() )
         {
@@ -293,7 +293,7 @@ void PdmUiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSub
     else
     {
         std::vector<RecursiveUpdateData> recursiveUpdateData;
-        std::vector<PdmUiTreeOrdering*>  newMergedOrdering;
+        std::vector<UiTreeOrdering*>     newMergedOrdering;
 
         emit layoutAboutToBeChanged();
         {
@@ -302,7 +302,7 @@ void PdmUiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSub
             std::vector<int> indicesToRemoveFromSource;
             for ( int i = 0; i < sourceSubTreeRoot->childCount(); ++i )
             {
-                PdmUiTreeOrdering*                    sourceChild = sourceSubTreeRoot->child( i );
+                UiTreeOrdering*                       sourceChild = sourceSubTreeRoot->child( i );
                 std::map<caf::UiItem*, int>::iterator it          = existingTreeMap.find( sourceChild->activeItem() );
                 if ( it != existingTreeMap.end() )
                 {
@@ -372,18 +372,18 @@ void PdmUiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSub
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewQModel::updateEditorsForSubTree( PdmUiTreeOrdering* root )
+void UiTreeViewQModel::updateEditorsForSubTree( UiTreeOrdering* root )
 {
     if ( !root ) return;
 
     if ( !root->editor() )
     {
-        auto treeItemEditor = std::make_unique<PdmUiTreeItemEditor>( root->activeItem() );
+        auto treeItemEditor = std::make_unique<UiTreeItemEditor>( root->activeItem() );
         root->setEditor( std::move( treeItemEditor ) );
         CAF_ASSERT( root->editor() );
     }
 
-    PdmUiTreeItemEditor* treeItemEditor = dynamic_cast<PdmUiTreeItemEditor*>( root->editor() );
+    UiTreeItemEditor* treeItemEditor = dynamic_cast<UiTreeItemEditor*>( root->editor() );
     if ( treeItemEditor )
     {
         treeItemEditor->setTreeViewEditor( m_treeViewEditor );
@@ -398,7 +398,7 @@ void PdmUiTreeViewQModel::updateEditorsForSubTree( PdmUiTreeOrdering* root )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::list<QModelIndex> PdmUiTreeViewQModel::allIndicesRecursive( const QModelIndex& current ) const
+std::list<QModelIndex> UiTreeViewQModel::allIndicesRecursive( const QModelIndex& current ) const
 {
     std::list<QModelIndex> currentAndDescendants;
     currentAndDescendants.push_back( current );
@@ -420,7 +420,7 @@ std::list<QModelIndex> PdmUiTreeViewQModel::allIndicesRecursive( const QModelInd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeOrdering* caf::PdmUiTreeViewQModel::treeItemFromIndex( const QModelIndex& index ) const
+UiTreeOrdering* caf::UiTreeViewQModel::treeItemFromIndex( const QModelIndex& index ) const
 {
     if ( !index.isValid() )
     {
@@ -429,7 +429,7 @@ PdmUiTreeOrdering* caf::PdmUiTreeViewQModel::treeItemFromIndex( const QModelInde
 
     CAF_ASSERT( index.internalPointer() );
 
-    PdmUiTreeOrdering* treeItem = static_cast<PdmUiTreeOrdering*>( index.internalPointer() );
+    UiTreeOrdering* treeItem = static_cast<UiTreeOrdering*>( index.internalPointer() );
 
     return treeItem;
 }
@@ -437,7 +437,7 @@ PdmUiTreeOrdering* caf::PdmUiTreeViewQModel::treeItemFromIndex( const QModelInde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QModelIndex caf::PdmUiTreeViewQModel::findModelIndex( const UiItem* object ) const
+QModelIndex caf::UiTreeViewQModel::findModelIndex( const UiItem* object ) const
 {
     QModelIndex foundIndex;
     int         numRows = rowCount( QModelIndex() );
@@ -453,23 +453,23 @@ QModelIndex caf::PdmUiTreeViewQModel::findModelIndex( const UiItem* object ) con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QModelIndex caf::PdmUiTreeViewQModel::findModelIndexRecursive( const QModelIndex& currentIndex, const UiItem* pdmItem ) const
+QModelIndex caf::UiTreeViewQModel::findModelIndexRecursive( const QModelIndex& currentIndex, const UiItem* item ) const
 {
     if ( !currentIndex.isValid() )
     {
-        PdmUiTreeOrdering* treeItem = m_treeOrderingRoot.get();
-        if ( treeItem->activeItem() == pdmItem ) return currentIndex;
+        UiTreeOrdering* treeItem = m_treeOrderingRoot.get();
+        if ( treeItem->activeItem() == item ) return currentIndex;
     }
     else if ( currentIndex.internalPointer() )
     {
-        PdmUiTreeOrdering* treeItem = static_cast<PdmUiTreeOrdering*>( currentIndex.internalPointer() );
-        if ( treeItem->activeItem() == pdmItem ) return currentIndex;
+        UiTreeOrdering* treeItem = static_cast<UiTreeOrdering*>( currentIndex.internalPointer() );
+        if ( treeItem->activeItem() == item ) return currentIndex;
     }
 
     int row;
     for ( row = 0; row < rowCount( currentIndex ); ++row )
     {
-        QModelIndex foundIndex = findModelIndexRecursive( index( row, 0, currentIndex ), pdmItem );
+        QModelIndex foundIndex = findModelIndexRecursive( index( row, 0, currentIndex ), item );
         if ( foundIndex.isValid() ) return foundIndex;
     }
     return QModelIndex();
@@ -479,16 +479,16 @@ QModelIndex caf::PdmUiTreeViewQModel::findModelIndexRecursive( const QModelIndex
 /// An invalid parent index is implicitly meaning the root item, and not "above" root, since
 /// we are not showing the root item itself
 //--------------------------------------------------------------------------------------------------
-QModelIndex PdmUiTreeViewQModel::index( int row, int column, const QModelIndex& parentIndex ) const
+QModelIndex UiTreeViewQModel::index( int row, int column, const QModelIndex& parentIndex ) const
 {
     if ( !m_treeOrderingRoot ) return QModelIndex();
 
-    PdmUiTreeOrdering* parentItem = nullptr;
+    UiTreeOrdering* parentItem = nullptr;
 
     if ( !parentIndex.isValid() )
         parentItem = m_treeOrderingRoot.get();
     else
-        parentItem = static_cast<PdmUiTreeOrdering*>( parentIndex.internalPointer() );
+        parentItem = static_cast<UiTreeOrdering*>( parentIndex.internalPointer() );
 
     CAF_ASSERT( parentItem );
 
@@ -497,7 +497,7 @@ QModelIndex PdmUiTreeViewQModel::index( int row, int column, const QModelIndex& 
         return QModelIndex();
     }
 
-    PdmUiTreeOrdering* childItem = parentItem->child( row );
+    UiTreeOrdering* childItem = parentItem->child( row );
     if ( childItem )
         return createIndex( row, column, childItem );
     else
@@ -507,14 +507,14 @@ QModelIndex PdmUiTreeViewQModel::index( int row, int column, const QModelIndex& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QModelIndex PdmUiTreeViewQModel::parent( const QModelIndex& childIndex ) const
+QModelIndex UiTreeViewQModel::parent( const QModelIndex& childIndex ) const
 {
     if ( !childIndex.isValid() ) return QModelIndex();
 
-    PdmUiTreeOrdering* childItem = static_cast<PdmUiTreeOrdering*>( childIndex.internalPointer() );
+    UiTreeOrdering* childItem = static_cast<UiTreeOrdering*>( childIndex.internalPointer() );
     if ( !childItem ) return QModelIndex();
 
-    PdmUiTreeOrdering* parentItem = childItem->parent();
+    UiTreeOrdering* parentItem = childItem->parent();
     if ( !parentItem ) return QModelIndex();
 
     if ( m_treeOrderingRoot.get() == parentItem ) return QModelIndex();
@@ -525,13 +525,13 @@ QModelIndex PdmUiTreeViewQModel::parent( const QModelIndex& childIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int PdmUiTreeViewQModel::rowCount( const QModelIndex& parentIndex ) const
+int UiTreeViewQModel::rowCount( const QModelIndex& parentIndex ) const
 {
     if ( !m_treeOrderingRoot ) return 0;
 
     if ( parentIndex.column() > 0 ) return 0;
 
-    PdmUiTreeOrdering* parentItem = this->treeItemFromIndex( parentIndex );
+    UiTreeOrdering* parentItem = this->treeItemFromIndex( parentIndex );
 
     return (int)parentItem->childCount();
 }
@@ -539,7 +539,7 @@ int PdmUiTreeViewQModel::rowCount( const QModelIndex& parentIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int PdmUiTreeViewQModel::columnCount( const QModelIndex& parentIndex ) const
+int UiTreeViewQModel::columnCount( const QModelIndex& parentIndex ) const
 {
     if ( !m_treeOrderingRoot ) return 0;
 
@@ -549,9 +549,9 @@ int PdmUiTreeViewQModel::columnCount( const QModelIndex& parentIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QVariant PdmUiTreeViewQModel::data( const QModelIndex& index, int role ) const
+QVariant UiTreeViewQModel::data( const QModelIndex& index, int role ) const
 {
-    PdmUiTreeOrdering* uitreeOrdering = nullptr;
+    UiTreeOrdering* uitreeOrdering = nullptr;
 
     if ( !index.isValid() )
     {
@@ -559,7 +559,7 @@ QVariant PdmUiTreeViewQModel::data( const QModelIndex& index, int role ) const
     }
     else
     {
-        uitreeOrdering = static_cast<PdmUiTreeOrdering*>( index.internalPointer() );
+        uitreeOrdering = static_cast<UiTreeOrdering*>( index.internalPointer() );
     }
 
     if ( !uitreeOrdering )
@@ -588,14 +588,14 @@ QVariant PdmUiTreeViewQModel::data( const QModelIndex& index, int role ) const
             if ( object )
             {
                 std::string txt                  = "undefined";
-                auto userDescriptionField = object->userDescriptionField();
+                auto        userDescriptionField = object->userDescriptionField();
                 if ( userDescriptionField )
                 {
                     caf::FieldUiCapability* uiFieldHandle = userDescriptionField->capability<FieldUiCapability>();
                     if ( uiFieldHandle )
                     {
                         Variant uiValue = uiFieldHandle->uiValue();
-                        txt            = uiValue.value<std::string>();
+                        txt             = uiValue.value<std::string>();
                     }
                 }
                 else if ( object->capability<ObjectUiCapability>() )
@@ -609,7 +609,7 @@ QVariant PdmUiTreeViewQModel::data( const QModelIndex& index, int role ) const
                     txt += typeid( *object ).name();
                 }
 
-                return QString::fromStdString(txt);
+                return QString::fromStdString( txt );
             }
             else
             {
@@ -694,14 +694,14 @@ QVariant PdmUiTreeViewQModel::data( const QModelIndex& index, int role ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTreeViewQModel::setData( const QModelIndex& index, const QVariant& value, int role /*= Qt::EditRole*/ )
+bool UiTreeViewQModel::setData( const QModelIndex& index, const QVariant& value, int role /*= Qt::EditRole*/ )
 {
     if ( !index.isValid() )
     {
         return false;
     }
 
-    PdmUiTreeOrdering* treeItem = PdmUiTreeViewQModel::treeItemFromIndex( index );
+    UiTreeOrdering* treeItem = UiTreeViewQModel::treeItemFromIndex( index );
     CAF_ASSERT( treeItem );
 
     if ( !treeItem->isRepresentingObject() ) return false;
@@ -738,10 +738,10 @@ bool PdmUiTreeViewQModel::setData( const QModelIndex& index, const QVariant& val
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Enable edit of this item if we have a editable user description field for a pdmObject
+/// Enable edit of this item if we have a editable user description field for a object
 /// Disable edit for other items
 //--------------------------------------------------------------------------------------------------
-Qt::ItemFlags PdmUiTreeViewQModel::flags( const QModelIndex& index ) const
+Qt::ItemFlags UiTreeViewQModel::flags( const QModelIndex& index ) const
 {
     if ( !index.isValid() )
     {
@@ -750,7 +750,7 @@ Qt::ItemFlags PdmUiTreeViewQModel::flags( const QModelIndex& index ) const
 
     Qt::ItemFlags flagMask = QAbstractItemModel::flags( index );
 
-    PdmUiTreeOrdering* treeItem = treeItemFromIndex( index );
+    UiTreeOrdering* treeItem = treeItemFromIndex( index );
     CAF_ASSERT( treeItem );
 
     if ( treeItem->isRepresentingObject() )
@@ -791,7 +791,7 @@ Qt::ItemFlags PdmUiTreeViewQModel::flags( const QModelIndex& index ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QVariant PdmUiTreeViewQModel::headerData( int section, Qt::Orientation orientation, int role /*= Qt::DisplayRole */ ) const
+QVariant UiTreeViewQModel::headerData( int section, Qt::Orientation orientation, int role /*= Qt::DisplayRole */ ) const
 {
     if ( role != Qt::DisplayRole ) return QVariant();
 
@@ -806,9 +806,9 @@ QVariant PdmUiTreeViewQModel::headerData( int section, Qt::Orientation orientati
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-UiItem* PdmUiTreeViewQModel::uiItemFromModelIndex( const QModelIndex& index ) const
+UiItem* UiTreeViewQModel::uiItemFromModelIndex( const QModelIndex& index ) const
 {
-    PdmUiTreeOrdering* treeItem = this->treeItemFromIndex( index );
+    UiTreeOrdering* treeItem = this->treeItemFromIndex( index );
     if ( treeItem )
     {
         return treeItem->activeItem();
@@ -820,7 +820,7 @@ UiItem* PdmUiTreeViewQModel::uiItemFromModelIndex( const QModelIndex& index ) co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewQModel::setDragDropInterface( PdmUiDragDropInterface* dragDropInterface )
+void UiTreeViewQModel::setDragDropInterface( UiDragDropInterface* dragDropInterface )
 {
     m_dragDropInterface = dragDropInterface;
 }
@@ -828,7 +828,7 @@ void PdmUiTreeViewQModel::setDragDropInterface( PdmUiDragDropInterface* dragDrop
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiDragDropInterface* PdmUiTreeViewQModel::dragDropInterface()
+UiDragDropInterface* UiTreeViewQModel::dragDropInterface()
 {
     return m_dragDropInterface;
 }
@@ -836,7 +836,7 @@ PdmUiDragDropInterface* PdmUiTreeViewQModel::dragDropInterface()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList PdmUiTreeViewQModel::mimeTypes() const
+QStringList UiTreeViewQModel::mimeTypes() const
 {
     if ( m_dragDropInterface )
     {
@@ -851,7 +851,7 @@ QStringList PdmUiTreeViewQModel::mimeTypes() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QMimeData* PdmUiTreeViewQModel::mimeData( const QModelIndexList& indexes ) const
+QMimeData* UiTreeViewQModel::mimeData( const QModelIndexList& indexes ) const
 {
     if ( m_dragDropInterface )
     {
@@ -866,7 +866,7 @@ QMimeData* PdmUiTreeViewQModel::mimeData( const QModelIndexList& indexes ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTreeViewQModel::dropMimeData( const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent )
+bool UiTreeViewQModel::dropMimeData( const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent )
 {
     if ( m_dragDropInterface )
     {
@@ -881,7 +881,7 @@ bool PdmUiTreeViewQModel::dropMimeData( const QMimeData* data, Qt::DropAction ac
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Qt::DropActions PdmUiTreeViewQModel::supportedDropActions() const
+Qt::DropActions UiTreeViewQModel::supportedDropActions() const
 {
     if ( m_dragDropInterface )
     {

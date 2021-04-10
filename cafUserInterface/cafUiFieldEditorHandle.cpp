@@ -78,7 +78,7 @@ UiFieldEditorHandle::~UiFieldEditorHandle()
 //--------------------------------------------------------------------------------------------------
 void UiFieldEditorHandle::setUiField( FieldUiCapability* field )
 {
-    this->bindToPdmItem( field );
+    this->bindToItem( field );
 
     if ( m_editorWidget )
     {
@@ -114,7 +114,7 @@ void UiFieldEditorHandle::updateContextMenuPolicy()
 //--------------------------------------------------------------------------------------------------
 FieldUiCapability* UiFieldEditorHandle::uiField()
 {
-    return dynamic_cast<FieldUiCapability*>( pdmItem() );
+    return dynamic_cast<FieldUiCapability*>( item() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,10 +169,10 @@ void UiFieldEditorHandle::updateLabelFromField( QLabel* label /*= ""*/ ) const
 {
     CAF_ASSERT( label );
 
-    const FieldUiCapability* fieldHandle = dynamic_cast<const FieldUiCapability*>( pdmItem() );
+    const FieldUiCapability* fieldHandle = dynamic_cast<const FieldUiCapability*>( item() );
     if ( fieldHandle )
     {
-        auto iconProvider = fieldHandle->uiIconProvider();
+        auto  iconProvider = fieldHandle->uiIconProvider();
         QIcon ic( QString::fromStdString( iconProvider->iconResourceString() ) );
         if ( !ic.isNull() )
         {
@@ -180,11 +180,11 @@ void UiFieldEditorHandle::updateLabelFromField( QLabel* label /*= ""*/ ) const
         }
         else
         {
-            label->setText( QString::fromStdString(fieldHandle->uiName()) );
+            label->setText( QString::fromStdString( fieldHandle->uiName() ) );
         }
 
         label->setEnabled( !fieldHandle->isUiReadOnly() );
-        label->setToolTip( QString::fromStdString(fieldHandle->uiToolTip() ));
+        label->setToolTip( QString::fromStdString( fieldHandle->uiToolTip() ) );
     }
 }
 
@@ -240,16 +240,16 @@ void UiFieldEditorHandle::customMenuRequested( QPoint pos )
         }
 
         QMenuWrapper menuWrapper;
-        //UiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( widget );
-        //objectHandle->capability<ObjectUiCapability>()->defineCustomContextMenu( uiField()->fieldHandle(),
-                                                                                 //&menuWrapper,
-                                                                                 //widget );
+        // UiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( widget );
+        // objectHandle->capability<ObjectUiCapability>()->defineCustomContextMenu( uiField()->fieldHandle(),
+        //&menuWrapper,
+        // widget );
 
         if ( !menuWrapper.actions().empty() )
         {
             menuWrapper.menu()->exec( globalPos );
         }
-        //UiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( nullptr );
+        // UiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( nullptr );
     }
 }
 

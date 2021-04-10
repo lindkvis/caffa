@@ -44,7 +44,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTableViewDelegate::PdmUiTableViewDelegate( QObject* parent, PdmUiTableViewQModel* model )
+UiTableViewDelegate::UiTableViewDelegate( QObject* parent, UiTableViewQModel* model )
     : QStyledItemDelegate( parent )
     , m_model( model )
 {
@@ -54,16 +54,14 @@ PdmUiTableViewDelegate::PdmUiTableViewDelegate( QObject* parent, PdmUiTableViewQ
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTableViewDelegate::~PdmUiTableViewDelegate()
+UiTableViewDelegate::~UiTableViewDelegate()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTableViewDelegate::createEditor( QWidget*                    parent,
-                                               const QStyleOptionViewItem& option,
-                                               const QModelIndex&          index ) const
+QWidget* UiTableViewDelegate::createEditor( QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index ) const
 {
     CAF_ASSERT( m_model );
     QWidget* editorWidget = m_model->getEditorWidgetAndTransferOwnership( parent, index );
@@ -77,7 +75,7 @@ QWidget* PdmUiTableViewDelegate::createEditor( QWidget*                    paren
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewDelegate::setEditorData( QWidget* editor, const QModelIndex& index ) const
+void UiTableViewDelegate::setEditorData( QWidget* editor, const QModelIndex& index ) const
 {
     UiFieldEditorHandle* fieldHandle = m_model->getEditor( index );
     if ( fieldHandle )
@@ -89,9 +87,9 @@ void PdmUiTableViewDelegate::setEditorData( QWidget* editor, const QModelIndex& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewDelegate::updateEditorGeometry( QWidget*                    editor,
-                                                   const QStyleOptionViewItem& option,
-                                                   const QModelIndex&          index ) const
+void UiTableViewDelegate::updateEditorGeometry( QWidget*                    editor,
+                                                const QStyleOptionViewItem& option,
+                                                const QModelIndex&          index ) const
 {
     editor->setGeometry( option.rect );
 }
@@ -99,7 +97,7 @@ void PdmUiTableViewDelegate::updateEditorGeometry( QWidget*                    e
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewDelegate::slotEditorDestroyed( QObject* obj )
+void UiTableViewDelegate::slotEditorDestroyed( QObject* obj )
 {
     m_activeEditorCount--;
 }
@@ -107,7 +105,7 @@ void PdmUiTableViewDelegate::slotEditorDestroyed( QObject* obj )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTableViewDelegate::isEditorOpen() const
+bool UiTableViewDelegate::isEditorOpen() const
 {
     return m_activeEditorCount > 0;
 }
@@ -115,7 +113,7 @@ bool PdmUiTableViewDelegate::isEditorOpen() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewDelegate::paint( QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index ) const
+void UiTableViewDelegate::paint( QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index ) const
 {
 #if QT_VERSION_MAJOR > 4
     QStyleOptionViewItem viewItemOption( option );

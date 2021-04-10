@@ -43,23 +43,23 @@ class QVBoxLayout;
 namespace caf
 {
 class ObjectCollection;
-class PdmUiListViewEditor;
+class UiListViewEditor;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiListView : public QWidget
+class UiListView : public QWidget
 {
     Q_OBJECT
 public:
-    PdmUiListView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
-    ~PdmUiListView() override;
+    UiListView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
+    ~UiListView() override;
 
     void setObject( caf::ObjectCollection* object );
 
 private:
-    PdmUiListViewEditor* m_listViewEditor;
-    QVBoxLayout*         m_layout;
+    UiListViewEditor* m_listViewEditor;
+    QVBoxLayout*      m_layout;
 };
 
 } // End of namespace caf

@@ -43,24 +43,24 @@
 
 namespace caf
 {
-class PdmUiToolButtonEditorAttribute : public UiEditorAttribute
+class UiToolButtonEditorAttribute : public UiEditorAttribute
 {
 public:
-    PdmUiToolButtonEditorAttribute() { m_checkable = true; }
+    UiToolButtonEditorAttribute() { m_checkable = true; }
 
 public:
     bool        m_checkable;
     QSizePolicy m_sizePolicy;
 };
 
-class PdmUiToolButtonEditor : public UiFieldEditorHandle
+class UiToolButtonEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    CAF_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiToolButtonEditor() {}
-    ~PdmUiToolButtonEditor() override {}
+    UiToolButtonEditor() {}
+    ~UiToolButtonEditor() override {}
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;

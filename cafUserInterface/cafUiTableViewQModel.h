@@ -50,9 +50,9 @@ class ChildArrayFieldHandle;
 class ObjectHandle;
 class UiFieldEditorHandle;
 class UiItem;
-class PdmUiTableRowEditor;
-class PdmUiTreeOrdering;
-class PdmUiTreeViewEditor;
+class UiTableRowEditor;
+class UiTreeOrdering;
+class UiTreeViewEditor;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -73,17 +73,17 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiTableViewQModel : public QAbstractTableModel
+class UiTableViewQModel : public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
-    explicit PdmUiTableViewQModel( QWidget* parent );
+    explicit UiTableViewQModel( QWidget* parent );
 
-    QItemSelection modelIndexFromObject( ObjectHandle* pdmObject );
+    QItemSelection modelIndexFromObject( ObjectHandle* object );
     FieldHandle*   getField( const QModelIndex& index ) const;
-    void           setArrayFieldAndBuildEditors( ChildArrayFieldHandle* pdmObject );
-    ObjectHandle*  pdmObjectForRow( int row ) const;
+    void           setArrayFieldAndBuildEditors( ChildArrayFieldHandle* object );
+    ObjectHandle*  objectForRow( int row ) const;
 
     // Qt overrides
     int      rowCount( const QModelIndex& parent = QModelIndex() ) const override;
@@ -105,7 +105,7 @@ private:
     void               recreateTableItemEditors();
     FieldUiCapability* getUiFieldHandle( const QModelIndex& index ) const;
 
-    friend class PdmUiTableViewDelegate;
+    friend class UiTableViewDelegate;
     QWidget*             getEditorWidgetAndTransferOwnership( QWidget* parent, const QModelIndex& index );
     UiFieldEditorHandle* getEditor( const QModelIndex& index );
 
@@ -114,14 +114,14 @@ private:
 private:
     // Required to have a Pointer to the owner object. Used to guard access to a field inside this object
     Pointer<ObjectHandle>  m_ownerObject;
-    ChildArrayFieldHandle* m_pdmList;
+    ChildArrayFieldHandle* m_list;
 
     std::map<std::string, UiFieldEditorHandle*> m_fieldEditors;
     std::vector<int>                            m_modelColumnIndexToFieldIndex;
 
-    std::vector<PdmUiTableRowEditor*> m_tableRowEditors;
+    std::vector<UiTableRowEditor*> m_tableRowEditors;
 
-    PdmUiTableViewPushButtonEditorAttribute m_pushButtonEditorAttributes;
+    UiTableViewPushButtonEditorAttribute m_pushButtonEditorAttributes;
 };
 
 } // End of namespace caf

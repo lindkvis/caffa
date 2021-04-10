@@ -51,18 +51,18 @@ class ObjectHandle;
 ///
 //==================================================================================================
 
-class PdmUiTreeEditorHandle : public QObject, public UiEditorHandle
+class UiTreeEditorHandle : public QObject, public UiEditorHandle
 {
     Q_OBJECT
 public:
-    PdmUiTreeEditorHandle() {}
-    ~PdmUiTreeEditorHandle() override {}
+    UiTreeEditorHandle() {}
+    ~UiTreeEditorHandle() override {}
 
     QWidget* getOrCreateWidget( QWidget* parent );
     QWidget* widget() { return m_widget; }
 
-    void    setPdmItemRoot( UiItem* root );
-    UiItem* pdmItemRoot();
+    void    setItemRoot( UiItem* root );
+    UiItem* itemRoot();
     void    updateSubTree( UiItem* root ) { this->updateMySubTree( root ); }
 
 protected:

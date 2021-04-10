@@ -35,7 +35,7 @@
 //##################################################################################################
 
 #pragma once
-#include "cafPdmDocument.h"
+#include "cafDocument.h"
 #include "cafSelectionChangedReceiver.h"
 #include "cafUiFieldEditorHandle.h"
 
@@ -49,17 +49,17 @@ class QTableView;
 
 namespace caf
 {
-class PdmUiCheckBoxDelegate;
+class UiCheckBoxDelegate;
 class UiFieldEditorHandle;
 class UiItem;
-class PdmUiTableViewDelegate;
-class PdmUiTableViewQModel;
+class UiTableViewDelegate;
+class UiTableViewQModel;
 class ChildArrayFieldHandle;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiTableViewPushButtonEditorAttribute : public UiEditorAttribute
+class UiTableViewPushButtonEditorAttribute : public UiEditorAttribute
 {
 public:
     void registerPushButtonTextForFieldKeyword( const std::string& keyword, const std::string& text );
@@ -74,7 +74,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiTableViewEditorAttribute : public UiEditorAttribute
+class UiTableViewEditorAttribute : public UiEditorAttribute
 {
 public:
     enum ResizePolicy
@@ -84,7 +84,7 @@ public:
         RESIZE_TO_FILL_CONTAINER
     };
 
-    PdmUiTableViewEditorAttribute()
+    UiTableViewEditorAttribute()
         : tableSelectionLevel( 0 )
         , rowSelectionLevel( 1 )
         , enableHeaderText( true )
@@ -111,20 +111,20 @@ public:
 ///
 //--------------------------------------------------------------------------------------------------
 
-class PdmUiTableViewEditor : public UiFieldEditorHandle, public SelectionChangedReceiver
+class UiTableViewEditor : public UiFieldEditorHandle, public SelectionChangedReceiver
 {
     Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    CAF_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiTableViewEditor();
-    ~PdmUiTableViewEditor() override;
+    UiTableViewEditor();
+    ~UiTableViewEditor() override;
 
     void enableHeaderText( bool enable );
     void setTableSelectionLevel( int selectionLevel );
     void setRowSelectionLevel( int selectionLevel );
 
-    ObjectHandle* pdmObjectFromModelIndex( const QModelIndex& mi );
+    ObjectHandle* objectFromModelIndex( const QModelIndex& mi );
     QTableView*   tableView();
 
 protected:
@@ -152,11 +152,11 @@ private:
     QPointer<QLabel> m_tableHeading;
     QPointer<QLabel> m_tableHeadingIcon;
 
-    QTableView*           m_tableView;
-    PdmUiTableViewQModel* m_tableModelPdm;
+    QTableView*        m_tableView;
+    UiTableViewQModel* m_tableModel;
 
-    PdmUiTableViewDelegate* m_delegate;
-    PdmUiCheckBoxDelegate*  m_checkboxDelegate;
+    UiTableViewDelegate* m_delegate;
+    UiCheckBoxDelegate*  m_checkboxDelegate;
 
     bool m_useDefaultContextMenu;
     int  m_tableSelectionLevel;
