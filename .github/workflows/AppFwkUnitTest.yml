@@ -7,10 +7,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, windows-latest, macos-latest]
+        os: [ubuntu-20.04]
         include:
-          - os: windows-latest
-            triplet: x64-windows
           - os: ubuntu-20.04
             triplet: x64-linux
 
