@@ -212,7 +212,6 @@ public:
 
         if ( reader->Read( &reply ) )
         {
-            if ( !reply.has_scalar() ) throw caf::Exception( "Received malformed reply" );
             CAF_TRACE( "Got scalar reply: " << reply.scalar() );
             jsonValue = nlohmann::json::parse( reply.scalar() );
         }
