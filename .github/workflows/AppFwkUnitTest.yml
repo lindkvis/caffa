@@ -21,6 +21,9 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: recursive
+      - uses: eWaterCycle/setup-grpc@v4
+        with:
+          grpc-version: 1.30.2
       - name: Build Caffa with Unit Tests
         uses: lukka/run-cmake@v3
         with:
