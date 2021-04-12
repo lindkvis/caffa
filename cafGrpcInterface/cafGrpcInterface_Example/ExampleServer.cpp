@@ -17,8 +17,10 @@
 //
 //##################################################################################################
 
-#include "../cafGrpcServer.h"
-#include "../cafGrpcServerApplication.h"
+#include "cafGrpcServer.h"
+#include "cafGrpcServerApplication.h"
+
+#include "cafLogger.h"
 
 #include "DemoObject.h"
 
@@ -80,6 +82,8 @@ int main( int argc, char** argv )
 
     std::cout << "Launching Server listening on port " << portNumber << std::endl;
 
+    caf::Logger::setApplicationLogLevel( caf::Logger::Level::DEBUG );
+
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
 
     std::vector<float> serverVector;
@@ -90,8 +94,8 @@ int main( int argc, char** argv )
         serverVector.push_back( (float)i );
     }
 
-    serverDocument->m_demoObject->setIntVector( { 42 } );
-    serverDocument->m_demoObject->setFloatVector( serverVector );
+    serverDocument->demoObject()->setIntVector( { 42 } );
+    serverDocument->demoObject()->setFloatVector( serverVector );
     std::cout << "Running server thread" << std::endl;
     serverApp->run();
 }

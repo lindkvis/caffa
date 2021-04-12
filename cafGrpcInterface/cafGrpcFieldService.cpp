@@ -304,6 +304,8 @@ GetterStateHandler::GetterStateHandler()
 //--------------------------------------------------------------------------------------------------
 grpc::Status GetterStateHandler::init( const FieldRequest* request )
 {
+    CAF_DEBUG("Received Get Request for: " << request->self().class_keyword() << "[0x" << std::hex << request->self().address() << "]" << request->method());
+
     m_fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self() );
     CAF_ASSERT( m_fieldOwner );
     if ( !m_fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
@@ -376,6 +378,7 @@ grpc::Status GetterStateHandler::assignReply( GetterReply* reply )
     }
     m_dataHolder->addPackageValuesToReply( reply, m_currentDataIndex, dataUnitsInPackage );
     m_currentDataIndex += dataUnitsInPackage;
+    CAF_TRACE("Sending " << dataUnitsInPackage << " values");
     return grpc::Status::OK;
 }
 
@@ -427,6 +430,9 @@ grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
 {
     CAF_ASSERT( chunk->has_set_request() );
     auto setRequest   = chunk->set_request();
+
+    CAF_DEBUG("Received Set Request for: " << setRequest.request().self().class_keyword() << "[0x" << std::hex << setRequest.request().self().address() << "]" << setRequest.request().method());
+
     auto fieldRequest = setRequest.request();
     m_fieldOwner      = ObjectService::findCafObjectFromRpcObject( fieldRequest.self() );
     int valueCount    = setRequest.value_count();
@@ -491,6 +497,7 @@ grpc::Status SetterStateHandler::receiveRequest( const SetterChunk* chunk, Sette
         return grpc::Status( grpc::OUT_OF_RANGE, "Attempting to write out of bounds" );
     }
     reply->set_value_count( static_cast<int64_t>( m_currentDataIndex ) );
+    CAF_TRACE("Received " << reply->value_count() << " values");
     return grpc::Status::OK;
 }
 

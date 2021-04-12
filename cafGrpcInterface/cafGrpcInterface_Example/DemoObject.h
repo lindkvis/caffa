@@ -47,13 +47,16 @@ public:
     caf::Field<std::vector<float>>  m_floatVector;
     caf::Field<std::vector<int>>    m_intVector;
 
-    std::vector<double> getDoubleVector() const { return m_doubleVector; }
+    double doubleValue() const { return m_memberDoubleField; }
+    void setDoubleValue(double value) { m_memberDoubleField = value; }
+
+    std::vector<double> doubleVector() const { return m_doubleVector; }
     void                setDoubleVector( const std::vector<double>& values ) { m_doubleVector = values; }
 
-    std::vector<float> getFloatVector() const { return m_floatVector; }
+    std::vector<float> floatVector() const { return m_floatVector; }
     void               setFloatVector( const std::vector<float>& values ) { m_floatVector = values; }
 
-    std::vector<int> getIntVector() const { return m_intVector; }
+    std::vector<int> intVector() const { return m_intVector; }
     void             setIntVector( const std::vector<int>& values ) { m_intVector = values; }
 };
 
@@ -80,6 +83,9 @@ public:
     void addInheritedObject( InheritedDemoObj* object ) { m_inheritedDemoObjects.push_back( object ); }
     std::vector<InheritedDemoObj*> inheritedObjects() const { return m_inheritedDemoObjects.childObjects(); }
 
+    DemoObject* demoObject() { return m_demoObject; }
+
+private:
     caf::ChildField<DemoObject*>            m_demoObject;
     caf::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
 };

@@ -14,15 +14,20 @@ add_executable (${PROJECT_NAME}Server
     ExampleServer.cpp
 )
 
+add_executable (${PROJECT_NAME}Client
+	${PROJECT_FILES}
+    ExampleClient.cpp
+)
+
+add_executable (${PROJECT_NAME}Benchmark
+	${PROJECT_FILES}
+    Benchmark.cpp
+)
+
 target_link_libraries ( ${PROJECT_NAME}Server
     cafProjectDataModel
     cafGrpcInterface
     ${THREAD_LIBRARY}
-)
-
-add_executable (${PROJECT_NAME}Client
-	${PROJECT_FILES}
-    ExampleClient.cpp
 )
 
 target_link_libraries ( ${PROJECT_NAME}Client
@@ -31,6 +36,17 @@ target_link_libraries ( ${PROJECT_NAME}Client
     ${THREAD_LIBRARY}
 )
 
-install(TARGETS ${PROJECT_NAME}Client ${PROJECT_NAME}Server
+target_link_libraries ( ${PROJECT_NAME}Benchmark
+    cafProjectDataModel
+    cafGrpcInterface
+    ${THREAD_LIBRARY}
+)
+
+# Necessary only because the tests are in a sub-directory of cafGrpcInterface
+target_include_directories(${PROJECT_NAME}Server PRIVATE ..)
+target_include_directories(${PROJECT_NAME}Client PRIVATE ..)
+target_include_directories(${PROJECT_NAME}Benchmark PRIVATE ..)
+
+install(TARGETS ${PROJECT_NAME}Client ${PROJECT_NAME}Server ${PROJECT_NAME}Benchmark
     LIBRARY DESTINATION ${CMAKE_INSTALL_BINDIR}
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
