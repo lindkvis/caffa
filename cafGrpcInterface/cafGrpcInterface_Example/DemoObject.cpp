@@ -24,9 +24,9 @@ DemoObject::DemoObject()
 {
     initObject();
 
-    initField( m_doubleVector, "doubleVector" );
-    initField( m_floatVector, "floatVector" );
-    initField( m_intVector, "intVector" );
+    initField( m_doubleVector, "doubleVector" ).withScripting();
+    initField( m_floatVector, "floatVector" ).withScripting();
+    initField( m_intVector, "intVector" ).withScripting();
 }
 
 CAF_SOURCE_INIT( DemoObject, "DemoObject" );
@@ -35,9 +35,9 @@ InheritedDemoObj::InheritedDemoObj()
 {
     initObject();
 
-    initField( m_texts, "Texts" );
-    initField( m_childArrayField, "DemoObjects" );
-    initField( m_ptrField, "m_ptrField" );
+    initField( m_texts, "Texts" ).withScripting();
+    initField( m_childArrayField, "DemoObjects" ).withScripting();
+    initField( m_ptrField, "m_ptrField" ).withScripting();
 }
 
 CAF_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject" );
