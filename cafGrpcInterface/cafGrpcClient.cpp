@@ -262,6 +262,10 @@ public:
         if ( !writer->WritesDone() ) return false;
 
         grpc::Status status = writer->Finish();
+        if ( !status.ok() )
+        {
+            throw Exception( status );
+        }
         return status.ok();
     }
 
@@ -304,6 +308,10 @@ public:
         if ( !writer->WritesDone() ) return false;
 
         grpc::Status status = writer->Finish();
+        if ( !status.ok() )
+        {
+            throw Exception( status );
+        }
         return status.ok();
     }
 
@@ -346,6 +354,10 @@ public:
         if ( !writer->WritesDone() ) return false;
 
         grpc::Status status = writer->Finish();
+        if ( !status.ok() )
+        {
+            throw Exception( status );
+        }
         return status.ok();
     }
 
@@ -378,6 +390,10 @@ public:
         if ( !writer->WritesDone() ) return false;
 
         grpc::Status status = writer->Finish();
+        if ( !status.ok() )
+        {
+            throw Exception( status );
+        }
         return status.ok();
     }
 
@@ -401,7 +417,10 @@ public:
             values.insert( values.end(), ints.data().begin(), ints.data().end() );
         }
         grpc::Status status = reader->Finish();
-        CAF_ASSERT( status.ok() );
+        if ( !status.ok() )
+        {
+            throw Exception( status );
+        }
         return values;
     }
 
@@ -425,7 +444,10 @@ public:
             values.insert( values.end(), doubles.data().begin(), doubles.data().end() );
         }
         grpc::Status status = reader->Finish();
-        CAF_ASSERT( status.ok() );
+        if ( !status.ok() )
+        {
+            throw Exception( status );
+        }
         return values;
     }
 
