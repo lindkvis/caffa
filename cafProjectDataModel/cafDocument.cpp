@@ -74,20 +74,10 @@ bool Document::write( ObjectIoCapability::IoType ioType /*= ObjectIoCapability::
 void Document::updateUiIconStateRecursively( ObjectHandle* object )
 {
     if ( object == nullptr ) return;
-    std::vector<FieldHandle*> fields;
-    object->fields( fields );
 
-    std::vector<ObjectHandle*> children;
-    size_t                     fIdx;
-    for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
+    for ( auto child : object->children() )
     {
-        if ( fields[fIdx] ) fields[fIdx]->childObjects( &children );
-    }
-
-    size_t cIdx;
-    for ( cIdx = 0; cIdx < children.size(); ++cIdx )
-    {
-        Document::updateUiIconStateRecursively( children[cIdx] );
+        Document::updateUiIconStateRecursively( child );
     }
 
     ObjectUiCapability* uiObjectHandle = uiObj( object );

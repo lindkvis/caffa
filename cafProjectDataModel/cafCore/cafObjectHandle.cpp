@@ -6,8 +6,8 @@
 #include "cafFieldHandle.h"
 #include "cafObjectCapability.h"
 
-namespace caf
-{
+using namespace caf;
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -15,7 +15,6 @@ ObjectHandle::ObjectHandle()
     : fieldChanged( this )
 {
     m_parentField = nullptr;
-    m_isDeletable = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,18 +44,9 @@ std::vector<std::string> ObjectHandle::classKeywordAliases()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectHandle::fields( std::vector<FieldHandle*>& fields ) const
-{
-    fields = m_fields;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<caf::FieldHandle*> ObjectHandle::fields() const
 {
-    auto fields = m_fields;
-    return fields;
+    return m_fields;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,12 +190,8 @@ void ObjectHandle::addField( FieldHandle* field, const std::string& keyword )
 //--------------------------------------------------------------------------------------------------
 FieldHandle* ObjectHandle::findField( const std::string& keyword ) const
 {
-    std::vector<FieldHandle*> fields;
-    this->fields( fields );
-
-    for ( size_t it = 0; it < fields.size(); it++ )
+    for ( auto field : fields() )
     {
-        FieldHandle* field = fields[it];
         if ( field->matchesKeyword( keyword ) )
         {
             return field;
@@ -226,24 +212,92 @@ FieldHandle* ObjectHandle::parentField() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectHandle::setDeletable( bool isDeletable )
+std::list<ObjectHandle*> ObjectHandle::ancestors() const
 {
-    m_isDeletable = isDeletable;
+    std::list<ObjectHandle*> allAncestors;
+
+    // Search parents for first type match
+    FieldHandle* parentField = this->parentField();
+    if ( parentField )
+    {
+        ObjectHandle* parent = parentField->ownerObject();
+        if ( parent )
+        {
+            allAncestors = parent->ancestors();
+            allAncestors.push_back( parent );
+        }
+    }
+    return allAncestors;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ObjectHandle::isDeletable() const
+std::list<ObjectHandle*> ObjectHandle::matchingAncestors( ObjectHandle::Predicate predicate ) const
 {
-    return m_isDeletable;
+    std::list<ObjectHandle*> ancestors = this->ancestors();
+
+    std::list<ObjectHandle*> matching;
+    std::copy_if( ancestors.begin(), ancestors.end(), std::back_inserter( matching ), predicate );
+    return matching;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectHandle::onChildDeleted( ChildArrayFieldHandle* childArray, std::vector<caf::ObjectHandle*>& referringObjects )
+ObjectHandle* ObjectHandle::firstMatchingAncestor( ObjectHandle::Predicate predicate ) const
 {
+    // Search parents for first type match
+    FieldHandle* parentField = this->parentField();
+    if ( parentField )
+    {
+        ObjectHandle* parent = parentField->ownerObject();
+        if ( parent )
+        {
+            if ( predicate( parent ) ) return parent;
+            return parent->firstMatchingAncestor( predicate );
+        }
+    }
+    return nullptr;
 }
 
-} // End namespace caf
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::list<ObjectHandle*> ObjectHandle::matchingDescendants( ObjectHandle::Predicate predicate ) const
+{
+    std::list<ObjectHandle*> descendants;
+    for ( auto field : m_fields )
+    {
+        std::vector<ObjectHandle*> childObjects;
+        field->childObjects( &childObjects );
+        for ( auto childObject : childObjects )
+        {
+            if ( childObject )
+            {
+                if ( predicate( childObject ) )
+                {
+                    descendants.push_back( childObject );
+                }
+                std::list<ObjectHandle*> childsDescendants = childObject->matchingDescendants( predicate );
+                descendants.insert( descendants.end(), childsDescendants.begin(), childsDescendants.end() );
+            }
+        }
+    }
+    return descendants;
+}
+
+std::list<ObjectHandle*> ObjectHandle::children() const
+{
+    std::list<ObjectHandle*> allChildren;
+    for ( auto field : m_fields )
+    {
+        std::vector<ObjectHandle*> childObjects;
+        field->childObjects( &childObjects );
+        for ( auto childObject : childObjects )
+        {
+            allChildren.push_back( childObject );
+        }
+    }
+    return allChildren;
+}

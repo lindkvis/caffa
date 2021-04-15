@@ -177,8 +177,6 @@ void ObjectJsonCapability::writeFields( const ObjectHandle* object,
                                         bool                writeServerAddress,
                                         bool                writeValues )
 {
-    std::vector<FieldHandle*> fields;
-    object->fields( fields );
     std::string classKeyword = object->capability<ObjectIoCapability>()->classKeyword();
     CAF_ASSERT( ObjectIoCapability::isValidElementName( classKeyword ) );
     jsonObject["classKeyword"] = classKeyword;
@@ -187,9 +185,9 @@ void ObjectJsonCapability::writeFields( const ObjectHandle* object,
         jsonObject["serverAddress"] = reinterpret_cast<uint64_t>( object );
     }
 
-    for ( size_t it = 0; it < fields.size(); ++it )
+    for ( auto field : object->fields() )
     {
-        const FieldIoCapability* ioCapability = fields[it]->capability<FieldIoCapability>();
+        const FieldIoCapability* ioCapability = field->capability<FieldIoCapability>();
         if ( ioCapability && ioCapability->isIOWritable() )
         {
             std::string keyword = ioCapability->fieldHandle()->keyword();

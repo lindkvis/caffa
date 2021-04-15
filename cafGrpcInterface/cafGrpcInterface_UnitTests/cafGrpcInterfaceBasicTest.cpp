@@ -349,19 +349,23 @@ TEST( BaseTest, Document )
     ASSERT_TRUE( clientCapability != nullptr );
     ASSERT_EQ( reinterpret_cast<uint64_t>( serverDocument ), clientCapability->addressOnServer() );
 
-    std::vector<InheritedDemoObj*> serverDescendants;
-    std::vector<InheritedDemoObj*> clientDescendants;
+    auto serverDescendants = serverDocument->matchingDescendants( []( const caf::ObjectHandle* objectHandle ) -> bool {
+        return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr;
+    } );
 
-    serverDocument->descendantsOfType( serverDescendants );
-    clientDocument->descendantsOfType( clientDescendants );
+    auto clientDescendants = clientDocument->matchingDescendants( []( const caf::ObjectHandle* objectHandle ) -> bool {
+        return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr;
+    } );
 
     ASSERT_EQ( childCount, serverDescendants.size() );
     ASSERT_EQ( serverDescendants.size(), clientDescendants.size() );
-    for ( size_t i = 0; i < childCount; ++i )
+    for ( auto server_it = serverDescendants.begin(), client_it = clientDescendants.begin();
+          server_it != serverDescendants.end();
+          ++server_it, ++client_it )
     {
-        auto childClientCapability = clientDescendants[i]->capability<caf::rpc::ObjectClientCapability>();
+        auto childClientCapability = ( *client_it )->capability<caf::rpc::ObjectClientCapability>();
         ASSERT_TRUE( childClientCapability != nullptr );
-        ASSERT_EQ( reinterpret_cast<uint64_t>( serverDescendants[i] ), childClientCapability->addressOnServer() );
+        ASSERT_EQ( reinterpret_cast<uint64_t>( *server_it ), childClientCapability->addressOnServer() );
     }
 
     CAF_DEBUG( "Confirmed test results!" );

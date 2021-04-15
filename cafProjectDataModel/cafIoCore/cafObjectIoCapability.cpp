@@ -68,7 +68,8 @@ void ObjectIoCapability::readObjectFromString( const std::string& string,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string ObjectIoCapability::writeObjectToString( IoType ioType /*= IoType::JSON */, bool writeServerAddress /*= false */ ) const
+std::string ObjectIoCapability::writeObjectToString( IoType ioType /*= IoType::JSON */,
+                                                     bool   writeServerAddress /*= false */ ) const
 {
     std::string string;
     switch ( ioType )
@@ -222,7 +223,7 @@ bool ObjectIoCapability::writeFile( const std::string& fileName, IoType ioType /
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ObjectIoCapability::readFile( std::istream& stream, IoType ioType)
+bool ObjectIoCapability::readFile( std::istream& stream, IoType ioType )
 {
     try
     {
@@ -231,7 +232,7 @@ bool ObjectIoCapability::readFile( std::istream& stream, IoType ioType)
             default:
                 break;
             case IoType::JSON:
-                ObjectJsonCapability::readFile( m_owner, stream);
+                ObjectJsonCapability::readFile( m_owner, stream );
                 break;
             case IoType::SQL:
                 CAF_ASSERT( "SQL writing is not implemented" );
@@ -282,20 +283,15 @@ void ObjectIoCapability::initAfterReadRecursively( ObjectHandle* object )
 {
     if ( object == nullptr ) return;
 
-    std::vector<FieldHandle*> fields;
-    object->fields( fields );
-
     std::vector<ObjectHandle*> children;
-    size_t                     fIdx;
-    for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
+    for ( auto field : object->fields() )
     {
-        if ( fields[fIdx] ) fields[fIdx]->childObjects( &children );
+        if ( field ) field->childObjects( &children );
     }
 
-    size_t cIdx;
-    for ( cIdx = 0; cIdx < children.size(); ++cIdx )
+    for ( auto child : children )
     {
-        initAfterReadRecursively( children[cIdx] );
+        initAfterReadRecursively( child );
     }
 
     auto ioCapability = object->capability<ObjectIoCapability>();
@@ -313,30 +309,24 @@ void ObjectIoCapability::resolveReferencesRecursively( ObjectHandle*            
 {
     if ( object == nullptr ) return;
 
-    std::vector<FieldHandle*> fields;
-    object->fields( fields );
+    std::vector<FieldHandle*> fields = object->fields();
 
     std::vector<ObjectHandle*> children;
     size_t                     fIdx;
-    for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
+    for ( auto field : fields )
     {
-        FieldHandle* field = fields[fIdx];
-        if ( field )
-        {
-            field->childObjects( &children );
+        field->childObjects( &children );
 
-            bool resolvedOk = field->capability<FieldIoCapability>()->resolveReferences();
-            if ( fieldWithFailingResolve && !resolvedOk )
-            {
-                fieldWithFailingResolve->push_back( field );
-            }
+        bool resolvedOk = field->capability<FieldIoCapability>()->resolveReferences();
+        if ( fieldWithFailingResolve && !resolvedOk )
+        {
+            fieldWithFailingResolve->push_back( field );
         }
     }
 
-    size_t cIdx;
-    for ( cIdx = 0; cIdx < children.size(); ++cIdx )
+    for ( auto child : children )
     {
-        resolveReferencesRecursively( children[cIdx], fieldWithFailingResolve );
+        resolveReferencesRecursively( child, fieldWithFailingResolve );
     }
 }
 
@@ -364,20 +354,15 @@ void ObjectIoCapability::setupBeforeSaveRecursively( ObjectHandle* object )
 {
     if ( object == nullptr ) return;
 
-    std::vector<FieldHandle*> fields;
-    object->fields( fields );
-
     std::vector<ObjectHandle*> children;
-    size_t                     fIdx;
-    for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
+    for ( auto field : object->fields() )
     {
-        if ( fields[fIdx] ) fields[fIdx]->childObjects( &children );
+        if ( field ) field->childObjects( &children );
     }
 
-    size_t cIdx;
-    for ( cIdx = 0; cIdx < children.size(); ++cIdx )
+    for ( auto child : children )
     {
-        setupBeforeSaveRecursively( children[cIdx] );
+        setupBeforeSaveRecursively( child );
     }
 
     auto ioCapability = object->capability<ObjectIoCapability>();

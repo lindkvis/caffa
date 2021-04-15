@@ -1141,20 +1141,19 @@ void MainWindow::setRoot(caf::ObjectHandle* root)
     // Set up test of using a field as a root item
     // Hack, because we know that root is a ObjectGroup ...
 
-    std::vector<caf::FieldHandle*> fields;
     if (root)
     {
-        root->fields(fields);
-    }
+        auto fields = root->fields();
 
-    if (fields.size())
-    {
-        caf::FieldHandle*       field         = fields[0];
-        caf::FieldUiCapability* uiFieldHandle = field->capability<caf::FieldUiCapability>();
-        if (uiFieldHandle)
+        if (!fields.empty())
         {
-            m_uiTreeView2->setItem(uiFieldHandle);
-            uiFieldHandle->updateConnectedEditors();
+            caf::FieldHandle*       field         = fields.front();
+            caf::FieldUiCapability* uiFieldHandle = field->capability<caf::FieldUiCapability>();
+            if (uiFieldHandle)
+            {
+                m_uiTreeView2->setItem(uiFieldHandle);
+                uiFieldHandle->updateConnectedEditors();
+            }
         }
     }
 
@@ -1163,18 +1162,23 @@ void MainWindow::setRoot(caf::ObjectHandle* root)
     connect(m_uiTreeView2, SIGNAL(selectionChanged()), SLOT(slotShowTableView()));
 
     // Wire up ManyGroups object
-    std::vector<ManyGroups*> obj;
+    std::list<ManyGroups*> manyGroups;
     if (root)
     {
-        root->descendantsIncludingThisOfType(obj);
+        if (auto rootGroup = dynamic_cast<ManyGroups*>(root); rootGroup)
+        {
+            manyGroups.push_back(rootGroup);
+        }
+        std::list<ManyGroups*> descendants = root->descendantsOfType<ManyGroups>();
+        manyGroups.insert(manyGroups.end(), descendants.begin(), descendants.end());
     }
 
     m_customObjectEditor->removeWidget(m_plotLabel);
     m_customObjectEditor->removeWidget(m_smallPlotLabel);
 
-    if (obj.size() == 1)
+    if (manyGroups.size() == 1)
     {
-        m_customObjectEditor->setObject(obj[0]);
+        m_customObjectEditor->setObject(manyGroups.front());
 
         m_customObjectEditor->defineGridLayout(5, 4);
 

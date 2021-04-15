@@ -3,6 +3,8 @@
 #include "cafFieldHandle.h"
 #include "cafObjectHandle.h"
 
+#include <limits>
+
 namespace caf
 {
 //--------------------------------------------------------------------------------------------------
@@ -18,13 +20,12 @@ bool ChildArrayFieldHandle::hasSameFieldCountForAllObjects()
         return true;
     }
 
-    size_t fieldCount = 0;
-    for ( size_t i = 0; i < listObjects.size(); i++ )
+    size_t fieldCount = std::numeric_limits<size_t>::infinity();
+    for ( auto object : listObjects )
     {
-        std::vector<FieldHandle*> fields;
-        listObjects[i]->fields( fields );
+        std::vector<FieldHandle*> fields = object->fields();
 
-        if ( i == 0 )
+        if ( fieldCount == std::numeric_limits<size_t>::infinity() )
         {
             fieldCount = fields.size();
         }

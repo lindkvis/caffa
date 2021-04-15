@@ -309,9 +309,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
     m_fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self() );
     CAF_ASSERT( m_fieldOwner );
     if ( !m_fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
-    std::vector<FieldHandle*> fields;
-    m_fieldOwner->fields( fields );
-    for ( auto field : fields )
+    for ( auto field : m_fieldOwner->fields() )
     {
         auto scriptability = field->capability<FieldScriptingCapability>();
         if ( scriptability && request->method() == scriptability->scriptFieldName() )
@@ -437,9 +435,7 @@ grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
     m_fieldOwner      = ObjectService::findCafObjectFromRpcObject( fieldRequest.self() );
     int valueCount    = setRequest.value_count();
 
-    std::vector<FieldHandle*> fields;
-    m_fieldOwner->fields( fields );
-    for ( auto field : fields )
+    for ( auto field : m_fieldOwner->fields() )
     {
         auto scriptability = field->capability<FieldScriptingCapability>();
         if ( scriptability && scriptability->scriptFieldName() == fieldRequest.method() )

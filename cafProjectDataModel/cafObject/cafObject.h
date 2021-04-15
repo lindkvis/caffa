@@ -185,19 +185,6 @@ public:
 
         return FieldInitHelper( field, keyword );
     }
-
-    /// Returns _this_ if _this_ has requested class keyword
-    /// Traverses parents recursively and returns first parent of the requested
-    /// type.
-    void firstAncestorOrThisFromClassKeyword( const std::string& classKeyword, Object*& ancestor ) const;
-
-    /// Traverses all children recursively to find objects of the requested
-    /// class keyword. This object is also
-    /// included if it has the requested class keyword
-    void descendantsIncludingThisFromClassKeyword( const std::string& classKeyword, std::vector<Object*>& descendants ) const;
-
-    /// Gets all children matching class keyword. Not recursive.
-    void childrenFromClassKeyword( const std::string& classKeyword, std::vector<Object*>& children ) const;
 };
 
 } // End of namespace caf

@@ -133,11 +133,19 @@ caf::Object* ObjectService::findCafObjectFromScriptNameAndAddress( const std::st
 
     for ( auto doc : ServerApplication::instance()->documents() )
     {
-        std::vector<caf::Object*> objects;
-        doc->descendantsIncludingThisFromClassKeyword( scriptClassName, objects );
+        std::list<caf::ObjectHandle*> objects =
+            doc->matchingDescendants( [scriptClassName]( const caf::ObjectHandle* objectHandle ) -> bool {
+                auto ioCapability = objectHandle->capability<caf::ObjectIoCapability>();
+                return ioCapability ? ioCapability->inheritsClassWithKeyword( scriptClassName ) : false;
+            } );
+
         for ( auto object : objects )
         {
             objectsOfCurrentClass.push_back( object );
+        }
+        if ( doc->inheritsClassWithKeyword( scriptClassName ) )
+        {
+            objectsOfCurrentClass.push_front( doc );
         }
     }
 
