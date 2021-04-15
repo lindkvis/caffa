@@ -43,8 +43,7 @@ void ObjectUiCapability::uiOrdering( UiOrdering& uiOrdering )
     if ( uiOrdering.isIncludingRemainingFields() )
     {
         // Add the remaining Fields To UiConfig
-        std::vector<FieldHandle*> fields;
-        m_owner->fields( fields );
+        std::vector<FieldHandle*> fields = m_owner->fields();
         for ( size_t i = 0; i < fields.size(); ++i )
         {
             FieldUiCapability* field = fields[i]->capability<FieldUiCapability>();
@@ -111,19 +110,15 @@ void ObjectUiCapability::addDefaultUiTreeChildren( UiTreeOrdering* uiTreeOrderin
 #if 1
     if ( uiTreeOrdering->isIncludingRemainingChildren() )
     {
-        // Add the remaining Fields To UiConfig
-        std::vector<FieldHandle*> fields;
-        m_owner->fields( fields );
-
-        for ( size_t fIdx = 0; fIdx < fields.size(); ++fIdx )
+        for ( auto field : m_owner->fields() )
         {
-            if ( fields[fIdx]->hasChildObjects() && !uiTreeOrdering->containsField( fields[fIdx] ) )
+            if ( field->hasChildObjects() && !uiTreeOrdering->containsField( field ) )
             {
-                if ( fields[fIdx]->capability<FieldUiCapability>()->isUiHidden() &&
-                     !fields[fIdx]->capability<FieldUiCapability>()->isUiTreeChildrenHidden() )
+                if ( field->capability<FieldUiCapability>()->isUiHidden() &&
+                     !field->capability<FieldUiCapability>()->isUiTreeChildrenHidden() )
                 {
                     std::vector<ObjectHandle*> children;
-                    fields[fIdx]->childObjects( &children );
+                    field->childObjects( &children );
 
                     std::set<ObjectHandle*> objectsAddedByApplication;
                     for ( int i = 0; i < uiTreeOrdering->childCount(); i++ )
@@ -153,9 +148,9 @@ void ObjectUiCapability::addDefaultUiTreeChildren( UiTreeOrdering* uiTreeOrderin
                         }
                     }
                 }
-                else if ( !fields[fIdx]->capability<FieldUiCapability>()->isUiHidden() )
+                else if ( !field->capability<FieldUiCapability>()->isUiHidden() )
                 {
-                    uiTreeOrdering->add( fields[fIdx] );
+                    uiTreeOrdering->add( field );
                 }
             }
         }

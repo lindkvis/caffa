@@ -103,15 +103,9 @@ void UiListViewModel::computeColumnCount()
         m_columnCount = 0;
 
         // Loop over all objects and find the object with largest number of fields
-        for ( size_t i = 0; i < m_objectGroup->objects.size(); i++ )
+        for ( auto object : m_objectGroup->objects )
         {
-            std::vector<FieldHandle*> fields;
-            m_objectGroup->objects[i]->fields( fields );
-
-            if ( m_columnCount < static_cast<int>( fields.size() ) )
-            {
-                m_columnCount = static_cast<int>( fields.size() );
-            }
+            m_columnCount = std::max( m_columnCount, (int)object->fields().size() );
         }
     }
 }
@@ -136,8 +130,7 @@ QVariant caf::UiListViewModel::data( const QModelIndex& index, int role /*= Qt::
             ObjectHandle* object = m_objectGroup->objects[index.row()];
             if ( object )
             {
-                std::vector<FieldHandle*> fields;
-                object->fields( fields );
+                std::vector<FieldHandle*> fields = object->fields();
 
                 if ( index.column() < static_cast<int>( fields.size() ) )
                 {

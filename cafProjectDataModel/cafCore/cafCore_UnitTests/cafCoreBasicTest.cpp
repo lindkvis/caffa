@@ -545,6 +545,7 @@ TEST( BaseTest, PtrField )
     {
         std::vector<InheritedDemoObj*> reffingDemoObjects;
         ihd2->objectsWithReferringPtrFieldsOfType( reffingDemoObjects );
+
         EXPECT_EQ( 1u, reffingDemoObjects.size() );
     }
 

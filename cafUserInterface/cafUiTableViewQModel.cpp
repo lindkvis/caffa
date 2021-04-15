@@ -486,8 +486,7 @@ FieldHandle* UiTableViewQModel::getField( const QModelIndex& index ) const
         ObjectHandle* object = childArrayField->at( index.row() );
         if ( object )
         {
-            std::vector<FieldHandle*> fields;
-            object->fields( fields );
+            std::vector<FieldHandle*> fields = object->fields();
 
             int fieldIndex = m_modelColumnIndexToFieldIndex[index.column()];
             if ( fieldIndex < static_cast<int>( fields.size() ) )
@@ -712,8 +711,7 @@ int UiTableViewQModel::getFieldIndex( FieldHandle* field ) const
         ObjectHandle* object = childArrayField->at( 0 );
         if ( object )
         {
-            std::vector<FieldHandle*> fields;
-            object->fields( fields );
+            std::vector<FieldHandle*> fields = object->fields();
 
             for ( size_t i = 0; i < fields.size(); i++ )
             {

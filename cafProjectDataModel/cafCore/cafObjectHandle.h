@@ -2,75 +2,104 @@
 
 #include "cafAssert.h"
 #include "cafBase.h"
+#include "cafFieldHandle.h"
 #include "cafSignal.h"
 #include "cafVariant.h"
 
 #include <any>
+#include <list>
+#include <memory>
 #include <set>
 #include <vector>
 
 namespace caf
 {
 class ObjectCapability;
-class FieldHandle;
 class ObjectUiCapability;
 class FieldIoCapability;
 class FieldCapability;
 class ObjectXmlCapability;
 class ChildArrayFieldHandle;
 
-//==================================================================================================
-/// The base class of all objects
-//==================================================================================================
+/**
+ * The base class of all objects
+ */
 class ObjectHandle : public SignalObserver, public SignalEmitter
 {
 public:
+    /**
+     * Signal emitted when the field is changed
+     * @param Variant old value
+     * @param Variant new value
+     */
     Signal<std::tuple<const FieldCapability*, Variant, Variant>> fieldChanged;
 
 public:
+    using Predicate = std::function<bool( const ObjectHandle* )>;
+
     ObjectHandle();
     virtual ~ObjectHandle();
 
     static std::string classKeywordStatic(); // For IoFieldCap to be able to handle fields of ObjectHandle directly
     static std::vector<std::string> classKeywordAliases();
 
-    /// The registered fields contained in this Object.
-    void                      fields( std::vector<FieldHandle*>& fields ) const;
+    /**
+     * The registered fields contained in this Object.
+     * @return a vector of FieldHandle pointers
+     */
     std::vector<FieldHandle*> fields() const;
-    FieldHandle*              findField( const std::string& keyword ) const;
 
-    /// The field referencing this object as a child
+    /**
+     * Find a particular field by keyword
+     * @param keyword
+     * @return a FieldHandle pointer
+     */
+    FieldHandle* findField( const std::string& keyword ) const;
+
+    /**
+     * The field referencing this object as a child
+     * @return a FieldHandle pointer to the parent. If called on a root object this is nullptr
+     */
     FieldHandle* parentField() const;
 
-    /// Returns _this_ if _this_ is of requested type
-    /// Traverses parents recursively and returns first parent of the requested type.
-    template <typename T>
-    void firstAncestorOrThisOfType( T*& ancestor ) const;
+    /**
+     * Get a list of all ancestors.
+     * @return a list of all ancestors
+     */
+    std::list<ObjectHandle*> ancestors() const;
 
-    /// Traverses parents recursively and returns first parent of the requested type.
-    /// Does NOT check _this_ object
-    template <typename T>
-    void firstAncestorOfType( T*& ancestor ) const;
+    /**
+     * Get a list of all ancestors matching a predicate
+     * @param predicate a function pointer predicate
+     * @return a list of all ancestors
+     */
+    std::list<ObjectHandle*> matchingAncestors( Predicate predicate ) const;
 
-    /// Calls firstAncestorOrThisOfType, and asserts that a valid object is found
-    template <typename T>
-    void firstAncestorOrThisOfTypeAsserted( T*& ancestor ) const;
+    /**
+     * Get a list of all ancestors matching a predicate
+     * @param predicate a function pointer predicate
+     * @return the first matching ancestor
+     */
+    ObjectHandle* firstMatchingAncestor( Predicate predicate ) const;
 
-    template <typename T>
-    void allAncestorsOfType( std::vector<T*>& ancestors ) const;
-
-    template <typename T>
-    void allAncestorsOrThisOfType( std::vector<T*>& ancestors ) const;
-
-    /// Traverses all children recursively to find objects of the requested type. This object is also
-    /// included if it is of the requested type.
-    template <typename T>
-    void descendantsIncludingThisOfType( std::vector<T*>& descendants ) const;
+    /**
+     * Traverses all children recursively to find objects matching the predicate.
+     * This object is also included if it matches.
+     * @param predicate a function pointer predicate
+     * @return a list of matching descendants
+     */
+    std::list<ObjectHandle*> matchingDescendants( Predicate predicate ) const;
 
     /// Traverses all children recursively to find objects of the requested type. This object is NOT
     /// included if it is of the requested type.
     template <typename T>
-    void descendantsOfType( std::vector<T*>& descendants ) const;
+    std::list<T*> descendantsOfType() const;
+
+    /**
+     * Get a list of all child objects
+     * @return a list of matching children
+     */
+    std::list<ObjectHandle*> children() const;
 
     // PtrReferences
     /// The PtrField's containing pointers to this Objecthandle
@@ -92,6 +121,7 @@ public:
 
     // Object capabilities
     void addCapability( ObjectCapability* capability, bool takeOwnership )
+
     {
         m_capabilities.push_back( std::make_pair( capability, takeOwnership ) );
     }
@@ -99,17 +129,13 @@ public:
     template <typename CapabilityType>
     CapabilityType* capability() const
     {
-        for ( size_t i = 0; i < m_capabilities.size(); ++i )
+        for ( auto capabilityAndOwnership : m_capabilities )
         {
-            CapabilityType* capability = dynamic_cast<CapabilityType*>( m_capabilities[i].first );
+            CapabilityType* capability = dynamic_cast<CapabilityType*>( capabilityAndOwnership.first );
             if ( capability ) return capability;
         }
         return nullptr;
     }
-
-    virtual void setDeletable( bool isDeletable );
-    virtual bool isDeletable() const;
-    virtual void onChildDeleted( ChildArrayFieldHandle* childArray, std::vector<caf::ObjectHandle*>& referringObjects );
 
     /// Field used to toggle object enabled/disabled
     virtual caf::FieldHandle* objectToggleField() { return nullptr; }
@@ -166,115 +192,15 @@ private:
     // Support system for Pointer
     friend class PointerImpl;
     std::set<ObjectHandle**> m_pointersReferencingMe;
-
-    bool m_isDeletable;
 };
-} // namespace caf
-
-#include "cafFieldHandle.h"
-
-namespace caf
-{
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename T>
-void ObjectHandle::firstAncestorOrThisOfType( T*& ancestor ) const
-{
-    ancestor = nullptr;
-
-    // Check if this matches the type
-
-    const T* objectOfTypeConst = dynamic_cast<const T*>( this );
-    if ( objectOfTypeConst )
-    {
-        ancestor = const_cast<T*>( objectOfTypeConst );
-        return;
-    }
-
-    this->firstAncestorOfType<T>( ancestor );
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void ObjectHandle::firstAncestorOfType( T*& ancestor ) const
+std::list<T*> ObjectHandle::descendantsOfType() const
 {
-    ancestor = nullptr;
-
-    // Search parents for first type match
-    ObjectHandle* parent      = nullptr;
-    FieldHandle*  parentField = this->parentField();
-    if ( parentField ) parent = parentField->ownerObject();
-
-    if ( parent != nullptr )
-    {
-        parent->firstAncestorOrThisOfType<T>( ancestor );
-    }
-}
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename T>
-void ObjectHandle::firstAncestorOrThisOfTypeAsserted( T*& ancestor ) const
-{
-    firstAncestorOrThisOfType( ancestor );
-
-    CAF_ASSERT( ancestor );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename T>
-void ObjectHandle::allAncestorsOfType( std::vector<T*>& ancestors ) const
-{
-    T* firstAncestor = nullptr;
-    this->firstAncestorOfType( firstAncestor );
-    if ( firstAncestor )
-    {
-        ancestors.push_back( firstAncestor );
-        firstAncestor->allAncestorsOfType( ancestors );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename T>
-void ObjectHandle::allAncestorsOrThisOfType( std::vector<T*>& ancestors ) const
-{
-    T* firstAncestorOrThis = nullptr;
-    this->firstAncestorOrThisOfType( firstAncestorOrThis );
-    if ( firstAncestorOrThis )
-    {
-        ancestors.push_back( firstAncestorOrThis );
-        firstAncestorOrThis->allAncestorsOfType( ancestors );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename T>
-void ObjectHandle::descendantsIncludingThisOfType( std::vector<T*>& descendants ) const
-{
-    const T* objectOfType = dynamic_cast<const T*>( this );
-    if ( objectOfType )
-    {
-        descendants.push_back( const_cast<T*>( objectOfType ) );
-    }
-
-    descendantsOfType( descendants );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename T>
-void ObjectHandle::descendantsOfType( std::vector<T*>& descendants ) const
-{
+    std::list<T*> descendants;
     for ( auto f : m_fields )
     {
         std::vector<ObjectHandle*> childObjects;
@@ -284,10 +210,16 @@ void ObjectHandle::descendantsOfType( std::vector<T*>& descendants ) const
         {
             if ( childObject )
             {
-                childObject->descendantsIncludingThisOfType( descendants );
+                if ( T* typedObject = dynamic_cast<T*>( childObject ); typedObject )
+                {
+                    descendants.push_back( typedObject );
+                }
+                std::list<T*> childDescendants = childObject->descendantsOfType<T>();
+                descendants.insert( descendants.end(), childDescendants.begin(), childDescendants.end() );
             }
         }
     }
+    return descendants;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,5 +239,6 @@ void ObjectHandle::objectsWithReferringPtrFieldsOfType( std::vector<T*>& objects
         }
     }
 }
+} // namespace caf
 
-} // End of namespace caf
+#include "cafFieldHandle.h"

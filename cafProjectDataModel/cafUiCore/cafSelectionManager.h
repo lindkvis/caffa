@@ -142,8 +142,8 @@ public:
         ObjectHandle* selectedObject = dynamic_cast<ObjectHandle*>( item );
         if ( selectedObject )
         {
-            T* ancestor = nullptr;
-            selectedObject->firstAncestorOrThisOfType( ancestor );
+            T* ancestor = static_cast<T*>( selectedObject->firstMatchingAncestor(
+                []( const ObjectHandle* objectHandle ) { return dynamic_cast<T*>( objectHandle ) != nullptr; } ) );
             return ancestor;
         }
         return nullptr;

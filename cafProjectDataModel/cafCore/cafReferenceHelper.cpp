@@ -105,14 +105,13 @@ FieldHandle* ReferenceHelper::findField( ObjectHandle* object, const std::string
 {
     if ( object == nullptr ) return nullptr;
 
-    std::vector<FieldHandle*> fields;
-    object->fields( fields );
+    std::vector<FieldHandle*> fields = object->fields();
 
-    for ( size_t i = 0; i < fields.size(); i++ )
+    for ( auto field : fields )
     {
-        if ( fields[i]->keyword() == fieldKeyword )
+        if ( field->keyword() == fieldKeyword )
         {
-            return fields[i];
+            return field;
         }
     }
 
