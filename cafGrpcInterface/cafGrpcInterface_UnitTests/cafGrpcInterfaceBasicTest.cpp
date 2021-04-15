@@ -109,10 +109,10 @@ public:
     std::string stringMember() const { return m_stringMember; }
     void        setStringMember( const std::string& val ) { m_stringMember = val; }
 
-    std::vector<double> getDoubleVector() const { return m_doubleVector; }
+    std::vector<double> doubleVector() const { return m_doubleVector; }
     void                setDoubleVector( const std::vector<double>& values ) { m_doubleVector = values; }
 
-    std::vector<float> getFloatVector() const { return m_floatVector; }
+    std::vector<float> floatVector() const { return m_floatVector; }
     void               setFloatVector( const std::vector<float>& values ) { m_floatVector = values; }
 
     std::vector<int> getIntVector() const { return m_intVector; }
@@ -576,7 +576,7 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
                                       clientDocument->m_demoObject->m_doubleVector.keyword(),
                                       clientDoubleVector );
 
-    largeDoubleVector = serverDocument->m_demoObject->getDoubleVector();
+    largeDoubleVector = serverDocument->m_demoObject->doubleVector();
     ASSERT_EQ( largeDoubleVector, clientDoubleVector );
 
     bool ok = client->stopServer();
@@ -617,7 +617,7 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
-    auto clientVector = clientDocument->m_demoObject->getDoubleVector();
+    auto clientVector = clientDocument->m_demoObject->doubleVector();
 
     ASSERT_EQ( serverVector, clientVector );
 
@@ -628,7 +628,7 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
     ASSERT_NE( serverVector, clientVector );
     clientDocument->m_demoObject->setDoubleVector( clientVector );
 
-    serverVector = serverDocument->m_demoObject->getDoubleVector();
+    serverVector = serverDocument->m_demoObject->doubleVector();
     ASSERT_EQ( serverVector, clientVector );
 
     bool ok = client->stopServer();
@@ -667,11 +667,11 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
     {
         serverDocument->m_demoObject->setFloatVector( { 42.0f } );
         auto start_time   = std::chrono::system_clock::now();
-        auto clientVector = clientDocument->m_demoObject->getFloatVector();
+        auto clientVector = clientDocument->m_demoObject->floatVector();
         auto end_time     = std::chrono::system_clock::now();
         auto duration     = std::chrono::duration_cast<std::chrono::microseconds>( end_time - start_time ).count();
         CAF_INFO( "Getting single float vector took " << duration << "µs" );
-        ASSERT_EQ( serverDocument->m_demoObject->getFloatVector(), clientDocument->m_demoObject->getFloatVector() );
+        ASSERT_EQ( serverDocument->m_demoObject->floatVector(), clientDocument->m_demoObject->floatVector() );
     }
 
     std::vector<float> serverVector;
@@ -687,7 +687,7 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
 
     {
         auto   start_time   = std::chrono::system_clock::now();
-        auto   clientVector = clientDocument->m_demoObject->getFloatVector();
+        auto   clientVector = clientDocument->m_demoObject->floatVector();
         auto   end_time     = std::chrono::system_clock::now();
         auto   duration     = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
         size_t MB           = numberOfFloats * sizeof( float ) / ( 1024u * 1024u );
