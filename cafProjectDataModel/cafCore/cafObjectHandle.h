@@ -1,3 +1,25 @@
+//##################################################################################################
+//
+//   Custom Visualization Core library
+//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2013- Ceetron Solutions AS
+//   Copyright (C) 2021- 3D-Radar AS
+//
+//   GNU Lesser General Public License Usage
+//   This library is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU Lesser General Public License as published by
+//   the Free Software Foundation; either version 2.1 of the License, or
+//   (at your option) any later version.
+//
+//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//   FITNESS FOR A PARTICULAR PURPOSE.
+//
+//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//   for more details.
+//
+//##################################################################################################
+
 #pragma once
 
 #include "cafAssert.h"
@@ -90,8 +112,11 @@ public:
      */
     std::list<ObjectHandle*> matchingDescendants( Predicate predicate ) const;
 
-    /// Traverses all children recursively to find objects of the requested type. This object is NOT
-    /// included if it is of the requested type.
+    /**
+     * Traverses all children recursively to find objects of the requested type. This object is NOT
+     * included if it is of the requested type.
+     * @return list of descendants of a given type
+     */
     template <typename T>
     std::list<T*> descendantsOfType() const;
 
@@ -119,13 +144,21 @@ public:
                                    const Variant&         oldValue,
                                    const Variant&         newValue );
 
-    // Object capabilities
+    /**
+     * Add an object capability to the object
+     * @param capability the new capability
+     * @param takeOwnership boolean stating whether the ObjectHandle takes
+     *                      over the responsibility of the object.
+     */
     void addCapability( ObjectCapability* capability, bool takeOwnership )
-
     {
         m_capabilities.push_back( std::make_pair( capability, takeOwnership ) );
     }
 
+    /**
+     * Get an object capability of the given type
+     * @return a typed object capability
+     */
     template <typename CapabilityType>
     CapabilityType* capability() const
     {
@@ -137,15 +170,26 @@ public:
         return nullptr;
     }
 
-    /// Field used to toggle object enabled/disabled
+    /**
+     * Get a field used to toggle object enabled/disabled
+     * @return a field handle to the toggle field
+     */
     virtual caf::FieldHandle* objectToggleField() { return nullptr; }
-    /// Field holding the object description
+    /**
+     * Field holding the object description, used to provide a user visible label
+     * @return a field handle to the user description field
+     */
     virtual caf::FieldHandle* userDescriptionField() { return nullptr; }
 
 protected:
+    /**
+     * Add a field to the object
+     */
     void addField( FieldHandle* field, const std::string& keyword );
 
-    /// Method to reimplement to catch when the field has changed due to changes in capability
+    /**
+     * Virtual method to reimplement to catch when the field has changed due to changes in capability
+     */
     virtual void onFieldChangedByCapability( const FieldHandle*     field,
                                              const FieldCapability* changedCapability,
                                              const Variant&         oldValue,
