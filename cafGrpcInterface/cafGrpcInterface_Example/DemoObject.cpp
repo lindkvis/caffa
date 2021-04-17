@@ -48,7 +48,7 @@ DemoDocument::DemoDocument()
 
     initField( m_demoObject, "DemoObject" ).withScripting();
     initField( m_inheritedDemoObjects, "InheritedDemoObjects" ).withScripting();
-    m_demoObject = new DemoObject;
+    m_demoObject = std::make_unique<DemoObject>();
 
     this->fileName = "dummyFileName";
 }

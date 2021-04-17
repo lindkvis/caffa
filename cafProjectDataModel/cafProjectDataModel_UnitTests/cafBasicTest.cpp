@@ -132,7 +132,7 @@ public:
         initField( m_textField, "TextField" ).withDefault( "Test text   end" );
         initField( m_simpleObjPtrField, "SimpleObjPtrField" );
         initField( m_simpleObjPtrField2, "SimpleObjPtrField2" );
-        m_simpleObjPtrField2 = new SimpleObj;
+        m_simpleObjPtrField2 = std::make_unique<SimpleObj>();
     }
 
     // Fields
@@ -257,147 +257,6 @@ TEST( BaseTest, NormalField )
     EXPECT_TRUE( myObj.field1 == myObj.field3 );
 }
 
-#if 0
-//--------------------------------------------------------------------------------------------------
-/// Test of Field of pointer operations
-//--------------------------------------------------------------------------------------------------
-
-TEST(BaseTest, PointerField)
-{
-    SimpleObj* testValue = new SimpleObj;
-    testValue->m_numbers.v().push_back(1.1);
-    testValue->m_numbers.v().push_back(1.2);
-    testValue->m_numbers.v().push_back(1.3);
-
-    SimpleObj* testValue2 = new SimpleObj;
-    testValue->m_numbers.v().push_back(2.1);
-    testValue->m_numbers.v().push_back(2.2);
-    testValue->m_numbers.v().push_back(2.3);
-
-    // Constructors
-    caf::Field<SimpleObj*> field2(testValue);
-    EXPECT_EQ(testValue, field2.v());
-    caf::Field<SimpleObj*> field3(field2);
-    EXPECT_EQ(testValue, field3.v());
-    caf::Field<SimpleObj*> field1;
-    EXPECT_EQ((SimpleObj*)0, field1.v());
-
-    // Operators
-    EXPECT_FALSE(field1 == field3);
-    field1 = field2;
-    EXPECT_EQ(testValue, field1);
-    field1 = testValue2;
-    field3 = testValue2;
-    EXPECT_EQ(testValue2, field1);
-    EXPECT_TRUE(field1 == field3);
-    delete testValue;
-    delete testValue2;
-    EXPECT_EQ((SimpleObj*)0, field1);
-    EXPECT_EQ((SimpleObj*)0, field2);
-    EXPECT_EQ((SimpleObj*)0, field3);
-}
-#endif
-
-//--------------------------------------------------------------------------------------------------
-/// Test of PointersField operations
-//--------------------------------------------------------------------------------------------------
-#if 0
-TEST(BaseTest, ChildArrayField)
-{
-    std::vector<caf::FieldHandle*> parentFields;
-
-    InheritedDemoObj* ihd1 = new InheritedDemoObj;
-
-    SimpleObj* s1 = new SimpleObj;
-    SimpleObj* s2 = new SimpleObj;
-    SimpleObj* s3 = new SimpleObj;
-
-    // empty() number 1
-    EXPECT_TRUE(ihd1->m_simpleObjectsField.empty());
-    EXPECT_EQ(size_t(0), ihd1->m_simpleObjectsField.size());
-
-    // push_back()
-    ihd1->m_simpleObjectsField.push_back(s1);
-    ihd1->m_simpleObjectsField.push_back(s2);
-    ihd1->m_simpleObjectsField.push_back(s3);
-
-    s1->parentField(parentFields);
-    EXPECT_EQ(size_t(1),  parentFields.size());
-    parentFields.clear();
-
-    // size()
-    EXPECT_EQ(size_t(3), ihd1->m_simpleObjectsField.size());
-    EXPECT_EQ(size_t(3), ihd1->m_simpleObjectsField.size());
-
-    // operator[]
-    EXPECT_EQ(s2, ihd1->m_simpleObjectsField[1]);
-    EXPECT_EQ(s3, ihd1->m_simpleObjectsField[2]);
-
-    // childObjects
-    std::vector<caf::ObjectHandle*> objects;
-    ihd1->m_simpleObjectsField.childObjects(&objects);
-    EXPECT_EQ(size_t(3), objects.size());
-
-    // Operator ==, Operator =
-    InheritedDemoObj* ihd2 = new InheritedDemoObj;
-    EXPECT_FALSE(ihd2->m_simpleObjectsField == ihd1->m_simpleObjectsField); 
-    ihd2->m_simpleObjectsField = ihd1->m_simpleObjectsField;
-    EXPECT_TRUE(ihd2->m_simpleObjectsField == ihd1->m_simpleObjectsField); 
-
-    s1->parentFields(parentFields);
-    EXPECT_EQ(size_t(2),  parentFields.size());
-    parentFields.clear();
-
-    // set(), Operator=
-    ihd2->m_simpleObjectsField.set(1, NULL);
-    EXPECT_FALSE(ihd2->m_simpleObjectsField == ihd1->m_simpleObjectsField); 
-    EXPECT_TRUE(NULL == ihd2->m_simpleObjectsField[1]);
-
-    s2->parentFields(parentFields);
-    EXPECT_EQ(size_t(1),  parentFields.size());
-    parentFields.clear();
-
-    // removeAll(pointer)
-    ihd2->m_simpleObjectsField.removeChildObject(NULL);
-    EXPECT_EQ(size_t(2), ihd2->m_simpleObjectsField.size());
-    EXPECT_EQ(s3, ihd2->m_simpleObjectsField[1]);
-    EXPECT_EQ(s1, ihd2->m_simpleObjectsField[0]);
-
-    // insert()
-    ihd2->m_simpleObjectsField.insert(1, s2);
-    EXPECT_TRUE(ihd2->m_simpleObjectsField == ihd1->m_simpleObjectsField); 
-
-    s2->parentFields(parentFields);
-    EXPECT_EQ(size_t(2),  parentFields.size());
-    parentFields.clear();
-
-    // erase (index)
-    ihd2->m_simpleObjectsField.erase(1);
-    EXPECT_EQ(size_t(2),  ihd2->m_simpleObjectsField.size());
-    EXPECT_EQ(s3, ihd2->m_simpleObjectsField[1]);
-    EXPECT_EQ(s1, ihd2->m_simpleObjectsField[0]);
-
-    s2->parentFields(parentFields);
-    EXPECT_EQ(size_t(1),  parentFields.size());
-    parentFields.clear();
-
-    // clear()
-    ihd2->m_simpleObjectsField.clear();
-    EXPECT_EQ(size_t(0),  ihd2->m_simpleObjectsField.size());
-
-    s1->parentFields(parentFields);
-    EXPECT_EQ(size_t(1),  parentFields.size());
-    parentFields.clear();
-
- 
-}
-#endif
-
-void PrintTo( const std::string& val, std::ostream* os )
-{
-    *os << val;
-}
-
 //--------------------------------------------------------------------------------------------------
 /// Tests the roundtrip: Create, write, read, write and checks that the first and second file are identical
 //--------------------------------------------------------------------------------------------------
@@ -409,32 +268,32 @@ TEST( BaseTest, ReadWrite )
         MyDocument doc;
 
         // Create objects
-        DemoObject*       d1  = new DemoObject;
-        DemoObject*       d2  = new DemoObject;
-        InheritedDemoObj* id1 = new InheritedDemoObj;
-        InheritedDemoObj* id2 = new InheritedDemoObj;
+        auto d1  = std::make_unique<DemoObject>();
+        auto d2  = std::make_unique<DemoObject>();
+        auto id1 = std::make_unique<InheritedDemoObj>();
+        auto id2 = std::make_unique<InheritedDemoObj>();
 
-        SimpleObj* s1 = new SimpleObj;
-        SimpleObj  s2;
+        auto s1 = std::make_unique<SimpleObj>();
+        auto s2 = std::make_unique<SimpleObj>();
 
         s1->m_numbers = { 1.7 };
 
         // set some values
-        s2.m_numbers = { 2.4, 2.5, 2.6, 2.7 };
+        s2->m_numbers = { 2.4, 2.5, 2.6, 2.7 };
 
         id1->m_texts = { "Hi", "and", "Test with whitespace" };
 
-        d2->m_simpleObjPtrField  = &s2;
-        d2->m_simpleObjPtrField2 = s1;
+        d2->m_simpleObjPtrField  = std::move( s2 );
+        d2->m_simpleObjPtrField2 = std::move( s1 );
 
-        id1->m_simpleObjectsField.push_back( new SimpleObj );
+        id1->m_simpleObjectsField.push_back( std::make_unique<SimpleObj>() );
         {
             auto v = id1->m_simpleObjectsField[0]->m_numbers();
             v.push_back( 3.0 );
             id1->m_simpleObjectsField[0]->m_numbers = v;
         }
 
-        id1->m_simpleObjectsField.push_back( new SimpleObj );
+        id1->m_simpleObjectsField.push_back( std::make_unique<SimpleObj>() );
         {
             auto v = id1->m_simpleObjectsField[1]->m_numbers();
             v.push_back( 3.1 );
@@ -443,14 +302,14 @@ TEST( BaseTest, ReadWrite )
             v.push_back( 3.13 );
             id1->m_simpleObjectsField[1]->m_numbers = v;
         }
-        id1->m_simpleObjectsField.push_back( new SimpleObj );
+        id1->m_simpleObjectsField.push_back( std::make_unique<SimpleObj>() );
         {
             auto v = id1->m_simpleObjectsField[2]->m_numbers();
             v.push_back( 3.2 );
             id1->m_simpleObjectsField[2]->m_numbers = v;
         }
 
-        id1->m_simpleObjectsField.push_back( new SimpleObj );
+        id1->m_simpleObjectsField.push_back( std::make_unique<SimpleObj>() );
         {
             auto v = id1->m_simpleObjectsField[3]->m_numbers();
             v.push_back( 3.3 );
@@ -459,11 +318,12 @@ TEST( BaseTest, ReadWrite )
 
         // Add to document
 
-        doc.objects.push_back( d1 );
-        doc.objects.push_back( d2 );
-        doc.objects.push_back( new SimpleObj );
-        doc.objects.push_back( id1 );
-        doc.objects.push_back( id2 );
+        doc.objects.push_back( std::move( d1 ) );
+        auto d2p = d2.get();
+        doc.objects.push_back( std::move( d2 ) );
+        doc.objects.push_back( std::make_unique<SimpleObj>() );
+        doc.objects.push_back( std::move( id1 ) );
+        doc.objects.push_back( std::move( id2 ) );
 
         // Write file
         doc.fileName = "TestFile.json";
@@ -491,8 +351,8 @@ TEST( BaseTest, ReadWrite )
             EXPECT_EQ( size_t( 1 ), demoObjs.size() );
         }
 
-        d2->m_simpleObjPtrField = NULL;
-        doc.objects.deleteAllChildObjects();
+        d2p->m_simpleObjPtrField = nullptr;
+        doc.objects.clear();
     }
 
     {
@@ -542,26 +402,27 @@ TEST( BaseTest, ReadWrite )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, Pointer )
 {
-    caf::Document* d = new caf::Document;
+    auto d = std::make_unique<caf::Document>();
 
     {
         caf::Pointer<caf::Document> p;
-        EXPECT_TRUE( p == NULL );
+        EXPECT_TRUE( p == nullptr );
     }
 
     {
-        caf::Pointer<caf::Document> p( d );
-        caf::Pointer<caf::Document> p2( p );
+        caf::Pointer<caf::Document> p( d.get() );
+        caf::Pointer<caf::Document> p2( p.p() );
 
-        EXPECT_TRUE( p == d && p2 == d );
-        EXPECT_TRUE( p.p() == d );
+        EXPECT_EQ( p, d.get() );
+        EXPECT_EQ( p2, d.get() );
+        EXPECT_TRUE( p.p() == d.get() );
         p = 0;
-        EXPECT_TRUE( p == NULL );
+        EXPECT_TRUE( p == nullptr );
         EXPECT_TRUE( p.isNull() );
-        EXPECT_TRUE( p2 == d );
+        EXPECT_TRUE( p2 == d.get() );
         p = p2;
-        EXPECT_TRUE( p == d );
-        delete d;
+        EXPECT_TRUE( p == d.get() );
+        d.reset();
         EXPECT_TRUE( p.isNull() && p2.isNull() );
     }
 
@@ -576,29 +437,33 @@ TEST( BaseTest, Pointer )
 TEST( BaseTest, ObjectFactory )
 {
     {
-        SimpleObj* s = dynamic_cast<SimpleObj*>( caf::DefaultObjectFactory::instance()->create( "SimpleObj" ) );
-        EXPECT_TRUE( s != NULL );
+        std::unique_ptr<SimpleObj> s(
+            dynamic_cast<SimpleObj*>( caf::DefaultObjectFactory::instance()->create( "SimpleObj" ) ) );
+        EXPECT_TRUE( s != nullptr );
     }
     {
-        DemoObject* s = dynamic_cast<DemoObject*>( caf::DefaultObjectFactory::instance()->create( "DemoObject" ) );
-        EXPECT_TRUE( s != NULL );
-        delete s;
+        std::unique_ptr<DemoObject> s(
+            dynamic_cast<DemoObject*>( caf::DefaultObjectFactory::instance()->create( "DemoObject" ) ) );
+        EXPECT_TRUE( s != nullptr );
     }
     {
         InheritedDemoObj* s =
             dynamic_cast<InheritedDemoObj*>( caf::DefaultObjectFactory::instance()->create( "InheritedDemoObj" ) );
-        EXPECT_TRUE( s != NULL );
+        EXPECT_TRUE( s != nullptr );
+        delete s;
     }
 
     {
         caf::Document* s = dynamic_cast<caf::Document*>( caf::DefaultObjectFactory::instance()->create( "Document" ) );
-        EXPECT_TRUE( s != NULL );
+        EXPECT_TRUE( s != nullptr );
+        delete s;
     }
 
     {
         caf::ObjectGroup* s =
             dynamic_cast<caf::ObjectGroup*>( caf::DefaultObjectFactory::instance()->create( "ObjectGroup" ) );
-        EXPECT_TRUE( s != NULL );
+        EXPECT_TRUE( s != nullptr );
+        delete s;
     }
 }
 
@@ -615,118 +480,38 @@ TEST( BaseTest, ValidXmlKeywords )
     EXPECT_FALSE( caf::ObjectIoCapability::isValidElementName( "Valid_name_with_space " ) );
 }
 
-TEST( BaseTest, PointersFieldInsertVector )
-{
-    InheritedDemoObj* ihd1 = new InheritedDemoObj;
-
-    SimpleObj* s1 = new SimpleObj;
-    SimpleObj* s2 = new SimpleObj;
-    SimpleObj* s3 = new SimpleObj;
-
-    caf::ObjectGroup group;
-    group.addObject( s1 );
-    group.addObject( s2 );
-    group.addObject( s3 );
-
-    std::vector<caf::Pointer<SimpleObj>> typedObjects;
-    group.objectsByType( &typedObjects );
-    EXPECT_EQ( size_t( 3 ), typedObjects.size() );
-
-    std::vector<caf::Pointer<SimpleObj>> objs;
-    objs.push_back( new SimpleObj );
-    objs.push_back( new SimpleObj );
-    objs.push_back( new SimpleObj );
-
-    ihd1->m_simpleObjectsField.insert( ihd1->m_simpleObjectsField.size(), objs );
-    EXPECT_EQ( size_t( 3 ), ihd1->m_simpleObjectsField.size() );
-
-    delete ihd1;
-}
-
-TEST( BaseTest, ObjectGroupCopyOfTypedObjects )
-{
-    SimpleObj* s1  = new SimpleObj;
-    s1->m_position = 1000;
-    auto v         = s1->m_numbers();
-    v.push_back( 10 );
-    s1->m_numbers = v;
-
-    SimpleObj* s2  = new SimpleObj;
-    s2->m_position = 2000;
-
-    SimpleObj* s3  = new SimpleObj;
-    s3->m_position = 3000;
-
-    InheritedDemoObj* ihd1 = new InheritedDemoObj;
-
-    caf::ObjectGroup og;
-    og.objects.push_back( s1 );
-    og.objects.push_back( s2 );
-    og.objects.push_back( s3 );
-    og.objects.push_back( ihd1 );
-
-    std::vector<caf::Pointer<SimpleObj>> simpleObjList;
-    og.createCopyByType( &simpleObjList, caf::DefaultObjectFactory::instance() );
-    EXPECT_EQ( size_t( 3 ), simpleObjList.size() );
-    EXPECT_EQ( 1000.0, simpleObjList[0]->m_position() );
-    EXPECT_EQ( size_t( 1 ), simpleObjList[0]->m_numbers.value().size() );
-    EXPECT_EQ( 10.0, simpleObjList[0]->m_numbers.value()[0] );
-
-    EXPECT_EQ( 2000.0, simpleObjList[1]->m_position() );
-    EXPECT_EQ( 3000.0, simpleObjList[2]->m_position() );
-
-    std::vector<caf::Pointer<InheritedDemoObj>> inheritObjList;
-    og.createCopyByType( &inheritObjList, caf::DefaultObjectFactory::instance() );
-    EXPECT_EQ( size_t( 1 ), inheritObjList.size() );
-
-    og.deleteObjects();
-    EXPECT_EQ( size_t( 3 ), simpleObjList.size() );
-    EXPECT_EQ( size_t( 1 ), inheritObjList.size() );
-}
-
 //--------------------------------------------------------------------------------------------------
 /// ChildArrayFieldHandle
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ChildArrayFieldHandle )
 {
-    //     virtual size_t      size() const = 0;
-    //     virtual bool        empty() const = 0;
-    //     virtual void        clear() = 0;
-    //     virtual Object*  createAppendObject(int indexAfter) = 0;
-    //     virtual void        erase(size_t index) = 0;
-    //     virtual void        deleteAllChildObjects() = 0;
-    //
-    //     virtual Object*  at(size_t index) = 0;
-    //
-    //     bool                hasSameFieldCountForAllObjects();
-
-    SimpleObj* s1  = new SimpleObj;
+    auto s1        = std::make_unique<SimpleObj>();
     s1->m_position = 1000;
     auto v         = s1->m_numbers();
     v.push_back( 10 );
     s1->m_numbers = v;
 
-    SimpleObj* s2  = new SimpleObj;
+    auto s2        = std::make_unique<SimpleObj>();
     s2->m_position = 2000;
 
-    SimpleObj* s3  = new SimpleObj;
+    auto s3        = std::make_unique<SimpleObj>();
     s3->m_position = 3000;
 
-    InheritedDemoObj*           ihd1      = new InheritedDemoObj;
+    auto                        ihd1      = std::make_unique<InheritedDemoObj>();
     caf::ChildArrayFieldHandle* listField = &( ihd1->m_simpleObjectsField );
 
     EXPECT_EQ( 0u, listField->size() );
     EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_TRUE( listField->empty() );
 
-    ihd1->m_simpleObjectsField.push_back( new SimpleObj );
+    ihd1->m_simpleObjectsField.push_back( std::make_unique<SimpleObj>() );
     EXPECT_EQ( 1u, listField->size() );
     EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_FALSE( listField->empty() );
 
-    ihd1->m_simpleObjectsField.push_back( s1 );
-    ihd1->m_simpleObjectsField.push_back( s2 );
-    ihd1->m_simpleObjectsField.push_back( s3 );
+    ihd1->m_simpleObjectsField.push_back( std::move( s1 ) );
+    ihd1->m_simpleObjectsField.push_back( std::move( s2 ) );
+    ihd1->m_simpleObjectsField.push_back( std::move( s3 ) );
 
     EXPECT_EQ( 4u, listField->size() );
     EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
@@ -737,7 +522,7 @@ TEST( BaseTest, ChildArrayFieldHandle )
     EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_FALSE( listField->empty() );
 
-    listField->deleteAllChildObjects();
+    listField->clear();
     EXPECT_EQ( 0u, listField->size() );
     EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_TRUE( listField->empty() );
@@ -768,52 +553,54 @@ CAF_SOURCE_INIT( ReferenceDemoObject, "ReferenceDemoObject" );
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ReferenceHelper )
 {
-    SimpleObj* s1  = new SimpleObj;
+    auto s1        = std::make_unique<SimpleObj>();
     s1->m_position = 1000;
     auto v         = s1->m_numbers();
     v.push_back( 10 );
     s1->m_numbers = v;
 
-    SimpleObj* s2  = new SimpleObj;
+    auto s2        = std::make_unique<SimpleObj>();
     s2->m_position = 2000;
 
-    SimpleObj* s3  = new SimpleObj;
+    auto s3        = std::make_unique<SimpleObj>();
     s3->m_position = 3000;
 
-    InheritedDemoObj* ihd1 = new InheritedDemoObj;
-    ihd1->m_simpleObjectsField.push_back( new SimpleObj );
+    auto ihd1 = std::make_unique<InheritedDemoObj>();
+    ihd1->m_simpleObjectsField.push_back( std::make_unique<SimpleObj>() );
 
-    ihd1->m_simpleObjectsField.push_back( s1 );
-    ihd1->m_simpleObjectsField.push_back( s2 );
-    ihd1->m_simpleObjectsField.push_back( s3 );
+    auto s1p = ihd1->m_simpleObjectsField.push_back( std::move( s1 ) );
+    auto s2p = ihd1->m_simpleObjectsField.push_back( std::move( s2 ) );
+    auto s3p = ihd1->m_simpleObjectsField.push_back( std::move( s3 ) );
 
     {
-        std::string refString = caf::ReferenceHelper::referenceFromRootToObject( NULL, s3 );
+        std::string refString = caf::ReferenceHelper::referenceFromRootToObject( nullptr, s3p );
         EXPECT_TRUE( refString.empty() );
 
-        refString                  = caf::ReferenceHelper::referenceFromRootToObject( ihd1, s3 );
+        refString                  = caf::ReferenceHelper::referenceFromRootToObject( ihd1.get(), s3p );
         std::string expectedString = ihd1->m_simpleObjectsField.keyword() + " 3";
         EXPECT_STREQ( refString.c_str(), expectedString.c_str() );
 
-        caf::ObjectHandle* fromRef = caf::ReferenceHelper::objectFromReference( ihd1, refString );
-        EXPECT_TRUE( fromRef == s3 );
+        caf::ObjectHandle* fromRef = caf::ReferenceHelper::objectFromReference( ihd1.get(), refString );
+        EXPECT_TRUE( fromRef == s3p );
     }
 
-    ReferenceDemoObject* objA = new ReferenceDemoObject;
-    objA->m_pointersField     = ihd1;
+    auto objA             = std::make_unique<ReferenceDemoObject>();
+    auto ihd1p            = ihd1.get();
+    objA->m_pointersField = std::move( ihd1 );
 
     {
-        std::string refString = caf::ReferenceHelper::referenceFromRootToObject( objA, s3 );
+        std::string refString = caf::ReferenceHelper::referenceFromRootToObject( objA.get(), s3p );
 
-        caf::ObjectHandle* fromRef = caf::ReferenceHelper::objectFromReference( objA, refString );
-        EXPECT_TRUE( fromRef == s3 );
+        caf::ObjectHandle* fromRef = caf::ReferenceHelper::objectFromReference( objA.get(), refString );
+        EXPECT_TRUE( fromRef == s3p );
     }
 
     // Test reference to field
     {
-        std::string refString = caf::ReferenceHelper::referenceFromRootToField( objA, &( ihd1->m_simpleObjectsField ) );
+        std::string refString =
+            caf::ReferenceHelper::referenceFromRootToField( objA.get(), &( ihd1p->m_simpleObjectsField ) );
 
-        caf::FieldHandle* fromRef = caf::ReferenceHelper::fieldFromReference( objA, refString );
-        EXPECT_TRUE( fromRef == &( ihd1->m_simpleObjectsField ) );
+        caf::FieldHandle* fromRef = caf::ReferenceHelper::fieldFromReference( objA.get(), refString );
+        EXPECT_TRUE( fromRef == &( ihd1p->m_simpleObjectsField ) );
     }
 }

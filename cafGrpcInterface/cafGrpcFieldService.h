@@ -46,7 +46,6 @@
 
 namespace caf
 {
-class ChildArrayFieldHandle;
 class ChildFieldHandle;
 class FieldHandle;
 class Object;

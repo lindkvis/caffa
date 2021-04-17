@@ -6,6 +6,8 @@
 #include "cafFieldHandle.h"
 #include "cafPointer.h"
 
+#include <memory>
+
 namespace caf
 {
 template <typename T>
@@ -22,7 +24,8 @@ public:
     ChildArrayFieldHandle() {}
     ~ChildArrayFieldHandle() override {}
 
-    virtual void deleteAllChildObjects() = 0;
+    virtual void                  clear()                                                     = 0;
+    virtual Pointer<ObjectHandle> insertAt( size_t index, std::unique_ptr<ObjectHandle> obj ) = 0;
 
     bool hasSameFieldCountForAllObjects();
 };
@@ -47,7 +50,7 @@ public:
 template <typename DataType>
 class ChildArrayField<DataType*> : public ChildArrayFieldHandle
 {
-    typedef DataType* DataTypePtr;
+    typedef std::unique_ptr<DataType> DataTypeUniquePtr;
 
 public:
     using FieldDataType = DataType*;
@@ -60,23 +63,21 @@ public:
 
     // Reimplementation of PointersFieldHandle methods
 
-    size_t        size() const override { return m_pointers.size(); }
-    bool          empty() const override { return m_pointers.empty(); }
-    void          clear() override;
-    void          deleteAllChildObjects() override;
-    void          insertAt( int indexAfter, ObjectHandle* obj ) override;
-    ObjectHandle* at( size_t index ) override;
-    void          setValue( const std::vector<DataType*>& objects );
+    size_t                                 size() const override { return m_pointers.size(); }
+    bool                                   empty() const override { return m_pointers.empty(); }
+    void                                   clear() override;
+    std::vector<std::unique_ptr<DataType>> removeAll();
+    ObjectHandle*                          at( size_t index ) override;
+    void                                   setValue( const std::vector<std::unique_ptr<DataType>>& objects );
 
     // std::vector-like access
 
     DataType* operator[]( size_t index ) const;
 
-    void   push_back( DataType* pointer );
-    void   set( size_t index, DataType* pointer );
-    void   insert( size_t indexAfter, DataType* pointer );
-    void   insert( size_t indexAfter, const std::vector<Pointer<DataType>>& objects );
-    size_t count( const DataType* pointer ) const;
+    Pointer<DataType>     push_back( DataTypeUniquePtr pointer );
+    Pointer<DataType>     insert( size_t index, DataTypeUniquePtr pointer );
+    Pointer<ObjectHandle> insertAt( size_t index, std::unique_ptr<ObjectHandle> obj ) override;
+    size_t                count( const DataType* pointer ) const;
 
     void   erase( size_t index ) override;
     size_t index( const DataType* pointer ) const;
@@ -90,15 +91,12 @@ public:
     // Child objects
     std::vector<DataType*> childObjects() const;
 
-    void childObjects( std::vector<ObjectHandle*>* objects ) override;
-    void removeChildObject( ObjectHandle* object ) override;
+    void                                        childObjects( std::vector<ObjectHandle*>* objects ) override;
+    [[nodiscard]] std::unique_ptr<ObjectHandle> removeChildObject( ObjectHandle* object ) override;
+    [[nodiscard]] std::unique_ptr<DataType>     remove( ObjectHandle* object );
 
 private: // To be disabled
     CAF_DISABLE_COPY_AND_ASSIGN( ChildArrayField );
-
-private:
-    void removeThisAsParentField();
-    void addThisAsParentField();
 
 private:
     friend class FieldIoCap<ChildArrayField<DataType*>>;

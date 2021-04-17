@@ -5,6 +5,7 @@
 #include "cafVariant.h"
 
 #include <any>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -38,10 +39,10 @@ public:
     std::vector<std::string> keywordAliases() const;
 
     // Child objects
-    bool         hasChildObjects();
-    virtual void childObjects( std::vector<ObjectHandle*>* ) {}
-    virtual void removeChildObject( ObjectHandle* ) {}
-    void         setOwnerClass( const std::string& ownerClass );
+    bool                                                hasChildObjects();
+    virtual void                                        childObjects( std::vector<ObjectHandle*>* ) {}
+    [[nodiscard]] virtual std::unique_ptr<ObjectHandle> removeChildObject( ObjectHandle* );
+    void                                                setOwnerClass( const std::string& ownerClass );
 
     // Ptr referenced objects
     bool         hasPtrReferencedObjects();

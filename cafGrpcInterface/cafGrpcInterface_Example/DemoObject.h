@@ -48,7 +48,7 @@ public:
     caf::Field<std::vector<int>>    m_intVector;
 
     double doubleValue() const { return m_memberDoubleField; }
-    void setDoubleValue(double value) { m_memberDoubleField = value; }
+    void   setDoubleValue( double value ) { m_memberDoubleField = value; }
 
     std::vector<double> doubleVector() const { return m_doubleVector; }
     void                setDoubleVector( const std::vector<double>& values ) { m_doubleVector = values; }
@@ -80,7 +80,10 @@ public:
     DemoDocument();
     ~DemoDocument() override {}
 
-    void addInheritedObject( InheritedDemoObj* object ) { m_inheritedDemoObjects.push_back( object ); }
+    void addInheritedObject( std::unique_ptr<InheritedDemoObj> object )
+    {
+        m_inheritedDemoObjects.push_back( std::move( object ) );
+    }
     std::vector<InheritedDemoObj*> inheritedObjects() const { return m_inheritedDemoObjects.childObjects(); }
 
     DemoObject* demoObject() { return m_demoObject; }

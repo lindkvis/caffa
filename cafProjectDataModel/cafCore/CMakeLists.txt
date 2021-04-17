@@ -26,7 +26,6 @@ set (PUBLIC_HEADERS
     cafFieldHandle.h
     cafLogger.h
     cafObjectCapability.h
-    cafFieldReorderCapability.h
     cafObjectHandle.h
     cafPointer.h
     cafFieldProxyAccessor.h
@@ -52,7 +51,6 @@ set( PROJECT_FILES
     cafColor.cpp
     cafChildArrayFieldHandle.cpp
     cafFieldHandle.cpp
-    cafFieldReorderCapability.cpp
     cafLogger.cpp
     cafObjectHandle.cpp
     cafPointer.cpp

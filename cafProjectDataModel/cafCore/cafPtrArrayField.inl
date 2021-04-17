@@ -250,34 +250,6 @@ void PtrArrayField<DataType*>::ptrReferencedObjects( std::vector<ObjectHandle*>*
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PtrArrayField<DataType*>::insertAt( int indexAfter, ObjectHandle* obj )
-{
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
-
-    // This method should CAF_ASSERT( if obj to insert is not castable to the container type, but since this
-    // is a virtual method, its implementation is always created and that makes a dyn_cast add the need for
-    // #include of the header file "everywhere"
-    typename std::vector<Pointer<DataType>>::iterator it;
-
-    if ( indexAfter == -1 )
-    {
-        m_pointers.push_back( Pointer<DataType>() );
-        it = m_pointers.end() - 1;
-    }
-    else
-    {
-        m_pointers.insert( m_pointers.begin() + indexAfter, Pointer<DataType>() );
-        it = m_pointers.begin() + indexAfter;
-    }
-
-    it->setRawPtr( obj );
-    obj->addReferencingPtrField( this );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
 ObjectHandle* PtrArrayField<DataType*>::at( size_t index )
 {
     return m_pointers[index].rawPtr();

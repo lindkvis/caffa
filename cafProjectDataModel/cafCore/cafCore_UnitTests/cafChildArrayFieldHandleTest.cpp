@@ -65,11 +65,7 @@ public:
         this->addField( &derivedOtherObjs, "derivedOtherObjs" );
     }
 
-    ~ContainerObj()
-    {
-        derivedObjs.deleteAllChildObjects();
-        derivedOtherObjs.deleteAllChildObjects();
-    }
+    ~ContainerObj() {}
 
     caf::ChildArrayField<SimpleObjDerived*>      derivedObjs;
     caf::ChildArrayField<SimpleObjDerivedOther*> derivedOtherObjs;
@@ -91,48 +87,45 @@ U findObjectById( T start, T end, int id )
 
 TEST( ChildArrayFieldHandle, DerivedObjects )
 {
-    ContainerObj* containerObj = new ContainerObj;
+    auto containerObj = std::make_unique<ContainerObj>();
 
-    SimpleObjDerived* s0 = new SimpleObjDerived;
-    SimpleObjDerived* s1 = new SimpleObjDerived;
-    SimpleObjDerived* s2 = new SimpleObjDerived;
-    containerObj->derivedObjs.push_back( s0 );
-    containerObj->derivedObjs.push_back( s1 );
-    containerObj->derivedObjs.push_back( s2 );
+    auto s0 = std::make_unique<SimpleObjDerived>();
+    auto s1 = std::make_unique<SimpleObjDerived>();
+    auto s2 = std::make_unique<SimpleObjDerived>();
+
+    containerObj->derivedObjs.push_back( std::move( s0 ) );
+    containerObj->derivedObjs.push_back( std::move( s1 ) );
+    auto s2p = containerObj->derivedObjs.push_back( std::move( s2 ) );
 
     SimpleObjDerived* myObj =
         findObjectById<SimpleObjDerived*>( containerObj->derivedObjs.begin(), containerObj->derivedObjs.end(), 2 );
-    EXPECT_EQ( s2, myObj );
+    EXPECT_EQ( s2p, myObj );
 
     myObj = findObjectById<SimpleObjDerived*>( containerObj->derivedObjs.begin(), containerObj->derivedObjs.end(), -1 );
     EXPECT_EQ( NULL, myObj );
-
-    delete containerObj;
 }
 
 TEST( ChildArrayFieldHandle, DerivedOtherObjects )
 {
     ContainerObj* containerObj = new ContainerObj;
 
-    SimpleObjDerivedOther* s0 = new SimpleObjDerivedOther;
-    SimpleObjDerivedOther* s1 = new SimpleObjDerivedOther;
-    SimpleObjDerivedOther* s2 = new SimpleObjDerivedOther;
+    auto s0 = std::make_unique<SimpleObjDerivedOther>();
+    auto s1 = std::make_unique<SimpleObjDerivedOther>();
+    auto s2 = std::make_unique<SimpleObjDerivedOther>();
 
     int s2Id = s2->id;
 
-    containerObj->derivedOtherObjs.push_back( s0 );
-    containerObj->derivedOtherObjs.push_back( s1 );
-    containerObj->derivedOtherObjs.push_back( s2 );
+    containerObj->derivedOtherObjs.push_back( std::move( s0 ) );
+    containerObj->derivedOtherObjs.push_back( std::move( s1 ) );
+    auto s2p = containerObj->derivedOtherObjs.push_back( std::move( s2 ) );
 
     SimpleObjDerivedOther* myObj = findObjectById<SimpleObjDerivedOther*>( containerObj->derivedOtherObjs.begin(),
                                                                            containerObj->derivedOtherObjs.end(),
                                                                            s2Id );
-    EXPECT_EQ( s2, myObj );
+    EXPECT_EQ( s2p, myObj );
 
     myObj = findObjectById<SimpleObjDerivedOther*>( containerObj->derivedOtherObjs.begin(),
                                                     containerObj->derivedOtherObjs.end(),
                                                     -1 );
     EXPECT_EQ( NULL, myObj );
-
-    delete containerObj;
 }

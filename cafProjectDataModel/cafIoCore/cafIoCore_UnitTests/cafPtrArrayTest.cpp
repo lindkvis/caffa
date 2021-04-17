@@ -65,17 +65,17 @@ TEST( PtrArrayBaseTest, PtrArraySerializeTest )
 {
     MyContainerObject* objA = new MyContainerObject;
 
-    MyItemObject* s1 = new MyItemObject;
-    MyItemObject* s2 = new MyItemObject;
-    MyItemObject* s3 = new MyItemObject;
+    auto s1 = std::make_unique<MyItemObject>();
+    auto s2 = std::make_unique<MyItemObject>();
+    auto s3 = std::make_unique<MyItemObject>();
 
-    objA->m_items.push_back( s1 );
-    objA->m_items.push_back( s2 );
-    objA->m_items.push_back( s3 );
+    auto s1p = objA->m_items.push_back( std::move( s1 ) );
+    auto s2p = objA->m_items.push_back( std::move( s2 ) );
+    auto s3p = objA->m_items.push_back( std::move( s3 ) );
 
-    objA->m_containers.push_back( s1 );
-    objA->m_containers.push_back( s2 );
-    objA->m_containers.push_back( s3 );
+    objA->m_containers.push_back( s1p );
+    objA->m_containers.push_back( s2p );
+    objA->m_containers.push_back( s3p );
 
     // delete s2;
 
@@ -104,22 +104,23 @@ TEST( PtrArrayBaseTest, PtrArraySerializeTest )
 //--------------------------------------------------------------------------------------------------
 TEST( PtrArrayBaseTest, DeleteObjectPtrArraySerializeTest )
 {
-    MyContainerObject* objA = new MyContainerObject;
+    auto objA = std::make_unique<MyContainerObject>();
 
-    MyItemObject* s1 = new MyItemObject;
-    MyItemObject* s2 = new MyItemObject;
-    MyItemObject* s3 = new MyItemObject;
+    auto s1 = std::make_unique<MyItemObject>();
+    auto s2 = std::make_unique<MyItemObject>();
+    auto s3 = std::make_unique<MyItemObject>();
 
-    objA->m_items.push_back( s1 );
-    objA->m_items.push_back( s2 );
-    objA->m_items.push_back( s3 );
+    auto s1p = objA->m_items.push_back( std::move( s1 ) );
+    auto s2p = objA->m_items.push_back( std::move( s2 ) );
+    auto s3p = objA->m_items.push_back( std::move( s3 ) );
 
-    objA->m_containers.push_back( s1 );
-    objA->m_containers.push_back( s2 );
-    objA->m_containers.push_back( s3 );
+    objA->m_containers.push_back( s1p );
+    objA->m_containers.push_back( s2p );
+    objA->m_containers.push_back( s3p );
 
-    delete s2;
-
+    {
+        auto s2n = objA->m_items.remove( s2p.p() );
+    }
     std::vector<caf::ObjectIoCapability::IoType> ioTypes = { caf::ObjectIoCapability::IoType::JSON };
 
     for ( auto ioType : ioTypes )
@@ -139,11 +140,8 @@ TEST( PtrArrayBaseTest, DeleteObjectPtrArraySerializeTest )
 
             EXPECT_TRUE( ihd1->m_containers.at( 0 ) != nullptr );
             EXPECT_TRUE( ihd1->m_containers.at( 1 ) == nullptr ); // Deleted
-            EXPECT_TRUE( ihd1->m_containers.at( 2 ) == nullptr ); // Pointing to item at index 2, does not longer exist
 
             EXPECT_TRUE( ihd1->m_items.size() == size_t( 2 ) );
-            EXPECT_TRUE( ihd1->m_items[0] != nullptr );
-            EXPECT_TRUE( ihd1->m_items[1] != nullptr );
         }
     }
 }

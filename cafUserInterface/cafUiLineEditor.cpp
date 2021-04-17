@@ -43,7 +43,6 @@
 #include "cafUiDefaultObjectEditor.h"
 #include "cafUiFieldEditorHandle.h"
 #include "cafUiOrdering.h"
-#include "cafUniqueIdValidator.h"
 
 #include <QAbstractItemView>
 #include <QAbstractProxyModel>

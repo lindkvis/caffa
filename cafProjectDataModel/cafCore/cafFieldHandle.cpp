@@ -1,6 +1,7 @@
 #include "cafFieldHandle.h"
 
 #include "cafFieldCapability.h"
+#include "cafObjectHandle.h"
 
 namespace caf
 {
@@ -68,6 +69,14 @@ caf::ObjectHandle* FieldHandle::ownerObject()
 std::string FieldHandle::ownerClass() const
 {
     return m_ownerClass;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<ObjectHandle> FieldHandle::removeChildObject( ObjectHandle* )
+{
+    return std::unique_ptr<ObjectHandle>();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -83,7 +83,7 @@ public:
     std::vector<std::string> classKeywords() const override;
 
 private:
-    ObjectHandle* doCreate( const std::string& classNameKeyword, uint64_t) override;
+    ObjectHandle* doCreate( const std::string& classNameKeyword, uint64_t ) override;
 
     DefaultObjectFactory() {}
     ~DefaultObjectFactory() override

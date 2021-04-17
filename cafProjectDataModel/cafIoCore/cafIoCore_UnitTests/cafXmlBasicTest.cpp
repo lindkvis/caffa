@@ -94,55 +94,6 @@ TEST( BaseTest, Delete )
     delete s2;
 }
 
-#if 0 
-//--------------------------------------------------------------------------------------------------
-/// Read/write Xml using ObjectGroup
-//--------------------------------------------------------------------------------------------------
-TEST(BaseTest, Start)
-{
-    std::string serializedString;
-    {
-        DemoObject* a = new DemoObject;
-
-        a->m_proxyDoubleField.setValue(2.5);
-        a->m_proxyEnumField.setValue(DemoObject::T3);
-
-        ASSERT_DOUBLE_EQ(2.5, a->m_proxyDoubleField.value());
-
-        caf::ObjectGroup objGroup;
-        objGroup.addObject(a);
-
-        QXmlStreamWriter xmlStream(&serializedString);
-        xmlStream.setAutoFormatting(true);
-        objGroup.writeFields(xmlStream, NULL);
-
-        std::cout << serializedString << std::endl;
-
-        delete a;
-    }
-
-    /*
-        <Objects>
-          <DemoObject>
-            <BigNumber>2.5</BigNumber>
-            <TestEnumValue>T3</TestEnumValue>
-          </DemoObject>
-        </Objects>
-    */
-
-    {
-        caf::ObjectGroup destinationObjectGroup;
-        QXmlStreamReader xmlStream(serializedString);
-        destinationObjectGroup.readFields(xmlStream, caf::DefaultObjectFactory::instance(), NULL);
-
-        DemoObject* a = dynamic_cast<DemoObject*>(destinationObjectGroup.objects[0]);
-
-        ASSERT_DOUBLE_EQ(2.5, a->m_proxyDoubleField.value());
-        ASSERT_EQ(DemoObject::T3, a->m_proxyEnumField());
-
-    }
-}
-#endif
 //--------------------------------------------------------------------------------------------------
 /// Read/write fields to a valid Xml document encoded in a std::string
 //--------------------------------------------------------------------------------------------------
@@ -154,7 +105,7 @@ TEST( BaseTest, FieldWrite )
     {
         std::string serializedString;
         {
-            DemoObject* a = new DemoObject;
+            auto a = std::make_unique<DemoObject>();
 
             a->m_proxyDoubleField.setValue( 2.5 );
             ASSERT_DOUBLE_EQ( 2.5, a->m_proxyDoubleField.value() );
@@ -162,8 +113,6 @@ TEST( BaseTest, FieldWrite )
             serializedString = a->writeObjectToString( ioType );
 
             std::cout << serializedString << std::endl;
-
-            delete a;
         }
 
         /*
@@ -174,7 +123,7 @@ TEST( BaseTest, FieldWrite )
         */
 
         {
-            DemoObject* a = new DemoObject;
+            auto a = std::make_unique<DemoObject>();
 
             a->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance(), ioType );
         }
@@ -263,42 +212,43 @@ CAF_IO_SOURCE_INIT( ReferenceDemoObject, "ReferenceDemoObject" );
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ReferenceHelper )
 {
-    DemoObject* s1 = new DemoObject;
-    DemoObject* s2 = new DemoObject;
-    DemoObject* s3 = new DemoObject;
+    auto s1 = std::make_unique<DemoObject>();
+    auto s2 = std::make_unique<DemoObject>();
+    auto s3 = std::make_unique<DemoObject>();
 
-    InheritedDemoObj* ihd1 = new InheritedDemoObj;
-    ihd1->m_childArrayField.push_back( new DemoObject );
+    auto ihd1 = std::make_unique<InheritedDemoObj>();
+    ihd1->m_childArrayField.push_back( std::make_unique<DemoObject>() );
 
-    ihd1->m_childArrayField.push_back( s1 );
-    ihd1->m_childArrayField.push_back( s2 );
-    ihd1->m_childArrayField.push_back( s3 );
+    auto s1p = ihd1->m_childArrayField.push_back( std::move( s1 ) );
+    auto s2p = ihd1->m_childArrayField.push_back( std::move( s2 ) );
+    auto s3p = ihd1->m_childArrayField.push_back( std::move( s3 ) );
 
     {
-        std::string refString      = caf::ReferenceHelper::referenceFromRootToObject( ihd1, s3 );
+        std::string refString      = caf::ReferenceHelper::referenceFromRootToObject( ihd1.get(), s3p );
         std::string expectedString = ihd1->m_childArrayField.keyword() + " 3";
         EXPECT_STREQ( refString.c_str(), expectedString.c_str() );
 
-        caf::ObjectHandle* fromRef = caf::ReferenceHelper::objectFromReference( ihd1, refString );
-        EXPECT_TRUE( fromRef == s3 );
+        caf::ObjectHandle* fromRef = caf::ReferenceHelper::objectFromReference( ihd1.get(), refString );
+        EXPECT_TRUE( fromRef == s3p.p() );
     }
 
-    ReferenceDemoObject* objA = new ReferenceDemoObject;
-    objA->m_pointersField     = ihd1;
+    auto objA             = std::make_unique<ReferenceDemoObject>();
+    auto ihd1p            = ihd1.get();
+    objA->m_pointersField = std::move( ihd1 );
 
     {
-        std::string refString = caf::ReferenceHelper::referenceFromRootToObject( objA, s3 );
+        std::string refString = caf::ReferenceHelper::referenceFromRootToObject( objA.get(), s3p );
 
-        caf::ObjectHandle* fromRef = caf::ReferenceHelper::objectFromReference( objA, refString );
-        EXPECT_TRUE( fromRef == s3 );
+        caf::ObjectHandle* fromRef = caf::ReferenceHelper::objectFromReference( objA.get(), refString );
+        EXPECT_TRUE( fromRef == s3p );
     }
 
     // Test reference to field
     {
-        std::string refString = caf::ReferenceHelper::referenceFromRootToField( objA, &( ihd1->m_childArrayField ) );
+        std::string refString = caf::ReferenceHelper::referenceFromRootToField( objA.get(), &( ihd1p->m_childArrayField ) );
 
-        caf::FieldHandle* fromRef = caf::ReferenceHelper::fieldFromReference( objA, refString );
-        EXPECT_TRUE( fromRef == &( ihd1->m_childArrayField ) );
+        caf::FieldHandle* fromRef = caf::ReferenceHelper::fieldFromReference( objA.get(), refString );
+        EXPECT_TRUE( fromRef == &( ihd1p->m_childArrayField ) );
     }
 }
 
@@ -307,31 +257,28 @@ TEST( BaseTest, ReferenceHelper )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ChildArrayFieldSerializing )
 {
-    DemoObject* s1 = new DemoObject;
+    auto s1 = std::make_unique<DemoObject>();
+    auto s2 = std::make_unique<DemoObject>();
+    auto s3 = std::make_unique<DemoObject>();
+
     s1->m_proxyDoubleField.setValue( 10 );
-
-    DemoObject* s2 = new DemoObject;
     s2->m_proxyDoubleField.setValue( 20 );
-
-    DemoObject* s3 = new DemoObject;
     s3->m_proxyDoubleField.setValue( 30 );
 
     std::string serializedString;
     {
-        InheritedDemoObj* ihd1 = new InheritedDemoObj;
-        ihd1->m_childArrayField.push_back( s1 );
-        ihd1->m_childArrayField.push_back( s2 );
-        ihd1->m_childArrayField.push_back( s3 );
+        auto ihd1 = std::make_unique<InheritedDemoObj>();
+        auto s1p  = ihd1->m_childArrayField.push_back( std::move( s1 ) );
+        auto s2p  = ihd1->m_childArrayField.push_back( std::move( s2 ) );
+        auto s3p  = ihd1->m_childArrayField.push_back( std::move( s3 ) );
 
         serializedString = ihd1->writeObjectToString();
 
         std::cout << serializedString << std::endl;
-
-        delete ihd1;
     }
 
     {
-        InheritedDemoObj* ihd1 = new InheritedDemoObj;
+        auto ihd1 = std::make_unique<InheritedDemoObj>();
         ASSERT_EQ( 0u, ihd1->m_childArrayField.size() );
 
         ihd1->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance() );
@@ -349,7 +296,7 @@ TEST( BaseTest, ChildArrayFieldSerializing )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, TestDataType )
 {
-    SimpleObj* s1 = new SimpleObj;
+    auto s1 = std::make_unique<SimpleObj>();
 
     {
         auto dataTypeNameDouble = s1->m_position.capability<caf::FieldIoCapability>()->dataTypeName();
@@ -367,11 +314,9 @@ TEST( BaseTest, TestDataType )
     }
 
     {
-        InheritedDemoObj* obj                = new InheritedDemoObj;
-        auto              dataTypeNameDouble = obj->m_texts.capability<caf::FieldIoCapability>()->dataTypeName();
+        auto obj                = std::make_unique<InheritedDemoObj>();
+        auto dataTypeNameDouble = obj->m_texts.capability<caf::FieldIoCapability>()->dataTypeName();
         EXPECT_EQ( typeid( std::string ).name(), dataTypeNameDouble );
     }
-
-    delete s1;
 }
 #endif
