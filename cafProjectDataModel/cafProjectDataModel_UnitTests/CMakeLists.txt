@@ -15,12 +15,12 @@ set( PROJECT_FILES
 # add the executable 
 add_executable (${PROJECT_NAME}
 	${PROJECT_FILES}
-	gtest/gtest-all.cpp
 )
 
 target_link_libraries ( ${PROJECT_NAME}
     PRIVATE
 	cafProjectDataModel         
+    gtest
     ${THREAD_LIBRARY}
     nlohmann_json::nlohmann_json
 )

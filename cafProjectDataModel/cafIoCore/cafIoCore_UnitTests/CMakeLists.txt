@@ -5,7 +5,6 @@ project ( cafIoCore_UnitTests )
 # add the executable 
 add_executable (${PROJECT_NAME}
 	cafXml_UnitTests.cpp
-	gtest/gtest-all.cpp
 
 	cafXmlBasicTest.cpp
 	cafAdvancedTemplateTest.cpp
@@ -17,6 +16,7 @@ target_link_libraries ( ${PROJECT_NAME}
     cafIoCore    
     ${THREAD_LIBRARY}
     nlohmann_json::nlohmann_json
+	gtest
 )
 
 target_include_directories(${PROJECT_NAME}

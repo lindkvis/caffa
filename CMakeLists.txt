@@ -29,6 +29,7 @@ set(JSON_Coverage OFF)
 set(JSON_Install OFF)
 add_subdirectory (ThirdParty/json)
 add_subdirectory (ThirdParty/GSL)
+add_subdirectory (ThirdParty/gtest)
 
 #libraries
 add_subdirectory (cafProjectDataModel/cafCore)
@@ -40,7 +41,6 @@ add_subdirectory(cafProjectDataModel)
 
 if (CAFFA_GRPC_INTERFACE)
     add_subdirectory(cafGrpcInterface)
-    #add_subdirectory(cafGrpcServerApp)
 endif()
 
 if(CAFFA_BUILD_UNIT_TESTS)

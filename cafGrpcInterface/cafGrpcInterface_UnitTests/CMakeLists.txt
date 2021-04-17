@@ -6,7 +6,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set( PROJECT_FILES
 	cafGrpcInterface_UnitTests.cpp
-	gtest/gtest-all.cpp
 
 	cafGrpcInterfaceBasicTest.cpp
     Parent.h
@@ -28,4 +27,5 @@ target_link_libraries ( ${PROJECT_NAME}
     cafProjectDataModel
     cafGrpcInterface
     ${THREAD_LIBRARY}
+    gtest
 )

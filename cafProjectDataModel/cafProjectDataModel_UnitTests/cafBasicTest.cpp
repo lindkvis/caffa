@@ -34,7 +34,7 @@
 //
 //##################################################################################################
 
-#include "gtest/gtest.h"
+#include "gtest.h"
 #include <iostream>
 
 #include "cafAppEnum.h"

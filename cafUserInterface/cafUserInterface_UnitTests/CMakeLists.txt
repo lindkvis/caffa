@@ -15,9 +15,6 @@ set( PROJECT_FILES
 	
 	cafUiTreeViewModelTest.cpp 
 	cafUiTreeSelectionQModelTest.cpp 
-
-	gtest/gtest.h
-	gtest/gtest-all.cpp
 )
 
 # add the executable 
@@ -38,7 +35,8 @@ target_link_libraries ( ${PROJECT_NAME}
     ${QT_LIBRARIES}
     ${EXTERNAL_LINK_LIBRARIES}
     cafUiCore
-    cafUserInterface    
+    cafUserInterface
+    gtest
 )
 
 # Copy Qt Dlls
