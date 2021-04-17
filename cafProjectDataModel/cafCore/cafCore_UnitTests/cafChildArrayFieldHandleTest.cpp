@@ -82,7 +82,7 @@ U findObjectById( T start, T end, int id )
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 TEST( ChildArrayFieldHandle, DerivedObjects )
@@ -102,7 +102,7 @@ TEST( ChildArrayFieldHandle, DerivedObjects )
     EXPECT_EQ( s2p, myObj );
 
     myObj = findObjectById<SimpleObjDerived*>( containerObj->derivedObjs.begin(), containerObj->derivedObjs.end(), -1 );
-    EXPECT_EQ( NULL, myObj );
+    EXPECT_EQ( nullptr, myObj );
 }
 
 TEST( ChildArrayFieldHandle, DerivedOtherObjects )
@@ -127,5 +127,5 @@ TEST( ChildArrayFieldHandle, DerivedOtherObjects )
     myObj = findObjectById<SimpleObjDerivedOther*>( containerObj->derivedOtherObjs.begin(),
                                                     containerObj->derivedOtherObjs.end(),
                                                     -1 );
-    EXPECT_EQ( NULL, myObj );
+    EXPECT_EQ( nullptr, myObj );
 }

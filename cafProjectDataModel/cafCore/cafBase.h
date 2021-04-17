@@ -1,6 +1,6 @@
 #pragma once
 
-// Brings in size_t and definition of NULL
+// Brings in size_t
 #include <cstddef>
 
 // Macro to disable the copy constructor and assignment operator

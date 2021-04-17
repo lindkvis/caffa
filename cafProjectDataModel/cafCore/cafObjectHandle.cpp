@@ -167,7 +167,7 @@ void ObjectHandle::prepareForDelete()
         if ( m_capabilities[i].second ) delete m_capabilities[i].first;
     }
 
-    // Set all guarded pointers pointing to this to NULL
+    // Set all guarded pointers pointing to this to nullptr
     std::set<ObjectHandle**>::iterator it;
     for ( it = m_pointersReferencingMe.begin(); it != m_pointersReferencingMe.end(); ++it )
     {

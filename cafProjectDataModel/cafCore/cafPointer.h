@@ -50,7 +50,7 @@ class ObjectHandle;
 /// Overall idea of the referencing system:
 /// The addressToObjectPointer is added to a std::set in the object pointed to.
 /// when the object pointed to is deleted, its destructor sets the object pointers
-/// it has addresses to to NULL
+/// it has addresses to nullptr
 //==================================================================================================
 
 class PointerImpl
@@ -65,7 +65,7 @@ private:
 //==================================================================================================
 /// Guarded pointer class to point at Objects
 /// Use a Pointer<SomeObject> in the same way as a normal pointer.
-/// The guarding sets the pointer to NULL if the object pointed to dies
+/// The guarding sets the pointer to nullptr if the object pointed to dies
 ///
 //==================================================================================================
 

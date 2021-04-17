@@ -17,7 +17,7 @@ class FieldIoCap;
 /// it is intended to be written as a reference (by path from common root)
 /// This field has nothing to do with ownership at all, and is not a part of the
 /// parent-child relations induced by the other ChildField<PtrType*> ChildArrayField<PtrType*>
-/// The pointer is guarded, meaning that it will be set to NULL if the object pointed to
+/// The pointer is guarded, meaning that it will be set to nullptr if the object pointed to
 /// is deleted.
 //==================================================================================================
 

@@ -22,8 +22,8 @@ public:
 
     // Gui generalized interface
 public:
-    Variant                       uiValue() const override;
-    void                          setValueFromUiEditor( const Variant& uiValue ) override;
+    Variant                    uiValue() const override;
+    void                       setValueFromUiEditor( const Variant& uiValue ) override;
     std::deque<OptionItemInfo> valueOptions( bool* useOptionsOnly ) const override;
 
     Variant toUiBasedVariant() const override;
@@ -51,8 +51,8 @@ public:
 
     // Gui generalized interface
 public:
-    Variant                       uiValue() const override { return Variant(); }
-    void                          setValueFromUiEditor( const Variant& uiValue ) override {}
+    Variant                    uiValue() const override { return Variant(); }
+    void                       setValueFromUiEditor( const Variant& uiValue ) override {}
     std::deque<OptionItemInfo> valueOptions( bool* useOptionsOnly ) const override
     {
         return std::deque<OptionItemInfo>();
@@ -77,8 +77,8 @@ public:
 
     // Gui generalized interface
 public:
-    Variant                       uiValue() const override { return Variant(); }
-    void                          setValueFromUiEditor( const Variant& uiValue ) override {}
+    Variant                    uiValue() const override { return Variant(); }
+    void                       setValueFromUiEditor( const Variant& uiValue ) override {}
     std::deque<OptionItemInfo> valueOptions( bool* useOptionsOnly ) const override
     {
         return std::deque<OptionItemInfo>();
@@ -90,7 +90,7 @@ public:
 template <typename FieldType>
 void AddUiCapabilityToField( FieldType* field )
 {
-    if ( field->template capability<FieldUiCap<FieldType>>() == NULL )
+    if ( field->template capability<FieldUiCap<FieldType>>() == nullptr )
     {
         new FieldUiCap<FieldType>( field, true );
     }
