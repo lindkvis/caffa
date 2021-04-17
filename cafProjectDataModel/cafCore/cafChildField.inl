@@ -9,9 +9,10 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::ChildField<DataType*>::childObjects( std::vector<ObjectHandle*>* objects )
+void ChildField<DataType*>::childObjects( std::vector<ObjectHandle*>* objects )
 {
     CAF_ASSERT( objects );
+    CAF_ASSERT( isInitializedByInitFieldMacro() );
     ObjectHandle* obj = m_fieldValue.rawPtr();
     if ( obj )
     {
@@ -23,39 +24,42 @@ void caf::ChildField<DataType*>::childObjects( std::vector<ObjectHandle*>* objec
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::ChildField<DataType*>::setChildObject( ObjectHandle* object )
+std::unique_ptr<DataType> ChildField<DataType*>::remove( ObjectHandle* object )
 {
-    if ( m_fieldValue.rawPtr() != nullptr )
-    {
-        ObjectHandle* oldObject = m_fieldValue.rawPtr();
-        this->removeChildObject( oldObject );
-        delete oldObject;
-    }
-    m_fieldValue.setRawPtr( object );
-    object->setAsParentField( this );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void caf::ChildField<DataType*>::removeChildObject( ObjectHandle* object )
-{
+    CAF_ASSERT( isInitializedByInitFieldMacro() );
     if ( m_fieldValue.rawPtr() != nullptr && m_fieldValue.rawPtr() == object )
     {
+        auto typedObject = m_fieldValue.p();
         m_fieldValue.rawPtr()->removeAsParentField( this );
         m_fieldValue.setRawPtr( nullptr );
+        return std::unique_ptr<DataType>( typedObject );
     }
+    return nullptr;
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+std::unique_ptr<ObjectHandle> ChildField<DataType*>::removeChildObject( ObjectHandle* object )
+{
+    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    if ( m_fieldValue.rawPtr() != nullptr && m_fieldValue.rawPtr() == object )
+    {
+        auto typedObject = m_fieldValue.p();
+        m_fieldValue.rawPtr()->removeAsParentField( this );
+        m_fieldValue.setRawPtr( nullptr );
+        return std::unique_ptr<ObjectHandle>( typedObject );
+    }
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-caf::ChildField<DataType*>::ChildField( const DataTypePtr& fieldValue )
+ChildField<DataType*>::ChildField( DataTypePtr fieldValue )
 {
-    if ( m_fieldValue ) m_fieldValue->removeAsParentField( this );
-    m_fieldValue = fieldValue;
+    m_fieldValue = fieldValue.release();
     if ( m_fieldValue != nullptr ) m_fieldValue->setAsParentField( this );
 }
 
@@ -63,7 +67,7 @@ caf::ChildField<DataType*>::ChildField( const DataTypePtr& fieldValue )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-caf::ChildField<DataType*>::~ChildField()
+ChildField<DataType*>::~ChildField()
 {
     delete m_fieldValue.rawPtr();
 }
@@ -72,12 +76,16 @@ caf::ChildField<DataType*>::~ChildField()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-caf::ChildField<DataType*>& ChildField<DataType*>::operator=( const DataTypePtr& fieldValue )
+ChildField<DataType*>& ChildField<DataType*>::operator=( DataTypePtr fieldValue )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
-    if ( m_fieldValue ) m_fieldValue->removeAsParentField( this );
-    m_fieldValue = fieldValue;
+    if ( m_fieldValue )
+    {
+        m_fieldValue->removeAsParentField( this );
+        delete m_fieldValue.rawPtr();
+    }
+    m_fieldValue = fieldValue.release();
     if ( m_fieldValue != nullptr ) m_fieldValue->setAsParentField( this );
     return *this;
 }
@@ -86,11 +94,18 @@ caf::ChildField<DataType*>& ChildField<DataType*>::operator=( const DataTypePtr&
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::ChildField<DataType*>::setValue( const DataTypePtr& fieldValue )
+DataType* ChildField<DataType*>::setValue( DataTypePtr fieldValue )
 {
-    if ( m_fieldValue ) m_fieldValue->removeAsParentField( this );
-    m_fieldValue = fieldValue;
+    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    if ( m_fieldValue )
+    {
+        m_fieldValue->removeAsParentField( this );
+        delete m_fieldValue.rawPtr();
+    }
+    m_fieldValue = fieldValue.release();
     if ( m_fieldValue != nullptr ) m_fieldValue->setAsParentField( this );
+
+    return m_fieldValue;
 }
 
 } // End of namespace caf

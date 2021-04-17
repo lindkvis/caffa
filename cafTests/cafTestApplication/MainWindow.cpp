@@ -986,10 +986,10 @@ MainWindow::MainWindow()
     createDockPanels();
     buildTestModel();
 
-    setRoot(m_testRoot);
+    setRoot(m_testRoot.get());
 
     sm_mainWindowInstance = this;
-    caf::SelectionManager::instance()->setRootObject(m_testRoot);
+    caf::SelectionManager::instance()->setRootObject(m_testRoot.get());
 
     // caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
     // undoView->setStack(caf::CmdExecCommandManager::instance()->undoStack());
@@ -1083,48 +1083,46 @@ void MainWindow::createDockPanels()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::buildTestModel()
 {
-    m_testRoot = new DemoObjectGroup;
+    m_testRoot = std::make_unique<DemoObjectGroup>();
 
-    ManyGroups* manyGroups = new ManyGroups;
-    m_testRoot->objects.push_back(manyGroups);
+    auto manyGroups = std::make_unique<ManyGroups>();
+    m_testRoot->objects.push_back(std::move(manyGroups));
 
-    DemoObject* demoObject = new DemoObject;
-    m_testRoot->objects.push_back(demoObject);
+    auto demoObject    = std::make_unique<DemoObject>();
+    auto demoObjectPtr = demoObject.get();
+    m_testRoot->objects.push_back(std::move(demoObject));
 
-    SmallDemoObject* smallObj1 = new SmallDemoObject;
-    m_testRoot->objects.push_back(smallObj1);
+    auto smallObj1 = std::make_unique<SmallDemoObject>();
+    m_testRoot->objects.push_back(std::move(smallObj1));
 
-    SmallDemoObjectA* smallObj2 = new SmallDemoObjectA;
-    m_testRoot->objects.push_back(smallObj2);
+    auto smallObj2 = std::make_unique<SmallDemoObjectA>();
+    m_testRoot->objects.push_back(std::move(smallObj2));
 
-    SmallGridDemoObject* smallGridObj = new SmallGridDemoObject;
-    m_testRoot->objects.push_back(smallGridObj);
+    auto smallGridObj = std::make_unique<SmallGridDemoObject>();
+    m_testRoot->objects.push_back(std::move(smallGridObj));
 
-    SingleEditorObject* singleEditorObj = new SingleEditorObject;
-    m_testRoot->objects.push_back(singleEditorObj);
+    auto singleEditorObj = std::make_unique<SingleEditorObject>();
+    m_testRoot->objects.push_back(std::move(singleEditorObj));
 
-    auto tamComboBox = new TamComboBox;
-    m_testRoot->objects.push_back(tamComboBox);
+    auto tamComboBox = std::make_unique<TamComboBox>();
+    m_testRoot->objects.push_back(std::move(tamComboBox));
 
-    DemoObject* demoObj2 = new DemoObject;
+    auto demoObj2              = std::make_unique<DemoObject>();
+    auto demoObj2Ptr           = demoObj2.get();
+    demoObjectPtr->m_textField = "Mitt Demo Obj";
+    demoObjectPtr->m_objectList.push_back(std::move(demoObj2));
+    demoObjectPtr->m_objectList.push_back(std::make_unique<SmallDemoObjectA>());
+    demoObjectPtr->m_objectList.push_back(std::make_unique<SmallDemoObject>());
+    demoObjectPtr->m_objectList.push_back(std::make_unique<SmallDemoObject>());
 
-    demoObject->m_textField = "Mitt Demo Obj";
-    demoObject->m_objectList.push_back(demoObj2);
-    demoObject->m_objectList.push_back(new SmallDemoObjectA());
-    SmallDemoObject* smallObj3 = new SmallDemoObject();
-    demoObject->m_objectList.push_back(smallObj3);
-    demoObject->m_objectList.push_back(new SmallDemoObject());
+    demoObjectPtr->m_objectListOfSameType.push_back(std::make_unique<SmallDemoObjectA>());
+    demoObjectPtr->m_objectListOfSameType.push_back(std::make_unique<SmallDemoObjectA>());
+    demoObjectPtr->m_objectListOfSameType.push_back(std::make_unique<SmallDemoObjectA>());
+    demoObjectPtr->m_objectListOfSameType.push_back(std::make_unique<SmallDemoObjectA>());
 
-    demoObject->m_objectListOfSameType.push_back(new SmallDemoObjectA());
-    demoObject->m_objectListOfSameType.push_back(new SmallDemoObjectA());
-    demoObject->m_objectListOfSameType.push_back(new SmallDemoObjectA());
-    demoObject->m_objectListOfSameType.push_back(new SmallDemoObjectA());
-
-    demoObj2->m_objectList.push_back(new SmallDemoObjectA());
-    demoObj2->m_objectList.push_back(new SmallDemoObjectA());
-    demoObj2->m_objectList.push_back(new SmallDemoObject());
-
-    delete smallObj3;
+    demoObj2Ptr->m_objectList.push_back(std::make_unique<SmallDemoObjectA>());
+    demoObj2Ptr->m_objectList.push_back(std::make_unique<SmallDemoObject>());
+    demoObj2Ptr->m_objectList.push_back(std::make_unique<SmallDemoObject>());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1218,8 +1216,7 @@ void MainWindow::releaseTestData()
 {
     if (m_testRoot)
     {
-        m_testRoot->objects.deleteAllChildObjects();
-        delete m_testRoot;
+        m_testRoot.reset();
     }
 }
 
@@ -1281,7 +1278,7 @@ void MainWindow::slotInsert()
 
         if (field)
         {
-            field->push_back(new DemoObject);
+            field->push_back(std::make_unique<DemoObject>());
             field->capability<caf::FieldUiCapability>()->updateConnectedEditors();
 
             return;
@@ -1317,10 +1314,7 @@ void MainWindow::slotRemove()
 
             // Ordering is important
 
-            field->removeChildObject(obj);
-
-            // Delete object
-            delete obj;
+            auto childObject = field->removeChildObject(obj);
 
             // Update editors
             field->capability<caf::FieldUiCapability>()->updateConnectedEditors();
@@ -1406,11 +1400,11 @@ void MainWindow::slotLoadProject()
         setRoot(nullptr);
         releaseTestData();
 
-        m_testRoot           = new DemoObjectGroup;
+        m_testRoot           = std::make_unique<DemoObjectGroup>();
         m_testRoot->fileName = fileName;
         m_testRoot->read();
 
-        setRoot(m_testRoot);
+        setRoot(m_testRoot.get());
     }
 }
 

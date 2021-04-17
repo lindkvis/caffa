@@ -5,6 +5,8 @@
 #include "cafAssert.h"
 #include "cafPointer.h"
 
+#include <memory>
+
 namespace caf
 {
 template <typename T>
@@ -20,7 +22,6 @@ class ChildFieldHandle : public FieldHandle
 {
 public:
     virtual void childObjects( std::vector<ObjectHandle*>* objects ) = 0;
-    virtual void setChildObject( ObjectHandle* object )              = 0;
 };
 
 template <typename DataType>
@@ -39,23 +40,23 @@ public:
 template <typename DataType>
 class ChildField<DataType*> : public ChildFieldHandle
 {
-    typedef DataType* DataTypePtr;
+    using DataTypePtr = std::unique_ptr<DataType>;
 
 public:
     using FieldDataType = DataType*;
 
     ChildField() {}
-    explicit ChildField( const DataTypePtr& fieldValue );
+    explicit ChildField( DataTypePtr fieldValue );
     virtual ~ChildField();
 
     // Assignment
 
-    ChildField& operator=( const DataTypePtr& fieldValue );
+    ChildField& operator=( DataTypePtr fieldValue );
 
     // Basic access
 
     DataType* value() const { return m_fieldValue; }
-    void      setValue( const DataTypePtr& fieldValue );
+    DataType* setValue( DataTypePtr fieldValue );
 
     // Access operators
 
@@ -63,12 +64,11 @@ public:
     DataType*      operator->() const { return m_fieldValue; }
 
     const Pointer<DataType>& operator()() const { return m_fieldValue; }
-    const Pointer<DataType>& v() const { return m_fieldValue; }
 
     // Child objects
-    virtual void childObjects( std::vector<ObjectHandle*>* objects ) override;
-    void         setChildObject( ObjectHandle* object ) override;
-    virtual void removeChildObject( ObjectHandle* object ) override;
+    virtual void                                childObjects( std::vector<ObjectHandle*>* objects ) override;
+    [[nodiscard]] std::unique_ptr<DataType>     remove( ObjectHandle* object );
+    [[nodiscard]] std::unique_ptr<ObjectHandle> removeChildObject( ObjectHandle* object ) override;
 
 private:
     CAF_DISABLE_COPY_AND_ASSIGN( ChildField );

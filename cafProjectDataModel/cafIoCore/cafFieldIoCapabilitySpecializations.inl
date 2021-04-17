@@ -310,7 +310,7 @@ bool FieldIoCap<ChildField<DataType*>>::resolveReferences()
 template <typename DataType>
 void FieldIoCap<ChildArrayField<DataType*>>::readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
 {
-    m_field->deleteAllChildObjects();
+    m_field->clear();
 
     if ( !jsonValue.is_array() ) return;
 

@@ -9,7 +9,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle* DefaultObjectFactory::doCreate( const std::string& classNameKeyword, uint64_t)
+ObjectHandle* DefaultObjectFactory::doCreate( const std::string& classNameKeyword, uint64_t )
 {
     std::map<std::string, ObjectCreatorBase*>::iterator entryIt;
     entryIt = m_factoryMap.find( classNameKeyword );

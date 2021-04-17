@@ -41,7 +41,6 @@ class ObjectUiCapability;
 class FieldIoCapability;
 class FieldCapability;
 class ObjectXmlCapability;
-class ChildArrayFieldHandle;
 
 /**
  * The base class of all objects

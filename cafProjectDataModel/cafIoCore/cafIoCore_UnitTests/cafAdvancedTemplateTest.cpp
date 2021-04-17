@@ -130,30 +130,30 @@ void AppEnum<DemoObjectA::TestEnumType>::setUp()
 //--------------------------------------------------------------------------------------------------
 TEST( AdvancedObjectTest, FieldWrite )
 {
-    ContainerObject* root      = new ContainerObject;
-    ContainerObject* container = new ContainerObject;
-    ContainerObject* sibling   = new ContainerObject;
-    root->m_containers.push_back( container );
-    root->m_containers.push_back( sibling );
+    auto root         = std::make_unique<ContainerObject>();
+    auto container    = std::make_unique<ContainerObject>();
+    auto sibling      = std::make_unique<ContainerObject>();
+    auto containerPtr = root->m_containers.push_back( std::move( container ) );
+    auto siblingPtr   = root->m_containers.push_back( std::move( sibling ) );
 
     {
-        ItemObject* item = new ItemObject();
-        item->m_name     = "Obj A";
+        auto item    = std::make_unique<ItemObject>();
+        item->m_name = "Obj A";
 
-        container->m_items.push_back( item );
+        containerPtr->m_items.push_back( std::move( item ) );
     }
     {
-        ItemObject* item = new ItemObject();
-        item->m_name     = "Obj B";
+        auto item    = std::make_unique<ItemObject>();
+        item->m_name = "Obj B";
 
-        container->m_items.push_back( item );
+        containerPtr->m_items.push_back( std::move( item ) );
     }
 
     {
-        ItemObject* item = new ItemObject();
-        item->m_name     = "Obj C";
+        auto item    = std::make_unique<ItemObject>();
+        item->m_name = "Obj C";
 
-        container->m_items.push_back( item );
+        containerPtr->m_items.push_back( std::move( item ) );
     }
 
     std::vector<caf::ObjectIoCapability::IoType> ioTypes = { caf::ObjectIoCapability::IoType::JSON };
@@ -163,20 +163,20 @@ TEST( AdvancedObjectTest, FieldWrite )
     {
         std::string serializedString;
         {
-            DemoObjectA* a = new DemoObjectA;
-            sibling->m_demoObjs.push_back( a );
-            serializedString = a->writeObjectToString( ioType );
+            auto a           = std::make_unique<DemoObjectA>();
+            auto ap          = siblingPtr->m_demoObjs.push_back( std::move( a ) );
+            serializedString = ap->writeObjectToString( ioType );
+
             std::cout << serializedString << std::endl;
-            delete a;
         }
 
         {
-            DemoObjectA* a = new DemoObjectA;
-            sibling->m_demoObjs.push_back( a );
+            auto a  = std::make_unique<DemoObjectA>();
+            auto ap = siblingPtr->m_demoObjs.push_back( std::move( a ) );
+            ap->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance(), ioType );
+            ap->capability<caf::ObjectIoCapability>()->resolveReferencesRecursively();
 
-            a->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance(), ioType );
-
-            ASSERT_TRUE( a->m_pointerToItem() == NULL );
+            ASSERT_TRUE( ap->m_pointerToItem() == NULL );
         }
     }
 
@@ -184,24 +184,25 @@ TEST( AdvancedObjectTest, FieldWrite )
     {
         std::string serializedString;
         {
-            DemoObjectA* a = new DemoObjectA;
-            sibling->m_demoObjs.push_back( a );
+            auto a = std::make_unique<DemoObjectA>();
 
-            a->m_pointerToItem = container->m_items[1];
+            a->m_pointerToItem = containerPtr->m_items[1];
+            auto ap            = siblingPtr->m_demoObjs.push_back( std::move( a ) );
 
-            serializedString = a->writeObjectToString( ioType );
+            serializedString = ap->writeObjectToString( ioType );
+
             std::cout << serializedString << std::endl;
-            delete a;
+            ASSERT_TRUE( ap->m_pointerToItem() == containerPtr->m_items[1] );
         }
 
         {
-            DemoObjectA* a = new DemoObjectA;
-            sibling->m_demoObjs.push_back( a );
+            auto a  = std::make_unique<DemoObjectA>();
+            auto ap = siblingPtr->m_demoObjs.push_back( std::move( a ) );
 
-            a->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance(), ioType );
-            a->capability<caf::ObjectIoCapability>()->resolveReferencesRecursively();
+            ap->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance(), ioType );
+            ap->capability<caf::ObjectIoCapability>()->resolveReferencesRecursively();
 
-            ASSERT_TRUE( a->m_pointerToItem() == container->m_items[1] );
+            ASSERT_TRUE( ap->m_pointerToItem() == containerPtr->m_items[1] );
         }
     }
 
@@ -222,62 +223,61 @@ TEST( AdvancedObjectTest, FieldWrite )
 //--------------------------------------------------------------------------------------------------
 TEST( AdvancedObjectTest, CopyOfObjects )
 {
-    ContainerObject* root      = new ContainerObject;
-    ContainerObject* container = new ContainerObject;
-    ContainerObject* sibling   = new ContainerObject;
-    root->m_containers.push_back( container );
-    root->m_containers.push_back( sibling );
+    auto root         = std::make_unique<ContainerObject>();
+    auto container    = std::make_unique<ContainerObject>();
+    auto sibling      = std::make_unique<ContainerObject>();
+    auto containerPtr = root->m_containers.push_back( std::move( container ) );
+    auto siblingPtr   = root->m_containers.push_back( std::move( sibling ) );
 
     {
-        ItemObject* item = new ItemObject();
-        item->m_name     = "Obj A";
+        auto item    = std::make_unique<ItemObject>();
+        item->m_name = "Obj A";
 
-        container->m_items.push_back( item );
+        containerPtr->m_items.push_back( std::move( item ) );
     }
     {
-        ItemObject* item = new ItemObject();
-        item->m_name     = "Obj B";
+        auto item    = std::make_unique<ItemObject>();
+        item->m_name = "Obj B";
 
-        container->m_items.push_back( item );
+        containerPtr->m_items.push_back( std::move( item ) );
     }
 
     {
-        ItemObject* item = new ItemObject();
-        item->m_name     = "Obj C";
+        auto item    = std::make_unique<ItemObject>();
+        item->m_name = "Obj C";
 
-        container->m_items.push_back( item );
+        containerPtr->m_items.push_back( std::move( item ) );
 
         std::vector<caf::ObjectIoCapability::IoType> ioTypes = { caf::ObjectIoCapability::IoType::JSON };
 
         for ( auto ioType : ioTypes )
         {
             {
-                DemoObjectA* a = new DemoObjectA;
-                sibling->m_demoObjs.push_back( a );
+                auto a  = std::make_unique<DemoObjectA>();
+                auto ap = siblingPtr->m_demoObjs.push_back( std::move( a ) );
 
-                a->m_pointerToItem = container->m_items[1];
+                ap->m_pointerToItem = containerPtr->m_items[1];
 
                 {
-                    auto* objCopy = dynamic_cast<DemoObjectA*>(
-                        a->capability<caf::ObjectIoCapability>()->copyBySerialization( caf::DefaultObjectFactory::instance(),
-                                                                                       ioType ) );
+                    auto objCopy = ap->capability<caf::ObjectIoCapability>()
+                                       ->copyBySerialization( caf::DefaultObjectFactory::instance(), ioType );
+                    auto                           demoObj = dynamic_cast<DemoObjectA*>( objCopy );
                     std::vector<caf::FieldHandle*> fieldWithFailingResolve;
-                    objCopy->resolveReferencesRecursively( &fieldWithFailingResolve );
+                    demoObj->resolveReferencesRecursively( &fieldWithFailingResolve );
                     ASSERT_FALSE( fieldWithFailingResolve.empty() );
                     delete objCopy;
                 }
 
                 {
-                    auto* objCopy = dynamic_cast<DemoObjectA*>(
-                        a->capability<caf::ObjectIoCapability>()->copyBySerialization( caf::DefaultObjectFactory::instance(),
-                                                                                       ioType ) );
+                    auto objCopy = ap->capability<caf::ObjectIoCapability>()
+                                       ->copyBySerialization( caf::DefaultObjectFactory::instance(), ioType );
 
-                    sibling->m_demoObjs.push_back( objCopy );
+                    auto demoObj = dynamic_cast<DemoObjectA*>( objCopy );
+                    siblingPtr->m_demoObjs.push_back( std::unique_ptr<DemoObjectA>( demoObj ) );
 
                     std::vector<caf::FieldHandle*> fieldWithFailingResolve;
-                    objCopy->resolveReferencesRecursively( &fieldWithFailingResolve );
+                    demoObj->resolveReferencesRecursively( &fieldWithFailingResolve );
                     ASSERT_TRUE( fieldWithFailingResolve.empty() );
-                    delete objCopy;
                 }
             }
         }

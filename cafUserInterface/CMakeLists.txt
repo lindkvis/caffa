@@ -125,8 +125,6 @@ set( PROJECT_FILES
     cafQTreeViewStateSerializer.cpp
     cafMemoryInspector.h
     cafMemoryInspector.cpp
-    cafUniqueIdValidator.h
-    cafUniqueIdValidator.cpp
     cafDoubleStringValidator.h
     cafDoubleStringValidator.cpp
     cafPickEventHandler.h

@@ -116,6 +116,7 @@ public:
     {
         return m_object == rhs.rawPtr();
     }
+
     // Private methods used by Field<T*> and PointersField<T*>. Do not use unless you mean it !
     ObjectHandle* rawPtr() const { return m_object; }
     void          setRawPtr( ObjectHandle* p )

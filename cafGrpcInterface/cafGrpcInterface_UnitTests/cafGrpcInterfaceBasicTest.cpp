@@ -217,12 +217,15 @@ public:
 
         initField( m_demoObject, "DemoObject" );
         initField( m_inheritedDemoObjects, "InheritedDemoObjects" );
-        m_demoObject = new DemoObject;
+        m_demoObject = std::make_unique<DemoObject>();
 
         this->fileName = "dummyFileName";
     }
 
-    void addInheritedObject( InheritedDemoObj* object ) { m_inheritedDemoObjects.push_back( object ); }
+    void addInheritedObject( std::unique_ptr<InheritedDemoObj> object )
+    {
+        m_inheritedDemoObjects.push_back( std::move( object ) );
+    }
     std::vector<InheritedDemoObj*> inheritedObjects() const { return m_inheritedDemoObjects.childObjects(); }
 
     caf::ChildField<DemoObject*>            m_demoObject;
@@ -321,7 +324,7 @@ TEST( BaseTest, Document )
     size_t childCount = 11u;
     for ( size_t i = 0; i < childCount; ++i )
     {
-        serverDocument->addInheritedObject( new InheritedDemoObj );
+        serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
     }
 
     auto objectHandle   = client->document( "testDocument" );
@@ -400,7 +403,7 @@ TEST( BaseTest, Sync )
     size_t childCount = 11u;
     for ( size_t i = 0; i < childCount; ++i )
     {
-        serverDocument->addInheritedObject( new InheritedDemoObj );
+        serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
     }
 
     auto objectHandle   = client->document( "testDocument" );
@@ -446,7 +449,7 @@ TEST( BaseTest, ObjectMethod )
     ASSERT_TRUE( serverDocument );
 
     CAF_DEBUG( "Adding object to server" );
-    serverDocument->addInheritedObject( new InheritedDemoObj );
+    serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
 
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
