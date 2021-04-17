@@ -1,7 +1,7 @@
 #include "Parent.h"
 #include "Child.h"
 
-#include "gtest/gtest.h"
+#include "gtest.h"
 
 CAF_SOURCE_INIT( Parent, "Parent" );
 

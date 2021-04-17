@@ -1,5 +1,5 @@
 
-#include "gtest/gtest.h"
+#include "gtest.h"
 
 #include "cafChildArrayField.h"
 #include "cafDataValueField.h"

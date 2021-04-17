@@ -1,5 +1,5 @@
 
-#include "gtest/gtest.h"
+#include "gtest.h"
 
 #include "cafDataValueField.h"
 #include "cafFieldIoCapabilitySpecializations.h"
