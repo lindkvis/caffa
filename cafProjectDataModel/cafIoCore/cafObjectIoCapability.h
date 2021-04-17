@@ -60,9 +60,6 @@ public:
     void setupBeforeSaveRecursively() { setupBeforeSaveRecursively( this->m_owner ); };
 
     void resolveReferencesRecursively( std::vector<FieldHandle*>* fieldWithFailingResolve = nullptr );
-    bool inheritsClassWithKeyword( const std::string& testClassKeyword ) const;
-
-    const std::list<std::string>& classInheritanceStack() const;
 
     bool readFile( const std::string& fileName, IoType ioType = IoType::JSON );
     bool writeFile( const std::string& fileName, IoType ioType = IoType::JSON );
@@ -80,8 +77,6 @@ protected: // Virtual
 
     bool isInheritedFromSerializable() const { return true; }
 
-    void registerClassKeyword( const std::string& registerKeyword );
-
 private:
     void initAfterReadRecursively( ObjectHandle* object );
     void setupBeforeSaveRecursively( ObjectHandle* object );
@@ -90,8 +85,7 @@ private:
 protected:
     friend class ObjectHandle; // Only temporary for void Object::addFieldNoDefault( ) accessing findField
 
-    std::list<std::string> m_classInheritanceStack;
-    ObjectHandle*          m_owner;
+    ObjectHandle* m_owner;
 };
 
 } // End of namespace caf

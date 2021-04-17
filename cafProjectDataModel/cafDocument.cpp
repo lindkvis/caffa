@@ -48,7 +48,7 @@ CAF_SOURCE_INIT( Document, "Document" );
 //--------------------------------------------------------------------------------------------------
 Document::Document()
 {
-    initObject().withUi( "Document", "", "Basic Document", "" );
+    assignUiInfo( "Document", "", "Basic Document", "" );
     initField( fileName, "DocumentFileName" ).withScripting();
 }
 

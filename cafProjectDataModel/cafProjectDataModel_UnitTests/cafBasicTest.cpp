@@ -62,7 +62,6 @@ public:
         : Object()
         , m_doubleMember( 0.0 )
     {
-        initObject();
         initField( m_position, "Position" ).withDefault( 8765.2 );
         initField( m_dir, "Dir" ).withDefault( 123.56 );
         initField( m_up, "Up" ).withDefault( 0.0 );
@@ -80,7 +79,6 @@ public:
     SimpleObj( const SimpleObj& other )
         : Object()
     {
-        initObject();
         initField( m_position, "Position" );
         initField( m_dir, "Dir" );
         initField( m_up, "Up" );
@@ -123,8 +121,6 @@ class DemoObject : public caf::Object
 public:
     DemoObject()
     {
-        initObject();
-
         initField( m_doubleField, "BigNumber" ).withDefault( 0.0 );
 
         initField( m_intField, "IntNumber" ).withDefault( 0 );
@@ -160,8 +156,6 @@ public:
 
     InheritedDemoObj()
     {
-        initObject();
-
         initField( m_texts, "Texts" ).withDefault( { "Some", "words" } );
         initField( m_testEnumField, "TestEnumValue" );
         initField( m_simpleObjectsField, "SimpleObjects" );
@@ -178,11 +172,7 @@ class MyDocument : public caf::Document
     CAF_HEADER_INIT;
 
 public:
-    MyDocument()
-    {
-        initObject();
-        initField( objects, "Objects" );
-    }
+    MyDocument() { initField( objects, "Objects" ); }
 
     caf::ChildArrayField<ObjectHandle*> objects;
 };
@@ -535,8 +525,6 @@ class ReferenceDemoObject : public caf::Object
 public:
     ReferenceDemoObject()
     {
-        initObject();
-
         initField( m_pointersField, "SimpleObjPtrField" );
         initField( m_simpleObjPtrField2, "SimpleObjPtrField2" );
     }

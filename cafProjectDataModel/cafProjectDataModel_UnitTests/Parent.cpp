@@ -7,7 +7,6 @@ CAF_SOURCE_INIT( Parent, "Parent" );
 
 Parent::Parent()
 {
-    initObject();
     initField( m_simpleObjectsField, "SimpleObjects" );
     initField( m_simpleObjectF, "SimpleObject" );
 }

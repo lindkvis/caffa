@@ -12,7 +12,7 @@ CAF_SOURCE_INIT( ObjectGroup, "ObjectGroup" );
 //--------------------------------------------------------------------------------------------------
 ObjectGroup::ObjectGroup()
 {
-    initObject().withUi( "Object Group", "", "", "" );
+    assignUiInfo( "Object Group", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +49,6 @@ CAF_SOURCE_INIT( ObjectCollection, "ObjectCollection" );
 //--------------------------------------------------------------------------------------------------
 ObjectCollection::ObjectCollection()
 {
-    initObject();
     initField( objects, "Objects" );
 }
 

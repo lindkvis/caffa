@@ -33,8 +33,6 @@ class DemoObject : public caf::Object
 public:
     DemoObject()
     {
-        initObject();
-
         initField( m_proxyDoubleField, "proxyDoubleField" ).withScripting();
         initField( m_proxyIntField, "proxyIntField" ).withScripting();
         initField( m_proxyStringField, "proxyStringField" ).withScripting();
@@ -154,8 +152,6 @@ public:
                            const std::string& stringValue = "SomeValue" )
         : caf::ObjectMethod( self )
     {
-        initObject();
-
         initField( m_doubleMember, "doubleMember" ).withScripting().withDefault( doubleValue );
         initField( m_intMember, "intMember" ).withScripting().withDefault( intValue );
         initField( m_stringMember, "stringMember" ).withScripting().withDefault( stringValue );
@@ -193,7 +189,6 @@ class InheritedDemoObj : public DemoObject
 public:
     InheritedDemoObj()
     {
-        initObject();
         this->addField( &m_texts, "Texts" );
         this->addField( &m_childArrayField, "DemoObjectects" );
         this->addField( &m_ptrField, "m_ptrField" );
@@ -213,8 +208,6 @@ class DemoDocument : public caf::Document
 public:
     DemoDocument()
     {
-        initObject();
-
         initField( m_demoObject, "DemoObject" );
         initField( m_inheritedDemoObjects, "InheritedDemoObjects" );
         m_demoObject = std::make_unique<DemoObject>();

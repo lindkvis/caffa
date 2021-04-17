@@ -77,10 +77,6 @@ protected:
     /// Override to provide editor specific data for the  for the object
     virtual void defineObjectEditorAttribute( caf::UiEditorAttribute* attribute ) {}
 
-    /// This method is intended to be used in macros to make compile time errors
-    // if user uses them on wrong type of objects
-    constexpr bool isInheritedFromUiObject() { return true; }
-
 private:
     /// Helper method for the TreeItem generation stuff
     void addDefaultUiTreeChildren( UiTreeOrdering* uiTreeOrdering );

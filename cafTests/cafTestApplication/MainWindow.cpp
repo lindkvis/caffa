@@ -49,7 +49,7 @@ class DemoObjectGroup : public caf::Document
 public:
     DemoObjectGroup()
     {
-        initObject().withUi("Project", "", "Test Project", "");
+        assignUiInfo("Project", "", "Test Project", "");
         initField(objects, "Objects").withUi();
         initField(m_textField, "Description").withUi("Project");
         objects.capability<caf::FieldUiCapability>()->setUiHidden(true);
@@ -86,7 +86,7 @@ CAF_SOURCE_INIT(TinyDemoObject, "TinyDemoObject");
 
 TinyDemoObject::TinyDemoObject()
 {
-    initObject().withUi("Tiny Demo Object", "", "This object is a demo of the CAF framework", "");
+    assignUiInfo("Tiny Demo Object", "", "This object is a demo of the CAF framework", "");
     initField(m_toggleField, "Toggle").withDefault(false).withUi("Toggle Item", "", "Tooltip", " Whatsthis?");
     initField(m_doubleField, "Number")
         .withDefault(0.0)
@@ -100,10 +100,10 @@ class SmallDemoObject : public caf::Object
 public:
     SmallDemoObject()
     {
-        initObject().withUi("Small Demo Object",
-                            ":/images/win/filenew.png",
-                            "This object is a demo of the CAF framework",
-                            "This object is a demo of the CAF framework");
+        assignUiInfo("Small Demo Object",
+                     ":/images/win/filenew.png",
+                     "This object is a demo of the CAF framework",
+                     "This object is a demo of the CAF framework");
 
         initField(m_toggleField, "Toggle", false)
             .withUi("Add Items To Multi Select", "", "Toggle Field tooltip", " Toggle Field whatsthis");
@@ -280,10 +280,10 @@ class SmallGridDemoObject : public caf::Object
 public:
     SmallGridDemoObject()
     {
-        initObject().withUi("Small Grid Demo Object",
-                            "",
-                            "This object is a demo of the CAF framework",
-                            "This object is a demo of the CAF framework");
+        assignUiInfo("Small Grid Demo Object",
+                     "",
+                     "This object is a demo of the CAF framework",
+                     "This object is a demo of the CAF framework");
 
         initField(m_intFieldStandard, "Standard", 0)
             .withUi("Standard",
@@ -544,10 +544,10 @@ class SingleEditorObject : public caf::Object
 public:
     SingleEditorObject()
     {
-        initObject().withUi("Single Editor Object",
-                            "",
-                            "This object is a demo of the CAF framework",
-                            "This object is a demo of the CAF framework");
+        assignUiInfo("Single Editor Object",
+                     "",
+                     "This object is a demo of the CAF framework",
+                     "This object is a demo of the CAF framework");
 
         initField(m_intFieldStandard, "Standard", 0)
             .withUi("Fairly Wide Label",
@@ -585,10 +585,10 @@ public:
 
     SmallDemoObjectA()
     {
-        initObject().withUi("Small Demo Object A",
-                            "",
-                            "This object is a demo of the CAF framework",
-                            "This object is a demo of the CAF framework");
+        assignUiInfo("Small Demo Object A",
+                     "",
+                     "This object is a demo of the CAF framework",
+                     "This object is a demo of the CAF framework");
 
         initField(m_toggleField, "Toggle", false).withUi("Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
         initField(m_pushButtonField, "Push", false).withUi("Button Field", "", "", " ");
@@ -783,7 +783,7 @@ class DemoObject : public caf::Object
 public:
     DemoObject()
     {
-        initObject().withUi(
+        assignUiInfo(
             "Demo Object", "", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
 
         initField(m_toggleField, "Toggle", false).withUi("Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
