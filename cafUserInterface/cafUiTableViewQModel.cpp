@@ -543,7 +543,7 @@ QWidget* UiTableViewQModel::getEditorWidgetAndTransferOwnership( QWidget* parent
     if ( editor )
     {
         // Recreate editor widget, as the delegate takes ownership of the QWidget and destroys it when
-        // edit is completed. This will cause the editor widget pointer to be NULL, as it is a guarded pointer
+        // edit is completed. This will cause the editor widget pointer to be nullptr, as it is a guarded pointer
         // using QPointer
         editor->createWidgets( parent );
         QWidget* editorWidget = editor->editorWidget();

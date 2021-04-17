@@ -87,7 +87,7 @@ void ObjectUiCapability::objectEditorAttribute( UiEditorAttribute* attribute )
 //--------------------------------------------------------------------------------------------------
 UiTreeOrdering* ObjectUiCapability::uiTreeOrdering() const
 {
-    CAF_ASSERT( this ); // This method actually is possible to call on a NULL ptr without getting a crash, so we assert
+    CAF_ASSERT( this ); // This method actually is possible to call on a nullptr without getting a crash, so we assert
                         // instead.
 
     UiTreeOrdering* uiTreeOrdering = new UiTreeOrdering( nullptr, m_owner );

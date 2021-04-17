@@ -83,10 +83,10 @@ std::array<Color::uchar, 4> Color::fromHexString( const std::string& hexString )
     size_t stringLength = hexString.length();
     CAF_ASSERT( ( stringLength == 7u || stringLength == 9u ) && hexString[0] == '#' );
 
-    uchar red   = (uchar)strtol( hexString.substr( 1, 2 ).c_str(), NULL, 16 );
-    uchar green = (uchar)strtol( hexString.substr( 3, 2 ).c_str(), NULL, 16 );
-    uchar blue  = (uchar)strtol( hexString.substr( 5, 2 ).c_str(), NULL, 16 );
-    uchar alpha = stringLength == 9u ? (uchar)strtol( hexString.substr( 7, 2 ).c_str(), NULL, 16 ) : 255u;
+    uchar red   = (uchar)strtol( hexString.substr( 1, 2 ).c_str(), nullptr, 16 );
+    uchar green = (uchar)strtol( hexString.substr( 3, 2 ).c_str(), nullptr, 16 );
+    uchar blue  = (uchar)strtol( hexString.substr( 5, 2 ).c_str(), nullptr, 16 );
+    uchar alpha = stringLength == 9u ? (uchar)strtol( hexString.substr( 7, 2 ).c_str(), nullptr, 16 ) : 255u;
     return { red, green, blue, alpha };
 }
 

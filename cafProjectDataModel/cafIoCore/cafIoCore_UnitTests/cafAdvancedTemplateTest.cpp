@@ -176,7 +176,7 @@ TEST( AdvancedObjectTest, FieldWrite )
             ap->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance(), ioType );
             ap->capability<caf::ObjectIoCapability>()->resolveReferencesRecursively();
 
-            ASSERT_TRUE( ap->m_pointerToItem() == NULL );
+            ASSERT_TRUE( ap->m_pointerToItem() == nullptr );
         }
     }
 

@@ -1284,7 +1284,7 @@ void MainWindow::slotInsert()
             return;
         }
 #if 0
-        caf::ChildArrayFieldHandle* listField = NULL;
+        caf::ChildArrayFieldHandle* listField = nullptr;
 
         if (uiFh) listField = dynamic_cast<caf::ChildArrayFieldHandle*>(uiFh->fieldHandle());
 

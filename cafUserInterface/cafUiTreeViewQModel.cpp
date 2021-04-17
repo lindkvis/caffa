@@ -92,7 +92,7 @@ void UiTreeViewQModel::setItemRoot( UiItem* rootItem )
         }
     }
 
-    CAF_ASSERT( newRoot || rootItem == nullptr ); // Only fields, objects or NULL is allowed.
+    CAF_ASSERT( newRoot || rootItem == nullptr ); // Only fields, objects or nullptr is allowed.
 
     // if (newRoot) newRoot->debugDump(0);
 

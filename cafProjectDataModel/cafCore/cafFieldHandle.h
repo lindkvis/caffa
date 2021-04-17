@@ -87,7 +87,7 @@ CapabilityType* FieldHandle::capability()
         CapabilityType* capability = dynamic_cast<CapabilityType*>( m_capabilities[i].first );
         if ( capability ) return capability;
     }
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ const CapabilityType* FieldHandle::capability() const
         const CapabilityType* capability = dynamic_cast<CapabilityType*>( m_capabilities[i].first );
         if ( capability ) return capability;
     }
-    return NULL;
+    return nullptr;
 }
 
 } // End of namespace caf

@@ -8,5 +8,4 @@ Child::Child()
 
 Child::~Child()
 {
-    delete m_testObj();
 }
