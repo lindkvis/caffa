@@ -45,10 +45,10 @@ std::unique_ptr<ObjectHandle> ChildField<DataType*>::removeChildObject( ObjectHa
     CAF_ASSERT( isInitializedByInitFieldMacro() );
     if ( m_fieldValue.rawPtr() != nullptr && m_fieldValue.rawPtr() == object )
     {
-        auto typedObject = m_fieldValue.p();
+        auto objectHandle = m_fieldValue.rawPtr();
         m_fieldValue.rawPtr()->removeAsParentField( this );
         m_fieldValue.setRawPtr( nullptr );
-        return std::unique_ptr<ObjectHandle>( typedObject );
+        return std::unique_ptr<ObjectHandle>( objectHandle );
     }
     return nullptr;
 }
