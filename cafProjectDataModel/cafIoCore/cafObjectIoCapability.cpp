@@ -312,7 +312,6 @@ void ObjectIoCapability::resolveReferencesRecursively( ObjectHandle*            
     std::vector<FieldHandle*> fields = object->fields();
 
     std::vector<ObjectHandle*> children;
-    size_t                     fIdx;
     for ( auto field : fields )
     {
         field->childObjects( &children );
