@@ -12,27 +12,14 @@ caf::Object::Object()
     , ObjectIoCapability( this, false )
     , ObjectUiCapability( this, false )
 {
-    initObject();
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-Object& Object::initObject()
+void Object::assignUiInfo( const std::string& uiName,
+                           const std::string& iconResourceName,
+                           const std::string& toolTip,
+                           const std::string& whatsThis )
 {
-    this->isInheritedFromSerializable();
-    this->registerClassKeyword( classKeyword() );
-    return *this;
-}
-
-Object& Object::withUi( const std::string& uiName,
-                        const std::string& iconResourceName,
-                        const std::string& toolTip,
-                        const std::string& whatsThis )
-{
-    std::string validUiName = uiName.empty() ? classKeyword() : uiName;
-    this->isInheritedFromUiObject();
+    std::string     validUiName = uiName.empty() ? classKeyword() : uiName;
     caf::UiItemInfo objDescr( validUiName, iconResourceName, toolTip, whatsThis );
     this->setUiItemInfo( objDescr );
-    return *this;
 }

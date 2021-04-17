@@ -22,8 +22,6 @@
 
 DemoObject::DemoObject()
 {
-    initObject();
-
     initField( m_doubleVector, "doubleVector" ).withScripting();
     initField( m_floatVector, "floatVector" ).withScripting();
     initField( m_intVector, "intVector" ).withScripting();
@@ -33,8 +31,6 @@ CAF_SOURCE_INIT( DemoObject, "DemoObject" );
 
 InheritedDemoObj::InheritedDemoObj()
 {
-    initObject();
-
     initField( m_texts, "Texts" ).withScripting();
     initField( m_childArrayField, "DemoObjects" ).withScripting();
     initField( m_ptrField, "m_ptrField" ).withScripting();
@@ -44,8 +40,6 @@ CAF_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject" );
 
 DemoDocument::DemoDocument()
 {
-    initObject();
-
     initField( m_demoObject, "DemoObject" ).withScripting();
     initField( m_inheritedDemoObjects, "InheritedDemoObjects" ).withScripting();
     m_demoObject = std::make_unique<DemoObject>();

@@ -136,14 +136,14 @@ caf::Object* ObjectService::findCafObjectFromScriptNameAndAddress( const std::st
         std::list<caf::ObjectHandle*> objects =
             doc->matchingDescendants( [scriptClassName]( const caf::ObjectHandle* objectHandle ) -> bool {
                 auto ioCapability = objectHandle->capability<caf::ObjectIoCapability>();
-                return ioCapability ? ioCapability->inheritsClassWithKeyword( scriptClassName ) : false;
+                return ioCapability ? ioCapability->classKeyword() == scriptClassName : false;
             } );
 
         for ( auto object : objects )
         {
             objectsOfCurrentClass.push_back( object );
         }
-        if ( doc->inheritsClassWithKeyword( scriptClassName ) )
+        if ( doc->classKeyword() == scriptClassName )
         {
             objectsOfCurrentClass.push_front( doc );
         }

@@ -133,27 +133,28 @@ public:
     Object();
     ~Object() override {}
 
-    /// InitObject sets up the user interface related information for the object
-    /// Placed in the constructor of your Object
-    /// Note that classKeyword() is not virtual in the constructor of the Object
-    /// This is expected and fine.
-    Object& initObject();
+    /**
+     * InitUi sets up the user interface related information for the object
+     * Placed in the constructor of your Object
+     * Note that classKeyword() is not virtual in the constructor of the Object
+     * This is expected and fine.
+     */
+    void assignUiInfo( const std::string& uiName           = "",
+                       const std::string& iconResourceName = "",
+                       const std::string& toolTip          = "",
+                       const std::string& whatsThis        = "" );
 
-    Object& withUi( const std::string& uiName           = "",
-                    const std::string& iconResourceName = "",
-                    const std::string& toolTip          = "",
-                    const std::string& whatsThis        = "" );
-
-    /// InitField sets the file keyword for the field,
-    /// adds the field to the internal data structure in the Object.
-    /// and sets up the static user interface related information for the field
-    /// Note that classKeyword() is not virtual in the constructor of the Object
-    /// This is expected and fine.
+    /**
+     * Initialises the field with a file keyword and registers it with the class
+     * including static user interface related information.
+     * Note that classKeyword() is not virtual in the constructor of the Object
+     * This is expected and fine.
+     * @param field A reference to the field
+     * @param keyword The field keyword. Has to be unique within the class.
+     */
     template <typename FieldType>
     FieldInitHelper<FieldType> initField( FieldType& field, const std::string& keyword )
     {
-        isInheritedFromUiObject();
-        isInheritedFromSerializable();
         AddIoCapabilityToField( &field );
         AddUiCapabilityToField( &field );
 
@@ -162,18 +163,20 @@ public:
         return FieldInitHelper( field, keyword );
     }
 
-    /// InitField sets the file keyword for the field,
-    /// adds the field to the internal data structure in the Object,
-    /// sets the default value for the field,
-    /// and sets up the static user interface related information for the field
-    /// Note that classKeyword() is not virtual in the constructor of the Object
-    /// This is expected and fine.
+    /**
+     * Initialises the field with a file keyword and registers it with the class
+     * including static user interface related information.
+     * Note that classKeyword() is not virtual in the constructor of the Object
+     * This is expected and fine.
+     * This version sets a default value
+     * @param field A reference to the field
+     * @param keyword The field keyword. Has to be unique within the class.
+     * @param defaultValue A default field value
+     */
     template <typename FieldType>
     FieldInitHelper<FieldType>
         initField( FieldType& field, const std::string& keyword, const typename FieldType::FieldDataType& defaultValue )
     {
-        isInheritedFromUiObject();
-        isInheritedFromSerializable();
         AddIoCapabilityToField( &field );
         AddUiCapabilityToField( &field );
 

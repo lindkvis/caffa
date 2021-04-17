@@ -62,17 +62,14 @@ ObjectMethodFactory* ObjectMethodFactory::instance()
 //--------------------------------------------------------------------------------------------------
 std::shared_ptr<ObjectMethod> ObjectMethodFactory::createMethod( ObjectHandle* self, const std::string& methodName )
 {
-    auto stack = self->capability<ObjectIoCapability>()->classInheritanceStack();
-    for ( auto className : stack )
+    auto className = self->capability<ObjectIoCapability>()->classKeyword();
+    auto classIt   = m_factoryMap.find( className );
+    if ( classIt != m_factoryMap.end() )
     {
-        auto classIt = m_factoryMap.find( className );
-        if ( classIt != m_factoryMap.end() )
+        auto methodIt = classIt->second.find( methodName );
+        if ( methodIt != classIt->second.end() )
         {
-            auto methodIt = classIt->second.find( methodName );
-            if ( methodIt != classIt->second.end() )
-            {
-                return methodIt->second->create( self );
-            }
+            return methodIt->second->create( self );
         }
     }
     return std::shared_ptr<ObjectMethod>();

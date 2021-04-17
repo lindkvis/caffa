@@ -178,31 +178,6 @@ bool ObjectIoCapability::isValidElementName( const std::string& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectIoCapability::registerClassKeyword( const std::string& registerKeyword )
-{
-    m_classInheritanceStack.push_back( registerKeyword );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool ObjectIoCapability::inheritsClassWithKeyword( const std::string& testClassKeyword ) const
-{
-    return std::find( m_classInheritanceStack.begin(), m_classInheritanceStack.end(), testClassKeyword ) !=
-           m_classInheritanceStack.end();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::list<std::string>& ObjectIoCapability::classInheritanceStack() const
-{
-    return m_classInheritanceStack;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool ObjectIoCapability::readFile( const std::string& fileName, IoType ioType /*= IoType::JSON */ )
 {
     std::ifstream inStream( fileName );

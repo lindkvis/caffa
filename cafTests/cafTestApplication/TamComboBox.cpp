@@ -10,7 +10,7 @@ CAF_SOURCE_INIT(TamComboBox, "TamComboBox");
 //--------------------------------------------------------------------------------------------------
 TamComboBox::TamComboBox()
 {
-    initObject().withUi("Cell Filter", "", "", "");
+    assignUiInfo("Cell Filter", "", "", "");
 
     initField(m_name, "UserDescription", "Filter Name").withUi("Name", "", "", "");
     m_name.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::UiComboBoxEditor::uiEditorTypeName());

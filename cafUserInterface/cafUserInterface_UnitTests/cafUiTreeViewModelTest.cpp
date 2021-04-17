@@ -18,7 +18,7 @@ public:
     SimpleObj()
         : Object()
     {
-        initObject().withUi( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
+        assignUiInfo( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
     }
 };
 CAF_SOURCE_INIT( SimpleObj, "SimpleObj" );
@@ -30,7 +30,7 @@ class DemoObject : public caf::Object
 public:
     DemoObject()
     {
-        initObject().withUi( "DemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
+        assignUiInfo( "DemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
 
         initField( m_simpleObjPtrField, "SimpleObjPtrField" ).withUi( "SimpleObjPtrField", "", "Tooltip", "WhatsThis" );
     }
