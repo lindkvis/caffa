@@ -216,7 +216,7 @@ std::unique_ptr<ObjectHandle> ChildArrayField<DataType*>::removeChildObject( Obj
 
     for ( auto it = m_pointers.begin(); it != m_pointers.end(); ++it )
     {
-        auto ptr = it->p();
+        auto ptr = it->rawPtr();
         if ( ptr == object )
         {
             ptr->removeAsParentField( this );
