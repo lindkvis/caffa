@@ -1,0 +1,5 @@
+<map id="caf::UiTreeItemEditor" name="caf::UiTreeItemEditor">
+<area shape="rect" id="node1" title=" " alt="" coords="5,155,164,181"/>
+<area shape="rect" id="node2" href="$classcaf_1_1UiEditorHandle.html" title="Abstract class to handle editors." alt="" coords="11,80,158,107"/>
+<area shape="rect" id="node3" href="$classcaf_1_1SignalEmitter.html" title=" " alt="" coords="16,5,153,32"/>
+</map>

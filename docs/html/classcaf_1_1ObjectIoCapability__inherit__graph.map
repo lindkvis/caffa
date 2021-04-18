@@ -1,0 +1,9 @@
+<map id="caf::ObjectIoCapability" name="caf::ObjectIoCapability">
+<area shape="rect" id="node1" title=" " alt="" coords="223,80,392,107"/>
+<area shape="rect" id="node3" href="$classcaf_1_1Object.html" title=" " alt="" coords="262,155,353,181"/>
+<area shape="rect" id="node2" href="$classcaf_1_1ObjectCapability.html" title=" " alt="" coords="229,5,386,32"/>
+<area shape="rect" id="node4" href="$classcaf_1_1Document.html" title=" " alt="" coords="5,229,121,256"/>
+<area shape="rect" id="node5" href="$classcaf_1_1ObjectCollection.html" title="The ObjectCollection serves as a container of unknown Objects stored in a ChildArrayField." alt="" coords="145,229,301,256"/>
+<area shape="rect" id="node6" href="$classcaf_1_1ObjectGroup.html" title="The ObjectGroup serves as a container of unknown Objects." alt="" coords="326,229,457,256"/>
+<area shape="rect" id="node7" href="$classcaf_1_1ObjectMethod.html" title=" " alt="" coords="481,229,621,256"/>
+</map>

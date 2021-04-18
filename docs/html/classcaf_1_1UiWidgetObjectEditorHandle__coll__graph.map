@@ -1,0 +1,6 @@
+<map id="caf::UiWidgetObjectEditorHandle" name="caf::UiWidgetObjectEditorHandle">
+<area shape="rect" id="node1" title="Abstract class to handle widget based editors for complete Objects." alt="" coords="5,229,195,271"/>
+<area shape="rect" id="node2" href="$classcaf_1_1UiObjectEditorHandle.html" title="Abstract class to handle editors for complete Objects." alt="" coords="5,155,195,181"/>
+<area shape="rect" id="node3" href="$classcaf_1_1UiEditorHandle.html" title="Abstract class to handle editors." alt="" coords="27,80,173,107"/>
+<area shape="rect" id="node4" href="$classcaf_1_1SignalEmitter.html" title=" " alt="" coords="31,5,169,32"/>
+</map>

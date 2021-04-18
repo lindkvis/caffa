@@ -1,0 +1,21 @@
+<map id="caf::FieldHandle" name="caf::FieldHandle">
+<area shape="rect" id="node1" title=" " alt="" coords="191,189,317,215"/>
+<area shape="rect" id="node3" href="$classcaf_1_1AbstractStreamingField.html" title=" " alt="" coords="365,13,567,39"/>
+<area shape="rect" id="node5" href="$classcaf_1_1ChildArrayField.html" title=" " alt="" coords="392,64,540,105"/>
+<area shape="rect" id="node6" href="$classcaf_1_1ChildFieldHandle.html" title=" " alt="" coords="387,130,545,157"/>
+<area shape="rect" id="node9" href="$classcaf_1_1PtrArrayField.html" title=" " alt="" coords="399,181,533,223"/>
+<area shape="rect" id="node10" href="$classcaf_1_1PtrArrayFieldHandle.html" title=" " alt="" coords="377,247,555,274"/>
+<area shape="rect" id="node14" href="$classcaf_1_1ValueField.html" title=" " alt="" coords="408,303,524,330"/>
+<area shape="rect" id="node19" href="$classcaf_1_1ChildArrayField.html" title=" " alt="" coords="377,355,555,396"/>
+<area shape="rect" id="node2" href="$classcaf_1_1SignalEmitter.html" title=" " alt="" coords="5,189,143,215"/>
+<area shape="rect" id="node4" href="$classcaf_1_1StreamingField.html" title=" " alt="" coords="617,5,827,47"/>
+<area shape="rect" id="node7" href="$classcaf_1_1ChildField.html" title=" " alt="" coords="620,81,824,107"/>
+<area shape="rect" id="node8" href="$classcaf_1_1ChildField_3_01DataType_01_5_01_4.html" title=" " alt="" coords="615,131,829,158"/>
+<area shape="rect" id="node11" href="$classcaf_1_1ChildArrayFieldHandle.html" title=" " alt="" coords="625,186,819,213"/>
+<area shape="rect" id="node13" href="$classcaf_1_1PtrArrayField_3_01DataType_01_5_01_4.html" title=" " alt="" coords="655,237,789,279"/>
+<area shape="rect" id="node12" href="$classcaf_1_1ChildArrayField_3_01DataType_01_5_01_4.html" title=" " alt="" coords="877,179,1025,220"/>
+<area shape="rect" id="node15" href="$classcaf_1_1PtrField.html" title=" " alt="" coords="627,303,817,330"/>
+<area shape="rect" id="node16" href="$classcaf_1_1PtrField_3_01DataType_01_5_01_4.html" title=" " alt="" coords="622,354,822,381"/>
+<area shape="rect" id="node17" href="$classcaf_1_1TypedValueField.html" title=" " alt="" coords="645,405,799,447"/>
+<area shape="rect" id="node18" href="$classcaf_1_1DataValueField.html" title=" " alt="" coords="878,405,1025,447"/>
+</map>
