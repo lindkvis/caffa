@@ -1,0 +1,5 @@
+<map id="caf::UiTableRowEditor" name="caf::UiTableRowEditor">
+<area shape="rect" id="node1" title="This class is used to update a row in the model when a field value changes." alt="" coords="5,155,168,181"/>
+<area shape="rect" id="node2" href="$classcaf_1_1UiEditorHandle.html" title="Abstract class to handle editors." alt="" coords="13,80,160,107"/>
+<area shape="rect" id="node3" href="$classcaf_1_1SignalEmitter.html" title=" " alt="" coords="18,5,155,32"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="caf::ObjectFactory" name="caf::ObjectFactory">
+<area shape="rect" id="node1" title=" " alt="" coords="135,5,273,32"/>
+<area shape="rect" id="node2" href="$classcaf_1_1DefaultObjectFactory.html" title=" " alt="" coords="5,87,192,114"/>
+<area shape="rect" id="node3" href="$classcaf_1_1rpc_1_1GrpcClientObjectFactory.html" title=" " alt="" coords="216,80,403,121"/>
+</map>

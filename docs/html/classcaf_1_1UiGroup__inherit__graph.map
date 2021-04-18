@@ -1,0 +1,5 @@
+<map id="caf::UiGroup" name="caf::UiGroup">
+<area shape="rect" id="node1" title="Class representing a group of fields communicated to the Gui." alt="" coords="66,80,169,107"/>
+<area shape="rect" id="node2" href="$classcaf_1_1UiItem.html" title=" " alt="" coords="5,5,99,32"/>
+<area shape="rect" id="node3" href="$classcaf_1_1UiOrdering.html" title="Class storing the order and grouping of fields and groups of fields etc. to be used in the Gui." alt="" coords="123,5,242,32"/>
+</map>

@@ -1,0 +1,24 @@
+<map id="caf::UiFieldEditorHandle" name="caf::UiFieldEditorHandle">
+<area shape="rect" id="node1" title="Abstract class to handle editors of Fields." alt="" coords="385,411,564,437"/>
+<area shape="rect" id="node5" href="$classcaf_1_1UiCheckBoxEditor.html" title=" " alt="" coords="636,5,803,32"/>
+<area shape="rect" id="node6" href="$classcaf_1_1UiCheckBoxTristateEditor.html" title=" " alt="" coords="612,56,827,83"/>
+<area shape="rect" id="node7" href="$classcaf_1_1UiColorEditor.html" title="See cafFieldCvfColor for conversion between cvf::Color3f and QColor." alt="" coords="652,107,787,133"/>
+<area shape="rect" id="node8" href="$classcaf_1_1UiComboBoxEditor.html" title=" " alt="" coords="633,157,805,184"/>
+<area shape="rect" id="node9" href="$classcaf_1_1UiDateEditor.html" title=" " alt="" coords="653,208,785,235"/>
+<area shape="rect" id="node10" href="$classcaf_1_1UiDoubleSliderEditor.html" title=" " alt="" coords="627,259,811,285"/>
+<area shape="rect" id="node11" href="$classcaf_1_1UiDoubleValueEditor.html" title=" " alt="" coords="628,309,811,336"/>
+<area shape="rect" id="node12" href="$classcaf_1_1UiLabelEditor.html" title="An editor to show (and possibly edit?) formatted larger portions of text." alt="" coords="651,360,787,387"/>
+<area shape="rect" id="node13" href="$classcaf_1_1UiLineEditor.html" title=" " alt="" coords="655,411,783,437"/>
+<area shape="rect" id="node15" href="$classcaf_1_1UiListEditor.html" title=" " alt="" coords="657,461,781,488"/>
+<area shape="rect" id="node16" href="$classcaf_1_1UiPushButtonEditor.html" title=" " alt="" coords="632,512,807,539"/>
+<area shape="rect" id="node17" href="$classcaf_1_1UiSliderEditor.html" title=" " alt="" coords="650,563,789,589"/>
+<area shape="rect" id="node18" href="$classcaf_1_1UiTableViewEditor.html" title=" " alt="" coords="636,613,803,640"/>
+<area shape="rect" id="node19" href="$classcaf_1_1UiTextEditor.html" title="An editor to show (and possibly edit?) formatted larger portions of text." alt="" coords="655,664,783,691"/>
+<area shape="rect" id="node20" href="$classcaf_1_1UiTimeEditor.html" title=" " alt="" coords="652,715,787,741"/>
+<area shape="rect" id="node21" href="$classcaf_1_1UiToolButtonEditor.html" title=" " alt="" coords="634,765,805,792"/>
+<area shape="rect" id="node22" href="$classcaf_1_1UiTreeSelectionEditor.html" title=" " alt="" coords="625,816,813,843"/>
+<area shape="rect" id="node2" title=" " alt="" coords="227,385,301,412"/>
+<area shape="rect" id="node3" href="$classcaf_1_1UiEditorHandle.html" title="Abstract class to handle editors." alt="" coords="191,436,337,463"/>
+<area shape="rect" id="node4" href="$classcaf_1_1SignalEmitter.html" title=" " alt="" coords="5,436,143,463"/>
+<area shape="rect" id="node14" href="$classcaf_1_1UiPickableLineEditor.html" title=" " alt="" coords="875,411,1057,437"/>
+</map>

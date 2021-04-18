@@ -1,0 +1,9 @@
+<map id="caf::UiDefaultObjectEditor" name="caf::UiDefaultObjectEditor">
+<area shape="rect" id="node1" title="The default editor for Objects. Manages the field editors in a grid layout vertically." alt="" coords="25,393,215,420"/>
+<area shape="rect" id="node2" href="$classcaf_1_1UiFormLayoutObjectEditor.html" title=" " alt="" coords="10,319,230,345"/>
+<area shape="rect" id="node3" title=" " alt="" coords="5,237,80,263"/>
+<area shape="rect" id="node4" href="$classcaf_1_1UiWidgetObjectEditorHandle.html" title="Abstract class to handle widget based editors for complete Objects." alt="" coords="104,229,293,271"/>
+<area shape="rect" id="node5" href="$classcaf_1_1UiObjectEditorHandle.html" title="Abstract class to handle editors for complete Objects." alt="" coords="104,155,293,181"/>
+<area shape="rect" id="node6" href="$classcaf_1_1UiEditorHandle.html" title="Abstract class to handle editors." alt="" coords="125,80,272,107"/>
+<area shape="rect" id="node7" href="$classcaf_1_1SignalEmitter.html" title=" " alt="" coords="130,5,267,32"/>
+</map>

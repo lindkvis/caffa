@@ -1,0 +1,7 @@
+<map id="caf::UiDoubleValueEditor" name="caf::UiDoubleValueEditor">
+<area shape="rect" id="node1" title=" " alt="" coords="18,229,201,256"/>
+<area shape="rect" id="node2" href="$classcaf_1_1UiFieldEditorHandle.html" title="Abstract class to handle editors of Fields." alt="" coords="20,155,199,181"/>
+<area shape="rect" id="node3" title=" " alt="" coords="5,80,80,107"/>
+<area shape="rect" id="node4" href="$classcaf_1_1UiEditorHandle.html" title="Abstract class to handle editors." alt="" coords="104,80,251,107"/>
+<area shape="rect" id="node5" href="$classcaf_1_1SignalEmitter.html" title=" " alt="" coords="109,5,246,32"/>
+</map>
