@@ -41,7 +41,7 @@
 
 namespace caf
 {
-CAF_SOURCE_INIT( Document, "Document" );
+CAF_SOURCE_INIT( Document, "Document", "Object" );
 
 //--------------------------------------------------------------------------------------------------
 ///

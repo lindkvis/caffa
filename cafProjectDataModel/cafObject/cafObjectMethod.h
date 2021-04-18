@@ -45,7 +45,7 @@
 /// CAF_OBJECT_METHOD_SOURCE_INIT associates the self class keyword and the method keyword with the method factory
 /// Place this in the cpp file, preferably above the constructor
 #define CAF_OBJECT_METHOD_SOURCE_INIT( SelfClassName, MethodClassName, methodKeyword ) \
-    CAF_IO_ABSTRACT_SOURCE_INIT( MethodClassName, methodKeyword )                      \
+    CAF_IO_ABSTRACT_SOURCE_INIT( MethodClassName, methodKeyword, "ObjectMethod" )      \
     static bool CAF_OBJECT_STRING_CONCATENATE( method##MethodClassName, __LINE__ ) =   \
         caf::ObjectMethodFactory::instance()->registerMethod<SelfClassName, MethodClassName>()
 

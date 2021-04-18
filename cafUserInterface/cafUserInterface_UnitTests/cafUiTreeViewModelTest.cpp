@@ -21,7 +21,7 @@ public:
         assignUiInfo( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
     }
 };
-CAF_SOURCE_INIT( SimpleObj, "SimpleObj" );
+CAF_SOURCE_INIT( SimpleObj, "SimpleObj", "Object" );
 
 class DemoObject : public caf::Object
 {
@@ -38,7 +38,7 @@ public:
     caf::ChildArrayField<caf::ObjectHandle*> m_simpleObjPtrField;
 };
 
-CAF_SOURCE_INIT( DemoObject, "DemoObject" );
+CAF_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
 
 //--------------------------------------------------------------------------------------------------
 ///

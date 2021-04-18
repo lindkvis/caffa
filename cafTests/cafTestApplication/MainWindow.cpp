@@ -68,7 +68,7 @@ public:
     caf::Field<std::string>             m_textField;
 };
 
-CAF_SOURCE_INIT(DemoObjectGroup, "DemoObjectGroup");
+CAF_SOURCE_INIT(DemoObjectGroup, "DemoObjectGroup", "Document", "Object");
 
 class TinyDemoObject : public caf::Object
 {
@@ -82,7 +82,7 @@ private:
     caf::Field<double> m_doubleField;
 };
 
-CAF_SOURCE_INIT(TinyDemoObject, "TinyDemoObject");
+CAF_SOURCE_INIT(TinyDemoObject, "TinyDemoObject", "Object");
 
 TinyDemoObject::TinyDemoObject()
 {
@@ -271,7 +271,7 @@ protected:
     }
 };
 
-CAF_SOURCE_INIT(SmallDemoObject, "SmallDemoObject");
+CAF_SOURCE_INIT(SmallDemoObject, "SmallDemoObject", "Object");
 
 class SmallGridDemoObject : public caf::Object
 {
@@ -535,7 +535,7 @@ protected:
     }
 };
 
-CAF_SOURCE_INIT(SmallGridDemoObject, "SmallGridDemoObject");
+CAF_SOURCE_INIT(SmallGridDemoObject, "SmallGridDemoObject", "Object");
 
 class SingleEditorObject : public caf::Object
 {
@@ -569,7 +569,7 @@ protected:
     }
 };
 
-CAF_SOURCE_INIT(SingleEditorObject, "SingleEditorObject");
+CAF_SOURCE_INIT(SingleEditorObject, "SingleEditorObject", "Object");
 
 class SmallDemoObjectA : public caf::Object
 {
@@ -761,7 +761,7 @@ protected:
     }
 };
 
-CAF_SOURCE_INIT(SmallDemoObjectA, "SmallDemoObjectA");
+CAF_SOURCE_INIT(SmallDemoObjectA, "SmallDemoObjectA", "Object");
 
 namespace caf
 {
@@ -958,7 +958,7 @@ protected:
     } */
 };
 
-CAF_SOURCE_INIT(DemoObject, "DemoObject");
+CAF_SOURCE_INIT(DemoObject, "DemoObject", "Object");
 
 MainWindow* MainWindow::sm_mainWindowInstance = nullptr;
 

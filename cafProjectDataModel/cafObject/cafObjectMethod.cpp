@@ -38,7 +38,7 @@
 
 using namespace caf;
 
-CAF_IO_ABSTRACT_SOURCE_INIT( ObjectMethod, "ObjectMethod" );
+CAF_IO_ABSTRACT_SOURCE_INIT( ObjectMethod, "ObjectMethod", "Object" );
 
 //--------------------------------------------------------------------------------------------------
 ///

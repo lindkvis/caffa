@@ -112,7 +112,7 @@ public:
 
     double m_doubleMember;
 };
-CAF_SOURCE_INIT( SimpleObj, "SimpleObj" );
+CAF_SOURCE_INIT( SimpleObj, "SimpleObj", "Object" );
 
 class DemoObject : public caf::Object
 {
@@ -140,7 +140,7 @@ public:
     caf::ChildField<SimpleObj*> m_simpleObjPtrField2;
 };
 
-CAF_SOURCE_INIT( DemoObject, "DemoObject" );
+CAF_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
 
 class InheritedDemoObj : public DemoObject
 {
@@ -165,7 +165,7 @@ public:
     caf::Field<caf::AppEnum<TestEnumType>> m_testEnumField;
     caf::ChildArrayField<SimpleObj*>       m_simpleObjectsField;
 };
-CAF_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj" );
+CAF_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj", "DemoObject", "Object" );
 
 class MyDocument : public caf::Document
 {
@@ -176,7 +176,7 @@ public:
 
     caf::ChildArrayField<ObjectHandle*> objects;
 };
-CAF_SOURCE_INIT( MyDocument, "MyDocument" );
+CAF_SOURCE_INIT( MyDocument, "MyDocument", "Document", "Object" );
 
 namespace caf
 {
@@ -534,7 +534,7 @@ public:
     caf::ChildArrayField<SimpleObj*> m_simpleObjPtrField2;
 };
 
-CAF_SOURCE_INIT( ReferenceDemoObject, "ReferenceDemoObject" );
+CAF_SOURCE_INIT( ReferenceDemoObject, "ReferenceDemoObject", "Object" );
 
 //--------------------------------------------------------------------------------------------------
 ///
