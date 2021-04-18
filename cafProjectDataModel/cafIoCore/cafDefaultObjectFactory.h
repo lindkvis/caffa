@@ -60,23 +60,17 @@ public:
     template <typename ObjectBaseDerivative>
     bool registerCreator()
     {
-        std::vector<std::string> classNameKeywords = ObjectBaseDerivative::classKeywordAliases();
+        std::string classNameKeyword = ObjectBaseDerivative::classKeywordStatic();
 
-        for ( std::string classNameKeyword : classNameKeywords )
+        auto entryIt = m_factoryMap.find( classNameKeyword );
+        if ( entryIt != m_factoryMap.end() )
         {
-            auto entryIt = m_factoryMap.find( classNameKeyword );
-            if ( entryIt != m_factoryMap.end() )
-            {
-                CAF_ASSERT( classNameKeyword != entryIt->first ); // classNameKeyword has already been used
-                CAF_ASSERT( false ); // To be sure ..
-                return false; // never hit;
-            }
+            CAF_ASSERT( classNameKeyword != entryIt->first ); // classNameKeyword has already been used
+            CAF_ASSERT( false ); // To be sure ..
+            return false; // never hit;
         }
-        auto object = new ObjectCreator<ObjectBaseDerivative>();
-        for ( std::string classNameKeyword : classNameKeywords )
-        {
-            m_factoryMap[classNameKeyword] = object;
-        }
+        auto object                    = new ObjectCreator<ObjectBaseDerivative>();
+        m_factoryMap[classNameKeyword] = object;
         return true;
     }
 
