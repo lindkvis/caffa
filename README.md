@@ -33,7 +33,7 @@ private:
 
 In the cpp file you then register the object and fields.
 ```C++
-CAF_SOURCE_INIT(TinyDemoObject, "TinyDemoObject");
+CAF_SOURCE_INIT(TinyDemoObject, "TinyDemoObject", "Object");
 
 TinyDemoObject::TinyDemoObject()
 {
