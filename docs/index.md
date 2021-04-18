@@ -1,3 +1,8 @@
+---
+layout: default
+title: Caffa
+---
+
 # About Caffa
 Caffa is an Application Framework for Embedded and Desktop Applications written in C++. Caffa is based on the Qt5-based Ceetron Application Framework used in ResInsight (http://www.resinsight.org) but has a simplified API and uses JSON for serialisation.
 
