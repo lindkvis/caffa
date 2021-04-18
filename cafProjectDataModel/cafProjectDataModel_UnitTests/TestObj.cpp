@@ -1,6 +1,6 @@
 #include "TestObj.h"
 
-CAF_SOURCE_INIT( TestObj, "TestObj" );
+CAF_SOURCE_INIT( TestObj, "TestObj", "Object" );
 
 TestObj::TestObj()
 {

@@ -3,7 +3,7 @@
 
 #include "cafUiComboBoxEditor.h"
 
-CAF_SOURCE_INIT(TamComboBox, "TamComboBox");
+CAF_SOURCE_INIT(TamComboBox, "TamComboBox", "Object");
 
 //--------------------------------------------------------------------------------------------------
 ///

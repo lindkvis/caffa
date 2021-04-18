@@ -128,7 +128,7 @@ private:
     std::vector<std::string> m_stringVector;
 };
 
-CAF_SOURCE_INIT( DemoObject, "DemoObject" );
+CAF_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
 
 struct DemoObject_copyObjectResult : public caf::Object
 {
@@ -139,7 +139,7 @@ struct DemoObject_copyObjectResult : public caf::Object
     caf::Field<bool> status;
 };
 
-CAF_SOURCE_INIT( DemoObject_copyObjectResult, "DemoObjectResult" );
+CAF_SOURCE_INIT( DemoObject_copyObjectResult, "copyObjectResult", "Object" );
 
 class DemoObject_copyObject : public caf::ObjectMethod
 {
@@ -225,7 +225,7 @@ public:
     caf::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
 };
 
-CAF_SOURCE_INIT( DemoDocument, "DemoDocument" );
+CAF_SOURCE_INIT( DemoDocument, "DemoDocument", "Document", "Object" );
 
 class ServerApp : public caf::rpc::ServerApplication
 {

@@ -2,7 +2,7 @@
 
 using namespace caf;
 
-CAF_ABSTRACT_SOURCE_INIT( Object, "ObjectBase" );
+CAF_ABSTRACT_SOURCE_INIT( Object, "Object" );
 
 //--------------------------------------------------------------------------------------------------
 ///

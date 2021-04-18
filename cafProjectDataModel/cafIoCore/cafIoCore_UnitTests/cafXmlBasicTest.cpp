@@ -144,7 +144,7 @@ public:
     caf::DataValueField<std::string>  m_texts;
     caf::ChildArrayField<DemoObject*> m_childArrayField;
 };
-CAF_IO_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj" );
+CAF_IO_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj", "DemoObject" );
 
 class SimpleObj : public caf::ObjectHandle, public caf::ObjectIoCapability
 {
