@@ -199,7 +199,7 @@ public:
     caf::PtrField<InheritedDemoObj*>  m_ptrField;
 };
 
-CAF_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject" );
+CAF_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject", "DemoObject" );
 
 class DemoDocument : public caf::Document
 {

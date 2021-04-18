@@ -25,13 +25,14 @@
 /// CAF_HEADER_INIT assists the factory used when reading objects from file
 /// Place this in the header file inside the class definition of your Object
 
-#define CAF_IO_HEADER_INIT                                                                            \
-public:                                                                                               \
-    virtual std::string             classKeyword() const override;                                    \
-    static std::string              classKeywordStatic();                                             \
-    static std::vector<std::string> classKeywordAliases();                                            \
-    virtual bool                    matchesClassKeyword( const std::string& keyword ) const override; \
-                                                                                                      \
+#define CAF_IO_HEADER_INIT                                                                             \
+public:                                                                                                \
+    virtual std::string              classKeyword() const override;                                    \
+    static std::string               classKeywordStatic();                                             \
+    static std::vector<std::string>  classInheritanceStackStatic();                                    \
+    virtual std::vector<std::string> classInheritanceStack() const override;                           \
+    virtual bool                     matchesClassKeyword( const std::string& keyword ) const override; \
+                                                                                                       \
     static bool Error_You_forgot_to_add_the_macro_CAF_IO_HEADER_INIT_and_or_CAF_IO_SOURCE_INIT_to_your_cpp_file_for_this_class()
 
 #define CAF_IO_ABSTRACT_SOURCE_INIT( ClassName, keyword, ... )                                                                       \
@@ -41,15 +42,16 @@ public:                                                                         
     }                                                                                                                                \
                                                                                                                                      \
     std::string              ClassName::classKeyword() const { return classKeywordStatic(); }                                        \
-    std::string              ClassName::classKeywordStatic() { return classKeywordAliases().front(); }                               \
-    std::vector<std::string> ClassName::classKeywordAliases()                                                                        \
+    std::string              ClassName::classKeywordStatic() { return classInheritanceStackStatic().front(); }                       \
+    std::vector<std::string> ClassName::classInheritanceStackStatic()                                                                \
     {                                                                                                                                \
         CAF_VERIFY_IO_KEYWORD( keyword )                                                                                             \
         return { keyword, ##__VA_ARGS__ };                                                                                           \
     }                                                                                                                                \
-    bool ClassName::matchesClassKeyword( const std::string& matchKeyword ) const                                                     \
+    std::vector<std::string> ClassName::classInheritanceStack() const { return classInheritanceStackStatic(); }                      \
+    bool                     ClassName::matchesClassKeyword( const std::string& matchKeyword ) const                                 \
     {                                                                                                                                \
-        auto aliases = classKeywordAliases();                                                                                        \
+        auto aliases = classInheritanceStackStatic();                                                                                \
         for ( auto alias : aliases )                                                                                                 \
         {                                                                                                                            \
             if ( alias == matchKeyword ) return true;                                                                                \

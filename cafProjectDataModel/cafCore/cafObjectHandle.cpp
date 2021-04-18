@@ -51,13 +51,13 @@ ObjectHandle::~ObjectHandle()
 //--------------------------------------------------------------------------------------------------
 std::string ObjectHandle::classKeywordStatic()
 {
-    return classKeywordAliases().front();
+    return classInheritanceStackStatic().front();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> ObjectHandle::classKeywordAliases()
+std::vector<std::string> ObjectHandle::classInheritanceStackStatic()
 {
     return { std::string( "ObjectHandle" ) };
 }

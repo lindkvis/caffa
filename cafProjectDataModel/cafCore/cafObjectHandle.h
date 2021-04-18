@@ -62,7 +62,7 @@ public:
     virtual ~ObjectHandle();
 
     static std::string classKeywordStatic(); // For IoFieldCap to be able to handle fields of ObjectHandle directly
-    static std::vector<std::string> classKeywordAliases();
+    static std::vector<std::string> classInheritanceStackStatic();
 
     /**
      * The registered fields contained in this Object.
