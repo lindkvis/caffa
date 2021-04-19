@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.12)
 
-project (caffa VERSION 0.1 DESCRIPTION "Caffa Application Framework")
+project (caffa VERSION 0.9.2 DESCRIPTION "Caffa Application Framework")
 
 set(CMAKE_CXX_STANDARD 17)
 
