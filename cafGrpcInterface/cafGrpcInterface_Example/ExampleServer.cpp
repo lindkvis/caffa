@@ -77,10 +77,10 @@ int main( int argc, char** argv )
     {
         int packageByteSize = std::atoi( argv[2] );
         serverApp->setPackageByteSize( (size_t)packageByteSize );
-        std::cout << "Using package size " << packageByteSize << " B" << std::endl;
+        CAF_DEBUG( "Using package size " << packageByteSize << "B" );
     }
 
-    std::cout << "Launching Server listening on port " << portNumber << std::endl;
+    CAF_INFO( "Launching Server listening on port " << portNumber );
 
     caf::Logger::setApplicationLogLevel( caf::Logger::Level::DEBUG );
 
@@ -96,6 +96,6 @@ int main( int argc, char** argv )
 
     serverDocument->demoObject()->setIntVector( { 42 } );
     serverDocument->demoObject()->setFloatVector( serverVector );
-    std::cout << "Running server thread" << std::endl;
+    CAF_DEBUG( "Running server thread" );
     serverApp->run();
 }
