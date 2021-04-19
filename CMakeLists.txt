@@ -24,12 +24,18 @@ endif()
 add_definitions(-DGTEST_HAS_STD_WSTRING=0)
 
 #Third Party libraries
-set(JSON_BuildTests OFF)
-set(JSON_Coverage OFF)
-set(JSON_Install OFF)
+set(JSON_BuildTests OFF CACHE INTERNAL "Build Json library with unit tests")
+set(JSON_Coverage OFF CACHE INTERNAL "Build Json library with coverage tests")
+set(JSON_Install OFF CACHE INTERNAL "Add install step to json library")
+set(JSON_ImplicitConversions ON CACHE INTERNAL "Do implicit data type conversions")
+set(JSON_MultipleHeaders OFF CACHE INTERNAL "Split in multiple headers")
+set(GSL_CXX_STANDARD 17 CACHE INTERNAL "Make GSL confirm to which C++ standard?")
+set(GSL_TEST OFF CACHE INTERNAL "Build GSL tests")
 add_subdirectory (ThirdParty/json)
 add_subdirectory (ThirdParty/GSL)
-add_subdirectory (ThirdParty/gtest)
+if (CAFFA_BUILD_UNIT_TESTS)
+    add_subdirectory (ThirdParty/gtest)
+endif()
 
 #libraries
 add_subdirectory (ProjectDataModel/Core)
