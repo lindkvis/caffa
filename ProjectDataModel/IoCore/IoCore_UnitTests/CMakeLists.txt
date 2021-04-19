@@ -25,3 +25,5 @@ target_include_directories(${PROJECT_NAME}
 )
 
 source_group("" FILES ${PROJECT_FILES})
+
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
