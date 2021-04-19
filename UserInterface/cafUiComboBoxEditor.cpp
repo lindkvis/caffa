@@ -52,7 +52,7 @@
 
 namespace caffa
 {
-CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiComboBoxEditor );
+CAFFA_UI_FIELD_EDITOR_SOURCE_INIT( UiComboBoxEditor );
 
 /* GIMP RGBA C-Source image dump (StepDown.c) */
 
@@ -218,7 +218,7 @@ void UiComboBoxEditor::configureAndUpdateUi()
 
         bool                       fromMenuOnly = true;
         std::deque<OptionItemInfo> options      = uiField()->valueOptions( &fromMenuOnly );
-        CAF_ASSERT( fromMenuOnly ); // Not supported
+        CAFFA_ASSERT( fromMenuOnly ); // Not supported
 
         m_comboBox->blockSignals( true );
         m_comboBox->clear();

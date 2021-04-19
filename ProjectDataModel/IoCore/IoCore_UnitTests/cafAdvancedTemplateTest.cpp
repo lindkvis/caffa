@@ -14,21 +14,21 @@
 
 class ItemObject : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
-    CAF_IO_HEADER_INIT;
+    CAFFA_IO_HEADER_INIT;
 
 public:
     ItemObject()
         : ObjectHandle()
         , ObjectIoCapability( this, false )
     {
-        CAF_IO_InitField( &m_name, "Name" );
+        CAFFA_IO_InitField( &m_name, "Name" );
     }
 
     explicit ItemObject( std::string name )
         : ObjectHandle()
         , ObjectIoCapability( this, false )
     {
-        CAF_IO_InitField( &m_name, "Name" );
+        CAFFA_IO_InitField( &m_name, "Name" );
         m_name = name;
     }
 
@@ -37,22 +37,22 @@ public:
     // Fields
     caffa::DataValueField<std::string> m_name;
 };
-CAF_IO_SOURCE_INIT( ItemObject, "ItemObject" );
+CAFFA_IO_SOURCE_INIT( ItemObject, "ItemObject" );
 
 class DemoObjectA;
 
 class ContainerObject : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
-    CAF_IO_HEADER_INIT;
+    CAFFA_IO_HEADER_INIT;
 
 public:
     ContainerObject()
         : ObjectHandle()
         , ObjectIoCapability( this, false )
     {
-        CAF_IO_InitField( &m_items, "Items" );
-        CAF_IO_InitField( &m_containers, "Containers" );
-        CAF_IO_InitField( &m_demoObjs, "DemoObjs" );
+        CAFFA_IO_InitField( &m_items, "Items" );
+        CAFFA_IO_InitField( &m_containers, "Containers" );
+        CAFFA_IO_InitField( &m_demoObjs, "DemoObjs" );
     }
 
     ~ContainerObject() {}
@@ -62,11 +62,11 @@ public:
     caffa::ChildArrayField<ContainerObject*> m_containers;
     caffa::ChildArrayField<DemoObjectA*>     m_demoObjs;
 };
-CAF_IO_SOURCE_INIT( ContainerObject, "ContainerObject" );
+CAFFA_IO_SOURCE_INIT( ContainerObject, "ContainerObject" );
 
 class DemoObjectA : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
-    CAF_IO_HEADER_INIT;
+    CAFFA_IO_HEADER_INIT;
 
 public:
     enum TestEnumType
@@ -80,14 +80,14 @@ public:
         : ObjectHandle()
         , ObjectIoCapability( this, false )
     {
-        CAF_IO_InitField( &m_doubleField, "BigNumber" );
+        CAFFA_IO_InitField( &m_doubleField, "BigNumber" );
         auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
         doubleProxyAccessor->registerSetMethod( this, &DemoObjectA::setDoubleMember );
         doubleProxyAccessor->registerGetMethod( this, &DemoObjectA::doubleMember );
         m_doubleField.setFieldDataAccessor( std::move( doubleProxyAccessor ) );
 
-        CAF_IO_InitField( &m_pointerToItem, "TestPointerToItem" );
-        CAF_IO_InitField( &m_pointerToDemoObj, "TestPointerToDemo" );
+        CAFFA_IO_InitField( &m_pointerToItem, "TestPointerToItem" );
+        CAFFA_IO_InitField( &m_pointerToDemoObj, "TestPointerToDemo" );
     }
 
     ~DemoObjectA() {}
@@ -110,7 +110,7 @@ public:
     double m_doubleMember;
 };
 
-CAF_IO_SOURCE_INIT( DemoObjectA, "DemoObjectA" );
+CAFFA_IO_SOURCE_INIT( DemoObjectA, "DemoObjectA" );
 
 namespace caffa
 {

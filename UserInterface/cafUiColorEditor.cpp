@@ -55,7 +55,7 @@
 
 namespace caffa
 {
-CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiColorEditor );
+CAFFA_UI_FIELD_EDITOR_SOURCE_INIT( UiColorEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -70,7 +70,7 @@ UiColorEditor::UiColorEditor()
 //--------------------------------------------------------------------------------------------------
 void UiColorEditor::configureAndUpdateUi()
 {
-    CAF_ASSERT( !m_label.isNull() );
+    CAFFA_ASSERT( !m_label.isNull() );
 
     UiFieldEditorHandle::updateLabelFromField( m_label );
 

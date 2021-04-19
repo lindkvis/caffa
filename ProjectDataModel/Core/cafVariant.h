@@ -58,7 +58,7 @@ public:
     template <typename T>
     T value() const
     {
-        CAF_ASSERT( m_typeHashCode == typeid( T ).hash_code() );
+        CAFFA_ASSERT( m_typeHashCode == typeid( T ).hash_code() );
         return deserialize<T>( m_content );
     }
 
@@ -114,7 +114,7 @@ public:
 
     std::vector<SerializableWrapper> toVector() const
     {
-        CAF_ASSERT( m_isVector );
+        CAFFA_ASSERT( m_isVector );
         std::vector<SerializableWrapper> vectorOfWrappers;
         for ( const std::string& valueString : m_content )
         {
@@ -142,7 +142,7 @@ private:
         {
             std::stringstream stream;
             stream << value;
-            CAF_ASSERT( stream.str().length() > 0u );
+            CAFFA_ASSERT( stream.str().length() > 0u );
             return { stream.str() };
         }
     }
@@ -165,7 +165,7 @@ private:
         }
         else
         {
-            CAF_ASSERT( stringValues.size() == 1u );
+            CAFFA_ASSERT( stringValues.size() == 1u );
             std::stringstream stream( stringValues.front() );
             T                 value;
             stream >> value;
@@ -239,7 +239,7 @@ public:
         {
             if constexpr ( std::is_same<unsigned int, T>::value )
             {
-                CAF_ASSERT( false );
+                CAFFA_ASSERT( false );
             }
             else if constexpr ( isVariantMember<T, InternalVariant>::value )
             {
@@ -290,7 +290,7 @@ public:
         }
         else
         {
-            CAF_ASSERT( m_serializableData.has_value() );
+            CAFFA_ASSERT( m_serializableData.has_value() );
             return m_serializableData.value().value<T>();
         }
     }
@@ -358,7 +358,7 @@ std::vector<Variant> Variant::toVectorT( const Variant& variant )
 {
     if constexpr ( isVariantMember<T, InternalVariant>::value )
     {
-        CAF_ASSERT( variant.canConvert<std::vector<T>>() );
+        CAFFA_ASSERT( variant.canConvert<std::vector<T>>() );
         std::vector<Variant> vectorOfVariants;
         std::vector<T>       vectorOfValues = variant.value<std::vector<T>>();
         for ( T val : vectorOfValues )
@@ -369,7 +369,7 @@ std::vector<Variant> Variant::toVectorT( const Variant& variant )
     }
     else
     {
-        CAF_ASSERT( false );
+        CAFFA_ASSERT( false );
         return {};
     }
 }
@@ -384,7 +384,7 @@ Variant Variant::fromVectorT( const std::vector<Variant>& variantVector )
     std::vector<T> vectorOfValues;
     for ( const Variant& variant : variantVector )
     {
-        CAF_ASSERT( variant.canConvert<T>() );
+        CAFFA_ASSERT( variant.canConvert<T>() );
         T value = variant.value<T>();
         vectorOfValues.push_back( value );
     }

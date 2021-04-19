@@ -81,7 +81,7 @@ std::tuple<Color::uchar, Color::uchar, Color::uchar, Color::uchar> Color::rgba()
 std::array<Color::uchar, 4> Color::fromHexString( const std::string& hexString )
 {
     size_t stringLength = hexString.length();
-    CAF_ASSERT( ( stringLength == 7u || stringLength == 9u ) && hexString[0] == '#' );
+    CAFFA_ASSERT( ( stringLength == 7u || stringLength == 9u ) && hexString[0] == '#' );
 
     uchar red   = (uchar)strtol( hexString.substr( 1, 2 ).c_str(), nullptr, 16 );
     uchar green = (uchar)strtol( hexString.substr( 3, 2 ).c_str(), nullptr, 16 );

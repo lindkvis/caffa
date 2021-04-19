@@ -58,7 +58,7 @@ ServerApplication* ServerApplication::instance()
 //--------------------------------------------------------------------------------------------------
 void ServerApplication::run()
 {
-    CAF_ASSERT( m_server );
+    CAFFA_ASSERT( m_server );
     m_server->run();
 }
 

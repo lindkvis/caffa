@@ -16,15 +16,15 @@
 
 namespace caffa
 {
-CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiCheckBoxTristateEditor );
+CAFFA_UI_FIELD_EDITOR_SOURCE_INIT( UiCheckBoxTristateEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void UiCheckBoxTristateEditor::configureAndUpdateUi()
 {
-    CAF_ASSERT( !m_checkBox.isNull() );
-    CAF_ASSERT( !m_label.isNull() );
+    CAFFA_ASSERT( !m_checkBox.isNull() );
+    CAFFA_ASSERT( !m_label.isNull() );
 
     UiFieldEditorHandle::updateLabelFromField( m_label );
 

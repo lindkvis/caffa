@@ -8,7 +8,7 @@ class TestObj;
 
 class Child : public caffa::Object
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     Child();

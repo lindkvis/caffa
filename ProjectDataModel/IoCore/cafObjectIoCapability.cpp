@@ -39,7 +39,7 @@ ObjectHandle* ObjectIoCapability::readUnknownObjectFromString( const std::string
             object = ObjectJsonCapability::readUnknownObjectFromString( string, objectFactory, isCopyOperation );
             break;
         case IoType::SQL:
-            CAF_ASSERT( "SQL writing is not implemented" );
+            CAFFA_ASSERT( "SQL writing is not implemented" );
             break;
     }
     return object;
@@ -60,7 +60,7 @@ void ObjectIoCapability::readObjectFromString( const std::string& string,
             ObjectJsonCapability::readObjectFromString( m_owner, string, objectFactory );
             break;
         case IoType::SQL:
-            CAF_ASSERT( "SQL writing is not implemented" );
+            CAFFA_ASSERT( "SQL writing is not implemented" );
             break;
     }
 }
@@ -80,7 +80,7 @@ std::string ObjectIoCapability::writeObjectToString( IoType ioType /*= IoType::J
             string = ObjectJsonCapability::writeObjectToString( m_owner, writeServerAddress );
             break;
         case IoType::SQL:
-            CAF_ASSERT( "SQL writing is not implemented" );
+            CAFFA_ASSERT( "SQL writing is not implemented" );
             break;
     }
     return string;
@@ -100,7 +100,7 @@ caffa::ObjectHandle* ObjectIoCapability::copyBySerialization( ObjectFactory* obj
             return ObjectJsonCapability::copyByJsonSerialization( m_owner, objectFactory );
             break;
         case IoType::SQL:
-            CAF_ASSERT( "SQL writing is not implemented" );
+            CAFFA_ASSERT( "SQL writing is not implemented" );
             break;
     }
     return nullptr;
@@ -125,7 +125,7 @@ caffa::ObjectHandle* ObjectIoCapability::copyAndCastBySerialization( const std::
                                                                          objectFactory );
             break;
         case IoType::SQL:
-            CAF_ASSERT( "SQL writing is not implemented" );
+            CAFFA_ASSERT( "SQL writing is not implemented" );
             break;
     }
     return nullptr;
@@ -210,7 +210,7 @@ bool ObjectIoCapability::readFile( std::istream& stream, IoType ioType )
                 ObjectJsonCapability::readFile( m_owner, stream );
                 break;
             case IoType::SQL:
-                CAF_ASSERT( "SQL writing is not implemented" );
+                CAFFA_ASSERT( "SQL writing is not implemented" );
                 break;
         }
         initAfterReadRecursively();
@@ -240,7 +240,7 @@ bool ObjectIoCapability::writeFile( std::ostream& stream, IoType ioType, bool wr
                 ObjectJsonCapability::writeFile( m_owner, stream, writeAddress );
                 break;
             case IoType::SQL:
-                CAF_ASSERT( "SQL writing is not implemented" );
+                CAFFA_ASSERT( "SQL writing is not implemented" );
                 break;
         }
     }

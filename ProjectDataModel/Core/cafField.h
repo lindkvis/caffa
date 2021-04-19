@@ -1,10 +1,10 @@
 #pragma once
 
-#define CAF_IS_DEFINING_CAF_FIELD
+#define CAFFA_IS_DEFINING_CAFFA_FIELD
 #define DataValueField Field
 #include "cafDataValueField.h"
 #undef DataValueField
-#undef CAF_IS_DEFINING_CAF_FIELD
+#undef CAFFA_IS_DEFINING_CAFFA_FIELD
 
 #ifndef __clang__
 namespace caffa

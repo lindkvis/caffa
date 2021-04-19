@@ -213,7 +213,7 @@ void FieldIoCap<ChildField<DataType*>>::readFieldData( const nlohmann::json& jso
 {
     if ( jsonObject.is_null() ) return;
 
-    CAF_ASSERT( jsonObject.is_object() );
+    CAFFA_ASSERT( jsonObject.is_object() );
 
     std::string className = jsonObject["classKeyword"].get<std::string>();
 
@@ -221,7 +221,7 @@ void FieldIoCap<ChildField<DataType*>>::readFieldData( const nlohmann::json& jso
 
     // Create a new object
     {
-        CAF_ASSERT( objectFactory );
+        CAFFA_ASSERT( objectFactory );
 
         uint64_t serverAddress = 0u;
         auto     it            = jsonObject.find( "serverAddress" );
@@ -241,7 +241,7 @@ void FieldIoCap<ChildField<DataType*>>::readFieldData( const nlohmann::json& jso
             auto ioObject = obj->template capability<caffa::ObjectIoCapability>();
             if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
             {
-                CAF_ASSERT( false ); // Inconsistency in the factory. It creates objects of wrong type from the
+                CAFFA_ASSERT( false ); // Inconsistency in the factory. It creates objects of wrong type from the
                                      // ClassKeyword
                 return;
             }
@@ -289,9 +289,9 @@ void FieldIoCap<ChildField<DataType*>>::writeFieldData( nlohmann::json& jsonValu
             jsonObject["serverAddress"] = reinterpret_cast<uint64_t>( object );
         }
         ObjectJsonCapability::writeFields( object, jsonObject, writeServerAddress, writeValues );
-        CAF_ASSERT( jsonObject.is_object() );
+        CAFFA_ASSERT( jsonObject.is_object() );
         jsonValue = jsonObject;
-        CAF_ASSERT( jsonValue.is_object() );
+        CAFFA_ASSERT( jsonValue.is_object() );
     }
 }
 
@@ -324,7 +324,7 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFieldData( const nlohmann::json
         auto     it            = jsonObject.find( "serverAddress" );
         if ( it != jsonObject.end() ) serverAddress = it->get<uint64_t>();
 
-        CAF_ASSERT( objectFactory );
+        CAFFA_ASSERT( objectFactory );
         ObjectHandle* obj = objectFactory->create( className, serverAddress );
 
         if ( obj == nullptr )
@@ -341,7 +341,7 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFieldData( const nlohmann::json
         auto ioObject = obj->template capability<caffa::ObjectIoCapability>();
         if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
         {
-            CAF_ASSERT( false ); // There is an inconsistency in the factory. It creates objects of type not matching
+            CAFFA_ASSERT( false ); // There is an inconsistency in the factory. It creates objects of type not matching
                                  // the ClassKeyword
 
             continue;

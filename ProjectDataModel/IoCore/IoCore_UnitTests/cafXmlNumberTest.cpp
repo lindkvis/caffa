@@ -13,18 +13,18 @@
 //--------------------------------------------------------------------------------------------------
 class SimpleObjectWithNumbers : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
-    CAF_IO_HEADER_INIT;
+    CAFFA_IO_HEADER_INIT;
 
 public:
     SimpleObjectWithNumbers()
         : ObjectHandle()
         , ObjectIoCapability( this, false )
     {
-        CAF_IO_InitField( &m_valueA, "ValueA" );
-        CAF_IO_InitField( &m_valueB, "ValueB" );
+        CAFFA_IO_InitField( &m_valueA, "ValueA" );
+        CAFFA_IO_InitField( &m_valueB, "ValueB" );
 
-        CAF_IO_InitField( &m_floatValueA, "FloatValueA" );
-        CAF_IO_InitField( &m_floatValueB, "FloatValueB" );
+        CAFFA_IO_InitField( &m_floatValueA, "FloatValueA" );
+        CAFFA_IO_InitField( &m_floatValueB, "FloatValueB" );
     }
 
     caffa::DataValueField<double> m_valueA;
@@ -33,7 +33,7 @@ public:
     caffa::DataValueField<float> m_floatValueA;
     caffa::DataValueField<float> m_floatValueB;
 };
-CAF_IO_SOURCE_INIT( SimpleObjectWithNumbers, "SimpleObjectWithNumbers", "" );
+CAFFA_IO_SOURCE_INIT( SimpleObjectWithNumbers, "SimpleObjectWithNumbers", "" );
 
 //--------------------------------------------------------------------------------------------------
 ///

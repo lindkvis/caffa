@@ -213,7 +213,7 @@ QVariant UiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::Dis
             bool                       useOptionsOnly = true;
 
             options = uiFieldHandle->valueOptions( &useOptionsOnly );
-            CAF_ASSERT( useOptionsOnly ); // Not supported
+            CAFFA_ASSERT( useOptionsOnly ); // Not supported
 
             if ( fieldValue.isVector() )
             {
@@ -308,7 +308,7 @@ QVariant UiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::Dis
         }
         else
         {
-            CAF_ASSERT( false );
+            CAFFA_ASSERT( false );
         }
     }
     else if ( role == Qt::CheckStateRole )
@@ -495,7 +495,7 @@ FieldHandle* UiTableViewQModel::getField( const QModelIndex& index ) const
             }
             else
             {
-                CAF_ASSERT( false );
+                CAFFA_ASSERT( false );
             }
         }
     }

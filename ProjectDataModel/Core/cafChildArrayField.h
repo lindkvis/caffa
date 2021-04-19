@@ -43,7 +43,7 @@ public:
     ChildArrayField()
     {
         bool doNotUsePointersFieldForAnythingButPointersToObject = false;
-        CAF_ASSERT( doNotUsePointersFieldForAnythingButPointersToObject );
+        CAFFA_ASSERT( doNotUsePointersFieldForAnythingButPointersToObject );
     }
 };
 
@@ -96,7 +96,7 @@ public:
     [[nodiscard]] std::unique_ptr<DataType>     remove( ObjectHandle* object );
 
 private: // To be disabled
-    CAF_DISABLE_COPY_AND_ASSIGN( ChildArrayField );
+    CAFFA_DISABLE_COPY_AND_ASSIGN( ChildArrayField );
 
 private:
     friend class FieldIoCap<ChildArrayField<DataType*>>;

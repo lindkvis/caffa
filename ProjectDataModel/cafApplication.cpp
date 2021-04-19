@@ -18,7 +18,7 @@ Application* Application::instance()
 //--------------------------------------------------------------------------------------------------
 void Application::registerInstance( Application* instance )
 {
-    CAF_ASSERT( s_instance == nullptr );
+    CAFFA_ASSERT( s_instance == nullptr );
     s_instance = instance;
 }
 

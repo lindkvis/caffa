@@ -78,7 +78,7 @@ UiListView::~UiListView()
 //--------------------------------------------------------------------------------------------------
 void UiListView::setObject( caffa::ObjectCollection* object )
 {
-    CAF_ASSERT( m_listViewEditor );
+    CAFFA_ASSERT( m_listViewEditor );
 
     m_listViewEditor->setObject( object );
 }

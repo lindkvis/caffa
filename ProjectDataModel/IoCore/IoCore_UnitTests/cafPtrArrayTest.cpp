@@ -12,21 +12,21 @@
 
 class MyItemObject : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
-    CAF_IO_HEADER_INIT;
+    CAFFA_IO_HEADER_INIT;
 
 public:
     MyItemObject()
         : ObjectHandle()
         , ObjectIoCapability( this, false )
     {
-        CAF_IO_InitField( &m_name, "Name" );
+        CAFFA_IO_InitField( &m_name, "Name" );
     }
 
     explicit MyItemObject( std::string name )
         : ObjectHandle()
         , ObjectIoCapability( this, false )
     {
-        CAF_IO_InitField( &m_name, "Name" );
+        CAFFA_IO_InitField( &m_name, "Name" );
         m_name = name;
     }
 
@@ -35,19 +35,19 @@ public:
     // Fields
     caffa::DataValueField<std::string> m_name;
 };
-CAF_IO_SOURCE_INIT( MyItemObject, "MyItemObject" );
+CAFFA_IO_SOURCE_INIT( MyItemObject, "MyItemObject" );
 
 class MyContainerObject : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
-    CAF_IO_HEADER_INIT;
+    CAFFA_IO_HEADER_INIT;
 
 public:
     MyContainerObject()
         : ObjectHandle()
         , ObjectIoCapability( this, false )
     {
-        CAF_IO_InitField( &m_items, "Items" );
-        CAF_IO_InitField( &m_containers, "Containers" );
+        CAFFA_IO_InitField( &m_items, "Items" );
+        CAFFA_IO_InitField( &m_containers, "Containers" );
     }
 
     ~MyContainerObject() {}
@@ -56,7 +56,7 @@ public:
     caffa::ChildArrayField<MyItemObject*> m_items;
     caffa::PtrArrayField<MyItemObject*>   m_containers;
 };
-CAF_IO_SOURCE_INIT( MyContainerObject, "MyContainerObject" );
+CAFFA_IO_SOURCE_INIT( MyContainerObject, "MyContainerObject" );
 
 //--------------------------------------------------------------------------------------------------
 ///

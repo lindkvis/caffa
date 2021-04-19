@@ -55,14 +55,14 @@ private:
 
 } // namespace caffa
 
-#define CAF_LOG( LogLevel_, Message_ )                                                                            \
+#define CAFFA_LOG( LogLevel_, Message_ )                                                                            \
     caffa::Logger( LogLevel_ )( static_cast<std::ostringstream&>( std::ostringstream().flush() << Message_ ).str(), \
                               __FUNCTION__,                                                                       \
                               __FILE__,                                                                           \
                               __LINE__ );
 
-#define CAF_ERROR( Message_ ) CAF_LOG( caffa::Logger::Level::ERROR, Message_ )
-#define CAF_WARNING( Message_ ) CAF_LOG( caffa::Logger::Level::WARNING, Message_ )
-#define CAF_INFO( Message_ ) CAF_LOG( caffa::Logger::Level::INFO, Message_ )
-#define CAF_DEBUG( Message_ ) CAF_LOG( caffa::Logger::Level::DEBUG, Message_ )
-#define CAF_TRACE( Message_ ) CAF_LOG( caffa::Logger::Level::TRACE, Message_ )
+#define CAFFA_ERROR( Message_ ) CAFFA_LOG( caffa::Logger::Level::ERROR, Message_ )
+#define CAFFA_WARNING( Message_ ) CAFFA_LOG( caffa::Logger::Level::WARNING, Message_ )
+#define CAFFA_INFO( Message_ ) CAFFA_LOG( caffa::Logger::Level::INFO, Message_ )
+#define CAFFA_DEBUG( Message_ ) CAFFA_LOG( caffa::Logger::Level::DEBUG, Message_ )
+#define CAFFA_TRACE( Message_ ) CAFFA_LOG( caffa::Logger::Level::TRACE, Message_ )

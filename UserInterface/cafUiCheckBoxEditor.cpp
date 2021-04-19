@@ -49,15 +49,15 @@
 
 namespace caffa
 {
-CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiCheckBoxEditor );
+CAFFA_UI_FIELD_EDITOR_SOURCE_INIT( UiCheckBoxEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void UiCheckBoxEditor::configureAndUpdateUi()
 {
-    CAF_ASSERT( !m_checkBox.isNull() );
-    CAF_ASSERT( !m_label.isNull() );
+    CAFFA_ASSERT( !m_checkBox.isNull() );
+    CAFFA_ASSERT( !m_label.isNull() );
 
     UiCheckBoxEditorAttribute attributes;
     caffa::ObjectUiCapability*  uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );

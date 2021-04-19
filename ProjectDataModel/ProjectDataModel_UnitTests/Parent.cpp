@@ -3,7 +3,7 @@
 
 #include "gtest.h"
 
-CAF_SOURCE_INIT( Parent, "Parent", "Object" );
+CAFFA_SOURCE_INIT( Parent, "Parent", "Object" );
 
 Parent::Parent()
 {

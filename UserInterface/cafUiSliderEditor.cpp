@@ -50,14 +50,14 @@
 
 namespace caffa
 {
-CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiSliderEditor );
+CAFFA_UI_FIELD_EDITOR_SOURCE_INIT( UiSliderEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void UiSliderEditor::configureAndUpdateUi()
 {
-    CAF_ASSERT( !m_spinBox.isNull() );
+    CAFFA_ASSERT( !m_spinBox.isNull() );
 
     UiFieldEditorHandle::updateLabelFromField( m_label );
 

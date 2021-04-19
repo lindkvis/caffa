@@ -55,7 +55,7 @@ void FieldUiCapability::notifyFieldChanged( const Variant& oldFieldValue, const 
     if ( !this->isVariantDataEqual( oldFieldValue, newFieldValue ) )
     {
         FieldHandle* fieldHandle = this->fieldHandle();
-        CAF_ASSERT( fieldHandle && fieldHandle->ownerObject() );
+        CAFFA_ASSERT( fieldHandle && fieldHandle->ownerObject() );
 
         ObjectHandle* ownerObjectHandle = fieldHandle->ownerObject();
 
@@ -102,7 +102,7 @@ void FieldUiCapability::setValueFromUiEditor( const Variant& uiValue )
 //--------------------------------------------------------------------------------------------------
 bool FieldUiCapability::isVariantDataEqual( const Variant& oldUiBasedVariant, const Variant& newUiBasedVariant ) const
 {
-    CAF_ASSERT( false );
+    CAFFA_ASSERT( false );
     return false;
 }
 

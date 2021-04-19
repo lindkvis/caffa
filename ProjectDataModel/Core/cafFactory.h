@@ -52,19 +52,19 @@
 // will result in the token foo__LINE__, instead of foo followed by
 // the current line number.  For more details, see
 // http://www.parashift.com/c++-faq-lite/misc-technical-issues.html#faq-39.6
-#define CAF_FACTORY_CONCATENATE_STRINGS( foo, bar ) CAF_FACTORY_CONCATENATE_STRINGS_IMPL_( foo, bar )
-#define CAF_FACTORY_CONCATENATE_STRINGS_IMPL_( foo, bar ) foo##bar
+#define CAFFA_FACTORY_CONCATENATE_STRINGS( foo, bar ) CAFFA_FACTORY_CONCATENATE_STRINGS_IMPL_( foo, bar )
+#define CAFFA_FACTORY_CONCATENATE_STRINGS_IMPL_( foo, bar ) foo##bar
 
-#define CAF_UNIQUE_COMPILE_UNIT_VAR_NAME( foo ) CAF_FACTORY_CONCATENATE_STRINGS( foo, __LINE__ )
+#define CAFFA_UNIQUE_COMPILE_UNIT_VAR_NAME( foo ) CAFFA_FACTORY_CONCATENATE_STRINGS( foo, __LINE__ )
 
 /// Macros to simplify registering entries in a factory
 /// There are two, to make it possible to use two registrations in one macro
 
-#define CAF_FACTORY_REGISTER( BaseType, TypeToCreate, KeyType, key )   \
-    static bool CAF_UNIQUE_COMPILE_UNIT_VAR_NAME( my##TypeToCreate ) = \
+#define CAFFA_FACTORY_REGISTER( BaseType, TypeToCreate, KeyType, key )   \
+    static bool CAFFA_UNIQUE_COMPILE_UNIT_VAR_NAME( my##TypeToCreate ) = \
         caffa::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>( key )
-#define CAF_FACTORY_REGISTER2( BaseType, TypeToCreate, KeyType, key )   \
-    static bool CAF_UNIQUE_COMPILE_UNIT_VAR_NAME( my2##TypeToCreate ) = \
+#define CAFFA_FACTORY_REGISTER2( BaseType, TypeToCreate, KeyType, key )   \
+    static bool CAFFA_UNIQUE_COMPILE_UNIT_VAR_NAME( my2##TypeToCreate ) = \
         caffa::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>( key )
 
 namespace caffa
@@ -82,7 +82,7 @@ namespace caffa
 ///
 ///     static bool uniqueVarname = caffa::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key);
 ///
-///     You can also use the macro CAF_FACTORY_REGISTER(BaseType, TypeToCreate, KeyType, key)
+///     You can also use the macro CAFFA_FACTORY_REGISTER(BaseType, TypeToCreate, KeyType, key)
 ///
 ///     See also cafUiFieldEditorHandle.h for an advanced example.
 ///

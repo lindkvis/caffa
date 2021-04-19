@@ -76,7 +76,7 @@ bool Variant::isVector() const
 //--------------------------------------------------------------------------------------------------
 std::vector<Variant> Variant::toVector() const
 {
-    CAF_ASSERT( isVector() );
+    CAFFA_ASSERT( isVector() );
     if ( m_data.has_value() )
     {
         std::vector<Variant> v = std::visit(
@@ -95,7 +95,7 @@ std::vector<Variant> Variant::toVector() const
                 }
                 else
                 {
-                    CAF_ASSERT( false );
+                    CAFFA_ASSERT( false );
                     return std::vector<Variant>();
                 }
             },

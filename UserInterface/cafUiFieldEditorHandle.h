@@ -55,25 +55,25 @@ namespace caffa
 /// Macros helping in development of CAF UI editors
 //==================================================================================================
 
-/// CAF_UI_FIELD_EDITOR_HEADER_INIT assists the factory used when creating editors
+/// CAFFA_UI_FIELD_EDITOR_HEADER_INIT assists the factory used when creating editors
 /// Place this in the header file inside the class definition of your UiEditor
 
-#define CAF_UI_FIELD_EDITOR_HEADER_INIT \
+#define CAFFA_UI_FIELD_EDITOR_HEADER_INIT \
 public:                                 \
     static std::string uiEditorTypeName()
 
-/// CAF_UI_FIELD_EDITOR_SOURCE_INIT implements editorTypeName() and registers the field editor in the field editor
+/// CAFFA_UI_FIELD_EDITOR_SOURCE_INIT implements editorTypeName() and registers the field editor in the field editor
 /// factory Place this in the cpp file, preferably above the constructor
 
-#define CAF_UI_FIELD_EDITOR_SOURCE_INIT( EditorClassName )                       \
+#define CAFFA_UI_FIELD_EDITOR_SOURCE_INIT( EditorClassName )                       \
     std::string EditorClassName::uiEditorTypeName() { return #EditorClassName; } \
-    CAF_FACTORY_REGISTER( caffa::UiFieldEditorHandle, EditorClassName, std::string, EditorClassName::uiEditorTypeName() )
+    CAFFA_FACTORY_REGISTER( caffa::UiFieldEditorHandle, EditorClassName, std::string, EditorClassName::uiEditorTypeName() )
 
-/// CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR registers what default editor to use with a field of a certain type
+/// CAFFA_UI_REGISTER_DEFAULT_FIELD_EDITOR registers what default editor to use with a field of a certain type
 /// Place this in the cpp file, preferably above the constructor
 
-#define CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( EditorClassName, TypeName ) \
-    CAF_FACTORY_REGISTER( caffa::UiFieldEditorHandle, EditorClassName, std::string, typeid( caffa::Field<TypeName> ).name() );
+#define CAFFA_UI_REGISTER_DEFAULT_FIELD_EDITOR( EditorClassName, TypeName ) \
+    CAFFA_FACTORY_REGISTER( caffa::UiFieldEditorHandle, EditorClassName, std::string, typeid( caffa::Field<TypeName> ).name() );
 
 class UiGroup;
 class FieldUiCapability;

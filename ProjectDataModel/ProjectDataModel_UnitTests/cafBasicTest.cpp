@@ -55,7 +55,7 @@
 
 class SimpleObj : public caffa::Object
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     SimpleObj()
@@ -112,11 +112,11 @@ public:
 
     double m_doubleMember;
 };
-CAF_SOURCE_INIT( SimpleObj, "SimpleObj", "Object" );
+CAFFA_SOURCE_INIT( SimpleObj, "SimpleObj", "Object" );
 
 class DemoObject : public caffa::Object
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     DemoObject()
@@ -140,11 +140,11 @@ public:
     caffa::ChildField<SimpleObj*> m_simpleObjPtrField2;
 };
 
-CAF_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
+CAFFA_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
 
 class InheritedDemoObj : public DemoObject
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     enum TestEnumType
@@ -161,22 +161,22 @@ public:
         initField( m_simpleObjectsField, "SimpleObjects" );
     }
 
-    caffa::Field<std::vector<std::string>>   m_texts;
+    caffa::Field<std::vector<std::string>>     m_texts;
     caffa::Field<caffa::AppEnum<TestEnumType>> m_testEnumField;
-    caffa::ChildArrayField<SimpleObj*>       m_simpleObjectsField;
+    caffa::ChildArrayField<SimpleObj*>         m_simpleObjectsField;
 };
-CAF_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj", "DemoObject", "Object" );
+CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj", "DemoObject", "Object" );
 
 class MyDocument : public caffa::Document
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     MyDocument() { initField( objects, "Objects" ); }
 
     caffa::ChildArrayField<ObjectHandle*> objects;
 };
-CAF_SOURCE_INIT( MyDocument, "MyDocument", "Document", "Object" );
+CAFFA_SOURCE_INIT( MyDocument, "MyDocument", "Document", "Object" );
 
 namespace caffa
 {
@@ -444,7 +444,8 @@ TEST( BaseTest, ObjectFactory )
     }
 
     {
-        caffa::Document* s = dynamic_cast<caffa::Document*>( caffa::DefaultObjectFactory::instance()->create( "Document" ) );
+        caffa::Document* s =
+            dynamic_cast<caffa::Document*>( caffa::DefaultObjectFactory::instance()->create( "Document" ) );
         EXPECT_TRUE( s != nullptr );
         delete s;
     }
@@ -487,7 +488,7 @@ TEST( BaseTest, ChildArrayFieldHandle )
     auto s3        = std::make_unique<SimpleObj>();
     s3->m_position = 3000;
 
-    auto                        ihd1      = std::make_unique<InheritedDemoObj>();
+    auto                          ihd1      = std::make_unique<InheritedDemoObj>();
     caffa::ChildArrayFieldHandle* listField = &( ihd1->m_simpleObjectsField );
 
     EXPECT_EQ( 0u, listField->size() );
@@ -520,7 +521,7 @@ TEST( BaseTest, ChildArrayFieldHandle )
 
 class ReferenceDemoObject : public caffa::Object
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     ReferenceDemoObject()
@@ -534,7 +535,7 @@ public:
     caffa::ChildArrayField<SimpleObj*> m_simpleObjPtrField2;
 };
 
-CAF_SOURCE_INIT( ReferenceDemoObject, "ReferenceDemoObject", "Object" );
+CAFFA_SOURCE_INIT( ReferenceDemoObject, "ReferenceDemoObject", "Object" );
 
 //--------------------------------------------------------------------------------------------------
 ///

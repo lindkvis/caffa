@@ -64,7 +64,7 @@ DataType* PtrArrayField<DataType*>::operator[]( size_t index ) const
 template <typename DataType>
 void PtrArrayField<DataType*>::push_back( DataType* pointer )
 {
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
 
     m_pointers.push_back( pointer );
     if ( pointer ) pointer->addReferencingPtrField( this );
@@ -77,7 +77,7 @@ void PtrArrayField<DataType*>::push_back( DataType* pointer )
 template <typename DataType>
 void PtrArrayField<DataType*>::set( size_t index, DataType* pointer )
 {
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
 
     if ( m_pointers[index] ) m_pointers[index]->removeReferencingPtrField( this );
     m_pointers[index] = pointer;
@@ -91,7 +91,7 @@ void PtrArrayField<DataType*>::set( size_t index, DataType* pointer )
 template <typename DataType>
 void PtrArrayField<DataType*>::insert( size_t index, DataType* pointer )
 {
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
 
     m_pointers.insert( m_pointers.begin() + index, pointer );
 
@@ -105,7 +105,7 @@ void PtrArrayField<DataType*>::insert( size_t index, DataType* pointer )
 template <typename DataType>
 void PtrArrayField<DataType*>::insert( size_t index, const std::vector<Pointer<DataType>>& objects )
 {
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
 
     m_pointers.insert( m_pointers.begin() + index, objects.begin(), objects.end() );
 
@@ -145,7 +145,7 @@ size_t PtrArrayField<DataType*>::count( const DataType* pointer ) const
 template <typename DataType>
 void PtrArrayField<DataType*>::clear()
 {
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
 
     this->removeThisAsReferencingPtrField();
     m_pointers.clear();
@@ -159,7 +159,7 @@ void PtrArrayField<DataType*>::clear()
 template <typename DataType>
 void PtrArrayField<DataType*>::erase( size_t index )
 {
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
 
     if ( m_pointers[index].rawPtr() )
     {
@@ -192,7 +192,7 @@ size_t PtrArrayField<DataType*>::index( DataType* pointer )
 template <typename DataType>
 void PtrArrayField<DataType*>::removePtr( ObjectHandle* object )
 {
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
 
     std::vector<Pointer<DataType>> tempPointers;
 

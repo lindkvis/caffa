@@ -92,7 +92,7 @@ void UiTreeViewQModel::setItemRoot( UiItem* rootItem )
         }
     }
 
-    CAF_ASSERT( newRoot || rootItem == nullptr ); // Only fields, objects or nullptr is allowed.
+    CAFFA_ASSERT( newRoot || rootItem == nullptr ); // Only fields, objects or nullptr is allowed.
 
     // if (newRoot) newRoot->debugDump(0);
 
@@ -153,7 +153,7 @@ void UiTreeViewQModel::updateSubTree( UiItem* root )
 
     ObjectUiCapability::expandUiTree( newTreeRootTmp );
 
-#if CAF_TREE_VIEW_DEBUG_PRINT
+#if CAFFA_TREE_VIEW_DEBUG_PRINT
     std::cout << std::endl << "New Stuff: " << std::endl;
     newTreeRootTmp->debugDump( 0 );
 #endif
@@ -172,7 +172,7 @@ void UiTreeViewQModel::updateSubTree( UiItem* root )
         existingSubTreeRoot = m_treeOrderingRoot.get();
     }
 
-#if CAF_TREE_VIEW_DEBUG_PRINT
+#if CAFFA_TREE_VIEW_DEBUG_PRINT
     std::cout << std::endl << "Old :" << std::endl;
     existingSubTreeRoot->debugDump( 0 );
 #endif
@@ -183,7 +183,7 @@ void UiTreeViewQModel::updateSubTree( UiItem* root )
 
     updateEditorsForSubTree( existingSubTreeRoot );
 
-#if CAF_TREE_VIEW_DEBUG_PRINT
+#if CAFFA_TREE_VIEW_DEBUG_PRINT
     std::cout << std::endl << "Result :" << std::endl;
     existingSubTreeRoot->debugDump( 0 );
 #endif
@@ -362,7 +362,7 @@ void UiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSubTre
             // Using the index() function here is OK, as new items has been inserted in the previous for-loop
             // This code used to be executed before insertion of new items, and caused creation of invalid indices
             QModelIndex mi = index( recursiveUpdateData[i].m_row, 0, existingSubTreeRootModIdx );
-            CAF_ASSERT( mi.isValid() );
+            CAFFA_ASSERT( mi.isValid() );
 
             updateSubTreeRecursive( mi, recursiveUpdateData[i].m_existingChild, recursiveUpdateData[i].m_sourceChild );
         }
@@ -380,7 +380,7 @@ void UiTreeViewQModel::updateEditorsForSubTree( UiTreeOrdering* root )
     {
         auto treeItemEditor = std::make_unique<UiTreeItemEditor>( root->activeItem() );
         root->setEditor( std::move( treeItemEditor ) );
-        CAF_ASSERT( root->editor() );
+        CAFFA_ASSERT( root->editor() );
     }
 
     UiTreeItemEditor* treeItemEditor = dynamic_cast<UiTreeItemEditor*>( root->editor() );
@@ -427,7 +427,7 @@ UiTreeOrdering* caffa::UiTreeViewQModel::treeItemFromIndex( const QModelIndex& i
         return m_treeOrderingRoot.get();
     }
 
-    CAF_ASSERT( index.internalPointer() );
+    CAFFA_ASSERT( index.internalPointer() );
 
     UiTreeOrdering* treeItem = static_cast<UiTreeOrdering*>( index.internalPointer() );
 
@@ -490,7 +490,7 @@ QModelIndex UiTreeViewQModel::index( int row, int column, const QModelIndex& par
     else
         parentItem = static_cast<UiTreeOrdering*>( parentIndex.internalPointer() );
 
-    CAF_ASSERT( parentItem );
+    CAFFA_ASSERT( parentItem );
 
     if ( parentItem->childCount() <= row )
     {
@@ -702,7 +702,7 @@ bool UiTreeViewQModel::setData( const QModelIndex& index, const QVariant& value,
     }
 
     UiTreeOrdering* treeItem = UiTreeViewQModel::treeItemFromIndex( index );
-    CAF_ASSERT( treeItem );
+    CAFFA_ASSERT( treeItem );
 
     if ( !treeItem->isRepresentingObject() ) return false;
 
@@ -751,7 +751,7 @@ Qt::ItemFlags UiTreeViewQModel::flags( const QModelIndex& index ) const
     Qt::ItemFlags flagMask = QAbstractItemModel::flags( index );
 
     UiTreeOrdering* treeItem = treeItemFromIndex( index );
-    CAF_ASSERT( treeItem );
+    CAFFA_ASSERT( treeItem );
 
     if ( treeItem->isRepresentingObject() )
     {

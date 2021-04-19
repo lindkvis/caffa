@@ -67,18 +67,18 @@ int main( int argc, char** argv )
     int         portNumber = argc >= 3 ? std::atoi( argv[2] ) : 55555;
 
     auto clientApp = std::make_unique<ClientApp>( hostname, portNumber );
-    CAF_INFO( "Launching Client connecting to " << hostname << ":" << portNumber );
+    CAFFA_INFO( "Launching Client connecting to " << hostname << ":" << portNumber );
 
     auto client         = clientApp->client();
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     if ( !clientDocument )
     {
-        CAF_ERROR( "Failed to get main document" );
+        CAFFA_ERROR( "Failed to get main document" );
         return 1;
     }
     bool worked = client->ping();
-    CAF_ASSERT( worked );
+    CAFFA_ASSERT( worked );
     auto   clientVector   = clientDocument->demoObject()->floatVector();
     size_t numberOfFloats = clientVector.size();
     size_t MB             = numberOfFloats * sizeof( float ) / ( 1024u * 1024u );

@@ -244,7 +244,7 @@ const caffa::OptionItemInfo* caffa::UiTreeSelectionQModel::optionItem( const QMo
 //--------------------------------------------------------------------------------------------------
 int caffa::UiTreeSelectionQModel::optionIndex( const QModelIndex& index ) const
 {
-    CAF_ASSERT( index.isValid() );
+    CAFFA_ASSERT( index.isValid() );
 
     TreeItemType* item = static_cast<TreeItemType*>( index.internalPointer() );
 

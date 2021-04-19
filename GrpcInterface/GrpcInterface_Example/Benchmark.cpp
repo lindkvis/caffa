@@ -86,7 +86,7 @@ int main( int argc, char** argv )
     {
         auto start_time = std::chrono::system_clock::now();
         bool worked     = client->ping();
-        CAF_ASSERT( worked );
+        CAFFA_ASSERT( worked );
         auto end_time = std::chrono::system_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>( end_time - start_time ).count();
         std::cout << "Ping time: " << duration << "µs" << std::endl;

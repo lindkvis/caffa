@@ -342,7 +342,7 @@ ObjectHandle* ReferenceHelper::objectFromFieldReference( FieldHandle* fromField,
 
     std::list<std::string> decodedReference    = caffa::StringTools::split( reference, std::regex( "\\s+" ), true );
     ObjectHandle*          lastCommonAnchestor = fromField->ownerObject();
-    CAF_ASSERT( lastCommonAnchestor );
+    CAFFA_ASSERT( lastCommonAnchestor );
 
     if ( !decodedReference.empty() && decodedReference.front() == rootIdentifierString() )
     {
@@ -361,7 +361,7 @@ ObjectHandle* ReferenceHelper::objectFromFieldReference( FieldHandle* fromField,
             }
 
             lastCommonAnchestor = parentField->ownerObject();
-            CAF_ASSERT( lastCommonAnchestor );
+            CAFFA_ASSERT( lastCommonAnchestor );
             decodedReference.pop_front();
         }
     }

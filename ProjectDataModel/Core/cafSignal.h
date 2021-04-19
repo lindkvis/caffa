@@ -163,14 +163,14 @@ public:
     void block( SignalObserver* observer )
     {
         auto it = m_observerCallbacks.find( observer );
-        CAF_ASSERT( it != m_observerCallbacks.end() );
+        CAFFA_ASSERT( it != m_observerCallbacks.end() );
         it->second.second = false;
     }
 
     void unblock( SignalObserver* observer )
     {
         auto it = m_observerCallbacks.find( observer );
-        CAF_ASSERT( it != m_observerCallbacks.end() );
+        CAFFA_ASSERT( it != m_observerCallbacks.end() );
         it->second.second = true;
     }
     size_t observerCount() const { return m_observerCallbacks.size(); }

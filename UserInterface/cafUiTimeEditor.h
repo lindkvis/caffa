@@ -63,7 +63,7 @@ public:
 class UiTimeEditor : public UiFieldEditorHandle
 {
     Q_OBJECT
-    CAF_UI_FIELD_EDITOR_HEADER_INIT;
+    CAFFA_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
     UiTimeEditor() {}

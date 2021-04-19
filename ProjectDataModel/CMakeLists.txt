@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.12)
 project (caffaProjectDataModel)
 
 # Unity Build
-if (CAF_ENABLE_UNITY_BUILD)
+if (CAFFA_ENABLE_UNITY_BUILD)
   message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
   set(CMAKE_UNITY_BUILD true)
 endif()

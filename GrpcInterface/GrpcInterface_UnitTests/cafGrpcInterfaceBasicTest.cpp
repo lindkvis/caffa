@@ -28,7 +28,7 @@
 
 class DemoObject : public caffa::Object
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     DemoObject()
@@ -128,22 +128,22 @@ private:
     std::vector<std::string> m_stringVector;
 };
 
-CAF_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
+CAFFA_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
 
 struct DemoObject_copyObjectResult : public caffa::Object
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
     DemoObject_copyObjectResult() { initField( status, "status" ).withDefault( false ); }
 
     caffa::Field<bool> status;
 };
 
-CAF_SOURCE_INIT( DemoObject_copyObjectResult, "copyObjectResult", "Object" );
+CAFFA_SOURCE_INIT( DemoObject_copyObjectResult, "copyObjectResult", "Object" );
 
 class DemoObject_copyObject : public caffa::ObjectMethod
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     DemoObject_copyObject( caffa::ObjectHandle* self,
@@ -158,7 +158,7 @@ public:
     }
     caffa::ObjectHandle* execute() override
     {
-        CAF_DEBUG( "Executing object method on server" );
+        CAFFA_DEBUG( "Executing object method on server" );
         gsl::not_null<DemoObject*> demoObject = self<DemoObject>();
         demoObject->setDoubleMember( m_doubleMember );
         demoObject->setIntMember( m_intMember );
@@ -180,11 +180,11 @@ private:
     caffa::Field<std::string> m_stringMember;
 };
 
-CAF_OBJECT_METHOD_SOURCE_INIT( DemoObject, DemoObject_copyObject, "copyObject" );
+CAFFA_OBJECT_METHOD_SOURCE_INIT( DemoObject, DemoObject_copyObject, "copyObject" );
 
 class InheritedDemoObj : public DemoObject
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     InheritedDemoObj()
@@ -199,11 +199,11 @@ public:
     caffa::PtrField<InheritedDemoObj*>  m_ptrField;
 };
 
-CAF_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject", "DemoObject" );
+CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject", "DemoObject" );
 
 class DemoDocument : public caffa::Document
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     DemoDocument()
@@ -225,7 +225,7 @@ public:
     caffa::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
 };
 
-CAF_SOURCE_INIT( DemoDocument, "DemoDocument", "Document", "Object" );
+CAFFA_SOURCE_INIT( DemoDocument, "DemoDocument", "Document", "Object" );
 
 class ServerApp : public caffa::rpc::ServerApplication
 {
@@ -282,12 +282,12 @@ TEST( BaseTest, Launch )
     caffa::AppInfo appInfo = client->appInfo();
     ASSERT_EQ( serverApp->name(), appInfo.name );
 
-    CAF_DEBUG( "Confirmed test results!" );
+    CAFFA_DEBUG( "Confirmed test results!" );
     bool ok = client->stopServer();
     ASSERT_TRUE( ok );
-    CAF_DEBUG( "Waiting for server thread to join" );
+    CAFFA_DEBUG( "Waiting for server thread to join" );
     thread.join();
-    CAF_DEBUG( "Finishing test" );
+    CAFFA_DEBUG( "Finishing test" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -300,10 +300,10 @@ TEST( BaseTest, Document )
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
-    CAF_DEBUG( "Launching Server" );
+    CAFFA_DEBUG( "Launching Server" );
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
-    CAF_DEBUG( "Launching Client" );
+    CAFFA_DEBUG( "Launching Client" );
     while ( !serverApp->running() )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
@@ -312,7 +312,7 @@ TEST( BaseTest, Document )
     caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
-    CAF_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
+    CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
     size_t childCount = 11u;
     for ( size_t i = 0; i < childCount; ++i )
@@ -327,16 +327,16 @@ TEST( BaseTest, Document )
     try
     {
         auto clientFileName = clientDocument->fileName();
-        CAF_DEBUG( "Client Document File Name: " << clientFileName );
+        CAFFA_DEBUG( "Client Document File Name: " << clientFileName );
     }
     catch ( const caffa::Exception& e )
     {
-        CAF_ERROR( "Exception caught: " << e.what() );
+        CAFFA_ERROR( "Exception caught: " << e.what() );
         return;
     }
     catch ( ... )
     {
-        CAF_ERROR( "Exception caught" );
+        CAFFA_ERROR( "Exception caught" );
         return;
     }
     ASSERT_EQ( serverApp->document( "testDocument" )->fileName(), clientDocument->fileName() );
@@ -364,12 +364,12 @@ TEST( BaseTest, Document )
         ASSERT_EQ( reinterpret_cast<uint64_t>( *server_it ), childClientCapability->addressOnServer() );
     }
 
-    CAF_DEBUG( "Confirmed test results!" );
+    CAFFA_DEBUG( "Confirmed test results!" );
     bool ok = client->stopServer();
     ASSERT_TRUE( ok );
-    CAF_DEBUG( "Waiting for server thread to join" );
+    CAFFA_DEBUG( "Waiting for server thread to join" );
     thread.join();
-    CAF_DEBUG( "Finishing test" );
+    CAFFA_DEBUG( "Finishing test" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -402,7 +402,7 @@ TEST( BaseTest, Sync )
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<caffa::Document*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
-    CAF_DEBUG( "Client Document File Name: " << clientDocument->fileName() );
+    CAFFA_DEBUG( "Client Document File Name: " << clientDocument->fileName() );
     ASSERT_EQ( serverApp->document( "testDocument" )->fileName(), clientDocument->fileName() );
 
     auto clientCapability = clientDocument->capability<caffa::rpc::ObjectClientCapability>();
@@ -441,7 +441,7 @@ TEST( BaseTest, ObjectMethod )
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
 
-    CAF_DEBUG( "Adding object to server" );
+    CAFFA_DEBUG( "Adding object to server" );
     serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
 
     auto objectHandle   = client->document( "testDocument" );
@@ -450,21 +450,21 @@ TEST( BaseTest, ObjectMethod )
 
     auto serverObjects = serverDocument->inheritedObjects();
     ASSERT_EQ( (size_t)1, serverObjects.size() );
-    CAF_DEBUG( "Getting client objects" );
+    CAFFA_DEBUG( "Getting client objects" );
     auto inheritedObjects = clientDocument->inheritedObjects();
     ASSERT_EQ( (size_t)1, inheritedObjects.size() );
 
-    CAF_DEBUG( "Creating object method" );
+    CAFFA_DEBUG( "Creating object method" );
     DemoObject_copyObject method( inheritedObjects.front(), 45.3, 43, "AnotherValue" );
-    CAF_DEBUG( "Execute" );
+    CAFFA_DEBUG( "Execute" );
     auto result = client->execute( &method );
     ASSERT_TRUE( result != nullptr );
     auto copyObjectResult = dynamic_cast<DemoObject_copyObjectResult*>( result.get() );
     ASSERT_TRUE( copyObjectResult && copyObjectResult->status() );
 
-    CAF_DEBUG( "Get double member" );
+    CAFFA_DEBUG( "Get double member" );
     ASSERT_EQ( 45.3, serverObjects.front()->doubleMember() );
-    CAF_DEBUG( "Get int member" );
+    CAFFA_DEBUG( "Get int member" );
     ASSERT_EQ( 43, serverObjects.front()->intMember() );
     ASSERT_EQ( "AnotherValue", serverObjects.front()->stringMember() );
 
@@ -494,7 +494,7 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
     caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
-    CAF_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
+    CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
     std::vector<int> largeIntVector;
     std::mt19937     rng;
@@ -549,7 +549,7 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
-    CAF_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
+    CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
     std::vector<double> largeDoubleVector;
     std::mt19937        rng;
@@ -606,7 +606,7 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
-    CAF_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
+    CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
     std::vector<double> serverVector;
     std::mt19937        rng;
@@ -658,7 +658,7 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
-    CAF_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
+    CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
@@ -670,7 +670,7 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
         auto clientVector = clientDocument->m_demoObject->floatVector();
         auto end_time     = std::chrono::system_clock::now();
         auto duration     = std::chrono::duration_cast<std::chrono::microseconds>( end_time - start_time ).count();
-        CAF_INFO( "Getting single float vector took " << duration << "µs" );
+        CAFFA_INFO( "Getting single float vector took " << duration << "µs" );
         ASSERT_EQ( serverDocument->m_demoObject->floatVector(), clientDocument->m_demoObject->floatVector() );
     }
 
@@ -691,11 +691,11 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
         auto   end_time     = std::chrono::system_clock::now();
         auto   duration     = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
         size_t MB           = numberOfFloats * sizeof( float ) / ( 1024u * 1024u );
-        CAF_INFO( "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" );
-        CAF_INFO( "Time spent: " << duration << "ms" );
+        CAFFA_INFO( "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" );
+        CAFFA_INFO( "Time spent: " << duration << "ms" );
         double fps = static_cast<float>( numberOfFloats ) / static_cast<float>( duration ) * 1000;
-        CAF_INFO( "floats per second: " << fps );
-        CAF_INFO( "MB per second: " << static_cast<float>( MB ) / static_cast<float>( duration ) * 1000 );
+        CAFFA_INFO( "floats per second: " << fps );
+        CAFFA_INFO( "MB per second: " << static_cast<float>( MB ) / static_cast<float>( duration ) * 1000 );
     }
 
     bool ok = client->stopServer();

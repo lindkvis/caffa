@@ -12,7 +12,7 @@ using namespace caffa;
 
 class SimpleObj : public caffa::Object
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     SimpleObj()
@@ -21,11 +21,11 @@ public:
         assignUiInfo( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
     }
 };
-CAF_SOURCE_INIT( SimpleObj, "SimpleObj", "Object" );
+CAFFA_SOURCE_INIT( SimpleObj, "SimpleObj", "Object" );
 
 class DemoObject : public caffa::Object
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     DemoObject()
@@ -38,7 +38,7 @@ public:
     caffa::ChildArrayField<caffa::ObjectHandle*> m_simpleObjPtrField;
 };
 
-CAF_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
+CAFFA_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
 
 //--------------------------------------------------------------------------------------------------
 ///

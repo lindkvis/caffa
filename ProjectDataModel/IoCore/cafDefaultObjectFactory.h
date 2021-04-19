@@ -65,8 +65,8 @@ public:
         auto entryIt = m_factoryMap.find( classNameKeyword );
         if ( entryIt != m_factoryMap.end() )
         {
-            CAF_ASSERT( classNameKeyword != entryIt->first ); // classNameKeyword has already been used
-            CAF_ASSERT( false ); // To be sure ..
+            CAFFA_ASSERT( classNameKeyword != entryIt->first ); // classNameKeyword has already been used
+            CAFFA_ASSERT( false ); // To be sure ..
             return false; // never hit;
         }
         auto object                    = new ObjectCreator<ObjectBaseDerivative>();

@@ -242,8 +242,8 @@ UiOrdering::PositionFound UiOrdering::findGroupPosition( const std::string& grou
 void UiOrdering::add( const FieldHandle* field, LayoutOptions layout )
 {
     FieldUiCapability* uiItem = const_cast<FieldHandle*>( field )->capability<FieldUiCapability>();
-    CAF_ASSERT( uiItem );
-    CAF_ASSERT( !this->contains( uiItem ) );
+    CAFFA_ASSERT( uiItem );
+    CAFFA_ASSERT( !this->contains( uiItem ) );
 
     m_ordering.push_back( std::make_pair( uiItem, layout ) );
 }
@@ -254,8 +254,8 @@ void UiOrdering::add( const FieldHandle* field, LayoutOptions layout )
 void UiOrdering::add( const ObjectHandle* obj, LayoutOptions layout )
 {
     ObjectUiCapability* uiItem = uiObj( const_cast<ObjectHandle*>( obj ) );
-    CAF_ASSERT( uiItem );
-    CAF_ASSERT( !this->contains( uiItem ) );
+    CAFFA_ASSERT( uiItem );
+    CAFFA_ASSERT( !this->contains( uiItem ) );
     m_ordering.push_back( std::make_pair( uiItem, layout ) );
 }
 
@@ -265,8 +265,8 @@ void UiOrdering::add( const ObjectHandle* obj, LayoutOptions layout )
 void UiOrdering::insert( size_t index, const FieldHandle* field, LayoutOptions layout )
 {
     FieldUiCapability* uiItem = const_cast<FieldHandle*>( field )->capability<FieldUiCapability>();
-    CAF_ASSERT( uiItem );
-    CAF_ASSERT( !this->contains( uiItem ) );
+    CAFFA_ASSERT( uiItem );
+    CAFFA_ASSERT( !this->contains( uiItem ) );
 
     m_ordering.insert( m_ordering.begin() + index, std::make_pair( uiItem, layout ) );
 }
@@ -381,7 +381,7 @@ void UiOrdering::nrOfColumnsRequiredForItem( const FieldAndLayout& fieldAndLayou
                                              int*                  fieldColumnsRequired ) const
 {
     const UiItem* uiItem = fieldAndLayout.first;
-    CAF_ASSERT( uiItem && totalColumnsRequired && labelColumnsRequired && fieldColumnsRequired );
+    CAFFA_ASSERT( uiItem && totalColumnsRequired && labelColumnsRequired && fieldColumnsRequired );
 
     LayoutOptions layoutOption = fieldAndLayout.second;
 

@@ -352,7 +352,7 @@ void ClientToServerStreamCallback<ServiceT, RequestT, ReplyT>::onProcessRequest(
     }
     else
     {
-        CAF_ASSERT( m_stateHandler->streamedValueCount() <= m_stateHandler->totalValueCount() );
+        CAFFA_ASSERT( m_stateHandler->streamedValueCount() <= m_stateHandler->totalValueCount() );
         if ( m_stateHandler->streamedValueCount() == m_stateHandler->totalValueCount() )
         {
             m_stateHandler->finish();

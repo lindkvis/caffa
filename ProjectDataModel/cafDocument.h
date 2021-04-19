@@ -48,7 +48,7 @@ namespace caffa
 //==================================================================================================
 class Document : public Object
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     Document();

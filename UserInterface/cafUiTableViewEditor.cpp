@@ -55,7 +55,7 @@
 
 namespace caffa
 {
-CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiTableViewEditor );
+CAFFA_UI_FIELD_EDITOR_SOURCE_INIT( UiTableViewEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///

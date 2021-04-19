@@ -11,8 +11,8 @@ namespace caffa
 template <typename DataType>
 void ChildField<DataType*>::childObjects( std::vector<ObjectHandle*>* objects )
 {
-    CAF_ASSERT( objects );
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( objects );
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
     ObjectHandle* obj = m_fieldValue.rawPtr();
     if ( obj )
     {
@@ -26,7 +26,7 @@ void ChildField<DataType*>::childObjects( std::vector<ObjectHandle*>* objects )
 template <typename DataType>
 std::unique_ptr<DataType> ChildField<DataType*>::remove( ObjectHandle* object )
 {
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
     if ( m_fieldValue.rawPtr() != nullptr && m_fieldValue.rawPtr() == object )
     {
         auto typedObject = m_fieldValue.p();
@@ -42,7 +42,7 @@ std::unique_ptr<DataType> ChildField<DataType*>::remove( ObjectHandle* object )
 template <typename DataType>
 std::unique_ptr<ObjectHandle> ChildField<DataType*>::removeChildObject( ObjectHandle* object )
 {
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
     if ( m_fieldValue.rawPtr() != nullptr && m_fieldValue.rawPtr() == object )
     {
         auto objectHandle = m_fieldValue.rawPtr();
@@ -78,7 +78,7 @@ ChildField<DataType*>::~ChildField()
 template <typename DataType>
 ChildField<DataType*>& ChildField<DataType*>::operator=( DataTypePtr fieldValue )
 {
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
 
     if ( m_fieldValue )
     {
@@ -96,7 +96,7 @@ ChildField<DataType*>& ChildField<DataType*>::operator=( DataTypePtr fieldValue 
 template <typename DataType>
 DataType* ChildField<DataType*>::setValue( DataTypePtr fieldValue )
 {
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
     if ( m_fieldValue )
     {
         m_fieldValue->removeAsParentField( this );

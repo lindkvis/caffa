@@ -41,7 +41,7 @@
 
 namespace caffa
 {
-CAF_SOURCE_INIT( Document, "Document", "Object" );
+CAFFA_SOURCE_INIT( Document, "Document", "Object" );
 
 //--------------------------------------------------------------------------------------------------
 ///

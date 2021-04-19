@@ -43,14 +43,14 @@
 
 namespace caffa
 {
-CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiToolButtonEditor );
+CAFFA_UI_FIELD_EDITOR_SOURCE_INIT( UiToolButtonEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void UiToolButtonEditor::configureAndUpdateUi()
 {
-    CAF_ASSERT( !m_toolButton.isNull() );
+    CAFFA_ASSERT( !m_toolButton.isNull() );
 
     auto ic = uiField()->uiIconProvider();
     if ( ic )

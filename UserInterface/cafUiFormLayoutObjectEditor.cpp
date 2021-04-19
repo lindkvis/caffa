@@ -67,7 +67,7 @@ caffa::UiFormLayoutObjectEditor::~UiFormLayoutObjectEditor()
 {
     // If there are field editor present, the usage of this editor has not cleared correctly
     // The intended usage is to call the method setObject(nullptr) before closing the dialog
-    CAF_ASSERT( m_fieldViews.size() == 0 );
+    CAFFA_ASSERT( m_fieldViews.size() == 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,13 +98,13 @@ int caffa::UiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGr
                                                                                           QWidget* containerWidgetWithGridLayout )
 {
     int sumRowStretch = 0;
-    CAF_ASSERT( containerWidgetWithGridLayout );
+    CAFFA_ASSERT( containerWidgetWithGridLayout );
 
     QWidget* previousTabOrderWidget = nullptr;
 
     // Currently, only QGridLayout is supported
     QGridLayout* parentLayout = dynamic_cast<QGridLayout*>( containerWidgetWithGridLayout->layout() );
-    CAF_ASSERT( parentLayout );
+    CAFFA_ASSERT( parentLayout );
 
     UiOrdering::TableLayout tableLayout = uiOrdering.calculateTableLayout();
 
@@ -217,7 +217,7 @@ int caffa::UiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGr
                             }
                             else
                             {
-                                CAF_ASSERT( labelPos == UiItemInfo::LEFT );
+                                CAFFA_ASSERT( labelPos == UiItemInfo::LEFT );
                                 int leftLabelColumnSpan = minimumLabelColumnSpan;
                                 if ( currentLayout.leftLabelColumnSpan == UiOrdering::LayoutOptions::MAX_COLUMN_SPAN &&
                                      currentLayout.totalColumnSpan != UiOrdering::LayoutOptions::MAX_COLUMN_SPAN )
@@ -248,7 +248,7 @@ int caffa::UiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGr
                         {
                             fieldColumnSpan += spareColumnsToAssign;
 
-                            CAF_ASSERT( fieldColumnSpan >= 1 && "Need at least one column for the field" );
+                            CAFFA_ASSERT( fieldColumnSpan >= 1 && "Need at least one column for the field" );
                             fieldColumnSpan = std::max( 1, fieldColumnSpan );
 
                             parentLayout->addWidget( fieldEditorWidget,
@@ -274,7 +274,7 @@ int caffa::UiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGr
             }
         }
 
-        CAF_ASSERT( currentColumn <= totalColumns );
+        CAFFA_ASSERT( currentColumn <= totalColumns );
     }
     containerWidgetWithGridLayout->updateGeometry();
     // The magnitude of the stretch should not be sent up, only if there was stretch or not
@@ -350,7 +350,7 @@ QMinimizePanel* caffa::UiFormLayoutObjectEditor::findOrCreateGroupBox( QWidget* 
     else
     {
         groupBox = it->second;
-        CAF_ASSERT( groupBox );
+        CAFFA_ASSERT( groupBox );
         m_newGroupBoxes[groupBoxKey] = groupBox;
     }
 
@@ -404,7 +404,7 @@ caffa::UiFieldEditorHandle* caffa::UiFormLayoutObjectEditor::findOrCreateFieldEd
 
             // This assert will trigger for ChildArrayField and ChildField
             // Consider to exclude assert or add editors for these types if the assert is reintroduced
-            // CAF_ASSERT(false);
+            // CAFFA_ASSERT(false);
         }
     }
     else
@@ -425,7 +425,7 @@ caffa::UiFieldEditorHandle* caffa::UiFormLayoutObjectEditor::findOrCreateFieldEd
 //--------------------------------------------------------------------------------------------------
 void caffa::UiFormLayoutObjectEditor::ensureWidgetContainsEmptyGridLayout( QWidget* containerWidget, QMargins contentMargins )
 {
-    CAF_ASSERT( containerWidget );
+    CAFFA_ASSERT( containerWidget );
     QLayout* layout = containerWidget->layout();
     if ( layout != nullptr )
     {

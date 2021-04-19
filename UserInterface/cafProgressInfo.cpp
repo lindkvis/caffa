@@ -584,7 +584,7 @@ void ProgressInfoStatic::incrementProgress()
     std::vector<size_t>& progressStack_v     = progressStack();
     std::vector<size_t>& progressSpanStack_v = progressSpanStack();
 
-    CAF_ASSERT( progressStack_v.size() );
+    CAFFA_ASSERT( progressStack_v.size() );
     ProgressInfoStatic::setProgress( progressStack_v.back() + progressSpanStack_v.back() );
 }
 
@@ -595,7 +595,7 @@ void ProgressInfoStatic::setNextProgressIncrement( size_t nextStepSize )
 {
     if ( !isUpdatePossible() ) return;
 
-    CAF_ASSERT( progressSpanStack().size() );
+    CAFFA_ASSERT( progressSpanStack().size() );
     std::vector<size_t>& maxProgressStack_v = maxProgressStack();
     std::vector<size_t>& progressStack_v    = progressStack();
 
@@ -631,7 +631,7 @@ void ProgressInfoStatic::finished()
     std::vector<size_t>& progressSpanStack_v = progressSpanStack();
     std::vector<size_t>& maxProgressStack_v  = maxProgressStack();
 
-    CAF_ASSERT( maxProgressStack_v.size() && progressStack_v.size() && progressSpanStack_v.size() &&
+    CAFFA_ASSERT( maxProgressStack_v.size() && progressStack_v.size() && progressSpanStack_v.size() &&
                 titleStack().size() && descriptionStack().size() );
 
     // Set progress to max value, and leave it there until somebody touches the progress again

@@ -114,7 +114,7 @@ public:
 class UiTableViewEditor : public UiFieldEditorHandle, public SelectionChangedReceiver
 {
     Q_OBJECT
-    CAF_UI_FIELD_EDITOR_HEADER_INIT;
+    CAFFA_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
     UiTableViewEditor();

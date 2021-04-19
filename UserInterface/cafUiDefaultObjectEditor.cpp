@@ -50,17 +50,17 @@
 namespace caffa
 {
 // Register default field editor for selected types
-CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiCheckBoxEditor, bool );
+CAFFA_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiCheckBoxEditor, bool );
 
-CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiLineEditor, std::string );
-CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiDateEditor, std::time_t );
-CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiLineEditor, int );
-CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiLineEditor, double );
-CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiLineEditor, float );
-CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiLineEditor, uint64_t );
-CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiListEditor, std::vector<std::string> );
-CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiListEditor, std::vector<int> );
-CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiListEditor, std::vector<float> );
+CAFFA_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiLineEditor, std::string );
+CAFFA_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiDateEditor, std::time_t );
+CAFFA_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiLineEditor, int );
+CAFFA_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiLineEditor, double );
+CAFFA_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiLineEditor, float );
+CAFFA_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiLineEditor, uint64_t );
+CAFFA_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiListEditor, std::vector<std::string> );
+CAFFA_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiListEditor, std::vector<int> );
+CAFFA_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiListEditor, std::vector<float> );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -91,7 +91,7 @@ QWidget* UiDefaultObjectEditor::createWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void UiDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering( const UiOrdering& topLevelUiOrdering )
 {
-    CAF_ASSERT( this->widget() );
+    CAFFA_ASSERT( this->widget() );
 
     recursivelyConfigureAndUpdateUiOrderingInNewGridLayout( topLevelUiOrdering, this->widget() );
 }

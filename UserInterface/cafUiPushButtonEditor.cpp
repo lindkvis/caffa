@@ -51,15 +51,15 @@
 
 namespace caffa
 {
-CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiPushButtonEditor );
+CAFFA_UI_FIELD_EDITOR_SOURCE_INIT( UiPushButtonEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void UiPushButtonEditor::configureAndUpdateUi()
 {
-    CAF_ASSERT( !m_pushButton.isNull() );
-    CAF_ASSERT( !m_label.isNull() );
+    CAFFA_ASSERT( !m_pushButton.isNull() );
+    CAFFA_ASSERT( !m_label.isNull() );
 
     UiFieldEditorHandle::updateLabelFromField( m_label );
 

@@ -167,7 +167,7 @@ void UiFieldEditorHandle::setValueToField( const Variant& newUiValue )
 //--------------------------------------------------------------------------------------------------
 void UiFieldEditorHandle::updateLabelFromField( QLabel* label /*= ""*/ ) const
 {
-    CAF_ASSERT( label );
+    CAFFA_ASSERT( label );
 
     const FieldUiCapability* fieldHandle = dynamic_cast<const FieldUiCapability*>( item() );
     if ( fieldHandle )

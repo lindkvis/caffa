@@ -12,7 +12,7 @@ class ReferenceHelper;
 //==================================================================================================
 class ObjectGroup : public Object
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     ObjectGroup();
@@ -56,7 +56,7 @@ void ObjectGroup::createCopyByType( std::vector<Pointer<T>>* copyOfTypedObjects,
             ObjectIoCapability::readUnknownObjectFromString( string, DefaultObjectFactory::instance(), true );
 
         T* typedObject = dynamic_cast<T*>( objectCopy );
-        CAF_ASSERT( typedObject );
+        CAFFA_ASSERT( typedObject );
 
         copyOfTypedObjects->push_back( typedObject );
     }
@@ -67,7 +67,7 @@ void ObjectGroup::createCopyByType( std::vector<Pointer<T>>* copyOfTypedObjects,
 //==================================================================================================
 class ObjectCollection : public Object
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     ObjectCollection();

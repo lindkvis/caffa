@@ -33,7 +33,7 @@ public:
     ChildField()
     {
         bool doNotUsePtrFieldForAnythingButPointersToObject = false;
-        CAF_ASSERT( doNotUsePtrFieldForAnythingButPointersToObject );
+        CAFFA_ASSERT( doNotUsePtrFieldForAnythingButPointersToObject );
     }
 };
 
@@ -71,7 +71,7 @@ public:
     [[nodiscard]] std::unique_ptr<ObjectHandle> removeChildObject( ObjectHandle* object ) override;
 
 private:
-    CAF_DISABLE_COPY_AND_ASSIGN( ChildField );
+    CAFFA_DISABLE_COPY_AND_ASSIGN( ChildField );
 
     friend class FieldIoCap<ChildField<DataType*>>;
     Pointer<DataType> m_fieldValue;

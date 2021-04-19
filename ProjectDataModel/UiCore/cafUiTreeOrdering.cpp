@@ -52,7 +52,7 @@ namespace caffa
 //--------------------------------------------------------------------------------------------------
 void UiTreeOrdering::add( FieldHandle* field )
 {
-    CAF_ASSERT( field );
+    CAFFA_ASSERT( field );
 
     if ( field->capability<FieldUiCapability>()->isUiTreeHidden() )
     {
@@ -78,7 +78,7 @@ void UiTreeOrdering::add( FieldHandle* field )
 //--------------------------------------------------------------------------------------------------
 void UiTreeOrdering::add( ObjectHandle* object )
 {
-    CAF_ASSERT( object );
+    CAFFA_ASSERT( object );
 
     new UiTreeOrdering( this, object );
 }
@@ -89,7 +89,7 @@ void UiTreeOrdering::add( ObjectHandle* object )
 UiTreeOrdering* UiTreeOrdering::add( const std::string& title, const std::string& iconResourceName )
 {
     UiTreeOrdering* child = new UiTreeOrdering( title, iconResourceName );
-    CAF_ASSERT( child->isValid() );
+    CAFFA_ASSERT( child->isValid() );
 
     this->appendChild( child );
     return child;
@@ -100,7 +100,7 @@ UiTreeOrdering* UiTreeOrdering::add( const std::string& title, const std::string
 //--------------------------------------------------------------------------------------------------
 bool UiTreeOrdering::containsField( const FieldHandle* field )
 {
-    CAF_ASSERT( field );
+    CAFFA_ASSERT( field );
     for ( int cIdx = 0; cIdx < this->childCount(); ++cIdx )
     {
         UiTreeOrdering* child = dynamic_cast<UiTreeOrdering*>( this->child( cIdx ) ); // What ???
@@ -119,7 +119,7 @@ bool UiTreeOrdering::containsField( const FieldHandle* field )
 //--------------------------------------------------------------------------------------------------
 bool UiTreeOrdering::containsObject( const ObjectHandle* object )
 {
-    CAF_ASSERT( object );
+    CAFFA_ASSERT( object );
     for ( int cIdx = 0; cIdx < this->childCount(); ++cIdx )
     {
         UiTreeOrdering* child = this->child( cIdx );
@@ -229,7 +229,7 @@ UiTreeOrdering::~UiTreeOrdering()
 //--------------------------------------------------------------------------------------------------
 ObjectHandle* UiTreeOrdering::object() const
 {
-    CAF_ASSERT( isRepresentingObject() );
+    CAFFA_ASSERT( isRepresentingObject() );
     return m_object;
 }
 
@@ -238,7 +238,7 @@ ObjectHandle* UiTreeOrdering::object() const
 //--------------------------------------------------------------------------------------------------
 FieldHandle* UiTreeOrdering::field() const
 {
-    CAF_ASSERT( isRepresentingField() );
+    CAFFA_ASSERT( isRepresentingField() );
     return m_field;
 }
 
@@ -247,7 +247,7 @@ FieldHandle* UiTreeOrdering::field() const
 //--------------------------------------------------------------------------------------------------
 UiItem* UiTreeOrdering::uiItem() const
 {
-    CAF_ASSERT( isDisplayItemOnly() );
+    CAFFA_ASSERT( isDisplayItemOnly() );
     return m_uiItem.get();
 }
 
@@ -313,7 +313,7 @@ void UiTreeOrdering::debugDump( int level ) const
 //--------------------------------------------------------------------------------------------------
 UiTreeOrdering* UiTreeOrdering::child( int index ) const
 {
-    CAF_ASSERT( index < m_childItems.size() );
+    CAFFA_ASSERT( index < m_childItems.size() );
     return m_childItems[index];
 }
 
