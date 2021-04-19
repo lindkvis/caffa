@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.12)
 
-project ( cafIoCore_UnitTests )
+project ( caffaIoCore_UnitTests )
 
 # add the executable 
 add_executable (${PROJECT_NAME}
@@ -13,7 +13,7 @@ add_executable (${PROJECT_NAME}
 )
 
 target_link_libraries ( ${PROJECT_NAME}
-    cafIoCore    
+    caffaIoCore    
     ${THREAD_LIBRARY}
     nlohmann_json::nlohmann_json
 	gtest

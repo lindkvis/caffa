@@ -44,12 +44,12 @@ jobs:
     - name: Run Core Unit Tests in Container
       uses: "docker://lindkvis/caffa_arm32v7:latest"
       with:
-        args: /usr/src/caffa/build/bin/cafCore_UnitTests
+        args: /usr/src/caffa/build/bin/caffaCore_UnitTests
     - name: Run IO Unit Tests in Container
       uses: "docker://lindkvis/caffa_arm32v7:latest"
       with:
-        args: /usr/src/caffa/build/bin/cafIoCore_UnitTests
+        args: /usr/src/caffa/build/bin/caffaIoCore_UnitTests
     - name: Run CAF Unit Tests in Container
       uses: "docker://lindkvis/caffa_arm32v7:latest"
       with:
-        args: /usr/src/caffa/build/bin/cafProjectDataModel_UnitTests
+        args: /usr/src/caffa/build/bin/caffaProjectDataModel_UnitTests

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(cafGrpcInterface)
+project (caffaGrpcInterface)
 
 message(STATUS "GRPC enabled")
 
@@ -93,7 +93,7 @@ message(STATUS "Using gRPC ${CURRENT_GRPC_VERSION}")
 set(LINK_LIBRARIES
     ${GRPC_LINK_LIBRARIES}
     Microsoft.GSL::GSL
-    cafProjectDataModel
+    caffaProjectDataModel
     )
 
 # Proto files

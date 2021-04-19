@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.12)
 
-project ( cafGrpcInterface_UnitTests )
+project ( caffaGrpcInterface_UnitTests )
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -24,8 +24,8 @@ add_executable (${PROJECT_NAME}
 source_group("" FILES ${PROJECT_FILES})
 
 target_link_libraries ( ${PROJECT_NAME}
-    cafProjectDataModel
-    cafGrpcInterface
+    caffaProjectDataModel
+    caffaGrpcInterface
     ${THREAD_LIBRARY}
     gtest
 )

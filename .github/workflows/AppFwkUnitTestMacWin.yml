@@ -30,14 +30,14 @@ jobs:
         if: "!contains( matrix.os, 'windows')"
         shell: bash
         run: |
-          cmakebuild/bin/cafCore_UnitTests
-          cmakebuild/bin/cafIoCore_UnitTests
-          cmakebuild/bin/cafProjectDataModel_UnitTests
+          cmakebuild/bin/caffaCore_UnitTests
+          cmakebuild/bin/caffaIoCore_UnitTests
+          cmakebuild/bin/caffaProjectDataModel_UnitTests
       - name: Run Unit Tests Windows
         if: contains( matrix.os, 'windows')  
         shell: bash
         run: |
-          cmakebuild/bin/Release/cafCore_UnitTests.exe
-          cmakebuild/bin/Release/cafIoCore_UnitTests.exe
-          cmakebuild/bin/Release/cafProjectDataModel_UnitTests.exe
+          cmakebuild/bin/Release/caffaCore_UnitTests.exe
+          cmakebuild/bin/Release/caffaIoCore_UnitTests.exe
+          cmakebuild/bin/Release/caffaProjectDataModel_UnitTests.exe
 

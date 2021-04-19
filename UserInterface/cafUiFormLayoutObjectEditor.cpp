@@ -74,7 +74,7 @@ caffa::UiFormLayoutObjectEditor::~UiFormLayoutObjectEditor()
 ///
 //--------------------------------------------------------------------------------------------------
 bool caffa::UiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInNewGridLayout( const UiOrdering& uiOrdering,
-                                                                                            QWidget* containerWidget )
+                                                                                              QWidget* containerWidget )
 {
     QSize beforeSize = containerWidget->sizeHint();
 
@@ -95,7 +95,7 @@ bool caffa::UiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInN
 /// Returns the stretch factor that should be applied at the level above.
 //--------------------------------------------------------------------------------------------------
 int caffa::UiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGridLayout( const UiOrdering& uiOrdering,
-                                                                                        QWidget* containerWidgetWithGridLayout )
+                                                                                          QWidget* containerWidgetWithGridLayout )
 {
     int sumRowStretch = 0;
     CAF_ASSERT( containerWidgetWithGridLayout );
@@ -285,11 +285,11 @@ int caffa::UiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGr
 /// Create a group and add widgets. Return true if the containing row needs to be stretched.
 //--------------------------------------------------------------------------------------------------
 int caffa::UiFormLayoutObjectEditor::recursivelyAddGroupToGridLayout( UiItem*      currentItem,
-                                                                    QWidget*     containerWidgetWithGridLayout,
-                                                                    QGridLayout* parentLayout,
-                                                                    int          currentRowIndex,
-                                                                    int          currentColumn,
-                                                                    int          itemColumnSpan )
+                                                                      QWidget*     containerWidgetWithGridLayout,
+                                                                      QGridLayout* parentLayout,
+                                                                      int          currentRowIndex,
+                                                                      int          currentColumn,
+                                                                      int          itemColumnSpan )
 {
     UiGroup* group = static_cast<UiGroup*>( currentItem );
 
@@ -375,7 +375,8 @@ QMinimizePanel* caffa::UiFormLayoutObjectEditor::findOrCreateGroupBox( QWidget* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caffa::UiFieldEditorHandle* caffa::UiFormLayoutObjectEditor::findOrCreateFieldEditor( QWidget* parent, FieldUiCapability* field )
+caffa::UiFieldEditorHandle* caffa::UiFormLayoutObjectEditor::findOrCreateFieldEditor( QWidget*           parent,
+                                                                                      FieldUiCapability* field )
 {
     caffa::UiFieldEditorHandle* fieldEditor = nullptr;
 
@@ -399,7 +400,7 @@ caffa::UiFieldEditorHandle* caffa::UiFormLayoutObjectEditor::findOrCreateFieldEd
             // in a cpp file, a dummy static class must be used to make sure the compile unit
             // is included
             //
-            // See cafUiCoreColor3f and cafUiCoreVec3d
+            // See caffaUiCoreColor3f and caffaUiCoreVec3d
 
             // This assert will trigger for ChildArrayField and ChildField
             // Consider to exclude assert or add editors for these types if the assert is reintroduced

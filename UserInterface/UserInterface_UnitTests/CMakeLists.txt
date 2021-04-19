@@ -34,7 +34,7 @@ target_link_libraries ( ${PROJECT_NAME}
     ${THREAD_LIBRARY}
     ${QT_LIBRARIES}
     ${EXTERNAL_LINK_LIBRARIES}
-    cafUiCore
+    caffaUiCore
     cafUserInterface
     gtest
 )

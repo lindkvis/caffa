@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.12)
 
-project ( cafGrpcInterface_Example )
+project ( caffaGrpcInterface_Example )
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -25,24 +25,24 @@ add_executable (${PROJECT_NAME}Benchmark
 )
 
 target_link_libraries ( ${PROJECT_NAME}Server
-    cafProjectDataModel
-    cafGrpcInterface
+    caffaProjectDataModel
+    caffaGrpcInterface
     ${THREAD_LIBRARY}
 )
 
 target_link_libraries ( ${PROJECT_NAME}Client
-    cafProjectDataModel
-    cafGrpcInterface
+    caffaProjectDataModel
+    caffaGrpcInterface
     ${THREAD_LIBRARY}
 )
 
 target_link_libraries ( ${PROJECT_NAME}Benchmark
-    cafProjectDataModel
-    cafGrpcInterface
+    caffaProjectDataModel
+    caffaGrpcInterface
     ${THREAD_LIBRARY}
 )
 
-# Necessary only because the tests are in a sub-directory of cafGrpcInterface
+# Necessary only because the tests are in a sub-directory of caffaGrpcInterface
 target_include_directories(${PROJECT_NAME}Server PRIVATE ..)
 target_include_directories(${PROJECT_NAME}Client PRIVATE ..)
 target_include_directories(${PROJECT_NAME}Benchmark PRIVATE ..)

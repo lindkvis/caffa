@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.12)
 
-project (cafCore)
+project (caffaCore)
 
 # Unity Build
 if (CAF_ENABLE_UNITY_BUILD)
