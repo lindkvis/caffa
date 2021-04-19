@@ -75,14 +75,14 @@ public:
 
 namespace caffa
 {
-CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiDoubleSliderEditor );
+CAFFA_UI_FIELD_EDITOR_SOURCE_INIT( UiDoubleSliderEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void UiDoubleSliderEditor::configureAndUpdateUi()
 {
-    CAF_ASSERT( !m_lineEdit.isNull() );
+    CAFFA_ASSERT( !m_lineEdit.isNull() );
 
     UiFieldEditorHandle::updateLabelFromField( m_label );
 

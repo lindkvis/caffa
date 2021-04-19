@@ -190,7 +190,7 @@ public:
     /// Set the field value from a Variant
     static void setFromVariant( const Variant& variantValue, caffa::AppEnum<T>& value )
     {
-        CAF_ASSERT( variantValue.canConvert<caffa::AppEnum<T>>() );
+        CAFFA_ASSERT( variantValue.canConvert<caffa::AppEnum<T>>() );
         value = variantValue.value<caffa::AppEnum<T>>();
     }
 

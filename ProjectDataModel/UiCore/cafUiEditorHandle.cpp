@@ -62,7 +62,7 @@ UiEditorHandle::~UiEditorHandle()
 //--------------------------------------------------------------------------------------------------
 void UiEditorHandle::updateUi()
 {
-    CAF_ASSERT( !m_isConfiguringUi );
+    CAFFA_ASSERT( !m_isConfiguringUi );
     m_isConfiguringUi = true;
     this->configureAndUpdateUi();
     m_isConfiguringUi = false;

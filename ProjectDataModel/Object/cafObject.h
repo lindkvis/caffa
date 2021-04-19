@@ -62,9 +62,9 @@ class UiEditorAttribute;
 class UiTreeOrdering;
 class ObjectCapability;
 
-#define CAF_HEADER_INIT CAF_IO_HEADER_INIT
-#define CAF_SOURCE_INIT CAF_IO_SOURCE_INIT
-#define CAF_ABSTRACT_SOURCE_INIT CAF_IO_ABSTRACT_SOURCE_INIT
+#define CAFFA_HEADER_INIT CAFFA_IO_HEADER_INIT
+#define CAFFA_SOURCE_INIT CAFFA_IO_SOURCE_INIT
+#define CAFFA_ABSTRACT_SOURCE_INIT CAFFA_IO_ABSTRACT_SOURCE_INIT
 
 /**
  * Helper class that is initialised with Object::initField and allows
@@ -128,7 +128,7 @@ private:
 class Object : public ObjectHandle, public ObjectIoCapability, public ObjectUiCapability
 {
 public:
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
     Object();
     ~Object() override {}

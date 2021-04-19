@@ -27,7 +27,7 @@ DemoObject::DemoObject()
     initField( m_intVector, "intVector" ).withScripting();
 }
 
-CAF_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
+CAFFA_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
 
 InheritedDemoObj::InheritedDemoObj()
 {
@@ -36,7 +36,7 @@ InheritedDemoObj::InheritedDemoObj()
     initField( m_ptrField, "m_ptrField" ).withScripting();
 }
 
-CAF_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject", "DemoObject" );
+CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject", "DemoObject" );
 
 DemoDocument::DemoDocument()
 {
@@ -47,4 +47,4 @@ DemoDocument::DemoDocument()
     this->fileName = "dummyFileName";
 }
 
-CAF_SOURCE_INIT( DemoDocument, "DemoDocument", "Document" );
+CAFFA_SOURCE_INIT( DemoDocument, "DemoDocument", "Document" );

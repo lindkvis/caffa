@@ -113,7 +113,7 @@ void UiPropertyViewDialog::setupUi()
     m_uiPropertyView->showProperties( m_object );
 
     // Buttons
-    // CAF_ASSERT(m_buttonBox->buttons().size() > 0);
+    // CAFFA_ASSERT(m_buttonBox->buttons().size() > 0);
 
     connect( m_buttonBox, SIGNAL( accepted() ), this, SLOT( accept() ) );
     connect( m_buttonBox, SIGNAL( rejected() ), this, SLOT( reject() ) );

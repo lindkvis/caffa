@@ -86,7 +86,7 @@ ObjectHandle* ObjectJsonCapability::readUnknownObjectFromString( const std::stri
     nlohmann::json jsonObject       = nlohmann::json::parse( string );
     const auto&    jsonClassKeyword = jsonObject["classKeyword"];
 
-    CAF_ASSERT( jsonClassKeyword.is_string() );
+    CAFFA_ASSERT( jsonClassKeyword.is_string() );
     std::string classKeyword = jsonClassKeyword.get<std::string>();
 
     uint64_t serverAddress = 0u;
@@ -110,7 +110,7 @@ ObjectHandle* ObjectJsonCapability::readUnknownObjectFromString( const std::stri
 //--------------------------------------------------------------------------------------------------
 void ObjectJsonCapability::readFile( ObjectHandle* object, std::istream& file, ObjectFactory* objectFactory )
 {
-    CAF_ASSERT( file );
+    CAFFA_ASSERT( file );
 
     nlohmann::json document;
     file >> document;
@@ -137,10 +137,10 @@ void ObjectJsonCapability::readFields( ObjectHandle*         object,
                                        ObjectFactory*        objectFactory,
                                        bool                  isCopyOperation )
 {
-    CAF_ASSERT( jsonObject.is_object() );
+    CAFFA_ASSERT( jsonObject.is_object() );
     const auto& classKeyword = jsonObject["classKeyword"];
 
-    CAF_ASSERT( classKeyword.is_string() &&
+    CAFFA_ASSERT( classKeyword.is_string() &&
                 classKeyword.get<std::string>() == object->capability<ObjectIoCapability>()->classKeyword() );
 
     for ( const auto& [key, value] : jsonObject.items() )
@@ -178,7 +178,7 @@ void ObjectJsonCapability::writeFields( const ObjectHandle* object,
                                         bool                writeValues )
 {
     std::string classKeyword = object->capability<ObjectIoCapability>()->classKeyword();
-    CAF_ASSERT( ObjectIoCapability::isValidElementName( classKeyword ) );
+    CAFFA_ASSERT( ObjectIoCapability::isValidElementName( classKeyword ) );
     jsonObject["classKeyword"] = classKeyword;
     if ( writeServerAddress )
     {
@@ -191,7 +191,7 @@ void ObjectJsonCapability::writeFields( const ObjectHandle* object,
         if ( ioCapability && ioCapability->isIOWritable() )
         {
             std::string keyword = ioCapability->fieldHandle()->keyword();
-            CAF_ASSERT( ObjectIoCapability::isValidElementName( keyword ) );
+            CAFFA_ASSERT( ObjectIoCapability::isValidElementName( keyword ) );
 
             nlohmann::json value;
             ioCapability->writeFieldData( value, writeServerAddress, writeValues );

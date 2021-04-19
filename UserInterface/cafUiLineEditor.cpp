@@ -139,7 +139,7 @@ void UiLineEditor::configureAndUpdateUi()
 
         bool fromMenuOnly = true;
         m_optionCache     = uiField()->valueOptions( &fromMenuOnly );
-        CAF_ASSERT( fromMenuOnly ); // Not supported
+        CAFFA_ASSERT( fromMenuOnly ); // Not supported
 
         if ( !m_optionCache.empty() && fromMenuOnly == true )
         {
@@ -392,6 +392,6 @@ const OptionItemInfo* UiLineEditor::findOption( const QString& uiText )
 // Define at this location to avoid duplicate symbol definitions in 'cafUiDefaultObjectEditor.cpp' in a cotire build.
 // The variables defined by the macro are prefixed by line numbers causing a crash if the macro is defined at the same
 // line number.
-CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiLineEditor );
+CAFFA_UI_FIELD_EDITOR_SOURCE_INIT( UiLineEditor );
 
 } // end namespace caffa

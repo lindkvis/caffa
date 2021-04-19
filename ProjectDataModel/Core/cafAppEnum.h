@@ -218,7 +218,7 @@ private:
             }
             else
             {
-                // CAF_ASSERT(m_mapping.size());
+                // CAFFA_ASSERT(m_mapping.size());
                 return m_mapping[0].m_enumVal;
             }
         }

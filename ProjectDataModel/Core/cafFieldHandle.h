@@ -63,7 +63,7 @@ protected:
     bool isInitializedByInitFieldMacro() const { return m_ownerObject != nullptr; }
 
 private:
-    CAF_DISABLE_COPY_AND_ASSIGN( FieldHandle );
+    CAFFA_DISABLE_COPY_AND_ASSIGN( FieldHandle );
 
     friend class ObjectHandle; // Give access to m_ownerObject and set Keyword
     void          setKeyword( const std::string& keyword );

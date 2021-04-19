@@ -158,7 +158,7 @@ void UiPropertyView::showProperties( ObjectHandle* object )
         // Create widget to handle this
         QWidget* propertyWidget = m_defaultObjectEditor->getOrCreateWidget( m_placeholder );
 
-        CAF_ASSERT( propertyWidget );
+        CAFFA_ASSERT( propertyWidget );
 
         this->m_placeHolderLayout->insertWidget( 0, propertyWidget );
 

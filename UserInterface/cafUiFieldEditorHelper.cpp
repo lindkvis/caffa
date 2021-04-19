@@ -73,7 +73,7 @@ caffa::UiFieldEditorHandle* caffa::UiFieldEditorHelper::createFieldEditorForFiel
 
             bool                       useOptionsOnly = true;
             std::deque<OptionItemInfo> options        = field->valueOptions( &useOptionsOnly );
-            CAF_ASSERT( useOptionsOnly ); // Not supported
+            CAFFA_ASSERT( useOptionsOnly ); // Not supported
 
             if ( !options.empty() )
             {

@@ -63,7 +63,7 @@ UiTableViewDelegate::~UiTableViewDelegate()
 //--------------------------------------------------------------------------------------------------
 QWidget* UiTableViewDelegate::createEditor( QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index ) const
 {
-    CAF_ASSERT( m_model );
+    CAFFA_ASSERT( m_model );
     QWidget* editorWidget = m_model->getEditorWidgetAndTransferOwnership( parent, index );
 
     connect( editorWidget, SIGNAL( destroyed( QObject* ) ), SLOT( slotEditorDestroyed( QObject* ) ) );

@@ -43,7 +43,7 @@ QActionWrapper::~QActionWrapper()
 //--------------------------------------------------------------------------------------------------
 void QActionWrapper::init( const std::string& text, void* parent )
 {
-    CAF_ASSERT( !m_action );
+    CAFFA_ASSERT( !m_action );
     m_action = new QAction( QString::fromStdString( text ), reinterpret_cast<QObject*>( parent ) );
 }
 
@@ -68,7 +68,7 @@ const QAction* QActionWrapper::action() const
 //--------------------------------------------------------------------------------------------------
 Variant QActionWrapper::data() const
 {
-    CAF_ASSERT( m_action->data().canConvert<Variant>() );
+    CAFFA_ASSERT( m_action->data().canConvert<Variant>() );
     return m_action->data().value<Variant>();
 }
 
@@ -284,7 +284,7 @@ MenuInterface* QMenuWrapper::addMenu( const IconProvider& iconProvider, const st
 void QMenuWrapper::addAction( std::shared_ptr<ActionWrapper> actionWrapper )
 {
     QActionWrapper* qActionWrapper = dynamic_cast<QActionWrapper*>( actionWrapper.get() );
-    CAF_ASSERT( qActionWrapper );
+    CAFFA_ASSERT( qActionWrapper );
 
     m_menu->addAction( qActionWrapper->action() );
 }
@@ -303,7 +303,7 @@ std::shared_ptr<ActionWrapper> QMenuWrapper::menuAction() const
 void QMenuWrapper::removeAction( std::shared_ptr<ActionWrapper> actionWrapper )
 {
     QActionWrapper* qActionWrapper = dynamic_cast<QActionWrapper*>( actionWrapper.get() );
-    CAF_ASSERT( qActionWrapper );
+    CAFFA_ASSERT( qActionWrapper );
     m_menu->removeAction( qActionWrapper->action() );
 }
 

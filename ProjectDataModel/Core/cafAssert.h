@@ -4,12 +4,12 @@
 #include <cstdlib>
 #include <iostream>
 
-#define CAF_ASSERT( expr )                                                                                   \
+#define CAFFA_ASSERT( expr )                                                                                   \
     do                                                                                                       \
     {                                                                                                        \
         if ( !( expr ) )                                                                                     \
         {                                                                                                    \
-            std::cout << __FILE__ << ":" << __LINE__ << ": CAF_ASSERT(" << #expr << ") failed" << std::endl; \
+            std::cout << __FILE__ << ":" << __LINE__ << ": CAFFA_ASSERT(" << #expr << ") failed" << std::endl; \
             std::abort();                                                                                    \
         }                                                                                                    \
     } while ( false )
@@ -55,7 +55,7 @@ void assertAbort()
     {                                                                                                        \
         if ( !( expr ) )                                                                                     \
         {                                                                                                    \
-            std::cout << __FILE__ << ":" << __LINE__ << ": CAF_ASSERT(" << #expr << ") failed" << std::endl; \
+            std::cout << __FILE__ << ":" << __LINE__ << ": CAFFA_ASSERT(" << #expr << ") failed" << std::endl; \
             assertAbort();                                                                                   \
         }                                                                                                    \
     } while ( false )

@@ -212,7 +212,7 @@ UiListViewEditor::~UiListViewEditor()
 //--------------------------------------------------------------------------------------------------
 QWidget* UiListViewEditor::createWidget( QWidget* parent )
 {
-    CAF_ASSERT( parent );
+    CAFFA_ASSERT( parent );
 
     QWidget*     mainWidget = new QWidget( parent );
     QVBoxLayout* layout     = new QVBoxLayout();

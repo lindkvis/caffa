@@ -94,7 +94,7 @@ void CustomObjectEditor::addWidget(QWidget*      widget,
                                    int           columnSpan,
                                    Qt::Alignment alignment /*= 0*/)
 {
-    CAF_ASSERT(isAreaAvailable(row, column, rowSpan, columnSpan));
+    CAFFA_ASSERT(isAreaAvailable(row, column, rowSpan, columnSpan));
 
     m_customWidgetAreas.push_back(WidgetCellIds(widget, CustomObjectEditor::cellIds(row, column, rowSpan, columnSpan)));
 

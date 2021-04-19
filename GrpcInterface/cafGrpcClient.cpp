@@ -64,16 +64,16 @@ public:
     {
         // Created new server
         m_channel = grpc::CreateChannel( hostname + ":" + std::to_string( port ), grpc::InsecureChannelCredentials() );
-        CAF_DEBUG( "Created channel for " << hostname << ":" << port );
+        CAFFA_DEBUG( "Created channel for " << hostname << ":" << port );
         m_appInfoStub = App::NewStub( m_channel );
         m_objectStub  = ObjectAccess::NewStub( m_channel );
         m_fieldStub   = FieldAccess::NewStub( m_channel );
-        CAF_TRACE( "Created stubs" );
+        CAFFA_TRACE( "Created stubs" );
     }
 
     caffa::AppInfo appInfo() const
     {
-        CAF_TRACE( "Trying to get app info" );
+        CAFFA_TRACE( "Trying to get app info" );
         caffa::rpc::AppInfoReply reply;
         grpc::ClientContext    context;
         NullMessage            nullarg;
@@ -94,18 +94,18 @@ public:
         caffa::rpc::DocumentRequest request;
         request.set_document_id( documentId );
         caffa::rpc::Object objectReply;
-        CAF_TRACE( "Calling GetDocument()" );
+        CAFFA_TRACE( "Calling GetDocument()" );
         auto status = m_objectStub->GetDocument( &context, request, &objectReply );
         if ( status.ok() )
         {
-            CAF_TRACE( "Got document" );
+            CAFFA_TRACE( "Got document" );
             document = caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply,
                                                                         caffa::rpc::GrpcClientObjectFactory::instance() );
-            CAF_TRACE( "Document completed" );
+            CAFFA_TRACE( "Document completed" );
         }
         else
         {
-            CAF_ERROR( "Failed to get document" );
+            CAFFA_ERROR( "Failed to get document" );
         }
         return document;
     }
@@ -114,9 +114,9 @@ public:
     {
         auto self   = std::make_unique<Object>();
         auto params = std::make_unique<Object>();
-        CAF_TRACE( "Copying self" );
+        CAFFA_TRACE( "Copying self" );
         ObjectService::copyObjectFromCafToRpc( method->self<caffa::ObjectHandle>(), self.get(), false, false );
-        CAF_TRACE( "Copying parameters" );
+        CAFFA_TRACE( "Copying parameters" );
         ObjectService::copyObjectFromCafToRpc( method, params.get(), true, true );
 
         grpc::ClientContext context;
@@ -141,7 +141,7 @@ public:
     {
         grpc::ClientContext context;
         NullMessage         nullarg, nullreply;
-        CAF_DEBUG( "Telling server to quit" );
+        CAFFA_DEBUG( "Telling server to quit" );
         auto status = m_appInfoStub->Quit( &context, nullarg, &nullreply );
         return status.ok();
     }
@@ -195,7 +195,7 @@ public:
 
     nlohmann::json getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
     {
-        CAF_TRACE( "Get JSON value for field " << fieldName );
+        CAFFA_TRACE( "Get JSON value for field " << fieldName );
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
@@ -212,7 +212,7 @@ public:
 
         if ( reader->Read( &reply ) )
         {
-            CAF_TRACE( "Got scalar reply: " << reply.scalar() );
+            CAFFA_TRACE( "Got scalar reply: " << reply.scalar() );
             jsonValue = nlohmann::json::parse( reply.scalar() );
         }
         grpc::Status status = reader->Finish();
@@ -220,7 +220,7 @@ public:
         {
             throw Exception( status );
         }
-        CAF_TRACE( "Got json value: " << jsonValue )
+        CAFFA_TRACE( "Got json value: " << jsonValue )
         return jsonValue;
     }
     bool set( const caffa::ObjectHandle* objectHandle, const std::string& setter, const std::vector<int>& values )
@@ -412,7 +412,7 @@ public:
         GetterReply                                      reply;
         while ( reader->Read( &reply ) )
         {
-            CAF_ASSERT( reply.has_ints() ); // TODO: throw
+            CAFFA_ASSERT( reply.has_ints() ); // TODO: throw
             auto ints = reply.ints();
             values.insert( values.end(), ints.data().begin(), ints.data().end() );
         }
@@ -439,7 +439,7 @@ public:
         GetterReply                                      reply;
         while ( reader->Read( &reply ) )
         {
-            CAF_ASSERT( reply.has_doubles() ); // TODO: throw
+            CAFFA_ASSERT( reply.has_doubles() ); // TODO: throw
             auto doubles = reply.doubles();
             values.insert( values.end(), doubles.data().begin(), doubles.data().end() );
         }
@@ -468,7 +468,7 @@ public:
         GetterReply                                      reply;
         while ( reader->Read( &reply ) )
         {
-            CAF_ASSERT( reply.has_floats() ); // TODO: throw
+            CAFFA_ASSERT( reply.has_floats() ); // TODO: throw
             auto floats = reply.floats();
             values.insert( values.end(), floats.data().begin(), floats.data().end() );
         }
@@ -479,8 +479,8 @@ public:
         size_t MB             = numberOfFloats * sizeof( float ) / ( 1024u * 1024u );
 
         grpc::Status status = reader->Finish();
-        if ( !status.ok() ) CAF_ERROR( "GRPC: " << status.error_code() << ", " << status.error_message() );
-        CAF_ASSERT( status.ok() );
+        if ( !status.ok() ) CAFFA_ERROR( "GRPC: " << status.error_code() << ", " << status.error_message() );
+        CAFFA_ASSERT( status.ok() );
         return values;
     }
 
@@ -499,12 +499,12 @@ public:
         GetterReply                                      reply;
         while ( reader->Read( &reply ) )
         {
-            CAF_ASSERT( reply.has_strings() ); // TODO: throw
+            CAFFA_ASSERT( reply.has_strings() ); // TODO: throw
             auto strings = reply.strings();
             values.insert( values.end(), strings.data().begin(), strings.data().end() );
         }
         grpc::Status status = reader->Finish();
-        CAF_ASSERT( status.ok() );
+        CAFFA_ASSERT( status.ok() );
         return values;
     }
 

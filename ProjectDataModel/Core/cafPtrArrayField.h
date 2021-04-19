@@ -23,7 +23,7 @@ public:
     PtrArrayField()
     {
         bool doNotUsePtrArrayFieldForAnythingButPointersToObject = false;
-        CAF_ASSERT( doNotUsePtrArrayFieldForAnythingButPointersToObject );
+        CAFFA_ASSERT( doNotUsePtrArrayFieldForAnythingButPointersToObject );
     }
 };
 
@@ -81,7 +81,7 @@ public:
     virtual void ptrReferencedObjects( std::vector<ObjectHandle*>* );
 
 private: // To be disabled
-    CAF_DISABLE_COPY_AND_ASSIGN( PtrArrayField );
+    CAFFA_DISABLE_COPY_AND_ASSIGN( PtrArrayField );
 
     void addThisAsReferencingPtrField();
     void removeThisAsReferencingPtrField();

@@ -54,7 +54,7 @@ caffa::PtrField<DataType*>::~PtrField()
 template <typename DataType>
 void PtrField<DataType*>::setValue( const DataTypePtr& fieldValue )
 {
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
 
     if ( m_fieldValue ) m_fieldValue->removeReferencingPtrField( this );
     m_fieldValue = fieldValue;
@@ -67,7 +67,7 @@ void PtrField<DataType*>::setValue( const DataTypePtr& fieldValue )
 template <typename DataType>
 void PtrField<DataType*>::setRawPtr( ObjectHandle* obj )
 {
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
 
     if ( m_fieldValue.notNull() ) m_fieldValue.rawPtr()->removeReferencingPtrField( this );
     m_fieldValue.setRawPtr( obj );
@@ -80,7 +80,7 @@ void PtrField<DataType*>::setRawPtr( ObjectHandle* obj )
 template <typename DataType>
 caffa::PtrField<DataType*>& PtrField<DataType*>::operator=( const DataTypePtr& fieldValue )
 {
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
 
     if ( m_fieldValue ) m_fieldValue->removeReferencingPtrField( this );
     m_fieldValue = fieldValue;
@@ -95,7 +95,7 @@ caffa::PtrField<DataType*>& PtrField<DataType*>::operator=( const DataTypePtr& f
 template <typename DataType>
 caffa::PtrField<DataType*>& PtrField<DataType*>::operator=( const FieldDataType& fieldValue )
 {
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
 
     if ( m_fieldValue ) m_fieldValue->removeReferencingPtrField( this );
     m_fieldValue = fieldValue;

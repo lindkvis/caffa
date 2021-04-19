@@ -12,7 +12,7 @@ using namespace caffa;
 ColorTable::ColorTable( const std::vector<Color>& colors )
     : m_colors( colors )
 {
-    CAF_ASSERT( m_colors.size() > 0 );
+    CAFFA_ASSERT( m_colors.size() > 0 );
 }
 
 //--------------------------------------------------------------------------------------------------

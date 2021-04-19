@@ -43,7 +43,7 @@
 
 using namespace caffa;
 
-CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiPickableLineEditor );
+CAFFA_UI_FIELD_EDITOR_SOURCE_INIT( UiPickableLineEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///

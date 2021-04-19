@@ -111,7 +111,7 @@ void GrpcClientObjectFactory::applyAccessorToField( caffa::ObjectHandle* fieldOw
     }
     else
     {
-        CAF_ASSERT( "Datatype not implemented" );
+        CAFFA_ASSERT( "Datatype not implemented" );
     }
 }
 

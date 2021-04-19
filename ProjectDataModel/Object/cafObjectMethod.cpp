@@ -38,7 +38,7 @@
 
 using namespace caffa;
 
-CAF_IO_ABSTRACT_SOURCE_INIT( ObjectMethod, "ObjectMethod", "Object" );
+CAFFA_IO_ABSTRACT_SOURCE_INIT( ObjectMethod, "ObjectMethod", "Object" );
 
 //--------------------------------------------------------------------------------------------------
 ///

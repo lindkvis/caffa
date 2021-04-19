@@ -57,14 +57,14 @@
 
 namespace caffa
 {
-CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiTimeEditor );
+CAFFA_UI_FIELD_EDITOR_SOURCE_INIT( UiTimeEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void UiTimeEditor::configureAndUpdateUi()
 {
-    CAF_ASSERT( !m_timeEdit.isNull() );
+    CAFFA_ASSERT( !m_timeEdit.isNull() );
 
     UiFieldEditorHandle::updateLabelFromField( m_label );
 

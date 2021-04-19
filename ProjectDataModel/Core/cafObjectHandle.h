@@ -197,7 +197,7 @@ protected:
     }
 
 private:
-    CAF_DISABLE_COPY_AND_ASSIGN( ObjectHandle );
+    CAFFA_DISABLE_COPY_AND_ASSIGN( ObjectHandle );
 
     // Fields
     std::vector<FieldHandle*> m_fields;

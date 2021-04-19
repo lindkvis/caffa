@@ -33,7 +33,7 @@
 //   for more details.
 //
 //##################################################################################################
-#ifndef CAF_IS_DEFINING_CAF_FIELD
+#ifndef CAFFA_IS_DEFINING_CAFFA_FIELD
 #pragma once
 #endif
 
@@ -86,13 +86,13 @@ public:
 
     DataValueField& operator=( const DataValueField& other )
     {
-        CAF_ASSERT( this->isInitializedByInitFieldMacro() );
+        CAFFA_ASSERT( this->isInitializedByInitFieldMacro() );
         m_fieldDataAccessor = std::move( other.m_fieldDataAccessor->clone() );
         return *this;
     }
     DataValueField& operator=( const DataType& fieldValue )
     {
-        CAF_ASSERT( this->isInitializedByInitFieldMacro() );
+        CAFFA_ASSERT( this->isInitializedByInitFieldMacro() );
         m_fieldDataAccessor->setValue( fieldValue );
         return *this;
     }
@@ -102,7 +102,7 @@ public:
     DataType value() const override { return m_fieldDataAccessor->value(); }
     void     setValue( const DataType& fieldValue ) override
     {
-        CAF_ASSERT( this->isInitializedByInitFieldMacro() );
+        CAFFA_ASSERT( this->isInitializedByInitFieldMacro() );
         m_fieldDataAccessor->setValue( fieldValue );
     }
     void setValueWithFieldChanged( const DataType& fieldValue );
@@ -111,12 +111,12 @@ public:
 
     Variant toVariant() const override
     {
-        CAF_ASSERT( this->isInitializedByInitFieldMacro() );
+        CAFFA_ASSERT( this->isInitializedByInitFieldMacro() );
         return ValueFieldSpecialization<DataType>::convert( m_fieldDataAccessor->value() );
     }
     void setFromVariant( const Variant& variant ) override
     {
-        CAF_ASSERT( this->isInitializedByInitFieldMacro() );
+        CAFFA_ASSERT( this->isInitializedByInitFieldMacro() );
         DataType value;
         ValueFieldSpecialization<DataType>::setFromVariant( variant, value );
         m_fieldDataAccessor->setValue( value );
@@ -127,12 +127,12 @@ public:
 
     /*Conversion */ operator DataType() const
     {
-        CAF_ASSERT( m_fieldDataAccessor );
+        CAFFA_ASSERT( m_fieldDataAccessor );
         return m_fieldDataAccessor->value();
     }
     DataType operator()() const
     {
-        CAF_ASSERT( m_fieldDataAccessor );
+        CAFFA_ASSERT( m_fieldDataAccessor );
         return m_fieldDataAccessor->value();
     }
 
@@ -156,7 +156,7 @@ protected:
 template <typename DataType>
 void caffa::DataValueField<DataType>::setValueWithFieldChanged( const DataType& fieldValue )
 {
-    CAF_ASSERT( this->isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( this->isInitializedByInitFieldMacro() );
 
     FieldUiCapabilityInterface* uiFieldHandleInterface = this->template capability<FieldUiCapabilityInterface>();
     if ( uiFieldHandleInterface )

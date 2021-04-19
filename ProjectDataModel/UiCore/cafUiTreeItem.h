@@ -68,7 +68,7 @@ public:
 
     UiTreeItem* child( int row ) const
     {
-        CAF_ASSERT( row < m_childItems.size() );
+        CAFFA_ASSERT( row < m_childItems.size() );
         return m_childItems[row];
     }
 

@@ -88,7 +88,7 @@ void UiCommandSystemProxy::setUiValueToField( FieldUiCapability* uiFieldHandle, 
         FieldHandle* editorField = uiFieldHandle->fieldHandle();
         auto         ownerObject = editorField->ownerObject();
 
-        CAF_ASSERT( ownerObject );
+        CAFFA_ASSERT( ownerObject );
         auto&                 ownerRef         = *ownerObject;
         const std::type_info& fieldOwnerTypeId = typeid( ownerRef );
 

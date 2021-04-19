@@ -5,7 +5,7 @@
 
 namespace caffa
 {
-CAF_SOURCE_INIT( ObjectGroup, "ObjectGroup", "Object" );
+CAFFA_SOURCE_INIT( ObjectGroup, "ObjectGroup", "Object" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -42,7 +42,7 @@ void ObjectGroup::addObject( ObjectHandle* obj )
     objects.push_back( obj );
 }
 
-CAF_SOURCE_INIT( ObjectCollection, "ObjectCollection", "Object" );
+CAFFA_SOURCE_INIT( ObjectCollection, "ObjectCollection", "Object" );
 
 //--------------------------------------------------------------------------------------------------
 ///

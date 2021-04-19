@@ -45,17 +45,17 @@ using namespace caffa::rpc;
 
 grpc::Status AppService::PerformQuit( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply )
 {
-    CAF_DEBUG( "Received quit request" );
+    CAFFA_DEBUG( "Received quit request" );
     ServerApplication::instance()->quit();
     return grpc::Status::OK;
 }
 
 grpc::Status AppService::PerformGetAppInfo( grpc::ServerContext* context, const NullMessage* request, AppInfoReply* reply )
 {
-    CAF_DEBUG( "Received app info request" );
+    CAFFA_DEBUG( "Received app info request" );
     Application* app = Application::instance();
     reply->set_name( app->name() );
-    CAF_ASSERT( app->hasCapability( AppCapability::GRPC_SERVER ) );
+    CAFFA_ASSERT( app->hasCapability( AppCapability::GRPC_SERVER ) );
 
     AppInfo appInfo = app->appInfo();
     reply->set_type( appInfo.appType );
@@ -68,7 +68,7 @@ grpc::Status AppService::PerformGetAppInfo( grpc::ServerContext* context, const 
 
 grpc::Status AppService::PerformPing( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply )
 {
-    CAF_DEBUG( "Received ping request" );
+    CAFFA_DEBUG( "Received ping request" );
     return grpc::Status::OK;
 }
 

@@ -74,7 +74,7 @@ AboutDialog::AboutDialog( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void AboutDialog::setApplicationName( const QString& appName )
 {
-    CAF_ASSERT( !m_isCreated );
+    CAFFA_ASSERT( !m_isCreated );
     m_appName = appName;
 }
 
@@ -83,7 +83,7 @@ void AboutDialog::setApplicationName( const QString& appName )
 //--------------------------------------------------------------------------------------------------
 void AboutDialog::setApplicationVersion( const QString& ver )
 {
-    CAF_ASSERT( !m_isCreated );
+    CAFFA_ASSERT( !m_isCreated );
     m_appVersion = ver;
 }
 
@@ -92,7 +92,7 @@ void AboutDialog::setApplicationVersion( const QString& ver )
 //--------------------------------------------------------------------------------------------------
 void AboutDialog::setCopyright( const QString& copyright )
 {
-    CAF_ASSERT( !m_isCreated );
+    CAFFA_ASSERT( !m_isCreated );
     m_appCopyright = copyright;
 }
 
@@ -101,7 +101,7 @@ void AboutDialog::setCopyright( const QString& copyright )
 //--------------------------------------------------------------------------------------------------
 void AboutDialog::showQtVersion( bool show )
 {
-    CAF_ASSERT( !m_isCreated );
+    CAFFA_ASSERT( !m_isCreated );
     m_showQtVersion = show;
 }
 
@@ -110,12 +110,12 @@ void AboutDialog::showQtVersion( bool show )
 //--------------------------------------------------------------------------------------------------
 void AboutDialog::addVersionEntry( const QString& verLabel, const QString& verText )
 {
-    CAF_ASSERT( !m_isCreated );
+    CAFFA_ASSERT( !m_isCreated );
 
     m_verLabels.push_back( verLabel );
     m_verTexts.push_back( verText );
 
-    CAF_ASSERT( m_verLabels.size() == m_verTexts.size() );
+    CAFFA_ASSERT( m_verLabels.size() == m_verTexts.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ void AboutDialog::addVersionEntry( const QString& verLabel, const QString& verTe
 //--------------------------------------------------------------------------------------------------
 void AboutDialog::setIsDebugBuild( bool isDebugBuild )
 {
-    CAF_ASSERT( !m_isCreated );
+    CAFFA_ASSERT( !m_isCreated );
     m_isDebugBuild = isDebugBuild;
 }
 
@@ -133,7 +133,7 @@ void AboutDialog::setIsDebugBuild( bool isDebugBuild )
 void AboutDialog::create()
 {
     // Only allowed to call once
-    CAF_ASSERT( !m_isCreated );
+    CAFFA_ASSERT( !m_isCreated );
 
     // Only show app info if app name is non-empty
     bool showAppInfo = !m_appName.isEmpty();
@@ -165,7 +165,7 @@ void AboutDialog::create()
         appInfoLayout->setSpacing( 3 );
 
         // Always do app name
-        CAF_ASSERT( !m_appName.isEmpty() );
+        CAFFA_ASSERT( !m_appName.isEmpty() );
         QLabel* appNameLabel = new QLabel( this );
 
         QFont appNameFont( appNameLabel->font() );
@@ -228,7 +228,7 @@ void AboutDialog::create()
         // Custom specified labels
         if ( m_verLabels.size() > 0 )
         {
-            CAF_ASSERT( m_verLabels.size() == m_verTexts.size() );
+            CAFFA_ASSERT( m_verLabels.size() == m_verTexts.size() );
 
             int i;
             for ( i = 0; i < m_verLabels.size(); i++ )

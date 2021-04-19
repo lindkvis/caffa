@@ -50,7 +50,7 @@
 
 namespace caffa
 {
-CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiDoubleValueEditor );
+CAFFA_UI_FIELD_EDITOR_SOURCE_INIT( UiDoubleValueEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -71,7 +71,7 @@ UiDoubleValueEditor::~UiDoubleValueEditor()
 //--------------------------------------------------------------------------------------------------
 void UiDoubleValueEditor::configureAndUpdateUi()
 {
-    CAF_ASSERT( !m_lineEdit.isNull() );
+    CAFFA_ASSERT( !m_lineEdit.isNull() );
 
     UiFieldEditorHandle::updateLabelFromField( m_label );
 

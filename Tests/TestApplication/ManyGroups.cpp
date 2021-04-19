@@ -4,7 +4,7 @@
 #include "cafUiTreeSelectionEditor.h"
 #include "cafVariant.h"
 
-CAF_SOURCE_INIT(ManyGroups, "LargeObject", "Object");
+CAFFA_SOURCE_INIT(ManyGroups, "LargeObject", "Object");
 
 //--------------------------------------------------------------------------------------------------
 ///

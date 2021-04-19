@@ -91,7 +91,7 @@ public:
 
     DataType value() override
     {
-        CAF_ASSERT( m_valueGetter );
+        CAFFA_ASSERT( m_valueGetter );
         return m_valueGetter->getValue();
     }
 

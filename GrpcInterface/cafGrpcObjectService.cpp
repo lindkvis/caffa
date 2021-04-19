@@ -59,12 +59,12 @@ namespace caffa::rpc
 //--------------------------------------------------------------------------------------------------
 grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const DocumentRequest* request, Object* reply )
 {
-    CAF_TRACE( "Got document request" );
+    CAFFA_TRACE( "Got document request" );
     Document* document = ServerApplication::instance()->document( request->document_id() );
-    CAF_TRACE( "Found document" );
+    CAFFA_TRACE( "Found document" );
     if ( document )
     {
-        CAF_TRACE( "Copying document to gRPC data structure" );
+        CAFFA_TRACE( "Copying document to gRPC data structure" );
         copyObjectFromCafToRpc( document, reply, true, false );
         return grpc::Status::OK;
     }
@@ -169,10 +169,10 @@ void ObjectService::copyObjectFromCafToRpc( const caffa::ObjectHandle* source,
                                             bool                     copyContent /* = true */,
                                             bool                     writeValues /* = true */ )
 {
-    CAF_ASSERT( source && destination );
+    CAFFA_ASSERT( source && destination );
 
     auto ioCapability = source->capability<caffa::ObjectIoCapability>();
-    CAF_ASSERT( ioCapability );
+    CAFFA_ASSERT( ioCapability );
 
     destination->set_class_keyword( ioCapability->classKeyword() );
     auto clientCapability = source->capability<caffa::rpc::ObjectClientCapability>();
@@ -198,7 +198,7 @@ void ObjectService::copyObjectFromCafToRpc( const caffa::ObjectHandle* source,
 //--------------------------------------------------------------------------------------------------
 void ObjectService::copyObjectFromRpcToCaf( const Object* source, caffa::ObjectHandle* destination )
 {
-    CAF_ASSERT( source );
+    CAFFA_ASSERT( source );
 
     auto              ioCapability = destination->capability<caffa::ObjectIoCapability>();
     std::stringstream str( source->json() );
@@ -217,7 +217,7 @@ void ObjectService::copyObjectFromRpcToCaf( const Object* source, caffa::ObjectH
 std::unique_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( const Object*       source,
                                                                           caffa::ObjectFactory* objectFactory )
 {
-    CAF_ASSERT( source );
+    CAFFA_ASSERT( source );
     std::unique_ptr<caffa::ObjectHandle> destination(
         caffa::ObjectJsonCapability::readUnknownObjectFromString( source->json(), objectFactory, false ) );
 

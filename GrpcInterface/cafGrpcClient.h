@@ -70,7 +70,7 @@ template <typename DataType>
 DataType caffa::rpc::Client::get( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     nlohmann::json jsonValue = getJson( objectHandle, fieldName );
-    CAF_DEBUG( "Attempting to get datatype " << typeid( DataType ).name() << " from json value " << jsonValue );
+    CAFFA_DEBUG( "Attempting to get datatype " << typeid( DataType ).name() << " from json value " << jsonValue );
     return jsonValue.get<DataType>();
 }
 

@@ -183,8 +183,8 @@ void UiToolBarEditor::configureAndUpdateUi()
         }
     }
 
-    CAF_ASSERT( m_fields.size() == m_fieldViews.size() );
-    CAF_ASSERT( static_cast<int>( m_fields.size() ) == m_actions.size() );
+    CAFFA_ASSERT( m_fields.size() == m_fieldViews.size() );
+    CAFFA_ASSERT( static_cast<int>( m_fields.size() ) == m_actions.size() );
 
     for ( size_t i = 0; i < m_fields.size(); i++ )
     {

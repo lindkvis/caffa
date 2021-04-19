@@ -67,7 +67,7 @@ struct DataHolder : public AbstractDataHolder
     // Default implementation deals with scalar values
     void addPackageValuesToReply( GetterReply* reply, size_t startIndex, size_t numberOfDataUnits ) const override
     {
-        CAF_TRACE( "Assign scalar result of type: " << typeid( DataType ).name() << " with value " << data );
+        CAFFA_TRACE( "Assign scalar result of type: " << typeid( DataType ).name() << " with value " << data );
         reply->set_scalar( data );
     }
 
@@ -285,7 +285,7 @@ template <>
 void DataHolder<std::string>::applyValuesToField( ValueField* field )
 {
     auto ioCapability = field->capability<FieldIoCapability>();
-    CAF_ASSERT( ioCapability );
+    CAFFA_ASSERT( ioCapability );
     ioCapability->readFieldData( data, caffa::DefaultObjectFactory::instance() );
 }
 
@@ -304,10 +304,10 @@ GetterStateHandler::GetterStateHandler()
 //--------------------------------------------------------------------------------------------------
 grpc::Status GetterStateHandler::init( const FieldRequest* request )
 {
-    CAF_DEBUG("Received Get Request for: " << request->self().class_keyword() << "[0x" << std::hex << request->self().address() << "]" << request->method());
+    CAFFA_DEBUG("Received Get Request for: " << request->self().class_keyword() << "[0x" << std::hex << request->self().address() << "]" << request->method());
 
     m_fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self() );
-    CAF_ASSERT( m_fieldOwner );
+    CAFFA_ASSERT( m_fieldOwner );
     if ( !m_fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : m_fieldOwner->fields() )
     {
@@ -363,7 +363,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
 //--------------------------------------------------------------------------------------------------
 grpc::Status GetterStateHandler::assignReply( GetterReply* reply )
 {
-    CAF_ASSERT( m_dataHolder );
+    CAFFA_ASSERT( m_dataHolder );
 
     size_t remainingData             = m_dataHolder->valueCount() - m_currentDataIndex;
     size_t defaultDataUnitsInPackage = Application::instance()->packageByteSize() / m_dataHolder->valueSizeOf();
@@ -376,7 +376,7 @@ grpc::Status GetterStateHandler::assignReply( GetterReply* reply )
     }
     m_dataHolder->addPackageValuesToReply( reply, m_currentDataIndex, dataUnitsInPackage );
     m_currentDataIndex += dataUnitsInPackage;
-    CAF_TRACE("Sending " << dataUnitsInPackage << " values");
+    CAFFA_TRACE("Sending " << dataUnitsInPackage << " values");
     return grpc::Status::OK;
 }
 
@@ -426,10 +426,10 @@ SetterStateHandler::SetterStateHandler()
 //--------------------------------------------------------------------------------------------------
 grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
 {
-    CAF_ASSERT( chunk->has_set_request() );
+    CAFFA_ASSERT( chunk->has_set_request() );
     auto setRequest   = chunk->set_request();
 
-    CAF_DEBUG("Received Set Request for: " << setRequest.request().self().class_keyword() << "[0x" << std::hex << setRequest.request().self().address() << "]" << setRequest.request().method());
+    CAFFA_DEBUG("Received Set Request for: " << setRequest.request().self().class_keyword() << "[0x" << std::hex << setRequest.request().self().address() << "]" << setRequest.request().method());
 
     auto fieldRequest = setRequest.request();
     m_fieldOwner      = ObjectService::findCafObjectFromRpcObject( fieldRequest.self() );
@@ -493,7 +493,7 @@ grpc::Status SetterStateHandler::receiveRequest( const SetterChunk* chunk, Sette
         return grpc::Status( grpc::OUT_OF_RANGE, "Attempting to write out of bounds" );
     }
     reply->set_value_count( static_cast<int64_t>( m_currentDataIndex ) );
-    CAF_TRACE("Received " << reply->value_count() << " values");
+    CAFFA_TRACE("Received " << reply->value_count() << " values");
     return grpc::Status::OK;
 }
 
@@ -521,7 +521,7 @@ void SetterStateHandler::finish()
     if ( m_field )
     {
         auto scriptingCapability = m_field->capability<FieldScriptingCapability>();
-        CAF_ASSERT( scriptingCapability );
+        CAFFA_ASSERT( scriptingCapability );
         Variant before = m_field->toVariant();
         m_dataHolder->applyValuesToField( m_field );
         Variant after = m_field->toVariant();
@@ -546,7 +546,7 @@ grpc::Status FieldService::GetValue( grpc::ServerContext*        context,
                                      StateHandler<FieldRequest>* stateHandler )
 {
     auto getterHandler = dynamic_cast<GetterStateHandler*>( stateHandler );
-    CAF_ASSERT( getterHandler );
+    CAFFA_ASSERT( getterHandler );
     return getterHandler->assignReply( reply );
 }
 
@@ -559,7 +559,7 @@ grpc::Status FieldService::SetValue( grpc::ServerContext*       context,
                                      StateHandler<SetterChunk>* stateHandler )
 {
     auto setterHandler = dynamic_cast<SetterStateHandler*>( stateHandler );
-    CAF_ASSERT( setterHandler );
+    CAFFA_ASSERT( setterHandler );
     return setterHandler->receiveRequest( chunk, reply );
 }
 

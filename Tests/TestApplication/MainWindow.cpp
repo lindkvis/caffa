@@ -44,7 +44,7 @@
 
 class DemoObjectGroup : public caffa::Document
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     DemoObjectGroup()
@@ -68,11 +68,11 @@ public:
     caffa::Field<std::string>             m_textField;
 };
 
-CAF_SOURCE_INIT(DemoObjectGroup, "DemoObjectGroup", "Document", "Object");
+CAFFA_SOURCE_INIT(DemoObjectGroup, "DemoObjectGroup", "Document", "Object");
 
 class TinyDemoObject : public caffa::Object
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     TinyDemoObject();
@@ -82,7 +82,7 @@ private:
     caffa::Field<double> m_doubleField;
 };
 
-CAF_SOURCE_INIT(TinyDemoObject, "TinyDemoObject", "Object");
+CAFFA_SOURCE_INIT(TinyDemoObject, "TinyDemoObject", "Object");
 
 TinyDemoObject::TinyDemoObject()
 {
@@ -95,7 +95,7 @@ TinyDemoObject::TinyDemoObject()
 
 class SmallDemoObject : public caffa::Object
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     SmallDemoObject()
@@ -271,11 +271,11 @@ protected:
     }
 };
 
-CAF_SOURCE_INIT(SmallDemoObject, "SmallDemoObject", "Object");
+CAFFA_SOURCE_INIT(SmallDemoObject, "SmallDemoObject", "Object");
 
 class SmallGridDemoObject : public caffa::Object
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     SmallGridDemoObject()
@@ -535,11 +535,11 @@ protected:
     }
 };
 
-CAF_SOURCE_INIT(SmallGridDemoObject, "SmallGridDemoObject", "Object");
+CAFFA_SOURCE_INIT(SmallGridDemoObject, "SmallGridDemoObject", "Object");
 
 class SingleEditorObject : public caffa::Object
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     SingleEditorObject()
@@ -569,11 +569,11 @@ protected:
     }
 };
 
-CAF_SOURCE_INIT(SingleEditorObject, "SingleEditorObject", "Object");
+CAFFA_SOURCE_INIT(SingleEditorObject, "SingleEditorObject", "Object");
 
 class SmallDemoObjectA : public caffa::Object
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     enum TestEnumType
@@ -762,7 +762,7 @@ protected:
     }
 };
 
-CAF_SOURCE_INIT(SmallDemoObjectA, "SmallDemoObjectA", "Object");
+CAFFA_SOURCE_INIT(SmallDemoObjectA, "SmallDemoObjectA", "Object");
 
 namespace caffa
 {
@@ -779,7 +779,7 @@ void AppEnum<SmallDemoObjectA::TestEnumType>::setUp()
 
 class DemoObject : public caffa::Object
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     DemoObject()
@@ -960,7 +960,7 @@ protected:
     } */
 };
 
-CAF_SOURCE_INIT(DemoObject, "DemoObject", "Object");
+CAFFA_SOURCE_INIT(DemoObject, "DemoObject", "Object");
 
 MainWindow* MainWindow::sm_mainWindowInstance = nullptr;
 

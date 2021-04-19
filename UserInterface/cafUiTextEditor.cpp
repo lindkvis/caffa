@@ -49,7 +49,7 @@
 
 namespace caffa
 {
-CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiTextEditor );
+CAFFA_UI_FIELD_EDITOR_SOURCE_INIT( UiTextEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -98,8 +98,8 @@ void TextEdit::focusOutEvent( QFocusEvent* e )
 //--------------------------------------------------------------------------------------------------
 void UiTextEditor::configureAndUpdateUi()
 {
-    CAF_ASSERT( !m_textEdit.isNull() );
-    CAF_ASSERT( !m_label.isNull() );
+    CAFFA_ASSERT( !m_textEdit.isNull() );
+    CAFFA_ASSERT( !m_label.isNull() );
 
     UiFieldEditorHandle::updateLabelFromField( m_label );
 

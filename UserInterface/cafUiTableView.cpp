@@ -88,7 +88,7 @@ UiTableView::~UiTableView()
 //--------------------------------------------------------------------------------------------------
 void UiTableView::setChildArrayField( ChildArrayFieldHandle* childArrayField )
 {
-    CAF_ASSERT( m_listViewEditor );
+    CAFFA_ASSERT( m_listViewEditor );
 
     if ( childArrayField )
     {
@@ -110,7 +110,7 @@ void UiTableView::setChildArrayField( ChildArrayFieldHandle* childArrayField )
         m_listViewEditor->setUiField( nullptr );
     }
 
-    // SIG_CAF_HACK
+    // SIG_CAFFA_HACK
     m_listViewEditor->updateUi();
 }
 
@@ -119,7 +119,7 @@ void UiTableView::setChildArrayField( ChildArrayFieldHandle* childArrayField )
 //--------------------------------------------------------------------------------------------------
 QTableView* UiTableView::tableView()
 {
-    CAF_ASSERT( m_listViewEditor );
+    CAFFA_ASSERT( m_listViewEditor );
 
     return m_listViewEditor->tableView();
 }

@@ -85,13 +85,13 @@ public:
 
         forceQuit();
 
-        CAF_DEBUG( "Threads joined" );
+        CAFFA_DEBUG( "Threads joined" );
     }
 
     void quit()
     {
         std::lock_guard<std::mutex> launchLock( m_appStateMutex );
-        CAF_DEBUG( "Received quit request" );
+        CAFFA_DEBUG( "Received quit request" );
         m_receivedQuitRequest = true;
     }
 
@@ -103,7 +103,7 @@ public:
 
     void forceQuit()
     {
-        CAF_DEBUG( "Shutting down" );
+        CAFFA_DEBUG( "Shutting down" );
         if ( m_server )
         {
             // Clear unhandled requests
@@ -122,14 +122,14 @@ public:
 
             // Must destroy server before services
             m_server.reset();
-            CAF_TRACE( "Attempting to clear queue" );
+            CAFFA_TRACE( "Attempting to clear queue" );
             m_completionQueue.reset();
 
-            CAF_TRACE( "Attempting to clear services" );
+            CAFFA_TRACE( "Attempting to clear services" );
             // Finally clear services
             m_services.clear();
         }
-        CAF_DEBUG( "Finished shutting down" );
+        CAFFA_DEBUG( "Finished shutting down" );
     }
 
     int port() const { return m_portNumber; }
@@ -142,10 +142,10 @@ public:
 
     void initialize()
     {
-        CAF_ASSERT( m_portNumber > 0 && m_portNumber <= (int)std::numeric_limits<uint16_t>::max() );
+        CAFFA_ASSERT( m_portNumber > 0 && m_portNumber <= (int)std::numeric_limits<uint16_t>::max() );
 
         std::string serverAddress = "0.0.0.0:" + std::to_string( m_portNumber );
-        CAF_DEBUG( "Initialising new server with address: " << serverAddress );
+        CAFFA_DEBUG( "Initialising new server with address: " << serverAddress );
 
         ServerBuilder builder;
         builder.AddListeningPort( serverAddress, grpc::InsecureServerCredentials() );
@@ -154,7 +154,7 @@ public:
         {
             std::shared_ptr<ServiceInterface> service( ServiceFactory::instance()->create( key ) );
             auto                              grpcService = dynamic_cast<grpc::Service*>( service.get() );
-            CAF_ASSERT( grpcService );
+            CAFFA_ASSERT( grpcService );
             builder.RegisterService( grpcService );
             m_services.push_back( service );
         }
@@ -162,7 +162,7 @@ public:
         m_completionQueue = builder.AddCompletionQueue();
         m_server          = builder.BuildAndStart();
 
-        CAF_ASSERT( m_server );
+        CAFFA_ASSERT( m_server );
 
         // Spawn new CallData instances to serve new clients.
         for ( auto service : m_services )
@@ -188,12 +188,12 @@ public:
             std::unique_lock<std::mutex> processingLock( m_processingMutex );
             auto                         now = std::chrono::system_clock::now();
 
-            CAF_TRACE( "Waiting to process requests" );
+            CAFFA_TRACE( "Waiting to process requests" );
             while ( m_processingGuard.wait_until( processingLock, now + 100ms, [this]() {
                 return !m_queuedRequests.empty();
             } ) )
             {
-                CAF_TRACE( "Request processor is dealing with message" );
+                CAFFA_TRACE( "Request processor is dealing with message" );
 
                 std::list<AbstractCallback*> waitingRequests;
                 {
@@ -211,10 +211,10 @@ public:
                     waitingRequests.pop_front();
                     process( method );
                 }
-                CAF_TRACE( "Request processor is going back to sleep" );
+                CAFFA_TRACE( "Request processor is going back to sleep" );
             }
         }
-        CAF_DEBUG( "Processing thread quitting" );
+        CAFFA_DEBUG( "Processing thread quitting" );
         return count;
     }
 
@@ -227,11 +227,11 @@ private:
             std::lock_guard<std::mutex> requestLock( m_requestMutex );
         }
 
-        CAF_DEBUG( "Waiting for requests" );
+        CAFFA_DEBUG( "Waiting for requests" );
         while ( true )
         {
             auto nextStatus = m_completionQueue->Next( &tag, &ok );
-            CAF_TRACE( "Received request with status: " << nextStatus );
+            CAFFA_TRACE( "Received request with status: " << nextStatus );
             if ( nextStatus == grpc::CompletionQueue::SHUTDOWN ) break;
             if ( !quitting() )
             {
@@ -239,43 +239,43 @@ private:
                 AbstractCallback*           method = static_cast<AbstractCallback*>( tag );
                 if ( !ok )
                 {
-                    CAF_ERROR( "Erronous request!" );
+                    CAFFA_ERROR( "Erronous request!" );
                     method->setNextCallState( AbstractCallback::FINISH_REQUEST );
                 }
                 m_queuedRequests.push_back( method );
-                CAF_TRACE( "Notifying request processor that a new request is waiting" );
+                CAFFA_TRACE( "Notifying request processor that a new request is waiting" );
                 m_processingGuard.notify_one();
             }
         }
-        CAF_DEBUG( "Request handler quitting" );
+        CAFFA_DEBUG( "Request handler quitting" );
     }
 
     void process( AbstractCallback* method )
     {
         if ( method->callState() == AbstractCallback::CREATE )
         {
-            CAF_TRACE( "Create request handler: " << method->name() );
+            CAFFA_TRACE( "Create request handler: " << method->name() );
             method->createRequestHandler( m_completionQueue.get() );
-            CAF_TRACE( "Request handler created" );
+            CAFFA_TRACE( "Request handler created" );
         }
         else if ( method->callState() == AbstractCallback::INIT_REQUEST_STARTED )
         {
-            CAF_TRACE( "Init request: " << method->name() );
+            CAFFA_TRACE( "Init request: " << method->name() );
             method->onInitRequestStarted();
         }
         else if ( method->callState() == AbstractCallback::INIT_REQUEST_COMPLETED )
         {
-            CAF_TRACE( "Init request completed: " << method->name() );
+            CAFFA_TRACE( "Init request completed: " << method->name() );
             method->onInitRequestCompleted();
         }
         else if ( method->callState() == AbstractCallback::PROCESS_REQUEST )
         {
-            CAF_TRACE( "Processing request: " << method->name() );
+            CAFFA_TRACE( "Processing request: " << method->name() );
             method->onProcessRequest();
         }
         else
         {
-            CAF_TRACE( "Finishing request: " << method->name() );
+            CAFFA_TRACE( "Finishing request: " << method->name() );
             method->onFinishRequest();
             process( method->emptyClone() );
             delete method;

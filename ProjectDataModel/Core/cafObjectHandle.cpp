@@ -75,7 +75,7 @@ std::vector<caffa::FieldHandle*> ObjectHandle::fields() const
 //--------------------------------------------------------------------------------------------------
 void ObjectHandle::setAsParentField( FieldHandle* parentField )
 {
-    CAF_ASSERT( m_parentField == nullptr );
+    CAFFA_ASSERT( m_parentField == nullptr );
 
     m_parentField = parentField;
 }
@@ -85,7 +85,7 @@ void ObjectHandle::setAsParentField( FieldHandle* parentField )
 //--------------------------------------------------------------------------------------------------
 void ObjectHandle::removeAsParentField( FieldHandle* parentField )
 {
-    CAF_ASSERT( m_parentField == parentField );
+    CAFFA_ASSERT( m_parentField == parentField );
 
     if ( parentField ) disconnectObserverFromAllSignals( parentField->ownerObject() );
 
@@ -199,8 +199,8 @@ void ObjectHandle::addField( FieldHandle* field, const std::string& keyword )
 {
     field->m_ownerObject = this;
 
-    CAF_ASSERT( !keyword.empty() );
-    CAF_ASSERT( this->findField( keyword ) == nullptr && "Object already has a field with this keyword!" );
+    CAFFA_ASSERT( !keyword.empty() );
+    CAFFA_ASSERT( this->findField( keyword ) == nullptr && "Object already has a field with this keyword!" );
 
     field->setKeyword( keyword );
     m_fields.push_back( field );

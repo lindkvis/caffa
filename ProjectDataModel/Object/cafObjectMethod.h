@@ -42,11 +42,11 @@
 
 #include <string>
 
-/// CAF_OBJECT_METHOD_SOURCE_INIT associates the self class keyword and the method keyword with the method factory
+/// CAFFA_OBJECT_METHOD_SOURCE_INIT associates the self class keyword and the method keyword with the method factory
 /// Place this in the cpp file, preferably above the constructor
-#define CAF_OBJECT_METHOD_SOURCE_INIT( SelfClassName, MethodClassName, methodKeyword ) \
-    CAF_IO_ABSTRACT_SOURCE_INIT( MethodClassName, methodKeyword, "ObjectMethod" )      \
-    static bool CAF_OBJECT_STRING_CONCATENATE( method##MethodClassName, __LINE__ ) =   \
+#define CAFFA_OBJECT_METHOD_SOURCE_INIT( SelfClassName, MethodClassName, methodKeyword ) \
+    CAFFA_IO_ABSTRACT_SOURCE_INIT( MethodClassName, methodKeyword, "ObjectMethod" )      \
+    static bool CAFFA_OBJECT_STRING_CONCATENATE( method##MethodClassName, __LINE__ ) =   \
         caffa::ObjectMethodFactory::instance()->registerMethod<SelfClassName, MethodClassName>()
 
 namespace caffa
@@ -62,7 +62,7 @@ namespace caffa
 //==================================================================================================
 class ObjectMethod : public Object
 {
-    CAF_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     ObjectMethod( ObjectHandle* self );
@@ -88,7 +88,7 @@ public:
     ObjectType* self()
     {
         ObjectType* object = dynamic_cast<ObjectType*>( m_self.p() );
-        CAF_ASSERT( object );
+        CAFFA_ASSERT( object );
         return object;
     }
 
@@ -97,7 +97,7 @@ public:
     const ObjectType* self() const
     {
         const ObjectType* object = dynamic_cast<const ObjectType*>( m_self.p() );
-        CAF_ASSERT( object );
+        CAFFA_ASSERT( object );
         return object;
     }
 
@@ -129,8 +129,8 @@ public:
             auto methodEntryIt = classEntryIt->second.find( methodName );
             if ( methodEntryIt != classEntryIt->second.end() )
             {
-                CAF_ASSERT( methodName != methodEntryIt->first ); // classNameKeyword has already been used
-                CAF_ASSERT( false ); // To be sure ..
+                CAFFA_ASSERT( methodName != methodEntryIt->first ); // classNameKeyword has already been used
+                CAFFA_ASSERT( false ); // To be sure ..
                 return false; // never hit;
             }
         }

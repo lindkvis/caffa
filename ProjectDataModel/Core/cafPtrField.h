@@ -28,7 +28,7 @@ public:
     PtrField()
     {
         bool doNotUsePtrFieldForAnythingButPointersToObject = false;
-        CAF_ASSERT( doNotUsePtrFieldForAnythingButPointersToObject );
+        CAFFA_ASSERT( doNotUsePtrFieldForAnythingButPointersToObject );
     }
 };
 
@@ -75,7 +75,7 @@ public:
     void ptrReferencedObjects( std::vector<ObjectHandle*>* objectsToFill ) override;
 
 private:
-    CAF_DISABLE_COPY_AND_ASSIGN( PtrField );
+    CAFFA_DISABLE_COPY_AND_ASSIGN( PtrField );
 
     friend class FieldIoCap<PtrField<DataType*>>;
     void setRawPtr( ObjectHandle* obj );

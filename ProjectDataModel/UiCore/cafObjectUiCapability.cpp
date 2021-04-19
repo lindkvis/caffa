@@ -26,7 +26,7 @@ ObjectUiCapability* uiObj( const ObjectHandle* obj )
 {
     if ( !obj ) return nullptr;
     ObjectUiCapability* uiObject = obj->capability<ObjectUiCapability>();
-    CAF_ASSERT( uiObject );
+    CAFFA_ASSERT( uiObject );
     return uiObject;
 }
 
@@ -57,7 +57,7 @@ void ObjectUiCapability::uiOrdering( UiOrdering& uiOrdering )
     // Restore incoming value
     uiOrdering.skipRemainingFields( !includeRemaining_originalState );
 
-    CAF_ASSERT( includeRemaining_originalState == uiOrdering.isIncludingRemainingFields() );
+    CAFFA_ASSERT( includeRemaining_originalState == uiOrdering.isIncludingRemainingFields() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ void ObjectUiCapability::objectEditorAttribute( UiEditorAttribute* attribute )
 //--------------------------------------------------------------------------------------------------
 UiTreeOrdering* ObjectUiCapability::uiTreeOrdering() const
 {
-    CAF_ASSERT( this ); // This method actually is possible to call on a nullptr without getting a crash, so we assert
+    CAFFA_ASSERT( this ); // This method actually is possible to call on a nullptr without getting a crash, so we assert
                         // instead.
 
     UiTreeOrdering* uiTreeOrdering = new UiTreeOrdering( nullptr, m_owner );

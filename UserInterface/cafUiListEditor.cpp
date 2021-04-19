@@ -121,7 +121,7 @@ namespace caffa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiListEditor );
+CAFFA_UI_FIELD_EDITOR_SOURCE_INIT( UiListEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -145,13 +145,13 @@ UiListEditor::~UiListEditor()
 //--------------------------------------------------------------------------------------------------
 void UiListEditor::configureAndUpdateUi()
 {
-    // TODO: Fix CAF_ASSERT( here when undoing in testapp
+    // TODO: Fix CAFFA_ASSERT( here when undoing in testapp
     // See UiComboBoxEditor for pattern
     // This might also apply to other editors
 
-    CAF_ASSERT( !m_listView.isNull() );
-    CAF_ASSERT( !m_label.isNull() );
-    CAF_ASSERT( m_listView->selectionModel() );
+    CAFFA_ASSERT( !m_listView.isNull() );
+    CAFFA_ASSERT( !m_label.isNull() );
+    CAFFA_ASSERT( m_listView->selectionModel() );
 
     UiFieldEditorHandle::updateLabelFromField( m_label );
 
@@ -196,11 +196,11 @@ void UiListEditor::configureAndUpdateUi()
 
     MyStringListModel* strListModel = dynamic_cast<MyStringListModel*>( m_model.data() );
 
-    CAF_ASSERT( strListModel );
+    CAFFA_ASSERT( strListModel );
 
     if ( !options.empty() )
     {
-        CAF_ASSERT( optionsOnly ); // Handling Additions on the fly not implemented
+        CAFFA_ASSERT( optionsOnly ); // Handling Additions on the fly not implemented
 
         strListModel->setItemsEditable( false );
         QModelIndex             currentItem = m_listView->selectionModel()->currentIndex();
@@ -399,7 +399,7 @@ void UiListEditor::slotSelectionChanged( const QItemSelection& selected, const Q
 //--------------------------------------------------------------------------------------------------
 void UiListEditor::slotListItemEdited( const QModelIndex&, const QModelIndex& )
 {
-    CAF_ASSERT( m_isEditOperationsAvailable );
+    CAFFA_ASSERT( m_isEditOperationsAvailable );
 
     QStringList uiList = m_model->stringList();
 
