@@ -57,7 +57,7 @@ public class AppTest {
 
     public String appName()
     {
-        Empty message = Empty.getDefaultInstance();
+        NullMessage message = NullMessage.getDefaultInstance();
         AppInfoReply appInfo = this.appStub.getAppInfo(message);
         StringBuilder sb = new StringBuilder();
         sb.append(appInfo.getName());
