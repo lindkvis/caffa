@@ -55,4 +55,4 @@ TinyDemoObject::TinyDemoObject()
 Caffa uses modern C++ and requires a C++17 compatible compiler and CMake 3.12+. It requires Qt5 for desktop deployment but not for console or headless gRPC-server deployment.
 
 # Licensing
-Caffa is licensed under the LGPL 2.1. 
+Caffa is licensed under the LGPL 2.1 or newer.
