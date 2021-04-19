@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.12)
 
-project ( cafTestApplication )
+project ( caffaTestApplication )
 
 find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
@@ -38,7 +38,7 @@ endif()
 target_link_libraries ( ${PROJECT_NAME}
     ${THREAD_LIBRARY}
     ${QT_LIBRARIES}
-    cafUserInterface
+    caffaUserInterface
 )
 
 source_group("" FILES ${PROJECT_FILES})
