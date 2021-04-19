@@ -31,7 +31,7 @@ private:
     Field<bool>                     m_toggleField;
     Field<double>                   m_doubleField;
     Field<int>                      m_scriptableIntField;
-    ChildArrayField<SomeOtherClass> m_children; // ChildArrayFields hold caffa::Objects
+    ChildArrayField<ChildObject> m_children; // ChildArrayFields hold caffa::Objects
 };
 ```
 
