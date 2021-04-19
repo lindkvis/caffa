@@ -36,7 +36,7 @@
 
 #pragma once
 
-namespace caf
+namespace caffa
 {
 class Color;
 }
@@ -44,10 +44,10 @@ class Color;
 #include <iostream>
 
 //==================================================================================================
-/// Stream operator for caf::Color
+/// Stream operator for caffa::Color
 //==================================================================================================
 
-std::istream& operator>>( std::istream& str, caf::Color& value );
-std::ostream& operator<<( std::ostream& str, const caf::Color& value );
+std::istream& operator>>( std::istream& str, caffa::Color& value );
+std::ostream& operator<<( std::ostream& str, const caffa::Color& value );
 
 // Q_DECLARE_METATYPE( QColor );

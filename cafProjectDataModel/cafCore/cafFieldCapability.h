@@ -1,6 +1,6 @@
 #pragma once
 
-namespace caf
+namespace caffa
 {
 class FieldCapability
 {
@@ -9,4 +9,4 @@ public:
     virtual ~FieldCapability() {}
 };
 
-} // End of namespace caf
+} // End of namespace caffa

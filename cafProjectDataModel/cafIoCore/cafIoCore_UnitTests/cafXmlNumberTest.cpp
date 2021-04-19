@@ -11,7 +11,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class SimpleObjectWithNumbers : public caf::ObjectHandle, public caf::ObjectIoCapability
+class SimpleObjectWithNumbers : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
     CAF_IO_HEADER_INIT;
 
@@ -27,11 +27,11 @@ public:
         CAF_IO_InitField( &m_floatValueB, "FloatValueB" );
     }
 
-    caf::DataValueField<double> m_valueA;
-    caf::DataValueField<double> m_valueB;
+    caffa::DataValueField<double> m_valueA;
+    caffa::DataValueField<double> m_valueB;
 
-    caf::DataValueField<float> m_floatValueA;
-    caf::DataValueField<float> m_floatValueB;
+    caffa::DataValueField<float> m_floatValueA;
+    caffa::DataValueField<float> m_floatValueB;
 };
 CAF_IO_SOURCE_INIT( SimpleObjectWithNumbers, "SimpleObjectWithNumbers", "" );
 
@@ -43,7 +43,7 @@ TEST( SerializeNumbers, SimpleObjectWithDoubleValues )
     double valueA = 0.123456789;
     double valueB = 123456789 + valueA;
 
-    std::vector<caf::ObjectIoCapability::IoType> ioTypes = { caf::ObjectIoCapability::IoType::JSON };
+    std::vector<caffa::ObjectIoCapability::IoType> ioTypes = { caffa::ObjectIoCapability::IoType::JSON };
 
     for ( auto ioType : ioTypes )
     {
@@ -61,7 +61,7 @@ TEST( SerializeNumbers, SimpleObjectWithDoubleValues )
         {
             SimpleObjectWithNumbers obj1;
 
-            obj1.readObjectFromString( objectAsText, caf::DefaultObjectFactory::instance(), ioType );
+            obj1.readObjectFromString( objectAsText, caffa::DefaultObjectFactory::instance(), ioType );
 
             {
                 double epsilon = 1e-7;
@@ -88,7 +88,7 @@ TEST( SerializeNumbers, SimpleObjectWithFloatValues )
     float valueA = 0.123456789f;
     float valueB = 123456 + valueA;
 
-    std::vector<caf::ObjectIoCapability::IoType> ioTypes = { caf::ObjectIoCapability::IoType::JSON };
+    std::vector<caffa::ObjectIoCapability::IoType> ioTypes = { caffa::ObjectIoCapability::IoType::JSON };
 
     for ( auto ioType : ioTypes )
     {
@@ -106,7 +106,7 @@ TEST( SerializeNumbers, SimpleObjectWithFloatValues )
         {
             SimpleObjectWithNumbers obj1;
 
-            obj1.readObjectFromString( objectAsText, caf::DefaultObjectFactory::instance(), ioType );
+            obj1.readObjectFromString( objectAsText, caffa::DefaultObjectFactory::instance(), ioType );
 
             double epsilon = 1e-7;
 

@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cmath>
 
-using namespace caf;
+using namespace caffa;
 
 //--------------------------------------------------------------------------------------------------
 /// Checks if W3 luminance is above halfway

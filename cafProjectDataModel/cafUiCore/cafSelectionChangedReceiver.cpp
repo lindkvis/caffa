@@ -37,12 +37,12 @@
 #include "cafSelectionChangedReceiver.h"
 #include "cafSelectionManager.h"
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::SelectionChangedReceiver::SelectionChangedReceiver()
+caffa::SelectionChangedReceiver::SelectionChangedReceiver()
 {
     SelectionManager::instance()->registerSelectionChangedReceiver( this );
 }
@@ -50,9 +50,9 @@ caf::SelectionChangedReceiver::SelectionChangedReceiver()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::SelectionChangedReceiver::~SelectionChangedReceiver()
+caffa::SelectionChangedReceiver::~SelectionChangedReceiver()
 {
     SelectionManager::instance()->unregisterSelectionChangedReceiver( this );
 }
 
-} // namespace caf
+} // namespace caffa

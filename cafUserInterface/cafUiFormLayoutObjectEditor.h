@@ -49,7 +49,7 @@ class QMinimizePanel;
 class QGridLayout;
 class QWidget;
 
-namespace caf
+namespace caffa
 {
 class UiFieldEditorHandle;
 class UiGroup;
@@ -104,4 +104,4 @@ private:
     std::map<std::string, std::map<std::string, bool>> m_objectKeywordGroupUiNameExpandedState;
 };
 
-} // end namespace caf
+} // end namespace caffa

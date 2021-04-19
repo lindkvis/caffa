@@ -40,7 +40,7 @@
 
 class QMimeData;
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -71,4 +71,4 @@ inline UiDragDropInterface::~UiDragDropInterface()
 {
 }
 
-} // end namespace caf
+} // end namespace caffa

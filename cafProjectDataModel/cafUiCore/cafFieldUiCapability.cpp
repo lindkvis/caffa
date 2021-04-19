@@ -5,7 +5,7 @@
 #include "cafObjectUiCapability.h"
 #include "cafUiEditorHandle.h"
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -26,7 +26,7 @@ FieldUiCapability::~FieldUiCapability()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::FieldHandle* FieldUiCapability::fieldHandle()
+caffa::FieldHandle* FieldUiCapability::fieldHandle()
 {
     return m_owner;
 }
@@ -106,4 +106,4 @@ bool FieldUiCapability::isVariantDataEqual( const Variant& oldUiBasedVariant, co
     return false;
 }
 
-} // End of namespace caf
+} // End of namespace caffa

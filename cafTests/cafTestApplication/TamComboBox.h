@@ -11,28 +11,28 @@
 ///
 ///
 //==================================================================================================
-class TamComboBox : public caf::Object
+class TamComboBox : public caffa::Object
 {
     CAF_HEADER_INIT;
 
 public:
     TamComboBox();
 
-    virtual std::deque<caf::OptionItemInfo> calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
+    virtual std::deque<caffa::OptionItemInfo> calculateValueOptions(const caffa::FieldHandle* fieldNeedingOptions,
                                                                   bool*                   useOptionsOnly) override;
 
-    void onFieldChangedByCapability(const caf::FieldHandle*     changedField,
-                                    const caf::FieldCapability* changedCapability,
-                                    const caf::Variant&         oldValue,
-                                    const caf::Variant&         newValue) override;
+    void onFieldChangedByCapability(const caffa::FieldHandle*     changedField,
+                                    const caffa::FieldCapability* changedCapability,
+                                    const caffa::Variant&         oldValue,
+                                    const caffa::Variant&         newValue) override;
 
 private:
-    caf::Field<std::string> m_name;
+    caffa::Field<std::string> m_name;
 
 protected:
-    virtual void defineUiOrdering(caf::UiOrdering& uiOrdering) override;
+    virtual void defineUiOrdering(caffa::UiOrdering& uiOrdering) override;
 
-    virtual void defineEditorAttribute(const caf::FieldHandle* field, caf::UiEditorAttribute* attribute) override;
+    virtual void defineEditorAttribute(const caffa::FieldHandle* field, caffa::UiEditorAttribute* attribute) override;
 
 private:
     std::deque<std::string> m_historyItems;

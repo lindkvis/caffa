@@ -36,7 +36,7 @@
 
 #pragma once
 
-namespace caf
+namespace caffa
 {
 class MenuInterface;
 class FieldHandle;
@@ -59,4 +59,4 @@ private:
     UiCommandSystemInterface* m_commandInterface;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -108,4 +108,4 @@ DataType* ChildField<DataType*>::setValue( DataTypePtr fieldValue )
     return m_fieldValue;
 }
 
-} // End of namespace caf
+} // End of namespace caffa

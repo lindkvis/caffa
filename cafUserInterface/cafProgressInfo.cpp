@@ -47,7 +47,7 @@
 
 #include <algorithm>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -63,7 +63,7 @@ ProgressTask::~ProgressTask()
 
 //==================================================================================================
 ///
-/// \class caf::ProgressInfo
+/// \class caffa::ProgressInfo
 /// This class provides a simple frontend to the Qt progressbar, allowing distributed
 /// progress calculation.
 ///
@@ -73,7 +73,7 @@ ProgressTask::~ProgressTask()
 /// The real beauty is that this class will magically interact with possible ProgressInfo instances
 /// in functions that your method calls, providing a complete, consistent and detailed progress bar
 ///
-/// caf::ProgressInfo progInfo(3, "Open File");
+/// caffa::ProgressInfo progInfo(3, "Open File");
 /// progInfo.setProgressDescription("Reading");
 /// ...readFile()
 /// progInfo.incrementProgress();
@@ -89,20 +89,20 @@ ProgressTask::~ProgressTask()
 /// independent lower level ProgressInfo objects. If not, the progress will restart (within its limits)
 /// for each progress object that is operating.
 ///
-/// caf::ProgressInfo progInfoHighLevel(3, "Open File");
+/// caffa::ProgressInfo progInfoHighLevel(3, "Open File");
 ///
 /// {
-///     caf::ProgressInfo progInfoLowLevel(10, "");
+///     caffa::ProgressInfo progInfoLowLevel(10, "");
 /// }
 /// // NEEDS progInfoHighLevel.incrementProgress() here !!
 /// {
-///     caf::ProgressInfo progInfoLowLevel(10, "");
+///     caffa::ProgressInfo progInfoLowLevel(10, "");
 /// }
 ///
 /// It is not allowed to have several ProgressInfo objects in the same scope level
 ///
-/// caf::ProgressInfo progInfo1(10, "");
-/// caf::ProgressInfo progInfo2(10, ""); //<-- Will not work well
+/// caffa::ProgressInfo progInfo1(10, "");
+/// caffa::ProgressInfo progInfo2(10, ""); //<-- Will not work well
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
@@ -167,7 +167,7 @@ void ProgressInfo::incrementProgress()
 /// To make a certain operation span more of the progress bar than one tick,
 /// set the number of progress ticks that you want it to use before calling it.
 /// Eg.
-/// caf::ProgressInfo progInfo(5, "Doing things");
+/// caffa::ProgressInfo progInfo(5, "Doing things");
 /// // ... Do one small thing
 /// progInfo.incrementProgress();
 /// progInfo.setNextProgressStepSize(3);
@@ -183,11 +183,11 @@ void ProgressInfo::setNextProgressIncrement( size_t nextStepSize )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::ProgressTask ProgressInfo::task( const QString& description, int stepSize )
+caffa::ProgressTask ProgressInfo::task( const QString& description, int stepSize )
 {
     setProgressDescription( description );
     setNextProgressIncrement( stepSize );
-    return caf::ProgressTask( *this );
+    return caffa::ProgressTask( *this );
 }
 
 //==================================================================================================
@@ -203,8 +203,8 @@ caf::ProgressTask ProgressInfo::task( const QString& description, int stepSize )
 //--------------------------------------------------------------------------------------------------
 QString createMemoryLabelText()
 {
-    uint64_t currentUsage        = caf::MemoryInspector::getApplicationPhysicalMemoryUsageMiB();
-    uint64_t totalPhysicalMemory = caf::MemoryInspector::getTotalPhysicalMemoryMiB();
+    uint64_t currentUsage        = caffa::MemoryInspector::getApplicationPhysicalMemoryUsageMiB();
+    uint64_t totalPhysicalMemory = caffa::MemoryInspector::getTotalPhysicalMemoryMiB();
 
     float currentUsageFraction = 0.0f;
     if ( currentUsage > 0u && totalPhysicalMemory > 0u )
@@ -389,7 +389,7 @@ void openDebugWindow()
 void reportError( const std::string& errorMsg )
 {
     openDebugWindow();
-    std::cout << "Error in caf::ProgressInfo :" << std::endl;
+    std::cout << "Error in caffa::ProgressInfo :" << std::endl;
     std::cout << errorMsg << std::endl;
     std::cout << "Current progress state:" << std::endl;
     std::cout << "-------" << std::endl;
@@ -435,7 +435,7 @@ void reportError( const std::string& errorMsg )
 
 //==================================================================================================
 ///
-/// \class caf::ProgressInfoBlocker
+/// \class caffa::ProgressInfoBlocker
 ///
 /// Used to disable progress info on a temporary basis
 ///
@@ -453,7 +453,7 @@ ProgressInfoBlocker::~ProgressInfoBlocker()
 
 //==================================================================================================
 ///
-/// \class caf::ProgressInfoStatic
+/// \class caffa::ProgressInfoStatic
 ///
 ///
 ///
@@ -696,4 +696,4 @@ bool ProgressInfoStatic::isUpdatePossible()
     return false;
 }
 
-} // namespace caf
+} // namespace caffa

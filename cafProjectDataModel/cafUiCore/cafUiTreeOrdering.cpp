@@ -45,7 +45,7 @@
 
 #include <iostream>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -397,4 +397,4 @@ bool UiTreeOrdering::removeChildrenNoDelete( int position, int count )
     return true;
 }
 
-} // End of namespace caf
+} // End of namespace caffa

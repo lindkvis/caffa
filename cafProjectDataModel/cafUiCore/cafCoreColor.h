@@ -40,7 +40,7 @@
 #include "cafCoreColorIo.h"
 #include "cafValueFieldSpecializations.h"
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// Partial specialization for ValueFieldSpecialization< Color >
@@ -70,4 +70,4 @@ public:
     }
 };
 
-} // end namespace caf
+} // end namespace caffa

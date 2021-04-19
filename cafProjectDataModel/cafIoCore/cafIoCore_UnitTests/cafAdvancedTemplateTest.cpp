@@ -12,7 +12,7 @@
 #include "cafPtrField.h"
 #include "cafReferenceHelper.h"
 
-class ItemObject : public caf::ObjectHandle, public caf::ObjectIoCapability
+class ItemObject : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
     CAF_IO_HEADER_INIT;
 
@@ -35,13 +35,13 @@ public:
     ~ItemObject() {}
 
     // Fields
-    caf::DataValueField<std::string> m_name;
+    caffa::DataValueField<std::string> m_name;
 };
 CAF_IO_SOURCE_INIT( ItemObject, "ItemObject" );
 
 class DemoObjectA;
 
-class ContainerObject : public caf::ObjectHandle, public caf::ObjectIoCapability
+class ContainerObject : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
     CAF_IO_HEADER_INIT;
 
@@ -58,13 +58,13 @@ public:
     ~ContainerObject() {}
 
     // Fields
-    caf::ChildArrayField<ItemObject*>      m_items;
-    caf::ChildArrayField<ContainerObject*> m_containers;
-    caf::ChildArrayField<DemoObjectA*>     m_demoObjs;
+    caffa::ChildArrayField<ItemObject*>      m_items;
+    caffa::ChildArrayField<ContainerObject*> m_containers;
+    caffa::ChildArrayField<DemoObjectA*>     m_demoObjs;
 };
 CAF_IO_SOURCE_INIT( ContainerObject, "ContainerObject" );
 
-class DemoObjectA : public caf::ObjectHandle, public caf::ObjectIoCapability
+class DemoObjectA : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
     CAF_IO_HEADER_INIT;
 
@@ -81,7 +81,7 @@ public:
         , ObjectIoCapability( this, false )
     {
         CAF_IO_InitField( &m_doubleField, "BigNumber" );
-        auto doubleProxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
+        auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
         doubleProxyAccessor->registerSetMethod( this, &DemoObjectA::setDoubleMember );
         doubleProxyAccessor->registerGetMethod( this, &DemoObjectA::doubleMember );
         m_doubleField.setFieldDataAccessor( std::move( doubleProxyAccessor ) );
@@ -93,9 +93,9 @@ public:
     ~DemoObjectA() {}
 
     // Fields
-    caf::DataValueField<double>       m_doubleField;
-    caf::PtrField<caf::ObjectHandle*> m_pointerToItem;
-    caf::PtrField<caf::ObjectHandle*> m_pointerToDemoObj;
+    caffa::DataValueField<double>       m_doubleField;
+    caffa::PtrField<caffa::ObjectHandle*> m_pointerToItem;
+    caffa::PtrField<caffa::ObjectHandle*> m_pointerToDemoObj;
 
     void setDoubleMember( const double& d )
     {
@@ -112,7 +112,7 @@ public:
 
 CAF_IO_SOURCE_INIT( DemoObjectA, "DemoObjectA" );
 
-namespace caf
+namespace caffa
 {
 template <>
 void AppEnum<DemoObjectA::TestEnumType>::setUp()
@@ -123,7 +123,7 @@ void AppEnum<DemoObjectA::TestEnumType>::setUp()
     setDefault( DemoObjectA::T1 );
 }
 
-} // namespace caf
+} // namespace caffa
 
 //--------------------------------------------------------------------------------------------------
 /// Read/write fields to a valid Xml document encoded in a std::string
@@ -156,7 +156,7 @@ TEST( AdvancedObjectTest, FieldWrite )
         containerPtr->m_items.push_back( std::move( item ) );
     }
 
-    std::vector<caf::ObjectIoCapability::IoType> ioTypes = { caf::ObjectIoCapability::IoType::JSON };
+    std::vector<caffa::ObjectIoCapability::IoType> ioTypes = { caffa::ObjectIoCapability::IoType::JSON };
 
     // Test with empty ptr field
     for ( auto ioType : ioTypes )
@@ -173,8 +173,8 @@ TEST( AdvancedObjectTest, FieldWrite )
         {
             auto a  = std::make_unique<DemoObjectA>();
             auto ap = siblingPtr->m_demoObjs.push_back( std::move( a ) );
-            ap->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance(), ioType );
-            ap->capability<caf::ObjectIoCapability>()->resolveReferencesRecursively();
+            ap->readObjectFromString( serializedString, caffa::DefaultObjectFactory::instance(), ioType );
+            ap->capability<caffa::ObjectIoCapability>()->resolveReferencesRecursively();
 
             ASSERT_TRUE( ap->m_pointerToItem() == nullptr );
         }
@@ -199,8 +199,8 @@ TEST( AdvancedObjectTest, FieldWrite )
             auto a  = std::make_unique<DemoObjectA>();
             auto ap = siblingPtr->m_demoObjs.push_back( std::move( a ) );
 
-            ap->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance(), ioType );
-            ap->capability<caf::ObjectIoCapability>()->resolveReferencesRecursively();
+            ap->readObjectFromString( serializedString, caffa::DefaultObjectFactory::instance(), ioType );
+            ap->capability<caffa::ObjectIoCapability>()->resolveReferencesRecursively();
 
             ASSERT_TRUE( ap->m_pointerToItem() == containerPtr->m_items[1] );
         }
@@ -211,8 +211,8 @@ TEST( AdvancedObjectTest, FieldWrite )
         std::string string = root->writeObjectToString( ioType );
         std::cout << string << std::endl;
 
-        caf::ObjectHandle* objCopy =
-            caf::ObjectIoCapability::readUnknownObjectFromString( string, caf::DefaultObjectFactory::instance(), true, ioType );
+        caffa::ObjectHandle* objCopy =
+            caffa::ObjectIoCapability::readUnknownObjectFromString( string, caffa::DefaultObjectFactory::instance(), true, ioType );
         auto rootCopy = dynamic_cast<ContainerObject*>( objCopy );
         ASSERT_TRUE( rootCopy != nullptr );
     }
@@ -248,7 +248,7 @@ TEST( AdvancedObjectTest, CopyOfObjects )
 
         containerPtr->m_items.push_back( std::move( item ) );
 
-        std::vector<caf::ObjectIoCapability::IoType> ioTypes = { caf::ObjectIoCapability::IoType::JSON };
+        std::vector<caffa::ObjectIoCapability::IoType> ioTypes = { caffa::ObjectIoCapability::IoType::JSON };
 
         for ( auto ioType : ioTypes )
         {
@@ -259,23 +259,23 @@ TEST( AdvancedObjectTest, CopyOfObjects )
                 ap->m_pointerToItem = containerPtr->m_items[1];
 
                 {
-                    auto objCopy = ap->capability<caf::ObjectIoCapability>()
-                                       ->copyBySerialization( caf::DefaultObjectFactory::instance(), ioType );
+                    auto objCopy = ap->capability<caffa::ObjectIoCapability>()
+                                       ->copyBySerialization( caffa::DefaultObjectFactory::instance(), ioType );
                     auto                           demoObj = dynamic_cast<DemoObjectA*>( objCopy );
-                    std::vector<caf::FieldHandle*> fieldWithFailingResolve;
+                    std::vector<caffa::FieldHandle*> fieldWithFailingResolve;
                     demoObj->resolveReferencesRecursively( &fieldWithFailingResolve );
                     ASSERT_FALSE( fieldWithFailingResolve.empty() );
                     delete objCopy;
                 }
 
                 {
-                    auto objCopy = ap->capability<caf::ObjectIoCapability>()
-                                       ->copyBySerialization( caf::DefaultObjectFactory::instance(), ioType );
+                    auto objCopy = ap->capability<caffa::ObjectIoCapability>()
+                                       ->copyBySerialization( caffa::DefaultObjectFactory::instance(), ioType );
 
                     auto demoObj = dynamic_cast<DemoObjectA*>( objCopy );
                     siblingPtr->m_demoObjs.push_back( std::unique_ptr<DemoObjectA>( demoObj ) );
 
-                    std::vector<caf::FieldHandle*> fieldWithFailingResolve;
+                    std::vector<caffa::FieldHandle*> fieldWithFailingResolve;
                     demoObj->resolveReferencesRecursively( &fieldWithFailingResolve );
                     ASSERT_TRUE( fieldWithFailingResolve.empty() );
                 }

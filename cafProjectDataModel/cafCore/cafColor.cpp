@@ -6,7 +6,7 @@
 #include <sstream>
 #include <vector>
 
-using namespace caf;
+using namespace caffa;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -101,7 +101,7 @@ bool Color::operator==( const Color& rhs ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::Color::operator<( const Color& rhs ) const
+bool caffa::Color::operator<( const Color& rhs ) const
 {
     return m_rgba < rhs.m_rgba;
 }
@@ -109,7 +109,7 @@ bool caf::Color::operator<( const Color& rhs ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string caf::Color::hexString() const
+std::string caffa::Color::hexString() const
 {
     auto [red, green, blue, alpha] = rgba();
 
@@ -127,18 +127,18 @@ std::string caf::Color::hexString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::istream& operator>>( std::istream& str, caf::Color& color )
+std::istream& operator>>( std::istream& str, caffa::Color& color )
 {
     std::string text;
     str >> text;
-    color = caf::Color( text );
+    color = caffa::Color( text );
     return str;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::ostream& operator<<( std::ostream& str, const caf::Color& color )
+std::ostream& operator<<( std::ostream& str, const caffa::Color& color )
 {
     std::string text = color.hexString();
     str << text;

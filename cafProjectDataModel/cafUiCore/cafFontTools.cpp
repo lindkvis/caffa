@@ -39,7 +39,7 @@
 
 #include <cmath>
 
-using namespace caf;
+using namespace caffa;
 
 template <>
 void FontTools::FontSizeEnum::setUp()

@@ -42,7 +42,7 @@
 class QGridLayout;
 class QString;
 
-namespace caf
+namespace caffa
 {
 class UiFieldEditorHandle;
 class UiItem;
@@ -63,4 +63,4 @@ private:
     void     recursivelyConfigureAndUpdateTopLevelUiOrdering( const UiOrdering& topLevelUiItems ) override;
 };
 
-} // end namespace caf
+} // end namespace caffa

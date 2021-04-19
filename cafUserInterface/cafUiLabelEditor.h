@@ -44,7 +44,7 @@
 
 class QGridLayout;
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// An editor to show (and possibly edit?) formatted larger portions of text
@@ -67,4 +67,4 @@ private:
     QPointer<QLabel> m_label;
 };
 
-} // end namespace caf
+} // end namespace caffa

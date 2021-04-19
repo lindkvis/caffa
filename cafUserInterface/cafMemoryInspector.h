@@ -38,7 +38,7 @@
 
 #include <cstdint>
 
-namespace caf
+namespace caffa
 {
 namespace MemoryInspector
 {
@@ -49,4 +49,4 @@ namespace MemoryInspector
     uint64_t getAvailableVirtualMemoryMiB();
     float    getRemainingMemoryCriticalThresholdFraction();
 } // namespace MemoryInspector
-} // namespace caf
+} // namespace caffa

@@ -42,7 +42,7 @@
 #include <list>
 #include <string>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 ///
@@ -68,4 +68,4 @@ private:
     static FieldHandle* findField( ObjectHandle* object, const std::string& fieldKeyword );
 };
 
-} // end namespace caf
+} // end namespace caffa

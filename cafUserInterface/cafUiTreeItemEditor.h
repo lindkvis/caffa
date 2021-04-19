@@ -37,7 +37,7 @@
 #pragma once
 #include "cafUiEditorHandle.h"
 
-namespace caf
+namespace caffa
 {
 class UiTreeEditorHandle;
 
@@ -61,4 +61,4 @@ private:
     UiTreeEditorHandle* m_treeViewEditor;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

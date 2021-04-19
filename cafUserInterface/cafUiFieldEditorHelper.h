@@ -38,7 +38,7 @@
 
 class QString;
 
-namespace caf
+namespace caffa
 {
 class UiFieldEditorHandle;
 class FieldUiCapability;
@@ -52,4 +52,4 @@ public:
     static UiFieldEditorHandle* createFieldEditorForField( FieldUiCapability* fieldHandle );
 };
 
-} // end namespace caf
+} // end namespace caffa

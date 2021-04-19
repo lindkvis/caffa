@@ -2,7 +2,7 @@
 
 #include "cafColor.h"
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 ///
@@ -18,4 +18,4 @@ public:
 private:
     static float w3NonLinearColorValue( float colorFraction );
 };
-} // namespace caf
+} // namespace caffa

@@ -45,7 +45,7 @@
 
 class QGridLayout;
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 ///
@@ -138,4 +138,4 @@ private:
     UiTextEditorAttribute::TextMode m_textMode;
 };
 
-} // end namespace caf
+} // end namespace caffa

@@ -43,7 +43,7 @@
 #include <QWidget>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 class ObjectHandle;
 
@@ -76,4 +76,4 @@ protected:
     QPointer<QWidget> m_widget;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

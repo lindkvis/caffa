@@ -65,7 +65,7 @@ public:                                                                         
 #define CAF_IO_SOURCE_INIT( ClassName, keyword, ... )                      \
     CAF_IO_ABSTRACT_SOURCE_INIT( ClassName, keyword, ##__VA_ARGS__ )       \
     static bool CAF_OBJECT_STRING_CONCATENATE( my##ClassName, __LINE__ ) = \
-        caf::DefaultObjectFactory::instance()->registerCreator<ClassName>()
+        caffa::DefaultObjectFactory::instance()->registerCreator<ClassName>()
 
 #define CAF_IO_InitField( field, keyword )                                                                                    \
     {                                                                                                                         \

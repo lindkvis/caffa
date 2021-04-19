@@ -43,7 +43,7 @@
 #include <QTimeEdit>
 #include <QWidget>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 ///
@@ -85,4 +85,4 @@ private:
     UiTimeEditorAttribute m_attributes;
 };
 
-} // end namespace caf
+} // end namespace caffa

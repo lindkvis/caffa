@@ -23,7 +23,7 @@
 #include <memory>
 #include <string>
 
-namespace caf::rpc
+namespace caffa::rpc
 {
 class Client;
 
@@ -39,4 +39,4 @@ public:
 private:
     std::unique_ptr<Client> m_client;
 };
-} // namespace caf
+} // namespace caffa

@@ -6,7 +6,7 @@
 #include <deque>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 template <typename T>
 class DataValueField;
@@ -73,14 +73,14 @@ public:
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
-    static std::deque<caf::OptionItemInfo> valueOptions( bool* useOptionsOnly, const T& )
+    static std::deque<caffa::OptionItemInfo> valueOptions( bool* useOptionsOnly, const T& )
     {
-        return std::deque<caf::OptionItemInfo>();
+        return std::deque<caffa::OptionItemInfo>();
     }
 
     /// Methods to retrieve the possible Object pointed to by a field
     static void childObjects( const DataValueField<T>&, std::vector<ObjectHandle*>* ) {}
 };
-} // End of namespace caf
+} // End of namespace caffa
 
 #include "cafInternalUiFieldSpecializations.h"

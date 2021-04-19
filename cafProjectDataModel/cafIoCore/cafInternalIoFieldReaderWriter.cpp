@@ -2,7 +2,7 @@
 
 #include <nlohmann/json.hpp>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 /// Specialized read function for std::strings, because the >> operator only can read word by word
@@ -12,4 +12,4 @@ void FieldReader<std::string>::readFieldData( std::string& field, const nlohmann
 {
     field = jsonValue.get<std::string>();
 }
-} // End of namespace caf
+} // End of namespace caffa

@@ -26,14 +26,14 @@ struct SimpleStruct
     bool operator!=( const SimpleStruct& rhs ) const { return !( *this == rhs ); }
 };
 
-class TestEmitter : public caf::SignalEmitter
+class TestEmitter : public caffa::SignalEmitter
 {
 public:
-    caf::Signal<>                                   basicSignal;
-    caf::Signal<bool>                               boolSignal;
-    caf::Signal<std::string>                        stringSignal;
-    caf::Signal<std::tuple<bool, std::string, int>> tupleSignal;
-    caf::Signal<SimpleStruct>                       structSignal;
+    caffa::Signal<>                                   basicSignal;
+    caffa::Signal<bool>                               boolSignal;
+    caffa::Signal<std::string>                        stringSignal;
+    caffa::Signal<std::tuple<bool, std::string, int>> tupleSignal;
+    caffa::Signal<SimpleStruct>                       structSignal;
 
 public:
     TestEmitter()
@@ -52,7 +52,7 @@ public:
     void setSimpleStruct( const SimpleStruct& test ) { structSignal.send( test ); }
 };
 
-class TestObserver : public caf::SignalObserver
+class TestObserver : public caffa::SignalObserver
 {
 public:
     TestObserver()
@@ -72,11 +72,11 @@ public:
         emitter->structSignal.connect( this, &TestObserver::setSimpleStruct );
     }
 
-    void setBasicSignalReceived( const caf::SignalEmitter* emitter ) { m_receivedBasicSignal = true; }
-    void setBoolValue( const caf::SignalEmitter*, bool test ) { m_boolValue = test; }
-    void setStringValue( const caf::SignalEmitter*, std::string test ) { m_stringValue = test; }
-    void setTupleValue( const caf::SignalEmitter*, std::tuple<bool, std::string, int> test ) { m_tupleValue = test; }
-    void setSimpleStruct( const caf::SignalEmitter*, SimpleStruct test ) { m_structValue = test; }
+    void setBasicSignalReceived( const caffa::SignalEmitter* emitter ) { m_receivedBasicSignal = true; }
+    void setBoolValue( const caffa::SignalEmitter*, bool test ) { m_boolValue = test; }
+    void setStringValue( const caffa::SignalEmitter*, std::string test ) { m_stringValue = test; }
+    void setTupleValue( const caffa::SignalEmitter*, std::tuple<bool, std::string, int> test ) { m_tupleValue = test; }
+    void setSimpleStruct( const caffa::SignalEmitter*, SimpleStruct test ) { m_structValue = test; }
 
     bool                               receivedBasicSignal() const { return m_receivedBasicSignal; }
     bool                               boolValue() const { return m_boolValue; }

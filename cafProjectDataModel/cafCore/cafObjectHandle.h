@@ -34,7 +34,7 @@
 #include <set>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 class ObjectCapability;
 class ObjectUiCapability;
@@ -173,12 +173,12 @@ public:
      * Get a field used to toggle object enabled/disabled
      * @return a field handle to the toggle field
      */
-    virtual caf::FieldHandle* objectToggleField() { return nullptr; }
+    virtual caffa::FieldHandle* objectToggleField() { return nullptr; }
     /**
      * Field holding the object description, used to provide a user visible label
      * @return a field handle to the user description field
      */
-    virtual caf::FieldHandle* userDescriptionField() { return nullptr; }
+    virtual caffa::FieldHandle* userDescriptionField() { return nullptr; }
 
 protected:
     /**
@@ -282,6 +282,6 @@ void ObjectHandle::objectsWithReferringPtrFieldsOfType( std::vector<T*>& objects
         }
     }
 }
-} // namespace caf
+} // namespace caffa
 
 #include "cafFieldHandle.h"

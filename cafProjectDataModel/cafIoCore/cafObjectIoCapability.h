@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 class FieldIoCapability;
 class ObjectHandle;
@@ -89,4 +89,4 @@ protected:
     ObjectHandle* m_owner;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

@@ -44,7 +44,7 @@
 
 class QTableView;
 
-namespace caf
+namespace caffa
 {
 class UiFieldEditorHandle;
 class UiItem;
@@ -107,4 +107,4 @@ private:
     UiListViewModel*     m_tableModel;
 };
 
-} // end namespace caf
+} // end namespace caffa

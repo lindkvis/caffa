@@ -40,7 +40,7 @@
 
 class QString;
 
-namespace caf
+namespace caffa
 {
 class ProgressInfo;
 
@@ -97,4 +97,4 @@ private:
     static bool s_disabled;
 };
 
-} // namespace caf
+} // namespace caffa

@@ -42,7 +42,7 @@
 
 #include <memory>
 
-namespace caf
+namespace caffa
 {
 class ObjectHandle;
 class UiItem;
@@ -117,4 +117,4 @@ private:
     Qt::DropActions supportedDropActions() const override;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

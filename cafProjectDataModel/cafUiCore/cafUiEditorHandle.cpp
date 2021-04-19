@@ -36,7 +36,7 @@
 
 #include "cafUiEditorHandle.h"
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -93,4 +93,4 @@ void UiEditorHandle::bindToItem( UiItem* item )
     if ( m_item ) m_item->addFieldEditor( this );
 }
 
-} // End of namespace caf
+} // End of namespace caffa

@@ -43,7 +43,7 @@
 #include <QWidget>
 class QHBoxLayout;
 
-namespace caf
+namespace caffa
 {
 class FieldHandle;
 
@@ -85,4 +85,4 @@ private:
     QPointer<QHBoxLayout> m_buttonLayout;
 };
 
-} // end namespace caf
+} // end namespace caffa

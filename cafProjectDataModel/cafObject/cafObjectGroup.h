@@ -3,7 +3,7 @@
 #include "cafChildArrayField.h"
 #include "cafObject.h"
 
-namespace caf
+namespace caffa
 {
 class ReferenceHelper;
 
@@ -73,7 +73,7 @@ public:
     ObjectCollection();
     ~ObjectCollection() override;
 
-    caf::ChildArrayField<ObjectHandle*> objects;
+    caffa::ChildArrayField<ObjectHandle*> objects;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

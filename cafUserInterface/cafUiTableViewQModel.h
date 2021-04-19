@@ -44,7 +44,7 @@
 #include <QItemSelection>
 #include <QPushButton>
 
-namespace caf
+namespace caffa
 {
 class ChildArrayFieldHandle;
 class ObjectHandle;
@@ -61,13 +61,13 @@ class TableViewPushButton : public QPushButton
 {
     Q_OBJECT
 public:
-    explicit TableViewPushButton( caf::FieldUiCapability* field, const QString& text, QWidget* parent = nullptr );
+    explicit TableViewPushButton( caffa::FieldUiCapability* field, const QString& text, QWidget* parent = nullptr );
 
 private slots:
     void slotPressed();
 
 private:
-    caf::FieldUiCapability* m_fieldHandle;
+    caffa::FieldUiCapability* m_fieldHandle;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -124,4 +124,4 @@ private:
     UiTableViewPushButtonEditorAttribute m_pushButtonEditorAttributes;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

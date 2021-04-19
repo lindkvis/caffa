@@ -2,23 +2,23 @@
 
 #include <QDialog>
 
-namespace caf
+namespace caffa
 {
 class Object;
 class UiPropertyView;
-} // namespace caf
+} // namespace caffa
 
 class QDialogButtonBox;
 class QWidget;
 class QString;
 class QStringList;
 
-namespace caf
+namespace caffa
 {
 class UiTabbedPropertyViewDialog : public QDialog
 {
 public:
-    UiTabbedPropertyViewDialog( caf::Object* object, const QStringList& tabLabels, const QString& windowTitle, QWidget* parent );
+    UiTabbedPropertyViewDialog( caffa::Object* object, const QStringList& tabLabels, const QString& windowTitle, QWidget* parent );
     ~UiTabbedPropertyViewDialog() override;
 
     QDialogButtonBox* dialogButtonBox();
@@ -32,4 +32,4 @@ private:
     QDialogButtonBox*            m_dialogButtonBox;
 };
 
-} // namespace caf
+} // namespace caffa

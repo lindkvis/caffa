@@ -8,7 +8,7 @@
 #include <QPointer>
 #include <QWidget>
 
-namespace caf
+namespace caffa
 {
 class UiCheckBoxTristateEditor : public UiFieldEditorHandle
 {
@@ -32,4 +32,4 @@ private:
     QPointer<QLabel>    m_label;
 };
 
-} // end namespace caf
+} // end namespace caffa

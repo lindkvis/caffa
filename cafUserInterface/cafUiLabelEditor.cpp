@@ -36,7 +36,7 @@
 
 #include "cafUiLabelEditor.h"
 
-namespace caf
+namespace caffa
 {
 CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiLabelEditor );
 
@@ -85,4 +85,4 @@ QWidget* UiLabelEditor::createLabelWidget( QWidget* parent )
     return m_label;
 }
 
-} // end namespace caf
+} // end namespace caffa

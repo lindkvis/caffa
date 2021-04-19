@@ -1,6 +1,6 @@
 #pragma once
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 /// This method is supposed to be the interface for the implementation of UI editors to set values into
@@ -14,7 +14,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 
 template <typename FieldType>
-void caf::FieldUiCap<FieldType>::setValueFromUiEditor( const Variant& uiValue )
+void caffa::FieldUiCap<FieldType>::setValueFromUiEditor( const Variant& uiValue )
 {
     Variant oldUiBasedVariant = toUiBasedVariant();
 
@@ -32,7 +32,7 @@ void caf::FieldUiCap<FieldType>::setValueFromUiEditor( const Variant& uiValue )
 //--------------------------------------------------------------------------------------------------
 
 template <typename FieldType>
-Variant caf::FieldUiCap<FieldType>::uiValue() const
+Variant caffa::FieldUiCap<FieldType>::uiValue() const
 {
     return toUiBasedVariant();
 }
@@ -44,7 +44,7 @@ Variant caf::FieldUiCap<FieldType>::uiValue() const
 //--------------------------------------------------------------------------------------------------
 
 template <typename FieldType>
-std::deque<OptionItemInfo> caf::FieldUiCap<FieldType>::valueOptions( bool* useOptionsOnly ) const
+std::deque<OptionItemInfo> caffa::FieldUiCap<FieldType>::valueOptions( bool* useOptionsOnly ) const
 {
     std::deque<OptionItemInfo> options;
 
@@ -54,7 +54,7 @@ std::deque<OptionItemInfo> caf::FieldUiCap<FieldType>::valueOptions( bool* useOp
         options = uiObj( m_field->ownerObject() )->calculateValueOptions( this->m_field, useOptionsOnly );
     }
 
-    // If we got no options, use the options defined by the type. Normally only caf::AppEnum type
+    // If we got no options, use the options defined by the type. Normally only caffa::AppEnum type
 
     if ( options.empty() )
     {
@@ -69,7 +69,7 @@ std::deque<OptionItemInfo> caf::FieldUiCap<FieldType>::valueOptions( bool* useOp
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-Variant caf::FieldUiCap<FieldType>::toUiBasedVariant() const
+Variant caffa::FieldUiCap<FieldType>::toUiBasedVariant() const
 {
     return UiFieldSpecialization<typename FieldType::FieldDataType>::convert( m_field->value() );
 }
@@ -78,9 +78,9 @@ Variant caf::FieldUiCap<FieldType>::toUiBasedVariant() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-bool caf::FieldUiCap<FieldType>::isVariantDataEqual( const Variant& oldUiBasedVariant, const Variant& newUiBasedVariant ) const
+bool caffa::FieldUiCap<FieldType>::isVariantDataEqual( const Variant& oldUiBasedVariant, const Variant& newUiBasedVariant ) const
 {
     return ValueFieldSpecialization<typename FieldType::FieldDataType>::isEqual( oldUiBasedVariant, newUiBasedVariant );
 }
 
-} // End of namespace caf
+} // End of namespace caffa

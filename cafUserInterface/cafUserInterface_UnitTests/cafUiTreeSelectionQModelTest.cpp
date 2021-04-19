@@ -3,38 +3,38 @@
 
 #include "cafUiTreeSelectionQModel.h"
 
-std::deque<caf::OptionItemInfo> createOptions()
+std::deque<caffa::OptionItemInfo> createOptions()
 {
-    std::deque<caf::OptionItemInfo> options;
+    std::deque<caffa::OptionItemInfo> options;
 
     {
         std::string text;
 
         text = "First";
-        options.push_back( caf::OptionItemInfo( text, text ) );
+        options.push_back( caffa::OptionItemInfo( text, text ) );
 
         text = "Second";
-        options.push_back( caf::OptionItemInfo( text, text ) );
+        options.push_back( caffa::OptionItemInfo( text, text ) );
 
         {
             text                         = "Second_a";
-            caf::OptionItemInfo itemInfo = caf::OptionItemInfo( text, text );
+            caffa::OptionItemInfo itemInfo = caffa::OptionItemInfo( text, text );
             itemInfo.setLevel( 1 );
             options.push_back( itemInfo );
         }
 
         {
             text                         = "Second_b";
-            caf::OptionItemInfo itemInfo = caf::OptionItemInfo( text, text );
+            caffa::OptionItemInfo itemInfo = caffa::OptionItemInfo( text, text );
             itemInfo.setLevel( 1 );
             options.push_back( itemInfo );
         }
 
         text = "Third";
-        options.push_back( caf::OptionItemInfo( text, text ) );
+        options.push_back( caffa::OptionItemInfo( text, text ) );
 
         text = "Fourth";
-        options.push_back( caf::OptionItemInfo( text, text ) );
+        options.push_back( caffa::OptionItemInfo( text, text ) );
     }
 
     return options;
@@ -47,7 +47,7 @@ TEST( UiTreeSelectionQModelTest, BasicUsage )
 {
     auto options = createOptions();
 
-    caf::UiTreeSelectionQModel myModel;
+    caffa::UiTreeSelectionQModel myModel;
     myModel.setOptions( nullptr, options );
 
     EXPECT_EQ( options.size(), myModel.optionItemCount() );
@@ -70,7 +70,7 @@ TEST( UiTreeSelectionQModelTest, ParentBehaviour )
 {
     auto options = createOptions();
 
-    caf::UiTreeSelectionQModel myModel;
+    caffa::UiTreeSelectionQModel myModel;
     myModel.setOptions( nullptr, options );
 
     QModelIndex parentIndex = myModel.index( 1, 0 );
@@ -96,7 +96,7 @@ TEST( UiTreeSelectionQModelTest, SetDataAndSignal )
 {
     auto options = createOptions();
 
-    caf::UiTreeSelectionQModel myModel;
+    caffa::UiTreeSelectionQModel myModel;
     myModel.setOptions( nullptr, options );
 
     QModelIndex parentIndex = myModel.index( 0, 0 );
@@ -111,7 +111,7 @@ TEST( UiTreeSelectionQModelTest, SetCheckedStateForItems )
 {
     auto options = createOptions();
 
-    caf::UiTreeSelectionQModel myModel;
+    caffa::UiTreeSelectionQModel myModel;
     myModel.setOptions( nullptr, options );
 
     QModelIndex parentIndex     = myModel.index( 1, 0 );

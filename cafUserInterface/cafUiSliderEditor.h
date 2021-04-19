@@ -46,7 +46,7 @@
 #include <QString>
 #include <QWidget>
 
-namespace caf
+namespace caffa
 {
 class UiSliderEditor : public UiFieldEditorHandle
 {
@@ -78,4 +78,4 @@ private:
     UiSliderEditorAttribute m_attributes;
 };
 
-} // end namespace caf
+} // end namespace caffa

@@ -39,7 +39,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QValidator::State caf::DoubleStringValidator::validate( QString& inputString, int& position ) const
+QValidator::State caffa::DoubleStringValidator::validate( QString& inputString, int& position ) const
 {
     if ( m_defaultString == inputString )
     {
@@ -51,7 +51,7 @@ QValidator::State caf::DoubleStringValidator::validate( QString& inputString, in
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::DoubleStringValidator::fixup( QString& inputString ) const
+void caffa::DoubleStringValidator::fixup( QString& inputString ) const
 {
     inputString = m_defaultString;
 }

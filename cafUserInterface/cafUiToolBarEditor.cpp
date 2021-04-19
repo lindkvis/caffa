@@ -53,7 +53,7 @@
 #include <QMainWindow>
 #include <QToolBar>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -78,7 +78,7 @@ UiToolBarEditor::~UiToolBarEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool UiToolBarEditor::isEditorDataValid( const std::vector<caf::FieldHandle*>& fields ) const
+bool UiToolBarEditor::isEditorDataValid( const std::vector<caffa::FieldHandle*>& fields ) const
 {
     if ( m_fields.size() == fields.size() && m_fieldViews.size() == fields.size() )
     {
@@ -110,11 +110,11 @@ void UiToolBarEditor::configureAndUpdateUi()
         // Find set of owner objects. Can be several objects, make a set to avoid calling uiOrdering more than once for
         // an object
 
-        std::set<caf::ObjectUiCapability*> ownerUiObjects;
+        std::set<caffa::ObjectUiCapability*> ownerUiObjects;
 
         for ( FieldHandle* field : m_fields )
         {
-            caf::ObjectUiCapability* ownerUiObject = field->ownerObject()->capability<ObjectUiCapability>();
+            caffa::ObjectUiCapability* ownerUiObject = field->ownerObject()->capability<ObjectUiCapability>();
             if ( ownerUiObject )
             {
                 ownerUiObjects.insert( ownerUiObject );
@@ -122,7 +122,7 @@ void UiToolBarEditor::configureAndUpdateUi()
         }
 
         UiOrdering config;
-        for ( caf::ObjectUiCapability* ownerUiObject : ownerUiObjects )
+        for ( caffa::ObjectUiCapability* ownerUiObject : ownerUiObjects )
         {
             ownerUiObject->uiOrdering( config );
         }
@@ -137,21 +137,21 @@ void UiToolBarEditor::configureAndUpdateUi()
         it = m_fieldViews.find( field->keyword() );
         if ( it == m_fieldViews.end() )
         {
-            caf::FieldUiCapability* uiFieldHandle = field->capability<FieldUiCapability>();
+            caffa::FieldUiCapability* uiFieldHandle = field->capability<FieldUiCapability>();
 
             bool addSpace = false;
             if ( uiFieldHandle )
             {
                 if ( uiFieldHandle->uiValue().canConvert<bool>() )
                 {
-                    auto editorTypeName = caf::UiToolButtonEditor::uiEditorTypeName();
+                    auto editorTypeName = caffa::UiToolButtonEditor::uiEditorTypeName();
 
-                    fieldEditor = caf::Factory<UiFieldEditorHandle, std::string>::instance()->create( editorTypeName );
+                    fieldEditor = caffa::Factory<UiFieldEditorHandle, std::string>::instance()->create( editorTypeName );
                 }
                 else
                 {
                     fieldEditor =
-                        caf::UiFieldEditorHelper::createFieldEditorForField( field->capability<FieldUiCapability>() );
+                        caffa::UiFieldEditorHelper::createFieldEditorForField( field->capability<FieldUiCapability>() );
 
                     addSpace = true;
                 }
@@ -188,14 +188,14 @@ void UiToolBarEditor::configureAndUpdateUi()
 
     for ( size_t i = 0; i < m_fields.size(); i++ )
     {
-        caf::FieldHandle* field = m_fields[i];
+        caffa::FieldHandle* field = m_fields[i];
 
         // Enabled state of a tool button is controlled by the QAction associated with a tool button
         // Changing the state of a widget directly has no effect
         // See Qt doc for QToolBar::insertWidget
         QAction* action = m_actions[static_cast<int>( i )];
 
-        caf::FieldUiCapability* uiFieldHandle = field->capability<FieldUiCapability>();
+        caffa::FieldUiCapability* uiFieldHandle = field->capability<FieldUiCapability>();
         if ( uiFieldHandle )
         {
             action->setEnabled( !uiFieldHandle->isUiReadOnly() );
@@ -215,7 +215,7 @@ QWidget* UiToolBarEditor::focusWidget( UiFieldEditorHandle* uiFieldEditorHandle 
     // This is the case for combo box widget to allow up/down arrow buttons associated with the combo box
 
     QWidget* editorWidget = nullptr;
-    auto     comboEditor  = dynamic_cast<caf::UiComboBoxEditor*>( uiFieldEditorHandle );
+    auto     comboEditor  = dynamic_cast<caffa::UiComboBoxEditor*>( uiFieldEditorHandle );
     if ( comboEditor )
     {
         auto       topWidget = comboEditor->editorWidget();
@@ -234,7 +234,7 @@ QWidget* UiToolBarEditor::focusWidget( UiFieldEditorHandle* uiFieldEditorHandle 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiToolBarEditor::setFields( std::vector<caf::FieldHandle*>& fields )
+void UiToolBarEditor::setFields( std::vector<caffa::FieldHandle*>& fields )
 {
     clear();
 
@@ -283,7 +283,7 @@ void UiToolBarEditor::setFocusWidgetFromKeyword( const std::string& fieldKeyword
             {
                 if ( field->keyword() == fieldKeyword )
                 {
-                    caf::ObjectUiCapability* uiObject = uiObj( field->ownerObject() );
+                    caffa::ObjectUiCapability* uiObject = uiObj( field->ownerObject() );
                     if ( uiObject )
                     {
                         uiObject->editorAttribute( field, &attributes );
@@ -351,4 +351,4 @@ std::string UiToolBarEditor::keywordForFocusWidget()
     return keyword;
 }
 
-} // end namespace caf
+} // end namespace caffa

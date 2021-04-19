@@ -41,7 +41,7 @@
 #include <QPointer>
 #include <QWidget>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// The default editor for several Fields.
@@ -78,4 +78,4 @@ private:
     QPointer<QLabel>    m_label;
 };
 
-} // end namespace caf
+} // end namespace caffa

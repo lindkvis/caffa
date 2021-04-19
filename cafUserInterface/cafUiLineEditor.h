@@ -49,7 +49,7 @@ class QGridLayout;
 class QCompleter;
 class QStringListModel;
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -150,4 +150,4 @@ protected:
     const OptionItemInfo* findOption( const QString& uiText );
 };
 
-} // end namespace caf
+} // end namespace caffa

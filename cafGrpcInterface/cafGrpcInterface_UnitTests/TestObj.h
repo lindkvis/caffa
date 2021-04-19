@@ -4,11 +4,11 @@
 #include "cafObject.h"
 #include "cafPointer.h"
 
-class TestObj : public caf::Object
+class TestObj : public caffa::Object
 {
 public:
     TestObj();
     ~TestObj();
 
-    caf::Field<double> m_position;
+    caffa::Field<double> m_position;
 };

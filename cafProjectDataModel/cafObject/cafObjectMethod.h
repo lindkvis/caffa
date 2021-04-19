@@ -47,9 +47,9 @@
 #define CAF_OBJECT_METHOD_SOURCE_INIT( SelfClassName, MethodClassName, methodKeyword ) \
     CAF_IO_ABSTRACT_SOURCE_INIT( MethodClassName, methodKeyword, "ObjectMethod" )      \
     static bool CAF_OBJECT_STRING_CONCATENATE( method##MethodClassName, __LINE__ ) =   \
-        caf::ObjectMethodFactory::instance()->registerMethod<SelfClassName, MethodClassName>()
+        caffa::ObjectMethodFactory::instance()->registerMethod<SelfClassName, MethodClassName>()
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// Object script method
@@ -169,6 +169,6 @@ private:
     std::map<std::string, std::map<std::string, std::shared_ptr<ObjectMethodCreatorBase>>> m_factoryMap;
     // Self pointer
 
-}; // namespace caf
+}; // namespace caffa
 
-} // namespace caf
+} // namespace caffa

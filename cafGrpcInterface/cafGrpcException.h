@@ -24,9 +24,9 @@
 
 #include <string>
 
-namespace caf::rpc
+namespace caffa::rpc
 {
-class Exception : public caf::Exception
+class Exception : public caffa::Exception
 {
 public:
     enum class Type
@@ -38,7 +38,7 @@ public:
 
 public:
     Exception( grpc::Status status )
-        : caf::Exception( status.error_message() )
+        : caffa::Exception( status.error_message() )
         , m_status( status )
     {
     }
@@ -48,4 +48,4 @@ public:
 private:
     grpc::Status m_status;
 };
-} // namespace caf::rpc
+} // namespace caffa::rpc

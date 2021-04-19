@@ -5,4 +5,4 @@
 #include <QMetaType>
 #include <QVariant>
 
-Q_DECLARE_METATYPE( caf::Variant );
+Q_DECLARE_METATYPE( caffa::Variant );

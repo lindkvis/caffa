@@ -55,7 +55,7 @@
 #include <QStatusBar>
 #include <QString>
 
-namespace caf
+namespace caffa
 {
 CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiTimeEditor );
 
@@ -70,7 +70,7 @@ void UiTimeEditor::configureAndUpdateUi()
 
     m_timeEdit->setEnabled( !uiField()->isUiReadOnly() );
 
-    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caffa::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
@@ -126,4 +126,4 @@ void UiTimeEditor::slotTimeChanged( const QTime& time )
     this->setValueToField( v );
 }
 
-} // end namespace caf
+} // end namespace caffa

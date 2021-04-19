@@ -37,12 +37,12 @@
 
 #include "cafFieldHandle.h"
 
-using namespace caf;
+using namespace caffa;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FieldScriptingCapability::FieldScriptingCapability( caf::FieldHandle*  owner,
+FieldScriptingCapability::FieldScriptingCapability( caffa::FieldHandle*  owner,
                                                     const std::string& scriptFieldName,
                                                     bool               giveOwnership )
 {
@@ -83,7 +83,7 @@ void FieldScriptingCapability::setIOWriteable( bool writeable )
     m_IOWriteable = writeable;
 }
 
-void FieldScriptingCapability::addToField( caf::FieldHandle* field, const std::string& fieldName )
+void FieldScriptingCapability::addToField( caffa::FieldHandle* field, const std::string& fieldName )
 {
     if ( field->capability<FieldScriptingCapability>() == nullptr )
     {

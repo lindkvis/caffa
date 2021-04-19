@@ -39,7 +39,7 @@
 #include "cafUiItem.h"
 #include "cafUiOrdering.h"
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// Class representing a group of fields communicated to the Gui
@@ -76,4 +76,4 @@ private:
     std::string m_keyword;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

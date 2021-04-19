@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 //
@@ -27,4 +27,4 @@ private:
     std::vector<Color> m_colors;
 };
 
-} // namespace caf
+} // namespace caffa

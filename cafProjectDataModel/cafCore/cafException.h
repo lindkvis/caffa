@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-namespace caf
+namespace caffa
 {
 class Exception : public std::runtime_error
 {
@@ -46,4 +46,4 @@ public:
     }
     virtual ~Exception()                    = default;
 };
-} // namespace caf
+} // namespace caffa

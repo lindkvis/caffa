@@ -4,7 +4,7 @@
 
 #include <string>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 ///
@@ -18,4 +18,4 @@ public:
     UiDateEditorAttribute() {}
 };
 
-} // namespace caf
+} // namespace caffa

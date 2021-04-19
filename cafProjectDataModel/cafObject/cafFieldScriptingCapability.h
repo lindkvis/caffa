@@ -40,7 +40,7 @@
 
 #include <string>
 
-namespace caf
+namespace caffa
 {
 class FieldHandle;
 class ObjectFactory;
@@ -49,14 +49,14 @@ class ObjectHandle;
 class FieldScriptingCapability : public FieldCapability
 {
 public:
-    FieldScriptingCapability( caf::FieldHandle* owner, const std::string& scriptFieldName, bool giveOwnership );
+    FieldScriptingCapability( caffa::FieldHandle* owner, const std::string& scriptFieldName, bool giveOwnership );
     virtual ~FieldScriptingCapability();
 
     const std::string scriptFieldName() const;
 
     bool        isIOWriteable() const;
     void        setIOWriteable( bool writeable );
-    static void addToField( caf::FieldHandle* field, const std::string& fieldName );
+    static void addToField( caffa::FieldHandle* field, const std::string& fieldName );
 
 protected:
     FieldHandle* m_owner;
@@ -64,4 +64,4 @@ protected:
     bool         m_IOWriteable;
 };
 
-} // namespace caf
+} // namespace caffa

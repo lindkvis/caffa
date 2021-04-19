@@ -22,11 +22,11 @@
 
 #include <memory>
 
-namespace caf::rpc
+namespace caffa::rpc
 {
 class Server;
 
-class Application : public caf::Application
+class Application : public caffa::Application
 {
 public:
     Application( const unsigned int& capabilities );
@@ -40,4 +40,4 @@ private:
     size_t m_packageByteSize;
 
 };
-} // namespace caf
+} // namespace caffa

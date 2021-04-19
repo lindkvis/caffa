@@ -27,7 +27,7 @@
 
 #include <vector>
 
-namespace caf::rpc
+namespace caffa::rpc
 {
 class AbstractCallback;
 class Version;
@@ -44,4 +44,4 @@ public:
 
     std::vector<AbstractCallback*> registerCallbacks() override;
 };
-} // namespace caf::rpc
+} // namespace caffa::rpc

@@ -49,7 +49,7 @@
 
 #include <cmath>
 
-namespace caf
+namespace caffa
 {
 CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiPushButtonEditor );
 
@@ -68,7 +68,7 @@ void UiPushButtonEditor::configureAndUpdateUi()
     m_pushButton->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
     UiPushButtonEditorAttribute attributes;
-    caf::ObjectUiCapability*    uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caffa::ObjectUiCapability*    uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), &attributes );
@@ -124,8 +124,8 @@ void UiPushButtonEditor::configureEditorForField( FieldHandle* fieldHandle )
 
         if ( fieldHandle->capability<FieldUiCapability>() )
         {
-            fieldHandle->capability<FieldUiCapability>()->setUiEditorTypeName( caf::UiPushButtonEditor::uiEditorTypeName() );
-            fieldHandle->capability<FieldUiCapability>()->setUiLabelPosition( caf::UiItemInfo::LEFT );
+            fieldHandle->capability<FieldUiCapability>()->setUiEditorTypeName( caffa::UiPushButtonEditor::uiEditorTypeName() );
+            fieldHandle->capability<FieldUiCapability>()->setUiLabelPosition( caffa::UiItemInfo::LEFT );
         }
     }
 }
@@ -171,4 +171,4 @@ void UiPushButtonEditor::slotClicked( bool checked )
     }
 }
 
-} // end namespace caf
+} // end namespace caffa

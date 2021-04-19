@@ -41,7 +41,7 @@
 #include <QToolButton>
 #include <QWidget>
 
-namespace caf
+namespace caffa
 {
 class UiToolButtonEditorAttribute : public UiEditorAttribute
 {
@@ -74,4 +74,4 @@ private:
     QPointer<QToolButton> m_toolButton;
 };
 
-} // end namespace caf
+} // end namespace caffa

@@ -59,7 +59,7 @@
 #include <QString>
 #include <QStringListModel>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -113,7 +113,7 @@ void UiLineEditor::configureAndUpdateUi()
 
         UiLineEditorAttribute leab;
         {
-            caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+            caffa::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
             if ( uiObject )
             {
                 uiObject->editorAttribute( uiField()->fieldHandle(), &leab );
@@ -183,7 +183,7 @@ void UiLineEditor::configureAndUpdateUi()
             m_optionCache.clear();
 
             UiLineEditorAttributeUiDisplayString displayStringAttrib;
-            caf::ObjectUiCapability*             uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+            caffa::ObjectUiCapability*             uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
             if ( uiObject )
             {
                 uiObject->editorAttribute( uiField()->fieldHandle(), &displayStringAttrib );
@@ -394,4 +394,4 @@ const OptionItemInfo* UiLineEditor::findOption( const QString& uiText )
 // line number.
 CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiLineEditor );
 
-} // end namespace caf
+} // end namespace caffa

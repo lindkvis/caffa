@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 //==================================================================================================
@@ -39,10 +39,10 @@ protected:
     State m_state;
 };
 
-} // end namespace caf
+} // end namespace caffa
 
 //==================================================================================================
-// Overload of QTextStream for caf::Tristate
+// Overload of QTextStream for caffa::Tristate
 //==================================================================================================
-std::istream& operator>>( std::istream& str, caf::Tristate& triplet );
-std::ostream& operator<<( std::ostream& str, const caf::Tristate& triplet );
+std::istream& operator>>( std::istream& str, caffa::Tristate& triplet );
+std::ostream& operator<<( std::ostream& str, const caffa::Tristate& triplet );

@@ -38,7 +38,7 @@
 
 #include <QStyledItemDelegate>
 
-namespace caf
+namespace caffa
 {
 class UiTableViewQModel;
 
@@ -72,4 +72,4 @@ private:
     mutable int m_activeEditorCount;
 };
 
-} // end namespace caf
+} // end namespace caffa

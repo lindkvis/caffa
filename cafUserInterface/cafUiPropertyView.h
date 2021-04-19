@@ -56,7 +56,7 @@ public:
     virtual QSize minimumSizeHint() const override;
 };
 
-namespace caf
+namespace caffa
 {
 class ObjectHandle;
 class UiDefaultObjectEditor;
@@ -78,7 +78,7 @@ public:
     QSize minimumSizeHint() const override;
 
 public slots:
-    void showProperties( caf::ObjectHandle* object ); // Signal/Slot system needs caf:: prefix in some cases
+    void showProperties( caffa::ObjectHandle* object ); // Signal/Slot system needs caffa:: prefix in some cases
 
 private:
     UiDefaultObjectEditor*        m_defaultObjectEditor;
@@ -87,4 +87,4 @@ private:
     QPointer<QVerticalScrollArea> m_scrollArea;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

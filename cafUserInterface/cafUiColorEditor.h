@@ -45,7 +45,7 @@
 #include <QToolButton>
 #include <QWidget>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// See cafFieldCvfColor for conversion between cvf::Color3f and QColor
@@ -84,4 +84,4 @@ private:
     UiColorEditorAttribute m_attributes;
 };
 
-} // end namespace caf
+} // end namespace caffa

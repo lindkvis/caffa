@@ -23,7 +23,7 @@
 #include <memory>
 #include <mutex>
 
-namespace caf::rpc
+namespace caffa::rpc
 {
 class ServerImpl;
 
@@ -50,4 +50,4 @@ private:
 
     ServerImpl* m_serverImpl;
 };
-} // namespace caf::rpc
+} // namespace caffa::rpc

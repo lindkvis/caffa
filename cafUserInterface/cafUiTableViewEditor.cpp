@@ -53,7 +53,7 @@
 #include <QTableView>
 #include <QWidget>
 
-namespace caf
+namespace caffa
 {
 CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiTableViewEditor );
 
@@ -258,7 +258,7 @@ void UiTableViewEditor::selectedUiItems( const QModelIndexList& modelIndexList, 
     {
         int row = mi.row();
 
-        caf::ObjectUiCapability* uiObject = uiObj( m_tableModel->objectForRow( row ) );
+        caffa::ObjectUiCapability* uiObject = uiObj( m_tableModel->objectForRow( row ) );
         if ( uiObject )
         {
             objects.push_back( uiObject );
@@ -422,9 +422,9 @@ bool UiTableViewEditor::eventFilter( QObject* obj, QEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::ChildArrayFieldHandle* UiTableViewEditor::childArrayFieldHandle()
+caffa::ChildArrayFieldHandle* UiTableViewEditor::childArrayFieldHandle()
 {
-    caf::ChildArrayFieldHandle* fieldHandle = nullptr;
+    caffa::ChildArrayFieldHandle* fieldHandle = nullptr;
     if ( this->uiField() )
     {
         fieldHandle = dynamic_cast<ChildArrayFieldHandle*>( this->uiField()->fieldHandle() );
@@ -465,4 +465,4 @@ std::string UiTableViewPushButtonEditorAttribute::pushButtonText( const std::str
     return "";
 }
 
-} // end namespace caf
+} // end namespace caffa

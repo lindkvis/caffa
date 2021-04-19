@@ -44,7 +44,7 @@ class QItemSelection;
 class QMenu;
 class QModelIndex;
 
-namespace caf
+namespace caffa
 {
 class UiItem;
 class UiTreeViewEditor;
@@ -66,7 +66,7 @@ public:
     void enableSelectionManagerUpdating( bool enable ); // TODO: rename
     void enableAppendOfClassNameToUiItemText( bool enable );
 
-    void setItem( caf::UiItem* object );
+    void setItem( caffa::UiItem* object );
 
     QTreeView* treeView();
     bool       isTreeItemEditWidgetActive() const;
@@ -87,7 +87,7 @@ public:
 signals:
     void selectionChanged();
     // Convenience signal for use with UiPropertyView
-    void selectedObjectChanged( caf::ObjectHandle* object ); // Signal/Slot system needs caf:: prefix in some cases
+    void selectedObjectChanged( caffa::ObjectHandle* object ); // Signal/Slot system needs caffa:: prefix in some cases
 
 private slots:
     void slotOnSelectionChanged();
@@ -98,4 +98,4 @@ private:
     QVBoxLayout*      m_layout;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

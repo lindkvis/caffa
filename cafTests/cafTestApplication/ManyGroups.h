@@ -4,33 +4,33 @@
 #include "cafFieldProxyAccessor.h"
 #include "cafObject.h"
 
-namespace caf
+namespace caffa
 {
 class Variant;
 }
 
-class ManyGroups : public caf::Object
+class ManyGroups : public caffa::Object
 {
     CAF_HEADER_INIT;
 
 public:
     ManyGroups();
 
-    caf::Field<double>      m_doubleField;
-    caf::Field<int>         m_intField;
-    caf::Field<std::string> m_textField;
-    caf::Field<double>      m_proxyDoubleField;
+    caffa::Field<double>      m_doubleField;
+    caffa::Field<int>         m_intField;
+    caffa::Field<std::string> m_textField;
+    caffa::Field<double>      m_proxyDoubleField;
 
-    caf::Field<std::vector<std::string>> m_multiSelectList;
-    caf::Field<std::string>              m_stringWithMultipleOptions;
+    caffa::Field<std::vector<std::string>> m_multiSelectList;
+    caffa::Field<std::string>              m_stringWithMultipleOptions;
 
-    caf::Field<bool>  m_toggleField;
-    caf::FieldHandle* objectToggleField() override;
+    caffa::Field<bool>  m_toggleField;
+    caffa::FieldHandle* objectToggleField() override;
 
-    void onFieldChangedByCapability(const caf::FieldHandle*     changedField,
-                                    const caf::FieldCapability* changedFieldCapability,
-                                    const caf::Variant&         oldValue,
-                                    const caf::Variant&         newValue) override;
+    void onFieldChangedByCapability(const caffa::FieldHandle*     changedField,
+                                    const caffa::FieldCapability* changedFieldCapability,
+                                    const caffa::Variant&         oldValue,
+                                    const caffa::Variant&         newValue) override;
 
     void setDoubleMember(const double& d)
     {
@@ -46,7 +46,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    std::deque<caf::OptionItemInfo> calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
+    std::deque<caffa::OptionItemInfo> calculateValueOptions(const caffa::FieldHandle* fieldNeedingOptions,
                                                           bool*                   useOptionsOnly) override;
 
 private:
@@ -56,7 +56,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineUiOrdering(caf::UiOrdering& uiOrdering) override;
+    void defineUiOrdering(caffa::UiOrdering& uiOrdering) override;
 
-    void defineEditorAttribute(const caf::FieldHandle* field, caf::UiEditorAttribute* attribute) override;
+    void defineEditorAttribute(const caffa::FieldHandle* field, caffa::UiEditorAttribute* attribute) override;
 };

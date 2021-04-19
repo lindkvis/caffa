@@ -56,14 +56,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::UiFormLayoutObjectEditor::UiFormLayoutObjectEditor()
+caffa::UiFormLayoutObjectEditor::UiFormLayoutObjectEditor()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::UiFormLayoutObjectEditor::~UiFormLayoutObjectEditor()
+caffa::UiFormLayoutObjectEditor::~UiFormLayoutObjectEditor()
 {
     // If there are field editor present, the usage of this editor has not cleared correctly
     // The intended usage is to call the method setObject(nullptr) before closing the dialog
@@ -73,7 +73,7 @@ caf::UiFormLayoutObjectEditor::~UiFormLayoutObjectEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::UiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInNewGridLayout( const UiOrdering& uiOrdering,
+bool caffa::UiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInNewGridLayout( const UiOrdering& uiOrdering,
                                                                                             QWidget* containerWidget )
 {
     QSize beforeSize = containerWidget->sizeHint();
@@ -94,7 +94,7 @@ bool caf::UiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInNew
 /// Add all widgets at a recursion level in the form.
 /// Returns the stretch factor that should be applied at the level above.
 //--------------------------------------------------------------------------------------------------
-int caf::UiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGridLayout( const UiOrdering& uiOrdering,
+int caffa::UiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGridLayout( const UiOrdering& uiOrdering,
                                                                                         QWidget* containerWidgetWithGridLayout )
 {
     int sumRowStretch = 0;
@@ -284,7 +284,7 @@ int caf::UiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGrid
 //--------------------------------------------------------------------------------------------------
 /// Create a group and add widgets. Return true if the containing row needs to be stretched.
 //--------------------------------------------------------------------------------------------------
-int caf::UiFormLayoutObjectEditor::recursivelyAddGroupToGridLayout( UiItem*      currentItem,
+int caffa::UiFormLayoutObjectEditor::recursivelyAddGroupToGridLayout( UiItem*      currentItem,
                                                                     QWidget*     containerWidgetWithGridLayout,
                                                                     QGridLayout* parentLayout,
                                                                     int          currentRowIndex,
@@ -306,7 +306,7 @@ int caf::UiFormLayoutObjectEditor::recursivelyAddGroupToGridLayout( UiItem*     
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::UiFormLayoutObjectEditor::isUiGroupExpanded( const UiGroup* uiGroup ) const
+bool caffa::UiFormLayoutObjectEditor::isUiGroupExpanded( const UiGroup* uiGroup ) const
 {
     if ( uiGroup->hasForcedExpandedState() ) return uiGroup->forcedExpandedState();
 
@@ -329,7 +329,7 @@ bool caf::UiFormLayoutObjectEditor::isUiGroupExpanded( const UiGroup* uiGroup ) 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QMinimizePanel* caf::UiFormLayoutObjectEditor::findOrCreateGroupBox( QWidget* parent, UiGroup* group )
+QMinimizePanel* caffa::UiFormLayoutObjectEditor::findOrCreateGroupBox( QWidget* parent, UiGroup* group )
 {
     auto            groupBoxKey = group->keyword();
     QMinimizePanel* groupBox    = nullptr;
@@ -375,9 +375,9 @@ QMinimizePanel* caf::UiFormLayoutObjectEditor::findOrCreateGroupBox( QWidget* pa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::UiFieldEditorHandle* caf::UiFormLayoutObjectEditor::findOrCreateFieldEditor( QWidget* parent, FieldUiCapability* field )
+caffa::UiFieldEditorHandle* caffa::UiFormLayoutObjectEditor::findOrCreateFieldEditor( QWidget* parent, FieldUiCapability* field )
 {
-    caf::UiFieldEditorHandle* fieldEditor = nullptr;
+    caffa::UiFieldEditorHandle* fieldEditor = nullptr;
 
     std::map<FieldHandle*, UiFieldEditorHandle*>::iterator it = m_fieldViews.find( field->fieldHandle() );
 
@@ -422,7 +422,7 @@ caf::UiFieldEditorHandle* caf::UiFormLayoutObjectEditor::findOrCreateFieldEditor
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::UiFormLayoutObjectEditor::ensureWidgetContainsEmptyGridLayout( QWidget* containerWidget, QMargins contentMargins )
+void caffa::UiFormLayoutObjectEditor::ensureWidgetContainsEmptyGridLayout( QWidget* containerWidget, QMargins contentMargins )
 {
     CAF_ASSERT( containerWidget );
     QLayout* layout = containerWidget->layout();
@@ -445,7 +445,7 @@ void caf::UiFormLayoutObjectEditor::ensureWidgetContainsEmptyGridLayout( QWidget
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::UiFormLayoutObjectEditor::groupBoxExpandedStateToggled( bool isExpanded )
+void caffa::UiFormLayoutObjectEditor::groupBoxExpandedStateToggled( bool isExpanded )
 {
     if ( !this->object()->capability<ObjectIoCapability>() ) return;
 
@@ -460,7 +460,7 @@ void caf::UiFormLayoutObjectEditor::groupBoxExpandedStateToggled( bool isExpande
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::UiFormLayoutObjectEditor::cleanupBeforeSettingObject()
+void caffa::UiFormLayoutObjectEditor::cleanupBeforeSettingObject()
 {
     std::map<FieldHandle*, UiFieldEditorHandle*>::iterator it;
     for ( it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it )
@@ -483,12 +483,12 @@ void caf::UiFormLayoutObjectEditor::cleanupBeforeSettingObject()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::UiFormLayoutObjectEditor::configureAndUpdateUi()
+void caffa::UiFormLayoutObjectEditor::configureAndUpdateUi()
 {
-    caf::UiOrdering config;
+    caffa::UiOrdering config;
     if ( object() )
     {
-        caf::ObjectUiCapability* uiObject = uiObj( object() );
+        caffa::ObjectUiCapability* uiObject = uiObj( object() );
         if ( uiObject )
         {
             uiObject->uiOrdering( config );
@@ -535,7 +535,7 @@ void caf::UiFormLayoutObjectEditor::configureAndUpdateUi()
     m_groupBoxes = m_newGroupBoxes;
 
     // Notify object when widgets have been created
-    caf::ObjectUiCapability* uiObject = uiObj( object() );
+    caffa::ObjectUiCapability* uiObject = uiObj( object() );
     if ( uiObject )
     {
         uiObject->onEditorWidgetsCreated();

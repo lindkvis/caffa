@@ -38,7 +38,7 @@
 
 #include "cafColor.h"
 
-std::istream& operator>>( std::istream& str, caf::Color& value )
+std::istream& operator>>( std::istream& str, caffa::Color& value )
 {
     unsigned char r, g, b, a;
     str >> r;
@@ -46,12 +46,12 @@ std::istream& operator>>( std::istream& str, caf::Color& value )
     str >> b;
     str >> a;
 
-    value = caf::Color( r, g, b, a );
+    value = caffa::Color( r, g, b, a );
 
     return str;
 }
 
-std::ostream& operator<<( std::ostream& str, const caf::Color& value )
+std::ostream& operator<<( std::ostream& str, const caffa::Color& value )
 {
     auto [red, green, blue, alpha] = value.rgba();
     str << red << " " << green << " " << blue << " " << alpha;

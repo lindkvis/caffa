@@ -53,7 +53,7 @@
 #include <QLineEdit>
 #include <QToolButton>
 
-namespace caf
+namespace caffa
 {
 CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiColorEditor );
 
@@ -74,7 +74,7 @@ void UiColorEditor::configureAndUpdateUi()
 
     UiFieldEditorHandle::updateLabelFromField( m_label );
 
-    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caffa::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
@@ -89,7 +89,7 @@ void UiColorEditor::configureAndUpdateUi()
         }
     }
 
-    caf::Color color = uiField()->uiValue().value<caf::Color>();
+    caffa::Color color = uiField()->uiValue().value<caffa::Color>();
     setColorOnWidget( color.to<QColor>() );
 }
 
@@ -174,7 +174,7 @@ void UiColorEditor::colorSelectionClicked()
     if ( newColor.isValid() && newColor != m_color )
     {
         setColorOnWidget( newColor );
-        Variant v( caf::Color( newColor.red(), newColor.green(), newColor.blue() ) );
+        Variant v( caffa::Color( newColor.red(), newColor.green(), newColor.blue() ) );
         this->setValueToField( v );
     }
 }
@@ -230,4 +230,4 @@ QColor UiColorEditor::getFontColor( const QColor& backgroundColor ) const
     return QColor( ( 255 - backgroundDelta < THRESHOLD ) ? Qt::black : Qt::white );
 }
 
-} // end namespace caf
+} // end namespace caffa

@@ -16,8 +16,8 @@
 //   for more details.
 //
 
-#include "cafGrpcClientApplication.h"
 #include "cafGrpcClient.h"
+#include "cafGrpcClientApplication.h"
 #include "cafGrpcClientObjectFactory.h"
 #include "cafGrpcObjectClientCapability.h"
 
@@ -28,11 +28,11 @@
 #include <cstdlib>
 #include <iostream>
 
-class ClientApp : public caf::rpc::ClientApplication
+class ClientApp : public caffa::rpc::ClientApplication
 {
 public:
     ClientApp( const std::string& hostname, int port )
-        : caf::rpc::ClientApplication( hostname, port )
+        : caffa::rpc::ClientApplication( hostname, port )
     {
     }
     ~ClientApp() = default;
@@ -58,33 +58,32 @@ public:
     int patchVersion() const override { return 0; }
 };
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-    std::string hostname = argc >= 2 ? argv[1] : "localhost";
+    std::string hostname   = argc >= 2 ? argv[1] : "localhost";
     int         portNumber = argc >= 3 ? std::atoi( argv[2] ) : 55555;
 
-    auto clientApp = std::make_unique<ClientApp>(hostname, portNumber);    
-    CAF_INFO("Launching Client connecting to " << hostname << ":" << portNumber);
+    auto clientApp = std::make_unique<ClientApp>( hostname, portNumber );
+    CAF_INFO( "Launching Client connecting to " << hostname << ":" << portNumber );
 
-    auto client = clientApp->client();
+    auto client         = clientApp->client();
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
-    if (!clientDocument)
+    if ( !clientDocument )
     {
-        CAF_ERROR("Failed to get main document");
+        CAF_ERROR( "Failed to get main document" );
         return 1;
     }
     bool worked = client->ping();
-    CAF_ASSERT(worked);
-    auto clientVector    = clientDocument->demoObject()->floatVector();
+    CAF_ASSERT( worked );
+    auto   clientVector   = clientDocument->demoObject()->floatVector();
     size_t numberOfFloats = clientVector.size();
-    size_t MB = numberOfFloats * sizeof(float) / (1024u * 1024u);
-    std::cout << "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" << std::endl;        
+    size_t MB             = numberOfFloats * sizeof( float ) / ( 1024u * 1024u );
+    std::cout << "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" << std::endl;
 
-    clientDocument->demoObject()->setFloatVector({123.0, 45.1, 8.32});
+    clientDocument->demoObject()->setFloatVector( { 123.0, 45.1, 8.32 } );
     return 0;
 }

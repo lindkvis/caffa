@@ -6,7 +6,7 @@
 #include <list>
 #include <string>
 
-namespace caf
+namespace caffa
 {
 class MenuInterface;
 class UiEditorAttribute;
@@ -51,7 +51,7 @@ public: // Virtual
     void fieldChangedByUi( const FieldHandle* changedField, const Variant& oldValue, const Variant& newValue );
 
     /// Method to re-implement to supply option values for a specific field
-    virtual std::deque<OptionItemInfo> calculateValueOptions( const caf::FieldHandle* fieldNeedingOptions,
+    virtual std::deque<OptionItemInfo> calculateValueOptions( const caffa::FieldHandle* fieldNeedingOptions,
                                                               bool*                   useOptionsOnly )
     {
         return std::deque<OptionItemInfo>();
@@ -65,17 +65,17 @@ protected:
     /// Override to customize the order and grouping of the Gui.
     /// Fill up the uiOrdering object with groups and field references to create the gui structure
     /// If the uiOrdering is empty, it is interpreted as meaning all fields w/o grouping.
-    virtual void defineUiOrdering( caf::UiOrdering& uiOrdering ) {}
+    virtual void defineUiOrdering( caffa::UiOrdering& uiOrdering ) {}
 
     /// Override to customize the tree representations of the object hierarchy.
     /// If the UiTreeOrdering is empty, it is interpreted as meaning all fields containing child objects in order
-    virtual void defineUiTreeOrdering( caf::UiTreeOrdering& uiTreeOrdering ) {}
+    virtual void defineUiTreeOrdering( caffa::UiTreeOrdering& uiTreeOrdering ) {}
 
     /// Override to provide editor specific data for the field and
-    virtual void defineEditorAttribute( const caf::FieldHandle* field, caf::UiEditorAttribute* attribute ) {}
+    virtual void defineEditorAttribute( const caffa::FieldHandle* field, caffa::UiEditorAttribute* attribute ) {}
 
     /// Override to provide editor specific data for the  for the object
-    virtual void defineObjectEditorAttribute( caf::UiEditorAttribute* attribute ) {}
+    virtual void defineObjectEditorAttribute( caffa::UiEditorAttribute* attribute ) {}
 
 private:
     /// Helper method for the TreeItem generation stuff
@@ -86,4 +86,4 @@ private:
 
 ObjectUiCapability* uiObj( const ObjectHandle* obj );
 
-} // End of namespace caf
+} // End of namespace caffa

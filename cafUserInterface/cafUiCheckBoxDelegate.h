@@ -38,7 +38,7 @@
 
 #include <QStyledItemDelegate>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 /// Special handling of center aligned check boxes
@@ -63,4 +63,4 @@ public:
     QSize sizeHint( const QStyleOptionViewItem& option, const QModelIndex& index ) const override;
 };
 
-} // end namespace caf
+} // end namespace caffa

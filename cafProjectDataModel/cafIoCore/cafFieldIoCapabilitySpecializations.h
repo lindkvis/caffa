@@ -12,7 +12,7 @@
 #include <string>
 #include <typeinfo>
 
-namespace caf
+namespace caffa
 {
 template <typename FieldType>
 class FieldIoCap : public FieldIoCapability
@@ -205,6 +205,6 @@ void RegisterClassWithField( const std::string& classKeyword, FieldType* field )
     field->setOwnerClass( classKeyword );
 }
 
-} // End of namespace caf
+} // End of namespace caffa
 
 #include "cafFieldIoCapabilitySpecializations.inl"

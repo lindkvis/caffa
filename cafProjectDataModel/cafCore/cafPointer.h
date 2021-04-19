@@ -38,7 +38,7 @@
 
 #include <cstddef>
 
-namespace caf
+namespace caffa
 {
 class ObjectHandle;
 
@@ -127,4 +127,4 @@ public:
     }
 };
 
-} // End of namespace caf
+} // End of namespace caffa

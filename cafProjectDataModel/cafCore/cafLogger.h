@@ -23,7 +23,7 @@
 #include <sstream>
 #include <string>
 
-namespace caf
+namespace caffa
 {
 class Logger
 {
@@ -53,16 +53,16 @@ private:
     Level m_currentLogLevel;
 };
 
-} // namespace caf
+} // namespace caffa
 
 #define CAF_LOG( LogLevel_, Message_ )                                                                            \
-    caf::Logger( LogLevel_ )( static_cast<std::ostringstream&>( std::ostringstream().flush() << Message_ ).str(), \
+    caffa::Logger( LogLevel_ )( static_cast<std::ostringstream&>( std::ostringstream().flush() << Message_ ).str(), \
                               __FUNCTION__,                                                                       \
                               __FILE__,                                                                           \
                               __LINE__ );
 
-#define CAF_ERROR( Message_ ) CAF_LOG( caf::Logger::Level::ERROR, Message_ )
-#define CAF_WARNING( Message_ ) CAF_LOG( caf::Logger::Level::WARNING, Message_ )
-#define CAF_INFO( Message_ ) CAF_LOG( caf::Logger::Level::INFO, Message_ )
-#define CAF_DEBUG( Message_ ) CAF_LOG( caf::Logger::Level::DEBUG, Message_ )
-#define CAF_TRACE( Message_ ) CAF_LOG( caf::Logger::Level::TRACE, Message_ )
+#define CAF_ERROR( Message_ ) CAF_LOG( caffa::Logger::Level::ERROR, Message_ )
+#define CAF_WARNING( Message_ ) CAF_LOG( caffa::Logger::Level::WARNING, Message_ )
+#define CAF_INFO( Message_ ) CAF_LOG( caffa::Logger::Level::INFO, Message_ )
+#define CAF_DEBUG( Message_ ) CAF_LOG( caffa::Logger::Level::DEBUG, Message_ )
+#define CAF_TRACE( Message_ ) CAF_LOG( caffa::Logger::Level::TRACE, Message_ )

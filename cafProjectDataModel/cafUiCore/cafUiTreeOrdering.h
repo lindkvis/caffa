@@ -42,7 +42,7 @@
 #include <memory>
 #include <string>
 
-namespace caf
+namespace caffa
 {
 class FieldHandle;
 class ObjectHandle;
@@ -134,4 +134,4 @@ private:
     UiTreeOrdering*             m_parentItem;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

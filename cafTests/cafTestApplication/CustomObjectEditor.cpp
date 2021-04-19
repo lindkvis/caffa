@@ -59,7 +59,7 @@ public:
     std::vector<int> m_customWidgetCellIds;
 };
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -283,4 +283,4 @@ std::vector<int> CustomObjectEditor::cellIds(int row, int column, int rowSpan, i
     return cells;
 }
 
-} // end namespace caf
+} // end namespace caffa

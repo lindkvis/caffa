@@ -50,7 +50,7 @@
 #include <QListView>
 #include <QWheelEvent>
 
-namespace caf
+namespace caffa
 {
 CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiComboBoxEditor );
 
@@ -205,7 +205,7 @@ void UiComboBoxEditor::configureAndUpdateUi()
     }
 
     // Handle attributes
-    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caffa::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
@@ -517,4 +517,4 @@ void UiComboBoxEditor::slotPreviousButtonPressed()
     }
 }
 
-} // end namespace caf
+} // end namespace caffa

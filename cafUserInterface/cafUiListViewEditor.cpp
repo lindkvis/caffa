@@ -46,7 +46,7 @@
 #include <QTableView>
 #include <QWidget>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -121,7 +121,7 @@ QVariant UiListViewModel::headerData( int section, Qt::Orientation orientation, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QVariant caf::UiListViewModel::data( const QModelIndex& index, int role /*= Qt::DisplayRole */ ) const
+QVariant caffa::UiListViewModel::data( const QModelIndex& index, int role /*= Qt::DisplayRole */ ) const
 {
     if ( m_objectGroup && ( role == Qt::DisplayRole || role == Qt::EditRole ) )
     {
@@ -173,13 +173,13 @@ QVariant caf::UiListViewModel::data( const QModelIndex& index, int role /*= Qt::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::UiListViewModel::setData( ObjectCollection* objectGroup )
+void caffa::UiListViewModel::setData( ObjectCollection* objectGroup )
 {
     m_objectGroup = objectGroup;
 
     if ( m_objectGroup )
     {
-        caf::ObjectUiCapability* uiObject = uiObj( m_objectGroup );
+        caffa::ObjectUiCapability* uiObject = uiObj( m_objectGroup );
         if ( uiObject )
         {
             uiObject->objectEditorAttribute( &m_editorAttribute );
@@ -240,4 +240,4 @@ void UiListViewEditor::configureAndUpdateUi()
     m_tableView->resizeColumnsToContents();
 }
 
-} // end namespace caf
+} // end namespace caffa

@@ -49,7 +49,7 @@
 #include <cstddef>
 #include <typeinfo>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -159,4 +159,4 @@ void UiCommandSystemProxy::populateMenuWithDefaultCommands( MenuInterface* menu 
     }
 }
 
-} // end namespace caf
+} // end namespace caffa

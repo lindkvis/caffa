@@ -1,6 +1,6 @@
 #include "cafObjectHandle.h"
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// Implementation of ChildArrayField<>
@@ -231,7 +231,7 @@ std::unique_ptr<ObjectHandle> ChildArrayField<DataType*>::removeChildObject( Obj
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-std::vector<DataType*> caf::ChildArrayField<DataType*>::childObjects() const
+std::vector<DataType*> caffa::ChildArrayField<DataType*>::childObjects() const
 {
     std::vector<DataType*> objects;
 
@@ -269,4 +269,4 @@ ObjectHandle* ChildArrayField<DataType*>::at( size_t index )
     return m_pointers[index].rawPtr();
 }
 
-} // End of namespace caf
+} // End of namespace caffa

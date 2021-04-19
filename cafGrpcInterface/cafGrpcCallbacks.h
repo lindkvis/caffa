@@ -26,7 +26,7 @@
 
 #include <string>
 
-namespace caf::rpc
+namespace caffa::rpc
 {
 /**
  * Non-templated Base class for all caf grpc callbacks
@@ -203,5 +203,5 @@ private:
     std::unique_ptr<StateHandler<RequestT>> m_stateHandler;
 };
 
-} // namespace caf::rpc
+} // namespace caffa::rpc
 #include "cafGrpcCallbacks.inl"

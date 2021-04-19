@@ -8,7 +8,7 @@
 #include <deque>
 #include <list>
 
-namespace caf
+namespace caffa
 {
 class FieldHandle;
 
@@ -40,4 +40,4 @@ private:
     FieldHandle* m_owner;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

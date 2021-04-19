@@ -8,7 +8,7 @@
 
 #include <deque>
 
-namespace caf
+namespace caffa
 {
 template <typename FieldType>
 class FieldUiCap : public FieldUiCapability
@@ -96,6 +96,6 @@ void AddUiCapabilityToField( FieldType* field )
     }
 }
 
-} // End of namespace caf
+} // End of namespace caffa
 
 #include "cafInternalUiFieldCapability.inl"

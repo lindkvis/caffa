@@ -7,7 +7,7 @@
 class QAction;
 class QMenu;
 
-namespace caf
+namespace caffa
 {
 class QActionWrapper : public QObject, public ActionWrapper
 {
@@ -79,4 +79,4 @@ private:
     bool   m_takesOwnerhip;
 };
 
-} // namespace caf
+} // namespace caffa

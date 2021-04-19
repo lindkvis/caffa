@@ -2,12 +2,12 @@
 
 #include "cafColorTable.h"
 
-namespace caf
+namespace caffa
 {
 class ColorTables
 {
 public:
-    static caf::ColorTable kellyColors();
-    static caf::ColorTable salmonContrast();
+    static caffa::ColorTable kellyColors();
+    static caffa::ColorTable salmonContrast();
 };
-} // namespace caf
+} // namespace caffa

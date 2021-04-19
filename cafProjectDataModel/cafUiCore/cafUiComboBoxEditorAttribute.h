@@ -42,7 +42,7 @@
 #include <string>
 #include <utility>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 ///
@@ -75,4 +75,4 @@ public:
 
     std::pair<int, int> iconSize;
 };
-} // namespace caf
+} // namespace caffa

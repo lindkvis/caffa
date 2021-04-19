@@ -4,7 +4,7 @@
 #include "cafColor.h"
 #include "cafColorTools.h"
 
-using namespace caf;
+using namespace caffa;
 
 //--------------------------------------------------------------------------------------------------
 ///

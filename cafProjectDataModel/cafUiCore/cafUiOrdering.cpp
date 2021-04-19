@@ -41,7 +41,7 @@
 #include "cafObjectHandle.h"
 #include "cafObjectUiCapability.h"
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -443,4 +443,4 @@ UiGroup* UiOrdering::PositionFound::group()
     }
 }
 
-} // End of namespace caf
+} // End of namespace caffa

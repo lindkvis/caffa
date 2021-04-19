@@ -2,7 +2,7 @@
 
 #include "cafUiEditorAttribute.h"
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 ///
@@ -45,4 +45,4 @@ public:
     int    m_sliderTickCount;
     bool   m_delaySliderUpdateUntilRelease;
 };
-} // namespace caf
+} // namespace caffa

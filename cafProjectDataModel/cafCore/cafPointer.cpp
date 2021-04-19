@@ -37,7 +37,7 @@
 #include "cafPointer.h"
 #include "cafObjectHandle.h"
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -56,4 +56,4 @@ void PointerImpl::removeReference( ObjectHandle** addressToObjectPointer )
     if ( *addressToObjectPointer ) ( *addressToObjectPointer )->m_pointersReferencingMe.erase( addressToObjectPointer );
 }
 
-} // End of namespace caf
+} // End of namespace caffa

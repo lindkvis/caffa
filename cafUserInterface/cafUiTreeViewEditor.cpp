@@ -59,7 +59,7 @@
 #include <QTreeView>
 #include <QWidget>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -76,7 +76,7 @@ public:
 protected:
     void dragMoveEvent( QDragMoveEvent* event ) override
     {
-        caf::UiTreeViewQModel* treeViewModel = dynamic_cast<caf::UiTreeViewQModel*>( model() );
+        caffa::UiTreeViewQModel* treeViewModel = dynamic_cast<caffa::UiTreeViewQModel*>( model() );
         if ( treeViewModel && treeViewModel->dragDropInterface() )
         {
             treeViewModel->dragDropInterface()->onProposedDropActionUpdated( event->proposedAction() );
@@ -87,7 +87,7 @@ protected:
 
     void dragLeaveEvent( QDragLeaveEvent* event ) override
     {
-        caf::UiTreeViewQModel* treeViewModel = dynamic_cast<caf::UiTreeViewQModel*>( model() );
+        caffa::UiTreeViewQModel* treeViewModel = dynamic_cast<caffa::UiTreeViewQModel*>( model() );
         if ( treeViewModel && treeViewModel->dragDropInterface() )
         {
             treeViewModel->dragDropInterface()->onDragCanceled();
@@ -129,7 +129,7 @@ QWidget* UiTreeViewEditor::createWidget( QWidget* parent )
     m_layout->setContentsMargins( 0, 0, 0, 0 );
     m_mainWidget->setLayout( m_layout );
 
-    m_treeViewModel = new caf::UiTreeViewQModel( this );
+    m_treeViewModel = new caffa::UiTreeViewQModel( this );
     m_treeView      = new UiTreeViewWidget( m_mainWidget );
     m_treeView->setModel( m_treeViewModel );
     m_treeView->installEventFilter( this );
@@ -221,7 +221,7 @@ void UiTreeViewEditor::selectedUiItems( std::vector<UiItem*>& objects )
 
     for ( int i = 0; i < idxList.size(); i++ )
     {
-        caf::UiItem* item = this->m_treeViewModel->uiItemFromModelIndex( idxList[i] );
+        caffa::UiItem* item = this->m_treeViewModel->uiItemFromModelIndex( idxList[i] );
         if ( item )
         {
             objects.push_back( item );
@@ -289,9 +289,9 @@ void UiTreeViewEditor::customMenuRequested( QPoint pos )
 
     // TODO: abstract away the dependency on Qt and reintroduce the methods
     /* UiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( m_mainWidget->parentWidget() );
-    caf::QMenuWrapper menuWrapper;
+    caffa::QMenuWrapper menuWrapper;
 
-    caf::UiCommandSystemProxy::instance()->populateMenuWithDefaultCommands( "UiTreeViewEditor", &menuWrapper );
+    caffa::UiCommandSystemProxy::instance()->populateMenuWithDefaultCommands( "UiTreeViewEditor", &menuWrapper );
 
     if ( menuWrapper.actions().size() > 0 )
     {
@@ -322,7 +322,7 @@ ChildArrayFieldHandle* UiTreeViewEditor::currentChildArrayFieldHandle()
         }
     }
 
-    ObjectHandle* object = dynamic_cast<caf::ObjectHandle*>( currentSelectedItem );
+    ObjectHandle* object = dynamic_cast<caffa::ObjectHandle*>( currentSelectedItem );
     if ( object )
     {
         ChildArrayFieldHandle* parentChildArray = dynamic_cast<ChildArrayFieldHandle*>( object->parentField() );
@@ -581,4 +581,4 @@ void UiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionViewIte
     painter->restore();
 }
 
-} // end namespace caf
+} // end namespace caffa

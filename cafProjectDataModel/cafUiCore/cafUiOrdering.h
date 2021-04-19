@@ -41,7 +41,7 @@
 #include <string>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 class UiGroup;
 class FieldHandle;
@@ -150,6 +150,6 @@ private:
     bool                        m_skipRemainingFields;
 };
 
-} // End of namespace caf
+} // End of namespace caffa
 
 #include "cafUiGroup.h"

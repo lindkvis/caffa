@@ -3,7 +3,7 @@
 #include "cafFieldCapability.h"
 #include "cafObjectHandle.h"
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -57,7 +57,7 @@ bool FieldHandle::matchesKeyword( const std::string& keyword ) const
 /// The class of the ownerObject() can be different to ownerClass().
 /// This is because the ownerClass() may be a super-class to the instantiated owner object.
 //--------------------------------------------------------------------------------------------------
-caf::ObjectHandle* FieldHandle::ownerObject()
+caffa::ObjectHandle* FieldHandle::ownerObject()
 {
     return m_ownerObject;
 }
@@ -126,4 +126,4 @@ std::vector<std::string> FieldHandle::keywordAliases() const
     return m_keywordAliases;
 }
 
-} // End of namespace caf
+} // End of namespace caffa

@@ -8,7 +8,7 @@
 #include <memory>
 #include <string>
 
-namespace caf
+namespace caffa
 {
 // Lifted from Qt to exactly match the Qt-standardkeys
 enum StandardKey
@@ -128,4 +128,4 @@ public:
     virtual std::list<std::shared_ptr<ActionWrapper>> actions() const                                          = 0;
 };
 
-} // namespace caf
+} // namespace caffa

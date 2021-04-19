@@ -13,7 +13,7 @@
 
 #include <memory>
 
-class SimpleObj : public caf::ObjectHandle
+class SimpleObj : public caffa::ObjectHandle
 {
 public:
     SimpleObj()
@@ -26,10 +26,10 @@ public:
         this->addField( &m_proxyDouble, "m_proxyDouble" );
     }
 
-    caf::DataValueField<double> m_position;
-    caf::DataValueField<double> m_dir;
-    caf::DataValueField<double> m_up;
-    caf::DataValueField<double> m_proxyDouble;
+    caffa::DataValueField<double> m_position;
+    caffa::DataValueField<double> m_dir;
+    caffa::DataValueField<double> m_up;
+    caffa::DataValueField<double> m_proxyDouble;
 
     void setDoubleMember( const double& d )
     {
@@ -45,7 +45,7 @@ public:
     double m_doubleMember;
 };
 
-class ReferenceSimpleObj : public caf::ObjectHandle
+class ReferenceSimpleObj : public caffa::ObjectHandle
 {
 public:
     ReferenceSimpleObj()
@@ -56,8 +56,8 @@ public:
     }
 
     // Fields
-    caf::ChildField<ObjectHandle*>   m_pointersField;
-    caf::ChildArrayField<SimpleObj*> m_simpleObjPtrField;
+    caffa::ChildField<ObjectHandle*>   m_pointersField;
+    caffa::ChildArrayField<SimpleObj*> m_simpleObjPtrField;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -66,13 +66,13 @@ public:
 TEST( ReferenceHelperTest, FindRootFromObject )
 {
     {
-        caf::ObjectHandle* obj = nullptr;
-        EXPECT_EQ( nullptr, caf::ReferenceHelper::findRoot( obj ) );
+        caffa::ObjectHandle* obj = nullptr;
+        EXPECT_EQ( nullptr, caffa::ReferenceHelper::findRoot( obj ) );
     }
 
     {
         auto obj = std::make_unique<SimpleObj>();
-        EXPECT_EQ( obj.get(), caf::ReferenceHelper::findRoot( obj.get() ) );
+        EXPECT_EQ( obj.get(), caffa::ReferenceHelper::findRoot( obj.get() ) );
     }
 
     {
@@ -80,7 +80,7 @@ TEST( ReferenceHelperTest, FindRootFromObject )
         auto ihd1    = std::make_unique<ReferenceSimpleObj>();
         auto raw_s1p = ihd1->m_simpleObjPtrField.push_back( std::move( s1 ) );
 
-        EXPECT_EQ( ihd1.get(), caf::ReferenceHelper::findRoot( raw_s1p ) );
+        EXPECT_EQ( ihd1.get(), caffa::ReferenceHelper::findRoot( raw_s1p ) );
     }
 }
 
@@ -90,8 +90,8 @@ TEST( ReferenceHelperTest, FindRootFromObject )
 TEST( ReferenceHelperTest, FindRootFromField )
 {
     {
-        caf::FieldHandle* fieldHandle = nullptr;
-        EXPECT_EQ( nullptr, caf::ReferenceHelper::findRoot( fieldHandle ) );
+        caffa::FieldHandle* fieldHandle = nullptr;
+        EXPECT_EQ( nullptr, caffa::ReferenceHelper::findRoot( fieldHandle ) );
     }
 
     {
@@ -99,7 +99,7 @@ TEST( ReferenceHelperTest, FindRootFromField )
         auto ihd1    = std::make_unique<ReferenceSimpleObj>();
         auto raw_s1p = ihd1->m_simpleObjPtrField.push_back( std::move( s1 ) );
 
-        EXPECT_EQ( ihd1.get(), caf::ReferenceHelper::findRoot( &raw_s1p->m_dir ) );
+        EXPECT_EQ( ihd1.get(), caffa::ReferenceHelper::findRoot( &raw_s1p->m_dir ) );
     }
 }
 
@@ -109,9 +109,9 @@ TEST( ReferenceHelperTest, FindRootFromField )
 TEST( ReferenceHelperTest, ReferenceFrommRootToField )
 {
     {
-        caf::ObjectHandle* obj         = nullptr;
-        caf::FieldHandle*  fieldHandle = nullptr;
-        EXPECT_TRUE( caf::ReferenceHelper::referenceFromRootToField( obj, fieldHandle ).empty() );
+        caffa::ObjectHandle* obj         = nullptr;
+        caffa::FieldHandle*  fieldHandle = nullptr;
+        EXPECT_TRUE( caffa::ReferenceHelper::referenceFromRootToField( obj, fieldHandle ).empty() );
     }
 
     {
@@ -124,10 +124,10 @@ TEST( ReferenceHelperTest, ReferenceFrommRootToField )
         auto raw_s2p = ihd1->m_simpleObjPtrField.push_back( std::move( s2 ) );
         auto raw_s3p = ihd1->m_simpleObjPtrField.push_back( std::move( s3 ) );
 
-        EXPECT_TRUE( caf::ReferenceHelper::referenceFromRootToField( nullptr, &raw_s3p->m_dir ).empty() );
-        EXPECT_TRUE( caf::ReferenceHelper::referenceFromRootToField( ihd1.get(), nullptr ).empty() );
+        EXPECT_TRUE( caffa::ReferenceHelper::referenceFromRootToField( nullptr, &raw_s3p->m_dir ).empty() );
+        EXPECT_TRUE( caffa::ReferenceHelper::referenceFromRootToField( ihd1.get(), nullptr ).empty() );
 
-        std::string refString      = caf::ReferenceHelper::referenceFromRootToField( ihd1.get(), &raw_s3p->m_dir );
+        std::string refString      = caffa::ReferenceHelper::referenceFromRootToField( ihd1.get(), &raw_s3p->m_dir );
         std::string expectedString = "m_dir m_simpleObjPtrField 2";
         EXPECT_STREQ( expectedString.c_str(), refString.c_str() );
     }
@@ -139,9 +139,9 @@ TEST( ReferenceHelperTest, ReferenceFrommRootToField )
 TEST( ReferenceHelperTest, ReferenceFrommRootToObject )
 {
     {
-        caf::ObjectHandle* root = nullptr;
-        caf::ObjectHandle* obj  = nullptr;
-        EXPECT_TRUE( caf::ReferenceHelper::referenceFromRootToObject( root, obj ).empty() );
+        caffa::ObjectHandle* root = nullptr;
+        caffa::ObjectHandle* obj  = nullptr;
+        EXPECT_TRUE( caffa::ReferenceHelper::referenceFromRootToObject( root, obj ).empty() );
     }
 
     {
@@ -154,10 +154,10 @@ TEST( ReferenceHelperTest, ReferenceFrommRootToObject )
         auto raw_s2p = ihd1->m_simpleObjPtrField.push_back( std::move( s2 ) );
         auto raw_s3p = ihd1->m_simpleObjPtrField.push_back( std::move( s3 ) );
 
-        EXPECT_TRUE( caf::ReferenceHelper::referenceFromRootToObject( nullptr, raw_s3p ).empty() );
-        EXPECT_TRUE( caf::ReferenceHelper::referenceFromRootToObject( ihd1.get(), nullptr ).empty() );
+        EXPECT_TRUE( caffa::ReferenceHelper::referenceFromRootToObject( nullptr, raw_s3p ).empty() );
+        EXPECT_TRUE( caffa::ReferenceHelper::referenceFromRootToObject( ihd1.get(), nullptr ).empty() );
 
-        std::string refString      = caf::ReferenceHelper::referenceFromRootToObject( ihd1.get(), raw_s3p );
+        std::string refString      = caffa::ReferenceHelper::referenceFromRootToObject( ihd1.get(), raw_s3p );
         std::string expectedString = "m_simpleObjPtrField 2";
         EXPECT_STREQ( expectedString.c_str(), refString.c_str() );
 
@@ -165,7 +165,7 @@ TEST( ReferenceHelperTest, ReferenceFrommRootToObject )
         auto s4      = std::make_unique<SimpleObj>();
         auto raw_s4p = ihd2->m_simpleObjPtrField.push_back( std::move( s4 ) );
 
-        EXPECT_TRUE( caf::ReferenceHelper::referenceFromRootToObject( ihd1.get(), raw_s4p ).empty() );
+        EXPECT_TRUE( caffa::ReferenceHelper::referenceFromRootToObject( ihd1.get(), raw_s4p ).empty() );
     }
 }
 
@@ -175,9 +175,9 @@ TEST( ReferenceHelperTest, ReferenceFrommRootToObject )
 TEST( ReferenceHelperTest, ObjectFromReference )
 {
     {
-        caf::ObjectHandle* root = nullptr;
-        EXPECT_EQ( nullptr, caf::ReferenceHelper::objectFromReference( root, "" ) );
-        EXPECT_EQ( nullptr, caf::ReferenceHelper::objectFromReference( root, "a 2 b 4" ) );
+        caffa::ObjectHandle* root = nullptr;
+        EXPECT_EQ( nullptr, caffa::ReferenceHelper::objectFromReference( root, "" ) );
+        EXPECT_EQ( nullptr, caffa::ReferenceHelper::objectFromReference( root, "a 2 b 4" ) );
     }
 
     {
@@ -188,18 +188,18 @@ TEST( ReferenceHelperTest, ObjectFromReference )
         auto raw_s1p = ihd1->m_simpleObjPtrField.push_back( std::move( s1 ) );
         auto raw_s2p = ihd1->m_simpleObjPtrField.push_back( std::move( s2 ) );
 
-        EXPECT_EQ( nullptr, caf::ReferenceHelper::objectFromReference( ihd1.get(), "" ) );
-        EXPECT_EQ( nullptr, caf::ReferenceHelper::objectFromReference( ihd1.get(), "a 2 b 4" ) );
+        EXPECT_EQ( nullptr, caffa::ReferenceHelper::objectFromReference( ihd1.get(), "" ) );
+        EXPECT_EQ( nullptr, caffa::ReferenceHelper::objectFromReference( ihd1.get(), "a 2 b 4" ) );
 
-        std::string refString = caf::ReferenceHelper::referenceFromRootToObject( ihd1.get(), raw_s2p );
-        EXPECT_EQ( raw_s2p, caf::ReferenceHelper::objectFromReference( ihd1.get(), refString ) );
+        std::string refString = caffa::ReferenceHelper::referenceFromRootToObject( ihd1.get(), raw_s2p );
+        EXPECT_EQ( raw_s2p, caffa::ReferenceHelper::objectFromReference( ihd1.get(), refString ) );
 
-        std::unique_ptr<caf::ObjectHandle> removedObject = ihd1->m_simpleObjPtrField.remove( raw_s2p );
-        EXPECT_EQ( nullptr, caf::ReferenceHelper::objectFromReference( ihd1.get(), refString ) );
+        std::unique_ptr<caffa::ObjectHandle> removedObject = ihd1->m_simpleObjPtrField.remove( raw_s2p );
+        EXPECT_EQ( nullptr, caffa::ReferenceHelper::objectFromReference( ihd1.get(), refString ) );
 
         ihd1->m_simpleObjPtrField.clear();
 
-        EXPECT_EQ( nullptr, caf::ReferenceHelper::objectFromReference( ihd1.get(), refString ) );
+        EXPECT_EQ( nullptr, caffa::ReferenceHelper::objectFromReference( ihd1.get(), refString ) );
     }
 }
 
@@ -209,9 +209,9 @@ TEST( ReferenceHelperTest, ObjectFromReference )
 TEST( ReferenceHelperTest, FieldFromReference )
 {
     {
-        caf::ObjectHandle* root = nullptr;
-        EXPECT_EQ( nullptr, caf::ReferenceHelper::fieldFromReference( root, "" ) );
-        EXPECT_EQ( nullptr, caf::ReferenceHelper::fieldFromReference( root, "a 2 b 4" ) );
+        caffa::ObjectHandle* root = nullptr;
+        EXPECT_EQ( nullptr, caffa::ReferenceHelper::fieldFromReference( root, "" ) );
+        EXPECT_EQ( nullptr, caffa::ReferenceHelper::fieldFromReference( root, "a 2 b 4" ) );
     }
 
     {
@@ -222,20 +222,20 @@ TEST( ReferenceHelperTest, FieldFromReference )
         auto raw_s1p = ihd1->m_simpleObjPtrField.push_back( std::move( s1 ) );
         auto raw_s2p = ihd1->m_simpleObjPtrField.push_back( std::move( s2 ) );
 
-        EXPECT_EQ( nullptr, caf::ReferenceHelper::fieldFromReference( ihd1.get(), "" ) );
-        EXPECT_EQ( nullptr, caf::ReferenceHelper::fieldFromReference( ihd1.get(), "a 2 b 4" ) );
+        EXPECT_EQ( nullptr, caffa::ReferenceHelper::fieldFromReference( ihd1.get(), "" ) );
+        EXPECT_EQ( nullptr, caffa::ReferenceHelper::fieldFromReference( ihd1.get(), "a 2 b 4" ) );
 
-        caf::FieldHandle* fHandle = &raw_s2p->m_position;
+        caffa::FieldHandle* fHandle = &raw_s2p->m_position;
 
-        std::string refString = caf::ReferenceHelper::referenceFromRootToField( ihd1.get(), fHandle );
-        EXPECT_EQ( fHandle, caf::ReferenceHelper::fieldFromReference( ihd1.get(), refString ) );
+        std::string refString = caffa::ReferenceHelper::referenceFromRootToField( ihd1.get(), fHandle );
+        EXPECT_EQ( fHandle, caffa::ReferenceHelper::fieldFromReference( ihd1.get(), refString ) );
 
-        std::unique_ptr<caf::ObjectHandle> removedObject = ihd1->m_simpleObjPtrField.remove( raw_s2p );
-        EXPECT_EQ( nullptr, caf::ReferenceHelper::fieldFromReference( ihd1.get(), refString ) );
+        std::unique_ptr<caffa::ObjectHandle> removedObject = ihd1->m_simpleObjPtrField.remove( raw_s2p );
+        EXPECT_EQ( nullptr, caffa::ReferenceHelper::fieldFromReference( ihd1.get(), refString ) );
 
         ihd1->m_simpleObjPtrField.clear();
 
-        EXPECT_EQ( nullptr, caf::ReferenceHelper::fieldFromReference( ihd1.get(), refString ) );
+        EXPECT_EQ( nullptr, caffa::ReferenceHelper::fieldFromReference( ihd1.get(), refString ) );
     }
 }
 
@@ -245,20 +245,20 @@ TEST( ReferenceHelperTest, FieldFromReference )
 TEST( ReferenceHelperTest, ReferenceFromFieldToObject )
 {
     {
-        caf::ObjectHandle* root        = nullptr;
-        caf::FieldHandle*  fieldHandle = nullptr;
+        caffa::ObjectHandle* root        = nullptr;
+        caffa::FieldHandle*  fieldHandle = nullptr;
 
-        EXPECT_TRUE( caf::ReferenceHelper::referenceFromFieldToObject( fieldHandle, root ).empty() );
+        EXPECT_TRUE( caffa::ReferenceHelper::referenceFromFieldToObject( fieldHandle, root ).empty() );
     }
 
     {
         auto s1 = std::make_unique<SimpleObj>();
         auto s2 = std::make_unique<SimpleObj>();
 
-        caf::FieldHandle* s2FieldHandle = &s2->m_dir;
+        caffa::FieldHandle* s2FieldHandle = &s2->m_dir;
 
         // Unrelated objects
-        EXPECT_TRUE( caf::ReferenceHelper::referenceFromFieldToObject( s2FieldHandle, s1.get() ).empty() );
+        EXPECT_TRUE( caffa::ReferenceHelper::referenceFromFieldToObject( s2FieldHandle, s1.get() ).empty() );
 
         auto root    = std::make_unique<ReferenceSimpleObj>();
         auto root_s1 = std::make_unique<SimpleObj>();
@@ -271,8 +271,8 @@ TEST( ReferenceHelperTest, ReferenceFromFieldToObject )
 
         root->m_pointersField = std::move( ihd1 );
 
-        std::string        refString = caf::ReferenceHelper::referenceFromFieldToObject( s2FieldHandle, root_s1.get() );
-        caf::ObjectHandle* obj       = caf::ReferenceHelper::objectFromFieldReference( s2FieldHandle, refString );
+        std::string        refString = caffa::ReferenceHelper::referenceFromFieldToObject( s2FieldHandle, root_s1.get() );
+        caffa::ObjectHandle* obj       = caffa::ReferenceHelper::objectFromFieldReference( s2FieldHandle, refString );
         EXPECT_EQ( root_s1.get(), obj );
     }
 }

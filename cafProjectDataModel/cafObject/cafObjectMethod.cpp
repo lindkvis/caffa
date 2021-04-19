@@ -36,7 +36,7 @@
 
 #include "cafObjectMethod.h"
 
-using namespace caf;
+using namespace caffa;
 
 CAF_IO_ABSTRACT_SOURCE_INIT( ObjectMethod, "ObjectMethod", "Object" );
 
@@ -81,7 +81,7 @@ std::shared_ptr<ObjectMethod> ObjectMethodFactory::createMethod( ObjectHandle* s
 //--------------------------------------------------------------------------------------------------
 /// Return the methods registered for the className. Does not investigate the inheritance stack
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> caf::ObjectMethodFactory::registeredMethodNames( const std::string& className ) const
+std::vector<std::string> caffa::ObjectMethodFactory::registeredMethodNames( const std::string& className ) const
 {
     std::vector<std::string> methods;
 

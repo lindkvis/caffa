@@ -18,23 +18,23 @@
 //
 #include "cafGrpcApplication.h"
 
-using namespace caf::rpc;
+using namespace caffa::rpc;
 
 Application::Application( const unsigned int& capabilities )
-    : caf::Application(capabilities)
+    : caffa::Application(capabilities)
     , m_packageByteSize(1024u * 64u)
 {
 }
 
 Application::Application( const AppCapability& capability )
-    : caf::Application(capability)
+    : caffa::Application(capability)
     , m_packageByteSize(1024u * 64u)
 {
 }
 
 Application* Application::instance()
 {
-    caf::Application* appInstance = caf::Application::instance();
+    caffa::Application* appInstance = caffa::Application::instance();
     return dynamic_cast<Application*>( appInstance );        
 }
 

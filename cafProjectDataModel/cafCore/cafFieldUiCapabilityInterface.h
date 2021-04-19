@@ -2,7 +2,7 @@
 
 #include "cafVariant.h"
 
-namespace caf
+namespace caffa
 {
 class FieldUiCapabilityInterface
 {
@@ -14,4 +14,4 @@ public:
     virtual void    notifyFieldChanged( const Variant& oldUiBasedAny, const Variant& newUiBasedAny ){};
 };
 
-} // End of namespace caf
+} // End of namespace caffa

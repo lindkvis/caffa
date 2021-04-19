@@ -5,7 +5,7 @@
 
 #include <limits>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -38,4 +38,4 @@ bool ChildArrayFieldHandle::hasSameFieldCountForAllObjects()
     return true;
 }
 
-} // End of namespace caf
+} // End of namespace caffa

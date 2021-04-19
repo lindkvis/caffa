@@ -35,7 +35,7 @@
 //##################################################################################################
 #include "cafIconProvider.h"
 
-using namespace caf;
+using namespace caffa;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -141,7 +141,7 @@ const std::string& IconProvider::iconResourceString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::string& caf::IconProvider::overlayResourceString() const
+const std::string& caffa::IconProvider::overlayResourceString() const
 {
     return m_overlayResourceString;
 }

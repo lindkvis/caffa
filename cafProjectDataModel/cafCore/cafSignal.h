@@ -43,7 +43,7 @@
 #include <string>
 #include <type_traits>
 
-namespace caf
+namespace caffa
 {
 class SignalEmitter;
 class SignalObserver;
@@ -183,4 +183,4 @@ private:
     std::map<SignalObserver*, MemberCallbackAndActiveFlag> m_observerCallbacks;
     const SignalEmitter*                                   m_emitter;
 };
-} // namespace caf
+} // namespace caffa

@@ -35,7 +35,7 @@
 //##################################################################################################
 #include "cafOptionItemInfo.h"
 
-using namespace caf;
+using namespace caffa;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -56,7 +56,7 @@ OptionItemInfo::OptionItemInfo( const std::string&            anOptionUiText,
 ///
 //--------------------------------------------------------------------------------------------------
 OptionItemInfo::OptionItemInfo( const std::string&            anOptionUiText,
-                                caf::ObjectHandle*            obj,
+                                caffa::ObjectHandle*            obj,
                                 bool                          isReadOnly /*= false*/,
                                 std::shared_ptr<IconProvider> anIcon )
     : m_optionUiText( anOptionUiText )
@@ -64,7 +64,7 @@ OptionItemInfo::OptionItemInfo( const std::string&            anOptionUiText,
     , m_iconProvider( anIcon )
     , m_level( 0 )
 {
-    m_value = Variant( caf::Pointer<caf::ObjectHandle>( obj ) );
+    m_value = Variant( caffa::Pointer<caffa::ObjectHandle>( obj ) );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -43,7 +43,7 @@
 #include <QHBoxLayout>
 #include <QTreeView>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -76,7 +76,7 @@ UiTreeView::~UiTreeView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiTreeView::setItem( caf::UiItem* object )
+void UiTreeView::setItem( caffa::UiItem* object )
 {
     m_treeViewEditor->setItemRoot( object );
     m_treeViewEditor->updateUi();
@@ -202,4 +202,4 @@ void UiTreeView::enableAppendOfClassNameToUiItemText( bool enable )
     m_treeViewEditor->enableAppendOfClassNameToUiItemText( enable );
 }
 
-} // End of namespace caf
+} // End of namespace caffa

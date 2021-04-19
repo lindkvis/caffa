@@ -27,7 +27,7 @@
 #include "cafFieldHandle.h"
 #include "cafObjectCapability.h"
 
-using namespace caf;
+using namespace caffa;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -65,7 +65,7 @@ std::vector<std::string> ObjectHandle::classInheritanceStackStatic()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::FieldHandle*> ObjectHandle::fields() const
+std::vector<caffa::FieldHandle*> ObjectHandle::fields() const
 {
     return m_fields;
 }
@@ -146,7 +146,7 @@ void ObjectHandle::referringPtrFields( std::vector<FieldHandle*>& fieldsReferrin
 //--------------------------------------------------------------------------------------------------
 void ObjectHandle::objectsWithReferringPtrFields( std::vector<ObjectHandle*>& objects ) const
 {
-    std::vector<caf::FieldHandle*> parentFields;
+    std::vector<caffa::FieldHandle*> parentFields;
     this->referringPtrFields( parentFields );
     size_t i;
     for ( i = 0; i < parentFields.size(); i++ )

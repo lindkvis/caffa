@@ -49,7 +49,7 @@
 #include <QDragMoveEvent>
 #include <QTreeView>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -212,7 +212,7 @@ void UiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSubTre
                                                UiTreeOrdering*    sourceSubTreeRoot )
 {
     // Build map for source items
-    std::map<caf::UiItem*, int> sourceTreeMap;
+    std::map<caffa::UiItem*, int> sourceTreeMap;
     for ( int i = 0; i < sourceSubTreeRoot->childCount(); ++i )
     {
         UiTreeOrdering* child = sourceSubTreeRoot->child( i );
@@ -229,7 +229,7 @@ void UiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSubTre
     {
         UiTreeOrdering* child = existingSubTreeRoot->child( i );
 
-        std::map<caf::UiItem*, int>::iterator it = sourceTreeMap.find( child->activeItem() );
+        std::map<caffa::UiItem*, int>::iterator it = sourceTreeMap.find( child->activeItem() );
         if ( it == sourceTreeMap.end() )
         {
             indicesToRemoveFromExisting.push_back( i );
@@ -247,7 +247,7 @@ void UiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSubTre
     }
 
     // Build map for existing items without the deleted items
-    std::map<caf::UiItem*, int> existingTreeMap;
+    std::map<caffa::UiItem*, int> existingTreeMap;
     for ( int i = 0; i < existingSubTreeRoot->childCount(); ++i )
     {
         UiTreeOrdering* child = existingSubTreeRoot->child( i );
@@ -303,7 +303,7 @@ void UiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSubTre
             for ( int i = 0; i < sourceSubTreeRoot->childCount(); ++i )
             {
                 UiTreeOrdering*                       sourceChild = sourceSubTreeRoot->child( i );
-                std::map<caf::UiItem*, int>::iterator it          = existingTreeMap.find( sourceChild->activeItem() );
+                std::map<caffa::UiItem*, int>::iterator it          = existingTreeMap.find( sourceChild->activeItem() );
                 if ( it != existingTreeMap.end() )
                 {
                     newMergedOrdering.push_back( existingSubTreeRoot->child( it->second ) );
@@ -420,7 +420,7 @@ std::list<QModelIndex> UiTreeViewQModel::allIndicesRecursive( const QModelIndex&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-UiTreeOrdering* caf::UiTreeViewQModel::treeItemFromIndex( const QModelIndex& index ) const
+UiTreeOrdering* caffa::UiTreeViewQModel::treeItemFromIndex( const QModelIndex& index ) const
 {
     if ( !index.isValid() )
     {
@@ -437,7 +437,7 @@ UiTreeOrdering* caf::UiTreeViewQModel::treeItemFromIndex( const QModelIndex& ind
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QModelIndex caf::UiTreeViewQModel::findModelIndex( const UiItem* object ) const
+QModelIndex caffa::UiTreeViewQModel::findModelIndex( const UiItem* object ) const
 {
     QModelIndex foundIndex;
     int         numRows = rowCount( QModelIndex() );
@@ -453,7 +453,7 @@ QModelIndex caf::UiTreeViewQModel::findModelIndex( const UiItem* object ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QModelIndex caf::UiTreeViewQModel::findModelIndexRecursive( const QModelIndex& currentIndex, const UiItem* item ) const
+QModelIndex caffa::UiTreeViewQModel::findModelIndexRecursive( const QModelIndex& currentIndex, const UiItem* item ) const
 {
     if ( !currentIndex.isValid() )
     {
@@ -591,7 +591,7 @@ QVariant UiTreeViewQModel::data( const QModelIndex& index, int role ) const
                 auto        userDescriptionField = object->userDescriptionField();
                 if ( userDescriptionField )
                 {
-                    caf::FieldUiCapability* uiFieldHandle = userDescriptionField->capability<FieldUiCapability>();
+                    caffa::FieldUiCapability* uiFieldHandle = userDescriptionField->capability<FieldUiCapability>();
                     if ( uiFieldHandle )
                     {
                         Variant uiValue = uiFieldHandle->uiValue();
@@ -667,7 +667,7 @@ QVariant UiTreeViewQModel::data( const QModelIndex& index, int role ) const
             auto object = uitreeOrdering->object();
             if ( object && object->objectToggleField() )
             {
-                caf::FieldUiCapability* uiFieldHandle = object->objectToggleField()->capability<FieldUiCapability>();
+                caffa::FieldUiCapability* uiFieldHandle = object->objectToggleField()->capability<FieldUiCapability>();
                 if ( uiFieldHandle )
                 {
                     bool isToggledOn = uiFieldHandle->uiValue().value<bool>();
@@ -893,4 +893,4 @@ Qt::DropActions UiTreeViewQModel::supportedDropActions() const
     }
 }
 
-} // end namespace caf
+} // end namespace caffa

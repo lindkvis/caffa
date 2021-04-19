@@ -79,7 +79,7 @@ QSize QVerticalScrollArea::minimumSizeHint() const
     return scrollSize;
 }
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -199,4 +199,4 @@ QSize UiPropertyView::minimumSizeHint() const
     return m_scrollArea->minimumSizeHint();
 }
 
-} // End of namespace caf
+} // End of namespace caffa

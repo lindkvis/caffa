@@ -2,7 +2,7 @@
 
 #include "cafFieldHandle.h"
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 ///
@@ -23,4 +23,4 @@ public:
     virtual ObjectHandle* at( size_t index ) = 0;
 };
 
-} // namespace caf
+} // namespace caffa

@@ -39,7 +39,7 @@
 #include "cafUiEditorHandle.h"
 #include "cafUiObjectEditorHandle.h"
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -439,4 +439,4 @@ void UiItem::addFieldEditor( UiEditorHandle* fieldView )
     m_editors.insert( fieldView );
 }
 
-} // End of namespace caf
+} // End of namespace caffa

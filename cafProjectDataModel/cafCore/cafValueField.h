@@ -41,7 +41,7 @@
 #include <any>
 #include <typeinfo>
 
-namespace caf
+namespace caffa
 {
 // Type traits magic to check if a template argument is a vector
 template <typename T>
@@ -72,4 +72,4 @@ public:
     virtual void     setValue( const DataType& fieldValue ) = 0;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

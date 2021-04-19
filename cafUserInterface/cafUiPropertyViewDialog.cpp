@@ -41,7 +41,7 @@
 
 #include <QVBoxLayout>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -121,4 +121,4 @@ void UiPropertyViewDialog::setupUi()
     dialogLayout->addWidget( m_buttonBox );
 }
 
-} // End of namespace caf
+} // End of namespace caffa
