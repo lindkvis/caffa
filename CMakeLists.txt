@@ -73,5 +73,5 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set_property(TARGET caffaCore caffaIoCore caffaUiCore caffaObject PROPERTY FOLDER "Core")
 if (CAFFA_BUILD_UNIT_TESTS)
-    set_property(TARGET  caffaCore_UnitTests caffaIoCore_UnitTests PROPERTY FOLDER "Core")
+    set_property(TARGET caffaCore_UnitTests caffaIoCore_UnitTests PROPERTY FOLDER "Core")
 endif()
