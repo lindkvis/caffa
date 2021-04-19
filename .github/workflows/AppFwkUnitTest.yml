@@ -30,8 +30,8 @@ jobs:
       - name: Run Unit Tests Linux
         shell: bash
         run: |
-          cmakebuild/bin/cafCore_UnitTests
-          cmakebuild/bin/cafIoCore_UnitTests
-          cmakebuild/bin/cafProjectDataModel_UnitTests
-          cmakebuild/bin/cafGrpcInterface_UnitTests
+          cmakebuild/bin/caffaCore_UnitTests
+          cmakebuild/bin/caffaIoCore_UnitTests
+          cmakebuild/bin/caffaProjectDataModel_UnitTests
+          cmakebuild/bin/caffaGrpcInterface_UnitTests
 

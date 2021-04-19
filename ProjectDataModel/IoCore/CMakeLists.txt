@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.12)
 
-project (cafIoCore)
+project (caffaIoCore)
 
 # Unity Build
 if (CAF_ENABLE_UNITY_BUILD)
@@ -60,7 +60,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS
 
 target_link_libraries ( ${PROJECT_NAME}
     PUBLIC
-      cafCore
+      caffaCore
     PRIVATE
       nlohmann_json::nlohmann_json
 )

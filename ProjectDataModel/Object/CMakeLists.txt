@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.12)
 
-project (cafProjectDataModel)
+project (caffaObject)
 
 # Unity Build
 if (CAF_ENABLE_UNITY_BUILD)
@@ -8,15 +8,23 @@ if (CAF_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
-set(PUBLIC_HEADERS
-	cafDocument.h
-    cafApplication.h
+set (PUBLIC_HEADERS
+    cafObject.h
+    cafObjectGroup.h
+    cafFieldScriptingCapability.h
+    cafObjectMethod.h
+)
+
+include_directories (
+    ..
 )
 
 set( PROJECT_FILES
-	${PUBLIC_HEADERS}
-	cafDocument.cpp
-    cafApplication.cpp
+    ${PUBLIC_HEADERS}    
+    cafObject.cpp
+    cafObjectGroup.cpp
+    cafFieldScriptingCapability.cpp
+    cafObjectMethod.cpp
 )
 
 if (CAFFA_BUILD_SHARED)
@@ -30,19 +38,16 @@ else()
     )
 endif()
 
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${CMAKE_PROJECT_VERSION})
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
-if (MSVC)
-    set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-endif()
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 
 target_link_libraries ( ${PROJECT_NAME}
-    PUBLIC
-	cafCore
-    cafIoCore
-    cafUiCore
-    cafObject
-    PRIVATE
+    caffaCore
+    caffaIoCore
+    caffaUiCore
     nlohmann_json::nlohmann_json
+    Microsoft.GSL::GSL
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -50,12 +55,10 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-if (MSVC) 
+if (MSVC)
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
     set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif()
-
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 
 install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

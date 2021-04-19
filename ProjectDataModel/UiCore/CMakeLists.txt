@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.12)
 
-project (cafUiCore)
+project (caffaUiCore)
 
 # Unity Build
 if (CAF_ENABLE_UNITY_BUILD)
@@ -100,7 +100,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSI
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 
 target_link_libraries ( ${PROJECT_NAME}
-    cafCore
+    caffaCore
 )
 
 target_include_directories(${PROJECT_NAME}

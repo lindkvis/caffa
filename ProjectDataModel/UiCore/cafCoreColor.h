@@ -34,10 +34,40 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
-#include "cafCoreColor.h"
+#include "cafColor.h"
 #include "cafCoreColorIo.h"
-#include "cafCoreColorUi.h"
+#include "cafValueFieldSpecializations.h"
 
+namespace caffa
+{
+//==================================================================================================
+/// Partial specialization for ValueFieldSpecialization< Color >
+//==================================================================================================
+
+template <>
+class ValueFieldSpecialization<Color>
+{
+public:
+    static Variant convert( const Color& value )
+    {
+        auto [red, green, blue, alpha]    = value.rgba();
+        std::vector<unsigned char> colorV = { red, green, blue, alpha };
+        return Variant( colorV );
+    }
+
+    static void setFromVariant( const Variant& variantValue, Color& value )
+    {
+        std::vector<unsigned char> colorV = variantValue.value<std::vector<unsigned char>>();
+        CAF_ASSERT( colorV.size() == 4u );
+        value = Color( colorV[0], colorV[1], colorV[2], colorV[3] );
+    }
+
+    static bool isEqual( const Variant& variantValue, const Variant& variantValue2 )
+    {
+        return variantValue == variantValue2;
+    }
+};
+
+} // end namespace caffa

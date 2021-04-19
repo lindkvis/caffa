@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.12)
 
-project (cafUserInterface)
+project (caffaUserInterface)
 
 # Unity Build
 if (CAF_ENABLE_UNITY_BUILD)
@@ -165,8 +165,8 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries ( ${PROJECT_NAME}
     ${QT_LIBRARIES}
     nlohmann_json::nlohmann_json
-    cafProjectDataModel
-    cafUiCore
+    caffaProjectDataModel
+    caffaUiCore
 )
 
 install(TARGETS ${PROJECT_NAME}

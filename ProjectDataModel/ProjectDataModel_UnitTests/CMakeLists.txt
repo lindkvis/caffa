@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.12)
 
-project ( cafProjectDataModel_UnitTests )
+project ( caffaProjectDataModel_UnitTests )
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -19,7 +19,7 @@ add_executable (${PROJECT_NAME}
 
 target_link_libraries ( ${PROJECT_NAME}
     PRIVATE
-	cafProjectDataModel         
+	caffaProjectDataModel         
     gtest
     ${THREAD_LIBRARY}
     nlohmann_json::nlohmann_json
