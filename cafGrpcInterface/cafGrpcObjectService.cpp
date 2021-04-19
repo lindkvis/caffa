@@ -52,7 +52,7 @@
 #include <iostream>
 #include <vector>
 
-namespace caf::rpc
+namespace caffa::rpc
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -114,7 +114,7 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::Object* ObjectService::findCafObjectFromRpcObject( const Object& rpcObject )
+caffa::Object* ObjectService::findCafObjectFromRpcObject( const Object& rpcObject )
 {
     return findCafObjectFromScriptNameAndAddress( rpcObject.class_keyword(), rpcObject.address() );
 }
@@ -122,20 +122,20 @@ caf::Object* ObjectService::findCafObjectFromRpcObject( const Object& rpcObject 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::Object* ObjectService::findCafObjectFromScriptNameAndAddress( const std::string& scriptClassName, uint64_t address )
+caffa::Object* ObjectService::findCafObjectFromScriptNameAndAddress( const std::string& scriptClassName, uint64_t address )
 {
-    std::list<caf::ObjectHandle*> objectsOfCurrentClass;
+    std::list<caffa::ObjectHandle*> objectsOfCurrentClass;
 
-    if ( caf::Application::instance()->hasCapability( AppCapability::GRPC_CLIENT ) )
+    if ( caffa::Application::instance()->hasCapability( AppCapability::GRPC_CLIENT ) )
     {
         objectsOfCurrentClass = GrpcClientObjectFactory::instance()->objectsWithClassKeyword( scriptClassName );
     }
 
     for ( auto doc : ServerApplication::instance()->documents() )
     {
-        std::list<caf::ObjectHandle*> objects =
-            doc->matchingDescendants( [scriptClassName]( const caf::ObjectHandle* objectHandle ) -> bool {
-                auto ioCapability = objectHandle->capability<caf::ObjectIoCapability>();
+        std::list<caffa::ObjectHandle*> objects =
+            doc->matchingDescendants( [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool {
+                auto ioCapability = objectHandle->capability<caffa::ObjectIoCapability>();
                 return ioCapability ? ioCapability->classKeyword() == scriptClassName : false;
             } );
 
@@ -149,10 +149,10 @@ caf::Object* ObjectService::findCafObjectFromScriptNameAndAddress( const std::st
         }
     }
 
-    caf::Object* matchingObject = nullptr;
+    caffa::Object* matchingObject = nullptr;
     for ( ObjectHandle* testObjectHandle : objectsOfCurrentClass )
     {
-        caf::Object* testObject = dynamic_cast<caf::Object*>( testObjectHandle );
+        caffa::Object* testObject = dynamic_cast<caffa::Object*>( testObjectHandle );
         if ( testObject && reinterpret_cast<uint64_t>( testObject ) == address )
         {
             matchingObject = testObject;
@@ -164,18 +164,18 @@ caf::Object* ObjectService::findCafObjectFromScriptNameAndAddress( const std::st
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectService::copyObjectFromCafToRpc( const caf::ObjectHandle* source,
+void ObjectService::copyObjectFromCafToRpc( const caffa::ObjectHandle* source,
                                             Object*                  destination,
                                             bool                     copyContent /* = true */,
                                             bool                     writeValues /* = true */ )
 {
     CAF_ASSERT( source && destination );
 
-    auto ioCapability = source->capability<caf::ObjectIoCapability>();
+    auto ioCapability = source->capability<caffa::ObjectIoCapability>();
     CAF_ASSERT( ioCapability );
 
     destination->set_class_keyword( ioCapability->classKeyword() );
-    auto clientCapability = source->capability<caf::rpc::ObjectClientCapability>();
+    auto clientCapability = source->capability<caffa::rpc::ObjectClientCapability>();
     if ( clientCapability )
     {
         destination->set_address( clientCapability->addressOnServer() );
@@ -188,7 +188,7 @@ void ObjectService::copyObjectFromCafToRpc( const caf::ObjectHandle* source,
     if ( copyContent )
     {
         std::stringstream ss;
-        caf::ObjectJsonCapability::writeFile( source, ss, true, writeValues );
+        caffa::ObjectJsonCapability::writeFile( source, ss, true, writeValues );
         destination->set_json( ss.str() );
     }
 }
@@ -196,15 +196,15 @@ void ObjectService::copyObjectFromCafToRpc( const caf::ObjectHandle* source,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectService::copyObjectFromRpcToCaf( const Object* source, caf::ObjectHandle* destination )
+void ObjectService::copyObjectFromRpcToCaf( const Object* source, caffa::ObjectHandle* destination )
 {
     CAF_ASSERT( source );
 
-    auto              ioCapability = destination->capability<caf::ObjectIoCapability>();
+    auto              ioCapability = destination->capability<caffa::ObjectIoCapability>();
     std::stringstream str( source->json() );
     ioCapability->readFile( str );
 
-    auto clientCapability = destination->capability<caf::rpc::ObjectClientCapability>();
+    auto clientCapability = destination->capability<caffa::rpc::ObjectClientCapability>();
     if ( clientCapability )
     {
         clientCapability->setAddressOnServer( source->address() );
@@ -214,12 +214,12 @@ void ObjectService::copyObjectFromRpcToCaf( const Object* source, caf::ObjectHan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::ObjectHandle> ObjectService::createCafObjectFromRpc( const Object*       source,
-                                                                          caf::ObjectFactory* objectFactory )
+std::unique_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( const Object*       source,
+                                                                          caffa::ObjectFactory* objectFactory )
 {
     CAF_ASSERT( source );
-    std::unique_ptr<caf::ObjectHandle> destination(
-        caf::ObjectJsonCapability::readUnknownObjectFromString( source->json(), objectFactory, false ) );
+    std::unique_ptr<caffa::ObjectHandle> destination(
+        caffa::ObjectJsonCapability::readUnknownObjectFromString( source->json(), objectFactory, false ) );
 
     return destination;
 }
@@ -237,4 +237,4 @@ std::vector<AbstractCallback*> ObjectService::registerCallbacks()
     };
 }
 
-} // namespace caf::rpc
+} // namespace caffa::rpc

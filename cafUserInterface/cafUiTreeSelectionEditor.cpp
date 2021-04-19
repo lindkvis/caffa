@@ -209,7 +209,7 @@ private:
     QString m_placeholderText;
 };
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -244,7 +244,7 @@ void UiTreeSelectionEditor::configureAndUpdateUi()
 
     if ( !m_model )
     {
-        m_model = new caf::UiTreeSelectionQModel( this );
+        m_model = new caffa::UiTreeSelectionQModel( this );
 
         m_proxyModel = new FilterLeafNodesOnlyProxyModel( this );
         m_proxyModel->setSourceModel( m_model );
@@ -278,7 +278,7 @@ void UiTreeSelectionEditor::configureAndUpdateUi()
     }
     else
     {
-        caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+        caffa::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
         if ( uiObject )
         {
             uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
@@ -758,4 +758,4 @@ void UiTreeSelectionEditor::recursiveAppendVisibleSourceModelIndices( const QMod
     }
 }
 
-} // end namespace caf
+} // end namespace caffa

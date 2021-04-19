@@ -57,7 +57,7 @@
 #include <QString>
 #include <QTimeZone>
 
-namespace caf
+namespace caffa
 {
 CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiDateEditor );
 
@@ -72,7 +72,7 @@ void UiDateEditor::configureAndUpdateUi()
 
     m_dateEdit->setEnabled( !uiField()->isUiReadOnly() );
 
-    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caffa::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
@@ -121,4 +121,4 @@ void UiDateEditor::slotEditingFinished()
     this->setValueToField( v );
 }
 
-} // end namespace caf
+} // end namespace caffa

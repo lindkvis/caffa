@@ -43,7 +43,7 @@
 
 class QTableView;
 
-namespace caf
+namespace caffa
 {
 class MenuInterface;
 class ObjectHandle;
@@ -76,4 +76,4 @@ private:
     QString            m_;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

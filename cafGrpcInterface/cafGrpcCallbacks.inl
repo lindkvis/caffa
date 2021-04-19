@@ -24,7 +24,7 @@
 
 #include <sstream>
 
-namespace caf::rpc
+namespace caffa::rpc
 {
 inline AbstractCallback::AbstractCallback()
     : m_state( CREATE )
@@ -376,4 +376,4 @@ std::string ClientToServerStreamCallback<ServiceT, RequestT, ReplyT>::methodType
     return "ClientStreamingMethod";
 }
 
-} // namespace caf::rpc
+} // namespace caffa::rpc

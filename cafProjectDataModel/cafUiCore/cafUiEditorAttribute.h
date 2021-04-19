@@ -41,7 +41,7 @@
 /// Abstract base class to handle special editor dependent attributes
 //==================================================================================================
 
-namespace caf
+namespace caffa
 {
 class UiEditorAttribute
 {
@@ -49,4 +49,4 @@ public:
     UiEditorAttribute() {}
     virtual ~UiEditorAttribute() {}
 };
-} // namespace caf
+} // namespace caffa

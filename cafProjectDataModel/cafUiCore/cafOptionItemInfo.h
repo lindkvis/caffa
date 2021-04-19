@@ -42,7 +42,7 @@
 #include <memory>
 #include <string>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// Class to keep Ui information about an option /choice in a Combobox or similar.
@@ -68,7 +68,7 @@ public:
                     bool                          isReadOnly = false,
                     std::shared_ptr<IconProvider> anIcon     = nullptr );
     OptionItemInfo( const std::string&            anOptionUiText,
-                    caf::ObjectHandle*            obj,
+                    caffa::ObjectHandle*            obj,
                     bool                          isReadOnly = false,
                     std::shared_ptr<IconProvider> anIcon     = nullptr );
 
@@ -98,4 +98,4 @@ private:
     int                           m_level;
 };
 
-} // namespace caf
+} // namespace caffa

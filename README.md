@@ -8,7 +8,7 @@ It allows you to write applications both for desktop and console deployment with
 As an example, you would write Data Model Objects with Fields holding data instead of simple variables. This gives you runtime introspection of the fields without using a pre-compiler and all objects can easily be written out to JSON. Caffa is set up for allowing scripting access by utilising the introspection capabilites to optionally expose fields and objects to scripting languages with little additional work from the application developer.
 
 ```C++
-class ChildObject : public caf::Object
+class ChildObject : public caffa::Object
 {
     CAF_HEADER_INIT;
 public:
@@ -18,7 +18,7 @@ public:
 
 };
 
-class TinyDemoObject : public caf::Object
+class TinyDemoObject : public caffa::Object
 {
     CAF_HEADER_INIT;
 
@@ -26,10 +26,10 @@ public:
     TinyDemoObject();
 
 private:
-    caf::Field<bool>                     m_toggleField;
-    caf::Field<double>                   m_doubleField;
-    caf::Field<int>                      m_scriptableIntField;
-    caf::ChildArrayField<SomeOtherClass> m_children; // ChildArrayFields hold caf::Objects
+    caffa::Field<bool>                     m_toggleField;
+    caffa::Field<double>                   m_doubleField;
+    caffa::Field<int>                      m_scriptableIntField;
+    caffa::ChildArrayField<SomeOtherClass> m_children; // ChildArrayFields hold caffa::Objects
 };
 ```
 

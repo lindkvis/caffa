@@ -47,7 +47,7 @@
 #include <QMenu>
 #include <QVariant>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -253,4 +253,4 @@ void UiFieldEditorHandle::customMenuRequested( QPoint pos )
     }
 }
 
-} // End of namespace caf
+} // End of namespace caffa

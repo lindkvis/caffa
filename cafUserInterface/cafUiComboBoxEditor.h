@@ -46,7 +46,7 @@
 #include <QToolButton>
 #include <QWidget>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 ///
@@ -84,4 +84,4 @@ private:
     UiComboBoxEditorAttribute m_attributes;
 };
 
-} // end namespace caf
+} // end namespace caffa

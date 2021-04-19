@@ -22,13 +22,13 @@
 
 #include <cstdint>
 
-namespace caf
+namespace caffa
 {
 namespace rpc
 {
     class ObjectService;
 
-    class ObjectClientCapability : public caf::ObjectCapability
+    class ObjectClientCapability : public caffa::ObjectCapability
     {
     public:
         ObjectClientCapability( uint64_t addressOnServer = 0u )
@@ -47,4 +47,4 @@ namespace rpc
     };
 
 } // namespace rpc
-} // namespace caf
+} // namespace caffa

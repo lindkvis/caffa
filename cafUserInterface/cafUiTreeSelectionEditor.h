@@ -48,7 +48,7 @@ class QSortFilterProxyModel;
 class QModelIndex;
 class QItemSelection;
 
-namespace caf
+namespace caffa
 {
 class UiTreeSelectionQModel;
 
@@ -67,7 +67,7 @@ public:
     /// This is useful when displaying a list of appEnums, and a dependent view is displaying content based on
     /// the current item in the tree view
     /// Make sure the type of the receiving field is of the same type as the field used in UiTreeSelectionEditor
-    caf::FieldHandle* currentIndexFieldHandle;
+    caffa::FieldHandle* currentIndexFieldHandle;
 
 public:
     UiTreeSelectionEditorAttribute()
@@ -139,4 +139,4 @@ private:
     UiTreeSelectionEditorAttribute m_attributes;
 };
 
-} // end namespace caf
+} // end namespace caffa

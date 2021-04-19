@@ -38,7 +38,7 @@
 
 #include "cafObjectUiCapability.h"
 
-namespace caf
+namespace caffa
 {
 std::set<UiObjectEditorHandle*> UiObjectEditorHandle::m_sRegisteredObjectEditors;
 
@@ -65,7 +65,7 @@ void UiObjectEditorHandle::setObject( ObjectHandle* object )
 {
     cleanupBeforeSettingObject();
 
-    caf::ObjectUiCapability* uiObject = uiObj( object );
+    caffa::ObjectUiCapability* uiObject = uiObj( object );
     this->bindToItem( uiObject );
 }
 
@@ -88,7 +88,7 @@ ObjectHandle* UiObjectEditorHandle::object()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const caf::ObjectHandle* UiObjectEditorHandle::object() const
+const caffa::ObjectHandle* UiObjectEditorHandle::object() const
 {
     const UiItem* item = this->item();
 
@@ -118,4 +118,4 @@ void UiObjectEditorHandle::updateUiAllObjectEditors()
     }
 }
 
-} // End of namespace caf
+} // End of namespace caffa

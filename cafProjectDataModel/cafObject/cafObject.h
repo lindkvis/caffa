@@ -54,7 +54,7 @@
 
 #include <set>
 
-namespace caf
+namespace caffa
 {
 template <class FieldDataType>
 class Field;
@@ -92,8 +92,8 @@ public:
                              const std::string& toolTip          = "",
                              const std::string& whatsThis        = "" )
     {
-        caf::UiItemInfo         fieldDescription( uiName, iconResourceName, toolTip, whatsThis, m_keyword );
-        caf::FieldUiCapability* uiFieldHandle = m_field.template capability<caf::FieldUiCapability>();
+        caffa::UiItemInfo         fieldDescription( uiName, iconResourceName, toolTip, whatsThis, m_keyword );
+        caffa::FieldUiCapability* uiFieldHandle = m_field.template capability<caffa::FieldUiCapability>();
         if ( uiFieldHandle )
         {
             uiFieldHandle->setUiItemInfo( fieldDescription );
@@ -190,4 +190,4 @@ public:
     }
 };
 
-} // End of namespace caf
+} // End of namespace caffa

@@ -40,7 +40,7 @@
 
 class QVBoxLayout;
 
-namespace caf
+namespace caffa
 {
 class ObjectCollection;
 class UiListViewEditor;
@@ -55,11 +55,11 @@ public:
     UiListView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
     ~UiListView() override;
 
-    void setObject( caf::ObjectCollection* object );
+    void setObject( caffa::ObjectCollection* object );
 
 private:
     UiListViewEditor* m_listViewEditor;
     QVBoxLayout*      m_layout;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

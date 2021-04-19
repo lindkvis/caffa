@@ -7,7 +7,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::Tristate::Tristate()
+caffa::Tristate::Tristate()
     : m_state( State::False )
 {
 }
@@ -15,7 +15,7 @@ caf::Tristate::Tristate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::Tristate::operator=( const State& state )
+void caffa::Tristate::operator=( const State& state )
 {
     m_state = state;
 }
@@ -23,7 +23,7 @@ void caf::Tristate::operator=( const State& state )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::Tristate::operator==( const Tristate& other ) const
+bool caffa::Tristate::operator==( const Tristate& other ) const
 {
     return m_state == other.m_state;
 }
@@ -31,7 +31,7 @@ bool caf::Tristate::operator==( const Tristate& other ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::Tristate::operator==( State state ) const
+bool caffa::Tristate::operator==( State state ) const
 {
     return m_state == state;
 }
@@ -39,7 +39,7 @@ bool caf::Tristate::operator==( State state ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::Tristate::operator!=( const Tristate& other ) const
+bool caffa::Tristate::operator!=( const Tristate& other ) const
 {
     return !( m_state == other.m_state );
 }
@@ -47,7 +47,7 @@ bool caf::Tristate::operator!=( const Tristate& other ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::Tristate::operator<( const Tristate& other ) const
+bool caffa::Tristate::operator<( const Tristate& other ) const
 {
     return m_state < other.m_state;
 }
@@ -55,7 +55,7 @@ bool caf::Tristate::operator<( const Tristate& other ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::Tristate::State caf::Tristate::state() const
+caffa::Tristate::State caffa::Tristate::state() const
 {
     return m_state;
 }
@@ -63,7 +63,7 @@ caf::Tristate::State caf::Tristate::state() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::Tristate::isTrue() const
+bool caffa::Tristate::isTrue() const
 {
     return m_state == State::True;
 }
@@ -71,7 +71,7 @@ bool caf::Tristate::isTrue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::Tristate::isPartiallyTrue() const
+bool caffa::Tristate::isPartiallyTrue() const
 {
     return m_state == State::PartiallyTrue;
 }
@@ -79,7 +79,7 @@ bool caf::Tristate::isPartiallyTrue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::Tristate::isFalse() const
+bool caffa::Tristate::isFalse() const
 {
     return m_state == State::False;
 }
@@ -87,7 +87,7 @@ bool caf::Tristate::isFalse() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string caf::Tristate::text() const
+std::string caffa::Tristate::text() const
 {
     std::string txt;
 
@@ -112,9 +112,9 @@ std::string caf::Tristate::text() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::Tristate::setFromText( const std::string& valueText )
+void caffa::Tristate::setFromText( const std::string& valueText )
 {
-    std::string lowerCase = caf::StringTools::tolower( valueText );
+    std::string lowerCase = caffa::StringTools::tolower( valueText );
 
     if ( lowerCase == "false" )
     {
@@ -133,7 +133,7 @@ void caf::Tristate::setFromText( const std::string& valueText )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::istream& operator>>( std::istream& str, caf::Tristate& triplet )
+std::istream& operator>>( std::istream& str, caffa::Tristate& triplet )
 {
     std::string text;
     str >> text;
@@ -145,7 +145,7 @@ std::istream& operator>>( std::istream& str, caf::Tristate& triplet )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::ostream& operator<<( std::ostream& str, const caf::Tristate& triplet )
+std::ostream& operator<<( std::ostream& str, const caffa::Tristate& triplet )
 {
     str << triplet.text();
 

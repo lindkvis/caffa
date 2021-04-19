@@ -47,7 +47,7 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 
-namespace caf
+namespace caffa
 {
 CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiTextEditor );
 
@@ -109,7 +109,7 @@ void UiTextEditor::configureAndUpdateUi()
 
     UiTextEditorAttribute leab;
 
-    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caffa::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), &leab );
@@ -236,4 +236,4 @@ QTextOption::WrapMode UiTextEditor::toQTextOptionWrapMode( UiTextEditorAttribute
     }
 }
 
-} // end namespace caf
+} // end namespace caffa

@@ -47,7 +47,7 @@ class QItemSelection;
 class QLabel;
 class QTableView;
 
-namespace caf
+namespace caffa
 {
 class UiCheckBoxDelegate;
 class UiFieldEditorHandle;
@@ -164,7 +164,7 @@ private:
     bool m_isBlockingSelectionManagerChanged;
     bool m_isUpdatingSelectionQModel;
 
-    caf::ChildArrayFieldHandle* m_previousFieldHandle;
+    caffa::ChildArrayFieldHandle* m_previousFieldHandle;
 };
 
-} // end namespace caf
+} // end namespace caffa

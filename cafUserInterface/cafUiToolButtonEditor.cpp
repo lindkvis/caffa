@@ -41,7 +41,7 @@
 #include "cafObjectHandle.h"
 #include "cafObjectUiCapability.h"
 
-namespace caf
+namespace caffa
 {
 CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiToolButtonEditor );
 
@@ -109,4 +109,4 @@ void UiToolButtonEditor::slotClicked( bool checked )
     this->setValueToField( v );
 }
 
-} // end namespace caf
+} // end namespace caffa

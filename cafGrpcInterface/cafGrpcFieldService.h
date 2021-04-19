@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 class ChildFieldHandle;
 class FieldHandle;
@@ -37,9 +37,9 @@ class ObjectFactory;
 class ObjectHandle;
 class ProxyFieldHandle;
 class ValueField;
-} // namespace caf
+} // namespace caffa
 
-namespace caf::rpc
+namespace caffa::rpc
 {
 class GetterReply;
 class FieldRequest;
@@ -54,7 +54,7 @@ struct AbstractDataHolder
     virtual void   addPackageValuesToReply( GetterReply* reply, size_t startIndex, size_t numberOfDataUnits ) const = 0;
 
     virtual size_t getValuesFromChunk( size_t startIndex, const SetterChunk* chunk ) = 0;
-    virtual void   applyValuesToField( caf::ValueField* field )                      = 0;
+    virtual void   applyValuesToField( caffa::ValueField* field )                      = 0;
 };
 
 /**
@@ -76,8 +76,8 @@ public:
     StateHandler<FieldRequest>* emptyClone() const override;
 
 protected:
-    caf::Object*                        m_fieldOwner;
-    caf::ValueField*                    m_field;
+    caffa::Object*                        m_fieldOwner;
+    caffa::ValueField*                    m_field;
     std::unique_ptr<AbstractDataHolder> m_dataHolder;
     size_t                              m_currentDataIndex;
 };
@@ -101,8 +101,8 @@ public:
     StateHandler<SetterChunk>* emptyClone() const override;
 
 protected:
-    caf::Object*                        m_fieldOwner;
-    caf::ValueField*                    m_field;
+    caffa::Object*                        m_fieldOwner;
+    caffa::ValueField*                    m_field;
     std::unique_ptr<AbstractDataHolder> m_dataHolder;
     size_t                              m_currentDataIndex;
 };
@@ -128,4 +128,4 @@ public:
     std::vector<AbstractCallback*> registerCallbacks() override;
 };
 
-} // namespace caf::rpc
+} // namespace caffa::rpc

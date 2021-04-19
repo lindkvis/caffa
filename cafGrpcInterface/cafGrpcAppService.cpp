@@ -41,7 +41,7 @@
 
 #include "AppInfo.pb.h"
 
-using namespace caf::rpc;
+using namespace caffa::rpc;
 
 grpc::Status AppService::PerformQuit( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply )
 {

@@ -12,7 +12,7 @@
 
 #include <string>
 
-class MsjSimpleObj : public caf::ObjectHandle
+class MsjSimpleObj : public caffa::ObjectHandle
 {
 public:
     MsjSimpleObj()
@@ -27,8 +27,8 @@ public:
         name = std::string( "Name" ) + std::to_string( id );
     }
 
-    caf::DataValueField<std::string> name;
-    caf::DataValueField<int>         id;
+    caffa::DataValueField<std::string> name;
+    caffa::DataValueField<int>         id;
 };
 
 class SimpleObjDerived : public MsjSimpleObj
@@ -40,7 +40,7 @@ public:
         this->addField( &valueA, "valueA" );
     }
 
-    caf::DataValueField<int> valueA;
+    caffa::DataValueField<int> valueA;
 };
 
 class SimpleObjDerivedOther : public MsjSimpleObj
@@ -52,10 +52,10 @@ public:
         this->addField( &valueDouble, "valueDouble" );
     }
 
-    caf::DataValueField<double> valueDouble;
+    caffa::DataValueField<double> valueDouble;
 };
 
-class ContainerObj : public caf::ObjectHandle
+class ContainerObj : public caffa::ObjectHandle
 {
 public:
     ContainerObj()
@@ -67,8 +67,8 @@ public:
 
     ~ContainerObj() {}
 
-    caf::ChildArrayField<SimpleObjDerived*>      derivedObjs;
-    caf::ChildArrayField<SimpleObjDerivedOther*> derivedOtherObjs;
+    caffa::ChildArrayField<SimpleObjDerived*>      derivedObjs;
+    caffa::ChildArrayField<SimpleObjDerivedOther*> derivedOtherObjs;
 };
 
 template <class U, typename T>

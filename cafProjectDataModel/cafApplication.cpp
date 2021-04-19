@@ -1,7 +1,7 @@
 #include "cafApplication.h"
 #include "cafAssert.h"
 
-using namespace caf;
+using namespace caffa;
 
 Application* Application::s_instance = nullptr;
 
@@ -34,7 +34,7 @@ Application::Application( const unsigned int& capabilities )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::Application::Application( const AppCapability& capability )
+caffa::Application::Application( const AppCapability& capability )
     : m_capabilities( static_cast<unsigned int>( capability ) )
 {
     registerInstance( const_cast<Application*>( this ) );

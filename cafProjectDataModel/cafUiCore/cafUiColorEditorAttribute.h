@@ -2,7 +2,7 @@
 
 #include "cafUiEditorAttribute.h"
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 ///
@@ -20,4 +20,4 @@ public:
         showLabel = true;
     }
 };
-} // namespace caf
+} // namespace caffa

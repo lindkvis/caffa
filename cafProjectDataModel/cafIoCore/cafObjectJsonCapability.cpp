@@ -9,7 +9,7 @@
 
 #include <nlohmann/json.hpp>
 
-using namespace caf;
+using namespace caffa;
 
 //--------------------------------------------------------------------------------------------------
 ///

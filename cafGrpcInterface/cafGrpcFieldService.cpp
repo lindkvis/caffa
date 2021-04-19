@@ -50,7 +50,7 @@
 #include <variant>
 #include <vector>
 
-namespace caf::rpc
+namespace caffa::rpc
 {
 template <typename DataType>
 struct DataHolder : public AbstractDataHolder
@@ -286,7 +286,7 @@ void DataHolder<std::string>::applyValuesToField( ValueField* field )
 {
     auto ioCapability = field->capability<FieldIoCapability>();
     CAF_ASSERT( ioCapability );
-    ioCapability->readFieldData( data, caf::DefaultObjectFactory::instance() );
+    ioCapability->readFieldData( data, caffa::DefaultObjectFactory::instance() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -343,7 +343,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
             {
                 m_field = dataField;
                 nlohmann::json jsonValue;
-                auto           ioCapability = field->capability<caf::FieldIoCapability>();
+                auto           ioCapability = field->capability<caffa::FieldIoCapability>();
                 ioCapability->writeFieldData( jsonValue, true, true );
                 m_dataHolder.reset( new DataHolder<std::string>( jsonValue.dump() ) );
                 return grpc::Status::OK;
@@ -581,4 +581,4 @@ std::vector<AbstractCallback*> FieldService::registerCallbacks()
     };
 }
 
-} // namespace caf::rpc
+} // namespace caffa::rpc

@@ -40,7 +40,7 @@
 
 #include <string>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// The Document class is the main class to do file based IO,
@@ -61,4 +61,4 @@ public:
     static void updateUiIconStateRecursively( ObjectHandle* root );
 };
 
-} // End of namespace caf
+} // End of namespace caffa

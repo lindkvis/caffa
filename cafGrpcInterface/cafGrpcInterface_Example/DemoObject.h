@@ -30,7 +30,7 @@
 #include <iostream>
 #include <string>
 
-class DemoObject : public caf::Object
+class DemoObject : public caffa::Object
 {
     CAF_HEADER_INIT;
 
@@ -39,13 +39,13 @@ public:
 
     ~DemoObject() override {}
 
-    caf::Field<double>      m_memberDoubleField;
-    caf::Field<int>         m_memberIntField;
-    caf::Field<std::string> m_memberStringField;
+    caffa::Field<double>      m_memberDoubleField;
+    caffa::Field<int>         m_memberIntField;
+    caffa::Field<std::string> m_memberStringField;
 
-    caf::Field<std::vector<double>> m_doubleVector;
-    caf::Field<std::vector<float>>  m_floatVector;
-    caf::Field<std::vector<int>>    m_intVector;
+    caffa::Field<std::vector<double>> m_doubleVector;
+    caffa::Field<std::vector<float>>  m_floatVector;
+    caffa::Field<std::vector<int>>    m_intVector;
 
     double doubleValue() const { return m_memberDoubleField; }
     void   setDoubleValue( double value ) { m_memberDoubleField = value; }
@@ -67,12 +67,12 @@ class InheritedDemoObj : public DemoObject
 public:
     InheritedDemoObj();
 
-    caf::Field<std::string>           m_texts;
-    caf::ChildArrayField<DemoObject*> m_childArrayField;
-    caf::PtrField<InheritedDemoObj*>  m_ptrField;
+    caffa::Field<std::string>           m_texts;
+    caffa::ChildArrayField<DemoObject*> m_childArrayField;
+    caffa::PtrField<InheritedDemoObj*>  m_ptrField;
 };
 
-class DemoDocument : public caf::Document
+class DemoDocument : public caffa::Document
 {
     CAF_HEADER_INIT;
 
@@ -89,6 +89,6 @@ public:
     DemoObject* demoObject() { return m_demoObject; }
 
 private:
-    caf::ChildField<DemoObject*>            m_demoObject;
-    caf::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
+    caffa::ChildField<DemoObject*>            m_demoObject;
+    caffa::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
 };

@@ -2,7 +2,7 @@
 
 #include "cafObjectHandle.h"
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// Implementation of PtrArrayField<>
@@ -287,4 +287,4 @@ void PtrArrayField<DataType*>::addThisAsReferencingPtrField()
     }
 }
 
-} // End of namespace caf
+} // End of namespace caffa

@@ -39,7 +39,7 @@
 #include <QApplication>
 #include <QMouseEvent>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -134,4 +134,4 @@ QSize UiCheckBoxDelegate::sizeHint( const QStyleOptionViewItem& option, const QM
     return QSize( option.decorationSize.width(), option.decorationSize.height() );
 }
 
-} // end namespace caf
+} // end namespace caffa

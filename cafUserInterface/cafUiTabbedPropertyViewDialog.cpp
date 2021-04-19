@@ -11,12 +11,12 @@
 #include <QTabWidget>
 #include <QWidget>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-UiTabbedPropertyViewDialog::UiTabbedPropertyViewDialog( caf::Object*       object,
+UiTabbedPropertyViewDialog::UiTabbedPropertyViewDialog( caffa::Object*       object,
                                                         const QStringList& tabLabels,
                                                         const QString&     windowTitle,
                                                         QWidget*           parent )
@@ -34,7 +34,7 @@ UiTabbedPropertyViewDialog::UiTabbedPropertyViewDialog( caf::Object*       objec
         QWidget* containerWidget = new QWidget;
         containerWidget->setLayout( widgetLayout );
 
-        caf::UiPropertyView* uiPropertyView = new caf::UiPropertyView();
+        caffa::UiPropertyView* uiPropertyView = new caffa::UiPropertyView();
 
         widgetLayout->addWidget( uiPropertyView );
 
@@ -111,4 +111,4 @@ QDialogButtonBox* UiTabbedPropertyViewDialog::dialogButtonBox()
     return m_dialogButtonBox;
 }
 
-} // namespace caf
+} // namespace caffa

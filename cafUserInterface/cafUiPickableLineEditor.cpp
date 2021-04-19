@@ -41,14 +41,14 @@
 #include "cafUiDefaultObjectEditor.h"
 #include "cafUiFieldEditorHandle.h"
 
-using namespace caf;
+using namespace caffa;
 
 CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiPickableLineEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::UiPickableLineEditor::~UiPickableLineEditor()
+caffa::UiPickableLineEditor::~UiPickableLineEditor()
 {
     if ( m_attribute.pickEventHandler )
     {
@@ -59,11 +59,11 @@ caf::UiPickableLineEditor::~UiPickableLineEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::UiPickableLineEditor::configureAndUpdateUi()
+void caffa::UiPickableLineEditor::configureAndUpdateUi()
 {
     UiLineEditor::configureAndUpdateUi();
 
-    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caffa::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), &m_attribute );

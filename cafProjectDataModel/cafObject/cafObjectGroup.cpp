@@ -3,7 +3,7 @@
 #include "cafObjectGroup.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 
-namespace caf
+namespace caffa
 {
 CAF_SOURCE_INIT( ObjectGroup, "ObjectGroup", "Object" );
 
@@ -59,4 +59,4 @@ ObjectCollection::~ObjectCollection()
 {
 }
 
-} // End of namespace caf
+} // End of namespace caffa

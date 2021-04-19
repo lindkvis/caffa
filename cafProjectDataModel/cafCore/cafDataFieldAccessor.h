@@ -21,7 +21,7 @@
 #include <memory>
 #include <optional>
 
-namespace caf
+namespace caffa
 {
 class DataFieldAccessorInterface
 {
@@ -77,4 +77,4 @@ private:
     std::optional<DataType> m_defaultValue;
 };
 
-} // namespace caf
+} // namespace caffa

@@ -26,11 +26,11 @@
 #include <cstdlib>
 #include <iostream>
 
-class ClientApp : public caf::rpc::ClientApplication
+class ClientApp : public caffa::rpc::ClientApplication
 {
 public:
     ClientApp( const std::string& hostname, int port )
-        : caf::rpc::ClientApplication( hostname, port )
+        : caffa::rpc::ClientApplication( hostname, port )
     {
     }
     ~ClientApp() = default;

@@ -38,7 +38,7 @@
 #include <QDateTime>
 #include <QtCore/QProcess>
 
-namespace caf
+namespace caffa
 {
 const int PROCESS_STATE_NORMAL  = 0; // Normal messages
 const int PROCESS_STATE_RUNNING = 1; // Messages sent as long as the process is running
@@ -73,4 +73,4 @@ signals:
     void signalFormattedStatusMsg( const QString& msg );
 };
 
-} // end namespace caf
+} // end namespace caffa

@@ -41,7 +41,7 @@
 #include <string>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// An enum class to make it easier to handle IO and UI based on the enum.
@@ -52,12 +52,12 @@ namespace caf
 ///       A = 2,
 ///       B = 7
 ///    };
-///   caf::AppEnum<SomeEnumType> m_enumValue;
+///   caffa::AppEnum<SomeEnumType> m_enumValue;
 ///
 /// In C++ file :
-///    namespace caf {
+///    namespace caffa {
 ///    template<>
-///    void caf::AppEnum<SomeClass::SomeEnumType>::setUp()
+///    void caffa::AppEnum<SomeClass::SomeEnumType>::setUp()
 ///    {
 ///        addItem(SomeClass::A,           "A",         "An A letter");
 ///        addItem(SomeClass::B,           "B",         "A B letter");
@@ -80,18 +80,18 @@ namespace caf
 ///    cout << m_enumValue.text();
 ///    m_enumValue.setFromText("A");
 ///
-///    for (size_t i = 0; i < caf::AppEnum<SomeClass::SomeEnumType>::size(); ++i)
-///        cout << caf::AppEnum<SomeClass::SomeEnumType>::text(caf::AppEnum<SomeClass::SomeEnumType>::fromIndex(i)) <<
+///    for (size_t i = 0; i < caffa::AppEnum<SomeClass::SomeEnumType>::size(); ++i)
+///        cout << caffa::AppEnum<SomeClass::SomeEnumType>::text(caffa::AppEnum<SomeClass::SomeEnumType>::fromIndex(i)) <<
 ///        endl;
 ///
 ///
 ///
 ///   Create a list of OptionItemInfos from AppEnum
-///     QList<caf::OptionItemInfo> options;
-///     for (size_t i = 0; i < caf::AppEnum<TestEnumType>::size(); ++i)
+///     QList<caffa::OptionItemInfo> options;
+///     for (size_t i = 0; i < caffa::AppEnum<TestEnumType>::size(); ++i)
 ///     {
-///         options.push_back(caf::OptionItemInfo(caf::AppEnum<TestEnumType>::uiTextFromIndex(i),
-///         caf::AppEnum<TestEnumType>::fromIndex(i)));
+///         options.push_back(caffa::OptionItemInfo(caffa::AppEnum<TestEnumType>::uiTextFromIndex(i),
+///         caffa::AppEnum<TestEnumType>::fromIndex(i)));
 ///     }
 //==================================================================================================
 
@@ -319,20 +319,20 @@ private:
     };
 };
 
-} // namespace caf
+} // namespace caffa
 
 //==================================================================================================
 /// Cant remember why we need those comparison operators...
 //==================================================================================================
 
 template <class T>
-bool operator==( T value, const caf::AppEnum<T>& appEnum )
+bool operator==( T value, const caffa::AppEnum<T>& appEnum )
 {
     return ( appEnum == value );
 }
 
 template <class T>
-bool operator!=( T value, const caf::AppEnum<T>& appEnum )
+bool operator!=( T value, const caffa::AppEnum<T>& appEnum )
 {
     return ( appEnum != value );
 }
@@ -343,7 +343,7 @@ bool operator!=( T value, const caf::AppEnum<T>& appEnum )
 //==================================================================================================
 
 template <typename T>
-std::istream& operator>>( std::istream& str, caf::AppEnum<T>& appEnum )
+std::istream& operator>>( std::istream& str, caffa::AppEnum<T>& appEnum )
 {
     std::string text;
     str >> text;
@@ -353,7 +353,7 @@ std::istream& operator>>( std::istream& str, caf::AppEnum<T>& appEnum )
 }
 
 template <typename T>
-std::ostream& operator<<( std::ostream& str, const caf::AppEnum<T>& appEnum )
+std::ostream& operator<<( std::ostream& str, const caffa::AppEnum<T>& appEnum )
 {
     std::string text = appEnum.text();
     str << text;

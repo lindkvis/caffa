@@ -37,7 +37,7 @@
 #include "cafUiProcess.h"
 #include <QTimer>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -185,4 +185,4 @@ void UiProcess::slotUpdateStatusMessage()
     }
 }
 
-} // namespace caf
+} // namespace caffa

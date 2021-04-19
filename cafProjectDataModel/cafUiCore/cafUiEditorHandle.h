@@ -39,7 +39,7 @@
 #include "cafSignal.h"
 #include "cafUiItem.h"
 
-namespace caf
+namespace caffa
 {
 class UiItem;
 
@@ -49,7 +49,7 @@ class UiItem;
 
 class UiEditorHandle : public SignalEmitter
 {
-    caf::Signal<> uiUpdated;
+    caffa::Signal<> uiUpdated;
 
 public:
     UiEditorHandle();
@@ -85,4 +85,4 @@ private:
     bool m_isConfiguringUi;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

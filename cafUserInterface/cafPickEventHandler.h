@@ -38,7 +38,7 @@
 
 #include "cafObjectHandle.h"
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// Interface for Pick Events
@@ -61,4 +61,4 @@ public:
     virtual bool handlePickEvent( const PickEvent& eventObject ) = 0;
     virtual void notifyUnregistered()                            = 0;
 };
-} // namespace caf
+} // namespace caffa

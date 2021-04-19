@@ -24,7 +24,7 @@ class QTreeView;
 class QString;
 class QAbstractItemModel;
 
-namespace caf
+namespace caffa
 {
 class QTreeViewStateSerializer
 {
@@ -36,4 +36,4 @@ public:
     static void        encodeStringFromModelIndex( const QModelIndex mi, QString& currentIndexString );
 };
 
-} // End namespace caf
+} // End namespace caffa

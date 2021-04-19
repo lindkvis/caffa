@@ -8,7 +8,7 @@
 
 #include <memory>
 
-namespace caf
+namespace caffa
 {
 template <typename T>
 class FieldIoCap;
@@ -103,6 +103,6 @@ private:
     std::vector<Pointer<DataType>> m_pointers;
 };
 
-} // End of namespace caf
+} // End of namespace caffa
 
 #include "cafChildArrayField.inl"

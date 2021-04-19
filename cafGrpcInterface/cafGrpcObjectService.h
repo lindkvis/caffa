@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 class ChildFieldHandle;
 class FieldHandle;
@@ -37,9 +37,9 @@ class ObjectFactory;
 class ObjectHandle;
 class ProxyFieldHandle;
 class ValueField;
-} // namespace caf
+} // namespace caffa
 
-namespace caf::rpc
+namespace caffa::rpc
 {
 class MethodRequest;
 
@@ -55,18 +55,18 @@ public:
 
     grpc::Status ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, Object* reply ) override;
 
-    static caf::Object* findCafObjectFromRpcObject( const Object& rpcObject );
-    static caf::Object* findCafObjectFromScriptNameAndAddress( const std::string& scriptClassName, uint64_t address );
+    static caffa::Object* findCafObjectFromRpcObject( const Object& rpcObject );
+    static caffa::Object* findCafObjectFromScriptNameAndAddress( const std::string& scriptClassName, uint64_t address );
 
-    static void copyObjectFromCafToRpc( const caf::ObjectHandle* source,
+    static void copyObjectFromCafToRpc( const caffa::ObjectHandle* source,
                                         Object*                  destination,
                                         bool                     copyContent = true,
                                         bool                     writeValues = true );
-    static void copyObjectFromRpcToCaf( const Object* source, caf::ObjectHandle* destination );
-    static std::unique_ptr<caf::ObjectHandle> createCafObjectFromRpc( const Object*       source,
-                                                                      caf::ObjectFactory* objectFactory );
+    static void copyObjectFromRpcToCaf( const Object* source, caffa::ObjectHandle* destination );
+    static std::unique_ptr<caffa::ObjectHandle> createCafObjectFromRpc( const Object*       source,
+                                                                      caffa::ObjectFactory* objectFactory );
 
     std::vector<AbstractCallback*> registerCallbacks() override;
 };
 
-} // namespace caf::rpc
+} // namespace caffa::rpc

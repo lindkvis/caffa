@@ -39,7 +39,7 @@
 
 #include <fstream>
 
-namespace caf
+namespace caffa
 {
 CAF_SOURCE_INIT( Document, "Document", "Object" );
 
@@ -87,4 +87,4 @@ void Document::updateUiIconStateRecursively( ObjectHandle* object )
     }
 }
 
-} // End of namespace caf
+} // End of namespace caffa

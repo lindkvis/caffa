@@ -42,7 +42,7 @@
 #include <regex>
 #include <string>
 
-namespace caf::StringTools
+namespace caffa::StringTools
 {
 template <class InputIt>
 std::string join( InputIt first, InputIt last, const std::string& delimiter )
@@ -93,4 +93,4 @@ Container split( const std::string& string, const std::regex& regex, bool skipEm
 std::string trim( std::string s );
 std::string tolower( std::string data );
 
-} // namespace caf::StringTools
+} // namespace caffa::StringTools

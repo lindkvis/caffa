@@ -35,13 +35,13 @@
 //##################################################################################################
 #pragma once
 
-namespace caf
+namespace caffa
 {
 template <typename T>
 class AppEnum;
 }
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// Tools for managing fonts in the application
@@ -63,7 +63,7 @@ public:
         FONT_SIZE_32  = 32,
         MAX_FONT_SIZE
     };
-    typedef caf::AppEnum<FontSize> FontSizeEnum;
+    typedef caffa::AppEnum<FontSize> FontSizeEnum;
 
     enum class DeltaSize
     {
@@ -75,7 +75,7 @@ public:
         XLarge  = +4,
         XXLarge = +8
     };
-    typedef caf::AppEnum<DeltaSize> DeltaSizeEnum;
+    typedef caffa::AppEnum<DeltaSize> DeltaSizeEnum;
 
     static int absolutePointSize( FontSize normalPointSize, DeltaSize relativeSize = DeltaSize::Medium );
     static int pointSizeToPixelSize( FontSize pointSize, int dpi );
@@ -94,4 +94,4 @@ public:
     virtual bool                hasDefaultFontSize() const = 0;
 };
 
-} // namespace caf
+} // namespace caffa

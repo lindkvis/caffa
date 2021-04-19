@@ -42,7 +42,7 @@
 
 #include <filesystem>
 
-class DemoObjectGroup : public caf::Document
+class DemoObjectGroup : public caffa::Document
 {
     CAF_HEADER_INIT;
 
@@ -52,25 +52,25 @@ public:
         assignUiInfo("Project", "", "Test Project", "");
         initField(objects, "Objects").withUi();
         initField(m_textField, "Description").withUi("Project");
-        objects.capability<caf::FieldUiCapability>()->setUiHidden(true);
+        objects.capability<caffa::FieldUiCapability>()->setUiHidden(true);
     }
 
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    caf::FieldHandle* userDescriptionField() override
+    caffa::FieldHandle* userDescriptionField() override
     {
         return &m_textField;
     }
 
 public:
-    caf::ChildArrayField<ObjectHandle*> objects;
-    caf::Field<std::string>             m_textField;
+    caffa::ChildArrayField<ObjectHandle*> objects;
+    caffa::Field<std::string>             m_textField;
 };
 
 CAF_SOURCE_INIT(DemoObjectGroup, "DemoObjectGroup", "Document", "Object");
 
-class TinyDemoObject : public caf::Object
+class TinyDemoObject : public caffa::Object
 {
     CAF_HEADER_INIT;
 
@@ -78,8 +78,8 @@ public:
     TinyDemoObject();
 
 private:
-    caf::Field<bool>   m_toggleField;
-    caf::Field<double> m_doubleField;
+    caffa::Field<bool>   m_toggleField;
+    caffa::Field<double> m_doubleField;
 };
 
 CAF_SOURCE_INIT(TinyDemoObject, "TinyDemoObject", "Object");
@@ -93,7 +93,7 @@ TinyDemoObject::TinyDemoObject()
         .withUi("Number", "", "Enter a floating point number here", "Double precision floating point number");
 }
 
-class SmallDemoObject : public caf::Object
+class SmallDemoObject : public caffa::Object
 {
     CAF_HEADER_INIT;
 
@@ -109,7 +109,7 @@ public:
             .withUi("Add Items To Multi Select", "", "Toggle Field tooltip", " Toggle Field whatsthis");
         initField(m_doubleField, "BigNumber", 0.0)
             .withUi("Big Number", "", "Enter a big number here", "This is a place you can enter a big real value if you want");
-        m_doubleField.capability<caf::FieldUiCapability>()->setCustomContextMenuEnabled(true);
+        m_doubleField.capability<caffa::FieldUiCapability>()->setCustomContextMenuEnabled(true);
 
         initField(m_intField, "IntNumber", 0)
             .withUi("Small Number",
@@ -119,7 +119,7 @@ public:
         initField(m_textField, "TextField")
             .withUi("Text", "", "Text tooltip", "This is a place you can enter a small integer value if you want");
 
-        auto proxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
+        auto proxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
         proxyAccessor->registerSetMethod(this, &SmallDemoObject::setDoubleMember);
         proxyAccessor->registerGetMethod(this, &SmallDemoObject::doubleMember);
         initField(m_proxyDoubleField, "ProxyDouble").withUi("Proxy Double").withAccessor(std::move(proxyAccessor));
@@ -131,32 +131,32 @@ public:
         }
 
         initField(m_multiSelectList, "SelectedItems").withUi("Multi Select Field", "", "", "");
-        m_multiSelectList.capability<caf::FieldIoCapability>()->setIOReadable(false);
-        m_multiSelectList.capability<caf::FieldIoCapability>()->setIOWritable(false);
-        m_multiSelectList.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
-            caf::UiTreeSelectionEditor::uiEditorTypeName());
+        m_multiSelectList.capability<caffa::FieldIoCapability>()->setIOReadable(false);
+        m_multiSelectList.capability<caffa::FieldIoCapability>()->setIOWritable(false);
+        m_multiSelectList.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(
+            caffa::UiTreeSelectionEditor::uiEditorTypeName());
 
         m_multiSelectList = {"First", "Second", "Third"};
     }
 
-    caf::Field<double>      m_doubleField;
-    caf::Field<int>         m_intField;
-    caf::Field<std::string> m_textField;
+    caffa::Field<double>      m_doubleField;
+    caffa::Field<int>         m_intField;
+    caffa::Field<std::string> m_textField;
 
-    caf::Field<double> m_proxyDoubleField;
+    caffa::Field<double> m_proxyDoubleField;
 
-    caf::Field<std::vector<std::string>> m_multiSelectList;
+    caffa::Field<std::vector<std::string>> m_multiSelectList;
 
-    caf::Field<bool>  m_toggleField;
-    caf::FieldHandle* objectToggleField() override
+    caffa::Field<bool>  m_toggleField;
+    caffa::FieldHandle* objectToggleField() override
     {
         return &m_toggleField;
     }
 
-    void onFieldChangedByCapability(const caf::FieldHandle*     changedField,
-                                    const caf::FieldCapability* changedCapability,
-                                    const caf::Variant&         oldValue,
-                                    const caf::Variant&         newValue) override
+    void onFieldChangedByCapability(const caffa::FieldHandle*     changedField,
+                                    const caffa::FieldCapability* changedCapability,
+                                    const caffa::Variant&         oldValue,
+                                    const caffa::Variant&         newValue) override
     {
         if (changedField == &m_toggleField)
         {
@@ -178,33 +178,33 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    std::deque<caf::OptionItemInfo> calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
-                                                          bool*                   useOptionsOnly) override
+    std::deque<caffa::OptionItemInfo> calculateValueOptions(const caffa::FieldHandle* fieldNeedingOptions,
+                                                            bool*                     useOptionsOnly) override
     {
-        std::deque<caf::OptionItemInfo> options;
+        std::deque<caffa::OptionItemInfo> options;
 
         if (fieldNeedingOptions == &m_multiSelectList)
         {
             std::string text;
 
             text = "First";
-            options.push_back(caf::OptionItemInfo(text, text));
+            options.push_back(caffa::OptionItemInfo(text, text));
 
             text = "Second";
-            options.push_back(
-                caf::OptionItemInfo::createHeader(text, false, std::make_shared<caf::IconProvider>(":/images/win/textbold.png")));
+            options.push_back(caffa::OptionItemInfo::createHeader(
+                text, false, std::make_shared<caffa::IconProvider>(":/images/win/textbold.png")));
 
             {
-                text                         = "Second_a";
-                caf::OptionItemInfo itemInfo = caf::OptionItemInfo(text, text, true);
+                text                           = "Second_a";
+                caffa::OptionItemInfo itemInfo = caffa::OptionItemInfo(text, text, true);
                 itemInfo.setLevel(1);
                 options.push_back(itemInfo);
             }
 
             {
                 text = "Second_b";
-                caf::OptionItemInfo itemInfo =
-                    caf::OptionItemInfo(text, text, false, std::make_shared<caf::IconProvider>(":/images/win/filenew.png"));
+                caffa::OptionItemInfo itemInfo =
+                    caffa::OptionItemInfo(text, text, false, std::make_shared<caffa::IconProvider>(":/images/win/filenew.png"));
                 itemInfo.setLevel(1);
                 options.push_back(itemInfo);
             }
@@ -212,8 +212,8 @@ public:
             int additionalSubItems = 2;
             for (auto i = 0; i < additionalSubItems; i++)
             {
-                text                         = "Second_b_" + std::to_string(i);
-                caf::OptionItemInfo itemInfo = caf::OptionItemInfo(text, text);
+                text                           = "Second_b_" + std::to_string(i);
+                caffa::OptionItemInfo itemInfo = caffa::OptionItemInfo(text, text);
                 itemInfo.setLevel(1);
                 options.push_back(itemInfo);
             }
@@ -225,17 +225,17 @@ public:
             }
             for (auto i = 0; i < s_additionalSubItems; i++)
             {
-                text                         = "Second_b_" + std::to_string(i);
-                caf::OptionItemInfo itemInfo = caf::OptionItemInfo(text, text);
+                text                           = "Second_b_" + std::to_string(i);
+                caffa::OptionItemInfo itemInfo = caffa::OptionItemInfo(text, text);
                 itemInfo.setLevel(1);
                 options.push_back(itemInfo);
             }
 
             text = "Third";
-            options.push_back(caf::OptionItemInfo(text, text));
+            options.push_back(caffa::OptionItemInfo(text, text));
 
             text = "Fourth";
-            options.push_back(caf::OptionItemInfo(text, text));
+            options.push_back(caffa::OptionItemInfo(text, text));
         }
 
         return options;
@@ -244,12 +244,12 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    /*    void defineCustomContextMenu(const caf::FieldHandle* fieldNeedingMenu,
-                                     caf::MenuInterface*     menu,
+    /*    void defineCustomContextMenu(const caffa::FieldHandle* fieldNeedingMenu,
+                                     caffa::MenuInterface*     menu,
                                      QWidget*                fieldEditorWidget) override
         {
-            menu->addAction(caf::CmdFeatureManager::instance()->action("test", "nothing"));
-            menu->addAction(caf::CmdFeatureManager::instance()->action("other test <<>>", "still nothing"));
+            menu->addAction(caffa::CmdFeatureManager::instance()->action("test", "nothing"));
+            menu->addAction(caffa::CmdFeatureManager::instance()->action("other test <<>>", "still nothing"));
         }
         */
 private:
@@ -259,13 +259,13 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineUiOrdering(caf::UiOrdering& uiOrdering) override
+    void defineUiOrdering(caffa::UiOrdering& uiOrdering) override
     {
         uiOrdering.add(&m_doubleField);
         uiOrdering.add(&m_intField);
         std::string dynamicGroupName = std::string("Dynamic Group Text (") + std::to_string(m_intField()) + ")";
 
-        caf::UiGroup* group = uiOrdering.addNewGroupWithKeyword(dynamicGroupName, "MyTest");
+        caffa::UiGroup* group = uiOrdering.addNewGroupWithKeyword(dynamicGroupName, "MyTest");
         group->add(&m_textField);
         group->add(&m_proxyDoubleField);
     }
@@ -273,7 +273,7 @@ protected:
 
 CAF_SOURCE_INIT(SmallDemoObject, "SmallDemoObject", "Object");
 
-class SmallGridDemoObject : public caf::Object
+class SmallGridDemoObject : public caffa::Object
 {
     CAF_HEADER_INIT;
 
@@ -356,13 +356,13 @@ public:
                     "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
-        m_intFieldLabelTop.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::TOP);
+        m_intFieldLabelTop.capability<caffa::FieldUiCapability>()->setUiLabelPosition(caffa::UiItemInfo::TOP);
         initField(m_stringFieldLabelHidden, "FieldLabelHidden", "Hidden Label Field")
             .withUi("Field Label Hidden",
                     "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
-        m_stringFieldLabelHidden.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::HIDDEN);
+        m_stringFieldLabelHidden.capability<caffa::FieldUiCapability>()->setUiLabelPosition(caffa::UiItemInfo::HIDDEN);
 
         initField(m_intFieldWideBothAuto, "WideBothAuto", 0)
             .withUi(
@@ -387,13 +387,13 @@ public:
                     "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
-        m_intFieldLabelTopAuto.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::TOP);
+        m_intFieldLabelTopAuto.capability<caffa::FieldUiCapability>()->setUiLabelPosition(caffa::UiItemInfo::TOP);
         initField(m_stringFieldLabelHiddenAuto, "FieldLabelHiddenAuto", "Hidden Label Field")
             .withUi("Field Label Hidden",
                     "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
-        m_stringFieldLabelHiddenAuto.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::HIDDEN);
+        m_stringFieldLabelHiddenAuto.capability<caffa::FieldUiCapability>()->setUiLabelPosition(caffa::UiItemInfo::HIDDEN);
 
         initField(m_intFieldLeftOfGroup, "FieldLeftOfGrp", 0)
             .withUi("Left of group",
@@ -439,96 +439,96 @@ public:
     }
 
     // Outside group
-    caf::Field<int> m_intFieldStandard;
-    caf::Field<int> m_intFieldUseFullSpace;
-    caf::Field<int> m_intFieldUseFullSpaceLabel;
-    caf::Field<int> m_intFieldUseFullSpaceField;
-    caf::Field<int> m_intFieldWideLabel;
-    caf::Field<int> m_intFieldWideField;
-    caf::Field<int> m_intFieldWideBoth;
-    caf::Field<int> m_intFieldLeft;
-    caf::Field<int> m_intFieldRight;
+    caffa::Field<int> m_intFieldStandard;
+    caffa::Field<int> m_intFieldUseFullSpace;
+    caffa::Field<int> m_intFieldUseFullSpaceLabel;
+    caffa::Field<int> m_intFieldUseFullSpaceField;
+    caffa::Field<int> m_intFieldWideLabel;
+    caffa::Field<int> m_intFieldWideField;
+    caffa::Field<int> m_intFieldWideBoth;
+    caffa::Field<int> m_intFieldLeft;
+    caffa::Field<int> m_intFieldRight;
 
     // First group
-    caf::Field<int>         m_intFieldWideBoth2;
-    caf::Field<int>         m_intFieldLeft2;
-    caf::Field<int>         m_intFieldCenter;
-    caf::Field<int>         m_intFieldRight2;
-    caf::Field<int>         m_intFieldLabelTop;
-    caf::Field<std::string> m_stringFieldLabelHidden;
+    caffa::Field<int>         m_intFieldWideBoth2;
+    caffa::Field<int>         m_intFieldLeft2;
+    caffa::Field<int>         m_intFieldCenter;
+    caffa::Field<int>         m_intFieldRight2;
+    caffa::Field<int>         m_intFieldLabelTop;
+    caffa::Field<std::string> m_stringFieldLabelHidden;
 
     // Auto group
-    caf::Field<int>         m_intFieldWideBothAuto;
-    caf::Field<int>         m_intFieldLeftAuto;
-    caf::Field<int>         m_intFieldCenterAuto;
-    caf::Field<int>         m_intFieldRightAuto;
-    caf::Field<int>         m_intFieldLabelTopAuto;
-    caf::Field<std::string> m_stringFieldLabelHiddenAuto;
+    caffa::Field<int>         m_intFieldWideBothAuto;
+    caffa::Field<int>         m_intFieldLeftAuto;
+    caffa::Field<int>         m_intFieldCenterAuto;
+    caffa::Field<int>         m_intFieldRightAuto;
+    caffa::Field<int>         m_intFieldLabelTopAuto;
+    caffa::Field<std::string> m_stringFieldLabelHiddenAuto;
 
     // Combination with groups
-    caf::Field<int> m_intFieldLeftOfGroup;
-    caf::Field<int> m_intFieldRightOfGroup;
-    caf::Field<int> m_intFieldInsideGroup1;
-    caf::Field<int> m_intFieldInsideGroup2;
+    caffa::Field<int> m_intFieldLeftOfGroup;
+    caffa::Field<int> m_intFieldRightOfGroup;
+    caffa::Field<int> m_intFieldInsideGroup1;
+    caffa::Field<int> m_intFieldInsideGroup2;
 
     // Side-by-side groups
-    caf::Field<int> m_intFieldInsideGroup3;
-    caf::Field<int> m_intFieldInsideGroup4;
-    caf::Field<int> m_intFieldInsideGroup5;
-    caf::Field<int> m_intFieldInsideGroup6;
+    caffa::Field<int> m_intFieldInsideGroup3;
+    caffa::Field<int> m_intFieldInsideGroup4;
+    caffa::Field<int> m_intFieldInsideGroup5;
+    caffa::Field<int> m_intFieldInsideGroup6;
 
 protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineUiOrdering(caf::UiOrdering& uiOrdering) override
+    void defineUiOrdering(caffa::UiOrdering& uiOrdering) override
     {
         uiOrdering.add(&m_intFieldStandard);
         uiOrdering.add(&m_intFieldUseFullSpace,
-                       caf::UiOrdering::LayoutOptions(true,
-                                                      caf::UiOrdering::LayoutOptions::MAX_COLUMN_SPAN,
-                                                      caf::UiOrdering::LayoutOptions::MAX_COLUMN_SPAN));
+                       caffa::UiOrdering::LayoutOptions(true,
+                                                        caffa::UiOrdering::LayoutOptions::MAX_COLUMN_SPAN,
+                                                        caffa::UiOrdering::LayoutOptions::MAX_COLUMN_SPAN));
         uiOrdering.add(&m_intFieldUseFullSpaceLabel,
-                       caf::UiOrdering::LayoutOptions(true, 3, caf::UiOrdering::LayoutOptions::MAX_COLUMN_SPAN));
+                       caffa::UiOrdering::LayoutOptions(true, 3, caffa::UiOrdering::LayoutOptions::MAX_COLUMN_SPAN));
         uiOrdering.add(&m_intFieldUseFullSpaceField,
-                       caf::UiOrdering::LayoutOptions(true, caf::UiOrdering::LayoutOptions::MAX_COLUMN_SPAN, 1));
-        uiOrdering.add(&m_intFieldWideLabel, caf::UiOrdering::LayoutOptions(true, 4, 3));
-        uiOrdering.add(&m_intFieldWideField, caf::UiOrdering::LayoutOptions(true, 4, 1));
-        uiOrdering.add(&m_intFieldLeft, caf::UiOrdering::LayoutOptions(true));
-        uiOrdering.add(&m_intFieldRight, caf::UiOrdering::LayoutOptions(false));
-        uiOrdering.add(&m_intFieldWideBoth, caf::UiOrdering::LayoutOptions(true, 4, 2));
+                       caffa::UiOrdering::LayoutOptions(true, caffa::UiOrdering::LayoutOptions::MAX_COLUMN_SPAN, 1));
+        uiOrdering.add(&m_intFieldWideLabel, caffa::UiOrdering::LayoutOptions(true, 4, 3));
+        uiOrdering.add(&m_intFieldWideField, caffa::UiOrdering::LayoutOptions(true, 4, 1));
+        uiOrdering.add(&m_intFieldLeft, caffa::UiOrdering::LayoutOptions(true));
+        uiOrdering.add(&m_intFieldRight, caffa::UiOrdering::LayoutOptions(false));
+        uiOrdering.add(&m_intFieldWideBoth, caffa::UiOrdering::LayoutOptions(true, 4, 2));
 
         std::string dynamicGroupName = std::string("Dynamic Group Text (") + std::to_string(m_intFieldStandard) + ")";
 
-        caf::UiGroup* group = uiOrdering.addNewGroup("Wide Group", {true, 4});
-        group->add(&m_intFieldWideBoth2, caf::UiOrdering::LayoutOptions(true, 6, 3));
-        group->add(&m_intFieldLeft2, caf::UiOrdering::LayoutOptions(true));
-        group->add(&m_intFieldCenter, caf::UiOrdering::LayoutOptions(false));
-        group->add(&m_intFieldRight2, caf::UiOrdering::LayoutOptions(false));
-        group->add(&m_intFieldLabelTop, caf::UiOrdering::LayoutOptions(true, 6));
-        group->add(&m_stringFieldLabelHidden, caf::UiOrdering::LayoutOptions(true, 6));
+        caffa::UiGroup* group = uiOrdering.addNewGroup("Wide Group", {true, 4});
+        group->add(&m_intFieldWideBoth2, caffa::UiOrdering::LayoutOptions(true, 6, 3));
+        group->add(&m_intFieldLeft2, caffa::UiOrdering::LayoutOptions(true));
+        group->add(&m_intFieldCenter, caffa::UiOrdering::LayoutOptions(false));
+        group->add(&m_intFieldRight2, caffa::UiOrdering::LayoutOptions(false));
+        group->add(&m_intFieldLabelTop, caffa::UiOrdering::LayoutOptions(true, 6));
+        group->add(&m_stringFieldLabelHidden, caffa::UiOrdering::LayoutOptions(true, 6));
 
-        caf::UiGroup* autoGroup = uiOrdering.addNewGroup("Automatic Full Width Group", caf::UiOrdering::LayoutOptions(true));
-        autoGroup->add(&m_intFieldWideBothAuto, caf::UiOrdering::LayoutOptions(true));
-        autoGroup->add(&m_intFieldLeftAuto, caf::UiOrdering::LayoutOptions(true));
+        caffa::UiGroup* autoGroup = uiOrdering.addNewGroup("Automatic Full Width Group", caffa::UiOrdering::LayoutOptions(true));
+        autoGroup->add(&m_intFieldWideBothAuto, caffa::UiOrdering::LayoutOptions(true));
+        autoGroup->add(&m_intFieldLeftAuto, caffa::UiOrdering::LayoutOptions(true));
         autoGroup->add(&m_intFieldCenterAuto, false);
-        autoGroup->add(&m_intFieldRightAuto, caf::UiOrdering::LayoutOptions(false));
+        autoGroup->add(&m_intFieldRightAuto, caffa::UiOrdering::LayoutOptions(false));
         autoGroup->add(&m_intFieldLabelTopAuto, true);
         autoGroup->add(&m_stringFieldLabelHiddenAuto, true);
 
         uiOrdering.add(&m_intFieldLeftOfGroup);
-        caf::UiGroup* group2 = uiOrdering.addNewGroup("Right Group", caf::UiOrdering::LayoutOptions(false, 2, 0));
+        caffa::UiGroup* group2 = uiOrdering.addNewGroup("Right Group", caffa::UiOrdering::LayoutOptions(false, 2, 0));
         group2->setEnableFrame(false);
         group2->add(&m_intFieldInsideGroup1);
 
-        caf::UiGroup* group3 = uiOrdering.addNewGroup("Narrow L", caf::UiOrdering::LayoutOptions(true, 1));
+        caffa::UiGroup* group3 = uiOrdering.addNewGroup("Narrow L", caffa::UiOrdering::LayoutOptions(true, 1));
         group3->add(&m_intFieldInsideGroup2);
-        uiOrdering.add(&m_intFieldRightOfGroup, caf::UiOrdering::LayoutOptions(false, 3, 2));
+        uiOrdering.add(&m_intFieldRightOfGroup, caffa::UiOrdering::LayoutOptions(false, 3, 2));
 
-        caf::UiGroup* groupL = uiOrdering.addNewGroup("Left Group", caf::UiOrdering::LayoutOptions(true, 1));
+        caffa::UiGroup* groupL = uiOrdering.addNewGroup("Left Group", caffa::UiOrdering::LayoutOptions(true, 1));
         groupL->add(&m_intFieldInsideGroup3);
         groupL->add(&m_intFieldInsideGroup5);
-        caf::UiGroup* groupR = uiOrdering.addNewGroup("Right Wide Group", caf::UiOrdering::LayoutOptions(false, 3));
+        caffa::UiGroup* groupR = uiOrdering.addNewGroup("Right Wide Group", caffa::UiOrdering::LayoutOptions(false, 3));
         groupR->setEnableFrame(false);
         groupR->add(&m_intFieldInsideGroup4);
         groupR->add(&m_intFieldInsideGroup6);
@@ -537,7 +537,7 @@ protected:
 
 CAF_SOURCE_INIT(SmallGridDemoObject, "SmallGridDemoObject", "Object");
 
-class SingleEditorObject : public caf::Object
+class SingleEditorObject : public caffa::Object
 {
     CAF_HEADER_INIT;
 
@@ -557,13 +557,13 @@ public:
     }
 
     // Outside group
-    caf::Field<int> m_intFieldStandard;
+    caffa::Field<int> m_intFieldStandard;
 
 protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineUiOrdering(caf::UiOrdering& uiOrdering) override
+    void defineUiOrdering(caffa::UiOrdering& uiOrdering) override
     {
         uiOrdering.add(&m_intFieldStandard);
     }
@@ -571,7 +571,7 @@ protected:
 
 CAF_SOURCE_INIT(SingleEditorObject, "SingleEditorObject", "Object");
 
-class SmallDemoObjectA : public caf::Object
+class SmallDemoObjectA : public caffa::Object
 {
     CAF_HEADER_INIT;
 
@@ -600,59 +600,59 @@ public:
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         initField(m_textField, "TextField", "Small Demo Object A").withUi("Name Text Field", "", "", "");
-        initField(m_testEnumField, "TestEnumValue", caf::AppEnum<TestEnumType>(T1)).withUi("EnumField", "", "", "");
+        initField(m_testEnumField, "TestEnumValue", caffa::AppEnum<TestEnumType>(T1)).withUi("EnumField", "", "", "");
         initField(m_ptrField, "m_ptrField").withUi("PtrField", "", "", "");
 
         initField(m_proxyEnumField, "ProxyEnumValue").withUi("ProxyEnum", "", "", "");
-        auto enumProxyAccessor = std::make_unique<caf::FieldProxyAccessor<caf::AppEnum<TestEnumType>>>();
+        auto enumProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<caffa::AppEnum<TestEnumType>>>();
 
         enumProxyAccessor->registerSetMethod(this, &SmallDemoObjectA::setEnumMember);
         enumProxyAccessor->registerGetMethod(this, &SmallDemoObjectA::enumMember);
         m_proxyEnumField.setFieldDataAccessor(std::move(enumProxyAccessor));
         m_proxyEnumMember = T2;
 
-        m_testEnumField.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::UiListEditor::uiEditorTypeName());
+        m_testEnumField.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(caffa::UiListEditor::uiEditorTypeName());
 
         initField(m_multipleAppEnum, "MultipleAppEnumValue").withUi("MultipleAppEnumValue", "", "", "");
-        m_multipleAppEnum.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
-            caf::UiTreeSelectionEditor::uiEditorTypeName());
+        m_multipleAppEnum.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(
+            caffa::UiTreeSelectionEditor::uiEditorTypeName());
         initField(m_highlightedEnum, "HighlightedEnum").withUi("HighlightedEnum", "", "", "");
-        m_highlightedEnum.capability<caf::FieldUiCapability>()->setUiHidden(true);
+        m_highlightedEnum.capability<caffa::FieldUiCapability>()->setUiHidden(true);
     }
 
-    caf::Field<double>                     m_doubleField;
-    caf::Field<int>                        m_intField;
-    caf::Field<std::string>                m_textField;
-    caf::Field<caf::AppEnum<TestEnumType>> m_testEnumField;
-    caf::PtrField<SmallDemoObjectA*>       m_ptrField;
+    caffa::Field<double>                       m_doubleField;
+    caffa::Field<int>                          m_intField;
+    caffa::Field<std::string>                  m_textField;
+    caffa::Field<caffa::AppEnum<TestEnumType>> m_testEnumField;
+    caffa::PtrField<SmallDemoObjectA*>         m_ptrField;
 
-    caf::DataValueField<caf::AppEnum<TestEnumType>> m_proxyEnumField;
-    void                                            setEnumMember(const caf::AppEnum<TestEnumType>& val)
+    caffa::DataValueField<caffa::AppEnum<TestEnumType>> m_proxyEnumField;
+    void                                                setEnumMember(const caffa::AppEnum<TestEnumType>& val)
     {
         m_proxyEnumMember = val.value();
     }
-    caf::AppEnum<TestEnumType> enumMember() const
+    caffa::AppEnum<TestEnumType> enumMember() const
     {
         return m_proxyEnumMember;
     }
     TestEnumType m_proxyEnumMember;
 
     // vector of app enum
-    caf::Field<std::vector<caf::AppEnum<TestEnumType>>> m_multipleAppEnum;
-    caf::Field<caf::AppEnum<TestEnumType>>              m_highlightedEnum;
+    caffa::Field<std::vector<caffa::AppEnum<TestEnumType>>> m_multipleAppEnum;
+    caffa::Field<caffa::AppEnum<TestEnumType>>              m_highlightedEnum;
 
-    caf::Field<bool> m_toggleField;
-    caf::Field<bool> m_pushButtonField;
+    caffa::Field<bool> m_toggleField;
+    caffa::Field<bool> m_pushButtonField;
 
-    caf::FieldHandle* objectToggleField() override
+    caffa::FieldHandle* objectToggleField() override
     {
         return &m_toggleField;
     }
 
-    void onFieldChangedByCapability(const caf::FieldHandle*     changedField,
-                                    const caf::FieldCapability* changedCapability,
-                                    const caf::Variant&         oldValue,
-                                    const caf::Variant&         newValue) override
+    void onFieldChangedByCapability(const caffa::FieldHandle*     changedField,
+                                    const caffa::FieldCapability* changedCapability,
+                                    const caffa::Variant&         oldValue,
+                                    const caffa::Variant&         newValue) override
     {
         if (changedField == &m_toggleField)
         {
@@ -668,15 +668,15 @@ public:
         }
     }
 
-    std::deque<caf::OptionItemInfo> calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
-                                                          bool*                   useOptionsOnly) override
+    std::deque<caffa::OptionItemInfo> calculateValueOptions(const caffa::FieldHandle* fieldNeedingOptions,
+                                                            bool*                     useOptionsOnly) override
     {
-        std::deque<caf::OptionItemInfo> options;
+        std::deque<caffa::OptionItemInfo> options;
 
         if (&m_ptrField == fieldNeedingOptions)
         {
-            caf::FieldHandle*               field;
-            std::vector<caf::ObjectHandle*> objects;
+            caffa::FieldHandle*               field;
+            std::vector<caffa::ObjectHandle*> objects;
             field = this->parentField();
 
             field->childObjects(&objects);
@@ -685,29 +685,30 @@ public:
             {
                 std::string userDesc;
 
-                caf::ObjectUiCapability* uiObject = caf::uiObj(objects[i]);
+                caffa::ObjectUiCapability* uiObject = caffa::uiObj(objects[i]);
                 if (uiObject)
                 {
                     if (objects[i]->userDescriptionField())
                     {
-                        caf::FieldUiCapability* uiFieldHandle =
-                            objects[i]->userDescriptionField()->capability<caf::FieldUiCapability>();
+                        caffa::FieldUiCapability* uiFieldHandle =
+                            objects[i]->userDescriptionField()->capability<caffa::FieldUiCapability>();
                         if (uiFieldHandle)
                         {
                             userDesc = uiFieldHandle->uiValue().value<std::string>();
                         }
                     }
 
-                    options.push_back(caf::OptionItemInfo(userDesc, caf::Variant(caf::Pointer<caf::ObjectHandle>(objects[i]))));
+                    options.push_back(
+                        caffa::OptionItemInfo(userDesc, caffa::Variant(caffa::Pointer<caffa::ObjectHandle>(objects[i]))));
                 }
             }
         }
         else if (&m_multipleAppEnum == fieldNeedingOptions)
         {
-            for (size_t i = 0; i < caf::AppEnum<TestEnumType>::size(); ++i)
+            for (size_t i = 0; i < caffa::AppEnum<TestEnumType>::size(); ++i)
             {
-                options.push_back(caf::OptionItemInfo(caf::AppEnum<TestEnumType>::uiTextFromIndex(i),
-                                                      caf::AppEnum<TestEnumType>::fromIndex(i)));
+                options.push_back(caffa::OptionItemInfo(caffa::AppEnum<TestEnumType>::uiTextFromIndex(i),
+                                                        caffa::AppEnum<TestEnumType>::fromIndex(i)));
             }
         }
 
@@ -719,7 +720,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    caf::FieldHandle* userDescriptionField() override
+    caffa::FieldHandle* userDescriptionField() override
     {
         return &m_textField;
     }
@@ -728,11 +729,11 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineEditorAttribute(const caf::FieldHandle* field, caf::UiEditorAttribute* attribute) override
+    void defineEditorAttribute(const caffa::FieldHandle* field, caffa::UiEditorAttribute* attribute) override
     {
         if (field == &m_multipleAppEnum)
         {
-            caf::UiTreeSelectionEditorAttribute* attr = dynamic_cast<caf::UiTreeSelectionEditorAttribute*>(attribute);
+            caffa::UiTreeSelectionEditorAttribute* attr = dynamic_cast<caffa::UiTreeSelectionEditorAttribute*>(attribute);
             if (attr)
             {
                 attr->currentIndexFieldHandle = &m_highlightedEnum;
@@ -740,7 +741,7 @@ protected:
         }
         else if (field == &m_proxyEnumField)
         {
-            caf::UiComboBoxEditorAttribute* attr = dynamic_cast<caf::UiComboBoxEditorAttribute*>(attribute);
+            caffa::UiComboBoxEditorAttribute* attr = dynamic_cast<caffa::UiComboBoxEditorAttribute*>(attribute);
             if (attr)
             {
                 attr->showPreviousAndNextButtons = true;
@@ -751,9 +752,9 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineObjectEditorAttribute(caf::UiEditorAttribute* attribute) override
+    void defineObjectEditorAttribute(caffa::UiEditorAttribute* attribute) override
     {
-        caf::UiTableViewPushButtonEditorAttribute* attr = dynamic_cast<caf::UiTableViewPushButtonEditorAttribute*>(attribute);
+        caffa::UiTableViewPushButtonEditorAttribute* attr = dynamic_cast<caffa::UiTableViewPushButtonEditorAttribute*>(attribute);
         if (attr)
         {
             attr->registerPushButtonTextForFieldKeyword(m_pushButtonField.keyword(), "Edit");
@@ -763,7 +764,7 @@ protected:
 
 CAF_SOURCE_INIT(SmallDemoObjectA, "SmallDemoObjectA", "Object");
 
-namespace caf
+namespace caffa
 {
 template<>
 void AppEnum<SmallDemoObjectA::TestEnumType>::setUp()
@@ -774,9 +775,9 @@ void AppEnum<SmallDemoObjectA::TestEnumType>::setUp()
     setDefault(SmallDemoObjectA::T1);
 }
 
-} // namespace caf
+} // namespace caffa
 
-class DemoObject : public caf::Object
+class DemoObject : public caffa::Object
 {
     CAF_HEADER_INIT;
 
@@ -806,14 +807,14 @@ public:
         initField(m_objectList, "ObjectList").withUi("Objects list Field", "", "List", "This is a list of Objects");
         initField(m_objectListOfSameType, "m_objectListOfSameType")
             .withUi("Same type Objects list Field", "", "Same type List", "Same type list of Objects");
-        m_objectListOfSameType.capability<caf::FieldUiCapability>()->setUiEditorTypeName(
-            caf::UiTableViewEditor::uiEditorTypeName());
-        m_objectListOfSameType.capability<caf::FieldUiCapability>()->setCustomContextMenuEnabled(true);
+        m_objectListOfSameType.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(
+            caffa::UiTableViewEditor::uiEditorTypeName());
+        m_objectListOfSameType.capability<caffa::FieldUiCapability>()->setCustomContextMenuEnabled(true);
         ;
         initField(m_ptrField, "m_ptrField").withUi("PtrField", "", "Same type List", "Same type list of Objects");
 
-        m_longText.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::UiTextEditor::uiEditorTypeName());
-        m_longText.capability<caf::FieldUiCapability>()->setUiLabelPosition(caf::UiItemInfo::HIDDEN);
+        m_longText.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(caffa::UiTextEditor::uiEditorTypeName());
+        m_longText.capability<caffa::FieldUiCapability>()->setUiLabelPosition(caffa::UiItemInfo::HIDDEN);
 
         m_menuItemProducer = new MenuItemProducer;
     }
@@ -821,16 +822,16 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineUiOrdering(caf::UiOrdering& uiOrdering) override
+    void defineUiOrdering(caffa::UiOrdering& uiOrdering) override
     {
         uiOrdering.add(&m_objectListOfSameType);
         uiOrdering.add(&m_ptrField);
         uiOrdering.add(&m_boolField);
-        caf::UiGroup* group1 = uiOrdering.addNewGroup("Name1");
+        caffa::UiGroup* group1 = uiOrdering.addNewGroup("Name1");
         group1->add(&m_doubleField);
-        caf::UiGroup* group2 = uiOrdering.addNewGroup("Name2");
+        caffa::UiGroup* group2 = uiOrdering.addNewGroup("Name2");
         group2->add(&m_intField);
-        caf::UiGroup* group3 = group2->addNewGroup("Name3");
+        caffa::UiGroup* group3 = group2->addNewGroup("Name3");
         // group3->add(&m_textField);
 
         uiOrdering.skipRemainingFields();
@@ -839,36 +840,37 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    std::deque<caf::OptionItemInfo> calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
-                                                          bool*                   useOptionsOnly) override
+    std::deque<caffa::OptionItemInfo> calculateValueOptions(const caffa::FieldHandle* fieldNeedingOptions,
+                                                            bool*                     useOptionsOnly) override
     {
-        std::deque<caf::OptionItemInfo> options;
+        std::deque<caffa::OptionItemInfo> options;
         if (&m_multiSelectList == fieldNeedingOptions)
         {
-            options.push_back(caf::OptionItemInfo("Choice 1", "Choice1"));
-            options.push_back(caf::OptionItemInfo("Choice 2", "Choice2"));
-            options.push_back(caf::OptionItemInfo("Choice 3", "Choice3"));
-            options.push_back(caf::OptionItemInfo("Choice 4", "Choice4"));
-            options.push_back(caf::OptionItemInfo("Choice 5", "Choice5"));
-            options.push_back(caf::OptionItemInfo("Choice 6", "Choice6"));
+            options.push_back(caffa::OptionItemInfo("Choice 1", "Choice1"));
+            options.push_back(caffa::OptionItemInfo("Choice 2", "Choice2"));
+            options.push_back(caffa::OptionItemInfo("Choice 3", "Choice3"));
+            options.push_back(caffa::OptionItemInfo("Choice 4", "Choice4"));
+            options.push_back(caffa::OptionItemInfo("Choice 5", "Choice5"));
+            options.push_back(caffa::OptionItemInfo("Choice 6", "Choice6"));
         }
 
         if (&m_ptrField == fieldNeedingOptions)
         {
             for (size_t i = 0; i < m_objectListOfSameType.size(); ++i)
             {
-                caf::ObjectUiCapability* uiObject = caf::uiObj(m_objectListOfSameType[i]);
+                caffa::ObjectUiCapability* uiObject = caffa::uiObj(m_objectListOfSameType[i]);
                 if (uiObject)
                 {
                     std::string userDesc;
 
-                    caf::FieldUiCapability* uiFieldHandle = this->userDescriptionField()->capability<caf::FieldUiCapability>();
+                    caffa::FieldUiCapability* uiFieldHandle =
+                        this->userDescriptionField()->capability<caffa::FieldUiCapability>();
                     if (uiFieldHandle)
                     {
                         userDesc = uiFieldHandle->uiValue().value<std::string>();
                     }
-                    options.push_back(
-                        caf::OptionItemInfo(userDesc, caf::Variant(caf::Pointer<caf::ObjectHandle>(m_objectListOfSameType[i]))));
+                    options.push_back(caffa::OptionItemInfo(
+                        userDesc, caffa::Variant(caffa::Pointer<caffa::ObjectHandle>(m_objectListOfSameType[i]))));
                 }
             }
         }
@@ -881,37 +883,37 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    caf::FieldHandle* userDescriptionField() override
+    caffa::FieldHandle* userDescriptionField() override
     {
         return &m_textField;
     }
 
     // Fields
-    caf::Field<bool>        m_boolField;
-    caf::Field<double>      m_doubleField;
-    caf::Field<int>         m_intField;
-    caf::Field<std::string> m_textField;
+    caffa::Field<bool>        m_boolField;
+    caffa::Field<double>      m_doubleField;
+    caffa::Field<int>         m_intField;
+    caffa::Field<std::string> m_textField;
 
-    caf::Field<std::string>              m_longText;
-    caf::Field<std::vector<std::string>> m_multiSelectList;
+    caffa::Field<std::string>              m_longText;
+    caffa::Field<std::vector<std::string>> m_multiSelectList;
 
-    caf::ChildArrayField<caf::ObjectHandle*> m_objectList;
-    caf::ChildArrayField<SmallDemoObjectA*>  m_objectListOfSameType;
-    caf::PtrField<SmallDemoObjectA*>         m_ptrField;
+    caffa::ChildArrayField<caffa::ObjectHandle*> m_objectList;
+    caffa::ChildArrayField<SmallDemoObjectA*>    m_objectListOfSameType;
+    caffa::PtrField<SmallDemoObjectA*>           m_ptrField;
 
-    caf::Field<bool> m_toggleField;
+    caffa::Field<bool> m_toggleField;
 
     MenuItemProducer* m_menuItemProducer;
 
-    caf::FieldHandle* objectToggleField() override
+    caffa::FieldHandle* objectToggleField() override
     {
         return &m_toggleField;
     }
 
-    void onFieldChangedByCapability(const caf::FieldHandle*     changedField,
-                                    const caf::FieldCapability* changedCapability,
-                                    const caf::Variant&         oldValue,
-                                    const caf::Variant&         newValue) override
+    void onFieldChangedByCapability(const caffa::FieldHandle*     changedField,
+                                    const caffa::FieldCapability* changedCapability,
+                                    const caffa::Variant&         oldValue,
+                                    const caffa::Variant&         newValue) override
     {
         if (changedField == &m_toggleField)
         {
@@ -924,9 +926,9 @@ public:
     //--------------------------------------------------------------------------------------------------
     void onEditorWidgetsCreated() override
     {
-        for (auto e : m_longText.capability<caf::FieldUiCapability>()->connectedEditors())
+        for (auto e : m_longText.capability<caffa::FieldUiCapability>()->connectedEditors())
         {
-            caf::UiTextEditor* textEditor = dynamic_cast<caf::UiTextEditor*>(e);
+            caffa::UiTextEditor* textEditor = dynamic_cast<caffa::UiTextEditor*>(e);
             if (!textEditor) continue;
 
             QWidget* containerWidget = textEditor->editorWidget();
@@ -947,13 +949,13 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    /* void defineCustomContextMenu(const caf::FieldHandle* fieldNeedingMenu,
-                                 caf::MenuInterface*     menu,
+    /* void defineCustomContextMenu(const caffa::FieldHandle* fieldNeedingMenu,
+                                 caffa::MenuInterface*     menu,
                                  QWidget*                fieldEditorWidget) override
     {
         if (fieldNeedingMenu == &m_objectListOfSameType)
         {
-            caf::UiTableView::addActionsToMenu(menu, &m_objectListOfSameType);
+            caffa::UiTableView::addActionsToMenu(menu, &m_objectListOfSameType);
         }
     } */
 };
@@ -967,7 +969,7 @@ MainWindow* MainWindow::sm_mainWindowInstance = nullptr;
 //--------------------------------------------------------------------------------------------------
 MainWindow::MainWindow()
 {
-    caf::UiItem::enableExtraDebugText(true);
+    caffa::UiItem::enableExtraDebugText(true);
 
     // Initialize command framework
 
@@ -989,10 +991,10 @@ MainWindow::MainWindow()
     setRoot(m_testRoot.get());
 
     sm_mainWindowInstance = this;
-    caf::SelectionManager::instance()->setRootObject(m_testRoot.get());
+    caffa::SelectionManager::instance()->setRootObject(m_testRoot.get());
 
-    // caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
-    // undoView->setStack(caf::CmdExecCommandManager::instance()->undoStack());
+    // caffa::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
+    // undoView->setStack(caffa::CmdExecCommandManager::instance()->undoStack());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1005,7 +1007,7 @@ void MainWindow::createDockPanels()
         dockWidget->setObjectName("dockWidget");
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-        m_uiTreeView = new caf::UiTreeView(dockWidget);
+        m_uiTreeView = new caffa::UiTreeView(dockWidget);
         dockWidget->setWidget(m_uiTreeView);
         m_uiTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
         /* QObject::connect(m_uiTreeView->treeView(),
@@ -1023,7 +1025,7 @@ void MainWindow::createDockPanels()
         dockWidget->setObjectName("dockWidget");
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-        m_customObjectEditor = new caf::CustomObjectEditor;
+        m_customObjectEditor = new caffa::CustomObjectEditor;
         QWidget* w           = m_customObjectEditor->getOrCreateWidget(this);
         dockWidget->setWidget(w);
 
@@ -1035,7 +1037,7 @@ void MainWindow::createDockPanels()
         dockWidget->setObjectName("dockWidget");
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-        m_uiPropertyView = new caf::UiPropertyView(dockWidget);
+        m_uiPropertyView = new caffa::UiPropertyView(dockWidget);
         dockWidget->setWidget(m_uiPropertyView);
 
         addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
@@ -1046,7 +1048,7 @@ void MainWindow::createDockPanels()
         dockWidget->setObjectName("dockWidget");
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-        m_uiTreeView2 = new caf::UiTreeView(dockWidget);
+        m_uiTreeView2 = new caffa::UiTreeView(dockWidget);
         m_uiTreeView2->enableDefaultContextMenu(true);
         m_uiTreeView2->enableSelectionManagerUpdating(true);
         dockWidget->setWidget(m_uiTreeView2);
@@ -1059,7 +1061,7 @@ void MainWindow::createDockPanels()
         dockWidget->setObjectName("dockWidget");
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-        m_uiTableView = new caf::UiTableView(dockWidget);
+        m_uiTableView = new caffa::UiTableView(dockWidget);
 
         dockWidget->setWidget(m_uiTableView);
 
@@ -1128,9 +1130,9 @@ void MainWindow::buildTestModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void MainWindow::setRoot(caf::ObjectHandle* root)
+void MainWindow::setRoot(caffa::ObjectHandle* root)
 {
-    caf::ObjectUiCapability* uiObject = uiObj(root);
+    caffa::ObjectUiCapability* uiObject = uiObj(root);
 
     m_uiTreeView->setItem(uiObject);
 
@@ -1145,8 +1147,8 @@ void MainWindow::setRoot(caf::ObjectHandle* root)
 
         if (!fields.empty())
         {
-            caf::FieldHandle*       field         = fields.front();
-            caf::FieldUiCapability* uiFieldHandle = field->capability<caf::FieldUiCapability>();
+            caffa::FieldHandle*       field         = fields.front();
+            caffa::FieldUiCapability* uiFieldHandle = field->capability<caffa::FieldUiCapability>();
             if (uiFieldHandle)
             {
                 m_uiTreeView2->setItem(uiFieldHandle);
@@ -1266,32 +1268,32 @@ void MainWindow::createActions()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::slotInsert()
 {
-    std::vector<caf::UiItem*> selection;
+    std::vector<caffa::UiItem*> selection;
     m_uiTreeView->selectedUiItems(selection);
 
     for (size_t i = 0; i < selection.size(); ++i)
     {
-        caf::FieldUiCapability*                   uiFh  = dynamic_cast<caf::FieldUiCapability*>(selection[i]);
-        caf::ChildArrayField<caf::ObjectHandle*>* field = nullptr;
+        caffa::FieldUiCapability*                     uiFh  = dynamic_cast<caffa::FieldUiCapability*>(selection[i]);
+        caffa::ChildArrayField<caffa::ObjectHandle*>* field = nullptr;
 
-        if (uiFh) field = dynamic_cast<caf::ChildArrayField<caf::ObjectHandle*>*>(uiFh->fieldHandle());
+        if (uiFh) field = dynamic_cast<caffa::ChildArrayField<caffa::ObjectHandle*>*>(uiFh->fieldHandle());
 
         if (field)
         {
             field->push_back(std::make_unique<DemoObject>());
-            field->capability<caf::FieldUiCapability>()->updateConnectedEditors();
+            field->capability<caffa::FieldUiCapability>()->updateConnectedEditors();
 
             return;
         }
 #if 0
-        caf::ChildArrayFieldHandle* listField = nullptr;
+        caffa::ChildArrayFieldHandle* listField = nullptr;
 
-        if (uiFh) listField = dynamic_cast<caf::ChildArrayFieldHandle*>(uiFh->fieldHandle());
+        if (uiFh) listField = dynamic_cast<caffa::ChildArrayFieldHandle*>(uiFh->fieldHandle());
 
         if (listField)
         {
-            caf::ObjectHandle* obj = listField->createAppendObject();
-            listField->capability<caf::UiFieldHandle>()->updateConnectedEditors();
+            caffa::ObjectHandle* obj = listField->createAppendObject();
+            listField->capability<caffa::UiFieldHandle>()->updateConnectedEditors();
         }
 #endif
     }
@@ -1302,22 +1304,22 @@ void MainWindow::slotInsert()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::slotRemove()
 {
-    std::vector<caf::UiItem*> selection;
+    std::vector<caffa::UiItem*> selection;
     m_uiTreeView->selectedUiItems(selection);
 
     for (size_t i = 0; i < selection.size(); ++i)
     {
-        caf::ObjectHandle* obj = dynamic_cast<caf::ObjectHandle*>(selection[i]);
+        caffa::ObjectHandle* obj = dynamic_cast<caffa::ObjectHandle*>(selection[i]);
         if (obj)
         {
-            caf::FieldHandle* field = obj->parentField();
+            caffa::FieldHandle* field = obj->parentField();
 
             // Ordering is important
 
             auto childObject = field->removeChildObject(obj);
 
             // Update editors
-            field->capability<caf::FieldUiCapability>()->updateConnectedEditors();
+            field->capability<caffa::FieldUiCapability>()->updateConnectedEditors();
 
             break;
         }
@@ -1334,14 +1336,14 @@ void MainWindow::slotRemoveAll() {}
 //--------------------------------------------------------------------------------------------------
 void MainWindow::slotSimpleSelectionChanged()
 {
-    std::vector<caf::UiItem*> selection;
+    std::vector<caffa::UiItem*> selection;
     m_uiTreeView->selectedUiItems(selection);
-    caf::ObjectHandle*          obj       = nullptr;
-    caf::ChildArrayFieldHandle* listField = nullptr;
+    caffa::ObjectHandle*          obj       = nullptr;
+    caffa::ChildArrayFieldHandle* listField = nullptr;
 
     if (selection.size())
     {
-        caf::ObjectUiCapability* uiObj = dynamic_cast<caf::ObjectUiCapability*>(selection[0]);
+        caffa::ObjectUiCapability* uiObj = dynamic_cast<caffa::ObjectUiCapability*>(selection[0]);
         if (uiObj) obj = uiObj->objectHandle();
     }
 
@@ -1353,20 +1355,20 @@ void MainWindow::slotSimpleSelectionChanged()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::slotShowTableView()
 {
-    std::vector<caf::UiItem*> selection;
+    std::vector<caffa::UiItem*> selection;
     m_uiTreeView2->selectedUiItems(selection);
-    caf::ObjectHandle*          obj                   = nullptr;
-    caf::FieldUiCapability*     uiFieldHandle         = nullptr;
-    caf::ChildArrayFieldHandle* childArrayFieldHandle = nullptr;
+    caffa::ObjectHandle*          obj                   = nullptr;
+    caffa::FieldUiCapability*     uiFieldHandle         = nullptr;
+    caffa::ChildArrayFieldHandle* childArrayFieldHandle = nullptr;
 
     if (selection.size())
     {
-        caf::UiItem* uiItem = selection[0];
+        caffa::UiItem* uiItem = selection[0];
 
-        uiFieldHandle = dynamic_cast<caf::FieldUiCapability*>(uiItem);
+        uiFieldHandle = dynamic_cast<caffa::FieldUiCapability*>(uiItem);
         if (uiFieldHandle)
         {
-            childArrayFieldHandle = dynamic_cast<caf::ChildArrayFieldHandle*>(uiFieldHandle->fieldHandle());
+            childArrayFieldHandle = dynamic_cast<caffa::ChildArrayFieldHandle*>(uiFieldHandle->fieldHandle());
         }
 
         if (childArrayFieldHandle)
@@ -1432,9 +1434,9 @@ void MainWindow::slotSaveProject()
     QTreeView* treeView  = dynamic_cast<QTreeView*>(senderObj);
     if (treeView)
     {
-        caf::CmdFeatureManager::instance()->setCurrentContextMenuTargetWidget(m_uiTreeView);
+        caffa::CmdFeatureManager::instance()->setCurrentContextMenuTargetWidget(m_uiTreeView);
 
-        caf::CmdFeatureMenuBuilder menuBuilder;
+        caffa::CmdFeatureMenuBuilder menuBuilder;
 
         menuBuilder << "cafToggleItemsOnFeature";
         menuBuilder << "cafToggleItemsOffFeature";
@@ -1442,10 +1444,10 @@ void MainWindow::slotSaveProject()
         menuBuilder << "Separator";
         menuBuilder << "cafToggleItemsOnOthersOffFeature";
 
-        caf::QMenuWrapper menuWrapper;
+        caffa::QMenuWrapper menuWrapper;
         menuBuilder.appendToMenu(&menuWrapper);
 
         menuWrapper.menu()->exec(QCursor::pos());
-        caf::CmdFeatureManager::instance()->setCurrentContextMenuTargetWidget(nullptr);
+        caffa::CmdFeatureManager::instance()->setCurrentContextMenuTargetWidget(nullptr);
     }
 } */

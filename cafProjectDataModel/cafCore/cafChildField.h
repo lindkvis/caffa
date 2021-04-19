@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace caf
+namespace caffa
 {
 template <typename T>
 class FieldIoCap;
@@ -77,6 +77,6 @@ private:
     Pointer<DataType> m_fieldValue;
 };
 
-} // End of namespace caf
+} // End of namespace caffa
 
 #include "cafChildField.inl"

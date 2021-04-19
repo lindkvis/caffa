@@ -47,7 +47,7 @@
 
 #include <QLabel>
 
-namespace caf
+namespace caffa
 {
 CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiCheckBoxEditor );
 
@@ -60,7 +60,7 @@ void UiCheckBoxEditor::configureAndUpdateUi()
     CAF_ASSERT( !m_label.isNull() );
 
     UiCheckBoxEditorAttribute attributes;
-    caf::ObjectUiCapability*  uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caffa::ObjectUiCapability*  uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), &attributes );
@@ -112,4 +112,4 @@ void UiCheckBoxEditor::slotClicked( bool checked )
     this->setValueToField( v );
 }
 
-} // end namespace caf
+} // end namespace caffa

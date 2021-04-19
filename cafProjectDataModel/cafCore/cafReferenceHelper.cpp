@@ -44,7 +44,7 @@
 #include <numeric>
 #include <sstream>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -63,7 +63,7 @@ std::string ReferenceHelper::referenceFromRootToObject( ObjectHandle* root, Obje
 
     std::list<std::string> objectNames = referenceFromRootToObjectAsStringList( root, obj );
 
-    std::string completeReference = caf::StringTools::join( objectNames.begin(), objectNames.end(), " " );
+    std::string completeReference = caffa::StringTools::join( objectNames.begin(), objectNames.end(), " " );
 
     return completeReference;
 }
@@ -84,7 +84,7 @@ std::string ReferenceHelper::referenceFromRootToField( ObjectHandle* root, Field
 
     refFromRootToField.push_front( field->keyword() );
 
-    std::string completeReference = caf::StringTools::join( refFromRootToField.begin(), refFromRootToField.end(), " " );
+    std::string completeReference = caffa::StringTools::join( refFromRootToField.begin(), refFromRootToField.end(), " " );
     return completeReference;
 }
 
@@ -93,7 +93,7 @@ std::string ReferenceHelper::referenceFromRootToField( ObjectHandle* root, Field
 //--------------------------------------------------------------------------------------------------
 ObjectHandle* ReferenceHelper::objectFromReference( ObjectHandle* root, const std::string& reference )
 {
-    std::list<std::string> decodedReference = caf::StringTools::split( reference, " " );
+    std::list<std::string> decodedReference = caffa::StringTools::split( reference, " " );
 
     return objectFromReferenceStringList( root, decodedReference );
 }
@@ -134,7 +134,7 @@ std::list<std::string> ReferenceHelper::referenceFromRootToObjectAsStringList( O
         bool continueParsing = true;
         while ( continueParsing )
         {
-            caf::FieldHandle* parentField = currentObject->parentField();
+            caffa::FieldHandle* parentField = currentObject->parentField();
             if ( !parentField )
             {
                 // Could not find a path from obj to root, obj and root are unrelated objects
@@ -190,7 +190,7 @@ std::list<std::string> ReferenceHelper::referenceFromRootToObjectAsStringList( O
 //--------------------------------------------------------------------------------------------------
 FieldHandle* ReferenceHelper::fieldFromReference( ObjectHandle* root, const std::string& reference )
 {
-    std::list<std::string> decodedReference = caf::StringTools::split( reference, " " );
+    std::list<std::string> decodedReference = caffa::StringTools::split( reference, " " );
     if ( decodedReference.size() == 0 ) return nullptr;
 
     std::string fieldKeyword = decodedReference.front();
@@ -325,7 +325,7 @@ std::string ReferenceHelper::referenceFromFieldToObject( FieldHandle* fromField,
         }
     }
 
-    std::string completeReference = caf::StringTools::join( referenceList.begin(), referenceList.end(), " " );
+    std::string completeReference = caffa::StringTools::join( referenceList.begin(), referenceList.end(), " " );
 
     return completeReference;
 }
@@ -338,9 +338,9 @@ ObjectHandle* ReferenceHelper::objectFromFieldReference( FieldHandle* fromField,
     if ( !fromField ) return nullptr;
     if ( reference.empty() ) return nullptr;
 
-    if ( caf::StringTools::trim( reference ).empty() ) return nullptr;
+    if ( caffa::StringTools::trim( reference ).empty() ) return nullptr;
 
-    std::list<std::string> decodedReference    = caf::StringTools::split( reference, std::regex( "\\s+" ), true );
+    std::list<std::string> decodedReference    = caffa::StringTools::split( reference, std::regex( "\\s+" ), true );
     ObjectHandle*          lastCommonAnchestor = fromField->ownerObject();
     CAF_ASSERT( lastCommonAnchestor );
 
@@ -396,4 +396,4 @@ ObjectHandle* ReferenceHelper::findRoot( FieldHandle* field )
     return nullptr;
 }
 
-} // end namespace caf
+} // end namespace caffa

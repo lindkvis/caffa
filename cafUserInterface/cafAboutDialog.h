@@ -40,7 +40,7 @@
 
 class QGridLayout;
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 //
@@ -82,4 +82,4 @@ private:
     bool m_isDebugBuild; // If set to true, will show info in dlg to indicate that this is a debug build
 };
 
-} // namespace caf
+} // namespace caffa

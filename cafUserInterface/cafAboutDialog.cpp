@@ -42,11 +42,11 @@
 #include <QVBoxLayout>
 #include <QVariant>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 ///
-/// \class caf::BasicAboutDialog
+/// \class caffa::BasicAboutDialog
 ///
 ///
 ///
@@ -291,4 +291,4 @@ void AboutDialog::addStringPairToVerInfoLayout( const QString& labelStr,
     verInfoLayout->addWidget( info, insertRow, 1 );
 }
 
-} // namespace caf
+} // namespace caffa

@@ -62,25 +62,25 @@
 
 #define CAF_FACTORY_REGISTER( BaseType, TypeToCreate, KeyType, key )   \
     static bool CAF_UNIQUE_COMPILE_UNIT_VAR_NAME( my##TypeToCreate ) = \
-        caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>( key )
+        caffa::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>( key )
 #define CAF_FACTORY_REGISTER2( BaseType, TypeToCreate, KeyType, key )   \
     static bool CAF_UNIQUE_COMPILE_UNIT_VAR_NAME( my2##TypeToCreate ) = \
-        caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>( key )
+        caffa::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>( key )
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// A generic Factory class template
 /// Usage:
 ///     Simply add the classes that is supposed to be created by the factory by doing the folowing:
 ///
-///     caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key);
+///     caffa::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key);
 ///
 ///     This must only be done once for each TypeToCreate. It will assert if you try to do it several times.
 ///     This method returns a bool to make it possible to make this initialization as a static variable initialization.
 ///     That is useful if you do not want a centralized registering (but rather making each class register itself):
 ///
-///     static bool uniqueVarname = caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key);
+///     static bool uniqueVarname = caffa::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key);
 ///
 ///     You can also use the macro CAF_FACTORY_REGISTER(BaseType, TypeToCreate, KeyType, key)
 ///
@@ -88,7 +88,7 @@ namespace caf
 ///
 ///     When you need an object:
 ///
-///     BaseType* newObject = caf::Factory<BaseType, KeyType>::instance()->create(key);
+///     BaseType* newObject = caffa::Factory<BaseType, KeyType>::instance()->create(key);
 //==================================================================================================
 
 template <typename BaseType, typename KeyType>
@@ -180,4 +180,4 @@ private:
     std::map<KeyType, ObjectCreatorBase*> m_factoryMap;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

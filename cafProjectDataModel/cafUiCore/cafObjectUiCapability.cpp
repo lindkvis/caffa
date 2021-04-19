@@ -8,7 +8,7 @@
 #include "cafUiOrdering.h"
 #include "cafUiTreeOrdering.h"
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -234,4 +234,4 @@ void ObjectUiCapability::fieldChangedByUi( const FieldHandle* changedField, cons
     m_owner->fieldChangedByCapability( changedField, changedField->capability<FieldUiCapability>(), oldValue, newValue );
 }
 
-} // End namespace caf
+} // End namespace caffa

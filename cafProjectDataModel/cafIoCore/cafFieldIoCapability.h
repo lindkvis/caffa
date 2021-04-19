@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 class FieldHandle;
 // class FieldXmlCapability;
@@ -65,4 +65,4 @@ protected:
 
     std::chrono::high_resolution_clock::time_point m_lastChanged;
 };
-} // End of namespace caf
+} // End of namespace caffa

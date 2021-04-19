@@ -9,7 +9,7 @@
 #include <list>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 class ObjectIoCapability;
 class ObjectHandle;
@@ -53,4 +53,4 @@ public:
                              bool                writeValues = true );
 };
 
-} // End of namespace caf
+} // End of namespace caffa

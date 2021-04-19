@@ -36,7 +36,7 @@
 
 #include "cafUiWidgetObjectEditorHandle.h"
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -72,4 +72,4 @@ QWidget* UiWidgetObjectEditorHandle::widget() const
     return m_widget;
 }
 
-} // End of namespace caf
+} // End of namespace caffa

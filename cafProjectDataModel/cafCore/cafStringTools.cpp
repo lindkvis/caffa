@@ -3,7 +3,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string caf::StringTools::trim( std::string s )
+std::string caffa::StringTools::trim( std::string s )
 {
     s.erase( s.begin(), std::find_if( s.begin(), s.end(), []( unsigned char ch ) { return !std::isspace( ch ); } ) );
     s.erase( std::find_if( s.rbegin(), s.rend(), []( unsigned char ch ) { return !std::isspace( ch ); } ).base(), s.end() );
@@ -13,7 +13,7 @@ std::string caf::StringTools::trim( std::string s )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string caf::StringTools::tolower( std::string data )
+std::string caffa::StringTools::tolower( std::string data )
 {
     std::transform( data.begin(), data.end(), data.begin(), []( unsigned char c ) { return (char)std::tolower( c ); } );
     return data;

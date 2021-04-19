@@ -116,7 +116,7 @@ private:
     int m_heightHint;
 };
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -171,7 +171,7 @@ void UiListEditor::configureAndUpdateUi()
     }
 
     UiListEditorAttribute    attributes;
-    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caffa::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), &attributes );
@@ -554,4 +554,4 @@ bool UiListEditor::isMultiRowEditor() const
     return true;
 }
 
-} // end namespace caf
+} // end namespace caffa

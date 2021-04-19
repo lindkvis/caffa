@@ -47,7 +47,7 @@
 
 #include <QGridLayout>
 
-namespace caf
+namespace caffa
 {
 // Register default field editor for selected types
 CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( UiCheckBoxEditor, bool );
@@ -96,4 +96,4 @@ void UiDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering( con
     recursivelyConfigureAndUpdateUiOrderingInNewGridLayout( topLevelUiOrdering, this->widget() );
 }
 
-} // end namespace caf
+} // end namespace caffa

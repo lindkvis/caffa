@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// XML Implementation for FieldIoCap<> methods
@@ -22,7 +22,7 @@ namespace caf
 template <typename FieldType>
 bool FieldIoCap<FieldType>::isVectorField() const
 {
-    return caf::is_vector<FieldType>();
+    return caffa::is_vector<FieldType>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,7 +169,7 @@ bool FieldIoCap<PtrArrayField<DataType*>>::resolveReferences()
     m_field->clear();
 
     bool                   foundValidObjectFromString = true;
-    std::list<std::string> tokens                     = caf::StringTools::split( m_referenceString, "|" );
+    std::list<std::string> tokens                     = caffa::StringTools::split( m_referenceString, "|" );
     for ( auto token : tokens )
     {
         ObjectHandle* objHandle = ReferenceHelper::objectFromFieldReference( this->fieldHandle(), token );
@@ -238,7 +238,7 @@ void FieldIoCap<ChildField<DataType*>>::readFieldData( const nlohmann::json& jso
         }
         else
         {
-            auto ioObject = obj->template capability<caf::ObjectIoCapability>();
+            auto ioObject = obj->template capability<caffa::ObjectIoCapability>();
             if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
             {
                 CAF_ASSERT( false ); // Inconsistency in the factory. It creates objects of wrong type from the
@@ -251,7 +251,7 @@ void FieldIoCap<ChildField<DataType*>>::readFieldData( const nlohmann::json& jso
         }
     }
 
-    auto ioObject = obj->template capability<caf::ObjectIoCapability>();
+    auto ioObject = obj->template capability<caffa::ObjectIoCapability>();
     if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
     {
         // Error: Field contains different class type than on file
@@ -277,7 +277,7 @@ void FieldIoCap<ChildField<DataType*>>::writeFieldData( nlohmann::json& jsonValu
     auto object = m_field->m_fieldValue.rawPtr();
     if ( !object ) return;
 
-    auto ioObject = object->template capability<caf::ObjectIoCapability>();
+    auto ioObject = object->template capability<caffa::ObjectIoCapability>();
     if ( ioObject )
     {
         std::string className = ioObject->classKeyword();
@@ -338,7 +338,7 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFieldData( const nlohmann::json
             continue;
         }
 
-        auto ioObject = obj->template capability<caf::ObjectIoCapability>();
+        auto ioObject = obj->template capability<caffa::ObjectIoCapability>();
         if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
         {
             CAF_ASSERT( false ); // There is an inconsistency in the factory. It creates objects of type not matching
@@ -370,7 +370,7 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeFieldData( nlohmann::json& jso
     {
         if ( it->rawPtr() == nullptr ) continue;
 
-        auto ioObject = it->rawPtr()->template capability<caf::ObjectIoCapability>();
+        auto ioObject = it->rawPtr()->template capability<caffa::ObjectIoCapability>();
         if ( ioObject )
         {
             std::string    className   = ioObject->classKeyword();
@@ -452,4 +452,4 @@ bool FieldIoCap<Field<std::vector<DataType>>>::resolveReferences()
     return true;
 }
 
-} // End namespace caf
+} // End namespace caffa

@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 class UiTreeViewItemAttribute : public UiEditorAttribute
 {
@@ -42,6 +42,6 @@ public:
     std::vector<std::string> columnHeaders;
 
     /// This object is set as current item in the tree view in configureAndUpdateUi()
-    caf::ObjectHandle* currentObject;
+    caffa::ObjectHandle* currentObject;
 };
-} // namespace caf
+} // namespace caffa

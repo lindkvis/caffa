@@ -7,7 +7,7 @@
 
 #include <sstream>
 
-namespace caf
+namespace caffa
 {
 class ObjectFactory;
 template <typename T>
@@ -59,4 +59,4 @@ void FieldReader<std::string>::readFieldData( std::string&          field,
                                               const nlohmann::json& jsonValue,
                                               ObjectFactory*        objectFactory );
 
-} // End of namespace caf
+} // End of namespace caffa

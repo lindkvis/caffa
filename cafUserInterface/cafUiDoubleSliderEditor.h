@@ -45,7 +45,7 @@
 #include <QString>
 #include <QWidget>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 ///
@@ -85,4 +85,4 @@ private:
     UiDoubleSliderEditorAttribute m_attributes;
 };
 
-} // end namespace caf
+} // end namespace caffa

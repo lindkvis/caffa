@@ -44,7 +44,7 @@ class QModelIndex;
 class QStringList;
 class QStringListModel;
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 ///
@@ -107,4 +107,4 @@ private:
     bool   m_isScrollToItemAllowed;
 };
 
-} // end namespace caf
+} // end namespace caffa

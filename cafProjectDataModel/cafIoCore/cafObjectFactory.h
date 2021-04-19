@@ -44,7 +44,7 @@
 #include <string>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 //
@@ -114,4 +114,4 @@ private:
     std::list<Pointer<ObjectHandle>> m_objects;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

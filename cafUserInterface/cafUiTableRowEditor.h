@@ -40,7 +40,7 @@
 
 #include <QPointer>
 
-namespace caf
+namespace caffa
 {
 class UiTableViewQModel;
 class ObjectHandle;
@@ -51,7 +51,7 @@ class ObjectHandle;
 class UiTableRowEditor : public UiEditorHandle
 {
 public:
-    UiTableRowEditor( UiTableViewQModel* model, caf::ObjectHandle* object, int row );
+    UiTableRowEditor( UiTableViewQModel* model, caffa::ObjectHandle* object, int row );
     ~UiTableRowEditor() override;
 
 protected:
@@ -62,4 +62,4 @@ private:
     int                         m_row;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

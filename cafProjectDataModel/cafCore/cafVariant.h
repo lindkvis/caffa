@@ -14,7 +14,7 @@
 #include <type_traits>
 #include <variant>
 
-namespace caf
+namespace caffa
 {
 class ObjectHandle;
 
@@ -214,10 +214,10 @@ public:
                                          double,
                                          float,
                                          std::string,
-                                         caf::Tristate,
-                                         caf::Color,
+                                         caffa::Tristate,
+                                         caffa::Color,
                                          std::time_t,
-                                         caf::Pointer<ObjectHandle>,
+                                         caffa::Pointer<ObjectHandle>,
                                          std::vector<bool>,
                                          std::vector<int>,
                                          std::vector<unsigned char>,
@@ -226,10 +226,10 @@ public:
                                          std::vector<double>,
                                          std::vector<float>,
                                          std::vector<std::string>,
-                                         std::vector<caf::Tristate>,
-                                         std::vector<caf::Color>,
+                                         std::vector<caffa::Tristate>,
+                                         std::vector<caffa::Color>,
                                          std::vector<std::time_t>,
-                                         std::vector<caf::Pointer<ObjectHandle>>>;
+                                         std::vector<caffa::Pointer<ObjectHandle>>>;
     Variant() {}
 
     template <typename T>
@@ -391,4 +391,4 @@ Variant Variant::fromVectorT( const std::vector<Variant>& variantVector )
     return Variant( vectorOfValues );
 }
 
-} // namespace caf
+} // namespace caffa

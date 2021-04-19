@@ -46,7 +46,7 @@
 #include <string>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 class ChildArrayFieldHandle;
 
@@ -185,4 +185,4 @@ private:
     std::set<SelectionChangedReceiver*> m_selectionReceivers;
 };
 
-} // end namespace caf
+} // end namespace caffa

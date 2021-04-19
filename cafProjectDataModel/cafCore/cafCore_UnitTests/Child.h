@@ -6,11 +6,11 @@
 
 class TestObj;
 
-class Child : public caf::ObjectHandle
+class Child : public caffa::ObjectHandle
 {
 public:
     Child();
     ~Child();
 
-    caf::ChildField<TestObj*> m_testObj;
+    caffa::ChildField<TestObj*> m_testObj;
 };

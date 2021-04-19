@@ -36,7 +36,7 @@
 
 #pragma once
 
-namespace caf
+namespace caffa
 {
 class ProgressState
 {
@@ -44,4 +44,4 @@ public:
     static bool isActive();
 };
 
-} // namespace caf
+} // namespace caffa

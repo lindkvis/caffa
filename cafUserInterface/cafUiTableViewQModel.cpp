@@ -51,7 +51,7 @@
 
 #include <QTableView>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -588,7 +588,7 @@ void UiTableViewQModel::recreateTableItemEditors()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::FieldUiCapability* UiTableViewQModel::getUiFieldHandle( const QModelIndex& index ) const
+caffa::FieldUiCapability* UiTableViewQModel::getUiFieldHandle( const QModelIndex& index ) const
 {
     auto fieldHandle = getField( index );
     if ( fieldHandle )
@@ -687,7 +687,7 @@ QItemSelection UiTableViewQModel::modelIndexFromObject( ObjectHandle* object )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::ChildArrayFieldHandle* UiTableViewQModel::childArrayFieldHandle() const
+caffa::ChildArrayFieldHandle* UiTableViewQModel::childArrayFieldHandle() const
 {
     // Required to have a Pointer to the owner object. Used to guard access to a field inside this object. It is not
     // possible to use a Pointer on a field pointer
@@ -729,7 +729,7 @@ int UiTableViewQModel::getFieldIndex( FieldHandle* field ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TableViewPushButton::TableViewPushButton( caf::FieldUiCapability* field, const QString& text, QWidget* parent /*= 0*/ )
+TableViewPushButton::TableViewPushButton( caffa::FieldUiCapability* field, const QString& text, QWidget* parent /*= 0*/ )
     : QPushButton( text, parent )
     , m_fieldHandle( field )
 {
@@ -747,9 +747,9 @@ void TableViewPushButton::slotPressed()
         if ( val.canConvert<bool>() )
         {
             bool currentValue = val.value<bool>();
-            caf::UiCommandSystemProxy::instance()->setUiValueToField( m_fieldHandle, !currentValue );
+            caffa::UiCommandSystemProxy::instance()->setUiValueToField( m_fieldHandle, !currentValue );
         }
     }
 }
 
-} // end namespace caf
+} // end namespace caffa

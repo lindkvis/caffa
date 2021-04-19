@@ -39,7 +39,7 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 
-namespace caf
+namespace caffa
 {
 class Object;
 class UiPropertyView;
@@ -67,4 +67,4 @@ private:
     QDialogButtonBox* m_buttonBox;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

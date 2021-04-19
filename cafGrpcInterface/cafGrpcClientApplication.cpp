@@ -22,7 +22,7 @@
 #include "cafAssert.h"
 #include "cafGrpcClient.h"
 
-using namespace caf::rpc;
+using namespace caffa::rpc;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -31,8 +31,8 @@ ClientApplication::ClientApplication( const std::string& hostname, int portNumbe
     : Application( { AppCapability::GRPC_CLIENT } )
 
 {
-    m_client = std::make_unique<caf::rpc::Client>( hostname, portNumber );
-    caf::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( m_client.get());
+    m_client = std::make_unique<caffa::rpc::Client>( hostname, portNumber );
+    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( m_client.get());
 }
 
 //--------------------------------------------------------------------------------------------------

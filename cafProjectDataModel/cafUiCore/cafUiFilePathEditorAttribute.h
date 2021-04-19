@@ -4,7 +4,7 @@
 
 #include <string>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 ///
@@ -32,4 +32,4 @@ public:
     char        m_multipleItemSeparator;
 };
 
-} // namespace caf
+} // namespace caffa

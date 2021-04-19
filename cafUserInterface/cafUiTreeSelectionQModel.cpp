@@ -51,7 +51,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::UiTreeSelectionQModel::UiTreeSelectionQModel( QObject* parent /*= 0*/ )
+caffa::UiTreeSelectionQModel::UiTreeSelectionQModel( QObject* parent /*= 0*/ )
     : QAbstractItemModel( parent )
     , m_uiFieldHandle( nullptr )
     , m_uiValueCache( nullptr )
@@ -64,7 +64,7 @@ caf::UiTreeSelectionQModel::UiTreeSelectionQModel( QObject* parent /*= 0*/ )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::UiTreeSelectionQModel::~UiTreeSelectionQModel()
+caffa::UiTreeSelectionQModel::~UiTreeSelectionQModel()
 {
     m_uiFieldHandle = nullptr;
 
@@ -75,7 +75,7 @@ caf::UiTreeSelectionQModel::~UiTreeSelectionQModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int caf::UiTreeSelectionQModel::headingRole()
+int caffa::UiTreeSelectionQModel::headingRole()
 {
     return Qt::UserRole + 1;
 }
@@ -83,7 +83,7 @@ int caf::UiTreeSelectionQModel::headingRole()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int caf::UiTreeSelectionQModel::optionItemValueRole()
+int caffa::UiTreeSelectionQModel::optionItemValueRole()
 {
     return Qt::UserRole + 2;
 }
@@ -91,7 +91,7 @@ int caf::UiTreeSelectionQModel::optionItemValueRole()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::UiTreeSelectionQModel::setCheckedStateForItems( const QModelIndexList& sourceModelIndices, bool checked )
+void caffa::UiTreeSelectionQModel::setCheckedStateForItems( const QModelIndexList& sourceModelIndices, bool checked )
 {
     if ( !m_uiFieldHandle || !m_uiFieldHandle->uiField() ) return;
 
@@ -110,7 +110,7 @@ void caf::UiTreeSelectionQModel::setCheckedStateForItems( const QModelIndexList&
     {
         for ( const auto& mi : sourceModelIndices )
         {
-            const caf::OptionItemInfo* optionItemInfo = optionItem( mi );
+            const caffa::OptionItemInfo* optionItemInfo = optionItem( mi );
             if ( !optionItemInfo->isReadOnly() )
             {
                 selectedItems.insert( optionItem( mi )->value() );
@@ -121,7 +121,7 @@ void caf::UiTreeSelectionQModel::setCheckedStateForItems( const QModelIndexList&
     {
         for ( const auto& mi : sourceModelIndices )
         {
-            const caf::OptionItemInfo* optionItemInfo = optionItem( mi );
+            const caffa::OptionItemInfo* optionItemInfo = optionItem( mi );
             if ( !optionItemInfo->isReadOnly() )
             {
                 selectedItems.erase( optionItem( mi )->value() );
@@ -142,7 +142,7 @@ void caf::UiTreeSelectionQModel::setCheckedStateForItems( const QModelIndexList&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::UiTreeSelectionQModel::enableSingleSelectionMode( bool enable )
+void caffa::UiTreeSelectionQModel::enableSingleSelectionMode( bool enable )
 {
     m_singleSelectionMode = enable;
 }
@@ -150,7 +150,7 @@ void caf::UiTreeSelectionQModel::enableSingleSelectionMode( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t caf::UiTreeSelectionQModel::optionItemCount() const
+size_t caffa::UiTreeSelectionQModel::optionItemCount() const
 {
     return m_options.size();
 }
@@ -158,7 +158,7 @@ size_t caf::UiTreeSelectionQModel::optionItemCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::UiTreeSelectionQModel::setOptions( caf::UiFieldEditorHandle* field, const std::deque<caf::OptionItemInfo>& options )
+void caffa::UiTreeSelectionQModel::setOptions( caffa::UiFieldEditorHandle* field, const std::deque<caffa::OptionItemInfo>& options )
 {
     m_uiFieldHandle = field;
 
@@ -192,7 +192,7 @@ void caf::UiTreeSelectionQModel::setOptions( caf::UiFieldEditorHandle* field, co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::UiTreeSelectionQModel::setUiValueCache( const Variant& uiValuesCache )
+void caffa::UiTreeSelectionQModel::setUiValueCache( const Variant& uiValuesCache )
 {
     m_uiValueCache = uiValuesCache;
 }
@@ -200,7 +200,7 @@ void caf::UiTreeSelectionQModel::setUiValueCache( const Variant& uiValuesCache )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::UiTreeSelectionQModel::resetUiValueCache()
+void caffa::UiTreeSelectionQModel::resetUiValueCache()
 {
     m_uiValueCache = Variant();
 }
@@ -208,7 +208,7 @@ void caf::UiTreeSelectionQModel::resetUiValueCache()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::UiTreeSelectionQModel::isReadOnly( const QModelIndex& index ) const
+bool caffa::UiTreeSelectionQModel::isReadOnly( const QModelIndex& index ) const
 {
     return optionItem( index )->isReadOnly();
 }
@@ -216,7 +216,7 @@ bool caf::UiTreeSelectionQModel::isReadOnly( const QModelIndex& index ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::UiTreeSelectionQModel::isChecked( const QModelIndex& index ) const
+bool caffa::UiTreeSelectionQModel::isChecked( const QModelIndex& index ) const
 {
     return data( index, Qt::CheckStateRole ).toBool();
 }
@@ -224,7 +224,7 @@ bool caf::UiTreeSelectionQModel::isChecked( const QModelIndex& index ) const
 //--------------------------------------------------------------------------------------------------
 /// Checks if this is a real tree with grand children or just a list of children.
 //--------------------------------------------------------------------------------------------------
-bool caf::UiTreeSelectionQModel::hasGrandChildren() const
+bool caffa::UiTreeSelectionQModel::hasGrandChildren() const
 {
     return m_tree && m_tree->hasGrandChildren();
 }
@@ -232,7 +232,7 @@ bool caf::UiTreeSelectionQModel::hasGrandChildren() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const caf::OptionItemInfo* caf::UiTreeSelectionQModel::optionItem( const QModelIndex& index ) const
+const caffa::OptionItemInfo* caffa::UiTreeSelectionQModel::optionItem( const QModelIndex& index ) const
 {
     int opIndex = optionIndex( index );
 
@@ -242,7 +242,7 @@ const caf::OptionItemInfo* caf::UiTreeSelectionQModel::optionItem( const QModelI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int caf::UiTreeSelectionQModel::optionIndex( const QModelIndex& index ) const
+int caffa::UiTreeSelectionQModel::optionIndex( const QModelIndex& index ) const
 {
     CAF_ASSERT( index.isValid() );
 
@@ -256,11 +256,11 @@ int caf::UiTreeSelectionQModel::optionIndex( const QModelIndex& index ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Qt::ItemFlags caf::UiTreeSelectionQModel::flags( const QModelIndex& index ) const
+Qt::ItemFlags caffa::UiTreeSelectionQModel::flags( const QModelIndex& index ) const
 {
     if ( index.isValid() )
     {
-        const caf::OptionItemInfo* optionItemInfo = optionItem( index );
+        const caffa::OptionItemInfo* optionItemInfo = optionItem( index );
 
         if ( !optionItemInfo->isHeading() )
         {
@@ -279,7 +279,7 @@ Qt::ItemFlags caf::UiTreeSelectionQModel::flags( const QModelIndex& index ) cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QModelIndex caf::UiTreeSelectionQModel::index( int row, int column, const QModelIndex& parent /*= QModelIndex()*/ ) const
+QModelIndex caffa::UiTreeSelectionQModel::index( int row, int column, const QModelIndex& parent /*= QModelIndex()*/ ) const
 {
     if ( !hasIndex( row, column, parent ) ) return QModelIndex();
 
@@ -300,7 +300,7 @@ QModelIndex caf::UiTreeSelectionQModel::index( int row, int column, const QModel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int caf::UiTreeSelectionQModel::columnCount( const QModelIndex& parent /*= QModelIndex()*/ ) const
+int caffa::UiTreeSelectionQModel::columnCount( const QModelIndex& parent /*= QModelIndex()*/ ) const
 {
     return 1;
 }
@@ -308,7 +308,7 @@ int caf::UiTreeSelectionQModel::columnCount( const QModelIndex& parent /*= QMode
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QModelIndex caf::UiTreeSelectionQModel::parent( const QModelIndex& index ) const
+QModelIndex caffa::UiTreeSelectionQModel::parent( const QModelIndex& index ) const
 {
     if ( !index.isValid() ) return QModelIndex();
 
@@ -323,7 +323,7 @@ QModelIndex caf::UiTreeSelectionQModel::parent( const QModelIndex& index ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int caf::UiTreeSelectionQModel::rowCount( const QModelIndex& parent /*= QModelIndex()*/ ) const
+int caffa::UiTreeSelectionQModel::rowCount( const QModelIndex& parent /*= QModelIndex()*/ ) const
 {
     if ( !m_tree ) return 0;
 
@@ -341,11 +341,11 @@ int caf::UiTreeSelectionQModel::rowCount( const QModelIndex& parent /*= QModelIn
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QVariant caf::UiTreeSelectionQModel::data( const QModelIndex& index, int role /*= Qt::DisplayRole*/ ) const
+QVariant caffa::UiTreeSelectionQModel::data( const QModelIndex& index, int role /*= Qt::DisplayRole*/ ) const
 {
     if ( index.isValid() )
     {
-        const caf::OptionItemInfo* optionItemInfo = optionItem( index );
+        const caffa::OptionItemInfo* optionItemInfo = optionItem( index );
 
         if ( role == Qt::DisplayRole )
         {
@@ -419,7 +419,7 @@ QVariant caf::UiTreeSelectionQModel::data( const QModelIndex& index, int role /*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::UiTreeSelectionQModel::setData( const QModelIndex& index, const QVariant& value, int role /*= Qt::EditRole*/ )
+bool caffa::UiTreeSelectionQModel::setData( const QModelIndex& index, const QVariant& value, int role /*= Qt::EditRole*/ )
 {
     if ( !m_uiFieldHandle || !m_uiFieldHandle->uiField() ) return false;
 
@@ -497,7 +497,7 @@ bool caf::UiTreeSelectionQModel::setData( const QModelIndex& index, const QVaria
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QModelIndex caf::UiTreeSelectionQModel::indexForLastUncheckedItem() const
+QModelIndex caffa::UiTreeSelectionQModel::indexForLastUncheckedItem() const
 {
     return m_indexForLastUncheckedItem;
 }
@@ -505,7 +505,7 @@ QModelIndex caf::UiTreeSelectionQModel::indexForLastUncheckedItem() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::UiTreeSelectionQModel::clearIndexForLastUncheckedItem()
+void caffa::UiTreeSelectionQModel::clearIndexForLastUncheckedItem()
 {
     m_indexForLastUncheckedItem = QModelIndex();
 }
@@ -513,7 +513,7 @@ void caf::UiTreeSelectionQModel::clearIndexForLastUncheckedItem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::UiTreeSelectionQModel::buildOptionItemTree( int parentOptionIndex, TreeItemType* parentNode )
+void caffa::UiTreeSelectionQModel::buildOptionItemTree( int parentOptionIndex, TreeItemType* parentNode )
 {
     if ( parentNode == m_tree )
     {
@@ -547,7 +547,7 @@ void caf::UiTreeSelectionQModel::buildOptionItemTree( int parentOptionIndex, Tre
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::UiTreeSelectionQModel::notifyChangedForAllModelIndices()
+void caffa::UiTreeSelectionQModel::notifyChangedForAllModelIndices()
 {
     recursiveNotifyChildren( QModelIndex() );
 }
@@ -555,7 +555,7 @@ void caf::UiTreeSelectionQModel::notifyChangedForAllModelIndices()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::UiTreeSelectionQModel::recursiveNotifyChildren( const QModelIndex& index )
+void caffa::UiTreeSelectionQModel::recursiveNotifyChildren( const QModelIndex& index )
 {
     for ( int r = 0; r < rowCount( index ); r++ )
     {

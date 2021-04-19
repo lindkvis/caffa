@@ -38,7 +38,7 @@
 
 #include <memory>
 
-namespace caf
+namespace caffa
 {
 class PickEventHandler;
 
@@ -77,4 +77,4 @@ private:
     UiPickableLineEditorAttribute m_attribute;
 };
 
-} // end namespace caf
+} // end namespace caffa

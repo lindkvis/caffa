@@ -15,7 +15,7 @@
 #include "cafPtrField.h"
 #include "cafReferenceHelper.h"
 
-class DemoObject : public caf::ObjectHandle, public caf::ObjectIoCapability
+class DemoObject : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
     CAF_IO_HEADER_INIT;
 
@@ -33,13 +33,13 @@ public:
     {
         CAF_IO_InitField( &m_proxyDoubleField, "BigNumber" );
 
-        auto doubleProxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
+        auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
         doubleProxyAccessor->registerSetMethod( this, &DemoObject::setDoubleMember );
         doubleProxyAccessor->registerGetMethod( this, &DemoObject::doubleMember );
         m_proxyDoubleField.setFieldDataAccessor( std::move( doubleProxyAccessor ) );
 
         CAF_IO_InitField( &m_proxyEnumField, "AppEnum" );
-        auto proxyEnumAccessor = std::make_unique<caf::FieldProxyAccessor<caf::AppEnum<TestEnumType>>>();
+        auto proxyEnumAccessor = std::make_unique<caffa::FieldProxyAccessor<caffa::AppEnum<TestEnumType>>>();
         proxyEnumAccessor->registerSetMethod( this, &DemoObject::setEnumMember );
         proxyEnumAccessor->registerGetMethod( this, &DemoObject::enumMember );
         m_proxyEnumField.setFieldDataAccessor( std::move( proxyEnumAccessor ) );
@@ -51,8 +51,8 @@ public:
 
     // Fields
 
-    caf::DataValueField<double>                     m_proxyDoubleField;
-    caf::DataValueField<caf::AppEnum<TestEnumType>> m_proxyEnumField;
+    caffa::DataValueField<double>                     m_proxyDoubleField;
+    caffa::DataValueField<caffa::AppEnum<TestEnumType>> m_proxyEnumField;
 
 private:
     void setDoubleMember( const double& d )
@@ -66,8 +66,8 @@ private:
         return m_doubleMember;
     }
 
-    void                       setEnumMember( const caf::AppEnum<TestEnumType>& val ) { m_enumMember = val.value(); }
-    caf::AppEnum<TestEnumType> enumMember() const { return m_enumMember; }
+    void                       setEnumMember( const caffa::AppEnum<TestEnumType>& val ) { m_enumMember = val.value(); }
+    caffa::AppEnum<TestEnumType> enumMember() const { return m_enumMember; }
 
     double       m_doubleMember;
     TestEnumType m_enumMember;
@@ -75,7 +75,7 @@ private:
 
 CAF_IO_SOURCE_INIT( DemoObject, "DemoObject" );
 
-namespace caf
+namespace caffa
 {
 template <>
 void AppEnum<DemoObject::TestEnumType>::setUp()
@@ -86,7 +86,7 @@ void AppEnum<DemoObject::TestEnumType>::setUp()
     setDefault( DemoObject::T1 );
 }
 
-} // namespace caf
+} // namespace caffa
 
 TEST( BaseTest, Delete )
 {
@@ -99,7 +99,7 @@ TEST( BaseTest, Delete )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, FieldWrite )
 {
-    std::vector<caf::ObjectIoCapability::IoType> ioTypes = { caf::ObjectIoCapability::IoType::JSON };
+    std::vector<caffa::ObjectIoCapability::IoType> ioTypes = { caffa::ObjectIoCapability::IoType::JSON };
 
     for ( auto ioType : ioTypes )
     {
@@ -125,7 +125,7 @@ TEST( BaseTest, FieldWrite )
         {
             auto a = std::make_unique<DemoObject>();
 
-            a->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance(), ioType );
+            a->readObjectFromString( serializedString, caffa::DefaultObjectFactory::instance(), ioType );
         }
     }
 }
@@ -141,12 +141,12 @@ public:
         CAF_IO_InitField( &m_childArrayField, "DemoObjectects" );
     }
 
-    caf::DataValueField<std::string>  m_texts;
-    caf::ChildArrayField<DemoObject*> m_childArrayField;
+    caffa::DataValueField<std::string>  m_texts;
+    caffa::ChildArrayField<DemoObject*> m_childArrayField;
 };
 CAF_IO_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj", "DemoObject" );
 
-class SimpleObj : public caf::ObjectHandle, public caf::ObjectIoCapability
+class SimpleObj : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
     CAF_IO_HEADER_INIT;
 
@@ -161,16 +161,16 @@ public:
         CAF_IO_InitField( &m_up, "Up" );
 
         CAF_IO_InitField( &m_proxyDouble, "m_proxyDouble" );
-        auto doubleProxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
+        auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
         doubleProxyAccessor->registerSetMethod( this, &SimpleObj::setDoubleMember );
         doubleProxyAccessor->registerGetMethod( this, &SimpleObj::doubleMember );
         m_proxyDouble.setFieldDataAccessor( std::move( doubleProxyAccessor ) );
     }
 
-    caf::DataValueField<double> m_position;
-    caf::DataValueField<double> m_dir;
-    caf::DataValueField<int>    m_up;
-    caf::DataValueField<double> m_proxyDouble;
+    caffa::DataValueField<double> m_position;
+    caffa::DataValueField<double> m_dir;
+    caffa::DataValueField<int>    m_up;
+    caffa::DataValueField<double> m_proxyDouble;
 
     void setDoubleMember( const double& d )
     {
@@ -187,7 +187,7 @@ public:
 };
 CAF_IO_SOURCE_INIT( SimpleObj, "SimpleObj" );
 
-class ReferenceDemoObject : public caf::ObjectHandle, public caf::ObjectIoCapability
+class ReferenceDemoObject : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
     CAF_IO_HEADER_INIT;
 
@@ -201,8 +201,8 @@ public:
     }
 
     // Fields
-    caf::ChildField<ObjectHandle*>   m_pointersField;
-    caf::ChildArrayField<SimpleObj*> m_simpleObjPtrField2;
+    caffa::ChildField<ObjectHandle*>   m_pointersField;
+    caffa::ChildArrayField<SimpleObj*> m_simpleObjPtrField2;
 };
 
 CAF_IO_SOURCE_INIT( ReferenceDemoObject, "ReferenceDemoObject" );
@@ -224,11 +224,11 @@ TEST( BaseTest, ReferenceHelper )
     auto s3p = ihd1->m_childArrayField.push_back( std::move( s3 ) );
 
     {
-        std::string refString      = caf::ReferenceHelper::referenceFromRootToObject( ihd1.get(), s3p );
+        std::string refString      = caffa::ReferenceHelper::referenceFromRootToObject( ihd1.get(), s3p );
         std::string expectedString = ihd1->m_childArrayField.keyword() + " 3";
         EXPECT_STREQ( refString.c_str(), expectedString.c_str() );
 
-        caf::ObjectHandle* fromRef = caf::ReferenceHelper::objectFromReference( ihd1.get(), refString );
+        caffa::ObjectHandle* fromRef = caffa::ReferenceHelper::objectFromReference( ihd1.get(), refString );
         EXPECT_TRUE( fromRef == s3p.p() );
     }
 
@@ -237,17 +237,17 @@ TEST( BaseTest, ReferenceHelper )
     objA->m_pointersField = std::move( ihd1 );
 
     {
-        std::string refString = caf::ReferenceHelper::referenceFromRootToObject( objA.get(), s3p );
+        std::string refString = caffa::ReferenceHelper::referenceFromRootToObject( objA.get(), s3p );
 
-        caf::ObjectHandle* fromRef = caf::ReferenceHelper::objectFromReference( objA.get(), refString );
+        caffa::ObjectHandle* fromRef = caffa::ReferenceHelper::objectFromReference( objA.get(), refString );
         EXPECT_TRUE( fromRef == s3p );
     }
 
     // Test reference to field
     {
-        std::string refString = caf::ReferenceHelper::referenceFromRootToField( objA.get(), &( ihd1p->m_childArrayField ) );
+        std::string refString = caffa::ReferenceHelper::referenceFromRootToField( objA.get(), &( ihd1p->m_childArrayField ) );
 
-        caf::FieldHandle* fromRef = caf::ReferenceHelper::fieldFromReference( objA.get(), refString );
+        caffa::FieldHandle* fromRef = caffa::ReferenceHelper::fieldFromReference( objA.get(), refString );
         EXPECT_TRUE( fromRef == &( ihd1p->m_childArrayField ) );
     }
 }
@@ -281,7 +281,7 @@ TEST( BaseTest, ChildArrayFieldSerializing )
         auto ihd1 = std::make_unique<InheritedDemoObj>();
         ASSERT_EQ( 0u, ihd1->m_childArrayField.size() );
 
-        ihd1->readObjectFromString( serializedString, caf::DefaultObjectFactory::instance() );
+        ihd1->readObjectFromString( serializedString, caffa::DefaultObjectFactory::instance() );
 
         ASSERT_DOUBLE_EQ( 10, ihd1->m_childArrayField[0]->m_proxyDoubleField.value() );
         ASSERT_DOUBLE_EQ( 20, ihd1->m_childArrayField[1]->m_proxyDoubleField.value() );
@@ -299,23 +299,23 @@ TEST( BaseTest, TestDataType )
     auto s1 = std::make_unique<SimpleObj>();
 
     {
-        auto dataTypeNameDouble = s1->m_position.capability<caf::FieldIoCapability>()->dataTypeName();
+        auto dataTypeNameDouble = s1->m_position.capability<caffa::FieldIoCapability>()->dataTypeName();
         EXPECT_EQ( "double", dataTypeNameDouble );
     }
 
     {
-        auto dataTypeNameDouble = s1->m_proxyDouble.capability<caf::FieldIoCapability>()->dataTypeName();
+        auto dataTypeNameDouble = s1->m_proxyDouble.capability<caffa::FieldIoCapability>()->dataTypeName();
         EXPECT_EQ( "double", dataTypeNameDouble );
     }
 
     {
-        auto dataTypeNameDouble = s1->m_up.capability<caf::FieldIoCapability>()->dataTypeName();
+        auto dataTypeNameDouble = s1->m_up.capability<caffa::FieldIoCapability>()->dataTypeName();
         EXPECT_EQ( "int", dataTypeNameDouble );
     }
 
     {
         auto obj                = std::make_unique<InheritedDemoObj>();
-        auto dataTypeNameDouble = obj->m_texts.capability<caf::FieldIoCapability>()->dataTypeName();
+        auto dataTypeNameDouble = obj->m_texts.capability<caffa::FieldIoCapability>()->dataTypeName();
         EXPECT_EQ( typeid( std::string ).name(), dataTypeNameDouble );
     }
 }

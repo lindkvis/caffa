@@ -13,20 +13,20 @@ TamComboBox::TamComboBox()
     assignUiInfo("Cell Filter", "", "", "");
 
     initField(m_name, "UserDescription", "Filter Name").withUi("Name", "", "", "");
-    m_name.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::UiComboBoxEditor::uiEditorTypeName());
+    m_name.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(caffa::UiComboBoxEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::deque<caf::OptionItemInfo> TamComboBox::calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
+std::deque<caffa::OptionItemInfo> TamComboBox::calculateValueOptions(const caffa::FieldHandle* fieldNeedingOptions,
                                                                    bool*                   useOptionsOnly)
 {
-    std::deque<caf::OptionItemInfo> options;
+    std::deque<caffa::OptionItemInfo> options;
 
     for (const auto& s : m_historyItems)
     {
-        options.push_back(caf::OptionItemInfo(s, s));
+        options.push_back(caffa::OptionItemInfo(s, s));
     }
 
     return options;
@@ -35,10 +35,10 @@ std::deque<caf::OptionItemInfo> TamComboBox::calculateValueOptions(const caf::Fi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void TamComboBox::onFieldChangedByCapability(const caf::FieldHandle*     changedField,
-                                             const caf::FieldCapability* changedCapability,
-                                             const caf::Variant&         oldValue,
-                                             const caf::Variant&         newValue)
+void TamComboBox::onFieldChangedByCapability(const caffa::FieldHandle*     changedField,
+                                             const caffa::FieldCapability* changedCapability,
+                                             const caffa::Variant&         oldValue,
+                                             const caffa::Variant&         newValue)
 {
     if (changedField == &m_name)
     {
@@ -58,14 +58,14 @@ void TamComboBox::onFieldChangedByCapability(const caf::FieldHandle*     changed
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void TamComboBox::defineUiOrdering(caf::UiOrdering& uiOrdering) {}
+void TamComboBox::defineUiOrdering(caffa::UiOrdering& uiOrdering) {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void TamComboBox::defineEditorAttribute(const caf::FieldHandle* field, caf::UiEditorAttribute* attribute)
+void TamComboBox::defineEditorAttribute(const caffa::FieldHandle* field, caffa::UiEditorAttribute* attribute)
 {
-    auto attr = dynamic_cast<caf::UiComboBoxEditorAttribute*>(attribute);
+    auto attr = dynamic_cast<caffa::UiComboBoxEditorAttribute*>(attribute);
     if (attr)
     {
         attr->enableEditableContent = true;

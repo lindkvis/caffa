@@ -7,7 +7,7 @@
 #undef CAF_IS_DEFINING_CAF_FIELD
 
 #ifndef __clang__
-namespace caf
+namespace caffa
 {
 // Specialization to create compiler errors to help finding the Field's to rename
 
@@ -21,5 +21,5 @@ class Field<DataType*> : public Rename_Field_of_pointer_to_ChildField // You mus
 
 #endif // WIN32
 
-} // namespace caf
+} // namespace caffa
 #endif // __clang__

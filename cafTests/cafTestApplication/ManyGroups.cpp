@@ -29,7 +29,7 @@ ManyGroups::ManyGroups()
         .withUi("Text", "", "Text tooltip", "This is a place you can enter a small integer value if you want");
 
     initField(m_proxyDoubleField, "ProxyDouble").withUi("Proxy Double", "", "", "");
-    auto proxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
+    auto proxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
     proxyAccessor->registerSetMethod(this, &ManyGroups::setDoubleMember);
     proxyAccessor->registerGetMethod(this, &ManyGroups::doubleMember);
     m_proxyDoubleField.setFieldDataAccessor(std::move(proxyAccessor));
@@ -43,20 +43,20 @@ ManyGroups::ManyGroups()
 
     initField(m_multiSelectList, "SelectedItems").withUi("Multi Select Field", "", "", "");
 
-    m_multiSelectList.capability<caf::FieldIoCapability>()->setIOReadable(false);
-    m_multiSelectList.capability<caf::FieldIoCapability>()->setIOWritable(false);
-    m_multiSelectList.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::UiTreeSelectionEditor::uiEditorTypeName());
+    m_multiSelectList.capability<caffa::FieldIoCapability>()->setIOReadable(false);
+    m_multiSelectList.capability<caffa::FieldIoCapability>()->setIOWritable(false);
+    m_multiSelectList.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(caffa::UiTreeSelectionEditor::uiEditorTypeName());
 
     m_multiSelectList = {"First", "Second", "Third"};
 
     initField(m_stringWithMultipleOptions, "m_stringWithMultipleOptions").withUi("Text with many items", "", "", "");
-    m_stringWithMultipleOptions.capability<caf::FieldUiCapability>()->setUiEditorTypeName(caf::UiListEditor::uiEditorTypeName());
+    m_stringWithMultipleOptions.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(caffa::UiListEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::FieldHandle* ManyGroups::objectToggleField()
+caffa::FieldHandle* ManyGroups::objectToggleField()
 {
     return &m_toggleField;
 }
@@ -64,10 +64,10 @@ caf::FieldHandle* ManyGroups::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ManyGroups::onFieldChangedByCapability(const caf::FieldHandle*     changedField,
-                                            const caf::FieldCapability* changedFieldCapability,
-                                            const caf::Variant&         oldValue,
-                                            const caf::Variant&         newValue)
+void ManyGroups::onFieldChangedByCapability(const caffa::FieldHandle*     changedField,
+                                            const caffa::FieldCapability* changedFieldCapability,
+                                            const caffa::Variant&         oldValue,
+                                            const caffa::Variant&         newValue)
 {
     if (changedField == &m_toggleField)
     {
@@ -78,10 +78,10 @@ void ManyGroups::onFieldChangedByCapability(const caf::FieldHandle*     changedF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::deque<caf::OptionItemInfo> ManyGroups::calculateValueOptions(const caf::FieldHandle* fieldNeedingOptions,
+std::deque<caffa::OptionItemInfo> ManyGroups::calculateValueOptions(const caffa::FieldHandle* fieldNeedingOptions,
                                                                   bool*                   useOptionsOnly)
 {
-    std::deque<caf::OptionItemInfo> options;
+    std::deque<caffa::OptionItemInfo> options;
 
     // Test code used to switch between two lists with different content, but same item count
     if (fieldNeedingOptions == &m_stringWithMultipleOptions)
@@ -89,7 +89,7 @@ std::deque<caf::OptionItemInfo> ManyGroups::calculateValueOptions(const caf::Fie
         for (int i = 0; i < 100; i++)
         {
             std::string text = std::string("item ") + std::to_string(i);
-            options.push_back(caf::OptionItemInfo(text, text));
+            options.push_back(caffa::OptionItemInfo(text, text));
         }
 
         return options;
@@ -101,18 +101,18 @@ std::deque<caf::OptionItemInfo> ManyGroups::calculateValueOptions(const caf::Fie
         if (m_intField < 10)
         {
             std::string text = "Apple 1";
-            options.push_back(caf::OptionItemInfo(text, text));
+            options.push_back(caffa::OptionItemInfo(text, text));
 
             text = "Apple 2";
-            options.push_back(caf::OptionItemInfo(text, text));
+            options.push_back(caffa::OptionItemInfo(text, text));
         }
         else
         {
             std::string text = "Car 1";
-            options.push_back(caf::OptionItemInfo(text, text));
+            options.push_back(caffa::OptionItemInfo(text, text));
 
             text = "Car 2";
-            options.push_back(caf::OptionItemInfo(text, text));
+            options.push_back(caffa::OptionItemInfo(text, text));
         }
 
         return options;
@@ -123,23 +123,23 @@ std::deque<caf::OptionItemInfo> ManyGroups::calculateValueOptions(const caf::Fie
         std::string text;
 
         text = "First";
-        options.push_back(caf::OptionItemInfo(text, text));
+        options.push_back(caffa::OptionItemInfo(text, text));
 
         text = "Second";
         options.push_back(
-            caf::OptionItemInfo::createHeader(text, false, std::make_shared<caf::IconProvider>(":/images/win/textbold.png")));
+            caffa::OptionItemInfo::createHeader(text, false, std::make_shared<caffa::IconProvider>(":/images/win/textbold.png")));
 
         {
             text                         = "Second_a";
-            caf::OptionItemInfo itemInfo = caf::OptionItemInfo(text, text, true);
+            caffa::OptionItemInfo itemInfo = caffa::OptionItemInfo(text, text, true);
             itemInfo.setLevel(1);
             options.push_back(itemInfo);
         }
 
         {
             text = "Second_b";
-            caf::OptionItemInfo itemInfo =
-                caf::OptionItemInfo(text, text, false, std::make_shared<caf::IconProvider>(":/images/win/filenew.png"));
+            caffa::OptionItemInfo itemInfo =
+                caffa::OptionItemInfo(text, text, false, std::make_shared<caffa::IconProvider>(":/images/win/filenew.png"));
             itemInfo.setLevel(1);
             options.push_back(itemInfo);
         }
@@ -148,7 +148,7 @@ std::deque<caf::OptionItemInfo> ManyGroups::calculateValueOptions(const caf::Fie
         for (auto i = 0; i < additionalSubItems; i++)
         {
             text                         = "Second_b_" + std::to_string(i);
-            caf::OptionItemInfo itemInfo = caf::OptionItemInfo(text, text);
+            caffa::OptionItemInfo itemInfo = caffa::OptionItemInfo(text, text);
             itemInfo.setLevel(1);
             options.push_back(itemInfo);
         }
@@ -161,16 +161,16 @@ std::deque<caf::OptionItemInfo> ManyGroups::calculateValueOptions(const caf::Fie
         for (auto i = 0; i < s_additionalSubItems; i++)
         {
             text                         = "Second_b_" + std::to_string(i);
-            caf::OptionItemInfo itemInfo = caf::OptionItemInfo(text, text);
+            caffa::OptionItemInfo itemInfo = caffa::OptionItemInfo(text, text);
             itemInfo.setLevel(1);
             options.push_back(itemInfo);
         }
 
         text = "Third";
-        options.push_back(caf::OptionItemInfo(text, text));
+        options.push_back(caffa::OptionItemInfo(text, text));
 
         text = "Fourth";
-        options.push_back(caf::OptionItemInfo(text, text));
+        options.push_back(caffa::OptionItemInfo(text, text));
     }
 
     return options;
@@ -179,44 +179,44 @@ std::deque<caf::OptionItemInfo> ManyGroups::calculateValueOptions(const caf::Fie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ManyGroups::defineUiOrdering(caf::UiOrdering& uiOrdering)
+void ManyGroups::defineUiOrdering(caffa::UiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_toggleField);
     uiOrdering.add(&m_multiSelectList);
 
     /*
         {
-            caf::UiGroup* group = uiOrdering.addNewGroup("First");
+            caffa::UiGroup* group = uiOrdering.addNewGroup("First");
 
-            caf::UiGroup* subGroup = group->addNewGroup("First_Content");
+            caffa::UiGroup* subGroup = group->addNewGroup("First_Content");
 
             subGroup->add(&m_doubleField);
             subGroup->add(&m_intField);
 
-            caf::UiGroup* subGroup2 = group->addNewGroup("First_Content_2");
+            caffa::UiGroup* subGroup2 = group->addNewGroup("First_Content_2");
 
         }
 
         {
-            caf::UiGroup* group = uiOrdering.addNewGroup("Second");
-            caf::UiGroup* subGroup = group->addNewGroup("Second_Content");
+            caffa::UiGroup* group = uiOrdering.addNewGroup("Second");
+            caffa::UiGroup* subGroup = group->addNewGroup("Second_Content");
         }
 
         {
-            caf::UiGroup* group = uiOrdering.addNewGroup("Third");
-            caf::UiGroup* subGroup = group->addNewGroup("Third_Content");
+            caffa::UiGroup* group = uiOrdering.addNewGroup("Third");
+            caffa::UiGroup* subGroup = group->addNewGroup("Third_Content");
         }
 
         {
-            caf::UiGroup* group = uiOrdering.addNewGroup("Fourth");
-            caf::UiGroup* subGroup = group->addNewGroup("Fourth_Content");
+            caffa::UiGroup* group = uiOrdering.addNewGroup("Fourth");
+            caffa::UiGroup* subGroup = group->addNewGroup("Fourth_Content");
 
             subGroup->add(&m_textField);
         }
 
         {
-            caf::UiGroup* group = uiOrdering.addNewGroup("Fifth");
-            caf::UiGroup* subGroup = group->addNewGroup("Fifth_Content");
+            caffa::UiGroup* group = uiOrdering.addNewGroup("Fifth");
+            caffa::UiGroup* subGroup = group->addNewGroup("Fifth_Content");
 
             subGroup->add(&m_proxyDoubleField);
         }
@@ -226,11 +226,11 @@ void ManyGroups::defineUiOrdering(caf::UiOrdering& uiOrdering)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ManyGroups::defineEditorAttribute(const caf::FieldHandle* field, caf::UiEditorAttribute* attribute)
+void ManyGroups::defineEditorAttribute(const caffa::FieldHandle* field, caffa::UiEditorAttribute* attribute)
 {
     if (field == &m_multiSelectList)
     {
-        caf::UiTreeSelectionEditorAttribute* myAttr = dynamic_cast<caf::UiTreeSelectionEditorAttribute*>(attribute);
+        caffa::UiTreeSelectionEditorAttribute* myAttr = dynamic_cast<caffa::UiTreeSelectionEditorAttribute*>(attribute);
         if (myAttr)
         {
             // myAttr->showTextFilter = false;

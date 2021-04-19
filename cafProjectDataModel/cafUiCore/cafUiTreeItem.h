@@ -39,7 +39,7 @@
 #include <iostream>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// Class used to build a tree item holding a data object
@@ -165,4 +165,4 @@ private:
     T                        m_dataObject;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

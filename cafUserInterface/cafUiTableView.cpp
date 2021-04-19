@@ -46,7 +46,7 @@
 #include <QTableView>
 #include <QVBoxLayout>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -165,7 +165,7 @@ void UiTableView::addActionsToMenu( MenuInterface* menu, ChildArrayFieldHandle* 
     // Several commands rely on the activeChildArrayFieldHandle in the selection manager
     SelectionManager::instance()->setActiveChildArrayFieldHandle( childArrayField );
 
-    caf::UiCommandSystemProxy::instance()->populateMenuWithDefaultCommands( menu );
+    caffa::UiCommandSystemProxy::instance()->populateMenuWithDefaultCommands( menu );
 }
 
-} // End of namespace caf
+} // End of namespace caffa

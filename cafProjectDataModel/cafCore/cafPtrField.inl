@@ -1,13 +1,13 @@
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-Variant caf::PtrField<DataType*>::toVariant() const
+Variant caffa::PtrField<DataType*>::toVariant() const
 {
-    caf::ObjectHandle*              objectHandle = m_fieldValue.rawPtr();
-    caf::Pointer<caf::ObjectHandle> ptrHandle( objectHandle );
+    caffa::ObjectHandle*              objectHandle = m_fieldValue.rawPtr();
+    caffa::Pointer<caffa::ObjectHandle> ptrHandle( objectHandle );
     return Variant( ptrHandle );
 }
 
@@ -15,11 +15,11 @@ Variant caf::PtrField<DataType*>::toVariant() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::PtrField<DataType*>::setFromVariant( const Variant& variant )
+void caffa::PtrField<DataType*>::setFromVariant( const Variant& variant )
 {
     try
     {
-        caf::Pointer<caf::ObjectHandle> variantHandle = variant.value<caf::Pointer<caf::ObjectHandle>>();
+        caffa::Pointer<caffa::ObjectHandle> variantHandle = variant.value<caffa::Pointer<caffa::ObjectHandle>>();
         m_fieldValue.setRawPtr( variantHandle.rawPtr() );
     }
     catch ( std::bad_any_cast& )
@@ -31,7 +31,7 @@ void caf::PtrField<DataType*>::setFromVariant( const Variant& variant )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-caf::PtrField<DataType*>::PtrField( const DataTypePtr& fieldValue )
+caffa::PtrField<DataType*>::PtrField( const DataTypePtr& fieldValue )
 {
     m_isResolved = true;
     m_fieldValue = fieldValue;
@@ -42,7 +42,7 @@ caf::PtrField<DataType*>::PtrField( const DataTypePtr& fieldValue )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-caf::PtrField<DataType*>::~PtrField()
+caffa::PtrField<DataType*>::~PtrField()
 {
     if ( !m_fieldValue.isNull() ) m_fieldValue.rawPtr()->removeReferencingPtrField( this );
     m_fieldValue.setRawPtr( nullptr );
@@ -78,7 +78,7 @@ void PtrField<DataType*>::setRawPtr( ObjectHandle* obj )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-caf::PtrField<DataType*>& PtrField<DataType*>::operator=( const DataTypePtr& fieldValue )
+caffa::PtrField<DataType*>& PtrField<DataType*>::operator=( const DataTypePtr& fieldValue )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
@@ -93,7 +93,7 @@ caf::PtrField<DataType*>& PtrField<DataType*>::operator=( const DataTypePtr& fie
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-caf::PtrField<DataType*>& PtrField<DataType*>::operator=( const FieldDataType& fieldValue )
+caffa::PtrField<DataType*>& PtrField<DataType*>::operator=( const FieldDataType& fieldValue )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
@@ -116,4 +116,4 @@ void PtrField<DataType*>::ptrReferencedObjects( std::vector<ObjectHandle*>* obje
     }
 }
 
-} // End of namespace caf
+} // End of namespace caffa

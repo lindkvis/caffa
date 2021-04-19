@@ -42,7 +42,7 @@
 #include "cafUiItem.h"
 #include "cafValueFieldSpecializations.h"
 
-namespace caf
+namespace caffa
 {
 template <>
 class UiFieldSpecialization<Color>
@@ -72,7 +72,7 @@ public:
     static void childObjects( const DataValueField<Color>&, std::vector<ObjectHandle*>* ) {}
 };
 
-} // end namespace caf
+} // end namespace caffa
 
 //--------------------------------------------------------------------------------------------------
 // If the macro for registering the editor is put as the single statement

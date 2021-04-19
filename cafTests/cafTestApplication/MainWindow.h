@@ -12,7 +12,7 @@ class QTreeView;
 class QUndoView;
 class QLabel;
 
-namespace caf
+namespace caffa
 {
 class ObjectCollection;
 class ObjectHandle;
@@ -20,7 +20,7 @@ class UiPropertyView;
 class UiTreeView;
 class UiTableView;
 class CustomObjectEditor;
-} // namespace caf
+} // namespace caffa
 
 class MainWindow : public QMainWindow
 {
@@ -31,7 +31,7 @@ public:
     ~MainWindow() override;
 
     static MainWindow* instance();
-    void               setRoot(caf::ObjectHandle* root);
+    void               setRoot(caffa::ObjectHandle* root);
 
 private:
     void createActions();
@@ -59,13 +59,13 @@ private:
 private:
     QUndoView* undoView;
 
-    caf::UiTreeView*                 m_uiTreeView;
-    caf::UiTreeView*                 m_uiTreeView2;
-    caf::UiPropertyView*             m_uiPropertyView;
-    caf::UiTableView*                m_uiTableView;
+    caffa::UiTreeView*                 m_uiTreeView;
+    caffa::UiTreeView*                 m_uiTreeView2;
+    caffa::UiPropertyView*             m_uiPropertyView;
+    caffa::UiTableView*                m_uiTableView;
     std::unique_ptr<DemoObjectGroup> m_testRoot;
 
-    caf::CustomObjectEditor* m_customObjectEditor;
+    caffa::CustomObjectEditor* m_customObjectEditor;
 
     QLabel* m_plotLabel;
     QLabel* m_smallPlotLabel;

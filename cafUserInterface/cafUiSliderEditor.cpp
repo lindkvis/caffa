@@ -48,7 +48,7 @@
 #include <QLabel>
 #include <QLineEdit>
 
-namespace caf
+namespace caffa
 {
 CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiSliderEditor );
 
@@ -67,7 +67,7 @@ void UiSliderEditor::configureAndUpdateUi()
     m_slider->setEnabled( !uiField()->isUiReadOnly() );
     m_slider->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
-    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caffa::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
@@ -171,4 +171,4 @@ void UiSliderEditor::writeValueToField()
     this->setValueToField( v );
 }
 
-} // end namespace caf
+} // end namespace caffa

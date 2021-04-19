@@ -13,25 +13,25 @@
 
 #include <vector>
 
-class DemoObject : public caf::ObjectHandle
+class DemoObject : public caffa::ObjectHandle
 {
 public:
     DemoObject()
     {
         this->addField( &m_proxyDoubleField, "m_proxyDoubleField" );
-        auto doubleProxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
+        auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
         doubleProxyAccessor->registerSetMethod( this, &DemoObject::setDoubleMember );
         doubleProxyAccessor->registerGetMethod( this, &DemoObject::doubleMember );
         m_proxyDoubleField.setFieldDataAccessor( std::move( doubleProxyAccessor ) );
 
         this->addField( &m_proxyIntField, "m_proxyIntField" );
-        auto intProxyAccessor = std::make_unique<caf::FieldProxyAccessor<int>>();
+        auto intProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<int>>();
         intProxyAccessor->registerSetMethod( this, &DemoObject::setIntMember );
         intProxyAccessor->registerGetMethod( this, &DemoObject::intMember );
         m_proxyIntField.setFieldDataAccessor( std::move( intProxyAccessor ) );
 
         this->addField( &m_proxyStringField, "m_proxyStringField" );
-        auto stringProxyAccessor = std::make_unique<caf::FieldProxyAccessor<std::string>>();
+        auto stringProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::string>>();
         stringProxyAccessor->registerSetMethod( this, &DemoObject::setStringMember );
         stringProxyAccessor->registerGetMethod( this, &DemoObject::stringMember );
         m_proxyStringField.setFieldDataAccessor( std::move( stringProxyAccessor ) );
@@ -51,13 +51,13 @@ public:
     }
 
     // Fields
-    caf::DataValueField<double>      m_proxyDoubleField;
-    caf::DataValueField<int>         m_proxyIntField;
-    caf::DataValueField<std::string> m_proxyStringField;
+    caffa::DataValueField<double>      m_proxyDoubleField;
+    caffa::DataValueField<int>         m_proxyIntField;
+    caffa::DataValueField<std::string> m_proxyStringField;
 
-    caf::DataValueField<double>      m_memberDoubleField;
-    caf::DataValueField<int>         m_memberIntField;
-    caf::DataValueField<std::string> m_memberStringField;
+    caffa::DataValueField<double>      m_memberDoubleField;
+    caffa::DataValueField<int>         m_memberIntField;
+    caffa::DataValueField<std::string> m_memberStringField;
 
     // Internal class members accessed by proxy fields
     double doubleMember() const
@@ -93,9 +93,9 @@ public:
         this->addField( &m_ptrField, "m_ptrField" );
     }
 
-    caf::DataValueField<std::string>  m_texts;
-    caf::ChildArrayField<DemoObject*> m_childArrayField;
-    caf::PtrField<InheritedDemoObj*>  m_ptrField;
+    caffa::DataValueField<std::string>  m_texts;
+    caffa::ChildArrayField<DemoObject*> m_childArrayField;
+    caffa::PtrField<InheritedDemoObj*>  m_ptrField;
 };
 
 TEST( BaseTest, Delete )
@@ -151,50 +151,50 @@ TEST( BaseTest, TestValueFieldInterface )
     auto a = std::make_unique<DemoObject>();
 
     {
-        caf::ValueField* valField    = dynamic_cast<caf::ValueField*>( a->findField( "m_proxyDoubleField" ) );
-        caf::Variant     originalVal = 3.4;
+        caffa::ValueField* valField    = dynamic_cast<caffa::ValueField*>( a->findField( "m_proxyDoubleField" ) );
+        caffa::Variant     originalVal = 3.4;
         valField->setFromVariant( originalVal );
-        caf::Variant newVal = valField->toVariant();
+        caffa::Variant newVal = valField->toVariant();
         ASSERT_EQ( originalVal.value<double>(), newVal.value<double>() );
     }
 
     {
-        caf::ValueField* valField    = dynamic_cast<caf::ValueField*>( a->findField( "m_proxyIntField" ) );
-        caf::Variant     originalVal = 3;
+        caffa::ValueField* valField    = dynamic_cast<caffa::ValueField*>( a->findField( "m_proxyIntField" ) );
+        caffa::Variant     originalVal = 3;
         valField->setFromVariant( originalVal );
-        caf::Variant newVal = valField->toVariant();
+        caffa::Variant newVal = valField->toVariant();
         ASSERT_EQ( originalVal.value<int>(), newVal.value<int>() );
     }
 
     {
-        caf::ValueField* valField    = dynamic_cast<caf::ValueField*>( a->findField( "m_proxyStringField" ) );
-        caf::Variant     originalVal = "test";
+        caffa::ValueField* valField    = dynamic_cast<caffa::ValueField*>( a->findField( "m_proxyStringField" ) );
+        caffa::Variant     originalVal = "test";
         valField->setFromVariant( originalVal );
-        caf::Variant newVal = valField->toVariant();
+        caffa::Variant newVal = valField->toVariant();
         ASSERT_EQ( originalVal.value<std::string>(), newVal.value<std::string>() );
     }
 
     {
-        caf::ValueField* valField    = dynamic_cast<caf::ValueField*>( a->findField( "m_memberDoubleField" ) );
-        caf::Variant     originalVal = 3.4;
+        caffa::ValueField* valField    = dynamic_cast<caffa::ValueField*>( a->findField( "m_memberDoubleField" ) );
+        caffa::Variant     originalVal = 3.4;
         valField->setFromVariant( originalVal );
-        caf::Variant newVal = valField->toVariant();
+        caffa::Variant newVal = valField->toVariant();
         ASSERT_EQ( originalVal.value<double>(), newVal.value<double>() );
     }
 
     {
-        caf::ValueField* valField    = dynamic_cast<caf::ValueField*>( a->findField( "m_memberIntField" ) );
-        caf::Variant     originalVal = 3;
+        caffa::ValueField* valField    = dynamic_cast<caffa::ValueField*>( a->findField( "m_memberIntField" ) );
+        caffa::Variant     originalVal = 3;
         valField->setFromVariant( originalVal );
-        caf::Variant newVal = valField->toVariant();
+        caffa::Variant newVal = valField->toVariant();
         ASSERT_EQ( originalVal.value<int>(), newVal.value<int>() );
     }
 
     {
-        caf::ValueField* valField    = dynamic_cast<caf::ValueField*>( a->findField( "m_memberStringField" ) );
-        caf::Variant     originalVal = "test";
+        caffa::ValueField* valField    = dynamic_cast<caffa::ValueField*>( a->findField( "m_memberStringField" ) );
+        caffa::Variant     originalVal = "test";
         valField->setFromVariant( originalVal );
-        caf::Variant newVal = valField->toVariant();
+        caffa::Variant newVal = valField->toVariant();
         ASSERT_EQ( originalVal.value<std::string>(), newVal.value<std::string>() );
     }
 }
@@ -204,7 +204,7 @@ TEST( BaseTest, TestValueFieldInterface )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, NormalField )
 {
-    class A : public caf::ObjectHandle
+    class A : public caffa::ObjectHandle
     {
     public:
         explicit A( const std::vector<double>& testValue )
@@ -216,9 +216,9 @@ TEST( BaseTest, NormalField )
             this->addField( &field3, "field3" );
         }
 
-        caf::DataValueField<std::vector<double>> field1;
-        caf::DataValueField<std::vector<double>> field2;
-        caf::DataValueField<std::vector<double>> field3;
+        caffa::DataValueField<std::vector<double>> field1;
+        caffa::DataValueField<std::vector<double>> field2;
+        caffa::DataValueField<std::vector<double>> field3;
     };
 
     std::vector<double> testValue;
@@ -288,7 +288,7 @@ TEST( BaseTest, ChildArrayField )
     EXPECT_EQ( s3p, ihd1->m_childArrayField[2] );
 
     // childObjects
-    std::vector<caf::ObjectHandle*> objects;
+    std::vector<caffa::ObjectHandle*> objects;
     ihd1->m_childArrayField.childObjects( &objects );
     EXPECT_EQ( size_t( 3 ), objects.size() );
 
@@ -396,7 +396,7 @@ TEST( BaseTest, ChildArrayFieldHandle )
     s3->m_memberDoubleField = 3000;
 
     auto                        ihd1      = std::make_unique<InheritedDemoObj>();
-    caf::ChildArrayFieldHandle* listField = &( ihd1->m_childArrayField );
+    caffa::ChildArrayFieldHandle* listField = &( ihd1->m_childArrayField );
 
     EXPECT_EQ( 0u, listField->size() );
     EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
@@ -431,7 +431,7 @@ TEST( BaseTest, ChildArrayFieldHandle )
 
 TEST( BaseTest, ChildField )
 {
-    class A : public caf::ObjectHandle
+    class A : public caffa::ObjectHandle
     {
     public:
         explicit A()
@@ -440,13 +440,13 @@ TEST( BaseTest, ChildField )
             this->addField( &field2, "field2" );
         }
 
-        caf::ChildField<Child*> field2;
+        caffa::ChildField<Child*> field2;
         int                     b;
     };
 
     {
         auto                testValue = std::make_unique<Child>();
-        caf::Pointer<Child> rawValue  = testValue.get();
+        caffa::Pointer<Child> rawValue  = testValue.get();
 
         {
             A a;
@@ -467,7 +467,7 @@ TEST( BaseTest, ChildField )
         EXPECT_EQ( rawC, a.field2.value() );
         EXPECT_TRUE( rawC == a.field2 );
 
-        std::vector<caf::ObjectHandle*> objects;
+        std::vector<caffa::ObjectHandle*> objects;
         a.field2.childObjects( &objects );
         EXPECT_EQ( (size_t)1, objects.size() );
         EXPECT_EQ( rawC, objects[0] );
@@ -487,7 +487,7 @@ TEST( BaseTest, PtrField )
     InheritedDemoObj* accessedIhd = ihd1->m_ptrField;
     EXPECT_EQ( ihd1.get(), accessedIhd );
 
-    ihd1->m_ptrField = caf::Pointer<InheritedDemoObj>( ihd2.get() );
+    ihd1->m_ptrField = caffa::Pointer<InheritedDemoObj>( ihd2.get() );
     accessedIhd      = ihd1->m_ptrField;
     EXPECT_EQ( ihd2.get(), accessedIhd );
 
@@ -497,7 +497,7 @@ TEST( BaseTest, PtrField )
     accessedIhd = ihd1->m_ptrField.value();
     EXPECT_EQ( ihd2.get(), accessedIhd );
 
-    caf::Pointer<InheritedDemoObj> accessedPtr;
+    caffa::Pointer<InheritedDemoObj> accessedPtr;
     EXPECT_EQ( ihd2.get(), accessedIhd );
     accessedPtr = ihd1->m_ptrField();
     EXPECT_EQ( ihd2.get(), accessedPtr.p() );
@@ -508,11 +508,11 @@ TEST( BaseTest, PtrField )
     EXPECT_TRUE( ihd1->m_ptrField == ihd2.get() );
     EXPECT_FALSE( ihd1->m_ptrField == ihd1.get() );
 
-    EXPECT_TRUE( ihd1->m_ptrField == caf::Pointer<InheritedDemoObj>( ihd2.get() ) );
+    EXPECT_TRUE( ihd1->m_ptrField == caffa::Pointer<InheritedDemoObj>( ihd2.get() ) );
 
     // Generic access
     {
-        std::vector<caf::ObjectHandle*> objects;
+        std::vector<caffa::ObjectHandle*> objects;
         ihd1->m_ptrField.ptrReferencedObjects( &objects );
         EXPECT_EQ( 1u, objects.size() );
         EXPECT_EQ( ihd2.get(), objects[0] );
@@ -524,14 +524,14 @@ TEST( BaseTest, PtrField )
 
     // Referencing system
     {
-        std::vector<caf::FieldHandle*> ptrFields;
+        std::vector<caffa::FieldHandle*> ptrFields;
         ihd2->referringPtrFields( ptrFields );
         EXPECT_EQ( 1u, ptrFields.size() );
         EXPECT_EQ( &( ihd1->m_ptrField ), ptrFields[0] );
     }
 
     {
-        std::vector<caf::ObjectHandle*> objects;
+        std::vector<caffa::ObjectHandle*> objects;
         ihd2->objectsWithReferringPtrFields( objects );
         EXPECT_EQ( 1u, objects.size() );
         EXPECT_EQ( ihd1.get(), objects[0] );
@@ -553,13 +553,13 @@ TEST( BaseTest, Pointer )
     auto d = std::make_unique<InheritedDemoObj>();
 
     {
-        caf::Pointer<InheritedDemoObj> p;
+        caffa::Pointer<InheritedDemoObj> p;
         EXPECT_TRUE( p == nullptr );
     }
 
     {
-        caf::Pointer<InheritedDemoObj> p( d.get() );
-        caf::Pointer<InheritedDemoObj> p2( p );
+        caffa::Pointer<InheritedDemoObj> p( d.get() );
+        caffa::Pointer<InheritedDemoObj> p2( p );
 
         EXPECT_EQ( p, d.get() );
         EXPECT_EQ( p2, d.get() );
@@ -574,7 +574,7 @@ TEST( BaseTest, Pointer )
         EXPECT_TRUE( p.isNull() && p2.isNull() );
     }
 
-    caf::Pointer<DemoObject> p3( new DemoObject() );
+    caffa::Pointer<DemoObject> p3( new DemoObject() );
 
     delete p3;
 }

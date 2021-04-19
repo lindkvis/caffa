@@ -8,9 +8,9 @@
 #include <QApplication>
 #include <QModelIndex>
 
-using namespace caf;
+using namespace caffa;
 
-class SimpleObj : public caf::Object
+class SimpleObj : public caffa::Object
 {
     CAF_HEADER_INIT;
 
@@ -23,7 +23,7 @@ public:
 };
 CAF_SOURCE_INIT( SimpleObj, "SimpleObj", "Object" );
 
-class DemoObject : public caf::Object
+class DemoObject : public caffa::Object
 {
     CAF_HEADER_INIT;
 
@@ -35,7 +35,7 @@ public:
         initField( m_simpleObjPtrField, "SimpleObjPtrField" ).withUi( "SimpleObjPtrField", "", "Tooltip", "WhatsThis" );
     }
 
-    caf::ChildArrayField<caf::ObjectHandle*> m_simpleObjPtrField;
+    caffa::ChildArrayField<caffa::ObjectHandle*> m_simpleObjPtrField;
 };
 
 CAF_SOURCE_INIT( DemoObject, "DemoObject", "Object" );

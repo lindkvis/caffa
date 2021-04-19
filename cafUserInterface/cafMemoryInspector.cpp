@@ -91,7 +91,7 @@ std::map<QString, uint64_t> readMemInfoLinuxMiB()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-uint64_t caf::MemoryInspector::getApplicationPhysicalMemoryUsageMiB()
+uint64_t caffa::MemoryInspector::getApplicationPhysicalMemoryUsageMiB()
 {
 #ifdef _WIN32
     PROCESS_MEMORY_COUNTERS_EX pmc;
@@ -108,7 +108,7 @@ uint64_t caf::MemoryInspector::getApplicationPhysicalMemoryUsageMiB()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-uint64_t caf::MemoryInspector::getApplicationVirtualMemoryUsageMiB()
+uint64_t caffa::MemoryInspector::getApplicationVirtualMemoryUsageMiB()
 {
 #ifdef _WIN32
     PROCESS_MEMORY_COUNTERS_EX pmc;
@@ -125,7 +125,7 @@ uint64_t caf::MemoryInspector::getApplicationVirtualMemoryUsageMiB()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-uint64_t caf::MemoryInspector::getTotalVirtualMemoryMiB()
+uint64_t caffa::MemoryInspector::getTotalVirtualMemoryMiB()
 {
 #ifdef _WIN32
     MEMORYSTATUSEX memInfo;
@@ -149,7 +149,7 @@ uint64_t caf::MemoryInspector::getTotalVirtualMemoryMiB()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-uint64_t caf::MemoryInspector::getTotalPhysicalMemoryMiB()
+uint64_t caffa::MemoryInspector::getTotalPhysicalMemoryMiB()
 {
 #ifdef _WIN32
     MEMORYSTATUSEX memInfo;
@@ -171,7 +171,7 @@ uint64_t caf::MemoryInspector::getTotalPhysicalMemoryMiB()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-uint64_t caf::MemoryInspector::getAvailableVirtualMemoryMiB()
+uint64_t caffa::MemoryInspector::getAvailableVirtualMemoryMiB()
 {
 #ifdef _WIN32
     MEMORYSTATUSEX memInfo;
@@ -198,7 +198,7 @@ uint64_t caf::MemoryInspector::getAvailableVirtualMemoryMiB()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-float caf::MemoryInspector::getRemainingMemoryCriticalThresholdFraction()
+float caffa::MemoryInspector::getRemainingMemoryCriticalThresholdFraction()
 {
 #ifdef __linux__
     return 0.175f;

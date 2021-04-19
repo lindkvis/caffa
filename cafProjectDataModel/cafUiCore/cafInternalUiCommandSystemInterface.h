@@ -39,7 +39,7 @@
 #include <string>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 class FieldHandle;
 class FieldUiCapability;
@@ -53,4 +53,4 @@ public:
     virtual void populateMenuWithDefaultCommands( MenuInterface* menu )                                            = 0;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

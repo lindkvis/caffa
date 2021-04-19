@@ -4,7 +4,7 @@
 #include "cafObject.h"
 #include "cafPointer.h"
 
-class TestObj : public caf::Object
+class TestObj : public caffa::Object
 {
     CAF_HEADER_INIT;
 
@@ -13,5 +13,5 @@ public:
 
     ~TestObj();
 
-    caf::Field<double> m_position;
+    caffa::Field<double> m_position;
 };

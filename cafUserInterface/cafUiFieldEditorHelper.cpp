@@ -45,14 +45,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::UiFieldEditorHandle* caf::UiFieldEditorHelper::createFieldEditorForField( caf::FieldUiCapability* field )
+caffa::UiFieldEditorHandle* caffa::UiFieldEditorHelper::createFieldEditorForField( caffa::FieldUiCapability* field )
 {
-    caf::UiFieldEditorHandle* fieldEditor = nullptr;
+    caffa::UiFieldEditorHandle* fieldEditor = nullptr;
 
     // If editor type is specified, find in factory
     if ( !field->uiEditorTypeName().empty() )
     {
-        fieldEditor = caf::Factory<UiFieldEditorHandle, std::string>::instance()->create( field->uiEditorTypeName() );
+        fieldEditor = caffa::Factory<UiFieldEditorHandle, std::string>::instance()->create( field->uiEditorTypeName() );
     }
     else
     {
@@ -61,11 +61,11 @@ caf::UiFieldEditorHandle* caf::UiFieldEditorHelper::createFieldEditorForField( c
 
         if ( fieldTypeName.find( "PtrField" ) != std::string::npos )
         {
-            fieldTypeName = caf::UiComboBoxEditor::uiEditorTypeName();
+            fieldTypeName = caffa::UiComboBoxEditor::uiEditorTypeName();
         }
         else if ( fieldTypeName.find( "PtrArrayField" ) != std::string::npos )
         {
-            fieldTypeName = caf::UiListEditor::uiEditorTypeName();
+            fieldTypeName = caffa::UiListEditor::uiEditorTypeName();
         }
         else if ( field->toUiBasedVariant().isVector() )
         {
@@ -77,11 +77,11 @@ caf::UiFieldEditorHandle* caf::UiFieldEditorHelper::createFieldEditorForField( c
 
             if ( !options.empty() )
             {
-                fieldTypeName = caf::UiComboBoxEditor::uiEditorTypeName();
+                fieldTypeName = caffa::UiComboBoxEditor::uiEditorTypeName();
             }
         }
 
-        fieldEditor = caf::Factory<UiFieldEditorHandle, std::string>::instance()->create( fieldTypeName );
+        fieldEditor = caffa::Factory<UiFieldEditorHandle, std::string>::instance()->create( fieldTypeName );
     }
 
     return fieldEditor;

@@ -48,7 +48,7 @@
 #include <QLabel>
 #include <QLineEdit>
 
-namespace caf
+namespace caffa
 {
 CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiDoubleValueEditor );
 
@@ -77,7 +77,7 @@ void UiDoubleValueEditor::configureAndUpdateUi()
 
     m_lineEdit->setEnabled( !uiField()->isUiReadOnly() );
 
-    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caffa::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
@@ -149,4 +149,4 @@ void UiDoubleValueEditor::writeValueToField()
     this->setValueToField( v );
 }
 
-} // end namespace caf
+} // end namespace caffa

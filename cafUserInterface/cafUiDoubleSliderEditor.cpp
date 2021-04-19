@@ -73,7 +73,7 @@ public:
     }
 };
 
-namespace caf
+namespace caffa
 {
 CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiDoubleSliderEditor );
 
@@ -89,7 +89,7 @@ void UiDoubleSliderEditor::configureAndUpdateUi()
     m_lineEdit->setEnabled( !uiField()->isUiReadOnly() );
     m_slider->setEnabled( !uiField()->isUiReadOnly() );
 
-    caf::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caffa::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), &m_attributes );
@@ -235,4 +235,4 @@ double UiDoubleSliderEditor::convertFromSliderValue( int sliderValue )
     return newDoubleValue;
 }
 
-} // end namespace caf
+} // end namespace caffa

@@ -36,7 +36,7 @@
 
 #include "cafUiGroup.h"
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -136,4 +136,4 @@ bool UiGroup::enableFrame() const
     return m_enableFrame;
 }
 
-} // End of namespace caf
+} // End of namespace caffa

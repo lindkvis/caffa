@@ -9,7 +9,7 @@
 #include <string>
 #include <type_traits>
 
-namespace caf
+namespace caffa
 {
 template <typename T>
 class DataValueField;
@@ -175,23 +175,23 @@ public:
 };
 
 //==================================================================================================
-/// Partial specialization for Field<  caf::AppEnum<T> >
+/// Partial specialization for Field<  caffa::AppEnum<T> >
 //==================================================================================================
 
 template <typename T>
-class UiFieldSpecialization<caf::AppEnum<T>>
+class UiFieldSpecialization<caffa::AppEnum<T>>
 {
 public:
     /// Convert the field value into a Variant
-    static Variant convert( const caf::AppEnum<T>& value ) { return Variant( value ); }
+    static Variant convert( const caffa::AppEnum<T>& value ) { return Variant( value ); }
 
-    static Variant convertToUiVariant( const caf::AppEnum<T>& value ) { return convert( value ); }
+    static Variant convertToUiVariant( const caffa::AppEnum<T>& value ) { return convert( value ); }
 
     /// Set the field value from a Variant
-    static void setFromVariant( const Variant& variantValue, caf::AppEnum<T>& value )
+    static void setFromVariant( const Variant& variantValue, caffa::AppEnum<T>& value )
     {
-        CAF_ASSERT( variantValue.canConvert<caf::AppEnum<T>>() );
-        value = variantValue.value<caf::AppEnum<T>>();
+        CAF_ASSERT( variantValue.canConvert<caffa::AppEnum<T>>() );
+        value = variantValue.value<caffa::AppEnum<T>>();
     }
 
     static bool isDataElementEqual( const Variant& variantValue, const Variant& variantValue2 )
@@ -200,22 +200,22 @@ public:
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
-    static std::deque<OptionItemInfo> valueOptions( bool* useOptionsOnly, const caf::AppEnum<T>& )
+    static std::deque<OptionItemInfo> valueOptions( bool* useOptionsOnly, const caffa::AppEnum<T>& )
     {
         if ( useOptionsOnly ) *useOptionsOnly = true;
 
         std::deque<OptionItemInfo> optionList;
 
-        for ( size_t i = 0; i < caf::AppEnum<T>::size(); ++i )
+        for ( size_t i = 0; i < caffa::AppEnum<T>::size(); ++i )
         {
-            optionList.push_back( OptionItemInfo( caf::AppEnum<T>::uiTextFromIndex( i ), caf::AppEnum<T>::fromIndex( i ) ) );
+            optionList.push_back( OptionItemInfo( caffa::AppEnum<T>::uiTextFromIndex( i ), caffa::AppEnum<T>::fromIndex( i ) ) );
         }
 
         return optionList;
     }
 
     /// Methods to retrieve the possible Object pointed to by a field
-    static void childObjects( const DataValueField<caf::AppEnum<T>>& field, std::vector<ObjectHandle*>* objects ) {}
+    static void childObjects( const DataValueField<caffa::AppEnum<T>>& field, std::vector<ObjectHandle*>* objects ) {}
 };
 
-} // End namespace caf
+} // End namespace caffa

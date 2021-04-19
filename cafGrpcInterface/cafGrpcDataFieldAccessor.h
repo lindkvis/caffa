@@ -22,21 +22,21 @@
 #include "cafGrpcClient.h"
 #include "cafGrpcException.h"
 
-namespace caf::rpc
+namespace caffa::rpc
 {
 template <class DataType>
-class GrpcDataFieldAccessor : public caf::DataFieldAccessor<DataType>
+class GrpcDataFieldAccessor : public caffa::DataFieldAccessor<DataType>
 {
 public:
-    GrpcDataFieldAccessor( Client* client, caf::ObjectHandle* fieldOwner, const std::string& fieldName )
-        : caf::DataFieldAccessor<DataType>()
+    GrpcDataFieldAccessor( Client* client, caffa::ObjectHandle* fieldOwner, const std::string& fieldName )
+        : caffa::DataFieldAccessor<DataType>()
         , m_client( client )
         , m_fieldOwner( fieldOwner )
         , m_fieldName( fieldName )
     {
     }
 
-    std::unique_ptr<caf::DataFieldAccessor<DataType>> clone() const override
+    std::unique_ptr<caffa::DataFieldAccessor<DataType>> clone() const override
     {
         return std::make_unique<GrpcDataFieldAccessor<DataType>>( m_client, m_fieldOwner, m_fieldName );
     }
@@ -60,8 +60,8 @@ public:
 private:
     Client* m_client;
 
-    caf::ObjectHandle* m_fieldOwner;
+    caffa::ObjectHandle* m_fieldOwner;
     std::string        m_fieldName;
 };
 
-} // namespace caf::rpc
+} // namespace caffa::rpc

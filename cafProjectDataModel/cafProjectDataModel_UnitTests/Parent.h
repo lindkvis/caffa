@@ -7,7 +7,7 @@
 
 class Child;
 
-class Parent : public caf::Object
+class Parent : public caffa::Object
 {
     CAF_HEADER_INIT;
 
@@ -17,6 +17,6 @@ public:
 
     void doSome();
 
-    caf::ChildArrayField<Child*> m_simpleObjectsField;
-    caf::ChildField<Child*>      m_simpleObjectF;
+    caffa::ChildArrayField<Child*> m_simpleObjectsField;
+    caffa::ChildField<Child*>      m_simpleObjectF;
 };

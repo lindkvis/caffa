@@ -42,7 +42,7 @@
 #include <utility>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// Utility class to provide Icons when required. Qt crashes if a non-empty QIcon is created
@@ -78,4 +78,4 @@ private:
     Color                    m_backgroundColor;
     std::pair<int, int>      m_preferredSize;
 };
-} // namespace caf
+} // namespace caffa

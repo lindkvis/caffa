@@ -57,7 +57,7 @@ using grpc::Status;
 
 using namespace std::chrono_literals;
 
-namespace caf::rpc
+namespace caffa::rpc
 {
 //==================================================================================================
 //
@@ -385,4 +385,4 @@ bool Server::quitting() const
     return false;
 }
 
-} // namespace caf::rpc
+} // namespace caffa::rpc

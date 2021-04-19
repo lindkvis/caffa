@@ -38,7 +38,7 @@
 
 #include "cafSelectionManager.h"
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 /// Get the single selected object from selection manager. Then, starting at this object, find the
@@ -49,9 +49,9 @@ T firstAncestorOfTypeFromSelectedObject()
 {
     T objToFind = nullptr;
 
-    caf::UiItem* uiItem = caf::SelectionManager::instance()->selectedItem();
+    caffa::UiItem* uiItem = caffa::SelectionManager::instance()->selectedItem();
 
-    caf::ObjectHandle* objHandle = dynamic_cast<caf::ObjectHandle*>( uiItem );
+    caffa::ObjectHandle* objHandle = dynamic_cast<caffa::ObjectHandle*>( uiItem );
     if ( objHandle )
     {
         objHandle->firstAncestorOrThisOfType( objToFind );
@@ -70,7 +70,7 @@ template <typename T>
 std::vector<T> selectedObjectsByType()
 {
     std::vector<T> objectByType;
-    caf::SelectionManager::instance()->objectsByType( &objectByType );
+    caffa::SelectionManager::instance()->objectsByType( &objectByType );
 
     return objectByType;
 }
@@ -83,9 +83,9 @@ template <typename T>
 std::vector<T> selectedObjectsByTypeStrict()
 {
     std::vector<T> objectByType;
-    caf::SelectionManager::instance()->objectsByTypeStrict( &objectByType );
+    caffa::SelectionManager::instance()->objectsByTypeStrict( &objectByType );
 
     return objectByType;
 }
 
-} // end namespace caf
+} // end namespace caffa

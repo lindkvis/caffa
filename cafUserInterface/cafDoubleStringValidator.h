@@ -38,7 +38,7 @@
 #include <QDoubleValidator>
 #include <QString>
 
-namespace caf
+namespace caffa
 {
 //////////////////////////////////////////////////////////////////////////
 /// Class that validates text strings containing double values but allows
@@ -60,4 +60,4 @@ public:
 private:
     QString m_defaultString;
 };
-} // namespace caf
+} // namespace caffa

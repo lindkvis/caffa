@@ -48,7 +48,7 @@ class QWidget;
 
 class WidgetCellIds;
 
-namespace caf
+namespace caffa
 {
 class UiItem;
 class UiGroup;
@@ -96,4 +96,4 @@ private:
     std::vector<WidgetCellIds> m_customWidgetAreas;
 };
 
-} // end namespace caf
+} // end namespace caffa

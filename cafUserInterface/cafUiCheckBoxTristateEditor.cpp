@@ -14,7 +14,7 @@
 
 #include <QLabel>
 
-namespace caf
+namespace caffa
 {
 CAF_UI_FIELD_EDITOR_SOURCE_INIT( UiCheckBoxTristateEditor );
 
@@ -93,4 +93,4 @@ void UiCheckBoxTristateEditor::slotClicked( bool )
     this->setValueToField( v );
 }
 
-} // end namespace caf
+} // end namespace caffa

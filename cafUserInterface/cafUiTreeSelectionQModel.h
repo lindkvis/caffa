@@ -42,7 +42,7 @@
 #include <map>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 class OptionItemInfo;
 class FieldUiCapability;
@@ -64,7 +64,7 @@ public:
     void enableSingleSelectionMode( bool enable );
 
     size_t optionItemCount() const;
-    void   setOptions( caf::UiFieldEditorHandle* field, const std::deque<OptionItemInfo>& options );
+    void   setOptions( caffa::UiFieldEditorHandle* field, const std::deque<OptionItemInfo>& options );
     void   setUiValueCache( const Variant& uiValuesCache );
     void   resetUiValueCache();
     bool   isReadOnly( const QModelIndex& index ) const;
@@ -84,9 +84,9 @@ public:
     void        clearIndexForLastUncheckedItem();
 
 private:
-    typedef caf::UiTreeItem<int> TreeItemType;
+    typedef caffa::UiTreeItem<int> TreeItemType;
 
-    const caf::OptionItemInfo* optionItem( const QModelIndex& index ) const;
+    const caffa::OptionItemInfo* optionItem( const QModelIndex& index ) const;
     int                        optionIndex( const QModelIndex& index ) const;
     void                       buildOptionItemTree( int optionIndex, TreeItemType* parentNode );
 
@@ -105,4 +105,4 @@ private:
     QModelIndex m_indexForLastUncheckedItem;
 };
 
-} // end namespace caf
+} // end namespace caffa

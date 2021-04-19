@@ -40,7 +40,7 @@
 #include "cafPointer.h"
 #include "cafUiEditorHandle.h"
 
-namespace caf
+namespace caffa
 {
 class ObjectHandle;
 
@@ -68,4 +68,4 @@ private:
     static std::set<UiObjectEditorHandle*> m_sRegisteredObjectEditors;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

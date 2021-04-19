@@ -39,7 +39,7 @@
 #include <set>
 #include <string>
 
-namespace caf
+namespace caffa
 {
 class Document;
 
@@ -90,4 +90,4 @@ private:
     unsigned int m_capabilities;
 };
 
-} // namespace caf
+} // namespace caffa

@@ -54,7 +54,7 @@ class QGridLayout;
 class QTreeView;
 class QVBoxLayout;
 
-namespace caf
+namespace caffa
 {
 class ChildArrayFieldHandle;
 class UiDragDropInterface;
@@ -142,4 +142,4 @@ private:
     bool m_appendClassNameToUiItemText;
 };
 
-} // end namespace caf
+} // end namespace caffa

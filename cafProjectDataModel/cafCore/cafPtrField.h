@@ -6,7 +6,7 @@
 
 #include <any>
 
-namespace caf
+namespace caffa
 {
 template <typename T>
 class FieldIoCap;
@@ -87,6 +87,6 @@ private:
     bool        m_isResolved;
 };
 
-} // End of namespace caf
+} // End of namespace caffa
 
 #include "cafPtrField.inl"

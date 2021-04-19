@@ -46,7 +46,7 @@
 class QToolBar;
 class QMainWindow;
 
-namespace caf
+namespace caffa
 {
 class UiFieldEditorHandle;
 class UiItem;
@@ -61,8 +61,8 @@ public:
     UiToolBarEditor( const QString& title, QMainWindow* mainWindow );
     ~UiToolBarEditor() override;
 
-    bool isEditorDataValid( const std::vector<caf::FieldHandle*>& fields ) const;
-    void setFields( std::vector<caf::FieldHandle*>& fields );
+    bool isEditorDataValid( const std::vector<caffa::FieldHandle*>& fields ) const;
+    void setFields( std::vector<caffa::FieldHandle*>& fields );
     void clear();
 
     void        setFocusWidgetFromKeyword( const std::string& fieldKeyword );
@@ -79,10 +79,10 @@ private:
 private:
     QPointer<QToolBar> m_toolbar;
 
-    std::vector<caf::FieldHandle*>              m_fields;
+    std::vector<caffa::FieldHandle*>              m_fields;
     std::map<std::string, UiFieldEditorHandle*> m_fieldViews;
 
     QList<QAction*> m_actions;
 };
 
-} // end namespace caf
+} // end namespace caffa

@@ -22,12 +22,12 @@
 
 #include <memory>
 
-namespace caf::rpc
+namespace caffa::rpc
 {
 class Server;
 }
 
-namespace caf::rpc
+namespace caffa::rpc
 {
 class ServerApplication : public Application
 {
@@ -47,4 +47,4 @@ public:
 private:
     std::unique_ptr<Server> m_server;
 };
-} // namespace caf::rpc
+} // namespace caffa::rpc

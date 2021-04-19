@@ -26,7 +26,7 @@
 #include <thread>
 #include <vector>
 
-class DemoObject : public caf::Object
+class DemoObject : public caffa::Object
 {
     CAF_HEADER_INIT;
 
@@ -37,17 +37,17 @@ public:
         initField( m_proxyIntField, "proxyIntField" ).withScripting();
         initField( m_proxyStringField, "proxyStringField" ).withScripting();
 
-        auto doubleProxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
+        auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
         doubleProxyAccessor->registerSetMethod( this, &DemoObject::setDoubleMember );
         doubleProxyAccessor->registerGetMethod( this, &DemoObject::doubleMember );
         m_proxyDoubleField.setFieldDataAccessor( std::move( doubleProxyAccessor ) );
 
-        auto intProxyAccessor = std::make_unique<caf::FieldProxyAccessor<int>>();
+        auto intProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<int>>();
         intProxyAccessor->registerSetMethod( this, &DemoObject::setIntMember );
         intProxyAccessor->registerGetMethod( this, &DemoObject::intMember );
         m_proxyIntField.setFieldDataAccessor( std::move( intProxyAccessor ) );
 
-        auto stringProxyAccessor = std::make_unique<caf::FieldProxyAccessor<std::string>>();
+        auto stringProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::string>>();
         stringProxyAccessor->registerSetMethod( this, &DemoObject::setStringMember );
         stringProxyAccessor->registerGetMethod( this, &DemoObject::stringMember );
         m_proxyStringField.setFieldDataAccessor( std::move( stringProxyAccessor ) );
@@ -57,12 +57,12 @@ public:
         initField( m_intVectorProxy, "proxyIntVector" ).withScripting();
         initField( m_stringVectorProxy, "proxyStringVector" ).withScripting();
 
-        auto intVectorProxyAccessor = std::make_unique<caf::FieldProxyAccessor<std::vector<int>>>();
+        auto intVectorProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::vector<int>>>();
         intVectorProxyAccessor->registerSetMethod( this, &DemoObject::setIntVector );
         intVectorProxyAccessor->registerGetMethod( this, &DemoObject::getIntVector );
         m_intVectorProxy.setFieldDataAccessor( std::move( intVectorProxyAccessor ) );
 
-        auto stringVectorProxyAccessor = std::make_unique<caf::FieldProxyAccessor<std::vector<std::string>>>();
+        auto stringVectorProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::vector<std::string>>>();
         stringVectorProxyAccessor->registerSetMethod( this, &DemoObject::setStringVector );
         stringVectorProxyAccessor->registerGetMethod( this, &DemoObject::getStringVector );
         m_stringVectorProxy.setFieldDataAccessor( std::move( stringVectorProxyAccessor ) );
@@ -84,19 +84,19 @@ public:
     ~DemoObject() override {}
 
     // Fields
-    caf::Field<double>      m_proxyDoubleField;
-    caf::Field<int>         m_proxyIntField;
-    caf::Field<std::string> m_proxyStringField;
+    caffa::Field<double>      m_proxyDoubleField;
+    caffa::Field<int>         m_proxyIntField;
+    caffa::Field<std::string> m_proxyStringField;
 
-    caf::Field<double>      m_memberDoubleField;
-    caf::Field<int>         m_memberIntField;
-    caf::Field<std::string> m_memberStringField;
+    caffa::Field<double>      m_memberDoubleField;
+    caffa::Field<int>         m_memberIntField;
+    caffa::Field<std::string> m_memberStringField;
 
-    caf::Field<std::vector<int>>         m_intVectorProxy;
-    caf::Field<std::vector<std::string>> m_stringVectorProxy;
+    caffa::Field<std::vector<int>>         m_intVectorProxy;
+    caffa::Field<std::vector<std::string>> m_stringVectorProxy;
 
-    caf::Field<std::vector<double>> m_doubleVector;
-    caf::Field<std::vector<float>>  m_floatVector;
+    caffa::Field<std::vector<double>> m_doubleVector;
+    caffa::Field<std::vector<float>>  m_floatVector;
 
     double doubleMember() const { return m_doubleMember; }
     void   setDoubleMember( const double& d ) { m_doubleMember = d; }
@@ -130,33 +130,33 @@ private:
 
 CAF_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
 
-struct DemoObject_copyObjectResult : public caf::Object
+struct DemoObject_copyObjectResult : public caffa::Object
 {
     CAF_HEADER_INIT;
 
     DemoObject_copyObjectResult() { initField( status, "status" ).withDefault( false ); }
 
-    caf::Field<bool> status;
+    caffa::Field<bool> status;
 };
 
 CAF_SOURCE_INIT( DemoObject_copyObjectResult, "copyObjectResult", "Object" );
 
-class DemoObject_copyObject : public caf::ObjectMethod
+class DemoObject_copyObject : public caffa::ObjectMethod
 {
     CAF_HEADER_INIT;
 
 public:
-    DemoObject_copyObject( caf::ObjectHandle* self,
-                           double             doubleValue = -123.0,
-                           int                intValue    = 42,
-                           const std::string& stringValue = "SomeValue" )
-        : caf::ObjectMethod( self )
+    DemoObject_copyObject( caffa::ObjectHandle* self,
+                           double               doubleValue = -123.0,
+                           int                  intValue    = 42,
+                           const std::string&   stringValue = "SomeValue" )
+        : caffa::ObjectMethod( self )
     {
         initField( m_doubleMember, "doubleMember" ).withScripting().withDefault( doubleValue );
         initField( m_intMember, "intMember" ).withScripting().withDefault( intValue );
         initField( m_stringMember, "stringMember" ).withScripting().withDefault( stringValue );
     }
-    caf::ObjectHandle* execute() override
+    caffa::ObjectHandle* execute() override
     {
         CAF_DEBUG( "Executing object method on server" );
         gsl::not_null<DemoObject*> demoObject = self<DemoObject>();
@@ -175,9 +175,9 @@ public:
     }
 
 private:
-    caf::Field<double>      m_doubleMember;
-    caf::Field<int>         m_intMember;
-    caf::Field<std::string> m_stringMember;
+    caffa::Field<double>      m_doubleMember;
+    caffa::Field<int>         m_intMember;
+    caffa::Field<std::string> m_stringMember;
 };
 
 CAF_OBJECT_METHOD_SOURCE_INIT( DemoObject, DemoObject_copyObject, "copyObject" );
@@ -194,14 +194,14 @@ public:
         this->addField( &m_ptrField, "m_ptrField" );
     }
 
-    caf::Field<std::string>           m_texts;
-    caf::ChildArrayField<DemoObject*> m_childArrayField;
-    caf::PtrField<InheritedDemoObj*>  m_ptrField;
+    caffa::Field<std::string>           m_texts;
+    caffa::ChildArrayField<DemoObject*> m_childArrayField;
+    caffa::PtrField<InheritedDemoObj*>  m_ptrField;
 };
 
 CAF_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject", "DemoObject" );
 
-class DemoDocument : public caf::Document
+class DemoDocument : public caffa::Document
 {
     CAF_HEADER_INIT;
 
@@ -221,17 +221,17 @@ public:
     }
     std::vector<InheritedDemoObj*> inheritedObjects() const { return m_inheritedDemoObjects.childObjects(); }
 
-    caf::ChildField<DemoObject*>            m_demoObject;
-    caf::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
+    caffa::ChildField<DemoObject*>            m_demoObject;
+    caffa::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
 };
 
 CAF_SOURCE_INIT( DemoDocument, "DemoDocument", "Document", "Object" );
 
-class ServerApp : public caf::rpc::ServerApplication
+class ServerApp : public caffa::rpc::ServerApplication
 {
 public:
     ServerApp( int port )
-        : caf::rpc::ServerApplication( port )
+        : caffa::rpc::ServerApplication( port )
     {
     }
     //--------------------------------------------------------------------------------------------------
@@ -254,10 +254,10 @@ public:
     //--------------------------------------------------------------------------------------------------
     int patchVersion() const override { return 0; }
 
-    caf::Document*                  document( const std::string& documentId ) override { return &m_demoDocument; }
-    const caf::Document*            document( const std::string& documentId ) const override { return &m_demoDocument; }
-    std::list<caf::Document*>       documents() override { return { document( "" ) }; }
-    std::list<const caf::Document*> documents() const override { return { document( "" ) }; }
+    caffa::Document*            document( const std::string& documentId ) override { return &m_demoDocument; }
+    const caffa::Document*      document( const std::string& documentId ) const override { return &m_demoDocument; }
+    std::list<caffa::Document*> documents() override { return { document( "" ) }; }
+    std::list<const caffa::Document*> documents() const override { return { document( "" ) }; }
 
 private:
     DemoDocument m_demoDocument;
@@ -268,7 +268,7 @@ TEST( BaseTest, Launch )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
@@ -276,10 +276,10 @@ TEST( BaseTest, Launch )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
-    auto client = std::make_unique<caf::rpc::Client>( "localhost", portNumber );
-    caf::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
 
-    caf::AppInfo appInfo = client->appInfo();
+    caffa::AppInfo appInfo = client->appInfo();
     ASSERT_EQ( serverApp->name(), appInfo.name );
 
     CAF_DEBUG( "Confirmed test results!" );
@@ -298,7 +298,7 @@ TEST( BaseTest, Document )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
     CAF_DEBUG( "Launching Server" );
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -308,8 +308,8 @@ TEST( BaseTest, Document )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
-    auto client = std::make_unique<caf::rpc::Client>( "localhost", portNumber );
-    caf::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
     CAF_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
@@ -321,7 +321,7 @@ TEST( BaseTest, Document )
     }
 
     auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<caf::Document*>( objectHandle.get() );
+    auto clientDocument = dynamic_cast<caffa::Document*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
 
     try
@@ -329,7 +329,7 @@ TEST( BaseTest, Document )
         auto clientFileName = clientDocument->fileName();
         CAF_DEBUG( "Client Document File Name: " << clientFileName );
     }
-    catch ( const caf::Exception& e )
+    catch ( const caffa::Exception& e )
     {
         CAF_ERROR( "Exception caught: " << e.what() );
         return;
@@ -341,15 +341,15 @@ TEST( BaseTest, Document )
     }
     ASSERT_EQ( serverApp->document( "testDocument" )->fileName(), clientDocument->fileName() );
 
-    auto clientCapability = clientDocument->capability<caf::rpc::ObjectClientCapability>();
+    auto clientCapability = clientDocument->capability<caffa::rpc::ObjectClientCapability>();
     ASSERT_TRUE( clientCapability != nullptr );
     ASSERT_EQ( reinterpret_cast<uint64_t>( serverDocument ), clientCapability->addressOnServer() );
 
-    auto serverDescendants = serverDocument->matchingDescendants( []( const caf::ObjectHandle* objectHandle ) -> bool {
+    auto serverDescendants = serverDocument->matchingDescendants( []( const caffa::ObjectHandle* objectHandle ) -> bool {
         return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr;
     } );
 
-    auto clientDescendants = clientDocument->matchingDescendants( []( const caf::ObjectHandle* objectHandle ) -> bool {
+    auto clientDescendants = clientDocument->matchingDescendants( []( const caffa::ObjectHandle* objectHandle ) -> bool {
         return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr;
     } );
 
@@ -359,7 +359,7 @@ TEST( BaseTest, Document )
           server_it != serverDescendants.end();
           ++server_it, ++client_it )
     {
-        auto childClientCapability = ( *client_it )->capability<caf::rpc::ObjectClientCapability>();
+        auto childClientCapability = ( *client_it )->capability<caffa::rpc::ObjectClientCapability>();
         ASSERT_TRUE( childClientCapability != nullptr );
         ASSERT_EQ( reinterpret_cast<uint64_t>( *server_it ), childClientCapability->addressOnServer() );
     }
@@ -380,7 +380,7 @@ TEST( BaseTest, Sync )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
@@ -388,8 +388,8 @@ TEST( BaseTest, Sync )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caf::rpc::Client>( "localhost", portNumber );
-    caf::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
 
@@ -400,12 +400,12 @@ TEST( BaseTest, Sync )
     }
 
     auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<caf::Document*>( objectHandle.get() );
+    auto clientDocument = dynamic_cast<caffa::Document*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
     CAF_DEBUG( "Client Document File Name: " << clientDocument->fileName() );
     ASSERT_EQ( serverApp->document( "testDocument" )->fileName(), clientDocument->fileName() );
 
-    auto clientCapability = clientDocument->capability<caf::rpc::ObjectClientCapability>();
+    auto clientCapability = clientDocument->capability<caffa::rpc::ObjectClientCapability>();
     ASSERT_TRUE( clientCapability != nullptr );
     ASSERT_EQ( reinterpret_cast<uint64_t>( serverDocument ), clientCapability->addressOnServer() );
 
@@ -428,7 +428,7 @@ TEST( BaseTest, ObjectMethod )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
@@ -436,8 +436,8 @@ TEST( BaseTest, ObjectMethod )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caf::rpc::Client>( "localhost", portNumber );
-    caf::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
 
@@ -482,7 +482,7 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
@@ -490,8 +490,8 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caf::rpc::Client>( "localhost", portNumber );
-    caf::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
     CAF_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
@@ -505,9 +505,9 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
-    auto clientCapability = clientDocument->capability<caf::rpc::ObjectClientCapability>();
+    auto clientCapability = clientDocument->capability<caffa::rpc::ObjectClientCapability>();
     ASSERT_TRUE( clientCapability != nullptr );
-    ASSERT_TRUE( clientDocument->m_demoObject->capability<caf::rpc::ObjectClientCapability>() != nullptr );
+    ASSERT_TRUE( clientDocument->m_demoObject->capability<caffa::rpc::ObjectClientCapability>() != nullptr );
     auto clientIntVector = client->get<std::vector<int>>( clientDocument->m_demoObject,
                                                           clientDocument->m_demoObject->m_intVectorProxy.keyword() );
     ASSERT_EQ( largeIntVector, clientIntVector );
@@ -536,7 +536,7 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
@@ -544,8 +544,8 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caf::rpc::Client>( "localhost", portNumber );
-    caf::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
@@ -560,9 +560,9 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
-    auto clientCapability = clientDocument->capability<caf::rpc::ObjectClientCapability>();
+    auto clientCapability = clientDocument->capability<caffa::rpc::ObjectClientCapability>();
     ASSERT_TRUE( clientCapability != nullptr );
-    ASSERT_TRUE( clientDocument->m_demoObject->capability<caf::rpc::ObjectClientCapability>() != nullptr );
+    ASSERT_TRUE( clientDocument->m_demoObject->capability<caffa::rpc::ObjectClientCapability>() != nullptr );
     auto clientDoubleVector = client->get<std::vector<double>>( clientDocument->m_demoObject,
                                                                 clientDocument->m_demoObject->m_doubleVector.keyword() );
     ASSERT_EQ( largeDoubleVector, clientDoubleVector );
@@ -593,7 +593,7 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
@@ -601,8 +601,8 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caf::rpc::Client>( "localhost", portNumber );
-    caf::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
@@ -645,7 +645,7 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
     int  portNumber = 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
-    ASSERT_TRUE( caf::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
@@ -653,8 +653,8 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caf::rpc::Client>( "localhost", portNumber );
-    caf::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );

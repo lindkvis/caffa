@@ -42,7 +42,7 @@
 
 #include <QHBoxLayout>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -76,11 +76,11 @@ UiListView::~UiListView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiListView::setObject( caf::ObjectCollection* object )
+void UiListView::setObject( caffa::ObjectCollection* object )
 {
     CAF_ASSERT( m_listViewEditor );
 
     m_listViewEditor->setObject( object );
 }
 
-} // End of namespace caf
+} // End of namespace caffa

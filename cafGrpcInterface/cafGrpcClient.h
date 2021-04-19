@@ -28,12 +28,12 @@
 #include <memory>
 #include <string>
 
-namespace caf
+namespace caffa
 {
 class AppInfo;
 }
 
-namespace caf::rpc
+namespace caffa::rpc
 {
 class ClientImpl;
 
@@ -43,21 +43,21 @@ public:
     Client( const std::string& hostname, int port = 55555 );
     virtual ~Client();
 
-    caf::AppInfo                       appInfo() const;
-    std::unique_ptr<caf::ObjectHandle> document( const std::string& documentId ) const;
-    std::unique_ptr<caf::ObjectHandle> execute( gsl::not_null<const caf::ObjectMethod*> method ) const;
-    bool                               stopServer() const;
-    bool                               ping() const;
+    caffa::AppInfo                       appInfo() const;
+    std::unique_ptr<caffa::ObjectHandle> document( const std::string& documentId ) const;
+    std::unique_ptr<caffa::ObjectHandle> execute( gsl::not_null<const caffa::ObjectMethod*> method ) const;
+    bool                                 stopServer() const;
+    bool                                 ping() const;
 
     template <typename DataType>
-    void set( const caf::ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value );
+    void set( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value );
 
     template <typename DataType>
-    DataType get( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const;
+    DataType get( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
 private:
-    void setJson( const caf::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value );
-    nlohmann::json getJson( const caf::ObjectHandle*, const std::string& fieldName ) const;
+    void setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value );
+    nlohmann::json getJson( const caffa::ObjectHandle*, const std::string& fieldName ) const;
 
 private:
     std::unique_ptr<ClientImpl> m_clientImpl;
@@ -67,7 +67,7 @@ private:
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-DataType caf::rpc::Client::get( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const
+DataType caffa::rpc::Client::get( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     nlohmann::json jsonValue = getJson( objectHandle, fieldName );
     CAF_DEBUG( "Attempting to get datatype " << typeid( DataType ).name() << " from json value " << jsonValue );
@@ -78,45 +78,46 @@ DataType caf::rpc::Client::get( const caf::ObjectHandle* objectHandle, const std
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::rpc::Client::set( const caf::ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value )
+void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value )
 {
     nlohmann::json jsonValue = value;
     setJson( objectHandle, fieldName, jsonValue );
 }
 
 template <>
-void Client::set<std::vector<int>>( const caf::ObjectHandle* objectHandle,
-                                    const std::string&       fieldName,
-                                    const std::vector<int>&  value );
+void Client::set<std::vector<int>>( const caffa::ObjectHandle* objectHandle,
+                                    const std::string&         fieldName,
+                                    const std::vector<int>&    value );
 
 template <>
-void Client::set<std::vector<double>>( const caf::ObjectHandle*   objectHandle,
+void Client::set<std::vector<double>>( const caffa::ObjectHandle* objectHandle,
                                        const std::string&         fieldName,
                                        const std::vector<double>& value );
 
 template <>
-void Client::set<std::vector<float>>( const caf::ObjectHandle*  objectHandle,
-                                      const std::string&        fieldName,
-                                      const std::vector<float>& value );
+void Client::set<std::vector<float>>( const caffa::ObjectHandle* objectHandle,
+                                      const std::string&         fieldName,
+                                      const std::vector<float>&  value );
 
 template <>
-void Client::set<std::vector<std::string>>( const caf::ObjectHandle*        objectHandle,
+void Client::set<std::vector<std::string>>( const caffa::ObjectHandle*      objectHandle,
                                             const std::string&              fieldName,
                                             const std::vector<std::string>& value );
 
 template <>
-std::vector<int> Client::get<std::vector<int>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const;
+std::vector<int>
+    Client::get<std::vector<int>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
 template <>
 std::vector<double>
-    Client::get<std::vector<double>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const;
+    Client::get<std::vector<double>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
 template <>
 std::vector<float>
-    Client::get<std::vector<float>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const;
+    Client::get<std::vector<float>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
 template <>
 std::vector<std::string>
-    Client::get<std::vector<std::string>>( const caf::ObjectHandle* objectHandle, const std::string& fieldName ) const;
+    Client::get<std::vector<std::string>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
-} // namespace caf::rpc
+} // namespace caffa::rpc

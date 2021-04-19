@@ -41,17 +41,17 @@
 #include "cafUiEditorHandle.h"
 #include "cafUiTableViewQModel.h"
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-UiTableRowEditor::UiTableRowEditor( UiTableViewQModel* model, caf::ObjectHandle* object, int row )
+UiTableRowEditor::UiTableRowEditor( UiTableViewQModel* model, caffa::ObjectHandle* object, int row )
 {
     m_model = model;
     m_row   = row;
 
-    caf::ObjectUiCapability* uiObject = uiObj( object );
+    caffa::ObjectUiCapability* uiObject = uiObj( object );
     this->bindToItem( uiObject );
 }
 
@@ -67,13 +67,13 @@ UiTableRowEditor::~UiTableRowEditor()
 //--------------------------------------------------------------------------------------------------
 void UiTableRowEditor::configureAndUpdateUi()
 {
-    caf::ObjectUiCapability* uiObject = dynamic_cast<caf::ObjectUiCapability*>( this->item() );
+    caffa::ObjectUiCapability* uiObject = dynamic_cast<caffa::ObjectUiCapability*>( this->item() );
     if ( uiObject )
     {
         // Call uiOrdering method, as this method is responsible for control of
         // object states like hidden/readOnly, etc...
 
-        caf::UiOrdering dummy;
+        caffa::UiOrdering dummy;
         uiObject->uiOrdering( dummy );
     }
 
@@ -86,4 +86,4 @@ void UiTableRowEditor::configureAndUpdateUi()
     }
 }
 
-} // end namespace caf
+} // end namespace caffa

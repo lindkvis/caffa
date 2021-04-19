@@ -7,7 +7,7 @@
 #include <QMenu>
 #include <QString>
 
-using namespace caf;
+using namespace caffa;
 
 //--------------------------------------------------------------------------------------------------
 ///

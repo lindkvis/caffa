@@ -53,7 +53,7 @@
 
 /// Demo objects to show the usage of the Pdm system
 
-class SimpleObj : public caf::Object
+class SimpleObj : public caffa::Object
 {
     CAF_HEADER_INIT;
 
@@ -67,7 +67,7 @@ public:
         initField( m_up, "Up" ).withDefault( 0.0 );
         initField( m_numbers, "Numbers" );
 
-        auto doubleProxyAccessor = std::make_unique<caf::FieldProxyAccessor<double>>();
+        auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
         doubleProxyAccessor->registerSetMethod( this, &SimpleObj::setDoubleMember );
         doubleProxyAccessor->registerGetMethod( this, &SimpleObj::doubleMember );
 
@@ -93,11 +93,11 @@ public:
 
     ~SimpleObj() {}
 
-    caf::Field<double>              m_position;
-    caf::Field<double>              m_dir;
-    caf::Field<double>              m_up;
-    caf::Field<std::vector<double>> m_numbers;
-    caf::DataValueField<double>     m_proxyDouble;
+    caffa::Field<double>              m_position;
+    caffa::Field<double>              m_dir;
+    caffa::Field<double>              m_up;
+    caffa::Field<std::vector<double>> m_numbers;
+    caffa::DataValueField<double>     m_proxyDouble;
 
     void setDoubleMember( const double& d )
     {
@@ -114,7 +114,7 @@ public:
 };
 CAF_SOURCE_INIT( SimpleObj, "SimpleObj", "Object" );
 
-class DemoObject : public caf::Object
+class DemoObject : public caffa::Object
 {
     CAF_HEADER_INIT;
 
@@ -132,12 +132,12 @@ public:
     }
 
     // Fields
-    caf::Field<double>      m_doubleField;
-    caf::Field<int>         m_intField;
-    caf::Field<std::string> m_textField;
+    caffa::Field<double>      m_doubleField;
+    caffa::Field<int>         m_intField;
+    caffa::Field<std::string> m_textField;
 
-    caf::ChildField<SimpleObj*> m_simpleObjPtrField;
-    caf::ChildField<SimpleObj*> m_simpleObjPtrField2;
+    caffa::ChildField<SimpleObj*> m_simpleObjPtrField;
+    caffa::ChildField<SimpleObj*> m_simpleObjPtrField2;
 };
 
 CAF_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
@@ -161,24 +161,24 @@ public:
         initField( m_simpleObjectsField, "SimpleObjects" );
     }
 
-    caf::Field<std::vector<std::string>>   m_texts;
-    caf::Field<caf::AppEnum<TestEnumType>> m_testEnumField;
-    caf::ChildArrayField<SimpleObj*>       m_simpleObjectsField;
+    caffa::Field<std::vector<std::string>>   m_texts;
+    caffa::Field<caffa::AppEnum<TestEnumType>> m_testEnumField;
+    caffa::ChildArrayField<SimpleObj*>       m_simpleObjectsField;
 };
 CAF_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj", "DemoObject", "Object" );
 
-class MyDocument : public caf::Document
+class MyDocument : public caffa::Document
 {
     CAF_HEADER_INIT;
 
 public:
     MyDocument() { initField( objects, "Objects" ); }
 
-    caf::ChildArrayField<ObjectHandle*> objects;
+    caffa::ChildArrayField<ObjectHandle*> objects;
 };
 CAF_SOURCE_INIT( MyDocument, "MyDocument", "Document", "Object" );
 
-namespace caf
+namespace caffa
 {
 template <>
 void AppEnum<InheritedDemoObj::TestEnumType>::setUp()
@@ -189,7 +189,7 @@ void AppEnum<InheritedDemoObj::TestEnumType>::setUp()
     setDefault( InheritedDemoObj::T1 );
 }
 
-} // namespace caf
+} // namespace caffa
 
 TEST( BaseTest, Delete )
 {
@@ -202,7 +202,7 @@ TEST( BaseTest, Delete )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, NormalField )
 {
-    class ObjectWithVectors : public caf::ObjectHandle
+    class ObjectWithVectors : public caffa::ObjectHandle
     {
     public:
         ObjectWithVectors()
@@ -212,9 +212,9 @@ TEST( BaseTest, NormalField )
             this->addField( &field3, "field3" );
         }
 
-        caf::Field<std::vector<double>> field1;
-        caf::Field<std::vector<double>> field2;
-        caf::Field<std::vector<double>> field3;
+        caffa::Field<std::vector<double>> field1;
+        caffa::Field<std::vector<double>> field2;
+        caffa::Field<std::vector<double>> field3;
     };
 
     std::vector<double> testValue;
@@ -319,24 +319,24 @@ TEST( BaseTest, ReadWrite )
         doc.fileName = "TestFile.json";
         doc.write();
 
-        caf::ObjectGroup pog;
+        caffa::ObjectGroup pog;
         for ( size_t i = 0; i < doc.objects.size(); i++ )
         {
             pog.addObject( doc.objects[i] );
         }
 
         {
-            std::vector<caf::Pointer<DemoObject>> demoObjs;
+            std::vector<caffa::Pointer<DemoObject>> demoObjs;
             pog.objectsByType( &demoObjs );
             EXPECT_EQ( size_t( 4 ), demoObjs.size() );
         }
         {
-            std::vector<caf::Pointer<InheritedDemoObj>> demoObjs;
+            std::vector<caffa::Pointer<InheritedDemoObj>> demoObjs;
             pog.objectsByType( &demoObjs );
             EXPECT_EQ( size_t( 2 ), demoObjs.size() );
         }
         {
-            std::vector<caf::Pointer<SimpleObj>> demoObjs;
+            std::vector<caffa::Pointer<SimpleObj>> demoObjs;
             pog.objectsByType( &demoObjs );
             EXPECT_EQ( size_t( 1 ), demoObjs.size() );
         }
@@ -352,7 +352,7 @@ TEST( BaseTest, ReadWrite )
         doc.fileName = "TestFile.json";
         ASSERT_TRUE( doc.read() );
 
-        caf::ObjectGroup pog;
+        caffa::ObjectGroup pog;
         for ( size_t i = 0; i < doc.objects.size(); i++ )
         {
             pog.addObject( doc.objects[i] );
@@ -360,7 +360,7 @@ TEST( BaseTest, ReadWrite )
 
         // Test sample of that writing actually took place
 
-        std::vector<caf::Pointer<InheritedDemoObj>> ihDObjs;
+        std::vector<caffa::Pointer<InheritedDemoObj>> ihDObjs;
         pog.objectsByType( &ihDObjs );
         EXPECT_EQ( size_t( 2 ), ihDObjs.size() );
         ASSERT_EQ( size_t( 4 ), ihDObjs[0]->m_simpleObjectsField.size() );
@@ -392,16 +392,16 @@ TEST( BaseTest, ReadWrite )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, Pointer )
 {
-    auto d = std::make_unique<caf::Document>();
+    auto d = std::make_unique<caffa::Document>();
 
     {
-        caf::Pointer<caf::Document> p;
+        caffa::Pointer<caffa::Document> p;
         EXPECT_TRUE( p == nullptr );
     }
 
     {
-        caf::Pointer<caf::Document> p( d.get() );
-        caf::Pointer<caf::Document> p2( p.p() );
+        caffa::Pointer<caffa::Document> p( d.get() );
+        caffa::Pointer<caffa::Document> p2( p.p() );
 
         EXPECT_EQ( p, d.get() );
         EXPECT_EQ( p2, d.get() );
@@ -416,7 +416,7 @@ TEST( BaseTest, Pointer )
         EXPECT_TRUE( p.isNull() && p2.isNull() );
     }
 
-    caf::Pointer<DemoObject> p3( new DemoObject() );
+    caffa::Pointer<DemoObject> p3( new DemoObject() );
 
     delete p3;
 }
@@ -428,30 +428,30 @@ TEST( BaseTest, ObjectFactory )
 {
     {
         std::unique_ptr<SimpleObj> s(
-            dynamic_cast<SimpleObj*>( caf::DefaultObjectFactory::instance()->create( "SimpleObj" ) ) );
+            dynamic_cast<SimpleObj*>( caffa::DefaultObjectFactory::instance()->create( "SimpleObj" ) ) );
         EXPECT_TRUE( s != nullptr );
     }
     {
         std::unique_ptr<DemoObject> s(
-            dynamic_cast<DemoObject*>( caf::DefaultObjectFactory::instance()->create( "DemoObject" ) ) );
+            dynamic_cast<DemoObject*>( caffa::DefaultObjectFactory::instance()->create( "DemoObject" ) ) );
         EXPECT_TRUE( s != nullptr );
     }
     {
         InheritedDemoObj* s =
-            dynamic_cast<InheritedDemoObj*>( caf::DefaultObjectFactory::instance()->create( "InheritedDemoObj" ) );
+            dynamic_cast<InheritedDemoObj*>( caffa::DefaultObjectFactory::instance()->create( "InheritedDemoObj" ) );
         EXPECT_TRUE( s != nullptr );
         delete s;
     }
 
     {
-        caf::Document* s = dynamic_cast<caf::Document*>( caf::DefaultObjectFactory::instance()->create( "Document" ) );
+        caffa::Document* s = dynamic_cast<caffa::Document*>( caffa::DefaultObjectFactory::instance()->create( "Document" ) );
         EXPECT_TRUE( s != nullptr );
         delete s;
     }
 
     {
-        caf::ObjectGroup* s =
-            dynamic_cast<caf::ObjectGroup*>( caf::DefaultObjectFactory::instance()->create( "ObjectGroup" ) );
+        caffa::ObjectGroup* s =
+            dynamic_cast<caffa::ObjectGroup*>( caffa::DefaultObjectFactory::instance()->create( "ObjectGroup" ) );
         EXPECT_TRUE( s != nullptr );
         delete s;
     }
@@ -462,12 +462,12 @@ TEST( BaseTest, ObjectFactory )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ValidXmlKeywords )
 {
-    EXPECT_TRUE( caf::ObjectIoCapability::isValidElementName( "Valid_name" ) );
+    EXPECT_TRUE( caffa::ObjectIoCapability::isValidElementName( "Valid_name" ) );
 
-    EXPECT_FALSE( caf::ObjectIoCapability::isValidElementName( "2Valid_name" ) );
-    EXPECT_FALSE( caf::ObjectIoCapability::isValidElementName( ".Valid_name" ) );
-    EXPECT_FALSE( caf::ObjectIoCapability::isValidElementName( "xml_Valid_name" ) );
-    EXPECT_FALSE( caf::ObjectIoCapability::isValidElementName( "Valid_name_with_space " ) );
+    EXPECT_FALSE( caffa::ObjectIoCapability::isValidElementName( "2Valid_name" ) );
+    EXPECT_FALSE( caffa::ObjectIoCapability::isValidElementName( ".Valid_name" ) );
+    EXPECT_FALSE( caffa::ObjectIoCapability::isValidElementName( "xml_Valid_name" ) );
+    EXPECT_FALSE( caffa::ObjectIoCapability::isValidElementName( "Valid_name_with_space " ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -488,7 +488,7 @@ TEST( BaseTest, ChildArrayFieldHandle )
     s3->m_position = 3000;
 
     auto                        ihd1      = std::make_unique<InheritedDemoObj>();
-    caf::ChildArrayFieldHandle* listField = &( ihd1->m_simpleObjectsField );
+    caffa::ChildArrayFieldHandle* listField = &( ihd1->m_simpleObjectsField );
 
     EXPECT_EQ( 0u, listField->size() );
     EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
@@ -518,7 +518,7 @@ TEST( BaseTest, ChildArrayFieldHandle )
     EXPECT_TRUE( listField->empty() );
 }
 
-class ReferenceDemoObject : public caf::Object
+class ReferenceDemoObject : public caffa::Object
 {
     CAF_HEADER_INIT;
 
@@ -530,8 +530,8 @@ public:
     }
 
     // Fields
-    caf::ChildField<ObjectHandle*>   m_pointersField;
-    caf::ChildArrayField<SimpleObj*> m_simpleObjPtrField2;
+    caffa::ChildField<ObjectHandle*>   m_pointersField;
+    caffa::ChildArrayField<SimpleObj*> m_simpleObjPtrField2;
 };
 
 CAF_SOURCE_INIT( ReferenceDemoObject, "ReferenceDemoObject", "Object" );
@@ -561,14 +561,14 @@ TEST( BaseTest, ReferenceHelper )
     auto s3p = ihd1->m_simpleObjectsField.push_back( std::move( s3 ) );
 
     {
-        std::string refString = caf::ReferenceHelper::referenceFromRootToObject( nullptr, s3p );
+        std::string refString = caffa::ReferenceHelper::referenceFromRootToObject( nullptr, s3p );
         EXPECT_TRUE( refString.empty() );
 
-        refString                  = caf::ReferenceHelper::referenceFromRootToObject( ihd1.get(), s3p );
+        refString                  = caffa::ReferenceHelper::referenceFromRootToObject( ihd1.get(), s3p );
         std::string expectedString = ihd1->m_simpleObjectsField.keyword() + " 3";
         EXPECT_STREQ( refString.c_str(), expectedString.c_str() );
 
-        caf::ObjectHandle* fromRef = caf::ReferenceHelper::objectFromReference( ihd1.get(), refString );
+        caffa::ObjectHandle* fromRef = caffa::ReferenceHelper::objectFromReference( ihd1.get(), refString );
         EXPECT_TRUE( fromRef == s3p );
     }
 
@@ -577,18 +577,18 @@ TEST( BaseTest, ReferenceHelper )
     objA->m_pointersField = std::move( ihd1 );
 
     {
-        std::string refString = caf::ReferenceHelper::referenceFromRootToObject( objA.get(), s3p );
+        std::string refString = caffa::ReferenceHelper::referenceFromRootToObject( objA.get(), s3p );
 
-        caf::ObjectHandle* fromRef = caf::ReferenceHelper::objectFromReference( objA.get(), refString );
+        caffa::ObjectHandle* fromRef = caffa::ReferenceHelper::objectFromReference( objA.get(), refString );
         EXPECT_TRUE( fromRef == s3p );
     }
 
     // Test reference to field
     {
         std::string refString =
-            caf::ReferenceHelper::referenceFromRootToField( objA.get(), &( ihd1p->m_simpleObjectsField ) );
+            caffa::ReferenceHelper::referenceFromRootToField( objA.get(), &( ihd1p->m_simpleObjectsField ) );
 
-        caf::FieldHandle* fromRef = caf::ReferenceHelper::fieldFromReference( objA.get(), refString );
+        caffa::FieldHandle* fromRef = caffa::ReferenceHelper::fieldFromReference( objA.get(), refString );
         EXPECT_TRUE( fromRef == &( ihd1p->m_simpleObjectsField ) );
     }
 }

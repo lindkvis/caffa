@@ -45,7 +45,7 @@
 #include <QString>
 #include <QWidget>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 ///
@@ -101,4 +101,4 @@ private:
     UiDoubleValueEditorAttribute m_attributes;
 };
 
-} // end namespace caf
+} // end namespace caffa

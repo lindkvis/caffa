@@ -42,7 +42,7 @@
 
 #include <string>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -293,7 +293,7 @@ void SelectionManager::setSelectionAtLevelFromReferences( const std::vector<std:
         ObjectHandle* obj = ReferenceHelper::objectFromReference( m_rootObject, reference );
         if ( obj )
         {
-            caf::ObjectUiCapability* uiObject = uiObj( obj );
+            caffa::ObjectUiCapability* uiObject = uiObj( obj );
             if ( uiObject )
             {
                 uiItems.push_back( uiObject );
@@ -442,4 +442,4 @@ ChildArrayFieldHandle* SelectionManager::activeChildArrayFieldHandle()
     return m_activeChildArrayFieldHandle;
 }
 
-} // end namespace caf
+} // end namespace caffa

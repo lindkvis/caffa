@@ -22,7 +22,7 @@
 #include <string>
 #include <tuple>
 
-namespace caf
+namespace caffa
 {
 /**
  * Simple 32-bit color class
@@ -93,12 +93,12 @@ private:
     std::array<uchar, 4> m_rgba;
 };
 
-} // namespace caf
+} // namespace caffa
 
 //==================================================================================================
 /// Implementation of stream operators to make Colors work smoothly
 //==================================================================================================
 
-std::istream& operator>>( std::istream& str, caf::Color& color );
+std::istream& operator>>( std::istream& str, caffa::Color& color );
 
-std::ostream& operator<<( std::ostream& str, const caf::Color& color );
+std::ostream& operator<<( std::ostream& str, const caffa::Color& color );

@@ -40,7 +40,7 @@
 #include <QPointer>
 #include <QWidget>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// Abstract class to handle widget based editors for complete Objects
@@ -63,4 +63,4 @@ private:
     QPointer<QWidget> m_widget;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

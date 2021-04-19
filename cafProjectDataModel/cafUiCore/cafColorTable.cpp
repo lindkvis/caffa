@@ -4,7 +4,7 @@
 
 #include <algorithm>
 
-using namespace caf;
+using namespace caffa;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -18,7 +18,7 @@ ColorTable::ColorTable( const std::vector<Color>& colors )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::ColorTable::ColorTable( const ColorTable& colors )
+caffa::ColorTable::ColorTable( const ColorTable& colors )
     : m_colors( colors.m_colors )
 {
 }

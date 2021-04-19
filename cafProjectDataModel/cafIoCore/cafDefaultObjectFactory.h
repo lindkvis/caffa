@@ -44,7 +44,7 @@
 #include <string>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// "Private" class for implementation of a factory for ObjectBase derived objects
@@ -105,4 +105,4 @@ private:
     std::map<std::string, ObjectCreatorBase*> m_factoryMap;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

@@ -49,7 +49,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 /// Finds the indexes into the optionList that the field value(s) corresponds to.
@@ -262,4 +262,4 @@ private:
     static bool sm_showExtraDebugText;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

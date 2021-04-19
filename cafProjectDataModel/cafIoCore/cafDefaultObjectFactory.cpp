@@ -1,6 +1,6 @@
 #include "cafDefaultObjectFactory.h"
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///  ObjectFactory implementations
@@ -47,4 +47,4 @@ DefaultObjectFactory* DefaultObjectFactory::instance()
     return fact;
 }
 
-} // End of namespace caf
+} // End of namespace caffa

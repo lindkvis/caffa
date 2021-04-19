@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 template <typename DataType>
 class SetValueInterface
@@ -127,4 +127,4 @@ private:
     std::unique_ptr<GetValueInterface<DataType>> m_valueGetter;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

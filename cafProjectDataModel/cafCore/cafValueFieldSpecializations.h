@@ -8,7 +8,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// A proxy class that implements the generic Variant interface for a field
@@ -38,17 +38,17 @@ public:
 };
 
 //==================================================================================================
-/// Partial specialization for caf::AppEnum
+/// Partial specialization for caffa::AppEnum
 //==================================================================================================
 template <typename T>
-class ValueFieldSpecialization<caf::AppEnum<T>>
+class ValueFieldSpecialization<caffa::AppEnum<T>>
 {
 public:
-    static Variant convert( const caf::AppEnum<T>& value ) { return Variant( value ); }
+    static Variant convert( const caffa::AppEnum<T>& value ) { return Variant( value ); }
 
-    static void setFromVariant( const Variant& variantValue, caf::AppEnum<T>& value )
+    static void setFromVariant( const Variant& variantValue, caffa::AppEnum<T>& value )
     {
-        value = variantValue.value<caf::AppEnum<T>>();
+        value = variantValue.value<caffa::AppEnum<T>>();
     }
 
     static bool isEqual( const Variant& variantValue, const Variant& variantValue2 )
@@ -58,7 +58,7 @@ public:
 };
 
 //==================================================================================================
-/// Partial specialization for caf::Pointer<T>
+/// Partial specialization for caffa::Pointer<T>
 /// User must use PtrField or ChildField
 //==================================================================================================
 template <typename T>
@@ -67,7 +67,7 @@ class ValueFieldSpecialization<Pointer<T>>
 public:
     static Variant convert( const Pointer<T>& value ) { return Variant( Pointer<ObjectHandle>( value.rawPtr() ) ); }
 
-    static void setFromVariant( const Variant& variantValue, caf::Pointer<T>& value )
+    static void setFromVariant( const Variant& variantValue, caffa::Pointer<T>& value )
     {
         value.setRawPtr( variantValue.value<Pointer<ObjectHandle>>().rawPtr() );
     }
@@ -78,4 +78,4 @@ public:
     }
 };
 
-} // End of namespace caf
+} // End of namespace caffa

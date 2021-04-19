@@ -10,7 +10,7 @@
 #include <fstream>
 #include <iostream>
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -89,7 +89,7 @@ std::string ObjectIoCapability::writeObjectToString( IoType ioType /*= IoType::J
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::ObjectHandle* ObjectIoCapability::copyBySerialization( ObjectFactory* objectFactory,
+caffa::ObjectHandle* ObjectIoCapability::copyBySerialization( ObjectFactory* objectFactory,
                                                             IoType         ioType /*= IoType::JSON */ )
 {
     switch ( ioType )
@@ -109,7 +109,7 @@ caf::ObjectHandle* ObjectIoCapability::copyBySerialization( ObjectFactory* objec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::ObjectHandle* ObjectIoCapability::copyAndCastBySerialization( const std::string& destinationClassKeyword,
+caffa::ObjectHandle* ObjectIoCapability::copyAndCastBySerialization( const std::string& destinationClassKeyword,
                                                                    const std::string& sourceClassKeyword,
                                                                    ObjectFactory*     objectFactory,
                                                                    IoType             ioType /*= IoType::JSON */ )
@@ -160,7 +160,7 @@ bool ObjectIoCapability::isValidElementName( const std::string& name )
 
     if ( name.size() >= 3 )
     {
-        auto lower = caf::StringTools::tolower( name );
+        auto lower = caffa::StringTools::tolower( name );
         if ( lower.compare( 0, 3, "xml" ) == 0 )
         {
             return false;
@@ -346,4 +346,4 @@ void ObjectIoCapability::setupBeforeSaveRecursively( ObjectHandle* object )
     }
 }
 
-} // end namespace caf
+} // end namespace caffa

@@ -28,11 +28,11 @@
 #include <iostream>
 #include <string>
 
-class ServerApp : public caf::rpc::ServerApplication
+class ServerApp : public caffa::rpc::ServerApplication
 {
 public:
     ServerApp( int port )
-        : caf::rpc::ServerApplication( port )
+        : caffa::rpc::ServerApplication( port )
     {
     }
 
@@ -56,10 +56,10 @@ public:
     //--------------------------------------------------------------------------------------------------
     int patchVersion() const override { return 0; }
 
-    caf::Document*                  document( const std::string& documentId ) override { return &m_demoDocument; }
-    const caf::Document*            document( const std::string& documentId ) const override { return &m_demoDocument; }
-    std::list<caf::Document*>       documents() override { return { document( "" ) }; }
-    std::list<const caf::Document*> documents() const override { return { document( "" ) }; }
+    caffa::Document*            document( const std::string& documentId ) override { return &m_demoDocument; }
+    const caffa::Document*      document( const std::string& documentId ) const override { return &m_demoDocument; }
+    std::list<caffa::Document*> documents() override { return { document( "" ) }; }
+    std::list<const caffa::Document*> documents() const override { return { document( "" ) }; }
 
 private:
     DemoDocument m_demoDocument;
@@ -82,7 +82,7 @@ int main( int argc, char** argv )
 
     CAF_INFO( "Launching Server listening on port " << portNumber );
 
-    caf::Logger::setApplicationLogLevel( caf::Logger::Level::DEBUG );
+    caffa::Logger::setApplicationLogLevel( caffa::Logger::Level::DEBUG );
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
 

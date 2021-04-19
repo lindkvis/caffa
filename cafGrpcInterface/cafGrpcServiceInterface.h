@@ -20,7 +20,7 @@
 
 #include "cafFactory.h"
 
-namespace caf::rpc
+namespace caffa::rpc
 {
 class AbstractCallback;
 
@@ -34,5 +34,5 @@ public:
     virtual ~ServiceInterface()                                = default;
 };
 
-typedef caf::Factory<ServiceInterface, size_t> ServiceFactory;
-} // namespace caf::rpc
+typedef caffa::Factory<ServiceInterface, size_t> ServiceFactory;
+} // namespace caffa::rpc

@@ -47,7 +47,7 @@
 #include <any>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 class ObjectHandle;
 
@@ -154,7 +154,7 @@ protected:
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::DataValueField<DataType>::setValueWithFieldChanged( const DataType& fieldValue )
+void caffa::DataValueField<DataType>::setValueWithFieldChanged( const DataType& fieldValue )
 {
     CAF_ASSERT( this->isInitializedByInitFieldMacro() );
 
@@ -175,4 +175,4 @@ void caf::DataValueField<DataType>::setValueWithFieldChanged( const DataType& fi
     }
 }
 
-} // End of namespace caf
+} // End of namespace caffa

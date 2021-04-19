@@ -39,7 +39,7 @@
 #include "cafUiFieldEditorHandle.h"
 #include "cafUiTableViewQModel.h"
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -132,4 +132,4 @@ void UiTableViewDelegate::paint( QPainter* painter, const QStyleOptionViewItem& 
     this->QStyledItemDelegate::paint( painter, viewItemOption, index );
 }
 
-} // end namespace caf
+} // end namespace caffa

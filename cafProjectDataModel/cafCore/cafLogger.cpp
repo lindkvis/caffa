@@ -21,7 +21,7 @@
 
 #include "cafStringTools.h"
 
-using namespace caf;
+using namespace caffa;
 
 Logger::Level Logger::s_applicationLogLevel = Logger::Level::WARNING;
 
@@ -35,7 +35,7 @@ Logger& Logger::operator()( const std::string& message, char const* function, ch
     if ( m_currentLogLevel <= s_applicationLogLevel )
     {
         // TODO: should provide platform specific path delimiter
-        auto filePath = caf::StringTools::split( file, "/" );
+        auto filePath = caffa::StringTools::split( file, "/" );
         auto fileName = !filePath.empty() ? filePath.back() : file;
         std::cout << logLevelPrefix( m_currentLogLevel ) << fileName << "::" << function << "()[" << line
                   << "]: " << message << std::endl;

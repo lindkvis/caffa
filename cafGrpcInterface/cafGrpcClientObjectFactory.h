@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 
-namespace caf::rpc
+namespace caffa::rpc
 {
 //==================================================================================================
 /// "Private" class for implementation of a factory for ObjectBase derived objects
@@ -54,10 +54,10 @@ private:
     }
     ~GrpcClientObjectFactory() override = default;
 
-    void applyAccessorToField( caf::ObjectHandle* objectHandle, caf::FieldHandle* fieldHandle );
+    void applyAccessorToField( caffa::ObjectHandle* objectHandle, caffa::FieldHandle* fieldHandle );
 
 private:
     Client* m_grpcClient;
 };
 
-} // namespace caf::rpc
+} // namespace caffa::rpc

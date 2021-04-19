@@ -49,7 +49,7 @@
 
 class QLabel;
 
-namespace caf
+namespace caffa
 {
 //==================================================================================================
 /// Macros helping in development of CAF UI editors
@@ -67,13 +67,13 @@ public:                                 \
 
 #define CAF_UI_FIELD_EDITOR_SOURCE_INIT( EditorClassName )                       \
     std::string EditorClassName::uiEditorTypeName() { return #EditorClassName; } \
-    CAF_FACTORY_REGISTER( caf::UiFieldEditorHandle, EditorClassName, std::string, EditorClassName::uiEditorTypeName() )
+    CAF_FACTORY_REGISTER( caffa::UiFieldEditorHandle, EditorClassName, std::string, EditorClassName::uiEditorTypeName() )
 
 /// CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR registers what default editor to use with a field of a certain type
 /// Place this in the cpp file, preferably above the constructor
 
 #define CAF_UI_REGISTER_DEFAULT_FIELD_EDITOR( EditorClassName, TypeName ) \
-    CAF_FACTORY_REGISTER( caf::UiFieldEditorHandle, EditorClassName, std::string, typeid( caf::Field<TypeName> ).name() );
+    CAF_FACTORY_REGISTER( caffa::UiFieldEditorHandle, EditorClassName, std::string, typeid( caffa::Field<TypeName> ).name() );
 
 class UiGroup;
 class FieldUiCapability;
@@ -125,4 +125,4 @@ private:
     QPointer<QWidget> m_labelWidget;
 };
 
-} // End of namespace caf
+} // End of namespace caffa

@@ -10,7 +10,7 @@
 #include <utility>
 #include <vector>
 
-namespace caf
+namespace caffa
 {
 class ObjectHandle;
 class FieldUiCapability;
@@ -104,4 +104,4 @@ const CapabilityType* FieldHandle::capability() const
     return nullptr;
 }
 
-} // End of namespace caf
+} // End of namespace caffa

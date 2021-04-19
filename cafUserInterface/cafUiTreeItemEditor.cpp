@@ -37,7 +37,7 @@
 #include "cafUiTreeItemEditor.h"
 #include "cafUiTreeEditorHandle.h"
 
-namespace caf
+namespace caffa
 {
 //--------------------------------------------------------------------------------------------------
 ///
@@ -59,4 +59,4 @@ void UiTreeItemEditor::configureAndUpdateUi()
     }
 }
 
-} // End of namespace caf
+} // End of namespace caffa

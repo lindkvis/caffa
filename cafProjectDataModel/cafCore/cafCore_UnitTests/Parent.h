@@ -6,13 +6,13 @@
 
 class Child;
 
-class Parent : public caf::ObjectHandle
+class Parent : public caffa::ObjectHandle
 {
 public:
     Parent();
 
     void doSome();
 
-    caf::ChildArrayField<Child*> m_simpleObjectsField;
-    caf::ChildField<Child*>      m_simpleObjectF;
+    caffa::ChildArrayField<Child*> m_simpleObjectsField;
+    caffa::ChildField<Child*>      m_simpleObjectF;
 };
