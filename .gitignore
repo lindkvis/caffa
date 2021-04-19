@@ -86,3 +86,9 @@ Ankh.NoLoad
 
 #Visual Studio Code files
 .vscode
+
+#Gradle stuff
+.gradle
+gradle
+gradlew
+gradlew.bat
