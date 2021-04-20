@@ -18,11 +18,6 @@ target_link_libraries(${PROJECT_NAME}Client caffaProjectDataModel caffaGrpcInter
 
 target_link_libraries(${PROJECT_NAME}Benchmark caffaProjectDataModel caffaGrpcInterface ${THREAD_LIBRARY})
 
-# Necessary only because the tests are in a sub-directory of caffaGrpcInterface
-target_include_directories(${PROJECT_NAME}Server PRIVATE ..)
-target_include_directories(${PROJECT_NAME}Client PRIVATE ..)
-target_include_directories(${PROJECT_NAME}Benchmark PRIVATE ..)
-
 install(
   TARGETS ${PROJECT_NAME}Client ${PROJECT_NAME}Server ${PROJECT_NAME}Benchmark
   LIBRARY DESTINATION ${CMAKE_INSTALL_BINDIR}

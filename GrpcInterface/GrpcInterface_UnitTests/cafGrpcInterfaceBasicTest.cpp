@@ -3,11 +3,6 @@
 
 #include "Parent.h"
 
-#include "../cafGrpcClient.h"
-#include "../cafGrpcClientObjectFactory.h"
-#include "../cafGrpcObjectClientCapability.h"
-#include "../cafGrpcServer.h"
-#include "../cafGrpcServerApplication.h"
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafDocument.h"
@@ -15,6 +10,11 @@
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
+#include "cafGrpcClient.h"
+#include "cafGrpcClientObjectFactory.h"
+#include "cafGrpcObjectClientCapability.h"
+#include "cafGrpcServer.h"
+#include "cafGrpcServerApplication.h"
 #include "cafLogger.h"
 #include "cafObjectHandle.h"
 #include "cafPtrField.h"

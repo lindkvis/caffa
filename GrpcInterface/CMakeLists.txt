@@ -16,33 +16,34 @@ endif()
 
 add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 
-set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcServer.h
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcCallbacks.h
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcCallbacks.inl
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcServiceInterface.h
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcAppService.h
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcDataFieldAccessor.h
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcException.h
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcFieldService.h
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcObjectService.h
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcApplication.h
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcServerApplication.h
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClient.h
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcObjectClientCapability.h
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientObjectFactory.h
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.h)
+set(PUBLIC_HEADERS
+    cafGrpcServer.h
+    cafGrpcCallbacks.h
+    cafGrpcCallbacks.inl
+    cafGrpcServiceInterface.h
+    cafGrpcAppService.h
+    cafGrpcDataFieldAccessor.h
+    cafGrpcException.h
+    cafGrpcFieldService.h
+    cafGrpcObjectService.h
+    cafGrpcApplication.h
+    cafGrpcServerApplication.h
+    cafGrpcClient.h
+    cafGrpcObjectClientCapability.h
+    cafGrpcClientObjectFactory.h
+    cafGrpcClientApplication.h)
 
-set(SOURCE_GROUP_SOURCE_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcServer.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcAppService.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcFieldService.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcObjectService.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcApplication.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcServerApplication.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClient.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientObjectFactory.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.cpp)
+set(PROJECT_FILES
+    ${PUBLIC_HEADERS}
+    cafGrpcServer.cpp
+    cafGrpcAppService.cpp
+    cafGrpcFieldService.cpp
+    cafGrpcObjectService.cpp
+    cafGrpcApplication.cpp
+    cafGrpcServerApplication.cpp
+    cafGrpcClient.cpp
+    cafGrpcClientObjectFactory.cpp
+    cafGrpcClientApplication.cpp)
 
 if(CAFFA_GRPC_FETCHCONTENT)
   include(FetchContent)
@@ -122,16 +123,18 @@ configure_file("${CMAKE_CURRENT_LIST_DIR}/Java/build.gradle.cmake" "${CMAKE_CURR
 
 if(CAFFA_BUILD_SHARED)
   message(STATUS "Building ${PROJECT_NAME} shared")
-  add_library(${PROJECT_NAME} SHARED ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${GRPC_HEADER_FILES} ${GRPC_CPP_SOURCES})
+  add_library(${PROJECT_NAME} SHARED ${PROJECT_FILES} ${GRPC_HEADER_FILES} ${GRPC_CPP_SOURCES})
 else()
-  add_library(${PROJECT_NAME} STATIC ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${GRPC_HEADER_FILES} ${GRPC_CPP_SOURCES})
+  add_library(${PROJECT_NAME} STATIC ${PROJECT_FILES} ${GRPC_HEADER_FILES} ${GRPC_CPP_SOURCES})
 endif()
 
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${SOURCE_GROUP_HEADER_FILES}")
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PROJECT_FILES}")
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY AUTOMOC OFF)
 
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_BINARY_DIR}/Generated")
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
 target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES})
 
 if(MSVC)

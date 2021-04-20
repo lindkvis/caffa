@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.12)
 
 project(caffaGrpcInterface_UnitTests)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 set(PROJECT_FILES
     cafGrpcInterface_UnitTests.cpp
     cafGrpcInterfaceBasicTest.cpp
