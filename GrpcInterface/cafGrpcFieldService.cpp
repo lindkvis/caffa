@@ -121,6 +121,55 @@ void DataHolder<std::vector<int>>::applyValuesToField( ValueField* field )
         dataValueField->setValueWithFieldChanged( data );
     }
 }
+
+template <>
+size_t DataHolder<std::vector<uint64_t>>::valueCount() const
+{
+    return data.size();
+}
+template <>
+size_t DataHolder<std::vector<uint64_t>>::valueSizeOf() const
+{
+    return sizeof( uint64_t );
+}
+
+template <>
+void DataHolder<std::vector<uint64_t>>::reserveReplyStorage( GetterReply* reply, size_t numberOfDataUnits ) const
+{
+    reply->mutable_uint64s()->mutable_data()->Reserve( numberOfDataUnits );
+}
+
+template <>
+void DataHolder<std::vector<uint64_t>>::addPackageValuesToReply( GetterReply* reply,
+                                                                 size_t       startIndex,
+                                                                 size_t       numberOfDataUnits ) const
+{
+    *( reply->mutable_uint64s()->mutable_data() ) = { data.begin() + startIndex,
+                                                      data.begin() + startIndex + numberOfDataUnits };
+}
+
+template <>
+size_t DataHolder<std::vector<uint64_t>>::getValuesFromChunk( size_t startIndex, const SetterChunk* chunk )
+{
+    size_t chunkSize    = chunk->uint64s().data_size();
+    size_t currentIndex = startIndex;
+    size_t chunkIndex   = 0u;
+    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
+    {
+        data[currentIndex] = chunk->ints().data()[chunkIndex];
+    }
+    return chunkSize;
+}
+template <>
+void DataHolder<std::vector<uint64_t>>::applyValuesToField( ValueField* field )
+{
+    auto dataValueField = dynamic_cast<Field<std::vector<uint64_t>>*>( field );
+    if ( dataValueField )
+    {
+        dataValueField->setValueWithFieldChanged( data );
+    }
+}
+
 template <>
 size_t DataHolder<std::vector<double>>::valueCount() const
 {
@@ -304,7 +353,8 @@ GetterStateHandler::GetterStateHandler()
 //--------------------------------------------------------------------------------------------------
 grpc::Status GetterStateHandler::init( const FieldRequest* request )
 {
-    CAFFA_DEBUG("Received Get Request for: " << request->self().class_keyword() << "[0x" << std::hex << request->self().address() << "]" << request->method());
+    CAFFA_DEBUG( "Received Get Request for: " << request->self().class_keyword() << "[0x" << std::hex
+                                              << request->self().address() << "]" << request->method() );
 
     m_fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self() );
     CAFFA_ASSERT( m_fieldOwner );
@@ -318,6 +368,12 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
             {
                 m_field = dataField;
                 m_dataHolder.reset( new DataHolder<std::vector<int>>( dataField->value() ) );
+                return grpc::Status::OK;
+            }
+            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<uint64_t>>*>( field ); dataField != nullptr )
+            {
+                m_field = dataField;
+                m_dataHolder.reset( new DataHolder<std::vector<uint64_t>>( dataField->value() ) );
                 return grpc::Status::OK;
             }
             else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<double>>*>( field ); dataField != nullptr )
@@ -376,7 +432,7 @@ grpc::Status GetterStateHandler::assignReply( GetterReply* reply )
     }
     m_dataHolder->addPackageValuesToReply( reply, m_currentDataIndex, dataUnitsInPackage );
     m_currentDataIndex += dataUnitsInPackage;
-    CAFFA_TRACE("Sending " << dataUnitsInPackage << " values");
+    CAFFA_TRACE( "Sending " << dataUnitsInPackage << " values" );
     return grpc::Status::OK;
 }
 
@@ -427,9 +483,11 @@ SetterStateHandler::SetterStateHandler()
 grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
 {
     CAFFA_ASSERT( chunk->has_set_request() );
-    auto setRequest   = chunk->set_request();
+    auto setRequest = chunk->set_request();
 
-    CAFFA_DEBUG("Received Set Request for: " << setRequest.request().self().class_keyword() << "[0x" << std::hex << setRequest.request().self().address() << "]" << setRequest.request().method());
+    CAFFA_DEBUG( "Received Set Request for: " << setRequest.request().self().class_keyword() << "[0x" << std::hex
+                                              << setRequest.request().self().address() << "]"
+                                              << setRequest.request().method() );
 
     auto fieldRequest = setRequest.request();
     m_fieldOwner      = ObjectService::findCafObjectFromRpcObject( fieldRequest.self() );
@@ -446,6 +504,13 @@ grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
                 m_dataHolder.reset( new DataHolder<std::vector<int>>( std::vector<int>( valueCount ) ) );
                 return grpc::Status::OK;
             }
+            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<uint64_t>>*>( field ); dataField != nullptr )
+            {
+                m_field = dataField;
+                m_dataHolder.reset( new DataHolder<std::vector<uint64_t>>( std::vector<uint64_t>( valueCount ) ) );
+                return grpc::Status::OK;
+            }
+
             else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<double>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
@@ -493,7 +558,7 @@ grpc::Status SetterStateHandler::receiveRequest( const SetterChunk* chunk, Sette
         return grpc::Status( grpc::OUT_OF_RANGE, "Attempting to write out of bounds" );
     }
     reply->set_value_count( static_cast<int64_t>( m_currentDataIndex ) );
-    CAFFA_TRACE("Received " << reply->value_count() << " values");
+    CAFFA_TRACE( "Received " << reply->value_count() << " values" );
     return grpc::Status::OK;
 }
 

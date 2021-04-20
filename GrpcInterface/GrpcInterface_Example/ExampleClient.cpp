@@ -66,6 +66,8 @@ int main( int argc, char** argv )
     std::string hostname   = argc >= 2 ? argv[1] : "localhost";
     int         portNumber = argc >= 3 ? std::atoi( argv[2] ) : 55555;
 
+    caffa::Logger::setApplicationLogLevel( caffa::Logger::Level::INFO );
+
     auto clientApp = std::make_unique<ClientApp>( hostname, portNumber );
     CAFFA_INFO( "Launching Client connecting to " << hostname << ":" << portNumber );
 

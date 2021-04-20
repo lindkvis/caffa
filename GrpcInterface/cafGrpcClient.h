@@ -90,6 +90,11 @@ void Client::set<std::vector<int>>( const caffa::ObjectHandle* objectHandle,
                                     const std::vector<int>&    value );
 
 template <>
+void Client::set<std::vector<uint64_t>>( const caffa::ObjectHandle*   objectHandle,
+                                         const std::string&           fieldName,
+                                         const std::vector<uint64_t>& value );
+
+template <>
 void Client::set<std::vector<double>>( const caffa::ObjectHandle* objectHandle,
                                        const std::string&         fieldName,
                                        const std::vector<double>& value );
@@ -105,8 +110,8 @@ void Client::set<std::vector<std::string>>( const caffa::ObjectHandle*      obje
                                             const std::vector<std::string>& value );
 
 template <>
-std::vector<int>
-    Client::get<std::vector<int>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const;
+std::vector<uint64_t>
+    Client::get<std::vector<uint64_t>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
 template <>
 std::vector<double>
