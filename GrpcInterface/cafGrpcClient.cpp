@@ -70,19 +70,20 @@ public:
         m_fieldStub   = FieldAccess::NewStub( m_channel );
         CAFFA_TRACE( "Created stubs" );
     }
+    ~ClientImpl() { CAFFA_DEBUG( "Destroying client" ); }
 
     caffa::AppInfo appInfo() const
     {
         CAFFA_TRACE( "Trying to get app info" );
         caffa::rpc::AppInfoReply reply;
-        grpc::ClientContext    context;
-        NullMessage            nullarg;
-        auto                   status  = m_appInfoStub->GetAppInfo( &context, nullarg, &reply );
+        grpc::ClientContext      context;
+        NullMessage              nullarg;
+        auto                     status  = m_appInfoStub->GetAppInfo( &context, nullarg, &reply );
         caffa::AppInfo           appInfo = { reply.name(),
-                                 reply.major_version(),
-                                 reply.minor_version(),
-                                 reply.patch_version(),
-                                 reply.type() };
+                                   reply.major_version(),
+                                   reply.minor_version(),
+                                   reply.patch_version(),
+                                   reply.type() };
         return appInfo;
     }
 
@@ -90,7 +91,7 @@ public:
     {
         std::unique_ptr<caffa::ObjectHandle> document;
 
-        grpc::ClientContext       context;
+        grpc::ClientContext         context;
         caffa::rpc::DocumentRequest request;
         request.set_document_id( documentId );
         caffa::rpc::Object objectReply;
@@ -100,7 +101,7 @@ public:
         {
             CAFFA_TRACE( "Got document" );
             document = caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply,
-                                                                        caffa::rpc::GrpcClientObjectFactory::instance() );
+                                                                          caffa::rpc::GrpcClientObjectFactory::instance() );
             CAFFA_TRACE( "Document completed" );
         }
         else
@@ -128,11 +129,11 @@ public:
         std::unique_ptr<caffa::ObjectHandle> returnValue;
 
         caffa::rpc::Object objectReply;
-        auto             status = m_objectStub->ExecuteMethod( &context, request, &objectReply );
+        auto               status = m_objectStub->ExecuteMethod( &context, request, &objectReply );
         if ( status.ok() )
         {
-            returnValue =
-                caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply, caffa::DefaultObjectFactory::instance() );
+            returnValue = caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply,
+                                                                             caffa::DefaultObjectFactory::instance() );
         }
         return returnValue;
     }
@@ -143,6 +144,8 @@ public:
         NullMessage         nullarg, nullreply;
         CAFFA_DEBUG( "Telling server to quit" );
         auto status = m_appInfoStub->Quit( &context, nullarg, &nullreply );
+
+        CAFFA_DEBUG( " Got the following response: " << status.ok() );
         return status.ok();
     }
 
@@ -588,7 +591,9 @@ nlohmann::json Client::getJson( const caffa::ObjectHandle* objectHandle, const s
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const std::vector<int>& value )
+void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
+                              const std::string&         fieldName,
+                              const std::vector<int>&    value )
 {
     m_clientImpl->set( objectHandle, fieldName, value );
 }
@@ -597,9 +602,9 @@ void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle, const std
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-void caffa::rpc::Client::set( const caffa::ObjectHandle*   objectHandle,
-                            const std::string&         fieldName,
-                            const std::vector<double>& value )
+void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
+                              const std::string&         fieldName,
+                              const std::vector<double>& value )
 {
     m_clientImpl->set( objectHandle, fieldName, value );
 }
@@ -608,9 +613,9 @@ void caffa::rpc::Client::set( const caffa::ObjectHandle*   objectHandle,
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-void caffa::rpc::Client::set( const caffa::ObjectHandle*  objectHandle,
-                            const std::string&        fieldName,
-                            const std::vector<float>& value )
+void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
+                              const std::string&         fieldName,
+                              const std::vector<float>&  value )
 {
     m_clientImpl->set( objectHandle, fieldName, value );
 }
@@ -619,9 +624,9 @@ void caffa::rpc::Client::set( const caffa::ObjectHandle*  objectHandle,
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-void caffa::rpc::Client::set( const caffa::ObjectHandle*        objectHandle,
-                            const std::string&              fieldName,
-                            const std::vector<std::string>& value )
+void caffa::rpc::Client::set( const caffa::ObjectHandle*      objectHandle,
+                              const std::string&              fieldName,
+                              const std::vector<std::string>& value )
 {
     m_clientImpl->set( objectHandle, fieldName, value );
 }
@@ -649,7 +654,8 @@ std::vector<double>
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-std::vector<float> Client::get<std::vector<float>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
+std::vector<float>
+    Client::get<std::vector<float>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     return m_clientImpl->getFloats( objectHandle, fieldName );
 }

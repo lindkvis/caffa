@@ -77,20 +77,16 @@ public:
 
     void run()
     {
-        m_waitingThread    = std::thread( &ServerImpl::initializeAndWaitForNextRequest, this );
-        m_processingThread = std::thread( &ServerImpl::processAllRequests, this );
+        m_thread = std::thread( &ServerImpl::initializeAndWaitForNextRequest, this );
 
-        // Wait for thread to join after handling the shutdown call
-        m_processingThread.join();
+        m_thread.join();
+        CAFFA_DEBUG( "Request handling thread joined" );
 
-        forceQuit();
-
-        CAFFA_DEBUG( "Threads joined" );
+        cleanup();
     }
 
     void quit()
     {
-        std::lock_guard<std::mutex> launchLock( m_appStateMutex );
         CAFFA_DEBUG( "Received quit request" );
         m_receivedQuitRequest = true;
     }
@@ -101,24 +97,12 @@ public:
         return m_receivedQuitRequest;
     }
 
-    void forceQuit()
+    void cleanup()
     {
         CAFFA_DEBUG( "Shutting down" );
         if ( m_server )
         {
-            // Clear unhandled requests
-            while ( !m_queuedRequests.empty() )
-            {
-                AbstractCallback* method = m_queuedRequests.front();
-                m_queuedRequests.pop_front();
-                delete method;
-            }
-
-            // Shutdown server and queue
-            m_server->Shutdown();
-            m_completionQueue->Shutdown();
-
-            m_waitingThread.join();
+            CAFFA_DEBUG( "Processing requests" );
 
             // Must destroy server before services
             m_server.reset();
@@ -180,71 +164,28 @@ public:
         waitForNextRequest();
     }
 
-    size_t processAllRequests()
-    {
-        size_t count = 0u;
-        while ( !quitting() )
-        {
-            std::unique_lock<std::mutex> processingLock( m_processingMutex );
-            auto                         now = std::chrono::system_clock::now();
-
-            CAFFA_TRACE( "Waiting to process requests" );
-            while ( m_processingGuard.wait_until( processingLock, now + 100ms, [this]() {
-                return !m_queuedRequests.empty();
-            } ) )
-            {
-                CAFFA_TRACE( "Request processor is dealing with message" );
-
-                std::list<AbstractCallback*> waitingRequests;
-                {
-                    // Block only while transferring the unprocessed requests to a local function list
-                    std::lock_guard<std::mutex> requestLock( m_requestMutex );
-
-                    waitingRequests.swap( m_queuedRequests );
-                }
-                count = waitingRequests.size();
-
-                // Now free to receive new requests from client while processing the current ones.
-                while ( !waitingRequests.empty() )
-                {
-                    AbstractCallback* method = waitingRequests.front();
-                    waitingRequests.pop_front();
-                    process( method );
-                }
-                CAFFA_TRACE( "Request processor is going back to sleep" );
-            }
-        }
-        CAFFA_DEBUG( "Processing thread quitting" );
-        return count;
-    }
-
 private:
     void waitForNextRequest()
     {
         void* tag;
         bool  ok = false;
-        {
-            std::lock_guard<std::mutex> requestLock( m_requestMutex );
-        }
 
         CAFFA_DEBUG( "Waiting for requests" );
-        while ( true )
+        while ( bool nextStatus = m_completionQueue->Next( &tag, &ok ) )
         {
-            auto nextStatus = m_completionQueue->Next( &tag, &ok );
             CAFFA_TRACE( "Received request with status: " << nextStatus );
-            if ( nextStatus == grpc::CompletionQueue::SHUTDOWN ) break;
-            if ( !quitting() )
+
+            AbstractCallback* method = static_cast<AbstractCallback*>( tag );
+            if ( ok )
             {
-                std::lock_guard<std::mutex> requestLock( m_requestMutex );
-                AbstractCallback*           method = static_cast<AbstractCallback*>( tag );
-                if ( !ok )
+                process( method );
+
+                if ( quitting() )
                 {
-                    CAFFA_ERROR( "Erronous request!" );
-                    method->setNextCallState( AbstractCallback::FINISH_REQUEST );
+                    // Shutdown server and queue
+                    m_server->Shutdown();
+                    m_completionQueue->Shutdown();
                 }
-                m_queuedRequests.push_back( method );
-                CAFFA_TRACE( "Notifying request processor that a new request is waiting" );
-                m_processingGuard.notify_one();
             }
         }
         CAFFA_DEBUG( "Request handler quitting" );
@@ -277,7 +218,10 @@ private:
         {
             CAFFA_TRACE( "Finishing request: " << method->name() );
             method->onFinishRequest();
-            process( method->emptyClone() );
+            if ( !quitting() )
+            {
+                process( method->emptyClone() );
+            }
             delete method;
         }
     }
@@ -287,14 +231,8 @@ private:
     std::unique_ptr<grpc::ServerCompletionQueue> m_completionQueue;
     std::unique_ptr<grpc::Server>                m_server;
     std::list<std::shared_ptr<ServiceInterface>> m_services;
-    std::list<AbstractCallback*>                 m_queuedRequests;
-    std::mutex                                   m_requestMutex;
     mutable std::mutex                           m_appStateMutex;
-    std::thread                                  m_waitingThread;
-    std::thread                                  m_processingThread;
-
-    std::mutex              m_processingMutex;
-    std::condition_variable m_processingGuard;
+    std::thread                                  m_thread;
 
     bool m_receivedQuitRequest;
 };
@@ -354,14 +292,6 @@ void Server::initialize()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t Server::processAllRequests()
-{
-    return m_serverImpl->processAllRequests();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void Server::quit()
 {
     if ( m_serverImpl ) m_serverImpl->quit();
@@ -370,9 +300,9 @@ void Server::quit()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Server::forceQuit()
+void Server::cleanup()
 {
-    if ( m_serverImpl ) m_serverImpl->forceQuit();
+    if ( m_serverImpl ) m_serverImpl->cleanup();
 }
 
 //--------------------------------------------------------------------------------------------------
