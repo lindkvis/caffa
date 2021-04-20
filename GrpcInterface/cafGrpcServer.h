@@ -36,14 +36,13 @@ public:
     void run();
     void quit();
     bool quitting() const;
-    void forceQuit();
 
-    int    port() const;
-    bool   running() const;
-    size_t processAllRequests();
+    int  port() const;
+    bool running() const;
 
 private:
     void initialize();
+    void cleanup();
 
 private:
     Server( const Server& ) = delete;

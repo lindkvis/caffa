@@ -40,7 +40,8 @@ public:
         INIT_REQUEST_STARTED,
         INIT_REQUEST_COMPLETED,
         PROCESS_REQUEST,
-        FINISH_REQUEST
+        FINISH_REQUEST,
+        QUITTING
     };
 
 public:
