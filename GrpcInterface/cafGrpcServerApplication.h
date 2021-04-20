@@ -19,13 +19,9 @@
 #pragma once
 
 #include "cafGrpcApplication.h"
+#include "cafGrpcServer.h"
 
 #include <memory>
-
-namespace caffa::rpc
-{
-class Server;
-}
 
 namespace caffa::rpc
 {
