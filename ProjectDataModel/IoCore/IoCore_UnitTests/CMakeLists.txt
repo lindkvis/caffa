@@ -1,28 +1,14 @@
-cmake_minimum_required (VERSION 3.12)
+cmake_minimum_required(VERSION 3.12)
 
-project ( caffaIoCore_UnitTests )
+project(caffaIoCore_UnitTests)
 
-# add the executable 
-add_executable (${PROJECT_NAME}
-	cafXml_UnitTests.cpp
+# add the executable
+add_executable(${PROJECT_NAME} cafXml_UnitTests.cpp cafXmlBasicTest.cpp cafAdvancedTemplateTest.cpp cafXmlNumberTest.cpp
+                               cafPtrArrayTest.cpp)
 
-	cafXmlBasicTest.cpp
-	cafAdvancedTemplateTest.cpp
-	cafXmlNumberTest.cpp
-	cafPtrArrayTest.cpp
-)
+target_link_libraries(${PROJECT_NAME} caffaIoCore ${THREAD_LIBRARY} nlohmann_json::nlohmann_json gtest)
 
-target_link_libraries ( ${PROJECT_NAME}
-    caffaIoCore    
-    ${THREAD_LIBRARY}
-    nlohmann_json::nlohmann_json
-	gtest
-)
-
-target_include_directories(${PROJECT_NAME}
-  PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 source_group("" FILES ${PROJECT_FILES})
 

@@ -1,37 +1,27 @@
-cmake_minimum_required (VERSION 3.12)
+cmake_minimum_required(VERSION 3.12)
 
-project ( caffaCore_UnitTests )
+project(caffaCore_UnitTests)
 
-include_directories (
-	${CMAKE_CURRENT_SOURCE_DIR}
-)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-set( PROJECT_FILES
-	cafCore_UnitTests.cpp
-	cafCoreBasicTest.cpp
+set(PROJECT_FILES
+    cafCore_UnitTests.cpp
+    cafCoreBasicTest.cpp
     cafReferenceHelperTest.cpp
     cafChildArrayFieldHandleTest.cpp
-	cafSignalTest.cpp
+    cafSignalTest.cpp
+    Child.cpp
+    Child.h
+    Parent.cpp
+    Parent.h
+    TestObj.cpp
+    TestObj.h)
 
-	Child.cpp
-	Child.h
-	Parent.cpp
-	Parent.h
-	TestObj.cpp
-	TestObj.h
-)
-
-# add the executable 
-add_executable (${PROJECT_NAME}
-	${PROJECT_FILES}
-)
+# add the executable
+add_executable(${PROJECT_NAME} ${PROJECT_FILES})
 
 source_group("" FILES ${PROJECT_FILES})
 
-target_link_libraries ( ${PROJECT_NAME}
-	gtest
-    caffaCore
-    ${THREAD_LIBRARY}
-)
+target_link_libraries(${PROJECT_NAME} gtest caffaCore ${THREAD_LIBRARY})
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

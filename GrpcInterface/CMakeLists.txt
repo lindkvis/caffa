@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-project (caffaGrpcInterface)
+project(caffaGrpcInterface)
 
 message(STATUS "GRPC enabled")
 
@@ -31,8 +31,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClient.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcObjectClientCapability.h
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientObjectFactory.h
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.h
-    )
+    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.h)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcServer.cpp
@@ -43,29 +42,33 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcServerApplication.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClient.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientObjectFactory.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.cpp
-    )
+    ${CMAKE_CURRENT_LIST_DIR}/cafGrpcClientApplication.cpp)
 
-if (CAFFA_GRPC_FETCHCONTENT)
+if(CAFFA_GRPC_FETCHCONTENT)
   include(FetchContent)
   FetchContent_Declare(
     gRPC
     GIT_REPOSITORY https://github.com/grpc/grpc
-    GIT_TAG        v1.37.0
-  )
+    GIT_TAG v1.37.0)
   set(FETCHCONTENT_QUIET OFF)
   FetchContent_MakeAvailable(gRPC)
   set(CAFFA_PROTOC $<TARGET_FILE:protoc>)
   set(CAFFA_GRPC_CPP_PLUGIN $<TARGET_FILE:grpc_cpp_plugin>)
   set(GRPC_LINK_LIBRARIES grpc++ grpc gpr libprotobuf)
 else()
-  if (PKG_CONFIG_PATH)
+  if(PKG_CONFIG_PATH)
     message("Setting environment before calling pkgconfig to: " ${PKG_CONFIG_PATH})
     set(ENV{PKG_CONFIG_PATH} ${PKG_CONFIG_PATH})
   endif()
   find_package(PkgConfig REQUIRED)
-  pkg_check_modules(GRPC REQUIRED grpc++>=1.16 grpc gpr
-                    protobuf NO_CMAKE_ENVIRONMENT_PATH)
+  pkg_check_modules(
+    GRPC
+    REQUIRED
+    grpc++>=1.16
+    grpc
+    gpr
+    protobuf
+    NO_CMAKE_ENVIRONMENT_PATH)
   if(EXISTS "${GRPC_protobuf_PREFIX}/bin/protoc")
     set(CAFFA_PROTOC "${GRPC_protobuf_PREFIX}/bin/protoc")
     message("Using protoc: ${GRPC_protobuf_PREFIX}/bin/protoc")
@@ -74,8 +77,7 @@ else()
   endif()
 
   if(EXISTS "${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
-    set(CAFFA_GRPC_CPP_PLUGIN
-        "${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
+    set(CAFFA_GRPC_CPP_PLUGIN "${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
     message("Using grpc_cpp_plugin: ${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
   else()
     message(FATAL_ERROR "Could not find the grpc_cpp_plugin")
@@ -90,23 +92,13 @@ set(CURRENT_PROTOBUF_VERSION ${GRPC_protobuf_VERSION})
 message(STATUS "Using protobuf ${CURRENT_PROTOBUF_VERSION}")
 message(STATUS "Using gRPC ${CURRENT_GRPC_VERSION}")
 
-set(LINK_LIBRARIES
-    ${GRPC_LINK_LIBRARIES}
-    Microsoft.GSL::GSL
-    caffaProjectDataModel
-    )
+set(LINK_LIBRARIES ${GRPC_LINK_LIBRARIES} Microsoft.GSL::GSL caffaProjectDataModel)
 
 # Proto files
-set(PROTO_FILES
-    "AppInfo"
-    "FieldService"
-    "ObjectService"
-)
+set(PROTO_FILES "AppInfo" "FieldService" "ObjectService")
 
 foreach(proto_file ${PROTO_FILES})
-  get_filename_component(
-    caffa_proto "${CMAKE_CURRENT_LIST_DIR}/Protos/${proto_file}.proto"
-    ABSOLUTE)
+  get_filename_component(caffa_proto "${CMAKE_CURRENT_LIST_DIR}/Protos/${proto_file}.proto" ABSOLUTE)
   get_filename_component(caffa_proto_path "${caffa_proto}" PATH)
 
   list(APPEND GRPC_PROTO_FILES_FULL_PATH ${caffa_proto})
@@ -117,32 +109,22 @@ foreach(proto_file ${PROTO_FILES})
   set(caffa_grpc_hdrs "${CMAKE_BINARY_DIR}/Generated/${proto_file}.grpc.pb.h")
 
   add_custom_command(
-    OUTPUT "${caffa_proto_srcs}" "${caffa_proto_hdrs}" "${caffa_grpc_srcs}"
-           "${caffa_grpc_hdrs}"
-    COMMAND
-      ${CAFFA_PROTOC} ARGS --grpc_out "${CMAKE_BINARY_DIR}/Generated"
-      --cpp_out "${CMAKE_BINARY_DIR}/Generated" -I "${caffa_proto_path}"
-      --plugin=protoc-gen-grpc=${CAFFA_GRPC_CPP_PLUGIN} "${caffa_proto}"
-    DEPENDS "${caffa_proto}"
-    )
+    OUTPUT "${caffa_proto_srcs}" "${caffa_proto_hdrs}" "${caffa_grpc_srcs}" "${caffa_grpc_hdrs}"
+    COMMAND ${CAFFA_PROTOC} ARGS --grpc_out "${CMAKE_BINARY_DIR}/Generated" --cpp_out "${CMAKE_BINARY_DIR}/Generated" -I
+            "${caffa_proto_path}" --plugin=protoc-gen-grpc=${CAFFA_GRPC_CPP_PLUGIN} "${caffa_proto}"
+    DEPENDS "${caffa_proto}")
   list(APPEND GRPC_HEADER_FILES ${caffa_proto_hdrs} ${caffa_grpc_hdrs})
-  list(APPEND GRPC_CPP_SOURCES ${caffa_proto_srcs} ${caffa_grpc_srcs})  
+  list(APPEND GRPC_CPP_SOURCES ${caffa_proto_srcs} ${caffa_grpc_srcs})
 endforeach(proto_file)
 
 message(STATUS "Configuring Java gradle build file")
 configure_file("${CMAKE_CURRENT_LIST_DIR}/Java/build.gradle.cmake" "${CMAKE_CURRENT_LIST_DIR}/Java/build.gradle")
 
-if (CAFFA_BUILD_SHARED)
-    message(STATUS "Building ${PROJECT_NAME} shared")
-    add_library( ${PROJECT_NAME} SHARED
-                 ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-                 ${GRPC_HEADER_FILES} ${GRPC_CPP_SOURCES}
-    )
+if(CAFFA_BUILD_SHARED)
+  message(STATUS "Building ${PROJECT_NAME} shared")
+  add_library(${PROJECT_NAME} SHARED ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${GRPC_HEADER_FILES} ${GRPC_CPP_SOURCES})
 else()
-    add_library( ${PROJECT_NAME} STATIC
-                 ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-                 ${GRPC_HEADER_FILES} ${GRPC_CPP_SOURCES}
-    )
+  add_library(${PROJECT_NAME} STATIC ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${GRPC_HEADER_FILES} ${GRPC_CPP_SOURCES})
 endif()
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY AUTOMOC OFF)
@@ -152,22 +134,18 @@ target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES})
 
 if(MSVC)
   # GRPC generates a lot of harmless warnings on MSVC
-  set_target_properties(
-    ${PROJECT_NAME}
-    PROPERTIES COMPILE_FLAGS "/wd4251 /wd4702 /wd4005 /wd4244 /wd4125 /wd4267")
+  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4251 /wd4702 /wd4005 /wd4244 /wd4125 /wd4267")
   set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
-  set_target_properties(
-    ${PROJECT_NAME} PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
-                               MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
+  set_target_properties(${PROJECT_NAME} PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
 
 else()
-  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS
-                                                   "-Wno-overloaded-virtual")
+  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-Wno-overloaded-virtual")
 endif()
 
 source_group("Protos" FILES ${GRPC_PROTO_FILES_FULL_PATH})
 
-install(TARGETS ${PROJECT_NAME}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(
+  TARGETS ${PROJECT_NAME}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
