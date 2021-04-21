@@ -24,6 +24,11 @@ message Int64Array
     repeated int64 data = 1 [packed=true];
 }
 
+message UInt64Array
+{
+    repeated uint64 data = 1 [packed=true];
+}
+
 message DoubleArray
 {
     repeated double data = 1  [packed=true];
@@ -63,6 +68,7 @@ message SetterChunk
         StringArray   strings      = 5;
         FloatArray    floats       = 6;
         Int64Array    int64s       = 7;
+        UInt64Array   uint64s      = 8;
     }
 }
 
@@ -76,6 +82,7 @@ message GetterReply
         StringArray strings = 4;
         FloatArray  floats  = 5;
         Int64Array  int64s  = 6;
+        UInt64Array uint64s = 7;
 
     }
 }
