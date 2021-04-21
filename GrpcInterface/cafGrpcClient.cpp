@@ -271,51 +271,6 @@ public:
         }
         return status.ok();
     }
-    bool set( const caffa::ObjectHandle* objectHandle, const std::string& setter, const std::vector<uint64_t>& values )
-    {
-        auto chunkSize = Application::instance()->packageByteSize();
-
-        grpc::ClientContext context;
-        auto                self = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
-
-        auto field = std::make_unique<FieldRequest>();
-        field->set_method( setter );
-        field->set_allocated_self( self.release() );
-
-        auto setterRequest = std::make_unique<SetterRequest>();
-        setterRequest->set_value_count( values.size() );
-        setterRequest->set_allocated_request( field.release() );
-
-        SetterReply                                      reply;
-        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetValue( &context, &reply ) );
-        SetterChunk                                      header;
-        header.set_allocated_set_request( setterRequest.release() );
-        if ( !writer->Write( header ) ) return false;
-
-        for ( size_t i = 0; i < values.size(); )
-        {
-            auto currentChunkSize = std::min( chunkSize, values.size() - i );
-
-            SetterChunk chunk;
-            chunk.mutable_uint64s()->mutable_data()->Reserve( currentChunkSize );
-            for ( size_t n = 0; n < currentChunkSize; ++n )
-            {
-                chunk.mutable_uint64s()->add_data( values[i + n] );
-            }
-            if ( !writer->Write( chunk ) ) return false;
-
-            i += currentChunkSize;
-        }
-        if ( !writer->WritesDone() ) return false;
-
-        grpc::Status status = writer->Finish();
-        if ( !status.ok() )
-        {
-            throw Exception( status );
-        }
-        return status.ok();
-    }
 
     bool set( const caffa::ObjectHandle* objectHandle, const std::string& setter, const std::vector<double>& values )
     {
@@ -462,32 +417,6 @@ public:
         {
             CAFFA_ASSERT( reply.has_ints() ); // TODO: throw
             auto ints = reply.ints();
-            values.insert( values.end(), ints.data().begin(), ints.data().end() );
-        }
-        grpc::Status status = reader->Finish();
-        if ( !status.ok() )
-        {
-            throw Exception( status );
-        }
-        return values;
-    }
-    std::vector<uint64_t> getUInt64s( const caffa::ObjectHandle* objectHandle, const std::string& getter ) const
-    {
-        grpc::ClientContext context;
-        auto                self = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
-        FieldRequest field;
-        field.set_method( getter );
-        field.set_allocated_self( self.release() );
-
-        std::vector<uint64_t> values;
-
-        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
-        GetterReply                                      reply;
-        while ( reader->Read( &reply ) )
-        {
-            CAFFA_ASSERT( reply.has_uint64s() ); // TODO: throw
-            auto ints = reply.uint64s();
             values.insert( values.end(), ints.data().begin(), ints.data().end() );
         }
         grpc::Status status = reader->Finish();
@@ -673,17 +602,6 @@ void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-void caffa::rpc::Client::set( const caffa::ObjectHandle*   objectHandle,
-                              const std::string&           fieldName,
-                              const std::vector<uint64_t>& value )
-{
-    m_clientImpl->set( objectHandle, fieldName, value );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <>
 void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
                               const std::string&         fieldName,
                               const std::vector<double>& value )
@@ -720,16 +638,6 @@ template <>
 std::vector<int> Client::get<std::vector<int>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     return m_clientImpl->getInts( objectHandle, fieldName );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <>
-std::vector<uint64_t>
-    Client::get<std::vector<uint64_t>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
-{
-    return m_clientImpl->getUInt64s( objectHandle, fieldName );
 }
 
 //--------------------------------------------------------------------------------------------------
