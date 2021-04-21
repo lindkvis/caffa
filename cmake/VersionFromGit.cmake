@@ -36,7 +36,8 @@ function(version_from_git)
     # Find Git or bail out
     find_package(Git)
     if(NOT GIT_FOUND)
-      message(FATAL_ERROR "[MunkeiVersionFromGit] Git not found")
+      message(WARNING "[MunkeiVersionFromGit] Git not found")
+      return()
     endif(NOT GIT_FOUND)
   endif()
 
@@ -49,7 +50,8 @@ function(version_from_git)
     ERROR_VARIABLE git_error
     OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_STRIP_TRAILING_WHITESPACE)
   if(NOT git_result EQUAL 0)
-    message(FATAL_ERROR "[MunkeiVersionFromGit] Failed to execute Git: ${git_error}")
+    message(WARNING "[MunkeiVersionFromGit] Failed to execute Git: ${git_error}")
+    return()
   endif()
 
   # Get Git tag
@@ -61,7 +63,8 @@ function(version_from_git)
     ERROR_VARIABLE git_error
     OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_STRIP_TRAILING_WHITESPACE)
   if(NOT git_result EQUAL 0)
-    message(FATAL_ERROR "[MunkeiVersionFromGit] Failed to execute Git: ${git_error}")
+    message(WARNING "[MunkeiVersionFromGit] Failed to execute Git: ${git_error}")
+    return()
   endif()
 
   if(git_tag MATCHES "^v(0|[1-9][0-9]*)[.](0|[1-9][0-9]*)[.](0|[1-9][0-9]*)(-[.0-9A-Za-z-]+)?([+][.0-9A-Za-z-]+)?$")
@@ -89,7 +92,8 @@ function(version_from_git)
         ERROR_VARIABLE git_error
         OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_STRIP_TRAILING_WHITESPACE)
       if(NOT git_result EQUAL 0)
-        message(FATAL_ERROR "[MunkeiVersionFromGit] Failed to execute Git: ${git_error}")
+        message(WARNING "[MunkeiVersionFromGit] Failed to execute Git: ${git_error}")
+        return()
       endif()
     endif()
 
