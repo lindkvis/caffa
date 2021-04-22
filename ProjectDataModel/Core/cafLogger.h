@@ -20,6 +20,7 @@
 #pragma once
 
 #include <iostream>
+#include <mutex>
 #include <sstream>
 #include <string>
 
@@ -50,16 +51,17 @@ public:
 private:
     static Level s_applicationLogLevel;
 
-    Level m_currentLogLevel;
+    Level             m_currentLogLevel;
+    static std::mutex s_outMutex;
 };
 
 } // namespace caffa
 
 #define CAFFA_LOG( LogLevel_, Message_ )                                                                            \
     caffa::Logger( LogLevel_ )( static_cast<std::ostringstream&>( std::ostringstream().flush() << Message_ ).str(), \
-                              __FUNCTION__,                                                                       \
-                              __FILE__,                                                                           \
-                              __LINE__ );
+                                __FUNCTION__,                                                                       \
+                                __FILE__,                                                                           \
+                                __LINE__ );
 
 #define CAFFA_ERROR( Message_ ) CAFFA_LOG( caffa::Logger::Level::ERROR, Message_ )
 #define CAFFA_WARNING( Message_ ) CAFFA_LOG( caffa::Logger::Level::WARNING, Message_ )

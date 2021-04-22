@@ -24,6 +24,7 @@ set(PUBLIC_HEADERS
     cafField.h
     cafFieldCapability.h
     cafFieldHandle.h
+    cafFifoField.h
     cafLogger.h
     cafObjectCapability.h
     cafObjectHandle.h

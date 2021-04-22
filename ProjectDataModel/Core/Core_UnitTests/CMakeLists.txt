@@ -9,6 +9,7 @@ set(PROJECT_FILES
     cafCoreBasicTest.cpp
     cafReferenceHelperTest.cpp
     cafChildArrayFieldHandleTest.cpp
+    cafFifoFieldTest.cpp
     cafSignalTest.cpp
     Child.cpp
     Child.h
