@@ -21,9 +21,12 @@
 
 #include "cafStringTools.h"
 
+#include <thread>
+
 using namespace caffa;
 
 Logger::Level Logger::s_applicationLogLevel = Logger::Level::WARNING;
+std::mutex    Logger::s_outMutex;
 
 Logger::Logger( Level level )
     : m_currentLogLevel( level )
@@ -32,6 +35,7 @@ Logger::Logger( Level level )
 
 Logger& Logger::operator()( const std::string& message, char const* function, char const* file, int line )
 {
+    std::unique_lock<std::mutex>( s_outMutex );
     if ( m_currentLogLevel <= s_applicationLogLevel )
     {
         // TODO: should provide platform specific path delimiter
