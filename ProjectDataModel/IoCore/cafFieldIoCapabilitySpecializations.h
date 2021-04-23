@@ -146,6 +146,35 @@ private:
     FieldType* m_field;
 };
 
+template <typename DataType>
+class FieldIoCap<FifoField<DataType>> : public FieldIoCapability
+{
+    using FieldType = FifoField<DataType>;
+
+public:
+    FieldIoCap( FieldType* field, bool giveOwnership )
+        : FieldIoCapability( field, giveOwnership )
+        , m_readLimit( 10000u )
+    {
+        m_field        = field;
+        m_dataTypeName = DataType::classKeywordStatic();
+    }
+
+public:
+    // Json Serializing
+    void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
+    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
+
+    bool resolveReferences() override;
+
+    void   setMaximumPackagesForIoOutput( size_t maximumPackageCount ) { m_readLimit = maximumPackageCount; }
+    size_t maximumPackagesForIoOutput() const { return m_readLimit; }
+
+private:
+    FieldType* m_field;
+    size_t     m_readLimit;
+};
+
 template <typename FieldType>
 void AddIoCapabilityToField( FieldType* field )
 {
