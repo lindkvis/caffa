@@ -22,6 +22,7 @@
 #include "cafFieldHandle.h"
 #include "cafLogger.h"
 
+#include <array>
 #include <chrono>
 #include <condition_variable>
 #include <mutex>
@@ -30,91 +31,92 @@
 
 using namespace std::chrono_literals;
 
+//#define DROP_PACKAGES 1
+
 namespace caffa
 {
-class FifoFieldHandle : public FieldHandle
-{
-public:
-    virtual size_t packageSize() const   = 0;
-    virtual void   clear()               = 0;
-    virtual size_t droppedValues() const = 0;
-};
-
-template <typename DataType, size_t MAX_BUFFER_SIZE = 8u>
-class FifoField : public FifoFieldHandle
+template <typename DataType, size_t BUFFER_SIZE = 8u, size_t PACKAGE_SIZE = 32u>
+class FifoField : public FieldHandle
 {
 public:
     using FieldDataType = DataType;
-    using Queue         = std::queue<std::vector<FieldDataType>>;
+    using Queue         = std::array<std::array<FieldDataType, PACKAGE_SIZE>, BUFFER_SIZE>;
+
+    static const size_t bufferSize  = BUFFER_SIZE;
+    static const size_t packageSize = PACKAGE_SIZE;
 
 public:
-    FifoField( size_t packageSize = 32u )
-        : m_packageSize( packageSize )
-        , m_droppedValues( 0u )
+    FifoField()
+        : m_droppedPackages( 0u )
+        , m_readIndex( 0u )
+        , m_writeIndex( 0u )
     {
     }
 
-    void clear() override
+    void clear()
     {
         std::unique_lock<std::mutex> lock( m_dataAccessMutex );
-        Queue().swap( m_buffer );
+        m_readIndex  = 0u;
+        m_writeIndex = 0u;
     }
 
-    std::vector<FieldDataType> pop()
+    std::array<FieldDataType, PACKAGE_SIZE> pop()
     {
         std::unique_lock<std::mutex> lock( m_dataAccessMutex );
 
-        m_dataAccessGuard.wait( lock, [this]() { return !m_buffer.empty(); } );
+        m_dataAccessGuard.wait( lock, [this]() { return !this->empty(); } );
 
-        std::vector<FieldDataType> package = m_buffer.front();
-        m_buffer.pop();
+        std::array<FieldDataType, PACKAGE_SIZE> package;
+        package.swap( m_buffer[m_readIndex++ % BUFFER_SIZE] );
+
         lock.unlock();
         m_dataAccessGuard.notify_one();
         return package;
     }
 
-    void push( const std::vector<DataType>& data )
+    void push( std::array<DataType, PACKAGE_SIZE>& package )
     {
         std::unique_lock<std::mutex> lock( m_dataAccessMutex );
 
-        m_dataAccessGuard.wait( lock, [this]() { return m_buffer.size() < MAX_BUFFER_SIZE; } );
-        // Clear item from buffer if we've reached max size
-        /* if ( m_buffer.size() >= MAX_BUFFER_SIZE )
+#ifdef DROP_PACKAGES
+        // Wait 250 nanoseconds to see if buffer has cleared
+        // If not drop package
+        m_dataAccessGuard.wait_for( lock, 250ns, [this]() { return !this->full(); } );
+        if ( full() )
         {
-            //            lock.unlock();
-            //          m_dataAccessGuard.notify_one();
-            //        lock.lock();
-            //      m_dataAccessGuard.wait_for( lock, 1ns, [this]() { return m_buffer.size() < MAX_BUFFER_SIZE; } );
-            //    if ( m_buffer.size() >= MAX_BUFFER_SIZE )
-            {
-                // CAFFA_WARNING( "Dropping a package!!" );
-                auto oldData = m_buffer.front();
-                m_buffer.pop();
-                m_droppedValues += oldData.size();
-            }
-            // else
-            //{
-            // CAFFA_INFO( "Salvaged dropping a package" );
-            //}
-        } */
+            m_readIndex += BUFFER_SIZE / 2;
+            m_droppedPackages += BUFFER_SIZE / 2;
+        }
+#else
+        m_dataAccessGuard.wait( lock, [this]() { return !this->full(); } );
+#endif
 
-        m_buffer.push( data );
+        m_buffer[m_writeIndex++ % BUFFER_SIZE].swap( package );
         lock.unlock();
         m_dataAccessGuard.notify_one();
     }
 
-    size_t packageSize() const override { return m_packageSize; }
-    size_t droppedValues() const override
+    size_t droppedPackages() const
     {
         std::unique_lock<std::mutex> lock( m_dataAccessMutex );
-        return m_droppedValues;
+        return m_droppedPackages;
     }
+
+private:
+    bool empty() const
+    {
+        // CAFFA_TRACE( "Indices: " << m_writeIndex << ", " << m_readIndex );
+        return m_writeIndex <= m_readIndex;
+    }
+    bool full() const { return m_writeIndex - m_readIndex >= BUFFER_SIZE; }
 
 private:
     Queue m_buffer;
 
-    size_t m_packageSize;
-    size_t m_droppedValues;
+    size_t m_droppedPackages;
+
+    size_t m_readIndex;
+    size_t m_writeIndex;
 
     mutable std::mutex      m_dataAccessMutex;
     std::condition_variable m_dataAccessGuard;
