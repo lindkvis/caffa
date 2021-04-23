@@ -22,12 +22,12 @@
 #include "cafFieldHandle.h"
 #include "cafLogger.h"
 
-#include <array>
 #include <chrono>
 #include <condition_variable>
 #include <mutex>
 #include <queue>
 #include <thread>
+#include <vector>
 
 using namespace std::chrono_literals;
 
@@ -38,22 +38,22 @@ namespace caffa
 /**
  * Templated FIFO (First in, First Out circular buffer field
  */
-template <typename DataType, size_t BUFFER_SIZE = 8u, size_t PACKAGE_SIZE = 32u>
+template <typename DataType>
 class FifoField : public FieldHandle
 {
 public:
     using FieldDataType = DataType;
-    using Queue         = std::array<std::array<FieldDataType, PACKAGE_SIZE>, BUFFER_SIZE>;
-
-    static const size_t bufferSize  = BUFFER_SIZE;
-    static const size_t packageSize = PACKAGE_SIZE;
+    using Queue         = std::vector<std::vector<FieldDataType>>;
 
 public:
-    FifoField()
-        : m_droppedPackages( 0u )
+    FifoField( size_t bufferSize = 8u, size_t packageSize = 32u )
+        : m_bufferSize( bufferSize )
+        , m_packageSize( packageSize )
+        , m_droppedPackages( 0u )
         , m_readIndex( 0u )
         , m_writeIndex( 0u )
     {
+        m_buffer.resize( m_bufferSize, std::vector<DataType>( m_packageSize ) );
     }
 
     void clear()
@@ -63,21 +63,21 @@ public:
         m_writeIndex = 0u;
     }
 
-    std::array<FieldDataType, PACKAGE_SIZE> pop()
+    std::vector<FieldDataType> pop()
     {
         std::unique_lock<std::mutex> lock( m_dataAccessMutex );
 
         m_dataAccessGuard.wait( lock, [this]() { return !this->empty(); } );
 
-        std::array<FieldDataType, PACKAGE_SIZE> package;
-        package.swap( m_buffer[m_readIndex++ % BUFFER_SIZE] );
+        std::vector<FieldDataType> package;
+        package.swap( m_buffer[m_readIndex++ % m_bufferSize] );
 
         lock.unlock();
         m_dataAccessGuard.notify_one();
         return package;
     }
 
-    void push( std::array<DataType, PACKAGE_SIZE>& package )
+    void push( std::vector<DataType>& package )
     {
         std::unique_lock<std::mutex> lock( m_dataAccessMutex );
 
@@ -94,7 +94,7 @@ public:
         m_dataAccessGuard.wait( lock, [this]() { return !this->full(); } );
 #endif
 
-        m_buffer[m_writeIndex++ % BUFFER_SIZE].swap( package );
+        m_buffer[m_writeIndex++ % m_bufferSize].swap( package );
         lock.unlock();
         m_dataAccessGuard.notify_one();
     }
@@ -105,17 +105,21 @@ public:
         return m_droppedPackages;
     }
 
+    size_t packageSize() const { return m_packageSize; }
+
 private:
     bool empty() const
     {
         // CAFFA_TRACE( "Indices: " << m_writeIndex << ", " << m_readIndex );
         return m_writeIndex <= m_readIndex;
     }
-    bool full() const { return m_writeIndex - m_readIndex >= BUFFER_SIZE; }
+    bool full() const { return m_writeIndex - m_readIndex >= m_bufferSize; }
 
 private:
     Queue m_buffer;
 
+    size_t m_bufferSize;
+    size_t m_packageSize;
     size_t m_droppedPackages;
 
     size_t m_readIndex;
@@ -125,12 +129,12 @@ private:
     std::condition_variable m_dataAccessGuard;
 };
 
-template <typename DataType, size_t BUFFER_SIZE = 8u, size_t PACKAGE_SIZE = 32u>
+template <typename DataType>
 class FifoProducer
 {
 public:
-    using ProductionField = FifoField<DataType, BUFFER_SIZE, PACKAGE_SIZE>;
-    using Package         = std::array<DataType, PACKAGE_SIZE>;
+    using ProductionField = FifoField<DataType>;
+    using Package         = std::vector<DataType>;
 
     // Package index as the argument
     using PackageCreatorFunction = std::function<Package( size_t )>;
@@ -148,7 +152,7 @@ public:
     {
         while ( validProductionCount() < m_sweepCount )
         {
-            std::array<DataType, PACKAGE_SIZE> package = m_packageCreator( m_doneCount++ );
+            Package package = m_packageCreator( m_doneCount++ );
             // CAFFA_INFO( "Pushed value number: " << m_doneCount - m_ptrToField->droppedPackages() << " out of "
             //                                  << m_sweepCount );
 
@@ -181,8 +185,10 @@ template <typename DataType, size_t BUFFER_SIZE = 8u, size_t PACKAGE_SIZE = 32u>
 class FifoConsumer
 {
 public:
-    using ConsumptionField        = FifoField<DataType, BUFFER_SIZE, PACKAGE_SIZE>;
-    using PackageHandlingFunction = std::function<bool( std::array<DataType, PACKAGE_SIZE>&& )>;
+    using ConsumptionField = FifoField<DataType>;
+    using Package          = std::vector<DataType>;
+
+    using PackageHandlingFunction = std::function<bool( Package&& )>;
 
 public:
     FifoConsumer( ConsumptionField* ptrToField, size_t sweepCount, PackageHandlingFunction packageHandlingFunction )
