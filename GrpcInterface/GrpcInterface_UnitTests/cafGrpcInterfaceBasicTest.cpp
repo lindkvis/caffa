@@ -368,6 +368,12 @@ TEST( BaseTest, Document )
         ASSERT_EQ( reinterpret_cast<uint64_t>( *server_it ), childClientCapability->addressOnServer() );
     }
 
+    std::string serverJson = serverDocument->writeObjectToString();
+    CAFFA_INFO( serverJson );
+    std::string clientJson = clientDocument->writeObjectToString();
+    CAFFA_INFO( clientJson );
+    ASSERT_EQ( serverJson, clientJson );
+
     CAFFA_DEBUG( "Confirmed test results!" );
     bool ok = client->stopServer();
     ASSERT_TRUE( ok );

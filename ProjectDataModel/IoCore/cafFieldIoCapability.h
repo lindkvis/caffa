@@ -35,8 +35,6 @@ public:
     bool isIOWritable() const { return m_isIOWritable; }
     bool isCopyable() const { return m_isCopyable; }
 
-    virtual bool isVectorField() const { return false; }
-
     void disableIO();
     void setIOWritable( bool isWritable ) { m_isIOWritable = isWritable; }
     void setIOReadable( bool isReadable ) { m_isIOReadable = isReadable; }
@@ -62,7 +60,5 @@ protected:
     bool m_isCopyable;
 
     FieldHandle* m_owner;
-
-    std::chrono::high_resolution_clock::time_point m_lastChanged;
 };
 } // End of namespace caffa

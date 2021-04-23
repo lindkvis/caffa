@@ -1,8 +1,10 @@
 
 #include "cafAssert.h"
+#include "cafInternalIoFieldReaderWriter.h"
 #include "cafObjectFactory.h"
 #include "cafObjectIoCapability.h"
 #include "cafObjectJsonCapability.h"
+#include "cafReferenceHelper.h"
 #include "cafStringTools.h"
 
 #include <nlohmann/json.hpp>
@@ -20,20 +22,10 @@ namespace caffa
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-bool FieldIoCap<FieldType>::isVectorField() const
-{
-    return caffa::is_vector<FieldType>();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename FieldType>
 void FieldIoCap<FieldType>::readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
 {
     this->assertValid();
-    typename FieldType::FieldDataType value;
-    FieldReader<typename FieldType::FieldDataType>::readFieldData( value, jsonValue, objectFactory );
+    typename FieldType::FieldDataType value = jsonValue.get<typename FieldType::FieldDataType>();
     m_field->setValue( value );
 }
 
@@ -44,7 +36,10 @@ template <typename FieldType>
 void FieldIoCap<FieldType>::writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const
 {
     this->assertValid();
-    if ( writeValues ) FieldWriter<typename FieldType::FieldDataType>::writeFieldData( m_field->value(), jsonValue );
+    if ( writeValues )
+    {
+        jsonValue = m_field->value();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,15 +195,6 @@ std::string FieldIoCap<PtrArrayField<DataType*>>::referenceString() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool FieldIoCap<PtrArrayField<DataType*>>::isVectorField() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
 void FieldIoCap<ChildField<DataType*>>::readFieldData( const nlohmann::json& jsonObject, ObjectFactory* objectFactory )
 {
     if ( jsonObject.is_null() ) return;
@@ -242,7 +228,7 @@ void FieldIoCap<ChildField<DataType*>>::readFieldData( const nlohmann::json& jso
             if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
             {
                 CAFFA_ASSERT( false ); // Inconsistency in the factory. It creates objects of wrong type from the
-                                     // ClassKeyword
+                                       // ClassKeyword
                 return;
             }
 
@@ -342,7 +328,7 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFieldData( const nlohmann::json
         if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
         {
             CAFFA_ASSERT( false ); // There is an inconsistency in the factory. It creates objects of type not matching
-                                 // the ClassKeyword
+                                   // the ClassKeyword
 
             continue;
         }
@@ -392,62 +378,6 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeFieldData( nlohmann::json& jso
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 bool FieldIoCap<ChildArrayField<DataType*>>::resolveReferences()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-bool FieldIoCap<ChildArrayField<DataType*>>::isVectorField() const
-{
-    return true;
-}
-
-//==================================================================================================
-/// XML Implementation for FieldIoCap<std::vector<DataType>> methods
-///
-//==================================================================================================
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-bool FieldIoCap<Field<std::vector<DataType>>>::isVectorField() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void FieldIoCap<Field<std::vector<DataType>>>::readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
-{
-    this->assertValid();
-    typename FieldType::FieldDataType value;
-    FieldReader<typename FieldType::FieldDataType>::readFieldData( value, jsonValue, objectFactory );
-    m_field->setValue( value );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void FieldIoCap<Field<std::vector<DataType>>>::writeFieldData( nlohmann::json& jsonValue,
-                                                               bool            writeServerAddress,
-                                                               bool            writeValues ) const
-{
-    this->assertValid();
-    if ( writeValues ) FieldWriter<typename FieldType::FieldDataType>::writeFieldData( m_field->value(), jsonValue );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-bool FieldIoCap<Field<std::vector<DataType>>>::resolveReferences()
 {
     return true;
 }

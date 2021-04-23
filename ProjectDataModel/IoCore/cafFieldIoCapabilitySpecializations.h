@@ -3,7 +3,6 @@
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafFieldIoCapability.h"
-#include "cafInternalIoFieldReaderWriter.h"
 #include "cafPtrArrayField.h"
 #include "cafPtrField.h"
 
@@ -31,7 +30,6 @@ public:
     void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
 
     bool resolveReferences() override;
-    bool isVectorField() const override;
 
 private:
     FieldType* m_field;
@@ -96,7 +94,6 @@ public:
 
     bool        resolveReferences() override;
     std::string referenceString() const override;
-    bool        isVectorField() const override;
 
 private:
     FieldType* m_field;
@@ -155,7 +152,6 @@ public:
     void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
 
     bool resolveReferences() override;
-    bool isVectorField() const override;
 
 private:
     FieldType* m_field;
@@ -163,32 +159,6 @@ private:
 
 template <typename DataType>
 class Field;
-
-template <typename DataType>
-class FieldIoCap<Field<std::vector<DataType>>> : public FieldIoCapability
-{
-    typedef Field<std::vector<DataType>> FieldType;
-
-public:
-    FieldIoCap( FieldType* field, bool giveOwnership )
-        : FieldIoCapability( field, giveOwnership )
-    {
-        m_field = field;
-
-        m_dataTypeName = typeid( DataType ).name();
-    }
-
-public:
-    // Json Serializing
-    void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
-
-    bool resolveReferences() override;
-    bool isVectorField() const override;
-
-private:
-    FieldType* m_field;
-};
 
 template <typename FieldType>
 void AddIoCapabilityToField( FieldType* field )
