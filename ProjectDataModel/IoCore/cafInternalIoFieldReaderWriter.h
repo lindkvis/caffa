@@ -1,7 +1,6 @@
 #pragma once
 
-#include "cafInternalStreamOperators.h"
-#include "cafReferenceHelper.h"
+#include "cafAppEnum.h"
 
 #include <nlohmann/json.hpp>
 
@@ -9,54 +8,18 @@
 
 namespace caffa
 {
-class ObjectFactory;
 template <typename T>
-class Pointer;
-
-//--------------------------------------------------------------------------------------------------
-/// Generic write method for fields. Will work as long as DataType supports the stream operator
-/// towards a iostream. Some special datatype should not specialize this method unless it is
-/// impossible/awkward to implement the stream operator
-/// Implemented in a proxy class to allow  partial specialization
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-struct FieldWriter
+void to_json( nlohmann::json& jsonValue, const AppEnum<T>& appEnum )
 {
-    static void writeFieldData( const DataType& fieldValue, nlohmann::json& jsonValue )
-    {
-        std::stringstream stream;
-        // Use precision of 15 to cover most value ranges for double values
-        stream.precision( 15 );
-        stream << fieldValue;
-        jsonValue = stream.str();
-    }
-};
-
-template <typename DataType>
-struct FieldReader
-{
-    static void readFieldData( DataType& fieldValue, const nlohmann::json& jsonValue, ObjectFactory* objectFactory );
-};
-
-//--------------------------------------------------------------------------------------------------
-/// Generic read method for fields. Will work as long as DataType supports the stream operator
-/// towards a iostream. Some special datatype should not specialize this method unless it is
-/// impossible/awkward to implement the stream operator
-//--------------------------------------------------------------------------------------------------
-
-template <typename DataType>
-void FieldReader<DataType>::readFieldData( DataType& fieldValue, const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
-{
-    std::stringstream stream( jsonValue.get<std::string>() );
-    stream >> fieldValue;
+    std::stringstream stream;
+    stream << appEnum;
+    jsonValue = nlohmann::json::parse( stream.str() );
 }
 
-//--------------------------------------------------------------------------------------------------
-/// Specialized read function for std::strings, because the >> operator only can read word by word
-//--------------------------------------------------------------------------------------------------
-template <>
-void FieldReader<std::string>::readFieldData( std::string&          field,
-                                              const nlohmann::json& jsonValue,
-                                              ObjectFactory*        objectFactory );
-
+template <typename T>
+void from_json( const nlohmann::json& jsonValue, AppEnum<T>& appEnum )
+{
+    std::stringstream stream( jsonValue.get<std::string>() );
+    stream >> appEnum;
+}
 } // End of namespace caffa

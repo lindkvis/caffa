@@ -16,7 +16,6 @@ FieldIoCapability::FieldIoCapability( FieldHandle* owner, bool giveOwnership )
     : m_isIOReadable( true )
     , m_isIOWritable( true )
     , m_isCopyable( true )
-    , m_lastChanged( std::chrono::high_resolution_clock::time_point::min() )
 {
     m_owner = owner;
     owner->addCapability( this, giveOwnership );

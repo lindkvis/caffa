@@ -71,6 +71,9 @@ DataType caffa::rpc::Client::get( const caffa::ObjectHandle* objectHandle, const
 {
     nlohmann::json jsonValue = getJson( objectHandle, fieldName );
     CAFFA_DEBUG( "Attempting to get datatype " << typeid( DataType ).name() << " from json value " << jsonValue );
+    if ( jsonValue.is_string() )
+    {
+    }
     return jsonValue.get<DataType>();
 }
 
