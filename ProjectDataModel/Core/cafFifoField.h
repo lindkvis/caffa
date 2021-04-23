@@ -35,6 +35,9 @@ using namespace std::chrono_literals;
 
 namespace caffa
 {
+/**
+ * Templated FIFO (First in, First Out circular buffer field
+ */
 template <typename DataType, size_t BUFFER_SIZE = 8u, size_t PACKAGE_SIZE = 32u>
 class FifoField : public FieldHandle
 {
