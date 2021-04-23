@@ -14,59 +14,69 @@
 
 using TimeStamp = std::chrono::time_point<std::chrono::system_clock>;
 
-template <typename DataType, size_t BUFFER_SIZE = 8u, size_t PACKAGE_SIZE = 32u>
+template <typename DataType>
 class FifoObject : public caffa::ObjectHandle
 {
 public:
-    static const size_t bufferSize  = BUFFER_SIZE;
-    static const size_t packageSize = PACKAGE_SIZE;
-
-    FifoObject()
+    FifoObject( size_t bufferSize, size_t packageSize )
         : ObjectHandle()
-        , m_fifoField()
+        , m_fifoField( bufferSize, packageSize )
     {
         this->addField( &m_fifoField, "FifoField" );
     }
 
-    caffa::FifoField<DataType, BUFFER_SIZE, PACKAGE_SIZE> m_fifoField;
+    caffa::FifoField<DataType> m_fifoField;
 };
 
-template <typename DataType, size_t PACKAGE_SIZE>
+template <typename DataType>
 class TestCreator
 {
-    using Package = std::array<DataType, PACKAGE_SIZE>;
+    using Package = std::vector<DataType>;
 
 public:
+    TestCreator( size_t packageSize )
+        : m_packageSize( packageSize )
+    {
+    }
     Package makeValue( size_t packageIndex )
     {
         Package package;
-        for ( size_t i = 0; i < PACKAGE_SIZE; ++i )
+        package.reserve( m_packageSize );
+        for ( size_t i = 0; i < m_packageSize; ++i )
         {
-            package[i] = (DataType)1;
+            package.push_back( (DataType)1 );
         }
         return package;
     }
+
+    size_t m_packageSize;
 };
 
-template <size_t PACKAGE_SIZE>
-class TestCreator<TimeStamp, PACKAGE_SIZE>
+template <>
+class TestCreator<TimeStamp>
 {
-    using Package = std::array<TimeStamp, PACKAGE_SIZE>;
+    using Package = std::vector<TimeStamp>;
 
 public:
+    TestCreator( size_t packageSize )
+        : m_packageSize( packageSize )
+    {
+    }
     Package makeValue( size_t packageIndex )
     {
         Package package;
-        for ( size_t i = 0; i < PACKAGE_SIZE; ++i )
+        package.reserve( m_packageSize );
+        for ( size_t i = 0; i < m_packageSize; ++i )
         {
-            package[i] = std::chrono::system_clock::now();
+            package.push_back( std::chrono::system_clock::now() );
         }
 
         return package;
     }
+    size_t m_packageSize;
 };
 
-template <typename DataType, size_t PACKAGE_SIZE>
+template <typename DataType>
 class TestConsumer
 {
 public:
@@ -75,18 +85,18 @@ public:
     {
         m_buffer.reserve( packageCount );
     }
-    bool consume( std::array<DataType, PACKAGE_SIZE>&& package )
+    bool consume( std::vector<DataType>&& package )
     {
         m_buffer.push_back( std::move( package ) );
         return m_buffer.size() >= m_packageCount;
     }
 
-    size_t                                          m_packageCount;
-    std::vector<std::array<DataType, PACKAGE_SIZE>> m_buffer;
+    size_t                             m_packageCount;
+    std::vector<std::vector<DataType>> m_buffer;
 };
 
-template <size_t PACKAGE_SIZE>
-class TestConsumer<TimeStamp, PACKAGE_SIZE>
+template <>
+class TestConsumer<TimeStamp>
 {
 public:
     TestConsumer( size_t packageCount )
@@ -95,7 +105,7 @@ public:
         m_buffer.reserve( packageCount );
     }
 
-    bool consume( std::array<TimeStamp, PACKAGE_SIZE>&& package )
+    bool consume( std::vector<TimeStamp>&& package )
     {
         auto epoch = std::chrono::time_point<std::chrono::system_clock>{};
         for ( TimeStamp& then : package )
@@ -109,12 +119,11 @@ public:
         return m_buffer.size() >= m_packageCount;
     }
 
-    size_t                                           m_packageCount;
-    std::vector<std::array<TimeStamp, PACKAGE_SIZE>> m_buffer;
+    size_t                              m_packageCount;
+    std::vector<std::vector<TimeStamp>> m_buffer;
 };
 
-template <size_t PACKAGE_SIZE>
-std::array<double, 5> calculateMinMaxAverageLatencyMs( const std::vector<std::array<TimeStamp, PACKAGE_SIZE>>& buffer )
+std::array<double, 5> calculateMinMaxAverageLatencyMs( const std::vector<std::vector<TimeStamp>>& buffer )
 {
     auto epoch = std::chrono::time_point<std::chrono::system_clock>{};
 
@@ -142,15 +151,15 @@ std::array<double, 5> calculateMinMaxAverageLatencyMs( const std::vector<std::ar
 
 #define RUN_SIMPLE_FIFO_TEST( DataType, PACKAGE_COUNT, BUFFER_SIZE, PACKAGE_SIZE )            \
     const size_t packageCount = PACKAGE_COUNT;                                                \
-    using FifoObjectT         = FifoObject<DataType, BUFFER_SIZE, PACKAGE_SIZE>;              \
-    using TestCreatorT        = TestCreator<DataType, FifoObjectT::packageSize>;              \
-    using TestConsumerT       = TestConsumer<DataType, FifoObjectT::packageSize>;             \
+    using FifoObjectT         = FifoObject<DataType>;                                         \
+    using TestCreatorT        = TestCreator<DataType>;                                        \
+    using TestConsumerT       = TestConsumer<DataType>;                                       \
                                                                                               \
-    using FifoProducerT = caffa::FifoProducer<DataType, BUFFER_SIZE, PACKAGE_SIZE>;           \
-    using FifoConsumerT = caffa::FifoConsumer<DataType, BUFFER_SIZE, PACKAGE_SIZE>;           \
+    using FifoProducerT = caffa::FifoProducer<DataType>;                                      \
+    using FifoConsumerT = caffa::FifoConsumer<DataType>;                                      \
                                                                                               \
-    FifoObjectT   object;                                                                     \
-    TestCreatorT  creator;                                                                    \
+    FifoObjectT   object( BUFFER_SIZE, PACKAGE_SIZE );                                        \
+    TestCreatorT  creator( PACKAGE_SIZE );                                                    \
     TestConsumerT accumulator( packageCount );                                                \
                                                                                               \
     typename FifoProducerT::PackageCreatorFunction creatorFunction =                          \
@@ -257,7 +266,7 @@ TEST( FifoObject, TestLatency )
 
     size_t microseconds = std::chrono::duration_cast<std::chrono::microseconds>( after - before ).count();
 
-    size_t bytes = sizeof( TimeStamp ) * packageCount * FifoObjectT::packageSize;
+    size_t bytes = sizeof( TimeStamp ) * packageCount * object.m_fifoField.packageSize();
     double MiB   = bytes / 1024.0 / 1024.0;
 
     std::cout << "---- Timings with ----" << std::endl;
