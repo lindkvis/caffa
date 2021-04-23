@@ -193,7 +193,8 @@ public:
     }
     void produce()
     {
-        while ( validProductionCount() < m_sweepCount )
+        while ( ( m_sweepCount == std::numeric_limits<size_t>::infinity() || validProductionCount() < m_sweepCount ) &&
+                !finished() )
         {
             Package package = m_packageCreator( m_doneCount++ );
             // CAFFA_INFO( "Pushed value number: " << m_doneCount - m_ptrToField->droppedPackages() << " out of "
@@ -201,9 +202,9 @@ public:
 
             m_ptrToField->push( package );
         }
-        CAFFA_INFO( "Finished producing" );
     }
     size_t validProductionCount() const { return m_doneCount - m_ptrToField->droppedPackages(); }
+    size_t productionCount() const { return m_doneCount; }
 
     bool finished()
     {
