@@ -51,8 +51,7 @@ public:
 private:
     static Level s_applicationLogLevel;
 
-    Level             m_currentLogLevel;
-    static std::mutex s_outMutex;
+    Level m_currentLogLevel;
 };
 
 } // namespace caffa
