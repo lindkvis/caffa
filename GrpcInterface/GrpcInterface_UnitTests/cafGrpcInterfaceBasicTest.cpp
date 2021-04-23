@@ -369,9 +369,9 @@ TEST( BaseTest, Document )
     }
 
     std::string serverJson = serverDocument->writeObjectToString();
-    CAFFA_INFO( serverJson );
+    CAFFA_DEBUG( serverJson );
     std::string clientJson = clientDocument->writeObjectToString();
-    CAFFA_INFO( clientJson );
+    CAFFA_DEBUG( clientJson );
     ASSERT_EQ( serverJson, clientJson );
 
     CAFFA_DEBUG( "Confirmed test results!" );

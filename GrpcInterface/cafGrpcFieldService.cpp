@@ -401,7 +401,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
                 nlohmann::json jsonValue;
                 auto           ioCapability = field->capability<caffa::FieldIoCapability>();
                 ioCapability->writeFieldData( jsonValue, true, true );
-                m_dataHolder.reset( new DataHolder<std::string>( jsonValue.get<std::string>() ) );
+                m_dataHolder.reset( new DataHolder<std::string>( jsonValue.dump() ) );
                 return grpc::Status::OK;
             }
             else
