@@ -71,7 +71,7 @@ public:
             m_ptrToField->push( package );
             m_doneCount++;
         }
-        CAFFA_INFO( "Finished producing" );
+        // CAFFA_INFO( "Finished producing" );
     }
 
     bool finished()
@@ -142,7 +142,7 @@ public:
 
             m_buffer.push_back( Evaluator<DataType, PACKAGE_SIZE>::evaluatePackage( package ) );
         }
-        CAFFA_INFO( "Finished consumer" );
+        // CAFFA_INFO( "Finished consumer" );
     }
 
     FifoField*                                      m_ptrToField;
