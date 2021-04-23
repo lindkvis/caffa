@@ -20,12 +20,15 @@ class FifoObject : public caffa::ObjectHandle
 public:
     FifoObject( size_t bufferSize, size_t packageSize )
         : ObjectHandle()
-        , m_fifoField( bufferSize, packageSize )
+        , m_boundedField( bufferSize, packageSize )
+        , m_blockingField( bufferSize, packageSize )
     {
-        this->addField( &m_fifoField, "FifoField" );
+        this->addField( &m_boundedField, "FifoBoundedField" );
+        this->addField( &m_blockingField, "FifoBlockingField" );
     }
 
-    caffa::FifoField<DataType> m_fifoField;
+    caffa::FifoBoundedField<DataType>  m_boundedField;
+    caffa::FifoBlockingField<DataType> m_blockingField;
 };
 
 template <typename DataType>
@@ -149,7 +152,7 @@ std::array<double, 5> calculateMinMaxAverageLatencyMs( const std::vector<std::ve
     return { minMs, maxMs, sumMs / allMs.size(), allMs[allMs.size() / 2], allMs[99 * allMs.size() / 100] };
 }
 
-#define RUN_SIMPLE_FIFO_TEST( DataType, PACKAGE_COUNT, BUFFER_SIZE, PACKAGE_SIZE )            \
+#define RUN_SIMPLE_FIFO_TEST( DataType, FieldName, PACKAGE_COUNT, BUFFER_SIZE, PACKAGE_SIZE ) \
     const size_t packageCount = PACKAGE_COUNT;                                                \
     using FifoObjectT         = FifoObject<DataType>;                                         \
     using TestCreatorT        = TestCreator<DataType>;                                        \
@@ -168,8 +171,8 @@ std::array<double, 5> calculateMinMaxAverageLatencyMs( const std::vector<std::ve
     typename FifoConsumerT::PackageHandlingFunction consumptionFunction =                     \
         std::bind( &TestConsumerT::consume, &accumulator, std::placeholders::_1 );            \
                                                                                               \
-    FifoConsumerT consumer( &object.m_fifoField, packageCount, consumptionFunction );         \
-    FifoProducerT producer( &object.m_fifoField, packageCount, creatorFunction );             \
+    FifoConsumerT consumer( &object.FieldName, packageCount, consumptionFunction );           \
+    FifoProducerT producer( &object.FieldName, packageCount, creatorFunction );               \
     ASSERT_EQ( (size_t)0, accumulator.m_buffer.size() );                                      \
                                                                                               \
     std::function<void()> producerFunction = std::bind( &FifoProducerT::produce, &producer ); \
@@ -187,91 +190,81 @@ std::array<double, 5> calculateMinMaxAverageLatencyMs( const std::vector<std::ve
 TEST( FifoObject, TestUint64_t )
 {
     {
-        RUN_SIMPLE_FIFO_TEST( uint64_t, 10000u, 8u, 32u );
+        RUN_SIMPLE_FIFO_TEST( uint64_t, m_boundedField, 10000u, 8u, 32u );
     }
     {
-        RUN_SIMPLE_FIFO_TEST( uint64_t, 10000u, 16u, 64u );
+        RUN_SIMPLE_FIFO_TEST( uint64_t, m_blockingField, 10000u, 16u, 64u );
     }
 }
 
 TEST( FifoObject, TestDouble )
 {
     {
-        RUN_SIMPLE_FIFO_TEST( double, 10000u, 8u, 32u );
+        RUN_SIMPLE_FIFO_TEST( double, m_boundedField, 10000u, 8u, 32u );
     }
     {
-        RUN_SIMPLE_FIFO_TEST( double, 10000u, 12u, 24u );
+        RUN_SIMPLE_FIFO_TEST( double, m_boundedField, 10000u, 12u, 24u );
     }
 }
 
 TEST( FifoObject, TestFloat )
 {
     {
-        RUN_SIMPLE_FIFO_TEST( float, 10000u, 8u, 32u );
+        RUN_SIMPLE_FIFO_TEST( float, m_boundedField, 10000u, 8u, 32u );
     }
     {
-        RUN_SIMPLE_FIFO_TEST( float, 10000u, 9u, 15u );
+        RUN_SIMPLE_FIFO_TEST( float, m_blockingField, 10000u, 9u, 15u );
     }
 }
 
 TEST( FifoObject, TestChar )
 {
     {
-        RUN_SIMPLE_FIFO_TEST( float, 10000u, 8u, 32u );
+        RUN_SIMPLE_FIFO_TEST( float, m_blockingField, 10000u, 8u, 32u );
     }
     {
-        RUN_SIMPLE_FIFO_TEST( float, 10000u, 10u, 5u );
+        RUN_SIMPLE_FIFO_TEST( float, m_boundedField, 10000u, 10u, 5u );
     }
 }
 
-TEST( FifoObject, TestLatency )
+TEST( FifoObject, TestLatencyBounded )
 {
     auto before = std::chrono::system_clock::now();
-    RUN_SIMPLE_FIFO_TEST( TimeStamp, 1024u * 256u, 8u, 32u );
+    RUN_SIMPLE_FIFO_TEST( TimeStamp, m_boundedField, 1024u * 256u, 8u, 32u );
     auto after = std::chrono::system_clock::now();
-
-    /* #define BUFFER_SIZE 8u
-    #define PACKAGE_SIZE 24u
-
-        using FifoObjectT   = FifoObject<TimeStamp, BUFFER_SIZE, PACKAGE_SIZE>;
-        using TestCreatorT  = TestCreator<DataType, FifoObjectT::packageSize>;
-        using TestConsumerT = TestConsumer<DataType, FifoObjectT::packageSize>;
-
-        using ConsumerT = Consumer<TimeStamp, BUFFER_SIZE, PACKAGE_SIZE>;
-        using ProducerT = caffa::FifoProducer<TimeStamp, BUFFER_SIZE, PACKAGE_SIZE>;
-
-        size_t packageCount = 1024u * 1024 * 1;
-        size_t bytes        = sizeof( TimeStamp ) * packageCount * FifoObject::packageSize;
-        double MiB          = bytes / 1024.0 / 1024.0;
-        std::cout << "Total MiB being sent: " << MiB << std::endl;
-
-        FifoObject object;
-        Consumer   consumer( &object.m_fifoField, packageCount );
-        Producer   producer( &object.m_fifoField, packageCount, makeValue<TimeStamp> );
-        ASSERT_EQ( (size_t)0, consumer.m_buffer.size() );
-
-        std::function<void()> producerFunction = std::bind( &Producer::produce, &producer );
-        std::function<void()> consumerFunction = std::bind( &Consumer::consume, &consumer );
-
-
-        std::thread consumerThread( consumerFunction );
-        std::thread producerThread( producerFunction );
-
-        consumerThread.join();
-        producer.setFinished();
-        producerThread.join();
-*/
 
     auto [min, max, avg, med, q99] = calculateMinMaxAverageLatencyMs( accumulator.m_buffer );
 
     size_t microseconds = std::chrono::duration_cast<std::chrono::microseconds>( after - before ).count();
 
-    size_t bytes = sizeof( TimeStamp ) * packageCount * object.m_fifoField.packageSize();
+    size_t bytes = sizeof( TimeStamp ) * packageCount * object.m_boundedField.packageSize();
     double MiB   = bytes / 1024.0 / 1024.0;
 
     std::cout << "---- Timings with ----" << std::endl;
     std::cout << "Received packages: " << packageCount << std::endl;
-    std::cout << "Dropped packages: " << object.m_fifoField.droppedPackages() << std::endl;
+    std::cout << "Dropped packages: " << object.m_boundedField.droppedPackages() << std::endl;
+    std::cout << "Total time: " << microseconds << " μs" << std::endl;
+    std::cout << "Mbit/s: " << MiB * 8 * 1000 * 1000 / microseconds << std::endl;
+    std::cout << "Latencies -> min: " << min << " μs, avg: " << avg << " μs, med: " << med << " μs, Q99: " << q99
+              << " μs, max: " << max << " μs" << std::endl;
+}
+
+TEST( FifoObject, TestLatencyBlocking )
+{
+    auto before = std::chrono::system_clock::now();
+    RUN_SIMPLE_FIFO_TEST( TimeStamp, m_blockingField, 1024u * 256u, 8u, 32u );
+    auto after = std::chrono::system_clock::now();
+
+    auto [min, max, avg, med, q99] = calculateMinMaxAverageLatencyMs( accumulator.m_buffer );
+
+    size_t microseconds = std::chrono::duration_cast<std::chrono::microseconds>( after - before ).count();
+
+    size_t bytes = sizeof( TimeStamp ) * packageCount * object.m_blockingField.packageSize();
+    double MiB   = bytes / 1024.0 / 1024.0;
+
+    std::cout << "---- Timings with ----" << std::endl;
+    std::cout << "Received packages: " << packageCount << std::endl;
+    std::cout << "Dropped packages: " << object.m_blockingField.droppedPackages() << std::endl;
     std::cout << "Total time: " << microseconds << " μs" << std::endl;
     std::cout << "Mbit/s: " << MiB * 8 * 1000 * 1000 / microseconds << std::endl;
     std::cout << "Latencies -> min: " << min << " μs, avg: " << avg << " μs, med: " << med << " μs, Q99: " << q99
