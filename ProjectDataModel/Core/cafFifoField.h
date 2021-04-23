@@ -122,4 +122,90 @@ private:
     std::condition_variable m_dataAccessGuard;
 };
 
+template <typename DataType, size_t BUFFER_SIZE = 8u, size_t PACKAGE_SIZE = 32u>
+class FifoProducer
+{
+public:
+    using ProductionField = FifoField<DataType, BUFFER_SIZE, PACKAGE_SIZE>;
+    using Package         = std::array<DataType, PACKAGE_SIZE>;
+
+    // Package index as the argument
+    using PackageCreatorFunction = std::function<Package( size_t )>;
+
+public:
+    FifoProducer( ProductionField* ptrToField, size_t sweepCount, PackageCreatorFunction packageCreator )
+        : m_ptrToField( ptrToField )
+        , m_finished( false )
+        , m_doneCount( 0u )
+        , m_sweepCount( sweepCount )
+        , m_packageCreator( packageCreator )
+    {
+    }
+    void produce()
+    {
+        while ( validProductionCount() < m_sweepCount )
+        {
+            std::array<DataType, PACKAGE_SIZE> package = m_packageCreator( m_doneCount++ );
+            // CAFFA_INFO( "Pushed value number: " << m_doneCount - m_ptrToField->droppedPackages() << " out of "
+            //                                  << m_sweepCount );
+
+            m_ptrToField->push( package );
+        }
+        CAFFA_INFO( "Finished producing" );
+    }
+    size_t validProductionCount() const { return m_doneCount - m_ptrToField->droppedPackages(); }
+
+    bool finished()
+    {
+        std::unique_lock<std::mutex>( m_mutex );
+        return m_finished;
+    }
+    void setFinished()
+    {
+        std::unique_lock<std::mutex>( m_mutex );
+        m_finished = true;
+    }
+
+    ProductionField*       m_ptrToField;
+    bool                   m_finished;
+    std::mutex             m_mutex;
+    size_t                 m_doneCount;
+    size_t                 m_sweepCount;
+    PackageCreatorFunction m_packageCreator;
+};
+
+template <typename DataType, size_t BUFFER_SIZE = 8u, size_t PACKAGE_SIZE = 32u>
+class FifoConsumer
+{
+public:
+    using ConsumptionField        = FifoField<DataType, BUFFER_SIZE, PACKAGE_SIZE>;
+    using PackageHandlingFunction = std::function<bool( std::array<DataType, PACKAGE_SIZE>&& )>;
+
+public:
+    FifoConsumer( ConsumptionField* ptrToField, size_t sweepCount, PackageHandlingFunction packageHandlingFunction )
+        : m_ptrToField( ptrToField )
+        , m_sweepCount( sweepCount )
+        , m_consumedCount( 0u )
+        , m_packageHandlingFunction( packageHandlingFunction )
+    {
+    }
+    void consume()
+    {
+        while ( m_consumedCount++ < m_sweepCount )
+        {
+            // CAFFA_INFO( "Trying to pop value" << m_buffer.size() );
+            auto package = m_ptrToField->pop();
+            // CAFFA_INFO( "Popped value" << m_buffer.size() );
+            m_packageHandlingFunction( std::move( package ) );
+        }
+        // CAFFA_INFO( "Finished consumer" );
+    }
+
+    ConsumptionField* m_ptrToField;
+    size_t            m_sweepCount;
+    size_t            m_consumedCount;
+
+    PackageHandlingFunction m_packageHandlingFunction;
+};
+
 } // End of namespace caffa

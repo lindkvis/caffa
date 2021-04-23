@@ -3,6 +3,7 @@
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafFieldIoCapability.h"
+#include "cafFifoField.h"
 #include "cafPtrArrayField.h"
 #include "cafPtrField.h"
 
