@@ -37,9 +37,6 @@ private:
 };
 
 template <typename DataType>
-class PtrField;
-
-template <typename DataType>
 class FieldIoCap<PtrField<DataType*>> : public FieldIoCapability
 {
     typedef PtrField<DataType*> FieldType;
@@ -69,9 +66,6 @@ private:
     std::string m_referenceString;
     bool        m_isResolved;
 };
-
-template <typename DataType>
-class PtrArrayField;
 
 template <typename DataType>
 class FieldIoCap<PtrArrayField<DataType*>> : public FieldIoCapability
@@ -105,9 +99,6 @@ private:
 };
 
 template <typename DataType>
-class ChildField;
-
-template <typename DataType>
 class FieldIoCap<ChildField<DataType*>> : public FieldIoCapability
 {
     typedef ChildField<DataType*> FieldType;
@@ -132,9 +123,6 @@ private:
 };
 
 template <typename DataType>
-class ChildArrayField;
-
-template <typename DataType>
 class FieldIoCap<ChildArrayField<DataType*>> : public FieldIoCapability
 {
     typedef ChildArrayField<DataType*> FieldType;
@@ -157,9 +145,6 @@ public:
 private:
     FieldType* m_field;
 };
-
-template <typename DataType>
-class Field;
 
 template <typename FieldType>
 void AddIoCapabilityToField( FieldType* field )
