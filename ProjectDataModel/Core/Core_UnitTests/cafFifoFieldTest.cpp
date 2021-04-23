@@ -227,7 +227,7 @@ TEST( FifoObject, TestChar )
 TEST( FifoObject, TestLatency )
 {
     auto before = std::chrono::system_clock::now();
-    RUN_SIMPLE_FIFO_TEST( TimeStamp, 1024u * 1024u, 8u, 32u );
+    RUN_SIMPLE_FIFO_TEST( TimeStamp, 1024u * 256u, 8u, 32u );
     auto after = std::chrono::system_clock::now();
 
     /* #define BUFFER_SIZE 8u
