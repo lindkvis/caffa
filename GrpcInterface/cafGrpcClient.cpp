@@ -216,7 +216,7 @@ public:
         if ( reader->Read( &reply ) )
         {
             CAFFA_TRACE( "Got scalar reply: " << reply.scalar() );
-            jsonValue = reply.scalar();
+            jsonValue = nlohmann::json::parse( reply.scalar() );
         }
         grpc::Status status = reader->Finish();
         if ( !status.ok() )

@@ -13,7 +13,7 @@ void to_json( nlohmann::json& jsonValue, const AppEnum<T>& appEnum )
 {
     std::stringstream stream;
     stream << appEnum;
-    jsonValue = nlohmann::json::parse( stream.str() );
+    jsonValue = stream.str();
 }
 
 template <typename T>
