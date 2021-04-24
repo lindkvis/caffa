@@ -140,9 +140,10 @@ std::array<double, 5> calculateMinMaxAverageLatencyMs( const std::vector<std::ve
     {
         for ( const TimeStamp& latency : package )
         {
-            double dblLatency = std::chrono::duration_cast<std::chrono::microseconds>( latency - epoch ).count();
-            maxMs             = std::max( maxMs, dblLatency );
-            minMs             = std::min( minMs, dblLatency );
+            double dblLatency =
+                static_cast<double>( std::chrono::duration_cast<std::chrono::microseconds>( latency - epoch ).count() );
+            maxMs = std::max( maxMs, dblLatency );
+            minMs = std::min( minMs, dblLatency );
 
             sumMs += dblLatency;
             allMs.push_back( dblLatency );
@@ -241,13 +242,13 @@ TEST( FifoObject, TestLatencyBounded )
     size_t bytes = sizeof( TimeStamp ) * packageCount * object.m_boundedField.packageSize();
     double MiB   = bytes / 1024.0 / 1024.0;
 
-    CAFFA_INFO( "---- Timings with ----" );
-    CAFFA_INFO( "Received packages: " << packageCount );
-    CAFFA_INFO( "Dropped packages: " << object.m_boundedField.droppedPackages() );
-    CAFFA_INFO( "Total time: " << microseconds << " μs" );
-    CAFFA_INFO( "Mbit/s: " << MiB * 8 * 1000 * 1000 / microseconds );
-    CAFFA_INFO( "Latencies -> min: " << min << " μs, avg: " << avg << " μs, med: " << med << " μs, Q99: " << q99
-                                     << " μs, max: " << max << " μs" );
+    std::cout << "---- Timings with ----" << std::endl;
+    std::cout << "Received packages: " << packageCount << std::endl;
+    std::cout << "Dropped packages: " << object.m_boundedField.droppedPackages() << std::endl;
+    std::cout << "Total time: " << microseconds << " μs" << std::endl;
+    std::cout << "Mbit/s: " << MiB * 8 * 1000 * 1000 / microseconds << std::endl;
+    std::cout << "Latencies -> min: " << min << " μs, avg: " << avg << " μs, med: " << med << " μs, Q99: " << q99
+              << " μs, max: " << max << " μs" << std::endl;
 }
 
 TEST( FifoObject, TestLatencyBlocking )
@@ -263,13 +264,13 @@ TEST( FifoObject, TestLatencyBlocking )
     size_t bytes = sizeof( TimeStamp ) * packageCount * object.m_blockingField.packageSize();
     double MiB   = bytes / 1024.0 / 1024.0;
 
-    CAFFA_INFO( "---- Timings with ----" );
-    CAFFA_INFO( "Received packages: " << packageCount );
-    CAFFA_INFO( "Dropped packages: " << object.m_blockingField.droppedPackages() );
-    CAFFA_INFO( "Total time: " << microseconds << " μs" );
-    CAFFA_INFO( "Mbit/s: " << MiB * 8 * 1000 * 1000 / microseconds );
-    CAFFA_INFO( "Latencies -> min: " << min << " μs, avg: " << avg << " μs, med: " << med << " μs, Q99: " << q99
-                                     << " μs, max: " << max << " μs" );
+    std::cout << "---- Timings with ----" << std::endl;
+    std::cout << "Received packages: " << packageCount << std::endl;
+    std::cout << "Dropped packages: " << object.m_blockingField.droppedPackages() << std::endl;
+    std::cout << "Total time: " << microseconds << " μs" << std::endl;
+    std::cout << "Mbit/s: " << MiB * 8 * 1000 * 1000 / microseconds << std::endl;
+    std::cout << "Latencies -> min: " << min << " μs, avg: " << avg << " μs, med: " << med << " μs, Q99: " << q99
+              << " μs, max: " << max << " μs" << std::endl;
 }
 
 TEST( FifoObject, MultipleAccessToBounded )
@@ -314,11 +315,12 @@ TEST( FifoObject, MultipleAccessToBounded )
         ASSERT_EQ( packageCount, accumulator.m_buffer.size() );
         totalReadCount += accumulator.m_buffer.size();
         auto [min, max, avg, med, q99] = calculateMinMaxAverageLatencyMs( accumulator.m_buffer );
-        CAFFA_INFO( "Latencies -> min: " << min << " μs, avg: " << avg << " μs, med: " << med << " μs, Q99: " << q99
-                                         << " μs, max: " << max << " μs" );
+        std::cout << "Latencies -> min: " << min << " μs, avg: " << avg << " μs, med: " << med << " μs, Q99: " << q99
+                  << " μs, max: " << max << " μs" << std::endl;
         std::this_thread::sleep_for( 5ms );
     }
-    CAFFA_INFO( "Produced a total of " << producer.productionCount() << " values, but only read " << totalReadCount );
+    std::cout << "Produced a total of " << producer.productionCount() << " values, but only read " << totalReadCount
+              << std::endl;
     ASSERT_LT( totalReadCount, producer.productionCount() );
 
     producer.setFinished();
@@ -366,10 +368,11 @@ TEST( FifoObject, DISABLED_MultipleAccessToBlocked )
         ASSERT_EQ( packageCount, accumulator.m_buffer.size() );
         totalReadCount += accumulator.m_buffer.size();
         auto [min, max, avg, med, q99] = calculateMinMaxAverageLatencyMs( accumulator.m_buffer );
-        CAFFA_INFO( "Latencies -> min: " << min << " μs, avg: " << avg << " μs, med: " << med << " μs, Q99: " << q99
-                                         << " μs, max: " << max << " μs" );
+        std::cout << "Latencies -> min: " << min << " μs, avg: " << avg << " μs, med: " << med << " μs, Q99: " << q99
+                  << " μs, max: " << max << " μs" << std::endl;
     }
-    CAFFA_INFO( "Produced a total of " << producer.productionCount() << " values, but only read " << totalReadCount );
+    std::cout << "Produced a total of " << producer.productionCount() << " values, but only read " << totalReadCount
+              << std::endl;
     ASSERT_EQ( totalReadCount, producer.validProductionCount() );
 
     producer.setFinished();
