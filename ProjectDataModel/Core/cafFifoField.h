@@ -101,7 +101,7 @@ public:
     {
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
 
-        this->m_dataAccessGuard.wait_for( lock, 100us, [this]() { return !this->empty(); } );
+        this->m_dataAccessGuard.wait_for( lock, 250us, [this]() { return !this->empty(); } );
 
         if ( this->empty() ) return {};
         std::vector<FieldDataType> package;
@@ -142,7 +142,7 @@ public:
     {
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
 
-        this->m_dataAccessGuard.wait_for( lock, 100us, [this]() { return !this->empty(); } );
+        this->m_dataAccessGuard.wait_for( lock, 250us, [this]() { return !this->empty(); } );
         if ( this->empty() ) return {};
 
         std::vector<FieldDataType> package;

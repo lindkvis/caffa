@@ -319,7 +319,7 @@ TEST( FifoObject, MultipleAccessToBounded )
                   << " μs, max: " << max << " μs" << std::endl;
         std::this_thread::sleep_for( 5ms );
     }
-    std::cout << "Produced a total of " << producer.productionCount() << " values, but only read " << totalReadCount
+    std::cout << "Produced a total of " << producer.productionCount() << " packages but only read " << totalReadCount
               << std::endl;
     ASSERT_LT( totalReadCount, producer.productionCount() );
 
@@ -372,7 +372,8 @@ TEST( FifoObject, MultipleAccessToBlocked )
                   << " μs, max: " << max << " μs" << std::endl;
     }
     // Since this is a blocking field we should only have produced the amount read + the size of the buffer.
-    std::cout << "Produced a total of " << producer.productionCount() << " values and read " << totalReadCount << std::endl;
+    std::cout << "Produced a total of " << producer.productionCount() << " packages and read " << totalReadCount
+              << std::endl;
     ASSERT_EQ( totalReadCount + BUFFER_SIZE, producer.validProductionCount() );
 
     producer.setFinished();
