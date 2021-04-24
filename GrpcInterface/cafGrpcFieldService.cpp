@@ -335,7 +335,7 @@ void DataHolder<std::string>::applyValuesToField( ValueField* field )
 {
     auto ioCapability = field->capability<FieldIoCapability>();
     CAFFA_ASSERT( ioCapability );
-    ioCapability->readFieldData( data, caffa::DefaultObjectFactory::instance() );
+    ioCapability->writeToField( data, caffa::DefaultObjectFactory::instance() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -400,7 +400,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
                 m_field = dataField;
                 nlohmann::json jsonValue;
                 auto           ioCapability = field->capability<caffa::FieldIoCapability>();
-                ioCapability->writeFieldData( jsonValue, true, true );
+                ioCapability->readFromField( jsonValue, true, true );
                 m_dataHolder.reset( new DataHolder<std::string>( jsonValue.dump() ) );
                 return grpc::Status::OK;
             }
