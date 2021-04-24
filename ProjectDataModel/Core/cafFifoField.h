@@ -34,7 +34,7 @@ using namespace std::chrono_literals;
 namespace caffa
 {
 /**
- * Templated FIFO (First in, First Out circular buffer field
+ * Templated FIFO (First in, First Out) circular buffer field
  */
 template <typename DataType>
 class FifoField : public FieldHandle
@@ -61,7 +61,7 @@ public:
     }
 
     virtual std::vector<FieldDataType> pop()                                  = 0;
-    virtual void                       push( std::vector<DataType>& package ) = 0;
+    virtual bool                       push( std::vector<DataType>& package ) = 0;
 
     virtual size_t droppedPackages() const = 0;
     size_t         packageSize() const { return m_packageSize; }
@@ -101,8 +101,9 @@ public:
     {
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
 
-        this->m_dataAccessGuard.wait( lock, [this]() { return !this->empty(); } );
+        this->m_dataAccessGuard.wait_for( lock, 100us, [this]() { return !this->empty(); } );
 
+        if ( this->empty() ) return {};
         std::vector<FieldDataType> package;
         package.swap( this->m_buffer[this->m_readIndex++ % this->m_bufferSize] );
 
@@ -111,15 +112,17 @@ public:
         return package;
     }
 
-    void push( std::vector<DataType>& package ) override
+    bool push( std::vector<DataType>& package ) override
     {
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
 
-        this->m_dataAccessGuard.wait( lock, [this]() { return !this->full(); } );
+        this->m_dataAccessGuard.wait_for( lock, 200us, [this]() { return !this->full(); } );
+        if ( this->full() ) return false;
 
         this->m_buffer[this->m_writeIndex++ % this->m_bufferSize].swap( package );
         lock.unlock();
         this->m_dataAccessGuard.notify_one();
+        return true;
     }
     size_t droppedPackages() const override { return 0u; }
 };
@@ -139,7 +142,8 @@ public:
     {
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
 
-        this->m_dataAccessGuard.wait( lock, [this]() { return !this->empty(); } );
+        this->m_dataAccessGuard.wait_for( lock, 100us, [this]() { return !this->empty(); } );
+        if ( this->empty() ) return {};
 
         std::vector<FieldDataType> package;
         package.swap( this->m_buffer[this->m_readIndex++ % this->m_bufferSize] );
@@ -147,7 +151,7 @@ public:
         return package;
     }
 
-    void push( std::vector<DataType>& package ) override
+    bool push( std::vector<DataType>& package ) override
     {
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
 
@@ -155,11 +159,13 @@ public:
         {
             this->m_readIndex++;
             this->m_droppedPackages++;
+            return false;
         }
 
         this->m_buffer[this->m_writeIndex++ % this->m_bufferSize].swap( package );
         lock.unlock();
         this->m_dataAccessGuard.notify_one();
+        return true;
     }
 
     size_t droppedPackages() const override
@@ -196,11 +202,14 @@ public:
         while ( ( m_sweepCount == std::numeric_limits<size_t>::infinity() || validProductionCount() < m_sweepCount ) &&
                 !finished() )
         {
-            Package package = m_packageCreator( m_doneCount++ );
+            Package package = m_packageCreator( m_doneCount );
             // CAFFA_INFO( "Pushed value number: " << m_doneCount - m_ptrToField->droppedPackages() << " out of "
             //                                  << m_sweepCount );
 
-            m_ptrToField->push( package );
+            if ( m_ptrToField->push( package ) )
+            {
+                m_doneCount++;
+            }
         }
     }
     size_t validProductionCount() const { return m_doneCount - m_ptrToField->droppedPackages(); }
@@ -225,7 +234,7 @@ public:
     PackageCreatorFunction m_packageCreator;
 };
 
-template <typename DataType, size_t BUFFER_SIZE = 8u, size_t PACKAGE_SIZE = 32u>
+template <typename DataType>
 class FifoConsumer
 {
 public:

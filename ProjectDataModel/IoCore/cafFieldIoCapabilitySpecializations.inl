@@ -22,7 +22,7 @@ namespace caffa
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void FieldIoCap<FieldType>::readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
+void FieldIoCap<FieldType>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
 {
     this->assertValid();
     typename FieldType::FieldDataType value = jsonValue.get<typename FieldType::FieldDataType>();
@@ -33,7 +33,7 @@ void FieldIoCap<FieldType>::readFieldData( const nlohmann::json& jsonValue, Obje
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void FieldIoCap<FieldType>::writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const
+void FieldIoCap<FieldType>::readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const
 {
     this->assertValid();
     if ( writeValues )
@@ -55,7 +55,7 @@ bool FieldIoCap<FieldType>::resolveReferences()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PtrField<DataType*>>::readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
+void FieldIoCap<PtrField<DataType*>>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
 {
     this->assertValid();
 
@@ -80,7 +80,7 @@ void FieldIoCap<PtrField<DataType*>>::readFieldData( const nlohmann::json& jsonV
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PtrField<DataType*>>::writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const
+void FieldIoCap<PtrField<DataType*>>::readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const
 {
     this->assertValid();
 
@@ -119,7 +119,7 @@ std::string FieldIoCap<PtrField<DataType*>>::referenceString() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PtrArrayField<DataType*>>::readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
+void FieldIoCap<PtrArrayField<DataType*>>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
 {
     this->assertValid();
 
@@ -138,9 +138,9 @@ void FieldIoCap<PtrArrayField<DataType*>>::readFieldData( const nlohmann::json& 
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PtrArrayField<DataType*>>::writeFieldData( nlohmann::json& jsonValue,
-                                                           bool            writeServerAddress,
-                                                           bool            writeValues ) const
+void FieldIoCap<PtrArrayField<DataType*>>::readFromField( nlohmann::json& jsonValue,
+                                                          bool            writeServerAddress,
+                                                          bool            writeValues ) const
 {
     this->assertValid();
 
@@ -195,7 +195,7 @@ std::string FieldIoCap<PtrArrayField<DataType*>>::referenceString() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildField<DataType*>>::readFieldData( const nlohmann::json& jsonObject, ObjectFactory* objectFactory )
+void FieldIoCap<ChildField<DataType*>>::writeToField( const nlohmann::json& jsonObject, ObjectFactory* objectFactory )
 {
     if ( jsonObject.is_null() ) return;
 
@@ -256,9 +256,7 @@ void FieldIoCap<ChildField<DataType*>>::readFieldData( const nlohmann::json& jso
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildField<DataType*>>::writeFieldData( nlohmann::json& jsonValue,
-                                                        bool            writeServerAddress,
-                                                        bool            writeValues ) const
+void FieldIoCap<ChildField<DataType*>>::readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const
 {
     auto object = m_field->m_fieldValue.rawPtr();
     if ( !object ) return;
@@ -294,7 +292,7 @@ bool FieldIoCap<ChildField<DataType*>>::resolveReferences()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildArrayField<DataType*>>::readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
+void FieldIoCap<ChildArrayField<DataType*>>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
 {
     m_field->clear();
 
@@ -344,9 +342,9 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFieldData( const nlohmann::json
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildArrayField<DataType*>>::writeFieldData( nlohmann::json& jsonValue,
-                                                             bool            writeServerAddress,
-                                                             bool            writeValues ) const
+void FieldIoCap<ChildArrayField<DataType*>>::readFromField( nlohmann::json& jsonValue,
+                                                            bool            writeServerAddress,
+                                                            bool            writeValues ) const
 {
     typename std::vector<Pointer<DataType>>::iterator it;
 
@@ -378,6 +376,131 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeFieldData( nlohmann::json& jso
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 bool FieldIoCap<ChildArrayField<DataType*>>::resolveReferences()
+{
+    return true;
+}
+
+template <typename DataType>
+class JsonConsumer
+{
+public:
+    JsonConsumer( size_t packageCount )
+        : m_packageCount( packageCount )
+        , m_readCount( 0u )
+    {
+        m_array = nlohmann::json::array();
+    }
+    bool consume( std::vector<DataType>&& package )
+    {
+        if ( package.empty() )
+        {
+            return true;
+        }
+        for ( auto item : package )
+        {
+            m_array.push_back( item );
+        }
+        return m_readCount++ >= m_packageCount;
+    }
+
+    size_t m_packageCount;
+    size_t m_readCount;
+
+    nlohmann::json m_array;
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void FieldIoCap<FifoBlockingField<DataType>>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
+{
+    CAFFA_ASSERT( false && "Cannot write to a Fifo Field" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void FieldIoCap<FifoBlockingField<DataType>>::readFromField( nlohmann::json& jsonValue,
+                                                             bool            writeServerAddress,
+                                                             bool            writeValues ) const
+{
+    this->assertValid();
+
+    const size_t packageCount = m_readLimit;
+
+    using FifoProducerT = caffa::FifoProducer<DataType>;
+    using FifoConsumerT = caffa::FifoConsumer<DataType>;
+    using JsonConsumerT = JsonConsumer<DataType>;
+
+    JsonConsumerT accumulator( packageCount );
+
+    typename FifoConsumerT::PackageHandlingFunction consumptionFunction =
+        std::bind( &JsonConsumerT::consume, &accumulator, std::placeholders::_1 );
+
+    FifoConsumerT consumer( const_cast<FifoBlockingField<DataType>*>( m_field ), packageCount, consumptionFunction );
+
+    std::function<void()> consumerFunction = std::bind( &FifoConsumerT::consume, &consumer );
+
+    std::thread consumerThread( consumerFunction );
+    consumerThread.join();
+    jsonValue = accumulator.m_array;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+bool FieldIoCap<FifoBlockingField<DataType>>::resolveReferences()
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void FieldIoCap<FifoBoundedField<DataType>>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
+{
+    CAFFA_ASSERT( false && "Cannot write to a Fifo Field" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void FieldIoCap<FifoBoundedField<DataType>>::readFromField( nlohmann::json& jsonValue,
+                                                            bool            writeServerAddress,
+                                                            bool            writeValues ) const
+{
+    this->assertValid();
+
+    const size_t packageCount = m_readLimit;
+
+    using FifoProducerT = caffa::FifoProducer<DataType>;
+    using FifoConsumerT = caffa::FifoConsumer<DataType>;
+    using JsonConsumerT = JsonConsumer<DataType>;
+
+    JsonConsumerT accumulator( packageCount );
+
+    typename FifoConsumerT::PackageHandlingFunction consumptionFunction =
+        std::bind( &JsonConsumerT::consume, &accumulator, std::placeholders::_1 );
+
+    FifoConsumerT consumer( const_cast<FifoBoundedField<DataType>*>( m_field ), packageCount, consumptionFunction );
+
+    std::function<void()> consumerFunction = std::bind( &FifoConsumerT::consume, &consumer );
+    std::thread           consumerThread( consumerFunction );
+    consumerThread.join();
+
+    jsonValue = accumulator.m_array;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+bool FieldIoCap<FifoBoundedField<DataType>>::resolveReferences()
 {
     return true;
 }

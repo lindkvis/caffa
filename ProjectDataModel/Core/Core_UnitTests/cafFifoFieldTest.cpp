@@ -327,10 +327,10 @@ TEST( FifoObject, MultipleAccessToBounded )
     producerThread.join();
 }
 
-TEST( FifoObject, DISABLED_MultipleAccessToBlocked )
+TEST( FifoObject, MultipleAccessToBlocked )
 {
     const size_t packageCount = 10000u;
-    const size_t BUFFER_SIZE  = 8u;
+    const size_t BUFFER_SIZE  = 16u;
     const size_t PACKAGE_SIZE = 32u;
 
     using DataType = TimeStamp;
@@ -352,7 +352,7 @@ TEST( FifoObject, DISABLED_MultipleAccessToBlocked )
     std::thread           producerThread( producerFunction );
 
     // Read multiple times. The producer should block meaning we shouldn't drop any packages
-    // ... and latencies should increase.
+    // ... and the max latencies will increase as one full buffer will wait for the next consumer
     size_t totalReadCount = 0u;
     for ( size_t i = 0; i < 20; ++i )
     {
@@ -371,9 +371,9 @@ TEST( FifoObject, DISABLED_MultipleAccessToBlocked )
         std::cout << "Latencies -> min: " << min << " μs, avg: " << avg << " μs, med: " << med << " μs, Q99: " << q99
                   << " μs, max: " << max << " μs" << std::endl;
     }
-    std::cout << "Produced a total of " << producer.productionCount() << " values, but only read " << totalReadCount
-              << std::endl;
-    ASSERT_EQ( totalReadCount, producer.validProductionCount() );
+    // Since this is a blocking field we should only have produced the amount read + the size of the buffer.
+    std::cout << "Produced a total of " << producer.productionCount() << " values and read " << totalReadCount << std::endl;
+    ASSERT_EQ( totalReadCount + BUFFER_SIZE, producer.validProductionCount() );
 
     producer.setFinished();
     producerThread.join();

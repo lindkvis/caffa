@@ -27,8 +27,8 @@ public:
 
 public:
     // Json Serializing
-    void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
+    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
+    void readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
 
     bool resolveReferences() override;
 
@@ -53,8 +53,8 @@ public:
 
 public:
     // Json Serializing
-    void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
+    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
+    void readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
 
     bool        resolveReferences() override;
     std::string referenceString() const override;
@@ -84,8 +84,8 @@ public:
 
 public:
     // Json Serializing
-    void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
+    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
+    void readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
 
     bool        resolveReferences() override;
     std::string referenceString() const override;
@@ -113,8 +113,8 @@ public:
 
 public:
     // Json Serializing
-    void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
+    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
+    void readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
 
     bool resolveReferences() override;
 
@@ -137,8 +137,8 @@ public:
 
 public:
     // Json Serializing
-    void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
+    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
+    void readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
 
     bool resolveReferences() override;
 
@@ -147,23 +147,52 @@ private:
 };
 
 template <typename DataType>
-class FieldIoCap<FifoField<DataType>> : public FieldIoCapability
+class FieldIoCap<FifoBlockingField<DataType>> : public FieldIoCapability
 {
-    using FieldType = FifoField<DataType>;
+    using FieldType = FifoBlockingField<DataType>;
 
 public:
     FieldIoCap( FieldType* field, bool giveOwnership )
         : FieldIoCapability( field, giveOwnership )
-        , m_readLimit( 10000u )
+        , m_readLimit( 10u )
     {
         m_field        = field;
-        m_dataTypeName = DataType::classKeywordStatic();
+        m_dataTypeName = typeid( typename FieldType::FieldDataType ).name();
     }
 
 public:
     // Json Serializing
-    void readFieldData( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void writeFieldData( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
+    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
+    void readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
+
+    bool resolveReferences() override;
+
+    void   setMaximumPackagesForIoOutput( size_t maximumPackageCount ) { m_readLimit = maximumPackageCount; }
+    size_t maximumPackagesForIoOutput() const { return m_readLimit; }
+
+private:
+    FieldType* m_field;
+    size_t     m_readLimit;
+};
+
+template <typename DataType>
+class FieldIoCap<FifoBoundedField<DataType>> : public FieldIoCapability
+{
+    using FieldType = FifoBoundedField<DataType>;
+
+public:
+    FieldIoCap( FieldType* field, bool giveOwnership )
+        : FieldIoCapability( field, giveOwnership )
+        , m_readLimit( 10u )
+    {
+        m_field        = field;
+        m_dataTypeName = typeid( typename FieldType::FieldDataType ).name();
+    }
+
+public:
+    // Json Serializing
+    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
+    void readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
 
     bool resolveReferences() override;
 

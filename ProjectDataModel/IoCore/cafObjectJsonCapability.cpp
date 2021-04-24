@@ -141,7 +141,7 @@ void ObjectJsonCapability::readFields( ObjectHandle*         object,
     const auto& classKeyword = jsonObject["classKeyword"];
 
     CAFFA_ASSERT( classKeyword.is_string() &&
-                classKeyword.get<std::string>() == object->capability<ObjectIoCapability>()->classKeyword() );
+                  classKeyword.get<std::string>() == object->capability<ObjectIoCapability>()->classKeyword() );
 
     for ( const auto& [key, value] : jsonObject.items() )
     {
@@ -160,10 +160,10 @@ void ObjectJsonCapability::readFields( ObjectHandle*         object,
             }
             if ( readable )
             {
-                // readFieldData assumes that the xmlStream points to first token of field content.
+                // writeToField assumes that the xmlStream points to first token of field content.
                 // After reading, the xmlStream is supposed to point to the first token after the field content.
                 // (typically an "endElement")
-                ioFieldHandle->readFieldData( value, objectFactory );
+                ioFieldHandle->writeToField( value, objectFactory );
             }
         }
     }
@@ -194,7 +194,7 @@ void ObjectJsonCapability::writeFields( const ObjectHandle* object,
             CAFFA_ASSERT( ObjectIoCapability::isValidElementName( keyword ) );
 
             nlohmann::json value;
-            ioCapability->writeFieldData( value, writeServerAddress, writeValues );
+            ioCapability->readFromField( value, writeServerAddress, writeValues );
             jsonObject[keyword] = value;
         }
     }
