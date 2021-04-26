@@ -275,7 +275,7 @@ TEST( FifoObject, TestLatencyBlocking )
 
 TEST( FifoObject, MultipleAccessToBounded )
 {
-    const size_t packageCount = 10000u;
+    const size_t packageCount = 2000u;
     const size_t BUFFER_SIZE  = 8u;
     const size_t PACKAGE_SIZE = 32u;
 
@@ -301,7 +301,7 @@ TEST( FifoObject, MultipleAccessToBounded )
     // ... meaning the latencies shouldn't increase dramatically because when we start reading again we should
     // ... be getting new data
     size_t totalReadCount = 0u;
-    for ( size_t i = 0; i < 20; ++i )
+    for ( size_t i = 0; i < 10; ++i )
     {
         TestConsumerT                                   accumulator( packageCount );
         typename FifoConsumerT::PackageHandlingFunction consumptionFunction =
@@ -317,7 +317,59 @@ TEST( FifoObject, MultipleAccessToBounded )
         auto [min, max, avg, med, q99] = calculateMinMaxAverageLatencyMs( accumulator.m_buffer );
         std::cout << "Latencies -> min: " << min << " μs, avg: " << avg << " μs, med: " << med << " μs, Q99: " << q99
                   << " μs, max: " << max << " μs" << std::endl;
-        std::this_thread::sleep_for( 5ms );
+    }
+    std::cout << "Produced a total of " << producer.productionCount() << " packages but only read " << totalReadCount
+              << std::endl;
+    ASSERT_LT( totalReadCount, producer.productionCount() );
+
+    producer.setFinished();
+    producerThread.join();
+}
+
+TEST( FifoObject, MultipleAccessToBoundedLargerBuffer )
+{
+    const size_t packageCount = 2000u;
+    const size_t BUFFER_SIZE  = 512u;
+    const size_t PACKAGE_SIZE = 32u;
+
+    using DataType = TimeStamp;
+
+    using FifoObjectT   = FifoObject<DataType>;
+    using TestCreatorT  = TestCreator<DataType>;
+    using TestConsumerT = TestConsumer<DataType>;
+
+    using FifoProducerT = caffa::FifoProducer<DataType>;
+    using FifoConsumerT = caffa::FifoConsumer<DataType>;
+
+    FifoObjectT  object( BUFFER_SIZE, PACKAGE_SIZE );
+    TestCreatorT creator( PACKAGE_SIZE );
+
+    typename FifoProducerT::PackageCreatorFunction creatorFunction =
+        std::bind( &TestCreatorT::makeValue, &creator, std::placeholders::_1 );
+    FifoProducerT         producer( &object.m_boundedField, std::numeric_limits<size_t>::max(), creatorFunction );
+    std::function<void()> producerFunction = std::bind( &FifoProducerT::produce, &producer );
+    std::thread           producerThread( producerFunction );
+
+    // Read multiple times, and sleep in between. The producer should keep on producing but dropping packages.
+    // ... meaning the latencies shouldn't increase dramatically because when we start reading again we should
+    // ... be getting new data
+    size_t totalReadCount = 0u;
+    for ( size_t i = 0; i < 10; ++i )
+    {
+        TestConsumerT                                   accumulator( packageCount );
+        typename FifoConsumerT::PackageHandlingFunction consumptionFunction =
+            std::bind( &TestConsumerT::consume, &accumulator, std::placeholders::_1 );
+        FifoConsumerT consumer( &object.m_boundedField, packageCount, consumptionFunction );
+        ASSERT_EQ( (size_t)0, accumulator.m_buffer.size() );
+        std::function<void()> consumerFunction = std::bind( &FifoConsumerT::consume, &consumer );
+
+        std::thread consumerThread( consumerFunction );
+        consumerThread.join();
+        ASSERT_EQ( packageCount, accumulator.m_buffer.size() );
+        totalReadCount += accumulator.m_buffer.size();
+        auto [min, max, avg, med, q99] = calculateMinMaxAverageLatencyMs( accumulator.m_buffer );
+        std::cout << "Latencies -> min: " << min << " μs, avg: " << avg << " μs, med: " << med << " μs, Q99: " << q99
+                  << " μs, max: " << max << " μs" << std::endl;
     }
     std::cout << "Produced a total of " << producer.productionCount() << " packages but only read " << totalReadCount
               << std::endl;
@@ -329,8 +381,8 @@ TEST( FifoObject, MultipleAccessToBounded )
 
 TEST( FifoObject, MultipleAccessToBlocked )
 {
-    const size_t packageCount = 10000u;
-    const size_t BUFFER_SIZE  = 16u;
+    const size_t packageCount = 2000u;
+    const size_t BUFFER_SIZE  = 8u;
     const size_t PACKAGE_SIZE = 32u;
 
     using DataType = TimeStamp;
@@ -354,7 +406,7 @@ TEST( FifoObject, MultipleAccessToBlocked )
     // Read multiple times. The producer should block meaning we shouldn't drop any packages
     // ... and the max latencies will increase as one full buffer will wait for the next consumer
     size_t totalReadCount = 0u;
-    for ( size_t i = 0; i < 20; ++i )
+    for ( size_t i = 0; i < 10; ++i )
     {
         TestConsumerT                                   accumulator( packageCount );
         typename FifoConsumerT::PackageHandlingFunction consumptionFunction =

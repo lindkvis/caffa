@@ -142,8 +142,7 @@ TEST( FifoTest, SerializeBlockingFloatFifo )
     std::function<void()> producerFunction = std::bind( &FifoProducerT::produce, &producer );
 
     std::thread producerThread( producerFunction );
-
-    auto serializedString = object.writeObjectToString( caffa::ObjectIoCapability::IoType::JSON );
+    auto        serializedString = object.writeObjectToString( caffa::ObjectIoCapability::IoType::JSON );
 
     std::cout << serializedString << std::endl;
 

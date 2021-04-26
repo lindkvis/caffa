@@ -49,6 +49,7 @@ public:
         , m_packageSize( packageSize )
         , m_readIndex( 0u )
         , m_writeIndex( 0u )
+        , m_active( false )
     {
         m_buffer.resize( m_bufferSize, std::vector<DataType>( m_packageSize ) );
     }
@@ -66,6 +67,17 @@ public:
     virtual size_t droppedPackages() const = 0;
     size_t         packageSize() const { return m_packageSize; }
 
+    bool active() const
+    {
+        std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
+        return m_active;
+    }
+    void setActive( bool active )
+    {
+        std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
+        m_active = active;
+    }
+
 protected:
     bool empty() const
     {
@@ -75,6 +87,7 @@ protected:
     bool full() const { return m_writeIndex - m_readIndex >= m_bufferSize; }
 
 protected:
+    bool  m_active;
     Queue m_buffer;
 
     size_t m_bufferSize;
@@ -99,7 +112,7 @@ public:
     }
     std::vector<FieldDataType> pop() override
     {
-        std::vector<FieldDataType> package;
+        std::vector<FieldDataType> package( this->m_packageSize );
 
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
 
@@ -109,9 +122,9 @@ public:
         {
             package.swap( this->m_buffer[this->m_readIndex++ % this->m_bufferSize] );
         }
-
         lock.unlock();
         this->m_dataAccessGuard.notify_one();
+
         return package;
     }
 
@@ -124,9 +137,9 @@ public:
         if ( canPush )
         {
             this->m_buffer[this->m_writeIndex++ % this->m_bufferSize].swap( package );
+            lock.unlock();
+            this->m_dataAccessGuard.notify_one();
         }
-        lock.unlock();
-        this->m_dataAccessGuard.notify_one();
         return canPush;
     }
     size_t droppedPackages() const override { return 0u; }
@@ -150,7 +163,7 @@ public:
         this->m_dataAccessGuard.wait_for( lock, 250us, [this]() { return !this->empty(); } );
         if ( this->empty() ) return {};
 
-        std::vector<FieldDataType> package;
+        std::vector<FieldDataType> package( this->m_packageSize );
         package.swap( this->m_buffer[this->m_readIndex++ % this->m_bufferSize] );
 
         return package;
@@ -201,6 +214,7 @@ public:
         , m_sweepCount( sweepCount )
         , m_packageCreator( packageCreator )
     {
+        m_ptrToField->setActive( true );
     }
     void produce()
     {
@@ -216,6 +230,7 @@ public:
                 m_doneCount++;
             }
         }
+        m_ptrToField->setActive( false );
     }
     size_t validProductionCount() const { return m_doneCount - m_ptrToField->droppedPackages(); }
     size_t productionCount() const { return m_doneCount; }
@@ -258,6 +273,7 @@ public:
     }
     void consume()
     {
+        size_t failedPops = 0u;
         while ( m_consumedCount < m_sweepCount )
         {
             // CAFFA_INFO( "Trying to pop value" << m_buffer.size() );
@@ -266,6 +282,16 @@ public:
             {
                 m_packageHandlingFunction( std::move( package ) );
                 m_consumedCount++;
+                failedPops = 0u;
+            }
+            else
+            {
+                if ( failedPops > 100u )
+                {
+                    CAFFA_ERROR( "Failed to pop 100 in a row" );
+                    return;
+                }
+                failedPops++;
             }
             // CAFFA_INFO( "Popped value" << m_buffer.size() );
         }

@@ -427,7 +427,11 @@ void FieldIoCap<FifoBlockingField<DataType>>::readFromField( nlohmann::json& jso
                                                              bool            writeValues ) const
 {
     this->assertValid();
-
+    if ( !m_field->active() )
+    {
+        jsonValue = nlohmann::json::array();
+        return;
+    }
     const size_t packageCount = m_readLimit;
 
     using FifoProducerT = caffa::FifoProducer<DataType>;
@@ -475,7 +479,11 @@ void FieldIoCap<FifoBoundedField<DataType>>::readFromField( nlohmann::json& json
                                                             bool            writeValues ) const
 {
     this->assertValid();
-
+    if ( !m_field->active() )
+    {
+        jsonValue = nlohmann::json::array();
+        return;
+    }
     const size_t packageCount = m_readLimit;
 
     using FifoProducerT = caffa::FifoProducer<DataType>;
