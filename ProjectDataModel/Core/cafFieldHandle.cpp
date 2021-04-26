@@ -126,4 +126,17 @@ std::vector<std::string> FieldHandle::keywordAliases() const
     return m_keywordAliases;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<FieldCapability*> FieldHandle::capabilities()
+{
+    std::vector<FieldCapability*> allCapabilities;
+    for ( auto capability : m_capabilities )
+    {
+        allCapabilities.push_back( capability.first );
+    }
+    return allCapabilities;
+}
+
 } // End of namespace caffa

@@ -118,7 +118,7 @@ void DataHolder<std::vector<int>>::applyValuesToField( ValueField* field )
     auto dataValueField = dynamic_cast<Field<std::vector<int>>*>( field );
     if ( dataValueField )
     {
-        dataValueField->setValueWithFieldChanged( data );
+        dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
     }
 }
 
@@ -166,7 +166,7 @@ void DataHolder<std::vector<uint64_t>>::applyValuesToField( ValueField* field )
     auto dataValueField = dynamic_cast<Field<std::vector<uint64_t>>*>( field );
     if ( dataValueField )
     {
-        dataValueField->setValueWithFieldChanged( data );
+        dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
     }
 }
 
@@ -213,7 +213,7 @@ void DataHolder<std::vector<double>>::applyValuesToField( ValueField* field )
     auto dataValueField = dynamic_cast<Field<std::vector<double>>*>( field );
     if ( dataValueField )
     {
-        dataValueField->setValueWithFieldChanged( data );
+        dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
     }
 }
 template <>
@@ -260,7 +260,7 @@ void DataHolder<std::vector<float>>::applyValuesToField( ValueField* field )
     auto dataValueField = dynamic_cast<Field<std::vector<float>>*>( field );
     if ( dataValueField )
     {
-        dataValueField->setValueWithFieldChanged( data );
+        dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
     }
 }
 
@@ -308,7 +308,7 @@ void DataHolder<std::vector<std::string>>::applyValuesToField( ValueField* field
     auto dataValueField = dynamic_cast<Field<std::vector<std::string>>*>( field );
     if ( dataValueField )
     {
-        dataValueField->setValueWithFieldChanged( data );
+        dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
     }
 }
 
