@@ -50,7 +50,9 @@ std::deque<OptionItemInfo> FieldUiCapability::valueOptions( bool* useOptionsOnly
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void FieldUiCapability::notifyFieldChanged( const Variant& oldFieldValue, const Variant& newFieldValue )
+void FieldUiCapability::notifyFieldChanged( const FieldCapability* changedByCapability,
+                                            const Variant&         oldFieldValue,
+                                            const Variant&         newFieldValue )
 {
     if ( !this->isVariantDataEqual( oldFieldValue, newFieldValue ) )
     {

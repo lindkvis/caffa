@@ -23,6 +23,7 @@ class FieldCapability;
 
 class FieldHandle : public SignalEmitter
 {
+public:
     Signal<std::tuple<const FieldCapability*, Variant, Variant>> changed;
 
 public:
@@ -61,6 +62,8 @@ public:
 
 protected:
     bool isInitializedByInitFieldMacro() const { return m_ownerObject != nullptr; }
+
+    std::vector<FieldCapability*> capabilities();
 
 private:
     CAFFA_DISABLE_COPY_AND_ASSIGN( FieldHandle );

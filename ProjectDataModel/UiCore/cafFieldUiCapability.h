@@ -1,7 +1,6 @@
 #pragma once
 
 #include "cafFieldCapability.h"
-#include "cafFieldUiCapabilityInterface.h"
 #include "cafUiItem.h"
 #include "cafVariant.h"
 
@@ -12,7 +11,7 @@ namespace caffa
 {
 class FieldHandle;
 
-class FieldUiCapability : public UiItem, public FieldCapability, public FieldUiCapabilityInterface
+class FieldUiCapability : public UiItem, public FieldCapability
 {
 public:
     FieldUiCapability( FieldHandle* owner, bool giveOwnership );
@@ -23,10 +22,14 @@ public:
     // Generalized access methods for User interface
     // The Variant encapsulates the real value, or an index into the valueOptions
 
-    virtual Variant                       uiValue() const;
+    virtual Variant                    uiValue() const;
     virtual std::deque<OptionItemInfo> valueOptions( bool* useOptionsOnly ) const;
 
-    void notifyFieldChanged( const Variant& oldUiBasedVariant, const Variant& newUiBasedVariant ) override;
+    void notifyFieldChanged( const FieldCapability* changedByCapability,
+                             const Variant&         oldValue,
+                             const Variant&         newValue ) override;
+
+    virtual Variant toUiBasedVariant() const = 0;
 
 private:
     friend class UiCommandSystemProxy;

@@ -24,7 +24,7 @@ void caffa::FieldUiCap<FieldType>::setValueFromUiEditor( const Variant& uiValue 
 
     Variant newUiBasedVariant = toUiBasedVariant();
 
-    this->notifyFieldChanged( oldUiBasedVariant, newUiBasedVariant );
+    this->notifyFieldChanged( this, oldUiBasedVariant, newUiBasedVariant );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +78,8 @@ Variant caffa::FieldUiCap<FieldType>::toUiBasedVariant() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-bool caffa::FieldUiCap<FieldType>::isVariantDataEqual( const Variant& oldUiBasedVariant, const Variant& newUiBasedVariant ) const
+bool caffa::FieldUiCap<FieldType>::isVariantDataEqual( const Variant& oldUiBasedVariant,
+                                                       const Variant& newUiBasedVariant ) const
 {
     return ValueFieldSpecialization<typename FieldType::FieldDataType>::isEqual( oldUiBasedVariant, newUiBasedVariant );
 }

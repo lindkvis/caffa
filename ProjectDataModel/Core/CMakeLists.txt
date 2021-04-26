@@ -36,7 +36,6 @@ set(PUBLIC_HEADERS
     cafPtrField.h
     cafPtrField.inl
     cafReferenceHelper.h
-    cafFieldUiCapabilityInterface.h
     cafValueField.h
     cafValueFieldSpecializations.h
     cafSignal.h
