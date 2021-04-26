@@ -99,13 +99,16 @@ public:
     }
     std::vector<FieldDataType> pop() override
     {
+        std::vector<FieldDataType> package;
+
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
 
-        this->m_dataAccessGuard.wait_for( lock, 250us, [this]() { return !this->empty(); } );
+        this->m_dataAccessGuard.wait_for( lock, 500us, [this]() { return !this->empty(); } );
 
-        if ( this->empty() ) return {};
-        std::vector<FieldDataType> package;
-        package.swap( this->m_buffer[this->m_readIndex++ % this->m_bufferSize] );
+        if ( !this->empty() )
+        {
+            package.swap( this->m_buffer[this->m_readIndex++ % this->m_bufferSize] );
+        }
 
         lock.unlock();
         this->m_dataAccessGuard.notify_one();
@@ -116,13 +119,15 @@ public:
     {
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
 
-        this->m_dataAccessGuard.wait_for( lock, 200us, [this]() { return !this->full(); } );
-        if ( this->full() ) return false;
-
-        this->m_buffer[this->m_writeIndex++ % this->m_bufferSize].swap( package );
+        this->m_dataAccessGuard.wait_for( lock, 500us, [this]() { return !this->full(); } );
+        bool canPush = !this->full();
+        if ( canPush )
+        {
+            this->m_buffer[this->m_writeIndex++ % this->m_bufferSize].swap( package );
+        }
         lock.unlock();
         this->m_dataAccessGuard.notify_one();
-        return true;
+        return canPush;
     }
     size_t droppedPackages() const override { return 0u; }
 };
@@ -253,12 +258,16 @@ public:
     }
     void consume()
     {
-        while ( m_consumedCount++ < m_sweepCount )
+        while ( m_consumedCount < m_sweepCount )
         {
             // CAFFA_INFO( "Trying to pop value" << m_buffer.size() );
             auto package = m_ptrToField->pop();
+            if ( !package.empty() )
+            {
+                m_packageHandlingFunction( std::move( package ) );
+                m_consumedCount++;
+            }
             // CAFFA_INFO( "Popped value" << m_buffer.size() );
-            m_packageHandlingFunction( std::move( package ) );
         }
         // CAFFA_INFO( "Finished consumer" );
     }
