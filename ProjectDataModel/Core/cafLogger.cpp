@@ -27,22 +27,16 @@ using namespace caffa;
 
 Logger::Level Logger::s_applicationLogLevel = Logger::Level::WARNING;
 
-Logger::Logger( Level level )
-    : m_currentLogLevel( level )
+void Logger::log( Level level, const std::string& message, char const* function, char const* file, int line )
 {
-}
-
-Logger& Logger::operator()( const std::string& message, char const* function, char const* file, int line )
-{
-    if ( m_currentLogLevel <= s_applicationLogLevel )
+    if ( level <= s_applicationLogLevel )
     {
         // TODO: should provide platform specific path delimiter
         auto filePath = caffa::StringTools::split( file, "/" );
         auto fileName = !filePath.empty() ? filePath.back() : file;
-        std::cout << logLevelPrefix( m_currentLogLevel ) << fileName << "::" << function << "()[" << line
-                  << "]: " << message << std::endl;
+        std::cout << logLevelPrefix( level ) << fileName << "::" << function << "()[" << line << "]: " << message
+                  << std::endl;
     }
-    return *this;
 }
 
 void Logger::setApplicationLogLevel( Level applicationLogLevel )

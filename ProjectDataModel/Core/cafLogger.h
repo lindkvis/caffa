@@ -39,28 +39,22 @@ public:
         TRACE
     };
 
-    Logger( Level level );
-    ~Logger() = default;
-
-    Logger& operator()( const std::string& message, char const* function, char const* file, int line );
-
-    static void setApplicationLogLevel( Level applicationLogLevel );
-
+    static void        log( Level level, const std::string& message, char const* function, char const* file, int line );
+    static void        setApplicationLogLevel( Level applicationLogLevel );
     static std::string logLevelPrefix( Level level );
 
 private:
     static Level s_applicationLogLevel;
-
-    Level m_currentLogLevel;
 };
 
 } // namespace caffa
 
-#define CAFFA_LOG( LogLevel_, Message_ )                                                                            \
-    caffa::Logger( LogLevel_ )( static_cast<std::ostringstream&>( std::ostringstream().flush() << Message_ ).str(), \
-                                __FUNCTION__,                                                                       \
-                                __FILE__,                                                                           \
-                                __LINE__ );
+#define CAFFA_LOG( LOG_LEVEL, MESSAGE )                                                                    \
+    caffa::Logger::log( LOG_LEVEL,                                                                         \
+                        static_cast<std::ostringstream&>( std::ostringstream().flush() << MESSAGE ).str(), \
+                        __FUNCTION__,                                                                      \
+                        __FILE__,                                                                          \
+                        __LINE__ );
 
 #define CAFFA_ERROR( Message_ ) CAFFA_LOG( caffa::Logger::Level::ERROR, Message_ )
 #define CAFFA_WARNING( Message_ ) CAFFA_LOG( caffa::Logger::Level::WARNING, Message_ )
