@@ -45,14 +45,14 @@ public:
     using Package       = std::vector<FieldDataType>;
     using Queue         = std::vector<Package>;
 
-    FifoBlockingField( size_t bufferSize = 8u, size_t packageSize = 32u )
-        : m_bufferSize( bufferSize )
+    FifoBlockingField( size_t packageCount = 8u, size_t packageSize = 32u )
+        : m_packageCount( packageCount )
         , m_packageSize( packageSize )
         , m_readIndex( 0u )
         , m_writeIndex( 0u )
         , m_active( false )
     {
-        m_buffer.resize( m_bufferSize, Package( m_packageSize ) );
+        m_buffer.resize( m_packageCount, Package( m_packageSize ) );
     }
 
     void clear()
@@ -83,7 +83,7 @@ public:
         if ( !this->empty() )
         {
             Package package( this->m_packageSize );
-            package.swap( this->m_buffer[this->m_readIndex++ % this->m_bufferSize] );
+            package.swap( this->m_buffer[this->m_readIndex++ % this->m_packageCount] );
             lock.unlock();
             this->m_dataAccessGuard.notify_one();
             return package;
@@ -101,7 +101,7 @@ public:
         this->m_dataAccessGuard.wait_for( lock, 100ms, [this]() { return !this->full(); } );
         if ( !this->full() )
         {
-            this->m_buffer[this->m_writeIndex++ % this->m_bufferSize].swap( package );
+            this->m_buffer[this->m_writeIndex++ % this->m_packageCount].swap( package );
             lock.unlock();
             this->m_dataAccessGuard.notify_one();
         }
@@ -114,13 +114,13 @@ private:
         // CAFFA_TRACE( "Indices: " << m_writeIndex << ", " << m_readIndex );
         return m_writeIndex <= m_readIndex;
     }
-    bool full() const { return m_writeIndex - m_readIndex >= m_bufferSize; }
+    bool full() const { return m_writeIndex - m_readIndex >= m_packageCount; }
 
 private:
     bool  m_active;
     Queue m_buffer;
 
-    size_t m_bufferSize;
+    size_t m_packageCount;
     size_t m_packageSize;
 
     size_t m_readIndex;
@@ -139,17 +139,18 @@ class FifoBoundedField : public caffa::FieldHandle
 public:
     using FieldDataType = DataType;
     using Package       = std::vector<FieldDataType>;
-    using Queue         = std::vector<Package>;
+    using Queue         = std::vector<FieldDataType>;
 
-    FifoBoundedField( size_t bufferSize = 8u, size_t packageSize = 32u )
-        : m_bufferSize( bufferSize )
+    FifoBoundedField( size_t packageCount = 8u, size_t packageSize = 32u )
+        : m_packageCount( packageCount )
         , m_packageSize( packageSize )
+        , m_bufferSize( packageCount * packageSize )
         , m_readIndex( 0u )
         , m_writeIndex( 0u )
         , m_active( false )
         , m_droppedPackages( 0u )
     {
-        m_buffer.resize( m_bufferSize, Package( m_packageSize ) );
+        m_buffer.resize( m_bufferSize );
     }
     void clear()
     {
@@ -178,8 +179,9 @@ public:
         if ( this->empty() ) return std::nullopt;
 
         std::vector<FieldDataType> package( this->m_packageSize );
-        package.swap( this->m_buffer[this->m_readIndex++ % this->m_bufferSize] );
+        memcpy( &package[0], (void*)( &this->m_buffer[0] + this->m_readIndex ), m_packageSize * sizeof( DataType ) );
 
+        m_readIndex = ( m_readIndex + m_packageSize ) % m_bufferSize;
         return package;
     }
 
@@ -189,11 +191,13 @@ public:
 
         if ( this->full() )
         {
-            this->m_readIndex++;
+            this->m_readIndex = ( m_readIndex + m_packageSize ) % m_bufferSize;
             this->m_droppedPackages++;
         }
 
-        this->m_buffer[this->m_writeIndex++ % this->m_bufferSize].swap( package );
+        memcpy( (void*)( &this->m_buffer[0] + this->m_writeIndex ), &package[0], m_packageSize * sizeof( DataType ) );
+        m_writeIndex = ( m_writeIndex + m_packageSize ) % m_bufferSize;
+
         lock.unlock();
         this->m_dataAccessGuard.notify_one();
     }
@@ -210,14 +214,15 @@ private:
         // CAFFA_TRACE( "Indices: " << m_writeIndex << ", " << m_readIndex );
         return m_writeIndex <= m_readIndex;
     }
-    bool full() const { return m_writeIndex - m_readIndex >= m_bufferSize; }
+    bool full() const { return m_writeIndex - m_readIndex >= m_packageCount; }
 
 private:
     bool  m_active;
     Queue m_buffer;
 
-    size_t m_bufferSize;
+    size_t m_packageCount;
     size_t m_packageSize;
+    size_t m_bufferSize;
 
     size_t m_readIndex;
     size_t m_writeIndex;
