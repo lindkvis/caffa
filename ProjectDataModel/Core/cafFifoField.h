@@ -151,6 +151,7 @@ public:
         , m_droppedPackages( 0u )
     {
         m_buffer.resize( m_bufferSize );
+        // CAFFA_WARNING( "Buffer size does not match page size: " << m_bufferSize << ", " << getpagesize() );
     }
     void clear()
     {
@@ -179,9 +180,11 @@ public:
         if ( this->empty() ) return std::nullopt;
 
         std::vector<FieldDataType> package( this->m_packageSize );
-        memcpy( &package[0], (void*)( &this->m_buffer[0] + this->m_readIndex ), m_packageSize * sizeof( DataType ) );
+        memcpy( &package[0],
+                (void*)( &this->m_buffer[0] + this->m_readIndex % m_bufferSize ),
+                m_packageSize * sizeof( FieldDataType ) );
 
-        m_readIndex = ( m_readIndex + m_packageSize ) % m_bufferSize;
+        m_readIndex += m_packageSize;
         return package;
     }
 
@@ -191,12 +194,14 @@ public:
 
         if ( this->full() )
         {
-            this->m_readIndex = ( m_readIndex + m_packageSize ) % m_bufferSize;
-            this->m_droppedPackages++;
+            this->m_readIndex += m_packageSize;
+            this->m_droppedPackages += 1;
         }
 
-        memcpy( (void*)( &this->m_buffer[0] + this->m_writeIndex ), &package[0], m_packageSize * sizeof( DataType ) );
-        m_writeIndex = ( m_writeIndex + m_packageSize ) % m_bufferSize;
+        memcpy( (void*)( &this->m_buffer[0] + this->m_writeIndex % m_bufferSize ),
+                &package[0],
+                m_packageSize * sizeof( FieldDataType ) );
+        m_writeIndex += m_packageSize;
 
         lock.unlock();
         this->m_dataAccessGuard.notify_one();
