@@ -35,24 +35,24 @@ using namespace std::chrono_literals;
 namespace caffa
 {
 /**
- * Templated FIFO (First in, First Out) circular buffer field
+ * Templated FIFO (First in, First Out) circular buffer field. Blocking.
  */
 template <typename DataType>
-class FifoField : public FieldHandle
+class FifoBlockingField : public caffa::FieldHandle
 {
 public:
     using FieldDataType = DataType;
-    using Queue         = std::vector<std::vector<FieldDataType>>;
+    using Package       = std::vector<FieldDataType>;
+    using Queue         = std::vector<Package>;
 
-public:
-    FifoField( size_t bufferSize = 8u, size_t packageSize = 32u )
+    FifoBlockingField( size_t bufferSize = 8u, size_t packageSize = 32u )
         : m_bufferSize( bufferSize )
         , m_packageSize( packageSize )
         , m_readIndex( 0u )
         , m_writeIndex( 0u )
         , m_active( false )
     {
-        m_buffer.resize( m_bufferSize, std::vector<DataType>( m_packageSize ) );
+        m_buffer.resize( m_bufferSize, Package( m_packageSize ) );
     }
 
     void clear()
@@ -62,11 +62,7 @@ public:
         m_writeIndex = 0u;
     }
 
-    virtual std::optional<std::vector<FieldDataType>> pop()                                  = 0;
-    virtual void                                      push( std::vector<DataType>& package ) = 0;
-
-    virtual size_t droppedPackages() const = 0;
-    size_t         packageSize() const { return m_packageSize; }
+    size_t packageSize() const { return m_packageSize; }
 
     bool active() const
     {
@@ -78,8 +74,41 @@ public:
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
         m_active = active;
     }
+    std::optional<Package> pop()
+    {
+        std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
 
-protected:
+        this->m_dataAccessGuard.wait_for( lock, 100ms, [this]() { return !this->empty(); } );
+
+        if ( !this->empty() )
+        {
+            Package package( this->m_packageSize );
+            package.swap( this->m_buffer[this->m_readIndex++ % this->m_bufferSize] );
+            lock.unlock();
+            this->m_dataAccessGuard.notify_one();
+            return package;
+        }
+
+        lock.unlock();
+        this->m_dataAccessGuard.notify_one();
+        return std::nullopt;
+    }
+
+    void push( Package& package )
+    {
+        std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
+
+        this->m_dataAccessGuard.wait_for( lock, 100ms, [this]() { return !this->full(); } );
+        if ( !this->full() )
+        {
+            this->m_buffer[this->m_writeIndex++ % this->m_bufferSize].swap( package );
+            lock.unlock();
+            this->m_dataAccessGuard.notify_one();
+        }
+    }
+    size_t droppedPackages() const { return 0u; }
+
+private:
     bool empty() const
     {
         // CAFFA_TRACE( "Indices: " << m_writeIndex << ", " << m_readIndex );
@@ -87,7 +116,7 @@ protected:
     }
     bool full() const { return m_writeIndex - m_readIndex >= m_bufferSize; }
 
-protected:
+private:
     bool  m_active;
     Queue m_buffer;
 
@@ -101,63 +130,47 @@ protected:
     std::condition_variable m_dataAccessGuard;
 };
 
+/**
+ * Templated FIFO (First in, First Out) circular buffer field. Non-Blocking. Drops packages when full.
+ */
 template <typename DataType>
-class FifoBlockingField : public FifoField<DataType>
+class FifoBoundedField : public caffa::FieldHandle
 {
 public:
     using FieldDataType = DataType;
-
-    FifoBlockingField( size_t bufferSize = 8u, size_t packageSize = 32u )
-        : FifoField<DataType>( bufferSize, packageSize )
-    {
-    }
-    std::optional<std::vector<FieldDataType>> pop() override
-    {
-        std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
-
-        this->m_dataAccessGuard.wait_for( lock, 100ms, [this]() { return !this->empty(); } );
-
-        if ( !this->empty() )
-        {
-            std::vector<FieldDataType> package( this->m_packageSize );
-            package.swap( this->m_buffer[this->m_readIndex++ % this->m_bufferSize] );
-            lock.unlock();
-            this->m_dataAccessGuard.notify_one();
-            return package;
-        }
-
-        lock.unlock();
-        this->m_dataAccessGuard.notify_one();
-        return std::nullopt;
-    }
-
-    void push( std::vector<DataType>& package ) override
-    {
-        std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
-
-        this->m_dataAccessGuard.wait_for( lock, 100ms, [this]() { return !this->full(); } );
-        if ( !this->full() )
-        {
-            this->m_buffer[this->m_writeIndex++ % this->m_bufferSize].swap( package );
-            lock.unlock();
-            this->m_dataAccessGuard.notify_one();
-        }
-    }
-    size_t droppedPackages() const override { return 0u; }
-};
-
-template <typename DataType>
-class FifoBoundedField : public FifoField<DataType>
-{
-public:
-    using FieldDataType = DataType;
+    using Package       = std::vector<FieldDataType>;
+    using Queue         = std::vector<Package>;
 
     FifoBoundedField( size_t bufferSize = 8u, size_t packageSize = 32u )
-        : FifoField<DataType>( bufferSize, packageSize )
+        : m_bufferSize( bufferSize )
+        , m_packageSize( packageSize )
+        , m_readIndex( 0u )
+        , m_writeIndex( 0u )
+        , m_active( false )
         , m_droppedPackages( 0u )
     {
+        m_buffer.resize( m_bufferSize, Package( m_packageSize ) );
     }
-    std::optional<std::vector<FieldDataType>> pop() override
+    void clear()
+    {
+        std::unique_lock<std::mutex> lock( m_dataAccessMutex );
+        m_readIndex  = 0u;
+        m_writeIndex = 0u;
+    }
+
+    size_t packageSize() const { return m_packageSize; }
+
+    bool active() const
+    {
+        std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
+        return m_active;
+    }
+    void setActive( bool active )
+    {
+        std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
+        m_active = active;
+    }
+    std::optional<std::vector<FieldDataType>> pop()
     {
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
 
@@ -170,7 +183,7 @@ public:
         return package;
     }
 
-    void push( std::vector<DataType>& package ) override
+    void push( Package& package )
     {
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
 
@@ -185,22 +198,41 @@ public:
         this->m_dataAccessGuard.notify_one();
     }
 
-    size_t droppedPackages() const override
+    size_t droppedPackages() const
     {
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
         return this->m_droppedPackages;
     }
 
 private:
+    bool empty() const
+    {
+        // CAFFA_TRACE( "Indices: " << m_writeIndex << ", " << m_readIndex );
+        return m_writeIndex <= m_readIndex;
+    }
+    bool full() const { return m_writeIndex - m_readIndex >= m_bufferSize; }
+
+private:
+    bool  m_active;
+    Queue m_buffer;
+
+    size_t m_bufferSize;
+    size_t m_packageSize;
+
+    size_t m_readIndex;
+    size_t m_writeIndex;
+
+    mutable std::mutex      m_dataAccessMutex;
+    std::condition_variable m_dataAccessGuard;
+
     size_t m_droppedPackages;
 };
 
-template <typename DataType>
+template <typename ProductionField>
 class FifoProducer
 {
 public:
-    using ProductionField = FifoField<DataType>;
-    using Package         = std::vector<DataType>;
+    using Package = typename ProductionField::Package;
 
     // Package index as the argument
     using PackageCreatorFunction = std::function<Package( size_t )>;
@@ -251,13 +283,11 @@ public:
     PackageCreatorFunction m_packageCreator;
 };
 
-template <typename DataType>
+template <typename ConsumptionField>
 class FifoConsumer
 {
 public:
-    using ConsumptionField = FifoField<DataType>;
-    using Package          = std::vector<DataType>;
-
+    using Package                 = typename ConsumptionField::Package;
     using PackageHandlingFunction = std::function<bool( Package&& )>;
 
 public:

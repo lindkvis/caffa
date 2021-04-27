@@ -434,8 +434,7 @@ void FieldIoCap<FifoBlockingField<DataType>>::readFromField( nlohmann::json& jso
     }
     const size_t packageCount = m_readLimit;
 
-    using FifoProducerT = caffa::FifoProducer<DataType>;
-    using FifoConsumerT = caffa::FifoConsumer<DataType>;
+    using FifoConsumerT = caffa::FifoConsumer<caffa::FifoBlockingField<DataType>>;
     using JsonConsumerT = JsonConsumer<DataType>;
 
     JsonConsumerT accumulator( packageCount );
@@ -486,8 +485,7 @@ void FieldIoCap<FifoBoundedField<DataType>>::readFromField( nlohmann::json& json
     }
     const size_t packageCount = m_readLimit;
 
-    using FifoProducerT = caffa::FifoProducer<DataType>;
-    using FifoConsumerT = caffa::FifoConsumer<DataType>;
+    using FifoConsumerT = caffa::FifoConsumer<caffa::FifoBoundedField<DataType>>;
     using JsonConsumerT = JsonConsumer<DataType>;
 
     JsonConsumerT accumulator( packageCount );

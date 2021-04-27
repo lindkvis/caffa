@@ -90,7 +90,7 @@ TEST( FifoTest, SerializeBoundedFloatFifo )
 
     const size_t packageCount = 50;
     using TestCreatorT        = TestCreator<DataType>;
-    using FifoProducerT       = caffa::FifoProducer<DataType>;
+    using FifoProducerT       = caffa::FifoProducer<caffa::FifoBoundedField<DataType>>;
 
     TestCreatorT creator( 4u );
 
@@ -126,7 +126,7 @@ TEST( FifoTest, SerializeBlockingFloatFifo )
 
     const size_t packageCount = 50;
     using TestCreatorT        = TestCreator<DataType>;
-    using FifoProducerT       = caffa::FifoProducer<DataType>;
+    using FifoProducerT       = caffa::FifoProducer<caffa::FifoBlockingField<DataType>>;
 
     TestCreatorT creator( 4u );
 

@@ -154,85 +154,85 @@ std::array<double, 5> calculateMinMaxAverageLatencyMs( const std::vector<std::ve
     return { minMs, maxMs, sumMs / allMs.size(), allMs[allMs.size() / 2], allMs[99 * allMs.size() / 100] };
 }
 
-#define RUN_SIMPLE_FIFO_TEST( DataType, FieldName, PACKAGE_COUNT, BUFFER_SIZE, PACKAGE_SIZE ) \
-    const size_t packageCount = PACKAGE_COUNT;                                                \
-    using FifoObjectT         = FifoObject<DataType>;                                         \
-    using TestCreatorT        = TestCreator<DataType>;                                        \
-    using TestConsumerT       = TestConsumer<DataType>;                                       \
-                                                                                              \
-    using FifoProducerT = caffa::FifoProducer<DataType>;                                      \
-    using FifoConsumerT = caffa::FifoConsumer<DataType>;                                      \
-                                                                                              \
-    FifoObjectT   object( BUFFER_SIZE, PACKAGE_SIZE );                                        \
-    TestCreatorT  creator( PACKAGE_SIZE );                                                    \
-    TestConsumerT accumulator( packageCount );                                                \
-                                                                                              \
-    typename FifoProducerT::PackageCreatorFunction creatorFunction =                          \
-        std::bind( &TestCreatorT::makeValue, &creator, std::placeholders::_1 );               \
-                                                                                              \
-    typename FifoConsumerT::PackageHandlingFunction consumptionFunction =                     \
-        std::bind( &TestConsumerT::consume, &accumulator, std::placeholders::_1 );            \
-                                                                                              \
-    FifoConsumerT consumer( &object.FieldName, packageCount, consumptionFunction );           \
-    FifoProducerT producer( &object.FieldName, packageCount, creatorFunction );               \
-    ASSERT_EQ( (size_t)0, accumulator.m_buffer.size() );                                      \
-                                                                                              \
-    std::function<void()> producerFunction = std::bind( &FifoProducerT::produce, &producer ); \
-    std::function<void()> consumerFunction = std::bind( &FifoConsumerT::consume, &consumer ); \
-                                                                                              \
-    std::thread consumerThread( consumerFunction );                                           \
-    std::thread producerThread( producerFunction );                                           \
-                                                                                              \
-    consumerThread.join();                                                                    \
-    producer.setFinished();                                                                   \
-    producerThread.join();                                                                    \
-                                                                                              \
+#define RUN_SIMPLE_FIFO_TEST( DataType, FieldType, FieldName, PACKAGE_COUNT, BUFFER_SIZE, PACKAGE_SIZE ) \
+    const size_t packageCount = PACKAGE_COUNT;                                                           \
+    using FifoObjectT         = FifoObject<DataType>;                                                    \
+    using TestCreatorT        = TestCreator<DataType>;                                                   \
+    using TestConsumerT       = TestConsumer<DataType>;                                                  \
+                                                                                                         \
+    using FifoProducerT = caffa::FifoProducer<FieldType<DataType>>;                                      \
+    using FifoConsumerT = caffa::FifoConsumer<FieldType<DataType>>;                                      \
+                                                                                                         \
+    FifoObjectT   object( BUFFER_SIZE, PACKAGE_SIZE );                                                   \
+    TestCreatorT  creator( PACKAGE_SIZE );                                                               \
+    TestConsumerT accumulator( packageCount );                                                           \
+                                                                                                         \
+    typename FifoProducerT::PackageCreatorFunction creatorFunction =                                     \
+        std::bind( &TestCreatorT::makeValue, &creator, std::placeholders::_1 );                          \
+                                                                                                         \
+    typename FifoConsumerT::PackageHandlingFunction consumptionFunction =                                \
+        std::bind( &TestConsumerT::consume, &accumulator, std::placeholders::_1 );                       \
+                                                                                                         \
+    FifoConsumerT consumer( &object.FieldName, packageCount, consumptionFunction );                      \
+    FifoProducerT producer( &object.FieldName, packageCount, creatorFunction );                          \
+    ASSERT_EQ( (size_t)0, accumulator.m_buffer.size() );                                                 \
+                                                                                                         \
+    std::function<void()> producerFunction = std::bind( &FifoProducerT::produce, &producer );            \
+    std::function<void()> consumerFunction = std::bind( &FifoConsumerT::consume, &consumer );            \
+                                                                                                         \
+    std::thread consumerThread( consumerFunction );                                                      \
+    std::thread producerThread( producerFunction );                                                      \
+                                                                                                         \
+    consumerThread.join();                                                                               \
+    producer.setFinished();                                                                              \
+    producerThread.join();                                                                               \
+                                                                                                         \
     ASSERT_EQ( packageCount, accumulator.m_buffer.size() );
 
 TEST( FifoObject, TestUint64_t )
 {
     {
-        RUN_SIMPLE_FIFO_TEST( uint64_t, m_boundedField, 10000u, 8u, 32u );
+        RUN_SIMPLE_FIFO_TEST( uint64_t, caffa::FifoBoundedField, m_boundedField, 10000u, 8u, 32u );
     }
     {
-        RUN_SIMPLE_FIFO_TEST( uint64_t, m_blockingField, 10000u, 16u, 64u );
+        RUN_SIMPLE_FIFO_TEST( uint64_t, caffa::FifoBlockingField, m_blockingField, 10000u, 16u, 64u );
     }
 }
 
 TEST( FifoObject, TestDouble )
 {
     {
-        RUN_SIMPLE_FIFO_TEST( double, m_boundedField, 10000u, 8u, 32u );
+        RUN_SIMPLE_FIFO_TEST( double, caffa::FifoBoundedField, m_boundedField, 10000u, 8u, 32u );
     }
     {
-        RUN_SIMPLE_FIFO_TEST( double, m_boundedField, 10000u, 12u, 24u );
+        RUN_SIMPLE_FIFO_TEST( double, caffa::FifoBoundedField, m_boundedField, 10000u, 12u, 24u );
     }
 }
 
 TEST( FifoObject, TestFloat )
 {
     {
-        RUN_SIMPLE_FIFO_TEST( float, m_boundedField, 10000u, 8u, 32u );
+        RUN_SIMPLE_FIFO_TEST( float, caffa::FifoBoundedField, m_boundedField, 10000u, 8u, 32u );
     }
     {
-        RUN_SIMPLE_FIFO_TEST( float, m_blockingField, 10000u, 9u, 15u );
+        RUN_SIMPLE_FIFO_TEST( float, caffa::FifoBlockingField, m_blockingField, 10000u, 9u, 15u );
     }
 }
 
 TEST( FifoObject, TestChar )
 {
     {
-        RUN_SIMPLE_FIFO_TEST( float, m_blockingField, 10000u, 8u, 32u );
+        RUN_SIMPLE_FIFO_TEST( float, caffa::FifoBlockingField, m_blockingField, 10000u, 8u, 32u );
     }
     {
-        RUN_SIMPLE_FIFO_TEST( float, m_boundedField, 10000u, 10u, 5u );
+        RUN_SIMPLE_FIFO_TEST( float, caffa::FifoBoundedField, m_boundedField, 10000u, 10u, 5u );
     }
 }
 
 TEST( FifoObject, TestLatencyBounded )
 {
     auto before = std::chrono::system_clock::now();
-    RUN_SIMPLE_FIFO_TEST( TimeStamp, m_boundedField, 1024u * 256u, 8u, 32u );
+    RUN_SIMPLE_FIFO_TEST( TimeStamp, caffa::FifoBoundedField, m_boundedField, 1024u * 256u, 8u, 32u );
     auto after = std::chrono::system_clock::now();
 
     auto [min, max, avg, med, q99] = calculateMinMaxAverageLatencyMs( accumulator.m_buffer );
@@ -254,7 +254,7 @@ TEST( FifoObject, TestLatencyBounded )
 TEST( FifoObject, TestLatencyBlocking )
 {
     auto before = std::chrono::system_clock::now();
-    RUN_SIMPLE_FIFO_TEST( TimeStamp, m_blockingField, 1024u * 256u, 8u, 32u );
+    RUN_SIMPLE_FIFO_TEST( TimeStamp, caffa::FifoBlockingField, m_blockingField, 1024u * 256u, 8u, 32u );
     auto after = std::chrono::system_clock::now();
 
     auto [min, max, avg, med, q99] = calculateMinMaxAverageLatencyMs( accumulator.m_buffer );
@@ -285,8 +285,8 @@ TEST( FifoObject, MultipleAccessToBounded )
     using TestCreatorT  = TestCreator<DataType>;
     using TestConsumerT = TestConsumer<DataType>;
 
-    using FifoProducerT = caffa::FifoProducer<DataType>;
-    using FifoConsumerT = caffa::FifoConsumer<DataType>;
+    using FifoProducerT = caffa::FifoProducer<caffa::FifoBoundedField<DataType>>;
+    using FifoConsumerT = caffa::FifoConsumer<caffa::FifoBoundedField<DataType>>;
 
     FifoObjectT  object( BUFFER_SIZE, PACKAGE_SIZE );
     TestCreatorT creator( PACKAGE_SIZE );
@@ -338,8 +338,8 @@ TEST( FifoObject, MultipleAccessToBoundedLargerBuffer )
     using TestCreatorT  = TestCreator<DataType>;
     using TestConsumerT = TestConsumer<DataType>;
 
-    using FifoProducerT = caffa::FifoProducer<DataType>;
-    using FifoConsumerT = caffa::FifoConsumer<DataType>;
+    using FifoProducerT = caffa::FifoProducer<caffa::FifoBoundedField<DataType>>;
+    using FifoConsumerT = caffa::FifoConsumer<caffa::FifoBoundedField<DataType>>;
 
     FifoObjectT  object( BUFFER_SIZE, PACKAGE_SIZE );
     TestCreatorT creator( PACKAGE_SIZE );
@@ -391,8 +391,8 @@ TEST( FifoObject, MultipleAccessToBlocked )
     using TestCreatorT  = TestCreator<DataType>;
     using TestConsumerT = TestConsumer<DataType>;
 
-    using FifoProducerT = caffa::FifoProducer<DataType>;
-    using FifoConsumerT = caffa::FifoConsumer<DataType>;
+    using FifoProducerT = caffa::FifoProducer<caffa::FifoBlockingField<DataType>>;
+    using FifoConsumerT = caffa::FifoConsumer<caffa::FifoBlockingField<DataType>>;
 
     FifoObjectT  object( BUFFER_SIZE, PACKAGE_SIZE );
     TestCreatorT creator( PACKAGE_SIZE );
