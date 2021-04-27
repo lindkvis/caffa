@@ -180,8 +180,8 @@ std::array<double, 5> calculateMinMaxAverageLatencyMs( const std::vector<std::ve
     std::function<void()> producerFunction = std::bind( &FifoProducerT::produce, &producer );            \
     std::function<void()> consumerFunction = std::bind( &FifoConsumerT::consume, &consumer );            \
                                                                                                          \
-    std::thread consumerThread( consumerFunction );                                                      \
     std::thread producerThread( producerFunction );                                                      \
+    std::thread consumerThread( consumerFunction );                                                      \
                                                                                                          \
     consumerThread.join();                                                                               \
     producer.setFinished();                                                                              \
@@ -232,7 +232,7 @@ TEST( FifoObject, TestChar )
 TEST( FifoObject, TestLatencyBounded )
 {
     auto before = std::chrono::system_clock::now();
-    RUN_SIMPLE_FIFO_TEST( TimeStamp, caffa::FifoBoundedField, m_boundedField, 1024u * 256u, 8u, 32u );
+    RUN_SIMPLE_FIFO_TEST( TimeStamp, caffa::FifoBoundedField, m_boundedField, 1024u * 256u, 16u, 32u );
     auto after = std::chrono::system_clock::now();
 
     auto [min, max, avg, med, q99] = calculateMinMaxAverageLatencyMs( accumulator.m_buffer );
@@ -300,26 +300,31 @@ TEST( FifoObject, MultipleAccessToBounded )
     // Read multiple times, and sleep in between. The producer should keep on producing but dropping packages.
     // ... meaning the latencies shouldn't increase dramatically because when we start reading again we should
     // ... be getting new data
-    size_t totalReadCount = 0u;
-    for ( size_t i = 0; i < 10; ++i )
+    size_t                     totalReadCount = 0u;
+    const size_t               repeats        = 200u;
+    std::vector<TestConsumerT> accumulator( repeats, TestConsumerT( packageCount ) );
+    for ( size_t i = 0; i < repeats; ++i )
     {
-        TestConsumerT                                   accumulator( packageCount );
         typename FifoConsumerT::PackageHandlingFunction consumptionFunction =
-            std::bind( &TestConsumerT::consume, &accumulator, std::placeholders::_1 );
+            std::bind( &TestConsumerT::consume, &accumulator[i], std::placeholders::_1 );
         FifoConsumerT consumer( &object.m_boundedField, packageCount, consumptionFunction );
-        ASSERT_EQ( (size_t)0, accumulator.m_buffer.size() );
+        ASSERT_EQ( (size_t)0, accumulator[i].m_buffer.size() );
         std::function<void()> consumerFunction = std::bind( &FifoConsumerT::consume, &consumer );
 
         std::thread consumerThread( consumerFunction );
         consumerThread.join();
-        ASSERT_EQ( packageCount, accumulator.m_buffer.size() );
-        totalReadCount += accumulator.m_buffer.size();
-        auto [min, max, avg, med, q99] = calculateMinMaxAverageLatencyMs( accumulator.m_buffer );
-        std::cout << "Latencies -> min: " << min << " μs, avg: " << avg << " μs, med: " << med << " μs, Q99: " << q99
-                  << " μs, max: " << max << " μs" << std::endl;
+        ASSERT_EQ( packageCount, accumulator[i].m_buffer.size() );
+        totalReadCount += accumulator[i].m_buffer.size();
     }
     std::cout << "Produced a total of " << producer.productionCount() << " packages but only read " << totalReadCount
               << std::endl;
+
+    for ( size_t i = 0; i < repeats; ++i )
+    {
+        auto [min, max, avg, med, q99] = calculateMinMaxAverageLatencyMs( accumulator[i].m_buffer );
+        std::cout << "Latencies -> min: " << min << " μs, avg: " << avg << " μs, med: " << med << " μs, Q99: " << q99
+                  << " μs, max: " << max << " μs" << std::endl;
+    }
     ASSERT_LT( totalReadCount, producer.productionCount() );
 
     producer.setFinished();
