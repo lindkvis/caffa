@@ -62,7 +62,7 @@ public:
     }
 
     virtual std::vector<FieldDataType> pop()                                  = 0;
-    virtual bool                       push( std::vector<DataType>& package ) = 0;
+    virtual void                       push( std::vector<DataType>& package ) = 0;
 
     virtual size_t droppedPackages() const = 0;
     size_t         packageSize() const { return m_packageSize; }
@@ -116,7 +116,7 @@ public:
 
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
 
-        this->m_dataAccessGuard.wait_for( lock, 500us, [this]() { return !this->empty(); } );
+        this->m_dataAccessGuard.wait_for( lock, 100ms, [this]() { return !this->empty(); } );
 
         if ( !this->empty() )
         {
@@ -128,19 +128,17 @@ public:
         return package;
     }
 
-    bool push( std::vector<DataType>& package ) override
+    void push( std::vector<DataType>& package ) override
     {
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
 
-        this->m_dataAccessGuard.wait_for( lock, 500us, [this]() { return !this->full(); } );
-        bool canPush = !this->full();
-        if ( canPush )
+        this->m_dataAccessGuard.wait_for( lock, 100ms, [this]() { return !this->full(); } );
+        if ( !this->full() )
         {
             this->m_buffer[this->m_writeIndex++ % this->m_bufferSize].swap( package );
             lock.unlock();
             this->m_dataAccessGuard.notify_one();
         }
-        return canPush;
     }
     size_t droppedPackages() const override { return 0u; }
 };
@@ -169,7 +167,7 @@ public:
         return package;
     }
 
-    bool push( std::vector<DataType>& package ) override
+    void push( std::vector<DataType>& package ) override
     {
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
 
@@ -177,13 +175,11 @@ public:
         {
             this->m_readIndex++;
             this->m_droppedPackages++;
-            return false;
         }
 
         this->m_buffer[this->m_writeIndex++ % this->m_bufferSize].swap( package );
         lock.unlock();
         this->m_dataAccessGuard.notify_one();
-        return true;
     }
 
     size_t droppedPackages() const override
@@ -225,10 +221,8 @@ public:
             // CAFFA_INFO( "Pushed value number: " << m_doneCount - m_ptrToField->droppedPackages() << " out of "
             //                                  << m_sweepCount );
 
-            if ( m_ptrToField->push( package ) )
-            {
-                m_doneCount++;
-            }
+            m_ptrToField->push( package );
+            m_doneCount++;
         }
         m_ptrToField->setActive( false );
     }
