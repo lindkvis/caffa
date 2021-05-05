@@ -59,9 +59,7 @@ set(GSL_TEST
     CACHE INTERNAL "Build GSL tests")
 add_subdirectory(ThirdParty/json)
 add_subdirectory(ThirdParty/GSL)
-if(CAFFA_BUILD_UNIT_TESTS)
-  add_subdirectory(ThirdParty/gtest)
-endif()
+add_subdirectory(ThirdParty/gtest)
 
 # libraries
 add_subdirectory(ProjectDataModel/Core)
