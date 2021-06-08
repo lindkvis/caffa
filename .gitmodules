@@ -4,3 +4,6 @@
 [submodule "ThirdParty/GSL"]
 	path = ThirdParty/GSL
 	url = https://github.com/microsoft/GSL.git
+[submodule "GrpcInterface/Protos"]
+	path = GrpcInterface/Protos
+	url = git@github.com:lindkvis/caffa-GrpcProtos.git
