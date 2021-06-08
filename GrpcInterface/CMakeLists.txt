@@ -118,9 +118,6 @@ foreach(proto_file ${PROTO_FILES})
   list(APPEND GRPC_CPP_SOURCES ${caffa_proto_srcs} ${caffa_grpc_srcs})
 endforeach(proto_file)
 
-message(STATUS "Configuring Java gradle build file")
-configure_file("${CMAKE_CURRENT_LIST_DIR}/Java/build.gradle.cmake" "${CMAKE_CURRENT_LIST_DIR}/Java/build.gradle")
-
 if(CAFFA_BUILD_SHARED)
   message(STATUS "Building ${PROJECT_NAME} shared")
   add_library(${PROJECT_NAME} SHARED ${PROJECT_FILES} ${GRPC_HEADER_FILES} ${GRPC_CPP_SOURCES})
