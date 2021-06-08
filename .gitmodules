@@ -6,4 +6,4 @@
 	url = https://github.com/microsoft/GSL.git
 [submodule "GrpcInterface/Protos"]
 	path = GrpcInterface/Protos
-	url = git@github.com:lindkvis/caffa-GrpcProtos.git
+	url = https://github.com/lindkvis/caffa-GrpcProtos.git
