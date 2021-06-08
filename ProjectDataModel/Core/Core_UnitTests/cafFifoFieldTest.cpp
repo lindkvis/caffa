@@ -431,7 +431,7 @@ TEST( FifoObject, MultipleAccessToBlocked )
     // Since this is a blocking field we should only have produced the amount read + the size of the buffer.
     std::cout << "Produced a total of " << producer.productionCount() << " packages and read " << totalReadCount
               << std::endl;
-    ASSERT_LE( producer.validProductionCount(), totalReadCount + 2 * BUFFER_SIZE );
+    ASSERT_LE( producer.validProductionCount(), totalReadCount + 4 * BUFFER_SIZE );
 
     ASSERT_LE( totalReadCount, producer.validProductionCount() );
 
