@@ -143,7 +143,9 @@ void ObjectJsonCapability::readFields( ObjectHandle*         object,
     CAFFA_ASSERT( classKeyword.is_string() &&
                   classKeyword.get<std::string>() == object->capability<ObjectIoCapability>()->classKeyword() );
 
-    for ( const auto& [key, value] : jsonObject.items() )
+    auto jsonFields = jsonObject["fields"];
+
+    for ( const auto& [key, value] : jsonFields.items() )
     {
         if ( value.is_null() ) continue;
 
@@ -185,6 +187,8 @@ void ObjectJsonCapability::writeFields( const ObjectHandle* object,
         jsonObject["serverAddress"] = reinterpret_cast<uint64_t>( object );
     }
 
+    nlohmann::json fields;
+
     for ( auto field : object->fields() )
     {
         const FieldIoCapability* ioCapability = field->capability<FieldIoCapability>();
@@ -195,7 +199,8 @@ void ObjectJsonCapability::writeFields( const ObjectHandle* object,
 
             nlohmann::json value;
             ioCapability->readFromField( value, writeServerAddress, writeValues );
-            jsonObject[keyword] = value;
+            fields[keyword] = value;
         }
     }
+    jsonObject["fields"] = fields;
 }

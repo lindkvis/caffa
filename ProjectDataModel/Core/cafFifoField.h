@@ -21,6 +21,7 @@
 
 #include "cafFieldHandle.h"
 #include "cafLogger.h"
+#include "cafPortableDataType.h"
 
 #include <chrono>
 #include <condition_variable>
@@ -108,6 +109,8 @@ public:
     }
     size_t droppedPackages() const { return 0u; }
 
+    std::string dataType() const override { return PortableDataType<DataType>::name(); }
+
 private:
     bool empty() const
     {
@@ -139,7 +142,7 @@ class FifoBoundedField : public caffa::FieldHandle
 public:
     using FieldDataType = DataType;
     using Package       = std::vector<FieldDataType>;
-    using Queue         = std::vector<FieldDataType>;
+    using Queue         = std::vector<Package>;
 
     FifoBoundedField( size_t packageCount = 8u, size_t packageSize = 32u )
         : m_packageCount( packageCount )
@@ -172,20 +175,25 @@ public:
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
         m_active = active;
     }
-    std::optional<std::vector<FieldDataType>> pop()
+
+    std::optional<Package> pop()
     {
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
 
-        this->m_dataAccessGuard.wait_for( lock, 250us, [this]() { return !this->empty(); } );
-        if ( this->empty() ) return std::nullopt;
+        this->m_dataAccessGuard.wait_for( lock, 100ms, [this]() { return !this->empty(); } );
 
-        std::vector<FieldDataType> package( this->m_packageSize );
-        memcpy( &package[0],
-                (void*)( &this->m_buffer[0] + this->m_readIndex % m_bufferSize ),
-                m_packageSize * sizeof( FieldDataType ) );
+        if ( !this->empty() )
+        {
+            Package package( this->m_packageSize );
+            package.swap( this->m_buffer[this->m_readIndex++ % this->m_packageCount] );
+            lock.unlock();
+            this->m_dataAccessGuard.notify_one();
+            return package;
+        }
 
-        m_readIndex += m_packageSize;
-        return package;
+        lock.unlock();
+        this->m_dataAccessGuard.notify_one();
+        return std::nullopt;
     }
 
     void push( Package& package )
@@ -194,15 +202,11 @@ public:
 
         if ( this->full() )
         {
-            this->m_readIndex += m_packageSize;
+            this->m_readIndex += 1;
             this->m_droppedPackages += 1;
         }
 
-        memcpy( (void*)( &this->m_buffer[0] + this->m_writeIndex % m_bufferSize ),
-                &package[0],
-                m_packageSize * sizeof( FieldDataType ) );
-        m_writeIndex += m_packageSize;
-
+        this->m_buffer[this->m_writeIndex++ % this->m_packageCount].swap( package );
         lock.unlock();
         this->m_dataAccessGuard.notify_one();
     }
@@ -212,6 +216,8 @@ public:
         std::unique_lock<std::mutex> lock( this->m_dataAccessMutex );
         return this->m_droppedPackages;
     }
+
+    std::string dataType() const override { return PortableDataType<DataType>::name(); }
 
 private:
     bool empty() const

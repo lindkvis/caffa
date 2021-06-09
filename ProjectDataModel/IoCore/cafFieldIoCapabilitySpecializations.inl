@@ -1,6 +1,7 @@
 
 #include "cafAssert.h"
 #include "cafInternalIoFieldReaderWriter.h"
+#include "cafLogger.h"
 #include "cafObjectFactory.h"
 #include "cafObjectIoCapability.h"
 #include "cafObjectJsonCapability.h"
@@ -25,8 +26,14 @@ template <typename FieldType>
 void FieldIoCap<FieldType>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
 {
     this->assertValid();
-    typename FieldType::FieldDataType value = jsonValue.get<typename FieldType::FieldDataType>();
-    m_field->setValue( value );
+    CAFFA_TRACE( "Setting value from json: " << jsonValue.dump() );
+
+    auto it = jsonValue.find( "value" );
+    if ( it != jsonValue.end() )
+    {
+        typename FieldType::FieldDataType value = it->get<typename FieldType::FieldDataType>();
+        m_field->setValue( value );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -36,10 +43,13 @@ template <typename FieldType>
 void FieldIoCap<FieldType>::readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const
 {
     this->assertValid();
+    nlohmann::json valueTypePair;
+    valueTypePair["type"] = m_field->dataType();
     if ( writeValues )
     {
-        jsonValue = m_field->value();
+        valueTypePair["value"] = m_field->value();
     }
+    jsonValue = valueTypePair;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,8 +68,9 @@ template <typename DataType>
 void FieldIoCap<PtrField<DataType*>>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
 {
     this->assertValid();
+    CAFFA_ASSERT( jsonValue["type"] == m_field->dataType() );
 
-    std::string dataString = jsonValue.get<std::string>();
+    std::string dataString = jsonValue["value"].get<std::string>();
 
     // This resolving can NOT be done here.
     // It must be done when we know that the complete hierarchy is read and created,
@@ -87,7 +98,10 @@ void FieldIoCap<PtrField<DataType*>>::readFromField( nlohmann::json& jsonValue, 
     std::string dataString;
 
     dataString = ReferenceHelper::referenceFromFieldToObject( m_field, m_field->m_fieldValue.rawPtr() );
-    jsonValue  = dataString;
+    nlohmann::json valueTypePair;
+    valueTypePair["value"] = dataString;
+    valueTypePair["type"]  = m_field->dataType();
+    jsonValue              = valueTypePair;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,8 +136,9 @@ template <typename DataType>
 void FieldIoCap<PtrArrayField<DataType*>>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
 {
     this->assertValid();
+    CAFFA_ASSERT( jsonValue["type"] == m_field->dataType() );
 
-    std::string dataString = jsonValue.get<std::string>();
+    std::string dataString = jsonValue["value"].get<std::string>();
 
     // This resolving can NOT be done here.
     // It must be done when we know that the complete hierarchy is read and created,
@@ -151,7 +166,10 @@ void FieldIoCap<PtrArrayField<DataType*>>::readFromField( nlohmann::json& jsonVa
         dataString += ReferenceHelper::referenceFromFieldToObject( m_field, m_field->m_pointers[i].rawPtr() );
         if ( !dataString.empty() && i < pointerCount - 1 ) dataString += " | \n\t";
     }
-    jsonValue = dataString;
+    nlohmann::json valueTypePair;
+    valueTypePair["value"] = dataString;
+    valueTypePair["type"]  = m_field->dataType();
+    jsonValue              = valueTypePair;
 }
 //--------------------------------------------------------------------------------------------------
 ///
@@ -195,9 +213,13 @@ std::string FieldIoCap<PtrArrayField<DataType*>>::referenceString() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildField<DataType*>>::writeToField( const nlohmann::json& jsonObject, ObjectFactory* objectFactory )
+void FieldIoCap<ChildField<DataType*>>::writeToField( const nlohmann::json& jsonObjectTypePair, ObjectFactory* objectFactory )
 {
-    if ( jsonObject.is_null() ) return;
+    if ( jsonObjectTypePair.is_null() ) return;
+
+    CAFFA_ASSERT( jsonObjectTypePair["type"] == m_field->dataType() );
+
+    auto jsonObject = jsonObjectTypePair["value"];
 
     CAFFA_ASSERT( jsonObject.is_object() );
 
@@ -274,8 +296,10 @@ void FieldIoCap<ChildField<DataType*>>::readFromField( nlohmann::json& jsonValue
         }
         ObjectJsonCapability::writeFields( object, jsonObject, writeServerAddress, writeValues );
         CAFFA_ASSERT( jsonObject.is_object() );
-        jsonValue = jsonObject;
-        CAFFA_ASSERT( jsonValue.is_object() );
+        nlohmann::json valueTypePair;
+        valueTypePair["value"] = jsonObject;
+        valueTypePair["type"]  = m_field->dataType();
+        jsonValue              = valueTypePair;
     }
 }
 
@@ -292,10 +316,14 @@ bool FieldIoCap<ChildField<DataType*>>::resolveReferences()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildArrayField<DataType*>>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
+void FieldIoCap<ChildArrayField<DataType*>>::writeToField( const nlohmann::json& jsonValueTypePair,
+                                                           ObjectFactory*        objectFactory )
 {
     m_field->clear();
 
+    CAFFA_ASSERT( jsonValueTypePair["type"] == m_field->dataType() );
+
+    auto jsonValue = jsonValueTypePair["value"];
     if ( !jsonValue.is_array() ) return;
 
     for ( const auto& jsonObject : jsonValue )
@@ -368,7 +396,8 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFromField( nlohmann::json& json
             jsonArray.push_back( jsonObject );
         }
     }
-    jsonValue = jsonArray;
+    jsonValue["value"] = jsonArray;
+    jsonValue["type"]  = m_field->dataType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -445,10 +474,11 @@ void FieldIoCap<FifoBlockingField<DataType>>::readFromField( nlohmann::json& jso
     FifoConsumerT consumer( const_cast<FifoBlockingField<DataType>*>( m_field ), packageCount, consumptionFunction );
 
     std::function<void()> consumerFunction = std::bind( &FifoConsumerT::consume, &consumer );
-
-    std::thread consumerThread( consumerFunction );
+    std::thread           consumerThread( consumerFunction );
     consumerThread.join();
-    jsonValue = accumulator.m_array;
+
+    jsonValue["value"] = accumulator.m_array;
+    jsonValue["type"]  = m_field->dataType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -499,7 +529,8 @@ void FieldIoCap<FifoBoundedField<DataType>>::readFromField( nlohmann::json& json
     std::thread           consumerThread( consumerFunction );
     consumerThread.join();
 
-    jsonValue = accumulator.m_array;
+    jsonValue["value"] = accumulator.m_array;
+    jsonValue["type"]  = m_field->dataType();
 }
 
 //--------------------------------------------------------------------------------------------------

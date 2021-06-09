@@ -36,6 +36,8 @@
 
 #pragma once
 
+#include "cafPortableDataType.h"
+
 #include <iostream>
 #include <list>
 #include <string>
@@ -81,8 +83,8 @@ namespace caffa
 ///    m_enumValue.setFromText("A");
 ///
 ///    for (size_t i = 0; i < caffa::AppEnum<SomeClass::SomeEnumType>::size(); ++i)
-///        cout << caffa::AppEnum<SomeClass::SomeEnumType>::text(caffa::AppEnum<SomeClass::SomeEnumType>::fromIndex(i)) <<
-///        endl;
+///        cout << caffa::AppEnum<SomeClass::SomeEnumType>::text(caffa::AppEnum<SomeClass::SomeEnumType>::fromIndex(i))
+///        << endl;
 ///
 ///
 ///
@@ -99,6 +101,8 @@ template <class T>
 class AppEnum
 {
 public:
+    using DataType = T;
+
     AppEnum() { m_value = EnumMapper::instance()->defaultValue(); }
     AppEnum( T value )
         : m_value( value )
@@ -128,11 +132,11 @@ public:
     static size_t size() { return EnumMapper::instance()->size(); }
 
     static std::list<std::string> uiTexts() { return EnumMapper::instance()->uiTexts(); }
-    static AppEnum<T> fromIndex( size_t idx )
+    static AppEnum<T>             fromIndex( size_t idx )
     {
         T val;
         EnumMapper::instance()->enumVal( val, idx );
-        return AppEnum<T>(val);
+        return AppEnum<T>( val );
     }
     static AppEnum<T> fromText( const std::string& text )
     {
@@ -317,6 +321,17 @@ private:
         T                    m_defaultValue;
         bool                 m_defaultValueIsSet;
     };
+};
+
+template <typename EnumType>
+struct PortableDataType<AppEnum<EnumType>>
+{
+    static constexpr const char* name() { return "AppEnum"; }
+};
+template <typename EnumType>
+struct PortableDataType<std::vector<AppEnum<EnumType>>>
+{
+    static constexpr const char* name() { return "vector:AppEnum"; }
 };
 
 } // namespace caffa

@@ -21,6 +21,7 @@
 #include "cafDocument.h"
 #include "cafLogger.h"
 #include "cafObjectMethod.h"
+#include "cafPortableDataType.h"
 #include "cafVariant.h"
 
 #include <gsl/gsl>
@@ -70,11 +71,10 @@ template <typename DataType>
 DataType caffa::rpc::Client::get( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     nlohmann::json jsonValue = getJson( objectHandle, fieldName );
-    CAFFA_DEBUG( "Attempting to get datatype " << typeid( DataType ).name() << " from json value " << jsonValue );
-    if ( jsonValue.is_string() )
-    {
-    }
-    return jsonValue.get<DataType>();
+    CAFFA_DEBUG( "Attempting to get datatype " << caffa::PortableDataType<DataType>::name() << " from json value "
+                                               << jsonValue );
+    CAFFA_ASSERT( caffa::PortableDataType<DataType>::name() == jsonValue["type"] );
+    return jsonValue["value"].get<DataType>();
 }
 
 //--------------------------------------------------------------------------------------------------

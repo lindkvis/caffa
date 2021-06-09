@@ -21,8 +21,7 @@ public:
     FieldIoCap( FieldType* field, bool giveOwnership )
         : FieldIoCapability( field, giveOwnership )
     {
-        m_field        = field;
-        m_dataTypeName = typeid( typename FieldType::FieldDataType ).name();
+        m_field = field;
     }
 
 public:
@@ -46,7 +45,6 @@ public:
         : FieldIoCapability( field, giveOwnership )
     {
         m_field           = field;
-        m_dataTypeName    = DataType::classKeywordStatic();
         m_isResolved      = false;
         m_referenceString = "";
     }
@@ -77,7 +75,6 @@ public:
         : FieldIoCapability( field, giveOwnership )
     {
         m_field           = field;
-        m_dataTypeName    = DataType::classKeywordStatic();
         m_isResolved      = false;
         m_referenceString = "";
     }
@@ -107,8 +104,7 @@ public:
     FieldIoCap( FieldType* field, bool giveOwnership )
         : FieldIoCapability( field, giveOwnership )
     {
-        m_field        = field;
-        m_dataTypeName = DataType::classKeywordStatic();
+        m_field = field;
     }
 
 public:
@@ -131,8 +127,7 @@ public:
     FieldIoCap( FieldType* field, bool giveOwnership )
         : FieldIoCapability( field, giveOwnership )
     {
-        m_field        = field;
-        m_dataTypeName = DataType::classKeywordStatic();
+        m_field = field;
     }
 
 public:
@@ -156,8 +151,7 @@ public:
         : FieldIoCapability( field, giveOwnership )
         , m_readLimit( 10u )
     {
-        m_field        = field;
-        m_dataTypeName = typeid( typename FieldType::FieldDataType ).name();
+        m_field = field;
     }
 
 public:
@@ -185,8 +179,7 @@ public:
         : FieldIoCapability( field, giveOwnership )
         , m_readLimit( 10u )
     {
-        m_field        = field;
-        m_dataTypeName = typeid( typename FieldType::FieldDataType ).name();
+        m_field = field;
     }
 
 public:

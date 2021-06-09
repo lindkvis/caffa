@@ -4,6 +4,7 @@
 
 #include "cafAssert.h"
 #include "cafPointer.h"
+#include "cafPortableDataType.h"
 
 #include <memory>
 
@@ -69,6 +70,8 @@ public:
     virtual void                                childObjects( std::vector<ObjectHandle*>* objects ) override;
     [[nodiscard]] std::unique_ptr<DataType>     remove( ObjectHandle* object );
     [[nodiscard]] std::unique_ptr<ObjectHandle> removeChildObject( ObjectHandle* object ) override;
+
+    std::string dataType() const override { return std::string( "object:" ) + DataType::classKeywordStatic(); }
 
 private:
     CAFFA_DISABLE_COPY_AND_ASSIGN( ChildField );

@@ -2,6 +2,7 @@
 
 #include "cafAssert.h"
 #include "cafPointer.h"
+#include "cafPortableDataType.h"
 #include "cafValueField.h"
 
 #include <any>
@@ -73,6 +74,8 @@ public:
     // Ptr referenced objects
 
     void ptrReferencedObjects( std::vector<ObjectHandle*>* objectsToFill ) override;
+
+    std::string dataType() const override { return std::string( "object:" ) + DataType::classKeywordStatic(); }
 
 private:
     CAFFA_DISABLE_COPY_AND_ASSIGN( PtrField );

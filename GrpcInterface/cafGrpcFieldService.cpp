@@ -333,9 +333,11 @@ size_t DataHolder<std::string>::getValuesFromChunk( size_t startIndex, const Set
 template <>
 void DataHolder<std::string>::applyValuesToField( ValueField* field )
 {
-    auto ioCapability = field->capability<FieldIoCapability>();
-    CAFFA_ASSERT( ioCapability );
-    ioCapability->writeToField( data, caffa::DefaultObjectFactory::instance() );
+    auto dataValueField = dynamic_cast<Field<std::string>*>( field );
+    if ( dataValueField )
+    {
+        dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -401,6 +403,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
                 nlohmann::json jsonValue;
                 auto           ioCapability = field->capability<caffa::FieldIoCapability>();
                 ioCapability->readFromField( jsonValue, true, true );
+                std::cout << "Json value: " << jsonValue.dump() << std::endl;
                 m_dataHolder.reset( new DataHolder<std::string>( jsonValue.dump() ) );
                 return grpc::Status::OK;
             }
@@ -486,7 +489,7 @@ grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
     auto setRequest = chunk->set_request();
 
     CAFFA_DEBUG( "Received Set Request for: " << setRequest.request().self().class_keyword() << "[0x" << std::hex
-                                              << setRequest.request().self().address() << "]"
+                                              << setRequest.request().self().address() << "]->"
                                               << setRequest.request().method() );
 
     auto fieldRequest = setRequest.request();
@@ -542,7 +545,7 @@ grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
             }
         }
     }
-    return grpc::Status( grpc::NOT_FOUND, "Proxy field not found" );
+    return grpc::Status( grpc::NOT_FOUND, "Field not found" );
 }
 
 //--------------------------------------------------------------------------------------------------
