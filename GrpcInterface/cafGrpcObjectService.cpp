@@ -61,7 +61,6 @@ grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const Doc
 {
     CAFFA_TRACE( "Got document request" );
     Document* document = ServerApplication::instance()->document( request->document_id() );
-    CAFFA_TRACE( "Found document" );
     if ( document )
     {
         CAFFA_TRACE( "Copying document to gRPC data structure" );
@@ -69,6 +68,73 @@ grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const Doc
         return grpc::Status::OK;
     }
     return grpc::Status( grpc::NOT_FOUND, "Document not found" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status
+    ObjectService::GetDescendants( grpc::ServerContext* context, const DescendantsRequest* request, ObjectList* reply )
+{
+    CAFFA_TRACE( "Got Descendants request" );
+    const Object&  rpcObject = request->self();
+    caffa::Object* object    = findCafObjectFromRpcObject( rpcObject );
+    if ( object )
+    {
+        std::string classKeyword = request->descendants_class_keyword();
+        CAFFA_TRACE( "Found self, now finding descendants of type: " << classKeyword );
+        auto matchingDescendants = object->matchingDescendants(
+            [classKeyword]( const ObjectHandle* objectHandle )
+            {
+                auto ioCapability = objectHandle->capability<caffa::ObjectIoCapability>();
+                if ( ioCapability )
+                {
+                    return ioCapability->matchesClassKeyword( classKeyword );
+                }
+                return false;
+            } );
+
+        for ( auto descendant : matchingDescendants )
+        {
+            Object* rpcDescendant = reply->mutable_objects()->Add();
+            copyObjectFromCafToRpc( descendant, rpcDescendant, true, false );
+        }
+        return grpc::Status::OK;
+    }
+    return grpc::Status( grpc::NOT_FOUND, "Self not found" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status ObjectService::GetAncestors( grpc::ServerContext* context, const AncestorsRequest* request, ObjectList* reply )
+{
+    CAFFA_TRACE( "Got Ancestors request" );
+    const Object&  rpcObject = request->self();
+    caffa::Object* object    = findCafObjectFromRpcObject( rpcObject );
+    if ( object )
+    {
+        std::string classKeyword = request->ancestors_class_keyword();
+        CAFFA_TRACE( "Found self, now finding ancestors of type: " << classKeyword );
+        auto matchingAncestors = object->matchingAncestors(
+            [classKeyword]( const ObjectHandle* objectHandle )
+            {
+                auto ioCapability = objectHandle->capability<caffa::ObjectIoCapability>();
+                if ( ioCapability )
+                {
+                    return ioCapability->matchesClassKeyword( classKeyword );
+                }
+                return false;
+            } );
+
+        for ( auto descendant : matchingAncestors )
+        {
+            Object* rpcDescendant = reply->mutable_objects()->Add();
+            copyObjectFromCafToRpc( descendant, rpcDescendant, true, false );
+        }
+        return grpc::Status::OK;
+    }
+    return grpc::Status( grpc::NOT_FOUND, "Self not found" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,8 +199,9 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndAddress( const std::
 
     for ( auto doc : ServerApplication::instance()->documents() )
     {
-        std::list<caffa::ObjectHandle*> objects =
-            doc->matchingDescendants( [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool {
+        std::list<caffa::ObjectHandle*> objects = doc->matchingDescendants(
+            [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool
+            {
                 auto ioCapability = objectHandle->capability<caffa::ObjectIoCapability>();
                 return ioCapability ? ioCapability->classKeyword() == scriptClassName : false;
             } );
@@ -165,9 +232,9 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndAddress( const std::
 ///
 //--------------------------------------------------------------------------------------------------
 void ObjectService::copyObjectFromCafToRpc( const caffa::ObjectHandle* source,
-                                            Object*                  destination,
-                                            bool                     copyContent /* = true */,
-                                            bool                     writeValues /* = true */ )
+                                            Object*                    destination,
+                                            bool                       copyContent /* = true */,
+                                            bool                       writeValues /* = true */ )
 {
     CAFFA_ASSERT( source && destination );
 
@@ -214,8 +281,8 @@ void ObjectService::copyObjectFromRpcToCaf( const Object* source, caffa::ObjectH
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( const Object*       source,
-                                                                          caffa::ObjectFactory* objectFactory )
+std::unique_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( const Object*         source,
+                                                                            caffa::ObjectFactory* objectFactory )
 {
     CAFFA_ASSERT( source );
     std::unique_ptr<caffa::ObjectHandle> destination(

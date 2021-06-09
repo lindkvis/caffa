@@ -51,20 +51,21 @@ class MethodRequest;
 class ObjectService final : public ObjectAccess::AsyncService, public ServiceInterface
 {
 public:
-    grpc::Status GetDocument( grpc::ServerContext* context, const DocumentRequest* request, Object* reply );
-
+    grpc::Status GetDocument( grpc::ServerContext* context, const DocumentRequest* request, Object* reply ) override;
+    grpc::Status GetDescendants( grpc::ServerContext* context, const DescendantsRequest* request, ObjectList* reply ) override;
+    grpc::Status GetAncestors( grpc::ServerContext* context, const AncestorsRequest* request, ObjectList* reply ) override;
     grpc::Status ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, Object* reply ) override;
 
     static caffa::Object* findCafObjectFromRpcObject( const Object& rpcObject );
     static caffa::Object* findCafObjectFromScriptNameAndAddress( const std::string& scriptClassName, uint64_t address );
 
     static void copyObjectFromCafToRpc( const caffa::ObjectHandle* source,
-                                        Object*                  destination,
-                                        bool                     copyContent = true,
-                                        bool                     writeValues = true );
+                                        Object*                    destination,
+                                        bool                       copyContent = true,
+                                        bool                       writeValues = true );
     static void copyObjectFromRpcToCaf( const Object* source, caffa::ObjectHandle* destination );
-    static std::unique_ptr<caffa::ObjectHandle> createCafObjectFromRpc( const Object*       source,
-                                                                      caffa::ObjectFactory* objectFactory );
+    static std::unique_ptr<caffa::ObjectHandle> createCafObjectFromRpc( const Object*         source,
+                                                                        caffa::ObjectFactory* objectFactory );
 
     std::vector<AbstractCallback*> registerCallbacks() override;
 };
