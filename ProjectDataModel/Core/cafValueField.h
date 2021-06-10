@@ -37,6 +37,7 @@
 
 #include "cafDataFieldAccessor.h"
 #include "cafFieldHandle.h"
+#include "cafPortableDataType.h"
 
 #include <any>
 #include <typeinfo>
@@ -70,6 +71,9 @@ public:
 public:
     virtual DataType value() const                          = 0;
     virtual void     setValue( const DataType& fieldValue ) = 0;
+
+    // TODO: replace with portable solution with template overrides
+    std::string dataType() const override { return PortableDataType<DataType>::name(); }
 };
 
 } // End of namespace caffa

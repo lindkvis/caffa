@@ -1,10 +1,9 @@
 #pragma once
 
+#include "TestObj.h"
 #include "cafChildField.h"
 #include "cafObject.h"
 #include "cafPointer.h"
-
-class TestObj;
 
 class Child : public caffa::Object
 {

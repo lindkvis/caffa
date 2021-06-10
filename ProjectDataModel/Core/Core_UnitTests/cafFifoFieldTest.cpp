@@ -3,6 +3,7 @@
 #include "cafFifoField.h"
 #include "cafLogger.h"
 #include "cafObjectHandle.h"
+#include "cafPortableDataType.h"
 
 #include <array>
 #include <chrono>
@@ -14,6 +15,11 @@
 
 using TimeStamp = std::chrono::time_point<std::chrono::system_clock>;
 using namespace std::chrono_literals;
+
+namespace caffa
+{
+CAFFA_DEFINE_PORTABLE_TYPE_NAME( TimeStamp, "TimeStamp" );
+}
 
 template <typename DataType>
 class FifoObject : public caffa::ObjectHandle

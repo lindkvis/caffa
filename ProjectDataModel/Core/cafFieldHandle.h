@@ -46,8 +46,9 @@ public:
     void                                                setOwnerClass( const std::string& ownerClass );
 
     // Ptr referenced objects
-    bool         hasPtrReferencedObjects();
-    virtual void ptrReferencedObjects( std::vector<ObjectHandle*>* ) {}
+    bool                hasPtrReferencedObjects();
+    virtual void        ptrReferencedObjects( std::vector<ObjectHandle*>* ) {}
+    virtual std::string dataType() const = 0;
 
     // Capabilities
     void addCapability( FieldCapability* capability, bool takeOwnership )

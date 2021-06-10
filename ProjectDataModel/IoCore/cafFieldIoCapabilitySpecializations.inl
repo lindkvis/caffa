@@ -1,6 +1,7 @@
 
 #include "cafAssert.h"
 #include "cafInternalIoFieldReaderWriter.h"
+#include "cafLogger.h"
 #include "cafObjectFactory.h"
 #include "cafObjectIoCapability.h"
 #include "cafObjectJsonCapability.h"
@@ -25,6 +26,8 @@ template <typename FieldType>
 void FieldIoCap<FieldType>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
 {
     this->assertValid();
+    CAFFA_TRACE( "Setting value from json: " << jsonValue.dump() );
+
     typename FieldType::FieldDataType value = jsonValue.get<typename FieldType::FieldDataType>();
     m_field->setValue( value );
 }
@@ -58,7 +61,6 @@ template <typename DataType>
 void FieldIoCap<PtrField<DataType*>>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
 {
     this->assertValid();
-
     std::string dataString = jsonValue.get<std::string>();
 
     // This resolving can NOT be done here.
@@ -84,10 +86,8 @@ void FieldIoCap<PtrField<DataType*>>::readFromField( nlohmann::json& jsonValue, 
 {
     this->assertValid();
 
-    std::string dataString;
-
-    dataString = ReferenceHelper::referenceFromFieldToObject( m_field, m_field->m_fieldValue.rawPtr() );
-    jsonValue  = dataString;
+    std::string dataString = ReferenceHelper::referenceFromFieldToObject( m_field, m_field->m_fieldValue.rawPtr() );
+    jsonValue              = dataString;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -197,8 +197,8 @@ std::string FieldIoCap<PtrArrayField<DataType*>>::referenceString() const
 template <typename DataType>
 void FieldIoCap<ChildField<DataType*>>::writeToField( const nlohmann::json& jsonObject, ObjectFactory* objectFactory )
 {
+    CAFFA_TRACE( "Writing " << jsonObject.dump() << " to ChildField" );
     if ( jsonObject.is_null() ) return;
-
     CAFFA_ASSERT( jsonObject.is_object() );
 
     std::string className = jsonObject["classKeyword"].get<std::string>();
@@ -275,7 +275,6 @@ void FieldIoCap<ChildField<DataType*>>::readFromField( nlohmann::json& jsonValue
         ObjectJsonCapability::writeFields( object, jsonObject, writeServerAddress, writeValues );
         CAFFA_ASSERT( jsonObject.is_object() );
         jsonValue = jsonObject;
-        CAFFA_ASSERT( jsonValue.is_object() );
     }
 }
 
@@ -295,6 +294,8 @@ template <typename DataType>
 void FieldIoCap<ChildArrayField<DataType*>>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
 {
     m_field->clear();
+
+    CAFFA_TRACE( "Writing " << jsonValue.dump() << " to ChildArrayField" );
 
     if ( !jsonValue.is_array() ) return;
 
@@ -445,9 +446,9 @@ void FieldIoCap<FifoBlockingField<DataType>>::readFromField( nlohmann::json& jso
     FifoConsumerT consumer( const_cast<FifoBlockingField<DataType>*>( m_field ), packageCount, consumptionFunction );
 
     std::function<void()> consumerFunction = std::bind( &FifoConsumerT::consume, &consumer );
-
-    std::thread consumerThread( consumerFunction );
+    std::thread           consumerThread( consumerFunction );
     consumerThread.join();
+
     jsonValue = accumulator.m_array;
 }
 

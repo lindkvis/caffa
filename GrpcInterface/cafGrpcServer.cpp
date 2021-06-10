@@ -179,13 +179,12 @@ private:
             if ( ok )
             {
                 process( method );
-
-                if ( quitting() )
-                {
-                    // Shutdown server and queue
-                    m_server->Shutdown();
-                    m_completionQueue->Shutdown();
-                }
+            }
+            if ( quitting() )
+            {
+                // Shutdown server and queue
+                m_server->Shutdown();
+                m_completionQueue->Shutdown();
             }
         }
         CAFFA_DEBUG( "Request handler quitting" );
