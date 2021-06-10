@@ -51,7 +51,7 @@ public:
 
     // Fields
 
-    caffa::DataValueField<double>                     m_proxyDoubleField;
+    caffa::DataValueField<double>                       m_proxyDoubleField;
     caffa::DataValueField<caffa::AppEnum<TestEnumType>> m_proxyEnumField;
 
 private:
@@ -66,7 +66,7 @@ private:
         return m_doubleMember;
     }
 
-    void                       setEnumMember( const caffa::AppEnum<TestEnumType>& val ) { m_enumMember = val.value(); }
+    void setEnumMember( const caffa::AppEnum<TestEnumType>& val ) { m_enumMember = val.value(); }
     caffa::AppEnum<TestEnumType> enumMember() const { return m_enumMember; }
 
     double       m_doubleMember;
@@ -245,7 +245,8 @@ TEST( BaseTest, ReferenceHelper )
 
     // Test reference to field
     {
-        std::string refString = caffa::ReferenceHelper::referenceFromRootToField( objA.get(), &( ihd1p->m_childArrayField ) );
+        std::string refString =
+            caffa::ReferenceHelper::referenceFromRootToField( objA.get(), &( ihd1p->m_childArrayField ) );
 
         caffa::FieldHandle* fromRef = caffa::ReferenceHelper::fieldFromReference( objA.get(), refString );
         EXPECT_TRUE( fromRef == &( ihd1p->m_childArrayField ) );
@@ -282,6 +283,7 @@ TEST( BaseTest, ChildArrayFieldSerializing )
         ASSERT_EQ( 0u, ihd1->m_childArrayField.size() );
 
         ihd1->readObjectFromString( serializedString, caffa::DefaultObjectFactory::instance() );
+        ASSERT_EQ( 3u, ihd1->m_childArrayField.size() );
 
         ASSERT_DOUBLE_EQ( 10, ihd1->m_childArrayField[0]->m_proxyDoubleField.value() );
         ASSERT_DOUBLE_EQ( 20, ihd1->m_childArrayField[1]->m_proxyDoubleField.value() );
@@ -289,8 +291,6 @@ TEST( BaseTest, ChildArrayFieldSerializing )
     }
 }
 
-// Type deduction is different on other platforms than Windows
-#ifdef WIN32
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -299,24 +299,23 @@ TEST( BaseTest, TestDataType )
     auto s1 = std::make_unique<SimpleObj>();
 
     {
-        auto dataTypeNameDouble = s1->m_position.capability<caffa::FieldIoCapability>()->dataTypeName();
-        EXPECT_EQ( "double", dataTypeNameDouble );
+        auto dataType = s1->m_position.dataType();
+        EXPECT_EQ( "double", dataType );
     }
 
     {
-        auto dataTypeNameDouble = s1->m_proxyDouble.capability<caffa::FieldIoCapability>()->dataTypeName();
-        EXPECT_EQ( "double", dataTypeNameDouble );
+        auto dataType = s1->m_proxyDouble.dataType();
+        EXPECT_EQ( "double", dataType );
     }
 
     {
-        auto dataTypeNameDouble = s1->m_up.capability<caffa::FieldIoCapability>()->dataTypeName();
-        EXPECT_EQ( "int", dataTypeNameDouble );
+        auto dataType = s1->m_up.dataType();
+        EXPECT_EQ( "int", dataType );
     }
 
     {
-        auto obj                = std::make_unique<InheritedDemoObj>();
-        auto dataTypeNameDouble = obj->m_texts.capability<caffa::FieldIoCapability>()->dataTypeName();
-        EXPECT_EQ( typeid( std::string ).name(), dataTypeNameDouble );
+        auto obj      = std::make_unique<InheritedDemoObj>();
+        auto dataType = obj->m_childArrayField.dataType();
+        EXPECT_EQ( std::string( "object[]:" ) + DemoObject::classKeywordStatic(), dataType );
     }
 }
-#endif

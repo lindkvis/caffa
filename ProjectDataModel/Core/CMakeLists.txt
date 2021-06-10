@@ -29,6 +29,7 @@ set(PUBLIC_HEADERS
     cafObjectCapability.h
     cafObjectHandle.h
     cafPointer.h
+    cafPortableDataType.h
     cafFieldProxyAccessor.h
     cafPtrArrayField.h
     cafPtrArrayField.inl

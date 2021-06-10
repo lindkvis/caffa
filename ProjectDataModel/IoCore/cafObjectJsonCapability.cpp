@@ -2,6 +2,7 @@
 
 #include "cafAssert.h"
 #include "cafDefaultObjectFactory.h"
+#include "cafLogger.h"
 #include "cafObjectHandle.h"
 #include "cafObjectIoCapability.h"
 
@@ -143,11 +144,30 @@ void ObjectJsonCapability::readFields( ObjectHandle*         object,
     CAFFA_ASSERT( classKeyword.is_string() &&
                   classKeyword.get<std::string>() == object->capability<ObjectIoCapability>()->classKeyword() );
 
-    for ( const auto& [key, value] : jsonObject.items() )
+    if ( !jsonObject.contains( "fields" ) )
     {
-        if ( value.is_null() ) continue;
+        CAFFA_DEBUG( "Object has no fields" );
+    }
 
-        auto fieldHandle = object->findField( key );
+    auto jsonFields = jsonObject["fields"];
+
+    for ( const nlohmann::json& field : jsonFields )
+    {
+        CAFFA_TRACE( "Reading field: " << field.dump() );
+        auto keyIt   = field.find( "keyword" );
+        auto valueIt = field.find( "value" );
+        if ( keyIt == field.end() )
+        {
+            CAFFA_DEBUG( "Could not find keyword in " << field.dump() );
+            continue;
+        }
+        if ( valueIt == field.end() || valueIt->is_null() )
+        {
+            CAFFA_DEBUG( "Could not find value in " << field.dump() );
+            continue;
+        }
+
+        auto fieldHandle = object->findField( *keyIt );
         if ( fieldHandle && fieldHandle->capability<FieldIoCapability>() )
         {
             auto ioFieldHandle = fieldHandle->capability<FieldIoCapability>();
@@ -163,7 +183,7 @@ void ObjectJsonCapability::readFields( ObjectHandle*         object,
                 // writeToField assumes that the xmlStream points to first token of field content.
                 // After reading, the xmlStream is supposed to point to the first token after the field content.
                 // (typically an "endElement")
-                ioFieldHandle->writeToField( value, objectFactory );
+                ioFieldHandle->writeToField( *valueIt, objectFactory );
             }
         }
     }
@@ -185,6 +205,8 @@ void ObjectJsonCapability::writeFields( const ObjectHandle* object,
         jsonObject["serverAddress"] = reinterpret_cast<uint64_t>( object );
     }
 
+    nlohmann::json jsonFields = nlohmann::json::array();
+
     for ( auto field : object->fields() )
     {
         const FieldIoCapability* ioCapability = field->capability<FieldIoCapability>();
@@ -195,7 +217,13 @@ void ObjectJsonCapability::writeFields( const ObjectHandle* object,
 
             nlohmann::json value;
             ioCapability->readFromField( value, writeServerAddress, writeValues );
-            jsonObject[keyword] = value;
+            nlohmann::json jsonField;
+            jsonField["keyword"] = keyword;
+            jsonField["value"]   = value;
+            jsonField["type"]    = field->dataType();
+
+            jsonFields.push_back( jsonField );
         }
     }
+    jsonObject["fields"] = jsonFields;
 }

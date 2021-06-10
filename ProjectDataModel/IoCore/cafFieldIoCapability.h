@@ -40,8 +40,6 @@ public:
     void setIOReadable( bool isReadable ) { m_isIOReadable = isReadable; }
     void setCopyable( bool isCopyable ) { m_isCopyable = isCopyable; }
 
-    std::string dataTypeName() const;
-
     virtual bool resolveReferences() = 0;
 
     virtual std::string referenceString() const { return std::string(); }
@@ -51,8 +49,6 @@ public:
 
 protected:
     bool assertValid() const;
-
-    std::string m_dataTypeName; ///< Must be set in constructor of derived XmlFieldHandle
 
 protected:
     bool m_isIOReadable;

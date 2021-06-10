@@ -5,6 +5,7 @@
 #include "cafAssert.h"
 #include "cafFieldHandle.h"
 #include "cafPointer.h"
+#include "cafPortableDataType.h"
 
 #include <memory>
 
@@ -24,7 +25,6 @@ public:
     ChildArrayFieldHandle() {}
     ~ChildArrayFieldHandle() override {}
 
-    virtual void                  clear()                                                     = 0;
     virtual Pointer<ObjectHandle> insertAt( size_t index, std::unique_ptr<ObjectHandle> obj ) = 0;
 
     bool hasSameFieldCountForAllObjects();
@@ -94,6 +94,8 @@ public:
     void                                        childObjects( std::vector<ObjectHandle*>* objects ) override;
     [[nodiscard]] std::unique_ptr<ObjectHandle> removeChildObject( ObjectHandle* object ) override;
     [[nodiscard]] std::unique_ptr<DataType>     remove( ObjectHandle* object );
+
+    std::string dataType() const override { return std::string( "object[]:" ) + DataType::classKeywordStatic(); }
 
 private: // To be disabled
     CAFFA_DISABLE_COPY_AND_ASSIGN( ChildArrayField );

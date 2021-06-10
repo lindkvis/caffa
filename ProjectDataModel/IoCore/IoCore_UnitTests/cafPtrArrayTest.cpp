@@ -137,11 +137,12 @@ TEST( PtrArrayBaseTest, DeleteObjectPtrArraySerializeTest )
 
             ihd1->readObjectFromString( serializedString, caffa::DefaultObjectFactory::instance(), ioType );
             ihd1->resolveReferencesRecursively();
-
-            EXPECT_TRUE( ihd1->m_containers.at( 0 ) != nullptr );
-            EXPECT_TRUE( ihd1->m_containers.at( 1 ) == nullptr ); // Deleted
-
-            EXPECT_TRUE( ihd1->m_items.size() == size_t( 2 ) );
+            EXPECT_EQ( (size_t)3, ihd1->m_containers.size() );
+            if ( ihd1->m_containers.size() == 3u )
+            {
+                EXPECT_TRUE( ihd1->m_containers.at( 0 ) != nullptr );
+                EXPECT_TRUE( ihd1->m_containers.at( 1 ) == nullptr ); // Deleted
+            }
         }
     }
 }

@@ -8,6 +8,7 @@
 #include "cafDataValueField.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafObjectHandle.h"
+#include "cafPortableDataType.h"
 #include "cafPtrField.h"
 #include "cafValueField.h"
 
@@ -395,7 +396,7 @@ TEST( BaseTest, ChildArrayFieldHandle )
     auto s3                 = std::make_unique<DemoObject>();
     s3->m_memberDoubleField = 3000;
 
-    auto                        ihd1      = std::make_unique<InheritedDemoObj>();
+    auto                          ihd1      = std::make_unique<InheritedDemoObj>();
     caffa::ChildArrayFieldHandle* listField = &( ihd1->m_childArrayField );
 
     EXPECT_EQ( 0u, listField->size() );
@@ -441,11 +442,11 @@ TEST( BaseTest, ChildField )
         }
 
         caffa::ChildField<Child*> field2;
-        int                     b;
+        int                       b;
     };
 
     {
-        auto                testValue = std::make_unique<Child>();
+        auto                  testValue = std::make_unique<Child>();
         caffa::Pointer<Child> rawValue  = testValue.get();
 
         {
@@ -577,4 +578,16 @@ TEST( BaseTest, Pointer )
     caffa::Pointer<DemoObject> p3( new DemoObject() );
 
     delete p3;
+}
+
+TEST( BaseTest, PortableDataType )
+{
+    EXPECT_EQ( "int", caffa::PortableDataType<int>::name() );
+    EXPECT_EQ( "string", caffa::PortableDataType<std::string>::name() );
+    EXPECT_EQ( "double", caffa::PortableDataType<double>::name() );
+    EXPECT_EQ( "float", caffa::PortableDataType<float>::name() );
+    EXPECT_EQ( "char", caffa::PortableDataType<char>::name() );
+    EXPECT_EQ( "bool", caffa::PortableDataType<bool>::name() );
+    EXPECT_EQ( "int[]", caffa::PortableDataType<std::vector<int>>::name() );
+    EXPECT_EQ( "string[]", caffa::PortableDataType<std::vector<std::string>>::name() );
 }

@@ -118,6 +118,7 @@ void DataHolder<std::vector<int>>::applyValuesToField( ValueField* field )
     auto dataValueField = dynamic_cast<Field<std::vector<int>>*>( field );
     if ( dataValueField )
     {
+        CAFFA_TRACE( "Applying " << data.size() << " values to field" );
         dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
     }
 }
@@ -166,6 +167,7 @@ void DataHolder<std::vector<uint64_t>>::applyValuesToField( ValueField* field )
     auto dataValueField = dynamic_cast<Field<std::vector<uint64_t>>*>( field );
     if ( dataValueField )
     {
+        CAFFA_TRACE( "Applying " << data.size() << " values to field" );
         dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
     }
 }
@@ -213,6 +215,7 @@ void DataHolder<std::vector<double>>::applyValuesToField( ValueField* field )
     auto dataValueField = dynamic_cast<Field<std::vector<double>>*>( field );
     if ( dataValueField )
     {
+        CAFFA_TRACE( "Applying " << data.size() << " values to field" );
         dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
     }
 }
@@ -260,6 +263,7 @@ void DataHolder<std::vector<float>>::applyValuesToField( ValueField* field )
     auto dataValueField = dynamic_cast<Field<std::vector<float>>*>( field );
     if ( dataValueField )
     {
+        CAFFA_TRACE( "Applying " << data.size() << " values to field" );
         dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
     }
 }
@@ -308,6 +312,7 @@ void DataHolder<std::vector<std::string>>::applyValuesToField( ValueField* field
     auto dataValueField = dynamic_cast<Field<std::vector<std::string>>*>( field );
     if ( dataValueField )
     {
+        CAFFA_TRACE( "Applying " << data.size() << " values to field" );
         dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
     }
 }
@@ -401,6 +406,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
                 nlohmann::json jsonValue;
                 auto           ioCapability = field->capability<caffa::FieldIoCapability>();
                 ioCapability->readFromField( jsonValue, true, true );
+                std::cout << "Json value: " << jsonValue.dump() << std::endl;
                 m_dataHolder.reset( new DataHolder<std::string>( jsonValue.dump() ) );
                 return grpc::Status::OK;
             }
@@ -486,7 +492,7 @@ grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
     auto setRequest = chunk->set_request();
 
     CAFFA_DEBUG( "Received Set Request for: " << setRequest.request().self().class_keyword() << "[0x" << std::hex
-                                              << setRequest.request().self().address() << "]"
+                                              << setRequest.request().self().address() << "]->"
                                               << setRequest.request().method() );
 
     auto fieldRequest = setRequest.request();
@@ -542,7 +548,7 @@ grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
             }
         }
     }
-    return grpc::Status( grpc::NOT_FOUND, "Proxy field not found" );
+    return grpc::Status( grpc::NOT_FOUND, "Field not found" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -550,6 +556,8 @@ grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
 //--------------------------------------------------------------------------------------------------
 grpc::Status SetterStateHandler::receiveRequest( const SetterChunk* chunk, SetterReply* reply )
 {
+    CAFFA_TRACE( "Received Setter Chunk" );
+
     size_t valuesWritten = m_dataHolder->getValuesFromChunk( m_currentDataIndex, chunk );
     m_currentDataIndex += valuesWritten;
 

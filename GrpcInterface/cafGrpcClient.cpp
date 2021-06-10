@@ -321,6 +321,7 @@ public:
     {
         auto chunkSize = Application::instance()->packageByteSize();
 
+        CAFFA_TRACE( "Sending " << values.size() << " double values from client" );
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );

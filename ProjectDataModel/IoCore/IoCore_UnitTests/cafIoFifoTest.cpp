@@ -47,7 +47,7 @@ public:
         package.reserve( m_packageSize );
         for ( size_t i = 0; i < m_packageSize; ++i )
         {
-            package.push_back( (DataType)1 );
+            package.push_back( (DataType)i );
         }
         return package;
     }
