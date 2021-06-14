@@ -41,20 +41,20 @@ class ValueField;
 
 namespace caffa::rpc
 {
-class GetterReply;
+class GetterArrayReply;
 class FieldRequest;
 class SetterChunk;
-class SetterReply;
+class SetterArrayReply;
 
 struct AbstractDataHolder
 {
-    virtual size_t valueCount() const                                                                               = 0;
-    virtual size_t valueSizeOf() const                                                                              = 0;
-    virtual void   reserveReplyStorage( GetterReply* reply, size_t numberOfDataUnits ) const                        = 0;
-    virtual void   addPackageValuesToReply( GetterReply* reply, size_t startIndex, size_t numberOfDataUnits ) const = 0;
+    virtual size_t valueCount() const                                                             = 0;
+    virtual size_t valueSizeOf() const                                                            = 0;
+    virtual void   reserveReplyStorage( GetterArrayReply* reply, size_t numberOfDataUnits ) const = 0;
+    virtual void addPackageValuesToReply( GetterArrayReply* reply, size_t startIndex, size_t numberOfDataUnits ) const = 0;
 
     virtual size_t getValuesFromChunk( size_t startIndex, const SetterChunk* chunk ) = 0;
-    virtual void   applyValuesToField( caffa::ValueField* field )                      = 0;
+    virtual void   applyValuesToField( caffa::ValueField* field )                    = 0;
 };
 
 /**
@@ -68,7 +68,7 @@ public:
     GetterStateHandler();
 
     grpc::Status init( const FieldRequest* request ) override;
-    grpc::Status assignReply( GetterReply* reply );
+    grpc::Status assignReply( GetterArrayReply* reply );
     size_t       streamedValueCount() const override;
     size_t       totalValueCount() const override;
     void         finish() override;
@@ -76,8 +76,8 @@ public:
     StateHandler<FieldRequest>* emptyClone() const override;
 
 protected:
-    caffa::Object*                        m_fieldOwner;
-    caffa::ValueField*                    m_field;
+    caffa::Object*                      m_fieldOwner;
+    caffa::ValueField*                  m_field;
     std::unique_ptr<AbstractDataHolder> m_dataHolder;
     size_t                              m_currentDataIndex;
 };
@@ -93,7 +93,7 @@ public:
     SetterStateHandler();
 
     grpc::Status init( const SetterChunk* chunk ) override;
-    grpc::Status receiveRequest( const SetterChunk* chunk, SetterReply* reply );
+    grpc::Status receiveRequest( const SetterChunk* chunk, SetterArrayReply* reply );
     size_t       streamedValueCount() const override;
     size_t       totalValueCount() const override;
     void         finish() override;
@@ -101,8 +101,8 @@ public:
     StateHandler<SetterChunk>* emptyClone() const override;
 
 protected:
-    caffa::Object*                        m_fieldOwner;
-    caffa::ValueField*                    m_field;
+    caffa::Object*                      m_fieldOwner;
+    caffa::ValueField*                  m_field;
     std::unique_ptr<AbstractDataHolder> m_dataHolder;
     size_t                              m_currentDataIndex;
 };
@@ -115,17 +115,20 @@ protected:
 class FieldService final : public FieldAccess::AsyncService, public ServiceInterface
 {
 public:
-    grpc::Status GetValue( grpc::ServerContext*        context,
-                           const FieldRequest*         request,
-                           GetterReply*                reply,
-                           StateHandler<FieldRequest>* stateHandler );
+    grpc::Status GetArrayValue( grpc::ServerContext*        context,
+                                const FieldRequest*         request,
+                                GetterArrayReply*           reply,
+                                StateHandler<FieldRequest>* stateHandler );
 
-    grpc::Status SetValue( grpc::ServerContext*       context,
-                           const SetterChunk*         chunk,
-                           SetterReply*               reply,
-                           StateHandler<SetterChunk>* stateHandler );
+    grpc::Status GetValue( grpc::ServerContext* context, const FieldRequest* request, GetterReply* reply );
 
-    std::vector<AbstractCallback*> registerCallbacks() override;
+    grpc::Status SetArrayValue( grpc::ServerContext*       context,
+                                const SetterChunk*         chunk,
+                                SetterArrayReply*          reply,
+                                StateHandler<SetterChunk>* stateHandler );
+
+    grpc::Status SetValue( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply );
+    std::vector<AbstractCallback*> createCallbacks() override;
 };
 
 } // namespace caffa::rpc

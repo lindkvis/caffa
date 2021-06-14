@@ -59,14 +59,14 @@ public:
     static caffa::Object* findCafObjectFromScriptNameAndAddress( const std::string& scriptClassName, uint64_t address );
 
     static void copyObjectFromCafToRpc( const caffa::ObjectHandle* source,
-                                        Object*                  destination,
-                                        bool                     copyContent = true,
-                                        bool                     writeValues = true );
+                                        Object*                    destination,
+                                        bool                       copyContent = true,
+                                        bool                       writeValues = true );
     static void copyObjectFromRpcToCaf( const Object* source, caffa::ObjectHandle* destination );
-    static std::unique_ptr<caffa::ObjectHandle> createCafObjectFromRpc( const Object*       source,
-                                                                      caffa::ObjectFactory* objectFactory );
+    static std::unique_ptr<caffa::ObjectHandle> createCafObjectFromRpc( const Object*         source,
+                                                                        caffa::ObjectFactory* objectFactory );
 
-    std::vector<AbstractCallback*> registerCallbacks() override;
+    std::vector<AbstractCallback*> createCallbacks() override;
 };
 
 } // namespace caffa::rpc

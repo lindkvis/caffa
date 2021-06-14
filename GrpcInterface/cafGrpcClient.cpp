@@ -159,8 +159,6 @@ public:
 
     void setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& jsonValue )
     {
-        size_t chunkSize = 1;
-
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
         ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
@@ -169,26 +167,15 @@ public:
         field->set_method( fieldName );
         field->set_allocated_self( self.release() );
 
-        auto setterRequest = std::make_unique<SetterRequest>();
-        setterRequest->set_value_count( 1u );
-        setterRequest->set_allocated_request( field.release() );
+        SetterRequest setterRequest;
+        setterRequest.set_allocated_field( field.release() );
+        if ( jsonValue.is_string() )
+            setterRequest.set_value( jsonValue.get<std::string>() );
+        else
+            setterRequest.set_value( jsonValue.dump() );
 
-        SetterReply                                      reply;
-        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetValue( &context, &reply ) );
-        SetterChunk                                      header;
-        header.set_allocated_set_request( setterRequest.release() );
-
-        if ( writer->Write( header ) )
-        {
-            SetterChunk value;
-            if ( jsonValue.is_string() )
-                value.set_scalar( jsonValue.get<std::string>() );
-            else
-                value.set_scalar( jsonValue.dump() );
-            writer->Write( value );
-        }
-        writer->WritesDone();
-        auto status = writer->Finish();
+        NullMessage reply;
+        auto        status = m_fieldStub->SetValue( &context, setterRequest, &reply );
 
         if ( !status.ok() )
         {
@@ -206,26 +193,21 @@ public:
         field.set_method( fieldName );
         field.set_allocated_self( self.release() );
 
-        std::vector<int> values;
-
-        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
-        GetterReply                                      reply;
-
-        nlohmann::json jsonValue;
-
-        if ( reader->Read( &reply ) )
-        {
-            CAFFA_TRACE( "Got scalar reply: " << reply.scalar() );
-            jsonValue = nlohmann::json::parse( reply.scalar() );
-        }
-        grpc::Status status = reader->Finish();
+        GetterReply  reply;
+        grpc::Status status = m_fieldStub->GetValue( &context, field, &reply );
         if ( !status.ok() )
         {
             throw Exception( status );
         }
+
+        nlohmann::json jsonValue;
+
+        CAFFA_TRACE( "Got scalar reply: " << reply.value() );
+        jsonValue = nlohmann::json::parse( reply.value() );
         CAFFA_TRACE( "Got json value: " << jsonValue )
         return jsonValue;
     }
+
     bool set( const caffa::ObjectHandle* objectHandle, const std::string& setter, const std::vector<int>& values )
     {
         auto chunkSize = Application::instance()->packageByteSize();
@@ -238,12 +220,12 @@ public:
         field->set_method( setter );
         field->set_allocated_self( self.release() );
 
-        auto setterRequest = std::make_unique<SetterRequest>();
+        auto setterRequest = std::make_unique<SetterArrayRequest>();
         setterRequest->set_value_count( values.size() );
-        setterRequest->set_allocated_request( field.release() );
+        setterRequest->set_allocated_field( field.release() );
 
-        SetterReply                                      reply;
-        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetValue( &context, &reply ) );
+        SetterArrayReply                                 reply;
+        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
         SetterChunk                                      header;
         header.set_allocated_set_request( setterRequest.release() );
         if ( !writer->Write( header ) ) return false;
@@ -283,12 +265,12 @@ public:
         field->set_method( setter );
         field->set_allocated_self( self.release() );
 
-        auto setterRequest = std::make_unique<SetterRequest>();
+        auto setterRequest = std::make_unique<SetterArrayRequest>();
         setterRequest->set_value_count( values.size() );
-        setterRequest->set_allocated_request( field.release() );
+        setterRequest->set_allocated_field( field.release() );
 
-        SetterReply                                      reply;
-        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetValue( &context, &reply ) );
+        SetterArrayReply                                 reply;
+        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
         SetterChunk                                      header;
         header.set_allocated_set_request( setterRequest.release() );
         if ( !writer->Write( header ) ) return false;
@@ -330,12 +312,12 @@ public:
         field->set_method( setter );
         field->set_allocated_self( self.release() );
 
-        auto setterRequest = std::make_unique<SetterRequest>();
+        auto setterRequest = std::make_unique<SetterArrayRequest>();
         setterRequest->set_value_count( values.size() );
-        setterRequest->set_allocated_request( field.release() );
+        setterRequest->set_allocated_field( field.release() );
 
-        SetterReply                                      reply;
-        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetValue( &context, &reply ) );
+        SetterArrayReply                                 reply;
+        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
         SetterChunk                                      header;
         header.set_allocated_set_request( setterRequest.release() );
         if ( !writer->Write( header ) ) return false;
@@ -376,12 +358,12 @@ public:
         field->set_method( setter );
         field->set_allocated_self( self.release() );
 
-        auto setterRequest = std::make_unique<SetterRequest>();
+        auto setterRequest = std::make_unique<SetterArrayRequest>();
         setterRequest->set_value_count( values.size() );
-        setterRequest->set_allocated_request( field.release() );
+        setterRequest->set_allocated_field( field.release() );
 
-        SetterReply                                      reply;
-        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetValue( &context, &reply ) );
+        SetterArrayReply                                 reply;
+        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
         SetterChunk                                      header;
         header.set_allocated_set_request( setterRequest.release() );
         if ( !writer->Write( header ) ) return false;
@@ -420,12 +402,12 @@ public:
         field->set_method( setter );
         field->set_allocated_self( self.release() );
 
-        auto setterRequest = std::make_unique<SetterRequest>();
+        auto setterRequest = std::make_unique<SetterArrayRequest>();
         setterRequest->set_value_count( values.size() );
-        setterRequest->set_allocated_request( field.release() );
+        setterRequest->set_allocated_field( field.release() );
 
-        SetterReply                                      reply;
-        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetValue( &context, &reply ) );
+        SetterArrayReply                                 reply;
+        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
         SetterChunk                                      header;
         header.set_allocated_set_request( setterRequest.release() );
         if ( !writer->Write( header ) ) return false;
@@ -457,8 +439,8 @@ public:
 
         std::vector<int> values;
 
-        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
-        GetterReply                                      reply;
+        std::unique_ptr<grpc::ClientReader<GetterArrayReply>> reader( m_fieldStub->GetArrayValue( &context, field ) );
+        GetterArrayReply                                      reply;
         while ( reader->Read( &reply ) )
         {
             CAFFA_ASSERT( reply.has_ints() ); // TODO: throw
@@ -483,8 +465,8 @@ public:
 
         std::vector<uint64_t> values;
 
-        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
-        GetterReply                                      reply;
+        std::unique_ptr<grpc::ClientReader<GetterArrayReply>> reader( m_fieldStub->GetArrayValue( &context, field ) );
+        GetterArrayReply                                      reply;
         while ( reader->Read( &reply ) )
         {
             CAFFA_ASSERT( reply.has_uint64s() ); // TODO: throw
@@ -510,8 +492,8 @@ public:
 
         std::vector<double> values;
 
-        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
-        GetterReply                                      reply;
+        std::unique_ptr<grpc::ClientReader<GetterArrayReply>> reader( m_fieldStub->GetArrayValue( &context, field ) );
+        GetterArrayReply                                      reply;
         while ( reader->Read( &reply ) )
         {
             CAFFA_ASSERT( reply.has_doubles() ); // TODO: throw
@@ -539,8 +521,8 @@ public:
 
         auto start_time = std::chrono::system_clock::now();
 
-        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
-        GetterReply                                      reply;
+        std::unique_ptr<grpc::ClientReader<GetterArrayReply>> reader( m_fieldStub->GetArrayValue( &context, field ) );
+        GetterArrayReply                                      reply;
         while ( reader->Read( &reply ) )
         {
             CAFFA_ASSERT( reply.has_floats() ); // TODO: throw
@@ -570,8 +552,8 @@ public:
 
         std::vector<std::string> values;
 
-        std::unique_ptr<grpc::ClientReader<GetterReply>> reader( m_fieldStub->GetValue( &context, field ) );
-        GetterReply                                      reply;
+        std::unique_ptr<grpc::ClientReader<GetterArrayReply>> reader( m_fieldStub->GetArrayValue( &context, field ) );
+        GetterArrayReply                                      reply;
         while ( reader->Read( &reply ) )
         {
             CAFFA_ASSERT( reply.has_strings() ); // TODO: throw

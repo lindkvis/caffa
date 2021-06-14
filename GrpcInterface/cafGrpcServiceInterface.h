@@ -30,8 +30,8 @@ class AbstractCallback;
 class ServiceInterface
 {
 public:
-    virtual std::vector<AbstractCallback*> registerCallbacks() = 0;
-    virtual ~ServiceInterface()                                = default;
+    virtual std::vector<AbstractCallback*> createCallbacks() = 0;
+    virtual ~ServiceInterface()                              = default;
 };
 
 typedef caffa::Factory<ServiceInterface, size_t> ServiceFactory;

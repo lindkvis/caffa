@@ -75,7 +75,7 @@ grpc::Status AppService::PerformPing( grpc::ServerContext* context, const NullMe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<AbstractCallback*> AppService::registerCallbacks()
+std::vector<AbstractCallback*> AppService::createCallbacks()
 {
     typedef AppService Self;
     return { new UnaryCallback<Self, NullMessage, NullMessage>( this, &Self::PerformQuit, &Self::RequestQuit ),

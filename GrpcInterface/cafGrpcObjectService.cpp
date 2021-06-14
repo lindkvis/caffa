@@ -133,8 +133,9 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndAddress( const std::
 
     for ( auto doc : ServerApplication::instance()->documents() )
     {
-        std::list<caffa::ObjectHandle*> objects =
-            doc->matchingDescendants( [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool {
+        std::list<caffa::ObjectHandle*> objects = doc->matchingDescendants(
+            [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool
+            {
                 auto ioCapability = objectHandle->capability<caffa::ObjectIoCapability>();
                 return ioCapability ? ioCapability->classKeyword() == scriptClassName : false;
             } );
@@ -165,9 +166,9 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndAddress( const std::
 ///
 //--------------------------------------------------------------------------------------------------
 void ObjectService::copyObjectFromCafToRpc( const caffa::ObjectHandle* source,
-                                            Object*                  destination,
-                                            bool                     copyContent /* = true */,
-                                            bool                     writeValues /* = true */ )
+                                            Object*                    destination,
+                                            bool                       copyContent /* = true */,
+                                            bool                       writeValues /* = true */ )
 {
     CAFFA_ASSERT( source && destination );
 
@@ -214,8 +215,8 @@ void ObjectService::copyObjectFromRpcToCaf( const Object* source, caffa::ObjectH
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( const Object*       source,
-                                                                          caffa::ObjectFactory* objectFactory )
+std::unique_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( const Object*         source,
+                                                                            caffa::ObjectFactory* objectFactory )
 {
     CAFFA_ASSERT( source );
     std::unique_ptr<caffa::ObjectHandle> destination(
@@ -227,7 +228,7 @@ std::unique_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<AbstractCallback*> ObjectService::registerCallbacks()
+std::vector<AbstractCallback*> ObjectService::createCallbacks()
 {
     typedef ObjectService Self;
     return {
