@@ -258,7 +258,7 @@ void FieldIoCap<ChildField<DataType*>>::writeToField( const nlohmann::json& json
     }
 
     // Everything seems ok, so read the contents of the object:
-    ObjectJsonCapability::readFieldsFronJson( obj, jsonObject, objectFactory, false );
+    ObjectJsonCapability::readFieldsFronJson( obj, jsonObject, objectFactory, copyDataValues );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -345,7 +345,7 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeToField( const nlohmann::json&
             continue;
         }
 
-        ObjectJsonCapability::readFieldsFronJson( obj, jsonObject, objectFactory, false );
+        ObjectJsonCapability::readFieldsFronJson( obj, jsonObject, objectFactory, copyDataValues );
 
         m_field->m_pointers.push_back( Pointer<DataType>() );
         m_field->m_pointers.back().setRawPtr( obj );

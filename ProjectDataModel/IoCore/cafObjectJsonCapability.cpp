@@ -18,7 +18,7 @@ using namespace caffa;
 void ObjectJsonCapability::readObjectFromString( ObjectHandle* object, const std::string& string, ObjectFactory* objectFactory )
 {
     nlohmann::json jsonValue = nlohmann::json::parse( string );
-    readFieldsFronJson( object, jsonValue, objectFactory, false );
+    readFieldsFronJson( object, jsonValue, objectFactory, true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,7 +163,6 @@ void ObjectJsonCapability::readFieldsFronJson( ObjectHandle*         object,
         }
         if ( copyDataValues && ( valueIt == field.end() || valueIt->is_null() ) )
         {
-            assert( false );
             CAFFA_DEBUG( "Could not find value in " << field.dump() );
             continue;
         }
