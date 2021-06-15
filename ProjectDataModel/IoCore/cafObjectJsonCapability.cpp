@@ -18,18 +18,18 @@ using namespace caffa;
 void ObjectJsonCapability::readObjectFromString( ObjectHandle* object, const std::string& string, ObjectFactory* objectFactory )
 {
     nlohmann::json jsonValue = nlohmann::json::parse( string );
-    readFields( object, jsonValue, objectFactory, false );
+    readFieldsFronJson( object, jsonValue, objectFactory, false );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string ObjectJsonCapability::writeObjectToString( const ObjectHandle* object, bool writeServerAddress )
+std::string ObjectJsonCapability::writeObjectToString( const ObjectHandle* object, bool copyServerAddress )
 {
     nlohmann::json jsonObject  = nlohmann::json::object();
     jsonObject["classKeyword"] = object->capability<ObjectIoCapability>()->classKeyword();
 
-    writeFields( object, jsonObject, writeServerAddress );
+    writeFieldsToJson( object, jsonObject, copyServerAddress );
 
     return jsonObject.dump();
 }
@@ -70,7 +70,7 @@ ObjectHandle* ObjectJsonCapability::copyAndCastByJsonSerialization( const Object
 
     nlohmann::json jsonObject = nlohmann::json::parse( string );
 
-    readFields( upgradedObject, jsonObject, objectFactory, true );
+    readFieldsFronJson( upgradedObject, jsonObject, objectFactory, true );
 
     upgradedObject->capability<ObjectIoCapability>()->initAfterReadRecursively();
 
@@ -82,7 +82,7 @@ ObjectHandle* ObjectJsonCapability::copyAndCastByJsonSerialization( const Object
 //--------------------------------------------------------------------------------------------------
 ObjectHandle* ObjectJsonCapability::readUnknownObjectFromString( const std::string& string,
                                                                  ObjectFactory*     objectFactory,
-                                                                 bool               isCopyOperation )
+                                                                 bool               copyDataValues )
 {
     nlohmann::json jsonObject       = nlohmann::json::parse( string );
     const auto&    jsonClassKeyword = jsonObject["classKeyword"];
@@ -101,7 +101,7 @@ ObjectHandle* ObjectJsonCapability::readUnknownObjectFromString( const std::stri
 
     if ( !newObject ) return nullptr;
 
-    readFields( newObject, jsonObject, objectFactory, isCopyOperation );
+    readFieldsFronJson( newObject, jsonObject, objectFactory, copyDataValues );
 
     return newObject;
 }
@@ -116,16 +116,16 @@ void ObjectJsonCapability::readFile( ObjectHandle* object, std::istream& file, O
     nlohmann::json document;
     file >> document;
 
-    readFields( object, document, objectFactory ? objectFactory : DefaultObjectFactory::instance(), false );
+    readFieldsFronJson( object, document, objectFactory ? objectFactory : DefaultObjectFactory::instance(), true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectJsonCapability::writeFile( const ObjectHandle* object, std::ostream& file, bool writeServerAddress, bool writeValues )
+void ObjectJsonCapability::writeFile( const ObjectHandle* object, std::ostream& file, bool copyServerAddress, bool copyDataValues )
 {
     nlohmann::json document;
-    writeFields( object, document, writeServerAddress, writeValues );
+    writeFieldsToJson( object, document, copyServerAddress, copyDataValues );
 
     file << document;
 }
@@ -133,10 +133,10 @@ void ObjectJsonCapability::writeFile( const ObjectHandle* object, std::ostream& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectJsonCapability::readFields( ObjectHandle*         object,
-                                       const nlohmann::json& jsonObject,
-                                       ObjectFactory*        objectFactory,
-                                       bool                  isCopyOperation )
+void ObjectJsonCapability::readFieldsFronJson( ObjectHandle*         object,
+                                               const nlohmann::json& jsonObject,
+                                               ObjectFactory*        objectFactory,
+                                               bool                  copyDataValues )
 {
     CAFFA_ASSERT( jsonObject.is_object() );
     const auto& classKeyword = jsonObject["classKeyword"];
@@ -161,7 +161,7 @@ void ObjectJsonCapability::readFields( ObjectHandle*         object,
             CAFFA_DEBUG( "Could not find keyword in " << field.dump() );
             continue;
         }
-        if ( valueIt == field.end() || valueIt->is_null() )
+        if ( copyDataValues && ( valueIt == field.end() || valueIt->is_null() ) )
         {
             assert( false );
             CAFFA_DEBUG( "Could not find value in " << field.dump() );
@@ -174,17 +174,12 @@ void ObjectJsonCapability::readFields( ObjectHandle*         object,
             auto ioFieldHandle = fieldHandle->capability<FieldIoCapability>();
             if ( !ioFieldHandle ) continue;
 
-            bool readable = ioFieldHandle->isIOReadable();
-            if ( isCopyOperation && !ioFieldHandle->isCopyable() )
-            {
-                readable = false;
-            }
-            if ( readable )
+            if ( ioFieldHandle->isIOReadable() )
             {
                 // writeToField assumes that the xmlStream points to first token of field content.
                 // After reading, the xmlStream is supposed to point to the first token after the field content.
                 // (typically an "endElement")
-                ioFieldHandle->writeToField( *valueIt, objectFactory );
+                ioFieldHandle->writeToField( *valueIt, objectFactory, copyDataValues );
             }
         }
     }
@@ -193,15 +188,15 @@ void ObjectJsonCapability::readFields( ObjectHandle*         object,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectJsonCapability::writeFields( const ObjectHandle* object,
-                                        nlohmann::json&     jsonObject,
-                                        bool                writeServerAddress,
-                                        bool                writeValues )
+void ObjectJsonCapability::writeFieldsToJson( const ObjectHandle* object,
+                                              nlohmann::json&     jsonObject,
+                                              bool                copyServerAddress,
+                                              bool                copyDataValues )
 {
     std::string classKeyword = object->capability<ObjectIoCapability>()->classKeyword();
     CAFFA_ASSERT( ObjectIoCapability::isValidElementName( classKeyword ) );
     jsonObject["classKeyword"] = classKeyword;
-    if ( writeServerAddress )
+    if ( copyServerAddress )
     {
         jsonObject["serverAddress"] = reinterpret_cast<uint64_t>( object );
     }
@@ -217,7 +212,7 @@ void ObjectJsonCapability::writeFields( const ObjectHandle* object,
             CAFFA_ASSERT( ObjectIoCapability::isValidElementName( keyword ) );
 
             nlohmann::json value;
-            ioCapability->readFromField( value, writeServerAddress, writeValues );
+            ioCapability->readFromField( value, copyServerAddress, copyDataValues );
             nlohmann::json jsonField;
             jsonField["keyword"] = keyword;
             jsonField["value"]   = value;

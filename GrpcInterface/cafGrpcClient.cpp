@@ -101,7 +101,8 @@ public:
         {
             CAFFA_TRACE( "Got document" );
             document = caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply,
-                                                                          caffa::rpc::GrpcClientObjectFactory::instance() );
+                                                                          caffa::rpc::GrpcClientObjectFactory::instance(),
+                                                                          false );
             CAFFA_TRACE( "Document completed" );
         }
         else
@@ -133,7 +134,8 @@ public:
         if ( status.ok() )
         {
             returnValue = caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply,
-                                                                             caffa::DefaultObjectFactory::instance() );
+                                                                             caffa::DefaultObjectFactory::instance(),
+                                                                             true );
         }
         return returnValue;
     }

@@ -64,8 +64,8 @@ public:
     static void copyResultOrParameterObjectFromCafToRpc( const caffa::ObjectHandle* source, Object* destination );
     static void copyResultOrParameterObjectFromRpcToCaf( const Object* source, caffa::ObjectHandle* destination );
 
-    static std::unique_ptr<caffa::ObjectHandle> createCafObjectFromRpc( const Object*         source,
-                                                                        caffa::ObjectFactory* objectFactory );
+    static std::unique_ptr<caffa::ObjectHandle>
+        createCafObjectFromRpc( const Object* source, caffa::ObjectFactory* objectFactory, bool copyDataValues );
 
     std::vector<AbstractCallback*> createCallbacks() override;
 };

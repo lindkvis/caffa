@@ -616,6 +616,9 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
     auto fieldOwner   = ObjectService::findCafObjectFromRpcObject( fieldRequest.self() );
     CAFFA_ASSERT( fieldOwner );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
+
+    CAFFA_DEBUG( "Received Set Request for class " << fieldOwner->classKeyword() );
+
     for ( auto field : fieldOwner->fields() )
     {
         auto scriptability = field->capability<FieldScriptingCapability>();
@@ -625,7 +628,8 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
             if ( ioCapability )
             {
                 nlohmann::json jsonValue = request->value();
-                ioCapability->writeToField( jsonValue, caffa::DefaultObjectFactory::instance() );
+                CAFFA_DEBUG( "   With value: " << request->value() );
+                ioCapability->writeToField( jsonValue, caffa::DefaultObjectFactory::instance(), true );
                 return grpc::Status::OK;
             }
         }

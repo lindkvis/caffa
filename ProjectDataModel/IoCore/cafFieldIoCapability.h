@@ -33,19 +33,17 @@ public:
 
     bool isIOReadable() const { return m_isIOReadable; }
     bool isIOWritable() const { return m_isIOWritable; }
-    bool isCopyable() const { return m_isCopyable; }
 
     void disableIO();
     void setIOWritable( bool isWritable ) { m_isIOWritable = isWritable; }
     void setIOReadable( bool isReadable ) { m_isIOReadable = isReadable; }
-    void setCopyable( bool isCopyable ) { m_isCopyable = isCopyable; }
 
     virtual bool resolveReferences() = 0;
 
     virtual std::string referenceString() const { return std::string(); }
 
-    virtual void writeToField( const nlohmann::json& value, ObjectFactory* objectFactory )               = 0;
-    virtual void readFromField( nlohmann::json& value, bool writeServerAddress, bool writeValues ) const = 0;
+    virtual void writeToField( const nlohmann::json& value, ObjectFactory* objectFactory, bool copyDataValues ) = 0;
+    virtual void readFromField( nlohmann::json& value, bool copyServerAddress, bool copyDataValues ) const      = 0;
 
 protected:
     bool assertValid() const;
@@ -53,7 +51,6 @@ protected:
 protected:
     bool m_isIOReadable;
     bool m_isIOWritable;
-    bool m_isCopyable;
 
     FieldHandle* m_owner;
 };

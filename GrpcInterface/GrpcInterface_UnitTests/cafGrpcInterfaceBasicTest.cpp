@@ -158,7 +158,8 @@ public:
     }
     caffa::ObjectHandle* execute() override
     {
-        CAFFA_DEBUG( "Executing object method on server" );
+        CAFFA_DEBUG( "Executing object method on server with values: " << m_doubleMember() << ", " << m_intMember()
+                                                                       << ", " << m_stringMember() );
         gsl::not_null<DemoObject*> demoObject = self<DemoObject>();
         demoObject->setDoubleMember( m_doubleMember );
         demoObject->setIntMember( m_intMember );
@@ -349,13 +350,13 @@ TEST( BaseTest, Document )
     ASSERT_TRUE( clientCapability != nullptr );
     ASSERT_EQ( reinterpret_cast<uint64_t>( serverDocument ), clientCapability->addressOnServer() );
 
-    auto serverDescendants = serverDocument->matchingDescendants( []( const caffa::ObjectHandle* objectHandle ) -> bool {
-        return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr;
-    } );
+    auto serverDescendants = serverDocument->matchingDescendants(
+        []( const caffa::ObjectHandle* objectHandle ) -> bool
+        { return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr; } );
 
-    auto clientDescendants = clientDocument->matchingDescendants( []( const caffa::ObjectHandle* objectHandle ) -> bool {
-        return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr;
-    } );
+    auto clientDescendants = clientDocument->matchingDescendants(
+        []( const caffa::ObjectHandle* objectHandle ) -> bool
+        { return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr; } );
 
     ASSERT_EQ( childCount, serverDescendants.size() );
     ASSERT_EQ( serverDescendants.size(), clientDescendants.size() );
