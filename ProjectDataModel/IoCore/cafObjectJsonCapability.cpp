@@ -163,6 +163,7 @@ void ObjectJsonCapability::readFields( ObjectHandle*         object,
         }
         if ( valueIt == field.end() || valueIt->is_null() )
         {
+            assert( false );
             CAFFA_DEBUG( "Could not find value in " << field.dump() );
             continue;
         }

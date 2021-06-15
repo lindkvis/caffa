@@ -81,7 +81,7 @@ public:
     // Child objects
     virtual void ptrReferencedObjects( std::vector<ObjectHandle*>* );
 
-    std::string dataType() const override { return std::string( "object[]:" ) + DataType::classKeywordStatic(); }
+    std::string dataType() const override { return std::string( "object:" ) + DataType::classKeywordStatic() + "[]"; }
 
 private: // To be disabled
     CAFFA_DISABLE_COPY_AND_ASSIGN( PtrArrayField );

@@ -63,9 +63,14 @@ struct DataHolder : public AbstractDataHolder
     size_t valueCount() const override;
     size_t valueSizeOf() const override;
 
-    void reserveReplyStorage( GetterArrayReply* reply, size_t numberOfDataUnits ) const override;
-    // Default implementation deals with scalar values
-    void addPackageValuesToReply( GetterArrayReply* reply, size_t startIndex, size_t numberOfDataUnits ) const override;
+    void reserveReplyStorage( GetterArrayReply* reply, size_t numberOfDataUnits ) const override
+    {
+        static_assert( "Should never be called!" );
+    }
+    void addPackageValuesToReply( GetterArrayReply* reply, size_t startIndex, size_t numberOfDataUnits ) const override
+    {
+        static_assert( "Should never be called!" );
+    }
 
     size_t                getValuesFromChunk( size_t startIndex, const SetterChunk* chunk ) override;
     void                  applyValuesToField( ValueField* field ) override;
@@ -320,9 +325,6 @@ GetterStateHandler::GetterStateHandler()
 //--------------------------------------------------------------------------------------------------
 grpc::Status GetterStateHandler::init( const FieldRequest* request )
 {
-    CAFFA_DEBUG( "Received Get Array Request for: " << request->self().class_keyword() << "[0x" << std::hex
-                                                    << request->self().address() << "]" << request->method() );
-
     m_fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self() );
     CAFFA_ASSERT( m_fieldOwner );
     if ( !m_fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
@@ -442,10 +444,6 @@ grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
 {
     CAFFA_ASSERT( chunk->has_set_request() );
     auto setRequest = chunk->set_request();
-
-    CAFFA_DEBUG( "Received Set Request for: " << setRequest.field().self().class_keyword() << "[0x" << std::hex
-                                              << setRequest.field().self().address() << "]->"
-                                              << setRequest.field().method() );
 
     auto fieldRequest = setRequest.field();
     m_fieldOwner      = ObjectService::findCafObjectFromRpcObject( fieldRequest.self() );

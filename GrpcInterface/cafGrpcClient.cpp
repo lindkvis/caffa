@@ -116,9 +116,9 @@ public:
         auto self   = std::make_unique<Object>();
         auto params = std::make_unique<Object>();
         CAFFA_TRACE( "Copying self" );
-        ObjectService::copyObjectFromCafToRpc( method->self<caffa::ObjectHandle>(), self.get(), false, false );
+        ObjectService::copyProjectObjectFromCafToRpc( method->self<caffa::ObjectHandle>(), self.get() );
         CAFFA_TRACE( "Copying parameters" );
-        ObjectService::copyObjectFromCafToRpc( method, params.get(), true, true );
+        ObjectService::copyResultOrParameterObjectFromCafToRpc( method, params.get() );
 
         grpc::ClientContext context;
         MethodRequest       request;
@@ -161,7 +161,7 @@ public:
     {
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
         field->set_method( fieldName );
@@ -188,7 +188,7 @@ public:
         CAFFA_TRACE( "Get JSON value for field " << fieldName );
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
         field.set_method( fieldName );
         field.set_allocated_self( self.release() );
@@ -214,7 +214,7 @@ public:
 
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
         field->set_method( setter );
@@ -259,7 +259,7 @@ public:
 
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
         field->set_method( setter );
@@ -306,7 +306,7 @@ public:
         CAFFA_TRACE( "Sending " << values.size() << " double values from client" );
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
         field->set_method( setter );
@@ -352,7 +352,7 @@ public:
 
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
         field->set_method( setter );
@@ -396,7 +396,7 @@ public:
     {
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
         field->set_method( setter );
@@ -432,7 +432,7 @@ public:
     {
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
         field.set_method( getter );
         field.set_allocated_self( self.release() );
@@ -458,7 +458,7 @@ public:
     {
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
         field.set_method( getter );
         field.set_allocated_self( self.release() );
@@ -485,7 +485,7 @@ public:
     {
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
         field.set_method( getter );
         field.set_allocated_self( self.release() );
@@ -512,7 +512,7 @@ public:
     {
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
         field.set_method( getter );
         field.set_allocated_self( self.release() );
@@ -545,7 +545,7 @@ public:
     {
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
-        ObjectService::copyObjectFromCafToRpc( objectHandle, self.get(), false );
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
         field.set_method( getter );
         field.set_allocated_self( self.release() );

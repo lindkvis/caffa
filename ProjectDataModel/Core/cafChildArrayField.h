@@ -95,7 +95,10 @@ public:
     [[nodiscard]] std::unique_ptr<ObjectHandle> removeChildObject( ObjectHandle* object ) override;
     [[nodiscard]] std::unique_ptr<DataType>     remove( ObjectHandle* object );
 
-    std::string dataType() const override { return std::string( "object[]:" ) + DataType::classKeywordStatic(); }
+    std::string dataType() const override
+    {
+        return std::string( "object:" ) + DataType::classKeywordStatic() + std::string( "[]" );
+    }
 
 private: // To be disabled
     CAFFA_DISABLE_COPY_AND_ASSIGN( ChildArrayField );

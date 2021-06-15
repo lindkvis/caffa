@@ -42,9 +42,11 @@ class ValueField;
 namespace caffa::rpc
 {
 class GetterArrayReply;
+class GetterReply;
 class FieldRequest;
 class SetterChunk;
 class SetterArrayReply;
+class SetterReply;
 
 struct AbstractDataHolder
 {
