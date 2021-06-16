@@ -586,7 +586,15 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
                 nlohmann::json jsonValue;
 
                 ioCapability->readFromField( jsonValue, true, true );
-                reply->set_value( jsonValue.dump() );
+                if ( jsonValue.is_string() )
+                {
+                    reply->set_value( jsonValue.get<std::string>() );
+                }
+                else
+                {
+                    reply->set_value( jsonValue.dump() );
+                }
+                CAFFA_DEBUG( "Sending value: " << reply->value() );
                 return grpc::Status::OK;
             }
         }

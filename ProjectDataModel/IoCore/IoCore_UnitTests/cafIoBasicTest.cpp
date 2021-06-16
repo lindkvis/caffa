@@ -316,6 +316,6 @@ TEST( BaseTest, TestDataType )
     {
         auto obj      = std::make_unique<InheritedDemoObj>();
         auto dataType = obj->m_childArrayField.dataType();
-        EXPECT_EQ( std::string( "object:" ) + DemoObject::classKeywordStatic() + "[]", dataType );
+        EXPECT_EQ( std::string( "object[]" ), dataType );
     }
 }
