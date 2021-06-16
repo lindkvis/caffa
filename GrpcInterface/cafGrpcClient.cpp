@@ -171,10 +171,7 @@ public:
 
         SetterRequest setterRequest;
         setterRequest.set_allocated_field( field.release() );
-        if ( jsonValue.is_string() )
-            setterRequest.set_value( jsonValue.get<std::string>() );
-        else
-            setterRequest.set_value( jsonValue.dump() );
+        setterRequest.set_value( jsonValue.dump() );
 
         NullMessage reply;
         auto        status = m_fieldStub->SetValue( &context, setterRequest, &reply );
