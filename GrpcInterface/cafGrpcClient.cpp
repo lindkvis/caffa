@@ -185,6 +185,7 @@ public:
     nlohmann::json getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
     {
         CAFFA_TRACE( "Get JSON value for field " << fieldName );
+        CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
         auto                self = std::make_unique<Object>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
@@ -578,6 +579,7 @@ private:
 Client::Client( const std::string& hostname, int port /*= 55555 */ )
     : m_clientImpl( std::make_unique<ClientImpl>( hostname, port ) )
 {
+    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -637,6 +639,7 @@ void Client::setJson( const caffa::ObjectHandle* objectHandle, const std::string
 //--------------------------------------------------------------------------------------------------
 nlohmann::json Client::getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
+    CAFFA_ASSERT(m_clientImpl && "Client not properly initialized");
     return m_clientImpl->getJson( objectHandle, fieldName );
 }
 

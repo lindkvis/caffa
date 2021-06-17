@@ -279,7 +279,6 @@ TEST( BaseTest, Launch )
     }
     {
         auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
-        caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
 
         // caffa::AppInfo appInfo = client->appInfo();
         // ASSERT_EQ( serverApp->name(), appInfo.name );
@@ -314,7 +313,6 @@ TEST( BaseTest, Document )
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
     auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
-    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
@@ -400,7 +398,6 @@ TEST( BaseTest, Sync )
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
     auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
-    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
 
@@ -448,7 +445,6 @@ TEST( BaseTest, ObjectMethod )
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
     auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
-    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
 
@@ -502,7 +498,6 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
     auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
-    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
@@ -556,7 +551,6 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
     auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
-    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
@@ -613,7 +607,6 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
     auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
-    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
@@ -666,8 +659,7 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
     }
     {
         auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
-        caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( client.get() );
-
+        
         auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
         ASSERT_TRUE( serverDocument );
         CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );

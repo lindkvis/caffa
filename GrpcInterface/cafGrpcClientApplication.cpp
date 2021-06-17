@@ -32,7 +32,6 @@ ClientApplication::ClientApplication( const std::string& hostname, int portNumbe
 
 {
     m_client = std::make_unique<caffa::rpc::Client>( hostname, portNumber );
-    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( m_client.get());
 }
 
 //--------------------------------------------------------------------------------------------------

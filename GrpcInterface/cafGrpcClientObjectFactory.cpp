@@ -20,6 +20,7 @@ namespace caffa::rpc
 //--------------------------------------------------------------------------------------------------
 ObjectHandle* GrpcClientObjectFactory::doCreate( const std::string& classNameKeyword, uint64_t addressOnServer )
 {
+    CAFFA_ASSERT(m_grpcClient);
     if ( !m_grpcClient ) throw( Exception( grpc::Status( grpc::ABORTED, "No Client set in Grpc Client factory" ) ) );
 
     auto objectHandle = caffa::DefaultObjectFactory::instance()->create( classNameKeyword );
@@ -66,6 +67,9 @@ void GrpcClientObjectFactory::setGrpcClient( Client* client )
 //--------------------------------------------------------------------------------------------------
 void GrpcClientObjectFactory::applyAccessorToField( caffa::ObjectHandle* fieldOwner, caffa::FieldHandle* fieldHandle )
 {
+    CAFFA_ASSERT(m_grpcClient);
+    if ( !m_grpcClient ) throw( Exception( grpc::Status( grpc::ABORTED, "No Client set in Grpc Client factory" ) ) );
+
     if ( auto dataField = dynamic_cast<caffa::Field<double>*>( fieldHandle ); dataField )
     {
         auto accessor = std::make_unique<GrpcDataFieldAccessor<double>>( m_grpcClient, fieldOwner, fieldHandle->keyword() );
