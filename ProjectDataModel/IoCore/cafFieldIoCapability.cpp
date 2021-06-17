@@ -15,7 +15,6 @@ using namespace caffa;
 FieldIoCapability::FieldIoCapability( FieldHandle* owner, bool giveOwnership )
     : m_isIOReadable( true )
     , m_isIOWritable( true )
-    , m_isCopyable( true )
 {
     m_owner = owner;
     owner->addCapability( this, giveOwnership );
@@ -28,7 +27,6 @@ void FieldIoCapability::disableIO()
 {
     setIOReadable( false );
     setIOWritable( false );
-    setCopyable( false );
 }
 
 //--------------------------------------------------------------------------------------------------

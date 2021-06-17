@@ -42,10 +42,10 @@ public:
 
     static ObjectHandle* readUnknownObjectFromString( const std::string& string,
                                                       ObjectFactory*     objectFactory,
-                                                      bool               isCopyOperation,
+                                                      bool               copyDataValues,
                                                       IoType             ioType = IoType::JSON );
     void readObjectFromString( const std::string& string, ObjectFactory* objectFactory, IoType ioType = IoType::JSON );
-    std::string writeObjectToString( IoType ioType = IoType::JSON, bool writeServerAddress = false ) const;
+    std::string writeObjectToString( IoType ioType = IoType::JSON, bool copyServerAddress = false ) const;
 
     ObjectHandle* copyBySerialization( ObjectFactory* objectFactory, IoType ioType = IoType::JSON );
 
@@ -66,7 +66,7 @@ public:
     bool writeFile( const std::string& fileName, IoType ioType = IoType::JSON );
 
     bool readFile( std::istream& istream, IoType ioType = IoType::JSON );
-    bool writeFile( std::ostream& ostream, IoType ioType = IoType::JSON, bool writeServerAddress = false );
+    bool writeFile( std::ostream& ostream, IoType ioType = IoType::JSON, bool copyServerAddress = false );
 
 protected: // Virtual
     /// Method gets called from Document after all objects are read.

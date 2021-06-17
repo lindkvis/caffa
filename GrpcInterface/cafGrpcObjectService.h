@@ -58,15 +58,16 @@ public:
     static caffa::Object* findCafObjectFromRpcObject( const Object& rpcObject );
     static caffa::Object* findCafObjectFromScriptNameAndAddress( const std::string& scriptClassName, uint64_t address );
 
-    static void copyObjectFromCafToRpc( const caffa::ObjectHandle* source,
-                                        Object*                  destination,
-                                        bool                     copyContent = true,
-                                        bool                     writeValues = true );
-    static void copyObjectFromRpcToCaf( const Object* source, caffa::ObjectHandle* destination );
-    static std::unique_ptr<caffa::ObjectHandle> createCafObjectFromRpc( const Object*       source,
-                                                                      caffa::ObjectFactory* objectFactory );
+    static void copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* source, Object* destination );
+    static void copyProjectObjectFromRpcToCaf( const Object* source, caffa::ObjectHandle* destination );
 
-    std::vector<AbstractCallback*> registerCallbacks() override;
+    static void copyResultOrParameterObjectFromCafToRpc( const caffa::ObjectHandle* source, Object* destination );
+    static void copyResultOrParameterObjectFromRpcToCaf( const Object* source, caffa::ObjectHandle* destination );
+
+    static std::unique_ptr<caffa::ObjectHandle>
+        createCafObjectFromRpc( const Object* source, caffa::ObjectFactory* objectFactory, bool copyDataValues );
+
+    std::vector<AbstractCallback*> createCallbacks() override;
 };
 
 } // namespace caffa::rpc

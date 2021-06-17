@@ -319,6 +319,11 @@ TEST( BaseTest, ReadWrite )
         doc.fileName = "TestFile.json";
         doc.write();
 
+        {
+            std::ifstream f1( doc.fileName() );
+            std::string   str1( ( std::istreambuf_iterator<char>( f1 ) ), std::istreambuf_iterator<char>() );
+            CAFFA_DEBUG( "Wrote file content to " << doc.fileName() << ":\n" << str1 );
+        }
         caffa::ObjectGroup pog;
         for ( size_t i = 0; i < doc.objects.size(); i++ )
         {

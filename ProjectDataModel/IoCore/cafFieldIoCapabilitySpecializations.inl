@@ -23,23 +23,26 @@ namespace caffa
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void FieldIoCap<FieldType>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
+void FieldIoCap<FieldType>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues )
 {
     this->assertValid();
-    CAFFA_TRACE( "Setting value from json: " << jsonValue.dump() );
+    if ( copyDataValues )
+    {
+        CAFFA_TRACE( "Setting value from json: " << jsonValue.dump() );
 
-    typename FieldType::FieldDataType value = jsonValue.get<typename FieldType::FieldDataType>();
-    m_field->setValue( value );
+        typename FieldType::FieldDataType value = jsonValue.get<typename FieldType::FieldDataType>();
+        m_field->setValue( value );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void FieldIoCap<FieldType>::readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const
+void FieldIoCap<FieldType>::readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const
 {
     this->assertValid();
-    if ( writeValues )
+    if ( copyDataValues )
     {
         jsonValue = m_field->value();
     }
@@ -58,7 +61,9 @@ bool FieldIoCap<FieldType>::resolveReferences()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PtrField<DataType*>>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
+void FieldIoCap<PtrField<DataType*>>::writeToField( const nlohmann::json& jsonValue,
+                                                    ObjectFactory*        objectFactory,
+                                                    bool                  copyDataValues )
 {
     this->assertValid();
     std::string dataString = jsonValue.get<std::string>();
@@ -82,7 +87,7 @@ void FieldIoCap<PtrField<DataType*>>::writeToField( const nlohmann::json& jsonVa
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PtrField<DataType*>>::readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const
+void FieldIoCap<PtrField<DataType*>>::readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const
 {
     this->assertValid();
 
@@ -119,7 +124,9 @@ std::string FieldIoCap<PtrField<DataType*>>::referenceString() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<PtrArrayField<DataType*>>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
+void FieldIoCap<PtrArrayField<DataType*>>::writeToField( const nlohmann::json& jsonValue,
+                                                         ObjectFactory*        objectFactory,
+                                                         bool                  copyDataValues )
 {
     this->assertValid();
 
@@ -139,8 +146,8 @@ void FieldIoCap<PtrArrayField<DataType*>>::writeToField( const nlohmann::json& j
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 void FieldIoCap<PtrArrayField<DataType*>>::readFromField( nlohmann::json& jsonValue,
-                                                          bool            writeServerAddress,
-                                                          bool            writeValues ) const
+                                                          bool            copyServerAddress,
+                                                          bool            copyDataValues ) const
 {
     this->assertValid();
 
@@ -195,7 +202,9 @@ std::string FieldIoCap<PtrArrayField<DataType*>>::referenceString() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildField<DataType*>>::writeToField( const nlohmann::json& jsonObject, ObjectFactory* objectFactory )
+void FieldIoCap<ChildField<DataType*>>::writeToField( const nlohmann::json& jsonObject,
+                                                      ObjectFactory*        objectFactory,
+                                                      bool                  copyDataValues )
 {
     CAFFA_TRACE( "Writing " << jsonObject.dump() << " to ChildField" );
     if ( jsonObject.is_null() ) return;
@@ -249,14 +258,16 @@ void FieldIoCap<ChildField<DataType*>>::writeToField( const nlohmann::json& json
     }
 
     // Everything seems ok, so read the contents of the object:
-    ObjectJsonCapability::readFields( obj, jsonObject, objectFactory, false );
+    ObjectJsonCapability::readFieldsFronJson( obj, jsonObject, objectFactory, copyDataValues );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildField<DataType*>>::readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const
+void FieldIoCap<ChildField<DataType*>>::readFromField( nlohmann::json& jsonValue,
+                                                       bool            copyServerAddress,
+                                                       bool            copyDataValues ) const
 {
     auto object = m_field->m_fieldValue.rawPtr();
     if ( !object ) return;
@@ -268,11 +279,11 @@ void FieldIoCap<ChildField<DataType*>>::readFromField( nlohmann::json& jsonValue
 
         nlohmann::json jsonObject  = nlohmann::json::object();
         jsonObject["classKeyword"] = className.c_str();
-        if ( writeServerAddress )
+        if ( copyServerAddress )
         {
             jsonObject["serverAddress"] = reinterpret_cast<uint64_t>( object );
         }
-        ObjectJsonCapability::writeFields( object, jsonObject, writeServerAddress, writeValues );
+        ObjectJsonCapability::writeFieldsToJson( object, jsonObject, copyServerAddress, copyDataValues );
         CAFFA_ASSERT( jsonObject.is_object() );
         jsonValue = jsonObject;
     }
@@ -291,7 +302,9 @@ bool FieldIoCap<ChildField<DataType*>>::resolveReferences()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildArrayField<DataType*>>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
+void FieldIoCap<ChildArrayField<DataType*>>::writeToField( const nlohmann::json& jsonValue,
+                                                           ObjectFactory*        objectFactory,
+                                                           bool                  copyDataValues )
 {
     m_field->clear();
 
@@ -332,7 +345,7 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeToField( const nlohmann::json&
             continue;
         }
 
-        ObjectJsonCapability::readFields( obj, jsonObject, objectFactory, false );
+        ObjectJsonCapability::readFieldsFronJson( obj, jsonObject, objectFactory, copyDataValues );
 
         m_field->m_pointers.push_back( Pointer<DataType>() );
         m_field->m_pointers.back().setRawPtr( obj );
@@ -344,8 +357,8 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeToField( const nlohmann::json&
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 void FieldIoCap<ChildArrayField<DataType*>>::readFromField( nlohmann::json& jsonValue,
-                                                            bool            writeServerAddress,
-                                                            bool            writeValues ) const
+                                                            bool            copyServerAddress,
+                                                            bool            copyDataValues ) const
 {
     typename std::vector<Pointer<DataType>>::iterator it;
 
@@ -361,11 +374,11 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFromField( nlohmann::json& json
             std::string    className   = ioObject->classKeyword();
             nlohmann::json jsonObject  = nlohmann::json::object();
             jsonObject["classKeyword"] = className;
-            if ( writeServerAddress )
+            if ( copyServerAddress )
             {
                 jsonObject["serverAddress"] = reinterpret_cast<uint64_t>( it->rawPtr() );
             }
-            ObjectJsonCapability::writeFields( it->rawPtr(), jsonObject, writeServerAddress, writeValues );
+            ObjectJsonCapability::writeFieldsToJson( it->rawPtr(), jsonObject, copyServerAddress, copyDataValues );
             jsonArray.push_back( jsonObject );
         }
     }
@@ -414,7 +427,9 @@ public:
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<FifoBlockingField<DataType>>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
+void FieldIoCap<FifoBlockingField<DataType>>::writeToField( const nlohmann::json& jsonValue,
+                                                            ObjectFactory*        objectFactory,
+                                                            bool                  copyDataValues )
 {
     CAFFA_ASSERT( false && "Cannot write to a Fifo Field" );
 }
@@ -424,8 +439,8 @@ void FieldIoCap<FifoBlockingField<DataType>>::writeToField( const nlohmann::json
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 void FieldIoCap<FifoBlockingField<DataType>>::readFromField( nlohmann::json& jsonValue,
-                                                             bool            writeServerAddress,
-                                                             bool            writeValues ) const
+                                                             bool            copyServerAddress,
+                                                             bool            copyDataValues ) const
 {
     this->assertValid();
     if ( !m_field->active() )
@@ -465,7 +480,9 @@ bool FieldIoCap<FifoBlockingField<DataType>>::resolveReferences()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<FifoBoundedField<DataType>>::writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory )
+void FieldIoCap<FifoBoundedField<DataType>>::writeToField( const nlohmann::json& jsonValue,
+                                                           ObjectFactory*        objectFactory,
+                                                           bool                  copyDataValues )
 {
     CAFFA_ASSERT( false && "Cannot write to a Fifo Field" );
 }
@@ -475,8 +492,8 @@ void FieldIoCap<FifoBoundedField<DataType>>::writeToField( const nlohmann::json&
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 void FieldIoCap<FifoBoundedField<DataType>>::readFromField( nlohmann::json& jsonValue,
-                                                            bool            writeServerAddress,
-                                                            bool            writeValues ) const
+                                                            bool            copyServerAddress,
+                                                            bool            copyDataValues ) const
 {
     this->assertValid();
     if ( !m_field->active() )

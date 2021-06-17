@@ -151,7 +151,7 @@ public:
         // Spawn new CallData instances to serve new clients.
         for ( auto service : m_services )
         {
-            for ( auto callback : service->registerCallbacks() )
+            for ( auto callback : service->createCallbacks() )
             {
                 process( callback );
             }

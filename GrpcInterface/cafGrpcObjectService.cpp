@@ -65,7 +65,7 @@ grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const Doc
     if ( document )
     {
         CAFFA_TRACE( "Copying document to gRPC data structure" );
-        copyObjectFromCafToRpc( document, reply, true, false );
+        copyProjectObjectFromCafToRpc( document, reply );
         return grpc::Status::OK;
     }
     return grpc::Status( grpc::NOT_FOUND, "Document not found" );
@@ -84,12 +84,12 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
             ObjectMethodFactory::instance()->createMethod( matchingObject, request->method() );
         if ( method )
         {
-            copyObjectFromRpcToCaf( &( request->params() ), method.get() );
+            copyResultOrParameterObjectFromRpcToCaf( &( request->params() ), method.get() );
 
             ObjectHandle* result = method->execute();
             if ( result )
             {
-                copyObjectFromCafToRpc( result, reply, true, true );
+                copyResultOrParameterObjectFromCafToRpc( result, reply );
                 if ( !method->resultIsPersistent() )
                 {
                     delete result;
@@ -116,7 +116,11 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
 //--------------------------------------------------------------------------------------------------
 caffa::Object* ObjectService::findCafObjectFromRpcObject( const Object& rpcObject )
 {
-    return findCafObjectFromScriptNameAndAddress( rpcObject.class_keyword(), rpcObject.address() );
+    auto jsonObject   = nlohmann::json::parse( rpcObject.json() );
+    auto classKeyword = jsonObject["classKeyword"].get<std::string>();
+    CAFFA_ASSERT( jsonObject.contains( "serverAddress" ) && jsonObject["serverAddress"].is_number_integer() );
+    auto address = jsonObject["serverAddress"].get<uint64_t>();
+    return findCafObjectFromScriptNameAndAddress( classKeyword, address );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,8 +137,9 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndAddress( const std::
 
     for ( auto doc : ServerApplication::instance()->documents() )
     {
-        std::list<caffa::ObjectHandle*> objects =
-            doc->matchingDescendants( [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool {
+        std::list<caffa::ObjectHandle*> objects = doc->matchingDescendants(
+            [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool
+            {
                 auto ioCapability = objectHandle->capability<caffa::ObjectIoCapability>();
                 return ioCapability ? ioCapability->classKeyword() == scriptClassName : false;
             } );
@@ -164,62 +169,85 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndAddress( const std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectService::copyObjectFromCafToRpc( const caffa::ObjectHandle* source,
-                                            Object*                  destination,
-                                            bool                     copyContent /* = true */,
-                                            bool                     writeValues /* = true */ )
+void ObjectService::copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* source, Object* destination )
 {
     CAFFA_ASSERT( source && destination );
 
     auto ioCapability = source->capability<caffa::ObjectIoCapability>();
     CAFFA_ASSERT( ioCapability );
-
-    destination->set_class_keyword( ioCapability->classKeyword() );
     auto clientCapability = source->capability<caffa::rpc::ObjectClientCapability>();
+
+    std::stringstream ss;
+    // Don't write the server address if this is client to server
+    caffa::ObjectJsonCapability::writeFile( source, ss, clientCapability == nullptr, false );
+
+    nlohmann::json jsonObject = nlohmann::json::parse( ss.str() );
     if ( clientCapability )
     {
-        destination->set_address( clientCapability->addressOnServer() );
+        jsonObject["serverAddress"] = clientCapability->addressOnServer();
     }
-    else
-    {
-        destination->set_address( reinterpret_cast<uint64_t>( source ) );
-    }
-
-    if ( copyContent )
-    {
-        std::stringstream ss;
-        caffa::ObjectJsonCapability::writeFile( source, ss, true, writeValues );
-        destination->set_json( ss.str() );
-    }
+    destination->set_json( jsonObject.dump() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectService::copyObjectFromRpcToCaf( const Object* source, caffa::ObjectHandle* destination )
+void ObjectService::copyProjectObjectFromRpcToCaf( const Object* source, caffa::ObjectHandle* destination )
 {
     CAFFA_ASSERT( source );
-
-    auto              ioCapability = destination->capability<caffa::ObjectIoCapability>();
-    std::stringstream str( source->json() );
-    ioCapability->readFile( str );
 
     auto clientCapability = destination->capability<caffa::rpc::ObjectClientCapability>();
     if ( clientCapability )
     {
-        clientCapability->setAddressOnServer( source->address() );
+        auto jsonObject = nlohmann::json::parse( source->json() );
+        clientCapability->setAddressOnServer( jsonObject["serverAddress"].get<uint64_t>() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( const Object*       source,
-                                                                          caffa::ObjectFactory* objectFactory )
+void ObjectService::copyResultOrParameterObjectFromCafToRpc( const caffa::ObjectHandle* source, Object* destination )
+{
+    CAFFA_ASSERT( source && destination );
+
+    std::stringstream ss;
+    caffa::ObjectJsonCapability::writeFile( source, ss, true, true );
+
+    nlohmann::json jsonObject = nlohmann::json::parse( ss.str() );
+    destination->set_json( jsonObject.dump() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void ObjectService::copyResultOrParameterObjectFromRpcToCaf( const Object* source, caffa::ObjectHandle* destination )
+{
+    CAFFA_ASSERT( source );
+
+    auto clientCapability = destination->capability<caffa::rpc::ObjectClientCapability>();
+    if ( clientCapability )
+    {
+        auto jsonObject = nlohmann::json::parse( source->json() );
+        clientCapability->setAddressOnServer( jsonObject["serverAddress"].get<uint64_t>() );
+    }
+
+    CAFFA_DEBUG( "Copying rpc object: " << source->json() );
+
+    std::stringstream str( source->json() );
+    auto              ioCapability = destination->capability<caffa::ObjectIoCapability>();
+    ioCapability->readFile( str );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caffa::ObjectHandle>
+    ObjectService::createCafObjectFromRpc( const Object* source, caffa::ObjectFactory* objectFactory, bool copyDataValues )
 {
     CAFFA_ASSERT( source );
     std::unique_ptr<caffa::ObjectHandle> destination(
-        caffa::ObjectJsonCapability::readUnknownObjectFromString( source->json(), objectFactory, false ) );
+        caffa::ObjectJsonCapability::readUnknownObjectFromString( source->json(), objectFactory, copyDataValues ) );
 
     return destination;
 }
@@ -227,7 +255,7 @@ std::unique_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<AbstractCallback*> ObjectService::registerCallbacks()
+std::vector<AbstractCallback*> ObjectService::createCallbacks()
 {
     typedef ObjectService Self;
     return {

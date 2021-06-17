@@ -42,6 +42,6 @@ public:
     grpc::Status PerformGetAppInfo( grpc::ServerContext* context, const NullMessage* request, AppInfoReply* reply );
     grpc::Status PerformPing( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply );
 
-    std::vector<AbstractCallback*> registerCallbacks() override;
+    std::vector<AbstractCallback*> createCallbacks() override;
 };
 } // namespace caffa::rpc

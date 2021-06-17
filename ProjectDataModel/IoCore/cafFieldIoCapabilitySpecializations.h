@@ -26,8 +26,8 @@ public:
 
 public:
     // Json Serializing
-    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
+    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
+    void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
 
     bool resolveReferences() override;
 
@@ -51,8 +51,8 @@ public:
 
 public:
     // Json Serializing
-    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
+    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
+    void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
 
     bool        resolveReferences() override;
     std::string referenceString() const override;
@@ -81,8 +81,8 @@ public:
 
 public:
     // Json Serializing
-    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
+    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
+    void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
 
     bool        resolveReferences() override;
     std::string referenceString() const override;
@@ -109,8 +109,8 @@ public:
 
 public:
     // Json Serializing
-    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
+    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
+    void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
 
     bool resolveReferences() override;
 
@@ -132,8 +132,8 @@ public:
 
 public:
     // Json Serializing
-    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
+    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
+    void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
 
     bool resolveReferences() override;
 
@@ -156,8 +156,8 @@ public:
 
 public:
     // Json Serializing
-    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
+    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
+    void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
 
     bool resolveReferences() override;
 
@@ -184,8 +184,8 @@ public:
 
 public:
     // Json Serializing
-    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory ) override;
-    void readFromField( nlohmann::json& jsonValue, bool writeServerAddress, bool writeValues ) const override;
+    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
+    void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
 
     bool resolveReferences() override;
 

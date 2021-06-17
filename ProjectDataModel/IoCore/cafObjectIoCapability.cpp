@@ -26,7 +26,7 @@ ObjectIoCapability::ObjectIoCapability( ObjectHandle* owner, bool giveOwnership 
 //--------------------------------------------------------------------------------------------------
 ObjectHandle* ObjectIoCapability::readUnknownObjectFromString( const std::string& string,
                                                                ObjectFactory*     objectFactory,
-                                                               bool               isCopyOperation,
+                                                               bool               copyDataValues,
                                                                IoType             ioType /*= IoType::JSON */ )
 {
     ObjectHandle* object = nullptr;
@@ -36,7 +36,7 @@ ObjectHandle* ObjectIoCapability::readUnknownObjectFromString( const std::string
         default:
             break;
         case IoType::JSON:
-            object = ObjectJsonCapability::readUnknownObjectFromString( string, objectFactory, isCopyOperation );
+            object = ObjectJsonCapability::readUnknownObjectFromString( string, objectFactory, copyDataValues );
             break;
         case IoType::SQL:
             CAFFA_ASSERT( "SQL writing is not implemented" );
@@ -69,7 +69,7 @@ void ObjectIoCapability::readObjectFromString( const std::string& string,
 ///
 //--------------------------------------------------------------------------------------------------
 std::string ObjectIoCapability::writeObjectToString( IoType ioType /*= IoType::JSON */,
-                                                     bool   writeServerAddress /*= false */ ) const
+                                                     bool   copyServerAddress /*= false */ ) const
 {
     std::string string;
     switch ( ioType )
@@ -77,7 +77,7 @@ std::string ObjectIoCapability::writeObjectToString( IoType ioType /*= IoType::J
         default:
             break;
         case IoType::JSON:
-            string = ObjectJsonCapability::writeObjectToString( m_owner, writeServerAddress );
+            string = ObjectJsonCapability::writeObjectToString( m_owner, copyServerAddress );
             break;
         case IoType::SQL:
             CAFFA_ASSERT( "SQL writing is not implemented" );
@@ -90,7 +90,7 @@ std::string ObjectIoCapability::writeObjectToString( IoType ioType /*= IoType::J
 ///
 //--------------------------------------------------------------------------------------------------
 caffa::ObjectHandle* ObjectIoCapability::copyBySerialization( ObjectFactory* objectFactory,
-                                                            IoType         ioType /*= IoType::JSON */ )
+                                                              IoType         ioType /*= IoType::JSON */ )
 {
     switch ( ioType )
     {
@@ -110,9 +110,9 @@ caffa::ObjectHandle* ObjectIoCapability::copyBySerialization( ObjectFactory* obj
 ///
 //--------------------------------------------------------------------------------------------------
 caffa::ObjectHandle* ObjectIoCapability::copyAndCastBySerialization( const std::string& destinationClassKeyword,
-                                                                   const std::string& sourceClassKeyword,
-                                                                   ObjectFactory*     objectFactory,
-                                                                   IoType             ioType /*= IoType::JSON */ )
+                                                                     const std::string& sourceClassKeyword,
+                                                                     ObjectFactory*     objectFactory,
+                                                                     IoType             ioType /*= IoType::JSON */ )
 {
     switch ( ioType )
     {

@@ -75,7 +75,7 @@ public:
 
     void ptrReferencedObjects( std::vector<ObjectHandle*>* objectsToFill ) override;
 
-    std::string dataType() const override { return std::string( "object:" ) + DataType::classKeywordStatic(); }
+    std::string dataType() const override { return std::string( "object" ); }
 
 private:
     CAFFA_DISABLE_COPY_AND_ASSIGN( PtrField );
