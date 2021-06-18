@@ -4,8 +4,6 @@
 #include "cafChildField.h"
 #include "cafFieldIoCapability.h"
 #include "cafFifoField.h"
-#include "cafPtrArrayField.h"
-#include "cafPtrField.h"
 
 #include <nlohmann/json.hpp>
 
@@ -29,70 +27,8 @@ public:
     void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
     void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
 
-    bool resolveReferences() override;
-
 private:
     FieldType* m_field;
-};
-
-template <typename DataType>
-class FieldIoCap<PtrField<DataType*>> : public FieldIoCapability
-{
-    typedef PtrField<DataType*> FieldType;
-
-public:
-    FieldIoCap( FieldType* field, bool giveOwnership )
-        : FieldIoCapability( field, giveOwnership )
-    {
-        m_field           = field;
-        m_isResolved      = false;
-        m_referenceString = "";
-    }
-
-public:
-    // Json Serializing
-    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
-    void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
-
-    bool        resolveReferences() override;
-    std::string referenceString() const override;
-
-private:
-    FieldType* m_field;
-
-    // Resolving
-    std::string m_referenceString;
-    bool        m_isResolved;
-};
-
-template <typename DataType>
-class FieldIoCap<PtrArrayField<DataType*>> : public FieldIoCapability
-{
-    typedef PtrArrayField<DataType*> FieldType;
-
-public:
-    FieldIoCap( FieldType* field, bool giveOwnership )
-        : FieldIoCapability( field, giveOwnership )
-    {
-        m_field           = field;
-        m_isResolved      = false;
-        m_referenceString = "";
-    }
-
-public:
-    // Json Serializing
-    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
-    void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
-
-    bool        resolveReferences() override;
-    std::string referenceString() const override;
-
-private:
-    FieldType* m_field;
-
-    // Resolving
-    std::string m_referenceString;
-    bool        m_isResolved;
 };
 
 template <typename DataType>
@@ -111,8 +47,6 @@ public:
     // Json Serializing
     void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
     void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
-
-    bool resolveReferences() override;
 
 private:
     FieldType* m_field;
@@ -135,8 +69,6 @@ public:
     void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
     void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
 
-    bool resolveReferences() override;
-
 private:
     FieldType* m_field;
 };
@@ -158,8 +90,6 @@ public:
     // Json Serializing
     void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
     void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
-
-    bool resolveReferences() override;
 
     void   setMaximumPackagesForIoOutput( size_t maximumPackageCount ) { m_readLimit = maximumPackageCount; }
     size_t maximumPackagesForIoOutput() const { return m_readLimit; }
@@ -186,8 +116,6 @@ public:
     // Json Serializing
     void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
     void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
-
-    bool resolveReferences() override;
 
     void   setMaximumPackagesForIoOutput( size_t maximumPackageCount ) { m_readLimit = maximumPackageCount; }
     size_t maximumPackagesForIoOutput() const { return m_readLimit; }

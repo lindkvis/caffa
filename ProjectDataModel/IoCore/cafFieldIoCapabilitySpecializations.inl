@@ -5,7 +5,6 @@
 #include "cafObjectFactory.h"
 #include "cafObjectIoCapability.h"
 #include "cafObjectJsonCapability.h"
-#include "cafReferenceHelper.h"
 #include "cafStringTools.h"
 
 #include <nlohmann/json.hpp>
@@ -46,156 +45,6 @@ void FieldIoCap<FieldType>::readFromField( nlohmann::json& jsonValue, bool copyS
     {
         jsonValue = m_field->value();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename FieldType>
-bool FieldIoCap<FieldType>::resolveReferences()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void FieldIoCap<PtrField<DataType*>>::writeToField( const nlohmann::json& jsonValue,
-                                                    ObjectFactory*        objectFactory,
-                                                    bool                  copyDataValues )
-{
-    this->assertValid();
-    std::string dataString = jsonValue.get<std::string>();
-
-    // This resolving can NOT be done here.
-    // It must be done when we know that the complete hierarchy is read and created,
-    // The object pointed to is not always read and created at this point in time.
-    // We rather need to do something like :
-    // m_refenceString = dataString;
-    // m_isResolved = false;
-    // m_field->setRawPtr(nullptr);
-    //
-    // and then we need a traversal of the object hierarchy to resolve all references before initAfterRead.
-
-    m_isResolved      = false;
-    m_referenceString = dataString;
-    m_field->setRawPtr( nullptr );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void FieldIoCap<PtrField<DataType*>>::readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const
-{
-    this->assertValid();
-
-    std::string dataString = ReferenceHelper::referenceFromFieldToObject( m_field, m_field->m_fieldValue.rawPtr() );
-    jsonValue              = dataString;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-bool FieldIoCap<PtrField<DataType*>>::resolveReferences()
-{
-    if ( m_isResolved ) return true;
-    if ( m_referenceString.empty() ) return true;
-
-    ObjectHandle* objHandle = ReferenceHelper::objectFromFieldReference( this->fieldHandle(), m_referenceString );
-    m_field->setRawPtr( objHandle );
-    m_isResolved = true;
-
-    return objHandle != nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-std::string FieldIoCap<PtrField<DataType*>>::referenceString() const
-{
-    return m_referenceString;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void FieldIoCap<PtrArrayField<DataType*>>::writeToField( const nlohmann::json& jsonValue,
-                                                         ObjectFactory*        objectFactory,
-                                                         bool                  copyDataValues )
-{
-    this->assertValid();
-
-    std::string dataString = jsonValue.get<std::string>();
-
-    // This resolving can NOT be done here.
-    // It must be done when we know that the complete hierarchy is read and created,
-    // and then we need a traversal of the object hierarchy to resolve all references before initAfterRead.
-
-    m_isResolved      = false;
-    m_referenceString = dataString;
-    m_field->clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void FieldIoCap<PtrArrayField<DataType*>>::readFromField( nlohmann::json& jsonValue,
-                                                          bool            copyServerAddress,
-                                                          bool            copyDataValues ) const
-{
-    this->assertValid();
-
-    std::string dataString;
-    size_t      pointerCount = m_field->m_pointers.size();
-    for ( size_t i = 0; i < pointerCount; ++i )
-    {
-        dataString += ReferenceHelper::referenceFromFieldToObject( m_field, m_field->m_pointers[i].rawPtr() );
-        if ( !dataString.empty() && i < pointerCount - 1 ) dataString += " | \n\t";
-    }
-    jsonValue = dataString;
-}
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-bool FieldIoCap<PtrArrayField<DataType*>>::resolveReferences()
-{
-    if ( m_isResolved ) return true;
-    if ( m_referenceString.empty() ) return true;
-    m_field->clear();
-
-    bool                   foundValidObjectFromString = true;
-    std::list<std::string> tokens                     = caffa::StringTools::split( m_referenceString, "|" );
-    for ( auto token : tokens )
-    {
-        ObjectHandle* objHandle = ReferenceHelper::objectFromFieldReference( this->fieldHandle(), token );
-        if ( !token.empty() && !objHandle )
-        {
-            foundValidObjectFromString = false;
-        }
-
-        m_field->m_pointers.push_back( nullptr );
-        m_field->m_pointers.back().setRawPtr( objHandle );
-    }
-
-    m_isResolved = true;
-
-    return foundValidObjectFromString;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-std::string FieldIoCap<PtrArrayField<DataType*>>::referenceString() const
-{
-    return m_referenceString;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -293,15 +142,6 @@ void FieldIoCap<ChildField<DataType*>>::readFromField( nlohmann::json& jsonValue
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool FieldIoCap<ChildField<DataType*>>::resolveReferences()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
 void FieldIoCap<ChildArrayField<DataType*>>::writeToField( const nlohmann::json& jsonValue,
                                                            ObjectFactory*        objectFactory,
                                                            bool                  copyDataValues )
@@ -385,15 +225,6 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFromField( nlohmann::json& json
     jsonValue = jsonArray;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-bool FieldIoCap<ChildArrayField<DataType*>>::resolveReferences()
-{
-    return true;
-}
-
 template <typename DataType>
 class JsonConsumer
 {
@@ -471,15 +302,6 @@ void FieldIoCap<FifoBlockingField<DataType>>::readFromField( nlohmann::json& jso
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-bool FieldIoCap<FifoBlockingField<DataType>>::resolveReferences()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
 void FieldIoCap<FifoBoundedField<DataType>>::writeToField( const nlohmann::json& jsonValue,
                                                            ObjectFactory*        objectFactory,
                                                            bool                  copyDataValues )
@@ -518,15 +340,6 @@ void FieldIoCap<FifoBoundedField<DataType>>::readFromField( nlohmann::json& json
     consumerThread.join();
 
     jsonValue = accumulator.m_array;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-bool FieldIoCap<FifoBoundedField<DataType>>::resolveReferences()
-{
-    return true;
 }
 
 } // End namespace caffa

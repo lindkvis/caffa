@@ -12,8 +12,6 @@
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
-#include "cafPtrField.h"
-#include "cafReferenceHelper.h"
 
 class DemoObject : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
@@ -206,52 +204,6 @@ public:
 };
 
 CAFFA_IO_SOURCE_INIT( ReferenceDemoObject, "ReferenceDemoObject" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-TEST( BaseTest, ReferenceHelper )
-{
-    auto s1 = std::make_unique<DemoObject>();
-    auto s2 = std::make_unique<DemoObject>();
-    auto s3 = std::make_unique<DemoObject>();
-
-    auto ihd1 = std::make_unique<InheritedDemoObj>();
-    ihd1->m_childArrayField.push_back( std::make_unique<DemoObject>() );
-
-    auto s1p = ihd1->m_childArrayField.push_back( std::move( s1 ) );
-    auto s2p = ihd1->m_childArrayField.push_back( std::move( s2 ) );
-    auto s3p = ihd1->m_childArrayField.push_back( std::move( s3 ) );
-
-    {
-        std::string refString      = caffa::ReferenceHelper::referenceFromRootToObject( ihd1.get(), s3p );
-        std::string expectedString = ihd1->m_childArrayField.keyword() + " 3";
-        EXPECT_STREQ( refString.c_str(), expectedString.c_str() );
-
-        caffa::ObjectHandle* fromRef = caffa::ReferenceHelper::objectFromReference( ihd1.get(), refString );
-        EXPECT_TRUE( fromRef == s3p.p() );
-    }
-
-    auto objA             = std::make_unique<ReferenceDemoObject>();
-    auto ihd1p            = ihd1.get();
-    objA->m_pointersField = std::move( ihd1 );
-
-    {
-        std::string refString = caffa::ReferenceHelper::referenceFromRootToObject( objA.get(), s3p );
-
-        caffa::ObjectHandle* fromRef = caffa::ReferenceHelper::objectFromReference( objA.get(), refString );
-        EXPECT_TRUE( fromRef == s3p );
-    }
-
-    // Test reference to field
-    {
-        std::string refString =
-            caffa::ReferenceHelper::referenceFromRootToField( objA.get(), &( ihd1p->m_childArrayField ) );
-
-        caffa::FieldHandle* fromRef = caffa::ReferenceHelper::fieldFromReference( objA.get(), refString );
-        EXPECT_TRUE( fromRef == &( ihd1p->m_childArrayField ) );
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

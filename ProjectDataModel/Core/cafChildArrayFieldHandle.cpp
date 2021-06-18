@@ -1,4 +1,4 @@
-#include "cafChildArrayField.h"
+#include "cafChildArrayFieldHandle.h"
 
 #include "cafFieldHandle.h"
 #include "cafObjectHandle.h"

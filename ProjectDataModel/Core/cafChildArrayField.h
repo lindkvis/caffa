@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cafPtrArrayFieldHandle.h"
+#include "cafChildArrayFieldHandle.h"
 
 #include "cafAssert.h"
 #include "cafFieldHandle.h"
@@ -13,22 +13,6 @@ namespace caffa
 {
 template <typename T>
 class FieldIoCap;
-
-//==================================================================================================
-///
-///
-///
-//==================================================================================================
-class ChildArrayFieldHandle : public PtrArrayFieldHandle
-{
-public:
-    ChildArrayFieldHandle() {}
-    ~ChildArrayFieldHandle() override {}
-
-    virtual Pointer<ObjectHandle> insertAt( size_t index, std::unique_ptr<ObjectHandle> obj ) = 0;
-
-    bool hasSameFieldCountForAllObjects();
-};
 
 //==================================================================================================
 /// FieldClass to handle a collection of Object derived pointers

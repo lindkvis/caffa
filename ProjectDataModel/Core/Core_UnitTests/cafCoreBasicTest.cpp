@@ -9,7 +9,6 @@
 #include "cafFieldProxyAccessor.h"
 #include "cafObjectHandle.h"
 #include "cafPortableDataType.h"
-#include "cafPtrField.h"
 #include "cafValueField.h"
 
 #include <vector>
@@ -91,12 +90,10 @@ public:
     {
         this->addField( &m_texts, "Texts" );
         this->addField( &m_childArrayField, "DemoObjectects" );
-        this->addField( &m_ptrField, "m_ptrField" );
     }
 
     caffa::DataValueField<std::string>  m_texts;
     caffa::ChildArrayField<DemoObject*> m_childArrayField;
-    caffa::PtrField<InheritedDemoObj*>  m_ptrField;
 };
 
 TEST( BaseTest, Delete )
@@ -472,77 +469,6 @@ TEST( BaseTest, ChildField )
         a.field2.childObjects( &objects );
         EXPECT_EQ( (size_t)1, objects.size() );
         EXPECT_EQ( rawC, objects[0] );
-    }
-}
-
-TEST( BaseTest, PtrField )
-{
-    auto ihd1 = std::make_unique<InheritedDemoObj>();
-    auto ihd2 = std::make_unique<InheritedDemoObj>();
-
-    // Direct access
-    EXPECT_EQ( static_cast<InheritedDemoObj*>( nullptr ), ihd1->m_ptrField );
-
-    // Assignment
-    ihd1->m_ptrField              = ihd1.get();
-    InheritedDemoObj* accessedIhd = ihd1->m_ptrField;
-    EXPECT_EQ( ihd1.get(), accessedIhd );
-
-    ihd1->m_ptrField = caffa::Pointer<InheritedDemoObj>( ihd2.get() );
-    accessedIhd      = ihd1->m_ptrField;
-    EXPECT_EQ( ihd2.get(), accessedIhd );
-
-    // Access
-    accessedIhd = ihd1->m_ptrField; // Conversion
-    EXPECT_EQ( ihd2.get(), accessedIhd );
-    accessedIhd = ihd1->m_ptrField.value();
-    EXPECT_EQ( ihd2.get(), accessedIhd );
-
-    caffa::Pointer<InheritedDemoObj> accessedPtr;
-    EXPECT_EQ( ihd2.get(), accessedIhd );
-    accessedPtr = ihd1->m_ptrField();
-    EXPECT_EQ( ihd2.get(), accessedPtr.p() );
-    accessedPtr = ihd1->m_ptrField();
-    EXPECT_EQ( ihd2.get(), accessedPtr.p() );
-
-    // Operator ==
-    EXPECT_TRUE( ihd1->m_ptrField == ihd2.get() );
-    EXPECT_FALSE( ihd1->m_ptrField == ihd1.get() );
-
-    EXPECT_TRUE( ihd1->m_ptrField == caffa::Pointer<InheritedDemoObj>( ihd2.get() ) );
-
-    // Generic access
-    {
-        std::vector<caffa::ObjectHandle*> objects;
-        ihd1->m_ptrField.ptrReferencedObjects( &objects );
-        EXPECT_EQ( 1u, objects.size() );
-        EXPECT_EQ( ihd2.get(), objects[0] );
-    }
-
-    // Operator ->
-    ihd1->m_ptrField->m_texts = "Hei PtrField";
-    EXPECT_TRUE( ihd1->m_ptrField->m_texts == "Hei PtrField" );
-
-    // Referencing system
-    {
-        std::vector<caffa::FieldHandle*> ptrFields;
-        ihd2->referringPtrFields( ptrFields );
-        EXPECT_EQ( 1u, ptrFields.size() );
-        EXPECT_EQ( &( ihd1->m_ptrField ), ptrFields[0] );
-    }
-
-    {
-        std::vector<caffa::ObjectHandle*> objects;
-        ihd2->objectsWithReferringPtrFields( objects );
-        EXPECT_EQ( 1u, objects.size() );
-        EXPECT_EQ( ihd1.get(), objects[0] );
-    }
-
-    {
-        std::vector<InheritedDemoObj*> reffingDemoObjects;
-        ihd2->objectsWithReferringPtrFieldsOfType( reffingDemoObjects );
-
-        EXPECT_EQ( 1u, reffingDemoObjects.size() );
     }
 }
 

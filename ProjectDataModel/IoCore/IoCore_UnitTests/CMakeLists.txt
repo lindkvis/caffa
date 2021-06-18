@@ -4,7 +4,7 @@ project(caffaIoCore_UnitTests)
 
 # add the executable
 add_executable(${PROJECT_NAME} cafIo_UnitTests.cpp cafIoBasicTest.cpp cafAdvancedTemplateTest.cpp cafIoNumberTest.cpp
-                               cafPtrArrayTest.cpp cafIoFifoTest.cpp)
+                               cafIoFifoTest.cpp)
 
 target_link_libraries(${PROJECT_NAME} caffaIoCore ${THREAD_LIBRARY} nlohmann_json::nlohmann_json gtest)
 

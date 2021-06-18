@@ -125,17 +125,7 @@ public:
      */
     std::list<ObjectHandle*> children() const;
 
-    // PtrReferences
-    /// The PtrField's containing pointers to this Objecthandle
-    /// Use ownerObject() on the fieldHandle to get the ObjectHandle
-    void referringPtrFields( std::vector<FieldHandle*>& fieldsReferringToMe ) const;
-    /// Convenience method to get the objects pointing to this field
-    void objectsWithReferringPtrFields( std::vector<ObjectHandle*>& objects ) const;
-    /// Convenience method to get the objects of specified type pointing to this field
-    template <typename T>
-    void objectsWithReferringPtrFieldsOfType( std::vector<T*>& objectsOfType ) const;
-
-    // Detach object from all referring fields
+    // Perform cleanup before delete
     void prepareForDelete();
 
     void fieldChangedByCapability( const FieldHandle*     field,
@@ -212,20 +202,11 @@ private:
 
     FieldHandle* m_parentField;
 
-    // PtrReferences
-    void                        addReferencingPtrField( FieldHandle* fieldReferringToMe );
-    void                        removeReferencingPtrField( FieldHandle* fieldReferringToMe );
-    std::multiset<FieldHandle*> m_referencingPtrFields;
-
     // Give access to set/removeAsParentField
     template <class T>
     friend class ChildArrayField;
     template <class T>
     friend class ChildField;
-    template <class T>
-    friend class PtrArrayField;
-    template <class T>
-    friend class PtrField;
     template <class T>
     friend class Field; // For backwards compatibility layer
 
@@ -265,23 +246,6 @@ std::list<T*> ObjectHandle::descendantsOfType() const
     return descendants;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename T>
-void ObjectHandle::objectsWithReferringPtrFieldsOfType( std::vector<T*>& objectsOfType ) const
-{
-    std::vector<ObjectHandle*> objectsReferencingThis;
-    this->objectsWithReferringPtrFields( objectsReferencingThis );
-
-    for ( auto object : objectsReferencingThis )
-    {
-        if ( dynamic_cast<T*>( object ) )
-        {
-            objectsOfType.push_back( dynamic_cast<T*>( object ) );
-        }
-    }
-}
 } // namespace caffa
 
 #include "cafFieldHandle.h"

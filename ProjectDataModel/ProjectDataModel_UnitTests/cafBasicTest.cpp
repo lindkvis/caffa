@@ -46,7 +46,6 @@
 #include "cafObject.h"
 #include "cafObjectGroup.h"
 #include "cafPointer.h"
-#include "cafReferenceHelper.h"
 
 #include <fstream>
 #include <memory>
@@ -522,79 +521,4 @@ TEST( BaseTest, ChildArrayFieldHandle )
     EXPECT_EQ( 0u, listField->size() );
     EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_TRUE( listField->empty() );
-}
-
-class ReferenceDemoObject : public caffa::Object
-{
-    CAFFA_HEADER_INIT;
-
-public:
-    ReferenceDemoObject()
-    {
-        initField( m_pointersField, "SimpleObjPtrField" );
-        initField( m_simpleObjPtrField2, "SimpleObjPtrField2" );
-    }
-
-    // Fields
-    caffa::ChildField<ObjectHandle*>   m_pointersField;
-    caffa::ChildArrayField<SimpleObj*> m_simpleObjPtrField2;
-};
-
-CAFFA_SOURCE_INIT( ReferenceDemoObject, "ReferenceDemoObject", "Object" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-TEST( BaseTest, ReferenceHelper )
-{
-    auto s1        = std::make_unique<SimpleObj>();
-    s1->m_position = 1000;
-    auto v         = s1->m_numbers();
-    v.push_back( 10 );
-    s1->m_numbers = v;
-
-    auto s2        = std::make_unique<SimpleObj>();
-    s2->m_position = 2000;
-
-    auto s3        = std::make_unique<SimpleObj>();
-    s3->m_position = 3000;
-
-    auto ihd1 = std::make_unique<InheritedDemoObj>();
-    ihd1->m_simpleObjectsField.push_back( std::make_unique<SimpleObj>() );
-
-    auto s1p = ihd1->m_simpleObjectsField.push_back( std::move( s1 ) );
-    auto s2p = ihd1->m_simpleObjectsField.push_back( std::move( s2 ) );
-    auto s3p = ihd1->m_simpleObjectsField.push_back( std::move( s3 ) );
-
-    {
-        std::string refString = caffa::ReferenceHelper::referenceFromRootToObject( nullptr, s3p );
-        EXPECT_TRUE( refString.empty() );
-
-        refString                  = caffa::ReferenceHelper::referenceFromRootToObject( ihd1.get(), s3p );
-        std::string expectedString = ihd1->m_simpleObjectsField.keyword() + " 3";
-        EXPECT_STREQ( refString.c_str(), expectedString.c_str() );
-
-        caffa::ObjectHandle* fromRef = caffa::ReferenceHelper::objectFromReference( ihd1.get(), refString );
-        EXPECT_TRUE( fromRef == s3p );
-    }
-
-    auto objA             = std::make_unique<ReferenceDemoObject>();
-    auto ihd1p            = ihd1.get();
-    objA->m_pointersField = std::move( ihd1 );
-
-    {
-        std::string refString = caffa::ReferenceHelper::referenceFromRootToObject( objA.get(), s3p );
-
-        caffa::ObjectHandle* fromRef = caffa::ReferenceHelper::objectFromReference( objA.get(), refString );
-        EXPECT_TRUE( fromRef == s3p );
-    }
-
-    // Test reference to field
-    {
-        std::string refString =
-            caffa::ReferenceHelper::referenceFromRootToField( objA.get(), &( ihd1p->m_simpleObjectsField ) );
-
-        caffa::FieldHandle* fromRef = caffa::ReferenceHelper::fieldFromReference( objA.get(), refString );
-        EXPECT_TRUE( fromRef == &( ihd1p->m_simpleObjectsField ) );
-    }
 }

@@ -38,10 +38,6 @@ public:
     void setIOWritable( bool isWritable ) { m_isIOWritable = isWritable; }
     void setIOReadable( bool isReadable ) { m_isIOReadable = isReadable; }
 
-    virtual bool resolveReferences() = 0;
-
-    virtual std::string referenceString() const { return std::string(); }
-
     virtual void writeToField( const nlohmann::json& value, ObjectFactory* objectFactory, bool copyDataValues ) = 0;
     virtual void readFromField( nlohmann::json& value, bool copyServerAddress, bool copyDataValues ) const      = 0;
 

@@ -105,56 +105,6 @@ void ObjectHandle::disconnectObserverFromAllSignals( SignalObserver* observer )
         }
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void ObjectHandle::addReferencingPtrField( FieldHandle* fieldReferringToMe )
-{
-    if ( fieldReferringToMe != nullptr ) m_referencingPtrFields.insert( fieldReferringToMe );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void ObjectHandle::removeReferencingPtrField( FieldHandle* fieldReferringToMe )
-{
-    if ( fieldReferringToMe != nullptr )
-    {
-        disconnectObserverFromAllSignals( fieldReferringToMe->ownerObject() );
-        m_referencingPtrFields.erase( fieldReferringToMe );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Appends pointers to all the PtrFields containing a pointer to this object.
-/// As the PtrArrayFields can hold several pointers to the same object, the returned vector can
-/// contain multiple pointers to the same field.
-//--------------------------------------------------------------------------------------------------
-void ObjectHandle::referringPtrFields( std::vector<FieldHandle*>& fieldsReferringToMe ) const
-{
-    std::multiset<FieldHandle*>::const_iterator it;
-
-    for ( it = m_referencingPtrFields.begin(); it != m_referencingPtrFields.end(); ++it )
-    {
-        fieldsReferringToMe.push_back( *it );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void ObjectHandle::objectsWithReferringPtrFields( std::vector<ObjectHandle*>& objects ) const
-{
-    std::vector<caffa::FieldHandle*> parentFields;
-    this->referringPtrFields( parentFields );
-    size_t i;
-    for ( i = 0; i < parentFields.size(); i++ )
-    {
-        objects.push_back( parentFields[i]->ownerObject() );
-    }
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -175,7 +125,6 @@ void ObjectHandle::prepareForDelete()
     }
 
     m_capabilities.clear();
-    m_referencingPtrFields.clear();
     m_pointersReferencingMe.clear();
 }
 

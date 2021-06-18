@@ -279,51 +279,6 @@ void ObjectIoCapability::initAfterReadRecursively( ObjectHandle* object )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectIoCapability::resolveReferencesRecursively( ObjectHandle*              object,
-                                                       std::vector<FieldHandle*>* fieldWithFailingResolve )
-{
-    if ( object == nullptr ) return;
-
-    std::vector<FieldHandle*> fields = object->fields();
-
-    std::vector<ObjectHandle*> children;
-    for ( auto field : fields )
-    {
-        field->childObjects( &children );
-
-        bool resolvedOk = field->capability<FieldIoCapability>()->resolveReferences();
-        if ( fieldWithFailingResolve && !resolvedOk )
-        {
-            fieldWithFailingResolve->push_back( field );
-        }
-    }
-
-    for ( auto child : children )
-    {
-        resolveReferencesRecursively( child, fieldWithFailingResolve );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void ObjectIoCapability::resolveReferencesRecursively( std::vector<FieldHandle*>* fieldWithFailingResolve /*= nullptr*/ )
-{
-    std::vector<FieldHandle*> tempFields;
-    resolveReferencesRecursively( this->m_owner, &tempFields );
-
-    if ( fieldWithFailingResolve )
-    {
-        for ( auto f : tempFields )
-        {
-            fieldWithFailingResolve->push_back( f );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void ObjectIoCapability::setupBeforeSaveRecursively( ObjectHandle* object )
 {
     if ( object == nullptr ) return;

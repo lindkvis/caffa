@@ -59,7 +59,7 @@ public:
 
 //==================================================================================================
 /// Partial specialization for caffa::Pointer<T>
-/// User must use PtrField or ChildField
+/// User must use ChildField
 //==================================================================================================
 template <typename T>
 class ValueFieldSpecialization<Pointer<T>>

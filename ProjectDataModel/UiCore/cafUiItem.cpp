@@ -35,7 +35,6 @@
 //##################################################################################################
 
 #include "cafUiItem.h"
-#include "cafPtrField.h"
 #include "cafUiEditorHandle.h"
 #include "cafUiObjectEditorHandle.h"
 
