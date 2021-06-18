@@ -431,34 +431,31 @@ TEST( BaseTest, Pointer )
 TEST( BaseTest, ObjectFactory )
 {
     {
-        std::unique_ptr<SimpleObj> s(
-            dynamic_cast<SimpleObj*>( caffa::DefaultObjectFactory::instance()->create( "SimpleObj" ) ) );
-        EXPECT_TRUE( s != nullptr );
+        auto s(
+            caffa::static_unique_cast<SimpleObj>( caffa::DefaultObjectFactory::instance()->create( "SimpleObj" ) ) );
+        EXPECT_TRUE( s );
     }
     {
-        std::unique_ptr<DemoObject> s(
-            dynamic_cast<DemoObject*>( caffa::DefaultObjectFactory::instance()->create( "DemoObject" ) ) );
-        EXPECT_TRUE( s != nullptr );
+        auto s(
+            caffa::static_unique_cast<DemoObject>( caffa::DefaultObjectFactory::instance()->create( "DemoObject" ) ) );
+        EXPECT_TRUE( s );
     }
     {
-        InheritedDemoObj* s =
-            dynamic_cast<InheritedDemoObj*>( caffa::DefaultObjectFactory::instance()->create( "InheritedDemoObj" ) );
-        EXPECT_TRUE( s != nullptr );
-        delete s;
-    }
-
-    {
-        caffa::Document* s =
-            dynamic_cast<caffa::Document*>( caffa::DefaultObjectFactory::instance()->create( "Document" ) );
-        EXPECT_TRUE( s != nullptr );
-        delete s;
+        auto s = caffa::static_unique_cast<InheritedDemoObj>(
+            caffa::DefaultObjectFactory::instance()->create( "InheritedDemoObj" ) );
+        EXPECT_TRUE( s );
     }
 
     {
-        caffa::ObjectGroup* s =
-            dynamic_cast<caffa::ObjectGroup*>( caffa::DefaultObjectFactory::instance()->create( "ObjectGroup" ) );
-        EXPECT_TRUE( s != nullptr );
-        delete s;
+        auto s =
+            caffa::static_unique_cast<caffa::Document>( caffa::DefaultObjectFactory::instance()->create( "Document" ) );
+        EXPECT_TRUE( s );
+    }
+
+    {
+        auto s = caffa::static_unique_cast<caffa::ObjectGroup>(
+            caffa::DefaultObjectFactory::instance()->create( "ObjectGroup" ) );
+        EXPECT_TRUE( s );
     }
 }
 

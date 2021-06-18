@@ -77,7 +77,7 @@ public:
     std::vector<std::string> classKeywords() const override;
 
 private:
-    ObjectHandle* doCreate( const std::string& classNameKeyword, uint64_t ) override;
+    std::unique_ptr<ObjectHandle> doCreate( const std::string& classNameKeyword, uint64_t ) override;
 
     DefaultObjectFactory() {}
     ~DefaultObjectFactory() override
@@ -91,14 +91,14 @@ private:
     public:
         ObjectCreatorBase() {}
         virtual ~ObjectCreatorBase() {}
-        virtual ObjectHandle* create() = 0;
+        virtual std::unique_ptr<ObjectHandle> create() = 0;
     };
 
     template <typename ObjectBaseDerivative>
     class ObjectCreator : public ObjectCreatorBase
     {
     public:
-        ObjectHandle* create() override { return new ObjectBaseDerivative(); }
+        std::unique_ptr<ObjectHandle> create() override { return std::make_unique<ObjectBaseDerivative>(); }
     };
 
     // Map to store factory

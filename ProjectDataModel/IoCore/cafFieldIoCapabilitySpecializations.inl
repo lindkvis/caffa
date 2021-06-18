@@ -61,7 +61,7 @@ void FieldIoCap<ChildField<DataType*>>::writeToField( const nlohmann::json& json
 
     std::string className = jsonObject["classKeyword"].get<std::string>();
 
-    ObjectHandle* obj = nullptr;
+    Pointer<ObjectHandle> objPtr;
 
     // Create a new object
     {
@@ -71,9 +71,8 @@ void FieldIoCap<ChildField<DataType*>>::writeToField( const nlohmann::json& json
         auto     it            = jsonObject.find( "serverAddress" );
         if ( it != jsonObject.end() ) serverAddress = it->get<uint64_t>();
 
-        obj = objectFactory->create( className, serverAddress );
-
-        if ( obj == nullptr )
+        auto obj = objectFactory->create( className, serverAddress );
+        if ( !obj )
         {
             std::cout << "Warning: Unknown object type with class name: " << className
                       << " found while reading the field : " << m_field->keyword() << std::endl;
@@ -82,6 +81,8 @@ void FieldIoCap<ChildField<DataType*>>::writeToField( const nlohmann::json& json
         }
         else
         {
+            objPtr = obj.get();
+
             auto ioObject = obj->template capability<caffa::ObjectIoCapability>();
             if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
             {
@@ -89,13 +90,12 @@ void FieldIoCap<ChildField<DataType*>>::writeToField( const nlohmann::json& json
                                        // ClassKeyword
                 return;
             }
-
-            m_field->m_fieldValue.setRawPtr( obj );
             obj->setAsParentField( m_field );
+            m_field->m_fieldValue.setRawPtr( obj.release() );
         }
     }
 
-    auto ioObject = obj->template capability<caffa::ObjectIoCapability>();
+    auto ioObject = objPtr->template capability<caffa::ObjectIoCapability>();
     if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
     {
         // Error: Field contains different class type than on file
@@ -107,7 +107,8 @@ void FieldIoCap<ChildField<DataType*>>::writeToField( const nlohmann::json& json
     }
 
     // Everything seems ok, so read the contents of the object:
-    ObjectJsonCapability::readFieldsFronJson( obj, jsonObject, objectFactory, copyDataValues );
+    CAFFA_ASSERT( objPtr.notNull() );
+    ObjectJsonCapability::readFieldsFronJson( objPtr.p(), jsonObject, objectFactory, copyDataValues );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,9 +164,9 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeToField( const nlohmann::json&
         if ( it != jsonObject.end() ) serverAddress = it->get<uint64_t>();
 
         CAFFA_ASSERT( objectFactory );
-        ObjectHandle* obj = objectFactory->create( className, serverAddress );
+        std::unique_ptr<ObjectHandle> obj = objectFactory->create( className, serverAddress );
 
-        if ( obj == nullptr )
+        if ( !obj )
         {
             // Warning: Unknown className read
             // Skip to corresponding end element
@@ -185,11 +186,11 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeToField( const nlohmann::json&
             continue;
         }
 
-        ObjectJsonCapability::readFieldsFronJson( obj, jsonObject, objectFactory, copyDataValues );
+        ObjectJsonCapability::readFieldsFronJson( obj.get(), jsonObject, objectFactory, copyDataValues );
 
         m_field->m_pointers.push_back( Pointer<DataType>() );
-        m_field->m_pointers.back().setRawPtr( obj );
         obj->setAsParentField( m_field );
+        m_field->m_pointers.back().setRawPtr( obj.release() );
     }
 }
 //--------------------------------------------------------------------------------------------------

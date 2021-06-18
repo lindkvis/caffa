@@ -237,6 +237,9 @@ TEST( BaseTest, ChildArrayFieldSerializing )
         ihd1->readObjectFromString( serializedString, caffa::DefaultObjectFactory::instance() );
         ASSERT_EQ( 3u, ihd1->m_childArrayField.size() );
 
+        ASSERT_TRUE( ihd1->m_childArrayField[0] != nullptr );
+        ASSERT_TRUE( ihd1->m_childArrayField[1] != nullptr );
+        ASSERT_TRUE( ihd1->m_childArrayField[2] != nullptr );
         ASSERT_DOUBLE_EQ( 10, ihd1->m_childArrayField[0]->m_proxyDoubleField.value() );
         ASSERT_DOUBLE_EQ( 20, ihd1->m_childArrayField[1]->m_proxyDoubleField.value() );
         ASSERT_DOUBLE_EQ( 30, ihd1->m_childArrayField[2]->m_proxyDoubleField.value() );

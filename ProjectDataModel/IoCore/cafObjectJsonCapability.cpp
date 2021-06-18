@@ -37,14 +37,15 @@ std::string ObjectJsonCapability::writeObjectToString( const ObjectHandle* objec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle* ObjectJsonCapability::copyByJsonSerialization( const ObjectHandle* object, ObjectFactory* objectFactory )
+std::unique_ptr<ObjectHandle> ObjectJsonCapability::copyByJsonSerialization( const ObjectHandle* object,
+                                                                             ObjectFactory*      objectFactory )
 {
     auto ioCapability = object->capability<ObjectIoCapability>();
     ioCapability->setupBeforeSaveRecursively();
 
     std::string string = writeObjectToString( object, false );
 
-    ObjectHandle* objectCopy = readUnknownObjectFromString( string, objectFactory, true );
+    std::unique_ptr<ObjectHandle> objectCopy = readUnknownObjectFromString( string, objectFactory, true );
     if ( !objectCopy ) return nullptr;
 
     objectCopy->capability<ObjectIoCapability>()->initAfterReadRecursively();
@@ -55,22 +56,23 @@ ObjectHandle* ObjectJsonCapability::copyByJsonSerialization( const ObjectHandle*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle* ObjectJsonCapability::copyAndCastByJsonSerialization( const ObjectHandle* object,
-                                                                    const std::string&  destinationClassKeyword,
-                                                                    const std::string&  sourceClassKeyword,
-                                                                    ObjectFactory*      objectFactory )
+std::unique_ptr<ObjectHandle>
+    ObjectJsonCapability::copyAndCastByJsonSerialization( const ObjectHandle* object,
+                                                          const std::string&  destinationClassKeyword,
+                                                          const std::string&  sourceClassKeyword,
+                                                          ObjectFactory*      objectFactory )
 {
     auto ioCapability = object->capability<ObjectIoCapability>();
     ioCapability->setupBeforeSaveRecursively();
 
     std::string string = writeObjectToString( object, false );
 
-    ObjectHandle* upgradedObject = objectFactory->create( destinationClassKeyword );
+    std::unique_ptr<ObjectHandle> upgradedObject = objectFactory->create( destinationClassKeyword );
     if ( !upgradedObject ) return nullptr;
 
     nlohmann::json jsonObject = nlohmann::json::parse( string );
 
-    readFieldsFronJson( upgradedObject, jsonObject, objectFactory, true );
+    readFieldsFronJson( upgradedObject.get(), jsonObject, objectFactory, true );
 
     upgradedObject->capability<ObjectIoCapability>()->initAfterReadRecursively();
 
@@ -80,9 +82,9 @@ ObjectHandle* ObjectJsonCapability::copyAndCastByJsonSerialization( const Object
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle* ObjectJsonCapability::readUnknownObjectFromString( const std::string& string,
-                                                                 ObjectFactory*     objectFactory,
-                                                                 bool               copyDataValues )
+std::unique_ptr<ObjectHandle> ObjectJsonCapability::readUnknownObjectFromString( const std::string& string,
+                                                                                 ObjectFactory*     objectFactory,
+                                                                                 bool               copyDataValues )
 {
     nlohmann::json jsonObject       = nlohmann::json::parse( string );
     const auto&    jsonClassKeyword = jsonObject["classKeyword"];
@@ -97,11 +99,11 @@ ObjectHandle* ObjectJsonCapability::readUnknownObjectFromString( const std::stri
         serverAddress = it->get<uint64_t>();
     }
 
-    ObjectHandle* newObject = objectFactory->create( classKeyword, serverAddress );
+    std::unique_ptr<ObjectHandle> newObject = objectFactory->create( classKeyword, serverAddress );
 
     if ( !newObject ) return nullptr;
 
-    readFieldsFronJson( newObject, jsonObject, objectFactory, copyDataValues );
+    readFieldsFronJson( newObject.get(), jsonObject, objectFactory, copyDataValues );
 
     return newObject;
 }

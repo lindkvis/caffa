@@ -27,14 +27,14 @@ class ObjectJsonCapability
 public:
     /// Convenience methods to serialize/de-serialize this particular object (with children)
     static void readObjectFromString( ObjectHandle* object, const std::string& string, ObjectFactory* objectFactory );
-    static std::string   writeObjectToString( const ObjectHandle* object, bool copyServerAddress );
-    static ObjectHandle* copyByJsonSerialization( const ObjectHandle* object, ObjectFactory* objectFactory );
-    static ObjectHandle* copyAndCastByJsonSerialization( const ObjectHandle* object,
-                                                         const std::string&  destinationClassKeyword,
-                                                         const std::string&  sourceClassKeyword,
-                                                         ObjectFactory*      objectFactory );
+    static std::string                   writeObjectToString( const ObjectHandle* object, bool copyServerAddress );
+    static std::unique_ptr<ObjectHandle> copyByJsonSerialization( const ObjectHandle* object, ObjectFactory* objectFactory );
+    static std::unique_ptr<ObjectHandle> copyAndCastByJsonSerialization( const ObjectHandle* object,
+                                                                         const std::string&  destinationClassKeyword,
+                                                                         const std::string&  sourceClassKeyword,
+                                                                         ObjectFactory*      objectFactory );
 
-    static ObjectHandle*
+    static std::unique_ptr<ObjectHandle>
         readUnknownObjectFromString( const std::string& string, ObjectFactory* objectFactory, bool copyDataValues );
 
     static void readFile( ObjectHandle* object, std::istream& file, ObjectFactory* objectFactory = nullptr );

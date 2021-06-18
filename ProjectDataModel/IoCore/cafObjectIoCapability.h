@@ -40,19 +40,19 @@ public:
     virtual bool                     matchesClassKeyword( const std::string& classKeyword ) const = 0;
     virtual std::vector<std::string> classInheritanceStack() const                                = 0;
 
-    static ObjectHandle* readUnknownObjectFromString( const std::string& string,
-                                                      ObjectFactory*     objectFactory,
-                                                      bool               copyDataValues,
-                                                      IoType             ioType = IoType::JSON );
+    static std::unique_ptr<ObjectHandle> readUnknownObjectFromString( const std::string& string,
+                                                                      ObjectFactory*     objectFactory,
+                                                                      bool               copyDataValues,
+                                                                      IoType             ioType = IoType::JSON );
     void readObjectFromString( const std::string& string, ObjectFactory* objectFactory, IoType ioType = IoType::JSON );
     std::string writeObjectToString( IoType ioType = IoType::JSON, bool copyServerAddress = false ) const;
 
-    ObjectHandle* copyBySerialization( ObjectFactory* objectFactory, IoType ioType = IoType::JSON );
+    std::unique_ptr<ObjectHandle> copyBySerialization( ObjectFactory* objectFactory, IoType ioType = IoType::JSON );
 
-    ObjectHandle* copyAndCastBySerialization( const std::string& destinationClassKeyword,
-                                              const std::string& sourceClassKeyword,
-                                              ObjectFactory*     objectFactory,
-                                              IoType             ioType = IoType::JSON );
+    std::unique_ptr<ObjectHandle> copyAndCastBySerialization( const std::string& destinationClassKeyword,
+                                                              const std::string& sourceClassKeyword,
+                                                              ObjectFactory*     objectFactory,
+                                                              IoType             ioType = IoType::JSON );
 
     /// Check if a string is a valid element name
     static bool isValidElementName( const std::string& name );

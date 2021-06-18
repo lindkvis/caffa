@@ -24,12 +24,12 @@ ObjectIoCapability::ObjectIoCapability( ObjectHandle* owner, bool giveOwnership 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle* ObjectIoCapability::readUnknownObjectFromString( const std::string& string,
-                                                               ObjectFactory*     objectFactory,
-                                                               bool               copyDataValues,
-                                                               IoType             ioType /*= IoType::JSON */ )
+std::unique_ptr<ObjectHandle> ObjectIoCapability::readUnknownObjectFromString( const std::string& string,
+                                                                               ObjectFactory*     objectFactory,
+                                                                               bool               copyDataValues,
+                                                                               IoType ioType /*= IoType::JSON */ )
 {
-    ObjectHandle* object = nullptr;
+    std::unique_ptr<ObjectHandle> object;
 
     switch ( ioType )
     {
@@ -89,8 +89,8 @@ std::string ObjectIoCapability::writeObjectToString( IoType ioType /*= IoType::J
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caffa::ObjectHandle* ObjectIoCapability::copyBySerialization( ObjectFactory* objectFactory,
-                                                              IoType         ioType /*= IoType::JSON */ )
+std::unique_ptr<ObjectHandle> ObjectIoCapability::copyBySerialization( ObjectFactory* objectFactory,
+                                                                       IoType         ioType /*= IoType::JSON */ )
 {
     switch ( ioType )
     {
@@ -109,10 +109,10 @@ caffa::ObjectHandle* ObjectIoCapability::copyBySerialization( ObjectFactory* obj
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caffa::ObjectHandle* ObjectIoCapability::copyAndCastBySerialization( const std::string& destinationClassKeyword,
-                                                                     const std::string& sourceClassKeyword,
-                                                                     ObjectFactory*     objectFactory,
-                                                                     IoType             ioType /*= IoType::JSON */ )
+std::unique_ptr<ObjectHandle> ObjectIoCapability::copyAndCastBySerialization( const std::string& destinationClassKeyword,
+                                                                              const std::string& sourceClassKeyword,
+                                                                              ObjectFactory*     objectFactory,
+                                                                              IoType ioType /*= IoType::JSON */ )
 {
     switch ( ioType )
     {

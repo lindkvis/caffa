@@ -46,7 +46,7 @@ public:
     void                     setGrpcClient( Client* client );
 
 private:
-    ObjectHandle* doCreate( const std::string& classNameKeyword, uint64_t addressOnServer ) override;
+    std::unique_ptr<ObjectHandle> doCreate( const std::string& classNameKeyword, uint64_t addressOnServer ) override;
 
     GrpcClientObjectFactory()
         : m_grpcClient( nullptr )
