@@ -18,7 +18,7 @@ public:
     ObjectGroup();
     ~ObjectGroup() override;
 
-    std::vector<ObjectHandle*> objects;
+    std::vector<Pointer<ObjectHandle>> objects;
 
     void deleteObjects();
     void addObject( ObjectHandle* obj );
@@ -27,39 +27,39 @@ public:
     void objectsByType( std::vector<Pointer<T>>* typedObjects ) const
     {
         if ( !typedObjects ) return;
-        size_t it;
-        for ( it = 0; it != objects.size(); ++it )
+        for ( auto object : objects )
         {
-            T* obj = dynamic_cast<T*>( objects[it] );
+            T* obj = dynamic_cast<T*>( object.p() );
             if ( obj ) typedObjects->push_back( obj );
         }
     }
 
     template <typename T>
-    void createCopyByType( std::vector<Pointer<T>>* copyOfTypedObjects, ObjectFactory* objectFactory ) const;
+    std::vector<std::unique_ptr<T>> createCopyByType( ObjectFactory* objectFactory ) const;
 };
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void ObjectGroup::createCopyByType( std::vector<Pointer<T>>* copyOfTypedObjects, ObjectFactory* objectFactory ) const
+std::vector<std::unique_ptr<T>> ObjectGroup::createCopyByType( ObjectFactory* objectFactory ) const
 {
-    std::vector<Pointer<T>> sourceTypedObjects;
+    std::vector<std::unique_ptr<T>> copyOfTypedObjects;
+    std::vector<Pointer<T>>         sourceTypedObjects;
     objectsByType( &sourceTypedObjects );
 
-    for ( size_t i = 0; i < sourceTypedObjects.size(); i++ )
+    for ( Pointer<T> object : sourceTypedObjects )
     {
-        auto          ioCapability = sourceTypedObjects[i]->template capability<ObjectIoCapability>();
-        std::string   string       = ioCapability->writeObjectToString();
-        ObjectHandle* objectCopy =
-            ObjectIoCapability::readUnknownObjectFromString( string, DefaultObjectFactory::instance(), true );
-
-        T* typedObject = dynamic_cast<T*>( objectCopy );
+        if ( object.isNull() ) continue;
+        auto        ioCapability = object->template capability<ObjectIoCapability>();
+        std::string string       = ioCapability->writeObjectToString();
+        auto objectCopy = ObjectIoCapability::readUnknownObjectFromString( string, DefaultObjectFactory::instance(), true );
+        auto typedObject = caffa::static_unique_cast<T>( std::move( objectCopy ) );
         CAFFA_ASSERT( typedObject );
 
-        copyOfTypedObjects->push_back( typedObject );
+        copyOfTypedObjects->push_back( std::move( typedObject ) );
     }
+    return copyOfTypedObjects;
 }
 
 //==================================================================================================
