@@ -9,8 +9,6 @@
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
-#include "cafPtrField.h"
-#include "cafReferenceHelper.h"
 
 class ItemObject : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
@@ -85,17 +83,12 @@ public:
         doubleProxyAccessor->registerSetMethod( this, &DemoObjectA::setDoubleMember );
         doubleProxyAccessor->registerGetMethod( this, &DemoObjectA::doubleMember );
         m_doubleField.setFieldDataAccessor( std::move( doubleProxyAccessor ) );
-
-        CAFFA_IO_InitField( &m_pointerToItem, "TestPointerToItem" );
-        CAFFA_IO_InitField( &m_pointerToDemoObj, "TestPointerToDemo" );
     }
 
     ~DemoObjectA() {}
 
     // Fields
-    caffa::DataValueField<double>       m_doubleField;
-    caffa::PtrField<caffa::ObjectHandle*> m_pointerToItem;
-    caffa::PtrField<caffa::ObjectHandle*> m_pointerToDemoObj;
+    caffa::DataValueField<double> m_doubleField;
 
     void setDoubleMember( const double& d )
     {
@@ -158,61 +151,16 @@ TEST( AdvancedObjectTest, FieldWrite )
 
     std::vector<caffa::ObjectIoCapability::IoType> ioTypes = { caffa::ObjectIoCapability::IoType::JSON };
 
-    // Test with empty ptr field
-    for ( auto ioType : ioTypes )
-    {
-        std::string serializedString;
-        {
-            auto a           = std::make_unique<DemoObjectA>();
-            auto ap          = siblingPtr->m_demoObjs.push_back( std::move( a ) );
-            serializedString = ap->writeObjectToString( ioType );
-
-            std::cout << serializedString << std::endl;
-        }
-
-        {
-            auto a  = std::make_unique<DemoObjectA>();
-            auto ap = siblingPtr->m_demoObjs.push_back( std::move( a ) );
-            ap->readObjectFromString( serializedString, caffa::DefaultObjectFactory::instance(), ioType );
-            ap->capability<caffa::ObjectIoCapability>()->resolveReferencesRecursively();
-
-            ASSERT_TRUE( ap->m_pointerToItem() == nullptr );
-        }
-    }
-
-    for ( auto ioType : ioTypes )
-    {
-        std::string serializedString;
-        {
-            auto a = std::make_unique<DemoObjectA>();
-
-            a->m_pointerToItem = containerPtr->m_items[1];
-            auto ap            = siblingPtr->m_demoObjs.push_back( std::move( a ) );
-
-            serializedString = ap->writeObjectToString( ioType );
-
-            std::cout << serializedString << std::endl;
-            ASSERT_TRUE( ap->m_pointerToItem() == containerPtr->m_items[1] );
-        }
-
-        {
-            auto a  = std::make_unique<DemoObjectA>();
-            auto ap = siblingPtr->m_demoObjs.push_back( std::move( a ) );
-
-            ap->readObjectFromString( serializedString, caffa::DefaultObjectFactory::instance(), ioType );
-            ap->capability<caffa::ObjectIoCapability>()->resolveReferencesRecursively();
-
-            ASSERT_TRUE( ap->m_pointerToItem() == containerPtr->m_items[1] );
-        }
-    }
-
     for ( auto ioType : ioTypes )
     {
         std::string string = root->writeObjectToString( ioType );
         std::cout << string << std::endl;
 
         caffa::ObjectHandle* objCopy =
-            caffa::ObjectIoCapability::readUnknownObjectFromString( string, caffa::DefaultObjectFactory::instance(), true, ioType );
+            caffa::ObjectIoCapability::readUnknownObjectFromString( string,
+                                                                    caffa::DefaultObjectFactory::instance(),
+                                                                    true,
+                                                                    ioType );
         auto rootCopy = dynamic_cast<ContainerObject*>( objCopy );
         ASSERT_TRUE( rootCopy != nullptr );
     }
@@ -253,18 +201,18 @@ TEST( AdvancedObjectTest, CopyOfObjects )
         for ( auto ioType : ioTypes )
         {
             {
-                auto a  = std::make_unique<DemoObjectA>();
-                auto ap = siblingPtr->m_demoObjs.push_back( std::move( a ) );
-
-                ap->m_pointerToItem = containerPtr->m_items[1];
-
+                auto        a              = std::make_unique<DemoObjectA>();
+                auto        ap             = siblingPtr->m_demoObjs.push_back( std::move( a ) );
+                std::string originalOutput = ap->writeObjectToString();
                 {
                     auto objCopy = ap->capability<caffa::ObjectIoCapability>()
                                        ->copyBySerialization( caffa::DefaultObjectFactory::instance(), ioType );
-                    auto                           demoObj = dynamic_cast<DemoObjectA*>( objCopy );
-                    std::vector<caffa::FieldHandle*> fieldWithFailingResolve;
-                    demoObj->resolveReferencesRecursively( &fieldWithFailingResolve );
-                    ASSERT_FALSE( fieldWithFailingResolve.empty() );
+                    auto demoObj = dynamic_cast<DemoObjectA*>( objCopy );
+
+                    std::string copyOutput = ap->capability<caffa::ObjectIoCapability>()->writeObjectToString();
+
+                    ASSERT_EQ( originalOutput, copyOutput );
+
                     delete objCopy;
                 }
 
@@ -274,10 +222,6 @@ TEST( AdvancedObjectTest, CopyOfObjects )
 
                     auto demoObj = dynamic_cast<DemoObjectA*>( objCopy );
                     siblingPtr->m_demoObjs.push_back( std::unique_ptr<DemoObjectA>( demoObj ) );
-
-                    std::vector<caffa::FieldHandle*> fieldWithFailingResolve;
-                    demoObj->resolveReferencesRecursively( &fieldWithFailingResolve );
-                    ASSERT_TRUE( fieldWithFailingResolve.empty() );
                 }
             }
         }

@@ -8,7 +8,6 @@
 #include "cafDataValueField.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafObjectHandle.h"
-#include "cafPtrField.h"
 
 #include <string>
 

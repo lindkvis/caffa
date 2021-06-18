@@ -60,8 +60,6 @@ public:
     void initAfterReadRecursively() { initAfterReadRecursively( this->m_owner ); };
     void setupBeforeSaveRecursively() { setupBeforeSaveRecursively( this->m_owner ); };
 
-    void resolveReferencesRecursively( std::vector<FieldHandle*>* fieldWithFailingResolve = nullptr );
-
     bool readFile( const std::string& fileName, IoType ioType = IoType::JSON );
     bool writeFile( const std::string& fileName, IoType ioType = IoType::JSON );
 
@@ -81,7 +79,6 @@ protected: // Virtual
 private:
     void initAfterReadRecursively( ObjectHandle* object );
     void setupBeforeSaveRecursively( ObjectHandle* object );
-    void resolveReferencesRecursively( ObjectHandle* object, std::vector<FieldHandle*>* fieldWithFailingResolve );
 
 protected:
     friend class ObjectHandle; // Only temporary for void Object::addFieldNoDefault( ) accessing findField

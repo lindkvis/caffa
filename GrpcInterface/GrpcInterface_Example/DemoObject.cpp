@@ -33,7 +33,6 @@ InheritedDemoObj::InheritedDemoObj()
 {
     initField( m_texts, "Texts" ).withScripting();
     initField( m_childArrayField, "DemoObjects" ).withScripting();
-    initField( m_ptrField, "m_ptrField" ).withScripting();
 }
 
 CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject", "DemoObject" );

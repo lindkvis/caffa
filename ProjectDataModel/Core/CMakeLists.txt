@@ -31,12 +31,7 @@ set(PUBLIC_HEADERS
     cafPointer.h
     cafPortableDataType.h
     cafFieldProxyAccessor.h
-    cafPtrArrayField.h
-    cafPtrArrayField.inl
-    cafPtrArrayFieldHandle.h
-    cafPtrField.h
-    cafPtrField.inl
-    cafReferenceHelper.h
+    cafChildArrayFieldHandle.h
     cafValueField.h
     cafValueFieldSpecializations.h
     cafSignal.h
@@ -52,7 +47,6 @@ set(PROJECT_FILES
     cafLogger.cpp
     cafObjectHandle.cpp
     cafPointer.cpp
-    cafReferenceHelper.cpp
     cafSignal.cpp
     cafStringTools.cpp
     cafVariant.cpp

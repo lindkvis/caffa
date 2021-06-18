@@ -7,7 +7,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 set(PROJECT_FILES
     cafCore_UnitTests.cpp
     cafCoreBasicTest.cpp
-    cafReferenceHelperTest.cpp
     cafChildArrayFieldHandleTest.cpp
     cafFifoFieldTest.cpp
     cafSignalTest.cpp

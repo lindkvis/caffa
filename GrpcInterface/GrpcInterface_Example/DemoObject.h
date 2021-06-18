@@ -23,8 +23,6 @@
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafObjectHandle.h"
-#include "cafPtrField.h"
-#include "cafReferenceHelper.h"
 #include "cafValueField.h"
 
 #include <iostream>
@@ -69,7 +67,6 @@ public:
 
     caffa::Field<std::string>           m_texts;
     caffa::ChildArrayField<DemoObject*> m_childArrayField;
-    caffa::PtrField<InheritedDemoObj*>  m_ptrField;
 };
 
 class DemoDocument : public caffa::Document

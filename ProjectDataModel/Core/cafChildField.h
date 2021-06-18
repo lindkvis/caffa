@@ -33,8 +33,8 @@ public:
 
     ChildField()
     {
-        bool doNotUsePtrFieldForAnythingButPointersToObject = false;
-        CAFFA_ASSERT( doNotUsePtrFieldForAnythingButPointersToObject );
+        bool doNotUseChildFieldForAnythingButPointersToObject = false;
+        CAFFA_ASSERT( doNotUseChildFieldForAnythingButPointersToObject );
     }
 };
 

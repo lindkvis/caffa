@@ -9,11 +9,11 @@ namespace caffa
 ///
 ///
 //==================================================================================================
-class PtrArrayFieldHandle : public FieldHandle
+class ChildArrayFieldHandle : public FieldHandle
 {
 public:
-    PtrArrayFieldHandle() {}
-    ~PtrArrayFieldHandle() override {}
+    ChildArrayFieldHandle() {}
+    ~ChildArrayFieldHandle() override {}
 
     virtual size_t size() const          = 0;
     virtual bool   empty() const         = 0;
@@ -21,6 +21,10 @@ public:
     virtual void   erase( size_t index ) = 0;
 
     virtual ObjectHandle* at( size_t index ) = 0;
+
+    virtual Pointer<ObjectHandle> insertAt( size_t index, std::unique_ptr<ObjectHandle> obj ) = 0;
+
+    bool hasSameFieldCountForAllObjects();
 };
 
 } // namespace caffa

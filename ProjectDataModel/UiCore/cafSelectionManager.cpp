@@ -38,7 +38,6 @@
 
 #include "cafFieldUiCapability.h"
 #include "cafObjectUiCapability.h"
-#include "cafReferenceHelper.h"
 
 #include <string>
 
@@ -250,58 +249,6 @@ void SelectionManager::setSelectedItemAtLevel( UiItem* item, int selectionLevel 
 SelectionManager::SelectionManager()
 {
     m_activeChildArrayFieldHandle = nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void SelectionManager::selectionAsReferences( std::vector<std::string>& referenceList, int selectionLevel /*= 0*/ ) const
-{
-    const auto& levelSelectionPairIt = m_selectionPrLevel.find( selectionLevel );
-
-    if ( levelSelectionPairIt == m_selectionPrLevel.end() ) return;
-
-    const std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>& selection = levelSelectionPairIt->second;
-
-    for ( size_t i = 0; i < selection.size(); i++ )
-    {
-        if ( !selection[i].first.isNull() )
-        {
-            ObjectUiCapability* obj = dynamic_cast<ObjectUiCapability*>( selection[i].second );
-            if ( obj )
-            {
-                std::string itemRef = ReferenceHelper::referenceFromRootToObject( m_rootObject, obj->objectHandle() );
-
-                referenceList.push_back( itemRef );
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void SelectionManager::setSelectionAtLevelFromReferences( const std::vector<std::string>& referenceList,
-                                                          int                             selectionLevel /*= 0*/ )
-{
-    std::vector<UiItem*> uiItems;
-
-    for ( size_t i = 0; i < referenceList.size(); i++ )
-    {
-        std::string reference = referenceList[i];
-
-        ObjectHandle* obj = ReferenceHelper::objectFromReference( m_rootObject, reference );
-        if ( obj )
-        {
-            caffa::ObjectUiCapability* uiObject = uiObj( obj );
-            if ( uiObject )
-            {
-                uiItems.push_back( uiObject );
-            }
-        }
-    }
-
-    setSelectedItemsAtLevel( uiItems, selectionLevel );
 }
 
 //--------------------------------------------------------------------------------------------------

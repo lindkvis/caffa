@@ -16,9 +16,7 @@
 #include "cafFieldUiCapability.h"
 #include "cafObject.h"
 #include "cafObjectGroup.h"
-#include "cafPtrField.h"
 #include "cafQActionWrapper.h"
-#include "cafReferenceHelper.h"
 #include "cafSelectionManager.h"
 #include "cafUiComboBoxEditor.h"
 #include "cafUiItem.h"
@@ -601,7 +599,6 @@ public:
                     "This is a place you can enter a small integer value if you want");
         initField(m_textField, "TextField", "Small Demo Object A").withUi("Name Text Field", "", "", "");
         initField(m_testEnumField, "TestEnumValue", caffa::AppEnum<TestEnumType>(T1)).withUi("EnumField", "", "", "");
-        initField(m_ptrField, "m_ptrField").withUi("PtrField", "", "", "");
 
         initField(m_proxyEnumField, "ProxyEnumValue").withUi("ProxyEnum", "", "", "");
         auto enumProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<caffa::AppEnum<TestEnumType>>>();
@@ -624,7 +621,6 @@ public:
     caffa::Field<int>                          m_intField;
     caffa::Field<std::string>                  m_textField;
     caffa::Field<caffa::AppEnum<TestEnumType>> m_testEnumField;
-    caffa::PtrField<SmallDemoObjectA*>         m_ptrField;
 
     caffa::DataValueField<caffa::AppEnum<TestEnumType>> m_proxyEnumField;
     void                                                setEnumMember(const caffa::AppEnum<TestEnumType>& val)
@@ -673,37 +669,7 @@ public:
     {
         std::deque<caffa::OptionItemInfo> options;
 
-        if (&m_ptrField == fieldNeedingOptions)
-        {
-            caffa::FieldHandle*               field;
-            std::vector<caffa::ObjectHandle*> objects;
-            field = this->parentField();
-
-            field->childObjects(&objects);
-
-            for (size_t i = 0; i < objects.size(); ++i)
-            {
-                std::string userDesc;
-
-                caffa::ObjectUiCapability* uiObject = caffa::uiObj(objects[i]);
-                if (uiObject)
-                {
-                    if (objects[i]->userDescriptionField())
-                    {
-                        caffa::FieldUiCapability* uiFieldHandle =
-                            objects[i]->userDescriptionField()->capability<caffa::FieldUiCapability>();
-                        if (uiFieldHandle)
-                        {
-                            userDesc = uiFieldHandle->uiValue().value<std::string>();
-                        }
-                    }
-
-                    options.push_back(
-                        caffa::OptionItemInfo(userDesc, caffa::Variant(caffa::Pointer<caffa::ObjectHandle>(objects[i]))));
-                }
-            }
-        }
-        else if (&m_multipleAppEnum == fieldNeedingOptions)
+        if (&m_multipleAppEnum == fieldNeedingOptions)
         {
             for (size_t i = 0; i < caffa::AppEnum<TestEnumType>::size(); ++i)
             {
@@ -810,8 +776,6 @@ public:
         m_objectListOfSameType.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(
             caffa::UiTableViewEditor::uiEditorTypeName());
         m_objectListOfSameType.capability<caffa::FieldUiCapability>()->setCustomContextMenuEnabled(true);
-        ;
-        initField(m_ptrField, "m_ptrField").withUi("PtrField", "", "Same type List", "Same type list of Objects");
 
         m_longText.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(caffa::UiTextEditor::uiEditorTypeName());
         m_longText.capability<caffa::FieldUiCapability>()->setUiLabelPosition(caffa::UiItemInfo::HIDDEN);
@@ -825,7 +789,6 @@ public:
     void defineUiOrdering(caffa::UiOrdering& uiOrdering) override
     {
         uiOrdering.add(&m_objectListOfSameType);
-        uiOrdering.add(&m_ptrField);
         uiOrdering.add(&m_boolField);
         caffa::UiGroup* group1 = uiOrdering.addNewGroup("Name1");
         group1->add(&m_doubleField);
@@ -854,27 +817,6 @@ public:
             options.push_back(caffa::OptionItemInfo("Choice 6", "Choice6"));
         }
 
-        if (&m_ptrField == fieldNeedingOptions)
-        {
-            for (size_t i = 0; i < m_objectListOfSameType.size(); ++i)
-            {
-                caffa::ObjectUiCapability* uiObject = caffa::uiObj(m_objectListOfSameType[i]);
-                if (uiObject)
-                {
-                    std::string userDesc;
-
-                    caffa::FieldUiCapability* uiFieldHandle =
-                        this->userDescriptionField()->capability<caffa::FieldUiCapability>();
-                    if (uiFieldHandle)
-                    {
-                        userDesc = uiFieldHandle->uiValue().value<std::string>();
-                    }
-                    options.push_back(caffa::OptionItemInfo(
-                        userDesc, caffa::Variant(caffa::Pointer<caffa::ObjectHandle>(m_objectListOfSameType[i]))));
-                }
-            }
-        }
-
         if (useOptionsOnly) *useOptionsOnly = true;
 
         return options;
@@ -899,7 +841,6 @@ public:
 
     caffa::ChildArrayField<caffa::ObjectHandle*> m_objectList;
     caffa::ChildArrayField<SmallDemoObjectA*>    m_objectListOfSameType;
-    caffa::PtrField<SmallDemoObjectA*>           m_ptrField;
 
     caffa::Field<bool> m_toggleField;
 

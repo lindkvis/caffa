@@ -17,7 +17,6 @@
 #include "cafGrpcServerApplication.h"
 #include "cafLogger.h"
 #include "cafObjectHandle.h"
-#include "cafPtrField.h"
 #include "cafValueField.h"
 
 #include <chrono>
@@ -192,12 +191,10 @@ public:
     {
         this->addField( &m_texts, "Texts" );
         this->addField( &m_childArrayField, "DemoObjectects" );
-        this->addField( &m_ptrField, "m_ptrField" );
     }
 
     caffa::Field<std::string>           m_texts;
     caffa::ChildArrayField<DemoObject*> m_childArrayField;
-    caffa::PtrField<InheritedDemoObj*>  m_ptrField;
 };
 
 CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject", "DemoObject" );

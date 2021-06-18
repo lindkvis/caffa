@@ -83,9 +83,6 @@ public:
     };
     void setSelection( const std::vector<SelectionItem> completeSelection );
 
-    void selectionAsReferences( std::vector<std::string>& referenceList, int selectionLevel = 0 ) const;
-    void setSelectionAtLevelFromReferences( const std::vector<std::string>& referenceList, int selectionLevel );
-
     bool isSelected( UiItem* item, int selectionLevel ) const;
 
     void clearAll();

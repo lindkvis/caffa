@@ -26,7 +26,6 @@ DataType* ChildArrayField<DataType*>::operator[]( size_t index ) const
 
 //--------------------------------------------------------------------------------------------------
 /// Assign a unique pointer and take ownership.
-/// This should be preferred over the method taking a raw pointer
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 Pointer<DataType> ChildArrayField<DataType*>::push_back( DataTypeUniquePtr pointer )
@@ -169,7 +168,7 @@ size_t ChildArrayField<DataType*>::index( const DataType* pointer ) const
         }
     }
 
-    return ( size_t )( -1 ); // Undefined size_t > m_pointers.size();
+    return (size_t)( -1 ); // Undefined size_t > m_pointers.size();
 }
 
 //--------------------------------------------------------------------------------------------------
