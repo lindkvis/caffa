@@ -54,10 +54,10 @@ namespace caffa
 class ObjectFactory
 {
 public:
-    ObjectHandle* create( const std::string& classNameKeyword, uint64_t serverAddress = 0u )
+    std::unique_ptr<ObjectHandle> create( const std::string& classNameKeyword, uint64_t serverAddress = 0u )
     {
-        ObjectHandle* object = doCreate( classNameKeyword, serverAddress );
-        if ( object ) m_objects.push_back( Pointer<ObjectHandle>( object ) );
+        std::unique_ptr<ObjectHandle> object = doCreate( classNameKeyword, serverAddress );
+        if ( object ) m_objects.push_back( Pointer<ObjectHandle>( object.get() ) );
         return object;
     }
 
@@ -109,7 +109,7 @@ protected:
     virtual ~ObjectFactory() {}
 
 private:
-    virtual ObjectHandle* doCreate( const std::string& classNameKeyword, uint64_t serverAddress = 0u ) = 0;
+    virtual std::unique_ptr<ObjectHandle> doCreate( const std::string& classNameKeyword, uint64_t serverAddress = 0u ) = 0;
 
     std::list<Pointer<ObjectHandle>> m_objects;
 };

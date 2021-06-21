@@ -156,12 +156,12 @@ TEST( AdvancedObjectTest, FieldWrite )
         std::string string = root->writeObjectToString( ioType );
         std::cout << string << std::endl;
 
-        caffa::ObjectHandle* objCopy =
+        std::unique_ptr<caffa::ObjectHandle> objCopy =
             caffa::ObjectIoCapability::readUnknownObjectFromString( string,
                                                                     caffa::DefaultObjectFactory::instance(),
                                                                     true,
                                                                     ioType );
-        auto rootCopy = dynamic_cast<ContainerObject*>( objCopy );
+        auto rootCopy = dynamic_cast<ContainerObject*>( objCopy.get() );
         ASSERT_TRUE( rootCopy != nullptr );
     }
 }
@@ -207,21 +207,16 @@ TEST( AdvancedObjectTest, CopyOfObjects )
                 {
                     auto objCopy = ap->capability<caffa::ObjectIoCapability>()
                                        ->copyBySerialization( caffa::DefaultObjectFactory::instance(), ioType );
-                    auto demoObj = dynamic_cast<DemoObjectA*>( objCopy );
-
+                    auto        demoObj    = caffa::static_unique_cast<DemoObjectA>( std::move( objCopy ) );
                     std::string copyOutput = ap->capability<caffa::ObjectIoCapability>()->writeObjectToString();
-
                     ASSERT_EQ( originalOutput, copyOutput );
-
-                    delete objCopy;
                 }
 
                 {
                     auto objCopy = ap->capability<caffa::ObjectIoCapability>()
                                        ->copyBySerialization( caffa::DefaultObjectFactory::instance(), ioType );
 
-                    auto demoObj = dynamic_cast<DemoObjectA*>( objCopy );
-                    siblingPtr->m_demoObjs.push_back( std::unique_ptr<DemoObjectA>( demoObj ) );
+                    siblingPtr->m_demoObjs.push_back( caffa::static_unique_cast<DemoObjectA>( std::move( objCopy ) ) );
                 }
             }
         }
