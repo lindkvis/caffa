@@ -79,29 +79,19 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
     auto          matchingObject = findCafObjectFromRpcObject( self );
     if ( matchingObject )
     {
-        std::shared_ptr<ObjectMethod> method =
-            ObjectMethodFactory::instance()->createMethod( matchingObject, request->method() );
+        auto method = ObjectMethodFactory::instance()->createMethod( matchingObject, request->method() );
         if ( method )
         {
             copyResultOrParameterObjectFromRpcToCaf( &( request->params() ), method.get() );
 
-            ObjectHandle* result = method->execute();
+            auto result = method->execute();
             if ( result )
             {
-                copyResultOrParameterObjectFromCafToRpc( result, reply );
-                if ( !method->resultIsPersistent() )
-                {
-                    delete result;
-                }
+                copyResultOrParameterObjectFromCafToRpc( result.get(), reply );
                 return grpc::Status::OK;
             }
             else
             {
-                if ( method->isNullptrValidResult() )
-                {
-                    return grpc::Status::OK;
-                }
-
                 return grpc::Status( grpc::NOT_FOUND, "No result returned from Method" );
             }
         }

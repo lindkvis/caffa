@@ -60,7 +60,7 @@ ObjectMethodFactory* ObjectMethodFactory::instance()
 //--------------------------------------------------------------------------------------------------
 /// Check the object and the inheritance stack for the specified method name
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<ObjectMethod> ObjectMethodFactory::createMethod( ObjectHandle* self, const std::string& methodName )
+std::unique_ptr<ObjectMethod> ObjectMethodFactory::createMethod( ObjectHandle* self, const std::string& methodName )
 {
     auto classNames = self->capability<ObjectIoCapability>()->classInheritanceStack();
     for ( auto className : classNames )
@@ -75,7 +75,7 @@ std::shared_ptr<ObjectMethod> ObjectMethodFactory::createMethod( ObjectHandle* s
             }
         }
     }
-    return std::shared_ptr<ObjectMethod>();
+    return std::unique_ptr<ObjectMethod>();
 }
 
 //--------------------------------------------------------------------------------------------------
