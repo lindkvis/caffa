@@ -19,7 +19,6 @@
 #include "cafGrpcClient.h"
 #include "cafGrpcClientApplication.h"
 #include "cafGrpcClientObjectFactory.h"
-#include "cafGrpcObjectClientCapability.h"
 
 #include "cafLogger.h"
 

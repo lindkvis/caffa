@@ -9,7 +9,7 @@ namespace caffa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> DefaultObjectFactory::doCreate( const std::string& classNameKeyword, uint64_t )
+std::unique_ptr<ObjectHandle> DefaultObjectFactory::doCreate( const std::string& classNameKeyword )
 {
     std::map<std::string, ObjectCreatorBase*>::iterator entryIt;
     entryIt = m_factoryMap.find( classNameKeyword );

@@ -77,7 +77,7 @@ public:
     std::vector<std::string> classKeywords() const override;
 
 private:
-    std::unique_ptr<ObjectHandle> doCreate( const std::string& classNameKeyword, uint64_t ) override;
+    std::unique_ptr<ObjectHandle> doCreate( const std::string& classNameKeyword ) override;
 
     DefaultObjectFactory() {}
     ~DefaultObjectFactory() override

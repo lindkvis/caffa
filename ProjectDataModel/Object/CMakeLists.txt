@@ -8,6 +8,8 @@ if(CAFFA_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
+find_package(Boost 1.67.0 REQUIRED)
+
 set(PUBLIC_HEADERS cafObject.h cafObjectGroup.h cafFieldScriptingCapability.h cafObjectMethod.h)
 
 include_directories(..)

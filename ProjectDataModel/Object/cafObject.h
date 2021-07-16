@@ -37,7 +37,7 @@
 #pragma once
 
 #include "cafDataFieldAccessor.h"
-#include "cafFieldHandle.h"
+#include "cafField.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafFieldUiCapability.h"
@@ -56,8 +56,6 @@
 
 namespace caffa
 {
-template <class FieldDataType>
-class Field;
 class UiEditorAttribute;
 class UiTreeOrdering;
 class ObjectCapability;
@@ -188,6 +186,12 @@ public:
 
         return FieldInitHelper( field, keyword );
     }
+
+    std::string uuid() const override;
+    void        setUuid( const std::string& uuid );
+
+private:
+    Field<std::string> m_uuid;
 };
 
 } // End of namespace caffa

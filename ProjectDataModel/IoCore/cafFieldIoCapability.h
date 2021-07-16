@@ -38,8 +38,8 @@ public:
     void setIOWritable( bool isWritable ) { m_isIOWritable = isWritable; }
     void setIOReadable( bool isReadable ) { m_isIOReadable = isReadable; }
 
-    virtual void writeToField( const nlohmann::json& value, ObjectFactory* objectFactory, bool copyDataValues ) = 0;
-    virtual void readFromField( nlohmann::json& value, bool copyServerAddress, bool copyDataValues ) const      = 0;
+    virtual void readFromJson( const nlohmann::json& value, ObjectFactory* objectFactory, bool copyDataValues ) = 0;
+    virtual void writeToJson( nlohmann::json& value, bool copyDataValues ) const                                = 0;
 
 protected:
     bool assertValid() const;

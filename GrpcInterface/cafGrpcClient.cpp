@@ -42,7 +42,6 @@
 #include "cafGrpcClientObjectFactory.h"
 #include "cafGrpcException.h"
 #include "cafGrpcFieldService.h"
-#include "cafGrpcObjectClientCapability.h"
 #include "cafGrpcObjectService.h"
 #include "cafLogger.h"
 

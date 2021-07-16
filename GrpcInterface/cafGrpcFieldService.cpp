@@ -585,7 +585,7 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
             {
                 nlohmann::json jsonValue;
 
-                ioCapability->readFromField( jsonValue, true, true );
+                ioCapability->writeToJson( jsonValue, true );
                 reply->set_value( jsonValue.dump() );
                 CAFFA_DEBUG( "Sending value: '" << reply->value() << "'" );
                 return grpc::Status::OK;
@@ -630,7 +630,7 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
             {
                 auto jsonValue = nlohmann::json::parse( request->value() );
                 CAFFA_DEBUG( "   With value: '" << request->value() << "'" );
-                ioCapability->writeToField( jsonValue, caffa::DefaultObjectFactory::instance(), true );
+                ioCapability->readFromJson( jsonValue, caffa::DefaultObjectFactory::instance(), true );
                 return grpc::Status::OK;
             }
         }

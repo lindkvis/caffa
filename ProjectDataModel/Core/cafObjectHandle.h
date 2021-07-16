@@ -171,6 +171,9 @@ public:
      */
     virtual caffa::FieldHandle* userDescriptionField() { return nullptr; }
 
+    virtual std::string uuid() const { return ""; }
+    virtual void        setUuid( const std::string& uuid ) {}
+
 protected:
     /**
      * Add a field to the object

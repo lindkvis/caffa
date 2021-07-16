@@ -45,7 +45,7 @@ public:
                                                                       bool               copyDataValues,
                                                                       IoType             ioType = IoType::JSON );
     void readObjectFromString( const std::string& string, ObjectFactory* objectFactory, IoType ioType = IoType::JSON );
-    std::string writeObjectToString( IoType ioType = IoType::JSON, bool copyServerAddress = false ) const;
+    std::string writeObjectToString( IoType ioType = IoType::JSON ) const;
 
     std::unique_ptr<ObjectHandle> copyBySerialization( ObjectFactory* objectFactory, IoType ioType = IoType::JSON );
 
@@ -64,7 +64,7 @@ public:
     bool writeFile( const std::string& fileName, IoType ioType = IoType::JSON );
 
     bool readFile( std::istream& istream, IoType ioType = IoType::JSON );
-    bool writeFile( std::ostream& ostream, IoType ioType = IoType::JSON, bool copyServerAddress = false );
+    bool writeFile( std::ostream& ostream, IoType ioType = IoType::JSON );
 
 protected: // Virtual
     /// Method gets called from Document after all objects are read.

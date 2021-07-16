@@ -29,7 +29,6 @@ set(PUBLIC_HEADERS
     cafGrpcApplication.h
     cafGrpcServerApplication.h
     cafGrpcClient.h
-    cafGrpcObjectClientCapability.h
     cafGrpcClientObjectFactory.h
     cafGrpcClientApplication.h)
 

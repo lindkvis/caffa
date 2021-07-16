@@ -24,8 +24,8 @@ public:
 
 public:
     // Json Serializing
-    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
-    void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
+    void readFromJson( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
+    void writeToJson( nlohmann::json& jsonValue, bool copyDataValues ) const override;
 
 private:
     FieldType* m_field;
@@ -45,8 +45,8 @@ public:
 
 public:
     // Json Serializing
-    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
-    void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
+    void readFromJson( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
+    void writeToJson( nlohmann::json& jsonValue, bool copyDataValues ) const override;
 
 private:
     FieldType* m_field;
@@ -66,8 +66,8 @@ public:
 
 public:
     // Json Serializing
-    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
-    void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
+    void readFromJson( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
+    void writeToJson( nlohmann::json& jsonValue, bool copyDataValues ) const override;
 
 private:
     FieldType* m_field;
@@ -88,8 +88,8 @@ public:
 
 public:
     // Json Serializing
-    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
-    void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
+    void readFromJson( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
+    void writeToJson( nlohmann::json& jsonValue, bool copyDataValues ) const override;
 
     void   setMaximumPackagesForIoOutput( size_t maximumPackageCount ) { m_readLimit = maximumPackageCount; }
     size_t maximumPackagesForIoOutput() const { return m_readLimit; }
@@ -114,8 +114,8 @@ public:
 
 public:
     // Json Serializing
-    void writeToField( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
-    void readFromField( nlohmann::json& jsonValue, bool copyServerAddress, bool copyDataValues ) const override;
+    void readFromJson( const nlohmann::json& jsonValue, ObjectFactory* objectFactory, bool copyDataValues ) override;
+    void writeToJson( nlohmann::json& jsonValue, bool copyDataValues ) const override;
 
     void   setMaximumPackagesForIoOutput( size_t maximumPackageCount ) { m_readLimit = maximumPackageCount; }
     size_t maximumPackagesForIoOutput() const { return m_readLimit; }

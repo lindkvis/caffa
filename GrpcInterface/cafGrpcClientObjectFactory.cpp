@@ -7,7 +7,6 @@
 #include "cafGrpcClient.h"
 #include "cafGrpcDataFieldAccessor.h"
 #include "cafGrpcException.h"
-#include "cafGrpcObjectClientCapability.h"
 
 #include <memory>
 
@@ -20,23 +19,21 @@ namespace caffa::rpc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> GrpcClientObjectFactory::doCreate( const std::string& classNameKeyword,
-                                                                 uint64_t           addressOnServer )
+std::unique_ptr<ObjectHandle> GrpcClientObjectFactory::doCreate( const std::string& classNameKeyword )
 {
-    CAFFA_ASSERT(m_grpcClient);
+    CAFFA_ASSERT( m_grpcClient );
     if ( !m_grpcClient ) throw( Exception( grpc::Status( grpc::ABORTED, "No Client set in Grpc Client factory" ) ) );
 
     CAFFA_INFO( "Creating object of type " << classNameKeyword );
 
     auto objectHandle = caffa::DefaultObjectFactory::instance()->create( classNameKeyword );
-    if ( addressOnServer != 0u )
-    {
-        objectHandle->addCapability( new ObjectClientCapability( addressOnServer ), true );
-    }
 
     for ( auto field : objectHandle->fields() )
     {
-        applyAccessorToField( objectHandle.get(), field );
+        if ( field->keyword() != "uuid" )
+        {
+            applyAccessorToField( objectHandle.get(), field );
+        }
     }
 
     return objectHandle;
@@ -72,7 +69,7 @@ void GrpcClientObjectFactory::setGrpcClient( Client* client )
 //--------------------------------------------------------------------------------------------------
 void GrpcClientObjectFactory::applyAccessorToField( caffa::ObjectHandle* fieldOwner, caffa::FieldHandle* fieldHandle )
 {
-    CAFFA_ASSERT(m_grpcClient);
+    CAFFA_ASSERT( m_grpcClient );
     if ( !m_grpcClient ) throw( Exception( grpc::Status( grpc::ABORTED, "No Client set in Grpc Client factory" ) ) );
 
     if ( auto dataField = dynamic_cast<caffa::Field<double>*>( fieldHandle ); dataField )

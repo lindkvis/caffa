@@ -68,8 +68,7 @@ void ObjectIoCapability::readObjectFromString( const std::string& string,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string ObjectIoCapability::writeObjectToString( IoType ioType /*= IoType::JSON */,
-                                                     bool   copyServerAddress /*= false */ ) const
+std::string ObjectIoCapability::writeObjectToString( IoType ioType /*= IoType::JSON */ ) const
 {
     std::string string;
     switch ( ioType )
@@ -77,7 +76,7 @@ std::string ObjectIoCapability::writeObjectToString( IoType ioType /*= IoType::J
         default:
             break;
         case IoType::JSON:
-            string = ObjectJsonCapability::writeObjectToString( m_owner, copyServerAddress );
+            string = ObjectJsonCapability::writeObjectToString( m_owner );
             break;
         case IoType::SQL:
             CAFFA_ASSERT( "SQL writing is not implemented" );
@@ -225,7 +224,7 @@ bool ObjectIoCapability::readFile( std::istream& stream, IoType ioType )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ObjectIoCapability::writeFile( std::ostream& stream, IoType ioType, bool writeAddress )
+bool ObjectIoCapability::writeFile( std::ostream& stream, IoType ioType )
 {
     // Ask all objects to make them ready to write themselves to file
     setupBeforeSaveRecursively();
@@ -237,7 +236,7 @@ bool ObjectIoCapability::writeFile( std::ostream& stream, IoType ioType, bool wr
             default:
                 break;
             case IoType::JSON:
-                ObjectJsonCapability::writeFile( m_owner, stream, writeAddress );
+                ObjectJsonCapability::writeFile( m_owner, stream );
                 break;
             case IoType::SQL:
                 CAFFA_ASSERT( "SQL writing is not implemented" );

@@ -12,7 +12,6 @@
 #include "cafFieldScriptingCapability.h"
 #include "cafGrpcClient.h"
 #include "cafGrpcClientObjectFactory.h"
-#include "cafGrpcObjectClientCapability.h"
 #include "cafGrpcServer.h"
 #include "cafGrpcServerApplication.h"
 #include "cafLogger.h"
@@ -340,10 +339,7 @@ TEST( BaseTest, Document )
         return;
     }
     ASSERT_EQ( serverApp->document( "testDocument" )->fileName(), clientDocument->fileName() );
-
-    auto clientCapability = clientDocument->capability<caffa::rpc::ObjectClientCapability>();
-    ASSERT_TRUE( clientCapability != nullptr );
-    ASSERT_EQ( reinterpret_cast<uint64_t>( serverDocument ), clientCapability->addressOnServer() );
+    ASSERT_EQ( serverDocument->uuid(), clientDocument->uuid() );
 
     auto serverDescendants = serverDocument->matchingDescendants(
         []( const caffa::ObjectHandle* objectHandle ) -> bool
@@ -359,9 +355,7 @@ TEST( BaseTest, Document )
           server_it != serverDescendants.end();
           ++server_it, ++client_it )
     {
-        auto childClientCapability = ( *client_it )->capability<caffa::rpc::ObjectClientCapability>();
-        ASSERT_TRUE( childClientCapability != nullptr );
-        ASSERT_EQ( reinterpret_cast<uint64_t>( *server_it ), childClientCapability->addressOnServer() );
+        ASSERT_EQ( ( *server_it )->uuid(), ( *client_it )->uuid() );
     }
 
     std::string serverJson = serverDocument->writeObjectToString();
@@ -409,10 +403,7 @@ TEST( BaseTest, Sync )
     ASSERT_TRUE( clientDocument != nullptr );
     CAFFA_DEBUG( "Client Document File Name: " << clientDocument->fileName() );
     ASSERT_EQ( serverApp->document( "testDocument" )->fileName(), clientDocument->fileName() );
-
-    auto clientCapability = clientDocument->capability<caffa::rpc::ObjectClientCapability>();
-    ASSERT_TRUE( clientCapability != nullptr );
-    ASSERT_EQ( reinterpret_cast<uint64_t>( serverDocument ), clientCapability->addressOnServer() );
+    ASSERT_EQ( serverDocument->uuid(), clientDocument->uuid() );
 
     std::string newFileName  = "ChangedFileName.txt";
     clientDocument->fileName = newFileName;
@@ -508,9 +499,6 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
-    auto clientCapability = clientDocument->capability<caffa::rpc::ObjectClientCapability>();
-    ASSERT_TRUE( clientCapability != nullptr );
-    ASSERT_TRUE( clientDocument->m_demoObject->capability<caffa::rpc::ObjectClientCapability>() != nullptr );
     auto clientIntVector = client->get<std::vector<int>>( clientDocument->m_demoObject,
                                                           clientDocument->m_demoObject->m_intVectorProxy.keyword() );
     ASSERT_EQ( largeIntVector, clientIntVector );
@@ -562,9 +550,6 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
-    auto clientCapability = clientDocument->capability<caffa::rpc::ObjectClientCapability>();
-    ASSERT_TRUE( clientCapability != nullptr );
-    ASSERT_TRUE( clientDocument->m_demoObject->capability<caffa::rpc::ObjectClientCapability>() != nullptr );
     auto clientDoubleVector = client->get<std::vector<double>>( clientDocument->m_demoObject,
                                                                 clientDocument->m_demoObject->m_doubleVector.keyword() );
     ASSERT_EQ( largeDoubleVector, clientDoubleVector );

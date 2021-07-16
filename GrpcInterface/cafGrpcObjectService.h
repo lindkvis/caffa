@@ -56,7 +56,7 @@ public:
     grpc::Status ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, Object* reply ) override;
 
     static caffa::Object* findCafObjectFromRpcObject( const Object& rpcObject );
-    static caffa::Object* findCafObjectFromScriptNameAndAddress( const std::string& scriptClassName, uint64_t address );
+    static caffa::Object* findCafObjectFromScriptNameAndUuid( const std::string& scriptClassName, const std::string& uuid );
 
     static void copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* source, Object* destination );
     static void copyProjectObjectFromRpcToCaf( const Object* source, caffa::ObjectHandle* destination );
