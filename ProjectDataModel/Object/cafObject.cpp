@@ -1,8 +1,9 @@
 #include "cafObject.h"
 
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
+#include "uuid.h"
+
+#include <chrono>
+#include <random>
 
 using namespace caffa;
 
@@ -17,8 +18,11 @@ caffa::Object::Object()
     , ObjectUiCapability( this, false )
 {
     initField( m_uuid, "uuid" ).withScripting();
-    boost::uuids::random_generator generator;
-    m_uuid = boost::uuids::to_string( generator() );
+
+    auto                         seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::mt19937                 generator( seed );
+    uuids::uuid_random_generator gen( generator );
+    m_uuid = uuids::to_string( gen() );
 }
 
 void Object::assignUiInfo( const std::string& uiName,

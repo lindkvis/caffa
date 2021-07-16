@@ -519,3 +519,17 @@ TEST( BaseTest, ChildArrayFieldHandle )
     EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_TRUE( listField->empty() );
 }
+
+TEST( BaseTest, Uuids )
+{
+    auto obj1 = std::make_unique<SimpleObj>();
+    EXPECT_FALSE( obj1->uuid().empty() );
+    CAFFA_INFO( "UUID: " << obj1->uuid() );
+    // Should never have collisions.
+    for ( size_t i = 0; i < 10000; ++i )
+    {
+        auto obj2 = std::make_unique<SimpleObj>();
+        EXPECT_FALSE( obj2->uuid().empty() );
+        EXPECT_NE( obj1->uuid(), obj2->uuid() );
+    }
+}

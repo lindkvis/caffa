@@ -34,7 +34,6 @@ if(UNIX)
 endif()
 
 add_definitions(-DGTEST_HAS_STD_WSTRING=0)
-
 # Third Party libraries
 set(JSON_BuildTests
     OFF
@@ -60,6 +59,7 @@ set(GSL_TEST
 add_subdirectory(ThirdParty/json)
 add_subdirectory(ThirdParty/GSL)
 add_subdirectory(ThirdParty/gtest)
+add_subdirectory(ThirdParty/stduuid)
 
 # libraries
 add_subdirectory(ProjectDataModel/Core)
