@@ -137,7 +137,7 @@ struct DemoObject_copyObjectResult : public caffa::Object
     caffa::Field<bool> status;
 };
 
-CAFFA_SOURCE_INIT( DemoObject_copyObjectResult, "copyObjectResult", "Object" );
+CAFFA_SOURCE_INIT( DemoObject_copyObjectResult, "DemoObject_copyObjectResult", "Object" );
 
 class DemoObject_copyObject : public caffa::ObjectMethod
 {
@@ -154,7 +154,7 @@ public:
         initField( m_intMember, "intMember" ).withScripting().withDefault( intValue );
         initField( m_stringMember, "stringMember" ).withScripting().withDefault( stringValue );
     }
-    caffa::ObjectHandle* execute() override
+    std::unique_ptr<caffa::ObjectHandle> execute() override
     {
         CAFFA_DEBUG( "Executing object method on server with values: " << m_doubleMember() << ", " << m_intMember()
                                                                        << ", " << m_stringMember() );
@@ -165,9 +165,8 @@ public:
 
         auto demoObjectResult    = std::make_unique<DemoObject_copyObjectResult>();
         demoObjectResult->status = true;
-        return demoObjectResult.release();
+        return demoObjectResult;
     }
-    bool                          resultIsPersistent() const override { return false; }
     std::unique_ptr<ObjectHandle> defaultResult() const override
     {
         return std::make_unique<DemoObject_copyObjectResult>();
@@ -179,7 +178,7 @@ private:
     caffa::Field<std::string> m_stringMember;
 };
 
-CAFFA_OBJECT_METHOD_SOURCE_INIT( DemoObject, DemoObject_copyObject, "copyObject" );
+CAFFA_OBJECT_METHOD_SOURCE_INIT( DemoObject, DemoObject_copyObject, "DemoObject_copyObject" );
 
 class InheritedDemoObj : public DemoObject
 {
@@ -308,7 +307,7 @@ TEST( BaseTest, Document )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
@@ -388,7 +387,7 @@ TEST( BaseTest, Sync )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
 
@@ -432,7 +431,7 @@ TEST( BaseTest, ObjectMethod )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
 
@@ -449,8 +448,22 @@ TEST( BaseTest, ObjectMethod )
     auto inheritedObjects = clientDocument->inheritedObjects();
     ASSERT_EQ( (size_t)1, inheritedObjects.size() );
 
+    CAFFA_DEBUG( "Listing object methods" );
+    auto objectMethods = client->objectMethods( inheritedObjects.front() );
+    ASSERT_EQ( (size_t)1, objectMethods.size() );
+    std::string methodKeyword;
+    for ( const auto& objectMethod : objectMethods )
+    {
+        auto ioCapability = objectMethod->capability<caffa::ObjectIoCapability>();
+        ASSERT_TRUE( ioCapability );
+        CAFFA_TRACE( "Found method: " << ioCapability->classKeyword() );
+        methodKeyword = ioCapability->classKeyword();
+    }
+
     CAFFA_DEBUG( "Creating object method" );
     DemoObject_copyObject method( inheritedObjects.front(), 45.3, 43, "AnotherValue" );
+    ASSERT_EQ( method.classKeyword(), methodKeyword );
+
     CAFFA_DEBUG( "Execute" );
     auto result = client->execute( &method );
     ASSERT_TRUE( result != nullptr );
@@ -485,7 +498,7 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
@@ -641,7 +654,7 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
     }
     {
         auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
-        
+
         auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
         ASSERT_TRUE( serverDocument );
         CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );

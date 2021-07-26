@@ -56,8 +56,6 @@ namespace caffa
 /// Sub-class and register to the Object to assign methods to a Object that is accessible from
 /// ... scripting engines such as Python.
 /// Store arguments as member fields and assign return values in a Object for execute.
-/// Return value can be a storage class based on Object returning resultIsPersistent() == false.
-/// Or it can be a Object in the project tree returning resultIsPersistent() == true.
 ///
 //==================================================================================================
 class ObjectMethod : public Object
@@ -68,19 +66,9 @@ public:
     ObjectMethod( ObjectHandle* self );
 
     // The returned object contains the results of the method and is the responsibility of the caller.
-    virtual ObjectHandle* execute() = 0;
+    virtual std::unique_ptr<ObjectHandle> execute() = 0;
 
-    // Some execute() methods can return a null pointer as a valid return value.
-    // Return true here to allow this
-    virtual bool isNullptrValidResult() const { return false; }
-
-    virtual std::string selfClassKeyword() const { return m_self->capability<ObjectIoCapability>()->classKeyword(); }
-
-    // True if object is a persistent project tree item. False if the object is to be deleted on completion.
-    virtual bool resultIsPersistent() const = 0;
-
-    // In order for the code generators to inspect the fields in the result object any ObjectMethod
-    // ... need to provide an implementation that returns the same object type as the execute method.
+    // A default created result object used as a pattern for clients
     virtual std::unique_ptr<ObjectHandle> defaultResult() const = 0;
 
     // Basically the "this" pointer to the object the method belongs to
@@ -115,7 +103,7 @@ class ObjectMethodFactory
 public:
     static ObjectMethodFactory* instance();
 
-    std::shared_ptr<ObjectMethod> createMethod( ObjectHandle* self, const std::string& methodName );
+    std::unique_ptr<ObjectMethod> createMethod( ObjectHandle* self, const std::string& methodName );
 
     template <typename ObjectDerivative, typename ObjectScriptMethodDerivative>
     bool registerMethod()
@@ -139,7 +127,7 @@ public:
         return true;
     }
 
-    std::vector<std::string> registeredMethodNames( const std::string& className ) const;
+    std::vector<std::string> registeredMethodNames( const ObjectHandle* self ) const;
 
 private:
     ObjectMethodFactory()  = default;
@@ -151,16 +139,16 @@ private:
     public:
         ObjectMethodCreatorBase() {}
         virtual ~ObjectMethodCreatorBase() {}
-        virtual std::shared_ptr<ObjectMethod> create( ObjectHandle* self ) = 0;
+        virtual std::unique_ptr<ObjectMethod> create( ObjectHandle* self ) = 0;
     };
 
     template <typename ObjectScriptMethodDerivative>
     class ObjectMethodCreator : public ObjectMethodCreatorBase
     {
     public:
-        std::shared_ptr<ObjectMethod> create( ObjectHandle* self ) override
+        std::unique_ptr<ObjectMethod> create( ObjectHandle* self ) override
         {
-            return std::shared_ptr<ObjectMethod>( new ObjectScriptMethodDerivative( self ) );
+            return std::unique_ptr<ObjectMethod>( new ObjectScriptMethodDerivative( self ) );
         }
     };
 

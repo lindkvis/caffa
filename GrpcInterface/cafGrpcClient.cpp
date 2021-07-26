@@ -158,6 +158,33 @@ public:
         return status.ok();
     }
 
+    std::list<std::unique_ptr<caffa::ObjectHandle>> objectMethods( caffa::ObjectHandle* objectHandle ) const
+    {
+        grpc::ClientContext context;
+        auto                self = std::make_unique<Object>();
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
+        ObjectList reply;
+        auto       status = m_objectStub->ListMethods( &context, *self, &reply );
+
+        std::list<std::unique_ptr<caffa::ObjectHandle>> methods;
+        if ( !status.ok() )
+        {
+            return methods;
+        }
+
+        for ( auto object : reply.objects() )
+        {
+            std::unique_ptr<caffa::ObjectHandle> caffaObject =
+                ObjectService::createCafObjectMethodFromRpc( objectHandle,
+                                                             &object,
+                                                             caffa::ObjectMethodFactory::instance(),
+                                                             caffa::rpc::GrpcClientObjectFactory::instance(),
+                                                             true );
+            methods.push_back( std::move( caffaObject ) );
+        }
+        return methods;
+    }
+
     void setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& jsonValue )
     {
         grpc::ClientContext context;
@@ -620,9 +647,20 @@ bool Client::stopServer() const
     return m_clientImpl->stopServer();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Send a ping to the server
+//--------------------------------------------------------------------------------------------------
 bool Client::ping() const
 {
     return m_clientImpl->ping();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Get a list of all object methods available for object
+//--------------------------------------------------------------------------------------------------
+std::list<std::unique_ptr<caffa::ObjectHandle>> Client::objectMethods( caffa::ObjectHandle* objectHandle ) const
+{
+    return m_clientImpl->objectMethods( objectHandle );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -638,7 +676,7 @@ void Client::setJson( const caffa::ObjectHandle* objectHandle, const std::string
 //--------------------------------------------------------------------------------------------------
 nlohmann::json Client::getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
-    CAFFA_ASSERT(m_clientImpl && "Client not properly initialized");
+    CAFFA_ASSERT( m_clientImpl && "Client not properly initialized" );
     return m_clientImpl->getJson( objectHandle, fieldName );
 }
 

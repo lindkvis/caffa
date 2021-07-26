@@ -35,6 +35,8 @@ class FieldHandle;
 class Object;
 class ObjectFactory;
 class ObjectHandle;
+class ObjectMethod;
+class ObjectMethodFactory;
 class ProxyFieldHandle;
 class ValueField;
 } // namespace caffa
@@ -54,6 +56,7 @@ public:
     grpc::Status GetDocument( grpc::ServerContext* context, const DocumentRequest* request, Object* reply );
 
     grpc::Status ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, Object* reply ) override;
+    grpc::Status ListMethods( grpc::ServerContext* context, const Object* self, ObjectList* reply ) override;
 
     static caffa::Object* findCafObjectFromRpcObject( const Object& rpcObject );
     static caffa::Object* findCafObjectFromScriptNameAndUuid( const std::string& scriptClassName, const std::string& uuid );
@@ -66,6 +69,12 @@ public:
 
     static std::unique_ptr<caffa::ObjectHandle>
         createCafObjectFromRpc( const Object* source, caffa::ObjectFactory* objectFactory, bool copyDataValues );
+
+    static std::unique_ptr<caffa::ObjectMethod> createCafObjectMethodFromRpc( ObjectHandle*               self,
+                                                                              const Object*               source,
+                                                                              caffa::ObjectMethodFactory* objectMethodFactory,
+                                                                              caffa::ObjectFactory*       objectFactory,
+                                                                              bool copyDataValues );
 
     std::vector<AbstractCallback*> createCallbacks() override;
 };

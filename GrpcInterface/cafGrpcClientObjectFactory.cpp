@@ -28,6 +28,8 @@ std::unique_ptr<ObjectHandle> GrpcClientObjectFactory::doCreate( const std::stri
 
     auto objectHandle = caffa::DefaultObjectFactory::instance()->create( classNameKeyword );
 
+    CAFFA_ASSERT( objectHandle );
+
     for ( auto field : objectHandle->fields() )
     {
         if ( field->keyword() != "uuid" )

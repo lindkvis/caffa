@@ -60,7 +60,7 @@ ObjectMethodFactory* ObjectMethodFactory::instance()
 //--------------------------------------------------------------------------------------------------
 /// Check the object and the inheritance stack for the specified method name
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<ObjectMethod> ObjectMethodFactory::createMethod( ObjectHandle* self, const std::string& methodName )
+std::unique_ptr<ObjectMethod> ObjectMethodFactory::createMethod( ObjectHandle* self, const std::string& methodName )
 {
     auto classNames = self->capability<ObjectIoCapability>()->classInheritanceStack();
     for ( auto className : classNames )
@@ -75,24 +75,27 @@ std::shared_ptr<ObjectMethod> ObjectMethodFactory::createMethod( ObjectHandle* s
             }
         }
     }
-    return std::shared_ptr<ObjectMethod>();
+    return std::unique_ptr<ObjectMethod>();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Return the methods registered for the className. Does not investigate the inheritance stack
+/// Return the methods registered for the className.
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> caffa::ObjectMethodFactory::registeredMethodNames( const std::string& className ) const
+std::vector<std::string> caffa::ObjectMethodFactory::registeredMethodNames( const ObjectHandle* self ) const
 {
     std::vector<std::string> methods;
 
-    auto classIt = m_factoryMap.find( className );
-    if ( classIt != m_factoryMap.end() )
+    auto classNames = self->capability<ObjectIoCapability>()->classInheritanceStack();
+    for ( auto className : classNames )
     {
-        for ( auto methodPair : classIt->second )
+        auto classIt = m_factoryMap.find( className );
+        if ( classIt != m_factoryMap.end() )
         {
-            methods.push_back( methodPair.first );
+            for ( auto methodPair : classIt->second )
+            {
+                methods.push_back( methodPair.first );
+            }
         }
     }
-
     return methods;
 }
