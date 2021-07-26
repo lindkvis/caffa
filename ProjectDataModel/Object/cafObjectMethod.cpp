@@ -79,20 +79,23 @@ std::unique_ptr<ObjectMethod> ObjectMethodFactory::createMethod( ObjectHandle* s
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Return the methods registered for the className. Does not investigate the inheritance stack
+/// Return the methods registered for the className.
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> caffa::ObjectMethodFactory::registeredMethodNames( const std::string& className ) const
+std::vector<std::string> caffa::ObjectMethodFactory::registeredMethodNames( const ObjectHandle* self ) const
 {
     std::vector<std::string> methods;
 
-    auto classIt = m_factoryMap.find( className );
-    if ( classIt != m_factoryMap.end() )
+    auto classNames = self->capability<ObjectIoCapability>()->classInheritanceStack();
+    for ( auto className : classNames )
     {
-        for ( auto methodPair : classIt->second )
+        auto classIt = m_factoryMap.find( className );
+        if ( classIt != m_factoryMap.end() )
         {
-            methods.push_back( methodPair.first );
+            for ( auto methodPair : classIt->second )
+            {
+                methods.push_back( methodPair.first );
+            }
         }
     }
-
     return methods;
 }

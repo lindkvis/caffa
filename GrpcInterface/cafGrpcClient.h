@@ -44,11 +44,12 @@ public:
     Client( const std::string& hostname, int port = 55555 );
     virtual ~Client();
 
-    caffa::AppInfo                       appInfo() const;
-    std::unique_ptr<caffa::ObjectHandle> document( const std::string& documentId ) const;
-    std::unique_ptr<caffa::ObjectHandle> execute( gsl::not_null<const caffa::ObjectMethod*> method ) const;
-    bool                                 stopServer() const;
-    bool                                 ping() const;
+    caffa::AppInfo                                  appInfo() const;
+    std::unique_ptr<caffa::ObjectHandle>            document( const std::string& documentId ) const;
+    std::unique_ptr<caffa::ObjectHandle>            execute( gsl::not_null<const caffa::ObjectMethod*> method ) const;
+    bool                                            stopServer() const;
+    bool                                            ping() const;
+    std::list<std::unique_ptr<caffa::ObjectHandle>> objectMethods( caffa::ObjectHandle* objectHandle ) const;
 
     template <typename DataType>
     void set( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value );

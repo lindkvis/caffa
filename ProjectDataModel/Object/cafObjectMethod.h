@@ -56,8 +56,6 @@ namespace caffa
 /// Sub-class and register to the Object to assign methods to a Object that is accessible from
 /// ... scripting engines such as Python.
 /// Store arguments as member fields and assign return values in a Object for execute.
-/// Return value can be a storage class based on Object returning resultIsPersistent() == false.
-/// Or it can be a Object in the project tree returning resultIsPersistent() == true.
 ///
 //==================================================================================================
 class ObjectMethod : public Object
@@ -69,6 +67,9 @@ public:
 
     // The returned object contains the results of the method and is the responsibility of the caller.
     virtual std::unique_ptr<ObjectHandle> execute() = 0;
+
+    // A default created result object used as a pattern for clients
+    virtual std::unique_ptr<ObjectHandle> defaultResult() const = 0;
 
     // Basically the "this" pointer to the object the method belongs to
     template <typename ObjectType>
@@ -126,7 +127,7 @@ public:
         return true;
     }
 
-    std::vector<std::string> registeredMethodNames( const std::string& className ) const;
+    std::vector<std::string> registeredMethodNames( const ObjectHandle* self ) const;
 
 private:
     ObjectMethodFactory()  = default;

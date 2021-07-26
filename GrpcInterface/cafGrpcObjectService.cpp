@@ -103,6 +103,30 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+grpc::Status ObjectService::ListMethods( grpc::ServerContext* context, const Object* self, ObjectList* reply )
+{
+    auto matchingObject = findCafObjectFromRpcObject( *self );
+    CAFFA_ASSERT( matchingObject );
+    CAFFA_TRACE( "Listing Object methods for " << matchingObject->classKeyword() );
+    if ( matchingObject )
+    {
+        auto methodNames = ObjectMethodFactory::instance()->registeredMethodNames( matchingObject );
+        CAFFA_TRACE( "Found " << methodNames.size() << " methods" );
+        for ( auto methodName : methodNames )
+        {
+            CAFFA_TRACE( "Found method: " << methodName );
+            auto    method          = ObjectMethodFactory::instance()->createMethod( matchingObject, methodName );
+            Object* newMethodObject = reply->add_objects();
+            copyResultOrParameterObjectFromCafToRpc( method.get(), newMethodObject );
+        }
+        return grpc::Status::OK;
+    }
+    return grpc::Status( grpc::NOT_FOUND, "Could not find Object" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caffa::Object* ObjectService::findCafObjectFromRpcObject( const Object& rpcObject )
 {
     auto jsonObject   = nlohmann::json::parse( rpcObject.json() );
@@ -231,12 +255,36 @@ std::unique_ptr<caffa::ObjectHandle>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::unique_ptr<caffa::ObjectMethod>
+    ObjectService::createCafObjectMethodFromRpc( ObjectHandle*               self,
+                                                 const Object*               source,
+                                                 caffa::ObjectMethodFactory* objectMethodFactory,
+                                                 caffa::ObjectFactory*       objectFactory,
+                                                 bool                        copyDataValues )
+{
+    CAFFA_ASSERT( self && source );
+    if ( !self ) return nullptr;
+
+    nlohmann::json jsonObject       = nlohmann::json::parse( source->json() );
+    const auto&    jsonClassKeyword = jsonObject["classKeyword"];
+
+    CAFFA_ASSERT( jsonClassKeyword.is_string() );
+    std::string                          classKeyword = jsonClassKeyword.get<std::string>();
+    std::unique_ptr<caffa::ObjectMethod> method       = objectMethodFactory->createMethod( self, classKeyword );
+
+    caffa::ObjectJsonCapability::readFieldsFromJson( method.get(), jsonObject, objectFactory, copyDataValues );
+    return method;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<AbstractCallback*> ObjectService::createCallbacks()
 {
     typedef ObjectService Self;
-    return {
-        new UnaryCallback<Self, DocumentRequest, Object>( this, &Self::GetDocument, &Self::RequestGetDocument ),
-        new UnaryCallback<Self, MethodRequest, Object>( this, &Self::ExecuteMethod, &Self::RequestExecuteMethod ),
+    return { new UnaryCallback<Self, DocumentRequest, Object>( this, &Self::GetDocument, &Self::RequestGetDocument ),
+             new UnaryCallback<Self, MethodRequest, Object>( this, &Self::ExecuteMethod, &Self::RequestExecuteMethod ),
+             new UnaryCallback<Self, Object, ObjectList>( this, &Self::ListMethods, &Self::RequestListMethods )
 
     };
 }
