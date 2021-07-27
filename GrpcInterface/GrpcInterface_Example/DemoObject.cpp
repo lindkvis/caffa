@@ -22,12 +22,51 @@
 
 DemoObject::DemoObject()
 {
+    initField( m_memberDoubleField, "doubleMember" ).withScripting().withDefault( 11.0 );
+    initField( m_memberIntField, "intMember" ).withScripting();
+    initField( m_memberStringField, "stringMember" ).withScripting();
+
     initField( m_doubleVector, "doubleVector" ).withScripting();
     initField( m_floatVector, "floatVector" ).withScripting();
     initField( m_intVector, "intVector" ).withScripting();
 }
 
+DemoObject_copyObjectResult::DemoObject_copyObjectResult()
+{
+    initField( status, "status" ).withDefault( false );
+}
+
+DemoObject_copyObject::DemoObject_copyObject( caffa::ObjectHandle* self,
+                                              double               doubleValue,
+                                              int                  intValue,
+                                              const std::string&   stringValue )
+    : caffa::ObjectMethod( self )
+{
+    initField( m_memberDoubleField, "doubleMember" ).withScripting().withDefault( doubleValue );
+    initField( m_memberIntField, "intMember" ).withScripting().withDefault( intValue );
+    initField( m_memberStringField, "stringMember" ).withScripting().withDefault( stringValue );
+}
+std::unique_ptr<caffa::ObjectHandle> DemoObject_copyObject::execute()
+{
+    CAFFA_DEBUG( "Executing object method on server with values: " << m_memberDoubleField() << ", " << m_memberIntField()
+                                                                   << ", " << m_memberStringField() );
+    auto demoObject = self<DemoObject>();
+    demoObject->setDoubleMember( m_memberDoubleField );
+    demoObject->setIntMember( m_memberIntField );
+    demoObject->setStringMember( m_memberStringField );
+
+    auto demoObjectResult    = std::make_unique<DemoObject_copyObjectResult>();
+    demoObjectResult->status = true;
+    return demoObjectResult;
+}
+std::unique_ptr<caffa::ObjectHandle> DemoObject_copyObject::defaultResult() const
+{
+    return std::make_unique<DemoObject_copyObjectResult>();
+}
+
 CAFFA_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
+CAFFA_SOURCE_INIT( DemoObject_copyObjectResult, "DemoObject_copyObjectResult", "Object" );
+CAFFA_OBJECT_METHOD_SOURCE_INIT( DemoObject, DemoObject_copyObject, "DemoObject_copyObject" );
 
 InheritedDemoObj::InheritedDemoObj()
 {

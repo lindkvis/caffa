@@ -23,6 +23,7 @@
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafObjectHandle.h"
+#include "cafObjectMethod.h"
 #include "cafValueField.h"
 
 #include <iostream>
@@ -45,8 +46,14 @@ public:
     caffa::Field<std::vector<float>>  m_floatVector;
     caffa::Field<std::vector<int>>    m_intVector;
 
-    double doubleValue() const { return m_memberDoubleField; }
-    void   setDoubleValue( double value ) { m_memberDoubleField = value; }
+    double doubleMember() const { return m_memberDoubleField; }
+    void   setDoubleMember( const double& d ) { m_memberDoubleField = d; }
+
+    int  intMember() const { return m_memberIntField; }
+    void setIntMember( const int& val ) { m_memberIntField = val; }
+
+    std::string stringMember() const { return m_memberStringField; }
+    void        setStringMember( const std::string& val ) { m_memberStringField = val; }
 
     std::vector<double> doubleVector() const { return m_doubleVector; }
     void                setDoubleVector( const std::vector<double>& values ) { m_doubleVector = values; }
@@ -56,6 +63,33 @@ public:
 
     std::vector<int> intVector() const { return m_intVector; }
     void             setIntVector( const std::vector<int>& values ) { m_intVector = values; }
+};
+
+struct DemoObject_copyObjectResult : public caffa::Object
+{
+    CAFFA_HEADER_INIT;
+
+    DemoObject_copyObjectResult();
+
+    caffa::Field<bool> status;
+};
+
+class DemoObject_copyObject : public caffa::ObjectMethod
+{
+    CAFFA_HEADER_INIT;
+
+public:
+    DemoObject_copyObject( caffa::ObjectHandle* self,
+                           double               doubleValue = -123.0,
+                           int                  intValue    = 42,
+                           const std::string&   stringValue = "SomeValue" );
+    std::unique_ptr<caffa::ObjectHandle> execute() override;
+    std::unique_ptr<ObjectHandle>        defaultResult() const override;
+
+private:
+    caffa::Field<double>      m_memberDoubleField;
+    caffa::Field<int>         m_memberIntField;
+    caffa::Field<std::string> m_memberStringField;
 };
 
 class InheritedDemoObj : public DemoObject
