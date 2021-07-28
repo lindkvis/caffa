@@ -16,6 +16,7 @@
 //   for more details.
 //
 //##################################################################################################
+#pragma once
 
 #include "cafChildArrayField.h"
 #include "cafChildField.h"

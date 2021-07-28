@@ -41,22 +41,22 @@ class ValueField;
 
 namespace caffa::rpc
 {
-class GetterArrayReply;
+class GenericArray;
 class GetterReply;
 class FieldRequest;
-class SetterChunk;
+class GenericArray;
 class SetterArrayReply;
 class SetterReply;
 
 struct AbstractDataHolder
 {
-    virtual size_t valueCount() const                                                             = 0;
-    virtual size_t valueSizeOf() const                                                            = 0;
-    virtual void   reserveReplyStorage( GetterArrayReply* reply, size_t numberOfDataUnits ) const = 0;
-    virtual void addPackageValuesToReply( GetterArrayReply* reply, size_t startIndex, size_t numberOfDataUnits ) const = 0;
+    virtual size_t valueCount() const                                                                              = 0;
+    virtual size_t valueSizeOf() const                                                                             = 0;
+    virtual void   reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const                      = 0;
+    virtual void addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const = 0;
 
-    virtual size_t getValuesFromChunk( size_t startIndex, const SetterChunk* chunk ) = 0;
-    virtual void   applyValuesToField( caffa::ValueField* field )                    = 0;
+    virtual size_t getValuesFromChunk( size_t startIndex, const GenericArray* chunk ) = 0;
+    virtual void   applyValuesToField( caffa::ValueField* field )                     = 0;
 };
 
 /**
@@ -70,7 +70,7 @@ public:
     GetterStateHandler();
 
     grpc::Status init( const FieldRequest* request ) override;
-    grpc::Status assignReply( GetterArrayReply* reply );
+    grpc::Status assignReply( GenericArray* reply );
     size_t       streamedValueCount() const override;
     size_t       totalValueCount() const override;
     void         finish() override;
@@ -89,18 +89,18 @@ protected:
  * State handler for client to server streaming
  *
  */
-class SetterStateHandler : public StateHandler<SetterChunk>
+class SetterStateHandler : public StateHandler<GenericArray>
 {
 public:
     SetterStateHandler();
 
-    grpc::Status init( const SetterChunk* chunk ) override;
-    grpc::Status receiveRequest( const SetterChunk* chunk, SetterArrayReply* reply );
+    grpc::Status init( const GenericArray* chunk ) override;
+    grpc::Status receiveRequest( const GenericArray* chunk, SetterArrayReply* reply );
     size_t       streamedValueCount() const override;
     size_t       totalValueCount() const override;
     void         finish() override;
 
-    StateHandler<SetterChunk>* emptyClone() const override;
+    StateHandler<GenericArray>* emptyClone() const override;
 
 protected:
     caffa::Object*                      m_fieldOwner;
@@ -119,15 +119,15 @@ class FieldService final : public FieldAccess::AsyncService, public ServiceInter
 public:
     grpc::Status GetArrayValue( grpc::ServerContext*        context,
                                 const FieldRequest*         request,
-                                GetterArrayReply*           reply,
+                                GenericArray*               reply,
                                 StateHandler<FieldRequest>* stateHandler );
 
     grpc::Status GetValue( grpc::ServerContext* context, const FieldRequest* request, GetterReply* reply );
 
-    grpc::Status SetArrayValue( grpc::ServerContext*       context,
-                                const SetterChunk*         chunk,
-                                SetterArrayReply*          reply,
-                                StateHandler<SetterChunk>* stateHandler );
+    grpc::Status SetArrayValue( grpc::ServerContext*        context,
+                                const GenericArray*         chunk,
+                                SetterArrayReply*           reply,
+                                StateHandler<GenericArray>* stateHandler );
 
     grpc::Status SetValue( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply );
     std::vector<AbstractCallback*> createCallbacks() override;

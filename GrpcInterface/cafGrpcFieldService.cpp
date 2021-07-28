@@ -63,16 +63,16 @@ struct DataHolder : public AbstractDataHolder
     size_t valueCount() const override;
     size_t valueSizeOf() const override;
 
-    void reserveReplyStorage( GetterArrayReply* reply, size_t numberOfDataUnits ) const override
+    void reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const override
     {
         static_assert( "Should never be called!" );
     }
-    void addPackageValuesToReply( GetterArrayReply* reply, size_t startIndex, size_t numberOfDataUnits ) const override
+    void addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const override
     {
         static_assert( "Should never be called!" );
     }
 
-    size_t                getValuesFromChunk( size_t startIndex, const SetterChunk* chunk ) override;
+    size_t                getValuesFromChunk( size_t startIndex, const GenericArray* chunk ) override;
     void                  applyValuesToField( ValueField* field ) override;
     std::vector<DataType> data;
 };
@@ -89,20 +89,20 @@ size_t DataHolder<int>::valueSizeOf() const
 }
 
 template <>
-void DataHolder<int>::reserveReplyStorage( GetterArrayReply* reply, size_t numberOfDataUnits ) const
+void DataHolder<int>::reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const
 {
     reply->mutable_ints()->mutable_data()->Reserve( numberOfDataUnits );
 }
 
 template <>
-void DataHolder<int>::addPackageValuesToReply( GetterArrayReply* reply, size_t startIndex, size_t numberOfDataUnits ) const
+void DataHolder<int>::addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const
 {
     *( reply->mutable_ints()->mutable_data() ) = { data.begin() + startIndex,
                                                    data.begin() + startIndex + numberOfDataUnits };
 }
 
 template <>
-size_t DataHolder<int>::getValuesFromChunk( size_t startIndex, const SetterChunk* chunk )
+size_t DataHolder<int>::getValuesFromChunk( size_t startIndex, const GenericArray* chunk )
 {
     size_t chunkSize    = chunk->ints().data_size();
     size_t currentIndex = startIndex;
@@ -136,20 +136,20 @@ size_t DataHolder<uint64_t>::valueSizeOf() const
 }
 
 template <>
-void DataHolder<uint64_t>::reserveReplyStorage( GetterArrayReply* reply, size_t numberOfDataUnits ) const
+void DataHolder<uint64_t>::reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const
 {
     reply->mutable_uint64s()->mutable_data()->Reserve( numberOfDataUnits );
 }
 
 template <>
-void DataHolder<uint64_t>::addPackageValuesToReply( GetterArrayReply* reply, size_t startIndex, size_t numberOfDataUnits ) const
+void DataHolder<uint64_t>::addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const
 {
     *( reply->mutable_uint64s()->mutable_data() ) = { data.begin() + startIndex,
                                                       data.begin() + startIndex + numberOfDataUnits };
 }
 
 template <>
-size_t DataHolder<uint64_t>::getValuesFromChunk( size_t startIndex, const SetterChunk* chunk )
+size_t DataHolder<uint64_t>::getValuesFromChunk( size_t startIndex, const GenericArray* chunk )
 {
     size_t chunkSize    = chunk->uint64s().data_size();
     size_t currentIndex = startIndex;
@@ -183,19 +183,19 @@ size_t DataHolder<double>::valueSizeOf() const
 }
 
 template <>
-void DataHolder<double>::reserveReplyStorage( GetterArrayReply* reply, size_t numberOfDataUnits ) const
+void DataHolder<double>::reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const
 {
     reply->mutable_doubles()->mutable_data()->Reserve( numberOfDataUnits );
 }
 
 template <>
-void DataHolder<double>::addPackageValuesToReply( GetterArrayReply* reply, size_t startIndex, size_t numberOfDataUnits ) const
+void DataHolder<double>::addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const
 {
     *( reply->mutable_doubles()->mutable_data() ) = { data.begin() + startIndex,
                                                       data.begin() + startIndex + numberOfDataUnits };
 }
 template <>
-size_t DataHolder<double>::getValuesFromChunk( size_t startIndex, const SetterChunk* chunk )
+size_t DataHolder<double>::getValuesFromChunk( size_t startIndex, const GenericArray* chunk )
 {
     size_t chunkSize    = chunk->doubles().data_size();
     size_t currentIndex = startIndex;
@@ -228,20 +228,20 @@ size_t DataHolder<float>::valueSizeOf() const
 }
 
 template <>
-void DataHolder<float>::reserveReplyStorage( GetterArrayReply* reply, size_t numberOfDataUnits ) const
+void DataHolder<float>::reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const
 {
     reply->mutable_floats()->mutable_data()->Reserve( numberOfDataUnits );
 }
 
 template <>
-void DataHolder<float>::addPackageValuesToReply( GetterArrayReply* reply, size_t startIndex, size_t numberOfDataUnits ) const
+void DataHolder<float>::addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const
 {
     *( reply->mutable_floats()->mutable_data() ) = { data.begin() + startIndex,
                                                      data.begin() + startIndex + numberOfDataUnits };
 }
 
 template <>
-size_t DataHolder<float>::getValuesFromChunk( size_t startIndex, const SetterChunk* chunk )
+size_t DataHolder<float>::getValuesFromChunk( size_t startIndex, const GenericArray* chunk )
 {
     size_t chunkSize    = chunk->floats().data_size();
     size_t currentIndex = startIndex;
@@ -275,20 +275,20 @@ size_t DataHolder<std::string>::valueSizeOf() const
 }
 
 template <>
-void DataHolder<std::string>::reserveReplyStorage( GetterArrayReply* reply, size_t numberOfDataUnits ) const
+void DataHolder<std::string>::reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const
 {
     reply->mutable_strings()->mutable_data()->Reserve( numberOfDataUnits );
 }
 
 template <>
-void DataHolder<std::string>::addPackageValuesToReply( GetterArrayReply* reply, size_t startIndex, size_t numberOfDataUnits ) const
+void DataHolder<std::string>::addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const
 {
     *( reply->mutable_strings()->mutable_data() ) = { data.begin() + startIndex,
                                                       data.begin() + startIndex + numberOfDataUnits };
 }
 
 template <>
-size_t DataHolder<std::string>::getValuesFromChunk( size_t startIndex, const SetterChunk* chunk )
+size_t DataHolder<std::string>::getValuesFromChunk( size_t startIndex, const GenericArray* chunk )
 {
     size_t chunkSize    = 1u;
     size_t currentIndex = startIndex;
@@ -377,7 +377,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status GetterStateHandler::assignReply( GetterArrayReply* reply )
+grpc::Status GetterStateHandler::assignReply( GenericArray* reply )
 {
     CAFFA_ASSERT( m_dataHolder );
 
@@ -440,10 +440,10 @@ SetterStateHandler::SetterStateHandler()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
+grpc::Status SetterStateHandler::init( const GenericArray* chunk )
 {
-    CAFFA_ASSERT( chunk->has_set_request() );
-    auto setRequest = chunk->set_request();
+    CAFFA_ASSERT( chunk->has_request() );
+    auto setRequest = chunk->request();
 
     auto fieldRequest = setRequest.field();
     m_fieldOwner      = ObjectService::findCafObjectFromRpcObject( fieldRequest.self() );
@@ -498,7 +498,7 @@ grpc::Status SetterStateHandler::init( const SetterChunk* chunk )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status SetterStateHandler::receiveRequest( const SetterChunk* chunk, SetterArrayReply* reply )
+grpc::Status SetterStateHandler::receiveRequest( const GenericArray* chunk, SetterArrayReply* reply )
 {
     CAFFA_TRACE( "Received Setter Chunk" );
 
@@ -549,7 +549,7 @@ void SetterStateHandler::finish()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-StateHandler<SetterChunk>* SetterStateHandler::emptyClone() const
+StateHandler<GenericArray>* SetterStateHandler::emptyClone() const
 {
     return new SetterStateHandler;
 }
@@ -559,7 +559,7 @@ StateHandler<SetterChunk>* SetterStateHandler::emptyClone() const
 //--------------------------------------------------------------------------------------------------
 grpc::Status FieldService::GetArrayValue( grpc::ServerContext*        context,
                                           const FieldRequest*         request,
-                                          GetterArrayReply*           reply,
+                                          GenericArray*               reply,
                                           StateHandler<FieldRequest>* stateHandler )
 {
     auto getterHandler = dynamic_cast<GetterStateHandler*>( stateHandler );
@@ -599,10 +599,10 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status FieldService::SetArrayValue( grpc::ServerContext*       context,
-                                          const SetterChunk*         chunk,
-                                          SetterArrayReply*          reply,
-                                          StateHandler<SetterChunk>* stateHandler )
+grpc::Status FieldService::SetArrayValue( grpc::ServerContext*        context,
+                                          const GenericArray*         chunk,
+                                          SetterArrayReply*           reply,
+                                          StateHandler<GenericArray>* stateHandler )
 {
     auto setterHandler = dynamic_cast<SetterStateHandler*>( stateHandler );
     CAFFA_ASSERT( setterHandler );
@@ -646,14 +646,14 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
 std::vector<AbstractCallback*> FieldService::createCallbacks()
 {
     typedef FieldService Self;
-    return { new ServerToClientStreamCallback<Self, FieldRequest, GetterArrayReply>( this,
-                                                                                     &Self::GetArrayValue,
-                                                                                     &Self::RequestGetArrayValue,
-                                                                                     new GetterStateHandler ),
-             new ClientToServerStreamCallback<Self, SetterChunk, SetterArrayReply>( this,
-                                                                                    &Self::SetArrayValue,
-                                                                                    &Self::RequestSetArrayValue,
-                                                                                    new SetterStateHandler ),
+    return { new ServerToClientStreamCallback<Self, FieldRequest, GenericArray>( this,
+                                                                                 &Self::GetArrayValue,
+                                                                                 &Self::RequestGetArrayValue,
+                                                                                 new GetterStateHandler ),
+             new ClientToServerStreamCallback<Self, GenericArray, SetterArrayReply>( this,
+                                                                                     &Self::SetArrayValue,
+                                                                                     &Self::RequestSetArrayValue,
+                                                                                     new SetterStateHandler ),
              new UnaryCallback<Self, FieldRequest, GetterReply>( this, &Self::GetValue, &Self::RequestGetValue ),
              new UnaryCallback<Self, SetterRequest, NullMessage>( this, &Self::SetValue, &Self::RequestSetValue ) };
 }

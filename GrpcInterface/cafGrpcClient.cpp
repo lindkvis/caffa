@@ -246,21 +246,21 @@ public:
         field->set_method( setter );
         field->set_allocated_self( self.release() );
 
-        auto setterRequest = std::make_unique<SetterArrayRequest>();
+        auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
         setterRequest->set_allocated_field( field.release() );
 
-        SetterArrayReply                                 reply;
-        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
-        SetterChunk                                      header;
-        header.set_allocated_set_request( setterRequest.release() );
+        SetterArrayReply                                  reply;
+        std::unique_ptr<grpc::ClientWriter<GenericArray>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
+        GenericArray                                      header;
+        header.set_allocated_request( setterRequest.release() );
         if ( !writer->Write( header ) ) return false;
 
         for ( size_t i = 0; i < values.size(); )
         {
             auto currentChunkSize = std::min( chunkSize, values.size() - i );
 
-            SetterChunk chunk;
+            GenericArray chunk;
             chunk.mutable_ints()->mutable_data()->Reserve( currentChunkSize );
             for ( size_t n = 0; n < currentChunkSize; ++n )
             {
@@ -291,21 +291,21 @@ public:
         field->set_method( setter );
         field->set_allocated_self( self.release() );
 
-        auto setterRequest = std::make_unique<SetterArrayRequest>();
+        auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
         setterRequest->set_allocated_field( field.release() );
 
-        SetterArrayReply                                 reply;
-        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
-        SetterChunk                                      header;
-        header.set_allocated_set_request( setterRequest.release() );
+        SetterArrayReply                                  reply;
+        std::unique_ptr<grpc::ClientWriter<GenericArray>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
+        GenericArray                                      header;
+        header.set_allocated_request( setterRequest.release() );
         if ( !writer->Write( header ) ) return false;
 
         for ( size_t i = 0; i < values.size(); )
         {
             auto currentChunkSize = std::min( chunkSize, values.size() - i );
 
-            SetterChunk chunk;
+            GenericArray chunk;
             chunk.mutable_uint64s()->mutable_data()->Reserve( currentChunkSize );
             for ( size_t n = 0; n < currentChunkSize; ++n )
             {
@@ -338,21 +338,21 @@ public:
         field->set_method( setter );
         field->set_allocated_self( self.release() );
 
-        auto setterRequest = std::make_unique<SetterArrayRequest>();
+        auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
         setterRequest->set_allocated_field( field.release() );
 
-        SetterArrayReply                                 reply;
-        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
-        SetterChunk                                      header;
-        header.set_allocated_set_request( setterRequest.release() );
+        SetterArrayReply                                  reply;
+        std::unique_ptr<grpc::ClientWriter<GenericArray>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
+        GenericArray                                      header;
+        header.set_allocated_request( setterRequest.release() );
         if ( !writer->Write( header ) ) return false;
 
         for ( size_t i = 0; i < values.size(); )
         {
             auto currentChunkSize = std::min( chunkSize, values.size() - i );
 
-            SetterChunk chunk;
+            GenericArray chunk;
             chunk.mutable_doubles()->mutable_data()->Reserve( currentChunkSize );
             for ( size_t n = 0; n < currentChunkSize; ++n )
             {
@@ -384,21 +384,21 @@ public:
         field->set_method( setter );
         field->set_allocated_self( self.release() );
 
-        auto setterRequest = std::make_unique<SetterArrayRequest>();
+        auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
         setterRequest->set_allocated_field( field.release() );
 
-        SetterArrayReply                                 reply;
-        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
-        SetterChunk                                      header;
-        header.set_allocated_set_request( setterRequest.release() );
+        SetterArrayReply                                  reply;
+        std::unique_ptr<grpc::ClientWriter<GenericArray>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
+        GenericArray                                      header;
+        header.set_allocated_request( setterRequest.release() );
         if ( !writer->Write( header ) ) return false;
 
         for ( size_t i = 0; i < values.size(); )
         {
             auto currentChunkSize = std::min( chunkSize, values.size() - i );
 
-            SetterChunk chunk;
+            GenericArray chunk;
             chunk.mutable_floats()->mutable_data()->Reserve( currentChunkSize );
             for ( size_t n = 0; n < currentChunkSize; ++n )
             {
@@ -428,19 +428,19 @@ public:
         field->set_method( setter );
         field->set_allocated_self( self.release() );
 
-        auto setterRequest = std::make_unique<SetterArrayRequest>();
+        auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
         setterRequest->set_allocated_field( field.release() );
 
-        SetterArrayReply                                 reply;
-        std::unique_ptr<grpc::ClientWriter<SetterChunk>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
-        SetterChunk                                      header;
-        header.set_allocated_set_request( setterRequest.release() );
+        SetterArrayReply                                  reply;
+        std::unique_ptr<grpc::ClientWriter<GenericArray>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
+        GenericArray                                      header;
+        header.set_allocated_request( setterRequest.release() );
         if ( !writer->Write( header ) ) return false;
 
         for ( size_t i = 0; i < values.size(); ++i )
         {
-            SetterChunk chunk;
+            GenericArray chunk;
             chunk.mutable_strings()->add_data( values[i] );
             if ( !writer->Write( chunk ) ) return false;
         }
@@ -465,8 +465,8 @@ public:
 
         std::vector<int> values;
 
-        std::unique_ptr<grpc::ClientReader<GetterArrayReply>> reader( m_fieldStub->GetArrayValue( &context, field ) );
-        GetterArrayReply                                      reply;
+        std::unique_ptr<grpc::ClientReader<GenericArray>> reader( m_fieldStub->GetArrayValue( &context, field ) );
+        GenericArray                                      reply;
         while ( reader->Read( &reply ) )
         {
             CAFFA_ASSERT( reply.has_ints() ); // TODO: throw
@@ -491,8 +491,8 @@ public:
 
         std::vector<uint64_t> values;
 
-        std::unique_ptr<grpc::ClientReader<GetterArrayReply>> reader( m_fieldStub->GetArrayValue( &context, field ) );
-        GetterArrayReply                                      reply;
+        std::unique_ptr<grpc::ClientReader<GenericArray>> reader( m_fieldStub->GetArrayValue( &context, field ) );
+        GenericArray                                      reply;
         while ( reader->Read( &reply ) )
         {
             CAFFA_ASSERT( reply.has_uint64s() ); // TODO: throw
@@ -518,8 +518,8 @@ public:
 
         std::vector<double> values;
 
-        std::unique_ptr<grpc::ClientReader<GetterArrayReply>> reader( m_fieldStub->GetArrayValue( &context, field ) );
-        GetterArrayReply                                      reply;
+        std::unique_ptr<grpc::ClientReader<GenericArray>> reader( m_fieldStub->GetArrayValue( &context, field ) );
+        GenericArray                                      reply;
         while ( reader->Read( &reply ) )
         {
             CAFFA_ASSERT( reply.has_doubles() ); // TODO: throw
@@ -547,8 +547,8 @@ public:
 
         auto start_time = std::chrono::system_clock::now();
 
-        std::unique_ptr<grpc::ClientReader<GetterArrayReply>> reader( m_fieldStub->GetArrayValue( &context, field ) );
-        GetterArrayReply                                      reply;
+        std::unique_ptr<grpc::ClientReader<GenericArray>> reader( m_fieldStub->GetArrayValue( &context, field ) );
+        GenericArray                                      reply;
         while ( reader->Read( &reply ) )
         {
             CAFFA_ASSERT( reply.has_floats() ); // TODO: throw
@@ -578,8 +578,8 @@ public:
 
         std::vector<std::string> values;
 
-        std::unique_ptr<grpc::ClientReader<GetterArrayReply>> reader( m_fieldStub->GetArrayValue( &context, field ) );
-        GetterArrayReply                                      reply;
+        std::unique_ptr<grpc::ClientReader<GenericArray>> reader( m_fieldStub->GetArrayValue( &context, field ) );
+        GenericArray                                      reply;
         while ( reader->Read( &reply ) )
         {
             CAFFA_ASSERT( reply.has_strings() ); // TODO: throw
