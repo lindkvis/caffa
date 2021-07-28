@@ -42,9 +42,9 @@ DemoObject_copyObject::DemoObject_copyObject( caffa::ObjectHandle* self,
                                               const std::string&   stringValue )
     : caffa::ObjectMethod( self )
 {
-    initField( m_memberDoubleField, "doubleMember" ).withScripting().withDefault( doubleValue );
-    initField( m_memberIntField, "intMember" ).withScripting().withDefault( intValue );
-    initField( m_memberStringField, "stringMember" ).withScripting().withDefault( stringValue );
+    initField( m_memberDoubleField, "doubleArgument" ).withScripting().withDefault( doubleValue );
+    initField( m_memberIntField, "intArgument" ).withScripting().withDefault( intValue );
+    initField( m_memberStringField, "stringArgument" ).withScripting().withDefault( stringValue );
 }
 std::unique_ptr<caffa::ObjectHandle> DemoObject_copyObject::execute()
 {

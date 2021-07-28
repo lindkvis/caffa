@@ -133,6 +133,8 @@ void ObjectJsonCapability::readFieldsFromJson( ObjectHandle*         object,
                                                ObjectFactory*        objectFactory,
                                                bool                  copyDataValues )
 {
+    CAFFA_DEBUG( "Reading fields from json with copyDataValues: " << copyDataValues );
+
     CAFFA_ASSERT( jsonObject.is_object() );
     const auto& classKeyword = jsonObject["classKeyword"];
 
@@ -152,17 +154,17 @@ void ObjectJsonCapability::readFieldsFromJson( ObjectHandle*         object,
 
     for ( const nlohmann::json& field : jsonFields )
     {
-        CAFFA_TRACE( "Reading field: " << field.dump() );
+        CAFFA_DEBUG( "Reading field: " << field.dump() );
         auto keyIt   = field.find( "keyword" );
         auto valueIt = field.find( "value" );
         if ( keyIt == field.end() )
         {
-            CAFFA_DEBUG( "Could not find keyword in " << field.dump() );
+            CAFFA_WARNING( "Could not find keyword in " << field.dump() );
             continue;
         }
         if ( copyDataValues && ( valueIt == field.end() || valueIt->is_null() ) )
         {
-            CAFFA_DEBUG( "Could not find value in " << field.dump() );
+            CAFFA_WARNING( "Could not find value in " << field.dump() );
             continue;
         }
 
@@ -170,12 +172,18 @@ void ObjectJsonCapability::readFieldsFromJson( ObjectHandle*         object,
         if ( fieldHandle && fieldHandle->capability<FieldIoCapability>() )
         {
             auto ioFieldHandle = fieldHandle->capability<FieldIoCapability>();
-            if ( !ioFieldHandle ) continue;
-
-            if ( ioFieldHandle->isIOReadable() )
+            if ( ioFieldHandle && ioFieldHandle->isIOReadable() )
             {
                 ioFieldHandle->readFromJson( *valueIt, objectFactory, copyDataValues );
             }
+            else
+            {
+                CAFFA_WARNING( "field handle not readable" );
+            }
+        }
+        else
+        {
+            CAFFA_WARNING( "Could not find field " << *keyIt );
         }
     }
 }

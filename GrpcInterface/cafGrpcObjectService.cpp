@@ -83,7 +83,7 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
         if ( method )
         {
             copyResultOrParameterObjectFromRpcToCaf( &( request->params() ), method.get() );
-
+            CAFFA_TRACE( "Method parameters copied. Now executing!" );
             auto result = method->execute();
             if ( result )
             {
@@ -232,10 +232,10 @@ void ObjectService::copyResultOrParameterObjectFromRpcToCaf( const Object* sourc
 
     auto jsonObject = nlohmann::json::parse( source->json() );
 
-    CAFFA_DEBUG( "Copying rpc object: " << source->json() );
-
     std::stringstream str( source->json() );
     auto              ioCapability = destination->capability<caffa::ObjectIoCapability>();
+    CAFFA_DEBUG( "Copying rpc object: " << source->json() << " into ioCapability " << ioCapability );
+
     ioCapability->readFile( str );
 }
 

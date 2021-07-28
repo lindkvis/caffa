@@ -82,7 +82,7 @@ int main( int argc, char** argv )
 
     CAFFA_INFO( "Launching Server listening on port " << portNumber );
 
-    caffa::Logger::setApplicationLogLevel( caffa::Logger::Level::DEBUG );
+    caffa::Logger::setApplicationLogLevel( caffa::Logger::Level::TRACE );
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
 

@@ -32,7 +32,12 @@ public:
         m_obj          = obj;
     }
 
-    void setValue( const DataType& value ) { ( m_obj->*m_setterMethod )( value ); }
+    void setValue( const DataType& value )
+    {
+        CAFFA_ASSERT( m_obj.notNull() );
+        CAFFA_ASSERT( m_setterMethod );
+        ( m_obj->*m_setterMethod )( value );
+    }
 
     virtual std::unique_ptr<SetValueInterface<DataType>> clone() const
     {

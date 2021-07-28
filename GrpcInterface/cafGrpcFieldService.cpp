@@ -310,6 +310,53 @@ void DataHolder<std::string>::applyValuesToField( ValueField* field )
     }
 }
 
+template <>
+size_t DataHolder<bool>::valueCount() const
+{
+    return data.size();
+}
+template <>
+size_t DataHolder<bool>::valueSizeOf() const
+{
+    return sizeof( bool );
+}
+
+template <>
+void DataHolder<bool>::reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const
+{
+    reply->mutable_bools()->mutable_data()->Reserve( numberOfDataUnits );
+}
+
+template <>
+void DataHolder<bool>::addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const
+{
+    *( reply->mutable_bools()->mutable_data() ) = { data.begin() + startIndex,
+                                                    data.begin() + startIndex + numberOfDataUnits };
+}
+
+template <>
+size_t DataHolder<bool>::getValuesFromChunk( size_t startIndex, const GenericArray* chunk )
+{
+    size_t chunkSize    = chunk->bools().data_size();
+    size_t currentIndex = startIndex;
+    size_t chunkIndex   = 0u;
+    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
+    {
+        data[currentIndex] = chunk->bools().data()[chunkIndex];
+    }
+    return chunkSize;
+}
+template <>
+void DataHolder<bool>::applyValuesToField( ValueField* field )
+{
+    auto dataValueField = dynamic_cast<Field<std::vector<bool>>*>( field );
+    if ( dataValueField )
+    {
+        CAFFA_TRACE( "Applying " << data.size() << " values to field" );
+        dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -380,6 +427,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
 grpc::Status GetterStateHandler::assignReply( GenericArray* reply )
 {
     CAFFA_ASSERT( m_dataHolder );
+    CAFFA_TRACE( "Assigning values to getter reply" );
 
     size_t remainingData             = m_dataHolder->valueCount() - m_currentDataIndex;
     size_t defaultDataUnitsInPackage = Application::instance()->packageByteSize() / m_dataHolder->valueSizeOf();
@@ -562,6 +610,7 @@ grpc::Status FieldService::GetArrayValue( grpc::ServerContext*        context,
                                           GenericArray*               reply,
                                           StateHandler<FieldRequest>* stateHandler )
 {
+    CAFFA_TRACE( "Received GetArrayValue request" );
     auto getterHandler = dynamic_cast<GetterStateHandler*>( stateHandler );
     CAFFA_ASSERT( getterHandler );
     return getterHandler->assignReply( reply );

@@ -27,10 +27,15 @@ void FieldIoCap<FieldType>::readFromJson( const nlohmann::json& jsonValue, Objec
     this->assertValid();
     if ( copyDataValues )
     {
-        CAFFA_TRACE( "Setting value from json: " << jsonValue.dump() );
+        CAFFA_TRACE( "Setting value from json to: " << jsonValue.dump() );
 
         typename FieldType::FieldDataType value = jsonValue.get<typename FieldType::FieldDataType>();
         m_field->setValue( value );
+
+        nlohmann::json newJsonValue;
+        this->writeToJson( newJsonValue, copyDataValues );
+
+        CAFFA_TRACE( "Value is now: " << newJsonValue.dump() );
     }
 }
 
@@ -43,6 +48,8 @@ void FieldIoCap<FieldType>::writeToJson( nlohmann::json& jsonValue, bool copyDat
     this->assertValid();
     if ( copyDataValues )
     {
+        CAFFA_TRACE( "Getting value from field: " << m_field );
+
         jsonValue = m_field->value();
     }
 }
