@@ -56,7 +56,7 @@ namespace caffa::rpc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const DocumentRequest* request, Object* reply )
+grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const DocumentRequest* request, RpcObject* reply )
 {
     CAFFA_TRACE( "Got document request" );
     Document* document = ServerApplication::instance()->document( request->document_id() );
@@ -73,10 +73,10 @@ grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const Doc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, Object* reply )
+grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, RpcObject* reply )
 {
-    const Object& self           = request->self();
-    auto          matchingObject = findCafObjectFromRpcObject( self );
+    const RpcObject& self           = request->self();
+    auto             matchingObject = findCafObjectFromRpcObject( self );
     if ( matchingObject )
     {
         auto method = ObjectMethodFactory::instance()->createMethod( matchingObject, request->method() );
@@ -103,7 +103,7 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status ObjectService::ListMethods( grpc::ServerContext* context, const Object* self, ObjectList* reply )
+grpc::Status ObjectService::ListMethods( grpc::ServerContext* context, const RpcObject* self, RpcObjectList* reply )
 {
     auto matchingObject = findCafObjectFromRpcObject( *self );
     CAFFA_ASSERT( matchingObject );
@@ -115,8 +115,8 @@ grpc::Status ObjectService::ListMethods( grpc::ServerContext* context, const Obj
         for ( auto methodName : methodNames )
         {
             CAFFA_TRACE( "Found method: " << methodName );
-            auto    method          = ObjectMethodFactory::instance()->createMethod( matchingObject, methodName );
-            Object* newMethodObject = reply->add_objects();
+            auto       method          = ObjectMethodFactory::instance()->createMethod( matchingObject, methodName );
+            RpcObject* newMethodObject = reply->add_objects();
             copyResultOrParameterObjectFromCafToRpc( method.get(), newMethodObject );
         }
         return grpc::Status::OK;
@@ -127,7 +127,7 @@ grpc::Status ObjectService::ListMethods( grpc::ServerContext* context, const Obj
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caffa::Object* ObjectService::findCafObjectFromRpcObject( const Object& rpcObject )
+caffa::Object* ObjectService::findCafObjectFromRpcObject( const RpcObject& rpcObject )
 {
     auto jsonObject   = nlohmann::json::parse( rpcObject.json() );
     auto classKeyword = jsonObject["classKeyword"].get<std::string>();
@@ -183,7 +183,7 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const std::str
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectService::copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* source, Object* destination )
+void ObjectService::copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination )
 {
     CAFFA_ASSERT( source && destination );
     CAFFA_ASSERT( !source->uuid().empty() );
@@ -202,7 +202,7 @@ void ObjectService::copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* so
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectService::copyProjectObjectFromRpcToCaf( const Object* source, caffa::ObjectHandle* destination )
+void ObjectService::copyProjectObjectFromRpcToCaf( const RpcObject* source, caffa::ObjectHandle* destination )
 {
     CAFFA_ASSERT( source );
 
@@ -212,7 +212,7 @@ void ObjectService::copyProjectObjectFromRpcToCaf( const Object* source, caffa::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectService::copyResultOrParameterObjectFromCafToRpc( const caffa::ObjectHandle* source, Object* destination )
+void ObjectService::copyResultOrParameterObjectFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination )
 {
     CAFFA_ASSERT( source && destination );
 
@@ -226,7 +226,7 @@ void ObjectService::copyResultOrParameterObjectFromCafToRpc( const caffa::Object
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectService::copyResultOrParameterObjectFromRpcToCaf( const Object* source, caffa::ObjectHandle* destination )
+void ObjectService::copyResultOrParameterObjectFromRpcToCaf( const RpcObject* source, caffa::ObjectHandle* destination )
 {
     CAFFA_ASSERT( source );
 
@@ -242,8 +242,9 @@ void ObjectService::copyResultOrParameterObjectFromRpcToCaf( const Object* sourc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caffa::ObjectHandle>
-    ObjectService::createCafObjectFromRpc( const Object* source, caffa::ObjectFactory* objectFactory, bool copyDataValues )
+std::unique_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( const RpcObject*      source,
+                                                                            caffa::ObjectFactory* objectFactory,
+                                                                            bool                  copyDataValues )
 {
     CAFFA_ASSERT( source );
     std::unique_ptr<caffa::ObjectHandle> destination(
@@ -257,7 +258,7 @@ std::unique_ptr<caffa::ObjectHandle>
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<caffa::ObjectMethod>
     ObjectService::createCafObjectMethodFromRpc( ObjectHandle*               self,
-                                                 const Object*               source,
+                                                 const RpcObject*            source,
                                                  caffa::ObjectMethodFactory* objectMethodFactory,
                                                  caffa::ObjectFactory*       objectFactory,
                                                  bool                        copyDataValues )
@@ -282,9 +283,9 @@ std::unique_ptr<caffa::ObjectMethod>
 std::vector<AbstractCallback*> ObjectService::createCallbacks()
 {
     typedef ObjectService Self;
-    return { new UnaryCallback<Self, DocumentRequest, Object>( this, &Self::GetDocument, &Self::RequestGetDocument ),
-             new UnaryCallback<Self, MethodRequest, Object>( this, &Self::ExecuteMethod, &Self::RequestExecuteMethod ),
-             new UnaryCallback<Self, Object, ObjectList>( this, &Self::ListMethods, &Self::RequestListMethods )
+    return { new UnaryCallback<Self, DocumentRequest, RpcObject>( this, &Self::GetDocument, &Self::RequestGetDocument ),
+             new UnaryCallback<Self, MethodRequest, RpcObject>( this, &Self::ExecuteMethod, &Self::RequestExecuteMethod ),
+             new UnaryCallback<Self, RpcObject, RpcObjectList>( this, &Self::ListMethods, &Self::RequestListMethods )
 
     };
 }

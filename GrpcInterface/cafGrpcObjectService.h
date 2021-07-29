@@ -53,25 +53,25 @@ class MethodRequest;
 class ObjectService final : public ObjectAccess::AsyncService, public ServiceInterface
 {
 public:
-    grpc::Status GetDocument( grpc::ServerContext* context, const DocumentRequest* request, Object* reply );
+    grpc::Status GetDocument( grpc::ServerContext* context, const DocumentRequest* request, RpcObject* reply );
 
-    grpc::Status ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, Object* reply ) override;
-    grpc::Status ListMethods( grpc::ServerContext* context, const Object* self, ObjectList* reply ) override;
+    grpc::Status ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, RpcObject* reply ) override;
+    grpc::Status ListMethods( grpc::ServerContext* context, const RpcObject* self, RpcObjectList* reply ) override;
 
-    static caffa::Object* findCafObjectFromRpcObject( const Object& rpcObject );
+    static caffa::Object* findCafObjectFromRpcObject( const RpcObject& rpcObject );
     static caffa::Object* findCafObjectFromScriptNameAndUuid( const std::string& scriptClassName, const std::string& uuid );
 
-    static void copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* source, Object* destination );
-    static void copyProjectObjectFromRpcToCaf( const Object* source, caffa::ObjectHandle* destination );
+    static void copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination );
+    static void copyProjectObjectFromRpcToCaf( const RpcObject* source, caffa::ObjectHandle* destination );
 
-    static void copyResultOrParameterObjectFromCafToRpc( const caffa::ObjectHandle* source, Object* destination );
-    static void copyResultOrParameterObjectFromRpcToCaf( const Object* source, caffa::ObjectHandle* destination );
+    static void copyResultOrParameterObjectFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination );
+    static void copyResultOrParameterObjectFromRpcToCaf( const RpcObject* source, caffa::ObjectHandle* destination );
 
     static std::unique_ptr<caffa::ObjectHandle>
-        createCafObjectFromRpc( const Object* source, caffa::ObjectFactory* objectFactory, bool copyDataValues );
+        createCafObjectFromRpc( const RpcObject* source, caffa::ObjectFactory* objectFactory, bool copyDataValues );
 
     static std::unique_ptr<caffa::ObjectMethod> createCafObjectMethodFromRpc( ObjectHandle*               self,
-                                                                              const Object*               source,
+                                                                              const RpcObject*            source,
                                                                               caffa::ObjectMethodFactory* objectMethodFactory,
                                                                               caffa::ObjectFactory*       objectFactory,
                                                                               bool copyDataValues );

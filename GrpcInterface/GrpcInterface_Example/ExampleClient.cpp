@@ -86,5 +86,6 @@ int main( int argc, char** argv )
     std::cout << "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" << std::endl;
 
     clientDocument->demoObject()->setFloatVector( { 123.0, 45.1, 8.32 } );
+    clientDocument->demoObject()->setDoubleMember( 98.0 );
     return 0;
 }

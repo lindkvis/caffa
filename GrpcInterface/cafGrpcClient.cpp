@@ -93,7 +93,7 @@ public:
         grpc::ClientContext         context;
         caffa::rpc::DocumentRequest request;
         request.set_document_id( documentId );
-        caffa::rpc::Object objectReply;
+        caffa::rpc::RpcObject objectReply;
         CAFFA_TRACE( "Calling GetDocument()" );
         auto status = m_objectStub->GetDocument( &context, request, &objectReply );
         if ( status.ok() )
@@ -113,8 +113,8 @@ public:
 
     std::unique_ptr<caffa::ObjectHandle> execute( const caffa::ObjectMethod* method ) const
     {
-        auto self   = std::make_unique<Object>();
-        auto params = std::make_unique<Object>();
+        auto self   = std::make_unique<RpcObject>();
+        auto params = std::make_unique<RpcObject>();
         CAFFA_TRACE( "Copying self" );
         ObjectService::copyProjectObjectFromCafToRpc( method->self<caffa::ObjectHandle>(), self.get() );
         CAFFA_TRACE( "Copying parameters" );
@@ -128,8 +128,8 @@ public:
 
         std::unique_ptr<caffa::ObjectHandle> returnValue;
 
-        caffa::rpc::Object objectReply;
-        auto               status = m_objectStub->ExecuteMethod( &context, request, &objectReply );
+        caffa::rpc::RpcObject objectReply;
+        auto                  status = m_objectStub->ExecuteMethod( &context, request, &objectReply );
         if ( status.ok() )
         {
             returnValue = caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply,
@@ -161,10 +161,10 @@ public:
     std::list<std::unique_ptr<caffa::ObjectHandle>> objectMethods( caffa::ObjectHandle* objectHandle ) const
     {
         grpc::ClientContext context;
-        auto                self = std::make_unique<Object>();
+        auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
-        ObjectList reply;
-        auto       status = m_objectStub->ListMethods( &context, *self, &reply );
+        RpcObjectList reply;
+        auto          status = m_objectStub->ListMethods( &context, *self, &reply );
 
         std::list<std::unique_ptr<caffa::ObjectHandle>> methods;
         if ( !status.ok() )
@@ -172,11 +172,11 @@ public:
             return methods;
         }
 
-        for ( auto object : reply.objects() )
+        for ( auto RpcObject : reply.objects() )
         {
             std::unique_ptr<caffa::ObjectHandle> caffaObject =
                 ObjectService::createCafObjectMethodFromRpc( objectHandle,
-                                                             &object,
+                                                             &RpcObject,
                                                              caffa::ObjectMethodFactory::instance(),
                                                              caffa::rpc::GrpcClientObjectFactory::instance(),
                                                              true );
@@ -188,7 +188,7 @@ public:
     void setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& jsonValue )
     {
         grpc::ClientContext context;
-        auto                self = std::make_unique<Object>();
+        auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
@@ -213,7 +213,7 @@ public:
         CAFFA_TRACE( "Get JSON value for field " << fieldName );
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
-        auto                self = std::make_unique<Object>();
+        auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
         field.set_method( fieldName );
@@ -239,7 +239,7 @@ public:
         auto chunkSize = Application::instance()->packageByteSize();
 
         grpc::ClientContext context;
-        auto                self = std::make_unique<Object>();
+        auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
@@ -284,7 +284,7 @@ public:
         auto chunkSize = Application::instance()->packageByteSize();
 
         grpc::ClientContext context;
-        auto                self = std::make_unique<Object>();
+        auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
@@ -331,7 +331,7 @@ public:
 
         CAFFA_TRACE( "Sending " << values.size() << " double values from client" );
         grpc::ClientContext context;
-        auto                self = std::make_unique<Object>();
+        auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
@@ -377,7 +377,7 @@ public:
         auto chunkSize = Application::instance()->packageByteSize();
 
         grpc::ClientContext context;
-        auto                self = std::make_unique<Object>();
+        auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
@@ -421,7 +421,7 @@ public:
     bool set( const caffa::ObjectHandle* objectHandle, const std::string& setter, const std::vector<std::string>& values )
     {
         grpc::ClientContext context;
-        auto                self = std::make_unique<Object>();
+        auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
@@ -457,7 +457,7 @@ public:
     std::vector<int> getInts( const caffa::ObjectHandle* objectHandle, const std::string& getter ) const
     {
         grpc::ClientContext context;
-        auto                self = std::make_unique<Object>();
+        auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
         field.set_method( getter );
@@ -483,7 +483,7 @@ public:
     std::vector<uint64_t> getUInt64s( const caffa::ObjectHandle* objectHandle, const std::string& getter ) const
     {
         grpc::ClientContext context;
-        auto                self = std::make_unique<Object>();
+        auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
         field.set_method( getter );
@@ -510,7 +510,7 @@ public:
     std::vector<double> getDoubles( const caffa::ObjectHandle* objectHandle, const std::string& getter ) const
     {
         grpc::ClientContext context;
-        auto                self = std::make_unique<Object>();
+        auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
         field.set_method( getter );
@@ -537,7 +537,7 @@ public:
     std::vector<float> getFloats( const caffa::ObjectHandle* objectHandle, const std::string& getter ) const
     {
         grpc::ClientContext context;
-        auto                self = std::make_unique<Object>();
+        auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
         field.set_method( getter );
@@ -570,7 +570,7 @@ public:
     std::vector<std::string> getStrings( const caffa::ObjectHandle* objectHandle, const std::string& getter ) const
     {
         grpc::ClientContext context;
-        auto                self = std::make_unique<Object>();
+        auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
         field.set_method( getter );
