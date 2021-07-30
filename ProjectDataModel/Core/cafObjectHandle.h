@@ -201,7 +201,7 @@ private:
 
     // Child/Parent Relationships
     void setAsParentField( FieldHandle* parentField );
-    void removeAsParentField( FieldHandle* parentField );
+    void detachFromParentField();
     void disconnectObserverFromAllSignals( SignalObserver* observer );
 
     FieldHandle* m_parentField;

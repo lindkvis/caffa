@@ -128,7 +128,7 @@ std::vector<std::unique_ptr<DataType>> ChildArrayField<DataType*>::removeAll()
     {
         if ( !pointer.isNull() )
         {
-            pointer->removeAsParentField( this );
+            pointer->detachFromParentField();
             uniquePointers.push_back( std::unique_ptr<DataType>( pointer.p() ) );
         }
     }
@@ -147,7 +147,7 @@ void ChildArrayField<DataType*>::erase( size_t index )
     auto rawPtr = m_pointers[index].rawPtr();
     if ( rawPtr )
     {
-        rawPtr->removeAsParentField( this );
+        rawPtr->detachFromParentField();
         delete rawPtr;
     }
 
@@ -197,7 +197,7 @@ std::unique_ptr<DataType> ChildArrayField<DataType*>::remove( ObjectHandle* obje
         auto ptr = it->p();
         if ( ptr == object )
         {
-            ptr->removeAsParentField( this );
+            ptr->detachFromParentField();
             m_pointers.erase( it );
             return std::unique_ptr<DataType>( ptr );
         }
@@ -218,7 +218,7 @@ std::unique_ptr<ObjectHandle> ChildArrayField<DataType*>::removeChildObject( Obj
         auto ptr = it->rawPtr();
         if ( ptr == object )
         {
-            ptr->removeAsParentField( this );
+            ptr->detachFromParentField();
             m_pointers.erase( it );
             return std::unique_ptr<ObjectHandle>( ptr );
         }

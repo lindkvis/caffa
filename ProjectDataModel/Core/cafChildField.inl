@@ -30,7 +30,7 @@ std::unique_ptr<DataType> ChildField<DataType*>::remove( ObjectHandle* object )
     if ( m_fieldValue.rawPtr() != nullptr && m_fieldValue.rawPtr() == object )
     {
         auto typedObject = m_fieldValue.p();
-        m_fieldValue.rawPtr()->removeAsParentField( this );
+        m_fieldValue.rawPtr()->detachFromParentField();
         m_fieldValue.setRawPtr( nullptr );
         return std::unique_ptr<DataType>( typedObject );
     }
@@ -46,7 +46,7 @@ std::unique_ptr<ObjectHandle> ChildField<DataType*>::removeChildObject( ObjectHa
     if ( m_fieldValue.rawPtr() != nullptr && m_fieldValue.rawPtr() == object )
     {
         auto objectHandle = m_fieldValue.rawPtr();
-        m_fieldValue.rawPtr()->removeAsParentField( this );
+        m_fieldValue.rawPtr()->detachFromParentField();
         m_fieldValue.setRawPtr( nullptr );
         return std::unique_ptr<ObjectHandle>( objectHandle );
     }
@@ -82,7 +82,7 @@ ChildField<DataType*>& ChildField<DataType*>::operator=( DataTypePtr fieldValue 
 
     if ( m_fieldValue )
     {
-        m_fieldValue->removeAsParentField( this );
+        m_fieldValue->detachFromParentField();
         delete m_fieldValue.rawPtr();
     }
     m_fieldValue = fieldValue.release();
@@ -99,7 +99,7 @@ DataType* ChildField<DataType*>::setValue( DataTypePtr fieldValue )
     CAFFA_ASSERT( isInitializedByInitFieldMacro() );
     if ( m_fieldValue )
     {
-        m_fieldValue->removeAsParentField( this );
+        m_fieldValue->detachFromParentField();
         delete m_fieldValue.rawPtr();
     }
     m_fieldValue = fieldValue.release();
