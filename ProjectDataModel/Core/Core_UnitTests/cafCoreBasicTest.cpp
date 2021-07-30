@@ -294,11 +294,11 @@ TEST( BaseTest, ChildArrayField )
     EXPECT_EQ( size_t( 3 ), typedObjects.size() );
 
     // remove child object
-    auto new_s2 = ihd1->m_childArrayField.remove( s2p );
+    auto new_s2 = ihd1->m_childArrayField.removeChildObject( s2p );
     EXPECT_EQ( size_t( 2 ), ihd1->m_childArrayField.size() );
     EXPECT_TRUE( new_s2->parentField() == nullptr );
 
-    auto emptyPointer = ihd1->m_childArrayField.remove( nullptr );
+    auto emptyPointer = ihd1->m_childArrayField.removeChildObject( nullptr );
     EXPECT_TRUE( !emptyPointer );
     EXPECT_EQ( s3p, ihd1->m_childArrayField[1] );
     EXPECT_EQ( s1p, ihd1->m_childArrayField[0] );

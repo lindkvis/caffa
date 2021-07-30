@@ -33,22 +33,13 @@ public:
     std::string   keyword() const { return m_keyword; }
     bool          matchesKeyword( const std::string& keyword ) const;
     ObjectHandle* ownerObject();
-    std::string   ownerClass() const;
-
-    void                     registerKeywordAlias( const std::string& alias );
-    bool                     matchesKeywordAlias( const std::string& keyword ) const;
-    std::vector<std::string> keywordAliases() const;
 
     // Child objects
-    bool                                                hasChildObjects();
-    virtual std::vector<ObjectHandle*>                  childObjects() { return {}; }
-    virtual void                                        childObjects( std::vector<ObjectHandle*>* ) {}
-    [[nodiscard]] virtual std::unique_ptr<ObjectHandle> removeChildObject( ObjectHandle* );
-    void                                                setOwnerClass( const std::string& ownerClass );
+    bool                                  hasChildObjects();
+    virtual std::vector<ObjectHandle*>    childObjects() { return {}; }
+    virtual void                          childObjects( std::vector<ObjectHandle*>* ) {}
+    virtual std::unique_ptr<ObjectHandle> removeChildObject( ObjectHandle* );
 
-    // Ptr referenced objects
-    bool                hasPtrReferencedObjects();
-    virtual void        ptrReferencedObjects( std::vector<ObjectHandle*>* ) {}
     virtual std::string dataType() const = 0;
 
     // Capabilities
@@ -73,10 +64,8 @@ private:
     friend class ObjectHandle; // Give access to m_ownerObject and set Keyword
     void          setKeyword( const std::string& keyword );
     ObjectHandle* m_ownerObject;
-    std::string   m_ownerClass;
 
-    std::string              m_keyword;
-    std::vector<std::string> m_keywordAliases;
+    std::string m_keyword;
 
     std::vector<std::pair<FieldCapability*, bool>> m_capabilities;
 };

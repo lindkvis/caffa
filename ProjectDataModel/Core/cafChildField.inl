@@ -24,22 +24,6 @@ void ChildField<DataType*>::childObjects( std::vector<ObjectHandle*>* objects )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-std::unique_ptr<DataType> ChildField<DataType*>::remove( ObjectHandle* object )
-{
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
-    if ( m_fieldValue.rawPtr() != nullptr && m_fieldValue.rawPtr() == object )
-    {
-        auto typedObject = m_fieldValue.p();
-        m_fieldValue.rawPtr()->detachFromParentField();
-        m_fieldValue.setRawPtr( nullptr );
-        return std::unique_ptr<DataType>( typedObject );
-    }
-    return nullptr;
-}
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
 std::unique_ptr<ObjectHandle> ChildField<DataType*>::removeChildObject( ObjectHandle* object )
 {
     CAFFA_ASSERT( isInitializedByInitFieldMacro() );

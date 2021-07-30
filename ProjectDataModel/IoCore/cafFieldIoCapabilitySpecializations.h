@@ -134,12 +134,6 @@ void AddIoCapabilityToField( FieldType* field )
     }
 }
 
-template <typename FieldType>
-void RegisterClassWithField( const std::string& classKeyword, FieldType* field )
-{
-    field->setOwnerClass( classKeyword );
-}
-
 } // End of namespace caffa
 
 #include "cafFieldIoCapabilitySpecializations.inl"

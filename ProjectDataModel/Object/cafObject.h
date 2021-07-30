@@ -156,7 +156,6 @@ public:
         AddIoCapabilityToField( &field );
         AddUiCapabilityToField( &field );
 
-        RegisterClassWithField( classKeyword(), &field );
         addField( &field, keyword );
         return FieldInitHelper( field, keyword );
     }
@@ -178,7 +177,6 @@ public:
         AddIoCapabilityToField( &field );
         AddUiCapabilityToField( &field );
 
-        RegisterClassWithField( classKeyword(), &field );
         addField( &field, keyword );
 
         field.setDefaultValue( defaultValue );

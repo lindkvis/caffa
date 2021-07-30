@@ -188,27 +188,6 @@ void ChildArrayField<DataType*>::setValue( const std::vector<std::unique_ptr<Dat
 /// Removes all instances of object pointer from the container without deleting the object.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-std::unique_ptr<DataType> ChildArrayField<DataType*>::remove( ObjectHandle* object )
-{
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
-
-    for ( auto it = m_pointers.begin(); it != m_pointers.end(); ++it )
-    {
-        auto ptr = it->p();
-        if ( ptr == object )
-        {
-            ptr->detachFromParentField();
-            m_pointers.erase( it );
-            return std::unique_ptr<DataType>( ptr );
-        }
-    }
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Removes all instances of object pointer from the container without deleting the object.
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
 std::unique_ptr<ObjectHandle> ChildArrayField<DataType*>::removeChildObject( ObjectHandle* object )
 {
     CAFFA_ASSERT( isInitializedByInitFieldMacro() );
