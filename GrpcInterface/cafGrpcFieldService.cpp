@@ -357,6 +357,46 @@ void DataHolder<bool>::applyValuesToField( ValueField* field )
     }
 }
 
+template <>
+size_t DataHolder<ObjectHandle*>::valueCount() const
+{
+    return data.size();
+}
+template <>
+size_t DataHolder<ObjectHandle*>::valueSizeOf() const
+{
+    return 1;
+}
+
+template <>
+void DataHolder<ObjectHandle*>::reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const
+{
+    // Do nothing
+}
+
+template <>
+void DataHolder<ObjectHandle*>::addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const
+{
+    for ( size_t i = 0; i < numberOfDataUnits; ++i )
+    {
+        auto          it           = data.begin() + startIndex + i;
+        RpcObject*    rpcObject    = reply->mutable_objects()->add_objects();
+        ObjectHandle* objectHandle = *it;
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, rpcObject );
+    }
+}
+
+template <>
+size_t DataHolder<ObjectHandle*>::getValuesFromChunk( size_t startIndex, const GenericArray* chunk )
+{
+    CAFFA_ASSERT( false && "Not implemented" );
+}
+template <>
+void DataHolder<ObjectHandle*>::applyValuesToField( ValueField* field )
+{
+    CAFFA_ASSERT( false && "Not implemented" );
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -409,6 +449,12 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
             {
                 m_field = dataField;
                 m_dataHolder.reset( new DataHolder<std::string>( dataField->value() ) );
+                return grpc::Status::OK;
+            }
+            else if ( auto objectField = dynamic_cast<ChildArrayFieldHandle*>( field ); objectField != nullptr )
+            {
+                m_childArrayField = objectField;
+                m_dataHolder.reset( new DataHolder<ObjectHandle*>( objectField->childObjects() ) );
                 return grpc::Status::OK;
             }
             else
@@ -626,6 +672,8 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : fieldOwner->fields() )
     {
+        bool isObjectField = dynamic_cast<caffa::ChildFieldHandle*>( field ) != nullptr ||
+                             dynamic_cast<caffa::ChildArrayFieldHandle*>( field ) != nullptr;
         auto scriptability = field->capability<FieldScriptingCapability>();
         if ( scriptability && request->method() == scriptability->scriptFieldName() )
         {
@@ -633,7 +681,7 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
             if ( ioCapability )
             {
                 nlohmann::json jsonValue;
-                ioCapability->writeToJson( jsonValue, true );
+                ioCapability->writeToJson( jsonValue, !isObjectField );
 
                 reply->set_value( jsonValue.dump() );
                 CAFFA_DEBUG( "Sending json value: '" << reply->value() << "'" );

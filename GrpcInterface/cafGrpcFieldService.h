@@ -30,6 +30,7 @@
 
 namespace caffa
 {
+class ChildArrayFieldHandle;
 class ChildFieldHandle;
 class FieldHandle;
 class Object;
@@ -80,6 +81,7 @@ public:
 protected:
     caffa::Object*                      m_fieldOwner;
     caffa::ValueField*                  m_field;
+    caffa::ChildArrayFieldHandle*       m_childArrayField;
     std::unique_ptr<AbstractDataHolder> m_dataHolder;
     size_t                              m_currentDataIndex;
 };

@@ -21,7 +21,7 @@ class FieldIoCap;
 //==================================================================================================
 
 template <typename DataType>
-class ChildArrayField : public FieldHandle
+class ChildArrayField : public ChildArrayFieldHandle
 {
 public:
     ChildArrayField()

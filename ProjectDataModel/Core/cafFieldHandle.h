@@ -41,6 +41,7 @@ public:
 
     // Child objects
     bool                                                hasChildObjects();
+    virtual std::vector<ObjectHandle*>                  childObjects() { return {}; }
     virtual void                                        childObjects( std::vector<ObjectHandle*>* ) {}
     [[nodiscard]] virtual std::unique_ptr<ObjectHandle> removeChildObject( ObjectHandle* );
     void                                                setOwnerClass( const std::string& ownerClass );
