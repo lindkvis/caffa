@@ -215,7 +215,7 @@ public:
     {
         m_inheritedDemoObjects.push_back( std::move( object ) );
     }
-    std::vector<InheritedDemoObj*> inheritedObjects() const { return m_inheritedDemoObjects.childObjects(); }
+    std::vector<InheritedDemoObj*> inheritedObjects() const { return m_inheritedDemoObjects.value(); }
 
     caffa::ChildField<DemoObject*>            m_demoObject;
     caffa::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;

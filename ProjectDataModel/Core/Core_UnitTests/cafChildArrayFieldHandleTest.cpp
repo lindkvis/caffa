@@ -75,9 +75,9 @@ U findObjectById( T start, T end, int id )
 {
     for ( T it = start; it != end; it++ )
     {
-        if ( id == it->p()->id.value() )
+        if ( id == ( *it )->id.value() )
         {
-            return it->p();
+            return *it;
         }
     }
 
@@ -94,13 +94,15 @@ TEST( ChildArrayFieldHandle, DerivedObjects )
 
     containerObj->derivedObjs.push_back( std::move( s0 ) );
     containerObj->derivedObjs.push_back( std::move( s1 ) );
-    auto s2p = containerObj->derivedObjs.push_back( std::move( s2 ) );
+    auto s2p = s2.get();
+    containerObj->derivedObjs.push_back( std::move( s2 ) );
 
-    SimpleObjDerived* myObj =
-        findObjectById<SimpleObjDerived*>( containerObj->derivedObjs.begin(), containerObj->derivedObjs.end(), 2 );
+    auto allObjects = containerObj->derivedObjs.value();
+
+    SimpleObjDerived* myObj = findObjectById<SimpleObjDerived*>( allObjects.begin(), allObjects.end(), 2 );
     EXPECT_EQ( s2p, myObj );
 
-    myObj = findObjectById<SimpleObjDerived*>( containerObj->derivedObjs.begin(), containerObj->derivedObjs.end(), -1 );
+    myObj = findObjectById<SimpleObjDerived*>( allObjects.begin(), allObjects.end(), -1 );
     EXPECT_EQ( nullptr, myObj );
 }
 
@@ -116,15 +118,20 @@ TEST( ChildArrayFieldHandle, DerivedOtherObjects )
 
     containerObj->derivedOtherObjs.push_back( std::move( s0 ) );
     containerObj->derivedOtherObjs.push_back( std::move( s1 ) );
-    auto s2p = containerObj->derivedOtherObjs.push_back( std::move( s2 ) );
+    auto s2p = s2.get();
+    containerObj->derivedOtherObjs.push_back( std::move( s2 ) );
 
-    SimpleObjDerivedOther* myObj = findObjectById<SimpleObjDerivedOther*>( containerObj->derivedOtherObjs.begin(),
-                                                                           containerObj->derivedOtherObjs.end(),
-                                                                           s2Id );
+    auto allObjects = containerObj->derivedOtherObjs.value();
+
+    SimpleObjDerivedOther* myObj = findObjectById<SimpleObjDerivedOther*>( allObjects.begin(), allObjects.end(), s2Id );
+
     EXPECT_EQ( s2p, myObj );
 
-    myObj = findObjectById<SimpleObjDerivedOther*>( containerObj->derivedOtherObjs.begin(),
-                                                    containerObj->derivedOtherObjs.end(),
-                                                    -1 );
+    containerObj->derivedOtherObjs.removeChildObject( myObj );
+
+    allObjects = containerObj->derivedOtherObjs.value();
+
+    myObj = findObjectById<SimpleObjDerivedOther*>( allObjects.begin(), allObjects.end(), s2Id );
+
     EXPECT_EQ( nullptr, myObj );
 }

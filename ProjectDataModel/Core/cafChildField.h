@@ -3,7 +3,7 @@
 #include "cafFieldHandle.h"
 
 #include "cafAssert.h"
-#include "cafDataFieldAccessor.h"
+#include "cafChildFieldAccessor.h"
 #include "cafPointer.h"
 #include "cafPortableDataType.h"
 
@@ -23,7 +23,7 @@ class FieldIoCap;
 class ChildFieldHandle : public FieldHandle
 {
 public:
-    virtual void childObjects( std::vector<ObjectHandle*>* objects ) = 0;
+    virtual void setChildObject( std::unique_ptr<ObjectHandle> object ) = 0;
 };
 
 template <typename DataType>
@@ -45,9 +45,19 @@ class ChildField<DataType*> : public ChildFieldHandle
     using DataTypePtr = std::unique_ptr<DataType>;
 
 public:
-    using FieldDataType = DataType*;
+    using FieldDataType         = DataType*;
+    using DataAccessor          = ChildFieldAccessor<DataType>;
+    using DirectStorageAccessor = ChildFieldDirectStorageAccessor<DataType>;
 
-    ChildField() {}
+    ChildField()
+        : m_fieldDataAccessor( std::make_unique<DirectStorageAccessor>( this ) )
+    {
+    }
+    ChildField( std::unique_ptr<DataAccessor> accessor )
+        : m_fieldDataAccessor( std::move( accessor ) )
+    {
+    }
+
     explicit ChildField( DataTypePtr fieldValue );
     virtual ~ChildField();
 
@@ -57,19 +67,21 @@ public:
 
     // Basic access
 
-    DataType* value() const { return m_fieldValue; }
-    DataType* setValue( DataTypePtr fieldValue );
+    DataType* value() const { return m_fieldDataAccessor->value(); }
+    void      setValue( DataTypePtr fieldValue );
 
     // Access operators
 
-    /*Conversion*/ operator DataType*() const { return m_fieldValue; }
-    DataType*      operator->() const { return m_fieldValue; }
+    /*Conversion*/ operator DataType*() const { return m_fieldDataAccessor->value(); }
+    DataType*      operator->() const { return m_fieldDataAccessor->value(); }
 
-    const Pointer<DataType>& operator()() const { return m_fieldValue; }
+    const DataType* operator()() const { return m_fieldDataAccessor->value(); }
 
     // Child objects
-    void                          childObjects( std::vector<ObjectHandle*>* objects ) override;
+    std::vector<ObjectHandle*>    childObjects() const override;
+    void                          childObjects( std::vector<ObjectHandle*>* objects ) const override;
     std::unique_ptr<ObjectHandle> removeChildObject( ObjectHandle* object ) override;
+    void                          setChildObject( std::unique_ptr<ObjectHandle> object );
 
     std::string dataType() const override { return std::string( "object" ); }
 
@@ -77,7 +89,7 @@ private:
     CAFFA_DISABLE_COPY_AND_ASSIGN( ChildField );
 
     friend class FieldIoCap<ChildField<DataType*>>;
-    Pointer<DataType> m_fieldValue;
+    std::unique_ptr<DataAccessor> m_fieldDataAccessor;
 };
 
 } // End of namespace caffa

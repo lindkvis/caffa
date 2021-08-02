@@ -270,9 +270,13 @@ TEST( BaseTest, ChildArrayField )
     EXPECT_EQ( size_t( 0 ), ihd1->m_childArrayField.size() );
 
     // push_back()
-    auto s1p = ihd1->m_childArrayField.push_back( std::move( s1 ) );
-    auto s2p = ihd1->m_childArrayField.push_back( std::move( s2 ) );
-    auto s3p = ihd1->m_childArrayField.push_back( std::move( s3 ) );
+    auto s1p = caffa::Pointer<DemoObject>( s1.get() );
+    auto s2p = caffa::Pointer<DemoObject>( s2.get() );
+    auto s3p = caffa::Pointer<DemoObject>( s3.get() );
+
+    ihd1->m_childArrayField.push_back( std::move( s1 ) );
+    ihd1->m_childArrayField.push_back( std::move( s2 ) );
+    ihd1->m_childArrayField.push_back( std::move( s3 ) );
 
     // Parent field
     EXPECT_EQ( s1p->parentField(), &( ihd1->m_childArrayField ) );
@@ -290,7 +294,7 @@ TEST( BaseTest, ChildArrayField )
     ihd1->m_childArrayField.childObjects( &objects );
     EXPECT_EQ( size_t( 3 ), objects.size() );
 
-    std::vector<DemoObject*> typedObjects = ihd1->m_childArrayField.childObjects();
+    std::vector<DemoObject*> typedObjects = ihd1->m_childArrayField.value();
     EXPECT_EQ( size_t( 3 ), typedObjects.size() );
 
     // remove child object

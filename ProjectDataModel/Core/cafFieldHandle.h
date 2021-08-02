@@ -36,8 +36,8 @@ public:
 
     // Child objects
     bool                                  hasChildObjects();
-    virtual std::vector<ObjectHandle*>    childObjects() { return {}; }
-    virtual void                          childObjects( std::vector<ObjectHandle*>* ) {}
+    virtual std::vector<ObjectHandle*>    childObjects() const { return {}; }
+    virtual void                          childObjects( std::vector<ObjectHandle*>* ) const {}
     virtual std::unique_ptr<ObjectHandle> removeChildObject( ObjectHandle* );
 
     virtual std::string dataType() const = 0;

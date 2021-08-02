@@ -16,8 +16,10 @@ set(PUBLIC_HEADERS
     cafBase.h
     cafChildArrayField.h
     cafChildArrayField.inl
+    cafChildArrayFieldAccessor.h
     cafChildField.h
     cafChildField.inl
+    cafChildFieldAccessor.h
     cafDataValueField.h
     cafDataFieldAccessor.h
     cafException.h

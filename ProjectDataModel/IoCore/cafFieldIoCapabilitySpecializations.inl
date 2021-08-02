@@ -93,8 +93,7 @@ void FieldIoCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& json
                                        // ClassKeyword
                 return;
             }
-            obj->setAsParentField( m_field );
-            m_field->m_fieldValue.setRawPtr( obj.release() );
+            m_field->setChildObject( std::move( obj ) );
         }
     }
 
@@ -120,8 +119,10 @@ void FieldIoCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& json
 template <typename DataType>
 void FieldIoCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonValue, bool copyDataValues ) const
 {
-    auto object = m_field->m_fieldValue.rawPtr();
-    if ( !object ) return;
+    auto childObjects = m_field->childObjects();
+    if ( childObjects.empty() ) return;
+
+    auto object = childObjects.front();
 
     auto ioObject = object->template capability<caffa::ObjectIoCapability>();
     if ( ioObject )
@@ -181,9 +182,8 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json&
 
         ObjectJsonCapability::readFieldsFromJson( obj.get(), jsonObject, objectFactory, copyDataValues );
 
-        m_field->m_pointers.push_back( Pointer<DataType>() );
-        obj->setAsParentField( m_field );
-        m_field->m_pointers.back().setRawPtr( obj.release() );
+        size_t currentSize = m_field->size();
+        m_field->insertAt( currentSize, std::move( obj ) );
     }
 }
 //--------------------------------------------------------------------------------------------------
@@ -196,17 +196,18 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& jsonVa
 
     nlohmann::json jsonArray = nlohmann::json::array();
 
-    for ( auto& pointer : m_field->m_pointers )
+    for ( size_t i = 0; i < m_field->size(); ++i )
     {
-        if ( pointer.rawPtr() == nullptr ) continue;
+        ObjectHandle* pointer = m_field->at( i );
+        if ( !pointer ) continue;
 
-        auto ioObject = pointer.rawPtr()->template capability<caffa::ObjectIoCapability>();
+        auto ioObject = pointer->capability<caffa::ObjectIoCapability>();
         if ( ioObject )
         {
             std::string    className   = ioObject->classKeyword();
             nlohmann::json jsonObject  = nlohmann::json::object();
             jsonObject["classKeyword"] = className;
-            ObjectJsonCapability::writeFieldsToJson( pointer.rawPtr(), jsonObject, copyDataValues );
+            ObjectJsonCapability::writeFieldsToJson( pointer, jsonObject, copyDataValues );
             jsonArray.push_back( jsonObject );
         }
     }

@@ -126,8 +126,10 @@ TEST( AdvancedObjectTest, FieldWrite )
     auto root         = std::make_unique<ContainerObject>();
     auto container    = std::make_unique<ContainerObject>();
     auto sibling      = std::make_unique<ContainerObject>();
-    auto containerPtr = root->m_containers.push_back( std::move( container ) );
-    auto siblingPtr   = root->m_containers.push_back( std::move( sibling ) );
+    auto containerPtr = container.get();
+    root->m_containers.push_back( std::move( container ) );
+    auto siblingPtr = sibling.get();
+    root->m_containers.push_back( std::move( sibling ) );
 
     {
         auto item    = std::make_unique<ItemObject>();
@@ -174,8 +176,10 @@ TEST( AdvancedObjectTest, CopyOfObjects )
     auto root         = std::make_unique<ContainerObject>();
     auto container    = std::make_unique<ContainerObject>();
     auto sibling      = std::make_unique<ContainerObject>();
-    auto containerPtr = root->m_containers.push_back( std::move( container ) );
-    auto siblingPtr   = root->m_containers.push_back( std::move( sibling ) );
+    auto containerPtr = container.get();
+    root->m_containers.push_back( std::move( container ) );
+    auto siblingPtr = sibling.get();
+    root->m_containers.push_back( std::move( sibling ) );
 
     {
         auto item    = std::make_unique<ItemObject>();
@@ -201,8 +205,9 @@ TEST( AdvancedObjectTest, CopyOfObjects )
         for ( auto ioType : ioTypes )
         {
             {
-                auto        a              = std::make_unique<DemoObjectA>();
-                auto        ap             = siblingPtr->m_demoObjs.push_back( std::move( a ) );
+                auto a  = std::make_unique<DemoObjectA>();
+                auto ap = a.get();
+                siblingPtr->m_demoObjs.push_back( std::move( a ) );
                 std::string originalOutput = ap->writeObjectToString();
                 {
                     auto objCopy = ap->capability<caffa::ObjectIoCapability>()

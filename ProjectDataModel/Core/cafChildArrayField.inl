@@ -21,19 +21,18 @@ ChildArrayField<DataType*>::~ChildArrayField()
 template <typename DataType>
 DataType* ChildArrayField<DataType*>::operator[]( size_t index ) const
 {
-    return m_pointers[index];
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    return m_fieldDataAccessor->at( index );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Assign a unique pointer and take ownership.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-Pointer<DataType> ChildArrayField<DataType*>::push_back( DataTypeUniquePtr pointer )
+void ChildArrayField<DataType*>::push_back( DataTypeUniquePtr pointer )
 {
-    Pointer<DataType> ptr( pointer.release() );
-    ptr->setAsParentField( this );
-    m_pointers.push_back( ptr );
-    return ptr;
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    m_fieldDataAccessor->push_back( std::move( pointer ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -41,59 +40,37 @@ Pointer<DataType> ChildArrayField<DataType*>::push_back( DataTypeUniquePtr point
 /// the preceding values backwards
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-Pointer<DataType> ChildArrayField<DataType*>::insert( size_t index, DataTypeUniquePtr pointer )
+void ChildArrayField<DataType*>::insert( size_t index, DataTypeUniquePtr pointer )
 {
     CAFFA_ASSERT( isInitializedByInitFieldMacro() );
-
-    Pointer<DataType> rawPtr( pointer.release() );
-    rawPtr->setAsParentField( this );
-    m_pointers.insert( m_pointers.begin() + index, rawPtr );
-
-    return rawPtr;
+    m_fieldDataAccessor->insert( index, pointer );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-Pointer<ObjectHandle> ChildArrayField<DataType*>::insertAt( size_t index, std::unique_ptr<ObjectHandle> obj )
+void ChildArrayField<DataType*>::insertAt( size_t index, std::unique_ptr<ObjectHandle> obj )
 {
     CAFFA_ASSERT( isInitializedByInitFieldMacro() );
 
     // This method should assert if obj to insert is not castable to the container type, but since this
     // is a virtual method, its implementation is always created and that makes a dyn_cast add the need for
     // #include of the header file "everywhere"
-    ObjectHandle*     rawObjectHandle = obj.release();
-    Pointer<DataType> rawPtr( dynamic_cast<DataType*>( rawObjectHandle ) );
+    ObjectHandle* rawObjPtr = obj.release();
+    CAFFA_ASSERT( rawObjPtr );
 
-    if ( rawPtr.notNull() )
+    DataType* rawDataPtr = dynamic_cast<DataType*>( rawObjPtr );
+    CAFFA_ASSERT( rawDataPtr );
+
+    if ( rawDataPtr )
     {
-        rawPtr->setAsParentField( this );
-        m_pointers.insert( m_pointers.begin() + index, rawPtr );
-        return Pointer<ObjectHandle>( rawObjectHandle );
+        m_fieldDataAccessor->insert( index, std::unique_ptr<DataType>( rawDataPtr ) );
     }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Returns the number of times pointer is referenced from the container.
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-size_t ChildArrayField<DataType*>::count( const DataType* pointer ) const
-{
-    size_t itemCount = 0;
-
-    typename std::vector<Pointer<DataType>>::const_iterator it;
-    for ( it = m_pointers.begin(); it != m_pointers.end(); ++it )
+    else if ( rawObjPtr )
     {
-        if ( *it == pointer )
-        {
-            itemCount++;
-        }
+        delete rawObjPtr;
     }
-
-    return itemCount;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,13 +80,7 @@ template <typename DataType>
 void ChildArrayField<DataType*>::clear()
 {
     CAFFA_ASSERT( isInitializedByInitFieldMacro() );
-
-    size_t index;
-    for ( index = 0; index < m_pointers.size(); ++index )
-    {
-        delete ( m_pointers[index].rawPtr() );
-    }
-    m_pointers.clear();
+    m_fieldDataAccessor->removeAll();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,19 +91,7 @@ std::vector<std::unique_ptr<DataType>> ChildArrayField<DataType*>::removeAll()
 {
     CAFFA_ASSERT( isInitializedByInitFieldMacro() );
 
-    std::vector<Pointer<DataType>> tempPointers;
-    tempPointers.swap( m_pointers );
-
-    std::vector<std::unique_ptr<DataType>> uniquePointers;
-    for ( auto pointer : tempPointers )
-    {
-        if ( !pointer.isNull() )
-        {
-            pointer->detachFromParentField();
-            uniquePointers.push_back( std::unique_ptr<DataType>( pointer.p() ) );
-        }
-    }
-    return uniquePointers;
+    return m_fieldDataAccessor->removeAll();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,41 +101,17 @@ template <typename DataType>
 void ChildArrayField<DataType*>::erase( size_t index )
 {
     CAFFA_ASSERT( isInitializedByInitFieldMacro() );
-    CAFFA_ASSERT( index < m_pointers.size() );
-
-    auto rawPtr = m_pointers[index].rawPtr();
-    if ( rawPtr )
-    {
-        rawPtr->detachFromParentField();
-        delete rawPtr;
-    }
-
-    m_pointers.erase( m_pointers.begin() + index );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Get the index of the given object pointer
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-size_t ChildArrayField<DataType*>::index( const DataType* pointer ) const
-{
-    for ( size_t i = 0; i < m_pointers.size(); ++i )
-    {
-        if ( pointer == m_pointers[i].p() )
-        {
-            return i;
-        }
-    }
-
-    return (size_t)( -1 ); // Undefined size_t > m_pointers.size();
+    m_fieldDataAccessor->remove( index );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Assign objects to the field, replacing the current child objects
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void ChildArrayField<DataType*>::setValue( const std::vector<std::unique_ptr<DataType>>& objects )
+void ChildArrayField<DataType*>::setValue( std::vector<std::unique_ptr<DataType>>& objects )
 {
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+
     clear();
     for ( auto& object : objects )
     {
@@ -192,14 +127,12 @@ std::unique_ptr<ObjectHandle> ChildArrayField<DataType*>::removeChildObject( Obj
 {
     CAFFA_ASSERT( isInitializedByInitFieldMacro() );
 
-    for ( auto it = m_pointers.begin(); it != m_pointers.end(); ++it )
+    if ( object )
     {
-        auto ptr = it->rawPtr();
-        if ( ptr == object )
+        size_t index = m_fieldDataAccessor->index( object );
+        if ( index < m_fieldDataAccessor->size() )
         {
-            ptr->detachFromParentField();
-            m_pointers.erase( it );
-            return std::unique_ptr<ObjectHandle>( ptr );
+            return m_fieldDataAccessor->remove( index );
         }
     }
     return nullptr;
@@ -209,18 +142,10 @@ std::unique_ptr<ObjectHandle> ChildArrayField<DataType*>::removeChildObject( Obj
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-std::vector<DataType*> caffa::ChildArrayField<DataType*>::childObjects() const
+std::vector<ObjectHandle*> caffa::ChildArrayField<DataType*>::childObjects() const
 {
-    std::vector<DataType*> objects;
-
-    for ( DataType* p : m_pointers )
-    {
-        if ( p != nullptr )
-        {
-            objects.push_back( p );
-        }
-    }
-
+    std::vector<ObjectHandle*> objects;
+    this->childObjects( &objects );
     return objects;
 }
 
@@ -228,14 +153,23 @@ std::vector<DataType*> caffa::ChildArrayField<DataType*>::childObjects() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void ChildArrayField<DataType*>::childObjects( std::vector<ObjectHandle*>* objects )
+std::vector<DataType*> caffa::ChildArrayField<DataType*>::value() const
 {
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+
+    return m_fieldDataAccessor->value();
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void ChildArrayField<DataType*>::childObjects( std::vector<ObjectHandle*>* objects ) const
+{
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+
     if ( !objects ) return;
-    size_t i;
-    for ( i = 0; i < m_pointers.size(); ++i )
-    {
-        objects->push_back( m_pointers[i].rawPtr() );
-    }
+
+    *objects = m_fieldDataAccessor->childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -244,7 +178,9 @@ void ChildArrayField<DataType*>::childObjects( std::vector<ObjectHandle*>* objec
 template <typename DataType>
 ObjectHandle* ChildArrayField<DataType*>::at( size_t index )
 {
-    return m_pointers[index].rawPtr();
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+
+    return m_fieldDataAccessor->at( index );
 }
 
 } // End of namespace caffa

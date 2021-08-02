@@ -210,7 +210,10 @@ private:
     template <class T>
     friend class ChildArrayField;
     template <class T>
-    friend class ChildField;
+    friend class ChildFieldDirectStorageAccessor;
+    template <class T>
+    friend class ChildArrayFieldDirectStorageAccessor;
+
     template <class T>
     friend class Field; // For backwards compatibility layer
 
