@@ -30,26 +30,23 @@ namespace caffa
 class FieldHandle;
 class ObjectHandle;
 
-template <class DataType>
 class ChildArrayFieldAccessor
 {
 public:
-    using DataTypeUniquePtr = std::unique_ptr<DataType>;
-
     ChildArrayFieldAccessor( FieldHandle* field )
         : m_field( field )
     {
     }
-    virtual ~ChildArrayFieldAccessor()                           = default;
-    virtual size_t                                 size() const  = 0;
-    virtual std::vector<std::unique_ptr<DataType>> removeAll()   = 0;
-    virtual std::vector<DataType*>                 value() const = 0;
+    virtual ~ChildArrayFieldAccessor()                               = default;
+    virtual size_t                                     size() const  = 0;
+    virtual std::vector<std::unique_ptr<ObjectHandle>> clear()       = 0;
+    virtual std::vector<ObjectHandle*>                 value() const = 0;
 
-    virtual DataType*                 at( size_t index )                                = 0;
-    virtual void                      insert( size_t index, DataTypeUniquePtr pointer ) = 0;
-    virtual void                      push_back( DataTypeUniquePtr pointer )            = 0;
-    virtual size_t                    index( const ObjectHandle* pointer ) const        = 0;
-    virtual std::unique_ptr<DataType> remove( size_t index )                            = 0;
+    virtual ObjectHandle*                 at( size_t index )                                            = 0;
+    virtual void                          insert( size_t index, std::unique_ptr<ObjectHandle> pointer ) = 0;
+    virtual void                          push_back( std::unique_ptr<ObjectHandle> pointer )            = 0;
+    virtual size_t                        index( const ObjectHandle* pointer ) const                    = 0;
+    virtual std::unique_ptr<ObjectHandle> remove( size_t index )                                        = 0;
 
     virtual std::vector<ObjectHandle*> childObjects() const = 0;
 
@@ -57,99 +54,24 @@ protected:
     FieldHandle* m_field;
 };
 
-template <class DataType>
-class ChildArrayFieldDirectStorageAccessor : public ChildArrayFieldAccessor<DataType>
+class ChildArrayFieldDirectStorageAccessor : public ChildArrayFieldAccessor
 {
 public:
-    using DataTypeUniquePtr = typename ChildArrayFieldAccessor<DataType>::DataTypeUniquePtr;
+    ChildArrayFieldDirectStorageAccessor( FieldHandle* field );
+    ~ChildArrayFieldDirectStorageAccessor() override;
 
-    ChildArrayFieldDirectStorageAccessor( FieldHandle* field )
-        : ChildArrayFieldAccessor<DataType>( field )
-    {
-    }
-    ~ChildArrayFieldDirectStorageAccessor() override = default;
-
-    size_t                                 size() const override { return m_pointers.size(); }
-    std::vector<std::unique_ptr<DataType>> removeAll() override
-    {
-        for ( auto& ptr : m_pointers )
-        {
-            ptr->detachFromParentField();
-        }
-
-        std::vector<std::unique_ptr<DataType>> returnValues;
-        returnValues.swap( m_pointers );
-
-        return returnValues;
-    }
-
-    std::vector<DataType*> value() const override
-    {
-        std::vector<DataType*> rawPointers;
-        for ( auto& ptr : m_pointers )
-        {
-            rawPointers.push_back( ptr.get() );
-        }
-        return rawPointers;
-    }
-
-    DataType* at( size_t index ) override
-    {
-        CAFFA_ASSERT( index < m_pointers.size() );
-        return m_pointers[index].get();
-    }
-
-    void insert( size_t index, DataTypeUniquePtr pointer ) override
-    {
-        CAFFA_ASSERT( pointer );
-
-        pointer->setAsParentField( this->m_field );
-        auto it = m_pointers.begin() + index;
-        m_pointers.insert( it, std::move( pointer ) );
-    }
-    void push_back( DataTypeUniquePtr pointer ) override
-    {
-        pointer->setAsParentField( this->m_field );
-        m_pointers.push_back( std::move( pointer ) );
-    }
-    size_t index( const ObjectHandle* object ) const override
-    {
-        CAFFA_ASSERT( object );
-        auto it = std::find_if( m_pointers.begin(),
-                                m_pointers.end(),
-                                [object]( const auto& ptr ) { return ptr.get() == object; } );
-        return it - m_pointers.begin();
-    }
-
-    std::unique_ptr<DataType> remove( size_t index ) override
-    {
-        CAFFA_ASSERT( index < m_pointers.size() );
-
-        auto it = m_pointers.begin() + index;
-
-        if ( it != m_pointers.end() )
-        {
-            std::unique_ptr<DataType> detachedPtr = std::move( *it );
-            m_pointers.erase( it );
-            detachedPtr->detachFromParentField();
-            return detachedPtr;
-        }
-
-        return nullptr;
-    }
-
-    std::vector<ObjectHandle*> childObjects() const override
-    {
-        std::vector<ObjectHandle*> objects;
-        for ( auto& object : m_pointers )
-        {
-            objects.push_back( object.get() );
-        }
-        return objects;
-    }
+    size_t                                     size() const override;
+    std::vector<std::unique_ptr<ObjectHandle>> clear() override;
+    std::vector<ObjectHandle*>                 value() const override;
+    ObjectHandle*                              at( size_t index ) override;
+    void                                       insert( size_t index, std::unique_ptr<ObjectHandle> pointer ) override;
+    void                                       push_back( std::unique_ptr<ObjectHandle> pointer ) override;
+    size_t                                     index( const ObjectHandle* object ) const override;
+    std::unique_ptr<ObjectHandle>              remove( size_t index ) override;
+    std::vector<ObjectHandle*>                 childObjects() const override;
 
 private:
-    std::vector<std::unique_ptr<DataType>> m_pointers;
+    std::vector<std::unique_ptr<ObjectHandle>> m_pointers;
 };
 
 } // namespace caffa

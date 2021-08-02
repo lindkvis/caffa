@@ -24,8 +24,8 @@
 namespace caffa
 {
 class FieldHandle;
+class ObjectHandle;
 
-template <class DataType>
 class ChildFieldAccessor
 {
 public:
@@ -33,45 +33,26 @@ public:
         : m_field( field )
     {
     }
-    virtual ~ChildFieldAccessor()                                                 = default;
-    virtual DataType*                 value() const                               = 0;
-    virtual void                      setValue( std::unique_ptr<DataType> value ) = 0;
-    virtual std::unique_ptr<DataType> remove( ObjectHandle* object )              = 0;
+    virtual ~ChildFieldAccessor()                                                         = default;
+    virtual ObjectHandle*                 value() const                                   = 0;
+    virtual void                          setValue( std::unique_ptr<ObjectHandle> value ) = 0;
+    virtual std::unique_ptr<ObjectHandle> remove( ObjectHandle* object )                  = 0;
 
 protected:
     FieldHandle* m_field;
 };
 
-template <class DataType>
-class ChildFieldDirectStorageAccessor : public ChildFieldAccessor<DataType>
+class ChildFieldDirectStorageAccessor : public ChildFieldAccessor
 {
 public:
-    ChildFieldDirectStorageAccessor( FieldHandle* field )
-        : ChildFieldAccessor<DataType>( field )
-    {
-    }
+    ChildFieldDirectStorageAccessor( FieldHandle* field );
     ~ChildFieldDirectStorageAccessor() override = default;
-    DataType* value() const override { return m_value.get(); };
-    void      setValue( std::unique_ptr<DataType> value ) override
-    {
-        if ( m_value )
-        {
-            m_value->detachFromParentField();
-        }
-        value->setAsParentField( this->m_field );
-        m_value = std::move( value );
-    }
-    std::unique_ptr<DataType> remove( ObjectHandle* object ) override
-    {
-        if ( m_value.get() == object )
-        {
-            return std::move( m_value );
-        }
-        return nullptr;
-    }
+    ObjectHandle*                 value() const override;
+    void                          setValue( std::unique_ptr<ObjectHandle> value ) override;
+    std::unique_ptr<ObjectHandle> remove( ObjectHandle* object ) override;
 
 private:
-    std::unique_ptr<DataType> m_value;
+    std::unique_ptr<ObjectHandle> m_value;
 };
 
 } // namespace caffa

@@ -39,8 +39,8 @@ class ChildArrayField<DataType*> : public ChildArrayFieldHandle
 
 public:
     using FieldDataType         = DataType*;
-    using DataAccessor          = ChildArrayFieldAccessor<DataType>;
-    using DirectStorageAccessor = ChildArrayFieldDirectStorageAccessor<DataType>;
+    using DataAccessor          = ChildArrayFieldAccessor;
+    using DirectStorageAccessor = ChildArrayFieldDirectStorageAccessor;
 
     ChildArrayField()
         : m_fieldDataAccessor( std::make_unique<DirectStorageAccessor>( this ) )
@@ -53,18 +53,18 @@ public:
 
     // Reimplementation of PointersFieldHandle methods
 
-    size_t                                 size() const override { return m_fieldDataAccessor->size(); }
-    void                                   clear() override;
-    std::vector<std::unique_ptr<DataType>> removeAll();
-    ObjectHandle*                          at( size_t index ) override;
-    std::vector<DataType*>                 value() const;
-    void                                   setValue( std::vector<std::unique_ptr<DataType>>& objects );
+    size_t                                     size() const override { return m_fieldDataAccessor->size(); }
+    std::vector<std::unique_ptr<ObjectHandle>> clear() override;
+    ObjectHandle*                              at( size_t index ) override;
+    std::vector<DataType*>                     value() const;
+    void                                       setValue( std::vector<std::unique_ptr<DataType>>& objects );
 
     // std::vector-like access
 
     DataType* operator[]( size_t index ) const;
 
     void push_back( DataTypeUniquePtr pointer );
+    void push_back_obj( std::unique_ptr<ObjectHandle> obj );
     void insert( size_t index, DataTypeUniquePtr pointer );
     void insertAt( size_t index, std::unique_ptr<ObjectHandle> obj ) override;
     void erase( size_t index ) override;

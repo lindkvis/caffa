@@ -209,9 +209,7 @@ private:
     // Give access to set/removeAsParentField
     template <class T>
     friend class ChildArrayField;
-    template <class T>
     friend class ChildFieldDirectStorageAccessor;
-    template <class T>
     friend class ChildArrayFieldDirectStorageAccessor;
 
     template <class T>

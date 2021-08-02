@@ -10,7 +10,7 @@ namespace caffa
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 ChildField<DataType*>::ChildField( DataTypePtr fieldValue )
-    : m_fieldDataAccessor( std::make_unique<DirectStorageAccessor>() )
+    : m_fieldDataAccessor( std::make_unique<ChildFieldDirectStorageAccessor>() )
 {
     m_fieldDataAccessor->setValue( std::move( fieldValue ) );
 }

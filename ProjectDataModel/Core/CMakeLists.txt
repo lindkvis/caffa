@@ -45,6 +45,8 @@ set(PROJECT_FILES
     ${PUBLIC_HEADERS}
     cafColor.cpp
     cafChildArrayFieldHandle.cpp
+    cafChildArrayFieldAccessor.cpp
+    cafChildFieldAccessor.cpp
     cafFieldHandle.cpp
     cafLogger.cpp
     cafObjectHandle.cpp

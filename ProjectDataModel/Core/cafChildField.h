@@ -23,7 +23,8 @@ class FieldIoCap;
 class ChildFieldHandle : public FieldHandle
 {
 public:
-    virtual void setChildObject( std::unique_ptr<ObjectHandle> object ) = 0;
+    virtual void setChildObject( std::unique_ptr<ObjectHandle> object )               = 0;
+    virtual void setFieldDataAccessor( std::unique_ptr<ChildFieldAccessor> accessor ) = 0;
 };
 
 template <typename DataType>
@@ -45,16 +46,10 @@ class ChildField<DataType*> : public ChildFieldHandle
     using DataTypePtr = std::unique_ptr<DataType>;
 
 public:
-    using FieldDataType         = DataType*;
-    using DataAccessor          = ChildFieldAccessor<DataType>;
-    using DirectStorageAccessor = ChildFieldDirectStorageAccessor<DataType>;
+    using FieldDataType = DataType*;
 
     ChildField()
-        : m_fieldDataAccessor( std::make_unique<DirectStorageAccessor>( this ) )
-    {
-    }
-    ChildField( std::unique_ptr<DataAccessor> accessor )
-        : m_fieldDataAccessor( std::move( accessor ) )
+        : m_fieldDataAccessor( std::make_unique<ChildFieldDirectStorageAccessor>( this ) )
     {
     }
 
@@ -67,15 +62,15 @@ public:
 
     // Basic access
 
-    DataType* value() const { return m_fieldDataAccessor->value(); }
+    DataType* value() const { return static_cast<DataType*>( m_fieldDataAccessor->value() ); }
     void      setValue( DataTypePtr fieldValue );
 
     // Access operators
 
-    /*Conversion*/ operator DataType*() const { return m_fieldDataAccessor->value(); }
-    DataType*      operator->() const { return m_fieldDataAccessor->value(); }
+    /*Conversion*/ operator DataType*() const { return this->value(); }
+    DataType*      operator->() const { return this->value(); }
 
-    const DataType* operator()() const { return m_fieldDataAccessor->value(); }
+    const DataType* operator()() const { return static_cast<const DataType*>( m_fieldDataAccessor->value() ); }
 
     // Child objects
     std::vector<ObjectHandle*>    childObjects() const override;
@@ -85,11 +80,16 @@ public:
 
     std::string dataType() const override { return std::string( "object" ); }
 
+    void setFieldDataAccessor( std::unique_ptr<ChildFieldAccessor> accessor )
+    {
+        m_fieldDataAccessor = std::move( accessor );
+    }
+
 private:
     CAFFA_DISABLE_COPY_AND_ASSIGN( ChildField );
 
     friend class FieldIoCap<ChildField<DataType*>>;
-    std::unique_ptr<DataAccessor> m_fieldDataAccessor;
+    std::unique_ptr<ChildFieldAccessor> m_fieldDataAccessor;
 };
 
 } // End of namespace caffa

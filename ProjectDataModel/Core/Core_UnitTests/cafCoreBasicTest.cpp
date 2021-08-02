@@ -325,7 +325,7 @@ TEST( BaseTest, ChildArrayField )
     EXPECT_EQ( s1p, ihd1->m_childArrayField[0] );
 
     // clear()
-    auto extractedObjects = ihd1->m_childArrayField.removeAll();
+    auto extractedObjects = ihd1->m_childArrayField.clear();
     EXPECT_EQ( size_t( 0 ), ihd1->m_childArrayField.size() );
     EXPECT_EQ( size_t( 2 ), extractedObjects.size() );
 
@@ -333,7 +333,7 @@ TEST( BaseTest, ChildArrayField )
 
     for ( auto& object : extractedObjects )
     {
-        ihd1->m_childArrayField.push_back( std::move( object ) );
+        ihd1->m_childArrayField.push_back_obj( std::move( object ) );
     }
     EXPECT_EQ( size_t( 2 ), ihd1->m_childArrayField.size() );
     EXPECT_TRUE( s1p.notNull() );

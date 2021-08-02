@@ -129,7 +129,7 @@ TEST( UiTreeViewModelTest, ChangeOrderingAndVerifyTreeOrdering )
     mi = treeView.findModelIndex( obj4p );
     EXPECT_EQ( 3, mi.row() );
 
-    auto detachedObjects = demoObj->m_simpleObjPtrField.removeAll();
+    auto detachedObjects = demoObj->m_simpleObjPtrField.clear();
     demoObj->m_simpleObjPtrField.push_back( std::move( detachedObjects[0] ) );
     demoObj->m_simpleObjPtrField.push_back( std::move( detachedObjects[3] ) );
     demoObj->m_simpleObjPtrField.push_back( std::move( detachedObjects[2] ) );

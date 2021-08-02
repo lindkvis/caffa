@@ -111,6 +111,38 @@ public:
         return document;
     }
 
+    std::unique_ptr<caffa::ObjectHandle> getChildObject( const caffa::ObjectHandle* objectHandle,
+                                                         const std::string&         fieldName ) const
+    {
+        std::unique_ptr<caffa::ObjectHandle> childObject;
+
+        CAFFA_TRACE( "Get Child Object from field " << fieldName );
+        CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
+        grpc::ClientContext context;
+        auto                self = std::make_unique<RpcObject>();
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
+        FieldRequest field;
+        field.set_method( fieldName );
+        field.set_allocated_self( self.release() );
+
+        GetterReply  reply;
+        grpc::Status status = m_fieldStub->GetValue( &context, field, &reply );
+        if ( status.ok() && reply.has_object() )
+        {
+            RpcObject objectReply = reply.object();
+            childObject =
+                caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply,
+                                                                   caffa::rpc::GrpcClientObjectFactory::instance(),
+                                                                   false );
+        }
+        else
+        {
+            CAFFA_ERROR( "Failed to get object" );
+        }
+
+        return childObject;
+    }
+
     std::unique_ptr<caffa::ObjectHandle> execute( const caffa::ObjectMethod* method ) const
     {
         auto self   = std::make_unique<RpcObject>();
@@ -782,6 +814,15 @@ std::vector<std::string>
     Client::get<std::vector<std::string>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     return m_clientImpl->getStrings( objectHandle, fieldName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caffa::ObjectHandle> Client::getChildObject( const caffa::ObjectHandle* objectHandle,
+                                                             const std::string&         fieldName ) const
+{
+    return m_clientImpl->getChildObject( objectHandle, fieldName );
 }
 
 } // namespace caffa::rpc

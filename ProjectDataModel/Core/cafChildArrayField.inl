@@ -22,7 +22,7 @@ template <typename DataType>
 DataType* ChildArrayField<DataType*>::operator[]( size_t index ) const
 {
     CAFFA_ASSERT( isInitializedByInitFieldMacro() );
-    return m_fieldDataAccessor->at( index );
+    return static_cast<DataType*>( m_fieldDataAccessor->at( index ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -33,6 +33,30 @@ void ChildArrayField<DataType*>::push_back( DataTypeUniquePtr pointer )
 {
     CAFFA_ASSERT( isInitializedByInitFieldMacro() );
     m_fieldDataAccessor->push_back( std::move( pointer ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Assign a unique pointer and take ownership.
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void ChildArrayField<DataType*>::push_back_obj( std::unique_ptr<ObjectHandle> obj )
+{
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+
+    ObjectHandle* rawObjPtr = obj.release();
+    CAFFA_ASSERT( rawObjPtr );
+
+    DataType* rawDataPtr = dynamic_cast<DataType*>( rawObjPtr );
+    CAFFA_ASSERT( rawDataPtr );
+
+    if ( rawDataPtr )
+    {
+        m_fieldDataAccessor->push_back( std::unique_ptr<DataType>( rawDataPtr ) );
+    }
+    else if ( rawObjPtr )
+    {
+        delete rawObjPtr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,24 +98,14 @@ void ChildArrayField<DataType*>::insertAt( size_t index, std::unique_ptr<ObjectH
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Empty the container and delete all objects
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void ChildArrayField<DataType*>::clear()
-{
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
-    m_fieldDataAccessor->removeAll();
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Clears the container and returns a vector of unique_ptrs to the content
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-std::vector<std::unique_ptr<DataType>> ChildArrayField<DataType*>::removeAll()
+std::vector<std::unique_ptr<ObjectHandle>> ChildArrayField<DataType*>::clear()
 {
     CAFFA_ASSERT( isInitializedByInitFieldMacro() );
 
-    return m_fieldDataAccessor->removeAll();
+    return m_fieldDataAccessor->clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,7 +171,13 @@ std::vector<DataType*> caffa::ChildArrayField<DataType*>::value() const
 {
     CAFFA_ASSERT( isInitializedByInitFieldMacro() );
 
-    return m_fieldDataAccessor->value();
+    std::vector<DataType*> typedObjects;
+    for ( auto childObject : this->childObjects() )
+    {
+        typedObjects.push_back( static_cast<DataType*>( childObject ) );
+    }
+
+    return typedObjects;
 }
 //--------------------------------------------------------------------------------------------------
 ///

@@ -24,27 +24,24 @@
 
 namespace caffa::rpc
 {
-template <class DataType>
-class GrpcChildFieldAccessor : public caffa::ChildFieldAccessor<DataType>
+class GrpcChildFieldAccessor : public caffa::ChildFieldAccessor
 {
 public:
-    GrpcChildFieldAccessor( Client* client, caffa::ObjectHandle* fieldOwner, const std::string& fieldName )
-        : caffa::ChildFieldAccessor<DataType>()
+    GrpcChildFieldAccessor( Client* client, caffa::FieldHandle* fieldHandle )
+        : caffa::ChildFieldAccessor( fieldHandle )
         , m_client( client )
-        , m_fieldOwner( fieldOwner )
-        , m_fieldName( fieldName )
     {
     }
 
-    DataType* value() override
+    ObjectHandle* value() const override
     {
-        CAFFA_ASSERT( false && "Not implemented" );
-        return nullptr;
+        m_cachedRemoteObject = m_client->getChildObject( m_field->ownerObject(), m_field->keyword() );
+        return m_cachedRemoteObject.get();
     }
 
-    void setValue( std::unique_ptr<DataType> value ) override { CAFFA_ASSERT( false && "Not implemented" ); }
+    void setValue( std::unique_ptr<ObjectHandle> value ) override { CAFFA_ASSERT( false && "Not implemented" ); }
 
-    std::unique_ptr<DataType> remove( ObjectHandle* object )
+    std::unique_ptr<ObjectHandle> remove( ObjectHandle* object )
     {
         CAFFA_ASSERT( false && "Not implemented" );
         return nullptr;
@@ -53,8 +50,7 @@ public:
 private:
     Client* m_client;
 
-    caffa::ObjectHandle* m_fieldOwner;
-    std::string          m_fieldName;
+    mutable std::unique_ptr<ObjectHandle> m_cachedRemoteObject;
 };
 
 } // namespace caffa::rpc
