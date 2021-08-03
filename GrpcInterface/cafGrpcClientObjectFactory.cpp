@@ -4,6 +4,7 @@
 #include "cafChildField.h"
 #include "cafDataValueField.h"
 #include "cafDefaultObjectFactory.h"
+#include "cafGrpcChildArrayFieldAccessor.h"
 #include "cafGrpcChildFieldAccessor.h"
 #include "cafGrpcClient.h"
 #include "cafGrpcDataFieldAccessor.h"
@@ -137,7 +138,7 @@ void GrpcClientObjectFactory::applyAccessorToField( caffa::ObjectHandle* fieldOw
     }
     else if ( auto childField = dynamic_cast<caffa::ChildArrayFieldHandle*>( fieldHandle ); childField )
     {
-        CAFFA_INFO( "Should assign signals to child array field handle" );
+        childField->setFieldDataAccessor( std::make_unique<GrpcChildArrayFieldAccessor>( m_grpcClient, childField ) );
     }
     else
     {

@@ -60,6 +60,17 @@ public:
     std::unique_ptr<caffa::ObjectHandle> getChildObject( const caffa::ObjectHandle* objectHandle,
                                                          const std::string&         fieldName ) const;
 
+    std::vector<std::unique_ptr<caffa::ObjectHandle>> getChildObjects( const caffa::ObjectHandle* objectHandle,
+                                                                       const std::string&         fieldName ) const;
+
+    void setChildObject( const caffa::ObjectHandle* objectHandle,
+                         const std::string&         fieldName,
+                         const caffa::ObjectHandle* childObject );
+
+    void removeChildObject( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, size_t index );
+
+    void clearChildObjects( const caffa::ObjectHandle* objectHandle, const std::string& fieldName );
+
 private:
     void setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value );
     nlohmann::json getJson( const caffa::ObjectHandle*, const std::string& fieldName ) const;

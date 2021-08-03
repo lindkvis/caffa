@@ -12,7 +12,6 @@ namespace caffa
 template <typename DataType>
 ChildArrayField<DataType*>::~ChildArrayField()
 {
-    clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,7 +188,7 @@ void ChildArrayField<DataType*>::childObjects( std::vector<ObjectHandle*>* objec
 
     if ( !objects ) return;
 
-    *objects = m_fieldDataAccessor->childObjects();
+    *objects = m_fieldDataAccessor->value();
 }
 
 //--------------------------------------------------------------------------------------------------

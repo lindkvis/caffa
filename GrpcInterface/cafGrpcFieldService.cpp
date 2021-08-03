@@ -665,15 +665,15 @@ grpc::Status FieldService::GetArrayValue( grpc::ServerContext*        context,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRequest* request, GetterReply* reply )
+grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRequest* request, GenericScalar* reply )
 {
     auto fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self() );
     CAFFA_ASSERT( fieldOwner );
+    CAFFA_TRACE( "GetValue for field: " << request->method() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : fieldOwner->fields() )
     {
-        bool isObjectField = dynamic_cast<caffa::ChildFieldHandle*>( field ) != nullptr ||
-                             dynamic_cast<caffa::ChildArrayFieldHandle*>( field ) != nullptr;
+        bool isObjectField = dynamic_cast<caffa::ChildFieldHandle*>( field ) != nullptr;
         auto scriptability = field->capability<FieldScriptingCapability>();
         if ( scriptability && request->method() == scriptability->scriptFieldName() )
         {
@@ -686,6 +686,63 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
                 reply->set_value( jsonValue.dump() );
                 CAFFA_DEBUG( "Sending json value: '" << reply->value() << "'" );
 
+                return grpc::Status::OK;
+            }
+        }
+    }
+    return grpc::Status( grpc::NOT_FOUND, "Field not found" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status FieldService::ClearChildObjects( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply )
+{
+    auto fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self() );
+    CAFFA_ASSERT( fieldOwner );
+    CAFFA_TRACE( "Clear Child Objects for field: " << request->method() );
+    if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
+    for ( auto field : fieldOwner->fields() )
+    {
+        auto scriptability = field->capability<FieldScriptingCapability>();
+        if ( scriptability && request->method() == scriptability->scriptFieldName() )
+        {
+            auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
+            if ( childArrayField )
+            {
+                childArrayField->clear();
+                return grpc::Status::OK;
+            }
+
+            auto childField = dynamic_cast<ChildFieldHandle*>( field );
+            if ( childField )
+            {
+                childField->clear();
+                return grpc::Status::OK;
+            }
+        }
+    }
+    return grpc::Status( grpc::NOT_FOUND, "Field not found" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status FieldService::RemoveChildObject( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply )
+{
+    auto fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self() );
+    CAFFA_ASSERT( fieldOwner );
+    CAFFA_TRACE( "Clear Child Objects for field: " << request->method() );
+    if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
+    for ( auto field : fieldOwner->fields() )
+    {
+        auto scriptability = field->capability<FieldScriptingCapability>();
+        if ( scriptability && request->method() == scriptability->scriptFieldName() )
+        {
+            auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
+            if ( childArrayField )
+            {
+                childArrayField->erase( request->index() );
                 return grpc::Status::OK;
             }
         }
@@ -751,8 +808,14 @@ std::vector<AbstractCallback*> FieldService::createCallbacks()
                                                                                      &Self::SetArrayValue,
                                                                                      &Self::RequestSetArrayValue,
                                                                                      new SetterStateHandler ),
-             new UnaryCallback<Self, FieldRequest, GetterReply>( this, &Self::GetValue, &Self::RequestGetValue ),
-             new UnaryCallback<Self, SetterRequest, NullMessage>( this, &Self::SetValue, &Self::RequestSetValue ) };
+             new UnaryCallback<Self, FieldRequest, GenericScalar>( this, &Self::GetValue, &Self::RequestGetValue ),
+             new UnaryCallback<Self, SetterRequest, NullMessage>( this, &Self::SetValue, &Self::RequestSetValue ),
+             new UnaryCallback<Self, FieldRequest, NullMessage>( this,
+                                                                 &Self::ClearChildObjects,
+                                                                 &Self::RequestClearChildObjects ),
+             new UnaryCallback<Self, FieldRequest, NullMessage>( this,
+                                                                 &Self::RemoveChildObject,
+                                                                 &Self::RequestRemoveChildObject ) };
 }
 
 } // namespace caffa::rpc

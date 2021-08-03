@@ -145,6 +145,8 @@ void ObjectJsonCapability::readFieldsFromJson( ObjectHandle*         object,
     CAFFA_ASSERT( uuid.is_string() && !uuid.empty() );
     object->setUuid( uuid );
 
+    if ( !copyDataValues ) return;
+
     if ( !jsonObject.contains( "fields" ) )
     {
         CAFFA_DEBUG( "Object has no fields" );
@@ -162,7 +164,8 @@ void ObjectJsonCapability::readFieldsFromJson( ObjectHandle*         object,
             CAFFA_WARNING( "Could not find keyword in " << field.dump() );
             continue;
         }
-        if ( copyDataValues && ( valueIt == field.end() || valueIt->is_null() ) )
+
+        if ( valueIt == field.end() || valueIt->is_null() )
         {
             CAFFA_WARNING( "Could not find value in " << field.dump() );
             continue;
@@ -209,13 +212,16 @@ void ObjectJsonCapability::writeFieldsToJson( const ObjectHandle* object, nlohma
         {
             CAFFA_ASSERT( ObjectIoCapability::isValidElementName( keyword ) );
 
-            nlohmann::json value;
-            ioCapability->writeToJson( value, copyDataValues );
             nlohmann::json jsonField;
             jsonField["keyword"] = keyword;
-            jsonField["value"]   = value;
             jsonField["type"]    = field->dataType();
 
+            if ( copyDataValues )
+            {
+                nlohmann::json value;
+                ioCapability->writeToJson( value, copyDataValues );
+                jsonField["value"] = value;
+            }
             jsonFields.push_back( jsonField );
         }
     }

@@ -42,13 +42,11 @@ public:
     virtual std::vector<std::unique_ptr<ObjectHandle>> clear()       = 0;
     virtual std::vector<ObjectHandle*>                 value() const = 0;
 
-    virtual ObjectHandle*                 at( size_t index )                                            = 0;
+    virtual ObjectHandle*                 at( size_t index ) const                                      = 0;
     virtual void                          insert( size_t index, std::unique_ptr<ObjectHandle> pointer ) = 0;
     virtual void                          push_back( std::unique_ptr<ObjectHandle> pointer )            = 0;
     virtual size_t                        index( const ObjectHandle* pointer ) const                    = 0;
     virtual std::unique_ptr<ObjectHandle> remove( size_t index )                                        = 0;
-
-    virtual std::vector<ObjectHandle*> childObjects() const = 0;
 
 protected:
     FieldHandle* m_field;
@@ -63,12 +61,11 @@ public:
     size_t                                     size() const override;
     std::vector<std::unique_ptr<ObjectHandle>> clear() override;
     std::vector<ObjectHandle*>                 value() const override;
-    ObjectHandle*                              at( size_t index ) override;
+    ObjectHandle*                              at( size_t index ) const override;
     void                                       insert( size_t index, std::unique_ptr<ObjectHandle> pointer ) override;
     void                                       push_back( std::unique_ptr<ObjectHandle> pointer ) override;
     size_t                                     index( const ObjectHandle* object ) const override;
     std::unique_ptr<ObjectHandle>              remove( size_t index ) override;
-    std::vector<ObjectHandle*>                 childObjects() const override;
 
 private:
     std::vector<std::unique_ptr<ObjectHandle>> m_pointers;

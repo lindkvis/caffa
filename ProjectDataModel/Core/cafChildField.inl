@@ -74,10 +74,23 @@ void ChildField<DataType*>::childObjects( std::vector<ObjectHandle*>* objects ) 
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
+std::unique_ptr<ObjectHandle> ChildField<DataType*>::clear()
+{
+    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    return m_fieldDataAccessor->clear();
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
 std::unique_ptr<ObjectHandle> ChildField<DataType*>::removeChildObject( ObjectHandle* object )
 {
     CAFFA_ASSERT( isInitializedByInitFieldMacro() );
-    return m_fieldDataAccessor->remove( object );
+    if ( m_fieldDataAccessor->value() == object )
+    {
+        return this->clear();
+    }
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -58,7 +58,7 @@ std::vector<ObjectHandle*> ChildArrayFieldDirectStorageAccessor::value() const
     return rawPointers;
 }
 
-ObjectHandle* ChildArrayFieldDirectStorageAccessor::at( size_t index )
+ObjectHandle* ChildArrayFieldDirectStorageAccessor::at( size_t index ) const
 {
     CAFFA_ASSERT( index < m_pointers.size() );
     return m_pointers[index].get();
@@ -100,14 +100,4 @@ std::unique_ptr<ObjectHandle> ChildArrayFieldDirectStorageAccessor::remove( size
     }
 
     return nullptr;
-}
-
-std::vector<ObjectHandle*> ChildArrayFieldDirectStorageAccessor::childObjects() const
-{
-    std::vector<ObjectHandle*> objects;
-    for ( auto& object : m_pointers )
-    {
-        objects.push_back( object.get() );
-    }
-    return objects;
 }

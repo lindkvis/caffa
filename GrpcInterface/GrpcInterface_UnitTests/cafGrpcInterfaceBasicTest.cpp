@@ -187,8 +187,8 @@ class InheritedDemoObj : public DemoObject
 public:
     InheritedDemoObj()
     {
-        this->addField( &m_texts, "Texts" );
-        this->addField( &m_childArrayField, "DemoObjectects" );
+        initField( m_texts, "Texts" ).withScripting();
+        initField( m_childArrayField, "DemoObjectects" ).withScripting();
     }
 
     caffa::Field<std::string>           m_texts;
@@ -204,8 +204,8 @@ class DemoDocument : public caffa::Document
 public:
     DemoDocument()
     {
-        initField( m_demoObject, "DemoObject" );
-        initField( m_inheritedDemoObjects, "InheritedDemoObjects" );
+        initField( m_demoObject, "DemoObject" ).withScripting();
+        initField( m_inheritedDemoObjects, "InheritedDemoObjects" ).withScripting();
         m_demoObject = std::make_unique<DemoObject>();
 
         this->fileName = "dummyFileName";

@@ -6,6 +6,7 @@
 
 namespace caffa
 {
+class ChildArrayFieldAccessor;
 class ObjectHandle;
 //==================================================================================================
 ///
@@ -25,7 +26,8 @@ public:
 
     virtual ObjectHandle* at( size_t index ) = 0;
 
-    virtual void insertAt( size_t index, std::unique_ptr<ObjectHandle> obj ) = 0;
+    virtual void insertAt( size_t index, std::unique_ptr<ObjectHandle> obj )               = 0;
+    virtual void setFieldDataAccessor( std::unique_ptr<ChildArrayFieldAccessor> accessor ) = 0;
 
     bool hasSameFieldCountForAllObjects();
 };

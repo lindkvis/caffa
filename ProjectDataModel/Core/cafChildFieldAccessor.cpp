@@ -54,11 +54,7 @@ void ChildFieldDirectStorageAccessor::setValue( std::unique_ptr<ObjectHandle> va
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> ChildFieldDirectStorageAccessor::remove( ObjectHandle* object )
+std::unique_ptr<ObjectHandle> ChildFieldDirectStorageAccessor::clear()
 {
-    if ( m_value.get() == object )
-    {
-        return std::move( m_value );
-    }
-    return nullptr;
+    return std::move( m_value );
 }

@@ -36,7 +36,7 @@ public:
     virtual ~ChildFieldAccessor()                                                         = default;
     virtual ObjectHandle*                 value() const                                   = 0;
     virtual void                          setValue( std::unique_ptr<ObjectHandle> value ) = 0;
-    virtual std::unique_ptr<ObjectHandle> remove( ObjectHandle* object )                  = 0;
+    virtual std::unique_ptr<ObjectHandle> clear()                                         = 0;
 
 protected:
     FieldHandle* m_field;
@@ -49,7 +49,7 @@ public:
     ~ChildFieldDirectStorageAccessor() override = default;
     ObjectHandle*                 value() const override;
     void                          setValue( std::unique_ptr<ObjectHandle> value ) override;
-    std::unique_ptr<ObjectHandle> remove( ObjectHandle* object ) override;
+    std::unique_ptr<ObjectHandle> clear() override;
 
 private:
     std::unique_ptr<ObjectHandle> m_value;

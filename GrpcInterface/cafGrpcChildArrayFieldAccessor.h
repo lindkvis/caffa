@@ -24,37 +24,82 @@
 
 namespace caffa::rpc
 {
-template <class DataType>
-class GrpcChildArrayFieldAccessor : public caffa::ChildArrayFieldAccessor<DataType>
+class GrpcChildArrayFieldAccessor : public caffa::ChildArrayFieldAccessor
 {
 public:
-    GrpcChildArrayFieldAccessor( Client* client, caffa::ObjectHandle* fieldOwner, const std::string& fieldName )
-        : caffa::ChildArrayFieldAccessor<DataType>()
+    GrpcChildArrayFieldAccessor( Client* client, caffa::FieldHandle* fieldHandle )
+        : caffa::ChildArrayFieldAccessor( fieldHandle )
         , m_client( client )
-        , m_fieldOwner( fieldOwner )
-        , m_fieldName( fieldName )
     {
     }
 
-    DataType* value() override
+    size_t size() const override
     {
-        CAFFA_ASSERT( false && "Not implemented" );
-        return nullptr;
+        m_remoteObjects = m_client->getChildObjects( m_field->ownerObject(), m_field->keyword() );
+        return m_remoteObjects.size();
     }
 
-    void setValue( std::unique_ptr<DataType> value ) override { CAFFA_ASSERT( false && "Not implemented" ); }
+    std::vector<std::unique_ptr<ObjectHandle>> clear() override
+    {
+        m_remoteObjects = m_client->getChildObjects( m_field->ownerObject(), m_field->keyword() );
+        m_client->clearChildObjects( m_field->ownerObject(), m_field->keyword() );
+        return std::move( m_remoteObjects );
+    }
 
-    std::unique_ptr<DataType> remove( ObjectHandle* object )
+    std::vector<ObjectHandle*> value() const override
+    {
+        // TODO: We always overwrite the remote object here and it is mainly here to allow for
+        // the same API on the client and server side and avoid the client code having to deal
+        // with the memory. In the future we could time stamp and synchronise.
+        m_remoteObjects = m_client->getChildObjects( m_field->ownerObject(), m_field->keyword() );
+
+        std::vector<ObjectHandle*> rawPtrs;
+        for ( auto& objectPtr : m_remoteObjects )
+        {
+            rawPtrs.push_back( objectPtr.get() );
+        }
+        return rawPtrs;
+    }
+
+    ObjectHandle* at( size_t index ) const
+    {
+        m_remoteObjects = m_client->getChildObjects( m_field->ownerObject(), m_field->keyword() );
+
+        CAFFA_ASSERT( index < m_remoteObjects.size() );
+
+        return m_remoteObjects[index].get();
+    }
+
+    void insert( size_t index, std::unique_ptr<ObjectHandle> pointer ) override
     {
         CAFFA_ASSERT( false && "Not implemented" );
-        return nullptr;
+    }
+    void   push_back( std::unique_ptr<ObjectHandle> pointer ) { insert( size(), std::move( pointer ) ); }
+    size_t index( const ObjectHandle* pointer ) const
+    {
+        m_remoteObjects = m_client->getChildObjects( m_field->ownerObject(), m_field->keyword() );
+        for ( size_t i = 0; i < m_remoteObjects.size(); ++i )
+        {
+            if ( pointer == m_remoteObjects[i].get() )
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+    std::unique_ptr<ObjectHandle> remove( size_t index )
+    {
+        CAFFA_ASSERT( index < size() );
+        auto detachedPtr = std::move( m_remoteObjects[index] );
+        m_remoteObjects.erase( m_remoteObjects.begin() + index );
+        m_client->removeChildObject( m_field->ownerObject(), m_field->keyword(), index );
+        return detachedPtr;
     }
 
 private:
     Client* m_client;
 
-    caffa::ObjectHandle* m_fieldOwner;
-    std::string          m_fieldName;
+    mutable std::vector<std::unique_ptr<ObjectHandle>> m_remoteObjects;
 };
 
 } // namespace caffa::rpc

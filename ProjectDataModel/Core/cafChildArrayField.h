@@ -76,6 +76,11 @@ public:
 
     std::string dataType() const override { return std::string( "object[]" ); }
 
+    void setFieldDataAccessor( std::unique_ptr<ChildArrayFieldAccessor> accessor )
+    {
+        m_fieldDataAccessor = std::move( accessor );
+    }
+
 private: // To be disabled
     CAFFA_DISABLE_COPY_AND_ASSIGN( ChildArrayField );
 

@@ -43,7 +43,7 @@ class ValueField;
 namespace caffa::rpc
 {
 class GenericArray;
-class GetterReply;
+class GenericScalar;
 class FieldRequest;
 class GenericArray;
 class SetterArrayReply;
@@ -124,7 +124,7 @@ public:
                                 GenericArray*               reply,
                                 StateHandler<FieldRequest>* stateHandler );
 
-    grpc::Status GetValue( grpc::ServerContext* context, const FieldRequest* request, GetterReply* reply );
+    grpc::Status GetValue( grpc::ServerContext* context, const FieldRequest* request, GenericScalar* reply );
 
     grpc::Status SetArrayValue( grpc::ServerContext*        context,
                                 const GenericArray*         chunk,
@@ -132,6 +132,9 @@ public:
                                 StateHandler<GenericArray>* stateHandler );
 
     grpc::Status SetValue( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply );
+
+    grpc::Status ClearChildObjects( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply );
+    grpc::Status RemoveChildObject( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply );
     std::vector<AbstractCallback*> createCallbacks() override;
 };
 

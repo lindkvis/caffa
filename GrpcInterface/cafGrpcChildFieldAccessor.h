@@ -35,22 +35,30 @@ public:
 
     ObjectHandle* value() const override
     {
-        m_cachedRemoteObject = m_client->getChildObject( m_field->ownerObject(), m_field->keyword() );
-        return m_cachedRemoteObject.get();
+        // TODO: We always overwrite the remote object here and it is mainly here to allow for
+        // the same API on the client and server side and avoid the client code having to deal
+        // with the memory. In the future we could time stamp and synchronise.
+        m_remoteObject = m_client->getChildObject( m_field->ownerObject(), m_field->keyword() );
+        return m_remoteObject.get();
     }
 
-    void setValue( std::unique_ptr<ObjectHandle> value ) override { CAFFA_ASSERT( false && "Not implemented" ); }
-
-    std::unique_ptr<ObjectHandle> remove( ObjectHandle* object )
+    void setValue( std::unique_ptr<ObjectHandle> value ) override
     {
-        CAFFA_ASSERT( false && "Not implemented" );
-        return nullptr;
+        m_remoteObject = std::move( value );
+        m_client->setChildObject( m_field->ownerObject(), m_field->keyword(), m_remoteObject.get() );
+    }
+
+    std::unique_ptr<ObjectHandle> clear()
+    {
+        m_remoteObject = m_client->getChildObject( m_field->ownerObject(), m_field->keyword() );
+        m_client->clearChildObjects( m_field->ownerObject(), m_field->keyword() );
+        return std::move( m_remoteObject );
     }
 
 private:
     Client* m_client;
 
-    mutable std::unique_ptr<ObjectHandle> m_cachedRemoteObject;
+    mutable std::unique_ptr<ObjectHandle> m_remoteObject;
 };
 
 } // namespace caffa::rpc
