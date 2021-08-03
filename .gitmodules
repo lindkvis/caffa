@@ -6,7 +6,7 @@
 	url = https://github.com/microsoft/GSL.git
 [submodule "GrpcInterface/Protos"]
 	path = GrpcInterface/Protos
-	url = git@github.com:lindkvis/caffa-GrpcProtos.git
+	url = https://github.com/lindkvis/caffa-GrpcProtos.git
 [submodule "ThirdParty/stduuid"]
 	path = ThirdParty/stduuid
 	url = https://github.com/mariusbancila/stduuid.git
