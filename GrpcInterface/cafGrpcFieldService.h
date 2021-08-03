@@ -135,6 +135,7 @@ public:
 
     grpc::Status ClearChildObjects( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply );
     grpc::Status RemoveChildObject( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply );
+    grpc::Status InsertChildObject( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply );
     std::vector<AbstractCallback*> createCallbacks() override;
 };
 

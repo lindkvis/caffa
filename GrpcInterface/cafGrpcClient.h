@@ -71,6 +71,11 @@ public:
 
     void clearChildObjects( const caffa::ObjectHandle* objectHandle, const std::string& fieldName );
 
+    void insertChildObject( const caffa::ObjectHandle* objectHandle,
+                            const std::string&         fieldName,
+                            size_t                     index,
+                            const caffa::ObjectHandle* childObject );
+
 private:
     void setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value );
     nlohmann::json getJson( const caffa::ObjectHandle*, const std::string& fieldName ) const;

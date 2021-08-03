@@ -72,9 +72,15 @@ public:
 
     void insert( size_t index, std::unique_ptr<ObjectHandle> pointer ) override
     {
-        CAFFA_ASSERT( false && "Not implemented" );
+        auto   object  = std::move( pointer );
+        size_t oldSize = m_remoteObjects.size();
+        m_client->insertChildObject( m_field->ownerObject(), m_field->keyword(), index, object.get() );
+        m_remoteObjects = m_client->getChildObjects( m_field->ownerObject(), m_field->keyword() );
+        CAFFA_ASSERT( m_remoteObjects.size() == ( oldSize + 1u ) );
     }
-    void   push_back( std::unique_ptr<ObjectHandle> pointer ) { insert( size(), std::move( pointer ) ); }
+
+    void push_back( std::unique_ptr<ObjectHandle> pointer ) { insert( size(), std::move( pointer ) ); }
+
     size_t index( const ObjectHandle* pointer ) const
     {
         m_remoteObjects = m_client->getChildObjects( m_field->ownerObject(), m_field->keyword() );

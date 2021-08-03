@@ -64,7 +64,7 @@ public:
     DataType* operator[]( size_t index ) const;
 
     void push_back( DataTypeUniquePtr pointer );
-    void push_back_obj( std::unique_ptr<ObjectHandle> obj );
+    void push_back_obj( std::unique_ptr<ObjectHandle> obj ) override;
     void insert( size_t index, DataTypeUniquePtr pointer );
     void insertAt( size_t index, std::unique_ptr<ObjectHandle> obj ) override;
     void erase( size_t index ) override;

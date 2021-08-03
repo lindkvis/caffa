@@ -204,6 +204,35 @@ public:
         }
     }
 
+    void insertChildObject( const caffa::ObjectHandle* objectHandle,
+                            const std::string&         fieldName,
+                            size_t                     index,
+                            const caffa::ObjectHandle* childObject )
+    {
+        CAFFA_TRACE( "Set Child Object in field " << fieldName );
+        CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
+        grpc::ClientContext context;
+        auto                self           = std::make_unique<RpcObject>();
+        auto                rpcChildObject = std::make_unique<RpcObject>();
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
+        ObjectService::copyResultOrParameterObjectFromCafToRpc( childObject, rpcChildObject.get() );
+        auto field = std::make_unique<FieldRequest>();
+        field->set_method( fieldName );
+        field->set_allocated_self( self.release() );
+        field->set_index( index );
+
+        SetterRequest setterRequest;
+        setterRequest.set_allocated_field( field.release() );
+        setterRequest.set_value( rpcChildObject->json() );
+
+        NullMessage  reply;
+        grpc::Status status = m_fieldStub->InsertChildObject( &context, setterRequest, &reply );
+        if ( !status.ok() )
+        {
+            CAFFA_ERROR( "Failed to insert object" );
+        }
+    }
+
     void clearChildObjects( const caffa::ObjectHandle* objectHandle, const std::string& fieldName )
     {
         CAFFA_TRACE( "Clear Child Objects from field " << fieldName );
@@ -958,6 +987,17 @@ void Client::removeChildObject( const caffa::ObjectHandle* objectHandle, const s
 void Client::clearChildObjects( const caffa::ObjectHandle* objectHandle, const std::string& fieldName )
 {
     m_clientImpl->clearChildObjects( objectHandle, fieldName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Client::insertChildObject( const caffa::ObjectHandle* objectHandle,
+                                const std::string&         fieldName,
+                                size_t                     index,
+                                const caffa::ObjectHandle* childObject )
+{
+    m_clientImpl->insertChildObject( objectHandle, fieldName, index, childObject );
 }
 
 } // namespace caffa::rpc

@@ -682,8 +682,7 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
             {
                 nlohmann::json jsonValue;
                 ioCapability->writeToJson( jsonValue, !isObjectField );
-
-                reply->set_value( jsonValue.dump() );
+                reply->set_value( jsonValue.is_null() ? "" : jsonValue.dump() );
                 CAFFA_DEBUG( "Sending json value: '" << reply->value() << "'" );
 
                 return grpc::Status::OK;
@@ -732,7 +731,7 @@ grpc::Status FieldService::RemoveChildObject( grpc::ServerContext* context, cons
 {
     auto fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self() );
     CAFFA_ASSERT( fieldOwner );
-    CAFFA_TRACE( "Clear Child Objects for field: " << request->method() );
+    CAFFA_TRACE( "Remove Child Object at index " << request->index() << " for field: " << request->method() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : fieldOwner->fields() )
     {
@@ -743,6 +742,45 @@ grpc::Status FieldService::RemoveChildObject( grpc::ServerContext* context, cons
             if ( childArrayField )
             {
                 childArrayField->erase( request->index() );
+                return grpc::Status::OK;
+            }
+        }
+    }
+    return grpc::Status( grpc::NOT_FOUND, "Field not found" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status FieldService::InsertChildObject( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply )
+{
+    auto fieldRequest = request->field();
+
+    auto fieldOwner = ObjectService::findCafObjectFromRpcObject( fieldRequest.self() );
+    CAFFA_ASSERT( fieldOwner );
+    CAFFA_TRACE( " Inserting Child Object at index " << fieldRequest.index() << " for field: " << fieldRequest.method() );
+    if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
+    for ( auto field : fieldOwner->fields() )
+    {
+        auto scriptability = field->capability<FieldScriptingCapability>();
+        if ( scriptability && fieldRequest.method() == scriptability->scriptFieldName() )
+        {
+            auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
+            if ( childArrayField )
+            {
+                std::unique_ptr<caffa::ObjectHandle> newCafObject =
+                    caffa::ObjectJsonCapability::readUnknownObjectFromString( request->value(),
+                                                                              DefaultObjectFactory::instance(),
+                                                                              true );
+                size_t index = fieldRequest.index();
+                if ( index >= childArrayField->size() )
+                {
+                    childArrayField->push_back_obj( std::move( newCafObject ) );
+                }
+                else
+                {
+                    childArrayField->insertAt( index, std::move( newCafObject ) );
+                }
                 return grpc::Status::OK;
             }
         }
@@ -815,7 +853,10 @@ std::vector<AbstractCallback*> FieldService::createCallbacks()
                                                                  &Self::RequestClearChildObjects ),
              new UnaryCallback<Self, FieldRequest, NullMessage>( this,
                                                                  &Self::RemoveChildObject,
-                                                                 &Self::RequestRemoveChildObject ) };
+                                                                 &Self::RequestRemoveChildObject ),
+             new UnaryCallback<Self, SetterRequest, NullMessage>( this,
+                                                                  &Self::InsertChildObject,
+                                                                  &Self::RequestInsertChildObject ) };
 }
 
 } // namespace caffa::rpc

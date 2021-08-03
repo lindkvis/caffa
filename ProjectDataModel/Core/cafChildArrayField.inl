@@ -66,7 +66,12 @@ template <typename DataType>
 void ChildArrayField<DataType*>::insert( size_t index, DataTypeUniquePtr pointer )
 {
     CAFFA_ASSERT( isInitializedByInitFieldMacro() );
-    m_fieldDataAccessor->insert( index, pointer );
+
+    DataType* rawDataPtr = pointer.release();
+    if ( rawDataPtr )
+    {
+        m_fieldDataAccessor->insert( index, std::unique_ptr<ObjectHandle>( rawDataPtr ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,7 +93,7 @@ void ChildArrayField<DataType*>::insertAt( size_t index, std::unique_ptr<ObjectH
 
     if ( rawDataPtr )
     {
-        m_fieldDataAccessor->insert( index, std::unique_ptr<DataType>( rawDataPtr ) );
+        m_fieldDataAccessor->insert( index, std::unique_ptr<ObjectHandle>( rawDataPtr ) );
     }
     else if ( rawObjPtr )
     {
