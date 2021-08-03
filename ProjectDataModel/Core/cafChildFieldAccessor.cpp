@@ -47,7 +47,10 @@ void ChildFieldDirectStorageAccessor::setValue( std::unique_ptr<ObjectHandle> va
     {
         m_value->detachFromParentField();
     }
-    value->setAsParentField( this->m_field );
+    if ( value )
+    {
+        value->setAsParentField( this->m_field );
+    }
     m_value = std::move( value );
 }
 
