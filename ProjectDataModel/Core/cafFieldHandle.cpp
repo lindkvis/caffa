@@ -48,9 +48,7 @@ FieldHandle::~FieldHandle()
 //--------------------------------------------------------------------------------------------------
 bool FieldHandle::matchesKeyword( const std::string& keyword ) const
 {
-    if ( m_keyword == keyword ) return true;
-
-    return matchesKeywordAlias( keyword );
+    return m_keyword == keyword;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,67 +61,11 @@ caffa::ObjectHandle* FieldHandle::ownerObject()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Get the class in the class hierarchy the field actually belongs to.
-/// This can be different to ownerObject's class, which may be a sub-class.
-//--------------------------------------------------------------------------------------------------
-std::string FieldHandle::ownerClass() const
-{
-    return m_ownerClass;
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<ObjectHandle> FieldHandle::removeChildObject( ObjectHandle* )
 {
     return std::unique_ptr<ObjectHandle>();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Set the class in the class hierarchy the field actually belongs to.
-/// This can be different to ownerObject's class, which may be a sub-class.
-//--------------------------------------------------------------------------------------------------
-void FieldHandle::setOwnerClass( const std::string& ownerClass )
-{
-    m_ownerClass = ownerClass;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool FieldHandle::hasPtrReferencedObjects()
-{
-    std::vector<ObjectHandle*> ptrReffedObjs;
-    this->ptrReferencedObjects( &ptrReffedObjs );
-    return ( ptrReffedObjs.size() > 0 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void FieldHandle::registerKeywordAlias( const std::string& alias )
-{
-    m_keywordAliases.push_back( alias );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool FieldHandle::matchesKeywordAlias( const std::string& keyword ) const
-{
-    for ( const std::string& alias : m_keywordAliases )
-    {
-        if ( alias == keyword ) return true;
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<std::string> FieldHandle::keywordAliases() const
-{
-    return m_keywordAliases;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -66,7 +66,7 @@ TEST( UiTreeViewModelTest, DeleteOneItemAndVerifyTreeOrdering )
     mi = treeView.findModelIndex( obj1p );
     EXPECT_TRUE( mi.isValid() );
 
-    auto newobj1 = demoObj->m_simpleObjPtrField.remove( obj1p );
+    auto newobj1 = demoObj->m_simpleObjPtrField.removeChildObject( obj1p );
     demoObj->m_simpleObjPtrField().capability<FieldUiCapability>()->updateConnectedEditors();
 
     mi = treeView.findModelIndex( obj1p );
@@ -129,7 +129,7 @@ TEST( UiTreeViewModelTest, ChangeOrderingAndVerifyTreeOrdering )
     mi = treeView.findModelIndex( obj4p );
     EXPECT_EQ( 3, mi.row() );
 
-    auto detachedObjects = demoObj->m_simpleObjPtrField.removeAll();
+    auto detachedObjects = demoObj->m_simpleObjPtrField.clear();
     demoObj->m_simpleObjPtrField.push_back( std::move( detachedObjects[0] ) );
     demoObj->m_simpleObjPtrField.push_back( std::move( detachedObjects[3] ) );
     demoObj->m_simpleObjPtrField.push_back( std::move( detachedObjects[2] ) );
@@ -174,7 +174,7 @@ TEST( UiTreeViewModelTest, ChangeDeepInTreeNotifyRootAndVerifyTreeOrdering )
     mi = treeView.findModelIndex( obj4p );
     EXPECT_EQ( 3, mi.row() );
 
-    auto new_obj4 = demoObjp->m_simpleObjPtrField.remove( obj4p );
+    auto new_obj4 = demoObjp->m_simpleObjPtrField.removeChildObject( obj4p );
 
     root->m_simpleObjPtrField().capability<FieldUiCapability>()->updateConnectedEditors();
 

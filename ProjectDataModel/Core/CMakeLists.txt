@@ -16,8 +16,10 @@ set(PUBLIC_HEADERS
     cafBase.h
     cafChildArrayField.h
     cafChildArrayField.inl
+    cafChildArrayFieldAccessor.h
     cafChildField.h
     cafChildField.inl
+    cafChildFieldAccessor.h
     cafDataValueField.h
     cafDataFieldAccessor.h
     cafException.h
@@ -43,6 +45,8 @@ set(PROJECT_FILES
     ${PUBLIC_HEADERS}
     cafColor.cpp
     cafChildArrayFieldHandle.cpp
+    cafChildArrayFieldAccessor.cpp
+    cafChildFieldAccessor.cpp
     cafFieldHandle.cpp
     cafLogger.cpp
     cafObjectHandle.cpp

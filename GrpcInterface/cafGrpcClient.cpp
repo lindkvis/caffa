@@ -111,6 +111,167 @@ public:
         return document;
     }
 
+    std::unique_ptr<caffa::ObjectHandle> getChildObject( const caffa::ObjectHandle* objectHandle,
+                                                         const std::string&         fieldName ) const
+    {
+        std::unique_ptr<caffa::ObjectHandle> childObject;
+
+        CAFFA_TRACE( "Get Child Object from field " << fieldName );
+        CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
+        grpc::ClientContext context;
+        auto                self = std::make_unique<RpcObject>();
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
+        FieldRequest field;
+        field.set_method( fieldName );
+        field.set_allocated_self( self.release() );
+
+        GenericScalar reply;
+        grpc::Status  status = m_fieldStub->GetValue( &context, field, &reply );
+        if ( status.ok() )
+        {
+            childObject =
+                caffa::ObjectJsonCapability::readUnknownObjectFromString( reply.value(),
+                                                                          caffa::rpc::GrpcClientObjectFactory::instance(),
+                                                                          false );
+        }
+        else
+        {
+            CAFFA_ERROR( "Failed to get object" );
+        }
+
+        return childObject;
+    }
+
+    std::vector<std::unique_ptr<ObjectHandle>> getChildObjects( const caffa::ObjectHandle* objectHandle,
+                                                                const std::string&         getter ) const
+    {
+        grpc::ClientContext context;
+        auto                self = std::make_unique<RpcObject>();
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
+        FieldRequest field;
+        field.set_method( getter );
+        field.set_allocated_self( self.release() );
+
+        std::vector<std::unique_ptr<ObjectHandle>> childObjects;
+
+        std::unique_ptr<grpc::ClientReader<GenericArray>> reader( m_fieldStub->GetArrayValue( &context, field ) );
+        GenericArray                                      reply;
+        while ( reader->Read( &reply ) )
+        {
+            CAFFA_ASSERT( reply.has_objects() ); // TODO: throw
+            RpcObjectList rpcObjects = reply.objects();
+            for ( auto rpcObject : rpcObjects.objects() )
+            {
+                auto object =
+                    caffa::rpc::ObjectService::createCafObjectFromRpc( &rpcObject,
+                                                                       caffa::rpc::GrpcClientObjectFactory::instance(),
+                                                                       false );
+                childObjects.push_back( std::move( object ) );
+            }
+        }
+        grpc::Status status = reader->Finish();
+        if ( !status.ok() )
+        {
+            throw Exception( status );
+        }
+        return childObjects;
+    }
+
+    void setChildObject( const caffa::ObjectHandle* objectHandle,
+                         const std::string&         fieldName,
+                         const caffa::ObjectHandle* childObject )
+    {
+        CAFFA_TRACE( "Set Child Object in field " << fieldName );
+        CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
+        grpc::ClientContext context;
+        auto                self           = std::make_unique<RpcObject>();
+        auto                rpcChildObject = std::make_unique<RpcObject>();
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
+        ObjectService::copyProjectObjectFromCafToRpc( childObject, rpcChildObject.get() );
+        auto field = std::make_unique<FieldRequest>();
+        field->set_method( fieldName );
+        field->set_allocated_self( self.release() );
+
+        SetterRequest setterRequest;
+        setterRequest.set_allocated_field( field.release() );
+        setterRequest.set_value( rpcChildObject->json() );
+
+        NullMessage  reply;
+        grpc::Status status = m_fieldStub->SetValue( &context, setterRequest, &reply );
+        if ( !status.ok() )
+        {
+            CAFFA_ERROR( "Failed to set object" );
+        }
+    }
+
+    void insertChildObject( const caffa::ObjectHandle* objectHandle,
+                            const std::string&         fieldName,
+                            size_t                     index,
+                            const caffa::ObjectHandle* childObject )
+    {
+        CAFFA_TRACE( "Set Child Object in field " << fieldName );
+        CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
+        grpc::ClientContext context;
+        auto                self           = std::make_unique<RpcObject>();
+        auto                rpcChildObject = std::make_unique<RpcObject>();
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
+        ObjectService::copyResultOrParameterObjectFromCafToRpc( childObject, rpcChildObject.get() );
+        auto field = std::make_unique<FieldRequest>();
+        field->set_method( fieldName );
+        field->set_allocated_self( self.release() );
+        field->set_index( index );
+
+        SetterRequest setterRequest;
+        setterRequest.set_allocated_field( field.release() );
+        setterRequest.set_value( rpcChildObject->json() );
+
+        NullMessage  reply;
+        grpc::Status status = m_fieldStub->InsertChildObject( &context, setterRequest, &reply );
+        if ( !status.ok() )
+        {
+            CAFFA_ERROR( "Failed to insert object" );
+        }
+    }
+
+    void clearChildObjects( const caffa::ObjectHandle* objectHandle, const std::string& fieldName )
+    {
+        CAFFA_TRACE( "Clear Child Objects from field " << fieldName );
+        CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
+        grpc::ClientContext context;
+        auto                self = std::make_unique<RpcObject>();
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
+        FieldRequest field;
+        field.set_method( fieldName );
+        field.set_allocated_self( self.release() );
+
+        NullMessage  reply;
+        grpc::Status status = m_fieldStub->ClearChildObjects( &context, field, &reply );
+        if ( !status.ok() )
+        {
+            CAFFA_ERROR( "Failed to clear child objects" );
+        }
+    }
+
+    void removeChildObject( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, size_t index )
+    {
+        CAFFA_TRACE( "Remove Child Object " << index << " from field " << fieldName );
+        CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
+        grpc::ClientContext context;
+        auto                self = std::make_unique<RpcObject>();
+        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
+        FieldRequest field;
+        field.set_method( fieldName );
+        field.set_allocated_self( self.release() );
+        field.set_index( index );
+
+        NullMessage  reply;
+        grpc::Status status = m_fieldStub->RemoveChildObject( &context, field, &reply );
+        if ( !status.ok() )
+        {
+            CAFFA_ERROR( "Failed to remove child object" );
+        }
+    }
+
     std::unique_ptr<caffa::ObjectHandle> execute( const caffa::ObjectMethod* method ) const
     {
         auto self   = std::make_unique<RpcObject>();
@@ -219,8 +380,8 @@ public:
         field.set_method( fieldName );
         field.set_allocated_self( self.release() );
 
-        GetterReply  reply;
-        grpc::Status status = m_fieldStub->GetValue( &context, field, &reply );
+        GenericScalar reply;
+        grpc::Status  status = m_fieldStub->GetValue( &context, field, &reply );
         if ( !status.ok() )
         {
             throw Exception( status );
@@ -782,6 +943,61 @@ std::vector<std::string>
     Client::get<std::vector<std::string>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     return m_clientImpl->getStrings( objectHandle, fieldName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caffa::ObjectHandle> Client::getChildObject( const caffa::ObjectHandle* objectHandle,
+                                                             const std::string&         fieldName ) const
+{
+    return m_clientImpl->getChildObject( objectHandle, fieldName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::unique_ptr<caffa::ObjectHandle>> Client::getChildObjects( const caffa::ObjectHandle* objectHandle,
+                                                                           const std::string&         fieldName ) const
+{
+    return m_clientImpl->getChildObjects( objectHandle, fieldName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Client::setChildObject( const caffa::ObjectHandle* objectHandle,
+                             const std::string&         fieldName,
+                             const caffa::ObjectHandle* childObject )
+{
+    return m_clientImpl->setChildObject( objectHandle, fieldName, childObject );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Client::removeChildObject( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, size_t index )
+{
+    m_clientImpl->removeChildObject( objectHandle, fieldName, index );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Client::clearChildObjects( const caffa::ObjectHandle* objectHandle, const std::string& fieldName )
+{
+    m_clientImpl->clearChildObjects( objectHandle, fieldName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Client::insertChildObject( const caffa::ObjectHandle* objectHandle,
+                                const std::string&         fieldName,
+                                size_t                     index,
+                                const caffa::ObjectHandle* childObject )
+{
+    m_clientImpl->insertChildObject( objectHandle, fieldName, index, childObject );
 }
 
 } // namespace caffa::rpc

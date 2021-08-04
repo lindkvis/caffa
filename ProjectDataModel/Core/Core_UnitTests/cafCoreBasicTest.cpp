@@ -270,9 +270,13 @@ TEST( BaseTest, ChildArrayField )
     EXPECT_EQ( size_t( 0 ), ihd1->m_childArrayField.size() );
 
     // push_back()
-    auto s1p = ihd1->m_childArrayField.push_back( std::move( s1 ) );
-    auto s2p = ihd1->m_childArrayField.push_back( std::move( s2 ) );
-    auto s3p = ihd1->m_childArrayField.push_back( std::move( s3 ) );
+    auto s1p = caffa::Pointer<DemoObject>( s1.get() );
+    auto s2p = caffa::Pointer<DemoObject>( s2.get() );
+    auto s3p = caffa::Pointer<DemoObject>( s3.get() );
+
+    ihd1->m_childArrayField.push_back( std::move( s1 ) );
+    ihd1->m_childArrayField.push_back( std::move( s2 ) );
+    ihd1->m_childArrayField.push_back( std::move( s3 ) );
 
     // Parent field
     EXPECT_EQ( s1p->parentField(), &( ihd1->m_childArrayField ) );
@@ -290,15 +294,15 @@ TEST( BaseTest, ChildArrayField )
     ihd1->m_childArrayField.childObjects( &objects );
     EXPECT_EQ( size_t( 3 ), objects.size() );
 
-    std::vector<DemoObject*> typedObjects = ihd1->m_childArrayField.childObjects();
+    std::vector<DemoObject*> typedObjects = ihd1->m_childArrayField.value();
     EXPECT_EQ( size_t( 3 ), typedObjects.size() );
 
     // remove child object
-    auto new_s2 = ihd1->m_childArrayField.remove( s2p );
+    auto new_s2 = ihd1->m_childArrayField.removeChildObject( s2p );
     EXPECT_EQ( size_t( 2 ), ihd1->m_childArrayField.size() );
     EXPECT_TRUE( new_s2->parentField() == nullptr );
 
-    auto emptyPointer = ihd1->m_childArrayField.remove( nullptr );
+    auto emptyPointer = ihd1->m_childArrayField.removeChildObject( nullptr );
     EXPECT_TRUE( !emptyPointer );
     EXPECT_EQ( s3p, ihd1->m_childArrayField[1] );
     EXPECT_EQ( s1p, ihd1->m_childArrayField[0] );
@@ -321,7 +325,7 @@ TEST( BaseTest, ChildArrayField )
     EXPECT_EQ( s1p, ihd1->m_childArrayField[0] );
 
     // clear()
-    auto extractedObjects = ihd1->m_childArrayField.removeAll();
+    auto extractedObjects = ihd1->m_childArrayField.clear();
     EXPECT_EQ( size_t( 0 ), ihd1->m_childArrayField.size() );
     EXPECT_EQ( size_t( 2 ), extractedObjects.size() );
 
@@ -329,7 +333,7 @@ TEST( BaseTest, ChildArrayField )
 
     for ( auto& object : extractedObjects )
     {
-        ihd1->m_childArrayField.push_back( std::move( object ) );
+        ihd1->m_childArrayField.push_back_obj( std::move( object ) );
     }
     EXPECT_EQ( size_t( 2 ), ihd1->m_childArrayField.size() );
     EXPECT_TRUE( s1p.notNull() );

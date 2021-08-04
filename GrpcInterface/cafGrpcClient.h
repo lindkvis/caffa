@@ -57,6 +57,25 @@ public:
     template <typename DataType>
     DataType get( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
+    std::unique_ptr<caffa::ObjectHandle> getChildObject( const caffa::ObjectHandle* objectHandle,
+                                                         const std::string&         fieldName ) const;
+
+    std::vector<std::unique_ptr<caffa::ObjectHandle>> getChildObjects( const caffa::ObjectHandle* objectHandle,
+                                                                       const std::string&         fieldName ) const;
+
+    void setChildObject( const caffa::ObjectHandle* objectHandle,
+                         const std::string&         fieldName,
+                         const caffa::ObjectHandle* childObject );
+
+    void removeChildObject( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, size_t index );
+
+    void clearChildObjects( const caffa::ObjectHandle* objectHandle, const std::string& fieldName );
+
+    void insertChildObject( const caffa::ObjectHandle* objectHandle,
+                            const std::string&         fieldName,
+                            size_t                     index,
+                            const caffa::ObjectHandle* childObject );
+
 private:
     void setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value );
     nlohmann::json getJson( const caffa::ObjectHandle*, const std::string& fieldName ) const;
@@ -111,6 +130,10 @@ template <>
 void Client::set<std::vector<std::string>>( const caffa::ObjectHandle*      objectHandle,
                                             const std::string&              fieldName,
                                             const std::vector<std::string>& value );
+
+template <>
+std::vector<int>
+    Client::get<std::vector<int>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
 template <>
 std::vector<int>

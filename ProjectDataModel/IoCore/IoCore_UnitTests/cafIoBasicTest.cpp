@@ -221,9 +221,12 @@ TEST( BaseTest, ChildArrayFieldSerializing )
     std::string serializedString;
     {
         auto ihd1 = std::make_unique<InheritedDemoObj>();
-        auto s1p  = ihd1->m_childArrayField.push_back( std::move( s1 ) );
-        auto s2p  = ihd1->m_childArrayField.push_back( std::move( s2 ) );
-        auto s3p  = ihd1->m_childArrayField.push_back( std::move( s3 ) );
+        auto s1p  = s1.get();
+        ihd1->m_childArrayField.push_back( std::move( s1 ) );
+        auto s2p = s2.get();
+        ihd1->m_childArrayField.push_back( std::move( s2 ) );
+        auto s3p = s3.get();
+        ihd1->m_childArrayField.push_back( std::move( s3 ) );
 
         serializedString = ihd1->writeObjectToString();
 

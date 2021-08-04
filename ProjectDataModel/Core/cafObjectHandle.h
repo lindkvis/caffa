@@ -201,7 +201,7 @@ private:
 
     // Child/Parent Relationships
     void setAsParentField( FieldHandle* parentField );
-    void removeAsParentField( FieldHandle* parentField );
+    void detachFromParentField();
     void disconnectObserverFromAllSignals( SignalObserver* observer );
 
     FieldHandle* m_parentField;
@@ -209,8 +209,9 @@ private:
     // Give access to set/removeAsParentField
     template <class T>
     friend class ChildArrayField;
-    template <class T>
-    friend class ChildField;
+    friend class ChildFieldDirectStorageAccessor;
+    friend class ChildArrayFieldDirectStorageAccessor;
+
     template <class T>
     friend class Field; // For backwards compatibility layer
 

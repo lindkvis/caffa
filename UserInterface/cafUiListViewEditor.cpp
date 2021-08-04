@@ -103,8 +103,9 @@ void UiListViewModel::computeColumnCount()
         m_columnCount = 0;
 
         // Loop over all objects and find the object with largest number of fields
-        for ( auto object : m_objectGroup->objects )
+        for ( size_t i = 0; i < m_objectGroup->objects.size(); ++i )
         {
+            auto object   = m_objectGroup->objects.at( i );
             m_columnCount = std::max( m_columnCount, (int)object->fields().size() );
         }
     }

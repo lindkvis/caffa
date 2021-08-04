@@ -116,7 +116,7 @@ public:
     {
         m_inheritedDemoObjects.push_back( std::move( object ) );
     }
-    std::vector<InheritedDemoObj*> inheritedObjects() const { return m_inheritedDemoObjects.childObjects(); }
+    std::vector<InheritedDemoObj*> inheritedObjects() const { return m_inheritedDemoObjects.value(); }
 
     DemoObject* demoObject() { return m_demoObject; }
 

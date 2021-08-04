@@ -95,7 +95,8 @@ public:
             auto it = std::find( m_parentItem->m_childItems.begin(),
                                  m_parentItem->m_childItems.end(),
                                  const_cast<UiTreeItem*>( this ) );
-            return it != m_parentItem->m_childItems.end() ? static_cast<int>( it - m_parentItem->m_childItems.begin() ) : -1;
+            return it != m_parentItem->m_childItems.end() ? static_cast<int>( it - m_parentItem->m_childItems.begin() )
+                                                          : -1;
         }
 
         return 0;

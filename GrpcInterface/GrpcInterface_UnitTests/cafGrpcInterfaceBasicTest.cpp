@@ -187,8 +187,8 @@ class InheritedDemoObj : public DemoObject
 public:
     InheritedDemoObj()
     {
-        this->addField( &m_texts, "Texts" );
-        this->addField( &m_childArrayField, "DemoObjectects" );
+        initField( m_texts, "Texts" ).withScripting();
+        initField( m_childArrayField, "DemoObjectects" ).withScripting();
     }
 
     caffa::Field<std::string>           m_texts;
@@ -204,8 +204,8 @@ class DemoDocument : public caffa::Document
 public:
     DemoDocument()
     {
-        initField( m_demoObject, "DemoObject" );
-        initField( m_inheritedDemoObjects, "InheritedDemoObjects" );
+        initField( m_demoObject, "DemoObject" ).withScripting();
+        initField( m_inheritedDemoObjects, "InheritedDemoObjects" ).withScripting();
         m_demoObject = std::make_unique<DemoObject>();
 
         this->fileName = "dummyFileName";
@@ -215,7 +215,7 @@ public:
     {
         m_inheritedDemoObjects.push_back( std::move( object ) );
     }
-    std::vector<InheritedDemoObj*> inheritedObjects() const { return m_inheritedDemoObjects.childObjects(); }
+    std::vector<InheritedDemoObj*> inheritedObjects() const { return m_inheritedDemoObjects.value(); }
 
     caffa::ChildField<DemoObject*>            m_demoObject;
     caffa::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
@@ -629,6 +629,95 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
 
     serverVector = serverDocument->m_demoObject->doubleVector();
     ASSERT_EQ( serverVector, clientVector );
+
+    bool ok = client->stopServer();
+    ASSERT_TRUE( ok );
+
+    thread.join();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( BaseTest, ChildObjects )
+{
+    int  portNumber = 50000;
+    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+
+    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
+    ASSERT_TRUE( serverDocument );
+    CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
+
+    auto objectHandle   = client->document( "testDocument" );
+    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    ASSERT_TRUE( clientDocument != nullptr );
+
+    ASSERT_TRUE( clientDocument->m_demoObject.value() != nullptr );
+    clientDocument->m_demoObject.clear();
+    ASSERT_TRUE( clientDocument->m_demoObject.value() == nullptr );
+
+    size_t childCount = 12u;
+    for ( size_t i = 0; i < childCount; ++i )
+    {
+        serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
+    }
+
+    ASSERT_EQ( childCount, clientDocument->m_inheritedDemoObjects.size() );
+    serverDocument->m_inheritedDemoObjects.clear();
+    ASSERT_EQ( 0u, clientDocument->m_inheritedDemoObjects.size() );
+
+    size_t clientChildCount = 4u;
+    for ( size_t i = 0; i < clientChildCount; ++i )
+    {
+        auto inheritedObject     = std::make_unique<InheritedDemoObj>();
+        inheritedObject->m_texts = "whatever test";
+        clientDocument->addInheritedObject( std::move( inheritedObject ) );
+    }
+    ASSERT_EQ( clientChildCount, serverDocument->m_inheritedDemoObjects.size() );
+    ASSERT_EQ( clientChildCount, clientDocument->m_inheritedDemoObjects.size() );
+
+    for ( size_t i = 0; i < clientChildCount; ++i )
+    {
+        ASSERT_EQ( "whatever test", serverDocument->m_inheritedDemoObjects[i]->m_texts() );
+    }
+    clientDocument->m_inheritedDemoObjects.clear();
+    ASSERT_EQ( 0u, serverDocument->m_inheritedDemoObjects.size() );
+    ASSERT_EQ( 0u, clientDocument->m_inheritedDemoObjects.size() );
+
+    for ( size_t i = 0; i < clientChildCount; ++i )
+    {
+        auto inheritedObject     = std::make_unique<InheritedDemoObj>();
+        inheritedObject->m_texts = "whatever test";
+        clientDocument->addInheritedObject( std::move( inheritedObject ) );
+    }
+    ASSERT_EQ( clientChildCount, serverDocument->m_inheritedDemoObjects.size() );
+    ASSERT_EQ( clientChildCount, clientDocument->m_inheritedDemoObjects.size() );
+
+    {
+        auto inheritedObject = std::make_unique<InheritedDemoObj>();
+        inheritedObject->setIntMember( 1113 );
+        clientDocument->m_inheritedDemoObjects.insert( 2u, std::move( inheritedObject ) );
+    }
+    ASSERT_EQ( clientChildCount + 1u, serverDocument->m_inheritedDemoObjects.size() );
+    ASSERT_EQ( clientChildCount + 1u, clientDocument->m_inheritedDemoObjects.size() );
+
+    CAFFA_INFO( "The server now has a new member with an int value of: "
+                << serverDocument->m_inheritedDemoObjects[2]->intMember() );
+    ASSERT_EQ( 1113, serverDocument->m_inheritedDemoObjects[2]->intMember() );
+
+    serverDocument->m_inheritedDemoObjects.clear();
+    ASSERT_EQ( 0u, serverDocument->m_inheritedDemoObjects.size() );
+    ASSERT_EQ( 0u, clientDocument->m_inheritedDemoObjects.size() );
 
     bool ok = client->stopServer();
     ASSERT_TRUE( ok );

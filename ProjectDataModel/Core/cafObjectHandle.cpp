@@ -83,12 +83,9 @@ void ObjectHandle::setAsParentField( FieldHandle* parentField )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectHandle::removeAsParentField( FieldHandle* parentField )
+void ObjectHandle::detachFromParentField()
 {
-    CAFFA_ASSERT( m_parentField == parentField );
-
-    if ( parentField ) disconnectObserverFromAllSignals( parentField->ownerObject() );
-
+    if ( m_parentField ) disconnectObserverFromAllSignals( m_parentField->ownerObject() );
     m_parentField = nullptr;
 }
 

@@ -4,6 +4,8 @@
 #include "cafChildField.h"
 #include "cafDataValueField.h"
 #include "cafDefaultObjectFactory.h"
+#include "cafGrpcChildArrayFieldAccessor.h"
+#include "cafGrpcChildFieldAccessor.h"
 #include "cafGrpcClient.h"
 #include "cafGrpcDataFieldAccessor.h"
 #include "cafGrpcException.h"
@@ -24,7 +26,7 @@ std::unique_ptr<ObjectHandle> GrpcClientObjectFactory::doCreate( const std::stri
     CAFFA_ASSERT( m_grpcClient );
     if ( !m_grpcClient ) throw( Exception( grpc::Status( grpc::ABORTED, "No Client set in Grpc Client factory" ) ) );
 
-    CAFFA_INFO( "Creating object of type " << classNameKeyword );
+    CAFFA_DEBUG( "Creating object of type " << classNameKeyword );
 
     auto objectHandle = caffa::DefaultObjectFactory::instance()->create( classNameKeyword );
 
@@ -132,11 +134,11 @@ void GrpcClientObjectFactory::applyAccessorToField( caffa::ObjectHandle* fieldOw
     }
     else if ( auto childField = dynamic_cast<caffa::ChildFieldHandle*>( fieldHandle ); childField )
     {
-        CAFFA_INFO( "Should assign signals to child field handle" );
+        childField->setFieldDataAccessor( std::make_unique<GrpcChildFieldAccessor>( m_grpcClient, childField ) );
     }
     else if ( auto childField = dynamic_cast<caffa::ChildArrayFieldHandle*>( fieldHandle ); childField )
     {
-        CAFFA_INFO( "Should assign signals to child array field handle" );
+        childField->setFieldDataAccessor( std::make_unique<GrpcChildArrayFieldAccessor>( m_grpcClient, childField ) );
     }
     else
     {

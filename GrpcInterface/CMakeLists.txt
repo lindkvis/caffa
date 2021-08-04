@@ -22,6 +22,8 @@ set(PUBLIC_HEADERS
     cafGrpcCallbacks.inl
     cafGrpcServiceInterface.h
     cafGrpcAppService.h
+    cafGrpcChildFieldAccessor.h
+    cafGrpcChildArrayFieldAccessor.h
     cafGrpcDataFieldAccessor.h
     cafGrpcException.h
     cafGrpcFieldService.h
