@@ -319,7 +319,7 @@ TEST( BaseTest, Document )
     }
 
     auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<caffa::Document*>( objectHandle.get() );
+    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
 
     try

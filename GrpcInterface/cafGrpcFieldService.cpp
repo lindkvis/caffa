@@ -671,15 +671,21 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
     CAFFA_ASSERT( fieldOwner );
     CAFFA_TRACE( "GetValue for field: " << request->method() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
+
+    bool foundMatchingField = false;
     for ( auto field : fieldOwner->fields() )
     {
         bool isObjectField = dynamic_cast<caffa::ChildFieldHandle*>( field ) != nullptr;
+
+        if (field->keyword() == request->method()) foundMatchingField = true;
+
         auto scriptability = field->capability<FieldScriptingCapability>();
         if ( scriptability && request->method() == scriptability->scriptFieldName() )
         {
             auto ioCapability = field->capability<caffa::FieldIoCapability>();
             if ( ioCapability )
             {
+
                 nlohmann::json jsonValue;
                 ioCapability->writeToJson( jsonValue, !isObjectField );
                 reply->set_value( jsonValue.is_null() ? "" : jsonValue.dump() );
@@ -688,6 +694,11 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
                 return grpc::Status::OK;
             }
         }
+    }
+
+    if (foundMatchingField)
+    {
+        return grpc::Status( grpc::FAILED_PRECONDITION, "Field " + request->method() + " found, but it either isn't scriptable or does not have I/O capability" );
     }
     return grpc::Status( grpc::NOT_FOUND, "Field not found" );
 }
@@ -813,8 +824,11 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
 
     CAFFA_DEBUG( "Received Set Request for class " << fieldOwner->classKeyword() );
 
+    bool foundMatchingField = false;
     for ( auto field : fieldOwner->fields() )
     {
+        if (field->keyword() == fieldRequest.method()) foundMatchingField = true;
+
         auto scriptability = field->capability<FieldScriptingCapability>();
         if ( scriptability && fieldRequest.method() == scriptability->scriptFieldName() )
         {
@@ -829,6 +843,12 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
             }
         }
     }
+
+    if (foundMatchingField)
+    {
+        return grpc::Status( grpc::FAILED_PRECONDITION, "Field " + fieldRequest.method() + " found, but it either isn't scriptable or does not have I/O capability" );
+    }
+
     return grpc::Status( grpc::NOT_FOUND, "Field not found" );
 }
 
