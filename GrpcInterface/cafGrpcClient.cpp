@@ -106,7 +106,7 @@ public:
         }
         else
         {
-            CAFFA_ERROR( "Failed to get document" );
+            CAFFA_ERROR( "Failed to get document with server error message: " + status.error_message() );
         }
         return document;
     }
@@ -136,7 +136,7 @@ public:
         }
         else
         {
-            CAFFA_ERROR( "Failed to get object" );
+            CAFFA_ERROR( "Failed to get object with server error message: " + status.error_message() );
         }
 
         return childObject;
