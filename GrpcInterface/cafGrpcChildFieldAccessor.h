@@ -35,10 +35,7 @@ public:
 
     ObjectHandle* value() const override
     {
-        // TODO: We always overwrite the remote object here and it is mainly here to allow for
-        // the same API on the client and server side and avoid the client code having to deal
-        // with the memory. In the future we could time stamp and synchronise.
-        m_remoteObject = m_client->getChildObject( m_field->ownerObject(), m_field->keyword() );
+        getRemoteObjectIfNecessary();
         return m_remoteObject.get();
     }
 
@@ -50,9 +47,20 @@ public:
 
     std::unique_ptr<ObjectHandle> clear()
     {
-        m_remoteObject = m_client->getChildObject( m_field->ownerObject(), m_field->keyword() );
+        getRemoteObjectIfNecessary();
         m_client->clearChildObjects( m_field->ownerObject(), m_field->keyword() );
         return std::move( m_remoteObject );
+    }
+
+private:
+    // TODO: This needs to be more sophisticated. At the moment we get the remote object if we don't already have it
+    // but the object could have changed.
+    void getRemoteObjectIfNecessary() const
+    {
+        if (!m_remoteObject)
+        {
+            m_remoteObject = m_client->getChildObject( m_field->ownerObject(), m_field->keyword() );
+        }
     }
 
 private:
