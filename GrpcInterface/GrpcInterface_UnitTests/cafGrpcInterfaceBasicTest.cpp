@@ -208,7 +208,8 @@ public:
         initField( m_inheritedDemoObjects, "InheritedDemoObjects" ).withScripting();
         m_demoObject = std::make_unique<DemoObject>();
 
-        this->fileName = "dummyFileName";
+        this->setId( "testDocument" );
+        this->setFileName( "dummyFileName" );
     }
 
     void addInheritedObject( std::unique_ptr<InheritedDemoObj> object )
@@ -250,9 +251,21 @@ public:
     //--------------------------------------------------------------------------------------------------
     int patchVersion() const override { return 0; }
 
-    caffa::Document*            document( const std::string& documentId ) override { return &m_demoDocument; }
-    const caffa::Document*      document( const std::string& documentId ) const override { return &m_demoDocument; }
-    std::list<caffa::Document*> documents() override { return { document( "" ) }; }
+    caffa::Document* document( const std::string& documentId ) override
+    {
+        if ( documentId.empty() || documentId == m_demoDocument.id() )
+            return &m_demoDocument;
+        else
+            return nullptr;
+    }
+    const caffa::Document* document( const std::string& documentId ) const override
+    {
+        if ( documentId.empty() || documentId == m_demoDocument.id() )
+            return &m_demoDocument;
+        else
+            return nullptr;
+    }
+    std::list<caffa::Document*>       documents() override { return { document( "" ) }; }
     std::list<const caffa::Document*> documents() const override { return { document( "" ) }; }
 
 private:
@@ -307,7 +320,11 @@ TEST( BaseTest, Document )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
-    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    auto client              = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    auto nonExistentDocument = dynamic_cast<DemoDocument*>( serverApp->document( "wrongName" ) );
+    ASSERT_TRUE( nonExistentDocument == nullptr );
+    auto blankNameDocument = dynamic_cast<DemoDocument*>( serverApp->document( "" ) );
+    ASSERT_TRUE( blankNameDocument );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
@@ -321,6 +338,9 @@ TEST( BaseTest, Document )
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
+
+    auto nonExistentClientDocument = client->document( "wrongName" );
+    ASSERT_TRUE( nonExistentDocument == nullptr );
 
     try
     {
@@ -404,8 +424,8 @@ TEST( BaseTest, Sync )
     ASSERT_EQ( serverApp->document( "testDocument" )->fileName(), clientDocument->fileName() );
     ASSERT_EQ( serverDocument->uuid(), clientDocument->uuid() );
 
-    std::string newFileName  = "ChangedFileName.txt";
-    clientDocument->fileName = newFileName;
+    std::string newFileName = "ChangedFileName.txt";
+    clientDocument->setFileName( newFileName );
     ASSERT_EQ( newFileName, serverDocument->fileName() );
     ASSERT_EQ( newFileName, clientDocument->fileName() );
 

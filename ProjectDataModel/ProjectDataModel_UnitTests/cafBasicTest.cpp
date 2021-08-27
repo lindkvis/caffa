@@ -315,7 +315,7 @@ TEST( BaseTest, ReadWrite )
         doc.objects.push_back( std::move( id2 ) );
 
         // Write file
-        doc.fileName = "TestFile.json";
+        doc.setFileName( "TestFile.json" );
         doc.write();
 
         {
@@ -353,7 +353,7 @@ TEST( BaseTest, ReadWrite )
         MyDocument doc;
 
         // Read file
-        doc.fileName = "TestFile.json";
+        doc.setFileName( "TestFile.json" );
         ASSERT_TRUE( doc.read() );
 
         caffa::ObjectGroup pog;

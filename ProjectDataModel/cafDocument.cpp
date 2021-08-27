@@ -49,7 +49,40 @@ CAFFA_SOURCE_INIT( Document, "Document", "Object" );
 Document::Document()
 {
     assignUiInfo( "Document", "", "Basic Document", "" );
-    initField( fileName, "DocumentFileName" ).withScripting();
+    initField( m_id, "id" ).withScripting();
+    initField( m_fileName, "fileName" ).withScripting();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string Document::id() const
+{
+    return m_id.value();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string Document::fileName() const
+{
+    return m_fileName.value();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Document::setId( const std::string& id )
+{
+    m_id.setValue( id );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Document::setFileName( const std::string& fileName )
+{
+    m_fileName.setValue( fileName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,7 +90,7 @@ Document::Document()
 //--------------------------------------------------------------------------------------------------
 bool Document::read( ObjectIoCapability::IoType ioType /*= ObjectIoCapability::IoType::JSON */ )
 {
-    return ObjectIoCapability::readFile( fileName, ioType );
+    return ObjectIoCapability::readFile( m_fileName, ioType );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,7 +98,7 @@ bool Document::read( ObjectIoCapability::IoType ioType /*= ObjectIoCapability::I
 //--------------------------------------------------------------------------------------------------
 bool Document::write( ObjectIoCapability::IoType ioType /*= ObjectIoCapability::IoType::JSON */ )
 {
-    return ObjectIoCapability::writeFile( fileName, ioType );
+    return ObjectIoCapability::writeFile( m_fileName, ioType );
 }
 
 //--------------------------------------------------------------------------------------------------

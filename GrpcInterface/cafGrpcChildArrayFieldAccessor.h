@@ -43,7 +43,10 @@ public:
     {
         getRemoteObjectsIfNecessary();
         m_client->clearChildObjects( m_field->ownerObject(), m_field->keyword() );
-        return std::move( m_remoteObjects );
+
+        std::vector<std::unique_ptr<ObjectHandle>> removedObjects;
+        removedObjects.swap( m_remoteObjects );
+        return removedObjects;
     }
 
     std::vector<ObjectHandle*> value() const override
@@ -72,7 +75,7 @@ public:
         auto   object  = std::move( pointer );
         size_t oldSize = m_remoteObjects.size();
         m_client->insertChildObject( m_field->ownerObject(), m_field->keyword(), index, object.get() );
-        m_remoteObjects.insert(m_remoteObjects.begin() + index, std::move(pointer));
+        m_remoteObjects.insert( m_remoteObjects.begin() + index, std::move( pointer ) );
         CAFFA_ASSERT( m_remoteObjects.size() == ( oldSize + 1u ) );
     }
 
@@ -100,15 +103,16 @@ public:
     }
 
 private:
-    // TODO: This needs to be more sophisticated. At the moment we get the remote objects if we don't already have them
-    // but the objects could have changed.
+    // TODO: This needs to be more sophisticated. At the moment we get the remote objects no matter what.
     void getRemoteObjectsIfNecessary() const
     {
-        if (m_remoteObjects.empty())
+        auto serverObjects = m_client->getChildObjects( m_field->ownerObject(), m_field->keyword() );
+        if ( m_remoteObjects.size() != serverObjects.size() )
         {
-            m_remoteObjects = m_client->getChildObjects( m_field->ownerObject(), m_field->keyword() );
+            m_remoteObjects.swap( serverObjects );
         }
     }
+
 private:
     Client* m_client;
 
