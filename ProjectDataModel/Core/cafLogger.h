@@ -31,7 +31,8 @@ class Logger
 public:
     enum class Level
     {
-        NONE,
+        OFF,
+        CRITICAL,
         ERROR,
         WARNING,
         INFO,
@@ -40,8 +41,10 @@ public:
     };
 
     static void        log( Level level, const std::string& message, char const* function, char const* file, int line );
+    static Level       applicationLogLevel();
     static void        setApplicationLogLevel( Level applicationLogLevel );
-    static std::string logLevelPrefix( Level level );
+    static std::string logLevelLabel( Level level );
+    static Level       logLevelFromLabel( const std::string& label );
 
 private:
     static Level s_applicationLogLevel;
@@ -56,6 +59,11 @@ private:
                         __FILE__,                                                                          \
                         __LINE__ );
 
+#define CAFFA_CRITICAL( Message_ )                             \
+    {                                                          \
+        CAFFA_LOG( caffa::Logger::Level::CRITICAL, Message_ ); \
+        exit( 1 );                                             \
+    }
 #define CAFFA_ERROR( Message_ ) CAFFA_LOG( caffa::Logger::Level::ERROR, Message_ )
 #define CAFFA_WARNING( Message_ ) CAFFA_LOG( caffa::Logger::Level::WARNING, Message_ )
 #define CAFFA_INFO( Message_ ) CAFFA_LOG( caffa::Logger::Level::INFO, Message_ )

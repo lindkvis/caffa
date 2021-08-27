@@ -34,32 +34,51 @@ void Logger::log( Level level, const std::string& message, char const* function,
         // TODO: should provide platform specific path delimiter
         auto filePath = caffa::StringTools::split( file, "/" );
         auto fileName = !filePath.empty() ? filePath.back() : file;
-        std::cout << logLevelPrefix( level ) << fileName << "::" << function << "()[" << line << "]: " << message
+        std::cout << logLevelLabel( level ) << ": " << fileName << "::" << function << "()[" << line << "]: " << message
                   << std::endl;
     }
 }
 
+Logger::Level Logger::applicationLogLevel()
+{
+    return s_applicationLogLevel;
+}
 void Logger::setApplicationLogLevel( Level applicationLogLevel )
 {
     s_applicationLogLevel = applicationLogLevel;
 }
 
-std::string Logger::logLevelPrefix( Level level )
+std::string Logger::logLevelLabel( Level level )
 {
     switch ( level )
     {
         case Level::ERROR:
-            return "ERROR: ";
+            return "error";
         case Level::WARNING:
-            return "WARNING: ";
+            return "warning";
         case Level::INFO:
-            return "INFO: ";
+            return "info";
         case Level::DEBUG:
-            return "DEBUG: ";
+            return "debug";
         case Level::TRACE:
-            return "TRACE: ";
+            return "trace";
+        case Level::OFF:
+            return "off";
         default:
-            return "";
+            break;
     }
     return "";
+}
+
+Logger::Level Logger::logLevelFromLabel( const std::string& label )
+{
+    for ( int i = (int)Level::OFF; i <= (int)Level::TRACE; ++i )
+    {
+        Level level = (Level)i;
+        if ( logLevelLabel( level ) == label )
+        {
+            return level;
+        }
+    }
+    return Logger::Level::OFF;
 }
