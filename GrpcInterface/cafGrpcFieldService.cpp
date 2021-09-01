@@ -44,6 +44,7 @@
 #include "cafGrpcServerApplication.h"
 #include "cafLogger.h"
 #include "cafObject.h"
+#include "cafRegisterField.h"
 
 #include <grpcpp/grpcpp.h>
 
@@ -677,15 +678,25 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
     {
         bool isObjectField = dynamic_cast<caffa::ChildFieldHandle*>( field ) != nullptr;
 
-        if (field->keyword() == request->method()) foundMatchingField = true;
+        if ( field->keyword() == request->method() ) foundMatchingField = true;
 
         auto scriptability = field->capability<FieldScriptingCapability>();
         if ( scriptability && request->method() == scriptability->scriptFieldName() )
         {
-            auto ioCapability = field->capability<caffa::FieldIoCapability>();
-            if ( ioCapability )
+            auto registerField = dynamic_cast<caffa::RegisterField*>( field );
+            auto ioCapability  = field->capability<caffa::FieldIoCapability>();
+            if ( registerField )
             {
+                uint32_t       addressOffset = request->index();
+                uint32_t       value         = registerField->read( addressOffset );
+                nlohmann::json jsonValue     = value;
+                reply->set_value( jsonValue.dump() );
+                CAFFA_DEBUG( "Sending json value from register: '" << reply->value() << "'" );
 
+                return grpc::Status::OK;
+            }
+            else if ( ioCapability )
+            {
                 nlohmann::json jsonValue;
                 ioCapability->writeToJson( jsonValue, !isObjectField );
                 reply->set_value( jsonValue.is_null() ? "" : jsonValue.dump() );
@@ -696,9 +707,11 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
         }
     }
 
-    if (foundMatchingField)
+    if ( foundMatchingField )
     {
-        return grpc::Status( grpc::FAILED_PRECONDITION, "Field " + request->method() + " found, but it either isn't scriptable or does not have I/O capability" );
+        return grpc::Status( grpc::FAILED_PRECONDITION,
+                             "Field " + request->method() +
+                                 " found, but it either isn't scriptable or does not have I/O capability" );
     }
     return grpc::Status( grpc::NOT_FOUND, "Field not found" );
 }
@@ -827,16 +840,25 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
     bool foundMatchingField = false;
     for ( auto field : fieldOwner->fields() )
     {
-        if (field->keyword() == fieldRequest.method()) foundMatchingField = true;
+        if ( field->keyword() == fieldRequest.method() ) foundMatchingField = true;
 
         auto scriptability = field->capability<FieldScriptingCapability>();
         if ( scriptability && fieldRequest.method() == scriptability->scriptFieldName() )
         {
-            auto ioCapability = field->capability<caffa::FieldIoCapability>();
+            CAFFA_DEBUG( "   With value: '" << request->value() << "'" );
+            auto registerField = dynamic_cast<caffa::RegisterField*>( field );
+            auto ioCapability  = field->capability<caffa::FieldIoCapability>();
+            if ( registerField )
+            {
+                uint32_t addressOffset = fieldRequest.index();
+                auto     jsonValue     = nlohmann::json::parse( request->value() );
+                uint32_t value         = jsonValue.get<uint32_t>();
+                registerField->write( addressOffset, value );
+
+                return grpc::Status::OK;
+            }
             if ( ioCapability )
             {
-                CAFFA_DEBUG( "   With value: '" << request->value() << "'" );
-
                 auto jsonValue = nlohmann::json::parse( request->value() );
                 ioCapability->readFromJson( jsonValue, caffa::DefaultObjectFactory::instance(), true );
                 return grpc::Status::OK;
@@ -844,9 +866,11 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
         }
     }
 
-    if (foundMatchingField)
+    if ( foundMatchingField )
     {
-        return grpc::Status( grpc::FAILED_PRECONDITION, "Field " + fieldRequest.method() + " found, but it either isn't scriptable or does not have I/O capability" );
+        return grpc::Status( grpc::FAILED_PRECONDITION,
+                             "Field " + fieldRequest.method() +
+                                 " found, but it either isn't scriptable or does not have I/O capability" );
     }
 
     return grpc::Status( grpc::NOT_FOUND, "Field not found" );

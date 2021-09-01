@@ -23,9 +23,9 @@ class FieldIoCap;
 class ChildFieldHandle : public FieldHandle
 {
 public:
-    virtual void                          setChildObject( std::unique_ptr<ObjectHandle> object )               = 0;
-    virtual void                          setFieldDataAccessor( std::unique_ptr<ChildFieldAccessor> accessor ) = 0;
-    virtual std::unique_ptr<ObjectHandle> clear()                                                              = 0;
+    virtual void                          setChildObject( std::unique_ptr<ObjectHandle> object )      = 0;
+    virtual void                          setAccessor( std::unique_ptr<ChildFieldAccessor> accessor ) = 0;
+    virtual std::unique_ptr<ObjectHandle> clear()                                                     = 0;
 };
 
 template <typename DataType>
@@ -82,10 +82,7 @@ public:
 
     std::string dataType() const override { return std::string( "object" ); }
 
-    void setFieldDataAccessor( std::unique_ptr<ChildFieldAccessor> accessor )
-    {
-        m_fieldDataAccessor = std::move( accessor );
-    }
+    void setAccessor( std::unique_ptr<ChildFieldAccessor> accessor ) { m_fieldDataAccessor = std::move( accessor ); }
 
 private:
     CAFFA_DISABLE_COPY_AND_ASSIGN( ChildField );

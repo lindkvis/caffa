@@ -34,6 +34,7 @@ set(PUBLIC_HEADERS
     cafPortableDataType.h
     cafFieldProxyAccessor.h
     cafChildArrayFieldHandle.h
+    cafRegisterField.h
     cafValueField.h
     cafValueFieldSpecializations.h
     cafSignal.h

@@ -76,7 +76,7 @@ public:
 
     std::string dataType() const override { return std::string( "object[]" ); }
 
-    void setFieldDataAccessor( std::unique_ptr<ChildArrayFieldAccessor> accessor )
+    void setAccessor( std::unique_ptr<ChildArrayFieldAccessor> accessor )
     {
         m_fieldDataAccessor = std::move( accessor );
     }

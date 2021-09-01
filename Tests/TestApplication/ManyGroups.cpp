@@ -32,7 +32,7 @@ ManyGroups::ManyGroups()
     auto proxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
     proxyAccessor->registerSetMethod(this, &ManyGroups::setDoubleMember);
     proxyAccessor->registerGetMethod(this, &ManyGroups::doubleMember);
-    m_proxyDoubleField.setFieldDataAccessor(std::move(proxyAccessor));
+    m_proxyDoubleField.setAccessor(std::move(proxyAccessor));
 
     m_doubleField      = 0.0;
     m_proxyDoubleField = 0.0;
@@ -45,12 +45,14 @@ ManyGroups::ManyGroups()
 
     m_multiSelectList.capability<caffa::FieldIoCapability>()->setIOReadable(false);
     m_multiSelectList.capability<caffa::FieldIoCapability>()->setIOWritable(false);
-    m_multiSelectList.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(caffa::UiTreeSelectionEditor::uiEditorTypeName());
+    m_multiSelectList.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(
+        caffa::UiTreeSelectionEditor::uiEditorTypeName());
 
     m_multiSelectList = {"First", "Second", "Third"};
 
     initField(m_stringWithMultipleOptions, "m_stringWithMultipleOptions").withUi("Text with many items", "", "", "");
-    m_stringWithMultipleOptions.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(caffa::UiListEditor::uiEditorTypeName());
+    m_stringWithMultipleOptions.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(
+        caffa::UiListEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,7 +81,7 @@ void ManyGroups::onFieldChangedByCapability(const caffa::FieldHandle*     change
 ///
 //--------------------------------------------------------------------------------------------------
 std::deque<caffa::OptionItemInfo> ManyGroups::calculateValueOptions(const caffa::FieldHandle* fieldNeedingOptions,
-                                                                  bool*                   useOptionsOnly)
+                                                                    bool*                     useOptionsOnly)
 {
     std::deque<caffa::OptionItemInfo> options;
 
@@ -130,7 +132,7 @@ std::deque<caffa::OptionItemInfo> ManyGroups::calculateValueOptions(const caffa:
             caffa::OptionItemInfo::createHeader(text, false, std::make_shared<caffa::IconProvider>(":/images/win/textbold.png")));
 
         {
-            text                         = "Second_a";
+            text                           = "Second_a";
             caffa::OptionItemInfo itemInfo = caffa::OptionItemInfo(text, text, true);
             itemInfo.setLevel(1);
             options.push_back(itemInfo);
@@ -147,7 +149,7 @@ std::deque<caffa::OptionItemInfo> ManyGroups::calculateValueOptions(const caffa:
         int additionalSubItems = 2;
         for (auto i = 0; i < additionalSubItems; i++)
         {
-            text                         = "Second_b_" + std::to_string(i);
+            text                           = "Second_b_" + std::to_string(i);
             caffa::OptionItemInfo itemInfo = caffa::OptionItemInfo(text, text);
             itemInfo.setLevel(1);
             options.push_back(itemInfo);
@@ -160,7 +162,7 @@ std::deque<caffa::OptionItemInfo> ManyGroups::calculateValueOptions(const caffa:
         }
         for (auto i = 0; i < s_additionalSubItems; i++)
         {
-            text                         = "Second_b_" + std::to_string(i);
+            text                           = "Second_b_" + std::to_string(i);
             caffa::OptionItemInfo itemInfo = caffa::OptionItemInfo(text, text);
             itemInfo.setLevel(1);
             options.push_back(itemInfo);

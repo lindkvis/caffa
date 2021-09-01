@@ -346,7 +346,10 @@ public:
         return methods;
     }
 
-    void setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& jsonValue )
+    void setJson( const caffa::ObjectHandle* objectHandle,
+                  const std::string&         fieldName,
+                  const nlohmann::json&      jsonValue,
+                  uint32_t                   addressOffset )
     {
         grpc::ClientContext context;
         auto                self = std::make_unique<RpcObject>();
@@ -355,6 +358,7 @@ public:
         auto field = std::make_unique<FieldRequest>();
         field->set_method( fieldName );
         field->set_allocated_self( self.release() );
+        field->set_index( addressOffset );
 
         SetterRequest setterRequest;
         setterRequest.set_allocated_field( field.release() );
@@ -369,7 +373,7 @@ public:
         }
     }
 
-    nlohmann::json getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
+    nlohmann::json getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, uint32_t addressOffset ) const
     {
         CAFFA_TRACE( "Get JSON value for field " << fieldName );
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
@@ -379,12 +383,15 @@ public:
         FieldRequest field;
         field.set_method( fieldName );
         field.set_allocated_self( self.release() );
+        field.set_index( addressOffset );
 
         GenericScalar reply;
         grpc::Status  status = m_fieldStub->GetValue( &context, field, &reply );
         if ( !status.ok() )
         {
-            throw Exception( status );
+            Exception e( status );
+            CAFFA_ERROR( e.what() );
+            throw e;
         }
 
         nlohmann::json jsonValue;
@@ -827,18 +834,22 @@ std::list<std::unique_ptr<caffa::ObjectHandle>> Client::objectMethods( caffa::Ob
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Client::setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value )
+void Client::setJson( const caffa::ObjectHandle* objectHandle,
+                      const std::string&         fieldName,
+                      const nlohmann::json&      value,
+                      uint32_t                   addressOffset )
 {
-    m_clientImpl->setJson( objectHandle, fieldName, value );
+    m_clientImpl->setJson( objectHandle, fieldName, value, addressOffset );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-nlohmann::json Client::getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
+nlohmann::json
+    Client::getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, uint32_t addressOffset ) const
 {
     CAFFA_ASSERT( m_clientImpl && "Client not properly initialized" );
-    return m_clientImpl->getJson( objectHandle, fieldName );
+    return m_clientImpl->getJson( objectHandle, fieldName, addressOffset );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -847,7 +858,8 @@ nlohmann::json Client::getJson( const caffa::ObjectHandle* objectHandle, const s
 template <>
 void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
                               const std::string&         fieldName,
-                              const std::vector<int>&    value )
+                              const std::vector<int>&    value,
+                              uint32_t                   addressOffset )
 {
     m_clientImpl->set( objectHandle, fieldName, value );
 }
@@ -858,7 +870,8 @@ void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
 template <>
 void caffa::rpc::Client::set( const caffa::ObjectHandle*   objectHandle,
                               const std::string&           fieldName,
-                              const std::vector<uint64_t>& value )
+                              const std::vector<uint64_t>& value,
+                              uint32_t                     addressOffset )
 {
     m_clientImpl->set( objectHandle, fieldName, value );
 }
@@ -869,7 +882,8 @@ void caffa::rpc::Client::set( const caffa::ObjectHandle*   objectHandle,
 template <>
 void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
                               const std::string&         fieldName,
-                              const std::vector<double>& value )
+                              const std::vector<double>& value,
+                              uint32_t                   addressOffset )
 {
     m_clientImpl->set( objectHandle, fieldName, value );
 }
@@ -880,7 +894,8 @@ void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
 template <>
 void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
                               const std::string&         fieldName,
-                              const std::vector<float>&  value )
+                              const std::vector<float>&  value,
+                              uint32_t                   addressOffset )
 {
     m_clientImpl->set( objectHandle, fieldName, value );
 }
@@ -891,7 +906,8 @@ void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
 template <>
 void caffa::rpc::Client::set( const caffa::ObjectHandle*      objectHandle,
                               const std::string&              fieldName,
-                              const std::vector<std::string>& value )
+                              const std::vector<std::string>& value,
+                              uint32_t                        addressOffset )
 {
     m_clientImpl->set( objectHandle, fieldName, value );
 }
@@ -900,7 +916,9 @@ void caffa::rpc::Client::set( const caffa::ObjectHandle*      objectHandle,
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-std::vector<int> Client::get<std::vector<int>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
+std::vector<int> Client::get<std::vector<int>>( const caffa::ObjectHandle* objectHandle,
+                                                const std::string&         fieldName,
+                                                uint32_t                   addressOffset ) const
 {
     return m_clientImpl->getInts( objectHandle, fieldName );
 }
@@ -909,8 +927,9 @@ std::vector<int> Client::get<std::vector<int>>( const caffa::ObjectHandle* objec
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-std::vector<uint64_t>
-    Client::get<std::vector<uint64_t>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
+std::vector<uint64_t> Client::get<std::vector<uint64_t>>( const caffa::ObjectHandle* objectHandle,
+                                                          const std::string&         fieldName,
+                                                          uint32_t                   addressOffset ) const
 {
     return m_clientImpl->getUInt64s( objectHandle, fieldName );
 }
@@ -919,8 +938,9 @@ std::vector<uint64_t>
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-std::vector<double>
-    Client::get<std::vector<double>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
+std::vector<double> Client::get<std::vector<double>>( const caffa::ObjectHandle* objectHandle,
+                                                      const std::string&         fieldName,
+                                                      uint32_t                   addressOffset ) const
 {
     return m_clientImpl->getDoubles( objectHandle, fieldName );
 }
@@ -929,8 +949,9 @@ std::vector<double>
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-std::vector<float>
-    Client::get<std::vector<float>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
+std::vector<float> Client::get<std::vector<float>>( const caffa::ObjectHandle* objectHandle,
+                                                    const std::string&         fieldName,
+                                                    uint32_t                   addressOffset ) const
 {
     return m_clientImpl->getFloats( objectHandle, fieldName );
 }
@@ -939,8 +960,9 @@ std::vector<float>
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-std::vector<std::string>
-    Client::get<std::vector<std::string>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
+std::vector<std::string> Client::get<std::vector<std::string>>( const caffa::ObjectHandle* objectHandle,
+                                                                const std::string&         fieldName,
+                                                                uint32_t                   addressOffset ) const
 {
     return m_clientImpl->getStrings( objectHandle, fieldName );
 }
