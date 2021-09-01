@@ -16,6 +16,7 @@
 #include "cafGrpcServerApplication.h"
 #include "cafLogger.h"
 #include "cafObjectHandle.h"
+#include "cafRegisterField.h"
 #include "cafValueField.h"
 
 #include <chrono>
@@ -23,6 +24,20 @@
 #include <string>
 #include <thread>
 #include <vector>
+
+class SimpleRegisterFieldAccessor : public caffa::RegisterFieldAccessorInterface
+{
+public:
+    uint32_t read( uint32_t addressOffset ) const override
+    {
+        auto it = m_dataStorage.find( addressOffset );
+        return it != m_dataStorage.end() ? it->second : 0u;
+    }
+    void write( uint32_t addressOffset, uint32_t value ) override { m_dataStorage[addressOffset] = value; }
+
+private:
+    std::map<uint32_t, uint32_t> m_dataStorage;
+};
 
 class DemoObject : public caffa::Object
 {
@@ -38,17 +53,17 @@ public:
         auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
         doubleProxyAccessor->registerSetMethod( this, &DemoObject::setDoubleMember );
         doubleProxyAccessor->registerGetMethod( this, &DemoObject::doubleMember );
-        m_proxyDoubleField.setFieldDataAccessor( std::move( doubleProxyAccessor ) );
+        m_proxyDoubleField.setAccessor( std::move( doubleProxyAccessor ) );
 
         auto intProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<int>>();
         intProxyAccessor->registerSetMethod( this, &DemoObject::setIntMember );
         intProxyAccessor->registerGetMethod( this, &DemoObject::intMember );
-        m_proxyIntField.setFieldDataAccessor( std::move( intProxyAccessor ) );
+        m_proxyIntField.setAccessor( std::move( intProxyAccessor ) );
 
         auto stringProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::string>>();
         stringProxyAccessor->registerSetMethod( this, &DemoObject::setStringMember );
         stringProxyAccessor->registerGetMethod( this, &DemoObject::stringMember );
-        m_proxyStringField.setFieldDataAccessor( std::move( stringProxyAccessor ) );
+        m_proxyStringField.setAccessor( std::move( stringProxyAccessor ) );
 
         initField( m_doubleVector, "doubleVector" ).withScripting();
         initField( m_floatVector, "floatVector" ).withScripting();
@@ -58,16 +73,19 @@ public:
         auto intVectorProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::vector<int>>>();
         intVectorProxyAccessor->registerSetMethod( this, &DemoObject::setIntVector );
         intVectorProxyAccessor->registerGetMethod( this, &DemoObject::getIntVector );
-        m_intVectorProxy.setFieldDataAccessor( std::move( intVectorProxyAccessor ) );
+        m_intVectorProxy.setAccessor( std::move( intVectorProxyAccessor ) );
 
         auto stringVectorProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::vector<std::string>>>();
         stringVectorProxyAccessor->registerSetMethod( this, &DemoObject::setStringVector );
         stringVectorProxyAccessor->registerGetMethod( this, &DemoObject::getStringVector );
-        m_stringVectorProxy.setFieldDataAccessor( std::move( stringVectorProxyAccessor ) );
+        m_stringVectorProxy.setAccessor( std::move( stringVectorProxyAccessor ) );
 
         initField( m_memberDoubleField, "memberDoubleField" ).withScripting();
         initField( m_memberIntField, "memberIntField" ).withScripting();
         initField( m_memberStringField, "memberStringField" ).withScripting();
+
+        auto registerAccessor = std::make_unique<SimpleRegisterFieldAccessor>();
+        initRegisterField( m_registerField, "registerField" ).withScripting().withAccessor( std::move( registerAccessor ) );
 
         // Default values
         m_doubleMember = 2.1;
@@ -96,6 +114,8 @@ public:
     caffa::Field<std::vector<double>> m_doubleVector;
     caffa::Field<std::vector<float>>  m_floatVector;
 
+    caffa::RegisterField m_registerField;
+
     double doubleMember() const { return m_doubleMember; }
     void   setDoubleMember( const double& d ) { m_doubleMember = d; }
 
@@ -116,6 +136,9 @@ public:
 
     std::vector<std::string> getStringVector() const { return m_stringVector; }
     void                     setStringVector( const std::vector<std::string>& values ) { m_stringVector = values; }
+
+    uint32_t registerRead( uint32_t addressOffset ) const { return m_registerField.read( addressOffset ); }
+    void     registerWrite( uint32_t addressOffset, uint32_t value ) { m_registerField.write( addressOffset, value ); }
 
 private:
     double      m_doubleMember;
@@ -320,7 +343,8 @@ TEST( BaseTest, Document )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
-    auto client              = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    CAFFA_INFO( "Expect failure to get document with the wrong document ID. Next line should be an error." );
     auto nonExistentDocument = dynamic_cast<DemoDocument*>( serverApp->document( "wrongName" ) );
     ASSERT_TRUE( nonExistentDocument == nullptr );
     auto blankNameDocument = dynamic_cast<DemoDocument*>( serverApp->document( "" ) );
@@ -812,4 +836,41 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
     CAFFA_DEBUG( "Stopping server and waiting for server to join" );
     thread.join();
     CAFFA_DEBUG( "Server joined" );
+}
+
+TEST( BaseTest, Register )
+{
+    int  portNumber = 50000;
+    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
+    ASSERT_TRUE( serverDocument );
+    CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
+
+    auto objectHandle   = client->document( "testDocument" );
+    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    ASSERT_TRUE( clientDocument != nullptr );
+
+    auto serverDemoObject = serverDocument->m_demoObject.value();
+    auto clientDemoObject = clientDocument->m_demoObject.value();
+
+    EXPECT_EQ( 0u, serverDemoObject->registerRead( 12u ) );
+    EXPECT_EQ( 0u, clientDemoObject->registerRead( 12u ) );
+    serverDemoObject->registerWrite( 12u, 42u );
+    EXPECT_EQ( 42u, serverDemoObject->registerRead( 12u ) );
+    EXPECT_EQ( 42u, clientDemoObject->registerRead( 12u ) );
+
+    bool ok = client->stopServer();
+    ASSERT_TRUE( ok );
+
+    thread.join();
 }

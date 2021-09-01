@@ -9,6 +9,8 @@
 #include "cafGrpcClient.h"
 #include "cafGrpcDataFieldAccessor.h"
 #include "cafGrpcException.h"
+#include "cafGrpcRegisterFieldAccessor.h"
+#include "cafRegisterField.h"
 
 #include <memory>
 
@@ -79,67 +81,67 @@ void GrpcClientObjectFactory::applyAccessorToField( caffa::ObjectHandle* fieldOw
     if ( auto dataField = dynamic_cast<caffa::Field<double>*>( fieldHandle ); dataField )
     {
         auto accessor = std::make_unique<GrpcDataFieldAccessor<double>>( m_grpcClient, fieldOwner, fieldHandle->keyword() );
-        dataField->setFieldDataAccessor( std::move( accessor ) );
+        dataField->setAccessor( std::move( accessor ) );
     }
     else if ( auto dataField = dynamic_cast<caffa::Field<int>*>( fieldHandle ); dataField )
     {
         auto accessor = std::make_unique<GrpcDataFieldAccessor<int>>( m_grpcClient, fieldOwner, fieldHandle->keyword() );
-        dataField->setFieldDataAccessor( std::move( accessor ) );
+        dataField->setAccessor( std::move( accessor ) );
     }
     else if ( auto dataField = dynamic_cast<caffa::Field<uint32_t>*>( fieldHandle ); dataField )
     {
         auto accessor =
             std::make_unique<GrpcDataFieldAccessor<uint32_t>>( m_grpcClient, fieldOwner, fieldHandle->keyword() );
-        dataField->setFieldDataAccessor( std::move( accessor ) );
+        dataField->setAccessor( std::move( accessor ) );
     }
     else if ( auto dataField = dynamic_cast<caffa::Field<bool>*>( fieldHandle ); dataField )
     {
         auto accessor = std::make_unique<GrpcDataFieldAccessor<bool>>( m_grpcClient, fieldOwner, fieldHandle->keyword() );
-        dataField->setFieldDataAccessor( std::move( accessor ) );
+        dataField->setAccessor( std::move( accessor ) );
     }
     else if ( auto dataField = dynamic_cast<caffa::Field<std::string>*>( fieldHandle ); dataField )
     {
         auto accessor =
             std::make_unique<GrpcDataFieldAccessor<std::string>>( m_grpcClient, fieldOwner, fieldHandle->keyword() );
-        dataField->setFieldDataAccessor( std::move( accessor ) );
+        dataField->setAccessor( std::move( accessor ) );
     }
     else if ( auto dataField = dynamic_cast<caffa::Field<uint64_t>*>( fieldHandle ); dataField )
     {
         auto accessor =
             std::make_unique<GrpcDataFieldAccessor<uint64_t>>( m_grpcClient, fieldOwner, fieldHandle->keyword() );
-        dataField->setFieldDataAccessor( std::move( accessor ) );
+        dataField->setAccessor( std::move( accessor ) );
     }
     else if ( auto dataField = dynamic_cast<caffa::Field<std::string>*>( fieldHandle ); dataField )
     {
         auto accessor =
             std::make_unique<GrpcDataFieldAccessor<std::string>>( m_grpcClient, fieldOwner, fieldHandle->keyword() );
-        dataField->setFieldDataAccessor( std::move( accessor ) );
+        dataField->setAccessor( std::move( accessor ) );
     }
     else if ( auto dataField = dynamic_cast<caffa::Field<std::vector<double>>*>( fieldHandle ); dataField )
     {
         auto accessor = std::make_unique<GrpcDataFieldAccessor<std::vector<double>>>( m_grpcClient,
                                                                                       fieldOwner,
                                                                                       fieldHandle->keyword() );
-        dataField->setFieldDataAccessor( std::move( accessor ) );
+        dataField->setAccessor( std::move( accessor ) );
     }
     else if ( auto dataField = dynamic_cast<caffa::Field<std::vector<float>>*>( fieldHandle ); dataField )
     {
         auto accessor =
             std::make_unique<GrpcDataFieldAccessor<std::vector<float>>>( m_grpcClient, fieldOwner, fieldHandle->keyword() );
-        dataField->setFieldDataAccessor( std::move( accessor ) );
+        dataField->setAccessor( std::move( accessor ) );
     }
     else if ( auto dataField = dynamic_cast<caffa::Field<std::vector<int>>*>( fieldHandle ); dataField )
     {
         auto accessor =
             std::make_unique<GrpcDataFieldAccessor<std::vector<int>>>( m_grpcClient, fieldOwner, fieldHandle->keyword() );
-        dataField->setFieldDataAccessor( std::move( accessor ) );
+        dataField->setAccessor( std::move( accessor ) );
     }
     else if ( auto dataField = dynamic_cast<caffa::Field<std::vector<uint64_t>>*>( fieldHandle ); dataField )
     {
         auto accessor = std::make_unique<GrpcDataFieldAccessor<std::vector<uint64_t>>>( m_grpcClient,
                                                                                         fieldOwner,
                                                                                         fieldHandle->keyword() );
-        dataField->setFieldDataAccessor( std::move( accessor ) );
+        dataField->setAccessor( std::move( accessor ) );
     }
 
     else if ( auto dataField = dynamic_cast<caffa::Field<std::vector<std::string>>*>( fieldHandle ); dataField )
@@ -147,15 +149,20 @@ void GrpcClientObjectFactory::applyAccessorToField( caffa::ObjectHandle* fieldOw
         auto accessor = std::make_unique<GrpcDataFieldAccessor<std::vector<std::string>>>( m_grpcClient,
                                                                                            fieldOwner,
                                                                                            fieldHandle->keyword() );
-        dataField->setFieldDataAccessor( std::move( accessor ) );
+        dataField->setAccessor( std::move( accessor ) );
     }
     else if ( auto childField = dynamic_cast<caffa::ChildFieldHandle*>( fieldHandle ); childField )
     {
-        childField->setFieldDataAccessor( std::make_unique<GrpcChildFieldAccessor>( m_grpcClient, childField ) );
+        childField->setAccessor( std::make_unique<GrpcChildFieldAccessor>( m_grpcClient, childField ) );
     }
     else if ( auto childField = dynamic_cast<caffa::ChildArrayFieldHandle*>( fieldHandle ); childField )
     {
-        childField->setFieldDataAccessor( std::make_unique<GrpcChildArrayFieldAccessor>( m_grpcClient, childField ) );
+        childField->setAccessor( std::make_unique<GrpcChildArrayFieldAccessor>( m_grpcClient, childField ) );
+    }
+    else if ( auto registerField = dynamic_cast<caffa::RegisterField*>( fieldHandle ); registerField )
+    {
+        registerField->setAccessor(
+            std::make_unique<GrpcRegisterFieldAccessor>( m_grpcClient, fieldOwner, fieldHandle->keyword() ) );
     }
     else
     {

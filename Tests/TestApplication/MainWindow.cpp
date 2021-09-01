@@ -605,7 +605,7 @@ public:
 
         enumProxyAccessor->registerSetMethod(this, &SmallDemoObjectA::setEnumMember);
         enumProxyAccessor->registerGetMethod(this, &SmallDemoObjectA::enumMember);
-        m_proxyEnumField.setFieldDataAccessor(std::move(enumProxyAccessor));
+        m_proxyEnumField.setAccessor(std::move(enumProxyAccessor));
         m_proxyEnumMember = T2;
 
         m_testEnumField.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(caffa::UiListEditor::uiEditorTypeName());

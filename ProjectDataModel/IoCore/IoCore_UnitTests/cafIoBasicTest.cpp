@@ -34,13 +34,13 @@ public:
         auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
         doubleProxyAccessor->registerSetMethod( this, &DemoObject::setDoubleMember );
         doubleProxyAccessor->registerGetMethod( this, &DemoObject::doubleMember );
-        m_proxyDoubleField.setFieldDataAccessor( std::move( doubleProxyAccessor ) );
+        m_proxyDoubleField.setAccessor( std::move( doubleProxyAccessor ) );
 
         CAFFA_IO_InitField( &m_proxyEnumField, "AppEnum" );
         auto proxyEnumAccessor = std::make_unique<caffa::FieldProxyAccessor<caffa::AppEnum<TestEnumType>>>();
         proxyEnumAccessor->registerSetMethod( this, &DemoObject::setEnumMember );
         proxyEnumAccessor->registerGetMethod( this, &DemoObject::enumMember );
-        m_proxyEnumField.setFieldDataAccessor( std::move( proxyEnumAccessor ) );
+        m_proxyEnumField.setAccessor( std::move( proxyEnumAccessor ) );
 
         m_enumMember = T1;
     }
@@ -162,7 +162,7 @@ public:
         auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
         doubleProxyAccessor->registerSetMethod( this, &SimpleObj::setDoubleMember );
         doubleProxyAccessor->registerGetMethod( this, &SimpleObj::doubleMember );
-        m_proxyDouble.setFieldDataAccessor( std::move( doubleProxyAccessor ) );
+        m_proxyDouble.setAccessor( std::move( doubleProxyAccessor ) );
     }
 
     caffa::DataValueField<double> m_position;

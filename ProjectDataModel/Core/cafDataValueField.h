@@ -139,7 +139,7 @@ public:
     bool operator!=( const DataType& fieldValue ) const { return m_fieldDataAccessor->value() != fieldValue; }
 
     // Replace accessor
-    void setFieldDataAccessor( std::unique_ptr<DataAccessor> accessor ) { m_fieldDataAccessor = std::move( accessor ); }
+    void setAccessor( std::unique_ptr<DataAccessor> accessor ) { m_fieldDataAccessor = std::move( accessor ); }
 
 public:
     std::optional<DataType> defaultValue() const { return m_fieldDataAccessor->defaultValue(); }

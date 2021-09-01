@@ -82,7 +82,7 @@ public:
         auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
         doubleProxyAccessor->registerSetMethod( this, &DemoObjectA::setDoubleMember );
         doubleProxyAccessor->registerGetMethod( this, &DemoObjectA::doubleMember );
-        m_doubleField.setFieldDataAccessor( std::move( doubleProxyAccessor ) );
+        m_doubleField.setAccessor( std::move( doubleProxyAccessor ) );
     }
 
     ~DemoObjectA() {}
