@@ -64,6 +64,11 @@ struct AppInfo
     {
         return ( appType & static_cast<unsigned int>( typeToCheck ) ) != 0u;
     }
+
+    std::string version_string() const
+    {
+        return std::to_string( majorVersion ) + "." + std::to_string( minorVersion ) + "." + std::to_string( patchVersion );
+    }
 };
 
 class Application
