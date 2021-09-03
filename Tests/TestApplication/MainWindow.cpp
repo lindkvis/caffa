@@ -1344,7 +1344,7 @@ void MainWindow::slotLoadProject()
         releaseTestData();
 
         m_testRoot           = std::make_unique<DemoObjectGroup>();
-        m_testRoot->fileName = fileName;
+        m_testRoot->setFileName(fileName);
         m_testRoot->read();
 
         setRoot(m_testRoot.get());
@@ -1361,7 +1361,7 @@ void MainWindow::slotSaveProject()
             .toStdString();
     if (!fileName.empty())
     {
-        m_testRoot->fileName = fileName;
+        m_testRoot->setFileName(fileName);
         m_testRoot->write();
     }
 }

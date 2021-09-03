@@ -82,7 +82,7 @@ DemoDocument::DemoDocument()
     initField( m_inheritedDemoObjects, "InheritedDemoObjects" ).withScripting();
     m_demoObject = std::make_unique<DemoObject>();
 
-    this->fileName = "dummyFileName";
+    this->setFileName("dummyFileName");
 }
 
 CAFFA_SOURCE_INIT( DemoDocument, "DemoDocument", "Document" );
