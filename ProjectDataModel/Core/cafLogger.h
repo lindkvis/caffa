@@ -20,6 +20,8 @@
 #pragma once
 
 #include <iostream>
+#include <map>
+#include <memory>
 #include <mutex>
 #include <sstream>
 #include <string>
@@ -45,9 +47,12 @@ public:
     static void        setApplicationLogLevel( Level applicationLogLevel );
     static std::string logLevelLabel( Level level );
     static Level       logLevelFromLabel( const std::string& label );
+    static void        setLogFile( const std::string& logFile );
+    static std::map<Level, std::string> logLevels();
 
 private:
-    static Level s_applicationLogLevel;
+    static Level                         s_applicationLogLevel;
+    static std::unique_ptr<std::ostream> s_stream;
 };
 
 } // namespace caffa

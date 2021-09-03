@@ -38,18 +38,69 @@
 
 #include "cafLogger.h"
 
+#include <boost/lexical_cast.hpp>
+#include <boost/program_options.hpp>
+
 #include <iostream>
 #include <stdio.h>
 #include <string>
+
+namespace po = boost::program_options;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-    caffa::Logger::setApplicationLogLevel( caffa::Logger::Level::TRACE );
-    testing::InitGoogleTest( &argc, argv );
-    int result = RUN_ALL_TESTS();
+    auto logLevel = caffa::Logger::Level::WARNING;
+
+    auto        logLevels = caffa::Logger::logLevels();
+    std::string logLevelString;
+    for ( auto [enumValue, name] : logLevels )
+    {
+        if ( !logLevelString.empty() ) logLevelString += ", ";
+        logLevelString += name;
+    }
+    std::string verbosityHelpString = "Set verbosity level (" + logLevelString + ")";
+
+    int result = EXIT_FAILURE;
+
+    try
+    {
+        po::options_description flags( "Flags" );
+        flags.add_options()( "help,h", "Show help message" );
+        flags.add_options()( "verbosity,V", po::value<std::string>()->value_name( "level" ), verbosityHelpString.c_str() );
+        flags.add_options()( "logfile,l", po::value<std::string>()->value_name( "filename" ), "Log to provided file" );
+
+        po::variables_map vm;
+        po::store( po::parse_command_line( argc, argv, flags ), vm );
+        po::notify( vm );
+
+        if ( vm.count( "help" ) )
+        {
+            std::cout << flags << std::endl;
+            return 1;
+        }
+
+        if ( vm.count( "logfile" ) )
+        {
+            caffa::Logger::setLogFile( vm["logfile"].as<std::string>() );
+        }
+
+        if ( vm.count( "verbosity" ) )
+        {
+            logLevel = caffa::Logger::logLevelFromLabel( vm["verbosity"].as<std::string>() );
+        }
+        caffa::Logger::setApplicationLogLevel( logLevel );
+
+        testing::InitGoogleTest( &argc, argv );
+        result = RUN_ALL_TESTS();
+    }
+    catch ( const std::exception& e )
+    {
+        std::cerr << "ERROR: " << e.what() << std::endl;
+        return 2;
+    }
 
     return result;
 }
