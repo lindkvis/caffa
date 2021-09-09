@@ -20,6 +20,7 @@
 #pragma once
 
 #include "cafFieldHandle.h"
+#include "cafLogger.h"
 #include "cafPortableDataType.h"
 
 namespace caffa
@@ -40,6 +41,31 @@ public:
     // Basic access
     uint32_t read( uint32_t addressOffset ) const { return m_fieldDataAccessor->read( addressOffset ); }
     void     write( uint32_t addressOffset, uint32_t value ) { m_fieldDataAccessor->write( addressOffset, value ); }
+
+    template <typename MaskEnum>
+    uint32_t readMaskedValue( uint32_t addressOffset,
+                              uint32_t ( *unmaskingMethod )( MaskEnum, uint32_t ),
+                              MaskEnum maskEnumValue ) const
+    {
+        uint32_t maskedValue = this->read( addressOffset );
+        return unmaskingMethod( maskEnumValue, maskedValue );
+    }
+
+    template <typename MaskEnum>
+    void writeMaskedValue( uint32_t addressOffset,
+                           uint32_t ( *maskingMethod )( MaskEnum, uint32_t ),
+                           MaskEnum maskEnumValue,
+                           uint32_t value )
+    {
+        uint32_t maskedNewValue = maskingMethod( maskEnumValue, value );
+
+        uint32_t existingValue = this->read( addressOffset );
+        uint32_t allMask       = maskingMethod( maskEnumValue, (uint32_t)-1 );
+
+        uint32_t writeValue = ( existingValue & ~allMask ) | maskedNewValue;
+
+        this->write( addressOffset, writeValue );
+    }
 
     // Replace accessor
     void setAccessor( std::unique_ptr<RegisterFieldAccessorInterface> accessor )
