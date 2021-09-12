@@ -78,11 +78,11 @@ public:
     void                          childObjects( std::vector<ObjectHandle*>* objects ) const override;
     std::unique_ptr<ObjectHandle> clear() override;
     std::unique_ptr<ObjectHandle> removeChildObject( ObjectHandle* object ) override;
-    void                          setChildObject( std::unique_ptr<ObjectHandle> object );
+    void                          setChildObject( std::unique_ptr<ObjectHandle> object ) override;
 
     std::string dataType() const override { return std::string( "object" ); }
 
-    void setAccessor( std::unique_ptr<ChildFieldAccessor> accessor ) { m_fieldDataAccessor = std::move( accessor ); }
+    void setAccessor( std::unique_ptr<ChildFieldAccessor> accessor ) override { m_fieldDataAccessor = std::move( accessor ); }
 
 private:
     CAFFA_DISABLE_COPY_AND_ASSIGN( ChildField );

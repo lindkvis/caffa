@@ -282,12 +282,12 @@ public:
 
     bool finished()
     {
-        std::unique_lock<std::mutex>( m_mutex );
+        std::unique_lock<std::mutex> lock( m_mutex );
         return m_finished;
     }
     void setFinished()
     {
-        std::unique_lock<std::mutex>( m_mutex );
+        std::unique_lock<std::mutex> lock( m_mutex );
         m_finished = true;
     }
 
