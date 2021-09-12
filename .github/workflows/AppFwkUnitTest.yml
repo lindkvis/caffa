@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Install gRPC
-        run: sudo apt-get install libgrpc++-dev libprotoc-dev protobuf-compiler-grpc
+        run: sudo apt-get install libgrpc++-dev libprotoc-dev protobuf-compiler-grpc libboost-all-dev
       - name: Checkout
         uses: actions/checkout@v2
         with:
