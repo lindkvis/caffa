@@ -66,7 +66,6 @@ else()
   pkg_check_modules(
     GRPC
     REQUIRED
-    Openssl
     grpc++>=1.16
     grpc
     gpr
