@@ -92,3 +92,6 @@ Ankh.NoLoad
 gradle
 gradlew
 gradlew.bat
+
+#Mac stuff
+.DS_Store
