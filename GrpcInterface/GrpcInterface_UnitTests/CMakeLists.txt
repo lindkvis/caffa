@@ -17,6 +17,6 @@ add_executable(${PROJECT_NAME} ${PROJECT_FILES})
 
 source_group("" FILES ${PROJECT_FILES})
 
-target_link_libraries(${PROJECT_NAME} caffaProjectDataModel caffaGrpcInterface ${THREAD_LIBRARY} gtest)
+target_link_libraries(${PROJECT_NAME} ${THREAD_LIBRARY} gtest caffaProjectDataModel caffaGrpcInterface)
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

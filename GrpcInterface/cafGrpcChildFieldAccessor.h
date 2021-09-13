@@ -45,7 +45,7 @@ public:
         m_client->setChildObject( m_field->ownerObject(), m_field->keyword(), m_remoteObject.get() );
     }
 
-    std::unique_ptr<ObjectHandle> clear()
+    std::unique_ptr<ObjectHandle> clear() override
     {
         getRemoteObjectIfNecessary();
         m_client->clearChildObjects( m_field->ownerObject(), m_field->keyword() );

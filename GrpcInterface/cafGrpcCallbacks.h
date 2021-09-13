@@ -124,7 +124,7 @@ class StateHandler
 {
 public:
     StateHandler()  = default;
-    ~StateHandler() = default;
+    virtual ~StateHandler() = default;
 
     virtual grpc::Status init( const RequestT* request ) = 0;
     virtual void         finish()                        = 0;

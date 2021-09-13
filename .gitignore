@@ -34,7 +34,7 @@
 # Common build folders
 out/
 build/
-build-arm/
+build*/
 
 # editor backup files
 *~

@@ -2,12 +2,6 @@ cmake_minimum_required(VERSION 3.12)
 
 project(caffaCore)
 
-# Unity Build
-if(CAFFA_ENABLE_UNITY_BUILD)
-  message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
-  set(CMAKE_UNITY_BUILD true)
-endif()
-
 set(PUBLIC_HEADERS
     cafAssert.h
     cafAppEnum.h

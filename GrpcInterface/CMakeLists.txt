@@ -66,6 +66,7 @@ else()
   pkg_check_modules(
     GRPC
     REQUIRED
+    Openssl
     grpc++>=1.16
     grpc
     gpr
@@ -126,9 +127,9 @@ else()
   add_library(${PROJECT_NAME} STATIC ${PROJECT_FILES} ${GRPC_HEADER_FILES} ${GRPC_CPP_SOURCES})
 endif()
 
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PROJECT_FILES}")
-
-set_property(TARGET ${PROJECT_NAME} PROPERTY AUTOMOC OFF)
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${CMAKE_PROJECT_VERSION})
+set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_BINARY_DIR}/Generated")
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

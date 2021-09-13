@@ -61,7 +61,7 @@ public:
         return rawPtrs;
     }
 
-    ObjectHandle* at( size_t index ) const
+    ObjectHandle* at( size_t index ) const override
     {
         getRemoteObjectsIfNecessary();
 
@@ -79,9 +79,9 @@ public:
         CAFFA_ASSERT( m_remoteObjects.size() == ( oldSize + 1u ) );
     }
 
-    void push_back( std::unique_ptr<ObjectHandle> pointer ) { insert( size(), std::move( pointer ) ); }
+    void push_back( std::unique_ptr<ObjectHandle> pointer ) override { insert( size(), std::move( pointer ) ); }
 
-    size_t index( const ObjectHandle* pointer ) const
+    size_t index( const ObjectHandle* pointer ) const override
     {
         getRemoteObjectsIfNecessary();
         for ( size_t i = 0; i < m_remoteObjects.size(); ++i )
@@ -93,7 +93,7 @@ public:
         }
         return -1;
     }
-    std::unique_ptr<ObjectHandle> remove( size_t index )
+    std::unique_ptr<ObjectHandle> remove( size_t index ) override
     {
         CAFFA_ASSERT( index < size() );
         auto detachedPtr = std::move( m_remoteObjects[index] );

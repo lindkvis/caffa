@@ -28,6 +28,7 @@ namespace caffa
 class RegisterFieldAccessorInterface
 {
 public:
+    virtual ~RegisterFieldAccessorInterface() = default;
     virtual uint32_t read( uint32_t addressOffset ) const            = 0;
     virtual void     write( uint32_t addressOffset, uint32_t value ) = 0;
 };

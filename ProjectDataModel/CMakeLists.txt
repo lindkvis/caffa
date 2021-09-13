@@ -2,12 +2,6 @@ cmake_minimum_required(VERSION 3.12)
 
 project(caffaProjectDataModel)
 
-# Unity Build
-if(CAFFA_ENABLE_UNITY_BUILD)
-  message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
-  set(CMAKE_UNITY_BUILD true)
-endif()
-
 set(PUBLIC_HEADERS cafDocument.h cafApplication.h)
 
 set(PROJECT_FILES ${PUBLIC_HEADERS} cafDocument.cpp cafApplication.cpp)
@@ -19,7 +13,10 @@ else()
   add_library(${PROJECT_NAME} STATIC ${PROJECT_FILES})
 endif()
 
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${CMAKE_PROJECT_VERSION})
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
+
 if(MSVC)
   set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif()
@@ -35,8 +32,6 @@ if(MSVC)
   set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
   set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif()
-
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 
 install(
   TARGETS ${PROJECT_NAME}

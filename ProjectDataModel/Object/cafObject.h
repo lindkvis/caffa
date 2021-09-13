@@ -238,7 +238,7 @@ public:
     }
 
     std::string uuid() const override;
-    void        setUuid( const std::string& uuid );
+    void        setUuid( const std::string& uuid ) override;
 
 private:
     Field<std::string> m_uuid;

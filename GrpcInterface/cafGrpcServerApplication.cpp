@@ -47,7 +47,7 @@ ServerApplication::ServerApplication( int portNumber )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ServerApplication* ServerApplication::instance()
+ServerApplication* caffa::rpc::ServerApplication::instance()
 {
     Application* appInstance = Application::instance();
     return dynamic_cast<ServerApplication*>( appInstance );
@@ -56,7 +56,7 @@ ServerApplication* ServerApplication::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ServerApplication::run()
+void caffa::rpc::ServerApplication::run()
 {
     CAFFA_ASSERT( m_server );
     m_server->run();

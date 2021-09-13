@@ -51,6 +51,7 @@ class SetterReply;
 
 struct AbstractDataHolder
 {
+    virtual ~AbstractDataHolder() = default;
     virtual size_t valueCount() const                                                                              = 0;
     virtual size_t valueSizeOf() const                                                                             = 0;
     virtual void   reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const                      = 0;
@@ -124,18 +125,18 @@ public:
                                 GenericArray*               reply,
                                 StateHandler<FieldRequest>* stateHandler );
 
-    grpc::Status GetValue( grpc::ServerContext* context, const FieldRequest* request, GenericScalar* reply );
+    grpc::Status GetValue( grpc::ServerContext* context, const FieldRequest* request, GenericScalar* reply ) override;
 
     grpc::Status SetArrayValue( grpc::ServerContext*        context,
                                 const GenericArray*         chunk,
                                 SetterArrayReply*           reply,
                                 StateHandler<GenericArray>* stateHandler );
 
-    grpc::Status SetValue( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply );
+    grpc::Status SetValue( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply ) override;
 
-    grpc::Status ClearChildObjects( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply );
-    grpc::Status RemoveChildObject( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply );
-    grpc::Status InsertChildObject( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply );
+    grpc::Status ClearChildObjects( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply ) override;
+    grpc::Status RemoveChildObject( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply ) override;
+    grpc::Status InsertChildObject( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply ) override;
     std::vector<AbstractCallback*> createCallbacks() override;
 };
 
