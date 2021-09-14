@@ -111,6 +111,36 @@ public:
         return document;
     }
 
+    std::vector<std::unique_ptr<caffa::ObjectHandle>> documents() const
+    {
+        std::vector<std::unique_ptr<caffa::ObjectHandle>> documents;
+
+        grpc::ClientContext       context;
+        caffa::rpc::NullMessage   request;
+        caffa::rpc::RpcObjectList objectListReply;
+        CAFFA_TRACE( "Calling GetDocument()" );
+        auto status = m_objectStub->GetDocuments( &context, request, &objectListReply );
+        if ( status.ok() )
+        {
+            CAFFA_TRACE( "Got documents" );
+
+            for ( auto object : objectListReply.objects() )
+            {
+                auto document =
+                    caffa::rpc::ObjectService::createCafObjectFromRpc( &object,
+                                                                       caffa::rpc::GrpcClientObjectFactory::instance(),
+                                                                       false );
+                documents.push_back( std::move( document ) );
+            }
+            CAFFA_TRACE( "Document completed" );
+        }
+        else
+        {
+            CAFFA_ERROR( "Failed to get document with server error message: " + status.error_message() );
+        }
+        return documents;
+    }
+
     std::unique_ptr<caffa::ObjectHandle> getChildObject( const caffa::ObjectHandle* objectHandle,
                                                          const std::string&         fieldName ) const
     {
@@ -160,6 +190,7 @@ public:
         {
             CAFFA_ASSERT( reply.has_objects() ); // TODO: throw
             RpcObjectList rpcObjects = reply.objects();
+
             for ( auto rpcObject : rpcObjects.objects() )
             {
                 auto object =
@@ -797,6 +828,14 @@ caffa::AppInfo Client::appInfo() const
 std::unique_ptr<caffa::ObjectHandle> Client::document( const std::string& documentId ) const
 {
     return m_clientImpl->document( documentId );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Retrieve all top level documents
+//--------------------------------------------------------------------------------------------------
+std::vector<std::unique_ptr<caffa::ObjectHandle>> Client::documents() const
+{
+    return m_clientImpl->documents();
 }
 
 //--------------------------------------------------------------------------------------------------

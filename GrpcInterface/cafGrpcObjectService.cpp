@@ -73,6 +73,23 @@ grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const Doc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+grpc::Status ObjectService::GetDocuments( grpc::ServerContext* context, const NullMessage* request, RpcObjectList* reply )
+{
+    CAFFA_TRACE( "Got document request" );
+    auto documents = ServerApplication::instance()->documents();
+    CAFFA_TRACE( "Found document" );
+    for ( auto document : documents )
+    {
+        RpcObject* newRpcObject = reply->add_objects();
+        CAFFA_TRACE( "Copying document to gRPC data structure" );
+        copyProjectObjectFromCafToRpc( document, newRpcObject );
+    }
+    return grpc::Status::OK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, RpcObject* reply )
 {
     const RpcObject& self           = request->self();
@@ -284,6 +301,7 @@ std::vector<AbstractCallback*> ObjectService::createCallbacks()
 {
     typedef ObjectService Self;
     return { new UnaryCallback<Self, DocumentRequest, RpcObject>( this, &Self::GetDocument, &Self::RequestGetDocument ),
+             new UnaryCallback<Self, NullMessage, RpcObjectList>( this, &Self::GetDocuments, &Self::RequestGetDocuments ),
              new UnaryCallback<Self, MethodRequest, RpcObject>( this, &Self::ExecuteMethod, &Self::RequestExecuteMethod ),
              new UnaryCallback<Self, RpcObject, RpcObjectList>( this, &Self::ListMethods, &Self::RequestListMethods )
 
