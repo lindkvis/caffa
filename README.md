@@ -1,9 +1,9 @@
 # About Caffa
-Caffa is an Application Framework for Embedded and Desktop Applications written in C++. It features Runtime Introspection, serialization, a gRPC-interface and an optional Qt5 GUI.
+Caffa is an Application Framework for Embedded and Desktop Applications written in C++. It features Runtime Introspection, serialisation, a gRPC-interface and an optional Qt5 GUI.
 
 Caffa has been forked from the Qt5-based Ceetron Application Framework used as part of ResInsight (https://github.com/OPM/ResInsight) but has diverged considerably with a simplified API, removal of the Core dependency on Qt and uses JSON for serialisation.
 
-Caffa is intended to help write applications both for desktop and console deployment with one code base with built-in gRPC-based scripting. The main target for Caffa is to create simple control applications for embedded Linux systems.
+Caffa is intended to help write applications both for desktop and console deployment with one code base with built-in gRPC-based scripting. The main target for Caffa is to create simple control applications for embedded Linux systems or client/server c++-applications with a shared client and server code base.
 
 As an example, you would write Data Model Objects with Fields holding data instead of simple variables. This gives you runtime introspection of the fields without using a pre-compiler and all objects can easily be written out to JSON. Caffa is set up for allowing scripting access by utilising the introspection capabilites to optionally expose fields and objects to scripting languages with little additional work from the application developer.
 
