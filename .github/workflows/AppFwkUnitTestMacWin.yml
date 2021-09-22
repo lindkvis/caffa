@@ -28,7 +28,7 @@ jobs:
         with:
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
           cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-          cmakeAppendedArgs: '-DCAFFA_GRPC_INTERFACE=OFF -DCAFFA_BUILD_UNIT_TESTS=ON'
+          cmakeAppendedArgs: '-DCAFFA_GRPC_INTERFACE=OFF -DCAFFA_BUILD_UNIT_TESTS=ON -DBOOST_ROOT=${{ steps.install-boost.outputs.BOOST_ROOT }}'
           buildDirectory: ${{ github.workspace }}/cmakebuild
           buildWithCMakeArgs: '--config Release'
       - name: Run Unit Tests MacOS
