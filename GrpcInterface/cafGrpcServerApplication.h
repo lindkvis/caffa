@@ -41,8 +41,8 @@ public:
     virtual std::list<const Document*> documents() const                               = 0;
 
 private:
-    virtual void onStartup()  = 0;
-    virtual void onShutdown() = 0;
+    virtual void onStartup() {}
+    virtual void onShutdown() {}
 
 private:
     std::unique_ptr<Server> m_server;
