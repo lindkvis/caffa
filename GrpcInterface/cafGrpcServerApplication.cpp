@@ -59,6 +59,8 @@ ServerApplication* caffa::rpc::ServerApplication::instance()
 void caffa::rpc::ServerApplication::run()
 {
     CAFFA_ASSERT( m_server );
+
+    onStartup();
     m_server->run();
 }
 
@@ -68,6 +70,7 @@ void caffa::rpc::ServerApplication::run()
 void ServerApplication::quit()
 {
     m_server->quit();
+    onShutdown();
 }
 
 //--------------------------------------------------------------------------------------------------

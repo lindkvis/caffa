@@ -292,6 +292,10 @@ public:
     std::list<const caffa::Document*> documents() const override { return { document( "" ) }; }
 
 private:
+    void onStartup() override { CAFFA_INFO( "Starting Server" ); }
+    void onShutdown() override { CAFFA_INFO( "Shutting down Server" ); }
+
+private:
     DemoDocument m_demoDocument;
 };
 

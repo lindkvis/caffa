@@ -17,7 +17,7 @@
 //   for more details.
 //
 #pragma once
-    
+
 #include "cafGrpcApplication.h"
 #include "cafGrpcServer.h"
 
@@ -39,6 +39,10 @@ public:
     virtual const Document*            document( const std::string& documentId ) const = 0;
     virtual std::list<Document*>       documents()                                     = 0;
     virtual std::list<const Document*> documents() const                               = 0;
+
+private:
+    virtual void onStartup()  = 0;
+    virtual void onShutdown() = 0;
 
 private:
     std::unique_ptr<Server> m_server;
