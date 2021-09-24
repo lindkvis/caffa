@@ -31,7 +31,7 @@ std::unique_ptr<std::ostream> Logger::s_stream              = std::make_unique<s
 
 void Logger::log( Level level, const std::string& message, char const* function, char const* file, int line )
 {
-    if ( level <= s_applicationLogLevel )
+    if ( level >= s_applicationLogLevel )
     {
         // TODO: should provide platform specific path delimiter
         auto filePath = caffa::StringTools::split( file, "/" );
@@ -57,13 +57,9 @@ std::string Logger::logLevelLabel( Level level )
 
 Logger::Level Logger::logLevelFromLabel( const std::string& label )
 {
-    for ( int i = (int)Level::OFF; i <= (int)Level::TRACE; ++i )
+    for ( auto [level, levelLabel] : logLevels() )
     {
-        Level level = (Level)i;
-        if ( logLevelLabel( level ) == label )
-        {
-            return level;
-        }
+        if ( levelLabel == label ) return level;
     }
     return Logger::Level::OFF;
 }
