@@ -40,6 +40,8 @@ public:
     virtual std::list<Document*>       documents()                                     = 0;
     virtual std::list<const Document*> documents() const                               = 0;
 
+    virtual void resetToDefaultData() = 0;
+
 private:
     virtual void onStartup() {}
     virtual void onShutdown() {}

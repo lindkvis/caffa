@@ -50,6 +50,7 @@ public:
     std::unique_ptr<caffa::ObjectHandle>              execute( gsl::not_null<const caffa::ObjectMethod*> method ) const;
     bool                                              stopServer() const;
     bool                                              ping() const;
+    void                                              resetToDefaultData() const;
     std::list<std::unique_ptr<caffa::ObjectHandle>>   objectMethods( caffa::ObjectHandle* objectHandle ) const;
 
     template <typename DataType>

@@ -72,6 +72,15 @@ grpc::Status AppService::PerformPing( grpc::ServerContext* context, const NullMe
     return grpc::Status::OK;
 }
 
+grpc::Status
+    AppService::PerformResetToDefaultData( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply )
+{
+    CAFFA_DEBUG( "Received reset request" );
+    ServerApplication::instance()->resetToDefaultData();
+
+    return grpc::Status::OK;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -80,5 +89,8 @@ std::vector<AbstractCallback*> AppService::createCallbacks()
     typedef AppService Self;
     return { new UnaryCallback<Self, NullMessage, NullMessage>( this, &Self::PerformQuit, &Self::RequestQuit ),
              new UnaryCallback<Self, NullMessage, AppInfoReply>( this, &Self::PerformGetAppInfo, &Self::RequestGetAppInfo ),
-             new UnaryCallback<Self, NullMessage, NullMessage>( this, &Self::PerformPing, &Self::RequestPing ) };
+             new UnaryCallback<Self, NullMessage, NullMessage>( this, &Self::PerformPing, &Self::RequestPing ),
+             new UnaryCallback<Self, NullMessage, NullMessage>( this,
+                                                                &Self::PerformResetToDefaultData,
+                                                                &Self::RequestResetToDefaultData ) };
 }

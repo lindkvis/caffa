@@ -350,6 +350,13 @@ public:
         return status.ok();
     }
 
+    void resetToDefaultData() const
+    {
+        grpc::ClientContext context;
+        NullMessage         nullarg, nullreply;
+        m_appInfoStub->ResetToDefaultData( &context, nullarg, &nullreply );
+    }
+
     std::list<std::unique_ptr<caffa::ObjectHandle>> objectMethods( caffa::ObjectHandle* objectHandle ) const
     {
         grpc::ClientContext context;
@@ -860,6 +867,14 @@ bool Client::stopServer() const
 bool Client::ping() const
 {
     return m_clientImpl->ping();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Ask server to reset to default data
+//--------------------------------------------------------------------------------------------------
+void Client::resetToDefaultData() const
+{
+    return m_clientImpl->resetToDefaultData();
 }
 
 //--------------------------------------------------------------------------------------------------
