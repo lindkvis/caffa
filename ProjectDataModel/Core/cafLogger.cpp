@@ -21,7 +21,9 @@
 
 #include "cafStringTools.h"
 
+#include <chrono>
 #include <fstream>
+#include <iomanip>
 #include <thread>
 
 using namespace caffa;
@@ -31,13 +33,23 @@ std::unique_ptr<std::ostream> Logger::s_stream              = std::make_unique<s
 
 void Logger::log( Level level, const std::string& message, char const* function, char const* file, int line )
 {
+    auto now            = std::chrono::system_clock::now();
+    auto s_since_epoch  = std::chrono::duration_cast<std::chrono::seconds>( now.time_since_epoch() );
+    auto ms_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>( now.time_since_epoch() );
+    std::chrono::seconds      secs( s_since_epoch.count() );
+    std::chrono::milliseconds ms              = std::chrono::duration_cast<std::chrono::milliseconds>( secs );
+    auto                      ms_since_last_s = ms_since_epoch - ms;
+
+    const std::time_t t_now = std::chrono::system_clock::to_time_t( now );
+
     if ( level >= s_applicationLogLevel )
     {
         // TODO: should provide platform specific path delimiter
         auto filePath = caffa::StringTools::split( file, "/" );
         auto fileName = !filePath.empty() ? filePath.back() : file;
-        *s_stream << logLevelLabel( level ) << ": " << fileName << "::" << function << "()[" << line << "]: " << message
-                  << std::endl;
+        *s_stream << "[" << std::put_time( std::localtime( &t_now ), "%F %T." ) << std::setfill( '0' ) << std::setw( 3 )
+                  << ms_since_last_s.count() << "] [" << logLevelLabel( level ) << "] " << fileName << "::" << function
+                  << "()[" << line << "]: " << message << std::endl;
     }
 }
 

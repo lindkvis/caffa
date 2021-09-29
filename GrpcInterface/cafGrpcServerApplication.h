@@ -31,6 +31,7 @@ public:
     ServerApplication( int portNumber );
     static ServerApplication* instance();
 
+    int  portNumber() const;
     void run();
     bool running() const;
     void quit();

@@ -53,6 +53,11 @@ ServerApplication* caffa::rpc::ServerApplication::instance()
     return dynamic_cast<ServerApplication*>( appInstance );
 }
 
+int ServerApplication::portNumber() const
+{
+    return m_server->port();
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
