@@ -33,40 +33,54 @@ class ServerApp : public caffa::rpc::ServerApplication
 public:
     ServerApp( int port )
         : caffa::rpc::ServerApplication( port )
+        , m_demoDocument( std::make_unique<DemoDocument>() )
     {
     }
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    std::string name() const override { return "ServerTest"; }
 
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    std::string name() const override { return "ServerTest Example"; }
+    int majorVersion() const override { return 1; }
 
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    int majorVersion() const override { return 5; }
-
-    //--------------------------------------------------------------------------------------------------
-    ///
-    //--------------------------------------------------------------------------------------------------
-    int minorVersion() const override { return 1; }
+    int minorVersion() const override { return 0; }
 
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
     int patchVersion() const override { return 0; }
 
-    caffa::Document*            document( const std::string& documentId ) override { return &m_demoDocument; }
-    const caffa::Document*      document( const std::string& documentId ) const override { return &m_demoDocument; }
-    std::list<caffa::Document*> documents() override { return { document( "" ) }; }
+    caffa::Document* document( const std::string& documentId ) override
+    {
+        if ( documentId.empty() || documentId == m_demoDocument->id() )
+            return m_demoDocument.get();
+        else
+            return nullptr;
+    }
+    const caffa::Document* document( const std::string& documentId ) const override
+    {
+        if ( documentId.empty() || documentId == m_demoDocument->id() )
+            return m_demoDocument.get();
+        else
+            return nullptr;
+    }
+    std::list<caffa::Document*>       documents() override { return { document( "" ) }; }
     std::list<const caffa::Document*> documents() const override { return { document( "" ) }; }
+
+    void resetToDefaultData() override { m_demoDocument = std::make_unique<DemoDocument>(); }
 
 private:
     void onStartup() override { CAFFA_INFO( "Starting Server" ); }
     void onShutdown() override { CAFFA_INFO( "Shutting down Server" ); }
 
 private:
-    DemoDocument m_demoDocument;
+    std::unique_ptr<DemoDocument> m_demoDocument;
 };
 
 //--------------------------------------------------------------------------------------------------
