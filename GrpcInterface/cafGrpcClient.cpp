@@ -77,8 +77,12 @@ public:
         caffa::rpc::AppInfoReply reply;
         grpc::ClientContext      context;
         NullMessage              nullarg;
-        auto                     status  = m_appInfoStub->GetAppInfo( &context, nullarg, &reply );
-        caffa::AppInfo           appInfo = { reply.name(),
+        auto                     status = m_appInfoStub->GetAppInfo( &context, nullarg, &reply );
+        if ( !status.ok() )
+        {
+            CAFFA_ERROR( "Failed to get AppInfo with error message: " << status.error_message() );
+        }
+        caffa::AppInfo appInfo = { reply.name(),
                                    reply.major_version(),
                                    reply.minor_version(),
                                    reply.patch_version(),
