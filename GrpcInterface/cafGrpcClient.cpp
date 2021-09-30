@@ -307,7 +307,7 @@ public:
         }
     }
 
-    std::unique_ptr<caffa::ObjectHandle> execute( const caffa::ObjectMethod* method ) const
+    std::pair<bool, std::unique_ptr<caffa::ObjectHandle>> execute( const caffa::ObjectMethod* method ) const
     {
         auto self   = std::make_unique<RpcObject>();
         auto params = std::make_unique<RpcObject>();
@@ -337,7 +337,8 @@ public:
             CAFFA_ERROR( "Failed to execute object method " << method->classKeyword()
                                                             << " error: " << status.error_message() );
         }
-        return returnValue;
+
+        return std::make_pair( status.ok(), std::move( returnValue ) );
     }
 
     bool stopServer() const
@@ -857,7 +858,7 @@ std::vector<std::unique_ptr<caffa::ObjectHandle>> Client::documents() const
 //--------------------------------------------------------------------------------------------------
 /// Execute a general non-streaming method.
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caffa::ObjectHandle> Client::execute( gsl::not_null<const caffa::ObjectMethod*> method ) const
+std::pair<bool, std::unique_ptr<caffa::ObjectHandle>> Client::execute( gsl::not_null<const caffa::ObjectMethod*> method ) const
 {
     return m_clientImpl->execute( method );
 }

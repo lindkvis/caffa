@@ -177,7 +177,7 @@ public:
         initField( m_intMember, "intMember" ).withScripting().withDefault( intValue );
         initField( m_stringMember, "stringMember" ).withScripting().withDefault( stringValue );
     }
-    std::unique_ptr<caffa::ObjectHandle> execute() override
+    std::pair<bool, std::unique_ptr<caffa::ObjectHandle>> execute() override
     {
         CAFFA_DEBUG( "Executing object method on server with values: " << m_doubleMember() << ", " << m_intMember()
                                                                        << ", " << m_stringMember() );
@@ -188,7 +188,7 @@ public:
 
         auto demoObjectResult    = std::make_unique<DemoObject_copyObjectResult>();
         demoObjectResult->status = true;
-        return demoObjectResult;
+        return std::make_pair( true, std::move( demoObjectResult ) );
     }
     std::unique_ptr<ObjectHandle> defaultResult() const override
     {
@@ -516,9 +516,10 @@ TEST( BaseTest, ObjectMethod )
     ASSERT_EQ( method.classKeyword(), methodKeyword );
 
     CAFFA_DEBUG( "Execute" );
-    auto result = client->execute( &method );
-    ASSERT_TRUE( result != nullptr );
-    auto copyObjectResult = dynamic_cast<DemoObject_copyObjectResult*>( result.get() );
+    auto [result, resultObject] = client->execute( &method );
+    ASSERT_TRUE( result );
+    ASSERT_TRUE( resultObject != nullptr );
+    auto copyObjectResult = dynamic_cast<DemoObject_copyObjectResult*>( resultObject.get() );
     ASSERT_TRUE( copyObjectResult && copyObjectResult->status() );
 
     CAFFA_DEBUG( "Get double member" );

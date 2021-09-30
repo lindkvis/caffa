@@ -66,12 +66,12 @@ struct PortableDataType
         static constexpr const char* name() { return CONCAT( StringAlias, "[]" ); } \
     };
 
-CAFFA_DEFINE_PORTABLE_TYPE_NAME( int, "int32" )
-CAFFA_DEFINE_PORTABLE_TYPE_NAME( unsigned, "uint32" )
 CAFFA_DEFINE_PORTABLE_TYPE( double )
 CAFFA_DEFINE_PORTABLE_TYPE( float )
 CAFFA_DEFINE_PORTABLE_TYPE( bool )
 CAFFA_DEFINE_PORTABLE_TYPE( char )
+CAFFA_DEFINE_PORTABLE_TYPE_NAME( int, "int32" )
+CAFFA_DEFINE_PORTABLE_TYPE_NAME( unsigned, "uint32" )
 CAFFA_DEFINE_PORTABLE_TYPE_NAME( uint64_t, "uint64" )
 CAFFA_DEFINE_PORTABLE_TYPE_NAME( int64_t, "int64" )
 CAFFA_DEFINE_PORTABLE_TYPE_NAME( std::string, "string" )
