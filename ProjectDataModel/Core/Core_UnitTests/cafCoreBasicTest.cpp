@@ -536,7 +536,8 @@ TEST( BaseTest, Pointer )
 
 TEST( BaseTest, PortableDataType )
 {
-    EXPECT_EQ( "int", caffa::PortableDataType<int>::name() );
+    EXPECT_EQ( "int32", caffa::PortableDataType<int>::name() );
+    EXPECT_EQ( "uint32", caffa::PortableDataType<unsigned>::name() );
     EXPECT_EQ( "string", caffa::PortableDataType<std::string>::name() );
     EXPECT_EQ( "double", caffa::PortableDataType<double>::name() );
     EXPECT_EQ( "float", caffa::PortableDataType<float>::name() );
