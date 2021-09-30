@@ -21,7 +21,6 @@ set(PUBLIC_HEADERS
     cafFieldCapability.h
     cafFieldHandle.h
     cafFifoField.h
-    cafLogger.h
     cafObjectCapability.h
     cafObjectHandle.h
     cafPointer.h
@@ -32,7 +31,6 @@ set(PUBLIC_HEADERS
     cafValueField.h
     cafValueFieldSpecializations.h
     cafSignal.h
-    cafStringTools.h
     cafVariant.h
     cafTristate.h)
 
@@ -43,11 +41,9 @@ set(PROJECT_FILES
     cafChildArrayFieldAccessor.cpp
     cafChildFieldAccessor.cpp
     cafFieldHandle.cpp
-    cafLogger.cpp
     cafObjectHandle.cpp
     cafPointer.cpp
     cafSignal.cpp
-    cafStringTools.cpp
     cafVariant.cpp
     cafTristate.cpp)
 
@@ -69,7 +65,7 @@ endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} caffaLogger)
 
 install(
   TARGETS ${PROJECT_NAME}

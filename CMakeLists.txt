@@ -60,6 +60,7 @@ add_subdirectory(ThirdParty/json)
 add_subdirectory(ThirdParty/GSL)
 add_subdirectory(ThirdParty/gtest)
 add_subdirectory(ThirdParty/stduuid)
+add_subdirectory(ThirdParty/caffa-logger)
 
 # libraries
 add_subdirectory(ProjectDataModel/Core)
