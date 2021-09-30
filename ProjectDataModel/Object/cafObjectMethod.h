@@ -66,7 +66,7 @@ public:
     ObjectMethod( ObjectHandle* self );
 
     // The returned object contains the results of the method and is the responsibility of the caller.
-    virtual std::unique_ptr<ObjectHandle> execute() = 0;
+    virtual std::pair<bool, std::unique_ptr<ObjectHandle>> execute() = 0;
 
     // A default created result object used as a pattern for clients
     virtual std::unique_ptr<ObjectHandle> defaultResult() const = 0;
