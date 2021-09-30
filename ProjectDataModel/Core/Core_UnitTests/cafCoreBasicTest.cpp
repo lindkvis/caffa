@@ -543,7 +543,8 @@ TEST( BaseTest, PortableDataType )
     EXPECT_EQ( "float", caffa::PortableDataType<float>::name() );
     EXPECT_EQ( "char", caffa::PortableDataType<char>::name() );
     EXPECT_EQ( "bool", caffa::PortableDataType<bool>::name() );
-    EXPECT_EQ( "int[]", caffa::PortableDataType<std::vector<int>>::name() );
+    EXPECT_EQ( "int32[]", caffa::PortableDataType<std::vector<int>>::name() );
+    EXPECT_EQ( "uint32[]", caffa::PortableDataType<std::vector<uint32_t>>::name() );
     EXPECT_EQ( "string[]", caffa::PortableDataType<std::vector<std::string>>::name() );
 }
 

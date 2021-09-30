@@ -268,7 +268,7 @@ TEST( BaseTest, TestDataType )
 
     {
         auto dataType = s1->m_up.dataType();
-        EXPECT_EQ( "int", dataType );
+        EXPECT_EQ( "int32", dataType );
     }
 
     {
