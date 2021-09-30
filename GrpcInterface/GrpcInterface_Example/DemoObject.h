@@ -84,8 +84,8 @@ public:
                            double               doubleValue = -123.0,
                            int                  intValue    = 42,
                            const std::string&   stringValue = "SomeValue" );
-    std::unique_ptr<caffa::ObjectHandle> execute() override;
-    std::unique_ptr<ObjectHandle>        defaultResult() const override;
+    std::pair<bool, std::unique_ptr<caffa::ObjectHandle>> execute() override;
+    std::unique_ptr<ObjectHandle>                         defaultResult() const override;
 
 private:
     caffa::Field<double>      m_memberDoubleField;

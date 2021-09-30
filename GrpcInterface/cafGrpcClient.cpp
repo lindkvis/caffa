@@ -332,6 +332,11 @@ public:
                                                                              caffa::DefaultObjectFactory::instance(),
                                                                              true );
         }
+        else
+        {
+            CAFFA_ERROR( "Failed to execute object method " << method->classKeyword()
+                                                            << " error: " << status.error_message() );
+        }
         return returnValue;
     }
 

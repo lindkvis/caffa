@@ -101,14 +101,15 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
         {
             copyResultOrParameterObjectFromRpcToCaf( &( request->params() ), method.get() );
             CAFFA_TRACE( "Method parameters copied. Now executing!" );
-            auto result = method->execute();
+            auto [result, resultObject] = method->execute();
             if ( result )
             {
-                copyResultOrParameterObjectFromCafToRpc( result.get(), reply );
+                if ( resultObject ) copyResultOrParameterObjectFromCafToRpc( resultObject.get(), reply );
                 return grpc::Status::OK;
             }
             else
             {
+                CAFFA_ERROR( "Failed to run execute!" );
                 return grpc::Status( grpc::NOT_FOUND, "No result returned from Method" );
             }
         }
