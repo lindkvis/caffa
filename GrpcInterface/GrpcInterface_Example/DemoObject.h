@@ -39,8 +39,14 @@ public:
 
     ~DemoObject() override {}
 
-    caffa::Field<double>      m_memberDoubleField;
-    caffa::Field<int>         m_memberIntField;
+    caffa::Field<double> m_memberDoubleField;
+
+    caffa::Field<int>      m_memberIntField;
+    caffa::Field<unsigned> m_memberUintField;
+
+    caffa::Field<int64_t>  m_memberInt64Field;
+    caffa::Field<uint64_t> m_memberUint64Field;
+
     caffa::Field<std::string> m_memberStringField;
 
     caffa::Field<std::vector<double>> m_doubleVector;
@@ -52,6 +58,15 @@ public:
 
     int  intMember() const { return m_memberIntField; }
     void setIntMember( const int& val ) { m_memberIntField = val; }
+
+    int  uintMember() const { return m_memberUintField; }
+    void setUintMember( const unsigned& val ) { m_memberUintField = val; }
+
+    int64_t int64Member() const { return m_memberInt64Field; }
+    void    setInt64Member( const int64_t& val ) { m_memberInt64Field = val; }
+
+    uint64_t uint64Member() const { return m_memberUint64Field; }
+    void     setUint64Member( const uint64_t& val ) { m_memberUint64Field = val; }
 
     std::string stringMember() const { return m_memberStringField; }
     void        setStringMember( const std::string& val ) { m_memberStringField = val; }

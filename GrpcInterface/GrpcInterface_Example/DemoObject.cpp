@@ -24,6 +24,10 @@ DemoObject::DemoObject()
 {
     initField( m_memberDoubleField, "doubleMember" ).withScripting().withDefault( 11.0 );
     initField( m_memberIntField, "intMember" ).withScripting();
+    initField( m_memberUintField, "uintMember" ).withScripting();
+    initField( m_memberInt64Field, "int64Member" ).withScripting();
+    initField( m_memberUint64Field, "uint64Member" ).withScripting();
+
     initField( m_memberStringField, "stringMember" ).withScripting();
 
     initField( m_doubleVector, "doubleVector" ).withScripting();
