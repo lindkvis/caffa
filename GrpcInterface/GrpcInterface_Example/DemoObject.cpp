@@ -46,7 +46,7 @@ DemoObject_copyObject::DemoObject_copyObject( caffa::ObjectHandle* self,
     initField( m_memberIntField, "intArgument" ).withScripting().withDefault( intValue );
     initField( m_memberStringField, "stringArgument" ).withScripting().withDefault( stringValue );
 }
-std::unique_ptr<caffa::ObjectHandle> DemoObject_copyObject::execute()
+std::pair<bool, std::unique_ptr<caffa::ObjectHandle>> DemoObject_copyObject::execute()
 {
     CAFFA_DEBUG( "Executing object method on server with values: " << m_memberDoubleField() << ", " << m_memberIntField()
                                                                    << ", " << m_memberStringField() );
@@ -57,7 +57,7 @@ std::unique_ptr<caffa::ObjectHandle> DemoObject_copyObject::execute()
 
     auto demoObjectResult    = std::make_unique<DemoObject_copyObjectResult>();
     demoObjectResult->status = true;
-    return demoObjectResult;
+    return std::make_pair( true, std::move( demoObjectResult ) );
 }
 std::unique_ptr<caffa::ObjectHandle> DemoObject_copyObject::defaultResult() const
 {
@@ -82,7 +82,7 @@ DemoDocument::DemoDocument()
     initField( m_inheritedDemoObjects, "InheritedDemoObjects" ).withScripting();
     m_demoObject = std::make_unique<DemoObject>();
 
-    this->setFileName("dummyFileName");
+    this->setFileName( "dummyFileName" );
 }
 
 CAFFA_SOURCE_INIT( DemoDocument, "DemoDocument", "Document" );
