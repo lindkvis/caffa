@@ -51,7 +51,7 @@ class Document : public Object
     CAFFA_HEADER_INIT;
 
 public:
-    Document();
+    Document( const std::string& id = classKeywordStatic() );
 
     std::string id() const;
     std::string fileName() const;

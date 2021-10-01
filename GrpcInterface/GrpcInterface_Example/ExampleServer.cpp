@@ -58,6 +58,8 @@ public:
 
     caffa::Document* document( const std::string& documentId ) override
     {
+        CAFFA_TRACE( "Trying to get document with id " << documentId << " while our main document is called "
+                                                       << m_demoDocument->id() );
         if ( documentId.empty() || documentId == m_demoDocument->id() )
             return m_demoDocument.get();
         else
@@ -88,6 +90,8 @@ private:
 //--------------------------------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
+    caffa::Logger::setApplicationLogLevel( caffa::Logger::Level::TRACE );
+
     int  portNumber = argc >= 2 ? std::atoi( argv[1] ) : 55555;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
 
@@ -100,10 +104,8 @@ int main( int argc, char** argv )
 
     CAFFA_INFO( "Launching Server listening on port " << portNumber );
 
-    caffa::Logger::setApplicationLogLevel( caffa::Logger::Level::TRACE );
-
-    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
-
+    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "DemoDocument" ) );
+    CAFFA_ASSERT( serverDocument != nullptr );
     std::vector<float> serverVector;
     size_t             numberOfFloats = 1024u * 1024u * 4;
     serverVector.reserve( numberOfFloats );

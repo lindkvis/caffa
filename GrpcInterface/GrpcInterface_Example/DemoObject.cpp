@@ -77,6 +77,7 @@ InheritedDemoObj::InheritedDemoObj()
 CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject", "DemoObject" );
 
 DemoDocument::DemoDocument()
+    : Document( "DemoDocument" )
 {
     initField( m_demoObject, "DemoObject" ).withScripting();
     initField( m_inheritedDemoObjects, "InheritedDemoObjects" ).withScripting();

@@ -46,10 +46,10 @@ CAFFA_SOURCE_INIT( Document, "Document", "Object" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Document::Document()
+Document::Document( const std::string& id )
 {
     assignUiInfo( "Document", "", "Basic Document", "" );
-    initField( m_id, "id" ).withScripting();
+    initField( m_id, "id" ).withScripting().withDefault( id );
     initField( m_fileName, "fileName" ).withScripting();
 }
 
