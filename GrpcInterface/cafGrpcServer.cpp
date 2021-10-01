@@ -78,7 +78,6 @@ public:
     void run()
     {
         m_thread = std::thread( &ServerImpl::initializeAndWaitForNextRequest, this );
-
         m_thread.join();
         CAFFA_DEBUG( "Request handling thread joined" );
 
@@ -160,6 +159,8 @@ public:
 
     void initializeAndWaitForNextRequest()
     {
+        caffa::Logger::registerThreadName( "GRPC_THREAD" );
+
         initialize();
         waitForNextRequest();
     }
@@ -182,6 +183,7 @@ private:
             }
             if ( quitting() )
             {
+                CAFFA_TRACE( "Shutting down server and queue" )
                 // Shutdown server and queue
                 m_server->Shutdown();
                 m_completionQueue->Shutdown();
@@ -215,6 +217,7 @@ private:
         }
         else
         {
+            CAFFA_ASSERT( method->callState() == AbstractCallback::FINISH_REQUEST );
             CAFFA_TRACE( "Finishing request: " << method->name() );
             method->onFinishRequest();
             if ( !quitting() )
