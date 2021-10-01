@@ -159,7 +159,7 @@ public:
 
     void initializeAndWaitForNextRequest()
     {
-        caffa::Logger::registerThreadName( "GRPC_THREAD" );
+        caffa::Logger::registerThreadName( "gprc_thread" );
 
         initialize();
         waitForNextRequest();

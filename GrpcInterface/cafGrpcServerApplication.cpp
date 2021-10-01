@@ -24,6 +24,7 @@
 #include "cafGrpcObjectService.h"
 #include "cafGrpcServer.h"
 #include "cafGrpcServiceInterface.h"
+#include "cafLogger.h"
 
 using namespace caffa::rpc;
 
@@ -64,7 +65,7 @@ int ServerApplication::portNumber() const
 void caffa::rpc::ServerApplication::run()
 {
     CAFFA_ASSERT( m_server );
-
+    caffa::Logger::registerThreadName( "serverapp_thread" );
     onStartup();
     m_server->run();
 }
