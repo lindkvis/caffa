@@ -86,7 +86,7 @@ std::unique_ptr<ObjectHandle> ObjectJsonCapability::readUnknownObjectFromString(
                                                                                  ObjectFactory*     objectFactory,
                                                                                  bool               copyDataValues )
 {
-    CAFFA_DEBUG( "Creating unknown object from string: " << string );
+    CAFFA_DEBUG( string );
     if ( string.empty() ) return nullptr;
 
     nlohmann::json jsonObject       = nlohmann::json::parse( string );
