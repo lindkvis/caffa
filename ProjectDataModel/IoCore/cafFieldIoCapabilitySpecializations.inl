@@ -31,14 +31,6 @@ void FieldIoCap<FieldType>::readFromJson( const nlohmann::json& jsonValue, Objec
 
         typename FieldType::FieldDataType value = jsonValue.get<typename FieldType::FieldDataType>();
         m_field->setValue( value );
-
-        if ( this->isIOReadable() )
-        {
-            nlohmann::json newJsonValue;
-            this->writeToJson( newJsonValue, copyDataValues );
-
-            CAFFA_TRACE( "Value is now: " << newJsonValue.dump() );
-        }
     }
 }
 
