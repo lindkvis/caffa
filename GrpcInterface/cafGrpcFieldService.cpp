@@ -126,6 +126,100 @@ void DataHolder<int>::applyValuesToField( ValueField* field )
 }
 
 template <>
+size_t DataHolder<uint32_t>::valueCount() const
+{
+    return data.size();
+}
+template <>
+size_t DataHolder<uint32_t>::valueSizeOf() const
+{
+    return sizeof( uint32_t );
+}
+
+template <>
+void DataHolder<uint32_t>::reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const
+{
+    reply->mutable_uints()->mutable_data()->Reserve( numberOfDataUnits );
+}
+
+template <>
+void DataHolder<uint32_t>::addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const
+{
+    *( reply->mutable_uints()->mutable_data() ) = { data.begin() + startIndex,
+                                                    data.begin() + startIndex + numberOfDataUnits };
+}
+
+template <>
+size_t DataHolder<uint32_t>::getValuesFromChunk( size_t startIndex, const GenericArray* chunk )
+{
+    size_t chunkSize    = chunk->uints().data_size();
+    size_t currentIndex = startIndex;
+    size_t chunkIndex   = 0u;
+    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
+    {
+        data[currentIndex] = chunk->uints().data()[chunkIndex];
+    }
+    return chunkSize;
+}
+template <>
+void DataHolder<uint32_t>::applyValuesToField( ValueField* field )
+{
+    auto dataValueField = dynamic_cast<Field<std::vector<uint32_t>>*>( field );
+    if ( dataValueField )
+    {
+        CAFFA_TRACE( "Applying " << data.size() << " values to field" );
+        dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
+    }
+}
+
+template <>
+size_t DataHolder<int64_t>::valueCount() const
+{
+    return data.size();
+}
+template <>
+size_t DataHolder<int64_t>::valueSizeOf() const
+{
+    return sizeof( int64_t );
+}
+
+template <>
+void DataHolder<int64_t>::reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const
+{
+    reply->mutable_int64s()->mutable_data()->Reserve( numberOfDataUnits );
+}
+
+template <>
+void DataHolder<int64_t>::addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const
+{
+    *( reply->mutable_int64s()->mutable_data() ) = { data.begin() + startIndex,
+                                                     data.begin() + startIndex + numberOfDataUnits };
+}
+
+template <>
+size_t DataHolder<int64_t>::getValuesFromChunk( size_t startIndex, const GenericArray* chunk )
+{
+    size_t chunkSize    = chunk->int64s().data_size();
+    size_t currentIndex = startIndex;
+    size_t chunkIndex   = 0u;
+    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
+    {
+        data[currentIndex] = chunk->int64s().data()[chunkIndex];
+    }
+    return chunkSize;
+}
+template <>
+void DataHolder<int64_t>::applyValuesToField( ValueField* field )
+{
+    auto dataValueField = dynamic_cast<Field<std::vector<int64_t>>*>( field );
+    if ( dataValueField )
+    {
+        CAFFA_TRACE( "Applying " << data.size() << " values to field" );
+        dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
+    }
+}
+
+template <>
 size_t DataHolder<uint64_t>::valueCount() const
 {
     return data.size();
@@ -427,6 +521,19 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
                 m_dataHolder.reset( new DataHolder<int>( dataField->value() ) );
                 return grpc::Status::OK;
             }
+            if ( auto dataField = dynamic_cast<TypedValueField<std::vector<unsigned>>*>( field ); dataField != nullptr )
+            {
+                m_field = dataField;
+                m_dataHolder.reset( new DataHolder<unsigned>( dataField->value() ) );
+                return grpc::Status::OK;
+            }
+            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int64_t>>*>( field ); dataField != nullptr )
+            {
+                m_field = dataField;
+                m_dataHolder.reset( new DataHolder<int64_t>( dataField->value() ) );
+                return grpc::Status::OK;
+            }
+
             else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<uint64_t>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
