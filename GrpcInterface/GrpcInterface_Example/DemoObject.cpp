@@ -33,6 +33,7 @@ DemoObject::DemoObject()
     initField( m_doubleVector, "doubleVector" ).withScripting();
     initField( m_floatVector, "floatVector" ).withScripting();
     initField( m_intVector, "intVector" ).withScripting();
+    initField( m_uintVector, "uintVector" ).withScripting();
 }
 
 DemoObject_copyObjectResult::DemoObject_copyObjectResult()

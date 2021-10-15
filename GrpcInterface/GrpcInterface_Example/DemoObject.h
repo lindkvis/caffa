@@ -49,9 +49,10 @@ public:
 
     caffa::Field<std::string> m_memberStringField;
 
-    caffa::Field<std::vector<double>> m_doubleVector;
-    caffa::Field<std::vector<float>>  m_floatVector;
-    caffa::Field<std::vector<int>>    m_intVector;
+    caffa::Field<std::vector<double>>   m_doubleVector;
+    caffa::Field<std::vector<float>>    m_floatVector;
+    caffa::Field<std::vector<int>>      m_intVector;
+    caffa::Field<std::vector<unsigned>> m_uintVector;
 
     double doubleMember() const { return m_memberDoubleField; }
     void   setDoubleMember( const double& d ) { m_memberDoubleField = d; }
@@ -79,6 +80,9 @@ public:
 
     std::vector<int> intVector() const { return m_intVector; }
     void             setIntVector( const std::vector<int>& values ) { m_intVector = values; }
+
+    std::vector<unsigned> uintVector() const { return m_uintVector; }
+    void                  setUIntVector( const std::vector<unsigned>& values ) { m_uintVector = values; }
 };
 
 struct DemoObject_copyObjectResult : public caffa::Object

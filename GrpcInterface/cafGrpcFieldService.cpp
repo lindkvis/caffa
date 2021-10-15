@@ -521,7 +521,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
                 m_dataHolder.reset( new DataHolder<int>( dataField->value() ) );
                 return grpc::Status::OK;
             }
-            if ( auto dataField = dynamic_cast<TypedValueField<std::vector<unsigned>>*>( field ); dataField != nullptr )
+            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<unsigned>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
                 m_dataHolder.reset( new DataHolder<unsigned>( dataField->value() ) );
@@ -581,9 +581,11 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
 grpc::Status GetterStateHandler::assignReply( GenericArray* reply )
 {
     CAFFA_ASSERT( m_dataHolder );
-    CAFFA_TRACE( "Assigning values to getter reply" );
 
-    size_t remainingData             = m_dataHolder->valueCount() - m_currentDataIndex;
+    size_t remainingData = m_dataHolder->valueCount() - m_currentDataIndex;
+
+    CAFFA_TRACE( "Assigning values " << remainingData << " to getter reply" );
+
     size_t defaultDataUnitsInPackage = Application::instance()->packageByteSize() / m_dataHolder->valueSizeOf();
 
     size_t dataUnitsInPackage = std::min( defaultDataUnitsInPackage, remainingData );
@@ -662,13 +664,24 @@ grpc::Status SetterStateHandler::init( const GenericArray* chunk )
                 m_dataHolder.reset( new DataHolder<int>( std::vector<int>( valueCount ) ) );
                 return grpc::Status::OK;
             }
+            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<unsigned>>*>( field ); dataField != nullptr )
+            {
+                m_field = dataField;
+                m_dataHolder.reset( new DataHolder<unsigned>( std::vector<unsigned>( valueCount ) ) );
+                return grpc::Status::OK;
+            }
+            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int64_t>>*>( field ); dataField != nullptr )
+            {
+                m_field = dataField;
+                m_dataHolder.reset( new DataHolder<int64_t>( std::vector<int64_t>( valueCount ) ) );
+                return grpc::Status::OK;
+            }
             else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<uint64_t>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
                 m_dataHolder.reset( new DataHolder<uint64_t>( std::vector<uint64_t>( valueCount ) ) );
                 return grpc::Status::OK;
             }
-
             else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<double>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
