@@ -119,8 +119,6 @@ set(PROJECT_FILES
     cafQActionWrapper.h
     cafQTreeViewStateSerializer.h
     cafQTreeViewStateSerializer.cpp
-    cafMemoryInspector.h
-    cafMemoryInspector.cpp
     cafDoubleStringValidator.h
     cafDoubleStringValidator.cpp
     cafPickEventHandler.h

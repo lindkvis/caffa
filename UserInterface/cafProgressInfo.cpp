@@ -36,7 +36,6 @@
 
 #include "cafProgressInfo.h"
 #include "cafAssert.h"
-#include "cafMemoryInspector.h"
 #include "cafProgressState.h"
 
 #include <QApplication>
@@ -201,29 +200,6 @@ caffa::ProgressTask ProgressInfo::task( const QString& description, int stepSize
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString createMemoryLabelText()
-{
-    uint64_t currentUsage        = caffa::MemoryInspector::getApplicationPhysicalMemoryUsageMiB();
-    uint64_t totalPhysicalMemory = caffa::MemoryInspector::getTotalPhysicalMemoryMiB();
-
-    float currentUsageFraction = 0.0f;
-    if ( currentUsage > 0u && totalPhysicalMemory > 0u )
-    {
-        currentUsageFraction = std::min( 1.0f, static_cast<float>( currentUsage ) / totalPhysicalMemory );
-    }
-
-    QString labelText( "\n" );
-    if ( currentUsageFraction > 0.5 )
-    {
-        labelText =
-            QString( "Memory Used: %1 MiB, Total Physical Memory: %2 MiB\n" ).arg( currentUsage ).arg( totalPhysicalMemory );
-    }
-    return labelText;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 static QProgressDialog* progressDialog()
 {
     static QPointer<QProgressDialog> progDialog;
@@ -342,7 +318,6 @@ static QString currentComposedLabel()
         if ( !descriptionStack()[i].isEmpty() ) labelText += descriptionStack()[i];
         if ( !( titleStack()[i].isEmpty() && descriptionStack()[i].isEmpty() ) ) labelText += "\n";
     }
-    labelText += createMemoryLabelText();
     return labelText;
 }
 
@@ -632,7 +607,7 @@ void ProgressInfoStatic::finished()
     std::vector<size_t>& maxProgressStack_v  = maxProgressStack();
 
     CAFFA_ASSERT( maxProgressStack_v.size() && progressStack_v.size() && progressSpanStack_v.size() &&
-                titleStack().size() && descriptionStack().size() );
+                  titleStack().size() && descriptionStack().size() );
 
     // Set progress to max value, and leave it there until somebody touches the progress again
 
