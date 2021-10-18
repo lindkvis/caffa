@@ -38,6 +38,7 @@
 
 #include "cafDataFieldAccessor.h"
 #include "cafField.h"
+#include "cafFieldIoCapability.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafFieldUiCapability.h"
@@ -105,6 +106,18 @@ public:
     FieldInitHelper& withAccessor( std::unique_ptr<DataFieldAccessor<typename FieldType::FieldDataType>> accessor )
     {
         m_field.setAccessor( std::move( accessor ) );
+        return *this;
+    }
+
+    FieldInitHelper& readOnly()
+    {
+        m_field.template capability<FieldIoCapability>()->setIOWritable( false );
+        return *this;
+    }
+
+    FieldInitHelper& writeOnly()
+    {
+        m_field.template capability<FieldIoCapability>()->setIOReadable( false );
         return *this;
     }
 
