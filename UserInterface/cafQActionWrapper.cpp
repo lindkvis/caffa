@@ -96,16 +96,6 @@ std::string QActionWrapper::shortcut() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void QActionWrapper::setIcon( const IconProvider& iconProvider )
-{
-    m_iconProvider = iconProvider;
-    auto icon      = QIcon( QString::fromStdString( m_iconProvider.iconResourceString() ) );
-    if ( !icon.isNull() ) m_action->setIcon( icon );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void QActionWrapper::connect( const std::function<void( bool )>& trigger )
 {
     m_trigger = trigger;
@@ -138,7 +128,7 @@ bool QActionWrapper::isEqualTo( const ActionWrapper* wrapper ) const
 //--------------------------------------------------------------------------------------------------
 void QActionWrapper::setData( const Variant& variant )
 {
-    m_action->setData( QVariant::fromValue(variant ) );
+    m_action->setData( QVariant::fromValue( variant ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,14 +190,6 @@ bool QActionWrapper::isChecked() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-IconProvider QActionWrapper::icon() const
-{
-    return m_iconProvider;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void QActionWrapper::trigger( bool checked ) const
 {
     m_trigger( checked );
@@ -263,18 +245,9 @@ QMenu* QMenuWrapper::menu()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-MenuInterface* QMenuWrapper::addMenu( const IconProvider& iconProvider, const std::string& subMenuName )
+MenuInterface* QMenuWrapper::addMenu( const std::string& subMenuName )
 {
-    QIcon  icon( QString::fromStdString( iconProvider.iconResourceString() ) );
-    QMenu* subMenu = nullptr;
-    if ( !icon.isNull() )
-    {
-        subMenu = m_menu->addMenu( icon, QString::fromStdString( subMenuName ) );
-    }
-    else
-    {
-        subMenu = m_menu->addMenu( QString::fromStdString( subMenuName ) );
-    }
+    QMenu* subMenu = m_menu->addMenu( QString::fromStdString( subMenuName ) );
     return new QMenuWrapper( subMenu );
 }
 

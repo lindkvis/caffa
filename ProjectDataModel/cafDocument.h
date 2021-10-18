@@ -62,8 +62,6 @@ public:
     bool read( ObjectIoCapability::IoType ioType = ObjectIoCapability::IoType::JSON );
     bool write( ObjectIoCapability::IoType ioType = ObjectIoCapability::IoType::JSON );
 
-    static void updateUiIconStateRecursively( ObjectHandle* root );
-
 private:
     Field<std::string> m_id;
     Field<std::string> m_fileName;

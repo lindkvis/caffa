@@ -234,15 +234,7 @@ void UiComboBoxEditor::configureAndUpdateUi()
             int     index        = 0;
             for ( const auto& option : options )
             {
-                auto icon = option.iconProvider();
-                if ( icon )
-                    m_comboBox->addItem( QIcon( QString::fromStdString( icon->iconResourceString() ) ),
-                                         QString::fromStdString( option.optionUiText() ) );
-                else
-                    m_comboBox->addItem( QString::fromStdString( option.optionUiText() ) );
-                auto [width, height] = m_attributes.iconSize;
-
-                m_comboBox->setIconSize( QSize( width, height ) );
+                m_comboBox->addItem( QString::fromStdString( option.optionUiText() ) );
                 if ( option.value() == currentValue )
                 {
                     m_comboBox->setCurrentIndex( index );

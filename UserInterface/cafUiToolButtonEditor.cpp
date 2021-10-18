@@ -52,12 +52,6 @@ void UiToolButtonEditor::configureAndUpdateUi()
 {
     CAFFA_ASSERT( !m_toolButton.isNull() );
 
-    auto ic = uiField()->uiIconProvider();
-    if ( ic )
-    {
-        m_toolButton->setIcon( QIcon( QString::fromStdString( ic->iconResourceString() ) ) );
-    }
-
     QString buttonText = QString::fromStdString( uiField()->uiName() );
     m_toolButton->setText( buttonText );
 

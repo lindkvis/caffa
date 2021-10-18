@@ -41,7 +41,7 @@ CAFFA_SOURCE_INIT(TinyDemoObject, "TinyDemoObject", "Object");
 
 TinyDemoObject::TinyDemoObject()
 {
-    assignUiInfo("A tiny object", ":/anIcon.png", "A tooltip", "What's this?"); // Optional Ui data
+    assignUiInfo("A tiny object", "A tooltip", "What's this?"); // Optional Ui data
     
     initField(m_doubleField, "Number", 0.0).withUi("Number", "", "Enter a number here", "Double precision number");
     initField(m_scriptableIntField, "Integer", 42).withScripting("AnInteger");

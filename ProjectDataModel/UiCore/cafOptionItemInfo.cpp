@@ -40,14 +40,10 @@ using namespace caffa;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-OptionItemInfo::OptionItemInfo( const std::string&            anOptionUiText,
-                                const Variant&                aValue,
-                                bool                          isReadOnly /* = false */,
-                                std::shared_ptr<IconProvider> anIcon )
+OptionItemInfo::OptionItemInfo( const std::string& anOptionUiText, const Variant& aValue, bool isReadOnly /* = false */ )
     : m_optionUiText( anOptionUiText )
     , m_value( aValue )
     , m_isReadOnly( isReadOnly )
-    , m_iconProvider( anIcon )
     , m_level( 0 )
 {
 }
@@ -55,13 +51,9 @@ OptionItemInfo::OptionItemInfo( const std::string&            anOptionUiText,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-OptionItemInfo::OptionItemInfo( const std::string&            anOptionUiText,
-                                caffa::ObjectHandle*            obj,
-                                bool                          isReadOnly /*= false*/,
-                                std::shared_ptr<IconProvider> anIcon )
+OptionItemInfo::OptionItemInfo( const std::string& anOptionUiText, caffa::ObjectHandle* obj, bool isReadOnly /*= false*/ )
     : m_optionUiText( anOptionUiText )
     , m_isReadOnly( isReadOnly )
-    , m_iconProvider( anIcon )
     , m_level( 0 )
 {
     m_value = Variant( caffa::Pointer<caffa::ObjectHandle>( obj ) );
@@ -70,11 +62,9 @@ OptionItemInfo::OptionItemInfo( const std::string&            anOptionUiText,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-OptionItemInfo OptionItemInfo::createHeader( const std::string&            anOptionUiText,
-                                             bool                          isReadOnly /*= false*/,
-                                             std::shared_ptr<IconProvider> anIcon )
+OptionItemInfo OptionItemInfo::createHeader( const std::string& anOptionUiText, bool isReadOnly /*= false*/ )
 {
-    OptionItemInfo header( anOptionUiText, Variant(), isReadOnly, anIcon );
+    OptionItemInfo header( anOptionUiText, Variant(), isReadOnly );
 
     return header;
 }
@@ -85,14 +75,6 @@ OptionItemInfo OptionItemInfo::createHeader( const std::string&            anOpt
 void OptionItemInfo::setLevel( int level )
 {
     m_level = level;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::shared_ptr<IconProvider> OptionItemInfo::iconProvider() const
-{
-    return m_iconProvider;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,4 +131,3 @@ std::deque<std::string> OptionItemInfo::extractUiTexts( const std::deque<OptionI
 
     return texts;
 }
-

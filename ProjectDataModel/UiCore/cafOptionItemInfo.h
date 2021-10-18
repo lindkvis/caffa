@@ -35,7 +35,6 @@
 //##################################################################################################
 #pragma once
 
-#include "cafIconProvider.h"
 #include "cafVariant.h"
 
 #include <deque>
@@ -55,35 +54,25 @@ public:
     // Note the extra dummy parameter. This ensures compilation fails for non-enum types and these variants get removed
     // due to SFINAE (https://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error)
     template <typename T>
-    OptionItemInfo( const std::string&            anOptionUiText,
-                    T                             aValue,
-                    bool                          isReadOnly               = false,
-                    std::shared_ptr<IconProvider> anIcon                   = nullptr,
+    OptionItemInfo( const std::string& anOptionUiText,
+                    T                  aValue,
+                    bool               isReadOnly                          = false,
                     typename std::enable_if<std::is_enum<T>::value>::type* = 0 )
-        : OptionItemInfo( anOptionUiText, Variant( static_cast<int>( aValue ) ), isReadOnly, anIcon )
+        : OptionItemInfo( anOptionUiText, Variant( static_cast<int>( aValue ) ), isReadOnly )
     {
     }
-    OptionItemInfo( const std::string&            anOptionUiText,
-                    const Variant&                aValue,
-                    bool                          isReadOnly = false,
-                    std::shared_ptr<IconProvider> anIcon     = nullptr );
-    OptionItemInfo( const std::string&            anOptionUiText,
-                    caffa::ObjectHandle*            obj,
-                    bool                          isReadOnly = false,
-                    std::shared_ptr<IconProvider> anIcon     = nullptr );
+    OptionItemInfo( const std::string& anOptionUiText, const Variant& aValue, bool isReadOnly = false );
+    OptionItemInfo( const std::string& anOptionUiText, caffa::ObjectHandle* obj, bool isReadOnly = false );
 
-    static OptionItemInfo createHeader( const std::string&            anOptionUiText,
-                                        bool                          isReadOnly = false,
-                                        std::shared_ptr<IconProvider> anIcon     = nullptr );
+    static OptionItemInfo createHeader( const std::string& anOptionUiText, bool isReadOnly = false );
 
     void setLevel( int level );
 
-    std::shared_ptr<IconProvider> iconProvider() const;
-    const std::string             optionUiText() const;
-    const Variant                 value() const;
-    bool                          isReadOnly() const;
-    bool                          isHeading() const;
-    int                           level() const;
+    const std::string optionUiText() const;
+    const Variant     value() const;
+    bool              isReadOnly() const;
+    bool              isHeading() const;
+    int               level() const;
 
     // Static utility methods to handle std::list of OptionItemInfo
     // Please regard as private to the CAF system
@@ -91,11 +80,10 @@ public:
     static std::deque<std::string> extractUiTexts( const std::deque<OptionItemInfo>& optionList );
 
 private:
-    std::string                   m_optionUiText;
-    Variant                       m_value;
-    bool                          m_isReadOnly;
-    std::shared_ptr<IconProvider> m_iconProvider;
-    int                           m_level;
+    std::string m_optionUiText;
+    Variant     m_value;
+    bool        m_isReadOnly;
+    int         m_level;
 };
 
 } // namespace caffa

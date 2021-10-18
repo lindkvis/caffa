@@ -11,24 +11,19 @@ CAFFA_SOURCE_INIT(ManyGroups, "LargeObject", "Object");
 //--------------------------------------------------------------------------------------------------
 ManyGroups::ManyGroups()
 {
-    assignUiInfo("Many Groups",
-                 ":/images/win/filenew.png",
-                 "This object is a demo of the CAF framework",
-                 "This object is a demo of the CAF framework");
+    assignUiInfo("Many Groups", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
 
     initField(m_toggleField, "Toggle", false)
-        .withUi("Add Items To Multi Select", "", "Toggle Field tooltip", " Toggle Field whatsthis");
+        .withUi("Add Items To Multi Select", "Toggle Field tooltip", " Toggle Field whatsthis");
     initField(m_doubleField, "BigNumber", 0.0)
-        .withUi("Big Number", "", "Enter a big number here", "This is a place you can enter a big real value if you want");
+        .withUi("Big Number", "Enter a big number here", "This is a place you can enter a big real value if you want");
     initField(m_intField, "IntNumber", 0)
-        .withUi("Small Number",
-                "",
-                "Enter some small number here",
-                "This is a place you can enter a small integer value if you want");
+        .withUi(
+            "Small Number", "Enter some small number here", "This is a place you can enter a small integer value if you want");
     initField(m_textField, "TextField")
-        .withUi("Text", "", "Text tooltip", "This is a place you can enter a small integer value if you want");
+        .withUi("Text", "Text tooltip", "This is a place you can enter a small integer value if you want");
 
-    initField(m_proxyDoubleField, "ProxyDouble").withUi("Proxy Double", "", "", "");
+    initField(m_proxyDoubleField, "ProxyDouble").withUi("Proxy Double", "", "");
     auto proxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
     proxyAccessor->registerSetMethod(this, &ManyGroups::setDoubleMember);
     proxyAccessor->registerGetMethod(this, &ManyGroups::doubleMember);
@@ -41,7 +36,7 @@ ManyGroups::ManyGroups()
         std::cout << "Double is not 3 " << std::endl;
     }
 
-    initField(m_multiSelectList, "SelectedItems").withUi("Multi Select Field", "", "", "");
+    initField(m_multiSelectList, "SelectedItems").withUi("Multi Select Field", "", "");
 
     m_multiSelectList.capability<caffa::FieldIoCapability>()->setIOReadable(false);
     m_multiSelectList.capability<caffa::FieldIoCapability>()->setIOWritable(false);
@@ -50,7 +45,7 @@ ManyGroups::ManyGroups()
 
     m_multiSelectList = {"First", "Second", "Third"};
 
-    initField(m_stringWithMultipleOptions, "m_stringWithMultipleOptions").withUi("Text with many items", "", "", "");
+    initField(m_stringWithMultipleOptions, "m_stringWithMultipleOptions").withUi("Text with many items", "", "");
     m_stringWithMultipleOptions.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(
         caffa::UiListEditor::uiEditorTypeName());
 }
@@ -128,8 +123,7 @@ std::deque<caffa::OptionItemInfo> ManyGroups::calculateValueOptions(const caffa:
         options.push_back(caffa::OptionItemInfo(text, text));
 
         text = "Second";
-        options.push_back(
-            caffa::OptionItemInfo::createHeader(text, false, std::make_shared<caffa::IconProvider>(":/images/win/textbold.png")));
+        options.push_back(caffa::OptionItemInfo::createHeader(text, false));
 
         {
             text                           = "Second_a";
@@ -139,9 +133,8 @@ std::deque<caffa::OptionItemInfo> ManyGroups::calculateValueOptions(const caffa:
         }
 
         {
-            text = "Second_b";
-            caffa::OptionItemInfo itemInfo =
-                caffa::OptionItemInfo(text, text, false, std::make_shared<caffa::IconProvider>(":/images/win/filenew.png"));
+            text                           = "Second_b";
+            caffa::OptionItemInfo itemInfo = caffa::OptionItemInfo(text, text, false);
             itemInfo.setLevel(1);
             options.push_back(itemInfo);
         }

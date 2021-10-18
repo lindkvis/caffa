@@ -88,7 +88,7 @@ void ObjectUiCapability::objectEditorAttribute( UiEditorAttribute* attribute )
 UiTreeOrdering* ObjectUiCapability::uiTreeOrdering() const
 {
     CAFFA_ASSERT( this ); // This method actually is possible to call on a nullptr without getting a crash, so we assert
-                        // instead.
+                          // instead.
 
     UiTreeOrdering* uiTreeOrdering = new UiTreeOrdering( nullptr, m_owner );
 
@@ -208,22 +208,6 @@ void ObjectUiCapability::expandUiTree( UiTreeOrdering* root )
         }
     }
 #endif
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void ObjectUiCapability::updateUiIconFromToggleField()
-{
-    if ( m_owner->objectToggleField() )
-    {
-        Field<bool>* toggleField = dynamic_cast<Field<bool>*>( m_owner->objectToggleField() );
-        if ( toggleField )
-        {
-            bool active = toggleField->value();
-            updateUiIconFromState( active );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

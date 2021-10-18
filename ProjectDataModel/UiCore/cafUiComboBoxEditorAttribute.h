@@ -58,7 +58,6 @@ public:
         maximumMenuContentsLength  = 40;
         enableEditableContent      = false;
         minimumWidth               = -1;
-        iconSize                   = std::make_pair( 14, 14 );
     }
 
 public:
@@ -72,7 +71,5 @@ public:
     std::string placeholderText;
     std::string nextButtonText;
     std::string prevButtonText;
-
-    std::pair<int, int> iconSize;
 };
 } // namespace caffa

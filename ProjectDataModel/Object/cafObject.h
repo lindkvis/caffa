@@ -41,7 +41,6 @@
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafFieldUiCapability.h"
-#include "cafIconProvider.h"
 #include "cafInternalUiFieldCapability.h"
 #include "cafObjectCapability.h"
 #include "cafObjectHandle.h"
@@ -85,12 +84,10 @@ public:
         return *this;
     }
 
-    FieldInitHelper& withUi( const std::string& uiName           = "",
-                             const std::string& iconResourceName = "",
-                             const std::string& toolTip          = "",
-                             const std::string& whatsThis        = "" )
+    FieldInitHelper&
+        withUi( const std::string& uiName = "", const std::string& toolTip = "", const std::string& whatsThis = "" )
     {
-        caffa::UiItemInfo         fieldDescription( uiName, iconResourceName, toolTip, whatsThis, m_keyword );
+        caffa::UiItemInfo         fieldDescription( uiName, toolTip, whatsThis, m_keyword );
         caffa::FieldUiCapability* uiFieldHandle = m_field.template capability<caffa::FieldUiCapability>();
         if ( uiFieldHandle )
         {
@@ -136,10 +133,7 @@ public:
      * Note that classKeyword() is not virtual in the constructor of the Object
      * This is expected and fine.
      */
-    void assignUiInfo( const std::string& uiName           = "",
-                       const std::string& iconResourceName = "",
-                       const std::string& toolTip          = "",
-                       const std::string& whatsThis        = "" );
+    void assignUiInfo( const std::string& uiName = "", const std::string& toolTip = "", const std::string& whatsThis = "" );
 
     /**
      * Initialises the field with a file keyword and registers it with the class

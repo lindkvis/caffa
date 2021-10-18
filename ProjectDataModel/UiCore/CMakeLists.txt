@@ -14,7 +14,6 @@ set(PUBLIC_HEADERS
     cafInternalUiFieldCapability.inl
     cafInternalUiCommandSystemInterface.h
     cafFontTools.h
-    cafIconProvider.h
     cafActionWrapper.h
     cafOptionItemInfo.h
     cafUiEditorAttribute.h
@@ -45,7 +44,6 @@ add_definitions(-D${PROJECT_NAME}_LIBRARY)
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
     cafFontTools.cpp
-    cafIconProvider.cpp
     cafUiEditorHandle.cpp
     cafFieldUiCapability.cpp
     cafOptionItemInfo.cpp

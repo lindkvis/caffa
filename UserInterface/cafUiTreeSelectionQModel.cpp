@@ -158,7 +158,8 @@ size_t caffa::UiTreeSelectionQModel::optionItemCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caffa::UiTreeSelectionQModel::setOptions( caffa::UiFieldEditorHandle* field, const std::deque<caffa::OptionItemInfo>& options )
+void caffa::UiTreeSelectionQModel::setOptions( caffa::UiFieldEditorHandle*              field,
+                                               const std::deque<caffa::OptionItemInfo>& options )
 {
     m_uiFieldHandle = field;
 
@@ -351,15 +352,6 @@ QVariant caffa::UiTreeSelectionQModel::data( const QModelIndex& index, int role 
         {
             return QVariant( QString::fromStdString( optionItemInfo->optionUiText() ) );
         }
-        else if ( role == Qt::DecorationRole )
-        {
-            auto icon = optionItemInfo->iconProvider();
-            if ( icon && !icon->iconResourceString().empty() )
-            {
-                return QIcon( QString::fromStdString( icon->iconResourceString() ) );
-            }
-            return QIcon();
-        }
         else if ( role == Qt::CheckStateRole && !optionItemInfo->isHeading() )
         {
             if ( m_uiFieldHandle && m_uiFieldHandle->uiField() )
@@ -477,9 +469,8 @@ bool caffa::UiTreeSelectionQModel::setData( const QModelIndex& index, const QVar
 
                 previouslySelectedItems.erase( std::remove_if( previouslySelectedItems.begin(),
                                                                previouslySelectedItems.end(),
-                                                               [&opItem]( const auto& v ) {
-                                                                   return opItem->value() == v;
-                                                               } ),
+                                                               [&opItem]( const auto& v )
+                                                               { return opItem->value() == v; } ),
                                                previouslySelectedItems.end() );
             }
 
