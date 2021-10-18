@@ -25,13 +25,10 @@ caffa::Object::Object()
     m_uuid = uuids::to_string( gen() );
 }
 
-void Object::assignUiInfo( const std::string& uiName,
-                           const std::string& iconResourceName,
-                           const std::string& toolTip,
-                           const std::string& whatsThis )
+void Object::assignUiInfo( const std::string& uiName, const std::string& toolTip, const std::string& whatsThis )
 {
     std::string       validUiName = uiName.empty() ? classKeyword() : uiName;
-    caffa::UiItemInfo objDescr( validUiName, iconResourceName, toolTip, whatsThis );
+    caffa::UiItemInfo objDescr( validUiName, toolTip, whatsThis );
     this->setUiItemInfo( objDescr );
 }
 

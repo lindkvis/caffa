@@ -43,35 +43,11 @@ namespace caffa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-UiItemInfo::UiItemInfo( const std::string&            uiName,
-                        std::shared_ptr<IconProvider> iconProvider,
-                        std::string                   toolTip /*= ""*/,
-                        std::string                   whatsThis /*= ""*/,
-                        std::string                   extraDebugText /*= ""*/ )
-    : m_uiName( uiName )
-    , m_iconProvider( iconProvider )
-    , m_toolTip( toolTip )
-    , m_whatsThis( whatsThis )
-    , m_extraDebugText( extraDebugText )
-    , m_editorTypeName( "" )
-    , m_isHidden( false )
-    , m_isTreeChildrenHidden( false )
-    , m_isReadOnly( false )
-    , m_labelAlignment( LEFT )
-    , m_isCustomContextMenuEnabled( false )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 UiItemInfo::UiItemInfo( const std::string& uiName,
-                        std::string        iconResourceLocation /*= ""*/,
                         std::string        toolTip /*= ""*/,
                         std::string        whatsThis /*= ""*/,
                         std::string        extraDebugText /*= ""*/ )
     : m_uiName( uiName )
-    , m_iconProvider( std::make_shared<IconProvider>( iconResourceLocation ) )
     , m_toolTip( toolTip )
     , m_whatsThis( whatsThis )
     , m_extraDebugText( extraDebugText )
@@ -82,14 +58,6 @@ UiItemInfo::UiItemInfo( const std::string& uiName,
     , m_labelAlignment( LEFT )
     , m_isCustomContextMenuEnabled( false )
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const IconProvider* UiItemInfo::iconProvider() const
-{
-    return m_iconProvider.get();
 }
 
 //==================================================================================================
@@ -112,29 +80,6 @@ const std::string UiItem::uiName() const
 void UiItem::setUiName( const std::string& uiName )
 {
     m_itemInfo.m_uiName = uiName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const IconProvider* UiItem::uiIconProvider() const
-{
-    return m_itemInfo.m_iconProvider.get();
-}
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void UiItem::setUiIcon( std::shared_ptr<IconProvider> uiIconProvider )
-{
-    m_itemInfo.m_iconProvider = uiIconProvider;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void UiItem::setUiIconFromResourceString( const std::string& uiIconResourceName )
-{
-    setUiIcon( std::make_shared<IconProvider>( uiIconResourceName ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -347,17 +292,6 @@ UiItem::~UiItem()
 //--------------------------------------------------------------------------------------------------
 UiItem::UiItem()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void UiItem::updateUiIconFromState( bool isActive )
-{
-    if ( m_itemInfo.m_iconProvider )
-    {
-        m_itemInfo.m_iconProvider->setActive( isActive );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

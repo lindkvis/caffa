@@ -34,8 +34,6 @@ public:
     void           setShortcut( StandardKey shortcut ) override;
     std::string    shortcut() const override;
     bool           isEqualTo( const ActionWrapper* wrapper ) const;
-    void           setIcon( const IconProvider& iconProvider ) override;
-    IconProvider   icon() const override;
     void           trigger( bool checked ) const override;
 
     void connect( const std::function<void( bool )>& trigger ) override;
@@ -45,7 +43,6 @@ private slots:
 
 private:
     QAction*                    m_action;
-    IconProvider                m_iconProvider;
     bool                        m_takesOwnership;
     std::function<void( bool )> m_trigger;
 };
@@ -65,11 +62,11 @@ public:
 
     QMenu* menu();
 
-    MenuInterface*                 addMenu( const IconProvider& iconProvider, const std::string& subMenuName ) override;
-    void                           addAction( std::shared_ptr<ActionWrapper> actionWrapper ) override;
-    std::shared_ptr<ActionWrapper> menuAction() const override;
-    void                           removeAction( std::shared_ptr<ActionWrapper> actionWrapper ) override;
-    void                           addSeparator() override;
+    MenuInterface*                            addMenu( const std::string& subMenuName ) override;
+    void                                      addAction( std::shared_ptr<ActionWrapper> actionWrapper ) override;
+    std::shared_ptr<ActionWrapper>            menuAction() const override;
+    void                                      removeAction( std::shared_ptr<ActionWrapper> actionWrapper ) override;
+    void                                      addSeparator() override;
     std::list<std::shared_ptr<ActionWrapper>> actions() const override;
 
 private:

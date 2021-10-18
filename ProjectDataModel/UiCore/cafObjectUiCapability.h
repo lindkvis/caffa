@@ -44,15 +44,13 @@ public:
     /// Field used to control if field change of and object should be covered by undo/redo framework
     virtual bool useUndoRedoForFieldChanged() { return true; }
 
-    void updateUiIconFromToggleField();
-
     // Virtual interface to override in subclasses to support special behaviour if needed
 public: // Virtual
     void fieldChangedByUi( const FieldHandle* changedField, const Variant& oldValue, const Variant& newValue );
 
     /// Method to re-implement to supply option values for a specific field
     virtual std::deque<OptionItemInfo> calculateValueOptions( const caffa::FieldHandle* fieldNeedingOptions,
-                                                              bool*                   useOptionsOnly )
+                                                              bool*                     useOptionsOnly )
     {
         return std::deque<OptionItemInfo>();
     }

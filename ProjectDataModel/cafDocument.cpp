@@ -48,7 +48,7 @@ CAFFA_SOURCE_INIT( Document, "Document", "Object" );
 //--------------------------------------------------------------------------------------------------
 Document::Document( const std::string& id )
 {
-    assignUiInfo( "Document", "", "Basic Document", "" );
+    assignUiInfo( "Document", "Basic Document", "" );
     initField( m_id, "id" ).withScripting().withDefault( id );
     initField( m_fileName, "fileName" ).withScripting();
 }
@@ -99,25 +99,6 @@ bool Document::read( ObjectIoCapability::IoType ioType /*= ObjectIoCapability::I
 bool Document::write( ObjectIoCapability::IoType ioType /*= ObjectIoCapability::IoType::JSON */ )
 {
     return ObjectIoCapability::writeFile( m_fileName, ioType );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Document::updateUiIconStateRecursively( ObjectHandle* object )
-{
-    if ( object == nullptr ) return;
-
-    for ( auto child : object->children() )
-    {
-        Document::updateUiIconStateRecursively( child );
-    }
-
-    ObjectUiCapability* uiObjectHandle = uiObj( object );
-    if ( uiObjectHandle )
-    {
-        uiObjectHandle->updateUiIconFromToggleField();
-    }
 }
 
 } // End of namespace caffa

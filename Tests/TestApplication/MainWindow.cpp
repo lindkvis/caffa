@@ -47,7 +47,7 @@ class DemoObjectGroup : public caffa::Document
 public:
     DemoObjectGroup()
     {
-        assignUiInfo("Project", "", "Test Project", "");
+        assignUiInfo("Project", "Test Project", "");
         initField(objects, "Objects").withUi();
         initField(m_textField, "Description").withUi("Project");
         objects.capability<caffa::FieldUiCapability>()->setUiHidden(true);
@@ -84,11 +84,11 @@ CAFFA_SOURCE_INIT(TinyDemoObject, "TinyDemoObject", "Object");
 
 TinyDemoObject::TinyDemoObject()
 {
-    assignUiInfo("Tiny Demo Object", "", "This object is a demo of the CAF framework", "");
-    initField(m_toggleField, "Toggle").withDefault(false).withUi("Toggle Item", "", "Tooltip", " Whatsthis?");
+    assignUiInfo("Tiny Demo Object", "This object is a demo of the CAF framework", "");
+    initField(m_toggleField, "Toggle").withDefault(false).withUi("Toggle Item", "Tooltip", " Whatsthis?");
     initField(m_doubleField, "Number")
         .withDefault(0.0)
-        .withUi("Number", "", "Enter a floating point number here", "Double precision floating point number");
+        .withUi("Number", "Enter a floating point number here", "Double precision floating point number");
 }
 
 class SmallDemoObject : public caffa::Object
@@ -98,24 +98,21 @@ class SmallDemoObject : public caffa::Object
 public:
     SmallDemoObject()
     {
-        assignUiInfo("Small Demo Object",
-                     ":/images/win/filenew.png",
-                     "This object is a demo of the CAF framework",
-                     "This object is a demo of the CAF framework");
+        assignUiInfo(
+            "Small Demo Object", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
 
         initField(m_toggleField, "Toggle", false)
-            .withUi("Add Items To Multi Select", "", "Toggle Field tooltip", " Toggle Field whatsthis");
+            .withUi("Add Items To Multi Select", "Toggle Field tooltip", " Toggle Field whatsthis");
         initField(m_doubleField, "BigNumber", 0.0)
-            .withUi("Big Number", "", "Enter a big number here", "This is a place you can enter a big real value if you want");
+            .withUi("Big Number", "Enter a big number here", "This is a place you can enter a big real value if you want");
         m_doubleField.capability<caffa::FieldUiCapability>()->setCustomContextMenuEnabled(true);
 
         initField(m_intField, "IntNumber", 0)
             .withUi("Small Number",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         initField(m_textField, "TextField")
-            .withUi("Text", "", "Text tooltip", "This is a place you can enter a small integer value if you want");
+            .withUi("Text", "Text tooltip", "This is a place you can enter a small integer value if you want");
 
         auto proxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
         proxyAccessor->registerSetMethod(this, &SmallDemoObject::setDoubleMember);
@@ -128,7 +125,7 @@ public:
             qDebug() << "Double is not 3 ";
         }
 
-        initField(m_multiSelectList, "SelectedItems").withUi("Multi Select Field", "", "", "");
+        initField(m_multiSelectList, "SelectedItems").withUi("Multi Select Field", "", "");
         m_multiSelectList.capability<caffa::FieldIoCapability>()->setIOReadable(false);
         m_multiSelectList.capability<caffa::FieldIoCapability>()->setIOWritable(false);
         m_multiSelectList.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(
@@ -189,8 +186,7 @@ public:
             options.push_back(caffa::OptionItemInfo(text, text));
 
             text = "Second";
-            options.push_back(caffa::OptionItemInfo::createHeader(
-                text, false, std::make_shared<caffa::IconProvider>(":/images/win/textbold.png")));
+            options.push_back(caffa::OptionItemInfo::createHeader(text, false));
 
             {
                 text                           = "Second_a";
@@ -200,9 +196,8 @@ public:
             }
 
             {
-                text = "Second_b";
-                caffa::OptionItemInfo itemInfo =
-                    caffa::OptionItemInfo(text, text, false, std::make_shared<caffa::IconProvider>(":/images/win/filenew.png"));
+                text                           = "Second_b";
+                caffa::OptionItemInfo itemInfo = caffa::OptionItemInfo(text, text, false);
                 itemInfo.setLevel(1);
                 options.push_back(itemInfo);
             }
@@ -278,160 +273,119 @@ class SmallGridDemoObject : public caffa::Object
 public:
     SmallGridDemoObject()
     {
-        assignUiInfo("Small Grid Demo Object",
-                     "",
-                     "This object is a demo of the CAF framework",
-                     "This object is a demo of the CAF framework");
+        assignUiInfo(
+            "Small Grid Demo Object", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
 
         initField(m_intFieldStandard, "Standard", 0)
-            .withUi("Standard",
-                    "",
-                    "Enter some small number here",
-                    "This is a place you can enter a small integer value if you want");
+            .withUi(
+                "Standard", "Enter some small number here", "This is a place you can enter a small integer value if you want");
         initField(m_intFieldUseFullSpace, "FullSpace", 0)
             .withUi("Use Full Space For Both",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         initField(m_intFieldUseFullSpaceLabel, "FullSpaceLabel", 0)
             .withUi("Total 3, Label MAX",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         initField(m_intFieldUseFullSpaceField, "FullSpaceField", 0)
             .withUi("Total MAX, Label 1",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         initField(m_intFieldWideLabel, "WideLabel", 0)
-            .withUi("Wide Label",
-                    "",
-                    "Enter some small number here",
-                    "This is a place you can enter a small integer value if you want");
+            .withUi(
+                "Wide Label", "Enter some small number here", "This is a place you can enter a small integer value if you want");
         initField(m_intFieldWideField, "WideField", 0)
-            .withUi("Wide Field",
-                    "",
-                    "Enter some small number here",
-                    "This is a place you can enter a small integer value if you want");
+            .withUi(
+                "Wide Field", "Enter some small number here", "This is a place you can enter a small integer value if you want");
         initField(m_intFieldLeft, "LeftField", 0)
-            .withUi("Left Field",
-                    "",
-                    "Enter some small number here",
-                    "This is a place you can enter a small integer value if you want");
+            .withUi(
+                "Left Field", "Enter some small number here", "This is a place you can enter a small integer value if you want");
         initField(m_intFieldRight, "RightField", 0)
             .withUi("Right Field With More Text",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         initField(m_intFieldWideBoth, "WideBoth", 0)
-            .withUi("Wide Both",
-                    "",
-                    "Enter some small number here",
-                    "This is a place you can enter a small integer value if you want");
+            .withUi(
+                "Wide Both", "Enter some small number here", "This is a place you can enter a small integer value if you want");
 
         initField(m_intFieldWideBoth2, "WideBoth2", 0)
-            .withUi("Wide Both",
-                    "",
-                    "Enter some small number here",
-                    "This is a place you can enter a small integer value if you want");
+            .withUi(
+                "Wide Both", "Enter some small number here", "This is a place you can enter a small integer value if you want");
         initField(m_intFieldLeft2, "LeftFieldInGrp", 0)
-            .withUi("Left Field",
-                    "",
-                    "Enter some small number here",
-                    "This is a place you can enter a small integer value if you want");
+            .withUi(
+                "Left Field", "Enter some small number here", "This is a place you can enter a small integer value if you want");
         initField(m_intFieldCenter, "CenterFieldInGrp", 0)
             .withUi("Center Field",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         initField(m_intFieldRight2, "RightFieldInGrp", 0)
-            .withUi("Right Field",
-                    "",
-                    "Enter some small number here",
-                    "This is a place you can enter a small integer value if you want");
+            .withUi(
+                "Right Field", "Enter some small number here", "This is a place you can enter a small integer value if you want");
         initField(m_intFieldLabelTop, "FieldLabelTop", 0)
             .withUi("Field Label Top",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         m_intFieldLabelTop.capability<caffa::FieldUiCapability>()->setUiLabelPosition(caffa::UiItemInfo::TOP);
         initField(m_stringFieldLabelHidden, "FieldLabelHidden", "Hidden Label Field")
             .withUi("Field Label Hidden",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         m_stringFieldLabelHidden.capability<caffa::FieldUiCapability>()->setUiLabelPosition(caffa::UiItemInfo::HIDDEN);
 
         initField(m_intFieldWideBothAuto, "WideBothAuto", 0)
-            .withUi(
-                "Wide ", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+            .withUi("Wide ", "Enter some small number here", "This is a place you can enter a small integer value if you want");
         initField(m_intFieldLeftAuto, "LeftFieldInGrpAuto", 0)
-            .withUi("Left Field",
-                    "",
-                    "Enter some small number here",
-                    "This is a place you can enter a small integer value if you want");
+            .withUi(
+                "Left Field", "Enter some small number here", "This is a place you can enter a small integer value if you want");
         initField(m_intFieldCenterAuto, "CenterFieldInGrpAuto", 0)
             .withUi("Center Field",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         initField(m_intFieldRightAuto, "RightFieldInGrpAuto", 0)
-            .withUi("Right Field",
-                    "",
-                    "Enter some small number here",
-                    "This is a place you can enter a small integer value if you want");
+            .withUi(
+                "Right Field", "Enter some small number here", "This is a place you can enter a small integer value if you want");
         initField(m_intFieldLabelTopAuto, "FieldLabelTopAuto", 0)
             .withUi("Field Label Top",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         m_intFieldLabelTopAuto.capability<caffa::FieldUiCapability>()->setUiLabelPosition(caffa::UiItemInfo::TOP);
         initField(m_stringFieldLabelHiddenAuto, "FieldLabelHiddenAuto", "Hidden Label Field")
             .withUi("Field Label Hidden",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         m_stringFieldLabelHiddenAuto.capability<caffa::FieldUiCapability>()->setUiLabelPosition(caffa::UiItemInfo::HIDDEN);
 
         initField(m_intFieldLeftOfGroup, "FieldLeftOfGrp", 0)
             .withUi("Left of group",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         initField(m_intFieldRightOfGroup, "FieldRightOfGrp", 0)
             .withUi("Right of group wide label",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
 
         initField(m_intFieldInsideGroup1, "FieldInGrp1", 0)
             .withUi("Inside Group",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         initField(m_intFieldInsideGroup2, "FieldInGrp2", 0)
             .withUi("Inside Group",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         initField(m_intFieldInsideGroup3, "FieldInGrp3", 0)
             .withUi("Inside Group",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         initField(m_intFieldInsideGroup4, "FieldInGrp4", 0)
             .withUi("Inside Group",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         initField(m_intFieldInsideGroup5, "FieldInGrp5", 0)
             .withUi("Inside Group",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         initField(m_intFieldInsideGroup6, "FieldInGrp6", 0)
             .withUi("Inside Group",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
     }
@@ -542,14 +496,11 @@ class SingleEditorObject : public caffa::Object
 public:
     SingleEditorObject()
     {
-        assignUiInfo("Single Editor Object",
-                     "",
-                     "This object is a demo of the CAF framework",
-                     "This object is a demo of the CAF framework");
+        assignUiInfo(
+            "Single Editor Object", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
 
         initField(m_intFieldStandard, "Standard", 0)
             .withUi("Fairly Wide Label",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
     }
@@ -583,24 +534,21 @@ public:
 
     SmallDemoObjectA()
     {
-        assignUiInfo("Small Demo Object A",
-                     "",
-                     "This object is a demo of the CAF framework",
-                     "This object is a demo of the CAF framework");
+        assignUiInfo(
+            "Small Demo Object A", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
 
-        initField(m_toggleField, "Toggle", false).withUi("Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
-        initField(m_pushButtonField, "Push", false).withUi("Button Field", "", "", " ");
+        initField(m_toggleField, "Toggle", false).withUi("Toggle Field", "Toggle Field tooltip", " Toggle Field whatsthis");
+        initField(m_pushButtonField, "Push", false).withUi("Button Field", "", " ");
         initField(m_doubleField, "BigNumber", 0.0)
-            .withUi("Big Number", "", "Enter a big number here", "This is a place you can enter a big real value if you want");
+            .withUi("Big Number", "Enter a big number here", "This is a place you can enter a big real value if you want");
         initField(m_intField, "IntNumber", 0)
             .withUi("Small Number",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
-        initField(m_textField, "TextField", "Small Demo Object A").withUi("Name Text Field", "", "", "");
-        initField(m_testEnumField, "TestEnumValue", caffa::AppEnum<TestEnumType>(T1)).withUi("EnumField", "", "", "");
+        initField(m_textField, "TextField", "Small Demo Object A").withUi("Name Text Field", "", "");
+        initField(m_testEnumField, "TestEnumValue", caffa::AppEnum<TestEnumType>(T1)).withUi("EnumField", "", "");
 
-        initField(m_proxyEnumField, "ProxyEnumValue").withUi("ProxyEnum", "", "", "");
+        initField(m_proxyEnumField, "ProxyEnumValue").withUi("ProxyEnum", "", "");
         auto enumProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<caffa::AppEnum<TestEnumType>>>();
 
         enumProxyAccessor->registerSetMethod(this, &SmallDemoObjectA::setEnumMember);
@@ -610,10 +558,10 @@ public:
 
         m_testEnumField.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(caffa::UiListEditor::uiEditorTypeName());
 
-        initField(m_multipleAppEnum, "MultipleAppEnumValue").withUi("MultipleAppEnumValue", "", "", "");
+        initField(m_multipleAppEnum, "MultipleAppEnumValue").withUi("MultipleAppEnumValue", "", "");
         m_multipleAppEnum.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(
             caffa::UiTreeSelectionEditor::uiEditorTypeName());
-        initField(m_highlightedEnum, "HighlightedEnum").withUi("HighlightedEnum", "", "", "");
+        initField(m_highlightedEnum, "HighlightedEnum").withUi("HighlightedEnum", "", "");
         m_highlightedEnum.capability<caffa::FieldUiCapability>()->setUiHidden(true);
     }
 
@@ -750,29 +698,26 @@ class DemoObject : public caffa::Object
 public:
     DemoObject()
     {
-        assignUiInfo(
-            "Demo Object", "", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
+        assignUiInfo("Demo Object", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
 
-        initField(m_toggleField, "Toggle", false).withUi("Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
+        initField(m_toggleField, "Toggle", false).withUi("Toggle Field", "Toggle Field tooltip", " Toggle Field whatsthis");
         initField(m_doubleField, "BigNumber", 0.0)
-            .withUi("Big Number", "", "Enter a big number here", "This is a place you can enter a big real value if you want");
+            .withUi("Big Number", "Enter a big number here", "This is a place you can enter a big real value if you want");
         initField(m_intField, "IntNumber", 0)
             .withUi("Small Number",
-                    "",
                     "Enter some small number here",
                     "This is a place you can enter a small integer value if you want");
         initField(m_boolField, "BooleanValue", false)
             .withUi("Boolean:",
-                    "",
                     "Boolean:Enter some small number here",
                     "Boolean:This is a place you can enter a small integer value if you want");
-        initField(m_textField, "TextField", "Demo Object Description Field").withUi("Description Field", "", "", "");
-        initField(m_longText, "LongText", "Test text").withUi("Long Text", "", "", "");
+        initField(m_textField, "TextField", "Demo Object Description Field").withUi("Description Field", "", "");
+        initField(m_longText, "LongText", "Test text").withUi("Long Text", "", "");
 
-        initField(m_multiSelectList, "MultiSelect").withUi("Selection List", "", "List", "This is a multi selection list");
-        initField(m_objectList, "ObjectList").withUi("Objects list Field", "", "List", "This is a list of Objects");
+        initField(m_multiSelectList, "MultiSelect").withUi("Selection List", "List", "This is a multi selection list");
+        initField(m_objectList, "ObjectList").withUi("Objects list Field", "List", "This is a list of Objects");
         initField(m_objectListOfSameType, "m_objectListOfSameType")
-            .withUi("Same type Objects list Field", "", "Same type List", "Same type list of Objects");
+            .withUi("Same type Objects list Field", "Same type List", "Same type list of Objects");
         m_objectListOfSameType.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(
             caffa::UiTableViewEditor::uiEditorTypeName());
         m_objectListOfSameType.capability<caffa::FieldUiCapability>()->setCustomContextMenuEnabled(true);
@@ -1343,7 +1288,7 @@ void MainWindow::slotLoadProject()
         setRoot(nullptr);
         releaseTestData();
 
-        m_testRoot           = std::make_unique<DemoObjectGroup>();
+        m_testRoot = std::make_unique<DemoObjectGroup>();
         m_testRoot->setFileName(fileName);
         m_testRoot->read();
 

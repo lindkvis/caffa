@@ -182,21 +182,10 @@ void UiTableViewEditor::configureAndUpdateUi()
 
     if ( childArrayFH && childArrayFH->capability<FieldUiCapability>() )
     {
-        QString text         = "";
-        auto    iconProvider = childArrayFH->capability<FieldUiCapability>()->uiIconProvider();
-        QIcon   icon( QString::fromStdString( iconProvider->iconResourceString() ) );
-        if ( !icon.isNull() )
-        {
-            m_tableHeadingIcon->setPixmap( icon.pixmap( 16, 16 ) );
-            m_tableHeading->setText( QString::fromStdString( childArrayFH->capability<FieldUiCapability>()->uiName() ) +
+        QString text = "";
+        m_tableHeadingIcon->setText( QString::fromStdString( childArrayFH->capability<FieldUiCapability>()->uiName() ) +
                                      QString( " (%1)" ).arg( childArrayFH->size() ) );
-        }
-        else
-        {
-            m_tableHeadingIcon->setText( QString::fromStdString( childArrayFH->capability<FieldUiCapability>()->uiName() ) +
-                                         QString( " (%1)" ).arg( childArrayFH->size() ) );
-            m_tableHeading->setText( "" );
-        }
+        m_tableHeading->setText( "" );
         m_tableModel->createPersistentPushButtonWidgets( m_tableView );
     }
     else

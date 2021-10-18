@@ -172,17 +172,7 @@ void UiFieldEditorHandle::updateLabelFromField( QLabel* label /*= ""*/ ) const
     const FieldUiCapability* fieldHandle = dynamic_cast<const FieldUiCapability*>( item() );
     if ( fieldHandle )
     {
-        auto  iconProvider = fieldHandle->uiIconProvider();
-        QIcon ic( QString::fromStdString( iconProvider->iconResourceString() ) );
-        if ( !ic.isNull() )
-        {
-            label->setPixmap( ic.pixmap( ic.actualSize( QSize( 64, 64 ) ) ) );
-        }
-        else
-        {
-            label->setText( QString::fromStdString( fieldHandle->uiName() ) );
-        }
-
+        label->setText( QString::fromStdString( fieldHandle->uiName() ) );
         label->setEnabled( !fieldHandle->isUiReadOnly() );
         label->setToolTip( QString::fromStdString( fieldHandle->uiToolTip() ) );
     }

@@ -60,7 +60,7 @@ class UiTreeOrdering
 public:
     explicit UiTreeOrdering( ObjectHandle* item );
     explicit UiTreeOrdering( FieldHandle* field );
-    UiTreeOrdering( const std::string& title, const std::string& iconResourceName );
+    UiTreeOrdering( const std::string& title );
 
     ~UiTreeOrdering();
 
@@ -69,7 +69,7 @@ public:
 
     void            add( FieldHandle* field );
     void            add( ObjectHandle* object );
-    UiTreeOrdering* add( const std::string& title, const std::string& iconResourceName );
+    UiTreeOrdering* add( const std::string& title );
 
     /// If the rest of the fields containing children is supposed to be omitted, set skipRemainingFields to true.
     void skipRemainingChildren( bool doSkip = true ) { m_forgetRemainingFields = doSkip; }

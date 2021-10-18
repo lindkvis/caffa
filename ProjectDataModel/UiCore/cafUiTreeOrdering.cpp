@@ -86,9 +86,9 @@ void UiTreeOrdering::add( ObjectHandle* object )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-UiTreeOrdering* UiTreeOrdering::add( const std::string& title, const std::string& iconResourceName )
+UiTreeOrdering* UiTreeOrdering::add( const std::string& title )
 {
-    UiTreeOrdering* child = new UiTreeOrdering( title, iconResourceName );
+    UiTreeOrdering* child = new UiTreeOrdering( title );
     CAFFA_ASSERT( child->isValid() );
 
     this->appendChild( child );
@@ -165,7 +165,7 @@ UiTreeOrdering::UiTreeOrdering( FieldHandle* field )
 //--------------------------------------------------------------------------------------------------
 /// Creates an new root UiTreeOrdering item, as a display item only
 //--------------------------------------------------------------------------------------------------
-UiTreeOrdering::UiTreeOrdering( const std::string& title, const std::string& iconResourceName )
+UiTreeOrdering::UiTreeOrdering( const std::string& title )
     : m_object( nullptr )
     , m_field( nullptr )
     , m_uiItem( nullptr )
@@ -176,7 +176,6 @@ UiTreeOrdering::UiTreeOrdering( const std::string& title, const std::string& ico
 {
     m_uiItem = std::make_unique<UiItem>();
     m_uiItem->setUiName( title );
-    m_uiItem->setUiIconFromResourceString( iconResourceName );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -10,9 +10,9 @@ CAFFA_SOURCE_INIT(TamComboBox, "TamComboBox", "Object");
 //--------------------------------------------------------------------------------------------------
 TamComboBox::TamComboBox()
 {
-    assignUiInfo("Cell Filter", "", "", "");
+    assignUiInfo("Cell Filter", "", "");
 
-    initField(m_name, "UserDescription", "Filter Name").withUi("Name", "", "", "");
+    initField(m_name, "UserDescription", "Filter Name").withUi("Name", "", "");
     m_name.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(caffa::UiComboBoxEditor::uiEditorTypeName());
 }
 
@@ -20,7 +20,7 @@ TamComboBox::TamComboBox()
 ///
 //--------------------------------------------------------------------------------------------------
 std::deque<caffa::OptionItemInfo> TamComboBox::calculateValueOptions(const caffa::FieldHandle* fieldNeedingOptions,
-                                                                   bool*                   useOptionsOnly)
+                                                                     bool*                     useOptionsOnly)
 {
     std::deque<caffa::OptionItemInfo> options;
 

@@ -302,7 +302,7 @@ void UiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSubTre
             std::vector<int> indicesToRemoveFromSource;
             for ( int i = 0; i < sourceSubTreeRoot->childCount(); ++i )
             {
-                UiTreeOrdering*                       sourceChild = sourceSubTreeRoot->child( i );
+                UiTreeOrdering*                         sourceChild = sourceSubTreeRoot->child( i );
                 std::map<caffa::UiItem*, int>::iterator it          = existingTreeMap.find( sourceChild->activeItem() );
                 if ( it != existingTreeMap.end() )
                 {
@@ -620,18 +620,6 @@ QVariant UiTreeViewQModel::data( const QModelIndex& index, int role ) const
         if ( uitreeOrdering->activeItem() )
         {
             return QVariant( QString::fromStdString( uitreeOrdering->activeItem()->uiName() ) );
-        }
-        else
-        {
-            return QVariant();
-        }
-    }
-    else if ( role == Qt::DecorationRole )
-    {
-        if ( uitreeOrdering->activeItem() )
-        {
-            auto iconProvider = uitreeOrdering->activeItem()->uiIconProvider();
-            return iconProvider ? QIcon( QString::fromStdString( iconProvider->iconResourceString() ) ) : QIcon();
         }
         else
         {

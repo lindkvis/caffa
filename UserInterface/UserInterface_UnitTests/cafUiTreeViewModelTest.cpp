@@ -18,7 +18,7 @@ public:
     SimpleObj()
         : Object()
     {
-        assignUiInfo( "SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
+        assignUiInfo( "SimpleObj", "Tooltip SimpleObj", "WhatsThis SimpleObj" );
     }
 };
 CAFFA_SOURCE_INIT( SimpleObj, "SimpleObj", "Object" );
@@ -30,9 +30,9 @@ class DemoObject : public caffa::Object
 public:
     DemoObject()
     {
-        assignUiInfo( "DemoObject", "", "Tooltip DemoObject", "WhatsThis DemoObject" );
+        assignUiInfo( "DemoObject", "Tooltip DemoObject", "WhatsThis DemoObject" );
 
-        initField( m_simpleObjPtrField, "SimpleObjPtrField" ).withUi( "SimpleObjPtrField", "", "Tooltip", "WhatsThis" );
+        initField( m_simpleObjPtrField, "SimpleObjPtrField" ).withUi( "SimpleObjPtrField", "Tooltip", "WhatsThis" );
     }
 
     caffa::ChildArrayField<caffa::ObjectHandle*> m_simpleObjPtrField;
