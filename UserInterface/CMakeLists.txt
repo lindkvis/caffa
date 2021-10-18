@@ -38,10 +38,6 @@ set(PROJECT_FILES
     cafUiCheckBoxDelegate.h
     cafUiCheckBoxEditor.cpp
     cafUiCheckBoxEditor.h
-    cafUiCheckBoxTristateEditor.cpp
-    cafUiCheckBoxTristateEditor.h
-    cafUiColorEditor.cpp
-    cafUiColorEditor.h
     cafUiComboBoxEditor.cpp
     cafUiComboBoxEditor.h
     cafUiDateEditor.cpp

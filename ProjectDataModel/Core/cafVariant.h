@@ -1,10 +1,8 @@
 #pragma once
 
 #include "cafAssert.h"
-#include "cafColor.h"
 #include "cafFactory.h"
 #include "cafPointer.h"
-#include "cafTristate.h"
 
 #include <algorithm>
 #include <ctime>
@@ -214,8 +212,6 @@ public:
                                          double,
                                          float,
                                          std::string,
-                                         caffa::Tristate,
-                                         caffa::Color,
                                          std::time_t,
                                          caffa::Pointer<ObjectHandle>,
                                          std::vector<bool>,
@@ -226,8 +222,6 @@ public:
                                          std::vector<double>,
                                          std::vector<float>,
                                          std::vector<std::string>,
-                                         std::vector<caffa::Tristate>,
-                                         std::vector<caffa::Color>,
                                          std::vector<std::time_t>,
                                          std::vector<caffa::Pointer<ObjectHandle>>>;
     Variant() {}

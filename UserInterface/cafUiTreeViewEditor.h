@@ -63,19 +63,6 @@ class UiTreeViewEditor;
 class UiTreeViewQModel;
 class UiTreeViewWidget;
 
-class UiTreeViewItemDelegate : public QStyledItemDelegate
-{
-public:
-    UiTreeViewItemDelegate( QObject* parent, UiTreeViewQModel* model );
-    void clearAttributes();
-    void addAttribute( QModelIndex index, const UiTreeViewItemAttribute& attribute );
-    void paint( QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index ) const override;
-
-private:
-    UiTreeViewQModel*                              m_model;
-    std::map<QModelIndex, UiTreeViewItemAttribute> m_attributes;
-};
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -125,7 +112,6 @@ private:
     ChildArrayFieldHandle* currentChildArrayFieldHandle();
 
     void updateSelectionManager();
-    void updateItemDelegateForSubTree( const QModelIndex& modelIndex = QModelIndex() );
 
     bool eventFilter( QObject* obj, QEvent* event ) override;
 
@@ -133,9 +119,8 @@ private:
     QPointer<QWidget> m_mainWidget;
     QVBoxLayout*      m_layout;
 
-    UiTreeViewWidget*       m_treeView;
-    UiTreeViewQModel*       m_treeViewModel;
-    UiTreeViewItemDelegate* m_delegate;
+    UiTreeViewWidget* m_treeView;
+    UiTreeViewQModel* m_treeViewModel;
 
     bool m_useDefaultContextMenu;
     bool m_updateSelectionManager;

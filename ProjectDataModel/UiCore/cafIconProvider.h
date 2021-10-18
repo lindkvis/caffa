@@ -35,8 +35,6 @@
 //##################################################################################################
 #pragma once
 
-#include "cafColor.h"
-
 #include <memory>
 #include <string>
 #include <utility>
@@ -57,25 +55,22 @@ public:
     IconProvider( const IconProvider& rhs );
     IconProvider& operator=( const IconProvider& rhs );
 
-    void setActive( bool active );
-    bool valid() const;
+    void                      setActive( bool active );
+    bool                      valid() const;
     const std::pair<int, int> preferredSize() const;
-    void setPreferredSize( const std::pair<int, int>& size );
+    void                      setPreferredSize( const std::pair<int, int>& size );
 
     const std::string& iconResourceString() const;
     const std::string& overlayResourceString() const;
-    const Color&       backgroundColor() const;
 
     void setIconResourceString( const std::string& iconResourceString );
     void setOverlayResourceString( const std::string& overlayResourceString );
-    void setBackgroundColor( const Color& backgroundColor );
 
 private:
     bool m_active;
 
-    std::string              m_iconResourceString;
-    std::string              m_overlayResourceString;
-    Color                    m_backgroundColor;
-    std::pair<int, int>      m_preferredSize;
+    std::string         m_iconResourceString;
+    std::string         m_overlayResourceString;
+    std::pair<int, int> m_preferredSize;
 };
 } // namespace caffa

@@ -14,9 +14,6 @@ set(PUBLIC_HEADERS
     cafInternalUiFieldCapability.inl
     cafInternalUiCommandSystemInterface.h
     cafFontTools.h
-    cafColorTable.h
-    cafColorTables.h
-    cafColorTools.h
     cafIconProvider.h
     cafActionWrapper.h
     cafOptionItemInfo.h
@@ -35,16 +32,11 @@ set(PUBLIC_HEADERS
     cafSelectionManager.h
     cafSelectionChangedReceiver.h
     cafSelectionManagerTools.h
-    cafUiColorEditorAttribute.h
     cafUiComboBoxEditorAttribute.h
     cafUiDateEditorAttribute.h
     cafUiFilePathEditorAttribute.h
     cafUiSliderEditorAttribute.h
-    cafUiTreeViewAttribute.h
-    cafCoreColor.h
-    cafCoreColorUi.h
-    cafCoreColorIo.h
-    cafFieldColor.h)
+    cafUiTreeViewAttribute.h)
 
 include_directories(..)
 
@@ -53,9 +45,6 @@ add_definitions(-D${PROJECT_NAME}_LIBRARY)
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
     cafFontTools.cpp
-    cafColorTable.cpp
-    cafColorTables.cpp
-    cafColorTools.cpp
     cafIconProvider.cpp
     cafUiEditorHandle.cpp
     cafFieldUiCapability.cpp
@@ -68,9 +57,7 @@ set(PROJECT_FILES
     cafUiTreeOrdering.cpp
     cafUiGroup.cpp
     cafSelectionManager.cpp
-    cafSelectionChangedReceiver.cpp
-    cafCoreColorUi.cpp
-    cafCoreColorIo.cpp)
+    cafSelectionChangedReceiver.cpp)
 
 if(CAFFA_BUILD_SHARED)
   message(STATUS "Building ${PROJECT_NAME} shared")
