@@ -49,7 +49,6 @@
 #include "cafObjectIoCapability.h"
 #include "cafObjectUiCapability.h"
 #include "cafPointer.h"
-#include "cafRegisterField.h"
 #include "cafUiFieldSpecialization.h"
 #include "cafUiOrdering.h"
 
@@ -123,44 +122,6 @@ private:
     FieldType&         m_field;
     const std::string& m_keyword;
 };
-
-/**
- * Helper class that is initialised with Object::initField and allows
- * .. addding additional features to the field.
- */
-class RegisterFieldInitHelper
-{
-public:
-    RegisterFieldInitHelper( RegisterField& field, const std::string& keyword )
-        : m_field( field )
-        , m_keyword( keyword )
-    {
-    }
-
-    RegisterFieldInitHelper& withScripting( const std::string& scriptFieldKeyword = "" )
-    {
-        FieldScriptingCapability::addToField( &m_field, scriptFieldKeyword.empty() ? m_keyword : scriptFieldKeyword );
-        return *this;
-    }
-
-    RegisterFieldInitHelper& withAccessor( std::unique_ptr<RegisterFieldAccessorInterface> accessor )
-    {
-        m_field.setAccessor( std::move( accessor ) );
-        return *this;
-    }
-
-private:
-    RegisterFieldInitHelper()                                 = delete;
-    RegisterFieldInitHelper( const RegisterFieldInitHelper& ) = delete;
-    RegisterFieldInitHelper( RegisterFieldInitHelper&& )      = delete;
-
-    RegisterFieldInitHelper& operator=( const RegisterFieldInitHelper& ) = delete;
-    RegisterFieldInitHelper& operator=( RegisterFieldInitHelper&& ) = delete;
-
-    RegisterField&     m_field;
-    const std::string& m_keyword;
-};
-
 class Object : public ObjectHandle, public ObjectIoCapability, public ObjectUiCapability
 {
 public:
@@ -196,20 +157,6 @@ public:
 
         addField( &field, keyword );
         return FieldInitHelper( field, keyword );
-    }
-
-    /**
-     * Initialises the field with a file keyword and registers it with the class
-     * including static user interface related information.
-     * Note that classKeyword() is not virtual in the constructor of the Object
-     * This is expected and fine.
-     * @param field A reference to the field
-     * @param keyword The field keyword. Has to be unique within the class.
-     */
-    RegisterFieldInitHelper initRegisterField( RegisterField& field, const std::string& keyword )
-    {
-        addField( &field, keyword );
-        return RegisterFieldInitHelper( field, keyword );
     }
 
     /**

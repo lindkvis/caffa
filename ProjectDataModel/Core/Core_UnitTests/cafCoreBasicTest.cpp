@@ -9,25 +9,10 @@
 #include "cafFieldProxyAccessor.h"
 #include "cafObjectHandle.h"
 #include "cafPortableDataType.h"
-#include "cafRegisterField.h"
 #include "cafValueField.h"
 
 #include <map>
 #include <vector>
-
-class SimpleRegisterFieldAccessor : public caffa::RegisterFieldAccessorInterface
-{
-public:
-    uint32_t read( uint32_t addressOffset ) const override
-    {
-        auto it = m_dataStorage.find( addressOffset );
-        return it != m_dataStorage.end() ? it->second : 0u;
-    }
-    void write( uint32_t addressOffset, uint32_t value ) override { m_dataStorage[addressOffset] = value; }
-
-private:
-    std::map<uint32_t, uint32_t> m_dataStorage;
-};
 
 class DemoObject : public caffa::ObjectHandle
 {
@@ -56,10 +41,6 @@ public:
         this->addField( &m_memberIntField, "m_memberIntField" );
         this->addField( &m_memberStringField, "m_memberStringField" );
 
-        this->addField( &m_registerField, "m_registerField" );
-        auto registerAccessor = std::make_unique<SimpleRegisterFieldAccessor>();
-        m_registerField.setAccessor( std::move( registerAccessor ) );
-
         // Default values
         m_doubleMember = 2.1;
         m_intMember    = 7;
@@ -78,7 +59,6 @@ public:
     caffa::DataValueField<double>      m_memberDoubleField;
     caffa::DataValueField<int>         m_memberIntField;
     caffa::DataValueField<std::string> m_memberStringField;
-    caffa::RegisterField               m_registerField;
 
     // Internal class members accessed by proxy fields
     double doubleMember() const
@@ -97,9 +77,6 @@ public:
 
     std::string stringMember() const { return m_stringMember; }
     void        setStringMember( const std::string& val ) { m_stringMember = val; }
-
-    uint32_t registerRead( uint32_t addressOffset ) const { return m_registerField.read( addressOffset ); }
-    void     registerWrite( uint32_t addressOffset, uint32_t value ) { m_registerField.write( addressOffset, value ); }
 
 private:
     double      m_doubleMember;
@@ -546,12 +523,4 @@ TEST( BaseTest, PortableDataType )
     EXPECT_EQ( "int32[]", caffa::PortableDataType<std::vector<int>>::name() );
     EXPECT_EQ( "uint32[]", caffa::PortableDataType<std::vector<uint32_t>>::name() );
     EXPECT_EQ( "string[]", caffa::PortableDataType<std::vector<std::string>>::name() );
-}
-
-TEST( BaseTest, Register )
-{
-    DemoObject d;
-    EXPECT_EQ( 0u, d.registerRead( 12u ) );
-    d.registerWrite( 12u, 42u );
-    EXPECT_EQ( 42u, d.registerRead( 12u ) );
 }
