@@ -9,8 +9,6 @@
 #include "cafGrpcClient.h"
 #include "cafGrpcDataFieldAccessor.h"
 #include "cafGrpcException.h"
-#include "cafGrpcRegisterFieldAccessor.h"
-#include "cafRegisterField.h"
 
 #include <memory>
 
@@ -178,11 +176,6 @@ void GrpcClientObjectFactory::applyAccessorToField( caffa::ObjectHandle* fieldOw
     else if ( auto childField = dynamic_cast<caffa::ChildArrayFieldHandle*>( fieldHandle ); childField )
     {
         childField->setAccessor( std::make_unique<GrpcChildArrayFieldAccessor>( m_grpcClient, childField ) );
-    }
-    else if ( auto registerField = dynamic_cast<caffa::RegisterField*>( fieldHandle ); registerField )
-    {
-        registerField->setAccessor(
-            std::make_unique<GrpcRegisterFieldAccessor>( m_grpcClient, fieldOwner, fieldHandle->keyword() ) );
     }
     else
     {

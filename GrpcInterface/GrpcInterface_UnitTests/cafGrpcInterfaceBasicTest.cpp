@@ -16,7 +16,6 @@
 #include "cafGrpcServerApplication.h"
 #include "cafLogger.h"
 #include "cafObjectHandle.h"
-#include "cafRegisterField.h"
 #include "cafValueField.h"
 
 #include <chrono>
@@ -24,20 +23,6 @@
 #include <string>
 #include <thread>
 #include <vector>
-
-class SimpleRegisterFieldAccessor : public caffa::RegisterFieldAccessorInterface
-{
-public:
-    uint32_t read( uint32_t addressOffset ) const override
-    {
-        auto it = m_dataStorage.find( addressOffset );
-        return it != m_dataStorage.end() ? it->second : 0u;
-    }
-    void write( uint32_t addressOffset, uint32_t value ) override { m_dataStorage[addressOffset] = value; }
-
-private:
-    std::map<uint32_t, uint32_t> m_dataStorage;
-};
 
 class DemoObject : public caffa::Object
 {
@@ -84,9 +69,6 @@ public:
         initField( m_memberIntField, "memberIntField" ).withScripting();
         initField( m_memberStringField, "memberStringField" ).withScripting();
 
-        auto registerAccessor = std::make_unique<SimpleRegisterFieldAccessor>();
-        initRegisterField( m_registerField, "registerField" ).withScripting().withAccessor( std::move( registerAccessor ) );
-
         // Default values
         m_doubleMember = 2.1;
         m_intMember    = 7;
@@ -114,8 +96,6 @@ public:
     caffa::Field<std::vector<double>> m_doubleVector;
     caffa::Field<std::vector<float>>  m_floatVector;
 
-    caffa::RegisterField m_registerField;
-
     double doubleMember() const { return m_doubleMember; }
     void   setDoubleMember( const double& d ) { m_doubleMember = d; }
 
@@ -136,9 +116,6 @@ public:
 
     std::vector<std::string> getStringVector() const { return m_stringVector; }
     void                     setStringVector( const std::vector<std::string>& values ) { m_stringVector = values; }
-
-    uint32_t registerRead( uint32_t addressOffset ) const { return m_registerField.read( addressOffset ); }
-    void     registerWrite( uint32_t addressOffset, uint32_t value ) { m_registerField.write( addressOffset, value ); }
 
 private:
     double      m_doubleMember;
@@ -844,41 +821,4 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
     CAFFA_DEBUG( "Stopping server and waiting for server to join" );
     thread.join();
     CAFFA_DEBUG( "Server joined" );
-}
-
-TEST( BaseTest, Register )
-{
-    int  portNumber = 50000;
-    auto serverApp  = std::make_unique<ServerApp>( portNumber );
-
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
-
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
-
-    while ( !serverApp->running() )
-    {
-        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
-    }
-    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
-    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
-    ASSERT_TRUE( serverDocument );
-    CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
-
-    auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
-    ASSERT_TRUE( clientDocument != nullptr );
-
-    auto serverDemoObject = serverDocument->m_demoObject.value();
-    auto clientDemoObject = clientDocument->m_demoObject.value();
-
-    EXPECT_EQ( 0u, serverDemoObject->registerRead( 12u ) );
-    EXPECT_EQ( 0u, clientDemoObject->registerRead( 12u ) );
-    serverDemoObject->registerWrite( 12u, 42u );
-    EXPECT_EQ( 42u, serverDemoObject->registerRead( 12u ) );
-    EXPECT_EQ( 42u, clientDemoObject->registerRead( 12u ) );
-
-    bool ok = client->stopServer();
-    ASSERT_TRUE( ok );
-
-    thread.join();
 }
