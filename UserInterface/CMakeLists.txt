@@ -121,9 +121,6 @@ set(PROJECT_FILES
     cafQTreeViewStateSerializer.cpp
     cafDoubleStringValidator.h
     cafDoubleStringValidator.cpp
-    cafPickEventHandler.h
-    cafUiPickableLineEditor.h
-    cafUiPickableLineEditor.cpp
     cafUiTabbedPropertyViewDialog.h
     cafUiTabbedPropertyViewDialog.cpp
     cafQVariantConverter.cpp

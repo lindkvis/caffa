@@ -538,7 +538,6 @@ public:
             "Small Demo Object A", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
 
         initField(m_toggleField, "Toggle", false).withUi("Toggle Field", "Toggle Field tooltip", " Toggle Field whatsthis");
-        initField(m_pushButtonField, "Push", false).withUi("Button Field", "", " ");
         initField(m_doubleField, "BigNumber", 0.0)
             .withUi("Big Number", "Enter a big number here", "This is a place you can enter a big real value if you want");
         initField(m_intField, "IntNumber", 0)
@@ -586,7 +585,6 @@ public:
     caffa::Field<caffa::AppEnum<TestEnumType>>              m_highlightedEnum;
 
     caffa::Field<bool> m_toggleField;
-    caffa::Field<bool> m_pushButtonField;
 
     caffa::FieldHandle* objectToggleField() override
     {
@@ -605,10 +603,6 @@ public:
         else if (changedField == &m_highlightedEnum)
         {
             qDebug() << "Highlight value " << QString::fromStdString(m_highlightedEnum().text());
-        }
-        else if (changedField == &m_pushButtonField)
-        {
-            qDebug() << "Push Button pressed ";
         }
     }
 
@@ -660,18 +654,6 @@ protected:
             {
                 attr->showPreviousAndNextButtons = true;
             }
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------
-    ///
-    //--------------------------------------------------------------------------------------------------
-    void defineObjectEditorAttribute(caffa::UiEditorAttribute* attribute) override
-    {
-        caffa::UiTableViewPushButtonEditorAttribute* attr = dynamic_cast<caffa::UiTableViewPushButtonEditorAttribute*>(attribute);
-        if (attr)
-        {
-            attr->registerPushButtonTextForFieldKeyword(m_pushButtonField.keyword(), "Edit");
         }
     }
 };
@@ -860,16 +842,6 @@ MainWindow::MainWindow()
     // Initialize command framework
 
     // Register default command features (add/delete item in list)
-
-    QPixmap pix;
-    pix.load(":/images/curvePlot.png");
-
-    m_plotLabel = new QLabel(this);
-    m_plotLabel->setPixmap(pix.scaled(250, 100));
-
-    m_smallPlotLabel = new QLabel(this);
-    m_smallPlotLabel->setPixmap(pix.scaled(100, 50));
-
     createActions();
     createDockPanels();
     buildTestModel();
@@ -1059,9 +1031,6 @@ void MainWindow::setRoot(caffa::ObjectHandle* root)
         manyGroups.insert(manyGroups.end(), descendants.begin(), descendants.end());
     }
 
-    m_customObjectEditor->removeWidget(m_plotLabel);
-    m_customObjectEditor->removeWidget(m_smallPlotLabel);
-
     if (manyGroups.size() == 1)
     {
         m_customObjectEditor->setObject(manyGroups.front());
@@ -1069,8 +1038,6 @@ void MainWindow::setRoot(caffa::ObjectHandle* root)
         m_customObjectEditor->defineGridLayout(5, 4);
 
         m_customObjectEditor->addBlankCell(0, 0);
-        m_customObjectEditor->addWidget(m_plotLabel, 0, 1, 1, 2);
-        m_customObjectEditor->addWidget(m_smallPlotLabel, 1, 2, 2, 1);
     }
     else
     {

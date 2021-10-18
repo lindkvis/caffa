@@ -59,14 +59,11 @@ private:
 private:
     QUndoView* undoView;
 
-    caffa::UiTreeView*                 m_uiTreeView;
-    caffa::UiTreeView*                 m_uiTreeView2;
-    caffa::UiPropertyView*             m_uiPropertyView;
-    caffa::UiTableView*                m_uiTableView;
+    caffa::UiTreeView*               m_uiTreeView;
+    caffa::UiTreeView*               m_uiTreeView2;
+    caffa::UiPropertyView*           m_uiPropertyView;
+    caffa::UiTableView*              m_uiTableView;
     std::unique_ptr<DemoObjectGroup> m_testRoot;
 
     caffa::CustomObjectEditor* m_customObjectEditor;
-
-    QLabel* m_plotLabel;
-    QLabel* m_smallPlotLabel;
 };
