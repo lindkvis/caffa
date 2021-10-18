@@ -8,7 +8,6 @@ set(PROJECT_FILES
     cafCore_UnitTests.cpp
     cafCoreBasicTest.cpp
     cafChildArrayFieldHandleTest.cpp
-    cafFifoFieldTest.cpp
     cafSignalTest.cpp
     Child.cpp
     Child.h

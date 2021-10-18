@@ -20,7 +20,6 @@ set(PUBLIC_HEADERS
     cafField.h
     cafFieldCapability.h
     cafFieldHandle.h
-    cafFifoField.h
     cafObjectCapability.h
     cafObjectHandle.h
     cafPointer.h
