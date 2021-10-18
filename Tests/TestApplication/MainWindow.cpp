@@ -555,7 +555,7 @@ public:
         m_proxyEnumField.setAccessor(std::move(enumProxyAccessor));
         m_proxyEnumMember = T2;
 
-        m_testEnumField.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(caffa::UiListEditor::uiEditorTypeName());
+        m_testEnumField.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(caffa::UiComboBoxEditor::uiEditorTypeName());
 
         initField(m_multipleAppEnum, "MultipleAppEnumValue").withUi("MultipleAppEnumValue", "", "");
         m_multipleAppEnum.capability<caffa::FieldUiCapability>()->setUiEditorTypeName(
@@ -569,8 +569,8 @@ public:
     caffa::Field<std::string>                  m_textField;
     caffa::Field<caffa::AppEnum<TestEnumType>> m_testEnumField;
 
-    caffa::DataValueField<caffa::AppEnum<TestEnumType>> m_proxyEnumField;
-    void                                                setEnumMember(const caffa::AppEnum<TestEnumType>& val)
+    caffa::Field<caffa::AppEnum<TestEnumType>> m_proxyEnumField;
+    void                                       setEnumMember(const caffa::AppEnum<TestEnumType>& val)
     {
         m_proxyEnumMember = val.value();
     }
