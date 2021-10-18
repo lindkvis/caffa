@@ -101,8 +101,7 @@ public:
         assignUiInfo(
             "Small Demo Object", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
 
-        initField(m_toggleField, "Toggle", false)
-            .withUi("Add Items To Multi Select", "Toggle Field tooltip", " Toggle Field whatsthis");
+        initField(m_toggleField, "Toggle", false).withUi("Our toggle field", "Toggle Field tooltip", " Toggle Field whatsthis");
         initField(m_doubleField, "BigNumber", 0.0)
             .withUi("Big Number", "Enter a big number here", "This is a place you can enter a big real value if you want");
         m_doubleField.capability<caffa::FieldUiCapability>()->setCustomContextMenuEnabled(true);
@@ -204,19 +203,6 @@ public:
 
             int additionalSubItems = 2;
             for (auto i = 0; i < additionalSubItems; i++)
-            {
-                text                           = "Second_b_" + std::to_string(i);
-                caffa::OptionItemInfo itemInfo = caffa::OptionItemInfo(text, text);
-                itemInfo.setLevel(1);
-                options.push_back(itemInfo);
-            }
-
-            static int s_additionalSubItems = 0;
-            if (m_toggleField())
-            {
-                s_additionalSubItems++;
-            }
-            for (auto i = 0; i < s_additionalSubItems; i++)
             {
                 text                           = "Second_b_" + std::to_string(i);
                 caffa::OptionItemInfo itemInfo = caffa::OptionItemInfo(text, text);
