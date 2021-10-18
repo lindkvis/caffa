@@ -36,7 +36,6 @@
 
 #pragma once
 
-#include "cafColor.h"
 #include "cafIconProvider.h"
 #include "cafOptionItemInfo.h"
 #include "cafUiFieldSpecialization.h"
@@ -157,17 +156,16 @@ private:
     friend class UiItem;
     std::string                   m_uiName;
     std::shared_ptr<IconProvider> m_iconProvider;
-    Color       m_contentTextColor; ///< Color of a fields value text. Invalid by default. An Invalid color is not used.
-    std::string m_toolTip;
-    std::string m_whatsThis;
-    std::string m_extraDebugText;
-    std::string m_editorTypeName; ///< Use this exact type of editor to edit this UiItem
-    std::string m_3dEditorTypeName; ///< If set, use this editor type to edit this UiItem in 3D
-    int         m_isHidden; ///< UiItem should be hidden. -1 means not set
-    int         m_isTreeChildrenHidden; ///< Children of UiItem should be hidden. -1 means not set
-    int         m_isReadOnly; ///< UiItem should be insensitive, or read only. -1 means not set.
-    LabelPosType m_labelAlignment;
-    int          m_isCustomContextMenuEnabled;
+    std::string                   m_toolTip;
+    std::string                   m_whatsThis;
+    std::string                   m_extraDebugText;
+    std::string                   m_editorTypeName; ///< Use this exact type of editor to edit this UiItem
+    std::string                   m_3dEditorTypeName; ///< If set, use this editor type to edit this UiItem in 3D
+    int                           m_isHidden; ///< UiItem should be hidden. -1 means not set
+    int                           m_isTreeChildrenHidden; ///< Children of UiItem should be hidden. -1 means not set
+    int                           m_isReadOnly; ///< UiItem should be insensitive, or read only. -1 means not set.
+    LabelPosType                  m_labelAlignment;
+    int                           m_isCustomContextMenuEnabled;
 };
 
 class UiEditorHandle;
@@ -192,9 +190,6 @@ public:
     const IconProvider* uiIconProvider() const;
     void                setUiIcon( std::shared_ptr<IconProvider> uiIcon );
     void                setUiIconFromResourceString( const std::string& uiIconResourceName );
-
-    const Color uiContentTextColor() const;
-    void        setUiContentTextColor( const Color& uiIcon );
 
     const std::string uiToolTip() const;
     void              setUiToolTip( const std::string& uiToolTip );

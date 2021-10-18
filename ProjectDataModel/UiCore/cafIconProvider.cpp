@@ -63,7 +63,6 @@ IconProvider::IconProvider( const IconProvider& rhs )
     : m_active( rhs.m_active )
     , m_iconResourceString( rhs.m_iconResourceString )
     , m_overlayResourceString( rhs.m_overlayResourceString )
-    , m_backgroundColor(rhs.m_backgroundColor)
     , m_preferredSize( rhs.m_preferredSize )
 {
 }
@@ -73,11 +72,10 @@ IconProvider::IconProvider( const IconProvider& rhs )
 //--------------------------------------------------------------------------------------------------
 IconProvider& IconProvider::operator=( const IconProvider& rhs )
 {
-    m_active                 = rhs.m_active;
-    m_iconResourceString     = rhs.m_iconResourceString;
-    m_overlayResourceString  = rhs.m_overlayResourceString;
-    m_backgroundColor        = rhs.m_backgroundColor;
-    m_preferredSize          = rhs.m_preferredSize;
+    m_active                = rhs.m_active;
+    m_iconResourceString    = rhs.m_iconResourceString;
+    m_overlayResourceString = rhs.m_overlayResourceString;
+    m_preferredSize         = rhs.m_preferredSize;
     return *this;
 }
 
@@ -94,7 +92,7 @@ void IconProvider::setActive( bool active )
 //--------------------------------------------------------------------------------------------------
 bool IconProvider::valid() const
 {
-    return !m_iconResourceString.empty() || m_backgroundColor.get<Color::ALPHA>() != 0u;
+    return !m_iconResourceString.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,7 +134,6 @@ const std::string& IconProvider::iconResourceString() const
 {
     return m_iconResourceString;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///

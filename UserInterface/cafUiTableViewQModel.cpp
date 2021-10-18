@@ -174,32 +174,6 @@ bool UiTableViewQModel::setData( const QModelIndex& index, const QVariant& value
 //--------------------------------------------------------------------------------------------------
 QVariant UiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::DisplayRole */ ) const
 {
-    if ( role == Qt::ForegroundRole )
-    {
-        FieldHandle* fieldHandle = getField( index );
-        if ( fieldHandle && fieldHandle->capability<FieldUiCapability>() )
-        {
-            Color  storedColor = fieldHandle->capability<FieldUiCapability>()->uiContentTextColor();
-            QColor textColor   = storedColor.to<QColor>();
-
-            if ( fieldHandle->capability<FieldUiCapability>()->isUiReadOnly() )
-            {
-                if ( textColor.isValid() )
-                {
-                    return textColor.lighter( 150 );
-                }
-                else
-                {
-                    return QColor( Qt::lightGray );
-                }
-            }
-            else if ( textColor.isValid() )
-            {
-                return textColor;
-            }
-        }
-    }
-
     if ( role == Qt::DisplayRole || role == Qt::EditRole )
     {
         FieldHandle* fieldHandle = getField( index );
@@ -225,9 +199,9 @@ QVariant UiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::Dis
                 {
                     for ( const Variant& v : valuesSelectedInField )
                     {
-                        auto opit = std::find_if( options.begin(), options.end(), [&v]( const auto& option ) {
-                            return option.value() == v;
-                        } );
+                        auto opit = std::find_if( options.begin(),
+                                                  options.end(),
+                                                  [&v]( const auto& option ) { return option.value() == v; } );
                         if ( opit != options.end() )
                         {
                             if ( !displayText.isEmpty() ) displayText += ", ";
@@ -243,9 +217,9 @@ QVariant UiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::Dis
             if ( !options.empty() )
             {
                 QString displayText;
-                auto    opit = std::find_if( options.begin(), options.end(), [&fieldValue]( const auto& option ) {
-                    return option.value() == fieldValue;
-                } );
+                auto    opit = std::find_if( options.begin(),
+                                          options.end(),
+                                          [&fieldValue]( const auto& option ) { return option.value() == fieldValue; } );
 
                 if ( opit != options.end() )
                 {

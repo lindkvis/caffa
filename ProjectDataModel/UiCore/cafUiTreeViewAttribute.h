@@ -1,6 +1,5 @@
 #pragma once
 
-#include "cafColor.h"
 #include "cafObjectHandle.h"
 #include "cafUiEditorAttribute.h"
 
@@ -9,27 +8,6 @@
 
 namespace caffa
 {
-class UiTreeViewItemAttribute : public UiEditorAttribute
-{
-public:
-    enum Position
-    {
-        IN_FRONT,
-        AT_END
-    };
-    UiTreeViewItemAttribute()
-        : tag()
-        , position( AT_END )
-        , bgColor( 255, 0, 0 )
-        , fgColor( 255, 255, 255 )
-    {
-    }
-    std::string tag;
-    Position    position;
-    Color       bgColor;
-    Color       fgColor;
-};
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

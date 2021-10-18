@@ -5,7 +5,6 @@ project(caffaCore)
 set(PUBLIC_HEADERS
     cafAssert.h
     cafAppEnum.h
-    cafColor.h
     cafFactory.h
     cafBase.h
     cafChildArrayField.h
@@ -29,12 +28,10 @@ set(PUBLIC_HEADERS
     cafValueField.h
     cafValueFieldSpecializations.h
     cafSignal.h
-    cafVariant.h
-    cafTristate.h)
+    cafVariant.h)
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
-    cafColor.cpp
     cafChildArrayFieldHandle.cpp
     cafChildArrayFieldAccessor.cpp
     cafChildFieldAccessor.cpp
@@ -42,8 +39,7 @@ set(PROJECT_FILES
     cafObjectHandle.cpp
     cafPointer.cpp
     cafSignal.cpp
-    cafVariant.cpp
-    cafTristate.cpp)
+    cafVariant.cpp)
 
 if(CAFFA_BUILD_SHARED)
   message(STATUS "Building ${PROJECT_NAME} shared")
