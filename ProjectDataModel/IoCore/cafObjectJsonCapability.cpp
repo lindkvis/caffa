@@ -211,7 +211,7 @@ void ObjectJsonCapability::writeFieldsToJson( const ObjectHandle* object, nlohma
         std::string keyword = field->keyword();
 
         const FieldIoCapability* ioCapability = field->capability<FieldIoCapability>();
-        if ( ioCapability && ioCapability->isIOWritable() && keyword != "uuid" )
+        if ( ioCapability && ( ioCapability->isIOWritable() || ioCapability->isIOReadable() ) && keyword != "uuid" )
         {
             CAFFA_ASSERT( ObjectIoCapability::isValidElementName( keyword ) );
 
