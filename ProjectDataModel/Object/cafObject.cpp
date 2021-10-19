@@ -17,7 +17,7 @@ caffa::Object::Object()
     , ObjectIoCapability( this, false )
     , ObjectUiCapability( this, false )
 {
-    initField( m_uuid, "uuid" ).withScripting();
+    initField( m_uuid, "uuid" ).withScripting().withUi( "Object UUID", "Unique Object Identifier" ).readOnly();
 
     auto                         seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::mt19937                 generator( seed );
