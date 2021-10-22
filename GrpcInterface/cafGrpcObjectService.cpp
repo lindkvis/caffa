@@ -254,7 +254,7 @@ void ObjectService::copyResultOrParameterObjectFromRpcToCaf( const RpcObject* so
 
     std::stringstream str( source->json() );
     auto              ioCapability = destination->capability<caffa::ObjectIoCapability>();
-    CAFFA_DEBUG( "Copying rpc object: " << source->json() << " into ioCapability " << ioCapability );
+    CAFFA_TRACE( "Copying rpc object: " << source->json() << " into ioCapability " << ioCapability );
 
     ioCapability->readFile( str );
 }

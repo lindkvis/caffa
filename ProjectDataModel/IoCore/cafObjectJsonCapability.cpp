@@ -86,7 +86,7 @@ std::unique_ptr<ObjectHandle> ObjectJsonCapability::readUnknownObjectFromString(
                                                                                  ObjectFactory*     objectFactory,
                                                                                  bool               copyDataValues )
 {
-    CAFFA_DEBUG( string );
+    CAFFA_TRACE( string );
     if ( string.empty() ) return nullptr;
 
     nlohmann::json jsonObject       = nlohmann::json::parse( string );
@@ -136,7 +136,7 @@ void ObjectJsonCapability::readFieldsFromJson( ObjectHandle*         object,
                                                ObjectFactory*        objectFactory,
                                                bool                  copyDataValues )
 {
-    CAFFA_DEBUG( "Reading fields from json with copyDataValues: " << copyDataValues );
+    CAFFA_TRACE( "Reading fields from json with copyDataValues: " << copyDataValues );
 
     CAFFA_ASSERT( jsonObject.is_object() );
     const auto& classKeyword = jsonObject["classKeyword"];
@@ -159,7 +159,7 @@ void ObjectJsonCapability::readFieldsFromJson( ObjectHandle*         object,
 
     for ( const nlohmann::json& field : jsonFields )
     {
-        CAFFA_DEBUG( "Reading field: " << field.dump() );
+        CAFFA_TRACE( "Reading field: " << field.dump() );
         auto keyIt   = field.find( "keyword" );
         auto valueIt = field.find( "value" );
         if ( keyIt == field.end() )

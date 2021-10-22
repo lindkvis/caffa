@@ -54,6 +54,17 @@ public:
                                                               ObjectFactory*     objectFactory,
                                                               IoType             ioType = IoType::JSON );
 
+    template <typename ObjectType>
+    std::unique_ptr<ObjectType> copyTypedObjectBySerialization( ObjectFactory* objectFactory, IoType ioType = IoType::JSON )
+    {
+        auto objectHandle = this->copyBySerialization( objectFactory, ioType );
+        if ( dynamic_cast<ObjectType*>( objectHandle.get() ) != nullptr )
+        {
+            return std::unique_ptr<ObjectType>( static_cast<ObjectType*>( objectHandle.release() ) );
+        }
+        return nullptr; // Will delete the copy
+    }
+
     /// Check if a string is a valid element name
     static bool isValidElementName( const std::string& name );
 
