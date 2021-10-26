@@ -38,10 +38,7 @@
 namespace caffa
 {
 class ObjectCapability;
-class ObjectUiCapability;
-class FieldIoCapability;
 class FieldCapability;
-class ObjectXmlCapability;
 
 /**
  * The base class of all objects

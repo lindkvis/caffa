@@ -13,8 +13,6 @@
 namespace caffa
 {
 class ObjectHandle;
-class FieldUiCapability;
-class FieldIoCapability;
 
 //==================================================================================================
 /// Base class for all fields, making it possible to handle them generically
