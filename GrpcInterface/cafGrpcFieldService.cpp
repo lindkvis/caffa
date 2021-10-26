@@ -953,7 +953,7 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
         auto scriptability = field->capability<FieldScriptingCapability>();
         if ( scriptability && fieldRequest.method() == scriptability->scriptFieldName() )
         {
-            CAFFA_DEBUG( "   With value: '" << request->value() << "'" );
+            CAFFA_DEBUG( "   Field: '" << fieldRequest.method() << "' with value: '" << request->value() << "'" );
             auto ioCapability = field->capability<caffa::FieldIoCapability>();
             if ( ioCapability )
             {
