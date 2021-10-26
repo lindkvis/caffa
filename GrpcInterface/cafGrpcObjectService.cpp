@@ -149,11 +149,8 @@ grpc::Status ObjectService::ListMethods( grpc::ServerContext* context, const Rpc
 //--------------------------------------------------------------------------------------------------
 caffa::Object* ObjectService::findCafObjectFromRpcObject( const RpcObject& rpcObject )
 {
-    auto jsonObject   = nlohmann::json::parse( rpcObject.json() );
-    auto classKeyword = jsonObject["classKeyword"].get<std::string>();
-    CAFFA_ASSERT( jsonObject.contains( "uuid" ) && jsonObject["uuid"].is_string() );
-    auto address = jsonObject["uuid"].get<std::string>();
-    return findCafObjectFromScriptNameAndUuid( classKeyword, address );
+    auto [keyword, uuid] = caffa::ObjectJsonSerializer( true ).readClassKeywordAndUUIDFromObjectString( rpcObject.json() );
+    return findCafObjectFromScriptNameAndUuid( keyword, uuid );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -211,12 +208,9 @@ void ObjectService::copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* so
     auto ioCapability = source->capability<caffa::ObjectIoCapability>();
     CAFFA_ASSERT( ioCapability );
 
-    std::stringstream ss;
-    caffa::ObjectJsonCapability::writeFile( source, ss, false );
-
-    nlohmann::json jsonObject = nlohmann::json::parse( ss.str() );
-    CAFFA_ASSERT( jsonObject.contains( "uuid" ) && jsonObject["uuid"].is_string() );
-    destination->set_json( jsonObject.dump() );
+    caffa::ObjectJsonSerializer serializer( false, DefaultObjectFactory::instance() );
+    std::string                 jsonString = serializer.writeObjectToString( source );
+    destination->set_json( jsonString );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -226,7 +220,7 @@ void ObjectService::copyProjectObjectFromRpcToCaf( const RpcObject* source, caff
 {
     CAFFA_ASSERT( source );
 
-    auto jsonObject = nlohmann::json::parse( source->json() );
+    caffa::ObjectJsonSerializer( true ).readObjectFromString( destination, source->json() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -236,11 +230,8 @@ void ObjectService::copyResultOrParameterObjectFromCafToRpc( const caffa::Object
 {
     CAFFA_ASSERT( source && destination );
 
-    std::stringstream ss;
-    caffa::ObjectJsonCapability::writeFile( source, ss, true );
-
-    nlohmann::json jsonObject = nlohmann::json::parse( ss.str() );
-    destination->set_json( jsonObject.dump() );
+    auto jsonString = caffa::ObjectJsonSerializer( true ).writeObjectToString( source );
+    destination->set_json( jsonString );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -249,14 +240,7 @@ void ObjectService::copyResultOrParameterObjectFromCafToRpc( const caffa::Object
 void ObjectService::copyResultOrParameterObjectFromRpcToCaf( const RpcObject* source, caffa::ObjectHandle* destination )
 {
     CAFFA_ASSERT( source );
-
-    auto jsonObject = nlohmann::json::parse( source->json() );
-
-    std::stringstream str( source->json() );
-    auto              ioCapability = destination->capability<caffa::ObjectIoCapability>();
-    CAFFA_TRACE( "Copying rpc object: " << source->json() << " into ioCapability " << ioCapability );
-
-    ioCapability->readFile( str );
+    caffa::ObjectJsonSerializer( true ).readObjectFromString( destination, source->json() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -267,8 +251,8 @@ std::unique_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( cons
                                                                             bool                  copyDataValues )
 {
     CAFFA_ASSERT( source );
-    std::unique_ptr<caffa::ObjectHandle> destination(
-        caffa::ObjectJsonCapability::readUnknownObjectFromString( source->json(), objectFactory, copyDataValues ) );
+    auto destination =
+        caffa::ObjectJsonSerializer( copyDataValues, objectFactory ).createObjectFromString( source->json() );
 
     return destination;
 }
@@ -286,14 +270,10 @@ std::unique_ptr<caffa::ObjectMethod>
     CAFFA_ASSERT( self && source );
     if ( !self ) return nullptr;
 
-    nlohmann::json jsonObject       = nlohmann::json::parse( source->json() );
-    const auto&    jsonClassKeyword = jsonObject["classKeyword"];
+    auto [keyword, uuid] = caffa::ObjectJsonSerializer( true ).readClassKeywordAndUUIDFromObjectString( source->json() );
 
-    CAFFA_ASSERT( jsonClassKeyword.is_string() );
-    std::string                          classKeyword = jsonClassKeyword.get<std::string>();
-    std::unique_ptr<caffa::ObjectMethod> method       = objectMethodFactory->createMethod( self, classKeyword );
-
-    caffa::ObjectJsonCapability::readFieldsFromJson( method.get(), jsonObject, objectFactory, copyDataValues );
+    std::unique_ptr<caffa::ObjectMethod> method = objectMethodFactory->createMethod( self, keyword );
+    caffa::ObjectJsonSerializer( copyDataValues, objectFactory ).readObjectFromString( method.get(), source->json() );
     return method;
 }
 

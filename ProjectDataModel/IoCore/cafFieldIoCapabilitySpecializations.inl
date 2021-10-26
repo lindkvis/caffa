@@ -4,7 +4,7 @@
 #include "cafLogger.h"
 #include "cafObjectFactory.h"
 #include "cafObjectIoCapability.h"
-#include "cafObjectJsonCapability.h"
+#include "cafObjectJsonSerializer.h"
 #include "cafStringTools.h"
 
 #include <nlohmann/json.hpp>
@@ -105,7 +105,10 @@ void FieldIoCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& json
 
     // Everything seems ok, so read the contents of the object:
     CAFFA_ASSERT( objPtr.notNull() );
-    ObjectJsonCapability::readFieldsFromJson( objPtr.p(), jsonObject, objectFactory, copyDataValues );
+    std::string jsonString = jsonObject.dump();
+
+    ObjectJsonSerializer jsonSerializer( copyDataValues, objectFactory );
+    jsonSerializer.readObjectFromString( objPtr.p(), jsonString );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,11 +125,10 @@ void FieldIoCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonValue, 
     auto ioObject = object->template capability<caffa::ObjectIoCapability>();
     if ( ioObject )
     {
-        std::string className = ioObject->classKeyword();
+        ObjectJsonSerializer jsonSerializer( copyDataValues );
+        std::string          jsonString = jsonSerializer.writeObjectToString( object );
 
-        nlohmann::json jsonObject  = nlohmann::json::object();
-        jsonObject["classKeyword"] = className.c_str();
-        ObjectJsonCapability::writeFieldsToJson( object, jsonObject, copyDataValues );
+        nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
         CAFFA_ASSERT( jsonObject.is_object() );
         jsonValue = jsonObject;
     }
@@ -175,7 +177,10 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json&
             continue;
         }
 
-        ObjectJsonCapability::readFieldsFromJson( obj.get(), jsonObject, objectFactory, copyDataValues );
+        std::string jsonString = jsonObject.dump();
+
+        ObjectJsonSerializer jsonSerializer( copyDataValues, objectFactory );
+        jsonSerializer.readObjectFromString( obj.get(), jsonString );
 
         size_t currentSize = m_field->size();
         m_field->insertAt( currentSize, std::move( obj ) );
@@ -193,16 +198,15 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& jsonVa
 
     for ( size_t i = 0; i < m_field->size(); ++i )
     {
-        ObjectHandle* pointer = m_field->at( i );
-        if ( !pointer ) continue;
+        ObjectHandle* object = m_field->at( i );
+        if ( !object ) continue;
 
-        auto ioObject = pointer->capability<caffa::ObjectIoCapability>();
+        auto ioObject = object->capability<caffa::ObjectIoCapability>();
         if ( ioObject )
         {
-            std::string    className   = ioObject->classKeyword();
-            nlohmann::json jsonObject  = nlohmann::json::object();
-            jsonObject["classKeyword"] = className;
-            ObjectJsonCapability::writeFieldsToJson( pointer, jsonObject, copyDataValues );
+            ObjectJsonSerializer jsonSerializer( copyDataValues );
+            std::string          jsonString = jsonSerializer.writeObjectToString( object );
+            nlohmann::json       jsonObject = nlohmann::json::parse( jsonString );
             jsonArray.push_back( jsonObject );
         }
     }

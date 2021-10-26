@@ -5,6 +5,7 @@
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
+#include "cafObjectJsonSerializer.h"
 
 #include <cmath>
 
@@ -43,39 +44,34 @@ TEST( SerializeNumbers, SimpleObjectWithDoubleValues )
     double valueA = 0.123456789;
     double valueB = 123456789 + valueA;
 
-    std::vector<caffa::ObjectIoCapability::IoType> ioTypes = { caffa::ObjectIoCapability::IoType::JSON };
+    std::string objectAsText;
 
-    for ( auto ioType : ioTypes )
     {
-        std::string objectAsText;
+        SimpleObjectWithNumbers obj1;
+
+        obj1.m_valueA = valueA;
+        obj1.m_valueB = valueB;
+
+        objectAsText = caffa::ObjectJsonSerializer( true ).writeObjectToString( &obj1 );
+    }
+
+    {
+        SimpleObjectWithNumbers obj1;
+
+        caffa::ObjectJsonSerializer( true ).readObjectFromString( &obj1, objectAsText );
 
         {
-            SimpleObjectWithNumbers obj1;
+            double epsilon = 1e-7;
 
-            obj1.m_valueA = valueA;
-            obj1.m_valueB = valueB;
-
-            objectAsText = obj1.writeObjectToString( ioType );
+            double diffA = fabs( obj1.m_valueA - valueA );
+            EXPECT_TRUE( diffA < epsilon );
         }
 
         {
-            SimpleObjectWithNumbers obj1;
+            double epsilon = 3e-7;
 
-            obj1.readObjectFromString( objectAsText, caffa::DefaultObjectFactory::instance(), ioType );
-
-            {
-                double epsilon = 1e-7;
-
-                double diffA = fabs( obj1.m_valueA - valueA );
-                EXPECT_TRUE( diffA < epsilon );
-            }
-
-            {
-                double epsilon = 3e-7;
-
-                double diffB = fabs( obj1.m_valueB - valueB );
-                EXPECT_TRUE( diffB < epsilon );
-            }
+            double diffB = fabs( obj1.m_valueB - valueB );
+            EXPECT_TRUE( diffB < epsilon );
         }
     }
 }
@@ -100,13 +96,13 @@ TEST( SerializeNumbers, SimpleObjectWithFloatValues )
             obj1.m_floatValueA = valueA;
             obj1.m_floatValueB = valueB;
 
-            objectAsText = obj1.writeObjectToString( ioType );
+            objectAsText = caffa::ObjectJsonSerializer( true ).writeObjectToString( &obj1 );
         }
 
         {
             SimpleObjectWithNumbers obj1;
 
-            obj1.readObjectFromString( objectAsText, caffa::DefaultObjectFactory::instance(), ioType );
+            caffa::ObjectJsonSerializer( true ).readObjectFromString( &obj1, objectAsText );
 
             double epsilon = 1e-7;
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "cafFieldIoCapability.h"
 #include "cafObjectCapability.h"
 
 #include <iostream>
@@ -11,11 +10,9 @@
 
 namespace caffa
 {
-class FieldIoCapability;
 class ObjectHandle;
 class ObjectFactory;
-class ReferenceHelper;
-class FieldHandle;
+class ObjectSerializer;
 
 //==================================================================================================
 //
@@ -27,8 +24,7 @@ class ObjectIoCapability : public ObjectCapability
 public:
     enum class IoType
     {
-        JSON,
-        SQL // Not yet implemented
+        JSON
     };
 
 public:
@@ -40,24 +36,21 @@ public:
     virtual bool                     matchesClassKeyword( const std::string& classKeyword ) const = 0;
     virtual std::vector<std::string> classInheritanceStack() const                                = 0;
 
-    static std::unique_ptr<ObjectHandle> readUnknownObjectFromString( const std::string& string,
-                                                                      ObjectFactory*     objectFactory,
-                                                                      bool               copyDataValues,
-                                                                      IoType             ioType = IoType::JSON );
-    void readObjectFromString( const std::string& string, ObjectFactory* objectFactory, IoType ioType = IoType::JSON );
-    std::string writeObjectToString( IoType ioType = IoType::JSON ) const;
+    /// Check if a string is a valid element name
+    static bool isValidElementName( const std::string& name );
 
-    std::unique_ptr<ObjectHandle> copyBySerialization( ObjectFactory* objectFactory, IoType ioType = IoType::JSON );
+    void initAfterReadRecursively() { initAfterReadRecursively( this->m_owner ); };
+    void setupBeforeSaveRecursively() { setupBeforeSaveRecursively( this->m_owner ); };
+
+    std::unique_ptr<ObjectHandle> copyBySerialization( ObjectFactory* objectFactory );
 
     std::unique_ptr<ObjectHandle> copyAndCastBySerialization( const std::string& destinationClassKeyword,
-                                                              const std::string& sourceClassKeyword,
-                                                              ObjectFactory*     objectFactory,
-                                                              IoType             ioType = IoType::JSON );
+                                                              ObjectFactory*     objectFactory );
 
     template <typename ObjectType>
-    std::unique_ptr<ObjectType> copyTypedObjectBySerialization( ObjectFactory* objectFactory, IoType ioType = IoType::JSON )
+    std::unique_ptr<ObjectType> copyTypedObjectBySerialization( ObjectFactory* objectFactory )
     {
-        auto objectHandle = this->copyBySerialization( objectFactory, ioType );
+        auto objectHandle = this->copyBySerialization( objectFactory );
         if ( dynamic_cast<ObjectType*>( objectHandle.get() ) != nullptr )
         {
             return std::unique_ptr<ObjectType>( static_cast<ObjectType*>( objectHandle.release() ) );
@@ -65,17 +58,14 @@ public:
         return nullptr; // Will delete the copy
     }
 
-    /// Check if a string is a valid element name
-    static bool isValidElementName( const std::string& name );
-
-    void initAfterReadRecursively() { initAfterReadRecursively( this->m_owner ); };
-    void setupBeforeSaveRecursively() { setupBeforeSaveRecursively( this->m_owner ); };
-
     bool readFile( const std::string& fileName, IoType ioType = IoType::JSON );
     bool writeFile( const std::string& fileName, IoType ioType = IoType::JSON );
 
-    bool readFile( std::istream& istream, IoType ioType = IoType::JSON );
-    bool writeFile( std::ostream& ostream, IoType ioType = IoType::JSON );
+    bool readStream( std::istream& inStream, IoType ioType = IoType::JSON );
+    bool writeStream( std::ostream& outStream, IoType ioType = IoType::JSON );
+
+    bool readStream( std::istream& inStream, const ObjectSerializer& serializer );
+    bool writeStream( std::ostream& outStream, const ObjectSerializer& serializer );
 
 protected: // Virtual
     /// Method gets called from Document after all objects are read.

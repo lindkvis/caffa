@@ -2,6 +2,7 @@
 
 #include "cafChildArrayField.h"
 #include "cafObject.h"
+#include "cafObjectJsonSerializer.h"
 
 namespace caffa
 {
@@ -51,9 +52,9 @@ std::vector<std::unique_ptr<T>> ObjectGroup::createCopyByType( ObjectFactory* ob
     for ( Pointer<T> object : sourceTypedObjects )
     {
         if ( object.isNull() ) continue;
-        auto        ioCapability = object->template capability<ObjectIoCapability>();
-        std::string string       = ioCapability->writeObjectToString();
-        auto objectCopy = ObjectIoCapability::readUnknownObjectFromString( string, DefaultObjectFactory::instance(), true );
+
+        auto objectCopy = object->copyBySerialization( DefaultObjectFactory::instance() );
+
         auto typedObject = caffa::static_unique_cast<T>( std::move( objectCopy ) );
         CAFFA_ASSERT( typedObject );
 

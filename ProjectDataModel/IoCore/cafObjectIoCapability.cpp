@@ -1,10 +1,11 @@
 #include "cafObjectIoCapability.h"
 
 #include "cafAssert.h"
+#include "cafDefaultObjectFactory.h"
 #include "cafFieldHandle.h"
 #include "cafFieldIoCapability.h"
 #include "cafObjectHandle.h"
-#include "cafObjectJsonCapability.h"
+#include "cafObjectJsonSerializer.h"
 #include "cafStringTools.h"
 
 #include <fstream>
@@ -19,115 +20,6 @@ ObjectIoCapability::ObjectIoCapability( ObjectHandle* owner, bool giveOwnership 
 {
     m_owner = owner;
     m_owner->addCapability( this, giveOwnership );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> ObjectIoCapability::readUnknownObjectFromString( const std::string& string,
-                                                                               ObjectFactory*     objectFactory,
-                                                                               bool               copyDataValues,
-                                                                               IoType ioType /*= IoType::JSON */ )
-{
-    std::unique_ptr<ObjectHandle> object;
-
-    switch ( ioType )
-    {
-        default:
-            break;
-        case IoType::JSON:
-            object = ObjectJsonCapability::readUnknownObjectFromString( string, objectFactory, copyDataValues );
-            break;
-        case IoType::SQL:
-            CAFFA_ASSERT( "SQL writing is not implemented" );
-            break;
-    }
-    return object;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void ObjectIoCapability::readObjectFromString( const std::string& string,
-                                               ObjectFactory*     objectFactory,
-                                               IoType             ioType /*= IoType::JSON */ )
-{
-    switch ( ioType )
-    {
-        default:
-            break;
-        case IoType::JSON:
-            ObjectJsonCapability::readObjectFromString( m_owner, string, objectFactory );
-            break;
-        case IoType::SQL:
-            CAFFA_ASSERT( "SQL writing is not implemented" );
-            break;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::string ObjectIoCapability::writeObjectToString( IoType ioType /*= IoType::JSON */ ) const
-{
-    std::string string;
-    switch ( ioType )
-    {
-        default:
-            break;
-        case IoType::JSON:
-            string = ObjectJsonCapability::writeObjectToString( m_owner );
-            break;
-        case IoType::SQL:
-            CAFFA_ASSERT( "SQL writing is not implemented" );
-            break;
-    }
-    return string;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> ObjectIoCapability::copyBySerialization( ObjectFactory* objectFactory,
-                                                                       IoType         ioType /*= IoType::JSON */ )
-{
-    switch ( ioType )
-    {
-        default:
-            break;
-        case IoType::JSON:
-            return ObjectJsonCapability::copyByJsonSerialization( m_owner, objectFactory );
-            break;
-        case IoType::SQL:
-            CAFFA_ASSERT( "SQL writing is not implemented" );
-            break;
-    }
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> ObjectIoCapability::copyAndCastBySerialization( const std::string& destinationClassKeyword,
-                                                                              const std::string& sourceClassKeyword,
-                                                                              ObjectFactory*     objectFactory,
-                                                                              IoType ioType /*= IoType::JSON */ )
-{
-    switch ( ioType )
-    {
-        default:
-            break;
-        case IoType::JSON:
-            return ObjectJsonCapability::copyAndCastByJsonSerialization( m_owner,
-                                                                         destinationClassKeyword,
-                                                                         sourceClassKeyword,
-                                                                         objectFactory );
-            break;
-        case IoType::SQL:
-            CAFFA_ASSERT( "SQL writing is not implemented" );
-            break;
-    }
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,11 +69,33 @@ bool ObjectIoCapability::isValidElementName( const std::string& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::unique_ptr<ObjectHandle> ObjectIoCapability::copyBySerialization( ObjectFactory* objectFactory )
+{
+    return ObjectJsonSerializer( true, objectFactory ).copyBySerialization( m_owner );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<ObjectHandle> ObjectIoCapability::copyAndCastBySerialization( const std::string& destinationClassKeyword,
+                                                                              ObjectFactory*     objectFactory )
+{
+    return ObjectJsonSerializer( true, objectFactory ).copyAndCastBySerialization( m_owner, destinationClassKeyword );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool ObjectIoCapability::readFile( const std::string& fileName, IoType ioType /*= IoType::JSON */ )
 {
     std::ifstream inStream( fileName );
-    if ( !inStream.good() ) return false;
-    return readFile( inStream, ioType );
+    if ( !inStream.good() )
+    {
+        CAFFA_ERROR( "Could not open file for reading: " << fileName );
+        return false;
+    }
+
+    return readStream( inStream, ioType );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -190,32 +104,68 @@ bool ObjectIoCapability::readFile( const std::string& fileName, IoType ioType /*
 bool ObjectIoCapability::writeFile( const std::string& fileName, IoType ioType /*= IoType::JSON */ )
 {
     std::ofstream outStream( fileName );
-    if ( !outStream.good() ) return false;
-    return writeFile( outStream, ioType );
+    if ( !outStream.good() )
+    {
+        CAFFA_ERROR( "Could not open file for writing: " << fileName );
+        return false;
+    }
+
+    return writeStream( outStream, ioType );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ObjectIoCapability::readFile( std::istream& stream, IoType ioType )
+bool ObjectIoCapability::readStream( std::istream& inStream, IoType ioType )
+{
+    switch ( ioType )
+    {
+        case IoType::JSON:
+        {
+            ObjectJsonSerializer jsonSerializer( true );
+            return readStream( inStream, jsonSerializer );
+        }
+    }
+    CAFFA_ERROR( "IO Type not implemented" );
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool ObjectIoCapability::writeStream( std::ostream& outStream, IoType ioType )
+{
+    switch ( ioType )
+    {
+        case IoType::JSON:
+        {
+            ObjectJsonSerializer jsonSerializer( true );
+            return writeStream( outStream, jsonSerializer );
+        }
+    }
+
+    CAFFA_ERROR( "IO Type not implemented" );
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool ObjectIoCapability::readStream( std::istream& inStream, const ObjectSerializer& serializer )
 {
     try
     {
-        switch ( ioType )
-        {
-            default:
-                break;
-            case IoType::JSON:
-                ObjectJsonCapability::readFile( m_owner, stream );
-                break;
-            case IoType::SQL:
-                CAFFA_ASSERT( "SQL writing is not implemented" );
-                break;
-        }
-        initAfterReadRecursively();
+        serializer.readStream( m_owner, inStream );
+        this->initAfterReadRecursively();
+    }
+    catch ( std::runtime_error& err )
+    {
+        CAFFA_ERROR( err.what() );
+        return false;
     }
     catch ( ... )
     {
+        CAFFA_ERROR( "Generic object reading error" );
         return false;
     }
     return true;
@@ -224,27 +174,21 @@ bool ObjectIoCapability::readFile( std::istream& stream, IoType ioType )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ObjectIoCapability::writeFile( std::ostream& stream, IoType ioType )
+bool ObjectIoCapability::writeStream( std::ostream& outStream, const ObjectSerializer& serializer )
 {
-    // Ask all objects to make them ready to write themselves to file
-    setupBeforeSaveRecursively();
-
     try
     {
-        switch ( ioType )
-        {
-            default:
-                break;
-            case IoType::JSON:
-                ObjectJsonCapability::writeFile( m_owner, stream );
-                break;
-            case IoType::SQL:
-                CAFFA_ASSERT( "SQL writing is not implemented" );
-                break;
-        }
+        this->setupBeforeSaveRecursively();
+        serializer.writeStream( m_owner, outStream );
+    }
+    catch ( std::runtime_error& err )
+    {
+        CAFFA_ERROR( err.what() );
+        return false;
     }
     catch ( ... )
     {
+        CAFFA_ERROR( "Generic object writing error" );
         return false;
     }
     return true;

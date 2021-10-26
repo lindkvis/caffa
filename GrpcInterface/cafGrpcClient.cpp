@@ -163,10 +163,8 @@ public:
         grpc::Status  status = m_fieldStub->GetValue( &context, field, &reply );
         if ( status.ok() )
         {
-            childObject =
-                caffa::ObjectJsonCapability::readUnknownObjectFromString( reply.value(),
-                                                                          caffa::rpc::GrpcClientObjectFactory::instance(),
-                                                                          false );
+            childObject = caffa::ObjectJsonSerializer( false, caffa::rpc::GrpcClientObjectFactory::instance() )
+                              .createObjectFromString( reply.value() );
         }
         else
         {

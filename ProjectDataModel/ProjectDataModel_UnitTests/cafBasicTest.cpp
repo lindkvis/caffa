@@ -125,7 +125,7 @@ public:
         initField( m_intField, "IntNumber" ).withDefault( 0 );
 
         initField( m_textField, "TextField" ).withDefault( "Test text   end" );
-        initField( m_simpleObjPtrField, "SimpleObjPtrField" );
+        initField( m_simpleObjPtrField, "SimpleObjPtrFieldWhichIsNull" );
         initField( m_simpleObjPtrField2, "SimpleObjPtrField2" );
         m_simpleObjPtrField2 = std::make_unique<SimpleObj>();
     }
@@ -251,8 +251,6 @@ TEST( BaseTest, NormalField )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ReadWrite )
 {
-    std::string xmlDocumentContentWithErrors;
-
     {
         MyDocument doc;
 
@@ -375,7 +373,7 @@ TEST( BaseTest, ReadWrite )
 
         // Write file
         std::ofstream file( "TestFile2.json" );
-        doc.writeFile( file );
+        doc.writeStream( file );
         file.close();
     }
 

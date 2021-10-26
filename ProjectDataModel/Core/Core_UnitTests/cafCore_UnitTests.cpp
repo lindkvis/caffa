@@ -92,6 +92,7 @@ int main( int argc, char** argv )
             logLevel = caffa::Logger::logLevelFromLabel( vm["verbosity"].as<std::string>() );
         }
         caffa::Logger::setApplicationLogLevel( logLevel );
+        caffa::Logger::registerThreadName( "main" );
 
         testing::InitGoogleTest( &argc, argv );
         result = RUN_ALL_TESTS();
