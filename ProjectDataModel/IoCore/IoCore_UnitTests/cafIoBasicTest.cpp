@@ -12,6 +12,7 @@
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
+#include "cafObjectJsonSerializer.h"
 
 class DemoObject : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
@@ -97,35 +98,30 @@ TEST( BaseTest, Delete )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, FieldWrite )
 {
-    std::vector<caffa::ObjectIoCapability::IoType> ioTypes = { caffa::ObjectIoCapability::IoType::JSON };
-
-    for ( auto ioType : ioTypes )
+    std::string serializedString;
     {
-        std::string serializedString;
-        {
-            auto a = std::make_unique<DemoObject>();
+        auto a = std::make_unique<DemoObject>();
 
-            a->m_proxyDoubleField.setValue( 2.5 );
-            ASSERT_DOUBLE_EQ( 2.5, a->m_proxyDoubleField.value() );
+        a->m_proxyDoubleField.setValue( 2.5 );
+        ASSERT_DOUBLE_EQ( 2.5, a->m_proxyDoubleField.value() );
 
-            serializedString = a->writeObjectToString( ioType );
+        serializedString = caffa::ObjectJsonSerializer( true ).writeObjectToString( a.get() );
 
-            std::cout << serializedString << std::endl;
-        }
-
-        /*
-        <DemoObject>
-            <BigNumber>2.5</BigNumber>
-            <TestEnumValue>T3</TestEnumValue>
-        </DemoObject>
-        */
-
-        {
-            auto a = std::make_unique<DemoObject>();
-
-            a->readObjectFromString( serializedString, caffa::DefaultObjectFactory::instance(), ioType );
-        }
+        std::cout << serializedString << std::endl;
     }
+
+    /*
+    <DemoObject>
+        <BigNumber>2.5</BigNumber>
+        <TestEnumValue>T3</TestEnumValue>
+    </DemoObject>
+    */
+    std::string secondSerializedString;
+    {
+        auto a                 = caffa::ObjectJsonSerializer( true ).createObjectFromString( serializedString );
+        secondSerializedString = caffa::ObjectJsonSerializer( true ).writeObjectToString( a.get() );
+    }
+    ASSERT_EQ( serializedString, secondSerializedString );
 }
 
 class InheritedDemoObj : public DemoObject
@@ -228,7 +224,7 @@ TEST( BaseTest, ChildArrayFieldSerializing )
         auto s3p = s3.get();
         ihd1->m_childArrayField.push_back( std::move( s3 ) );
 
-        serializedString = ihd1->writeObjectToString();
+        serializedString = caffa::ObjectJsonSerializer( true ).writeObjectToString( ihd1.get() );
 
         std::cout << "Write object to json: " << serializedString << std::endl;
     }
@@ -237,7 +233,7 @@ TEST( BaseTest, ChildArrayFieldSerializing )
         auto ihd1 = std::make_unique<InheritedDemoObj>();
         ASSERT_EQ( 0u, ihd1->m_childArrayField.size() );
 
-        ihd1->readObjectFromString( serializedString, caffa::DefaultObjectFactory::instance() );
+        caffa::ObjectJsonSerializer( true ).readObjectFromString( ihd1.get(), serializedString );
         ASSERT_EQ( 3u, ihd1->m_childArrayField.size() );
 
         ASSERT_TRUE( ihd1->m_childArrayField[0] != nullptr );

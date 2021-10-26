@@ -9,6 +9,7 @@
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
+#include "cafObjectJsonSerializer.h"
 
 class ItemObject : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
@@ -151,21 +152,14 @@ TEST( AdvancedObjectTest, FieldWrite )
         containerPtr->m_items.push_back( std::move( item ) );
     }
 
-    std::vector<caffa::ObjectIoCapability::IoType> ioTypes = { caffa::ObjectIoCapability::IoType::JSON };
+    caffa::ObjectJsonSerializer serializer( true );
+    std::string                 string = serializer.writeObjectToString( root.get() );
 
-    for ( auto ioType : ioTypes )
-    {
-        std::string string = root->writeObjectToString( ioType );
-        std::cout << string << std::endl;
+    std::cout << string << std::endl;
 
-        std::unique_ptr<caffa::ObjectHandle> objCopy =
-            caffa::ObjectIoCapability::readUnknownObjectFromString( string,
-                                                                    caffa::DefaultObjectFactory::instance(),
-                                                                    true,
-                                                                    ioType );
-        auto rootCopy = dynamic_cast<ContainerObject*>( objCopy.get() );
-        ASSERT_TRUE( rootCopy != nullptr );
-    }
+    std::unique_ptr<caffa::ObjectHandle> objCopy  = serializer.createObjectFromString( string );
+    auto                                 rootCopy = dynamic_cast<ContainerObject*>( objCopy.get() );
+    ASSERT_TRUE( rootCopy != nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,29 +194,23 @@ TEST( AdvancedObjectTest, CopyOfObjects )
 
         containerPtr->m_items.push_back( std::move( item ) );
 
-        std::vector<caffa::ObjectIoCapability::IoType> ioTypes = { caffa::ObjectIoCapability::IoType::JSON };
+        caffa::ObjectJsonSerializer serializer( true );
 
-        for ( auto ioType : ioTypes )
         {
+            auto a  = std::make_unique<DemoObjectA>();
+            auto ap = a.get();
+            siblingPtr->m_demoObjs.push_back( std::move( a ) );
+            std::string originalOutput = serializer.writeObjectToString( ap );
             {
-                auto a  = std::make_unique<DemoObjectA>();
-                auto ap = a.get();
-                siblingPtr->m_demoObjs.push_back( std::move( a ) );
-                std::string originalOutput = ap->writeObjectToString();
-                {
-                    auto objCopy = ap->capability<caffa::ObjectIoCapability>()
-                                       ->copyBySerialization( caffa::DefaultObjectFactory::instance(), ioType );
-                    auto        demoObj    = caffa::static_unique_cast<DemoObjectA>( std::move( objCopy ) );
-                    std::string copyOutput = ap->capability<caffa::ObjectIoCapability>()->writeObjectToString();
-                    ASSERT_EQ( originalOutput, copyOutput );
-                }
+                auto        objCopy    = serializer.copyBySerialization( ap );
+                auto        demoObj    = caffa::static_unique_cast<DemoObjectA>( std::move( objCopy ) );
+                std::string copyOutput = serializer.writeObjectToString( demoObj.get() );
+                ASSERT_EQ( originalOutput, copyOutput );
+            }
 
-                {
-                    auto objCopy = ap->capability<caffa::ObjectIoCapability>()
-                                       ->copyBySerialization( caffa::DefaultObjectFactory::instance(), ioType );
-
-                    siblingPtr->m_demoObjs.push_back( caffa::static_unique_cast<DemoObjectA>( std::move( objCopy ) ) );
-                }
+            {
+                auto objCopy = serializer.copyBySerialization( ap );
+                siblingPtr->m_demoObjs.push_back( caffa::static_unique_cast<DemoObjectA>( std::move( objCopy ) ) );
             }
         }
     }

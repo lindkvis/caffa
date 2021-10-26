@@ -16,6 +16,7 @@
 #include "cafGrpcServerApplication.h"
 #include "cafLogger.h"
 #include "cafObjectHandle.h"
+#include "cafObjectJsonSerializer.h"
 #include "cafValueField.h"
 
 #include <chrono>
@@ -385,9 +386,9 @@ TEST( BaseTest, Document )
         ASSERT_EQ( ( *server_it )->uuid(), ( *client_it )->uuid() );
     }
 
-    std::string serverJson = serverDocument->writeObjectToString();
+    std::string serverJson = caffa::ObjectJsonSerializer( true ).writeObjectToString( serverDocument );
     CAFFA_DEBUG( serverJson );
-    std::string clientJson = clientDocument->writeObjectToString();
+    std::string clientJson = caffa::ObjectJsonSerializer( true ).writeObjectToString( clientDocument );
     CAFFA_DEBUG( clientJson );
     ASSERT_EQ( serverJson, clientJson );
 

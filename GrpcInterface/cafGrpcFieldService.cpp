@@ -901,9 +901,7 @@ grpc::Status FieldService::InsertChildObject( grpc::ServerContext* context, cons
             if ( childArrayField )
             {
                 std::unique_ptr<caffa::ObjectHandle> newCafObject =
-                    caffa::ObjectJsonCapability::readUnknownObjectFromString( request->value(),
-                                                                              DefaultObjectFactory::instance(),
-                                                                              true );
+                    caffa::ObjectJsonSerializer( true ).createObjectFromString( request->value() );
                 size_t index = fieldRequest.index();
                 if ( index >= childArrayField->size() )
                 {
