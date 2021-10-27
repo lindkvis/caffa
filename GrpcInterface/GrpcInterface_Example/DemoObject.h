@@ -141,5 +141,6 @@ public:
 
 private:
     caffa::ChildField<DemoObject*>            m_demoObject;
+    caffa::ChildField<DemoObject*>            m_demoObjectNonScriptable;
     caffa::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
 };
