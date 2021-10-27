@@ -273,8 +273,8 @@ public:
     void resetToDefaultData() override { m_demoDocument = std::make_unique<DemoDocument>(); }
 
 private:
-    void onStartup() override { CAFFA_INFO( "Starting Server" ); }
-    void onShutdown() override { CAFFA_INFO( "Shutting down Server" ); }
+    void onStartup() override { CAFFA_DEBUG( "Starting Server" ); }
+    void onShutdown() override { CAFFA_DEBUG( "Shutting down Server" ); }
 
 private:
     std::unique_ptr<DemoDocument> m_demoDocument;

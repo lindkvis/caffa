@@ -209,25 +209,32 @@ std::unique_ptr<ObjectHandle> ObjectJsonSerializer::copyBySerialization( const O
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> ObjectJsonSerializer::copyAndCastBySerialization( const ObjectHandle* object,
-                                                                                const std::string& destinationClassKeyword,
-                                                                                const std::string& sourceClassKeyword ) const
+std::unique_ptr<ObjectHandle>
+    ObjectJsonSerializer::copyAndCastBySerialization( const ObjectHandle* object,
+                                                      const std::string&  destinationClassKeyword ) const
 {
+    // Can not do this without an IO capability
     auto ioCapability = object->capability<ObjectIoCapability>();
-    ioCapability->setupBeforeSaveRecursively();
+    if ( !ioCapability ) return nullptr;
 
+    ioCapability->setupBeforeSaveRecursively();
     std::string string = writeObjectToString( object );
 
-    std::unique_ptr<ObjectHandle> upgradedObject = m_objectFactory->create( destinationClassKeyword );
-    if ( !upgradedObject ) return nullptr;
+    std::unique_ptr<ObjectHandle> objectCopy = m_objectFactory->create( destinationClassKeyword );
+
+    auto copyIoCapability = objectCopy->capability<ObjectIoCapability>();
+    if ( !copyIoCapability ) return nullptr;
+
+    bool sourceInheritsDestination = ioCapability->matchesClassKeyword( destinationClassKeyword );
+    bool destinationInheritsSource = copyIoCapability->matchesClassKeyword( ioCapability->classKeyword() );
+
+    if ( !sourceInheritsDestination && !destinationInheritsSource ) return nullptr;
 
     nlohmann::json jsonObject = nlohmann::json::parse( string );
+    readFieldsFromJson( objectCopy.get(), jsonObject, m_objectFactory, true, m_fieldSelector );
+    objectCopy->capability<ObjectIoCapability>()->initAfterReadRecursively();
 
-    readFieldsFromJson( upgradedObject.get(), jsonObject, m_objectFactory, true, m_fieldSelector );
-
-    upgradedObject->capability<ObjectIoCapability>()->initAfterReadRecursively();
-
-    return upgradedObject;
+    return objectCopy;
 }
 
 //--------------------------------------------------------------------------------------------------
