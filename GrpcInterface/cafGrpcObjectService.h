@@ -64,13 +64,19 @@ public:
     static caffa::Object* findCafObjectFromScriptNameAndUuid( const std::string& scriptClassName, const std::string& uuid );
 
     static void copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination );
-    static void copyProjectObjectFromRpcToCaf( const RpcObject* source, caffa::ObjectHandle* destination );
+    static void copyProjectObjectFromRpcToCaf( const RpcObject*      source,
+                                               caffa::ObjectHandle*  destination,
+                                               caffa::ObjectFactory* objectFactory );
 
     static void copyResultOrParameterObjectFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination );
     static void copyResultOrParameterObjectFromRpcToCaf( const RpcObject* source, caffa::ObjectHandle* destination );
 
     static std::unique_ptr<caffa::ObjectHandle>
         createCafObjectFromRpc( const RpcObject* source, caffa::ObjectFactory* objectFactory, bool copyDataValues );
+
+    static std::unique_ptr<caffa::ObjectHandle> createResultOrParameterCafObjectFromRpc( const RpcObject*      source,
+                                                                                         caffa::ObjectFactory* objectFactory,
+                                                                                         bool copyDataValues );
 
     static std::unique_ptr<caffa::ObjectMethod> createCafObjectMethodFromRpc( ObjectHandle*               self,
                                                                               const RpcObject*            source,

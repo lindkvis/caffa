@@ -4,6 +4,7 @@
 #include "cafChildField.h"
 #include "cafDataValueField.h"
 #include "cafDefaultObjectFactory.h"
+#include "cafFieldScriptingCapability.h"
 #include "cafGrpcChildArrayFieldAccessor.h"
 #include "cafGrpcChildFieldAccessor.h"
 #include "cafGrpcClient.h"
@@ -34,7 +35,7 @@ std::unique_ptr<ObjectHandle> GrpcClientObjectFactory::doCreate( const std::stri
 
     for ( auto field : objectHandle->fields() )
     {
-        if ( field->keyword() != "uuid" )
+        if ( field->keyword() != "uuid" && field->capability<FieldScriptingCapability>() != nullptr )
         {
             applyAccessorToField( objectHandle.get(), field );
         }

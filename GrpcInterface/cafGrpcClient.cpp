@@ -326,9 +326,10 @@ public:
         auto                  status = m_objectStub->ExecuteMethod( &context, request, &objectReply );
         if ( status.ok() )
         {
-            returnValue = caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply,
-                                                                             caffa::DefaultObjectFactory::instance(),
-                                                                             true );
+            returnValue =
+                caffa::rpc::ObjectService::createResultOrParameterCafObjectFromRpc( &objectReply,
+                                                                                    caffa::DefaultObjectFactory::instance(),
+                                                                                    true );
         }
         else
         {
