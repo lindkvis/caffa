@@ -41,6 +41,10 @@ void readFieldsFromJson( ObjectHandle*                   object,
                          ObjectSerializer::FieldSelector fieldSelector )
 {
     CAFFA_TRACE( "Reading fields from json with copyDataValues: " << copyDataValues );
+    if ( fieldSelector )
+    {
+        CAFFA_TRACE( "Have field selector!" );
+    }
 
     CAFFA_ASSERT( jsonObject.is_object() );
     const auto& classKeyword = jsonObject["classKeyword"];

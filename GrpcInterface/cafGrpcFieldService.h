@@ -51,10 +51,10 @@ class SetterReply;
 
 struct AbstractDataHolder
 {
-    virtual ~AbstractDataHolder() = default;
-    virtual size_t valueCount() const                                                                              = 0;
-    virtual size_t valueSizeOf() const                                                                             = 0;
-    virtual void   reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const                      = 0;
+    virtual ~AbstractDataHolder()                                                             = default;
+    virtual size_t valueCount() const                                                         = 0;
+    virtual size_t valueSizeOf() const                                                        = 0;
+    virtual void   reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const = 0;
     virtual void addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const = 0;
 
     virtual size_t getValuesFromChunk( size_t startIndex, const GenericArray* chunk ) = 0;

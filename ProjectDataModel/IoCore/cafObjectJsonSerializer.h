@@ -48,7 +48,7 @@ public:
      * @param string The JSON text string containing the object
      * @return pair of keyword and uuid in that order.
      */
-    std::pair<std::string, std::string> readClassKeywordAndUUIDFromObjectString( const std::string& jsonSring ) const override;
+    std::pair<std::string, std::string> readClassKeywordAndUUIDFromObjectString( const std::string& string ) const override;
 
     /**
      * Convenience method to read this particular object (with children) from a json string

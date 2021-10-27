@@ -69,6 +69,7 @@ public:
         initField( m_memberDoubleField, "memberDoubleField" ).withScripting();
         initField( m_memberIntField, "memberIntField" ).withScripting();
         initField( m_memberStringField, "memberStringField" ).withScripting();
+        initField( m_memberIntFieldNonScriptable, "memberIntFieldNonScriptable" ).withDefault( -1 );
 
         // Default values
         m_doubleMember = 2.1;
@@ -89,6 +90,7 @@ public:
 
     caffa::Field<double>      m_memberDoubleField;
     caffa::Field<int>         m_memberIntField;
+    caffa::Field<int>         m_memberIntFieldNonScriptable;
     caffa::Field<std::string> m_memberStringField;
 
     caffa::Field<std::vector<int>>         m_intVectorProxy;
@@ -225,12 +227,43 @@ public:
 
 CAFFA_SOURCE_INIT( DemoDocument, "DemoDocument", "Document", "Object" );
 
+class DemoDocumentWithNonScriptableMember : public caffa::Document
+{
+    CAFFA_HEADER_INIT;
+
+public:
+    DemoDocumentWithNonScriptableMember()
+    {
+        initField( m_demoObject, "DemoObject" ).withScripting();
+        initField( m_demoObjectNonScriptable, "DemoObjectNonScriptable" );
+        initField( m_inheritedDemoObjects, "InheritedDemoObjects" ).withScripting();
+        m_demoObject              = std::make_unique<DemoObject>();
+        m_demoObjectNonScriptable = std::make_unique<DemoObject>();
+
+        this->setId( "testDocument2" );
+        this->setFileName( "dummyFileName2" );
+    }
+
+    void addInheritedObject( std::unique_ptr<InheritedDemoObj> object )
+    {
+        m_inheritedDemoObjects.push_back( std::move( object ) );
+    }
+    std::vector<InheritedDemoObj*> inheritedObjects() const { return m_inheritedDemoObjects.value(); }
+
+    caffa::ChildField<DemoObject*>            m_demoObject;
+    caffa::ChildField<DemoObject*>            m_demoObjectNonScriptable;
+    caffa::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
+};
+
+CAFFA_SOURCE_INIT( DemoDocumentWithNonScriptableMember, "DemoDocumentNonScriptableMember", "Document", "Object" );
+
 class ServerApp : public caffa::rpc::ServerApplication
 {
 public:
     ServerApp( int port )
         : caffa::rpc::ServerApplication( port )
         , m_demoDocument( std::make_unique<DemoDocument>() )
+        , m_demoDocumentWithNonScriptableMember( std::make_unique<DemoDocumentWithNonScriptableMember>() )
     {
     }
     //--------------------------------------------------------------------------------------------------
@@ -255,20 +288,40 @@ public:
 
     caffa::Document* document( const std::string& documentId ) override
     {
-        if ( documentId.empty() || documentId == m_demoDocument->id() )
-            return m_demoDocument.get();
-        else
-            return nullptr;
+        CAFFA_TRACE( "Looking for " << documentId );
+        for ( auto document : documents() )
+        {
+            CAFFA_TRACE( "Found document: " << document->id() );
+            if ( documentId.empty() || documentId == document->id() )
+            {
+                CAFFA_TRACE( "Match!!" );
+                return document;
+            }
+        }
+        return nullptr;
     }
     const caffa::Document* document( const std::string& documentId ) const override
     {
-        if ( documentId.empty() || documentId == m_demoDocument->id() )
-            return m_demoDocument.get();
-        else
-            return nullptr;
+        CAFFA_TRACE( "Looking for " << documentId );
+        for ( auto document : documents() )
+        {
+            CAFFA_TRACE( "Found document: " << document->id() );
+            if ( documentId.empty() || documentId == document->id() )
+            {
+                CAFFA_TRACE( "Match!!" );
+                return document;
+            }
+        }
+        return nullptr;
     }
-    std::list<caffa::Document*>       documents() override { return { document( "" ) }; }
-    std::list<const caffa::Document*> documents() const override { return { document( "" ) }; }
+    std::list<caffa::Document*> documents() override
+    {
+        return { m_demoDocument.get(), m_demoDocumentWithNonScriptableMember.get() };
+    }
+    std::list<const caffa::Document*> documents() const override
+    {
+        return { m_demoDocument.get(), m_demoDocumentWithNonScriptableMember.get() };
+    }
 
     void resetToDefaultData() override { m_demoDocument = std::make_unique<DemoDocument>(); }
 
@@ -277,7 +330,8 @@ private:
     void onShutdown() override { CAFFA_DEBUG( "Shutting down Server" ); }
 
 private:
-    std::unique_ptr<DemoDocument> m_demoDocument;
+    std::unique_ptr<DemoDocument>                        m_demoDocument;
+    std::unique_ptr<DemoDocumentWithNonScriptableMember> m_demoDocumentWithNonScriptableMember;
 };
 
 TEST( BaseTest, Launch )
@@ -369,28 +423,121 @@ TEST( BaseTest, Document )
     ASSERT_EQ( serverApp->document( "testDocument" )->fileName(), clientDocument->fileName() );
     ASSERT_EQ( serverDocument->uuid(), clientDocument->uuid() );
 
-    auto serverDescendants = serverDocument->matchingDescendants(
-        []( const caffa::ObjectHandle* objectHandle ) -> bool
-        { return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr; } );
-
-    auto clientDescendants = clientDocument->matchingDescendants(
-        []( const caffa::ObjectHandle* objectHandle ) -> bool
-        { return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr; } );
-
-    ASSERT_EQ( childCount, serverDescendants.size() );
-    ASSERT_EQ( serverDescendants.size(), clientDescendants.size() );
-    for ( auto server_it = serverDescendants.begin(), client_it = clientDescendants.begin();
-          server_it != serverDescendants.end();
-          ++server_it, ++client_it )
     {
-        ASSERT_EQ( ( *server_it )->uuid(), ( *client_it )->uuid() );
+        auto serverDescendants =
+            serverDocument->matchingDescendants( []( const caffa::ObjectHandle* objectHandle ) -> bool
+                                                 { return dynamic_cast<const DemoObject*>( objectHandle ) != nullptr; } );
+
+        auto clientDescendants =
+            clientDocument->matchingDescendants( []( const caffa::ObjectHandle* objectHandle ) -> bool
+                                                 { return dynamic_cast<const DemoObject*>( objectHandle ) != nullptr; } );
+
+        ASSERT_EQ( serverDescendants.size(), clientDescendants.size() );
+        for ( auto server_it = serverDescendants.begin(), client_it = clientDescendants.begin();
+              server_it != serverDescendants.end();
+              ++server_it, ++client_it )
+        {
+            ASSERT_EQ( ( *server_it )->uuid(), ( *client_it )->uuid() );
+        }
+    }
+
+    {
+        auto serverDescendants = serverDocument->matchingDescendants(
+            []( const caffa::ObjectHandle* objectHandle ) -> bool
+            { return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr; } );
+
+        auto clientDescendants = clientDocument->matchingDescendants(
+            []( const caffa::ObjectHandle* objectHandle ) -> bool
+            { return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr; } );
+
+        ASSERT_EQ( childCount, serverDescendants.size() );
+        ASSERT_EQ( serverDescendants.size(), clientDescendants.size() );
+        for ( auto server_it = serverDescendants.begin(), client_it = clientDescendants.begin();
+              server_it != serverDescendants.end();
+              ++server_it, ++client_it )
+        {
+            ASSERT_EQ( ( *server_it )->uuid(), ( *client_it )->uuid() );
+        }
+    }
+    std::string serverJson = caffa::ObjectJsonSerializer( true ).writeObjectToString( serverDocument );
+    CAFFA_DEBUG( serverJson );
+    std::string clientJson = caffa::ObjectJsonSerializer( true ).writeObjectToString( clientDocument );
+    CAFFA_DEBUG( clientJson );
+    ASSERT_EQ( serverJson, clientJson );
+
+    CAFFA_DEBUG( "Confirmed test results!" );
+    bool ok = client->stopServer();
+    ASSERT_TRUE( ok );
+    CAFFA_DEBUG( "Waiting for server thread to join" );
+    thread.join();
+    CAFFA_DEBUG( "Finishing test" );
+}
+
+TEST( BaseTest, DocumentWithNonScriptableChild )
+{
+    int  portNumber = 50000;
+    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+
+    CAFFA_DEBUG( "Launching Server" );
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    CAFFA_DEBUG( "Launching Client" );
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
+    }
+    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    auto serverDocument = dynamic_cast<DemoDocumentWithNonScriptableMember*>( serverApp->document( "testDocument2" ) );
+    ASSERT_TRUE( serverDocument );
+    CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
+
+    auto objectHandle   = client->document( "testDocument2" );
+    auto clientDocument = dynamic_cast<DemoDocumentWithNonScriptableMember*>( objectHandle.get() );
+    ASSERT_TRUE( clientDocument != nullptr );
+
+    ASSERT_EQ( serverDocument->fileName(), clientDocument->fileName() );
+    ASSERT_EQ( serverDocument->uuid(), clientDocument->uuid() );
+
+    size_t childCount = 11u;
+    for ( size_t i = 0; i < childCount; ++i )
+    {
+        serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
+    }
+
+    {
+        auto serverObject = serverDocument->m_demoObjectNonScriptable();
+        auto clientObject = clientDocument->m_demoObjectNonScriptable();
+
+        // The objects are not scriptable, so uuid should not match!!
+        ASSERT_NE( serverObject->uuid(), clientObject->uuid() );
+    }
+
+    {
+        auto serverDescendants = serverDocument->matchingDescendants(
+            []( const caffa::ObjectHandle* objectHandle ) -> bool
+            { return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr; } );
+
+        auto clientDescendants = clientDocument->matchingDescendants(
+            []( const caffa::ObjectHandle* objectHandle ) -> bool
+            { return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr; } );
+
+        ASSERT_EQ( childCount, serverDescendants.size() );
+        ASSERT_EQ( serverDescendants.size(), clientDescendants.size() );
+        for ( auto server_it = serverDescendants.begin(), client_it = clientDescendants.begin();
+              server_it != serverDescendants.end();
+              ++server_it, ++client_it )
+        {
+            ASSERT_EQ( ( *server_it )->uuid(), ( *client_it )->uuid() );
+        }
     }
 
     std::string serverJson = caffa::ObjectJsonSerializer( true ).writeObjectToString( serverDocument );
     CAFFA_DEBUG( serverJson );
     std::string clientJson = caffa::ObjectJsonSerializer( true ).writeObjectToString( clientDocument );
     CAFFA_DEBUG( clientJson );
-    ASSERT_EQ( serverJson, clientJson );
+    ASSERT_NE( serverJson, clientJson );
 
     CAFFA_DEBUG( "Confirmed test results!" );
     bool ok = client->stopServer();
@@ -498,7 +645,8 @@ TEST( BaseTest, ObjectMethod )
     ASSERT_TRUE( result );
     ASSERT_TRUE( resultObject != nullptr );
     auto copyObjectResult = dynamic_cast<DemoObject_copyObjectResult*>( resultObject.get() );
-    ASSERT_TRUE( copyObjectResult && copyObjectResult->status() );
+    ASSERT_TRUE( copyObjectResult != nullptr );
+    ASSERT_EQ( true, copyObjectResult->status() );
 
     CAFFA_DEBUG( "Get double member" );
     ASSERT_EQ( 45.3, serverObjects.front()->doubleMember() );
@@ -637,6 +785,12 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
+    serverDocument->m_demoObject->m_memberIntField              = 10;
+    serverDocument->m_demoObject->m_memberIntFieldNonScriptable = 12;
+
+    ASSERT_EQ( 10, serverDocument->m_demoObject->m_memberIntField() );
+    ASSERT_EQ( 12, serverDocument->m_demoObject->m_memberIntFieldNonScriptable() );
+
     std::vector<double> serverVector;
     std::mt19937        rng;
     std::generate_n( std::back_inserter( serverVector ), 10000u, std::ref( rng ) );
@@ -646,6 +800,10 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
+
+    ASSERT_EQ( 10, clientDocument->m_demoObject->m_memberIntField() );
+    ASSERT_NE( 12, clientDocument->m_demoObject->m_memberIntFieldNonScriptable() ); // Should not be equal
+
     auto clientVector = clientDocument->m_demoObject->doubleVector();
 
     ASSERT_EQ( serverVector, clientVector );
