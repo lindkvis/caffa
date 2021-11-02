@@ -558,6 +558,12 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
                 m_dataHolder.reset( new DataHolder<std::string>( dataField->value() ) );
                 return grpc::Status::OK;
             }
+            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<bool>>*>( field ); dataField != nullptr )
+            {
+                m_field = dataField;
+                m_dataHolder.reset( new DataHolder<bool>( dataField->value() ) );
+                return grpc::Status::OK;
+            }
             else if ( auto objectField = dynamic_cast<ChildArrayFieldHandle*>( field ); objectField != nullptr )
             {
                 m_childArrayField = objectField;
@@ -691,6 +697,12 @@ grpc::Status SetterStateHandler::init( const GenericArray* chunk )
             {
                 m_field = dataField;
                 m_dataHolder.reset( new DataHolder<float>( std::vector<float>( valueCount ) ) );
+                return grpc::Status::OK;
+            }
+            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<bool>>*>( field ); dataField != nullptr )
+            {
+                m_field = dataField;
+                m_dataHolder.reset( new DataHolder<bool>( std::vector<bool>( valueCount ) ) );
                 return grpc::Status::OK;
             }
             else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<std::string>>*>( field );
