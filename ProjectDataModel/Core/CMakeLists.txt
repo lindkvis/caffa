@@ -36,6 +36,7 @@ set(PROJECT_FILES
     cafChildArrayFieldAccessor.cpp
     cafChildFieldAccessor.cpp
     cafFieldHandle.cpp
+    cafObjectCapability.cpp
     cafObjectHandle.cpp
     cafPointer.cpp
     cafSignal.cpp

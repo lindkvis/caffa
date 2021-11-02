@@ -20,7 +20,7 @@ class ObjectUiCapability : public UiItem, public ObjectCapability
 {
 public:
     ObjectUiCapability( ObjectHandle* owner, bool giveOwnership );
-    ~ObjectUiCapability() override {}
+    ~ObjectUiCapability() override;
 
     ObjectHandle*       objectHandle() { return m_owner; }
     const ObjectHandle* objectHandle() const { return m_owner; }

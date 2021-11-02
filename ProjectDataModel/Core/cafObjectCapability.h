@@ -5,8 +5,8 @@ namespace caffa
 class ObjectCapability
 {
 public:
-    ObjectCapability() {}
-    virtual ~ObjectCapability() {}
+    ObjectCapability();
+    virtual ~ObjectCapability();
 };
 
 } // End namespace caffa
