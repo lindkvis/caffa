@@ -29,11 +29,13 @@ DemoObject::DemoObject()
     initField( m_memberUint64Field, "uint64Member" ).withScripting();
 
     initField( m_memberStringField, "stringMember" ).withScripting();
+    initField( m_memberBoolField, "boolMember" ).withScripting();
 
     initField( m_doubleVector, "doubleVector" ).withScripting();
     initField( m_floatVector, "floatVector" ).withScripting();
     initField( m_intVector, "intVector" ).withScripting();
     initField( m_uintVector, "uintVector" ).withScripting();
+    initField( m_boolVector, "boolVector" ).withScripting();
 }
 
 DemoObject_copyObjectResult::DemoObject_copyObjectResult()

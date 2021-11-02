@@ -48,11 +48,13 @@ public:
     caffa::Field<uint64_t> m_memberUint64Field;
 
     caffa::Field<std::string> m_memberStringField;
+    caffa::Field<std::string> m_memberBoolField;
 
     caffa::Field<std::vector<double>>   m_doubleVector;
     caffa::Field<std::vector<float>>    m_floatVector;
     caffa::Field<std::vector<int>>      m_intVector;
     caffa::Field<std::vector<unsigned>> m_uintVector;
+    caffa::Field<std::vector<bool>>     m_boolVector;
 
     double doubleMember() const { return m_memberDoubleField; }
     void   setDoubleMember( const double& d ) { m_memberDoubleField = d; }
@@ -83,6 +85,9 @@ public:
 
     std::vector<unsigned> uintVector() const { return m_uintVector; }
     void                  setUIntVector( const std::vector<unsigned>& values ) { m_uintVector = values; }
+
+    std::vector<bool> boolVector() const { return m_boolVector; }
+    void              setBoolVector( const std::vector<bool>& values ) { m_boolVector = values; }
 };
 
 struct DemoObject_copyObjectResult : public caffa::Object

@@ -71,6 +71,9 @@ public:
         initField( m_memberStringField, "memberStringField" ).withScripting();
         initField( m_memberIntFieldNonScriptable, "memberIntFieldNonScriptable" ).withDefault( -1 );
 
+        initField( m_memberBoolField, "memberBoolField" ).withScripting();
+        initField( m_memberVectorBoolField, "memberVectorBoolField" ).withScripting();
+
         // Default values
         m_doubleMember = 2.1;
         m_intMember    = 7;
@@ -92,6 +95,9 @@ public:
     caffa::Field<int>         m_memberIntField;
     caffa::Field<int>         m_memberIntFieldNonScriptable;
     caffa::Field<std::string> m_memberStringField;
+
+    caffa::Field<bool>              m_memberBoolField;
+    caffa::Field<std::vector<bool>> m_memberVectorBoolField;
 
     caffa::Field<std::vector<int>>         m_intVectorProxy;
     caffa::Field<std::vector<std::string>> m_stringVectorProxy;
@@ -824,6 +830,56 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
     thread.join();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( BaseTest, BoolVectorGettersAndSetters )
+{
+    int  portNumber = 50000;
+    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+
+    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
+    ASSERT_TRUE( serverDocument );
+    CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
+
+    ASSERT_EQ( false, serverDocument->m_demoObject->m_memberBoolField() );
+    serverDocument->m_demoObject->m_memberBoolField = true;
+    ASSERT_EQ( true, serverDocument->m_demoObject->m_memberBoolField() );
+
+    ASSERT_TRUE( serverDocument->m_demoObject->m_memberVectorBoolField().empty() );
+
+    auto objectHandle   = client->document( "testDocument" );
+    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    ASSERT_TRUE( clientDocument != nullptr );
+
+    ASSERT_EQ( true, clientDocument->m_demoObject->m_memberBoolField() );
+    ASSERT_TRUE( clientDocument->m_demoObject->m_memberVectorBoolField().empty() );
+
+    std::vector<bool> clientBoolVector = { true, true };
+    clientDocument->m_demoObject->m_memberVectorBoolField.setValue( clientBoolVector );
+    ASSERT_EQ( clientBoolVector, clientDocument->m_demoObject->m_memberVectorBoolField() );
+    ASSERT_EQ( clientBoolVector, serverDocument->m_demoObject->m_memberVectorBoolField() );
+
+    std::vector<bool> serverBoolVector = { false, true, true, false };
+    serverDocument->m_demoObject->m_memberVectorBoolField.setValue( serverBoolVector );
+    ASSERT_EQ( clientDocument->m_demoObject->m_memberVectorBoolField(), serverBoolVector );
+    ASSERT_EQ( serverDocument->m_demoObject->m_memberVectorBoolField(), serverBoolVector );
+
+    bool ok = client->stopServer();
+    ASSERT_TRUE( ok );
+
+    thread.join();
+}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

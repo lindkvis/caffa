@@ -116,6 +116,7 @@ int main( int argc, char** argv )
 
     serverDocument->demoObject()->setIntVector( { 42 } );
     serverDocument->demoObject()->setFloatVector( serverVector );
+    serverDocument->demoObject()->setBoolVector( { true, false, false, true } );
     CAFFA_DEBUG( "Running server thread" );
     serverApp->run();
 }
