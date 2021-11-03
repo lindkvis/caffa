@@ -101,15 +101,17 @@ void SignalObserver::addObservedSignal( AbstractSignal* signalToObserve ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void SignalObserver::removeObservedSignal( AbstractSignal* signalToRemove ) const
+void SignalObserver::removeObservedSignal( AbstractSignal* signalToRemove ) const noexcept
 {
+    // This does not throw, since std::list::remove only throws if the comparison operator throws
+    // and we're just comparing pointers.
     m_signals.remove( signalToRemove );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void SignalObserver::disconnectAllSignals()
+void SignalObserver::disconnectAllSignals() noexcept
 {
     auto observedSignals = m_signals;
     for ( auto observedSignal : observedSignals )

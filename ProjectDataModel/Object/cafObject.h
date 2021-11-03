@@ -138,7 +138,7 @@ public:
     CAFFA_HEADER_INIT;
 
     Object();
-    ~Object() override {}
+    ~Object() noexcept override;
 
     /**
      * InitUi sets up the user interface related information for the object

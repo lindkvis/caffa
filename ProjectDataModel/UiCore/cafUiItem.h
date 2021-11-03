@@ -167,7 +167,7 @@ class UiItem
 {
 public:
     UiItem();
-    virtual ~UiItem();
+    virtual ~UiItem() noexcept;
 
     UiItem( const UiItem& ) = delete;
     UiItem& operator=( const UiItem& ) = delete;

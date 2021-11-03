@@ -52,6 +52,7 @@ class Document : public Object
 
 public:
     Document( const std::string& id = classKeywordStatic() );
+    ~Document() noexcept override;
 
     std::string id() const;
     std::string fileName() const;

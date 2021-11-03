@@ -57,7 +57,7 @@ public:
     using Predicate = std::function<bool( const ObjectHandle* )>;
 
     ObjectHandle();
-    virtual ~ObjectHandle();
+    virtual ~ObjectHandle() noexcept;
 
     static std::string classKeywordStatic(); // For IoFieldCap to be able to handle fields of ObjectHandle directly
     static std::vector<std::string> classInheritanceStackStatic();

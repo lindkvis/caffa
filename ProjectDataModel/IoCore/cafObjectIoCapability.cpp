@@ -23,6 +23,13 @@ ObjectIoCapability::ObjectIoCapability( ObjectHandle* owner, bool giveOwnership 
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+ObjectIoCapability::~ObjectIoCapability()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Check if a string is a valid element name
 //
 /// http://www.w3schools.com/xml/xml_elements.asp

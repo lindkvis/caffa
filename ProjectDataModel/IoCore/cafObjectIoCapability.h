@@ -29,7 +29,7 @@ public:
 
 public:
     ObjectIoCapability( ObjectHandle* owner, bool giveOwnership );
-    ~ObjectIoCapability() override {}
+    ~ObjectIoCapability() noexcept override;
 
     /// The classKeyword method is overridden in subclasses by the CAFFA_IO_HEADER_INIT macro
     virtual std::string              classKeyword() const                                         = 0;

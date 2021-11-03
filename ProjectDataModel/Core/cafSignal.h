@@ -51,7 +51,7 @@ class SignalObserver;
 class AbstractSignal
 {
 public:
-    virtual ~AbstractSignal()                           = default;
+    virtual ~AbstractSignal() noexcept                  = default;
     virtual void disconnect( SignalObserver* observer ) = 0;
 };
 
@@ -63,7 +63,7 @@ class SignalEmitter
 {
 public:
     SignalEmitter();
-    virtual ~SignalEmitter();
+    virtual ~SignalEmitter() noexcept;
 
     void                       addEmittedSignal( AbstractSignal* signalToAdd ) const;
     std::list<AbstractSignal*> emittedSignals() const;
@@ -80,13 +80,13 @@ class SignalObserver
 {
 public:
     SignalObserver();
-    virtual ~SignalObserver();
+    virtual ~SignalObserver() noexcept;
     std::list<AbstractSignal*> observedSignals() const;
     void                       addObservedSignal( AbstractSignal* signalToAdd ) const;
-    void                       removeObservedSignal( AbstractSignal* signalToRemove ) const;
+    void                       removeObservedSignal( AbstractSignal* signalToRemove ) const noexcept;
 
 private:
-    void disconnectAllSignals();
+    void disconnectAllSignals() noexcept;
 
 private:
     mutable std::list<AbstractSignal*> m_signals;
@@ -123,7 +123,8 @@ public:
     template <typename ClassType>
     void connect( ClassType* observer, void ( ClassType::*method )( const SignalEmitter*, Args... args ) )
     {
-        MemberCallback lambda = [=]( const SignalEmitter* emitter, Args... args ) {
+        MemberCallback lambda = [=]( const SignalEmitter* emitter, Args... args )
+        {
             // Call method
             ( observer->*method )( emitter, args... );
         };
@@ -142,8 +143,10 @@ public:
     // Disconnect an observer from the signal. Do this only when the relationship between the
     // observer and emitter is severed but the object kept alive.
     // There's no need to do this when deleting the observer.
-    void disconnect( SignalObserver* observer ) override
+    void disconnect( SignalObserver* observer ) noexcept override
     {
+        // This does not throw, since std::map::erase only throws if the comparison operator throws
+        // and we're just comparing pointers.
         m_observerCallbacks.erase( observer );
         observer->removeObservedSignal( this );
     }

@@ -79,7 +79,7 @@ public:
         : m_fieldDataAccessor( std::move( accessor ) )
     {
     }
-    ~DataValueField() override {}
+    ~DataValueField() noexcept override {}
 
     // Assignment
 
