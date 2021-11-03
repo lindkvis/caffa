@@ -41,7 +41,7 @@ ObjectHandle::ObjectHandle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle::~ObjectHandle()
+ObjectHandle::~ObjectHandle() noexcept
 {
     this->prepareForDelete();
 }
@@ -105,7 +105,7 @@ void ObjectHandle::disconnectObserverFromAllSignals( SignalObserver* observer )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectHandle::prepareForDelete()
+void ObjectHandle::prepareForDelete() noexcept
 {
     m_parentField = nullptr;
 

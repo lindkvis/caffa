@@ -33,7 +33,7 @@ ObjectUiCapability* uiObj( const ObjectHandle* obj )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectUiCapability::~ObjectUiCapability()
+ObjectUiCapability::~ObjectUiCapability() noexcept
 {
 }
 

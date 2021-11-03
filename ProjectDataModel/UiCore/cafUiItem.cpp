@@ -278,7 +278,7 @@ void UiItem::updateAllRequiredEditors() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-UiItem::~UiItem()
+UiItem::~UiItem() noexcept
 {
     std::set<UiEditorHandle*>::iterator it;
     for ( it = m_editors.begin(); it != m_editors.end(); ++it )

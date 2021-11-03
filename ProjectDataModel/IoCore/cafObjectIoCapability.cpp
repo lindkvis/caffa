@@ -25,7 +25,7 @@ ObjectIoCapability::ObjectIoCapability( ObjectHandle* owner, bool giveOwnership 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectIoCapability::~ObjectIoCapability()
+ObjectIoCapability::~ObjectIoCapability() noexcept
 {
 }
 

@@ -77,7 +77,7 @@ public: // CAF Internal
     void setContainingEditor( UiEditorHandle* containingEditor ) { m_containingEditor = containingEditor; }
 
 private:
-    friend UiItem::~UiItem();
+    friend UiItem::~UiItem() noexcept;
     UiItem*         m_item;
     UiEditorHandle* m_containingEditor; // Editor containing this editor. Will be asked to updateUi (instead
                                         // of this) if it exists

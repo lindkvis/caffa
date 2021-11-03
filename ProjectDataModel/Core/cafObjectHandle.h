@@ -124,7 +124,7 @@ public:
     std::list<ObjectHandle*> children() const;
 
     // Perform cleanup before delete
-    void prepareForDelete();
+    void prepareForDelete() noexcept;
 
     void fieldChangedByCapability( const FieldHandle*     field,
                                    const FieldCapability* changedCapability,
