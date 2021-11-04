@@ -156,8 +156,8 @@ public:
         auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
-        field.set_method( fieldName );
-        field.set_allocated_self( self.release() );
+        field.set_keyword( fieldName );
+        field.set_allocated_self_object( self.release() );
 
         GenericScalar reply;
         grpc::Status  status = m_fieldStub->GetValue( &context, field, &reply );
@@ -181,8 +181,8 @@ public:
         auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
-        field.set_method( getter );
-        field.set_allocated_self( self.release() );
+        field.set_keyword( getter );
+        field.set_allocated_self_object( self.release() );
 
         std::vector<std::unique_ptr<ObjectHandle>> childObjects;
 
@@ -222,8 +222,8 @@ public:
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         ObjectService::copyProjectObjectFromCafToRpc( childObject, rpcChildObject.get() );
         auto field = std::make_unique<FieldRequest>();
-        field->set_method( fieldName );
-        field->set_allocated_self( self.release() );
+        field->set_keyword( fieldName );
+        field->set_allocated_self_object( self.release() );
 
         SetterRequest setterRequest;
         setterRequest.set_allocated_field( field.release() );
@@ -250,8 +250,8 @@ public:
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         ObjectService::copyResultOrParameterObjectFromCafToRpc( childObject, rpcChildObject.get() );
         auto field = std::make_unique<FieldRequest>();
-        field->set_method( fieldName );
-        field->set_allocated_self( self.release() );
+        field->set_keyword( fieldName );
+        field->set_allocated_self_object( self.release() );
         field->set_index( index );
 
         SetterRequest setterRequest;
@@ -274,8 +274,8 @@ public:
         auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
-        field.set_method( fieldName );
-        field.set_allocated_self( self.release() );
+        field.set_keyword( fieldName );
+        field.set_allocated_self_object( self.release() );
 
         NullMessage  reply;
         grpc::Status status = m_fieldStub->ClearChildObjects( &context, field, &reply );
@@ -293,8 +293,8 @@ public:
         auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
-        field.set_method( fieldName );
-        field.set_allocated_self( self.release() );
+        field.set_keyword( fieldName );
+        field.set_allocated_self_object( self.release() );
         field.set_index( index );
 
         NullMessage  reply;
@@ -316,7 +316,7 @@ public:
 
         grpc::ClientContext context;
         MethodRequest       request;
-        request.set_allocated_self( self.release() );
+        request.set_allocated_self_object( self.release() );
         request.set_method( method->classKeyword() );
         request.set_allocated_params( params.release() );
 
@@ -403,8 +403,8 @@ public:
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
-        field->set_method( fieldName );
-        field->set_allocated_self( self.release() );
+        field->set_keyword( fieldName );
+        field->set_allocated_self_object( self.release() );
         field->set_index( addressOffset );
 
         SetterRequest setterRequest;
@@ -428,8 +428,8 @@ public:
         auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
-        field.set_method( fieldName );
-        field.set_allocated_self( self.release() );
+        field.set_keyword( fieldName );
+        field.set_allocated_self_object( self.release() );
         field.set_index( addressOffset );
 
         GenericScalar reply;
@@ -458,8 +458,8 @@ public:
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
-        field->set_method( setter );
-        field->set_allocated_self( self.release() );
+        field->set_keyword( setter );
+        field->set_allocated_self_object( self.release() );
 
         auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
@@ -503,8 +503,8 @@ public:
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
-        field->set_method( setter );
-        field->set_allocated_self( self.release() );
+        field->set_keyword( setter );
+        field->set_allocated_self_object( self.release() );
 
         auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
@@ -550,8 +550,8 @@ public:
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
-        field->set_method( setter );
-        field->set_allocated_self( self.release() );
+        field->set_keyword( setter );
+        field->set_allocated_self_object( self.release() );
 
         auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
@@ -596,8 +596,8 @@ public:
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
-        field->set_method( setter );
-        field->set_allocated_self( self.release() );
+        field->set_keyword( setter );
+        field->set_allocated_self_object( self.release() );
 
         auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
@@ -640,8 +640,8 @@ public:
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
-        field->set_method( setter );
-        field->set_allocated_self( self.release() );
+        field->set_keyword( setter );
+        field->set_allocated_self_object( self.release() );
 
         auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
@@ -675,8 +675,8 @@ public:
         auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
-        field.set_method( getter );
-        field.set_allocated_self( self.release() );
+        field.set_keyword( getter );
+        field.set_allocated_self_object( self.release() );
 
         std::vector<int> values;
 
@@ -701,8 +701,8 @@ public:
         auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
-        field.set_method( getter );
-        field.set_allocated_self( self.release() );
+        field.set_keyword( getter );
+        field.set_allocated_self_object( self.release() );
 
         std::vector<uint64_t> values;
 
@@ -728,8 +728,8 @@ public:
         auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
-        field.set_method( getter );
-        field.set_allocated_self( self.release() );
+        field.set_keyword( getter );
+        field.set_allocated_self_object( self.release() );
 
         std::vector<double> values;
 
@@ -755,8 +755,8 @@ public:
         auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
-        field.set_method( getter );
-        field.set_allocated_self( self.release() );
+        field.set_keyword( getter );
+        field.set_allocated_self_object( self.release() );
 
         std::vector<float> values;
 
@@ -788,8 +788,8 @@ public:
         auto                self = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         FieldRequest field;
-        field.set_method( getter );
-        field.set_allocated_self( self.release() );
+        field.set_keyword( getter );
+        field.set_allocated_self_object( self.release() );
 
         std::vector<std::string> values;
 

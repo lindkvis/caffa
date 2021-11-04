@@ -506,13 +506,13 @@ GetterStateHandler::GetterStateHandler()
 //--------------------------------------------------------------------------------------------------
 grpc::Status GetterStateHandler::init( const FieldRequest* request )
 {
-    m_fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self() );
+    m_fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self_object() );
     CAFFA_ASSERT( m_fieldOwner );
     if ( !m_fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : m_fieldOwner->fields() )
     {
         auto scriptability = field->capability<FieldScriptingCapability>();
-        if ( scriptability && request->method() == scriptability->scriptFieldName() )
+        if ( scriptability && request->keyword() == scriptability->scriptFieldName() )
         {
             if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int>>*>( field ); dataField != nullptr )
             {
@@ -577,7 +577,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
         }
     }
 
-    return grpc::Status( grpc::NOT_FOUND, "Field not found " + request->method() );
+    return grpc::Status( grpc::NOT_FOUND, "Field not found " + request->keyword() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -655,13 +655,13 @@ grpc::Status SetterStateHandler::init( const GenericArray* chunk )
     auto setRequest = chunk->request();
 
     auto fieldRequest = setRequest.field();
-    m_fieldOwner      = ObjectService::findCafObjectFromRpcObject( fieldRequest.self() );
+    m_fieldOwner      = ObjectService::findCafObjectFromRpcObject( fieldRequest.self_object() );
     int valueCount    = setRequest.value_count();
 
     for ( auto field : m_fieldOwner->fields() )
     {
         auto scriptability = field->capability<FieldScriptingCapability>();
-        if ( scriptability && scriptability->scriptFieldName() == fieldRequest.method() )
+        if ( scriptability && scriptability->scriptFieldName() == fieldRequest.keyword() )
         {
             if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int>>*>( field ); dataField != nullptr )
             {
@@ -799,9 +799,9 @@ grpc::Status FieldService::GetArrayValue( grpc::ServerContext*        context,
 //--------------------------------------------------------------------------------------------------
 grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRequest* request, GenericScalar* reply )
 {
-    auto fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self() );
+    auto fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self_object() );
     CAFFA_ASSERT( fieldOwner );
-    CAFFA_TRACE( "GetValue for field: " << request->method() );
+    CAFFA_TRACE( "GetValue for field: " << request->keyword() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
 
     bool foundMatchingField = false;
@@ -809,10 +809,10 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
     {
         bool isObjectField = dynamic_cast<caffa::ChildFieldHandle*>( field ) != nullptr;
 
-        if ( field->keyword() == request->method() ) foundMatchingField = true;
+        if ( field->keyword() == request->keyword() ) foundMatchingField = true;
 
         auto scriptability = field->capability<FieldScriptingCapability>();
-        if ( scriptability && request->method() == scriptability->scriptFieldName() )
+        if ( scriptability && request->keyword() == scriptability->scriptFieldName() )
         {
             auto ioCapability = field->capability<caffa::FieldIoCapability>();
             if ( ioCapability )
@@ -830,7 +830,7 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
     if ( foundMatchingField )
     {
         return grpc::Status( grpc::FAILED_PRECONDITION,
-                             "Field " + request->method() +
+                             "Field " + request->keyword() +
                                  " found, but it either isn't scriptable or does not have I/O capability" );
     }
     return grpc::Status( grpc::NOT_FOUND, "Field not found" );
@@ -841,14 +841,14 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
 //--------------------------------------------------------------------------------------------------
 grpc::Status FieldService::ClearChildObjects( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply )
 {
-    auto fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self() );
+    auto fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self_object() );
     CAFFA_ASSERT( fieldOwner );
-    CAFFA_TRACE( "Clear Child Objects for field: " << request->method() );
+    CAFFA_TRACE( "Clear Child Objects for field: " << request->keyword() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : fieldOwner->fields() )
     {
         auto scriptability = field->capability<FieldScriptingCapability>();
-        if ( scriptability && request->method() == scriptability->scriptFieldName() )
+        if ( scriptability && request->keyword() == scriptability->scriptFieldName() )
         {
             auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
             if ( childArrayField )
@@ -873,14 +873,14 @@ grpc::Status FieldService::ClearChildObjects( grpc::ServerContext* context, cons
 //--------------------------------------------------------------------------------------------------
 grpc::Status FieldService::RemoveChildObject( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply )
 {
-    auto fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self() );
+    auto fieldOwner = ObjectService::findCafObjectFromRpcObject( request->self_object() );
     CAFFA_ASSERT( fieldOwner );
-    CAFFA_TRACE( "Remove Child Object at index " << request->index() << " for field: " << request->method() );
+    CAFFA_TRACE( "Remove Child Object at index " << request->index() << " for field: " << request->keyword() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : fieldOwner->fields() )
     {
         auto scriptability = field->capability<FieldScriptingCapability>();
-        if ( scriptability && request->method() == scriptability->scriptFieldName() )
+        if ( scriptability && request->keyword() == scriptability->scriptFieldName() )
         {
             auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
             if ( childArrayField )
@@ -900,14 +900,14 @@ grpc::Status FieldService::InsertChildObject( grpc::ServerContext* context, cons
 {
     auto fieldRequest = request->field();
 
-    auto fieldOwner = ObjectService::findCafObjectFromRpcObject( fieldRequest.self() );
+    auto fieldOwner = ObjectService::findCafObjectFromRpcObject( fieldRequest.self_object() );
     CAFFA_ASSERT( fieldOwner );
-    CAFFA_TRACE( " Inserting Child Object at index " << fieldRequest.index() << " for field: " << fieldRequest.method() );
+    CAFFA_TRACE( " Inserting Child Object at index " << fieldRequest.index() << " for field: " << fieldRequest.keyword() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : fieldOwner->fields() )
     {
         auto scriptability = field->capability<FieldScriptingCapability>();
-        if ( scriptability && fieldRequest.method() == scriptability->scriptFieldName() )
+        if ( scriptability && fieldRequest.keyword() == scriptability->scriptFieldName() )
         {
             auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
             if ( childArrayField )
@@ -949,7 +949,7 @@ grpc::Status FieldService::SetArrayValue( grpc::ServerContext*        context,
 grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply )
 {
     auto fieldRequest = request->field();
-    auto fieldOwner   = ObjectService::findCafObjectFromRpcObject( fieldRequest.self() );
+    auto fieldOwner   = ObjectService::findCafObjectFromRpcObject( fieldRequest.self_object() );
     CAFFA_ASSERT( fieldOwner );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
 
@@ -958,12 +958,12 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
     bool foundMatchingField = false;
     for ( auto field : fieldOwner->fields() )
     {
-        if ( field->keyword() == fieldRequest.method() ) foundMatchingField = true;
+        if ( field->keyword() == fieldRequest.keyword() ) foundMatchingField = true;
 
         auto scriptability = field->capability<FieldScriptingCapability>();
-        if ( scriptability && fieldRequest.method() == scriptability->scriptFieldName() )
+        if ( scriptability && fieldRequest.keyword() == scriptability->scriptFieldName() )
         {
-            CAFFA_DEBUG( "   Field: '" << fieldRequest.method() << "' with value: '" << request->value() << "'" );
+            CAFFA_DEBUG( "   Field: '" << fieldRequest.keyword() << "' with value: '" << request->value() << "'" );
             auto ioCapability = field->capability<caffa::FieldIoCapability>();
             if ( ioCapability )
             {
@@ -977,7 +977,7 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
     if ( foundMatchingField )
     {
         return grpc::Status( grpc::FAILED_PRECONDITION,
-                             "Field " + fieldRequest.method() +
+                             "Field " + fieldRequest.keyword() +
                                  " found, but it either isn't scriptable or does not have I/O capability" );
     }
 

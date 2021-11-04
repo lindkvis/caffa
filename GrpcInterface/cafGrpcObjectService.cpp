@@ -92,7 +92,7 @@ grpc::Status ObjectService::GetDocuments( grpc::ServerContext* context, const Nu
 //--------------------------------------------------------------------------------------------------
 grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, RpcObject* reply )
 {
-    const RpcObject& self = request->self();
+    const RpcObject& self = request->self_object();
     CAFFA_TRACE( "Execute method: " << request->method() );
 
     auto matchingObject = findCafObjectFromRpcObject( self );
