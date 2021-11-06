@@ -291,8 +291,7 @@ TEST( BaseTest, ChildArrayField )
     EXPECT_EQ( s3p, ihd1->m_childArrayField[2] );
 
     // childObjects
-    std::vector<caffa::ObjectHandle*> objects;
-    ihd1->m_childArrayField.childObjects( &objects );
+    std::vector<caffa::ObjectHandle*> objects = ihd1->m_childArrayField.childObjects();
     EXPECT_EQ( size_t( 3 ), objects.size() );
 
     std::vector<DemoObject*> typedObjects = ihd1->m_childArrayField.value();
@@ -402,12 +401,10 @@ TEST( BaseTest, ChildArrayFieldHandle )
     caffa::ChildArrayFieldHandle* listField = &( ihd1->m_childArrayField );
 
     EXPECT_EQ( 0u, listField->size() );
-    EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_TRUE( listField->empty() );
 
     listField->insertAt( 0u, std::move( s0 ) );
     EXPECT_EQ( 1u, listField->size() );
-    EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_FALSE( listField->empty() );
 
     ihd1->m_childArrayField.push_back( std::move( s1 ) );
@@ -415,17 +412,14 @@ TEST( BaseTest, ChildArrayFieldHandle )
     ihd1->m_childArrayField.push_back( std::move( s3 ) );
 
     EXPECT_EQ( 4u, listField->size() );
-    EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_FALSE( listField->empty() );
 
     listField->erase( 0 );
     EXPECT_EQ( 3u, listField->size() );
-    EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_FALSE( listField->empty() );
 
     listField->clear();
     EXPECT_EQ( 0u, listField->size() );
-    EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_TRUE( listField->empty() );
 }
 //--------------------------------------------------------------------------------------------------
@@ -470,8 +464,7 @@ TEST( BaseTest, ChildField )
         EXPECT_EQ( rawC, a.field2.value() );
         EXPECT_TRUE( rawC == a.field2 );
 
-        std::vector<caffa::ObjectHandle*> objects;
-        a.field2.childObjects( &objects );
+        std::vector<caffa::ObjectHandle*> objects = a.field2.childObjects();
         EXPECT_EQ( (size_t)1, objects.size() );
         EXPECT_EQ( rawC, objects[0] );
     }

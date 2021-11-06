@@ -32,7 +32,6 @@ set(PUBLIC_HEADERS
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
-    cafChildArrayFieldHandle.cpp
     cafChildArrayFieldAccessor.cpp
     cafChildFieldAccessor.cpp
     cafFieldHandle.cpp

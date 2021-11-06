@@ -50,24 +50,9 @@ void ChildField<DataType*>::setValue( DataTypePtr fieldValue )
 template <typename DataType>
 std::vector<ObjectHandle*> ChildField<DataType*>::childObjects() const
 {
-    std::vector<ObjectHandle*> objects;
-    this->childObjects( &objects );
-    return objects;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void ChildField<DataType*>::childObjects( std::vector<ObjectHandle*>* objects ) const
-{
-    CAFFA_ASSERT( objects );
     CAFFA_ASSERT( isInitializedByInitFieldMacro() );
-    ObjectHandle* obj = m_fieldDataAccessor->value();
-    if ( obj )
-    {
-        objects->push_back( obj );
-    }
+
+    return { m_fieldDataAccessor->value() };
 }
 
 //--------------------------------------------------------------------------------------------------

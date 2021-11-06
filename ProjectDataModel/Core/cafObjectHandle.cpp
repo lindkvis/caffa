@@ -179,66 +179,12 @@ FieldHandle* ObjectHandle::parentField() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::list<ObjectHandle*> ObjectHandle::ancestors() const
-{
-    std::list<ObjectHandle*> allAncestors;
-
-    // Search parents for first type match
-    FieldHandle* parentField = this->parentField();
-    if ( parentField )
-    {
-        ObjectHandle* parent = parentField->ownerObject();
-        if ( parent )
-        {
-            allAncestors = parent->ancestors();
-            allAncestors.push_back( parent );
-        }
-    }
-    return allAncestors;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::list<ObjectHandle*> ObjectHandle::matchingAncestors( ObjectHandle::Predicate predicate ) const
-{
-    std::list<ObjectHandle*> ancestors = this->ancestors();
-
-    std::list<ObjectHandle*> matching;
-    std::copy_if( ancestors.begin(), ancestors.end(), std::back_inserter( matching ), predicate );
-    return matching;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-ObjectHandle* ObjectHandle::firstMatchingAncestor( ObjectHandle::Predicate predicate ) const
-{
-    // Search parents for first type match
-    FieldHandle* parentField = this->parentField();
-    if ( parentField )
-    {
-        ObjectHandle* parent = parentField->ownerObject();
-        if ( parent )
-        {
-            if ( predicate( parent ) ) return parent;
-            return parent->firstMatchingAncestor( predicate );
-        }
-    }
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::list<ObjectHandle*> ObjectHandle::matchingDescendants( ObjectHandle::Predicate predicate ) const
 {
     std::list<ObjectHandle*> descendants;
     for ( auto field : m_fields )
     {
-        std::vector<ObjectHandle*> childObjects;
-        field->childObjects( &childObjects );
-        for ( auto childObject : childObjects )
+        for ( auto childObject : field->childObjects() )
         {
             if ( childObject )
             {
@@ -259,9 +205,7 @@ std::list<ObjectHandle*> ObjectHandle::children() const
     std::list<ObjectHandle*> allChildren;
     for ( auto field : m_fields )
     {
-        std::vector<ObjectHandle*> childObjects;
-        field->childObjects( &childObjects );
-        for ( auto childObject : childObjects )
+        for ( auto childObject : field->childObjects() )
         {
             allChildren.push_back( childObject );
         }

@@ -211,7 +211,10 @@ void ObjectIoCapability::initAfterReadRecursively( ObjectHandle* object )
     std::vector<ObjectHandle*> children;
     for ( auto field : object->fields() )
     {
-        if ( field ) field->childObjects( &children );
+        if ( !field ) continue;
+
+        auto fieldObjects = field->childObjects();
+        children.insert( children.end(), fieldObjects.begin(), fieldObjects.end() );
     }
 
     for ( auto child : children )
@@ -236,7 +239,10 @@ void ObjectIoCapability::setupBeforeSaveRecursively( ObjectHandle* object )
     std::vector<ObjectHandle*> children;
     for ( auto field : object->fields() )
     {
-        if ( field ) field->childObjects( &children );
+        if ( !field ) continue;
+
+        auto fieldObjects = field->childObjects();
+        children.insert( children.end(), fieldObjects.begin(), fieldObjects.end() );
     }
 
     for ( auto child : children )

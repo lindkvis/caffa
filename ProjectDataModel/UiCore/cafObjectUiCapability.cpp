@@ -124,9 +124,6 @@ void ObjectUiCapability::addDefaultUiTreeChildren( UiTreeOrdering* uiTreeOrderin
                 if ( field->capability<FieldUiCapability>()->isUiHidden() &&
                      !field->capability<FieldUiCapability>()->isUiTreeChildrenHidden() )
                 {
-                    std::vector<ObjectHandle*> children;
-                    field->childObjects( &children );
-
                     std::set<ObjectHandle*> objectsAddedByApplication;
                     for ( int i = 0; i < uiTreeOrdering->childCount(); i++ )
                     {
@@ -136,12 +133,12 @@ void ObjectUiCapability::addDefaultUiTreeChildren( UiTreeOrdering* uiTreeOrderin
                         }
                     }
 
-                    for ( size_t cIdx = 0; cIdx < children.size(); cIdx++ )
+                    for ( auto child : field->childObjects() )
                     {
-                        if ( children[cIdx] )
+                        if ( child )
                         {
                             bool                              isAlreadyAdded = false;
-                            std::set<ObjectHandle*>::iterator it = objectsAddedByApplication.find( children[cIdx] );
+                            std::set<ObjectHandle*>::iterator it             = objectsAddedByApplication.find( child );
                             if ( it != objectsAddedByApplication.end() )
                             {
                                 isAlreadyAdded = true;
@@ -150,7 +147,7 @@ void ObjectUiCapability::addDefaultUiTreeChildren( UiTreeOrdering* uiTreeOrderin
 
                             if ( !isAlreadyAdded )
                             {
-                                uiTreeOrdering->add( children[cIdx] );
+                                uiTreeOrdering->add( child );
                             }
                         }
                     }
@@ -171,7 +168,6 @@ void ObjectUiCapability::addDefaultUiTreeChildren( UiTreeOrdering* uiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 void ObjectUiCapability::expandUiTree( UiTreeOrdering* root )
 {
-#if 1
     if ( !root || !root->isValid() ) return;
 
     if ( root->childCount() > 0 )
@@ -191,15 +187,9 @@ void ObjectUiCapability::expandUiTree( UiTreeOrdering* root )
         {
             if ( root->isRepresentingField() && !root->field()->capability<FieldUiCapability>()->isUiTreeChildrenHidden() )
             {
-                std::vector<ObjectHandle*> fieldsChildObjects;
-                root->field()->childObjects( &fieldsChildObjects );
-                for ( size_t cIdx = 0; cIdx < fieldsChildObjects.size(); ++cIdx )
+                for ( auto childObject : root->field()->childObjects() )
                 {
-                    ObjectHandle* childObject = fieldsChildObjects[cIdx];
-                    if ( childObject )
-                    {
-                        root->appendChild( uiObj( childObject )->uiTreeOrdering() );
-                    }
+                    root->appendChild( uiObj( childObject )->uiTreeOrdering() );
                 }
             }
             else if ( root->isRepresentingObject() &&
@@ -214,7 +204,6 @@ void ObjectUiCapability::expandUiTree( UiTreeOrdering* root )
             }
         }
     }
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------

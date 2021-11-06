@@ -58,10 +58,7 @@ void UiTreeOrdering::add( FieldHandle* field )
     {
         if ( !field->capability<FieldUiCapability>()->isUiTreeChildrenHidden() )
         {
-            std::vector<ObjectHandle*> children;
-            field->childObjects( &children );
-
-            for ( ObjectHandle* objHandle : children )
+            for ( ObjectHandle* objHandle : field->childObjects() )
             {
                 this->add( objHandle );
             }
