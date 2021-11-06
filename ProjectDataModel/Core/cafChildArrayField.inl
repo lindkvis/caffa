@@ -162,9 +162,7 @@ std::unique_ptr<ObjectHandle> ChildArrayField<DataType*>::removeChildObject( Obj
 template <typename DataType>
 std::vector<ObjectHandle*> caffa::ChildArrayField<DataType*>::childObjects() const
 {
-    std::vector<ObjectHandle*> objects;
-    this->childObjects( &objects );
-    return objects;
+    return m_fieldDataAccessor->value();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,18 +180,6 @@ std::vector<DataType*> caffa::ChildArrayField<DataType*>::value() const
     }
 
     return typedObjects;
-}
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void ChildArrayField<DataType*>::childObjects( std::vector<ObjectHandle*>* objects ) const
-{
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
-
-    if ( !objects ) return;
-
-    *objects = m_fieldDataAccessor->value();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -132,20 +132,6 @@ public:
         return nullptr;
     }
 
-    template <typename T>
-    T* selectedItemAncestorOfType( int selectionLevel = 0 )
-    {
-        UiItem*       item           = this->selectedItem( selectionLevel );
-        ObjectHandle* selectedObject = dynamic_cast<ObjectHandle*>( item );
-        if ( selectedObject )
-        {
-            T* ancestor = static_cast<T*>( selectedObject->firstMatchingAncestor(
-                []( const ObjectHandle* objectHandle ) { return dynamic_cast<T*>( objectHandle ) != nullptr; } ) );
-            return ancestor;
-        }
-        return nullptr;
-    }
-
     void                   setActiveChildArrayFieldHandle( ChildArrayFieldHandle* childArray );
     ChildArrayFieldHandle* activeChildArrayFieldHandle();
 

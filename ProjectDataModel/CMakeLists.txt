@@ -23,8 +23,7 @@ endif()
 
 target_link_libraries(
   ${PROJECT_NAME}
-  PUBLIC caffaCore caffaIoCore caffaUiCore caffaObject
-  PRIVATE nlohmann_json::nlohmann_json)
+  PUBLIC caffaCore caffaIoCore caffaUiCore caffaObject)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

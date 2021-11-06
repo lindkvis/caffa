@@ -491,12 +491,10 @@ TEST( BaseTest, ChildArrayFieldHandle )
     caffa::ChildArrayFieldHandle* listField = &( ihd1->m_simpleObjectsField );
 
     EXPECT_EQ( 0u, listField->size() );
-    EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_TRUE( listField->empty() );
 
     ihd1->m_simpleObjectsField.push_back( std::make_unique<SimpleObj>() );
     EXPECT_EQ( 1u, listField->size() );
-    EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_FALSE( listField->empty() );
 
     ihd1->m_simpleObjectsField.push_back( std::move( s1 ) );
@@ -504,17 +502,14 @@ TEST( BaseTest, ChildArrayFieldHandle )
     ihd1->m_simpleObjectsField.push_back( std::move( s3 ) );
 
     EXPECT_EQ( 4u, listField->size() );
-    EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_FALSE( listField->empty() );
 
     listField->erase( 0 );
     EXPECT_EQ( 3u, listField->size() );
-    EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_FALSE( listField->empty() );
 
     listField->clear();
     EXPECT_EQ( 0u, listField->size() );
-    EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_TRUE( listField->empty() );
 }
 

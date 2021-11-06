@@ -27,8 +27,7 @@ void FieldHandle::setKeyword( const std::string& keyword )
 //--------------------------------------------------------------------------------------------------
 bool FieldHandle::hasChildObjects()
 {
-    std::vector<ObjectHandle*> children;
-    this->childObjects( &children );
+    std::vector<ObjectHandle*> children = this->childObjects();
     return ( children.size() > 0 );
 }
 

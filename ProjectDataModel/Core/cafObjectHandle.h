@@ -82,26 +82,6 @@ public:
     FieldHandle* parentField() const;
 
     /**
-     * Get a list of all ancestors.
-     * @return a list of all ancestors
-     */
-    std::list<ObjectHandle*> ancestors() const;
-
-    /**
-     * Get a list of all ancestors matching a predicate
-     * @param predicate a function pointer predicate
-     * @return a list of all ancestors
-     */
-    std::list<ObjectHandle*> matchingAncestors( Predicate predicate ) const;
-
-    /**
-     * Get a list of all ancestors matching a predicate
-     * @param predicate a function pointer predicate
-     * @return the first matching ancestor
-     */
-    ObjectHandle* firstMatchingAncestor( Predicate predicate ) const;
-
-    /**
      * Traverses all children recursively to find objects matching the predicate.
      * This object is also included if it matches.
      * @param predicate a function pointer predicate
@@ -251,8 +231,7 @@ std::list<T*> ObjectHandle::descendantsOfType() const
     std::list<T*> descendants;
     for ( auto f : m_fields )
     {
-        std::vector<ObjectHandle*> childObjects;
-        f->childObjects( &childObjects );
+        std::vector<ObjectHandle*> childObjects = f->childObjects();
 
         for ( auto childObject : childObjects )
         {
