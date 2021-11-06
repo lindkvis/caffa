@@ -39,7 +39,7 @@
 
 #include "cafField.h"
 #include "cafObjectHandle.h"
-#include "cafPointer.h"
+#include "cafObservingPointer.h"
 #include "cafUiItem.h"
 
 #include <set>
@@ -143,11 +143,11 @@ private:
 
     static void
         extractInternalSelectionItems( const std::vector<UiItem*>&                             items,
-                                       std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>* internalSelectionItems );
+                                       std::vector<std::pair<ObservingPointer<ObjectHandle>, UiItem*>>* internalSelectionItems );
 
     void          notifySelectionChanged( const std::set<int>& changedSelectionLevels );
     std::set<int> findChangedLevels(
-        const std::map<int, std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>>& newCompleteSelectionMap ) const;
+        const std::map<int, std::vector<std::pair<ObservingPointer<ObjectHandle>, UiItem*>>>& newCompleteSelectionMap ) const;
 
     friend class SelectionChangedReceiver;
     void registerSelectionChangedReceiver( SelectionChangedReceiver* receiver )
@@ -160,10 +160,10 @@ private:
     }
 
 private:
-    std::map<int, std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>> m_selectionPrLevel;
+    std::map<int, std::vector<std::pair<ObservingPointer<ObjectHandle>, UiItem*>>> m_selectionPrLevel;
 
     ChildArrayFieldHandle* m_activeChildArrayFieldHandle;
-    Pointer<ObjectHandle>  m_rootObject;
+    ObservingPointer<ObjectHandle>  m_rootObject;
 
     std::set<SelectionChangedReceiver*> m_selectionReceivers;
 };

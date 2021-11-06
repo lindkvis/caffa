@@ -19,13 +19,13 @@ public:
     ObjectGroup();
     ~ObjectGroup() override;
 
-    std::vector<Pointer<ObjectHandle>> objects;
+    std::vector<ObservingPointer<ObjectHandle>> objects;
 
     void deleteObjects();
     void addObject( ObjectHandle* obj );
 
     template <typename T>
-    void objectsByType( std::vector<Pointer<T>>* typedObjects ) const
+    void objectsByType( std::vector<ObservingPointer<T>>* typedObjects ) const
     {
         if ( !typedObjects ) return;
         for ( auto object : objects )
@@ -46,10 +46,10 @@ template <typename T>
 std::vector<std::unique_ptr<T>> ObjectGroup::createCopyByType( ObjectFactory* objectFactory ) const
 {
     std::vector<std::unique_ptr<T>> copyOfTypedObjects;
-    std::vector<Pointer<T>>         sourceTypedObjects;
+    std::vector<ObservingPointer<T>>         sourceTypedObjects;
     objectsByType( &sourceTypedObjects );
 
-    for ( Pointer<T> object : sourceTypedObjects )
+    for ( ObservingPointer<T> object : sourceTypedObjects )
     {
         if ( object.isNull() ) continue;
 

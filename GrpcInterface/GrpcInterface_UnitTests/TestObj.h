@@ -2,7 +2,7 @@
 
 #include "cafField.h"
 #include "cafObject.h"
-#include "cafPointer.h"
+#include "cafObservingPointer.h"
 
 class TestObj : public caffa::Object
 {

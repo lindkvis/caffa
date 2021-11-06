@@ -2,7 +2,7 @@
 
 #include "cafAssert.h"
 #include "cafFactory.h"
-#include "cafPointer.h"
+#include "cafObservingPointer.h"
 
 #include <algorithm>
 #include <ctime>
@@ -213,7 +213,7 @@ public:
                                          float,
                                          std::string,
                                          std::time_t,
-                                         caffa::Pointer<ObjectHandle>,
+                                         caffa::ObservingPointer<ObjectHandle>,
                                          std::vector<bool>,
                                          std::vector<int>,
                                          std::vector<unsigned char>,
@@ -223,7 +223,7 @@ public:
                                          std::vector<float>,
                                          std::vector<std::string>,
                                          std::vector<std::time_t>,
-                                         std::vector<caffa::Pointer<ObjectHandle>>>;
+                                         std::vector<caffa::ObservingPointer<ObjectHandle>>>;
     Variant() {}
 
     template <typename T>

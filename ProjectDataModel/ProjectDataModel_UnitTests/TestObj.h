@@ -2,7 +2,6 @@
 
 #include "cafField.h"
 #include "cafObject.h"
-#include "cafPointer.h"
 
 class TestObj : public caffa::Object
 {

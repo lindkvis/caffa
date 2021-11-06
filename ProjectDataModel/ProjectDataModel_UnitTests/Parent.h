@@ -3,7 +3,6 @@
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafObject.h"
-#include "cafPointer.h"
 
 class Child;
 

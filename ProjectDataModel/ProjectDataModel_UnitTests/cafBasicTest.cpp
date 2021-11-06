@@ -45,7 +45,7 @@
 #include "cafFieldProxyAccessor.h"
 #include "cafObject.h"
 #include "cafObjectGroup.h"
-#include "cafPointer.h"
+#include "cafObservingPointer.h"
 
 #include <fstream>
 #include <memory>
@@ -328,17 +328,17 @@ TEST( BaseTest, ReadWrite )
         }
 
         {
-            std::vector<caffa::Pointer<DemoObject>> demoObjs;
+            std::vector<caffa::ObservingPointer<DemoObject>> demoObjs;
             pog.objectsByType( &demoObjs );
             EXPECT_EQ( size_t( 4 ), demoObjs.size() );
         }
         {
-            std::vector<caffa::Pointer<InheritedDemoObj>> demoObjs;
+            std::vector<caffa::ObservingPointer<InheritedDemoObj>> demoObjs;
             pog.objectsByType( &demoObjs );
             EXPECT_EQ( size_t( 2 ), demoObjs.size() );
         }
         {
-            std::vector<caffa::Pointer<SimpleObj>> demoObjs;
+            std::vector<caffa::ObservingPointer<SimpleObj>> demoObjs;
             pog.objectsByType( &demoObjs );
             EXPECT_EQ( size_t( 1 ), demoObjs.size() );
         }
@@ -362,7 +362,7 @@ TEST( BaseTest, ReadWrite )
 
         // Test sample of that writing actually took place
 
-        std::vector<caffa::Pointer<InheritedDemoObj>> ihDObjs;
+        std::vector<caffa::ObservingPointer<InheritedDemoObj>> ihDObjs;
         pog.objectsByType( &ihDObjs );
         EXPECT_EQ( size_t( 2 ), ihDObjs.size() );
         ASSERT_EQ( size_t( 4 ), ihDObjs[0]->m_simpleObjectsField.size() );
@@ -397,13 +397,13 @@ TEST( BaseTest, Pointer )
     auto d = std::make_unique<caffa::Document>();
 
     {
-        caffa::Pointer<caffa::Document> p;
+        caffa::ObservingPointer<caffa::Document> p;
         EXPECT_TRUE( p == nullptr );
     }
 
     {
-        caffa::Pointer<caffa::Document> p( d.get() );
-        caffa::Pointer<caffa::Document> p2( p.p() );
+        caffa::ObservingPointer<caffa::Document> p( d.get() );
+        caffa::ObservingPointer<caffa::Document> p2( p.p() );
 
         EXPECT_EQ( p, d.get() );
         EXPECT_EQ( p2, d.get() );
@@ -418,7 +418,7 @@ TEST( BaseTest, Pointer )
         EXPECT_TRUE( p.isNull() && p2.isNull() );
     }
 
-    caffa::Pointer<DemoObject> p3( new DemoObject() );
+    caffa::ObservingPointer<DemoObject> p3( new DemoObject() );
 
     delete p3;
 }

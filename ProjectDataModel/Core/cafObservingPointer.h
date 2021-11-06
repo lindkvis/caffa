@@ -53,11 +53,11 @@ class ObjectHandle;
 /// it has addresses to nullptr
 //==================================================================================================
 
-class PointerImpl
+class ObservingPointerImpl
 {
 private:
     template <class T>
-    friend class Pointer;
+    friend class ObservingPointer;
     static void addReference( ObjectHandle** addressToObjectPointer );
     static void removeReference( ObjectHandle** addressToObjectPointer );
 };
@@ -70,26 +70,26 @@ private:
 //==================================================================================================
 
 template <class T>
-class Pointer
+class ObservingPointer
 {
     ObjectHandle* m_object;
 
 public:
-    inline Pointer()
+    inline ObservingPointer()
         : m_object( nullptr )
     {
     }
-    inline Pointer( T* p )
+    inline ObservingPointer( T* p )
         : m_object( p )
     {
-        PointerImpl::addReference( &m_object );
+        ObservingPointerImpl::addReference( &m_object );
     }
-    inline Pointer( const Pointer<T>& p )
+    inline ObservingPointer( const ObservingPointer<T>& p )
         : m_object( p.m_object )
     {
-        PointerImpl::addReference( &m_object );
+        ObservingPointerImpl::addReference( &m_object );
     }
-    inline ~Pointer() { PointerImpl::removeReference( &m_object ); }
+    inline ~ObservingPointer() { ObservingPointerImpl::removeReference( &m_object ); }
 
     T*          p() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
     bool        isNull() const { return !m_object; }
@@ -97,22 +97,22 @@ public:
                 operator T*() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
     T&          operator*() const { return *static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
     T*          operator->() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
-    Pointer<T>& operator=( const Pointer<T>& p )
+    ObservingPointer<T>& operator=( const ObservingPointer<T>& p )
     {
-        if ( this != &p ) PointerImpl::removeReference( &m_object );
+        if ( this != &p ) ObservingPointerImpl::removeReference( &m_object );
         m_object = p.m_object;
-        PointerImpl::addReference( &m_object );
+        ObservingPointerImpl::addReference( &m_object );
         return *this;
     }
-    Pointer<T>& operator=( T* p )
+    ObservingPointer<T>& operator=( T* p )
     {
-        if ( m_object != p ) PointerImpl::removeReference( &m_object );
+        if ( m_object != p ) ObservingPointerImpl::removeReference( &m_object );
         m_object = p;
-        PointerImpl::addReference( &m_object );
+        ObservingPointerImpl::addReference( &m_object );
         return *this;
     }
     template <class S>
-    bool operator==( const Pointer<S>& rhs ) const
+    bool operator==( const ObservingPointer<S>& rhs ) const
     {
         return m_object == rhs.rawPtr();
     }
@@ -121,9 +121,9 @@ public:
     ObjectHandle* rawPtr() const { return m_object; }
     void          setRawPtr( ObjectHandle* p )
     {
-        if ( m_object != p ) PointerImpl::removeReference( &m_object );
+        if ( m_object != p ) ObservingPointerImpl::removeReference( &m_object );
         m_object = p;
-        PointerImpl::addReference( &m_object );
+        ObservingPointerImpl::addReference( &m_object );
     }
 };
 

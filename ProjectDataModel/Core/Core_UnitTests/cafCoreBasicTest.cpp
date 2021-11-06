@@ -271,9 +271,9 @@ TEST( BaseTest, ChildArrayField )
     EXPECT_EQ( size_t( 0 ), ihd1->m_childArrayField.size() );
 
     // push_back()
-    auto s1p = caffa::Pointer<DemoObject>( s1.get() );
-    auto s2p = caffa::Pointer<DemoObject>( s2.get() );
-    auto s3p = caffa::Pointer<DemoObject>( s3.get() );
+    auto s1p = caffa::ObservingPointer<DemoObject>( s1.get() );
+    auto s2p = caffa::ObservingPointer<DemoObject>( s2.get() );
+    auto s3p = caffa::ObservingPointer<DemoObject>( s3.get() );
 
     ihd1->m_childArrayField.push_back( std::move( s1 ) );
     ihd1->m_childArrayField.push_back( std::move( s2 ) );
@@ -443,7 +443,7 @@ TEST( BaseTest, ChildField )
 
     {
         auto                  testValue = std::make_unique<Child>();
-        caffa::Pointer<Child> rawValue  = testValue.get();
+        caffa::ObservingPointer<Child> rawValue  = testValue.get();
 
         {
             A a;
@@ -478,13 +478,13 @@ TEST( BaseTest, Pointer )
     auto d = std::make_unique<InheritedDemoObj>();
 
     {
-        caffa::Pointer<InheritedDemoObj> p;
+        caffa::ObservingPointer<InheritedDemoObj> p;
         EXPECT_TRUE( p == nullptr );
     }
 
     {
-        caffa::Pointer<InheritedDemoObj> p( d.get() );
-        caffa::Pointer<InheritedDemoObj> p2( p );
+        caffa::ObservingPointer<InheritedDemoObj> p( d.get() );
+        caffa::ObservingPointer<InheritedDemoObj> p2( p );
 
         EXPECT_EQ( p, d.get() );
         EXPECT_EQ( p2, d.get() );
@@ -499,7 +499,7 @@ TEST( BaseTest, Pointer )
         EXPECT_TRUE( p.isNull() && p2.isNull() );
     }
 
-    caffa::Pointer<DemoObject> p3( new DemoObject() );
+    caffa::ObservingPointer<DemoObject> p3( new DemoObject() );
 
     delete p3;
 }

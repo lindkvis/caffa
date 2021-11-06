@@ -4,7 +4,7 @@
 
 #include "cafAssert.h"
 #include "cafChildFieldAccessor.h"
-#include "cafPointer.h"
+#include "cafObservingPointer.h"
 #include "cafPortableDataType.h"
 
 #include <memory>

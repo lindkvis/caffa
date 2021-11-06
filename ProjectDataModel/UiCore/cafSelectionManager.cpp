@@ -61,7 +61,7 @@ void SelectionManager::selectedItems( std::vector<UiItem*>& items, int selection
 
     if ( levelSelectionPairIt == m_selectionPrLevel.end() ) return;
 
-    std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>& selection = levelSelectionPairIt->second;
+    std::vector<std::pair<ObservingPointer<ObjectHandle>, UiItem*>>& selection = levelSelectionPairIt->second;
 
     for ( size_t i = 0; i < selection.size(); i++ )
     {
@@ -77,9 +77,9 @@ void SelectionManager::selectedItems( std::vector<UiItem*>& items, int selection
 //--------------------------------------------------------------------------------------------------
 void SelectionManager::setSelectedItems( const std::vector<UiItem*>& items )
 {
-    std::map<int, std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>> newCompleteSelectionMap;
+    std::map<int, std::vector<std::pair<ObservingPointer<ObjectHandle>, UiItem*>>> newCompleteSelectionMap;
 
-    std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>& newSelection = newCompleteSelectionMap[0];
+    std::vector<std::pair<ObservingPointer<ObjectHandle>, UiItem*>>& newSelection = newCompleteSelectionMap[0];
 
     extractInternalSelectionItems( items, &newSelection );
 
@@ -96,7 +96,7 @@ void SelectionManager::setSelectedItems( const std::vector<UiItem*>& items )
 ///
 //--------------------------------------------------------------------------------------------------
 void SelectionManager::extractInternalSelectionItems( const std::vector<UiItem*>&                             items,
-                                                      std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>* newSelection )
+                                                      std::vector<std::pair<ObservingPointer<ObjectHandle>, UiItem*>>* newSelection )
 {
     for ( size_t i = 0; i < items.size(); i++ )
     {
@@ -123,8 +123,8 @@ void SelectionManager::extractInternalSelectionItems( const std::vector<UiItem*>
 //--------------------------------------------------------------------------------------------------
 void SelectionManager::setSelectedItemsAtLevel( const std::vector<UiItem*>& items, int selectionLevel )
 {
-    std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>& selection = m_selectionPrLevel[selectionLevel];
-    std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>  newSelection;
+    std::vector<std::pair<ObservingPointer<ObjectHandle>, UiItem*>>& selection = m_selectionPrLevel[selectionLevel];
+    std::vector<std::pair<ObservingPointer<ObjectHandle>, UiItem*>>  newSelection;
 
     extractInternalSelectionItems( items, &newSelection );
 
@@ -140,7 +140,7 @@ void SelectionManager::setSelectedItemsAtLevel( const std::vector<UiItem*>& item
 //--------------------------------------------------------------------------------------------------
 void SelectionManager::setSelection( const std::vector<SelectionItem> completeSelection )
 {
-    std::map<int, std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>> newCompleteSelectionMap;
+    std::map<int, std::vector<std::pair<ObservingPointer<ObjectHandle>, UiItem*>>> newCompleteSelectionMap;
     std::map<int, std::vector<UiItem*>>                                   newSelectionPrLevel;
 
     for ( const SelectionItem& item : completeSelection )
@@ -150,7 +150,7 @@ void SelectionManager::setSelection( const std::vector<SelectionItem> completeSe
 
     for ( auto& levelItemsPair : newSelectionPrLevel )
     {
-        std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>& newSelectionLevel =
+        std::vector<std::pair<ObservingPointer<ObjectHandle>, UiItem*>>& newSelectionLevel =
             newCompleteSelectionMap[levelItemsPair.first];
         extractInternalSelectionItems( levelItemsPair.second, &newSelectionLevel );
     }
@@ -168,7 +168,7 @@ void SelectionManager::setSelection( const std::vector<SelectionItem> completeSe
 ///
 //--------------------------------------------------------------------------------------------------
 std::set<int> SelectionManager::findChangedLevels(
-    const std::map<int, std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>>& newCompleteSelectionMap ) const
+    const std::map<int, std::vector<std::pair<ObservingPointer<ObjectHandle>, UiItem*>>>& newCompleteSelectionMap ) const
 {
     std::set<int> changedLevels;
 
@@ -208,7 +208,7 @@ UiItem* SelectionManager::selectedItem( int selectionLevel /*= 0*/ )
     const auto& levelSelectionPairIt = m_selectionPrLevel.find( selectionLevel );
     if ( levelSelectionPairIt == m_selectionPrLevel.end() ) return nullptr;
 
-    std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>& selection = levelSelectionPairIt->second;
+    std::vector<std::pair<ObservingPointer<ObjectHandle>, UiItem*>>& selection = levelSelectionPairIt->second;
 
     if ( selection.size() == 1 )
     {
@@ -260,7 +260,7 @@ bool SelectionManager::isSelected( UiItem* item, int selectionLevel ) const
 
     if ( levelIter == m_selectionPrLevel.end() ) return false;
 
-    const std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>& selection = levelIter->second;
+    const std::vector<std::pair<ObservingPointer<ObjectHandle>, UiItem*>>& selection = levelIter->second;
 
     auto iter = selection.begin();
     while ( iter != selection.end() )
@@ -339,9 +339,9 @@ void SelectionManager::removeObjectFromAllSelections( ObjectHandle* object )
 
     for ( auto& levelSelectionPair : m_selectionPrLevel )
     {
-        std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>& selection = levelSelectionPair.second;
+        std::vector<std::pair<ObservingPointer<ObjectHandle>, UiItem*>>& selection = levelSelectionPair.second;
 
-        std::vector<std::pair<Pointer<ObjectHandle>, UiItem*>>::iterator iter = selection.begin();
+        std::vector<std::pair<ObservingPointer<ObjectHandle>, UiItem*>>::iterator iter = selection.begin();
         while ( iter != selection.end() )
         {
             if ( iter->first.notNull() )

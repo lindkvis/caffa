@@ -5,7 +5,7 @@
 
 #include "cafAssert.h"
 #include "cafFieldHandle.h"
-#include "cafPointer.h"
+#include "cafObservingPointer.h"
 #include "cafPortableDataType.h"
 
 #include <memory>

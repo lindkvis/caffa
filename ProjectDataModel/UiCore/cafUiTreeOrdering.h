@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPointer.h"
+#include "cafObservingPointer.h"
 
 #include <deque>
 #include <memory>
@@ -118,7 +118,7 @@ private:
     UiTreeOrdering( UiTreeOrdering* parent, FieldHandle* field );
 
     // Item that we represent
-    Pointer<ObjectHandle>   m_object; // We keep both pointer to object and pointer to field when representing a field
+    ObservingPointer<ObjectHandle>   m_object; // We keep both pointer to object and pointer to field when representing a field
     FieldHandle*            m_field; // because m_object is guarded while FieldHandle::ownerObject() is not guarded
     std::unique_ptr<UiItem> m_uiItem;
 

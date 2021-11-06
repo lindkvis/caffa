@@ -56,7 +56,7 @@ OptionItemInfo::OptionItemInfo( const std::string& anOptionUiText, caffa::Object
     , m_isReadOnly( isReadOnly )
     , m_level( 0 )
 {
-    m_value = Variant( caffa::Pointer<caffa::ObjectHandle>( obj ) );
+    m_value = Variant( caffa::ObservingPointer<caffa::ObjectHandle>( obj ) );
 }
 
 //--------------------------------------------------------------------------------------------------

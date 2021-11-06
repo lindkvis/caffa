@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cafAppEnum.h"
-#include "cafPointer.h"
+#include "cafObservingPointer.h"
 #include "cafVariant.h"
 
 #include <assert.h>
@@ -62,19 +62,19 @@ public:
 /// User must use ChildField
 //==================================================================================================
 template <typename T>
-class ValueFieldSpecialization<Pointer<T>>
+class ValueFieldSpecialization<ObservingPointer<T>>
 {
 public:
-    static Variant convert( const Pointer<T>& value ) { return Variant( Pointer<ObjectHandle>( value.rawPtr() ) ); }
+    static Variant convert( const ObservingPointer<T>& value ) { return Variant( ObservingPointer<ObjectHandle>( value.rawPtr() ) ); }
 
-    static void setFromVariant( const Variant& variantValue, caffa::Pointer<T>& value )
+    static void setFromVariant( const Variant& variantValue, caffa::ObservingPointer<T>& value )
     {
-        value.setRawPtr( variantValue.value<Pointer<ObjectHandle>>().rawPtr() );
+        value.setRawPtr( variantValue.value<ObservingPointer<ObjectHandle>>().rawPtr() );
     }
 
     static bool isEqual( const Variant& variantValue, const Variant& variantValue2 )
     {
-        return variantValue.value<Pointer<ObjectHandle>>() == variantValue2.value<Pointer<ObjectHandle>>();
+        return variantValue.value<ObservingPointer<ObjectHandle>>() == variantValue2.value<ObservingPointer<ObjectHandle>>();
     }
 };
 

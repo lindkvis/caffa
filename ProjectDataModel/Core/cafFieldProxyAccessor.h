@@ -2,7 +2,7 @@
 
 #include "cafAssert.h"
 #include "cafDataValueField.h"
-#include "cafPointer.h"
+#include "cafObservingPointer.h"
 #include "cafValueField.h"
 #include "cafValueFieldSpecializations.h"
 
@@ -46,7 +46,7 @@ public:
 
 private:
     SetterMethodType    m_setterMethod;
-    Pointer<ObjectType> m_obj;
+    ObservingPointer<ObjectType> m_obj;
 };
 
 template <typename DataType>
@@ -79,7 +79,7 @@ public:
 
 private:
     GetterMethodType    m_getterMethod;
-    Pointer<ObjectType> m_obj;
+    ObservingPointer<ObjectType> m_obj;
 };
 
 template <typename DataType>

@@ -37,7 +37,7 @@
 
 #pragma once
 
-#include "cafPointer.h"
+#include "cafObservingPointer.h"
 #include "cafUiEditorHandle.h"
 
 namespace caffa

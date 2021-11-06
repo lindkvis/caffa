@@ -63,7 +63,7 @@ void FieldIoCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& json
 
     std::string className = jsonObject["classKeyword"].get<std::string>();
 
-    Pointer<ObjectHandle> objPtr;
+    ObservingPointer<ObjectHandle> objPtr;
 
     // Create a new object
     {
@@ -192,7 +192,7 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json&
 template <typename DataType>
 void FieldIoCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& jsonValue, bool copyDataValues ) const
 {
-    typename std::vector<Pointer<DataType>>::iterator it;
+    typename std::vector<ObservingPointer<DataType>>::iterator it;
 
     nlohmann::json jsonArray = nlohmann::json::array();
 
