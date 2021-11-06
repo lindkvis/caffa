@@ -52,7 +52,10 @@ std::vector<ObjectHandle*> ChildField<DataType*>::childObjects() const
 {
     CAFFA_ASSERT( isInitializedByInitFieldMacro() );
 
-    return { m_fieldDataAccessor->value() };
+    auto object = m_fieldDataAccessor->value();
+    if (!object) return {};
+    
+    return { object };
 }
 
 //--------------------------------------------------------------------------------------------------
