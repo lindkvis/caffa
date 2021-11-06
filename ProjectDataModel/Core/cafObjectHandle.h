@@ -196,7 +196,7 @@ private:
     friend class FieldIoCap;
 
     // Support system for Pointer
-    friend class PointerImpl;
+    friend class ObservingPointerImpl;
     std::set<ObjectHandle**> m_pointersReferencingMe;
 };
 

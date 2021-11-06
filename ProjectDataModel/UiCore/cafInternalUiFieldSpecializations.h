@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cafObjectHandle.h"
-#include "cafPointer.h"
+#include "cafObservingPointer.h"
 #include "cafValueFieldSpecializations.h"
 #include "cafVariant.h"
 
@@ -14,7 +14,7 @@ namespace caffa
 template <typename T>
 class DataValueField;
 template <typename T>
-class Pointer;
+class ObservingPointer;
 template <typename T>
 class AppEnum;
 
@@ -29,24 +29,24 @@ class AppEnum;
 //==================================================================================================
 
 template <typename T>
-class UiFieldSpecialization<Pointer<T>>
+class UiFieldSpecialization<ObservingPointer<T>>
 {
 public:
-    static Variant convert( const Pointer<T>& value ) { return Variant( Pointer<ObjectHandle>( value.rawPtr() ) ); }
+    static Variant convert( const ObservingPointer<T>& value ) { return Variant( ObservingPointer<ObjectHandle>( value.rawPtr() ) ); }
 
-    static Variant convertToUiVariant( const Pointer<T>& value ) { return convert( value ); }
+    static Variant convertToUiVariant( const ObservingPointer<T>& value ) { return convert( value ); }
 
-    static void setFromVariant( const Variant& variantValue, Pointer<T>& value )
+    static void setFromVariant( const Variant& variantValue, ObservingPointer<T>& value )
     {
-        value.setRawPtr( variantValue.value<Pointer<ObjectHandle>>().rawPtr() );
+        value.setRawPtr( variantValue.value<ObservingPointer<ObjectHandle>>().rawPtr() );
     }
 
     static bool isDataElementEqual( const Variant& variantValue, const Variant& variantValue2 )
     {
-        return variantValue.value<Pointer<ObjectHandle>>() == variantValue2.value<Pointer<ObjectHandle>>();
+        return variantValue.value<ObservingPointer<ObjectHandle>>() == variantValue2.value<ObservingPointer<ObjectHandle>>();
     }
 
-    static std::deque<OptionItemInfo> valueOptions( bool* useOptionsOnly, const Pointer<T>& )
+    static std::deque<OptionItemInfo> valueOptions( bool* useOptionsOnly, const ObservingPointer<T>& )
     {
         return std::deque<OptionItemInfo>();
     }

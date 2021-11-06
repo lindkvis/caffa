@@ -38,7 +38,7 @@
 
 #include "cafObjectHandle.h"
 #include "cafObjectIoCapability.h"
-#include "cafPointer.h"
+#include "cafObservingPointer.h"
 
 #include <list>
 #include <string>
@@ -57,7 +57,7 @@ public:
     std::unique_ptr<ObjectHandle> create( const std::string& classNameKeyword )
     {
         std::unique_ptr<ObjectHandle> object = doCreate( classNameKeyword );
-        if ( object ) m_objects.push_back( Pointer<ObjectHandle>( object.get() ) );
+        if ( object ) m_objects.push_back( ObservingPointer<ObjectHandle>( object.get() ) );
         return object;
     }
 
@@ -111,7 +111,7 @@ protected:
 private:
     virtual std::unique_ptr<ObjectHandle> doCreate( const std::string& classNameKeyword ) = 0;
 
-    std::list<Pointer<ObjectHandle>> m_objects;
+    std::list<ObservingPointer<ObjectHandle>> m_objects;
 };
 
 } // End of namespace caffa

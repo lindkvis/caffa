@@ -3,7 +3,7 @@
 #include "TestObj.h"
 #include "cafChildField.h"
 #include "cafObjectHandle.h"
-#include "cafPointer.h"
+#include "cafObservingPointer.h"
 
 class Child : public caffa::ObjectHandle
 {

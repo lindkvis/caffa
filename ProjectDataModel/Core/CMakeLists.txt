@@ -21,7 +21,7 @@ set(PUBLIC_HEADERS
     cafFieldHandle.h
     cafObjectCapability.h
     cafObjectHandle.h
-    cafPointer.h
+    cafObservingPointer.h
     cafPortableDataType.h
     cafFieldProxyAccessor.h
     cafChildArrayFieldHandle.h
@@ -37,7 +37,7 @@ set(PROJECT_FILES
     cafFieldHandle.cpp
     cafObjectCapability.cpp
     cafObjectHandle.cpp
-    cafPointer.cpp
+    cafObservingPointer.cpp
     cafSignal.cpp
     cafVariant.cpp)
 

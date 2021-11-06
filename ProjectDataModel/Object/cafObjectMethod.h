@@ -38,7 +38,7 @@
 #include "cafAssert.h"
 #include "cafObject.h"
 #include "cafObjectFactory.h"
-#include "cafPointer.h"
+#include "cafObservingPointer.h"
 
 #include <string>
 
@@ -91,7 +91,7 @@ public:
 
 private:
     friend class ObjectScriptingCapability;
-    Pointer<ObjectHandle> m_self;
+    ObservingPointer<ObjectHandle> m_self;
 };
 
 //==================================================================================================

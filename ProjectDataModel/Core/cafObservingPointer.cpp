@@ -34,7 +34,7 @@
 //
 //##################################################################################################
 
-#include "cafPointer.h"
+#include "cafObservingPointer.h"
 #include "cafObjectHandle.h"
 
 namespace caffa
@@ -42,7 +42,7 @@ namespace caffa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PointerImpl::addReference( ObjectHandle** addressToObjectPointer )
+void ObservingPointerImpl::addReference( ObjectHandle** addressToObjectPointer )
 {
     if ( *addressToObjectPointer )
         ( *addressToObjectPointer )->m_pointersReferencingMe.insert( addressToObjectPointer );
@@ -51,7 +51,7 @@ void PointerImpl::addReference( ObjectHandle** addressToObjectPointer )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PointerImpl::removeReference( ObjectHandle** addressToObjectPointer )
+void ObservingPointerImpl::removeReference( ObjectHandle** addressToObjectPointer )
 {
     if ( *addressToObjectPointer ) ( *addressToObjectPointer )->m_pointersReferencingMe.erase( addressToObjectPointer );
 }
