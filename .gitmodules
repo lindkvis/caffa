@@ -14,5 +14,5 @@
 	path = ThirdParty/caffa-logger
 	url = https://github.com/lindkvis/caffa-logger.git
 [submodule "Bindings/caffa-Java"]
-	path = Bindings/caffa-Java
+	path = Bindings/Java
 	url = https://github.com/lindkvis/caffa-Java.git
