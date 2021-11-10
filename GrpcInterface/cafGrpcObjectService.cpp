@@ -112,7 +112,7 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
             else
             {
                 CAFFA_ERROR( "Failed to run execute!" );
-                return grpc::Status( grpc::NOT_FOUND, "No result returned from Method" );
+                return grpc::Status( grpc::NOT_FOUND, std::string( "Method " ) + request->method() + " failed!" );
             }
         }
         return grpc::Status( grpc::NOT_FOUND, "Could not find Method" );
