@@ -820,7 +820,8 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
                 nlohmann::json jsonValue;
                 ioCapability->writeToJson( jsonValue, !isObjectField );
                 reply->set_value( jsonValue.is_null() ? "" : jsonValue.dump() );
-                CAFFA_DEBUG( "Sending json value: '" << reply->value() << "'" );
+                CAFFA_DEBUG( "Get " << fieldOwner->classKeyword() << " -> " << field->keyword() << " = "
+                                    << reply->value() );
 
                 return grpc::Status::OK;
             }
@@ -953,7 +954,7 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
     CAFFA_ASSERT( fieldOwner );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
 
-    CAFFA_DEBUG( "Received Set Request for class " << fieldOwner->classKeyword() );
+    CAFFA_TRACE( "Received Set Request for class " << fieldOwner->classKeyword() );
 
     bool foundMatchingField = false;
     for ( auto field : fieldOwner->fields() )
@@ -963,7 +964,8 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
         auto scriptability = field->capability<FieldScriptingCapability>();
         if ( scriptability && fieldRequest.keyword() == scriptability->scriptFieldName() )
         {
-            CAFFA_DEBUG( "   Field: '" << fieldRequest.keyword() << "' with value: '" << request->value() << "'" );
+            CAFFA_DEBUG( "Set " << fieldOwner->classKeyword() << " -> " << fieldRequest.keyword() << " = "
+                                << request->value() << "" );
             auto ioCapability = field->capability<caffa::FieldIoCapability>();
             if ( ioCapability )
             {
