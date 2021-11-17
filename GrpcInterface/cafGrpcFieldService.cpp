@@ -820,7 +820,7 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
                 nlohmann::json jsonValue;
                 ioCapability->writeToJson( jsonValue, !isObjectField );
                 reply->set_value( jsonValue.is_null() ? "" : jsonValue.dump() );
-                CAFFA_DEBUG( "Get " << fieldOwner->classKeyword() << " -> " << field->keyword() << " = "
+                CAFFA_TRACE( "Get " << fieldOwner->classKeyword() << " -> " << field->keyword() << " = "
                                     << reply->value() );
 
                 return grpc::Status::OK;
@@ -964,7 +964,7 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
         auto scriptability = field->capability<FieldScriptingCapability>();
         if ( scriptability && fieldRequest.keyword() == scriptability->scriptFieldName() )
         {
-            CAFFA_DEBUG( "Set " << fieldOwner->classKeyword() << " -> " << fieldRequest.keyword() << " = "
+            CAFFA_TRACE( "Set " << fieldOwner->classKeyword() << " -> " << fieldRequest.keyword() << " = "
                                 << request->value() << "" );
             auto ioCapability = field->capability<caffa::FieldIoCapability>();
             if ( ioCapability )
