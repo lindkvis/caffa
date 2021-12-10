@@ -26,6 +26,7 @@
 #include "ObjectService.pb.h"
 
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace caffa
@@ -85,6 +86,10 @@ public:
                                                                               bool copyDataValues );
 
     std::vector<AbstractCallback*> createCallbacks() override;
+
+private:
+    static std::map<std::string, caffa::Object*> s_uuidCache;
+    static std::mutex                                  s_uuidCacheMutex;
 };
 
 } // namespace caffa::rpc
