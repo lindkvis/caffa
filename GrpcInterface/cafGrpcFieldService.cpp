@@ -52,6 +52,9 @@
 
 namespace caffa::rpc
 {
+std::map<const caffa::ObjectHandle*, std::map<std::string, caffa::FieldHandle*>> FieldService::s_fieldCache;
+std::mutex                                                                       FieldService::s_fieldCacheMutex;
+
 template <typename DataType>
 struct DataHolder : public AbstractDataHolder
 {
@@ -804,17 +807,14 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
     CAFFA_TRACE( "GetValue for field: " << request->keyword() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
 
-    bool foundMatchingField = false;
-    for ( auto field : fieldOwner->fields() )
+    auto [field, isScriptable] = fieldAndScriptableFromKeyword( fieldOwner, request->keyword() );
+
+    if ( field )
     {
-        bool isObjectField = dynamic_cast<caffa::ChildFieldHandle*>( field ) != nullptr;
-
-        if ( field->keyword() == request->keyword() ) foundMatchingField = true;
-
-        auto scriptability = field->capability<FieldScriptingCapability>();
-        if ( scriptability && request->keyword() == scriptability->scriptFieldName() )
+        if ( isScriptable )
         {
-            auto ioCapability = field->capability<caffa::FieldIoCapability>();
+            bool isObjectField = dynamic_cast<caffa::ChildFieldHandle*>( field ) != nullptr;
+            auto ioCapability  = field->capability<caffa::FieldIoCapability>();
             if ( ioCapability )
             {
                 nlohmann::json jsonValue;
@@ -826,10 +826,6 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
                 return grpc::Status::OK;
             }
         }
-    }
-
-    if ( foundMatchingField )
-    {
         return grpc::Status( grpc::FAILED_PRECONDITION,
                              "Field " + request->keyword() +
                                  " found, but it either isn't scriptable or does not have I/O capability" );
@@ -956,13 +952,11 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
 
     CAFFA_TRACE( "Received Set Request for class " << fieldOwner->classKeyword() );
 
-    bool foundMatchingField = false;
-    for ( auto field : fieldOwner->fields() )
+    auto [field, isScriptable] = fieldAndScriptableFromKeyword( fieldOwner, fieldRequest.keyword() );
+    CAFFA_TRACE( "Field: " << field << ", " << isScriptable );
+    if ( field != nullptr )
     {
-        if ( field->keyword() == fieldRequest.keyword() ) foundMatchingField = true;
-
-        auto scriptability = field->capability<FieldScriptingCapability>();
-        if ( scriptability && fieldRequest.keyword() == scriptability->scriptFieldName() )
+        if ( isScriptable )
         {
             CAFFA_TRACE( "Set " << fieldOwner->classKeyword() << " -> " << fieldRequest.keyword() << " = "
                                 << request->value() << "" );
@@ -974,15 +968,12 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
                 return grpc::Status::OK;
             }
         }
+        std::string errMsg = "Field " + fieldRequest.keyword() +
+                             " found, but it either isn't scriptable or does not have I/O capability";
+        CAFFA_ERROR( errMsg );
+        return grpc::Status( grpc::FAILED_PRECONDITION, errMsg );
     }
-
-    if ( foundMatchingField )
-    {
-        return grpc::Status( grpc::FAILED_PRECONDITION,
-                             "Field " + fieldRequest.keyword() +
-                                 " found, but it either isn't scriptable or does not have I/O capability" );
-    }
-
+    CAFFA_ERROR( "Field " << fieldRequest.keyword() << " not found in " << fieldOwner->classKeyword() );
     return grpc::Status( grpc::NOT_FOUND, "Field not found" );
 }
 
@@ -994,36 +985,30 @@ grpc::Status
 {
     auto fieldRequest = request->field();
     auto fieldOwner   = ObjectService::findCafObjectFromRpcObject( fieldRequest.self_object() );
-    CAFFA_ASSERT( fieldOwner );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
 
     CAFFA_TRACE( "Received Set Request for class " << fieldOwner->classKeyword() );
 
-    bool foundMatchingField = false;
-    for ( auto field : fieldOwner->fields() )
+    auto [field, isScriptable] = fieldAndScriptableFromKeyword( fieldOwner, fieldRequest.keyword() );
+    if ( field )
     {
-        auto uint64Field = dynamic_cast<caffa::Field<uint64_t>*>( field );
-        if ( !uint64Field ) continue;
-
-        if ( uint64Field->keyword() == fieldRequest.keyword() ) foundMatchingField = true;
-
-        auto scriptability = field->capability<FieldScriptingCapability>();
-        if ( scriptability && fieldRequest.keyword() == scriptability->scriptFieldName() )
+        if ( isScriptable )
         {
-            CAFFA_TRACE( "Set " << fieldOwner->classKeyword() << " -> " << fieldRequest.keyword() << " = "
-                                << request->value() << "" );
-            uint64Field->setValue( request->value() );
-            return grpc::Status::OK;
+            auto uint64Field = dynamic_cast<caffa::Field<uint64_t>*>( field );
+            if ( uint64Field )
+            {
+                CAFFA_TRACE( "Set " << fieldOwner->classKeyword() << " -> " << fieldRequest.keyword() << " = "
+                                    << request->value() << "" );
+                uint64Field->setValue( request->value() );
+                return grpc::Status::OK;
+            }
         }
+        std::string errMsg = "Field " + fieldRequest.keyword() +
+                             " found, but it either isn't scriptable or isn't an uint64 field";
+        CAFFA_ERROR( errMsg );
+        return grpc::Status( grpc::FAILED_PRECONDITION, errMsg );
     }
-
-    if ( foundMatchingField )
-    {
-        return grpc::Status( grpc::FAILED_PRECONDITION,
-                             "Field " + fieldRequest.keyword() +
-                                 " found, but it either isn't scriptable or does not have I/O capability" );
-    }
-
+    CAFFA_ERROR( "Field " << fieldRequest.keyword() << " not found in " << fieldOwner->classKeyword() );
     return grpc::Status( grpc::NOT_FOUND, "Field not found" );
 }
 
@@ -1055,6 +1040,49 @@ std::vector<AbstractCallback*> FieldService::createCallbacks()
              new UnaryCallback<Self, SetterRequest, NullMessage>( this,
                                                                   &Self::InsertChildObject,
                                                                   &Self::RequestInsertChildObject ) };
+}
+
+std::pair<caffa::FieldHandle*, bool> FieldService::fieldAndScriptableFromKeyword( const caffa::ObjectHandle* fieldOwner,
+                                                                                  const std::string&         keyword )
+{
+    CAFFA_ASSERT( fieldOwner );
+
+    caffa::FieldHandle* field = nullptr;
+    {
+        std::scoped_lock cacheLock( s_fieldCacheMutex );
+        auto             it = s_fieldCache.find( fieldOwner );
+        if ( it != s_fieldCache.end() )
+        {
+            auto jt = it->second.find( keyword );
+            if ( jt != it->second.end() )
+            {
+                field = jt->second;
+            }
+        }
+    }
+
+    if ( !field )
+    {
+        for ( auto tryField : fieldOwner->fields() )
+        {
+            if ( tryField->keyword() == keyword )
+            {
+                field = tryField;
+
+                std::scoped_lock cacheLock( s_fieldCacheMutex );
+                s_fieldCache[fieldOwner].insert( std::make_pair( keyword, field ) );
+                break;
+            }
+        }
+    }
+
+    if ( field )
+    {
+        auto scriptability     = field->capability<FieldScriptingCapability>();
+        bool fieldIsScriptable = scriptability && keyword == scriptability->scriptFieldName();
+        return std::make_pair( field, fieldIsScriptable );
+    }
+    return std::make_pair( nullptr, false );
 }
 
 } // namespace caffa::rpc
