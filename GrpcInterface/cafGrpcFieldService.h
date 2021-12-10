@@ -25,7 +25,10 @@
 #include "FieldService.grpc.pb.h"
 #include "FieldService.pb.h"
 
+#include <map>
 #include <string>
+#include <thread>
+#include <utility>
 #include <vector>
 
 namespace caffa
@@ -140,6 +143,13 @@ public:
     grpc::Status RemoveChildObject( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply ) override;
     grpc::Status InsertChildObject( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply ) override;
     std::vector<AbstractCallback*> createCallbacks() override;
+
+    static std::pair<caffa::FieldHandle*, bool> fieldAndScriptableFromKeyword( const caffa::ObjectHandle* fieldOwner,
+                                                                               const std::string&         keyword );
+
+private:
+    static std::map<const caffa::ObjectHandle*, std::map<std::string, caffa::FieldHandle*>> s_fieldCache;
+    static std::mutex                                                                       s_fieldCacheMutex;
 };
 
 } // namespace caffa::rpc
