@@ -829,7 +829,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Client::Client( const std::string& hostname, int port /*= 55555 */ )
+Client::Client( const std::string& hostname, int port /*= 50000 */ )
     : m_clientImpl( std::make_unique<ClientImpl>( hostname, port ) )
 {
     caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( this );

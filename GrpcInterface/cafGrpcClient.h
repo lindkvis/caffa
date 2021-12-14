@@ -41,7 +41,7 @@ class ClientImpl;
 class Client
 {
 public:
-    Client( const std::string& hostname, int port = 55555 );
+    Client( const std::string& hostname, int port = 50000 );
     virtual ~Client();
 
     caffa::AppInfo                                        appInfo() const;

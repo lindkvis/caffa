@@ -63,7 +63,7 @@ public:
 int main( int argc, char** argv )
 {
     std::string hostname   = argc >= 2 ? argv[1] : "localhost";
-    int         portNumber = argc >= 3 ? std::atoi( argv[2] ) : 55555;
+    int         portNumber = argc >= 3 ? std::atoi( argv[2] ) : 50000;
 
     caffa::Logger::setApplicationLogLevel( caffa::Logger::Level::INFO );
 
