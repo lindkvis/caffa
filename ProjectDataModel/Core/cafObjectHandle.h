@@ -62,6 +62,8 @@ public:
     static std::string classKeywordStatic(); // For IoFieldCap to be able to handle fields of ObjectHandle directly
     static std::vector<std::string> classInheritanceStackStatic();
 
+    virtual std::string classKeywordDynamic() const = 0;
+
     /**
      * The registered fields contained in this Object.
      * @return a vector of FieldHandle pointers

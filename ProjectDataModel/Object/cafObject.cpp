@@ -35,6 +35,14 @@ Object::~Object() noexcept
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::string Object::classKeywordDynamic() const
+{
+    return this->classKeyword();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void Object::assignUiInfo( const std::string& uiName, const std::string& toolTip, const std::string& whatsThis )
 {
     std::string       validUiName = uiName.empty() ? classKeyword() : uiName;

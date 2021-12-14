@@ -153,11 +153,11 @@ public:
         CAFFA_TRACE( "Get Child Object from field " << fieldName );
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
-        auto                self = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
+
         FieldRequest field;
+        field.set_class_keyword( objectHandle->classKeywordDynamic() );
+        field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
-        field.set_allocated_self_object( self.release() );
 
         GenericScalar reply;
         grpc::Status  status = m_fieldStub->GetValue( &context, field, &reply );
@@ -178,11 +178,11 @@ public:
                                                                 const std::string&         getter ) const
     {
         grpc::ClientContext context;
-        auto                self = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
+
         FieldRequest field;
+        field.set_class_keyword( objectHandle->classKeywordDynamic() );
+        field.set_uuid( objectHandle->uuid() );
         field.set_keyword( getter );
-        field.set_allocated_self_object( self.release() );
 
         std::vector<std::unique_ptr<ObjectHandle>> childObjects;
 
@@ -217,13 +217,13 @@ public:
         CAFFA_TRACE( "Set Child Object in field " << fieldName );
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
-        auto                self           = std::make_unique<RpcObject>();
         auto                rpcChildObject = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         ObjectService::copyProjectObjectFromCafToRpc( childObject, rpcChildObject.get() );
+
         auto field = std::make_unique<FieldRequest>();
+        field->set_class_keyword( objectHandle->classKeywordDynamic() );
+        field->set_uuid( objectHandle->uuid() );
         field->set_keyword( fieldName );
-        field->set_allocated_self_object( self.release() );
 
         SetterRequest setterRequest;
         setterRequest.set_allocated_field( field.release() );
@@ -245,13 +245,14 @@ public:
         CAFFA_TRACE( "Set Child Object in field " << fieldName );
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
-        auto                self           = std::make_unique<RpcObject>();
         auto                rpcChildObject = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
         ObjectService::copyResultOrParameterObjectFromCafToRpc( childObject, rpcChildObject.get() );
         auto field = std::make_unique<FieldRequest>();
+
+        field->set_class_keyword( objectHandle->classKeywordDynamic() );
+        field->set_uuid( objectHandle->uuid() );
         field->set_keyword( fieldName );
-        field->set_allocated_self_object( self.release() );
+
         field->set_index( index );
 
         SetterRequest setterRequest;
@@ -271,11 +272,11 @@ public:
         CAFFA_TRACE( "Clear Child Objects from field " << fieldName );
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
-        auto                self = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
+
         FieldRequest field;
+        field.set_class_keyword( objectHandle->classKeywordDynamic() );
+        field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
-        field.set_allocated_self_object( self.release() );
 
         NullMessage  reply;
         grpc::Status status = m_fieldStub->ClearChildObjects( &context, field, &reply );
@@ -290,11 +291,10 @@ public:
         CAFFA_TRACE( "Remove Child Object " << index << " from field " << fieldName );
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
-        auto                self = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
-        FieldRequest field;
+        FieldRequest        field;
+        field.set_class_keyword( objectHandle->classKeywordDynamic() );
+        field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
-        field.set_allocated_self_object( self.release() );
         field.set_index( index );
 
         NullMessage  reply;
@@ -399,12 +399,11 @@ public:
                   uint32_t                   addressOffset )
     {
         grpc::ClientContext context;
-        auto                self = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
+        field->set_class_keyword( objectHandle->classKeywordDynamic() );
+        field->set_uuid( objectHandle->uuid() );
         field->set_keyword( fieldName );
-        field->set_allocated_self_object( self.release() );
         field->set_index( addressOffset );
 
         SetterRequest setterRequest;
@@ -425,11 +424,10 @@ public:
         CAFFA_TRACE( "Get JSON value for field " << fieldName );
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
-        auto                self = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
-        FieldRequest field;
+        FieldRequest        field;
+        field.set_class_keyword( objectHandle->classKeywordDynamic() );
+        field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
-        field.set_allocated_self_object( self.release() );
         field.set_index( addressOffset );
 
         GenericScalar reply;
@@ -449,17 +447,38 @@ public:
         return jsonValue;
     }
 
+    void set( const caffa::ObjectHandle* objectHandle, const std::string& setter, const uint64_t& value )
+    {
+        grpc::ClientContext context;
+
+        auto field = std::make_unique<FieldRequest>();
+        field->set_class_keyword( objectHandle->classKeywordDynamic() );
+        field->set_uuid( objectHandle->uuid() );
+        field->set_keyword( setter );
+
+        SetterRequestUInt64 setterRequest;
+        setterRequest.set_allocated_field( field.release() );
+        setterRequest.set_value( value );
+
+        NullMessage reply;
+        auto        status = m_fieldStub->SetUInt64Value( &context, setterRequest, &reply );
+
+        if ( !status.ok() )
+        {
+            throw Exception( status );
+        }
+    }
+
     bool set( const caffa::ObjectHandle* objectHandle, const std::string& setter, const std::vector<int>& values )
     {
         auto chunkSize = Application::instance()->packageByteSize();
 
         grpc::ClientContext context;
-        auto                self = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
+        field->set_class_keyword( objectHandle->classKeywordDynamic() );
+        field->set_uuid( objectHandle->uuid() );
         field->set_keyword( setter );
-        field->set_allocated_self_object( self.release() );
 
         auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
@@ -499,12 +518,11 @@ public:
         auto chunkSize = Application::instance()->packageByteSize();
 
         grpc::ClientContext context;
-        auto                self = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
+        field->set_class_keyword( objectHandle->classKeywordDynamic() );
+        field->set_uuid( objectHandle->uuid() );
         field->set_keyword( setter );
-        field->set_allocated_self_object( self.release() );
 
         auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
@@ -546,12 +564,11 @@ public:
 
         CAFFA_TRACE( "Sending " << values.size() << " double values from client" );
         grpc::ClientContext context;
-        auto                self = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
+        field->set_class_keyword( objectHandle->classKeywordDynamic() );
+        field->set_uuid( objectHandle->uuid() );
         field->set_keyword( setter );
-        field->set_allocated_self_object( self.release() );
 
         auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
@@ -592,12 +609,11 @@ public:
         auto chunkSize = Application::instance()->packageByteSize();
 
         grpc::ClientContext context;
-        auto                self = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
+        field->set_class_keyword( objectHandle->classKeywordDynamic() );
+        field->set_uuid( objectHandle->uuid() );
         field->set_keyword( setter );
-        field->set_allocated_self_object( self.release() );
 
         auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
@@ -636,12 +652,11 @@ public:
     bool set( const caffa::ObjectHandle* objectHandle, const std::string& setter, const std::vector<std::string>& values )
     {
         grpc::ClientContext context;
-        auto                self = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
         auto field = std::make_unique<FieldRequest>();
+        field->set_class_keyword( objectHandle->classKeywordDynamic() );
+        field->set_uuid( objectHandle->uuid() );
         field->set_keyword( setter );
-        field->set_allocated_self_object( self.release() );
 
         auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
@@ -672,11 +687,10 @@ public:
     std::vector<int> getInts( const caffa::ObjectHandle* objectHandle, const std::string& getter ) const
     {
         grpc::ClientContext context;
-        auto                self = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
-        FieldRequest field;
+        FieldRequest        field;
+        field.set_class_keyword( objectHandle->classKeywordDynamic() );
+        field.set_uuid( objectHandle->uuid() );
         field.set_keyword( getter );
-        field.set_allocated_self_object( self.release() );
 
         std::vector<int> values;
 
@@ -698,11 +712,10 @@ public:
     std::vector<uint64_t> getUInt64s( const caffa::ObjectHandle* objectHandle, const std::string& getter ) const
     {
         grpc::ClientContext context;
-        auto                self = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
-        FieldRequest field;
+        FieldRequest        field;
+        field.set_class_keyword( objectHandle->classKeywordDynamic() );
+        field.set_uuid( objectHandle->uuid() );
         field.set_keyword( getter );
-        field.set_allocated_self_object( self.release() );
 
         std::vector<uint64_t> values;
 
@@ -725,11 +738,10 @@ public:
     std::vector<double> getDoubles( const caffa::ObjectHandle* objectHandle, const std::string& getter ) const
     {
         grpc::ClientContext context;
-        auto                self = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
-        FieldRequest field;
+        FieldRequest        field;
+        field.set_class_keyword( objectHandle->classKeywordDynamic() );
+        field.set_uuid( objectHandle->uuid() );
         field.set_keyword( getter );
-        field.set_allocated_self_object( self.release() );
 
         std::vector<double> values;
 
@@ -752,11 +764,11 @@ public:
     std::vector<float> getFloats( const caffa::ObjectHandle* objectHandle, const std::string& getter ) const
     {
         grpc::ClientContext context;
-        auto                self = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
+
         FieldRequest field;
+        field.set_class_keyword( objectHandle->classKeywordDynamic() );
+        field.set_uuid( objectHandle->uuid() );
         field.set_keyword( getter );
-        field.set_allocated_self_object( self.release() );
 
         std::vector<float> values;
 
@@ -785,11 +797,11 @@ public:
     std::vector<std::string> getStrings( const caffa::ObjectHandle* objectHandle, const std::string& getter ) const
     {
         grpc::ClientContext context;
-        auto                self = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
+
         FieldRequest field;
+        field.set_class_keyword( objectHandle->classKeywordDynamic() );
+        field.set_uuid( objectHandle->uuid() );
         field.set_keyword( getter );
-        field.set_allocated_self_object( self.release() );
 
         std::vector<std::string> values;
 
@@ -913,6 +925,18 @@ nlohmann::json
 {
     CAFFA_ASSERT( m_clientImpl && "Client not properly initialized" );
     return m_clientImpl->getJson( objectHandle, fieldName, addressOffset );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <>
+void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
+                              const std::string&         fieldName,
+                              const uint64_t&            value,
+                              uint32_t                   addressOffset )
+{
+    m_clientImpl->set( objectHandle, fieldName, value );
 }
 
 //--------------------------------------------------------------------------------------------------
