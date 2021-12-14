@@ -11,5 +11,7 @@ public:
     Child();
     ~Child();
 
+    std::string classKeywordDynamic() const override { return "Child"; }
+
     caffa::ChildField<TestObj*> m_testObj;
 };

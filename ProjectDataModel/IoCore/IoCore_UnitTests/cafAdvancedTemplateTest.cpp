@@ -33,6 +33,8 @@ public:
 
     ~ItemObject() {}
 
+    std::string classKeywordDynamic() const override { return classKeyword(); }
+
     // Fields
     caffa::DataValueField<std::string> m_name;
 };
@@ -55,6 +57,9 @@ public:
     }
 
     ~ContainerObject() {}
+    
+    std::string classKeywordDynamic() const override { return classKeyword(); }
+
 
     // Fields
     caffa::ChildArrayField<ItemObject*>      m_items;
@@ -101,6 +106,8 @@ public:
         std::cout << "doubleMember" << std::endl;
         return m_doubleMember;
     }
+    std::string classKeywordDynamic() const override { return classKeyword(); }
+
     double m_doubleMember;
 };
 

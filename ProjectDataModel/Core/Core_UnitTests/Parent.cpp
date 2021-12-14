@@ -17,6 +17,11 @@ void Parent::doSome()
     }
 }
 
+std::string Parent::classKeywordDynamic() const
+{
+    return "Parent";
+}
+
 #include "gtest.h"
 
 TEST( IncludeTest, Basic )
