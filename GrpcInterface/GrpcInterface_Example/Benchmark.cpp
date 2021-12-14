@@ -61,7 +61,7 @@ public:
 int main( int argc, char** argv )
 {
     std::string hostname   = argc >= 2 ? argv[1] : "localhost";
-    int         portNumber = argc >= 3 ? std::atoi( argv[2] ) : 55555;
+    int         portNumber = argc >= 3 ? std::atoi( argv[2] ) : 50000;
 
     auto clientApp = std::make_unique<ClientApp>( hostname, portNumber );
     std::cout << "Launching Client connecting to " << hostname << ":" << portNumber << std::endl;

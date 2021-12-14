@@ -30,7 +30,7 @@ class ServerImpl;
 class Server
 {
 public:
-    Server( int port = 55555 );
+    Server( int port = 50000 );
     ~Server();
 
     void run();
