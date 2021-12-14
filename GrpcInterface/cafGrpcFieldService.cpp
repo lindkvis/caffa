@@ -805,9 +805,10 @@ grpc::Status FieldService::GetArrayValue( grpc::ServerContext*        context,
 grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRequest* request, GenericScalar* reply )
 {
     CAFFA_ASSERT( request != nullptr );
+    CAFFA_TRACE( "GetValue for field: " << request->keyword() << ", " << request->class_keyword() << ", " << request->uuid() );
+
     auto fieldOwner = ObjectService::ObjectService::findCafObjectFromFieldRequest( *request );
     CAFFA_ASSERT( fieldOwner );
-    CAFFA_TRACE( "GetValue for field: " << request->keyword() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
 
     auto [field, isScriptable] = fieldAndScriptableFromKeyword( fieldOwner, request->keyword() );
