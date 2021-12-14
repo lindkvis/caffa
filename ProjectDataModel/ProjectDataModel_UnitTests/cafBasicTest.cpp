@@ -210,6 +210,9 @@ TEST( BaseTest, NormalField )
             this->addField( &field2, "field2" );
             this->addField( &field3, "field3" );
         }
+        
+        std::string classKeywordDynamic() const override { return "ObjectWithVectors"; }
+
 
         caffa::Field<std::vector<double>> field1;
         caffa::Field<std::vector<double>> field2;

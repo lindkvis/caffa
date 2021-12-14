@@ -48,6 +48,8 @@ public:
 
     ~DemoObject() {}
 
+    std::string classKeywordDynamic() const override { return "DemoObject"; }
+
     // Fields
 
     caffa::DataValueField<double>                       m_proxyDoubleField;
@@ -176,6 +178,7 @@ public:
         std::cout << "doubleMember" << std::endl;
         return m_doubleMember;
     }
+    std::string classKeywordDynamic() const override { return classKeyword(); }
 
     double m_doubleMember;
 };
@@ -193,6 +196,8 @@ public:
         CAFFA_IO_InitField( &m_pointersField, "SimpleObjPtrField" );
         CAFFA_IO_InitField( &m_simpleObjPtrField2, "SimpleObjPtrField2" );
     }
+    
+    std::string classKeywordDynamic() const override { return classKeyword(); }
 
     // Fields
     caffa::ChildField<ObjectHandle*>   m_pointersField;

@@ -12,7 +12,7 @@ public:
     Parent();
 
     void doSome();
-
+    std::string classKeywordDynamic() const override { return "Parent"; }
     caffa::ChildArrayField<Child*> m_simpleObjectsField;
     caffa::ChildField<Child*>      m_simpleObjectF;
 };

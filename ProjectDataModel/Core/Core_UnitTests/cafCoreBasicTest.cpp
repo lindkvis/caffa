@@ -78,6 +78,11 @@ public:
     std::string stringMember() const { return m_stringMember; }
     void        setStringMember( const std::string& val ) { m_stringMember = val; }
 
+    std::string classKeywordDynamic() const override
+    {
+        return "DemoObject";
+    }
+    
 private:
     double      m_doubleMember;
     int         m_intMember;
@@ -214,6 +219,8 @@ TEST( BaseTest, NormalField )
             this->addField( &field2, "field2" );
             this->addField( &field3, "field3" );
         }
+
+        std::string classKeywordDynamic() const override { return "A"; }
 
         caffa::DataValueField<std::vector<double>> field1;
         caffa::DataValueField<std::vector<double>> field2;
@@ -439,6 +446,8 @@ TEST( BaseTest, ChildField )
 
         caffa::ChildField<Child*> field2;
         int                       b;
+        
+        std::string classKeywordDynamic() const override { return "A"; }
     };
 
     {

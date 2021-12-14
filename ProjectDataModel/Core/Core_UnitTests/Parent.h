@@ -12,6 +12,8 @@ public:
     Parent();
 
     void doSome();
+    
+    std::string classKeywordDynamic() const override;
 
     caffa::ChildArrayField<Child*> m_simpleObjectsField;
     caffa::ChildField<Child*>      m_simpleObjectF;

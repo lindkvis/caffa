@@ -28,6 +28,8 @@ public:
 
     caffa::DataValueField<std::string> name;
     caffa::DataValueField<int>         id;
+    
+    std::string classKeywordDynamic() const override { return "SimpleObj"; }
 };
 
 class SimpleObjDerived : public MsjSimpleObj
@@ -65,6 +67,8 @@ public:
     }
 
     ~ContainerObj() {}
+
+    std::string classKeywordDynamic() const override { return "ContainerObj"; }
 
     caffa::ChildArrayField<SimpleObjDerived*>      derivedObjs;
     caffa::ChildArrayField<SimpleObjDerivedOther*> derivedOtherObjs;
