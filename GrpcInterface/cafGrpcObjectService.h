@@ -45,6 +45,7 @@ class ValueField;
 
 namespace caffa::rpc
 {
+class FieldRequest;
 class MethodRequest;
 class NullMessage;
 
@@ -63,6 +64,7 @@ public:
     grpc::Status ListMethods( grpc::ServerContext* context, const RpcObject* self, RpcObjectList* reply ) override;
 
     static caffa::Object* findCafObjectFromRpcObject( const RpcObject& rpcObject );
+    static caffa::Object* findCafObjectFromFieldRequest( const FieldRequest& fieldRequest );
     static caffa::Object* findCafObjectFromScriptNameAndUuid( const std::string& scriptClassName, const std::string& uuid );
 
     static void copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination );

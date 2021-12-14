@@ -141,6 +141,12 @@ public:
     ~Object() noexcept override;
 
     /**
+     * @brief Get the class keyword through polymorphism
+     * @return a class keyword string
+     */
+    std::string classKeywordDynamic() const override;
+
+    /**
      * InitUi sets up the user interface related information for the object
      * Placed in the constructor of your Object
      * Note that classKeyword() is not virtual in the constructor of the Object

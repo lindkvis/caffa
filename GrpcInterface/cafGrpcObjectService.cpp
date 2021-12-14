@@ -46,6 +46,8 @@
 #include "cafObject.h"
 #include "cafObjectMethod.h"
 
+#include "FieldService.pb.h"
+
 #include <grpcpp/grpcpp.h>
 
 #include <iostream>
@@ -155,6 +157,14 @@ caffa::Object* ObjectService::findCafObjectFromRpcObject( const RpcObject& rpcOb
     auto [classKeyword, uuid] =
         caffa::ObjectJsonSerializer( true ).readClassKeywordAndUUIDFromObjectString( rpcObject.json() );
     return findCafObjectFromScriptNameAndUuid( classKeyword, uuid );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caffa::Object* ObjectService::findCafObjectFromFieldRequest( const FieldRequest& fieldRequest )
+{
+    return findCafObjectFromScriptNameAndUuid( fieldRequest.class_keyword(), fieldRequest.uuid() );
 }
 
 //--------------------------------------------------------------------------------------------------
