@@ -53,7 +53,7 @@ DemoObject_copyObject::DemoObject_copyObject( caffa::ObjectHandle* self,
     initField( m_memberIntField, "intArgument" ).withScripting().withDefault( intValue );
     initField( m_memberStringField, "stringArgument" ).withScripting().withDefault( stringValue );
 }
-std::pair<bool, std::unique_ptr<caffa::ObjectHandle>> DemoObject_copyObject::execute()
+std::pair<bool, std::unique_ptr<caffa::ObjectMethodResult>> DemoObject_copyObject::execute()
 {
     CAFFA_DEBUG( "Executing object method on server with values: " << m_memberDoubleField() << ", " << m_memberIntField()
                                                                    << ", " << m_memberStringField() );
@@ -66,7 +66,7 @@ std::pair<bool, std::unique_ptr<caffa::ObjectHandle>> DemoObject_copyObject::exe
     demoObjectResult->status = true;
     return std::make_pair( true, std::move( demoObjectResult ) );
 }
-std::unique_ptr<caffa::ObjectHandle> DemoObject_copyObject::defaultResult() const
+std::unique_ptr<caffa::ObjectMethodResult> DemoObject_copyObject::defaultResult() const
 {
     return std::make_unique<DemoObject_copyObjectResult>();
 }

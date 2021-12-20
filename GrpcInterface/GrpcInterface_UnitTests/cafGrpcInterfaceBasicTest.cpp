@@ -137,7 +137,7 @@ private:
 
 CAFFA_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
 
-struct DemoObject_copyObjectResult : public caffa::Object
+struct DemoObject_copyObjectResult : public caffa::ObjectMethodResult
 {
     CAFFA_HEADER_INIT;
 
@@ -163,7 +163,7 @@ public:
         initField( m_intMember, "intMember" ).withScripting().withDefault( intValue );
         initField( m_stringMember, "stringMember" ).withScripting().withDefault( stringValue );
     }
-    std::pair<bool, std::unique_ptr<caffa::ObjectHandle>> execute() override
+    std::pair<bool, std::unique_ptr<caffa::ObjectMethodResult>> execute() override
     {
         CAFFA_DEBUG( "Executing object method on server with values: " << m_doubleMember() << ", " << m_intMember()
                                                                        << ", " << m_stringMember() );
@@ -176,7 +176,7 @@ public:
         demoObjectResult->status = true;
         return std::make_pair( true, std::move( demoObjectResult ) );
     }
-    std::unique_ptr<ObjectHandle> defaultResult() const override
+    std::unique_ptr<caffa::ObjectMethodResult> defaultResult() const override
     {
         return std::make_unique<DemoObject_copyObjectResult>();
     }

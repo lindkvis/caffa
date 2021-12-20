@@ -38,7 +38,17 @@
 
 using namespace caffa;
 
+CAFFA_IO_ABSTRACT_SOURCE_INIT(ObjectMethodResult, "ObjectMethodResult", "Object");
+
 CAFFA_IO_ABSTRACT_SOURCE_INIT( ObjectMethod, "ObjectMethod", "Object" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+ObjectMethodResult::ObjectMethodResult(const std::string& errMsg)
+{
+    initField(errorMessage, "error_message").withDefault(errMsg);
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

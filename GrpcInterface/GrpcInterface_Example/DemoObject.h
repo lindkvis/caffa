@@ -90,7 +90,7 @@ public:
     void              setBoolVector( const std::vector<bool>& values ) { m_boolVector = values; }
 };
 
-struct DemoObject_copyObjectResult : public caffa::Object
+struct DemoObject_copyObjectResult : public caffa::ObjectMethodResult
 {
     CAFFA_HEADER_INIT;
 
@@ -108,8 +108,8 @@ public:
                            double               doubleValue = -123.0,
                            int                  intValue    = 42,
                            const std::string&   stringValue = "SomeValue" );
-    std::pair<bool, std::unique_ptr<caffa::ObjectHandle>> execute() override;
-    std::unique_ptr<ObjectHandle>                         defaultResult() const override;
+    std::pair<bool, std::unique_ptr<caffa::ObjectMethodResult>> execute() override;
+    std::unique_ptr<caffa::ObjectMethodResult>                  defaultResult() const override;
 
 private:
     caffa::Field<double>      m_memberDoubleField;

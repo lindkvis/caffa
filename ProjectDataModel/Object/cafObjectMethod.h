@@ -52,6 +52,20 @@
 namespace caffa
 {
 //==================================================================================================
+/// Object script method result
+///
+//==================================================================================================
+class ObjectMethodResult : public Object
+{
+    CAFFA_HEADER_INIT;
+    
+public:
+    ObjectMethodResult(const std::string& errMsg = "");
+    
+    Field<std::string> errorMessage;
+};
+
+//==================================================================================================
 /// Object script method
 /// Sub-class and register to the Object to assign methods to a Object that is accessible from
 /// ... scripting engines such as Python.
@@ -66,10 +80,10 @@ public:
     ObjectMethod( ObjectHandle* self );
 
     // The returned object contains the results of the method and is the responsibility of the caller.
-    virtual std::pair<bool, std::unique_ptr<ObjectHandle>> execute() = 0;
+    virtual std::pair<bool, std::unique_ptr<ObjectMethodResult>> execute() = 0;
 
     // A default created result object used as a pattern for clients
-    virtual std::unique_ptr<ObjectHandle> defaultResult() const = 0;
+    virtual std::unique_ptr<ObjectMethodResult> defaultResult() const = 0;
 
     // Basically the "this" pointer to the object the method belongs to
     template <typename ObjectType>
