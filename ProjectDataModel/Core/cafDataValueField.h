@@ -85,7 +85,6 @@ public:
 
     DataValueField& operator=( const DataValueField& other )
     {
-        CAFFA_ASSERT( this->isInitializedByInitFieldMacro() );
         m_fieldDataAccessor = std::move( other.m_fieldDataAccessor->clone() );
         return *this;
     }
