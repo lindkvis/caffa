@@ -18,6 +18,11 @@
 //
 #include "cafGrpcApplication.h"
 
+#include "cafLogger.h"
+
+#include <fstream>
+#include <sstream>
+
 using namespace caffa::rpc;
 
 Application::Application( const unsigned int& capabilities )
@@ -46,4 +51,16 @@ size_t Application::packageByteSize() const
 void Application::setPackageByteSize(size_t packageByteSize) 
 {
     m_packageByteSize = packageByteSize;
+}
+
+std::string Application::read_keycert( const std::string& path )
+{
+    std::ifstream     stream( path );
+    if (!stream.good())
+    {
+        CAFFA_CRITICAL("Failed to open file: " << path);
+    }
+    std::stringstream buffer;
+    buffer << stream.rdbuf();
+    return buffer.str();
 }

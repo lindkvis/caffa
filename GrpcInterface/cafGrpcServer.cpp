@@ -35,6 +35,7 @@
 
 #include "cafGrpcServer.h"
 
+#include "cafGrpcApplication.h"
 #include "cafGrpcCallbacks.h"
 #include "cafGrpcServiceInterface.h"
 
@@ -45,6 +46,8 @@
 #include <grpcpp/grpcpp.h>
 
 #include <condition_variable>
+#include <fstream>
+#include <sstream>
 #include <thread>
 
 using grpc::CompletionQueue;
@@ -67,8 +70,12 @@ namespace caffa::rpc
 class ServerImpl
 {
 public:
-    ServerImpl( int portNumber )
+    ServerImpl( int                portNumber /* = 50000 */,
+                const std::string& serverCertFile /* = ""*/,
+                const std::string& serverKeyFile /* = ""*/ )
         : m_portNumber( portNumber )
+        , m_serverCertFile( serverCertFile )
+        , m_serverKeyFile( serverKeyFile )
         , m_receivedQuitRequest( false )
     {
     }
@@ -131,7 +138,30 @@ public:
         CAFFA_DEBUG( "Initialising new server with address: " << serverAddress );
 
         ServerBuilder builder;
-        builder.AddListeningPort( serverAddress, grpc::InsecureServerCredentials() );
+        if ( !m_serverKeyFile.empty() && !m_serverCertFile.empty() )
+        {
+            CAFFA_DEBUG("Trying to use server cert: " << m_serverCertFile << " and key: " << m_serverKeyFile);
+            
+            std::string servercert = caffa::rpc::Application::read_keycert( m_serverCertFile );
+            std::string serverkey  = caffa::rpc::Application::read_keycert( m_serverKeyFile );
+            
+            grpc::SslServerCredentialsOptions::PemKeyCertPair pkcp;
+            pkcp.private_key = serverkey;
+            pkcp.cert_chain  = servercert;
+
+            grpc::SslServerCredentialsOptions ssl_opts;
+            ssl_opts.pem_root_certs = "";
+            ssl_opts.pem_key_cert_pairs.push_back( pkcp );
+
+            std::shared_ptr<grpc::ServerCredentials> creds;
+            creds = grpc::SslServerCredentials( ssl_opts );
+
+            builder.AddListeningPort( serverAddress, creds );
+        }
+        else
+        {
+            builder.AddListeningPort( serverAddress, grpc::InsecureServerCredentials() );
+        }
 
         for ( auto key : ServiceFactory::instance()->allKeys() )
         {
@@ -229,7 +259,10 @@ private:
     }
 
 private:
-    int                                          m_portNumber;
+    int         m_portNumber;
+    std::string m_serverCertFile;
+    std::string m_serverKeyFile;
+
     std::unique_ptr<grpc::ServerCompletionQueue> m_completionQueue;
     std::unique_ptr<grpc::Server>                m_server;
     std::list<std::shared_ptr<ServiceInterface>> m_services;
@@ -242,9 +275,11 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Server::Server( int portNumber )
+Server::Server( int                portNumber /* = 50000 */,
+                const std::string& serverCertFile /* = ""*/,
+                const std::string& serverKeyFile /* = ""*/ )
 {
-    m_serverImpl = new ServerImpl( portNumber );
+    m_serverImpl = new ServerImpl( portNumber, serverCertFile, serverKeyFile );
 }
 
 //--------------------------------------------------------------------------------------------------

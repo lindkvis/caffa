@@ -28,7 +28,13 @@ namespace caffa::rpc
 class ServerApplication : public Application
 {
 public:
-    ServerApplication( int portNumber );
+    /**
+     * Constructor. Provide a path to a serverCertFile and serverKeyFile to enable SSL/TLS
+     * @param port Port number
+     * @param serverCertFile File path to a server certificate
+     * @param serverKeyFile File path to a server private key
+     */
+    ServerApplication( int portNumber, const std::string& serverCertFile = "", const std::string& serverKeyFile = "" );
     static ServerApplication* instance();
 
     int  portNumber() const;
