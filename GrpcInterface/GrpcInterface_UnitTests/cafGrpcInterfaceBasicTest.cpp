@@ -1,7 +1,9 @@
 
 #include "gtest.h"
 
+#include "DemoObject.h"
 #include "Parent.h"
+#include "ServerApp.h"
 
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
@@ -12,8 +14,6 @@
 #include "cafFieldScriptingCapability.h"
 #include "cafGrpcClient.h"
 #include "cafGrpcClientObjectFactory.h"
-#include "cafGrpcServer.h"
-#include "cafGrpcServerApplication.h"
 #include "cafLogger.h"
 #include "cafObjectHandle.h"
 #include "cafObjectJsonSerializer.h"
@@ -26,328 +26,9 @@
 #include <thread>
 #include <vector>
 
-class DemoObject : public caffa::Object
-{
-    CAFFA_HEADER_INIT;
-
-public:
-    DemoObject()
-        : m_proxyDoubleValue( 2.1 )
-        , m_proxyIntValue( 7 )
-        , m_proxyStringValue( "abba" )
-    {
-        initField( m_proxyDoubleField, "proxyDoubleField" ).withScripting();
-        initField( m_proxyIntField, "proxyIntField" ).withScripting();
-        initField( m_proxyStringField, "proxyStringField" ).withScripting();
-
-        auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
-        doubleProxyAccessor->registerSetMethod( this, &DemoObject::setDoubleProxy );
-        doubleProxyAccessor->registerGetMethod( this, &DemoObject::getDoubleProxy );
-        m_proxyDoubleField.setAccessor( std::move( doubleProxyAccessor ) );
-
-        auto intProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<int>>();
-        intProxyAccessor->registerSetMethod( this, &DemoObject::setIntProxy );
-        intProxyAccessor->registerGetMethod( this, &DemoObject::getIntProxy );
-        m_proxyIntField.setAccessor( std::move( intProxyAccessor ) );
-
-        auto stringProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::string>>();
-        stringProxyAccessor->registerSetMethod( this, &DemoObject::setStringProxy );
-        stringProxyAccessor->registerGetMethod( this, &DemoObject::getStringProxy );
-        m_proxyStringField.setAccessor( std::move( stringProxyAccessor ) );
-
-        initField( doubleVector, "doubleVector" ).withScripting();
-        initField( floatVector, "floatVector" ).withScripting();
-        initField( intVector, "proxyIntVector" ).withScripting();
-        initField( stringVector, "proxyStringVector" ).withScripting();
-
-        auto intVectorProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::vector<int>>>();
-        intVectorProxyAccessor->registerSetMethod( this, &DemoObject::setIntVectorProxy );
-        intVectorProxyAccessor->registerGetMethod( this, &DemoObject::getIntVectorProxy );
-        intVector.setAccessor( std::move( intVectorProxyAccessor ) );
-
-        auto stringVectorProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::vector<std::string>>>();
-        stringVectorProxyAccessor->registerSetMethod( this, &DemoObject::setStringVectorProxy );
-        stringVectorProxyAccessor->registerGetMethod( this, &DemoObject::getStringVectorProxy );
-        stringVector.setAccessor( std::move( stringVectorProxyAccessor ) );
-
-        initField( doubleField, "memberDoubleField" ).withScripting().withDefault( 0.0 );
-        initField( intField, "memberIntField" ).withScripting().withDefault( 0 );
-        initField( stringField, "memberStringField" ).withScripting().withDefault( "" );
-        initField( intFieldNonScriptable, "memberIntFieldNonScriptable" ).withDefault( -1 );
-
-        initField( boolField, "memberBoolField" ).withScripting();
-        initField( boolVector, "memberVectorBoolField" ).withScripting();
-    }
-
-    ~DemoObject() override {}
-
-    // Fields
-    caffa::Field<double>      m_proxyDoubleField;
-    caffa::Field<int>         m_proxyIntField;
-    caffa::Field<std::string> m_proxyStringField;
-
-    caffa::Field<double>      doubleField;
-    caffa::Field<int>         intField;
-    caffa::Field<int>         intFieldNonScriptable;
-    caffa::Field<std::string> stringField;
-
-    caffa::Field<bool>              boolField;
-    caffa::Field<std::vector<bool>> boolVector;
-
-    caffa::Field<std::vector<int>>         intVector;
-    caffa::Field<std::vector<std::string>> stringVector;
-
-    caffa::Field<std::vector<double>> doubleVector;
-    caffa::Field<std::vector<float>>  floatVector;
-
-private:
-    // These are proxy getter/setters and should never be called from client, thus are private
-    double getDoubleProxy() const { return m_proxyDoubleValue; }
-    void   setDoubleProxy( const double& d ) { m_proxyDoubleValue = d; }
-
-    int  getIntProxy() const { return m_proxyIntValue; }
-    void setIntProxy( const int& val ) { m_proxyIntValue = val; }
-
-    std::string getStringProxy() const { return m_proxyStringValue; }
-    void        setStringProxy( const std::string& val ) { m_proxyStringValue = val; }
-
-    std::vector<int> getIntVectorProxy() const { return m_proxyIntVector; }
-    void             setIntVectorProxy( const std::vector<int>& values ) { m_proxyIntVector = values; }
-
-    std::vector<std::string> getStringVectorProxy() const { return m_proxyStringVector; }
-    void setStringVectorProxy( const std::vector<std::string>& values ) { m_proxyStringVector = values; }
-
-    double      m_proxyDoubleValue;
-    int         m_proxyIntValue;
-    std::string m_proxyStringValue;
-
-    std::vector<int>         m_proxyIntVector;
-    std::vector<std::string> m_proxyStringVector;
-};
-
-CAFFA_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
-
-struct DemoObject_copyObjectResult : public caffa::ObjectMethodResult
-{
-    CAFFA_HEADER_INIT;
-
-    DemoObject_copyObjectResult() { initField( status, "status" ).withDefault( false ); }
-
-    caffa::Field<bool> status;
-};
-
-CAFFA_SOURCE_INIT( DemoObject_copyObjectResult, "DemoObject_copyObjectResult", "Object" );
-
-class DemoObject_copyObject : public caffa::ObjectMethod
-{
-    CAFFA_HEADER_INIT;
-
-public:
-    DemoObject_copyObject( caffa::ObjectHandle*      self,
-                           double                    doubleValue = -123.0,
-                           int                       intValue    = 42,
-                           const std::string&        stringValue = "SomeValue",
-                           const std::vector<bool>&  boolVector  = {},
-                           const std::vector<int>&   intVector   = {},
-                           const std::vector<float>& floatVector = {} )
-        : caffa::ObjectMethod( self )
-    {
-        initField( m_doubleField, "doubleField" ).withDefault( doubleValue );
-        initField( m_intField, "intField" ).withDefault( intValue );
-        initField( m_stringField, "stringField" ).withDefault( stringValue );
-
-        initField( m_boolVector, "boolVector" ).withDefault( boolVector );
-        initField( m_intVector, "intVector" ).withDefault( intVector );
-        initField( m_floatVector, "floatVector" ).withDefault( floatVector );
-    }
-    std::pair<bool, std::unique_ptr<caffa::ObjectMethodResult>> execute() override
-    {
-        CAFFA_DEBUG( "Executing object method on server with values: " << m_doubleField() << ", " << m_intField()
-                                                                       << ", " << m_stringField() );
-        gsl::not_null<DemoObject*> demoObject = self<DemoObject>();
-        demoObject->doubleField               = m_doubleField;
-        demoObject->intField                  = m_intField;
-        demoObject->stringField               = m_stringField;
-        demoObject->intVector                 = m_intVector;
-        demoObject->boolVector                = m_boolVector;
-        demoObject->floatVector               = m_floatVector;
-
-        auto demoObjectResult    = std::make_unique<DemoObject_copyObjectResult>();
-        demoObjectResult->status = true;
-        return std::make_pair( true, std::move( demoObjectResult ) );
-    }
-    std::unique_ptr<caffa::ObjectMethodResult> defaultResult() const override
-    {
-        return std::make_unique<DemoObject_copyObjectResult>();
-    }
-
-public:
-    caffa::Field<double>      m_doubleField;
-    caffa::Field<int>         m_intField;
-    caffa::Field<std::string> m_stringField;
-
-    caffa::Field<std::vector<bool>>  m_boolVector;
-    caffa::Field<std::vector<int>>   m_intVector;
-    caffa::Field<std::vector<float>> m_floatVector;
-};
-
-CAFFA_OBJECT_METHOD_SOURCE_INIT( DemoObject, DemoObject_copyObject, "DemoObject_copyObject" );
-
-class InheritedDemoObj : public DemoObject
-{
-    CAFFA_HEADER_INIT;
-
-public:
-    InheritedDemoObj()
-    {
-        initField( m_texts, "Texts" ).withScripting();
-        initField( m_childArrayField, "DemoObjectects" ).withScripting();
-    }
-
-    caffa::Field<std::string>           m_texts;
-    caffa::ChildArrayField<DemoObject*> m_childArrayField;
-};
-
-CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject", "DemoObject" );
-
-class DemoDocument : public caffa::Document
-{
-    CAFFA_HEADER_INIT;
-
-public:
-    DemoDocument()
-    {
-        initField( m_demoObject, "DemoObject" ).withScripting();
-        initField( m_inheritedDemoObjects, "InheritedDemoObjects" ).withScripting();
-        m_demoObject = std::make_unique<DemoObject>();
-
-        this->setId( "testDocument" );
-        this->setFileName( "dummyFileName" );
-    }
-
-    void addInheritedObject( std::unique_ptr<InheritedDemoObj> object )
-    {
-        m_inheritedDemoObjects.push_back( std::move( object ) );
-    }
-    std::vector<InheritedDemoObj*> inheritedObjects() const { return m_inheritedDemoObjects.value(); }
-
-    caffa::ChildField<DemoObject*>            m_demoObject;
-    caffa::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
-};
-
-CAFFA_SOURCE_INIT( DemoDocument, "DemoDocument", "Document", "Object" );
-
-class DemoDocumentWithNonScriptableMember : public caffa::Document
-{
-    CAFFA_HEADER_INIT;
-
-public:
-    DemoDocumentWithNonScriptableMember()
-    {
-        initField( m_demoObject, "DemoObject" ).withScripting();
-        initField( m_demoObjectNonScriptable, "DemoObjectNonScriptable" );
-        initField( m_inheritedDemoObjects, "InheritedDemoObjects" ).withScripting();
-        m_demoObject              = std::make_unique<DemoObject>();
-        m_demoObjectNonScriptable = std::make_unique<DemoObject>();
-
-        this->setId( "testDocument2" );
-        this->setFileName( "dummyFileName2" );
-    }
-
-    void addInheritedObject( std::unique_ptr<InheritedDemoObj> object )
-    {
-        m_inheritedDemoObjects.push_back( std::move( object ) );
-    }
-    std::vector<InheritedDemoObj*> inheritedObjects() const { return m_inheritedDemoObjects.value(); }
-
-    caffa::ChildField<DemoObject*>            m_demoObject;
-    caffa::ChildField<DemoObject*>            m_demoObjectNonScriptable;
-    caffa::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
-};
-
-CAFFA_SOURCE_INIT( DemoDocumentWithNonScriptableMember, "DemoDocumentNonScriptableMember", "Document", "Object" );
-
-class ServerApp : public caffa::rpc::ServerApplication
-{
-public:
-    ServerApp( int port )
-        : caffa::rpc::ServerApplication( port )
-        , m_demoDocument( std::make_unique<DemoDocument>() )
-        , m_demoDocumentWithNonScriptableMember( std::make_unique<DemoDocumentWithNonScriptableMember>() )
-    {
-    }
-    //--------------------------------------------------------------------------------------------------
-    ///
-    //--------------------------------------------------------------------------------------------------
-    std::string name() const override { return "ServerTest"; }
-
-    //--------------------------------------------------------------------------------------------------
-    ///
-    //--------------------------------------------------------------------------------------------------
-    int majorVersion() const override { return 1; }
-
-    //--------------------------------------------------------------------------------------------------
-    ///
-    //--------------------------------------------------------------------------------------------------
-    int minorVersion() const override { return 0; }
-
-    //--------------------------------------------------------------------------------------------------
-    ///
-    //--------------------------------------------------------------------------------------------------
-    int patchVersion() const override { return 0; }
-
-    caffa::Document* document( const std::string& documentId ) override
-    {
-        CAFFA_TRACE( "Looking for " << documentId );
-        for ( auto document : documents() )
-        {
-            CAFFA_TRACE( "Found document: " << document->id() );
-            if ( documentId.empty() || documentId == document->id() )
-            {
-                CAFFA_TRACE( "Match!!" );
-                return document;
-            }
-        }
-        return nullptr;
-    }
-    const caffa::Document* document( const std::string& documentId ) const override
-    {
-        CAFFA_TRACE( "Looking for " << documentId );
-        for ( auto document : documents() )
-        {
-            CAFFA_TRACE( "Found document: " << document->id() );
-            if ( documentId.empty() || documentId == document->id() )
-            {
-                CAFFA_TRACE( "Match!!" );
-                return document;
-            }
-        }
-        return nullptr;
-    }
-    std::list<caffa::Document*> documents() override
-    {
-        return { m_demoDocument.get(), m_demoDocumentWithNonScriptableMember.get() };
-    }
-    std::list<const caffa::Document*> documents() const override
-    {
-        return { m_demoDocument.get(), m_demoDocumentWithNonScriptableMember.get() };
-    }
-
-    void resetToDefaultData() override { m_demoDocument = std::make_unique<DemoDocument>(); }
-
-private:
-    void onStartup() override { CAFFA_DEBUG( "Starting Server" ); }
-    void onShutdown() override { CAFFA_DEBUG( "Shutting down Server" ); }
-
-private:
-    std::unique_ptr<DemoDocument>                        m_demoDocument;
-    std::unique_ptr<DemoDocumentWithNonScriptableMember> m_demoDocumentWithNonScriptableMember;
-};
-
 TEST( BaseTest, Launch )
 {
-    int  portNumber = 50000;
-    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -358,7 +39,7 @@ TEST( BaseTest, Launch )
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
     {
-        auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+        auto client = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
 
         // caffa::AppInfo appInfo = client->appInfo();
         // ASSERT_EQ( serverApp->name(), appInfo.name );
@@ -379,8 +60,7 @@ TEST( BaseTest, Launch )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, Document )
 {
-    int  portNumber = 50000;
-    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -392,7 +72,7 @@ TEST( BaseTest, Document )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
     CAFFA_INFO( "Expect failure to get document with the wrong document ID. Next line should be an error." );
     auto nonExistentDocument = dynamic_cast<DemoDocument*>( serverApp->document( "wrongName" ) );
     ASSERT_TRUE( nonExistentDocument == nullptr );
@@ -485,8 +165,7 @@ TEST( BaseTest, Document )
 
 TEST( BaseTest, DocumentWithNonScriptableChild )
 {
-    int  portNumber = 50000;
-    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -498,7 +177,7 @@ TEST( BaseTest, DocumentWithNonScriptableChild )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
-    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
     auto serverDocument = dynamic_cast<DemoDocumentWithNonScriptableMember*>( serverApp->document( "testDocument2" ) );
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
@@ -562,8 +241,7 @@ TEST( BaseTest, DocumentWithNonScriptableChild )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, Sync )
 {
-    int  portNumber = 50000;
-    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -573,7 +251,7 @@ TEST( BaseTest, Sync )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
 
@@ -606,8 +284,7 @@ TEST( BaseTest, Sync )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ObjectMethod )
 {
-    int  portNumber = 50000;
-    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -617,7 +294,7 @@ TEST( BaseTest, ObjectMethod )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
 
@@ -690,8 +367,7 @@ TEST( BaseTest, ObjectMethod )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ObjectIntGetterAndSetter )
 {
-    int  portNumber = 50000;
-    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -701,7 +377,7 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
@@ -740,8 +416,7 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ObjectDoubleGetterAndSetter )
 {
-    int  portNumber = 50000;
-    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -751,7 +426,7 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
@@ -793,8 +468,7 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ObjectIntegratedGettersAndSetters )
 {
-    int  portNumber = 50000;
-    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -804,7 +478,7 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
@@ -854,8 +528,7 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, BoolVectorGettersAndSetters )
 {
-    int  portNumber = 50000;
-    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -865,7 +538,7 @@ TEST( BaseTest, BoolVectorGettersAndSetters )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
@@ -904,8 +577,7 @@ TEST( BaseTest, BoolVectorGettersAndSetters )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ChildObjects )
 {
-    int  portNumber = 50000;
-    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -915,7 +587,7 @@ TEST( BaseTest, ChildObjects )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
@@ -993,8 +665,7 @@ TEST( BaseTest, ChildObjects )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, LocalResponseTimeAndDataTransfer )
 {
-    int  portNumber = 50000;
-    auto serverApp  = std::make_unique<ServerApp>( portNumber );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -1005,7 +676,7 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
     {
-        auto client = std::make_unique<caffa::rpc::Client>( "localhost", portNumber );
+        auto client = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile);
 
         auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
         ASSERT_TRUE( serverDocument );

@@ -30,7 +30,13 @@ class ServerImpl;
 class Server
 {
 public:
-    Server( int port = 50000 );
+    /**
+     * Constructor. Provide a path to a serverCertFile and serverKeyFile to enable SSL/TLS
+     * @param port Port number (default 50000)
+     * @param serverCertFile File path to a server certificate
+     * @param serverKeyFile File path to a server private key
+     */
+    Server( int port = 50000, const std::string& serverCertFile = "", const std::string& serverKeyFile = "" );
     ~Server();
 
     void run();

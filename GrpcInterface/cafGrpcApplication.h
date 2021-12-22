@@ -35,6 +35,8 @@ public:
     static Application* instance();
     size_t packageByteSize() const;
     void   setPackageByteSize(size_t packageByteSize);
+    
+    static std::string read_keycert( const std::string& path );
 
 private:
     size_t m_packageByteSize;

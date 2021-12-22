@@ -31,11 +31,13 @@ using namespace caffa::rpc;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ServerApplication::ServerApplication( int portNumber )
+ServerApplication::ServerApplication( int                portNumber,
+                                      const std::string& serverCertFile /* = ""*/,
+                                      const std::string& serverKeyFile /* = ""*/ )
     : Application( AppCapability::GRPC_SERVER )
 
 {
-    m_server = std::make_unique<caffa::rpc::Server>( portNumber );
+    m_server = std::make_unique<caffa::rpc::Server>( portNumber, serverCertFile, serverKeyFile );
 
     caffa::rpc::ServiceFactory::instance()->registerCreator<caffa::rpc::AppService>(
         typeid( caffa::rpc::AppService ).hash_code() );

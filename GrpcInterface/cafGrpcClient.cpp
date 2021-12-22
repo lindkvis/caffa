@@ -59,10 +59,23 @@ namespace caffa::rpc
 class ClientImpl
 {
 public:
-    ClientImpl( const std::string& hostname, int port )
+    ClientImpl( const std::string& hostname, int port, const std::string& sslCert )
     {
         // Created new server
-        m_channel = grpc::CreateChannel( hostname + ":" + std::to_string( port ), grpc::InsecureChannelCredentials() );
+        if ( !sslCert.empty() )
+        {
+            std::string                 cacert = Application::read_keycert( sslCert );
+            grpc::SslCredentialsOptions ssl_opts;
+            ssl_opts.pem_root_certs = cacert;
+
+            auto ssl_creds = grpc::SslCredentials( ssl_opts );
+            m_channel = grpc::CreateChannel( hostname + ":" + std::to_string( port ), ssl_creds );
+
+        }
+        else
+        {
+            m_channel = grpc::CreateChannel( hostname + ":" + std::to_string( port ), grpc::InsecureChannelCredentials() );
+        }
         CAFFA_DEBUG( "Created channel for " << hostname << ":" << port );
         m_appInfoStub = App::NewStub( m_channel );
         m_objectStub  = ObjectAccess::NewStub( m_channel );
@@ -829,8 +842,8 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Client::Client( const std::string& hostname, int port /*= 50000 */ )
-    : m_clientImpl( std::make_unique<ClientImpl>( hostname, port ) )
+Client::Client( const std::string& hostname, int port /*= 50000 */, const std::string& sslCert /*="" */ )
+    : m_clientImpl( std::make_unique<ClientImpl>( hostname, port, sslCert ) )
 {
     caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( this );
 }
