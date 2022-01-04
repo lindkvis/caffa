@@ -104,17 +104,19 @@ class DemoObject_copyObject : public caffa::ObjectMethod
     CAFFA_HEADER_INIT;
 
 public:
-    DemoObject_copyObject( caffa::ObjectHandle* self,
-                           double               doubleValue = -123.0,
-                           int                  intValue    = 42,
-                           const std::string&   stringValue = "SomeValue" );
+    DemoObject_copyObject( caffa::ObjectHandle*    self,
+                           double                  doubleValue   = -123.0,
+                           int                     intValue      = 42,
+                           const std::string&      stringValue   = "SomeValue",
+                           const std::vector<int>& intArrayvalue = {} );
     std::pair<bool, std::unique_ptr<caffa::ObjectMethodResult>> execute() override;
     std::unique_ptr<caffa::ObjectMethodResult>                  defaultResult() const override;
 
 private:
-    caffa::Field<double>      m_memberDoubleField;
-    caffa::Field<int>         m_memberIntField;
-    caffa::Field<std::string> m_memberStringField;
+    caffa::Field<double>           m_memberDoubleField;
+    caffa::Field<int>              m_memberIntField;
+    caffa::Field<std::string>      m_memberStringField;
+    caffa::Field<std::vector<int>> m_memberIntArrayField;
 };
 
 class InheritedDemoObj : public DemoObject

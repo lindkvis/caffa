@@ -43,15 +43,17 @@ DemoObject_copyObjectResult::DemoObject_copyObjectResult()
     initField( status, "status" ).withDefault( false );
 }
 
-DemoObject_copyObject::DemoObject_copyObject( caffa::ObjectHandle* self,
-                                              double               doubleValue,
-                                              int                  intValue,
-                                              const std::string&   stringValue )
+DemoObject_copyObject::DemoObject_copyObject( caffa::ObjectHandle*    self,
+                                              double                  doubleValue,
+                                              int                     intValue,
+                                              const std::string&      stringValue,
+                                              const std::vector<int>& intArrayValue )
     : caffa::ObjectMethod( self )
 {
     initField( m_memberDoubleField, "doubleArgument" ).withScripting().withDefault( doubleValue );
     initField( m_memberIntField, "intArgument" ).withScripting().withDefault( intValue );
     initField( m_memberStringField, "stringArgument" ).withScripting().withDefault( stringValue );
+    initField( m_memberIntArrayField, "intArrayArgument" ).withScripting().withDefault( intArrayValue );
 }
 std::pair<bool, std::unique_ptr<caffa::ObjectMethodResult>> DemoObject_copyObject::execute()
 {
@@ -61,6 +63,7 @@ std::pair<bool, std::unique_ptr<caffa::ObjectMethodResult>> DemoObject_copyObjec
     demoObject->setDoubleMember( m_memberDoubleField );
     demoObject->setIntMember( m_memberIntField );
     demoObject->setStringMember( m_memberStringField );
+    demoObject->setIntVector( m_memberIntArrayField );
 
     auto demoObjectResult    = std::make_unique<DemoObject_copyObjectResult>();
     demoObjectResult->status = true;
