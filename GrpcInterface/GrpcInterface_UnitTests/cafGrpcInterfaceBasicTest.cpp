@@ -19,6 +19,7 @@
 #include "cafObjectJsonSerializer.h"
 #include "cafValueField.h"
 
+#include <algorithm>
 #include <chrono>
 #include <random>
 #include <string>
@@ -31,57 +32,51 @@ class DemoObject : public caffa::Object
 
 public:
     DemoObject()
+        : m_proxyDoubleValue( 2.1 )
+        , m_proxyIntValue( 7 )
+        , m_proxyStringValue( "abba" )
     {
         initField( m_proxyDoubleField, "proxyDoubleField" ).withScripting();
         initField( m_proxyIntField, "proxyIntField" ).withScripting();
         initField( m_proxyStringField, "proxyStringField" ).withScripting();
 
         auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
-        doubleProxyAccessor->registerSetMethod( this, &DemoObject::setDoubleMember );
-        doubleProxyAccessor->registerGetMethod( this, &DemoObject::doubleMember );
+        doubleProxyAccessor->registerSetMethod( this, &DemoObject::setDoubleProxy );
+        doubleProxyAccessor->registerGetMethod( this, &DemoObject::getDoubleProxy );
         m_proxyDoubleField.setAccessor( std::move( doubleProxyAccessor ) );
 
         auto intProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<int>>();
-        intProxyAccessor->registerSetMethod( this, &DemoObject::setIntMember );
-        intProxyAccessor->registerGetMethod( this, &DemoObject::intMember );
+        intProxyAccessor->registerSetMethod( this, &DemoObject::setIntProxy );
+        intProxyAccessor->registerGetMethod( this, &DemoObject::getIntProxy );
         m_proxyIntField.setAccessor( std::move( intProxyAccessor ) );
 
         auto stringProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::string>>();
-        stringProxyAccessor->registerSetMethod( this, &DemoObject::setStringMember );
-        stringProxyAccessor->registerGetMethod( this, &DemoObject::stringMember );
+        stringProxyAccessor->registerSetMethod( this, &DemoObject::setStringProxy );
+        stringProxyAccessor->registerGetMethod( this, &DemoObject::getStringProxy );
         m_proxyStringField.setAccessor( std::move( stringProxyAccessor ) );
 
-        initField( m_doubleVector, "doubleVector" ).withScripting();
-        initField( m_floatVector, "floatVector" ).withScripting();
-        initField( m_intVectorProxy, "proxyIntVector" ).withScripting();
-        initField( m_stringVectorProxy, "proxyStringVector" ).withScripting();
+        initField( doubleVector, "doubleVector" ).withScripting();
+        initField( floatVector, "floatVector" ).withScripting();
+        initField( intVector, "proxyIntVector" ).withScripting();
+        initField( stringVector, "proxyStringVector" ).withScripting();
 
         auto intVectorProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::vector<int>>>();
-        intVectorProxyAccessor->registerSetMethod( this, &DemoObject::setIntVector );
-        intVectorProxyAccessor->registerGetMethod( this, &DemoObject::getIntVector );
-        m_intVectorProxy.setAccessor( std::move( intVectorProxyAccessor ) );
+        intVectorProxyAccessor->registerSetMethod( this, &DemoObject::setIntVectorProxy );
+        intVectorProxyAccessor->registerGetMethod( this, &DemoObject::getIntVectorProxy );
+        intVector.setAccessor( std::move( intVectorProxyAccessor ) );
 
         auto stringVectorProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::vector<std::string>>>();
-        stringVectorProxyAccessor->registerSetMethod( this, &DemoObject::setStringVector );
-        stringVectorProxyAccessor->registerGetMethod( this, &DemoObject::getStringVector );
-        m_stringVectorProxy.setAccessor( std::move( stringVectorProxyAccessor ) );
+        stringVectorProxyAccessor->registerSetMethod( this, &DemoObject::setStringVectorProxy );
+        stringVectorProxyAccessor->registerGetMethod( this, &DemoObject::getStringVectorProxy );
+        stringVector.setAccessor( std::move( stringVectorProxyAccessor ) );
 
-        initField( m_memberDoubleField, "memberDoubleField" ).withScripting();
-        initField( m_memberIntField, "memberIntField" ).withScripting();
-        initField( m_memberStringField, "memberStringField" ).withScripting();
-        initField( m_memberIntFieldNonScriptable, "memberIntFieldNonScriptable" ).withDefault( -1 );
+        initField( doubleField, "memberDoubleField" ).withScripting().withDefault( 0.0 );
+        initField( intField, "memberIntField" ).withScripting().withDefault( 0 );
+        initField( stringField, "memberStringField" ).withScripting().withDefault( "" );
+        initField( intFieldNonScriptable, "memberIntFieldNonScriptable" ).withDefault( -1 );
 
-        initField( m_memberBoolField, "memberBoolField" ).withScripting();
-        initField( m_memberVectorBoolField, "memberVectorBoolField" ).withScripting();
-
-        // Default values
-        m_doubleMember = 2.1;
-        m_intMember    = 7;
-        m_stringMember = "abba";
-
-        m_memberDoubleField = 0.0;
-        m_memberIntField    = 0;
-        m_memberStringField = "";
+        initField( boolField, "memberBoolField" ).withScripting();
+        initField( boolVector, "memberVectorBoolField" ).withScripting();
     }
 
     ~DemoObject() override {}
@@ -91,48 +86,43 @@ public:
     caffa::Field<int>         m_proxyIntField;
     caffa::Field<std::string> m_proxyStringField;
 
-    caffa::Field<double>      m_memberDoubleField;
-    caffa::Field<int>         m_memberIntField;
-    caffa::Field<int>         m_memberIntFieldNonScriptable;
-    caffa::Field<std::string> m_memberStringField;
+    caffa::Field<double>      doubleField;
+    caffa::Field<int>         intField;
+    caffa::Field<int>         intFieldNonScriptable;
+    caffa::Field<std::string> stringField;
 
-    caffa::Field<bool>              m_memberBoolField;
-    caffa::Field<std::vector<bool>> m_memberVectorBoolField;
+    caffa::Field<bool>              boolField;
+    caffa::Field<std::vector<bool>> boolVector;
 
-    caffa::Field<std::vector<int>>         m_intVectorProxy;
-    caffa::Field<std::vector<std::string>> m_stringVectorProxy;
+    caffa::Field<std::vector<int>>         intVector;
+    caffa::Field<std::vector<std::string>> stringVector;
 
-    caffa::Field<std::vector<double>> m_doubleVector;
-    caffa::Field<std::vector<float>>  m_floatVector;
-
-    double doubleMember() const { return m_doubleMember; }
-    void   setDoubleMember( const double& d ) { m_doubleMember = d; }
-
-    int  intMember() const { return m_intMember; }
-    void setIntMember( const int& val ) { m_intMember = val; }
-
-    std::string stringMember() const { return m_stringMember; }
-    void        setStringMember( const std::string& val ) { m_stringMember = val; }
-
-    std::vector<double> doubleVector() const { return m_doubleVector; }
-    void                setDoubleVector( const std::vector<double>& values ) { m_doubleVector = values; }
-
-    std::vector<float> floatVector() const { return m_floatVector; }
-    void               setFloatVector( const std::vector<float>& values ) { m_floatVector = values; }
-
-    std::vector<int> getIntVector() const { return m_intVector; }
-    void             setIntVector( const std::vector<int>& values ) { m_intVector = values; }
-
-    std::vector<std::string> getStringVector() const { return m_stringVector; }
-    void                     setStringVector( const std::vector<std::string>& values ) { m_stringVector = values; }
+    caffa::Field<std::vector<double>> doubleVector;
+    caffa::Field<std::vector<float>>  floatVector;
 
 private:
-    double      m_doubleMember;
-    int         m_intMember;
-    std::string m_stringMember;
+    // These are proxy getter/setters and should never be called from client, thus are private
+    double getDoubleProxy() const { return m_proxyDoubleValue; }
+    void   setDoubleProxy( const double& d ) { m_proxyDoubleValue = d; }
 
-    std::vector<int>         m_intVector;
-    std::vector<std::string> m_stringVector;
+    int  getIntProxy() const { return m_proxyIntValue; }
+    void setIntProxy( const int& val ) { m_proxyIntValue = val; }
+
+    std::string getStringProxy() const { return m_proxyStringValue; }
+    void        setStringProxy( const std::string& val ) { m_proxyStringValue = val; }
+
+    std::vector<int> getIntVectorProxy() const { return m_proxyIntVector; }
+    void             setIntVectorProxy( const std::vector<int>& values ) { m_proxyIntVector = values; }
+
+    std::vector<std::string> getStringVectorProxy() const { return m_proxyStringVector; }
+    void setStringVectorProxy( const std::vector<std::string>& values ) { m_proxyStringVector = values; }
+
+    double      m_proxyDoubleValue;
+    int         m_proxyIntValue;
+    std::string m_proxyStringValue;
+
+    std::vector<int>         m_proxyIntVector;
+    std::vector<std::string> m_proxyStringVector;
 };
 
 CAFFA_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
@@ -153,24 +143,34 @@ class DemoObject_copyObject : public caffa::ObjectMethod
     CAFFA_HEADER_INIT;
 
 public:
-    DemoObject_copyObject( caffa::ObjectHandle* self,
-                           double               doubleValue = -123.0,
-                           int                  intValue    = 42,
-                           const std::string&   stringValue = "SomeValue" )
+    DemoObject_copyObject( caffa::ObjectHandle*      self,
+                           double                    doubleValue = -123.0,
+                           int                       intValue    = 42,
+                           const std::string&        stringValue = "SomeValue",
+                           const std::vector<bool>&  boolVector  = {},
+                           const std::vector<int>&   intVector   = {},
+                           const std::vector<float>& floatVector = {} )
         : caffa::ObjectMethod( self )
     {
-        initField( m_doubleMember, "doubleMember" ).withScripting().withDefault( doubleValue );
-        initField( m_intMember, "intMember" ).withScripting().withDefault( intValue );
-        initField( m_stringMember, "stringMember" ).withScripting().withDefault( stringValue );
+        initField( m_doubleField, "doubleField" ).withDefault( doubleValue );
+        initField( m_intField, "intField" ).withDefault( intValue );
+        initField( m_stringField, "stringField" ).withDefault( stringValue );
+
+        initField( m_boolVector, "boolVector" ).withDefault( boolVector );
+        initField( m_intVector, "intVector" ).withDefault( intVector );
+        initField( m_floatVector, "floatVector" ).withDefault( floatVector );
     }
     std::pair<bool, std::unique_ptr<caffa::ObjectMethodResult>> execute() override
     {
-        CAFFA_DEBUG( "Executing object method on server with values: " << m_doubleMember() << ", " << m_intMember()
-                                                                       << ", " << m_stringMember() );
+        CAFFA_DEBUG( "Executing object method on server with values: " << m_doubleField() << ", " << m_intField()
+                                                                       << ", " << m_stringField() );
         gsl::not_null<DemoObject*> demoObject = self<DemoObject>();
-        demoObject->setDoubleMember( m_doubleMember );
-        demoObject->setIntMember( m_intMember );
-        demoObject->setStringMember( m_stringMember );
+        demoObject->doubleField               = m_doubleField;
+        demoObject->intField                  = m_intField;
+        demoObject->stringField               = m_stringField;
+        demoObject->intVector                 = m_intVector;
+        demoObject->boolVector                = m_boolVector;
+        demoObject->floatVector               = m_floatVector;
 
         auto demoObjectResult    = std::make_unique<DemoObject_copyObjectResult>();
         demoObjectResult->status = true;
@@ -181,10 +181,14 @@ public:
         return std::make_unique<DemoObject_copyObjectResult>();
     }
 
-private:
-    caffa::Field<double>      m_doubleMember;
-    caffa::Field<int>         m_intMember;
-    caffa::Field<std::string> m_stringMember;
+public:
+    caffa::Field<double>      m_doubleField;
+    caffa::Field<int>         m_intField;
+    caffa::Field<std::string> m_stringField;
+
+    caffa::Field<std::vector<bool>>  m_boolVector;
+    caffa::Field<std::vector<int>>   m_intVector;
+    caffa::Field<std::vector<float>> m_floatVector;
 };
 
 CAFFA_OBJECT_METHOD_SOURCE_INIT( DemoObject, DemoObject_copyObject, "DemoObject_copyObject" );
@@ -642,11 +646,17 @@ TEST( BaseTest, ObjectMethod )
         methodKeyword = ioCapability->classKeyword();
     }
 
-    CAFFA_DEBUG( "Creating object method" );
-    DemoObject_copyObject method( inheritedObjects.front(), 45.3, 43, "AnotherValue" );
+    std::vector<bool>  boolVector = { true, false, true };
+    std::vector<int>   intVector( 10000 );
+    std::vector<float> floatVector = { -2.0, 3.0, 4.0, 8.0 };
+
+    std::iota( intVector.begin(), intVector.end(), 0 );
+
+    CAFFA_INFO( "Creating object method" );
+    DemoObject_copyObject method( inheritedObjects.front(), 45.3, 43, "AnotherValue", boolVector, intVector, floatVector );
     ASSERT_EQ( method.classKeyword(), methodKeyword );
 
-    CAFFA_DEBUG( "Execute" );
+    CAFFA_INFO( "Execute" );
     auto [result, resultObject] = client->execute( &method );
     ASSERT_TRUE( result );
     ASSERT_TRUE( resultObject != nullptr );
@@ -655,10 +665,19 @@ TEST( BaseTest, ObjectMethod )
     ASSERT_EQ( true, copyObjectResult->status() );
 
     CAFFA_DEBUG( "Get double member" );
-    ASSERT_EQ( 45.3, serverObjects.front()->doubleMember() );
+    ASSERT_EQ( 45.3, serverObjects.front()->doubleField() );
     CAFFA_DEBUG( "Get int member" );
-    ASSERT_EQ( 43, serverObjects.front()->intMember() );
-    ASSERT_EQ( "AnotherValue", serverObjects.front()->stringMember() );
+    ASSERT_EQ( 43, serverObjects.front()->intField() );
+    ASSERT_EQ( "AnotherValue", serverObjects.front()->stringField() );
+
+    ASSERT_EQ( boolVector, serverObjects.front()->boolVector() );
+    CAFFA_INFO( "Comparing integer vector of size " << intVector.size() << " on server" );
+    ASSERT_EQ( intVector, serverObjects.front()->intVector() );
+    ASSERT_EQ( floatVector, serverObjects.front()->floatVector() );
+
+    auto roundtripIntVector = inheritedObjects.front()->intVector();
+    CAFFA_INFO( "Comparing integer vector of size " << intVector.size() << " on client" );
+    ASSERT_EQ( intVector, roundtripIntVector );
 
     bool ok = client->stopServer();
     ASSERT_TRUE( ok );
@@ -691,13 +710,13 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
     std::mt19937     rng;
     std::generate_n( std::back_inserter( largeIntVector ), 10000u, std::ref( rng ) );
 
-    serverDocument->m_demoObject->setIntVector( largeIntVector );
+    serverDocument->m_demoObject->intVector = largeIntVector;
 
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
-    auto clientIntVector = client->get<std::vector<int>>( clientDocument->m_demoObject,
-                                                          clientDocument->m_demoObject->m_intVectorProxy.keyword() );
+    auto clientIntVector =
+        client->get<std::vector<int>>( clientDocument->m_demoObject, clientDocument->m_demoObject->intVector.keyword() );
     ASSERT_EQ( largeIntVector, clientIntVector );
 
     for ( auto& i : clientIntVector )
@@ -705,9 +724,9 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
         i += 2;
     }
     ASSERT_NE( largeIntVector, clientIntVector );
-    client->set( clientDocument->m_demoObject, clientDocument->m_demoObject->m_intVectorProxy.keyword(), clientIntVector );
+    client->set( clientDocument->m_demoObject, clientDocument->m_demoObject->intVector.keyword(), clientIntVector );
 
-    largeIntVector = serverDocument->m_demoObject->getIntVector();
+    largeIntVector = serverDocument->m_demoObject->intVector();
     ASSERT_EQ( largeIntVector, clientIntVector );
 
     bool ok = client->stopServer();
@@ -742,13 +761,13 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
     std::mt19937        rng;
     std::generate_n( std::back_inserter( largeDoubleVector ), 10000u, std::ref( rng ) );
 
-    serverDocument->m_demoObject->setDoubleVector( largeDoubleVector );
+    serverDocument->m_demoObject->doubleVector = largeDoubleVector;
 
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
     auto clientDoubleVector = client->get<std::vector<double>>( clientDocument->m_demoObject,
-                                                                clientDocument->m_demoObject->m_doubleVector.keyword() );
+                                                                clientDocument->m_demoObject->doubleVector.keyword() );
     ASSERT_EQ( largeDoubleVector, clientDoubleVector );
 
     for ( auto& i : clientDoubleVector )
@@ -757,7 +776,7 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
     }
     ASSERT_NE( largeDoubleVector, clientDoubleVector );
     client->set<std::vector<double>>( clientDocument->m_demoObject,
-                                      clientDocument->m_demoObject->m_doubleVector.keyword(),
+                                      clientDocument->m_demoObject->doubleVector.keyword(),
                                       clientDoubleVector );
 
     largeDoubleVector = serverDocument->m_demoObject->doubleVector();
@@ -791,24 +810,24 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
-    serverDocument->m_demoObject->m_memberIntField              = 10;
-    serverDocument->m_demoObject->m_memberIntFieldNonScriptable = 12;
+    serverDocument->m_demoObject->intField              = 10;
+    serverDocument->m_demoObject->intFieldNonScriptable = 12;
 
-    ASSERT_EQ( 10, serverDocument->m_demoObject->m_memberIntField() );
-    ASSERT_EQ( 12, serverDocument->m_demoObject->m_memberIntFieldNonScriptable() );
+    ASSERT_EQ( 10, serverDocument->m_demoObject->intField() );
+    ASSERT_EQ( 12, serverDocument->m_demoObject->intFieldNonScriptable() );
 
     std::vector<double> serverVector;
     std::mt19937        rng;
     std::generate_n( std::back_inserter( serverVector ), 10000u, std::ref( rng ) );
 
-    serverDocument->m_demoObject->setDoubleVector( serverVector );
+    serverDocument->m_demoObject->doubleVector = serverVector;
 
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
 
-    ASSERT_EQ( 10, clientDocument->m_demoObject->m_memberIntField() );
-    ASSERT_NE( 12, clientDocument->m_demoObject->m_memberIntFieldNonScriptable() ); // Should not be equal
+    ASSERT_EQ( 10, clientDocument->m_demoObject->intField() );
+    ASSERT_NE( 12, clientDocument->m_demoObject->intFieldNonScriptable() ); // Should not be equal
 
     auto clientVector = clientDocument->m_demoObject->doubleVector();
 
@@ -819,7 +838,7 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
         i += 2;
     }
     ASSERT_NE( serverVector, clientVector );
-    clientDocument->m_demoObject->setDoubleVector( clientVector );
+    clientDocument->m_demoObject->doubleVector = clientVector;
 
     serverVector = serverDocument->m_demoObject->doubleVector();
     ASSERT_EQ( serverVector, clientVector );
@@ -852,28 +871,28 @@ TEST( BaseTest, BoolVectorGettersAndSetters )
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
-    ASSERT_EQ( false, serverDocument->m_demoObject->m_memberBoolField() );
-    serverDocument->m_demoObject->m_memberBoolField = true;
-    ASSERT_EQ( true, serverDocument->m_demoObject->m_memberBoolField() );
+    ASSERT_EQ( false, serverDocument->m_demoObject->boolField() );
+    serverDocument->m_demoObject->boolField = true;
+    ASSERT_EQ( true, serverDocument->m_demoObject->boolField() );
 
-    ASSERT_TRUE( serverDocument->m_demoObject->m_memberVectorBoolField().empty() );
+    ASSERT_TRUE( serverDocument->m_demoObject->boolVector().empty() );
 
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
 
-    ASSERT_EQ( true, clientDocument->m_demoObject->m_memberBoolField() );
-    ASSERT_TRUE( clientDocument->m_demoObject->m_memberVectorBoolField().empty() );
+    ASSERT_EQ( true, clientDocument->m_demoObject->boolField() );
+    ASSERT_TRUE( clientDocument->m_demoObject->boolVector().empty() );
 
     std::vector<bool> clientBoolVector = { true, true };
-    clientDocument->m_demoObject->m_memberVectorBoolField.setValue( clientBoolVector );
-    ASSERT_EQ( clientBoolVector, clientDocument->m_demoObject->m_memberVectorBoolField() );
-    ASSERT_EQ( clientBoolVector, serverDocument->m_demoObject->m_memberVectorBoolField() );
+    clientDocument->m_demoObject->boolVector.setValue( clientBoolVector );
+    ASSERT_EQ( clientBoolVector, clientDocument->m_demoObject->boolVector() );
+    ASSERT_EQ( clientBoolVector, serverDocument->m_demoObject->boolVector() );
 
     std::vector<bool> serverBoolVector = { false, true, true, false };
-    serverDocument->m_demoObject->m_memberVectorBoolField.setValue( serverBoolVector );
-    ASSERT_EQ( clientDocument->m_demoObject->m_memberVectorBoolField(), serverBoolVector );
-    ASSERT_EQ( serverDocument->m_demoObject->m_memberVectorBoolField(), serverBoolVector );
+    serverDocument->m_demoObject->boolVector.setValue( serverBoolVector );
+    ASSERT_EQ( clientDocument->m_demoObject->boolVector(), serverBoolVector );
+    ASSERT_EQ( serverDocument->m_demoObject->boolVector(), serverBoolVector );
 
     bool ok = client->stopServer();
     ASSERT_TRUE( ok );
@@ -948,16 +967,16 @@ TEST( BaseTest, ChildObjects )
     ASSERT_EQ( clientChildCount, clientDocument->m_inheritedDemoObjects.size() );
 
     {
-        auto inheritedObject = std::make_unique<InheritedDemoObj>();
-        inheritedObject->setIntMember( 1113 );
+        auto inheritedObject      = std::make_unique<InheritedDemoObj>();
+        inheritedObject->intField = 1113;
         clientDocument->m_inheritedDemoObjects.insert( 2u, std::move( inheritedObject ) );
     }
     ASSERT_EQ( clientChildCount + 1u, serverDocument->m_inheritedDemoObjects.size() );
     ASSERT_EQ( clientChildCount + 1u, clientDocument->m_inheritedDemoObjects.size() );
 
     CAFFA_INFO( "The server now has a new member with an int value of: "
-                << serverDocument->m_inheritedDemoObjects[2]->intMember() );
-    ASSERT_EQ( 1113, serverDocument->m_inheritedDemoObjects[2]->intMember() );
+                << serverDocument->m_inheritedDemoObjects[2]->intField() );
+    ASSERT_EQ( 1113, serverDocument->m_inheritedDemoObjects[2]->intField() );
 
     serverDocument->m_inheritedDemoObjects.clear();
     ASSERT_EQ( 0u, serverDocument->m_inheritedDemoObjects.size() );
@@ -997,11 +1016,11 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
         ASSERT_TRUE( clientDocument != nullptr );
 
         {
-            serverDocument->m_demoObject->setFloatVector( { 42.0f } );
-            auto start_time   = std::chrono::system_clock::now();
-            auto clientVector = clientDocument->m_demoObject->floatVector();
-            auto end_time     = std::chrono::system_clock::now();
-            auto duration     = std::chrono::duration_cast<std::chrono::microseconds>( end_time - start_time ).count();
+            serverDocument->m_demoObject->floatVector = { 42.0f };
+            auto start_time                           = std::chrono::system_clock::now();
+            auto clientVector                         = clientDocument->m_demoObject->floatVector();
+            auto end_time                             = std::chrono::system_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::microseconds>( end_time - start_time ).count();
             CAFFA_INFO( "Getting single float vector took " << duration << "µs" );
             ASSERT_EQ( serverDocument->m_demoObject->floatVector(), clientDocument->m_demoObject->floatVector() );
         }
@@ -1015,7 +1034,7 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
             serverVector.push_back( (float)rng() );
         }
 
-        serverDocument->m_demoObject->setFloatVector( serverVector );
+        serverDocument->m_demoObject->floatVector = serverVector;
 
         {
             auto   start_time   = std::chrono::system_clock::now();
