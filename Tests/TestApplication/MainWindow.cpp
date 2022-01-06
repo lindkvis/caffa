@@ -39,6 +39,7 @@
 #include <QUndoView>
 
 #include <filesystem>
+#include <set>
 
 class DemoObjectGroup : public caffa::Document
 {
@@ -1199,7 +1200,6 @@ void MainWindow::slotShowTableView()
     caffa::ObjectHandle*          obj                   = nullptr;
     caffa::FieldUiCapability*     uiFieldHandle         = nullptr;
     caffa::ChildArrayFieldHandle* childArrayFieldHandle = nullptr;
-
     if (selection.size())
     {
         caffa::UiItem* uiItem = selection[0];
@@ -1208,15 +1208,6 @@ void MainWindow::slotShowTableView()
         if (uiFieldHandle)
         {
             childArrayFieldHandle = dynamic_cast<caffa::ChildArrayFieldHandle*>(uiFieldHandle->fieldHandle());
-        }
-
-        if (childArrayFieldHandle)
-        {
-            if (!childArrayFieldHandle->hasSameFieldCountForAllObjects())
-            {
-                uiFieldHandle         = nullptr;
-                childArrayFieldHandle = nullptr;
-            }
         }
     }
 

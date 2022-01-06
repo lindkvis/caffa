@@ -38,6 +38,7 @@
 #include "cafUiTreeOrdering.h"
 
 #include "cafFieldUiCapability.h"
+#include "cafObservingPointer.h"
 #include "cafUiTableViewEditor.h"
 
 #include <QAbstractItemModel>
@@ -113,8 +114,8 @@ private:
 
 private:
     // Required to have a Pointer to the owner object. Used to guard access to a field inside this object
-    Pointer<ObjectHandle>  m_ownerObject;
-    ChildArrayFieldHandle* m_list;
+    ObservingPointer<ObjectHandle> m_ownerObject;
+    ChildArrayFieldHandle*         m_list;
 
     std::map<std::string, UiFieldEditorHandle*> m_fieldEditors;
     std::vector<int>                            m_modelColumnIndexToFieldIndex;
