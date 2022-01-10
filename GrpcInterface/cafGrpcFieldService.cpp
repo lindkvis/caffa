@@ -594,11 +594,11 @@ grpc::Status GetterStateHandler::assignReply( GenericArray* reply )
 
     size_t remainingData = m_dataHolder->valueCount() - m_currentDataIndex;
 
-    CAFFA_TRACE( "Assigning values " << remainingData << " to getter reply" );
-
     size_t defaultDataUnitsInPackage = Application::instance()->packageByteSize() / m_dataHolder->valueSizeOf();
 
     size_t dataUnitsInPackage = std::min( defaultDataUnitsInPackage, remainingData );
+    CAFFA_TRACE( "Assigning values " << dataUnitsInPackage << " to getter reply" );
+
     if ( dataUnitsInPackage == 0u )
     {
         return grpc::Status( grpc::OUT_OF_RANGE,
@@ -668,6 +668,12 @@ grpc::Status SetterStateHandler::init( const GenericArray* chunk )
         auto scriptability = field->capability<FieldScriptingCapability>();
         if ( scriptability && scriptability->scriptFieldName() == fieldRequest.keyword() )
         {
+            if ( valueCount == 0 )
+            {
+                return grpc::Status( grpc::OUT_OF_RANGE,
+                                     "We've reached the end. This is not an error but means transmission is finished" );
+            }
+
             if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
@@ -805,7 +811,8 @@ grpc::Status FieldService::GetArrayValue( grpc::ServerContext*        context,
 grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRequest* request, GenericScalar* reply )
 {
     CAFFA_ASSERT( request != nullptr );
-    CAFFA_TRACE( "GetValue for field: " << request->keyword() << ", " << request->class_keyword() << ", " << request->uuid() );
+    CAFFA_TRACE( "GetValue for field: " << request->keyword() << ", " << request->class_keyword() << ", "
+                                        << request->uuid() );
 
     auto fieldOwner = ObjectService::ObjectService::findCafObjectFromFieldRequest( *request );
     CAFFA_ASSERT( fieldOwner );
