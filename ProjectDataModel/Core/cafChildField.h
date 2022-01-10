@@ -63,14 +63,18 @@ public:
 
     // Basic access
 
-    DataType* value() const { return static_cast<DataType*>( m_fieldDataAccessor->value() ); }
-    void      setValue( DataTypePtr fieldValue );
+    DataType*       value() { return static_cast<DataType*>( m_fieldDataAccessor->value() ); }
+    const DataType* value() const { return static_cast<DataType*>( m_fieldDataAccessor->value() ); }
+    void            setValue( DataTypePtr fieldValue );
 
     // Access operators
+    operator DataType*() { return this->value(); }
+    operator const DataType*() const { return this->value(); }
 
-    /*Conversion*/ operator DataType*() const { return this->value(); }
-    DataType*      operator->() const { return this->value(); }
+    DataType*       operator->() { return this->value(); }
+    const DataType* operator->() const { return this->value(); }
 
+    DataType*       operator()() { return static_cast<DataType*>( m_fieldDataAccessor->value() ); }
     const DataType* operator()() const { return static_cast<const DataType*>( m_fieldDataAccessor->value() ); }
 
     // Child objects
@@ -81,7 +85,10 @@ public:
 
     std::string dataType() const override { return std::string( "object" ); }
 
-    void setAccessor( std::unique_ptr<ChildFieldAccessor> accessor ) override { m_fieldDataAccessor = std::move( accessor ); }
+    void setAccessor( std::unique_ptr<ChildFieldAccessor> accessor ) override
+    {
+        m_fieldDataAccessor = std::move( accessor );
+    }
 
 private:
     CAFFA_DISABLE_COPY_AND_ASSIGN( ChildField );
