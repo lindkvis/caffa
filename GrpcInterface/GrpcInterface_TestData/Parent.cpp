@@ -16,11 +16,3 @@ void Parent::doSome()
         // TestObj* to = c->m_testObj();
     }
 }
-
-#include <gtest.h>
-
-TEST( IncludeTest, Basic )
-{
-    Parent* p = new Parent;
-    delete ( p );
-}

@@ -1,6 +1,7 @@
 
 #include "gtest.h"
 
+#include "Child.h"
 #include "DemoObject.h"
 #include "Parent.h"
 #include "ServerApp.h"
@@ -25,6 +26,12 @@
 #include <string>
 #include <thread>
 #include <vector>
+
+TEST( IncludeTest, Basic )
+{
+    Parent* p = new Parent;
+    delete ( p );
+}
 
 TEST( BaseTest, Launch )
 {
@@ -676,7 +683,7 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
     {
-        auto client = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile);
+        auto client = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
 
         auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
         ASSERT_TRUE( serverDocument );
