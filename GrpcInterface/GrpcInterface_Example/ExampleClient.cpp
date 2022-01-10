@@ -70,9 +70,9 @@ int main( int argc, char** argv )
     auto clientApp = std::make_unique<ClientApp>( hostname, portNumber );
     CAFFA_INFO( "Launching Client connecting to " << hostname << ":" << portNumber );
 
-    auto client         = clientApp->client();
-    auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    auto          client         = clientApp->client();
+    auto          objectHandle   = client->document( "testDocument" );
+    DemoDocument* clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     if ( !clientDocument )
     {
         CAFFA_ERROR( "Failed to get main document" );
@@ -80,12 +80,15 @@ int main( int argc, char** argv )
     }
     bool worked = client->ping();
     CAFFA_ASSERT( worked );
-    auto   clientVector   = clientDocument->demoObject()->floatVector();
+
+    DemoObject* demoObject = clientDocument->demoObject();
+
+    auto   clientVector   = demoObject->floatVector();
     size_t numberOfFloats = clientVector.size();
     size_t MB             = numberOfFloats * sizeof( float ) / ( 1024u * 1024u );
     std::cout << "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" << std::endl;
 
-    clientDocument->demoObject()->setFloatVector( { 123.0, 45.1, 8.32 } );
-    clientDocument->demoObject()->setDoubleMember( 98.0 );
+    demoObject->floatVector = { 123.0, 45.1, 8.32 };
+    demoObject->doubleField = 98.0;
     return 0;
 }

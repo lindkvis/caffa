@@ -104,7 +104,7 @@ int main( int argc, char** argv )
 
     CAFFA_INFO( "Launching Server listening on port " << portNumber );
 
-    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "DemoDocument" ) );
+    DemoDocument* serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     CAFFA_ASSERT( serverDocument != nullptr );
     std::vector<float> serverVector;
     size_t             numberOfFloats = 1024u * 1024u * 4;
@@ -114,9 +114,11 @@ int main( int argc, char** argv )
         serverVector.push_back( (float)i );
     }
 
-    serverDocument->demoObject()->setIntVector( { 42 } );
-    serverDocument->demoObject()->setFloatVector( serverVector );
-    serverDocument->demoObject()->setBoolVector( { true, false, false, true } );
+    DemoObject* demoObject = serverDocument->demoObject();
+
+    demoObject->intVector.setValue( { 42 } );
+    demoObject->floatVector.setValue( serverVector );
+    demoObject->boolVector.setValue( { true, false, false, true } );
     CAFFA_DEBUG( "Running server thread" );
     serverApp->run();
 }

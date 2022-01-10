@@ -43,18 +43,18 @@ DemoObject::DemoObject()
     stringVectorProxyAccessor->registerGetMethod( this, &DemoObject::getStringVectorProxy );
     stringVector.setAccessor( std::move( stringVectorProxyAccessor ) );
 
-    initField( doubleField, "memberDoubleField" ).withScripting().withDefault( 0.0 );
-    initField( intField, "memberIntField" ).withScripting().withDefault( 0 );
-    initField( stringField, "memberStringField" ).withScripting().withDefault( "" );
-    initField( intFieldNonScriptable, "memberIntFieldNonScriptable" ).withDefault( -1 );
+    initField( doubleField, "doubleField" ).withScripting().withDefault( 0.0 );
+    initField( intField, "intField" ).withScripting().withDefault( 0 );
+    initField( stringField, "stringField" ).withScripting().withDefault( "" );
+    initField( intFieldNonScriptable, "intFieldNonScriptable" ).withDefault( -1 );
 
-    initField( boolField, "memberBoolField" ).withScripting();
-    initField( boolVector, "memberVectorBoolField" ).withScripting();
+    initField( boolField, "boolField" ).withScripting();
+    initField( boolVector, "boolVector" ).withScripting();
 }
 
 CAFFA_SOURCE_INIT( DemoObject_copyObjectResult, "DemoObject_copyObjectResult", "Object" );
 
-CAFFA_OBJECT_METHOD_SOURCE_INIT( DemoObject, DemoObject_copyObject, "DemoObject_copyObject" );
+CAFFA_OBJECT_METHOD_SOURCE_INIT( DemoObject, DemoObject_copyObject, "copyObject" );
 
 CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject", "DemoObject" );
 

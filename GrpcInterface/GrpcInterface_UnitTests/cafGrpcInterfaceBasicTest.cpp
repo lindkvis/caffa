@@ -203,8 +203,8 @@ TEST( BaseTest, DocumentWithNonScriptableChild )
     }
 
     {
-        auto serverObject = serverDocument->m_demoObjectNonScriptable();
-        auto clientObject = clientDocument->m_demoObjectNonScriptable();
+        auto serverObject = serverDocument->demoObjectNonScriptable();
+        auto clientObject = clientDocument->demoObjectNonScriptable();
 
         // The objects are not scriptable, so uuid should not match!!
         ASSERT_NE( serverObject->uuid(), clientObject->uuid() );
@@ -393,13 +393,13 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
     std::mt19937     rng;
     std::generate_n( std::back_inserter( largeIntVector ), 10000u, std::ref( rng ) );
 
-    serverDocument->m_demoObject->intVector = largeIntVector;
+    serverDocument->demoObject->intVector = largeIntVector;
 
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
     auto clientIntVector =
-        client->get<std::vector<int>>( clientDocument->m_demoObject, clientDocument->m_demoObject->intVector.keyword() );
+        client->get<std::vector<int>>( clientDocument->demoObject, clientDocument->demoObject->intVector.keyword() );
     ASSERT_EQ( largeIntVector, clientIntVector );
 
     for ( auto& i : clientIntVector )
@@ -407,9 +407,9 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
         i += 2;
     }
     ASSERT_NE( largeIntVector, clientIntVector );
-    client->set( clientDocument->m_demoObject, clientDocument->m_demoObject->intVector.keyword(), clientIntVector );
+    client->set( clientDocument->demoObject, clientDocument->demoObject->intVector.keyword(), clientIntVector );
 
-    largeIntVector = serverDocument->m_demoObject->intVector();
+    largeIntVector = serverDocument->demoObject->intVector();
     ASSERT_EQ( largeIntVector, clientIntVector );
 
     bool ok = client->stopServer();
@@ -443,13 +443,13 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
     std::mt19937        rng;
     std::generate_n( std::back_inserter( largeDoubleVector ), 10000u, std::ref( rng ) );
 
-    serverDocument->m_demoObject->doubleVector = largeDoubleVector;
+    serverDocument->demoObject->doubleVector = largeDoubleVector;
 
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
-    auto clientDoubleVector = client->get<std::vector<double>>( clientDocument->m_demoObject,
-                                                                clientDocument->m_demoObject->doubleVector.keyword() );
+    auto clientDoubleVector = client->get<std::vector<double>>( clientDocument->demoObject,
+                                                                clientDocument->demoObject->doubleVector.keyword() );
     ASSERT_EQ( largeDoubleVector, clientDoubleVector );
 
     for ( auto& i : clientDoubleVector )
@@ -457,11 +457,11 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
         i += 2;
     }
     ASSERT_NE( largeDoubleVector, clientDoubleVector );
-    client->set<std::vector<double>>( clientDocument->m_demoObject,
-                                      clientDocument->m_demoObject->doubleVector.keyword(),
+    client->set<std::vector<double>>( clientDocument->demoObject,
+                                      clientDocument->demoObject->doubleVector.keyword(),
                                       clientDoubleVector );
 
-    largeDoubleVector = serverDocument->m_demoObject->doubleVector();
+    largeDoubleVector = serverDocument->demoObject->doubleVector();
     ASSERT_EQ( largeDoubleVector, clientDoubleVector );
 
     bool ok = client->stopServer();
@@ -491,26 +491,26 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
-    serverDocument->m_demoObject->intField              = 10;
-    serverDocument->m_demoObject->intFieldNonScriptable = 12;
+    serverDocument->demoObject->intField              = 10;
+    serverDocument->demoObject->intFieldNonScriptable = 12;
 
-    ASSERT_EQ( 10, serverDocument->m_demoObject->intField() );
-    ASSERT_EQ( 12, serverDocument->m_demoObject->intFieldNonScriptable() );
+    ASSERT_EQ( 10, serverDocument->demoObject->intField() );
+    ASSERT_EQ( 12, serverDocument->demoObject->intFieldNonScriptable() );
 
     std::vector<double> serverVector;
     std::mt19937        rng;
     std::generate_n( std::back_inserter( serverVector ), 10000u, std::ref( rng ) );
 
-    serverDocument->m_demoObject->doubleVector = serverVector;
+    serverDocument->demoObject->doubleVector = serverVector;
 
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
 
-    ASSERT_EQ( 10, clientDocument->m_demoObject->intField() );
-    ASSERT_NE( 12, clientDocument->m_demoObject->intFieldNonScriptable() ); // Should not be equal
+    ASSERT_EQ( 10, clientDocument->demoObject->intField() );
+    ASSERT_NE( 12, clientDocument->demoObject->intFieldNonScriptable() ); // Should not be equal
 
-    auto clientVector = clientDocument->m_demoObject->doubleVector();
+    auto clientVector = clientDocument->demoObject->doubleVector();
 
     ASSERT_EQ( serverVector, clientVector );
 
@@ -519,9 +519,9 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
         i += 2;
     }
     ASSERT_NE( serverVector, clientVector );
-    clientDocument->m_demoObject->doubleVector = clientVector;
+    clientDocument->demoObject->doubleVector = clientVector;
 
-    serverVector = serverDocument->m_demoObject->doubleVector();
+    serverVector = serverDocument->demoObject->doubleVector();
     ASSERT_EQ( serverVector, clientVector );
 
     bool ok = client->stopServer();
@@ -551,28 +551,28 @@ TEST( BaseTest, BoolVectorGettersAndSetters )
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
-    ASSERT_EQ( false, serverDocument->m_demoObject->boolField() );
-    serverDocument->m_demoObject->boolField = true;
-    ASSERT_EQ( true, serverDocument->m_demoObject->boolField() );
+    ASSERT_EQ( false, serverDocument->demoObject->boolField() );
+    serverDocument->demoObject->boolField = true;
+    ASSERT_EQ( true, serverDocument->demoObject->boolField() );
 
-    ASSERT_TRUE( serverDocument->m_demoObject->boolVector().empty() );
+    ASSERT_TRUE( serverDocument->demoObject->boolVector().empty() );
 
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
 
-    ASSERT_EQ( true, clientDocument->m_demoObject->boolField() );
-    ASSERT_TRUE( clientDocument->m_demoObject->boolVector().empty() );
+    ASSERT_EQ( true, clientDocument->demoObject->boolField() );
+    ASSERT_TRUE( clientDocument->demoObject->boolVector().empty() );
 
     std::vector<bool> clientBoolVector = { true, true };
-    clientDocument->m_demoObject->boolVector.setValue( clientBoolVector );
-    ASSERT_EQ( clientBoolVector, clientDocument->m_demoObject->boolVector() );
-    ASSERT_EQ( clientBoolVector, serverDocument->m_demoObject->boolVector() );
+    clientDocument->demoObject->boolVector.setValue( clientBoolVector );
+    ASSERT_EQ( clientBoolVector, clientDocument->demoObject->boolVector() );
+    ASSERT_EQ( clientBoolVector, serverDocument->demoObject->boolVector() );
 
     std::vector<bool> serverBoolVector = { false, true, true, false };
-    serverDocument->m_demoObject->boolVector.setValue( serverBoolVector );
-    ASSERT_EQ( clientDocument->m_demoObject->boolVector(), serverBoolVector );
-    ASSERT_EQ( serverDocument->m_demoObject->boolVector(), serverBoolVector );
+    serverDocument->demoObject->boolVector.setValue( serverBoolVector );
+    ASSERT_EQ( clientDocument->demoObject->boolVector(), serverBoolVector );
+    ASSERT_EQ( serverDocument->demoObject->boolVector(), serverBoolVector );
 
     bool ok = client->stopServer();
     ASSERT_TRUE( ok );
@@ -604,9 +604,9 @@ TEST( BaseTest, ChildObjects )
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
 
-    ASSERT_TRUE( clientDocument->m_demoObject.value() != nullptr );
-    clientDocument->m_demoObject.clear();
-    ASSERT_TRUE( clientDocument->m_demoObject.value() == nullptr );
+    ASSERT_TRUE( clientDocument->demoObject.value() != nullptr );
+    clientDocument->demoObject.clear();
+    ASSERT_TRUE( clientDocument->demoObject.value() == nullptr );
 
     size_t childCount = 12u;
     for ( size_t i = 0; i < childCount; ++i )
@@ -694,13 +694,13 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
         ASSERT_TRUE( clientDocument != nullptr );
 
         {
-            serverDocument->m_demoObject->floatVector = { 42.0f };
-            auto start_time                           = std::chrono::system_clock::now();
-            auto clientVector                         = clientDocument->m_demoObject->floatVector();
-            auto end_time                             = std::chrono::system_clock::now();
+            serverDocument->demoObject->floatVector = { 42.0f };
+            auto start_time                         = std::chrono::system_clock::now();
+            auto clientVector                       = clientDocument->demoObject->floatVector();
+            auto end_time                           = std::chrono::system_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>( end_time - start_time ).count();
             CAFFA_INFO( "Getting single float vector took " << duration << "µs" );
-            ASSERT_EQ( serverDocument->m_demoObject->floatVector(), clientDocument->m_demoObject->floatVector() );
+            ASSERT_EQ( serverDocument->demoObject->floatVector(), clientDocument->demoObject->floatVector() );
         }
 
         std::vector<float> serverVector;
@@ -712,11 +712,11 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
             serverVector.push_back( (float)rng() );
         }
 
-        serverDocument->m_demoObject->floatVector = serverVector;
+        serverDocument->demoObject->floatVector = serverVector;
 
         {
             auto   start_time   = std::chrono::system_clock::now();
-            auto   clientVector = clientDocument->m_demoObject->floatVector();
+            auto   clientVector = clientDocument->demoObject->floatVector();
             auto   end_time     = std::chrono::system_clock::now();
             auto   duration = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
             size_t MB       = numberOfFloats * sizeof( float ) / ( 1024u * 1024u );

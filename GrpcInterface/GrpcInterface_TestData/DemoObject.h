@@ -101,13 +101,13 @@ public:
                            const std::vector<float>& floatVector = {} )
         : caffa::ObjectMethod( self )
     {
-        initField( m_doubleField, "doubleField" ).withDefault( doubleValue );
-        initField( m_intField, "intField" ).withDefault( intValue );
-        initField( m_stringField, "stringField" ).withDefault( stringValue );
+        initField( m_doubleField, "doubleArgument" ).withDefault( doubleValue );
+        initField( m_intField, "intArgument" ).withDefault( intValue );
+        initField( m_stringField, "stringArgument" ).withDefault( stringValue );
 
-        initField( m_boolVector, "boolVector" ).withDefault( boolVector );
-        initField( m_intVector, "intVector" ).withDefault( intVector );
-        initField( m_floatVector, "floatVector" ).withDefault( floatVector );
+        initField( m_boolVector, "boolArrayArgument" ).withDefault( boolVector );
+        initField( m_intVector, "intArrayArgument" ).withDefault( intVector );
+        initField( m_floatVector, "floatArrayArgument" ).withDefault( floatVector );
     }
     std::pair<bool, std::unique_ptr<caffa::ObjectMethodResult>> execute() override
     {
@@ -162,9 +162,9 @@ class DemoDocument : public caffa::Document
 public:
     DemoDocument()
     {
-        initField( m_demoObject, "DemoObject" ).withScripting();
+        initField( demoObject, "DemoObject" ).withScripting();
         initField( m_inheritedDemoObjects, "InheritedDemoObjects" ).withScripting();
-        m_demoObject = std::make_unique<DemoObject>();
+        demoObject = std::make_unique<DemoObject>();
 
         this->setId( "testDocument" );
         this->setFileName( "dummyFileName" );
@@ -176,7 +176,7 @@ public:
     }
     std::vector<InheritedDemoObj*> inheritedObjects() const { return m_inheritedDemoObjects.value(); }
 
-    caffa::ChildField<DemoObject*>            m_demoObject;
+    caffa::ChildField<DemoObject*>            demoObject;
     caffa::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
 };
 
@@ -187,11 +187,11 @@ class DemoDocumentWithNonScriptableMember : public caffa::Document
 public:
     DemoDocumentWithNonScriptableMember()
     {
-        initField( m_demoObject, "DemoObject" ).withScripting();
-        initField( m_demoObjectNonScriptable, "DemoObjectNonScriptable" );
+        initField( demoObject, "DemoObject" ).withScripting();
+        initField( demoObjectNonScriptable, "DemoObjectNonScriptable" );
         initField( m_inheritedDemoObjects, "InheritedDemoObjects" ).withScripting();
-        m_demoObject              = std::make_unique<DemoObject>();
-        m_demoObjectNonScriptable = std::make_unique<DemoObject>();
+        demoObject              = std::make_unique<DemoObject>();
+        demoObjectNonScriptable = std::make_unique<DemoObject>();
 
         this->setId( "testDocument2" );
         this->setFileName( "dummyFileName2" );
@@ -203,7 +203,7 @@ public:
     }
     std::vector<InheritedDemoObj*> inheritedObjects() const { return m_inheritedDemoObjects.value(); }
 
-    caffa::ChildField<DemoObject*>            m_demoObject;
-    caffa::ChildField<DemoObject*>            m_demoObjectNonScriptable;
+    caffa::ChildField<DemoObject*>            demoObject;
+    caffa::ChildField<DemoObject*>            demoObjectNonScriptable;
     caffa::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
 };
