@@ -64,7 +64,7 @@ public:
     // Basic access
 
     DataType*       value() { return static_cast<DataType*>( m_fieldDataAccessor->value() ); }
-    const DataType* value() const { return static_cast<DataType*>( m_fieldDataAccessor->value() ); }
+    const DataType* value() const { return static_cast<const DataType*>( m_fieldDataAccessor->value() ); }
     void            setValue( DataTypePtr fieldValue );
 
     // Access operators
@@ -94,7 +94,7 @@ private:
     CAFFA_DISABLE_COPY_AND_ASSIGN( ChildField );
 
     friend class FieldIoCap<ChildField<DataType*>>;
-    std::unique_ptr<ChildFieldAccessor> m_fieldDataAccessor;
+    mutable std::unique_ptr<ChildFieldAccessor> m_fieldDataAccessor;
 };
 
 } // End of namespace caffa
