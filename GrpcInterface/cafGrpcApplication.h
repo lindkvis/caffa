@@ -31,15 +31,14 @@ class Application : public caffa::Application
 public:
     Application( const unsigned int& capabilities );
     Application( const AppCapability& capability );
-    
+
     static Application* instance();
-    size_t packageByteSize() const;
-    void   setPackageByteSize(size_t packageByteSize);
-    
-    static std::string read_keycert( const std::string& path );
+    size_t              packageByteSize() const;
+    void                setPackageByteSize( size_t packageByteSize );
+
+    static std::string readKeyAndCertificate( const std::string& path );
 
 private:
     size_t m_packageByteSize;
-
 };
-} // namespace caffa
+} // namespace caffa::rpc

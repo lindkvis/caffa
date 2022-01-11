@@ -140,11 +140,11 @@ public:
         ServerBuilder builder;
         if ( !m_serverKeyFile.empty() && !m_serverCertFile.empty() )
         {
-            CAFFA_DEBUG("Trying to use server cert: " << m_serverCertFile << " and key: " << m_serverKeyFile);
-            
-            std::string servercert = caffa::rpc::Application::read_keycert( m_serverCertFile );
-            std::string serverkey  = caffa::rpc::Application::read_keycert( m_serverKeyFile );
-            
+            CAFFA_DEBUG( "Trying to use server cert: " << m_serverCertFile << " and key: " << m_serverKeyFile );
+
+            std::string servercert = caffa::rpc::Application::readKeyAndCertificate( m_serverCertFile );
+            std::string serverkey  = caffa::rpc::Application::readKeyAndCertificate( m_serverKeyFile );
+
             grpc::SslServerCredentialsOptions::PemKeyCertPair pkcp;
             pkcp.private_key = serverkey;
             pkcp.cert_chain  = servercert;
