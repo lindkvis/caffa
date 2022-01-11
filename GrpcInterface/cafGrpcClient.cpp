@@ -64,13 +64,12 @@ public:
         // Created new server
         if ( !sslCert.empty() )
         {
-            std::string                 cacert = Application::read_keycert( sslCert );
+            std::string                 cacert = Application::readKeyAndCertificate( sslCert );
             grpc::SslCredentialsOptions ssl_opts;
             ssl_opts.pem_root_certs = cacert;
 
             auto ssl_creds = grpc::SslCredentials( ssl_opts );
-            m_channel = grpc::CreateChannel( hostname + ":" + std::to_string( port ), ssl_creds );
-
+            m_channel      = grpc::CreateChannel( hostname + ":" + std::to_string( port ), ssl_creds );
         }
         else
         {

@@ -26,21 +26,21 @@
 using namespace caffa::rpc;
 
 Application::Application( const unsigned int& capabilities )
-    : caffa::Application(capabilities)
-    , m_packageByteSize(1024u * 64u)
+    : caffa::Application( capabilities )
+    , m_packageByteSize( 1024u * 64u )
 {
 }
 
 Application::Application( const AppCapability& capability )
-    : caffa::Application(capability)
-    , m_packageByteSize(1024u * 64u)
+    : caffa::Application( capability )
+    , m_packageByteSize( 1024u * 64u )
 {
 }
 
 Application* Application::instance()
 {
     caffa::Application* appInstance = caffa::Application::instance();
-    return dynamic_cast<Application*>( appInstance );        
+    return dynamic_cast<Application*>( appInstance );
 }
 
 size_t Application::packageByteSize() const
@@ -48,17 +48,17 @@ size_t Application::packageByteSize() const
     return m_packageByteSize;
 }
 
-void Application::setPackageByteSize(size_t packageByteSize) 
+void Application::setPackageByteSize( size_t packageByteSize )
 {
     m_packageByteSize = packageByteSize;
 }
 
-std::string Application::read_keycert( const std::string& path )
+std::string Application::readKeyAndCertificate( const std::string& path )
 {
-    std::ifstream     stream( path );
-    if (!stream.good())
+    std::ifstream stream( path );
+    if ( !stream.good() )
     {
-        CAFFA_CRITICAL("Failed to open file: " << path);
+        CAFFA_CRITICAL( "Failed to open file: " << path );
     }
     std::stringstream buffer;
     buffer << stream.rdbuf();
