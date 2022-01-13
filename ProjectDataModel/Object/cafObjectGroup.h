@@ -45,8 +45,8 @@ public:
 template <typename T>
 std::vector<std::unique_ptr<T>> ObjectGroup::createCopyByType( ObjectFactory* objectFactory ) const
 {
-    std::vector<std::unique_ptr<T>> copyOfTypedObjects;
-    std::vector<ObservingPointer<T>>         sourceTypedObjects;
+    std::vector<std::unique_ptr<T>>  copyOfTypedObjects;
+    std::vector<ObservingPointer<T>> sourceTypedObjects;
     objectsByType( &sourceTypedObjects );
 
     for ( ObservingPointer<T> object : sourceTypedObjects )
@@ -55,7 +55,7 @@ std::vector<std::unique_ptr<T>> ObjectGroup::createCopyByType( ObjectFactory* ob
 
         auto objectCopy = object->copyBySerialization( DefaultObjectFactory::instance() );
 
-        auto typedObject = caffa::static_unique_cast<T>( std::move( objectCopy ) );
+        auto typedObject = caffa::dynamic_unique_cast<T>( std::move( objectCopy ) );
         CAFFA_ASSERT( typedObject );
 
         copyOfTypedObjects->push_back( std::move( typedObject ) );

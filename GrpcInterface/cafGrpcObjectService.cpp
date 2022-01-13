@@ -107,20 +107,14 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
         if ( method )
         {
             copyResultOrParameterObjectFromRpcToCaf( &( request->params() ), method.get() );
+
             CAFFA_TRACE( "Method parameters copied. Now executing!" );
-            auto [result, resultObject] = method->execute();
-            if ( result )
-            {
-                if ( resultObject ) copyResultOrParameterObjectFromCafToRpc( resultObject.get(), reply );
-                return grpc::Status::OK;
-            }
-            else
-            {
-                CAFFA_ERROR( "Failed to run execute!" );
-                std::string errMsg;
-                if (resultObject) { errMsg = resultObject->errorMessage; }
-                return grpc::Status( grpc::NOT_FOUND, std::string( "Method " ) + request->method() + " failed! With message: " + errMsg);
-            }
+            auto result = method->execute();
+            CAFFA_ASSERT( result );
+
+            copyResultOrParameterObjectFromCafToRpc( result.get(), reply );
+
+            return grpc::Status::OK;
         }
         return grpc::Status( grpc::NOT_FOUND, "Could not find Method" );
     }

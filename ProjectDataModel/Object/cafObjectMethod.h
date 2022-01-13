@@ -58,11 +58,12 @@ namespace caffa
 class ObjectMethodResult : public Object
 {
     CAFFA_HEADER_INIT;
-    
+
 public:
-    ObjectMethodResult(const std::string& errMsg = "");
-    
+    ObjectMethodResult( bool retValue = true, const std::string& errMsg = "" );
+
     Field<std::string> errorMessage;
+    Field<bool>        status;
 };
 
 //==================================================================================================
@@ -80,7 +81,7 @@ public:
     ObjectMethod( ObjectHandle* self );
 
     // The returned object contains the results of the method and is the responsibility of the caller.
-    virtual std::pair<bool, std::unique_ptr<ObjectMethodResult>> execute() = 0;
+    virtual std::unique_ptr<ObjectMethodResult> execute() = 0;
 
     // A default created result object used as a pattern for clients
     virtual std::unique_ptr<ObjectMethodResult> defaultResult() const = 0;

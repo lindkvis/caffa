@@ -376,10 +376,9 @@ TEST( BaseTest, ObjectMethod )
     ASSERT_EQ( method.classKeyword(), methodKeyword );
 
     CAFFA_INFO( "Execute" );
-    auto [result, resultObject] = client->execute( &method );
+    auto result = client->execute( &method );
     ASSERT_TRUE( result );
-    ASSERT_TRUE( resultObject != nullptr );
-    auto copyObjectResult = dynamic_cast<DemoObject_copyObjectResult*>( resultObject.get() );
+    auto copyObjectResult = dynamic_cast<DemoObject_copyObjectResult*>( result.get() );
     ASSERT_TRUE( copyObjectResult != nullptr );
     ASSERT_EQ( true, copyObjectResult->status() );
 

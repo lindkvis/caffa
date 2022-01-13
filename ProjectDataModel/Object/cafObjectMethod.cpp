@@ -38,16 +38,16 @@
 
 using namespace caffa;
 
-CAFFA_IO_ABSTRACT_SOURCE_INIT(ObjectMethodResult, "ObjectMethodResult", "Object");
-
+CAFFA_IO_ABSTRACT_SOURCE_INIT( ObjectMethodResult, "ObjectMethodResult", "Object" );
 CAFFA_IO_ABSTRACT_SOURCE_INIT( ObjectMethod, "ObjectMethod", "Object" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectMethodResult::ObjectMethodResult(const std::string& errMsg)
+ObjectMethodResult::ObjectMethodResult( bool retValue, const std::string& errMsg )
 {
-    initField(errorMessage, "error_message").withDefault(errMsg);
+    initField( status, "status" ).withDefault( retValue );
+    initField( errorMessage, "error_message" ).withDefault( errMsg );
 }
 
 //--------------------------------------------------------------------------------------------------
