@@ -82,9 +82,10 @@ struct DemoObject_copyObjectResult : public caffa::ObjectMethodResult
 {
     CAFFA_HEADER_INIT;
 
-    DemoObject_copyObjectResult() { initField( status, "status" ).withDefault( false ); }
-
-    caffa::Field<bool> status;
+    DemoObject_copyObjectResult( bool status = false )
+        : caffa::ObjectMethodResult( status )
+    {
+    }
 };
 
 class DemoObject_copyObject : public caffa::ObjectMethod
@@ -109,7 +110,7 @@ public:
         initField( m_intVector, "intArrayArgument" ).withDefault( intVector );
         initField( m_floatVector, "floatArrayArgument" ).withDefault( floatVector );
     }
-    std::pair<bool, std::unique_ptr<caffa::ObjectMethodResult>> execute() override
+    std::unique_ptr<caffa::ObjectMethodResult> execute() override
     {
         CAFFA_DEBUG( "Executing object method on server with values: " << m_doubleField() << ", " << m_intField()
                                                                        << ", " << m_stringField() );
@@ -123,7 +124,7 @@ public:
 
         auto demoObjectResult    = std::make_unique<DemoObject_copyObjectResult>();
         demoObjectResult->status = true;
-        return std::make_pair( true, std::move( demoObjectResult ) );
+        return std::move( demoObjectResult );
     }
     std::unique_ptr<caffa::ObjectMethodResult> defaultResult() const override
     {

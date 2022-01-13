@@ -57,9 +57,8 @@ public:
     }
 
     ~ContainerObject() {}
-    
-    std::string classKeywordDynamic() const override { return classKeyword(); }
 
+    std::string classKeywordDynamic() const override { return classKeyword(); }
 
     // Fields
     caffa::ChildArrayField<ItemObject*>      m_items;
@@ -210,14 +209,14 @@ TEST( AdvancedObjectTest, CopyOfObjects )
             std::string originalOutput = serializer.writeObjectToString( ap );
             {
                 auto        objCopy    = serializer.copyBySerialization( ap );
-                auto        demoObj    = caffa::static_unique_cast<DemoObjectA>( std::move( objCopy ) );
+                auto        demoObj    = caffa::dynamic_unique_cast<DemoObjectA>( std::move( objCopy ) );
                 std::string copyOutput = serializer.writeObjectToString( demoObj.get() );
                 ASSERT_EQ( originalOutput, copyOutput );
             }
 
             {
                 auto objCopy = serializer.copyBySerialization( ap );
-                siblingPtr->m_demoObjs.push_back( caffa::static_unique_cast<DemoObjectA>( std::move( objCopy ) ) );
+                siblingPtr->m_demoObjs.push_back( caffa::dynamic_unique_cast<DemoObjectA>( std::move( objCopy ) ) );
             }
         }
     }

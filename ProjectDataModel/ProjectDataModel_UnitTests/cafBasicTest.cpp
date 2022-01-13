@@ -210,9 +210,8 @@ TEST( BaseTest, NormalField )
             this->addField( &field2, "field2" );
             this->addField( &field3, "field3" );
         }
-        
-        std::string classKeywordDynamic() const override { return "ObjectWithVectors"; }
 
+        std::string classKeywordDynamic() const override { return "ObjectWithVectors"; }
 
         caffa::Field<std::vector<double>> field1;
         caffa::Field<std::vector<double>> field2;
@@ -433,28 +432,28 @@ TEST( BaseTest, ObjectFactory )
 {
     {
         auto s(
-            caffa::static_unique_cast<SimpleObj>( caffa::DefaultObjectFactory::instance()->create( "SimpleObj" ) ) );
+            caffa::dynamic_unique_cast<SimpleObj>( caffa::DefaultObjectFactory::instance()->create( "SimpleObj" ) ) );
         EXPECT_TRUE( s );
     }
     {
         auto s(
-            caffa::static_unique_cast<DemoObject>( caffa::DefaultObjectFactory::instance()->create( "DemoObject" ) ) );
+            caffa::dynamic_unique_cast<DemoObject>( caffa::DefaultObjectFactory::instance()->create( "DemoObject" ) ) );
         EXPECT_TRUE( s );
     }
     {
-        auto s = caffa::static_unique_cast<InheritedDemoObj>(
+        auto s = caffa::dynamic_unique_cast<InheritedDemoObj>(
             caffa::DefaultObjectFactory::instance()->create( "InheritedDemoObj" ) );
         EXPECT_TRUE( s );
     }
 
     {
-        auto s =
-            caffa::static_unique_cast<caffa::Document>( caffa::DefaultObjectFactory::instance()->create( "Document" ) );
+        auto s = caffa::dynamic_unique_cast<caffa::Document>(
+            caffa::DefaultObjectFactory::instance()->create( "Document" ) );
         EXPECT_TRUE( s );
     }
 
     {
-        auto s = caffa::static_unique_cast<caffa::ObjectGroup>(
+        auto s = caffa::dynamic_unique_cast<caffa::ObjectGroup>(
             caffa::DefaultObjectFactory::instance()->create( "ObjectGroup" ) );
         EXPECT_TRUE( s );
     }

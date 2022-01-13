@@ -203,15 +203,15 @@ private:
 };
 
 template <typename ToObjectHandleDerivedClass, typename FromObjectHandleDerivedClass = ObjectHandle>
-bool static_unique_cast_is_valid( const std::unique_ptr<FromObjectHandleDerivedClass>& fromPointer )
+bool dynamic_unique_cast_is_valid( const std::unique_ptr<FromObjectHandleDerivedClass>& fromPointer )
 {
     return dynamic_cast<ToObjectHandleDerivedClass*>( fromPointer.get() ) != nullptr;
 }
 
 template <typename ToObjectHandleDerivedClass, typename FromObjectHandleDerivedClass = ObjectHandle>
-std::unique_ptr<ToObjectHandleDerivedClass> static_unique_cast( std::unique_ptr<FromObjectHandleDerivedClass> fromPointer )
+std::unique_ptr<ToObjectHandleDerivedClass> dynamic_unique_cast( std::unique_ptr<FromObjectHandleDerivedClass> fromPointer )
 {
-    if ( !static_unique_cast_is_valid<ToObjectHandleDerivedClass, FromObjectHandleDerivedClass>( fromPointer ) )
+    if ( !dynamic_unique_cast_is_valid<ToObjectHandleDerivedClass, FromObjectHandleDerivedClass>( fromPointer ) )
     {
         CAFFA_ERROR( "Bad cast! " << typeid( FromObjectHandleDerivedClass ).name() << " cannot be cast to "
                                   << typeid( ToObjectHandleDerivedClass ).name() );
