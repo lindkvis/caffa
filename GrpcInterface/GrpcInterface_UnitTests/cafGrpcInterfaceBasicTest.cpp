@@ -35,7 +35,10 @@ TEST( IncludeTest, Basic )
 
 TEST( BaseTest, Launch )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
+                                                  ServerApp::s_serverCertFile,
+                                                  ServerApp::s_serverKeyFile,
+                                                  ServerApp::s_caCertFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -46,10 +49,14 @@ TEST( BaseTest, Launch )
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
     {
-        auto client = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
+        auto client = std::make_unique<caffa::rpc::Client>( "deckard",
+                                                            ServerApp::s_port,
+                                                            ServerApp::s_clientCertFile,
+                                                            ServerApp::s_clientKeyFile,
+                                                            ServerApp::s_caCertFile );
 
-        // caffa::AppInfo appInfo = client->appInfo();
-        // ASSERT_EQ( serverApp->name(), appInfo.name );
+        caffa::AppInfo appInfo = client->appInfo();
+        ASSERT_EQ( serverApp->name(), appInfo.name );
 
         CAFFA_DEBUG( "Confirmed test results!" );
         bool ok = client->stopServer();
@@ -67,7 +74,10 @@ TEST( BaseTest, Launch )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, Document )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
+                                                  ServerApp::s_serverCertFile,
+                                                  ServerApp::s_serverKeyFile,
+                                                  ServerApp::s_caCertFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -79,7 +89,11 @@ TEST( BaseTest, Document )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                        ServerApp::s_port,
+                                                        ServerApp::s_clientCertFile,
+                                                        ServerApp::s_clientKeyFile,
+                                                        ServerApp::s_caCertFile );
     CAFFA_INFO( "Expect failure to get document with the wrong document ID. Next line should be an error." );
     auto nonExistentDocument = dynamic_cast<DemoDocument*>( serverApp->document( "wrongName" ) );
     ASSERT_TRUE( nonExistentDocument == nullptr );
@@ -172,7 +186,10 @@ TEST( BaseTest, Document )
 
 TEST( BaseTest, DocumentWithNonScriptableChild )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
+                                                  ServerApp::s_serverCertFile,
+                                                  ServerApp::s_serverKeyFile,
+                                                  ServerApp::s_caCertFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -184,7 +201,11 @@ TEST( BaseTest, DocumentWithNonScriptableChild )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
-    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
+    auto client         = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                        ServerApp::s_port,
+                                                        ServerApp::s_clientCertFile,
+                                                        ServerApp::s_clientKeyFile,
+                                                        ServerApp::s_caCertFile );
     auto serverDocument = dynamic_cast<DemoDocumentWithNonScriptableMember*>( serverApp->document( "testDocument2" ) );
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
@@ -248,7 +269,10 @@ TEST( BaseTest, DocumentWithNonScriptableChild )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, Sync )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
+                                                  ServerApp::s_serverCertFile,
+                                                  ServerApp::s_serverKeyFile,
+                                                  ServerApp::s_caCertFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -258,7 +282,11 @@ TEST( BaseTest, Sync )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
+    auto client         = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                        ServerApp::s_port,
+                                                        ServerApp::s_clientCertFile,
+                                                        ServerApp::s_clientKeyFile,
+                                                        ServerApp::s_caCertFile );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
 
@@ -291,7 +319,10 @@ TEST( BaseTest, Sync )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ObjectMethod )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
+                                                  ServerApp::s_serverCertFile,
+                                                  ServerApp::s_serverKeyFile,
+                                                  ServerApp::s_caCertFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -301,7 +332,11 @@ TEST( BaseTest, ObjectMethod )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
+    auto client         = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                        ServerApp::s_port,
+                                                        ServerApp::s_clientCertFile,
+                                                        ServerApp::s_clientKeyFile,
+                                                        ServerApp::s_caCertFile );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
 
@@ -374,7 +409,10 @@ TEST( BaseTest, ObjectMethod )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ObjectIntGetterAndSetter )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
+                                                  ServerApp::s_serverCertFile,
+                                                  ServerApp::s_serverKeyFile,
+                                                  ServerApp::s_caCertFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -384,7 +422,11 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client         = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
+    auto client         = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                        ServerApp::s_port,
+                                                        ServerApp::s_clientCertFile,
+                                                        ServerApp::s_clientKeyFile,
+                                                        ServerApp::s_caCertFile );
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
@@ -423,7 +465,10 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ObjectDoubleGetterAndSetter )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
+                                                  ServerApp::s_serverCertFile,
+                                                  ServerApp::s_serverKeyFile,
+                                                  ServerApp::s_caCertFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -433,7 +478,11 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                        ServerApp::s_port,
+                                                        ServerApp::s_clientCertFile,
+                                                        ServerApp::s_clientKeyFile,
+                                                        ServerApp::s_caCertFile );
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
@@ -475,7 +524,10 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ObjectIntegratedGettersAndSetters )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
+                                                  ServerApp::s_serverCertFile,
+                                                  ServerApp::s_serverKeyFile,
+                                                  ServerApp::s_caCertFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -485,7 +537,11 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                        ServerApp::s_port,
+                                                        ServerApp::s_clientCertFile,
+                                                        ServerApp::s_clientKeyFile,
+                                                        ServerApp::s_caCertFile );
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
@@ -535,7 +591,10 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, BoolVectorGettersAndSetters )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
+                                                  ServerApp::s_serverCertFile,
+                                                  ServerApp::s_serverKeyFile,
+                                                  ServerApp::s_caCertFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -545,7 +604,11 @@ TEST( BaseTest, BoolVectorGettersAndSetters )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                        ServerApp::s_port,
+                                                        ServerApp::s_clientCertFile,
+                                                        ServerApp::s_clientKeyFile,
+                                                        ServerApp::s_caCertFile );
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
@@ -584,7 +647,10 @@ TEST( BaseTest, BoolVectorGettersAndSetters )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ChildObjects )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
+                                                  ServerApp::s_serverCertFile,
+                                                  ServerApp::s_serverKeyFile,
+                                                  ServerApp::s_caCertFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -594,7 +660,11 @@ TEST( BaseTest, ChildObjects )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                        ServerApp::s_port,
+                                                        ServerApp::s_clientCertFile,
+                                                        ServerApp::s_clientKeyFile,
+                                                        ServerApp::s_caCertFile );
 
     auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     ASSERT_TRUE( serverDocument );
@@ -672,7 +742,10 @@ TEST( BaseTest, ChildObjects )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, LocalResponseTimeAndDataTransfer )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port, ServerApp::s_certFile, ServerApp::s_keyFile );
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
+                                                  ServerApp::s_serverCertFile,
+                                                  ServerApp::s_serverKeyFile,
+                                                  ServerApp::s_caCertFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
@@ -683,7 +756,11 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
     {
-        auto client = std::make_unique<caffa::rpc::Client>( "localhost", ServerApp::s_port, ServerApp::s_certFile );
+        auto client = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                            ServerApp::s_port,
+                                                            ServerApp::s_clientCertFile,
+                                                            ServerApp::s_clientKeyFile,
+                                                            ServerApp::s_caCertFile );
 
         auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
         ASSERT_TRUE( serverDocument );

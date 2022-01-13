@@ -27,12 +27,18 @@
 class ServerApp : public caffa::rpc::ServerApplication
 {
 public:
-    static int s_port;
-    static std::string s_certFile;
-    static std::string s_keyFile;
+    static int         s_port;
+    static std::string s_serverCertFile;
+    static std::string s_serverKeyFile;
+    static std::string s_caCertFile;
+    static std::string s_clientCertFile;
+    static std::string s_clientKeyFile;
 
-    ServerApp( int port, const std::string& certFile = "", const std::string& keyFile = "" )
-        : caffa::rpc::ServerApplication( port, certFile, keyFile )
+    ServerApp( int                port,
+               const std::string& serverCertFile = "",
+               const std::string& serverKeyFile  = "",
+               const std::string& caCertFile     = "" )
+        : caffa::rpc::ServerApplication( port, serverCertFile, serverKeyFile, caCertFile )
         , m_demoDocument( std::make_unique<DemoDocument>() )
         , m_demoDocumentWithNonScriptableMember( std::make_unique<DemoDocumentWithNonScriptableMember>() )
     {
