@@ -36,7 +36,10 @@ public:
      * @param serverCertFile File path to a server certificate
      * @param serverKeyFile File path to a server private key
      */
-    Server( int port = 50000, const std::string& serverCertFile = "", const std::string& serverKeyFile = "" );
+    Server( int                port           = 50000,
+            const std::string& serverCertFile = "",
+            const std::string& serverKeyFile  = "",
+            const std::string& caCertFile     = "" );
     ~Server();
 
     void run();

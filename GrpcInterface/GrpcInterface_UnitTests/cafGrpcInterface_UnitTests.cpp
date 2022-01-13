@@ -79,6 +79,15 @@ int main( int argc, char** argv )
         flags.add_options()( "server-key,k",
                              po::value<std::string>()->value_name( "filename" ),
                              "SSL/TLS server private key file" );
+        flags.add_options()( "ca-cert,a",
+                             po::value<std::string>()->value_name( "filename" ),
+                             "SSL/TLS Certiticate Autority certificate file" );
+        flags.add_options()( "client-cert,C",
+                             po::value<std::string>()->value_name( "filename" ),
+                             "SSL/TLS client certificate file" );
+        flags.add_options()( "client-key,K",
+                             po::value<std::string>()->value_name( "filename" ),
+                             "SSL/TLS client private key file" );
 
         po::variables_map vm;
         po::store( po::parse_command_line( argc, argv, flags ), vm );
@@ -102,15 +111,20 @@ int main( int argc, char** argv )
             logLevel = caffa::Logger::logLevelFromLabel( vm["verbosity"].as<std::string>() );
         }
 
-        if ( vm.count( "server-cert" ) || vm.count( "server-key" ) )
+        if ( vm.count( "server-cert" ) || vm.count( "server-key" ) || vm.count( "ca-cert" ) ||
+             vm.count( "client-cert" ) || vm.count( "client-key" ) )
         {
-            if ( !( vm.count( "server-cert" ) && vm.count( "server-key" ) ) )
+            if ( !( vm.count( "server-cert" ) && vm.count( "server-key" ) && vm.count( "ca-cert" ) &&
+                    vm.count( "client-cert" ) && vm.count( "client-key" ) ) )
             {
                 throw std::runtime_error(
-                    "If you provide either a server cert or a server key, you need to provide both!" );
+                    "If you provide either one SSL/TLS parameter, you need to provide all of them!" );
             }
-            ServerApp::s_keyFile  = vm[ "server-key" ].as<std::string>();
-            ServerApp::s_certFile = vm["server-cert" ].as<std::string>();
+            ServerApp::s_serverKeyFile  = vm["server-key"].as<std::string>();
+            ServerApp::s_serverCertFile = vm["server-cert"].as<std::string>();
+            ServerApp::s_caCertFile     = vm["ca-cert"].as<std::string>();
+            ServerApp::s_clientKeyFile  = vm["client-key"].as<std::string>();
+            ServerApp::s_clientCertFile = vm["client-cert"].as<std::string>();
         }
 
         caffa::Logger::setApplicationLogLevel( logLevel );

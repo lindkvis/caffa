@@ -33,11 +33,12 @@ using namespace caffa::rpc;
 //--------------------------------------------------------------------------------------------------
 ServerApplication::ServerApplication( int                portNumber,
                                       const std::string& serverCertFile /* = ""*/,
-                                      const std::string& serverKeyFile /* = ""*/ )
+                                      const std::string& serverKeyFile /* = ""*/,
+                                      const std::string& caCertFile /* = ""*/ )
     : Application( AppCapability::GRPC_SERVER )
 
 {
-    m_server = std::make_unique<caffa::rpc::Server>( portNumber, serverCertFile, serverKeyFile );
+    m_server = std::make_unique<caffa::rpc::Server>( portNumber, serverCertFile, serverKeyFile, caCertFile );
 
     caffa::rpc::ServiceFactory::instance()->registerCreator<caffa::rpc::AppService>(
         typeid( caffa::rpc::AppService ).hash_code() );

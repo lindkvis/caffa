@@ -59,14 +59,26 @@ namespace caffa::rpc
 class ClientImpl
 {
 public:
-    ClientImpl( const std::string& hostname, int port, const std::string& sslCert )
+    ClientImpl( const std::string& hostname,
+                int                port,
+                const std::string& clientCertFile,
+                const std::string& clientKeyFile,
+                const std::string& caCertFile )
     {
         // Created new server
-        if ( !sslCert.empty() )
+        if ( !caCertFile.empty() )
         {
-            std::string                 cacert = Application::readKeyAndCertificate( sslCert );
+            CAFFA_DEBUG( "Connecting to " << hostname << " using client cert: " << clientCertFile
+                                          << " and key: " << clientKeyFile << " plus CA cert: " << caCertFile );
+
+            std::string clientCert = Application::readKeyAndCertificate( clientCertFile );
+            std::string clientKey  = Application::readKeyAndCertificate( clientKeyFile );
+            std::string caCert     = Application::readKeyAndCertificate( caCertFile );
+
             grpc::SslCredentialsOptions ssl_opts;
-            ssl_opts.pem_root_certs = cacert;
+            ssl_opts.pem_cert_chain  = clientCert;
+            ssl_opts.pem_private_key = clientKey;
+            ssl_opts.pem_root_certs  = caCert;
 
             auto ssl_creds = grpc::SslCredentials( ssl_opts );
             m_channel      = grpc::CreateChannel( hostname + ":" + std::to_string( port ), ssl_creds );
@@ -841,8 +853,12 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Client::Client( const std::string& hostname, int port /*= 50000 */, const std::string& sslCert /*="" */ )
-    : m_clientImpl( std::make_unique<ClientImpl>( hostname, port, sslCert ) )
+Client::Client( const std::string& hostname,
+                int                port /*= 50000 */,
+                const std::string& clientCertFile,
+                const std::string& clientKeyFile,
+                const std::string& caCertFile )
+    : m_clientImpl( std::make_unique<ClientImpl>( hostname, port, clientCertFile, clientKeyFile, caCertFile ) )
 {
     caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( this );
 }

@@ -34,7 +34,10 @@ public:
      * @param serverCertFile File path to a server certificate
      * @param serverKeyFile File path to a server private key
      */
-    ServerApplication( int portNumber, const std::string& serverCertFile = "", const std::string& serverKeyFile = "" );
+    ServerApplication( int                portNumber,
+                       const std::string& serverCertFile = "",
+                       const std::string& serverKeyFile  = "",
+                       const std::string& caCertFile     = "" );
     static ServerApplication* instance();
 
     int  portNumber() const;

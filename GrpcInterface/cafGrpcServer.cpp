@@ -72,10 +72,12 @@ class ServerImpl
 public:
     ServerImpl( int                portNumber /* = 50000 */,
                 const std::string& serverCertFile /* = ""*/,
-                const std::string& serverKeyFile /* = ""*/ )
+                const std::string& serverKeyFile /* = ""*/,
+                const std::string& caCertFile /* = ""*/ )
         : m_portNumber( portNumber )
         , m_serverCertFile( serverCertFile )
         , m_serverKeyFile( serverKeyFile )
+        , m_caCertFile( caCertFile )
         , m_receivedQuitRequest( false )
     {
     }
@@ -138,19 +140,23 @@ public:
         CAFFA_DEBUG( "Initialising new server with address: " << serverAddress );
 
         ServerBuilder builder;
-        if ( !m_serverKeyFile.empty() && !m_serverCertFile.empty() )
+        if ( !m_serverKeyFile.empty() || !m_serverCertFile.empty() || !m_caCertFile.empty() )
         {
-            CAFFA_DEBUG( "Trying to use server cert: " << m_serverCertFile << " and key: " << m_serverKeyFile );
+            CAFFA_DEBUG( "Trying to use server cert: " << m_serverCertFile << " and key: " << m_serverKeyFile
+                                                       << " plus CA cert: " << m_caCertFile );
 
-            std::string servercert = caffa::rpc::Application::readKeyAndCertificate( m_serverCertFile );
-            std::string serverkey  = caffa::rpc::Application::readKeyAndCertificate( m_serverKeyFile );
+            CAFFA_ASSERT( !m_serverKeyFile.empty() && !m_serverCertFile.empty() && !m_caCertFile.empty() );
+
+            std::string serverCert = caffa::rpc::Application::readKeyAndCertificate( m_serverCertFile );
+            std::string serverKey  = caffa::rpc::Application::readKeyAndCertificate( m_serverKeyFile );
+            std::string caCert     = caffa::rpc::Application::readKeyAndCertificate( m_caCertFile );
 
             grpc::SslServerCredentialsOptions::PemKeyCertPair pkcp;
-            pkcp.private_key = serverkey;
-            pkcp.cert_chain  = servercert;
+            pkcp.private_key = serverKey;
+            pkcp.cert_chain  = serverCert;
 
-            grpc::SslServerCredentialsOptions ssl_opts;
-            ssl_opts.pem_root_certs = "";
+            grpc::SslServerCredentialsOptions ssl_opts( GRPC_SSL_REQUEST_AND_REQUIRE_CLIENT_CERTIFICATE_AND_VERIFY );
+            ssl_opts.pem_root_certs = caCert;
             ssl_opts.pem_key_cert_pairs.push_back( pkcp );
 
             std::shared_ptr<grpc::ServerCredentials> creds;
@@ -262,6 +268,7 @@ private:
     int         m_portNumber;
     std::string m_serverCertFile;
     std::string m_serverKeyFile;
+    std::string m_caCertFile;
 
     std::unique_ptr<grpc::ServerCompletionQueue> m_completionQueue;
     std::unique_ptr<grpc::Server>                m_server;
@@ -277,9 +284,10 @@ private:
 //--------------------------------------------------------------------------------------------------
 Server::Server( int                portNumber /* = 50000 */,
                 const std::string& serverCertFile /* = ""*/,
-                const std::string& serverKeyFile /* = ""*/ )
+                const std::string& serverKeyFile /* = ""*/,
+                const std::string& caCertFile /* = ""*/ )
 {
-    m_serverImpl = new ServerImpl( portNumber, serverCertFile, serverKeyFile );
+    m_serverImpl = new ServerImpl( portNumber, serverCertFile, serverKeyFile, caCertFile );
 }
 
 //--------------------------------------------------------------------------------------------------
