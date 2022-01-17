@@ -49,7 +49,7 @@ TEST( BaseTest, Launch )
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
     {
-        auto client = std::make_unique<caffa::rpc::Client>( "deckard",
+        auto client = std::make_unique<caffa::rpc::Client>( "localhost",
                                                             ServerApp::s_port,
                                                             ServerApp::s_clientCertFile,
                                                             ServerApp::s_clientKeyFile,
