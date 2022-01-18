@@ -198,7 +198,7 @@ void UiToolBarEditor::configureAndUpdateUi()
         caffa::FieldUiCapability* uiFieldHandle = field->capability<FieldUiCapability>();
         if ( uiFieldHandle )
         {
-            action->setEnabled( !uiFieldHandle->isUiReadOnly() );
+            action->setEnabled( uiFieldHandle->isUiWritable() );
         }
 
         // TODO: Show/hide of tool bar items can be done by

@@ -70,7 +70,7 @@ void UiDateEditor::configureAndUpdateUi()
 
     UiFieldEditorHandle::updateLabelFromField( m_label );
 
-    m_dateEdit->setEnabled( !uiField()->isUiReadOnly() );
+    m_dateEdit->setEnabled( uiField()->isUiWritable() );
 
     caffa::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )

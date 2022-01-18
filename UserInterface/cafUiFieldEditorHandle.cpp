@@ -173,7 +173,7 @@ void UiFieldEditorHandle::updateLabelFromField( QLabel* label /*= ""*/ ) const
     if ( fieldHandle )
     {
         label->setText( QString::fromStdString( fieldHandle->uiName() ) );
-        label->setEnabled( !fieldHandle->isUiReadOnly() );
+        label->setEnabled( fieldHandle->isUiWritable() );
         label->setToolTip( QString::fromStdString( fieldHandle->uiToolTip() ) );
     }
 }

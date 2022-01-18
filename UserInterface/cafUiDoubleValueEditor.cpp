@@ -75,7 +75,7 @@ void UiDoubleValueEditor::configureAndUpdateUi()
 
     UiFieldEditorHandle::updateLabelFromField( m_label );
 
-    m_lineEdit->setEnabled( !uiField()->isUiReadOnly() );
+    m_lineEdit->setEnabled( uiField()->isUiWritable() );
 
     caffa::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )

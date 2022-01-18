@@ -58,7 +58,7 @@ caffa::UiFieldEditorHandle* caffa::UiFieldEditorHelper::createFieldEditorForFiel
     {
         // Find the default field editor
         std::string fieldTypeName = typeid( *( field->fieldHandle() ) ).name();
-        if ( field->toUiBasedVariant().isVector() )
+        if ( field->isUiReadable() && field->toUiBasedVariant().isVector() )
         {
             // Handle a single value field with valueOptions: Make a combobox
 

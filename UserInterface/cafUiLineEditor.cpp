@@ -94,7 +94,7 @@ void UiLineEditor::configureAndUpdateUi()
 
     if ( !m_lineEdit.isNull() )
     {
-        bool isReadOnly = uiField()->isUiReadOnly();
+        bool isReadOnly = !uiField()->isUiWritable();
         if ( isReadOnly )
         {
             m_lineEdit->setReadOnly( true );
@@ -183,7 +183,7 @@ void UiLineEditor::configureAndUpdateUi()
             m_optionCache.clear();
 
             UiLineEditorAttributeUiDisplayString displayStringAttrib;
-            caffa::ObjectUiCapability*             uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+            caffa::ObjectUiCapability*           uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
             if ( uiObject )
             {
                 uiObject->editorAttribute( uiField()->fieldHandle(), &displayStringAttrib );

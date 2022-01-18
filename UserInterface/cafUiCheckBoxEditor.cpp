@@ -59,8 +59,8 @@ void UiCheckBoxEditor::configureAndUpdateUi()
     CAFFA_ASSERT( !m_checkBox.isNull() );
     CAFFA_ASSERT( !m_label.isNull() );
 
-    UiCheckBoxEditorAttribute attributes;
-    caffa::ObjectUiCapability*  uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    UiCheckBoxEditorAttribute  attributes;
+    caffa::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), &attributes );
@@ -70,7 +70,7 @@ void UiCheckBoxEditor::configureAndUpdateUi()
     {
         m_checkBox->setText( QString::fromStdString( uiField()->uiName() ) );
 
-        m_label->setEnabled( !uiField()->isUiReadOnly() );
+        m_label->setEnabled( uiField()->isUiWritable() );
         m_label->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
     }
     else
@@ -78,10 +78,10 @@ void UiCheckBoxEditor::configureAndUpdateUi()
         UiFieldEditorHandle::updateLabelFromField( m_label );
     }
 
-    m_checkBox->setEnabled( !uiField()->isUiReadOnly() );
+    m_checkBox->setEnabled( uiField()->isUiWritable() );
     m_checkBox->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
-    m_checkBox->setChecked( uiField()->uiValue().value<bool>() );
+    if ( uiField()->isUiReadable() ) m_checkBox->setChecked( uiField()->uiValue().value<bool>() );
 }
 
 //--------------------------------------------------------------------------------------------------

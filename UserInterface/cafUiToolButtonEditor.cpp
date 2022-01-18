@@ -55,7 +55,7 @@ void UiToolButtonEditor::configureAndUpdateUi()
     QString buttonText = QString::fromStdString( uiField()->uiName() );
     m_toolButton->setText( buttonText );
 
-    m_toolButton->setEnabled( !uiField()->isUiReadOnly() );
+    m_toolButton->setEnabled( uiField()->isUiWritable() );
     m_toolButton->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
     UiToolButtonEditorAttribute attributes;

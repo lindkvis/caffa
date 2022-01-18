@@ -63,12 +63,12 @@ void UiPushButtonEditor::configureAndUpdateUi()
 
     UiFieldEditorHandle::updateLabelFromField( m_label );
 
-    m_pushButton->setCheckable( true );
-    m_pushButton->setEnabled( !uiField()->isUiReadOnly() );
+    m_pushButton->setCheckable( uiField()->isUiReadable() );
+    m_pushButton->setEnabled( uiField()->isUiWritable() );
     m_pushButton->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
     UiPushButtonEditorAttribute attributes;
-    caffa::ObjectUiCapability*    uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    caffa::ObjectUiCapability*  uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), &attributes );
@@ -124,7 +124,8 @@ void UiPushButtonEditor::configureEditorForField( FieldHandle* fieldHandle )
 
         if ( fieldHandle->capability<FieldUiCapability>() )
         {
-            fieldHandle->capability<FieldUiCapability>()->setUiEditorTypeName( caffa::UiPushButtonEditor::uiEditorTypeName() );
+            fieldHandle->capability<FieldUiCapability>()->setUiEditorTypeName(
+                caffa::UiPushButtonEditor::uiEditorTypeName() );
             fieldHandle->capability<FieldUiCapability>()->setUiLabelPosition( caffa::UiItemInfo::LEFT );
         }
     }

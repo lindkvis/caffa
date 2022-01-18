@@ -103,8 +103,7 @@ void UiTextEditor::configureAndUpdateUi()
 
     UiFieldEditorHandle::updateLabelFromField( m_label );
 
-    m_textEdit->setReadOnly( uiField()->isUiReadOnly() );
-    // m_textEdit->setEnabled(!field()->isUiReadOnly()); // Neccesary ?
+    m_textEdit->setReadOnly( !uiField()->isUiWritable() );
     m_textEdit->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
     UiTextEditorAttribute leab;

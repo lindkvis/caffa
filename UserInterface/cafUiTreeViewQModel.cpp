@@ -708,7 +708,7 @@ bool UiTreeViewQModel::setData( const QModelIndex& index, const QVariant& value,
             return true;
         }
         else if ( role == Qt::CheckStateRole && object->objectToggleField() &&
-                  !object->objectToggleField()->capability<FieldUiCapability>()->isUiReadOnly() )
+                  object->objectToggleField()->capability<FieldUiCapability>()->isUiWritable() )
         {
             bool toggleOn = ( value == Qt::Checked );
 
@@ -747,7 +747,7 @@ Qt::ItemFlags UiTreeViewQModel::flags( const QModelIndex& index ) const
         if ( object )
         {
             if ( object->userDescriptionField() &&
-                 !object->userDescriptionField()->capability<FieldUiCapability>()->isUiReadOnly() )
+                 object->userDescriptionField()->capability<FieldUiCapability>()->isUiWritable() )
             {
                 flagMask = flagMask | Qt::ItemIsEditable;
             }
@@ -761,7 +761,7 @@ Qt::ItemFlags UiTreeViewQModel::flags( const QModelIndex& index ) const
 
     if ( treeItem->isValid() )
     {
-        if ( treeItem->activeItem()->isUiReadOnly() )
+        if ( !treeItem->activeItem()->isUiWritable() )
         {
             flagMask = flagMask & ( ~Qt::ItemIsEnabled );
         }

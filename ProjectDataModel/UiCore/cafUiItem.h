@@ -131,7 +131,8 @@ public:
         : m_editorTypeName( "" )
         , m_isHidden( -1 )
         , m_isTreeChildrenHidden( -1 )
-        , m_isReadOnly( -1 )
+        , m_isWritable( true )
+        , m_isReadable( true )
         , m_labelAlignment( LEFT )
         , m_isCustomContextMenuEnabled( -1 )
     {
@@ -151,7 +152,8 @@ private:
     std::string  m_editorTypeName; ///< Use this exact type of editor to edit this UiItem
     int          m_isHidden; ///< UiItem should be hidden. -1 means not set
     int          m_isTreeChildrenHidden; ///< Children of UiItem should be hidden. -1 means not set
-    int          m_isReadOnly; ///< UiItem should be insensitive, or read only. -1 means not set.
+    bool         m_isWritable;
+    bool         m_isReadable;
     LabelPosType m_labelAlignment;
     int          m_isCustomContextMenuEnabled;
 };
@@ -190,8 +192,11 @@ public:
     bool isUiTreeChildrenHidden() const;
     void setUiTreeChildrenHidden( bool isTreeChildrenHidden );
 
-    bool isUiReadOnly() const;
-    void setUiReadOnly( bool isReadOnly );
+    bool isUiWritable() const;
+    void setUiWritable( bool isWritable );
+
+    bool isUiReadable() const;
+    void setUiReadable( bool isReadable );
 
     UiItemInfo::LabelPosType uiLabelPosition() const;
     void                     setUiLabelPosition( UiItemInfo::LabelPosType alignment );

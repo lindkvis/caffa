@@ -54,7 +54,8 @@ UiItemInfo::UiItemInfo( const std::string& uiName,
     , m_editorTypeName( "" )
     , m_isHidden( false )
     , m_isTreeChildrenHidden( false )
-    , m_isReadOnly( false )
+    , m_isWritable( true )
+    , m_isReadable( true )
     , m_labelAlignment( LEFT )
     , m_isCustomContextMenuEnabled( false )
 {
@@ -177,17 +178,33 @@ void UiItem::setUiTreeChildrenHidden( bool isTreeChildrenHidden )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool UiItem::isUiReadOnly( /*= ""*/ ) const
+bool UiItem::isUiWritable( /*= ""*/ ) const
 {
-    return m_itemInfo.m_isReadOnly;
+    return m_itemInfo.m_isWritable;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void UiItem::setUiReadOnly( bool isReadOnly )
+void UiItem::setUiWritable( bool isWritable )
 {
-    m_itemInfo.m_isReadOnly = isReadOnly;
+    m_itemInfo.m_isWritable = isWritable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool UiItem::isUiReadable( /*= ""*/ ) const
+{
+    return m_itemInfo.m_isReadable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void UiItem::setUiReadable( bool isReadable )
+{
+    m_itemInfo.m_isReadable = isReadable;
 }
 
 //--------------------------------------------------------------------------------------------------

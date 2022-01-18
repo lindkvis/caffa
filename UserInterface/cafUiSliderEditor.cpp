@@ -61,10 +61,10 @@ void UiSliderEditor::configureAndUpdateUi()
 
     UiFieldEditorHandle::updateLabelFromField( m_label );
 
-    m_spinBox->setEnabled( !uiField()->isUiReadOnly() );
+    m_spinBox->setEnabled( uiField()->isUiWritable() );
     m_spinBox->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
-    m_slider->setEnabled( !uiField()->isUiReadOnly() );
+    m_slider->setEnabled( uiField()->isUiWritable() );
     m_slider->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
     caffa::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );

@@ -130,7 +130,7 @@ Qt::ItemFlags UiTableViewQModel::flags( const QModelIndex& index ) const
     FieldUiCapability* uiFieldHandle = getUiFieldHandle( index );
     if ( uiFieldHandle )
     {
-        if ( uiFieldHandle->isUiReadOnly() )
+        if ( !uiFieldHandle->isUiWritable() )
         {
             if ( flagMask & Qt::ItemIsUserCheckable )
             {

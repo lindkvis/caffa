@@ -213,7 +213,7 @@ void UiComboBoxEditor::configureAndUpdateUi()
 
     if ( !m_comboBox.isNull() )
     {
-        m_comboBox->setEnabled( !uiField()->isUiReadOnly() );
+        m_comboBox->setEnabled( uiField()->isUiWritable() );
         m_comboBox->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
         bool                       fromMenuOnly = true;

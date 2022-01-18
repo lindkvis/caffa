@@ -155,13 +155,13 @@ void UiListEditor::configureAndUpdateUi()
 
     UiFieldEditorHandle::updateLabelFromField( m_label );
 
-    m_listView->setEnabled( !uiField()->isUiReadOnly() );
+    m_listView->setEnabled( uiField()->isUiWritable() );
     m_listView->setToolTip( QString::fromStdString( uiField()->uiToolTip() ) );
 
     bool                       optionsOnly = true;
     std::deque<OptionItemInfo> options     = uiField()->valueOptions( &optionsOnly );
     m_optionItemCount                      = options.size();
-    if ( options.size() > 0 || uiField()->isUiReadOnly() )
+    if ( options.size() > 0 || !uiField()->isUiWritable() )
     {
         m_isEditOperationsAvailable = false;
     }
@@ -170,7 +170,7 @@ void UiListEditor::configureAndUpdateUi()
         m_isEditOperationsAvailable = true;
     }
 
-    UiListEditorAttribute    attributes;
+    UiListEditorAttribute      attributes;
     caffa::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {

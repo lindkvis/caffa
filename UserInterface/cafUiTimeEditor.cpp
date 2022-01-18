@@ -68,7 +68,7 @@ void UiTimeEditor::configureAndUpdateUi()
 
     UiFieldEditorHandle::updateLabelFromField( m_label );
 
-    m_timeEdit->setEnabled( !uiField()->isUiReadOnly() );
+    m_timeEdit->setEnabled( uiField()->isUiWritable() );
 
     caffa::ObjectUiCapability* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )

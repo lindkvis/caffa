@@ -88,7 +88,8 @@ public:
     FieldInitHelper&
         withUi( const std::string& uiName = "", const std::string& toolTip = "", const std::string& whatsThis = "" )
     {
-        caffa::UiItemInfo         fieldDescription( uiName, toolTip, whatsThis, m_keyword );
+        std::string               displayName = !uiName.empty() ? uiName : m_keyword;
+        caffa::UiItemInfo         fieldDescription( displayName, toolTip, whatsThis, m_keyword );
         caffa::FieldUiCapability* uiFieldHandle = m_field.template capability<caffa::FieldUiCapability>();
         if ( uiFieldHandle )
         {
@@ -112,12 +113,14 @@ public:
     FieldInitHelper& readOnly()
     {
         m_field.template capability<FieldIoCapability>()->setIOWritable( false );
+        m_field.template capability<FieldUiCapability>()->setUiWritable( false );
         return *this;
     }
 
     FieldInitHelper& writeOnly()
     {
         m_field.template capability<FieldIoCapability>()->setIOReadable( false );
+        m_field.template capability<FieldUiCapability>()->setUiReadable( false );
         return *this;
     }
 
