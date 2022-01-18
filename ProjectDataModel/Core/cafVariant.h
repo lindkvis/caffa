@@ -231,11 +231,7 @@ public:
     {
         if constexpr ( !std::is_same<std::nullptr_t, T>::value )
         {
-            if constexpr ( std::is_same<unsigned int, T>::value )
-            {
-                CAFFA_ASSERT( false );
-            }
-            else if constexpr ( isVariantMember<T, InternalVariant>::value )
+            if constexpr ( isVariantMember<T, InternalVariant>::value )
             {
                 m_data = value;
             }

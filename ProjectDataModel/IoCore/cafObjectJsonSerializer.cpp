@@ -133,7 +133,7 @@ void writeFieldsToJson( const ObjectHandle*             object,
             jsonField["keyword"] = keyword;
             jsonField["type"]    = field->dataType();
 
-            if ( copyDataValues )
+            if ( copyDataValues && ioCapability->isIOReadable() )
             {
                 nlohmann::json value;
                 ioCapability->writeToJson( value, copyDataValues );
