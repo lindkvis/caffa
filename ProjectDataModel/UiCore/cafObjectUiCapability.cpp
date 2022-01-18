@@ -114,52 +114,42 @@ UiTreeOrdering* ObjectUiCapability::uiTreeOrdering() const
 //--------------------------------------------------------------------------------------------------
 void ObjectUiCapability::addDefaultUiTreeChildren( UiTreeOrdering* uiTreeOrdering )
 {
-#if 1
     if ( uiTreeOrdering->isIncludingRemainingChildren() )
     {
         for ( auto field : m_owner->fields() )
         {
             if ( field->hasChildObjects() && !uiTreeOrdering->containsField( field ) )
             {
-                if ( field->capability<FieldUiCapability>()->isUiHidden() &&
-                     !field->capability<FieldUiCapability>()->isUiTreeChildrenHidden() )
+                std::set<ObjectHandle*> objectsAddedByApplication;
+                for ( int i = 0; i < uiTreeOrdering->childCount(); i++ )
                 {
-                    std::set<ObjectHandle*> objectsAddedByApplication;
-                    for ( int i = 0; i < uiTreeOrdering->childCount(); i++ )
+                    if ( uiTreeOrdering->child( i )->isRepresentingObject() )
                     {
-                        if ( uiTreeOrdering->child( i )->isRepresentingObject() )
-                        {
-                            objectsAddedByApplication.insert( uiTreeOrdering->child( i )->object() );
-                        }
-                    }
-
-                    for ( auto child : field->childObjects() )
-                    {
-                        if ( child )
-                        {
-                            bool                              isAlreadyAdded = false;
-                            std::set<ObjectHandle*>::iterator it             = objectsAddedByApplication.find( child );
-                            if ( it != objectsAddedByApplication.end() )
-                            {
-                                isAlreadyAdded = true;
-                                break;
-                            }
-
-                            if ( !isAlreadyAdded )
-                            {
-                                uiTreeOrdering->add( child );
-                            }
-                        }
+                        objectsAddedByApplication.insert( uiTreeOrdering->child( i )->object() );
                     }
                 }
-                else if ( !field->capability<FieldUiCapability>()->isUiHidden() )
+
+                for ( auto child : field->childObjects() )
                 {
-                    uiTreeOrdering->add( field );
+                    if ( child )
+                    {
+                        bool                              isAlreadyAdded = false;
+                        std::set<ObjectHandle*>::iterator it             = objectsAddedByApplication.find( child );
+                        if ( it != objectsAddedByApplication.end() )
+                        {
+                            isAlreadyAdded = true;
+                            break;
+                        }
+
+                        if ( !isAlreadyAdded )
+                        {
+                            uiTreeOrdering->add( child );
+                        }
+                    }
                 }
             }
         }
     }
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------
