@@ -59,7 +59,7 @@ class UiTreeView : public QWidget
 {
     Q_OBJECT
 public:
-    UiTreeView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
+    UiTreeView( QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags() );
     ~UiTreeView() override;
 
     void enableDefaultContextMenu( bool enable );

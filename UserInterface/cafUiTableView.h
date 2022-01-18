@@ -57,7 +57,7 @@ class UiTableView : public QWidget
 {
     Q_OBJECT
 public:
-    UiTableView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
+    UiTableView( QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags() );
     ~UiTableView() override;
 
     void setChildArrayField( ChildArrayFieldHandle* childArrayField );

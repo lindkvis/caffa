@@ -69,7 +69,7 @@ class UiPropertyView : public QWidget
 {
     Q_OBJECT
 public:
-    UiPropertyView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
+    UiPropertyView( QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags() );
     ~UiPropertyView() override;
 
     ObjectHandle* currentObject();

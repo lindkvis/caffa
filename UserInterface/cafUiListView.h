@@ -52,7 +52,7 @@ class UiListView : public QWidget
 {
     Q_OBJECT
 public:
-    UiListView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
+    UiListView( QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags() );
     ~UiListView() override;
 
     void setObject( caffa::ObjectCollection* object );
