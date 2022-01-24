@@ -138,6 +138,11 @@ void writeFieldsToJson( const ObjectHandle*             object,
                 nlohmann::json value;
                 ioCapability->writeToJson( value, copyDataValues );
                 jsonField["value"] = value;
+                CAFFA_TRACE( "Writing field " << keyword << "(" << field->dataType() << ") = " << value.dump() );
+            }
+            else
+            {
+                CAFFA_TRACE( "Writing field " << keyword << "(" << field->dataType() << ") to json without value " );
             }
             jsonFields.push_back( jsonField );
         }
