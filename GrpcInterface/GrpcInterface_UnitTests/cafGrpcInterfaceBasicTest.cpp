@@ -15,9 +15,9 @@
 #include "cafFieldScriptingCapability.h"
 #include "cafGrpcClient.h"
 #include "cafGrpcClientObjectFactory.h"
+#include "cafJsonSerializer.h"
 #include "cafLogger.h"
 #include "cafObjectHandle.h"
-#include "cafObjectJsonSerializer.h"
 #include "cafValueField.h"
 
 #include <algorithm>
@@ -170,9 +170,9 @@ TEST( BaseTest, Document )
             ASSERT_EQ( ( *server_it )->uuid(), ( *client_it )->uuid() );
         }
     }
-    std::string serverJson = caffa::ObjectJsonSerializer( true ).writeObjectToString( serverDocument );
+    std::string serverJson = caffa::JsonSerializer( true ).writeObjectToString( serverDocument );
     CAFFA_DEBUG( serverJson );
-    std::string clientJson = caffa::ObjectJsonSerializer( true ).writeObjectToString( clientDocument );
+    std::string clientJson = caffa::JsonSerializer( true ).writeObjectToString( clientDocument );
     CAFFA_DEBUG( clientJson );
     ASSERT_EQ( serverJson, clientJson );
 
@@ -250,9 +250,9 @@ TEST( BaseTest, DocumentWithNonScriptableChild )
         }
     }
 
-    std::string serverJson = caffa::ObjectJsonSerializer( true ).writeObjectToString( serverDocument );
+    std::string serverJson = caffa::JsonSerializer( true ).writeObjectToString( serverDocument );
     CAFFA_DEBUG( serverJson );
-    std::string clientJson = caffa::ObjectJsonSerializer( true ).writeObjectToString( clientDocument );
+    std::string clientJson = caffa::JsonSerializer( true ).writeObjectToString( clientDocument );
     CAFFA_DEBUG( clientJson );
     ASSERT_NE( serverJson, clientJson );
 

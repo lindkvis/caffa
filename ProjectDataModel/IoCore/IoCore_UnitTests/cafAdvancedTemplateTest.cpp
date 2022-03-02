@@ -6,10 +6,10 @@
 #include "cafDataValueField.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafFieldProxyAccessor.h"
+#include "cafJsonSerializer.h"
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
-#include "cafObjectJsonSerializer.h"
 
 class ItemObject : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
@@ -158,8 +158,8 @@ TEST( AdvancedObjectTest, FieldWrite )
         containerPtr->m_items.push_back( std::move( item ) );
     }
 
-    caffa::ObjectJsonSerializer serializer( true );
-    std::string                 string = serializer.writeObjectToString( root.get() );
+    caffa::JsonSerializer serializer( true );
+    std::string           string = serializer.writeObjectToString( root.get() );
 
     std::cout << string << std::endl;
 
@@ -200,7 +200,7 @@ TEST( AdvancedObjectTest, CopyOfObjects )
 
         containerPtr->m_items.push_back( std::move( item ) );
 
-        caffa::ObjectJsonSerializer serializer( true );
+        caffa::JsonSerializer serializer( true );
 
         {
             auto a  = std::make_unique<DemoObjectA>();

@@ -150,8 +150,7 @@ grpc::Status ObjectService::ListMethods( grpc::ServerContext* context, const Rpc
 //--------------------------------------------------------------------------------------------------
 caffa::Object* ObjectService::findCafObjectFromRpcObject( const RpcObject& rpcObject )
 {
-    auto [classKeyword, uuid] =
-        caffa::ObjectJsonSerializer( true ).readClassKeywordAndUUIDFromObjectString( rpcObject.json() );
+    auto [classKeyword, uuid] = caffa::JsonSerializer( true ).readClassKeywordAndUUIDFromObjectString( rpcObject.json() );
     return findCafObjectFromScriptNameAndUuid( classKeyword, uuid );
 }
 
@@ -246,8 +245,8 @@ void ObjectService::copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* so
     auto ioCapability = source->capability<caffa::ObjectIoCapability>();
     CAFFA_ASSERT( ioCapability );
 
-    caffa::ObjectJsonSerializer serializer( false, DefaultObjectFactory::instance(), fieldIsScriptable );
-    std::string                 jsonString = serializer.writeObjectToString( source );
+    caffa::JsonSerializer serializer( false, DefaultObjectFactory::instance(), fieldIsScriptable );
+    std::string           jsonString = serializer.writeObjectToString( source );
     destination->set_json( jsonString );
 }
 
@@ -260,7 +259,7 @@ void ObjectService::copyProjectObjectFromRpcToCaf( const RpcObject*      source,
 {
     CAFFA_ASSERT( source && destination );
 
-    caffa::ObjectJsonSerializer( true, objectFactory, fieldIsScriptable ).readObjectFromString( destination, source->json() );
+    caffa::JsonSerializer( true, objectFactory, fieldIsScriptable ).readObjectFromString( destination, source->json() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,7 +269,7 @@ void ObjectService::copyResultOrParameterObjectFromCafToRpc( const caffa::Object
 {
     CAFFA_ASSERT( source && destination );
 
-    auto jsonString = caffa::ObjectJsonSerializer( true ).writeObjectToString( source );
+    auto jsonString = caffa::JsonSerializer( true ).writeObjectToString( source );
     destination->set_json( jsonString );
 }
 
@@ -280,7 +279,7 @@ void ObjectService::copyResultOrParameterObjectFromCafToRpc( const caffa::Object
 void ObjectService::copyResultOrParameterObjectFromRpcToCaf( const RpcObject* source, caffa::ObjectHandle* destination )
 {
     CAFFA_ASSERT( source );
-    caffa::ObjectJsonSerializer( true ).readObjectFromString( destination, source->json() );
+    caffa::JsonSerializer( true ).readObjectFromString( destination, source->json() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -291,8 +290,8 @@ std::unique_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( cons
                                                                             bool                  copyDataValues )
 {
     CAFFA_ASSERT( source );
-    auto destination = caffa::ObjectJsonSerializer( copyDataValues, objectFactory, fieldIsScriptable )
-                           .createObjectFromString( source->json() );
+    auto destination =
+        caffa::JsonSerializer( copyDataValues, objectFactory, fieldIsScriptable ).createObjectFromString( source->json() );
 
     return destination;
 }
@@ -307,7 +306,7 @@ std::unique_ptr<caffa::ObjectHandle>
 {
     CAFFA_ASSERT( source );
     auto destination =
-        caffa::ObjectJsonSerializer( copyDataValues, objectFactory, nullptr ).createObjectFromString( source->json() );
+        caffa::JsonSerializer( copyDataValues, objectFactory, nullptr ).createObjectFromString( source->json() );
 
     return destination;
 }
@@ -325,7 +324,7 @@ std::unique_ptr<caffa::ObjectMethod>
     CAFFA_ASSERT( self && source );
     if ( !self ) return nullptr;
 
-    caffa::ObjectJsonSerializer serializer( copyDataValues, objectFactory, fieldIsScriptable );
+    caffa::JsonSerializer serializer( copyDataValues, objectFactory, fieldIsScriptable );
 
     auto [classKeyword, uuid] = serializer.readClassKeywordAndUUIDFromObjectString( source->json() );
 

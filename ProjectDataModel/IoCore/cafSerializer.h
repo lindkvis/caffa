@@ -32,12 +32,12 @@ class ObjectHandle;
 class ObjectFactory;
 
 /**
- * Interface for ObjectSerializer. Can be implemented for different types of text serialization.
+ * Interface for Serializer. Can be implemented for different types of text serialization.
  */
-class ObjectSerializer
+class Serializer
 {
 public:
-    using FieldSelector = std::function<bool( FieldHandle* )>;
+    using FieldSelector = std::function<bool( const FieldHandle* )>;
 
     /**
      * Constructor
@@ -46,15 +46,12 @@ public:
      *                       for on-demand data value access.
      * @param objectFactory The factory used when creating new objects. Not relevant when writing.
      * @param fieldSelector A method taking a FieldHandle pointer and returning true if that field should be serialized.
+     * @param writeUuids    Write object UUIDs. UUIDs are used for dynamic connection to runtime objects.
      */
-    ObjectSerializer( bool           copyDataValues,
-                      ObjectFactory* objectFactory = DefaultObjectFactory::instance(),
-                      FieldSelector  fieldSelector = nullptr )
-        : m_copyDataValues( copyDataValues )
-        , m_objectFactory( objectFactory )
-        , m_fieldSelector( fieldSelector )
-    {
-    }
+    Serializer( bool           copyDataValues,
+                ObjectFactory* objectFactory = DefaultObjectFactory::instance(),
+                FieldSelector  fieldSelector = nullptr,
+                bool           writeUuids    = true );
 
     /**
      * Convenience method for reading the class keyword and uuid from a string.
@@ -118,10 +115,36 @@ public:
      */
     virtual void writeStream( const ObjectHandle* object, std::ostream& stream ) const = 0;
 
+    /**
+     * Check if we're meant to copy data values
+     * @return true if we should copy data values
+     */
+    bool copyDataValues() const;
+
+    /**
+     * Get the field selector
+     * @return field selector
+     */
+    FieldSelector fieldSelector() const;
+
+    /**
+     * Get the object factory
+     * @return object factory
+     */
+    ObjectFactory* objectFactory() const;
+
+    /**
+     * Check if we're meant to Write UUIDs. UUIDs are used for dynamic connection to runtime objects,
+     * not for writing to file.
+     * @return true if we should write the UUIDs
+     */
+    bool writeUuids() const;
+
 protected:
     bool           m_copyDataValues;
     ObjectFactory* m_objectFactory;
     FieldSelector  m_fieldSelector;
+    bool           m_writeUuids;
 };
 
 } // End of namespace caffa

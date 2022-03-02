@@ -4,8 +4,8 @@
 #include "cafDefaultObjectFactory.h"
 #include "cafFieldHandle.h"
 #include "cafFieldIoCapability.h"
+#include "cafJsonSerializer.h"
 #include "cafObjectHandle.h"
-#include "cafObjectJsonSerializer.h"
 #include "cafStringTools.h"
 
 #include <fstream>
@@ -78,7 +78,7 @@ bool ObjectIoCapability::isValidElementName( const std::string& name )
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<ObjectHandle> ObjectIoCapability::copyBySerialization( ObjectFactory* objectFactory )
 {
-    return ObjectJsonSerializer( true, objectFactory ).copyBySerialization( m_owner );
+    return JsonSerializer( true, objectFactory ).copyBySerialization( m_owner );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,13 +87,13 @@ std::unique_ptr<ObjectHandle> ObjectIoCapability::copyBySerialization( ObjectFac
 std::unique_ptr<ObjectHandle> ObjectIoCapability::copyAndCastBySerialization( const std::string& destinationClassKeyword,
                                                                               ObjectFactory*     objectFactory )
 {
-    return ObjectJsonSerializer( true, objectFactory ).copyAndCastBySerialization( m_owner, destinationClassKeyword );
+    return JsonSerializer( true, objectFactory ).copyAndCastBySerialization( m_owner, destinationClassKeyword );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ObjectIoCapability::readFile( const std::string& fileName, IoType ioType /*= IoType::JSON */ )
+bool ObjectIoCapability::readFile( const std::string& fileName, IoType ioType /*=IoType::JSON*/ )
 {
     std::ifstream inStream( fileName );
     if ( !inStream.good() )
@@ -108,7 +108,7 @@ bool ObjectIoCapability::readFile( const std::string& fileName, IoType ioType /*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ObjectIoCapability::writeFile( const std::string& fileName, IoType ioType /*= IoType::JSON */ )
+bool ObjectIoCapability::writeFile( const std::string& fileName, IoType ioType /*=IoType::JSON*/ )
 {
     std::ofstream outStream( fileName );
     if ( !outStream.good() )
@@ -117,7 +117,19 @@ bool ObjectIoCapability::writeFile( const std::string& fileName, IoType ioType /
         return false;
     }
 
-    return writeStream( outStream, ioType );
+    switch ( ioType )
+    {
+        case IoType::JSON:
+        {
+            // Do not write UUID to file. UUID is only for dynamic connection to runtime objects.
+            JsonSerializer jsonSerializer( true, DefaultObjectFactory::instance(), nullptr, false );
+
+            return writeStream( outStream, jsonSerializer );
+        }
+    }
+
+    CAFFA_ERROR( "IO Type not implemented" );
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,7 +141,7 @@ bool ObjectIoCapability::readStream( std::istream& inStream, IoType ioType )
     {
         case IoType::JSON:
         {
-            ObjectJsonSerializer jsonSerializer( true );
+            JsonSerializer jsonSerializer( true );
             return readStream( inStream, jsonSerializer );
         }
     }
@@ -146,7 +158,7 @@ bool ObjectIoCapability::writeStream( std::ostream& outStream, IoType ioType )
     {
         case IoType::JSON:
         {
-            ObjectJsonSerializer jsonSerializer( true );
+            JsonSerializer jsonSerializer( true );
             return writeStream( outStream, jsonSerializer );
         }
     }
@@ -158,7 +170,7 @@ bool ObjectIoCapability::writeStream( std::ostream& outStream, IoType ioType )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ObjectIoCapability::readStream( std::istream& inStream, const ObjectSerializer& serializer )
+bool ObjectIoCapability::readStream( std::istream& inStream, const Serializer& serializer )
 {
     try
     {
@@ -181,7 +193,7 @@ bool ObjectIoCapability::readStream( std::istream& inStream, const ObjectSeriali
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ObjectIoCapability::writeStream( std::ostream& outStream, const ObjectSerializer& serializer )
+bool ObjectIoCapability::writeStream( std::ostream& outStream, const Serializer& serializer )
 {
     try
     {

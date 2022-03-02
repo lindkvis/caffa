@@ -187,7 +187,7 @@ public:
         grpc::Status  status = m_fieldStub->GetValue( &context, field, &reply );
         if ( status.ok() )
         {
-            childObject = caffa::ObjectJsonSerializer( false, caffa::rpc::GrpcClientObjectFactory::instance() )
+            childObject = caffa::JsonSerializer( false, caffa::rpc::GrpcClientObjectFactory::instance() )
                               .createObjectFromString( reply.value() );
         }
         else
