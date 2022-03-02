@@ -104,5 +104,4 @@ public:
      */
     void writeStream( const ObjectHandle* object, std::ostream& stream ) const override;
 };
-
 } // End of namespace caffa

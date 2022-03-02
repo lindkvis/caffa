@@ -42,6 +42,7 @@
 #include "cafGrpcFieldService.h"
 #include "cafGrpcObjectService.h"
 #include "cafGrpcServerApplication.h"
+#include "cafJsonSerializer.h"
 #include "cafLogger.h"
 #include "cafObject.h"
 
@@ -829,7 +830,8 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
             if ( ioCapability )
             {
                 nlohmann::json jsonValue;
-                ioCapability->writeToJson( jsonValue, !isObjectField );
+                JsonSerializer serializer( !isObjectField, nullptr, nullptr, true );
+                ioCapability->writeToJson( jsonValue, serializer );
                 reply->set_value( jsonValue.is_null() ? "" : jsonValue.dump() );
                 CAFFA_TRACE( "Get " << fieldOwner->classKeyword() << " -> " << field->keyword() << " = "
                                     << reply->value() );
@@ -923,7 +925,8 @@ grpc::Status FieldService::InsertChildObject( grpc::ServerContext* context, cons
             if ( childArrayField )
             {
                 std::unique_ptr<caffa::ObjectHandle> newCafObject =
-                    caffa::JsonSerializer( true ).createObjectFromString( request->value() );
+                    caffa::JsonSerializer( true, DefaultObjectFactory::instance(), nullptr, true )
+                        .createObjectFromString( request->value() );
                 size_t index = fieldRequest.index();
                 if ( index >= childArrayField->size() )
                 {
@@ -976,8 +979,9 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
             auto ioCapability = field->capability<caffa::FieldIoCapability>();
             if ( ioCapability )
             {
-                auto jsonValue = nlohmann::json::parse( request->value() );
-                ioCapability->readFromJson( jsonValue, caffa::DefaultObjectFactory::instance(), true );
+                auto           jsonValue = nlohmann::json::parse( request->value() );
+                JsonSerializer serializer( true, caffa::DefaultObjectFactory::instance(), nullptr, true );
+                ioCapability->readFromJson( jsonValue, serializer );
                 return grpc::Status::OK;
             }
         }

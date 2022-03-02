@@ -43,6 +43,7 @@
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafGrpcServerApplication.h"
+#include "cafJsonSerializer.h"
 #include "cafObject.h"
 #include "cafObjectMethod.h"
 

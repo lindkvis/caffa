@@ -48,10 +48,7 @@ public:
      * @param fieldSelector A method taking a FieldHandle pointer and returning true if that field should be serialized.
      * @param writeUuids    Write object UUIDs. UUIDs are used for dynamic connection to runtime objects.
      */
-    Serializer( bool           copyDataValues,
-                ObjectFactory* objectFactory = DefaultObjectFactory::instance(),
-                FieldSelector  fieldSelector = nullptr,
-                bool           writeUuids    = true );
+    Serializer( bool copyDataValues, ObjectFactory* objectFactory, FieldSelector fieldSelector, bool writeUuids );
 
     /**
      * Convenience method for reading the class keyword and uuid from a string.

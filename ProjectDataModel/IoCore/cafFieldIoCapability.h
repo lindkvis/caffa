@@ -12,10 +12,9 @@
 namespace caffa
 {
 class FieldHandle;
-// class FieldXmlCapability;
 class ObjectFactory;
 class ObjectHandle;
-
+class Serializer;
 //==================================================================================================
 //
 //
@@ -38,8 +37,8 @@ public:
     void setIOWritable( bool isWritable ) { m_isIOWritable = isWritable; }
     void setIOReadable( bool isReadable ) { m_isIOReadable = isReadable; }
 
-    virtual void readFromJson( const nlohmann::json& value, ObjectFactory* objectFactory, bool copyDataValues ) = 0;
-    virtual void writeToJson( nlohmann::json& value, bool copyDataValues ) const                                = 0;
+    virtual void readFromJson( const nlohmann::json& value, const Serializer& serializer ) = 0;
+    virtual void writeToJson( nlohmann::json& value, const Serializer& serializer ) const  = 0;
 
 protected:
     bool assertValid() const;

@@ -36,14 +36,10 @@ using namespace caffa;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void readFieldsFromJson( ObjectHandle*             object,
-                         const nlohmann::json&     jsonObject,
-                         ObjectFactory*            objectFactory,
-                         bool                      copyDataValues,
-                         Serializer::FieldSelector fieldSelector )
+void readFieldsFromJson( ObjectHandle* object, const nlohmann::json& jsonObject, const JsonSerializer* serializer )
 {
-    CAFFA_TRACE( "Reading fields from json with copyDataValues: " << copyDataValues );
-    if ( fieldSelector )
+    CAFFA_TRACE( "Reading fields from json with copyDataValues: " << serializer->copyDataValues() );
+    if ( serializer->fieldSelector() )
     {
         CAFFA_TRACE( "Have field selector!" );
     }
@@ -61,7 +57,7 @@ void readFieldsFromJson( ObjectHandle*             object,
         object->setUuid( uuid );
     }
 
-    if ( !copyDataValues ) return;
+    if ( !serializer->copyDataValues() ) return;
 
     if ( !jsonObject.contains( "fields" ) )
     {
@@ -89,12 +85,12 @@ void readFieldsFromJson( ObjectHandle*             object,
         auto fieldHandle = object->findField( *keyIt );
         if ( fieldHandle && fieldHandle->capability<FieldIoCapability>() )
         {
-            if ( fieldSelector && !fieldSelector( fieldHandle ) ) continue;
+            if ( serializer->fieldSelector() && !serializer->fieldSelector()( fieldHandle ) ) continue;
 
             auto ioFieldHandle = fieldHandle->capability<FieldIoCapability>();
             if ( ioFieldHandle && ioFieldHandle->isIOReadable() )
             {
-                ioFieldHandle->readFromJson( *valueIt, objectFactory, copyDataValues );
+                ioFieldHandle->readFromJson( *valueIt, *serializer );
             }
             else
             {
@@ -111,16 +107,12 @@ void readFieldsFromJson( ObjectHandle*             object,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void writeFieldsToJson( const ObjectHandle*       object,
-                        nlohmann::json&           jsonObject,
-                        bool                      copyDataValues,
-                        Serializer::FieldSelector fieldSelector,
-                        bool                      writeUuids )
+void writeFieldsToJson( const ObjectHandle* object, nlohmann::json& jsonObject, const JsonSerializer* serializer )
 {
     std::string classKeyword = object->capability<ObjectIoCapability>()->classKeyword();
     CAFFA_ASSERT( ObjectIoCapability::isValidElementName( classKeyword ) );
     jsonObject["classKeyword"] = classKeyword;
-    if ( writeUuids )
+    if ( serializer->writeUuids() )
     {
         jsonObject["uuid"] = object->uuid();
     }
@@ -128,7 +120,7 @@ void writeFieldsToJson( const ObjectHandle*       object,
 
     for ( auto field : object->fields() )
     {
-        if ( fieldSelector && !fieldSelector( field ) ) continue;
+        if ( serializer->fieldSelector() && !serializer->fieldSelector()( field ) ) continue;
 
         std::string keyword = field->keyword();
 
@@ -141,10 +133,10 @@ void writeFieldsToJson( const ObjectHandle*       object,
             jsonField["keyword"] = keyword;
             jsonField["type"]    = field->dataType();
 
-            if ( copyDataValues && ( ioCapability->isIOWritable() || ioCapability->isIOReadable() ) )
+            if ( serializer->copyDataValues() && ( ioCapability->isIOWritable() || ioCapability->isIOReadable() ) )
             {
                 nlohmann::json value;
-                ioCapability->writeToJson( value, copyDataValues );
+                ioCapability->writeToJson( value, *serializer );
                 jsonField["value"] = value;
                 CAFFA_TRACE( "Writing field " << keyword << "(" << field->dataType() << ") = " << value.dump() );
             }
@@ -191,7 +183,7 @@ std::pair<std::string, std::string> JsonSerializer::readClassKeywordAndUUIDFromO
 void JsonSerializer::readObjectFromString( ObjectHandle* object, const std::string& string ) const
 {
     nlohmann::json jsonValue = nlohmann::json::parse( string );
-    readFieldsFromJson( object, jsonValue, m_objectFactory, true, m_fieldSelector );
+    readFieldsFromJson( object, jsonValue, this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,7 +192,7 @@ void JsonSerializer::readObjectFromString( ObjectHandle* object, const std::stri
 std::string JsonSerializer::writeObjectToString( const ObjectHandle* object ) const
 {
     nlohmann::json jsonObject = nlohmann::json::object();
-    writeFieldsToJson( object, jsonObject, m_copyDataValues, m_fieldSelector, m_writeUuids );
+    writeFieldsToJson( object, jsonObject, this );
     return jsonObject.dump();
 }
 
@@ -246,7 +238,7 @@ std::unique_ptr<ObjectHandle> JsonSerializer::copyAndCastBySerialization( const 
     if ( !sourceInheritsDestination && !destinationInheritsSource ) return nullptr;
 
     nlohmann::json jsonObject = nlohmann::json::parse( string );
-    readFieldsFromJson( objectCopy.get(), jsonObject, m_objectFactory, true, m_fieldSelector );
+    readFieldsFromJson( objectCopy.get(), jsonObject, this );
     objectCopy->capability<ObjectIoCapability>()->initAfterReadRecursively();
 
     return objectCopy;
@@ -270,7 +262,7 @@ std::unique_ptr<ObjectHandle> JsonSerializer::createObjectFromString( const std:
 
     if ( !newObject ) return nullptr;
 
-    readFieldsFromJson( newObject.get(), jsonObject, m_objectFactory, m_copyDataValues, m_fieldSelector );
+    readFieldsFromJson( newObject.get(), jsonObject, this );
 
     return newObject;
 }
@@ -285,7 +277,7 @@ void JsonSerializer::readStream( ObjectHandle* object, std::istream& file ) cons
     nlohmann::json document;
     file >> document;
 
-    readFieldsFromJson( object, document, m_objectFactory, m_copyDataValues, m_fieldSelector );
+    readFieldsFromJson( object, document, this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,7 +286,7 @@ void JsonSerializer::readStream( ObjectHandle* object, std::istream& file ) cons
 void JsonSerializer::writeStream( const ObjectHandle* object, std::ostream& file ) const
 {
     nlohmann::json document;
-    writeFieldsToJson( object, document, m_copyDataValues, m_fieldSelector, m_writeUuids );
+    writeFieldsToJson( object, document, this );
 
     file << std::setw( 2 ) << document;
 }
