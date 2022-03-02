@@ -29,6 +29,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include <iomanip>
+
 using namespace caffa;
 
 //--------------------------------------------------------------------------------------------------
@@ -290,5 +292,5 @@ void ObjectJsonSerializer::writeStream( const ObjectHandle* object, std::ostream
     nlohmann::json document;
     writeFieldsToJson( object, document, m_copyDataValues, m_fieldSelector );
 
-    file << document;
+    file << std::setw( 2 ) << document;
 }
