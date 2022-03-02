@@ -1,8 +1,8 @@
 #pragma once
 
 #include "cafChildArrayField.h"
+#include "cafJsonSerializer.h"
 #include "cafObject.h"
-#include "cafObjectJsonSerializer.h"
 
 namespace caffa
 {

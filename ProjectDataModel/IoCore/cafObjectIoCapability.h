@@ -12,7 +12,7 @@ namespace caffa
 {
 class ObjectHandle;
 class ObjectFactory;
-class ObjectSerializer;
+class Serializer;
 
 //==================================================================================================
 //
@@ -64,8 +64,8 @@ public:
     bool readStream( std::istream& inStream, IoType ioType = IoType::JSON );
     bool writeStream( std::ostream& outStream, IoType ioType = IoType::JSON );
 
-    bool readStream( std::istream& inStream, const ObjectSerializer& serializer );
-    bool writeStream( std::ostream& outStream, const ObjectSerializer& serializer );
+    bool readStream( std::istream& inStream, const Serializer& serializer );
+    bool writeStream( std::ostream& outStream, const Serializer& serializer );
 
 protected: // Virtual
     /// Method gets called from Document after all objects are read.

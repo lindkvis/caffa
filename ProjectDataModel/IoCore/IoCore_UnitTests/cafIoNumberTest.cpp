@@ -3,9 +3,9 @@
 
 #include "cafDataValueField.h"
 #include "cafFieldIoCapabilitySpecializations.h"
+#include "cafJsonSerializer.h"
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
-#include "cafObjectJsonSerializer.h"
 
 #include <cmath>
 
@@ -54,13 +54,13 @@ TEST( SerializeNumbers, SimpleObjectWithDoubleValues )
         obj1.m_valueA = valueA;
         obj1.m_valueB = valueB;
 
-        objectAsText = caffa::ObjectJsonSerializer( true ).writeObjectToString( &obj1 );
+        objectAsText = caffa::JsonSerializer( true ).writeObjectToString( &obj1 );
     }
 
     {
         SimpleObjectWithNumbers obj1;
 
-        caffa::ObjectJsonSerializer( true ).readObjectFromString( &obj1, objectAsText );
+        caffa::JsonSerializer( true ).readObjectFromString( &obj1, objectAsText );
 
         {
             double epsilon = 1e-7;
@@ -98,13 +98,13 @@ TEST( SerializeNumbers, SimpleObjectWithFloatValues )
             obj1.m_floatValueA = valueA;
             obj1.m_floatValueB = valueB;
 
-            objectAsText = caffa::ObjectJsonSerializer( true ).writeObjectToString( &obj1 );
+            objectAsText = caffa::JsonSerializer( true ).writeObjectToString( &obj1 );
         }
 
         {
             SimpleObjectWithNumbers obj1;
 
-            caffa::ObjectJsonSerializer( true ).readObjectFromString( &obj1, objectAsText );
+            caffa::JsonSerializer( true ).readObjectFromString( &obj1, objectAsText );
 
             double epsilon = 1e-7;
 

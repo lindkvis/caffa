@@ -18,16 +18,16 @@
 //
 #pragma once
 
-#include "cafObjectSerializer.h"
+#include "cafSerializer.h"
 
 namespace caffa
 {
 class ObjectHandle;
 
 /**
- * Implementation of ObjectSerializer for JSON serialization.
+ * Implementation of Serializer for JSON serialization.
  */
-class ObjectJsonSerializer : public ObjectSerializer
+class JsonSerializer : public Serializer
 {
 public:
     /**
@@ -38,9 +38,10 @@ public:
      * @param objectFactory The factory used when creating new objects. Not relevant when writing.
      * @param fieldSelector A method taking a FieldHandle pointer and returning true if that field should be serialized.
      */
-    ObjectJsonSerializer( bool           copyDataValues,
-                          ObjectFactory* objectFactory = DefaultObjectFactory::instance(),
-                          FieldSelector  fieldSelector = nullptr );
+    JsonSerializer( bool           copyDataValues,
+                    ObjectFactory* objectFactory = DefaultObjectFactory::instance(),
+                    FieldSelector  fieldSelector = nullptr,
+                    bool           writeUuids    = true );
 
     /**
      * Convenience method for reading the class keyword and uuid from a json string.

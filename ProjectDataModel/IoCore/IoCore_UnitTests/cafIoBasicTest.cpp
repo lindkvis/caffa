@@ -9,10 +9,10 @@
 #include "cafFieldIoCapability.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafFieldProxyAccessor.h"
+#include "cafJsonSerializer.h"
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
-#include "cafObjectJsonSerializer.h"
 
 class DemoObject : public caffa::ObjectHandle, public caffa::ObjectIoCapability
 {
@@ -107,7 +107,7 @@ TEST( BaseTest, FieldWrite )
         a->m_proxyDoubleField.setValue( 2.5 );
         ASSERT_DOUBLE_EQ( 2.5, a->m_proxyDoubleField.value() );
 
-        serializedString = caffa::ObjectJsonSerializer( true ).writeObjectToString( a.get() );
+        serializedString = caffa::JsonSerializer( true ).writeObjectToString( a.get() );
 
         std::cout << serializedString << std::endl;
     }
@@ -120,8 +120,8 @@ TEST( BaseTest, FieldWrite )
     */
     std::string secondSerializedString;
     {
-        auto a                 = caffa::ObjectJsonSerializer( true ).createObjectFromString( serializedString );
-        secondSerializedString = caffa::ObjectJsonSerializer( true ).writeObjectToString( a.get() );
+        auto a                 = caffa::JsonSerializer( true ).createObjectFromString( serializedString );
+        secondSerializedString = caffa::JsonSerializer( true ).writeObjectToString( a.get() );
     }
     ASSERT_EQ( serializedString, secondSerializedString );
 }
@@ -196,7 +196,7 @@ public:
         CAFFA_IO_InitField( &m_pointersField, "SimpleObjPtrField" );
         CAFFA_IO_InitField( &m_simpleObjPtrField2, "SimpleObjPtrField2" );
     }
-    
+
     std::string classKeywordDynamic() const override { return classKeyword(); }
 
     // Fields
@@ -229,7 +229,7 @@ TEST( BaseTest, ChildArrayFieldSerializing )
         auto s3p = s3.get();
         ihd1->m_childArrayField.push_back( std::move( s3 ) );
 
-        serializedString = caffa::ObjectJsonSerializer( true ).writeObjectToString( ihd1.get() );
+        serializedString = caffa::JsonSerializer( true ).writeObjectToString( ihd1.get() );
 
         std::cout << "Write object to json: " << serializedString << std::endl;
     }
@@ -238,7 +238,7 @@ TEST( BaseTest, ChildArrayFieldSerializing )
         auto ihd1 = std::make_unique<InheritedDemoObj>();
         ASSERT_EQ( 0u, ihd1->m_childArrayField.size() );
 
-        caffa::ObjectJsonSerializer( true ).readObjectFromString( ihd1.get(), serializedString );
+        caffa::JsonSerializer( true ).readObjectFromString( ihd1.get(), serializedString );
         ASSERT_EQ( 3u, ihd1->m_childArrayField.size() );
 
         ASSERT_TRUE( ihd1->m_childArrayField[0] != nullptr );
