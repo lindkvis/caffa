@@ -24,8 +24,14 @@ set(PUBLIC_HEADERS
     cafDefaultObjectFactory.h
     cafObjectFactory.h)
 
-set(PROJECT_FILES ${PUBLIC_HEADERS} cafInternalIoFieldReaderWriter.cpp cafFieldIoCapability.cpp cafObjectIoCapability.cpp
-                  cafJsonSerializer.cpp cafDefaultObjectFactory.cpp)
+set(PROJECT_FILES
+    ${PUBLIC_HEADERS}
+    cafInternalIoFieldReaderWriter.cpp
+    cafFieldIoCapability.cpp
+    cafObjectIoCapability.cpp
+    cafSerializer.cpp
+    cafJsonSerializer.cpp
+    cafDefaultObjectFactory.cpp)
 
 if(CAFFA_BUILD_SHARED)
   message(STATUS "Building ${PROJECT_NAME} shared")

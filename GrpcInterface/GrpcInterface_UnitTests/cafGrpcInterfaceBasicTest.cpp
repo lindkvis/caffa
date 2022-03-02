@@ -80,6 +80,7 @@ TEST( BaseTest, Document )
                                                   ServerApp::s_caCertFile );
 
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
 
     CAFFA_DEBUG( "Launching Server" );
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -109,17 +110,70 @@ TEST( BaseTest, Document )
         serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
     }
 
-    auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
-    ASSERT_TRUE( clientDocument != nullptr );
-
-    auto nonExistentClientDocument = client->document( "wrongName" );
-    ASSERT_TRUE( nonExistentDocument == nullptr );
+    CAFFA_DEBUG( "Now getting client document" );
 
     try
     {
+        auto objectHandle   = client->document( "testDocument" );
+        auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+        ASSERT_TRUE( clientDocument != nullptr );
+
+        auto nonExistentClientDocument = client->document( "wrongName" );
+        ASSERT_TRUE( nonExistentDocument == nullptr );
+
         auto clientFileName = clientDocument->fileName();
         CAFFA_DEBUG( "Client Document File Name: " << clientFileName );
+        ASSERT_EQ( serverApp->document( "testDocument" )->fileName(), clientDocument->fileName() );
+        ASSERT_EQ( serverDocument->uuid(), clientDocument->uuid() );
+
+        {
+            auto serverDescendants = serverDocument->matchingDescendants(
+                []( const caffa::ObjectHandle* objectHandle ) -> bool
+                { return dynamic_cast<const DemoObject*>( objectHandle ) != nullptr; } );
+
+            auto clientDescendants = clientDocument->matchingDescendants(
+                []( const caffa::ObjectHandle* objectHandle ) -> bool
+                { return dynamic_cast<const DemoObject*>( objectHandle ) != nullptr; } );
+
+            ASSERT_EQ( serverDescendants.size(), clientDescendants.size() );
+            for ( auto server_it = serverDescendants.begin(), client_it = clientDescendants.begin();
+                  server_it != serverDescendants.end();
+                  ++server_it, ++client_it )
+            {
+                ASSERT_EQ( ( *server_it )->uuid(), ( *client_it )->uuid() );
+            }
+        }
+
+        {
+            auto serverDescendants = serverDocument->matchingDescendants(
+                []( const caffa::ObjectHandle* objectHandle ) -> bool
+                { return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr; } );
+
+            auto clientDescendants = clientDocument->matchingDescendants(
+                []( const caffa::ObjectHandle* objectHandle ) -> bool
+                { return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr; } );
+
+            ASSERT_EQ( childCount, serverDescendants.size() );
+            ASSERT_EQ( serverDescendants.size(), clientDescendants.size() );
+            for ( auto server_it = serverDescendants.begin(), client_it = clientDescendants.begin();
+                  server_it != serverDescendants.end();
+                  ++server_it, ++client_it )
+            {
+                ASSERT_EQ( ( *server_it )->uuid(), ( *client_it )->uuid() );
+            }
+        }
+        std::string serverJson = caffa::JsonSerializer( true ).writeObjectToString( serverDocument );
+        CAFFA_DEBUG( serverJson );
+        std::string clientJson = caffa::JsonSerializer( true ).writeObjectToString( clientDocument );
+        CAFFA_DEBUG( clientJson );
+        ASSERT_EQ( serverJson, clientJson );
+
+        CAFFA_DEBUG( "Confirmed test results!" );
+        bool ok = client->stopServer();
+        ASSERT_TRUE( ok );
+        CAFFA_DEBUG( "Waiting for server thread to join" );
+        thread.join();
+        CAFFA_DEBUG( "Finishing test" );
     }
     catch ( const caffa::Exception& e )
     {
@@ -131,57 +185,6 @@ TEST( BaseTest, Document )
         CAFFA_ERROR( "Exception caught" );
         return;
     }
-    ASSERT_EQ( serverApp->document( "testDocument" )->fileName(), clientDocument->fileName() );
-    ASSERT_EQ( serverDocument->uuid(), clientDocument->uuid() );
-
-    {
-        auto serverDescendants =
-            serverDocument->matchingDescendants( []( const caffa::ObjectHandle* objectHandle ) -> bool
-                                                 { return dynamic_cast<const DemoObject*>( objectHandle ) != nullptr; } );
-
-        auto clientDescendants =
-            clientDocument->matchingDescendants( []( const caffa::ObjectHandle* objectHandle ) -> bool
-                                                 { return dynamic_cast<const DemoObject*>( objectHandle ) != nullptr; } );
-
-        ASSERT_EQ( serverDescendants.size(), clientDescendants.size() );
-        for ( auto server_it = serverDescendants.begin(), client_it = clientDescendants.begin();
-              server_it != serverDescendants.end();
-              ++server_it, ++client_it )
-        {
-            ASSERT_EQ( ( *server_it )->uuid(), ( *client_it )->uuid() );
-        }
-    }
-
-    {
-        auto serverDescendants = serverDocument->matchingDescendants(
-            []( const caffa::ObjectHandle* objectHandle ) -> bool
-            { return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr; } );
-
-        auto clientDescendants = clientDocument->matchingDescendants(
-            []( const caffa::ObjectHandle* objectHandle ) -> bool
-            { return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr; } );
-
-        ASSERT_EQ( childCount, serverDescendants.size() );
-        ASSERT_EQ( serverDescendants.size(), clientDescendants.size() );
-        for ( auto server_it = serverDescendants.begin(), client_it = clientDescendants.begin();
-              server_it != serverDescendants.end();
-              ++server_it, ++client_it )
-        {
-            ASSERT_EQ( ( *server_it )->uuid(), ( *client_it )->uuid() );
-        }
-    }
-    std::string serverJson = caffa::JsonSerializer( true ).writeObjectToString( serverDocument );
-    CAFFA_DEBUG( serverJson );
-    std::string clientJson = caffa::JsonSerializer( true ).writeObjectToString( clientDocument );
-    CAFFA_DEBUG( clientJson );
-    ASSERT_EQ( serverJson, clientJson );
-
-    CAFFA_DEBUG( "Confirmed test results!" );
-    bool ok = client->stopServer();
-    ASSERT_TRUE( ok );
-    CAFFA_DEBUG( "Waiting for server thread to join" );
-    thread.join();
-    CAFFA_DEBUG( "Finishing test" );
 }
 
 TEST( BaseTest, DocumentWithNonScriptableChild )

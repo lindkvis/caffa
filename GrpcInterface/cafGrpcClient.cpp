@@ -43,6 +43,7 @@
 #include "cafGrpcException.h"
 #include "cafGrpcFieldService.h"
 #include "cafGrpcObjectService.h"
+#include "cafJsonSerializer.h"
 #include "cafLogger.h"
 
 #include <grpc/grpc.h>
@@ -93,7 +94,11 @@ public:
         m_fieldStub   = FieldAccess::NewStub( m_channel );
         CAFFA_TRACE( "Created stubs" );
     }
-    ~ClientImpl() { CAFFA_DEBUG( "Destroying client" ); }
+    ~ClientImpl()
+    {
+        //
+        CAFFA_DEBUG( "Destroying client" );
+    }
 
     caffa::AppInfo appInfo() const
     {
