@@ -49,7 +49,7 @@ void readFieldsFromJson( ObjectHandle* object, const nlohmann::json& jsonObject,
         CAFFA_TRACE( "Reading field: " << keyword << " with value " << valueContainer.dump() );
 
         nlohmann::json value;
-        if ( valueContainer.is_object() )
+        if ( valueContainer.is_object() && valueContainer.contains( "type" ) )
         {
             if ( valueContainer.contains( "value" ) ) value = valueContainer["value"];
         }
