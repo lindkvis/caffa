@@ -78,7 +78,7 @@ bool ObjectIoCapability::isValidElementName( const std::string& name )
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<ObjectHandle> ObjectIoCapability::copyBySerialization( ObjectFactory* objectFactory )
 {
-    return JsonSerializer( true, objectFactory ).copyBySerialization( m_owner );
+    return JsonSerializer( objectFactory ).copyBySerialization( m_owner );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ std::unique_ptr<ObjectHandle> ObjectIoCapability::copyBySerialization( ObjectFac
 std::unique_ptr<ObjectHandle> ObjectIoCapability::copyAndCastBySerialization( const std::string& destinationClassKeyword,
                                                                               ObjectFactory*     objectFactory )
 {
-    return JsonSerializer( true, objectFactory ).copyAndCastBySerialization( m_owner, destinationClassKeyword );
+    return JsonSerializer( objectFactory ).copyAndCastBySerialization( m_owner, destinationClassKeyword );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,10 +121,11 @@ bool ObjectIoCapability::writeFile( const std::string& fileName, IoType ioType /
     {
         case IoType::JSON:
         {
-            // Do not write UUID to file. UUID is only for dynamic connection to runtime objects.
-            JsonSerializer jsonSerializer( true, DefaultObjectFactory::instance(), nullptr, false );
-
-            return writeStream( outStream, jsonSerializer );
+            // Do not write UUID or data types to file. UUID is only for dynamic connection to runtime objects.
+            return writeStream( outStream,
+                                JsonSerializer( DefaultObjectFactory::instance() )
+                                    .setSerializeDataTypes( false )
+                                    .setSerializeUuids( false ) );
         }
     }
 
@@ -141,7 +142,7 @@ bool ObjectIoCapability::readStream( std::istream& inStream, IoType ioType )
     {
         case IoType::JSON:
         {
-            JsonSerializer jsonSerializer( true );
+            JsonSerializer jsonSerializer;
             return readStream( inStream, jsonSerializer );
         }
     }
@@ -158,7 +159,7 @@ bool ObjectIoCapability::writeStream( std::ostream& outStream, IoType ioType )
     {
         case IoType::JSON:
         {
-            JsonSerializer jsonSerializer( true );
+            JsonSerializer jsonSerializer;
             return writeStream( outStream, jsonSerializer );
         }
     }

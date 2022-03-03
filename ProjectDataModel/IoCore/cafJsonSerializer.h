@@ -32,16 +32,9 @@ class JsonSerializer : public Serializer
 public:
     /**
      * Constructor
-     * @param copyDataValues Should we copy the values of the fields in the serialisation?
-     *                       if false only the names and data types will be copied. This is used
-     *                       for on-demand data value access.
      * @param objectFactory The factory used when creating new objects. Not relevant when writing.
-     * @param fieldSelector A method taking a FieldHandle pointer and returning true if that field should be serialized.
      */
-    JsonSerializer( bool           copyDataValues,
-                    ObjectFactory* objectFactory = DefaultObjectFactory::instance(),
-                    FieldSelector  fieldSelector = nullptr,
-                    bool           writeUuids    = true );
+    JsonSerializer( ObjectFactory* objectFactory = DefaultObjectFactory::instance() );
 
     /**
      * Convenience method for reading the class keyword and uuid from a json string.

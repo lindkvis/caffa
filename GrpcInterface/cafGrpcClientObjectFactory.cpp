@@ -35,7 +35,7 @@ std::unique_ptr<ObjectHandle> GrpcClientObjectFactory::doCreate( const std::stri
 
     for ( auto field : objectHandle->fields() )
     {
-        if ( field->keyword() != "uuid" && field->capability<FieldScriptingCapability>() != nullptr )
+        if ( field->keyword() != "UUID" && field->capability<FieldScriptingCapability>() != nullptr )
         {
             applyAccessorToField( objectHandle.get(), field );
         }

@@ -90,7 +90,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-    caffa::Logger::setApplicationLogLevel( caffa::Logger::Level::TRACE );
+    caffa::Logger::setApplicationLogLevel( caffa::Logger::Level::DEBUG );
 
     int  portNumber = argc >= 2 ? std::atoi( argv[1] ) : 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
