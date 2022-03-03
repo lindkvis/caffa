@@ -46,5 +46,6 @@ jobs:
         run: |
           cmakebuild/bin/caffaGrpcInterface_ExampleServer &
           cd Bindings/Java
+          gradle wrapper
           ./gradlew build
 
