@@ -25,7 +25,7 @@ template <typename FieldType>
 void FieldIoCap<FieldType>::readFromJson( const nlohmann::json& jsonValue, const Serializer& serializer )
 {
     this->assertValid();
-    if ( serializer.copyDataValues() )
+    if ( serializer.serializeDataValues() )
     {
         CAFFA_TRACE( "Setting value from json to: " << jsonValue.dump() );
 
@@ -41,7 +41,7 @@ template <typename FieldType>
 void FieldIoCap<FieldType>::writeToJson( nlohmann::json& jsonValue, const Serializer& serializer ) const
 {
     this->assertValid();
-    if ( serializer.copyDataValues() )
+    if ( serializer.serializeDataValues() )
     {
         CAFFA_TRACE( "Getting value from field: " << m_field );
 
@@ -59,7 +59,7 @@ void FieldIoCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& json
     if ( jsonObject.is_null() ) return;
     CAFFA_ASSERT( jsonObject.is_object() );
 
-    std::string className = jsonObject["classKeyword"].get<std::string>();
+    std::string className = jsonObject["Class"].get<std::string>();
 
     ObservingPointer<ObjectHandle> objPtr;
 
@@ -150,7 +150,7 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json&
     {
         if ( !jsonObject.is_object() ) continue;
 
-        std::string className = jsonObject["classKeyword"].get<std::string>();
+        std::string className = jsonObject["Class"].get<std::string>();
 
         std::unique_ptr<ObjectHandle> obj = objectFactory->create( className );
 

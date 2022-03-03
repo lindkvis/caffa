@@ -158,7 +158,7 @@ TEST( AdvancedObjectTest, FieldWrite )
         containerPtr->m_items.push_back( std::move( item ) );
     }
 
-    caffa::JsonSerializer serializer( true );
+    caffa::JsonSerializer serializer;
     std::string           string = serializer.writeObjectToString( root.get() );
 
     std::cout << string << std::endl;
@@ -200,7 +200,7 @@ TEST( AdvancedObjectTest, CopyOfObjects )
 
         containerPtr->m_items.push_back( std::move( item ) );
 
-        caffa::JsonSerializer serializer( true );
+        caffa::JsonSerializer serializer;
 
         {
             auto a  = std::make_unique<DemoObjectA>();

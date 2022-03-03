@@ -43,6 +43,7 @@
 #include "cafDocument.h"
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
+#include "cafJsonSerializer.h"
 #include "cafObject.h"
 #include "cafObjectGroup.h"
 #include "cafObservingPointer.h"
@@ -375,7 +376,7 @@ TEST( BaseTest, ReadWrite )
 
         // Write file
         std::ofstream file( "TestFile2.json" );
-        doc.writeStream( file );
+        doc.writeStream( file, caffa::JsonSerializer().setSerializeUuids( false ).setSerializeDataTypes( false ) );
         file.close();
     }
 

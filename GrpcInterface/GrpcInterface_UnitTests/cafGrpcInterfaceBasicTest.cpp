@@ -162,9 +162,9 @@ TEST( BaseTest, Document )
                 ASSERT_EQ( ( *server_it )->uuid(), ( *client_it )->uuid() );
             }
         }
-        std::string serverJson = caffa::JsonSerializer( true ).writeObjectToString( serverDocument );
+        std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument );
         CAFFA_DEBUG( serverJson );
-        std::string clientJson = caffa::JsonSerializer( true ).writeObjectToString( clientDocument );
+        std::string clientJson = caffa::JsonSerializer().writeObjectToString( clientDocument );
         CAFFA_DEBUG( clientJson );
         ASSERT_EQ( serverJson, clientJson );
 
@@ -253,9 +253,9 @@ TEST( BaseTest, DocumentWithNonScriptableChild )
         }
     }
 
-    std::string serverJson = caffa::JsonSerializer( true ).writeObjectToString( serverDocument );
+    std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument );
     CAFFA_DEBUG( serverJson );
-    std::string clientJson = caffa::JsonSerializer( true ).writeObjectToString( clientDocument );
+    std::string clientJson = caffa::JsonSerializer().writeObjectToString( clientDocument );
     CAFFA_DEBUG( clientJson );
     ASSERT_NE( serverJson, clientJson );
 

@@ -132,10 +132,10 @@ public:
         if ( status.ok() )
         {
             CAFFA_TRACE( "Got document" );
-            document = caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply,
-                                                                          caffa::rpc::GrpcClientObjectFactory::instance(),
-                                                                          false );
-            CAFFA_TRACE( "Document completed" );
+            caffa::JsonSerializer serializer( caffa::rpc::GrpcClientObjectFactory::instance() );
+            serializer.setSerializeDataValues( false );
+            document = caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply, serializer );
+            CAFFA_TRACE( "Document completed with UUID " << document->uuid() );
         }
         else
         {
@@ -157,12 +157,12 @@ public:
         {
             CAFFA_TRACE( "Got documents" );
 
+            caffa::JsonSerializer serializer( caffa::rpc::GrpcClientObjectFactory::instance() );
+            serializer.setSerializeDataValues( false );
+
             for ( auto object : objectListReply.objects() )
             {
-                auto document =
-                    caffa::rpc::ObjectService::createCafObjectFromRpc( &object,
-                                                                       caffa::rpc::GrpcClientObjectFactory::instance(),
-                                                                       false );
+                auto document = caffa::rpc::ObjectService::createCafObjectFromRpc( &object, serializer );
                 documents.push_back( std::move( document ) );
             }
             CAFFA_TRACE( "Document completed" );
@@ -192,7 +192,8 @@ public:
         grpc::Status  status = m_fieldStub->GetValue( &context, field, &reply );
         if ( status.ok() )
         {
-            childObject = caffa::JsonSerializer( false, caffa::rpc::GrpcClientObjectFactory::instance() )
+            childObject = caffa::JsonSerializer( caffa::rpc::GrpcClientObjectFactory::instance() )
+                              .setSerializeDataValues( false )
                               .createObjectFromString( reply.value() );
         }
         else
@@ -215,6 +216,8 @@ public:
 
         std::vector<std::unique_ptr<ObjectHandle>> childObjects;
 
+        caffa::JsonSerializer serializer( caffa::rpc::GrpcClientObjectFactory::instance() );
+
         std::unique_ptr<grpc::ClientReader<GenericArray>> reader( m_fieldStub->GetArrayValue( &context, field ) );
         GenericArray                                      reply;
         while ( reader->Read( &reply ) )
@@ -224,10 +227,7 @@ public:
 
             for ( auto rpcObject : rpcObjects.objects() )
             {
-                auto object =
-                    caffa::rpc::ObjectService::createCafObjectFromRpc( &rpcObject,
-                                                                       caffa::rpc::GrpcClientObjectFactory::instance(),
-                                                                       false );
+                auto object = caffa::rpc::ObjectService::createCafObjectFromRpc( &rpcObject, serializer );
                 childObjects.push_back( std::move( object ) );
             }
         }
@@ -355,10 +355,7 @@ public:
         auto                  status = m_objectStub->ExecuteMethod( &context, request, &objectReply );
         if ( status.ok() )
         {
-            returnValue =
-                caffa::rpc::ObjectService::createResultOrParameterCafObjectFromRpc( &objectReply,
-                                                                                    caffa::DefaultObjectFactory::instance(),
-                                                                                    true );
+            returnValue = caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply, caffa::JsonSerializer() );
         }
         else
         {
@@ -416,8 +413,7 @@ public:
                 ObjectService::createCafObjectMethodFromRpc( objectHandle,
                                                              &RpcObject,
                                                              caffa::ObjectMethodFactory::instance(),
-                                                             caffa::rpc::GrpcClientObjectFactory::instance(),
-                                                             true );
+                                                             caffa::rpc::GrpcClientObjectFactory::instance() );
             methods.push_back( std::move( caffaObject ) );
         }
         return methods;
@@ -451,7 +447,8 @@ public:
 
     nlohmann::json getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, uint32_t addressOffset ) const
     {
-        CAFFA_TRACE( "Get JSON value for field " << fieldName );
+        CAFFA_TRACE( "Get JSON value for field " << fieldName << " on class " << objectHandle->classKeywordDynamic()
+                                                 << " and UUID " << objectHandle->uuid() );
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
         FieldRequest        field;

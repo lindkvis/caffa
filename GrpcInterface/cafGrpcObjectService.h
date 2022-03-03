@@ -40,6 +40,7 @@ class ObjectHandle;
 class ObjectMethod;
 class ObjectMethodFactory;
 class ProxyFieldHandle;
+class Serializer;
 class ValueField;
 } // namespace caffa
 
@@ -75,18 +76,13 @@ public:
     static void copyResultOrParameterObjectFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination );
     static void copyResultOrParameterObjectFromRpcToCaf( const RpcObject* source, caffa::ObjectHandle* destination );
 
-    static std::unique_ptr<caffa::ObjectHandle>
-        createCafObjectFromRpc( const RpcObject* source, caffa::ObjectFactory* objectFactory, bool copyDataValues );
-
-    static std::unique_ptr<caffa::ObjectHandle> createResultOrParameterCafObjectFromRpc( const RpcObject*      source,
-                                                                                         caffa::ObjectFactory* objectFactory,
-                                                                                         bool copyDataValues );
+    static std::unique_ptr<caffa::ObjectHandle> createCafObjectFromRpc( const RpcObject*         source,
+                                                                        const caffa::Serializer& serializer );
 
     static std::unique_ptr<caffa::ObjectMethod> createCafObjectMethodFromRpc( ObjectHandle*               self,
                                                                               const RpcObject*            source,
                                                                               caffa::ObjectMethodFactory* objectMethodFactory,
-                                                                              caffa::ObjectFactory*       objectFactory,
-                                                                              bool copyDataValues );
+                                                                              caffa::ObjectFactory* objectFactory );
 
     std::vector<AbstractCallback*> createCallbacks() override;
 

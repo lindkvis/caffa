@@ -20,22 +20,36 @@
 
 using namespace caffa;
 
-Serializer::Serializer( bool copyDataValues, ObjectFactory* objectFactory, FieldSelector fieldSelector, bool writeUuids )
-    : m_copyDataValues( copyDataValues )
-    , m_objectFactory( objectFactory )
-    , m_fieldSelector( fieldSelector )
-    , m_writeUuids( writeUuids )
+Serializer::Serializer( ObjectFactory* objectFactory )
+    : m_objectFactory( objectFactory )
+    , m_serializeDataValues( true )
+    , m_serializeDataTypes( true )
+    , m_serializeUuids( true )
 {
 }
 
-bool Serializer::copyDataValues() const
+Serializer& Serializer::setFieldSelector( FieldSelector fieldSelector )
 {
-    return m_copyDataValues;
+    m_fieldSelector = fieldSelector;
+    return *this;
 }
 
-Serializer::FieldSelector Serializer::fieldSelector() const
+Serializer& Serializer::setSerializeDataValues( bool serializeDataValues )
 {
-    return m_fieldSelector;
+    m_serializeDataValues = serializeDataValues;
+    return *this;
+}
+
+Serializer& Serializer::setSerializeDataTypes( bool serializeDataTypes )
+{
+    m_serializeDataTypes = serializeDataTypes;
+    return *this;
+}
+
+Serializer& Serializer::setSerializeUuids( bool serializeUuids )
+{
+    m_serializeUuids = serializeUuids;
+    return *this;
 }
 
 ObjectFactory* Serializer::objectFactory() const
@@ -43,7 +57,22 @@ ObjectFactory* Serializer::objectFactory() const
     return m_objectFactory;
 }
 
-bool Serializer::writeUuids() const
+Serializer::FieldSelector Serializer::fieldSelector() const
 {
-    return m_writeUuids;
+    return m_fieldSelector;
+}
+
+bool Serializer::serializeDataValues() const
+{
+    return m_serializeDataValues;
+}
+
+bool Serializer::serializeDataTypes() const
+{
+    return m_serializeDataTypes;
+}
+
+bool Serializer::serializeUuids() const
+{
+    return m_serializeUuids;
 }

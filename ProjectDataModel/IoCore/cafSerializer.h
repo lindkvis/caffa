@@ -41,14 +41,14 @@ public:
 
     /**
      * Constructor
-     * @param copyDataValues Should we copy the values of the fields in the serialisation?
+     * @param serializeSchema Should we copy the values of the fields in the serialisation?
      *                       if false only the names and data types will be copied. This is used
      *                       for on-demand data value access.
      * @param objectFactory The factory used when creating new objects. Not relevant when writing.
      * @param fieldSelector A method taking a FieldHandle pointer and returning true if that field should be serialized.
      * @param writeUuids    Write object UUIDs. UUIDs are used for dynamic connection to runtime objects.
      */
-    Serializer( bool copyDataValues, ObjectFactory* objectFactory, FieldSelector fieldSelector, bool writeUuids );
+    Serializer( ObjectFactory* objectFactory );
 
     /**
      * Convenience method for reading the class keyword and uuid from a string.
@@ -113,16 +113,40 @@ public:
     virtual void writeStream( const ObjectHandle* object, std::ostream& stream ) const = 0;
 
     /**
-     * Check if we're meant to copy data values
-     * @return true if we should copy data values
+     * Set Field Selector
+     * Since it returns a reference to it it can be used like: Serializer(objectFactory).setFieldSelector(functor);
+     *
+     * @param fieldSelector
+     * @return cafSerializer& reference to this
      */
-    bool copyDataValues() const;
+    Serializer& setFieldSelector( FieldSelector fieldSelector );
 
     /**
-     * Get the field selector
-     * @return field selector
+     * Set whether to serialize data values.
+     * Since it returns a reference to it it can be used like: Serializer(objectFactory).setSerializeDataValues(false);
+     *
+     * @param serializeDataValues
+     * @return cafSerializer& reference to this
      */
-    FieldSelector fieldSelector() const;
+    Serializer& setSerializeDataValues( bool serializeDataValues );
+
+    /**
+     * Set whether to serialize data types
+     * Since it returns a reference to it it can be used like: Serializer(objectFactory).setSerializeDataTypes(false);
+     *
+     * @param serializeDataTypes
+     * @return cafSerializer& reference to this
+     */
+    Serializer& setSerializeDataTypes( bool serializeDataTypes );
+
+    /**
+     * Set whether to serialize UUIDs
+     * Since it returns a reference to it it can be used like: Serializer(objectFactory).setSerializeUuids(false);
+     *
+     * @param serializeUuids
+     * @return cafSerializer& reference to this
+     */
+    Serializer& setSerializeUuids( bool serializeUuids );
 
     /**
      * Get the object factory
@@ -131,17 +155,37 @@ public:
     ObjectFactory* objectFactory() const;
 
     /**
-     * Check if we're meant to Write UUIDs. UUIDs are used for dynamic connection to runtime objects,
+     * Get the field selector
+     * @return field selector
+     */
+    FieldSelector fieldSelector() const;
+
+    /**
+     * Check if we're meant to serialize data values
+     * @return true if we should serialize data values
+     */
+    bool serializeDataValues() const;
+
+    /**
+     * Check if we're meant to serialize data types
+     * @return true if we should serialize schema (labels and types)
+     */
+    bool serializeDataTypes() const;
+
+    /**
+     * Check if we're meant to serialize UUIDs. UUIDs are used for dynamic connection to runtime objects,
      * not for writing to file.
      * @return true if we should write the UUIDs
      */
-    bool writeUuids() const;
+    bool serializeUuids() const;
 
 protected:
-    bool           m_copyDataValues;
     ObjectFactory* m_objectFactory;
     FieldSelector  m_fieldSelector;
-    bool           m_writeUuids;
+
+    bool m_serializeDataValues;
+    bool m_serializeDataTypes;
+    bool m_serializeUuids;
 };
 
 } // End of namespace caffa
