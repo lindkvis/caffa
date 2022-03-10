@@ -17,6 +17,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 source_group("" FILES ${PROJECT_FILES})
 
-target_link_libraries(${PROJECT_NAME} caffaProjectDataModel Microsoft.GSL::GSL)
+target_link_libraries(${PROJECT_NAME} caffaCore Microsoft.GSL::GSL)
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
