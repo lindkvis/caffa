@@ -18,15 +18,14 @@
 //
 #pragma once
 
-#include "cafException.h"
-
 #include <grpcpp/grpcpp.h>
 
+#include <stdexcept>
 #include <string>
 
 namespace caffa::rpc
 {
-class Exception : public caffa::Exception
+class Exception : public std::runtime_error
 {
 public:
     enum class Type
@@ -38,7 +37,7 @@ public:
 
 public:
     Exception( grpc::Status status )
-        : caffa::Exception( status.error_message() )
+        : std::runtime_error( status.error_message() )
         , m_status( status )
     {
     }

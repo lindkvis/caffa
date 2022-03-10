@@ -14,7 +14,6 @@ set(PUBLIC_HEADERS
     cafChildFieldAccessor.h
     cafDataValueField.h
     cafDataFieldAccessor.h
-    cafException.h
     cafField.h
     cafFieldCapability.h
     cafFieldHandle.h
