@@ -12,7 +12,6 @@ set(PUBLIC_HEADERS
     cafChildField.h
     cafChildField.inl
     cafChildFieldAccessor.h
-    cafDataValueField.h
     cafDataFieldAccessor.h
     cafField.h
     cafFieldCapability.h

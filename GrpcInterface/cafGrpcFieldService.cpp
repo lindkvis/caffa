@@ -119,11 +119,11 @@ size_t DataHolder<int>::getValuesFromChunk( size_t startIndex, const GenericArra
 template <>
 void DataHolder<int>::applyValuesToField( ValueField* field )
 {
-    auto dataValueField = dynamic_cast<Field<std::vector<int>>*>( field );
-    if ( dataValueField )
+    auto Field = dynamic_cast<caffa::Field<std::vector<int>>*>( field );
+    if ( Field )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        dataValueField->setValue( data );
+        Field->setValue( data );
     }
 }
 
@@ -166,11 +166,11 @@ size_t DataHolder<uint32_t>::getValuesFromChunk( size_t startIndex, const Generi
 template <>
 void DataHolder<uint32_t>::applyValuesToField( ValueField* field )
 {
-    auto dataValueField = dynamic_cast<Field<std::vector<uint32_t>>*>( field );
-    if ( dataValueField )
+    auto Field = dynamic_cast<caffa::Field<std::vector<uint32_t>>*>( field );
+    if ( Field )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        dataValueField->setValue( data );
+        Field->setValue( data );
     }
 }
 
@@ -213,11 +213,11 @@ size_t DataHolder<int64_t>::getValuesFromChunk( size_t startIndex, const Generic
 template <>
 void DataHolder<int64_t>::applyValuesToField( ValueField* field )
 {
-    auto dataValueField = dynamic_cast<Field<std::vector<int64_t>>*>( field );
-    if ( dataValueField )
+    auto Field = dynamic_cast<caffa::Field<std::vector<int64_t>>*>( field );
+    if ( Field )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        dataValueField->setValue( data );
+        Field->setValue( data );
     }
 }
 
@@ -260,11 +260,11 @@ size_t DataHolder<uint64_t>::getValuesFromChunk( size_t startIndex, const Generi
 template <>
 void DataHolder<uint64_t>::applyValuesToField( ValueField* field )
 {
-    auto dataValueField = dynamic_cast<Field<std::vector<uint64_t>>*>( field );
-    if ( dataValueField )
+    auto Field = dynamic_cast<caffa::Field<std::vector<uint64_t>>*>( field );
+    if ( Field )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        dataValueField->setValue( data );
+        Field->setValue( data );
     }
 }
 
@@ -306,11 +306,11 @@ size_t DataHolder<double>::getValuesFromChunk( size_t startIndex, const GenericA
 template <>
 void DataHolder<double>::applyValuesToField( ValueField* field )
 {
-    auto dataValueField = dynamic_cast<Field<std::vector<double>>*>( field );
-    if ( dataValueField )
+    auto Field = dynamic_cast<caffa::Field<std::vector<double>>*>( field );
+    if ( Field )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        dataValueField->setValue( data );
+        Field->setValue( data );
     }
 }
 template <>
@@ -352,11 +352,11 @@ size_t DataHolder<float>::getValuesFromChunk( size_t startIndex, const GenericAr
 template <>
 void DataHolder<float>::applyValuesToField( ValueField* field )
 {
-    auto dataValueField = dynamic_cast<Field<std::vector<float>>*>( field );
-    if ( dataValueField )
+    auto Field = dynamic_cast<caffa::Field<std::vector<float>>*>( field );
+    if ( Field )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        dataValueField->setValue( data );
+        Field->setValue( data );
     }
 }
 
@@ -399,11 +399,11 @@ size_t DataHolder<std::string>::getValuesFromChunk( size_t startIndex, const Gen
 template <>
 void DataHolder<std::string>::applyValuesToField( ValueField* field )
 {
-    auto dataValueField = dynamic_cast<Field<std::vector<std::string>>*>( field );
-    if ( dataValueField )
+    auto Field = dynamic_cast<caffa::Field<std::vector<std::string>>*>( field );
+    if ( Field )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        dataValueField->setValue( data );
+        Field->setValue( data );
     }
 }
 
@@ -446,11 +446,11 @@ size_t DataHolder<bool>::getValuesFromChunk( size_t startIndex, const GenericArr
 template <>
 void DataHolder<bool>::applyValuesToField( ValueField* field )
 {
-    auto dataValueField = dynamic_cast<Field<std::vector<bool>>*>( field );
-    if ( dataValueField )
+    auto Field = dynamic_cast<caffa::Field<std::vector<bool>>*>( field );
+    if ( Field )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        dataValueField->setValue( data );
+        Field->setValue( data );
     }
 }
 
@@ -516,7 +516,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
     if ( !m_fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : m_fieldOwner->fields() )
     {
-        auto scriptability = field->capability<FieldScriptingCapability>();
+        auto scriptability = field->capability<caffa::FieldScriptingCapability>();
         if ( scriptability && request->keyword() == scriptability->scriptFieldName() )
         {
             if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int>>*>( field ); dataField != nullptr )
@@ -665,7 +665,7 @@ grpc::Status SetterStateHandler::init( const GenericArray* chunk )
 
     for ( auto field : m_fieldOwner->fields() )
     {
-        auto scriptability = field->capability<FieldScriptingCapability>();
+        auto scriptability = field->capability<caffa::FieldScriptingCapability>();
         if ( scriptability && scriptability->scriptFieldName() == fieldRequest.keyword() )
         {
             if ( valueCount == 0 )
@@ -774,7 +774,7 @@ void SetterStateHandler::finish()
 {
     if ( m_field )
     {
-        auto scriptingCapability = m_field->capability<FieldScriptingCapability>();
+        auto scriptingCapability = m_field->capability<caffa::FieldScriptingCapability>();
         CAFFA_ASSERT( scriptingCapability );
         m_dataHolder->applyValuesToField( m_field );
     }
@@ -855,7 +855,7 @@ grpc::Status FieldService::ClearChildObjects( grpc::ServerContext* context, cons
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : fieldOwner->fields() )
     {
-        auto scriptability = field->capability<FieldScriptingCapability>();
+        auto scriptability = field->capability<caffa::FieldScriptingCapability>();
         if ( scriptability && request->keyword() == scriptability->scriptFieldName() )
         {
             auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
@@ -888,7 +888,7 @@ grpc::Status FieldService::RemoveChildObject( grpc::ServerContext* context, cons
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : fieldOwner->fields() )
     {
-        auto scriptability = field->capability<FieldScriptingCapability>();
+        auto scriptability = field->capability<caffa::FieldScriptingCapability>();
         if ( scriptability && request->keyword() == scriptability->scriptFieldName() )
         {
             auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
@@ -915,7 +915,7 @@ grpc::Status FieldService::InsertChildObject( grpc::ServerContext* context, cons
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : fieldOwner->fields() )
     {
-        auto scriptability = field->capability<FieldScriptingCapability>();
+        auto scriptability = field->capability<caffa::FieldScriptingCapability>();
         if ( scriptability && fieldRequest.keyword() == scriptability->scriptFieldName() )
         {
             auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
@@ -1092,7 +1092,7 @@ std::pair<caffa::FieldHandle*, bool> FieldService::fieldAndScriptableFromKeyword
 
     if ( field )
     {
-        auto scriptability     = field->capability<FieldScriptingCapability>();
+        auto scriptability     = field->capability<caffa::FieldScriptingCapability>();
         bool fieldIsScriptable = scriptability && keyword == scriptability->scriptFieldName();
         return std::make_pair( field, fieldIsScriptable );
     }

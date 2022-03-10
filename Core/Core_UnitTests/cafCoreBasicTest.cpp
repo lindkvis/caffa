@@ -5,7 +5,7 @@
 
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
-#include "cafDataValueField.h"
+#include "cafField.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafObjectHandle.h"
 #include "cafPortableDataType.h"
@@ -52,13 +52,13 @@ public:
     }
 
     // Fields
-    caffa::DataValueField<double>      m_proxyDoubleField;
-    caffa::DataValueField<int>         m_proxyIntField;
-    caffa::DataValueField<std::string> m_proxyStringField;
+    caffa::Field<double>      m_proxyDoubleField;
+    caffa::Field<int>         m_proxyIntField;
+    caffa::Field<std::string> m_proxyStringField;
 
-    caffa::DataValueField<double>      m_memberDoubleField;
-    caffa::DataValueField<int>         m_memberIntField;
-    caffa::DataValueField<std::string> m_memberStringField;
+    caffa::Field<double>      m_memberDoubleField;
+    caffa::Field<int>         m_memberIntField;
+    caffa::Field<std::string> m_memberStringField;
 
     // Internal class members accessed by proxy fields
     double doubleMember() const
@@ -95,7 +95,7 @@ public:
         this->addField( &m_childArrayField, "DemoObjectects" );
     }
 
-    caffa::DataValueField<std::string>  m_texts;
+    caffa::Field<std::string>           m_texts;
     caffa::ChildArrayField<DemoObject*> m_childArrayField;
 };
 
@@ -106,9 +106,9 @@ TEST( BaseTest, Delete )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// TestDataValueField
+/// TestField
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, TestDataValueField )
+TEST( BaseTest, TestField )
 {
     auto a = std::make_unique<DemoObject>();
 
@@ -146,7 +146,7 @@ TEST( BaseTest, TestProxyValueField )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Test of DataValueField operations
+/// Test of Field operations
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, NormalField )
 {
@@ -164,9 +164,9 @@ TEST( BaseTest, NormalField )
 
         std::string classKeywordDynamic() const override { return "A"; }
 
-        caffa::DataValueField<std::vector<double>> field1;
-        caffa::DataValueField<std::vector<double>> field2;
-        caffa::DataValueField<std::vector<double>> field3;
+        caffa::Field<std::vector<double>> field1;
+        caffa::Field<std::vector<double>> field2;
+        caffa::Field<std::vector<double>> field3;
     };
 
     std::vector<double> testValue;

@@ -3,7 +3,7 @@
 
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
-#include "cafDataValueField.h"
+#include "cafField.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafObjectHandle.h"
 
@@ -24,8 +24,8 @@ public:
         name = std::string( "Name" ) + std::to_string( id );
     }
 
-    caffa::DataValueField<std::string> name;
-    caffa::DataValueField<int>         id;
+    caffa::Field<std::string> name;
+    caffa::Field<int>         id;
 
     std::string classKeywordDynamic() const override { return "SimpleObj"; }
 };
@@ -39,7 +39,7 @@ public:
         this->addField( &valueA, "valueA" );
     }
 
-    caffa::DataValueField<int> valueA;
+    caffa::Field<int> valueA;
 };
 
 class SimpleObjDerivedOther : public MsjSimpleObj
@@ -51,7 +51,7 @@ public:
         this->addField( &valueDouble, "valueDouble" );
     }
 
-    caffa::DataValueField<double> valueDouble;
+    caffa::Field<double> valueDouble;
 };
 
 class ContainerObj : public caffa::ObjectHandle

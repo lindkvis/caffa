@@ -3,7 +3,7 @@
 
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
-#include "cafDataValueField.h"
+#include "cafField.h"
 #include "cafFieldIoCapability.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafFieldProxyAccessor.h"
@@ -35,7 +35,7 @@ public:
 
     // Fields
 
-    caffa::DataValueField<double> m_proxyDoubleField;
+    caffa::Field<double> m_proxyDoubleField;
 
 private:
     void setDoubleMember( const double& d )
@@ -96,7 +96,7 @@ public:
         CAFFA_IO_InitField( &m_childArrayField, "DemoObjectects" );
     }
 
-    caffa::DataValueField<std::string>  m_texts;
+    caffa::Field<std::string>           m_texts;
     caffa::ChildArrayField<DemoObject*> m_childArrayField;
 };
 CAFFA_IO_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj", "DemoObject" );
@@ -122,10 +122,10 @@ public:
         m_proxyDouble.setAccessor( std::move( doubleProxyAccessor ) );
     }
 
-    caffa::DataValueField<double> m_position;
-    caffa::DataValueField<double> m_dir;
-    caffa::DataValueField<int>    m_up;
-    caffa::DataValueField<double> m_proxyDouble;
+    caffa::Field<double> m_position;
+    caffa::Field<double> m_dir;
+    caffa::Field<int>    m_up;
+    caffa::Field<double> m_proxyDouble;
 
     void setDoubleMember( const double& d )
     {

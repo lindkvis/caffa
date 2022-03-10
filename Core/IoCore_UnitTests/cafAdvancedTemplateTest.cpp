@@ -2,80 +2,62 @@
 #include "gtest.h"
 
 #include "cafChildArrayField.h"
-#include "cafDataValueField.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafJsonSerializer.h"
-#include "cafObjectHandle.h"
-#include "cafObjectHandleIoMacros.h"
-#include "cafObjectIoCapability.h"
+#include "cafObject.h"
 
-class ItemObject : public caffa::ObjectHandle, public caffa::ObjectIoCapability
+class ItemObject : public caffa::Object
 {
-    CAFFA_IO_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
-    ItemObject()
-        : ObjectHandle()
-        , ObjectIoCapability( this, false )
-    {
-        CAFFA_IO_InitField( &m_name, "Name" );
-    }
+    ItemObject() { initField( m_name, "Name" ); }
 
     explicit ItemObject( std::string name )
-        : ObjectHandle()
-        , ObjectIoCapability( this, false )
     {
-        CAFFA_IO_InitField( &m_name, "Name" );
+        initField( m_name, "Name" );
         m_name = name;
     }
 
     ~ItemObject() {}
 
-    std::string classKeywordDynamic() const override { return classKeyword(); }
-
     // Fields
-    caffa::DataValueField<std::string> m_name;
+    caffa::Field<std::string> m_name;
 };
-CAFFA_IO_SOURCE_INIT( ItemObject, "ItemObject" );
+CAFFA_SOURCE_INIT( ItemObject, "ItemObject" );
 
 class DemoObjectA;
 
-class ContainerObject : public caffa::ObjectHandle, public caffa::ObjectIoCapability
+class ContainerObject : public caffa::Object
 {
-    CAFFA_IO_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     ContainerObject()
-        : ObjectHandle()
-        , ObjectIoCapability( this, false )
     {
-        CAFFA_IO_InitField( &m_items, "Items" );
-        CAFFA_IO_InitField( &m_containers, "Containers" );
-        CAFFA_IO_InitField( &m_demoObjs, "DemoObjs" );
+        initField( m_items, "Items" );
+        initField( m_containers, "Containers" );
+        initField( m_demoObjs, "DemoObjs" );
     }
 
     ~ContainerObject() {}
-
-    std::string classKeywordDynamic() const override { return classKeyword(); }
 
     // Fields
     caffa::ChildArrayField<ItemObject*>      m_items;
     caffa::ChildArrayField<ContainerObject*> m_containers;
     caffa::ChildArrayField<DemoObjectA*>     m_demoObjs;
 };
-CAFFA_IO_SOURCE_INIT( ContainerObject, "ContainerObject" );
+CAFFA_SOURCE_INIT( ContainerObject, "ContainerObject" );
 
-class DemoObjectA : public caffa::ObjectHandle, public caffa::ObjectIoCapability
+class DemoObjectA : public caffa::Object
 {
-    CAFFA_IO_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     DemoObjectA()
-        : ObjectHandle()
-        , ObjectIoCapability( this, false )
     {
-        CAFFA_IO_InitField( &m_doubleField, "BigNumber" );
+        initField( m_doubleField, "BigNumber" );
         auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
         doubleProxyAccessor->registerSetMethod( this, &DemoObjectA::setDoubleMember );
         doubleProxyAccessor->registerGetMethod( this, &DemoObjectA::doubleMember );
@@ -85,7 +67,7 @@ public:
     ~DemoObjectA() {}
 
     // Fields
-    caffa::DataValueField<double> m_doubleField;
+    caffa::Field<double> m_doubleField;
 
     void setDoubleMember( const double& d )
     {
@@ -102,7 +84,7 @@ public:
     double m_doubleMember;
 };
 
-CAFFA_IO_SOURCE_INIT( DemoObjectA, "DemoObjectA" );
+CAFFA_SOURCE_INIT( DemoObjectA, "DemoObjectA" );
 
 //--------------------------------------------------------------------------------------------------
 /// Read/write fields to a valid Xml document encoded in a std::string
