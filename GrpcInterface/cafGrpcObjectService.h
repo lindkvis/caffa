@@ -20,7 +20,6 @@
 
 #include "cafGrpcCallbacks.h"
 #include "cafGrpcServiceInterface.h"
-#include "cafVariant.h"
 
 #include "ObjectService.grpc.pb.h"
 #include "ObjectService.pb.h"

@@ -8,11 +8,11 @@ if(CAFFA_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
-set(PUBLIC_HEADERS cafObject.h cafObjectGroup.h cafFieldScriptingCapability.h cafObjectMethod.h)
+set(PUBLIC_HEADERS cafObject.h cafFieldScriptingCapability.h cafObjectMethod.h)
 
 include_directories(..)
 
-set(PROJECT_FILES ${PUBLIC_HEADERS} cafObject.cpp cafObjectGroup.cpp cafFieldScriptingCapability.cpp cafObjectMethod.cpp)
+set(PROJECT_FILES ${PUBLIC_HEADERS} cafObject.cpp cafFieldScriptingCapability.cpp cafObjectMethod.cpp)
 
 if(CAFFA_BUILD_SHARED)
   message(STATUS "Building ${PROJECT_NAME} shared")
@@ -25,14 +25,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${CMAKE_PROJECT_VERSION
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 
-target_link_libraries(
-  ${PROJECT_NAME}
-  caffaCore
-  caffaIoCore
-  caffaUiCore
-  nlohmann_json::nlohmann_json
-  Microsoft.GSL::GSL
-  stduuid)
+target_link_libraries(${PROJECT_NAME} caffaCore caffaIoCore nlohmann_json::nlohmann_json Microsoft.GSL::GSL stduuid)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

@@ -15,9 +15,8 @@ CAFFA_ABSTRACT_SOURCE_INIT( Object, "Object" );
 Object::Object()
     : ObjectHandle()
     , ObjectIoCapability( this, false )
-    , ObjectUiCapability( this, false )
 {
-    initField( m_uuid, "UUID" ).withScripting().withUi( "Object UUID", "Unique Object Identifier" ).readOnly();
+    initField( m_uuid, "UUID" ).withScripting().readOnly();
 
     auto                         seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::mt19937                 generator( seed );
@@ -38,16 +37,6 @@ Object::~Object() noexcept
 std::string Object::classKeywordDynamic() const
 {
     return this->classKeyword();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Object::assignUiInfo( const std::string& uiName, const std::string& toolTip, const std::string& whatsThis )
-{
-    std::string       validUiName = uiName.empty() ? classKeyword() : uiName;
-    caffa::UiItemInfo objDescr( validUiName, toolTip, whatsThis );
-    this->setUiItemInfo( objDescr );
 }
 
 //--------------------------------------------------------------------------------------------------

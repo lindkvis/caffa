@@ -41,7 +41,6 @@
 
 #include "cafAssert.h"
 #include "cafDataFieldAccessor.h"
-#include "cafValueFieldSpecializations.h"
 
 #include <any>
 #include <vector>
@@ -103,22 +102,9 @@ public:
         CAFFA_ASSERT( this->isInitializedByInitFieldMacro() );
         m_fieldDataAccessor->setValue( fieldValue );
     }
-    void setValueWithFieldChanged( const DataType& fieldValue, const caffa::FieldCapability* capabilityTriggeringChange );
 
     // Implementation of ValueField interface
 
-    Variant toVariant() const override
-    {
-        CAFFA_ASSERT( this->isInitializedByInitFieldMacro() );
-        return ValueFieldSpecialization<DataType>::convert( m_fieldDataAccessor->value() );
-    }
-    void setFromVariant( const Variant& variant ) override
-    {
-        CAFFA_ASSERT( this->isInitializedByInitFieldMacro() );
-        DataType value;
-        ValueFieldSpecialization<DataType>::setFromVariant( variant, value );
-        m_fieldDataAccessor->setValue( value );
-    }
     bool isReadOnly() const override { return false; }
 
     // Access operators
@@ -147,27 +133,5 @@ public:
 protected:
     std::unique_ptr<DataAccessor> m_fieldDataAccessor;
 };
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void caffa::DataValueField<DataType>::setValueWithFieldChanged( const DataType&               fieldValue,
-                                                                const caffa::FieldCapability* capabilityTriggeringChange )
-{
-    Variant oldValue = this->toVariant();
-    CAFFA_ASSERT( this->isInitializedByInitFieldMacro() );
-    m_fieldDataAccessor->setValue( fieldValue );
-    Variant newValue = this->toVariant();
-
-    for ( auto capability : this->capabilities() )
-    {
-        if ( capability != capabilityTriggeringChange )
-        {
-            capability->notifyFieldChanged( capabilityTriggeringChange, oldValue, newValue );
-        }
-    }
-    this->changed.send( std::make_tuple( capabilityTriggeringChange, oldValue, newValue ) );
-}
 
 } // End of namespace caffa

@@ -78,11 +78,8 @@ public:
     std::string stringMember() const { return m_stringMember; }
     void        setStringMember( const std::string& val ) { m_stringMember = val; }
 
-    std::string classKeywordDynamic() const override
-    {
-        return "DemoObject";
-    }
-    
+    std::string classKeywordDynamic() const override { return "DemoObject"; }
+
 private:
     double      m_doubleMember;
     int         m_intMember;
@@ -146,61 +143,6 @@ TEST( BaseTest, TestProxyValueField )
     ASSERT_TRUE( a->m_proxyStringField.value() == "abba" );
     a->m_proxyStringField.setValue( "123" );
     ASSERT_TRUE( a->m_proxyStringField.value() == "123" );
-}
-
-//--------------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------
-TEST( BaseTest, TestValueFieldInterface )
-{
-    auto a = std::make_unique<DemoObject>();
-
-    {
-        caffa::ValueField* valField    = dynamic_cast<caffa::ValueField*>( a->findField( "m_proxyDoubleField" ) );
-        caffa::Variant     originalVal = 3.4;
-        valField->setFromVariant( originalVal );
-        caffa::Variant newVal = valField->toVariant();
-        ASSERT_EQ( originalVal.value<double>(), newVal.value<double>() );
-    }
-
-    {
-        caffa::ValueField* valField    = dynamic_cast<caffa::ValueField*>( a->findField( "m_proxyIntField" ) );
-        caffa::Variant     originalVal = 3;
-        valField->setFromVariant( originalVal );
-        caffa::Variant newVal = valField->toVariant();
-        ASSERT_EQ( originalVal.value<int>(), newVal.value<int>() );
-    }
-
-    {
-        caffa::ValueField* valField    = dynamic_cast<caffa::ValueField*>( a->findField( "m_proxyStringField" ) );
-        caffa::Variant     originalVal = "test";
-        valField->setFromVariant( originalVal );
-        caffa::Variant newVal = valField->toVariant();
-        ASSERT_EQ( originalVal.value<std::string>(), newVal.value<std::string>() );
-    }
-
-    {
-        caffa::ValueField* valField    = dynamic_cast<caffa::ValueField*>( a->findField( "m_memberDoubleField" ) );
-        caffa::Variant     originalVal = 3.4;
-        valField->setFromVariant( originalVal );
-        caffa::Variant newVal = valField->toVariant();
-        ASSERT_EQ( originalVal.value<double>(), newVal.value<double>() );
-    }
-
-    {
-        caffa::ValueField* valField    = dynamic_cast<caffa::ValueField*>( a->findField( "m_memberIntField" ) );
-        caffa::Variant     originalVal = 3;
-        valField->setFromVariant( originalVal );
-        caffa::Variant newVal = valField->toVariant();
-        ASSERT_EQ( originalVal.value<int>(), newVal.value<int>() );
-    }
-
-    {
-        caffa::ValueField* valField    = dynamic_cast<caffa::ValueField*>( a->findField( "m_memberStringField" ) );
-        caffa::Variant     originalVal = "test";
-        valField->setFromVariant( originalVal );
-        caffa::Variant newVal = valField->toVariant();
-        ASSERT_EQ( originalVal.value<std::string>(), newVal.value<std::string>() );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -446,12 +388,12 @@ TEST( BaseTest, ChildField )
 
         caffa::ChildField<Child*> field2;
         int                       b;
-        
+
         std::string classKeywordDynamic() const override { return "A"; }
     };
 
     {
-        auto                  testValue = std::make_unique<Child>();
+        auto                           testValue = std::make_unique<Child>();
         caffa::ObservingPointer<Child> rawValue  = testValue.get();
 
         {

@@ -4,7 +4,6 @@
 #include "cafDataValueField.h"
 #include "cafObservingPointer.h"
 #include "cafValueField.h"
-#include "cafValueFieldSpecializations.h"
 
 #include <type_traits>
 #include <vector>
@@ -45,7 +44,7 @@ public:
     }
 
 private:
-    SetterMethodType    m_setterMethod;
+    SetterMethodType             m_setterMethod;
     ObservingPointer<ObjectType> m_obj;
 };
 
@@ -78,7 +77,7 @@ public:
     }
 
 private:
-    GetterMethodType    m_getterMethod;
+    GetterMethodType             m_getterMethod;
     ObservingPointer<ObjectType> m_obj;
 };
 

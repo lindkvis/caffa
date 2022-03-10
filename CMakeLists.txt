@@ -19,7 +19,6 @@ set(CMAKE_CXX_STANDARD 17)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/scripts")
 
 option(CAFFA_GRPC_INTERFACE "Enable the gRPC interface to the Project Data Model" OFF)
-option(CAFFA_DESKTOP_DEPLOYMENT "Turn this on to build for desktop deployment with the Qt Toolkit" OFF)
 option(CAFFA_BUILD_EXAMPLES "Build examples" OFF)
 option(CAFFA_BUILD_UNIT_TESTS "Build unit tests" ON)
 
@@ -64,7 +63,6 @@ add_subdirectory(ThirdParty/caffa-logger)
 
 # libraries
 add_subdirectory(ProjectDataModel/Core)
-add_subdirectory(ProjectDataModel/UiCore)
 add_subdirectory(ProjectDataModel/IoCore)
 add_subdirectory(ProjectDataModel/Object)
 
@@ -92,18 +90,10 @@ if(CAFFA_GRPC_INTERFACE)
   endif()
 endif()
 
-if(CAFFA_DESKTOP_DEPLOYMENT)
-  add_subdirectory(UserInterface)
-  add_subdirectory(Tests/TestApplication)
-  if(CAFFA_BUILD_UNIT_TESTS)
-    add_subdirectory(UserInterface/UserInterface_UnitTests)
-  endif()
-endif()
-
 # Organize sub-projects into folders on Visual Studio Turn on using solution folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set_property(TARGET caffaCore caffaIoCore caffaUiCore caffaObject PROPERTY FOLDER "Core")
+set_property(TARGET caffaCore caffaIoCore caffaObject PROPERTY FOLDER "Core")
 if(CAFFA_BUILD_UNIT_TESTS)
   set_property(TARGET caffaCore_UnitTests caffaIoCore_UnitTests PROPERTY FOLDER "Core")
 endif()

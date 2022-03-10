@@ -22,7 +22,6 @@
 #include "cafLogger.h"
 #include "cafObjectMethod.h"
 #include "cafPortableDataType.h"
-#include "cafVariant.h"
 
 #include <gsl/gsl>
 

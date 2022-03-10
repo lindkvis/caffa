@@ -45,7 +45,6 @@
 #include "cafFieldProxyAccessor.h"
 #include "cafJsonSerializer.h"
 #include "cafObject.h"
-#include "cafObjectGroup.h"
 #include "cafObservingPointer.h"
 
 #include <fstream>
@@ -324,27 +323,6 @@ TEST( BaseTest, ReadWrite )
             std::string   str1( ( std::istreambuf_iterator<char>( f1 ) ), std::istreambuf_iterator<char>() );
             CAFFA_DEBUG( "Wrote file content to " << doc.fileName() << ":\n" << str1 );
         }
-        caffa::ObjectGroup pog;
-        for ( size_t i = 0; i < doc.objects.size(); i++ )
-        {
-            pog.addObject( doc.objects[i] );
-        }
-
-        {
-            std::vector<caffa::ObservingPointer<DemoObject>> demoObjs;
-            pog.objectsByType( &demoObjs );
-            EXPECT_EQ( size_t( 4 ), demoObjs.size() );
-        }
-        {
-            std::vector<caffa::ObservingPointer<InheritedDemoObj>> demoObjs;
-            pog.objectsByType( &demoObjs );
-            EXPECT_EQ( size_t( 2 ), demoObjs.size() );
-        }
-        {
-            std::vector<caffa::ObservingPointer<SimpleObj>> demoObjs;
-            pog.objectsByType( &demoObjs );
-            EXPECT_EQ( size_t( 1 ), demoObjs.size() );
-        }
 
         d2p->m_simpleObjPtrField = nullptr;
         doc.objects.clear();
@@ -356,23 +334,6 @@ TEST( BaseTest, ReadWrite )
         // Read file
         doc.setFileName( "TestFile.json" );
         ASSERT_TRUE( doc.read() );
-
-        caffa::ObjectGroup pog;
-        for ( size_t i = 0; i < doc.objects.size(); i++ )
-        {
-            pog.addObject( doc.objects[i] );
-        }
-
-        // Test sample of that writing actually took place
-
-        std::vector<caffa::ObservingPointer<InheritedDemoObj>> ihDObjs;
-        pog.objectsByType( &ihDObjs );
-        EXPECT_EQ( size_t( 2 ), ihDObjs.size() );
-        ASSERT_EQ( size_t( 4 ), ihDObjs[0]->m_simpleObjectsField.size() );
-        ASSERT_EQ( size_t( 4 ), ihDObjs[0]->m_simpleObjectsField[1]->m_numbers().size() );
-        EXPECT_EQ( 3.13, ihDObjs[0]->m_simpleObjectsField[1]->m_numbers()[3] );
-
-        EXPECT_EQ( std::string( "Test text   end" ), ihDObjs[0]->m_textField() );
 
         // Write file
         std::ofstream file( "TestFile2.json" );
@@ -450,12 +411,6 @@ TEST( BaseTest, ObjectFactory )
     {
         auto s = caffa::dynamic_unique_cast<caffa::Document>(
             caffa::DefaultObjectFactory::instance()->create( "Document" ) );
-        EXPECT_TRUE( s );
-    }
-
-    {
-        auto s = caffa::dynamic_unique_cast<caffa::ObjectGroup>(
-            caffa::DefaultObjectFactory::instance()->create( "ObjectGroup" ) );
         EXPECT_TRUE( s );
     }
 }
