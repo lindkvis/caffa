@@ -63,8 +63,6 @@ add_subdirectory(ThirdParty/caffa-logger)
 
 # libraries
 add_subdirectory(ProjectDataModel/Core)
-add_subdirectory(ProjectDataModel/IoCore)
-add_subdirectory(ProjectDataModel/Object)
 
 add_subdirectory(ProjectDataModel)
 
@@ -74,7 +72,7 @@ endif()
 
 if(CAFFA_BUILD_UNIT_TESTS)
   add_subdirectory(ProjectDataModel/Core/Core_UnitTests)
-  add_subdirectory(ProjectDataModel/IoCore/IoCore_UnitTests)
+  add_subdirectory(ProjectDataModel/Core/IoCore_UnitTests)
   add_subdirectory(ProjectDataModel/ProjectDataModel_UnitTests)
 endif()
 
@@ -93,7 +91,7 @@ endif()
 # Organize sub-projects into folders on Visual Studio Turn on using solution folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set_property(TARGET caffaCore caffaIoCore caffaObject PROPERTY FOLDER "Core")
+set_property(TARGET caffaCore PROPERTY FOLDER "Core")
 if(CAFFA_BUILD_UNIT_TESTS)
   set_property(TARGET caffaCore_UnitTests caffaIoCore_UnitTests PROPERTY FOLDER "Core")
 endif()

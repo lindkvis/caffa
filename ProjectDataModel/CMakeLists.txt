@@ -21,7 +21,7 @@ if(MSVC)
   set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif()
 
-target_link_libraries(${PROJECT_NAME} PUBLIC caffaCore caffaIoCore caffaObject)
+target_link_libraries(${PROJECT_NAME} PUBLIC caffaCore)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
