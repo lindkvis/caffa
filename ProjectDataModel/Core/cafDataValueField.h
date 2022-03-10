@@ -50,7 +50,7 @@ namespace caffa
 class ObjectHandle;
 
 //==================================================================================================
-/// Field class encapsulating data with input and output of this data to/from a QXmlStream
+/// Field class encapsulating data with input and output of this data to/from JSON
 /// read/write-FieldData is supposed to be specialized for types needing specialization
 //==================================================================================================
 

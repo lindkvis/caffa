@@ -2,7 +2,6 @@
 
 #include "cafDefaultObjectFactory.h"
 #include "cafFieldIoCapabilitySpecializations.h"
-#include "cafXmlStringValidation.h"
 
 // Taken from gtest.h
 //
@@ -16,12 +15,6 @@
 // http://www.parashift.com/c++-faq-lite/misc-technical-issues.html#faq-39.6
 #define CAFFA_OBJECT_STRING_CONCATENATE( foo, bar ) CAFFA_OBJECT_STRING_CONCATENATE_IMPL_( foo, bar )
 #define CAFFA_OBJECT_STRING_CONCATENATE_IMPL_( foo, bar ) foo##bar
-
-// In order for a keyword to be valid, it has to be valid in all the IO implementations provided.
-#define CAFFA_VERIFY_IO_KEYWORD( keyword )                                                                  \
-    static_assert( isFirstCharacterValidInXmlKeyword( keyword ), "First character in keyword is invalid" ); \
-    static_assert( !isFirstThreeCharactersXml( keyword ), "Keyword starts with invalid sequence xml" );     \
-    static_assert( isValidXmlKeyword( keyword ), "Detected invalid character in keyword" );
 
 /// CAFFA_HEADER_INIT assists the factory used when reading objects from file
 /// Place this in the header file inside the class definition of your Object
@@ -44,11 +37,7 @@ public:                                                                         
                                                                                                                                          \
     std::string              ClassName::classKeyword() const { return classKeywordStatic(); }                                            \
     std::string              ClassName::classKeywordStatic() { return classInheritanceStackStatic().front(); }                           \
-    std::vector<std::string> ClassName::classInheritanceStackStatic()                                                                    \
-    {                                                                                                                                    \
-        CAFFA_VERIFY_IO_KEYWORD( keyword )                                                                                               \
-        return { keyword, ##__VA_ARGS__ };                                                                                               \
-    }                                                                                                                                    \
+    std::vector<std::string> ClassName::classInheritanceStackStatic() { return { keyword, ##__VA_ARGS__ }; }                             \
     std::vector<std::string> ClassName::classInheritanceStack() const { return classInheritanceStackStatic(); }                          \
     bool                     ClassName::matchesClassKeyword( const std::string& matchKeyword ) const                                     \
     {                                                                                                                                    \
@@ -70,7 +59,6 @@ public:                                                                         
 
 #define CAFFA_IO_InitField( field, keyword )                                                                                      \
     {                                                                                                                             \
-        CAFFA_VERIFY_IO_KEYWORD( keyword )                                                                                        \
         static bool checkingThePresenceOfHeaderAndSourceInitMacros =                                                              \
             Error_You_forgot_to_add_the_macro_CAFFA_IO_HEADER_INIT_and_or_CAFFA_IO_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
         this->isInheritedFromSerializable();                                                                                      \
