@@ -1,8 +1,6 @@
 
 #include "gtest.h"
 
-#include "cafAppEnum.h"
-
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafDataValueField.h"
@@ -28,7 +26,7 @@ public:
 
     caffa::DataValueField<std::string> name;
     caffa::DataValueField<int>         id;
-    
+
     std::string classKeywordDynamic() const override { return "SimpleObj"; }
 };
 
