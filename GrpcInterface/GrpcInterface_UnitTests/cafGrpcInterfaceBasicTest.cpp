@@ -9,7 +9,6 @@
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafDocument.h"
-#include "cafException.h"
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
@@ -23,6 +22,7 @@
 #include <algorithm>
 #include <chrono>
 #include <random>
+#include <stdexcept>
 #include <string>
 #include <thread>
 #include <vector>
@@ -175,7 +175,7 @@ TEST( BaseTest, Document )
         thread.join();
         CAFFA_DEBUG( "Finishing test" );
     }
-    catch ( const caffa::Exception& e )
+    catch ( const std::runtime_error& e )
     {
         CAFFA_ERROR( "Exception caught: " << e.what() );
         return;
