@@ -25,7 +25,6 @@ set(PUBLIC_HEADERS
     cafChildArrayFieldHandle.h
     cafValueField.h
     cafSignal.h
-    cafInternalStreamOperators.h
     cafFieldIoCapabilitySpecializations.h
     cafFieldIoCapabilitySpecializations.inl
     cafFieldIoCapability.h
