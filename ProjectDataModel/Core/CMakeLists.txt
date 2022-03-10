@@ -24,7 +24,20 @@ set(PUBLIC_HEADERS
     cafFieldProxyAccessor.h
     cafChildArrayFieldHandle.h
     cafValueField.h
-    cafSignal.h)
+    cafSignal.h
+    cafInternalStreamOperators.h
+    cafFieldIoCapabilitySpecializations.h
+    cafFieldIoCapabilitySpecializations.inl
+    cafFieldIoCapability.h
+    cafSerializer.h
+    cafJsonSerializer.h
+    cafObjectIoCapability.h
+    cafObjectHandleIoMacros.h
+    cafDefaultObjectFactory.h
+    cafObjectFactory.h
+    cafObject.h
+    cafFieldScriptingCapability.h
+    cafObjectMethod.h)
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
@@ -34,7 +47,15 @@ set(PROJECT_FILES
     cafObjectCapability.cpp
     cafObjectHandle.cpp
     cafObservingPointer.cpp
-    cafSignal.cpp)
+    cafSignal.cpp
+    cafFieldIoCapability.cpp
+    cafObjectIoCapability.cpp
+    cafSerializer.cpp
+    cafJsonSerializer.cpp
+    cafDefaultObjectFactory.cpp
+    cafObject.cpp
+    cafFieldScriptingCapability.cpp
+    cafObjectMethod.cpp)
 
 if(CAFFA_BUILD_SHARED)
   message(STATUS "Building ${PROJECT_NAME} shared")
@@ -54,7 +75,10 @@ endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(${PROJECT_NAME} caffaLogger)
+target_link_libraries(
+  ${PROJECT_NAME}
+  PUBLIC caffaLogger
+  PRIVATE nlohmann_json::nlohmann_json stduuid)
 
 install(
   TARGETS ${PROJECT_NAME}
