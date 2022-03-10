@@ -81,8 +81,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(
   ${PROJECT_NAME}
-  PUBLIC caffaLogger
-  PRIVATE nlohmann_json::nlohmann_json stduuid)
+  PUBLIC caffaLogger nlohmann_json::nlohmann_json
+  PRIVATE stduuid)
 
 install(
   TARGETS ${PROJECT_NAME}
