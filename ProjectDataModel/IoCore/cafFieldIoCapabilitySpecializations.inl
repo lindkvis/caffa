@@ -1,6 +1,5 @@
 
 #include "cafAssert.h"
-#include "cafInternalIoFieldReaderWriter.h"
 #include "cafLogger.h"
 #include "cafObjectFactory.h"
 #include "cafObjectIoCapability.h"

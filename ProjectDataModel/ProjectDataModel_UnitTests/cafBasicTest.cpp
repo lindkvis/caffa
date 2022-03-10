@@ -37,7 +37,6 @@
 #include "gtest.h"
 #include <iostream>
 
-#include "cafAppEnum.h"
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafDocument.h"
@@ -146,23 +145,14 @@ class InheritedDemoObj : public DemoObject
     CAFFA_HEADER_INIT;
 
 public:
-    enum TestEnumType
-    {
-        T1,
-        T2,
-        T3
-    };
-
     InheritedDemoObj()
     {
         initField( m_texts, "Texts" ).withDefault( { "Some", "words" } );
-        initField( m_testEnumField, "TestEnumValue" );
         initField( m_simpleObjectsField, "SimpleObjects" );
     }
 
-    caffa::Field<std::vector<std::string>>     m_texts;
-    caffa::Field<caffa::AppEnum<TestEnumType>> m_testEnumField;
-    caffa::ChildArrayField<SimpleObj*>         m_simpleObjectsField;
+    caffa::Field<std::vector<std::string>> m_texts;
+    caffa::ChildArrayField<SimpleObj*>     m_simpleObjectsField;
 };
 CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj", "DemoObject", "Object" );
 
@@ -176,19 +166,6 @@ public:
     caffa::ChildArrayField<ObjectHandle*> objects;
 };
 CAFFA_SOURCE_INIT( MyDocument, "MyDocument", "Document", "Object" );
-
-namespace caffa
-{
-template <>
-void AppEnum<InheritedDemoObj::TestEnumType>::setUp()
-{
-    addItem( InheritedDemoObj::T1, "T1", "An A letter" );
-    addItem( InheritedDemoObj::T2, "T2", "A B letter" );
-    addItem( InheritedDemoObj::T3, "T3", "A B letter" );
-    setDefault( InheritedDemoObj::T1 );
-}
-
-} // namespace caffa
 
 TEST( BaseTest, Delete )
 {

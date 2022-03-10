@@ -1,7 +1,6 @@
 
 #include "gtest.h"
 
-#include "cafAppEnum.h"
 #include "cafChildArrayField.h"
 #include "cafDataValueField.h"
 #include "cafFieldIoCapabilitySpecializations.h"
@@ -72,13 +71,6 @@ class DemoObjectA : public caffa::ObjectHandle, public caffa::ObjectIoCapability
     CAFFA_IO_HEADER_INIT;
 
 public:
-    enum TestEnumType
-    {
-        T1,
-        T2,
-        T3
-    };
-
     DemoObjectA()
         : ObjectHandle()
         , ObjectIoCapability( this, false )
@@ -111,19 +103,6 @@ public:
 };
 
 CAFFA_IO_SOURCE_INIT( DemoObjectA, "DemoObjectA" );
-
-namespace caffa
-{
-template <>
-void AppEnum<DemoObjectA::TestEnumType>::setUp()
-{
-    addItem( DemoObjectA::T1, "T1", "An A letter" );
-    addItem( DemoObjectA::T2, "T2", "A B letter" );
-    addItem( DemoObjectA::T3, "T3", "A B letter" );
-    setDefault( DemoObjectA::T1 );
-}
-
-} // namespace caffa
 
 //--------------------------------------------------------------------------------------------------
 /// Read/write fields to a valid Xml document encoded in a std::string
