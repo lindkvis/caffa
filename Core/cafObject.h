@@ -43,8 +43,8 @@
 #include "cafFieldScriptingCapability.h"
 #include "cafObjectCapability.h"
 #include "cafObjectHandle.h"
-#include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
+#include "cafObjectMacros.h"
 #include "cafObservingPointer.h"
 
 #include <set>
@@ -54,10 +54,6 @@ namespace caffa
 class UiEditorAttribute;
 class UiTreeOrdering;
 class ObjectCapability;
-
-#define CAFFA_HEADER_INIT CAFFA_IO_HEADER_INIT
-#define CAFFA_SOURCE_INIT CAFFA_IO_SOURCE_INIT
-#define CAFFA_ABSTRACT_SOURCE_INIT CAFFA_IO_ABSTRACT_SOURCE_INIT
 
 /**
  * Helper class that is initialised with Object::initField and allows

@@ -45,7 +45,7 @@
 /// CAFFA_OBJECT_METHOD_SOURCE_INIT associates the self class keyword and the method keyword with the method factory
 /// Place this in the cpp file, preferably above the constructor
 #define CAFFA_OBJECT_METHOD_SOURCE_INIT( SelfClassName, MethodClassName, methodKeyword ) \
-    CAFFA_IO_ABSTRACT_SOURCE_INIT( MethodClassName, methodKeyword, "ObjectMethod" )      \
+    CAFFA_ABSTRACT_SOURCE_INIT( MethodClassName, methodKeyword, "ObjectMethod" )         \
     static bool CAFFA_OBJECT_STRING_CONCATENATE( method##MethodClassName, __LINE__ ) =   \
         caffa::ObjectMethodFactory::instance()->registerMethod<SelfClassName, MethodClassName>()
 
