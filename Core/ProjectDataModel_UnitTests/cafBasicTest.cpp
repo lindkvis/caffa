@@ -95,7 +95,7 @@ public:
     caffa::Field<double>              m_dir;
     caffa::Field<double>              m_up;
     caffa::Field<std::vector<double>> m_numbers;
-    caffa::DataValueField<double>     m_proxyDouble;
+    caffa::Field<double>              m_proxyDouble;
 
     void setDoubleMember( const double& d )
     {

@@ -1,7 +1,7 @@
 
 #include "gtest.h"
 
-#include "cafDataValueField.h"
+#include "cafField.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafJsonSerializer.h"
 #include "cafObjectHandle.h"
@@ -30,11 +30,11 @@ public:
 
     std::string classKeywordDynamic() const override { return "SimpleObjectWithNumbers"; }
 
-    caffa::DataValueField<double> m_valueA;
-    caffa::DataValueField<double> m_valueB;
+    caffa::Field<double> m_valueA;
+    caffa::Field<double> m_valueB;
 
-    caffa::DataValueField<float> m_floatValueA;
-    caffa::DataValueField<float> m_floatValueB;
+    caffa::Field<float> m_floatValueA;
+    caffa::Field<float> m_floatValueB;
 };
 CAFFA_IO_SOURCE_INIT( SimpleObjectWithNumbers, "SimpleObjectWithNumbers", "" );
 

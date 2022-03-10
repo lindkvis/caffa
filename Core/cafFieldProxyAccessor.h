@@ -1,9 +1,8 @@
 #pragma once
 
 #include "cafAssert.h"
-#include "cafDataValueField.h"
+#include "cafField.h"
 #include "cafObservingPointer.h"
-#include "cafValueField.h"
 
 #include <type_traits>
 #include <vector>

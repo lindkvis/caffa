@@ -174,7 +174,7 @@ public:
     void        setUuid( const std::string& uuid ) override;
 
 private:
-    Field<std::string> m_uuid;
+    caffa::Field<std::string> m_uuid;
 };
 
 } // End of namespace caffa
