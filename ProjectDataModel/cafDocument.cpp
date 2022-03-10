@@ -48,9 +48,8 @@ CAFFA_SOURCE_INIT( Document, "Document", "Object" );
 //--------------------------------------------------------------------------------------------------
 Document::Document( const std::string& id )
 {
-    assignUiInfo( "Document", "Basic Document", "" );
-    initField( m_id, "id" ).withScripting().withDefault( id ).withUi( "Document ID", "Unique document ID" );
-    initField( m_fileName, "fileName" ).withScripting().withUi( "Document File Name", "File Name for serialisation" );
+    initField( m_id, "id" ).withScripting();
+    initField( m_fileName, "fileName" ).withScripting();
 }
 
 //--------------------------------------------------------------------------------------------------

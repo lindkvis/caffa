@@ -2,7 +2,6 @@
 
 #include "cafBase.h"
 #include "cafSignal.h"
-#include "cafVariant.h"
 
 #include <any>
 #include <memory>
@@ -21,9 +20,6 @@ class FieldCapability;
 
 class FieldHandle : public SignalEmitter
 {
-public:
-    Signal<std::tuple<const FieldCapability*, Variant, Variant>> changed;
-
 public:
     FieldHandle();
     virtual ~FieldHandle();

@@ -48,7 +48,6 @@
 
 #include <grpcpp/grpcpp.h>
 
-#include <variant>
 #include <vector>
 
 namespace caffa::rpc
@@ -124,7 +123,7 @@ void DataHolder<int>::applyValuesToField( ValueField* field )
     if ( dataValueField )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
+        dataValueField->setValue( data );
     }
 }
 
@@ -171,7 +170,7 @@ void DataHolder<uint32_t>::applyValuesToField( ValueField* field )
     if ( dataValueField )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
+        dataValueField->setValue( data );
     }
 }
 
@@ -218,7 +217,7 @@ void DataHolder<int64_t>::applyValuesToField( ValueField* field )
     if ( dataValueField )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
+        dataValueField->setValue( data );
     }
 }
 
@@ -265,7 +264,7 @@ void DataHolder<uint64_t>::applyValuesToField( ValueField* field )
     if ( dataValueField )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
+        dataValueField->setValue( data );
     }
 }
 
@@ -311,7 +310,7 @@ void DataHolder<double>::applyValuesToField( ValueField* field )
     if ( dataValueField )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
+        dataValueField->setValue( data );
     }
 }
 template <>
@@ -357,7 +356,7 @@ void DataHolder<float>::applyValuesToField( ValueField* field )
     if ( dataValueField )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
+        dataValueField->setValue( data );
     }
 }
 
@@ -404,7 +403,7 @@ void DataHolder<std::string>::applyValuesToField( ValueField* field )
     if ( dataValueField )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
+        dataValueField->setValue( data );
     }
 }
 
@@ -451,7 +450,7 @@ void DataHolder<bool>::applyValuesToField( ValueField* field )
     if ( dataValueField )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        dataValueField->setValueWithFieldChanged( data, dataValueField->capability<FieldScriptingCapability>() );
+        dataValueField->setValue( data );
     }
 }
 
@@ -777,10 +776,7 @@ void SetterStateHandler::finish()
     {
         auto scriptingCapability = m_field->capability<FieldScriptingCapability>();
         CAFFA_ASSERT( scriptingCapability );
-        Variant before = m_field->toVariant();
         m_dataHolder->applyValuesToField( m_field );
-        Variant after = m_field->toVariant();
-        m_fieldOwner->fieldChangedByCapability( m_field, scriptingCapability, before, after );
     }
 }
 

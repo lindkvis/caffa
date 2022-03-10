@@ -57,9 +57,7 @@ struct is_vector<std::vector<T, A>> : public std::true_type
 class ValueField : public FieldHandle
 {
 public:
-    virtual Variant toVariant() const                        = 0;
-    virtual void    setFromVariant( const Variant& variant ) = 0;
-    virtual bool    isReadOnly() const                       = 0;
+    virtual bool isReadOnly() const = 0;
 };
 
 template <typename DataType>
@@ -72,7 +70,6 @@ public:
     virtual DataType value() const                          = 0;
     virtual void     setValue( const DataType& fieldValue ) = 0;
 
-    // TODO: replace with portable solution with template overrides
     std::string dataType() const override { return PortableDataType<DataType>::name(); }
 };
 

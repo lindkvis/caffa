@@ -9,7 +9,6 @@ namespace caffa
 ///
 //--------------------------------------------------------------------------------------------------
 FieldHandle::FieldHandle()
-    : changed( this )
 {
     m_ownerObject = nullptr;
 }

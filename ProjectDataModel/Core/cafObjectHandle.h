@@ -27,7 +27,6 @@
 #include "cafFieldHandle.h"
 #include "cafLogger.h"
 #include "cafSignal.h"
-#include "cafVariant.h"
 
 #include <any>
 #include <list>
@@ -45,14 +44,6 @@ class FieldCapability;
  */
 class ObjectHandle : public SignalObserver, public SignalEmitter
 {
-public:
-    /**
-     * Signal emitted when the field is changed
-     * @param Variant old value
-     * @param Variant new value
-     */
-    Signal<std::tuple<const FieldCapability*, Variant, Variant>> fieldChanged;
-
 public:
     using Predicate = std::function<bool( const ObjectHandle* )>;
 
@@ -92,14 +83,6 @@ public:
     std::list<ObjectHandle*> matchingDescendants( Predicate predicate ) const;
 
     /**
-     * Traverses all children recursively to find objects of the requested type. This object is NOT
-     * included if it is of the requested type.
-     * @return list of descendants of a given type
-     */
-    template <typename T>
-    std::list<T*> descendantsOfType() const;
-
-    /**
      * Get a list of all child objects
      * @return a list of matching children
      */
@@ -107,11 +90,6 @@ public:
 
     // Perform cleanup before delete
     void prepareForDelete() noexcept;
-
-    void fieldChangedByCapability( const FieldHandle*     field,
-                                   const FieldCapability* changedCapability,
-                                   const Variant&         oldValue,
-                                   const Variant&         newValue );
 
     /**
      * Add an object capability to the object
@@ -139,17 +117,6 @@ public:
         return nullptr;
     }
 
-    /**
-     * Get a field used to toggle object enabled/disabled
-     * @return a field handle to the toggle field
-     */
-    virtual caffa::FieldHandle* objectToggleField() { return nullptr; }
-    /**
-     * Field holding the object description, used to provide a user visible label
-     * @return a field handle to the user description field
-     */
-    virtual caffa::FieldHandle* userDescriptionField() { return nullptr; }
-
     virtual std::string uuid() const { return ""; }
     virtual void        setUuid( const std::string& uuid ) {}
 
@@ -158,16 +125,6 @@ protected:
      * Add a field to the object
      */
     void addField( FieldHandle* field, const std::string& keyword );
-
-    /**
-     * Virtual method to reimplement to catch when the field has changed due to changes in capability
-     */
-    virtual void onFieldChangedByCapability( const FieldHandle*     field,
-                                             const FieldCapability* changedCapability,
-                                             const Variant&         oldValue,
-                                             const Variant&         newValue )
-    {
-    }
 
 private:
     CAFFA_DISABLE_COPY_AND_ASSIGN( ObjectHandle );
@@ -222,33 +179,6 @@ std::unique_ptr<ToObjectHandleDerivedClass> dynamic_unique_cast( std::unique_ptr
     std::unique_ptr<ToObjectHandleDerivedClass> toPointer(
         static_cast<ToObjectHandleDerivedClass*>( fromPointer.release() ) );
     return toPointer;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename T>
-std::list<T*> ObjectHandle::descendantsOfType() const
-{
-    std::list<T*> descendants;
-    for ( auto f : m_fields )
-    {
-        std::vector<ObjectHandle*> childObjects = f->childObjects();
-
-        for ( auto childObject : childObjects )
-        {
-            if ( childObject )
-            {
-                if ( T* typedObject = dynamic_cast<T*>( childObject ); typedObject )
-                {
-                    descendants.push_back( typedObject );
-                }
-                std::list<T*> childDescendants = childObject->descendantsOfType<T>();
-                descendants.insert( descendants.end(), childDescendants.begin(), childDescendants.end() );
-            }
-        }
-    }
-    return descendants;
 }
 
 } // namespace caffa

@@ -41,16 +41,11 @@
 #include "cafFieldIoCapability.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafFieldScriptingCapability.h"
-#include "cafFieldUiCapability.h"
-#include "cafInternalUiFieldCapability.h"
 #include "cafObjectCapability.h"
 #include "cafObjectHandle.h"
 #include "cafObjectHandleIoMacros.h"
 #include "cafObjectIoCapability.h"
-#include "cafObjectUiCapability.h"
 #include "cafObservingPointer.h"
-#include "cafUiFieldSpecialization.h"
-#include "cafUiOrdering.h"
 
 #include <set>
 
@@ -85,19 +80,6 @@ public:
         return *this;
     }
 
-    FieldInitHelper&
-        withUi( const std::string& uiName = "", const std::string& toolTip = "", const std::string& whatsThis = "" )
-    {
-        std::string               displayName = !uiName.empty() ? uiName : m_keyword;
-        caffa::UiItemInfo         fieldDescription( displayName, toolTip, whatsThis, m_keyword );
-        caffa::FieldUiCapability* uiFieldHandle = m_field.template capability<caffa::FieldUiCapability>();
-        if ( uiFieldHandle )
-        {
-            uiFieldHandle->setUiItemInfo( fieldDescription );
-        }
-        return *this;
-    }
-
     FieldInitHelper& withScripting( const std::string& scriptFieldKeyword = "" )
     {
         FieldScriptingCapability::addToField( &m_field, scriptFieldKeyword.empty() ? m_keyword : scriptFieldKeyword );
@@ -113,14 +95,12 @@ public:
     FieldInitHelper& readOnly()
     {
         m_field.template capability<FieldIoCapability>()->setIOWritable( false );
-        m_field.template capability<FieldUiCapability>()->setUiWritable( false );
         return *this;
     }
 
     FieldInitHelper& writeOnly()
     {
         m_field.template capability<FieldIoCapability>()->setIOReadable( false );
-        m_field.template capability<FieldUiCapability>()->setUiReadable( false );
         return *this;
     }
 
@@ -135,7 +115,7 @@ private:
     FieldType&         m_field;
     const std::string& m_keyword;
 };
-class Object : public ObjectHandle, public ObjectIoCapability, public ObjectUiCapability
+class Object : public ObjectHandle, public ObjectIoCapability
 {
 public:
     CAFFA_HEADER_INIT;
@@ -150,14 +130,6 @@ public:
     std::string classKeywordDynamic() const override;
 
     /**
-     * InitUi sets up the user interface related information for the object
-     * Placed in the constructor of your Object
-     * Note that classKeyword() is not virtual in the constructor of the Object
-     * This is expected and fine.
-     */
-    void assignUiInfo( const std::string& uiName = "", const std::string& toolTip = "", const std::string& whatsThis = "" );
-
-    /**
      * Initialises the field with a file keyword and registers it with the class
      * including static user interface related information.
      * Note that classKeyword() is not virtual in the constructor of the Object
@@ -169,7 +141,6 @@ public:
     FieldInitHelper<FieldType> initField( FieldType& field, const std::string& keyword )
     {
         AddIoCapabilityToField( &field );
-        AddUiCapabilityToField( &field );
 
         addField( &field, keyword );
         return FieldInitHelper( field, keyword );
@@ -190,7 +161,6 @@ public:
         initField( FieldType& field, const std::string& keyword, const typename FieldType::FieldDataType& defaultValue )
     {
         AddIoCapabilityToField( &field );
-        AddUiCapabilityToField( &field );
 
         addField( &field, keyword );
 

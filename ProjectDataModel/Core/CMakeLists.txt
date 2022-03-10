@@ -26,9 +26,7 @@ set(PUBLIC_HEADERS
     cafFieldProxyAccessor.h
     cafChildArrayFieldHandle.h
     cafValueField.h
-    cafValueFieldSpecializations.h
-    cafSignal.h
-    cafVariant.h)
+    cafSignal.h)
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
@@ -38,8 +36,7 @@ set(PROJECT_FILES
     cafObjectCapability.cpp
     cafObjectHandle.cpp
     cafObservingPointer.cpp
-    cafSignal.cpp
-    cafVariant.cpp)
+    cafSignal.cpp)
 
 if(CAFFA_BUILD_SHARED)
   message(STATUS "Building ${PROJECT_NAME} shared")

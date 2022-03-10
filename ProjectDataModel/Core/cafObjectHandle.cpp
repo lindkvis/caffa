@@ -33,7 +33,6 @@ using namespace caffa;
 ///
 //--------------------------------------------------------------------------------------------------
 ObjectHandle::ObjectHandle()
-    : fieldChanged( this )
 {
     m_parentField = nullptr;
 }
@@ -123,19 +122,6 @@ void ObjectHandle::prepareForDelete() noexcept
 
     m_capabilities.clear();
     m_pointersReferencingMe.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void ObjectHandle::fieldChangedByCapability( const FieldHandle*     field,
-                                             const FieldCapability* changedCapability,
-                                             const Variant&         oldValue,
-                                             const Variant&         newValue )
-{
-    fieldChanged.send( { changedCapability, oldValue, newValue } );
-
-    onFieldChangedByCapability( field, changedCapability, oldValue, newValue );
 }
 
 //--------------------------------------------------------------------------------------------------
