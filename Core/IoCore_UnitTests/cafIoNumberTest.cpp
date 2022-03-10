@@ -4,28 +4,25 @@
 #include "cafField.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 #include "cafJsonSerializer.h"
-#include "cafObjectHandle.h"
-#include "cafObjectHandleIoMacros.h"
+#include "cafObject.h"
 
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class SimpleObjectWithNumbers : public caffa::ObjectHandle, public caffa::ObjectIoCapability
+class SimpleObjectWithNumbers : public caffa::Object
 {
-    CAFFA_IO_HEADER_INIT;
+    CAFFA_HEADER_INIT;
 
 public:
     SimpleObjectWithNumbers()
-        : ObjectHandle()
-        , ObjectIoCapability( this, false )
     {
-        CAFFA_IO_InitField( &m_valueA, "ValueA" );
-        CAFFA_IO_InitField( &m_valueB, "ValueB" );
+        initField( m_valueA, "ValueA" );
+        initField( m_valueB, "ValueB" );
 
-        CAFFA_IO_InitField( &m_floatValueA, "FloatValueA" );
-        CAFFA_IO_InitField( &m_floatValueB, "FloatValueB" );
+        initField( m_floatValueA, "FloatValueA" );
+        initField( m_floatValueB, "FloatValueB" );
     }
 
     std::string classKeywordDynamic() const override { return "SimpleObjectWithNumbers"; }
@@ -36,7 +33,7 @@ public:
     caffa::Field<float> m_floatValueA;
     caffa::Field<float> m_floatValueB;
 };
-CAFFA_IO_SOURCE_INIT( SimpleObjectWithNumbers, "SimpleObjectWithNumbers", "" );
+CAFFA_SOURCE_INIT( SimpleObjectWithNumbers, "SimpleObjectWithNumbers", "" );
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -30,7 +30,7 @@ set(PUBLIC_HEADERS
     cafSerializer.h
     cafJsonSerializer.h
     cafObjectIoCapability.h
-    cafObjectHandleIoMacros.h
+    cafObjectMacros.h
     cafDefaultObjectFactory.h
     cafObjectFactory.h
     cafObject.h
