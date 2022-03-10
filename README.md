@@ -1,9 +1,9 @@
 # About Caffa
-Caffa is an Application Framework for Embedded and Desktop Applications written in C++. It features Runtime Introspection, serialisation, a gRPC-interface and an optional Qt5 GUI.
+Caffa is an Application Framework for Embedded server applications written in C++. It features Runtime Introspection, serialisation and a gRPC-interface 
 
-Caffa has been forked from the Qt5-based Ceetron Application Framework used as part of ResInsight (https://github.com/OPM/ResInsight) but has diverged considerably with a simplified API, removal of the Core dependency on Qt and uses JSON for serialisation.
+Caffa has been forked from the Ceetron Application Framework used as part of ResInsight (https://github.com/OPM/ResInsight) but has diverged considerably with a simplified API, removal of User Interface code and uses JSON rather than XML for serialisation.
 
-Caffa is intended to help write applications both for desktop and console deployment with one code base with built-in gRPC-based scripting. The main target for Caffa is to create simple control applications for embedded Linux systems or client/server c++-applications with a shared client and server code base.
+Caffa is intended to help write applications with strong separation between application logic and the data model and allow for unforseen new methods of accessing objects using introspection. The main target for Caffa is to create simple control applications for embedded Linux systems or client/server c++-applications with a shared client and server code base.
 
 As an example, you would write Data Model Objects with Fields holding data instead of simple variables. This gives you runtime introspection of the fields without using a pre-compiler and all objects can easily be written out to JSON. Caffa is set up for allowing scripting access by utilising the introspection capabilites to optionally expose fields and objects to scripting languages with little additional work from the application developer.
 
@@ -51,7 +51,7 @@ TinyDemoObject::TinyDemoObject()
 }
 ```
 # Requirements
-Caffa uses modern C++ and requires a C++17 compatible compiler and CMake 3.12+. It requires Qt5 for desktop deployment but not for console or headless gRPC-server deployment.
+Caffa uses modern C++ and requires a C++17 compatible compiler and CMake 3.12+.gRPC-server deployment.
 
 # Licensing
 Caffa is licensed under the LGPL 2.1 or newer.
