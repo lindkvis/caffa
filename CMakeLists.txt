@@ -1,15 +1,10 @@
 cmake_minimum_required(VERSION 3.12)
 
-include(cmake/VersionFromGit.cmake)
-version_from_git(LOG OFF INCLUDE_HASH ON TIMESTAMP "%Y%m%d%H%M%S")
-
-if(NOT VERSION)
-  set(VERSION 0.0.0)
-endif()
+set(CAFFA_VERSION 0.11.0)
 
 project(
   caffa
-  VERSION ${VERSION}
+  VERSION ${CAFFA_VERSION}
   DESCRIPTION "Caffa Application Framework")
 
 message(STATUS "Building ${PROJECT_NAME} version ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}-${GIT_HASH}")
