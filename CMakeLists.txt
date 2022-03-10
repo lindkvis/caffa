@@ -62,16 +62,16 @@ add_subdirectory(ThirdParty/stduuid)
 add_subdirectory(ThirdParty/caffa-logger)
 
 # libraries
-add_subdirectory(ProjectDataModel)
+add_subdirectory(Core)
 
 if(CAFFA_GRPC_INTERFACE)
   add_subdirectory(GrpcInterface)
 endif()
 
 if(CAFFA_BUILD_UNIT_TESTS)
-  add_subdirectory(ProjectDataModel/Core_UnitTests)
-  add_subdirectory(ProjectDataModel/IoCore_UnitTests)
-  add_subdirectory(ProjectDataModel/ProjectDataModel_UnitTests)
+  add_subdirectory(Core/Core_UnitTests)
+  add_subdirectory(Core/IoCore_UnitTests)
+  add_subdirectory(Core/ProjectDataModel_UnitTests)
 endif()
 
 if(CAFFA_GRPC_INTERFACE)
