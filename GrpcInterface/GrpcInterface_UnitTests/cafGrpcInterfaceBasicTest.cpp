@@ -369,7 +369,7 @@ TEST( BaseTest, ObjectMethod )
     }
 
     std::vector<bool>  boolVector = { true, false, true };
-    std::vector<int>   intVector( 10000 );
+    std::vector<int>   intVector( 1000 );
     std::vector<float> floatVector = { -2.0, 3.0, 4.0, 8.0 };
 
     std::iota( intVector.begin(), intVector.end(), 0 );
@@ -393,11 +393,18 @@ TEST( BaseTest, ObjectMethod )
 
     ASSERT_EQ( boolVector, serverObjects.front()->boolVector() );
     CAFFA_INFO( "Comparing integer vector of size " << intVector.size() << " on server" );
-    ASSERT_EQ( intVector, serverObjects.front()->intVector() );
+    auto serverIntVector = serverObjects.front()->intVector();
+    ASSERT_EQ( intVector.size(), serverIntVector.size() );
+    for ( size_t i = 0; i < intVector.size(); ++i )
+    {
+        ASSERT_EQ( intVector[i], serverIntVector[i] );
+    }
+
     ASSERT_EQ( floatVector, serverObjects.front()->floatVector() );
 
     auto roundtripIntVector = inheritedObjects.front()->intVector();
     CAFFA_INFO( "Comparing integer vector of size " << intVector.size() << " on client" );
+    ASSERT_EQ( intVector.size(), roundtripIntVector.size() );
     ASSERT_EQ( intVector, roundtripIntVector );
 
     bool ok = client->stopServer();
@@ -784,7 +791,7 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
 
         std::vector<float> serverVector;
         std::mt19937       rng;
-        size_t             numberOfFloats = 1024u * 1024u * 4;
+        size_t             numberOfFloats = 100000u;
         serverVector.reserve( numberOfFloats );
         for ( size_t i = 0; i < numberOfFloats; ++i )
         {
@@ -798,12 +805,12 @@ TEST( BaseTest, LocalResponseTimeAndDataTransfer )
             auto   clientVector = clientDocument->demoObject->floatVector();
             auto   end_time     = std::chrono::system_clock::now();
             auto   duration = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
-            size_t MB       = numberOfFloats * sizeof( float ) / ( 1024u * 1024u );
+            double MB       = numberOfFloats * sizeof( float ) / ( 1024.0 * 1024.0 );
             CAFFA_INFO( "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" );
             CAFFA_INFO( "Time spent: " << duration << "ms" );
             double fps = static_cast<float>( numberOfFloats ) / static_cast<float>( duration ) * 1000;
             CAFFA_INFO( "floats per second: " << fps );
-            CAFFA_INFO( "MB per second: " << static_cast<float>( MB ) / static_cast<float>( duration ) * 1000 );
+            CAFFA_INFO( "MB per second: " << MB / static_cast<float>( duration ) * 1000 );
         }
 
         bool ok = client->stopServer();

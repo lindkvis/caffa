@@ -32,14 +32,9 @@
 
 namespace caffa
 {
-class ChildArrayFieldHandle;
-class ChildFieldHandle;
 class FieldHandle;
-class Object;
-class ObjectFactory;
 class ObjectHandle;
-class ProxyFieldHandle;
-class ValueField;
+
 } // namespace caffa
 
 namespace caffa::rpc
@@ -51,69 +46,6 @@ class GenericArray;
 class SetterArrayReply;
 class SetterReply;
 
-struct AbstractDataHolder
-{
-    virtual ~AbstractDataHolder()                                                             = default;
-    virtual size_t valueCount() const                                                         = 0;
-    virtual size_t valueSizeOf() const                                                        = 0;
-    virtual void   reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const = 0;
-    virtual void addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const = 0;
-
-    virtual size_t getValuesFromChunk( size_t startIndex, const GenericArray* chunk ) = 0;
-    virtual void   applyValuesToField( caffa::ValueField* field )                     = 0;
-};
-
-/**
- *
- * State handler for client to server streaming
- *
- */
-class GetterStateHandler : public StateHandler<FieldRequest>
-{
-public:
-    GetterStateHandler();
-
-    grpc::Status init( const FieldRequest* request ) override;
-    grpc::Status assignReply( GenericArray* reply );
-    size_t       streamedValueCount() const override;
-    size_t       totalValueCount() const override;
-    void         finish() override;
-
-    StateHandler<FieldRequest>* emptyClone() const override;
-
-protected:
-    caffa::Object*                      m_fieldOwner;
-    caffa::ValueField*                  m_field;
-    caffa::ChildArrayFieldHandle*       m_childArrayField;
-    std::unique_ptr<AbstractDataHolder> m_dataHolder;
-    size_t                              m_currentDataIndex;
-};
-
-/**
- *
- * State handler for client to server streaming
- *
- */
-class SetterStateHandler : public StateHandler<GenericArray>
-{
-public:
-    SetterStateHandler();
-
-    grpc::Status init( const GenericArray* chunk ) override;
-    grpc::Status receiveRequest( const GenericArray* chunk, SetterArrayReply* reply );
-    size_t       streamedValueCount() const override;
-    size_t       totalValueCount() const override;
-    void         finish() override;
-
-    StateHandler<GenericArray>* emptyClone() const override;
-
-protected:
-    caffa::Object*                      m_fieldOwner;
-    caffa::ValueField*                  m_field;
-    std::unique_ptr<AbstractDataHolder> m_dataHolder;
-    size_t                              m_currentDataIndex;
-};
-
 //==================================================================================================
 //
 // gRPC-service answering request searching for Objects in property tree
@@ -122,21 +54,13 @@ protected:
 class FieldService final : public FieldAccess::AsyncService, public ServiceInterface
 {
 public:
-    grpc::Status GetArrayValue( grpc::ServerContext*        context,
-                                const FieldRequest*         request,
-                                GenericArray*               reply,
-                                StateHandler<FieldRequest>* stateHandler );
+    grpc::Status GetArrayValue( grpc::ServerContext* context, const FieldRequest* request, GenericArray* reply ) override;
 
     grpc::Status GetValue( grpc::ServerContext* context, const FieldRequest* request, GenericScalar* reply ) override;
 
-    grpc::Status SetArrayValue( grpc::ServerContext*        context,
-                                const GenericArray*         chunk,
-                                SetterArrayReply*           reply,
-                                StateHandler<GenericArray>* stateHandler );
+    grpc::Status SetArrayValue( grpc::ServerContext* context, const GenericArray* chunk, NullMessage* reply ) override;
 
     grpc::Status SetValue( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply ) override;
-    grpc::Status
-        SetUInt64Value( grpc::ServerContext* context, const SetterRequestUInt64* request, NullMessage* reply ) override;
 
     grpc::Status ClearChildObjects( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply ) override;
     grpc::Status RemoveChildObject( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply ) override;
@@ -147,6 +71,9 @@ public:
                                                                                const std::string&         keyword );
 
 private:
+    static bool addValuesToReply( const caffa::FieldHandle* field, GenericArray* array );
+    static bool applyValuesToField( const GenericArray* array, caffa::FieldHandle* field );
+
     static std::map<const caffa::ObjectHandle*, std::map<std::string, caffa::FieldHandle*>> s_fieldCache;
     static std::mutex                                                                       s_fieldCacheMutex;
 };

@@ -57,13 +57,10 @@ public:
     std::list<std::unique_ptr<caffa::ObjectHandle>>   objectMethods( caffa::ObjectHandle* objectHandle ) const;
 
     template <typename DataType>
-    void set( const caffa::ObjectHandle* objectHandle,
-              const std::string&         fieldName,
-              const DataType&            value,
-              uint32_t                   addressOffset = 0u );
+    void set( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value );
 
     template <typename DataType>
-    DataType get( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, uint32_t addressOffset = 0u ) const;
+    DataType get( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
     std::unique_ptr<caffa::ObjectHandle> getChildObject( const caffa::ObjectHandle* objectHandle,
                                                          const std::string&         fieldName ) const;
@@ -85,107 +82,82 @@ public:
                             const caffa::ObjectHandle* childObject );
 
 private:
-    void           setJson( const caffa::ObjectHandle* objectHandle,
-                            const std::string&         fieldName,
-                            const nlohmann::json&      value,
-                            uint32_t                   addressOffset );
-    nlohmann::json getJson( const caffa::ObjectHandle*, const std::string& fieldName, uint32_t addressOffset ) const;
+    void setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value );
+    nlohmann::json getJson( const caffa::ObjectHandle*, const std::string& fieldName ) const;
 
 private:
     std::unique_ptr<ClientImpl> m_clientImpl;
 };
 
 //--------------------------------------------------------------------------------------------------
-/// Get a value through gRPC. Note the addressOffset is only relevant for register fields
+///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-DataType caffa::rpc::Client::get( const caffa::ObjectHandle* objectHandle,
-                                  const std::string&         fieldName,
-                                  uint32_t                   addressOffset ) const
+DataType caffa::rpc::Client::get( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
-    nlohmann::json jsonValue = getJson( objectHandle, fieldName, addressOffset );
+    nlohmann::json jsonValue = getJson( objectHandle, fieldName );
     CAFFA_TRACE( "Attempting to get datatype " << caffa::PortableDataType<DataType>::name() << " from json value "
                                                << jsonValue );
     return jsonValue.get<DataType>();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Set a value through gRPC. Note the addressOffset is only relevant for register fields
+///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
-                              const std::string&         fieldName,
-                              const DataType&            value,
-                              uint32_t                   addressOffset )
+void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value )
 {
     nlohmann::json jsonValue = value;
-    setJson( objectHandle, fieldName, jsonValue, addressOffset );
+    setJson( objectHandle, fieldName, jsonValue );
 }
-
-template <>
-void Client::set<uint64_t>( const caffa::ObjectHandle* objectHandle,
-                            const std::string&         fieldName,
-                            const uint64_t&            value,
-                            uint32_t                   addressOffset );
 
 template <>
 void Client::set<std::vector<int>>( const caffa::ObjectHandle* objectHandle,
                                     const std::string&         fieldName,
-                                    const std::vector<int>&    value,
-                                    uint32_t                   addressOffset );
+                                    const std::vector<int>&    value );
 
 template <>
 void Client::set<std::vector<uint64_t>>( const caffa::ObjectHandle*   objectHandle,
                                          const std::string&           fieldName,
-                                         const std::vector<uint64_t>& value,
-                                         uint32_t                     addressOffset );
+                                         const std::vector<uint64_t>& value );
 
 template <>
 void Client::set<std::vector<double>>( const caffa::ObjectHandle* objectHandle,
                                        const std::string&         fieldName,
-                                       const std::vector<double>& value,
-                                       uint32_t                   addressOffset );
+                                       const std::vector<double>& value );
 
 template <>
 void Client::set<std::vector<float>>( const caffa::ObjectHandle* objectHandle,
                                       const std::string&         fieldName,
-                                      const std::vector<float>&  value,
-                                      uint32_t                   addressOffset );
+                                      const std::vector<float>&  value );
 
 template <>
 void Client::set<std::vector<std::string>>( const caffa::ObjectHandle*      objectHandle,
                                             const std::string&              fieldName,
-                                            const std::vector<std::string>& value,
-                                            uint32_t                        addressOffset );
+                                            const std::vector<std::string>& value );
 
 template <>
-std::vector<int> Client::get<std::vector<int>>( const caffa::ObjectHandle* objectHandle,
-                                                const std::string&         fieldName,
-                                                uint32_t                   addressOffset ) const;
+std::vector<int>
+    Client::get<std::vector<int>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
 template <>
-std::vector<int> Client::get<std::vector<int>>( const caffa::ObjectHandle* objectHandle,
-                                                const std::string&         fieldName,
-                                                uint32_t                   addressOffset ) const;
+std::vector<int>
+    Client::get<std::vector<int>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
 template <>
-std::vector<uint64_t> Client::get<std::vector<uint64_t>>( const caffa::ObjectHandle* objectHandle,
-                                                          const std::string&         fieldName,
-                                                          uint32_t                   addressOffset ) const;
+std::vector<uint64_t>
+    Client::get<std::vector<uint64_t>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
 template <>
-std::vector<double> Client::get<std::vector<double>>( const caffa::ObjectHandle* objectHandle,
-                                                      const std::string&         fieldName,
-                                                      uint32_t                   addressOffset ) const;
+std::vector<double>
+    Client::get<std::vector<double>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
 template <>
-std::vector<float> Client::get<std::vector<float>>( const caffa::ObjectHandle* objectHandle,
-                                                    const std::string&         fieldName,
-                                                    uint32_t                   addressOffset ) const;
+std::vector<float>
+    Client::get<std::vector<float>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
 template <>
-std::vector<std::string> Client::get<std::vector<std::string>>( const caffa::ObjectHandle* objectHandle,
-                                                                const std::string&         fieldName,
-                                                                uint32_t                   addressOffset ) const;
+std::vector<std::string>
+    Client::get<std::vector<std::string>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
 } // namespace caffa::rpc

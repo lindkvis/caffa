@@ -218,11 +218,16 @@ public:
 
         caffa::JsonSerializer serializer( caffa::rpc::GrpcClientObjectFactory::instance() );
 
-        std::unique_ptr<grpc::ClientReader<GenericArray>> reader( m_fieldStub->GetArrayValue( &context, field ) );
-        GenericArray                                      reply;
-        while ( reader->Read( &reply ) )
+        GenericArray reply;
+        auto         status = m_fieldStub->GetArrayValue( &context, field, &reply );
+
+        if ( !status.ok() )
         {
-            CAFFA_ASSERT( reply.has_objects() ); // TODO: throw
+            throw Exception( status );
+        }
+
+        if ( reply.has_objects() )
+        {
             RpcObjectList rpcObjects = reply.objects();
 
             for ( auto rpcObject : rpcObjects.objects() )
@@ -230,11 +235,6 @@ public:
                 auto object = caffa::rpc::ObjectService::createCafObjectFromRpc( &rpcObject, serializer );
                 childObjects.push_back( std::move( object ) );
             }
-        }
-        grpc::Status status = reader->Finish();
-        if ( !status.ok() )
-        {
-            throw Exception( status );
         }
         return childObjects;
     }
@@ -419,10 +419,7 @@ public:
         return methods;
     }
 
-    void setJson( const caffa::ObjectHandle* objectHandle,
-                  const std::string&         fieldName,
-                  const nlohmann::json&      jsonValue,
-                  uint32_t                   addressOffset )
+    void setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& jsonValue )
     {
         grpc::ClientContext context;
 
@@ -430,7 +427,6 @@ public:
         field->set_class_keyword( objectHandle->classKeywordDynamic() );
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( fieldName );
-        field->set_index( addressOffset );
 
         SetterRequest setterRequest;
         setterRequest.set_allocated_field( field.release() );
@@ -445,7 +441,7 @@ public:
         }
     }
 
-    nlohmann::json getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, uint32_t addressOffset ) const
+    nlohmann::json getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
     {
         CAFFA_TRACE( "Get JSON value for field " << fieldName << " on class " << objectHandle->classKeywordDynamic()
                                                  << " and UUID " << objectHandle->uuid() );
@@ -455,7 +451,6 @@ public:
         field.set_class_keyword( objectHandle->classKeywordDynamic() );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
-        field.set_index( addressOffset );
 
         GenericScalar reply;
         grpc::Status  status = m_fieldStub->GetValue( &context, field, &reply );
@@ -474,28 +469,6 @@ public:
         return jsonValue;
     }
 
-    void set( const caffa::ObjectHandle* objectHandle, const std::string& setter, const uint64_t& value )
-    {
-        grpc::ClientContext context;
-
-        auto field = std::make_unique<FieldRequest>();
-        field->set_class_keyword( objectHandle->classKeywordDynamic() );
-        field->set_uuid( objectHandle->uuid() );
-        field->set_keyword( setter );
-
-        SetterRequestUInt64 setterRequest;
-        setterRequest.set_allocated_field( field.release() );
-        setterRequest.set_value( value );
-
-        NullMessage reply;
-        auto        status = m_fieldStub->SetUInt64Value( &context, setterRequest, &reply );
-
-        if ( !status.ok() )
-        {
-            throw Exception( status );
-        }
-    }
-
     bool set( const caffa::ObjectHandle* objectHandle, const std::string& setter, const std::vector<int>& values )
     {
         auto chunkSize = Application::instance()->packageByteSize();
@@ -507,33 +480,14 @@ public:
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( setter );
 
-        auto setterRequest = std::make_unique<ArrayRequest>();
-        setterRequest->set_value_count( values.size() );
-        setterRequest->set_allocated_field( field.release() );
+        GenericArray array;
+        array.set_allocated_request( field.release() );
 
-        SetterArrayReply                                  reply;
-        std::unique_ptr<grpc::ClientWriter<GenericArray>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
-        GenericArray                                      header;
-        header.set_allocated_request( setterRequest.release() );
-        if ( !writer->Write( header ) ) return false;
+        *( array.mutable_ints()->mutable_data() ) = { values.begin(), values.end() };
 
-        for ( size_t i = 0; i < values.size(); )
-        {
-            auto currentChunkSize = std::min( chunkSize, values.size() - i );
+        NullMessage reply;
+        auto        status = m_fieldStub->SetArrayValue( &context, array, &reply );
 
-            GenericArray chunk;
-            chunk.mutable_ints()->mutable_data()->Reserve( currentChunkSize );
-            for ( size_t n = 0; n < currentChunkSize; ++n )
-            {
-                chunk.mutable_ints()->add_data( values[i + n] );
-            }
-            if ( !writer->Write( chunk ) ) return false;
-
-            i += currentChunkSize;
-        }
-        if ( !writer->WritesDone() ) return false;
-
-        grpc::Status status = writer->Finish();
         if ( !status.ok() )
         {
             throw Exception( status );
@@ -551,33 +505,14 @@ public:
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( setter );
 
-        auto setterRequest = std::make_unique<ArrayRequest>();
-        setterRequest->set_value_count( values.size() );
-        setterRequest->set_allocated_field( field.release() );
+        GenericArray array;
+        array.set_allocated_request( field.release() );
 
-        SetterArrayReply                                  reply;
-        std::unique_ptr<grpc::ClientWriter<GenericArray>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
-        GenericArray                                      header;
-        header.set_allocated_request( setterRequest.release() );
-        if ( !writer->Write( header ) ) return false;
+        *( array.mutable_uint64s()->mutable_data() ) = { values.begin(), values.end() };
 
-        for ( size_t i = 0; i < values.size(); )
-        {
-            auto currentChunkSize = std::min( chunkSize, values.size() - i );
+        NullMessage reply;
+        auto        status = m_fieldStub->SetArrayValue( &context, array, &reply );
 
-            GenericArray chunk;
-            chunk.mutable_uint64s()->mutable_data()->Reserve( currentChunkSize );
-            for ( size_t n = 0; n < currentChunkSize; ++n )
-            {
-                chunk.mutable_uint64s()->add_data( values[i + n] );
-            }
-            if ( !writer->Write( chunk ) ) return false;
-
-            i += currentChunkSize;
-        }
-        if ( !writer->WritesDone() ) return false;
-
-        grpc::Status status = writer->Finish();
         if ( !status.ok() )
         {
             throw Exception( status );
@@ -597,33 +532,14 @@ public:
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( setter );
 
-        auto setterRequest = std::make_unique<ArrayRequest>();
-        setterRequest->set_value_count( values.size() );
-        setterRequest->set_allocated_field( field.release() );
+        GenericArray array;
+        array.set_allocated_request( field.release() );
 
-        SetterArrayReply                                  reply;
-        std::unique_ptr<grpc::ClientWriter<GenericArray>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
-        GenericArray                                      header;
-        header.set_allocated_request( setterRequest.release() );
-        if ( !writer->Write( header ) ) return false;
+        *( array.mutable_doubles()->mutable_data() ) = { values.begin(), values.end() };
 
-        for ( size_t i = 0; i < values.size(); )
-        {
-            auto currentChunkSize = std::min( chunkSize, values.size() - i );
+        NullMessage reply;
+        auto        status = m_fieldStub->SetArrayValue( &context, array, &reply );
 
-            GenericArray chunk;
-            chunk.mutable_doubles()->mutable_data()->Reserve( currentChunkSize );
-            for ( size_t n = 0; n < currentChunkSize; ++n )
-            {
-                chunk.mutable_doubles()->add_data( values[i + n] );
-            }
-            if ( !writer->Write( chunk ) ) return false;
-
-            i += currentChunkSize;
-        }
-        if ( !writer->WritesDone() ) return false;
-
-        grpc::Status status = writer->Finish();
         if ( !status.ok() )
         {
             throw Exception( status );
@@ -642,33 +558,14 @@ public:
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( setter );
 
-        auto setterRequest = std::make_unique<ArrayRequest>();
-        setterRequest->set_value_count( values.size() );
-        setterRequest->set_allocated_field( field.release() );
+        GenericArray array;
+        array.set_allocated_request( field.release() );
 
-        SetterArrayReply                                  reply;
-        std::unique_ptr<grpc::ClientWriter<GenericArray>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
-        GenericArray                                      header;
-        header.set_allocated_request( setterRequest.release() );
-        if ( !writer->Write( header ) ) return false;
+        *( array.mutable_floats()->mutable_data() ) = { values.begin(), values.end() };
 
-        for ( size_t i = 0; i < values.size(); )
-        {
-            auto currentChunkSize = std::min( chunkSize, values.size() - i );
+        NullMessage reply;
+        auto        status = m_fieldStub->SetArrayValue( &context, array, &reply );
 
-            GenericArray chunk;
-            chunk.mutable_floats()->mutable_data()->Reserve( currentChunkSize );
-            for ( size_t n = 0; n < currentChunkSize; ++n )
-            {
-                chunk.mutable_floats()->add_data( values[i + n] );
-            }
-            if ( !writer->Write( chunk ) ) return false;
-
-            i += currentChunkSize;
-        }
-        if ( !writer->WritesDone() ) return false;
-
-        grpc::Status status = writer->Finish();
         if ( !status.ok() )
         {
             throw Exception( status );
@@ -685,25 +582,14 @@ public:
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( setter );
 
-        auto setterRequest = std::make_unique<ArrayRequest>();
-        setterRequest->set_value_count( values.size() );
-        setterRequest->set_allocated_field( field.release() );
+        GenericArray array;
+        array.set_allocated_request( field.release() );
 
-        SetterArrayReply                                  reply;
-        std::unique_ptr<grpc::ClientWriter<GenericArray>> writer( m_fieldStub->SetArrayValue( &context, &reply ) );
-        GenericArray                                      header;
-        header.set_allocated_request( setterRequest.release() );
-        if ( !writer->Write( header ) ) return false;
+        *( array.mutable_strings()->mutable_data() ) = { values.begin(), values.end() };
 
-        for ( size_t i = 0; i < values.size(); ++i )
-        {
-            GenericArray chunk;
-            chunk.mutable_strings()->add_data( values[i] );
-            if ( !writer->Write( chunk ) ) return false;
-        }
-        if ( !writer->WritesDone() ) return false;
+        NullMessage reply;
+        auto        status = m_fieldStub->SetArrayValue( &context, array, &reply );
 
-        grpc::Status status = writer->Finish();
         if ( !status.ok() )
         {
             throw Exception( status );
@@ -721,19 +607,19 @@ public:
 
         std::vector<int> values;
 
-        std::unique_ptr<grpc::ClientReader<GenericArray>> reader( m_fieldStub->GetArrayValue( &context, field ) );
-        GenericArray                                      reply;
-        while ( reader->Read( &reply ) )
-        {
-            CAFFA_ASSERT( reply.has_ints() ); // TODO: throw
-            auto ints = reply.ints();
-            values.insert( values.end(), ints.data().begin(), ints.data().end() );
-        }
-        grpc::Status status = reader->Finish();
+        GenericArray reply;
+        auto         status = m_fieldStub->GetArrayValue( &context, field, &reply );
+
         if ( !status.ok() )
         {
             throw Exception( status );
         }
+
+        CAFFA_ASSERT( reply.has_ints() ); // TODO: throw
+        auto ints = reply.ints();
+        CAFFA_TRACE( "Received " << ints.data().size() << " ints over grpc" );
+        values.insert( values.end(), ints.data().begin(), ints.data().end() );
+
         return values;
     }
     std::vector<uint64_t> getUInt64s( const caffa::ObjectHandle* objectHandle, const std::string& getter ) const
@@ -746,19 +632,18 @@ public:
 
         std::vector<uint64_t> values;
 
-        std::unique_ptr<grpc::ClientReader<GenericArray>> reader( m_fieldStub->GetArrayValue( &context, field ) );
-        GenericArray                                      reply;
-        while ( reader->Read( &reply ) )
-        {
-            CAFFA_ASSERT( reply.has_uint64s() ); // TODO: throw
-            auto ints = reply.uint64s();
-            values.insert( values.end(), ints.data().begin(), ints.data().end() );
-        }
-        grpc::Status status = reader->Finish();
+        GenericArray reply;
+        auto         status = m_fieldStub->GetArrayValue( &context, field, &reply );
+
         if ( !status.ok() )
         {
             throw Exception( status );
         }
+
+        CAFFA_ASSERT( reply.has_uint64s() ); // TODO: throw
+        auto ints = reply.uint64s();
+        values.insert( values.end(), ints.data().begin(), ints.data().end() );
+
         return values;
     }
 
@@ -772,19 +657,17 @@ public:
 
         std::vector<double> values;
 
-        std::unique_ptr<grpc::ClientReader<GenericArray>> reader( m_fieldStub->GetArrayValue( &context, field ) );
-        GenericArray                                      reply;
-        while ( reader->Read( &reply ) )
-        {
-            CAFFA_ASSERT( reply.has_doubles() ); // TODO: throw
-            auto doubles = reply.doubles();
-            values.insert( values.end(), doubles.data().begin(), doubles.data().end() );
-        }
-        grpc::Status status = reader->Finish();
+        GenericArray reply;
+        auto         status = m_fieldStub->GetArrayValue( &context, field, &reply );
+
         if ( !status.ok() )
         {
             throw Exception( status );
         }
+
+        CAFFA_ASSERT( reply.has_doubles() ); // TODO: throw
+        auto doubles = reply.doubles();
+        values.insert( values.end(), doubles.data().begin(), doubles.data().end() );
         return values;
     }
 
@@ -801,23 +684,23 @@ public:
 
         auto start_time = std::chrono::system_clock::now();
 
-        std::unique_ptr<grpc::ClientReader<GenericArray>> reader( m_fieldStub->GetArrayValue( &context, field ) );
-        GenericArray                                      reply;
-        while ( reader->Read( &reply ) )
+        GenericArray reply;
+        auto         status = m_fieldStub->GetArrayValue( &context, field, &reply );
+
+        if ( !status.ok() )
         {
-            CAFFA_ASSERT( reply.has_floats() ); // TODO: throw
-            auto floats = reply.floats();
-            values.insert( values.end(), floats.data().begin(), floats.data().end() );
+            throw Exception( status );
         }
+
+        CAFFA_ASSERT( reply.has_floats() ); // TODO: throw
+        auto floats = reply.floats();
+        values.insert( values.end(), floats.data().begin(), floats.data().end() );
 
         auto   end_time       = std::chrono::system_clock::now();
         auto   duration       = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
         size_t numberOfFloats = values.size();
         size_t MB             = numberOfFloats * sizeof( float ) / ( 1024u * 1024u );
 
-        grpc::Status status = reader->Finish();
-        if ( !status.ok() ) CAFFA_ERROR( "GRPC: " << status.error_code() << ", " << status.error_message() );
-        CAFFA_ASSERT( status.ok() );
         return values;
     }
 
@@ -832,16 +715,18 @@ public:
 
         std::vector<std::string> values;
 
-        std::unique_ptr<grpc::ClientReader<GenericArray>> reader( m_fieldStub->GetArrayValue( &context, field ) );
-        GenericArray                                      reply;
-        while ( reader->Read( &reply ) )
+        GenericArray reply;
+        auto         status = m_fieldStub->GetArrayValue( &context, field, &reply );
+
+        if ( !status.ok() )
         {
-            CAFFA_ASSERT( reply.has_strings() ); // TODO: throw
-            auto strings = reply.strings();
-            values.insert( values.end(), strings.data().begin(), strings.data().end() );
+            throw Exception( status );
         }
-        grpc::Status status = reader->Finish();
-        CAFFA_ASSERT( status.ok() );
+
+        CAFFA_ASSERT( reply.has_strings() ); // TODO: throw
+        auto strings = reply.strings();
+        values.insert( values.end(), strings.data().begin(), strings.data().end() );
+
         return values;
     }
 
@@ -940,22 +825,18 @@ std::list<std::unique_ptr<caffa::ObjectHandle>> Client::objectMethods( caffa::Ob
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Client::setJson( const caffa::ObjectHandle* objectHandle,
-                      const std::string&         fieldName,
-                      const nlohmann::json&      value,
-                      uint32_t                   addressOffset )
+void Client::setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value )
 {
-    m_clientImpl->setJson( objectHandle, fieldName, value, addressOffset );
+    m_clientImpl->setJson( objectHandle, fieldName, value );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-nlohmann::json
-    Client::getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, uint32_t addressOffset ) const
+nlohmann::json Client::getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     CAFFA_ASSERT( m_clientImpl && "Client not properly initialized" );
-    return m_clientImpl->getJson( objectHandle, fieldName, addressOffset );
+    return m_clientImpl->getJson( objectHandle, fieldName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -964,20 +845,7 @@ nlohmann::json
 template <>
 void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
                               const std::string&         fieldName,
-                              const uint64_t&            value,
-                              uint32_t                   addressOffset )
-{
-    m_clientImpl->set( objectHandle, fieldName, value );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <>
-void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
-                              const std::string&         fieldName,
-                              const std::vector<int>&    value,
-                              uint32_t                   addressOffset )
+                              const std::vector<int>&    value )
 {
     m_clientImpl->set( objectHandle, fieldName, value );
 }
@@ -988,8 +856,7 @@ void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
 template <>
 void caffa::rpc::Client::set( const caffa::ObjectHandle*   objectHandle,
                               const std::string&           fieldName,
-                              const std::vector<uint64_t>& value,
-                              uint32_t                     addressOffset )
+                              const std::vector<uint64_t>& value )
 {
     m_clientImpl->set( objectHandle, fieldName, value );
 }
@@ -1000,8 +867,7 @@ void caffa::rpc::Client::set( const caffa::ObjectHandle*   objectHandle,
 template <>
 void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
                               const std::string&         fieldName,
-                              const std::vector<double>& value,
-                              uint32_t                   addressOffset )
+                              const std::vector<double>& value )
 {
     m_clientImpl->set( objectHandle, fieldName, value );
 }
@@ -1012,8 +878,7 @@ void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
 template <>
 void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
                               const std::string&         fieldName,
-                              const std::vector<float>&  value,
-                              uint32_t                   addressOffset )
+                              const std::vector<float>&  value )
 {
     m_clientImpl->set( objectHandle, fieldName, value );
 }
@@ -1024,8 +889,7 @@ void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
 template <>
 void caffa::rpc::Client::set( const caffa::ObjectHandle*      objectHandle,
                               const std::string&              fieldName,
-                              const std::vector<std::string>& value,
-                              uint32_t                        addressOffset )
+                              const std::vector<std::string>& value )
 {
     m_clientImpl->set( objectHandle, fieldName, value );
 }
@@ -1034,9 +898,7 @@ void caffa::rpc::Client::set( const caffa::ObjectHandle*      objectHandle,
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-std::vector<int> Client::get<std::vector<int>>( const caffa::ObjectHandle* objectHandle,
-                                                const std::string&         fieldName,
-                                                uint32_t                   addressOffset ) const
+std::vector<int> Client::get<std::vector<int>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     return m_clientImpl->getInts( objectHandle, fieldName );
 }
@@ -1045,9 +907,8 @@ std::vector<int> Client::get<std::vector<int>>( const caffa::ObjectHandle* objec
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-std::vector<uint64_t> Client::get<std::vector<uint64_t>>( const caffa::ObjectHandle* objectHandle,
-                                                          const std::string&         fieldName,
-                                                          uint32_t                   addressOffset ) const
+std::vector<uint64_t>
+    Client::get<std::vector<uint64_t>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     return m_clientImpl->getUInt64s( objectHandle, fieldName );
 }
@@ -1056,9 +917,8 @@ std::vector<uint64_t> Client::get<std::vector<uint64_t>>( const caffa::ObjectHan
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-std::vector<double> Client::get<std::vector<double>>( const caffa::ObjectHandle* objectHandle,
-                                                      const std::string&         fieldName,
-                                                      uint32_t                   addressOffset ) const
+std::vector<double>
+    Client::get<std::vector<double>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     return m_clientImpl->getDoubles( objectHandle, fieldName );
 }
@@ -1067,9 +927,8 @@ std::vector<double> Client::get<std::vector<double>>( const caffa::ObjectHandle*
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-std::vector<float> Client::get<std::vector<float>>( const caffa::ObjectHandle* objectHandle,
-                                                    const std::string&         fieldName,
-                                                    uint32_t                   addressOffset ) const
+std::vector<float>
+    Client::get<std::vector<float>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     return m_clientImpl->getFloats( objectHandle, fieldName );
 }
@@ -1078,9 +937,8 @@ std::vector<float> Client::get<std::vector<float>>( const caffa::ObjectHandle* o
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-std::vector<std::string> Client::get<std::vector<std::string>>( const caffa::ObjectHandle* objectHandle,
-                                                                const std::string&         fieldName,
-                                                                uint32_t                   addressOffset ) const
+std::vector<std::string>
+    Client::get<std::vector<std::string>>( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     return m_clientImpl->getStrings( objectHandle, fieldName );
 }
