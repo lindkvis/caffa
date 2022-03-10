@@ -94,7 +94,7 @@ set(CURRENT_PROTOBUF_VERSION ${GRPC_protobuf_VERSION})
 message(STATUS "Using protobuf ${CURRENT_PROTOBUF_VERSION}")
 message(STATUS "Using gRPC ${CURRENT_GRPC_VERSION}")
 
-set(LINK_LIBRARIES ${GRPC_LINK_LIBRARIES} Microsoft.GSL::GSL caffaProjectDataModel)
+set(LINK_LIBRARIES ${GRPC_LINK_LIBRARIES} Microsoft.GSL::GSL caffaCore)
 
 # Proto files
 set(PROTO_FILES "AppInfo" "FieldService" "ObjectService")

@@ -15,7 +15,7 @@ target_link_libraries(
   Boost::program_options
   ${THREAD_LIBRARY}
   gtest
-  caffaProjectDataModel
+  caffaCore
   caffaGrpcInterface
   caffaGrpcInterface_TestData)
 
