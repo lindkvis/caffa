@@ -39,7 +39,7 @@ public:
     virtual void     setValue( const DataType& value ) = 0;
 
     virtual std::optional<DataType> defaultValue() const { return std::nullopt; }
-    virtual void                    setDefaultValue( const DataType& value ) {}
+    virtual void                    setDefaultValue( const DataType& ) {}
 };
 
 template <class DataType>

@@ -364,7 +364,7 @@ public:
         }
 
         auto objectMethodResult = caffa::dynamic_unique_cast<caffa::ObjectMethodResult>( std::move( returnValue ) );
-        return std::move( objectMethodResult );
+        return objectMethodResult;
     }
 
     bool stopServer() const
@@ -799,8 +799,6 @@ public:
 
         std::vector<float> values;
 
-        auto start_time = std::chrono::system_clock::now();
-
         std::unique_ptr<grpc::ClientReader<GenericArray>> reader( m_fieldStub->GetArrayValue( &context, field ) );
         GenericArray                                      reply;
         while ( reader->Read( &reply ) )
@@ -809,11 +807,6 @@ public:
             auto floats = reply.floats();
             values.insert( values.end(), floats.data().begin(), floats.data().end() );
         }
-
-        auto   end_time       = std::chrono::system_clock::now();
-        auto   duration       = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
-        size_t numberOfFloats = values.size();
-        size_t MB             = numberOfFloats * sizeof( float ) / ( 1024u * 1024u );
 
         grpc::Status status = reader->Finish();
         if ( !status.ok() ) CAFFA_ERROR( "GRPC: " << status.error_code() << ", " << status.error_message() );

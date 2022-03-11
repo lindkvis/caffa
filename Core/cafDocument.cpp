@@ -48,7 +48,7 @@ CAFFA_SOURCE_INIT( Document, "Document", "Object" )
 //--------------------------------------------------------------------------------------------------
 Document::Document( const std::string& id )
 {
-    initField( m_id, "id" ).withScripting();
+    initField( m_id, "id" ).withScripting().withDefault( id );
     initField( m_fileName, "fileName" ).withScripting();
 }
 

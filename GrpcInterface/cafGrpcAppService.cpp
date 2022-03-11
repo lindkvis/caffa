@@ -43,14 +43,14 @@
 
 using namespace caffa::rpc;
 
-grpc::Status AppService::PerformQuit( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply )
+grpc::Status AppService::PerformQuit( grpc::ServerContext*, const NullMessage*, NullMessage* )
 {
     CAFFA_DEBUG( "Received quit request" );
     ServerApplication::instance()->quit();
     return grpc::Status::OK;
 }
 
-grpc::Status AppService::PerformGetAppInfo( grpc::ServerContext* context, const NullMessage* request, AppInfoReply* reply )
+grpc::Status AppService::PerformGetAppInfo( grpc::ServerContext*, const NullMessage*, AppInfoReply* reply )
 {
     CAFFA_DEBUG( "Received app info request" );
     Application* app = Application::instance();
@@ -66,14 +66,13 @@ grpc::Status AppService::PerformGetAppInfo( grpc::ServerContext* context, const 
     return grpc::Status::OK;
 }
 
-grpc::Status AppService::PerformPing( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply )
+grpc::Status AppService::PerformPing( grpc::ServerContext*, const NullMessage*, NullMessage* )
 {
     CAFFA_DEBUG( "Received ping request" );
     return grpc::Status::OK;
 }
 
-grpc::Status
-    AppService::PerformResetToDefaultData( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply )
+grpc::Status AppService::PerformResetToDefaultData( grpc::ServerContext*, const NullMessage*, NullMessage* )
 {
     CAFFA_DEBUG( "Received reset request" );
     ServerApplication::instance()->resetToDefaultData();

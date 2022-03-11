@@ -7,7 +7,7 @@
 
 using namespace caffa;
 
-CAFFA_ABSTRACT_SOURCE_INIT( Object, "Object" );
+CAFFA_ABSTRACT_SOURCE_INIT( Object, "Object" )
 
 //--------------------------------------------------------------------------------------------------
 ///
