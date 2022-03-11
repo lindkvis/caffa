@@ -110,7 +110,7 @@ public:
 
     double m_doubleMember;
 };
-CAFFA_SOURCE_INIT( SimpleObj, "SimpleObj", "Object" );
+CAFFA_SOURCE_INIT( SimpleObj, "SimpleObj", "Object" )
 
 class DemoObject : public caffa::Object
 {
@@ -138,7 +138,7 @@ public:
     caffa::ChildField<SimpleObj*> m_simpleObjPtrField2;
 };
 
-CAFFA_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
+CAFFA_SOURCE_INIT( DemoObject, "DemoObject", "Object" )
 
 class InheritedDemoObj : public DemoObject
 {
@@ -154,7 +154,7 @@ public:
     caffa::Field<std::vector<std::string>> m_texts;
     caffa::ChildArrayField<SimpleObj*>     m_simpleObjectsField;
 };
-CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj", "DemoObject", "Object" );
+CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj", "DemoObject", "Object" )
 
 class MyDocument : public caffa::Document
 {
@@ -165,7 +165,7 @@ public:
 
     caffa::ChildArrayField<ObjectHandle*> objects;
 };
-CAFFA_SOURCE_INIT( MyDocument, "MyDocument", "Document", "Object" );
+CAFFA_SOURCE_INIT( MyDocument, "MyDocument", "Document", "Object" )
 
 TEST( BaseTest, Delete )
 {

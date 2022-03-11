@@ -36,7 +36,7 @@ ChildFieldDirectStorageAccessor::ChildFieldDirectStorageAccessor( FieldHandle* f
 ObjectHandle* ChildFieldDirectStorageAccessor::value() const
 {
     return m_value.get();
-};
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

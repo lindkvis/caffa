@@ -1,6 +1,6 @@
 #include "TestObj.h"
 
-CAFFA_SOURCE_INIT( TestObj, "TestObj", "Object" );
+CAFFA_SOURCE_INIT( TestObj, "TestObj", "Object" )
 
 TestObj::TestObj()
 {

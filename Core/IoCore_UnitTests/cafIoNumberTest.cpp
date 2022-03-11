@@ -33,7 +33,7 @@ public:
     caffa::Field<float> m_floatValueA;
     caffa::Field<float> m_floatValueB;
 };
-CAFFA_SOURCE_INIT( SimpleObjectWithNumbers, "SimpleObjectWithNumbers", "" );
+CAFFA_SOURCE_INIT( SimpleObjectWithNumbers, "SimpleObjectWithNumbers", "" )
 
 //--------------------------------------------------------------------------------------------------
 ///

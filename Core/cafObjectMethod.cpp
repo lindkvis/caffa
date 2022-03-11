@@ -38,8 +38,8 @@
 
 using namespace caffa;
 
-CAFFA_SOURCE_INIT( ObjectMethodResult, "ObjectMethodResult", "Object" );
-CAFFA_ABSTRACT_SOURCE_INIT( ObjectMethod, "ObjectMethod", "Object" );
+CAFFA_SOURCE_INIT( ObjectMethodResult, "ObjectMethodResult", "Object" )
+CAFFA_ABSTRACT_SOURCE_INIT( ObjectMethod, "ObjectMethod", "Object" )
 
 //--------------------------------------------------------------------------------------------------
 ///

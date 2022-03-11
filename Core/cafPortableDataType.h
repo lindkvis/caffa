@@ -75,4 +75,4 @@ CAFFA_DEFINE_PORTABLE_TYPE_NAME( unsigned, "uint32" )
 CAFFA_DEFINE_PORTABLE_TYPE_NAME( uint64_t, "uint64" )
 CAFFA_DEFINE_PORTABLE_TYPE_NAME( int64_t, "int64" )
 CAFFA_DEFINE_PORTABLE_TYPE_NAME( std::string, "string" )
-}; // namespace caffa
+} // namespace caffa

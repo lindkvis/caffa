@@ -25,7 +25,7 @@ public:
     // Fields
     caffa::Field<std::string> m_name;
 };
-CAFFA_SOURCE_INIT( ItemObject, "ItemObject" );
+CAFFA_SOURCE_INIT( ItemObject, "ItemObject" )
 
 class DemoObjectA;
 
@@ -48,7 +48,7 @@ public:
     caffa::ChildArrayField<ContainerObject*> m_containers;
     caffa::ChildArrayField<DemoObjectA*>     m_demoObjs;
 };
-CAFFA_SOURCE_INIT( ContainerObject, "ContainerObject" );
+CAFFA_SOURCE_INIT( ContainerObject, "ContainerObject" )
 
 class DemoObjectA : public caffa::Object
 {
@@ -84,7 +84,7 @@ public:
     double m_doubleMember;
 };
 
-CAFFA_SOURCE_INIT( DemoObjectA, "DemoObjectA" );
+CAFFA_SOURCE_INIT( DemoObjectA, "DemoObjectA" )
 
 //--------------------------------------------------------------------------------------------------
 /// Read/write fields to a valid Xml document encoded in a std::string

@@ -2,7 +2,7 @@
 
 #include "cafFieldProxyAccessor.h"
 
-CAFFA_SOURCE_INIT( DemoObject, "DemoObject", "Object" );
+CAFFA_SOURCE_INIT( DemoObject, "DemoObject", "Object" )
 
 DemoObject::DemoObject()
     : m_proxyDoubleValue( 2.1 )
@@ -52,12 +52,12 @@ DemoObject::DemoObject()
     initField( boolVector, "boolVector" ).withScripting();
 }
 
-CAFFA_SOURCE_INIT( DemoObject_copyObjectResult, "DemoObject_copyObjectResult", "Object" );
+CAFFA_SOURCE_INIT( DemoObject_copyObjectResult, "DemoObject_copyObjectResult", "Object" )
 
 CAFFA_OBJECT_METHOD_SOURCE_INIT( DemoObject, DemoObject_copyObject, "copyObject" );
 
-CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject", "DemoObject" );
+CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject", "DemoObject" )
 
-CAFFA_SOURCE_INIT( DemoDocument, "DemoDocument", "Document", "Object" );
+CAFFA_SOURCE_INIT( DemoDocument, "DemoDocument", "Document", "Object" )
 
-CAFFA_SOURCE_INIT( DemoDocumentWithNonScriptableMember, "DemoDocumentNonScriptableMember", "Document", "Object" );
+CAFFA_SOURCE_INIT( DemoDocumentWithNonScriptableMember, "DemoDocumentNonScriptableMember", "Document", "Object" )

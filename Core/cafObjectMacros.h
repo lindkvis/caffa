@@ -55,4 +55,4 @@ public:                                                                         
 #define CAFFA_SOURCE_INIT( ClassName, keyword, ... )                         \
     CAFFA_ABSTRACT_SOURCE_INIT( ClassName, keyword, ##__VA_ARGS__ )          \
     static bool CAFFA_OBJECT_STRING_CONCATENATE( my##ClassName, __LINE__ ) = \
-        caffa::DefaultObjectFactory::instance()->registerCreator<ClassName>()
+        caffa::DefaultObjectFactory::instance()->registerCreator<ClassName>();
