@@ -118,7 +118,7 @@ public:
     }
 
     virtual std::string uuid() const { return ""; }
-    virtual void        setUuid( const std::string& uuid ) {}
+    virtual void        setUuid( const std::string& ) {}
 
 protected:
     /**
