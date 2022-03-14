@@ -23,7 +23,7 @@ using namespace caffa;
 Serializer::Serializer( ObjectFactory* objectFactory )
     : m_objectFactory( objectFactory )
     , m_serializeDataValues( true )
-    , m_serializeDataTypes( true )
+    , m_serializeSchema( true )
     , m_serializeUuids( true )
 {
 }
@@ -40,9 +40,9 @@ Serializer& Serializer::setSerializeDataValues( bool serializeDataValues )
     return *this;
 }
 
-Serializer& Serializer::setSerializeDataTypes( bool serializeDataTypes )
+Serializer& Serializer::setSerializeSchema( bool serializeSchema )
 {
-    m_serializeDataTypes = serializeDataTypes;
+    m_serializeSchema = serializeSchema;
     return *this;
 }
 
@@ -67,9 +67,9 @@ bool Serializer::serializeDataValues() const
     return m_serializeDataValues;
 }
 
-bool Serializer::serializeDataTypes() const
+bool Serializer::serializeSchema() const
 {
-    return m_serializeDataTypes;
+    return m_serializeSchema;
 }
 
 bool Serializer::serializeUuids() const

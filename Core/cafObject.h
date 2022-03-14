@@ -100,6 +100,13 @@ public:
         return *this;
     }
 
+    FieldInitHelper& withLimits( const typename FieldType::FieldDataType& minimum,
+                                 const typename FieldType::FieldDataType& maximum )
+    {
+        m_field.setLimits( minimum, maximum );
+        return *this;
+    }
+
 private:
     FieldInitHelper()                         = delete;
     FieldInitHelper( const FieldInitHelper& ) = delete;

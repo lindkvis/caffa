@@ -125,6 +125,12 @@ public:
     std::optional<DataType> defaultValue() const { return m_fieldDataAccessor->defaultValue(); }
     void                    setDefaultValue( const DataType& val ) { m_fieldDataAccessor->setDefaultValue( val ); }
 
+    std::optional<std::pair<DataType, DataType>> limits() const { return m_fieldDataAccessor->limits(); }
+    void                                         setLimits( const DataType& minimum, const DataType& maximum )
+    {
+        m_fieldDataAccessor->setLimits( minimum, maximum );
+    }
+
 protected:
     std::unique_ptr<DataAccessor> m_fieldDataAccessor;
 };

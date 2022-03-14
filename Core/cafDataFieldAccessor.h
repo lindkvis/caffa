@@ -35,11 +35,29 @@ class DataFieldAccessor : public DataFieldAccessorInterface
 public:
     virtual std::unique_ptr<DataFieldAccessor<DataType>> clone() const = 0;
 
-    virtual DataType value()                           = 0;
-    virtual void     setValue( const DataType& value ) = 0;
+    virtual DataType value() = 0;
+
+    /**
+     * @brief Set the value with the accessor. Will throw a std::runtime_exception if the accessor
+     * has limits and the value is outside those limits.
+     *
+     * @param value The value to set
+     */
+    virtual void setValue( const DataType& value ) = 0;
 
     virtual std::optional<DataType> defaultValue() const { return std::nullopt; }
     virtual void                    setDefaultValue( const DataType& ) {}
+
+    virtual std::optional<std::pair<DataType, DataType>> limits() const { return std::nullopt; }
+
+    /**
+     * @brief Set limits to the data value. If the limits are set, any attempt to set a value
+     * outside those limits should result in an exception.
+     *
+     * @param minimum Minimum acceptable value
+     * @param maximum Maximum acceptable value
+     */
+    virtual void setLimits( const DataType&, const DataType& ) {}
 };
 
 template <class DataType>
@@ -72,9 +90,17 @@ public:
     std::optional<DataType> defaultValue() const override { return m_defaultValue; }
     void                    setDefaultValue( const DataType& value ) override { m_defaultValue = value; }
 
+    std::optional<std::pair<DataType, DataType>> limits() const override { return m_limits; }
+
+    void setLimits( const DataType& minimum, const DataType& maximum ) override
+    {
+        m_limits = std::make_pair( minimum, maximum );
+    }
+
 private:
-    DataType                m_value;
-    std::optional<DataType> m_defaultValue;
+    DataType                                     m_value;
+    std::optional<DataType>                      m_defaultValue;
+    std::optional<std::pair<DataType, DataType>> m_limits;
 };
 
 } // namespace caffa

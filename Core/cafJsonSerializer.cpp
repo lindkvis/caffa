@@ -39,7 +39,7 @@ using namespace caffa;
 void readFieldsFromJson( ObjectHandle* object, const nlohmann::json& jsonObject, const JsonSerializer* serializer )
 {
     CAFFA_TRACE( "Reading fields from json with serialize setting: serializeDataValues = "
-                 << serializer->serializeDataValues() << ", serializeDataTypes = " << serializer->serializeDataTypes()
+                 << serializer->serializeDataValues() << ", serializeSchema = " << serializer->serializeSchema()
                  << ", serializeUuids = " << serializer->serializeUuids() );
 
     CAFFA_ASSERT( jsonObject.is_object() );
@@ -103,7 +103,7 @@ void readFieldsFromJson( ObjectHandle* object, const nlohmann::json& jsonObject,
 void writeFieldsToJson( const ObjectHandle* object, nlohmann::json& jsonObject, const JsonSerializer* serializer )
 {
     CAFFA_TRACE( "Writing fields from json with serialize setting: serializeDataValues = "
-                 << serializer->serializeDataValues() << ", serializeDataTypes = " << serializer->serializeDataTypes()
+                 << serializer->serializeDataValues() << ", serializeSchema = " << serializer->serializeSchema()
                  << ", serializeUuids = " << serializer->serializeUuids() );
     std::string classKeyword = object->capability<ObjectIoCapability>()->classKeyword();
     CAFFA_ASSERT( ObjectIoCapability::isValidElementName( classKeyword ) );
@@ -130,25 +130,7 @@ void writeFieldsToJson( const ObjectHandle* object, nlohmann::json& jsonObject, 
 
             nlohmann::json value;
             ioCapability->writeToJson( value, *serializer );
-            CAFFA_TRACE( "Writing field " << keyword << "(" << field->dataType() << ") = " << value.dump() );
-
-            if ( serializer->serializeDataTypes() && serializer->serializeDataValues() )
-            {
-                nlohmann::json jsonField = nlohmann::json::object();
-                jsonField["type"]        = field->dataType();
-                jsonField["value"]       = value;
-                jsonObject[keyword]      = jsonField;
-            }
-            else if ( serializer->serializeDataTypes() )
-            {
-                nlohmann::json jsonField = nlohmann::json::object();
-                jsonField["type"]        = field->dataType();
-                jsonObject[keyword]      = jsonField;
-            }
-            else if ( serializer->serializeDataValues() )
-            {
-                jsonObject[keyword] = value;
-            }
+            jsonObject[keyword] = value;
         }
     }
 }
