@@ -51,7 +51,7 @@ TinyDemoObject::TinyDemoObject()
 }
 ```
 # Requirements
-Caffa uses modern C++ and requires a C++17 compatible compiler and CMake 3.12+ in addition to gRPC 1.16.1+ for gRPC-server deployment.
+Caffa uses modern C++ and requires a C++17 compatible compiler, Boost 1.71.0+ and CMake 3.12+ in addition to gRPC 1.16.1+ for gRPC-server deployment.
 
 # Licensing
 Caffa is licensed under the LGPL 2.1 or newer.
