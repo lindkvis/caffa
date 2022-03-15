@@ -63,7 +63,11 @@ public:
         : m_fieldDataAccessor( std::make_unique<DirectStorageAccessor>() )
     {
     }
-    Field( const Field& other ) { m_fieldDataAccessor = std::move( other.m_fieldDataAccessor->clone() ); }
+    Field( const Field& other )
+    {
+        m_fieldDataAccessor = std::move( other.m_fieldDataAccessor->clone() );
+        m_defaultValue      = other.m_defaultValue;
+    }
     explicit Field( const DataType& fieldValue )
         : m_fieldDataAccessor( std::make_unique<DirectStorageAccessor>( fieldValue ) )
     {
@@ -122,11 +126,12 @@ public:
     void setAccessor( std::unique_ptr<DataAccessor> accessor ) { m_fieldDataAccessor = std::move( accessor ); }
 
 public:
-    std::optional<DataType> defaultValue() const { return m_fieldDataAccessor->defaultValue(); }
-    void                    setDefaultValue( const DataType& val ) { m_fieldDataAccessor->setDefaultValue( val ); }
+    std::optional<DataType> defaultValue() const { return m_defaultValue; }
+    void                    setDefaultValue( const DataType& val ) { m_defaultValue = val; }
 
 protected:
     std::unique_ptr<DataAccessor> m_fieldDataAccessor;
+    std::optional<DataType>       m_defaultValue;
 };
 
 } // End of namespace caffa
