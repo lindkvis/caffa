@@ -35,6 +35,7 @@
 //##################################################################################################
 #pragma once
 
+#include "cafFieldValueValidator.h"
 #include "cafValueField.h"
 
 #include "cafAssert.h"
@@ -125,13 +126,20 @@ public:
     // Replace accessor
     void setAccessor( std::unique_ptr<DataAccessor> accessor ) { m_fieldDataAccessor = std::move( accessor ); }
 
+    FieldValueValidator<DataType>* valueValidator() const { return m_valueValidator.get(); }
+    void                           setValueValidator( std::unique_ptr<FieldValueValidator<DataType>> valueValidator )
+    {
+        m_valueValidator = valueValidator;
+    }
+
 public:
     std::optional<DataType> defaultValue() const { return m_defaultValue; }
     void                    setDefaultValue( const DataType& val ) { m_defaultValue = val; }
 
 protected:
-    std::unique_ptr<DataAccessor> m_fieldDataAccessor;
-    std::optional<DataType>       m_defaultValue;
+    std::unique_ptr<DataAccessor>                  m_fieldDataAccessor;
+    std::unique_ptr<FieldValueValidator<DataType>> m_valueValidator;
+    std::optional<DataType>                        m_defaultValue;
 };
 
 } // End of namespace caffa
