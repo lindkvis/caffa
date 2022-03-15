@@ -25,8 +25,8 @@ public:
 
 public:
     // Json Serializing
-    void readFromJson( const nlohmann::json& jsonValue, const Serializer& serializer ) override;
-    void writeToJson( nlohmann::json& jsonValue, const Serializer& serializer ) const override;
+    void readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer ) override;
+    void writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
 
 private:
     FieldType* m_field;
@@ -46,8 +46,8 @@ public:
 
 public:
     // Json Serializing
-    void readFromJson( const nlohmann::json& jsonValue, const Serializer& serializer ) override;
-    void writeToJson( nlohmann::json& jsonValue, const Serializer& serializer ) const override;
+    void readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer ) override;
+    void writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
 
 private:
     FieldType* m_field;
@@ -67,8 +67,8 @@ public:
 
 public:
     // Json Serializing
-    void readFromJson( const nlohmann::json& jsonValue, const Serializer& serializer ) override;
-    void writeToJson( nlohmann::json& jsonValue, const Serializer& serializer ) const override;
+    void readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer ) override;
+    void writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
 
 private:
     FieldType* m_field;

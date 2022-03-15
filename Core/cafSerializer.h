@@ -132,12 +132,12 @@ public:
 
     /**
      * Set whether to serialize data types
-     * Since it returns a reference to it it can be used like: Serializer(objectFactory).setSerializeDataTypes(false);
+     * Since it returns a reference to it it can be used like: Serializer(objectFactory).setSerializeSchema(false);
      *
-     * @param serializeDataTypes
+     * @param serializeSchema
      * @return cafSerializer& reference to this
      */
-    Serializer& setSerializeDataTypes( bool serializeDataTypes );
+    Serializer& setSerializeSchema( bool serializeSchema );
 
     /**
      * Set whether to serialize UUIDs
@@ -170,7 +170,7 @@ public:
      * Check if we're meant to serialize data types
      * @return true if we should serialize schema (labels and types)
      */
-    bool serializeDataTypes() const;
+    bool serializeSchema() const;
 
     /**
      * Check if we're meant to serialize UUIDs. UUIDs are used for dynamic connection to runtime objects,
@@ -184,7 +184,7 @@ protected:
     FieldSelector  m_fieldSelector;
 
     bool m_serializeDataValues;
-    bool m_serializeDataTypes;
+    bool m_serializeSchema;
     bool m_serializeUuids;
 };
 

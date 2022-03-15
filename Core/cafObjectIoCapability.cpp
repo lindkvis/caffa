@@ -124,7 +124,7 @@ bool ObjectIoCapability::writeFile( const std::string& fileName, IoType ioType /
             // Do not write UUID or data types to file. UUID is only for dynamic connection to runtime objects.
             return writeStream( outStream,
                                 JsonSerializer( DefaultObjectFactory::instance() )
-                                    .setSerializeDataTypes( false )
+                                    .setSerializeSchema( false )
                                     .setSerializeUuids( false ) );
         }
     }
