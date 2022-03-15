@@ -63,20 +63,6 @@ public:
      * @param value The value to set
      */
     virtual void setValue( const DataType& value ) = 0;
-
-    /**
-     * @brief An optional default value
-     *
-     * @return The default value, or std::nullopt if not set.
-     */
-    virtual std::optional<DataType> defaultValue() const { return std::nullopt; }
-
-    /**
-     * @brief Apply an optional default value to  the field.
-     *
-     */
-    virtual void setDefaultValue( const DataType& ) {}
-
 };
 
 /**
@@ -97,43 +83,25 @@ public:
     /**
      * @brief Construct a new Data Field Direct Storage Accessor object with a default value
      *
-     * @param defaultValue Default value
+     * @param value Default value
      */
-    DataFieldDirectStorageAccessor( const DataType& defaultValue )
-        : m_value( defaultValue )
-        , m_defaultValue( defaultValue )
+    DataFieldDirectStorageAccessor( const DataType& value )
+        : m_value( value )
 
     {
     }
 
     std::unique_ptr<DataFieldAccessor<DataType>> clone() const override
     {
-        std::unique_ptr<DataFieldAccessor<DataType>> copy;
-        if ( m_defaultValue.has_value() )
-            copy = std::make_unique<DataFieldDirectStorageAccessor<DataType>>( *m_defaultValue );
-        else
-            copy = std::make_unique<DataFieldDirectStorageAccessor<DataType>>();
-
-        copy->setValue( m_value );
-        return copy;
+        return std::make_unique<DataFieldDirectStorageAccessor<DataType>>( m_value );
     }
 
     DataType value() override { return m_value; };
 
     void setValue( const DataType& value ) override { m_value = value; }
 
-    std::optional<DataType> defaultValue() const override { return m_defaultValue; }
-
-    /**
-     * @brief Apply an optional default value to  the field.
-     * @param value The default value.
-     *
-     */
-    void setDefaultValue( const DataType& value ) override { m_defaultValue = value; }
-
 private:
-    DataType                m_value;
-    std::optional<DataType> m_defaultValue;
+    DataType m_value;
 };
 
 } // namespace caffa
