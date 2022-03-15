@@ -23,18 +23,37 @@
 
 namespace caffa
 {
+/**
+ * @brief Basic non-typed interface which exists only to allow non-typed pointers.
+ *
+ */
 class DataFieldAccessorInterface
 {
 public:
     virtual ~DataFieldAccessorInterface() = default;
 };
 
+/**
+ * @brief Abstract but typed data field accessor. Inherit to create different storage mechanisms.
+ *
+ * @tparam DataType
+ */
 template <class DataType>
 class DataFieldAccessor : public DataFieldAccessorInterface
 {
 public:
+    /**
+     * @brief Clone the accessor using polymorphism
+     *
+     * @return A unique pointer to object of implementation class.
+     */
     virtual std::unique_ptr<DataFieldAccessor<DataType>> clone() const = 0;
 
+    /**
+     * @brief Get the field value
+     *
+     * @return Field value
+     */
     virtual DataType value() = 0;
 
     /**
@@ -45,9 +64,24 @@ public:
      */
     virtual void setValue( const DataType& value ) = 0;
 
+    /**
+     * @brief An optional default value
+     *
+     * @return The default value, or std::nullopt if not set.
+     */
     virtual std::optional<DataType> defaultValue() const { return std::nullopt; }
-    virtual void                    setDefaultValue( const DataType& ) {}
 
+    /**
+     * @brief Apply an optional default value to  the field.
+     *
+     */
+    virtual void setDefaultValue( const DataType& ) {}
+
+    /**
+     * @brief Get the limits for the data values (if they exist) or std::nullopt if not.
+     *
+     * @return A pair of minimum and maximum if there are limits set.
+     */
     virtual std::optional<std::pair<DataType, DataType>> limits() const { return std::nullopt; }
 
     /**
@@ -60,11 +94,26 @@ public:
     virtual void setLimits( const DataType&, const DataType& ) {}
 };
 
+/**
+ * @brief Direct storage accessor, which stores data values in local memory.
+ *
+ * @tparam DataType
+ */
 template <class DataType>
 class DataFieldDirectStorageAccessor : public DataFieldAccessor<DataType>
 {
 public:
+    /**
+     * @brief Construct a new Data Field Direct Storage Accessor object
+     *
+     */
     DataFieldDirectStorageAccessor() = default;
+
+    /**
+     * @brief Construct a new Data Field Direct Storage Accessor object with a default value
+     *
+     * @param defaultValue Default value
+     */
     DataFieldDirectStorageAccessor( const DataType& defaultValue )
         : m_value( defaultValue )
         , m_defaultValue( defaultValue )
@@ -86,12 +135,26 @@ public:
 
     DataType value() override { return m_value; };
 
-    void                    setValue( const DataType& value ) override { m_value = value; }
+    void setValue( const DataType& value ) override { m_value = value; }
+
     std::optional<DataType> defaultValue() const override { return m_defaultValue; }
-    void                    setDefaultValue( const DataType& value ) override { m_defaultValue = value; }
+
+    /**
+     * @brief Apply an optional default value to  the field.
+     * @param value The default value.
+     *
+     */
+    void setDefaultValue( const DataType& value ) override { m_defaultValue = value; }
 
     std::optional<std::pair<DataType, DataType>> limits() const override { return m_limits; }
 
+    /**
+     * @brief Set limits to the data value. If the limits are set, any attempt to set a value
+     * outside those limits should result in an exception.
+     *
+     * @param minimum Minimum acceptable value
+     * @param maximum Maximum acceptable value
+     */
     void setLimits( const DataType& minimum, const DataType& maximum ) override
     {
         m_limits = std::make_pair( minimum, maximum );

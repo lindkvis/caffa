@@ -36,6 +36,7 @@ private:
 ~~~
 
 In the cpp file you then register the object and fields.
+
 ~~~{.cpp}
 CAFFA_SOURCE_INIT(TinyDemoObject, "TinyDemoObject", "Object");
 
@@ -50,6 +51,7 @@ TinyDemoObject::TinyDemoObject()
     m_children.push_back(std::make_unique<ChildObject>)());
 }
 ~~~
+
 # Requirements
 Caffa uses modern C++ and requires a C++17 compatible compiler, Boost 1.71.0+ and CMake 3.12+ in addition to gRPC 1.16.1+ for gRPC-server deployment.
 

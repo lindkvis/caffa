@@ -34,7 +34,7 @@ Application::Application( const unsigned int& capabilities )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caffa::Application::Application( const AppCapability& capability )
+caffa::Application::Application( const AppInfo::AppCapability& capability )
     : m_capabilities( static_cast<unsigned int>( capability ) )
 {
     registerInstance( const_cast<Application*>( this ) );
@@ -54,7 +54,7 @@ Application::~Application()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Application::hasCapability( AppCapability typeToCheck ) const
+bool Application::hasCapability( AppInfo::AppCapability typeToCheck ) const
 {
     return ( m_capabilities & static_cast<unsigned int>( typeToCheck ) ) != 0u;
 }

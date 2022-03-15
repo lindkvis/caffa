@@ -39,32 +39,78 @@
 #include <set>
 #include <string>
 
+/**
+ * @brief Main Caffa namespace
+ *
+ */
 namespace caffa
 {
 class Document;
 
-enum class AppCapability : unsigned int
-{
-    CONSOLE     = 0x00,
-    GRPC_SERVER = 0x01,
-    GRPC_CLIENT = 0x02,
-    GUI         = 0x04,
-    WEB         = 0x08
-};
-
+/**
+ * @brief Basic Application Information.
+ *
+ */
 struct AppInfo
 {
-    std::string  name;
-    int          majorVersion;
-    int          minorVersion;
-    int          patchVersion;
+    /**
+     * @brief Application capability
+     * Defines what type of application it is. These flags can be combined. I.e. a Console GRPC-Server or GUI
+     * Grpc-client.
+     *
+     */
+    enum class AppCapability : unsigned int
+    {
+        CONSOLE     = 0x00, ///< Console Application
+        GRPC_SERVER = 0x01, ///< gRPC server
+        GRPC_CLIENT = 0x02, ///< gRPC client
+        GUI         = 0x04, ///< GUI application
+        WEB         = 0x08 ///< Web server
+    };
+
+    /**
+     * @brief The name of the application
+     *
+     */
+    std::string name;
+    /**
+     * @brief Major version number
+     *
+     */
+    int majorVersion;
+    /**
+     * @brief Minor version number
+     *
+     */
+    int minorVersion;
+    /**
+     * @brief Patch version number
+     *
+     */
+    int patchVersion;
+    /**
+     * @brief Application type. Can be CONSOLE, GRPC_SERVER, GRPC_CLIENT, GUI or WEB.
+     *
+     */
     unsigned int appType;
 
+    /**
+     * @brief Check if the application has the specified capability
+     *
+     * @param typeToCheck
+     * @return true
+     * @return false
+     */
     bool hasCapability( AppCapability typeToCheck ) const
     {
         return ( appType & static_cast<unsigned int>( typeToCheck ) ) != 0u;
     }
 
+    /**
+     * @brief Construct a full X.Y.Z version string with major, minor and patch version.
+     *
+     * @return std::string
+     */
     std::string version_string() const
     {
         return std::to_string( majorVersion ) + "." + std::to_string( minorVersion ) + "." + std::to_string( patchVersion );
@@ -75,11 +121,11 @@ class Application
 {
 public:
     Application( const unsigned int& capabilities );
-    Application( const AppCapability& capability );
+    Application( const AppInfo::AppCapability& capability );
     virtual ~Application();
 
     virtual std::string name() const = 0;
-    bool                hasCapability( AppCapability typeToCheck ) const;
+    bool                hasCapability( AppInfo::AppCapability typeToCheck ) const;
     AppInfo             appInfo() const;
 
     virtual int majorVersion() const = 0;

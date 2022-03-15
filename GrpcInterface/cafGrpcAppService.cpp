@@ -55,7 +55,7 @@ grpc::Status AppService::PerformGetAppInfo( grpc::ServerContext*, const NullMess
     CAFFA_DEBUG( "Received app info request" );
     Application* app = Application::instance();
     reply->set_name( app->name() );
-    CAFFA_ASSERT( app->hasCapability( AppCapability::GRPC_SERVER ) );
+    CAFFA_ASSERT( app->hasCapability( AppInfo::AppCapability::GRPC_SERVER ) );
 
     AppInfo appInfo = app->appInfo();
     reply->set_type( appInfo.appType );

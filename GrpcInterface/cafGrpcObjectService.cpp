@@ -182,7 +182,7 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const std::str
 
     std::list<caffa::ObjectHandle*> objectsOfCurrentClass;
 
-    if ( caffa::Application::instance()->hasCapability( AppCapability::GRPC_CLIENT ) )
+    if ( caffa::Application::instance()->hasCapability( AppInfo::AppCapability::GRPC_CLIENT ) )
     {
         objectsOfCurrentClass = GrpcClientObjectFactory::instance()->objectsWithClassKeyword( scriptClassName );
     }
