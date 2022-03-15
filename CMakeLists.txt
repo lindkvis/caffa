@@ -16,6 +16,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/scripts")
 option(CAFFA_GRPC_INTERFACE "Enable the gRPC interface to the Project Data Model" OFF)
 option(CAFFA_BUILD_EXAMPLES "Build examples" OFF)
 option(CAFFA_BUILD_UNIT_TESTS "Build unit tests" ON)
+option(CAFFA_BUILD_DOCS "Build Doxygen documentation" OFF)
 
 option(CAFFA_BUILD_SHARED "Create a shared Caffa library" ON)
 
@@ -90,8 +91,8 @@ if(CAFFA_BUILD_UNIT_TESTS)
 endif()
 
 if(CAFFA_BUILD_DOCS)
-  set(DOXYGEN_IN "${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen.config.in")
-  set(DOXYGEN_OUT "${CMAKE_CURRENT_BINARY_DIR}/doc/doxygen.config")
+  set(DOXYGEN_IN "${CMAKE_CURRENT_SOURCE_DIR}/docs/doxygen.config.in")
+  set(DOXYGEN_OUT "${CMAKE_CURRENT_SOURCE_DIR}/docs/doxygen.config")
   configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT})
   find_package(Doxygen)
   if(DOXYGEN_FOUND)

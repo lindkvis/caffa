@@ -14,7 +14,7 @@
 # paths will be considered relative to the root of the repository, not the
 # location of the DOXYFILE.
 
-DOXYFILE = doc/doxygen.config.in
+DOXYFILE = docs/doxygen.config.in
 
 PROJECT_NUMBER = 0.12.1
 
@@ -27,6 +27,12 @@ PROJECT_NUMBER = 0.12.1
 # Note: these repositories must already be built on CodeDocs.
 
 TAGLINKS =
+
+OUTPUT_DIRECTORY = docs/
+
+INPUT = docs/
+
+USE_MDFILE_AS_MAINPAGE = docs/README.md
 
 #---------------------------------------------------------------------------
 # Doxygen Configuration
