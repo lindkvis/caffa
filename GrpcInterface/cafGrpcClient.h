@@ -104,8 +104,12 @@ DataType caffa::rpc::Client::get( const caffa::ObjectHandle* objectHandle,
                                   uint32_t                   addressOffset ) const
 {
     nlohmann::json jsonValue = getJson( objectHandle, fieldName, addressOffset );
-    CAFFA_TRACE( "Attempting to get datatype " << caffa::PortableDataType<DataType>::name() << " from json value "
-                                               << jsonValue );
+    CAFFA_TRACE( "Attempting to get a value of datatype " << caffa::PortableDataType<DataType>::name()
+                                                          << " from json value " << jsonValue );
+    if ( jsonValue.is_object() && jsonValue.contains( "value" ) )
+    {
+        return jsonValue["value"].get<DataType>();
+    }
     return jsonValue.get<DataType>();
 }
 

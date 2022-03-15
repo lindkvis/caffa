@@ -314,7 +314,7 @@ TEST( BaseTest, ReadWrite )
 
         // Write file
         std::ofstream file( "TestFile2.json" );
-        doc.writeStream( file, caffa::JsonSerializer().setSerializeUuids( false ).setSerializeDataTypes( false ) );
+        doc.writeStream( file, caffa::JsonSerializer().setSerializeUuids( false ).setSerializeSchema( false ) );
         file.close();
     }
 

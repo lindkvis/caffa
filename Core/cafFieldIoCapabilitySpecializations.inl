@@ -21,15 +21,37 @@ namespace caffa
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void FieldIoCap<FieldType>::readFromJson( const nlohmann::json& jsonValue, const Serializer& serializer )
+void FieldIoCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
 {
     this->assertValid();
     if ( serializer.serializeDataValues() )
     {
-        CAFFA_TRACE( "Setting value from json to: " << jsonValue.dump() );
+        CAFFA_TRACE( "Setting value from json to: " << jsonElement.dump() );
+        if ( jsonElement.is_object() )
+        {
+            if ( jsonElement.contains( "value" ) )
+            {
+                typename FieldType::FieldDataType value = jsonElement["value"].get<typename FieldType::FieldDataType>();
+                m_field->setValue( value );
+            }
+        }
+        else // Support JSON objects with direct value instead of separate value entry
+        {
+            typename FieldType::FieldDataType value = jsonElement.get<typename FieldType::FieldDataType>();
+            m_field->setValue( value );
+        }
+    }
+    if ( serializer.serializeSchema() )
+    {
+        if ( jsonElement.contains( "type" ) )
+        {
+            CAFFA_ASSERT( jsonElement["type"] == m_field->dataType() );
+        }
 
-        typename FieldType::FieldDataType value = jsonValue.get<typename FieldType::FieldDataType>();
-        m_field->setValue( value );
+        if ( m_field->valueValidator() )
+        {
+            m_field->valueValidator()->readFromJson( jsonElement, serializer );
+        }
     }
 }
 
@@ -37,15 +59,33 @@ void FieldIoCap<FieldType>::readFromJson( const nlohmann::json& jsonValue, const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void FieldIoCap<FieldType>::writeToJson( nlohmann::json& jsonValue, const Serializer& serializer ) const
+void FieldIoCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const
 {
     this->assertValid();
+
+    nlohmann::json jsonField = nlohmann::json::object();
+
+    if ( serializer.serializeSchema() )
+    {
+        jsonField["type"] = m_field->dataType();
+        if ( m_field->valueValidator() )
+        {
+            m_field->valueValidator()->writeToJson( jsonField, serializer );
+        }
+    }
     if ( serializer.serializeDataValues() )
     {
         CAFFA_TRACE( "Getting value from field: " << m_field );
 
-        jsonValue = m_field->value();
+        nlohmann::json jsonValue = m_field->value();
+
+        jsonField["value"] = jsonValue;
     }
+
+    jsonElement = jsonField;
+
+    CAFFA_TRACE( "Writing field to json " << m_field->keyword() << "(" << m_field->dataType()
+                                          << ") = " << jsonElement.dump() );
 }
 
 //--------------------------------------------------------------------------------------------------

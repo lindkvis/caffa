@@ -217,6 +217,7 @@ public:
         std::vector<std::unique_ptr<ObjectHandle>> childObjects;
 
         caffa::JsonSerializer serializer( caffa::rpc::GrpcClientObjectFactory::instance() );
+        serializer.setSerializeDataValues( false );
 
         std::unique_ptr<grpc::ClientReader<GenericArray>> reader( m_fieldStub->GetArrayValue( &context, field ) );
         GenericArray                                      reply;
