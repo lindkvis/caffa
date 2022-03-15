@@ -97,6 +97,35 @@ public:
 };
 CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj", "DemoObject" )
 
+class IntRangeValidator : public caffa::FieldValueValidator<int>
+{
+public:
+    IntRangeValidator( int minimum, int maximum )
+        : m_minimum( minimum )
+        , m_maximum( maximum )
+    {
+    }
+
+    void readFromJson( const nlohmann::json& jsonValue, const caffa::Serializer& serializer ) override
+    {
+        std::cout << "Reading range validator from json: " << jsonValue.dump() << std::endl;
+        if ( jsonValue.contains( "range" ) )
+        {
+            std::cout << "Found range!" << jsonValue["range"].dump() << std::endl;
+            std::tie( m_minimum, m_maximum ) = jsonValue["range"].get<std::pair<int, int>>();
+        }
+    }
+    void writeToJson( nlohmann::json& jsonValue, const caffa::Serializer& serializer ) const override
+    {
+        jsonValue["range"] = { m_minimum, m_maximum };
+    }
+    bool validate( const int& value ) const override { return m_minimum <= value && value <= m_maximum; }
+
+private:
+    int m_minimum;
+    int m_maximum;
+};
+
 class SimpleObj : public caffa::Object
 {
     CAFFA_HEADER_INIT;
@@ -131,6 +160,11 @@ public:
         std::cout << "doubleMember" << std::endl;
         return m_doubleMember;
     }
+    void setUpRange( int minimum, int maximum )
+    {
+        m_up.setValueValidator( std::make_unique<IntRangeValidator>( minimum, maximum ) );
+    }
+
     std::string classKeywordDynamic() const override { return classKeyword(); }
 
     double m_doubleMember;
@@ -228,4 +262,40 @@ TEST( BaseTest, TestDataType )
         auto dataType = obj->m_childArrayField.dataType();
         EXPECT_EQ( std::string( "object[]" ), dataType );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( BaseTest, TestRangeValidation )
+{
+    auto s1 = std::make_unique<SimpleObj>();
+    ASSERT_NO_THROW( s1->m_up.setValue( -10 ) );
+    ASSERT_NO_THROW( s1->m_up.setValue( 0 ) );
+    s1->setUpRange( 0, 10 );
+    ASSERT_NO_THROW( s1->m_up.setValue( 5 ) );
+    ASSERT_THROW( s1->m_up.setValue( 12 ), std::runtime_error );
+    ASSERT_THROW( s1->m_up.setValue( -2 ), std::runtime_error );
+    ASSERT_EQ( 5, s1->m_up );
+
+    auto serializedString = caffa::JsonSerializer().writeObjectToString( s1.get() );
+    std::cout << "Wrote object to json with validator: " << serializedString << std::endl;
+
+    auto s2 = std::make_unique<SimpleObj>();
+    s2->m_up.setValue( 5 );
+    auto serializedString2 = caffa::JsonSerializer().writeObjectToString( s2.get() );
+    std::cout << "Wrote object to json without validator: " << serializedString2 << std::endl;
+
+    ASSERT_TRUE( serializedString != serializedString2 );
+
+    ASSERT_NO_THROW( s2->m_up.setValue( 12 ) );
+    s2->setUpRange( 0, 15 );
+    ASSERT_THROW( s2->m_up.setValue( 20 ), std::runtime_error );
+    ASSERT_NO_THROW( s2->m_up.setValue( 12 ) );
+    caffa::JsonSerializer().readObjectFromString( s2.get(), serializedString );
+    ASSERT_THROW( s2->m_up.setValue( 12 ), std::runtime_error );
+    auto serializedString3 = caffa::JsonSerializer().writeObjectToString( s2.get() );
+    std::cout << "Wrote object to json with validator: " << serializedString3 << std::endl;
+    ASSERT_EQ( serializedString, serializedString3 );
+    ASSERT_THROW( s2->m_up.setValue( 12 ), std::runtime_error );
 }
