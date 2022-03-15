@@ -16,6 +16,7 @@ set(PUBLIC_HEADERS
     cafField.h
     cafFieldCapability.h
     cafFieldHandle.h
+    cafFieldValueValidator.h
     cafObjectCapability.h
     cafObjectHandle.h
     cafObservingPointer.h
