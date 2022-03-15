@@ -30,8 +30,6 @@ TAGLINKS =
 
 OUTPUT_DIRECTORY = docs/
 
-INPUT = docs/
-
 USE_MDFILE_AS_MAINPAGE = docs/README.md
 
 #---------------------------------------------------------------------------

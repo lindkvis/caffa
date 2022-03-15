@@ -7,7 +7,7 @@ Caffa is intended to help write applications with strong separation between appl
 
 As an example, you would write Data Model Objects with Fields holding data instead of simple variables. This gives you runtime introspection of the fields without using a pre-compiler and all objects can easily be written out to JSON. Caffa is set up for allowing scripting access by utilising the introspection capabilites to optionally expose fields and objects to scripting languages with little additional work from the application developer.
 
-```C++
+~~~{.cpp}
 using namespace caffa;
 
 class ChildObject : public caffa::Object
@@ -31,12 +31,12 @@ private:
     Field<bool>                     m_toggleField;
     Field<double>                   m_doubleField;
     Field<int>                      m_scriptableIntField;
-    ChildArrayField<ChildObject> m_children; // ChildArrayFields hold caffa::Objects
+    ChildArrayField<ChildObject>    m_children; // ChildArrayFields hold caffa::Objects
 };
-```
+~~~
 
 In the cpp file you then register the object and fields.
-```C++
+~~~{.cpp}
 CAFFA_SOURCE_INIT(TinyDemoObject, "TinyDemoObject", "Object");
 
 TinyDemoObject::TinyDemoObject()
@@ -49,7 +49,7 @@ TinyDemoObject::TinyDemoObject()
     
     m_children.push_back(std::make_unique<ChildObject>)());
 }
-```
+~~~
 # Requirements
 Caffa uses modern C++ and requires a C++17 compatible compiler, Boost 1.71.0+ and CMake 3.12+ in addition to gRPC 1.16.1+ for gRPC-server deployment.
 
