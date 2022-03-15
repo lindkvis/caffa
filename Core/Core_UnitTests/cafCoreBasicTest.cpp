@@ -7,39 +7,41 @@
 #include "cafChildField.h"
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
-#include "cafObjectHandle.h"
+#include "cafObject.h"
 #include "cafPortableDataType.h"
 #include "cafValueField.h"
 
 #include <map>
 #include <vector>
 
-class DemoObject : public caffa::ObjectHandle
+class DemoObject : public caffa::Object
 {
+    CAFFA_HEADER_INIT;
+
 public:
     DemoObject()
     {
-        this->addField( &m_proxyDoubleField, "m_proxyDoubleField" );
+        initField( m_proxyDoubleField, "m_proxyDoubleField" );
         auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
         doubleProxyAccessor->registerSetMethod( this, &DemoObject::setDoubleMember );
         doubleProxyAccessor->registerGetMethod( this, &DemoObject::doubleMember );
         m_proxyDoubleField.setAccessor( std::move( doubleProxyAccessor ) );
 
-        this->addField( &m_proxyIntField, "m_proxyIntField" );
+        initField( m_proxyIntField, "m_proxyIntField" );
         auto intProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<int>>();
         intProxyAccessor->registerSetMethod( this, &DemoObject::setIntMember );
         intProxyAccessor->registerGetMethod( this, &DemoObject::intMember );
         m_proxyIntField.setAccessor( std::move( intProxyAccessor ) );
 
-        this->addField( &m_proxyStringField, "m_proxyStringField" );
+        initField( m_proxyStringField, "m_proxyStringField" );
         auto stringProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::string>>();
         stringProxyAccessor->registerSetMethod( this, &DemoObject::setStringMember );
         stringProxyAccessor->registerGetMethod( this, &DemoObject::stringMember );
         m_proxyStringField.setAccessor( std::move( stringProxyAccessor ) );
 
-        this->addField( &m_memberDoubleField, "m_memberDoubleField" );
-        this->addField( &m_memberIntField, "m_memberIntField" );
-        this->addField( &m_memberStringField, "m_memberStringField" );
+        initField( m_memberDoubleField, "m_memberDoubleField" );
+        initField( m_memberIntField, "m_memberIntField" );
+        initField( m_memberStringField, "m_memberStringField" );
 
         // Default values
         m_doubleMember = 2.1;
@@ -78,21 +80,23 @@ public:
     std::string stringMember() const { return m_stringMember; }
     void        setStringMember( const std::string& val ) { m_stringMember = val; }
 
-    std::string classKeywordDynamic() const override { return "DemoObject"; }
-
 private:
     double      m_doubleMember;
     int         m_intMember;
     std::string m_stringMember;
 };
 
+CAFFA_SOURCE_INIT( DemoObject, "DemoObject", "Object" )
+
 class InheritedDemoObj : public DemoObject
 {
+    CAFFA_HEADER_INIT;
+
 public:
     InheritedDemoObj()
     {
-        this->addField( &m_texts, "Texts" );
-        this->addField( &m_childArrayField, "DemoObjectects" );
+        initField( m_texts, "Texts" );
+        initField( m_childArrayField, "DemoObjectects" );
     }
 
     caffa::Field<std::string>           m_texts;
@@ -104,6 +108,8 @@ TEST( BaseTest, Delete )
     DemoObject* s2 = new DemoObject;
     delete s2;
 }
+
+CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj", "DemoObject", "Object" )
 
 //--------------------------------------------------------------------------------------------------
 /// TestField
@@ -145,30 +151,34 @@ TEST( BaseTest, TestProxyValueField )
     ASSERT_TRUE( a->m_proxyStringField.value() == "123" );
 }
 
+class A : public caffa::Object
+{
+    CAFFA_HEADER_INIT;
+
+public:
+    A() {}
+
+    explicit A( const std::vector<double>& testValue )
+        : field2( testValue )
+        , field3( field2 )
+    {
+        initField( field1, "field1" );
+        initField( field2, "field2" );
+        initField( field3, "field3" );
+    }
+
+    caffa::Field<std::vector<double>> field1;
+    caffa::Field<std::vector<double>> field2;
+    caffa::Field<std::vector<double>> field3;
+};
+
+CAFFA_SOURCE_INIT( A, "A", "Object" )
+
 //--------------------------------------------------------------------------------------------------
 /// Test of Field operations
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, NormalField )
 {
-    class A : public caffa::ObjectHandle
-    {
-    public:
-        explicit A( const std::vector<double>& testValue )
-            : field2( testValue )
-            , field3( field2 )
-        {
-            this->addField( &field1, "field1" );
-            this->addField( &field2, "field2" );
-            this->addField( &field3, "field3" );
-        }
-
-        std::string classKeywordDynamic() const override { return "A"; }
-
-        caffa::Field<std::vector<double>> field1;
-        caffa::Field<std::vector<double>> field2;
-        caffa::Field<std::vector<double>> field3;
-    };
-
     std::vector<double> testValue;
     testValue.push_back( 1.1 );
     testValue.push_back( 1.2 );
@@ -371,33 +381,35 @@ TEST( BaseTest, ChildArrayFieldHandle )
     EXPECT_EQ( 0u, listField->size() );
     EXPECT_TRUE( listField->empty() );
 }
+
+class A2 : public caffa::Object
+{
+    CAFFA_HEADER_INIT;
+
+public:
+    explicit A2()
+        : b( 0 )
+    {
+        initField( field2, "field2" );
+    }
+
+    caffa::ChildField<Child*> field2;
+    int                       b;
+};
+
+CAFFA_SOURCE_INIT( A2, "A2", "Object" )
 //--------------------------------------------------------------------------------------------------
 /// Test of ChildField
 //--------------------------------------------------------------------------------------------------
 
 TEST( BaseTest, ChildField )
 {
-    class A : public caffa::ObjectHandle
-    {
-    public:
-        explicit A()
-            : b( 0 )
-        {
-            this->addField( &field2, "field2" );
-        }
-
-        caffa::ChildField<Child*> field2;
-        int                       b;
-
-        std::string classKeywordDynamic() const override { return "A"; }
-    };
-
     {
         auto                           testValue = std::make_unique<Child>();
         caffa::ObservingPointer<Child> rawValue  = testValue.get();
 
         {
-            A a;
+            A2 a;
             a.field2 = std::move( testValue );
             EXPECT_EQ( rawValue.p(), a.field2() );
         }
@@ -405,7 +417,7 @@ TEST( BaseTest, ChildField )
         EXPECT_TRUE( rawValue.isNull() );
     }
     {
-        A    a;
+        A2   a;
         auto c2   = std::make_unique<Child>();
         auto rawC = c2.get();
         // Assign
