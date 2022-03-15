@@ -28,7 +28,7 @@ using namespace caffa::rpc;
 ///
 //--------------------------------------------------------------------------------------------------
 ClientApplication::ClientApplication( const std::string& hostname, int portNumber )
-    : Application( { AppCapability::GRPC_CLIENT } )
+    : Application( { AppInfo::AppCapability::GRPC_CLIENT } )
 
 {
     m_client = std::make_unique<caffa::rpc::Client>( hostname, portNumber );
@@ -46,9 +46,9 @@ ClientApplication* ClientApplication::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Client* ClientApplication::client() 
+Client* ClientApplication::client()
 {
-    return m_client.get();    
+    return m_client.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,5 +56,5 @@ Client* ClientApplication::client()
 //--------------------------------------------------------------------------------------------------
 const Client* ClientApplication::client() const
 {
-    return m_client.get();    
+    return m_client.get();
 }

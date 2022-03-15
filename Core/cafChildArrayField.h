@@ -15,12 +15,7 @@ namespace caffa
 template <typename T>
 class FieldIoCap;
 
-//==================================================================================================
-/// FieldClass to handle a collection of Object derived pointers
-/// The reasons for this class is to add itself as parentField into the objects being pointed to.
-/// The interface is made similar to std::vector<>, and the complexity of the methods is similar too.
-//==================================================================================================
-
+/// \private
 template <typename DataType>
 class ChildArrayField : public ChildArrayFieldHandle
 {
@@ -32,6 +27,10 @@ public:
     }
 };
 
+/**
+ * @brief FieldClass to handle a collection of Object derived pointers
+ * The ChildArrayField will take over ownership of any object assigned to it.
+ */
 template <typename DataType>
 class ChildArrayField<DataType*> : public ChildArrayFieldHandle
 {

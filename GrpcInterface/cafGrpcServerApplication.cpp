@@ -35,7 +35,7 @@ ServerApplication::ServerApplication( int                portNumber,
                                       const std::string& serverCertFile /* = ""*/,
                                       const std::string& serverKeyFile /* = ""*/,
                                       const std::string& caCertFile /* = ""*/ )
-    : Application( AppCapability::GRPC_SERVER )
+    : Application( AppInfo::AppCapability::GRPC_SERVER )
 
 {
     m_server = std::make_unique<caffa::rpc::Server>( portNumber, serverCertFile, serverKeyFile, caCertFile );

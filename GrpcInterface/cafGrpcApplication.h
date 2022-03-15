@@ -30,7 +30,7 @@ class Application : public caffa::Application
 {
 public:
     Application( const unsigned int& capabilities );
-    Application( const AppCapability& capability );
+    Application( const AppInfo::AppCapability& capability );
 
     static Application* instance();
     size_t              packageByteSize() const;

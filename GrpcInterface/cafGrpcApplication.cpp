@@ -31,7 +31,7 @@ Application::Application( const unsigned int& capabilities )
 {
 }
 
-Application::Application( const AppCapability& capability )
+Application::Application( const AppInfo::AppCapability& capability )
     : caffa::Application( capability )
     , m_packageByteSize( 1024u * 64u )
 {
