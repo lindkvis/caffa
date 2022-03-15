@@ -13,6 +13,28 @@
 
 #include <map>
 #include <vector>
+namespace caffa
+{
+class Serializer;
+}
+
+class IntRangeValidator : public caffa::FieldValueValidator<int>
+{
+public:
+    IntRangeValidator( int minimum, int maximum )
+        : m_minimum( minimum )
+        , m_maximum( maximum )
+    {
+    }
+
+    void readFromJson( const nlohmann::json& jsonValue, const caffa::Serializer& serializer ) override {}
+    void writeToJson( nlohmann::json& jsonValue, const caffa::Serializer& serializer ) const override {}
+    bool validate( const int& value ) const override { return m_minimum <= value && value <= m_maximum; }
+
+private:
+    int m_minimum;
+    int m_maximum;
+};
 
 class DemoObject : public caffa::Object
 {
@@ -42,6 +64,8 @@ public:
         initField( m_memberDoubleField, "m_memberDoubleField" );
         initField( m_memberIntField, "m_memberIntField" );
         initField( m_memberStringField, "m_memberStringField" );
+
+        m_memberIntField.setValueValidator( std::make_unique<IntRangeValidator>( -10, 1000 ) );
 
         // Default values
         m_doubleMember = 2.1;
@@ -123,7 +147,10 @@ TEST( BaseTest, TestField )
     ASSERT_DOUBLE_EQ( 1.2, a->m_memberDoubleField.value() );
 
     ASSERT_EQ( 0, a->m_memberIntField.value() );
-    a->m_memberIntField.setValue( 11 );
+    ASSERT_NO_THROW( a->m_memberIntField.setValue( 1000 ) );
+    ASSERT_NO_THROW( a->m_memberIntField.setValue( -10 ) );
+    ASSERT_NO_THROW( a->m_memberIntField.setValue( 11 ) );
+    ASSERT_THROW( a->m_memberIntField.setValue( 1001 ), std::runtime_error );
     ASSERT_EQ( 11, a->m_memberIntField.value() );
 
     ASSERT_TRUE( a->m_memberStringField.value().empty() );

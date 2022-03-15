@@ -42,6 +42,7 @@
 #include "cafDataFieldAccessor.h"
 
 #include <any>
+#include <stdexcept>
 #include <vector>
 
 namespace caffa
@@ -100,6 +101,11 @@ public:
     void     setValue( const DataType& fieldValue ) override
     {
         CAFFA_ASSERT( this->isInitializedByInitFieldMacro() );
+
+        if ( m_valueValidator && !m_valueValidator->validate( fieldValue ) )
+        {
+            throw std::runtime_error( "An invalid value has been set!" );
+        }
         m_fieldDataAccessor->setValue( fieldValue );
     }
 
@@ -129,7 +135,7 @@ public:
     FieldValueValidator<DataType>* valueValidator() const { return m_valueValidator.get(); }
     void                           setValueValidator( std::unique_ptr<FieldValueValidator<DataType>> valueValidator )
     {
-        m_valueValidator = valueValidator;
+        m_valueValidator = std::move( valueValidator );
     }
 
 public:
