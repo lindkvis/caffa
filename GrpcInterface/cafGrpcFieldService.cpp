@@ -829,7 +829,14 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
                 JsonSerializer serializer;
                 serializer.setSerializeDataValues( !isObjectField );
                 ioCapability->writeToJson( jsonValue, serializer );
-                reply->set_value( jsonValue.is_null() ? "" : jsonValue.dump() );
+                if ( jsonValue.is_object() && jsonValue.contains( "value" ) )
+                {
+                    reply->set_value( jsonValue["value"].dump() );
+                }
+                else
+                {
+                    reply->set_value( jsonValue.is_null() ? "" : jsonValue.dump() );
+                }
                 CAFFA_TRACE( "Get " << fieldOwner->classKeyword() << " -> " << field->keyword() << " = "
                                     << reply->value() );
 
