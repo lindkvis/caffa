@@ -98,6 +98,7 @@ void writeFieldsToJson( const ObjectHandle* object, nlohmann::json& jsonObject, 
     std::string classKeyword = object->capability<ObjectIoCapability>()->classKeyword();
     CAFFA_ASSERT( ObjectIoCapability::isValidElementName( classKeyword ) );
     jsonObject["Class"] = classKeyword;
+
     if ( serializer->serializeUuids() )
     {
         if ( !object->uuid().empty() )
