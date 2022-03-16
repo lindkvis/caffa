@@ -89,7 +89,7 @@ public:
     InheritedDemoObj()
     {
         initField( m_texts, "Texts" );
-        initField( m_childArrayField, "DemoObjectects" );
+        initField( m_childArrayField, "DemoObjects" );
     }
 
     caffa::Field<std::string>           m_texts;
@@ -216,7 +216,7 @@ TEST( BaseTest, ChildArrayFieldSerializing )
 
         serializedString = caffa::JsonSerializer().writeObjectToString( ihd1.get() );
 
-        std::cout << "Write object to json: " << serializedString << std::endl;
+        std::cout << "Wrote object to json: " << serializedString << std::endl;
     }
 
     {
