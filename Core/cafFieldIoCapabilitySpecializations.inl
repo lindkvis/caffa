@@ -162,16 +162,17 @@ void FieldIoCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonValue, 
     auto ioObject = object->template capability<caffa::ObjectIoCapability>();
     if ( ioObject )
     {
+        std::string    jsonString = serializer.writeObjectToString( object );
+        nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
+        CAFFA_ASSERT( jsonObject.is_object() );
         if ( serializer.serializeSchema() )
         {
-            jsonValue["type"] = "object";
-        }
-        if ( serializer.serializeDataValues() )
-        {
-            std::string    jsonString = serializer.writeObjectToString( object );
-            nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
-            CAFFA_ASSERT( jsonObject.is_object() );
+            jsonValue["type"]  = "object";
             jsonValue["value"] = jsonObject;
+        }
+        else
+        {
+            jsonValue = jsonObject;
         }
     }
 }
@@ -234,29 +235,30 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& jsonVa
 {
     typename std::vector<ObservingPointer<DataType>>::iterator it;
 
-    if ( serializer.serializeSchema() )
+    nlohmann::json jsonArray = nlohmann::json::array();
+
+    for ( size_t i = 0; i < m_field->size(); ++i )
     {
-        jsonValue["type"] = "object[]";
+        ObjectHandle* object = m_field->at( i );
+        if ( !object ) continue;
+
+        auto ioObject = object->capability<caffa::ObjectIoCapability>();
+        if ( ioObject )
+        {
+            std::string    jsonString = serializer.writeObjectToString( object );
+            nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
+            jsonArray.push_back( jsonObject );
+        }
     }
 
-    if ( serializer.serializeDataValues() )
+    if ( serializer.serializeSchema() )
     {
-        nlohmann::json jsonArray = nlohmann::json::array();
-
-        for ( size_t i = 0; i < m_field->size(); ++i )
-        {
-            ObjectHandle* object = m_field->at( i );
-            if ( !object ) continue;
-
-            auto ioObject = object->capability<caffa::ObjectIoCapability>();
-            if ( ioObject )
-            {
-                std::string    jsonString = serializer.writeObjectToString( object );
-                nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
-                jsonArray.push_back( jsonObject );
-            }
-        }
+        jsonValue["type"]  = "object[]";
         jsonValue["value"] = jsonArray;
+    }
+    else
+    {
+        jsonValue = jsonArray;
     }
 }
 } // End namespace caffa
