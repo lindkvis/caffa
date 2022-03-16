@@ -92,11 +92,21 @@ void FieldIoCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Seri
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& jsonObject, const Serializer& serializer )
+void FieldIoCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
 {
-    CAFFA_TRACE( "Writing " << jsonObject.dump() << " to ChildField" );
-    if ( jsonObject.is_null() ) return;
-    CAFFA_ASSERT( jsonObject.is_object() );
+    CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildField" );
+    if ( jsonElement.is_null() ) return;
+    CAFFA_ASSERT( jsonElement.is_object() );
+
+    nlohmann::json jsonObject;
+    if ( jsonElement.contains( "value" ) )
+    {
+        jsonObject = jsonElement["value"];
+    }
+    else
+    {
+        jsonObject = jsonElement;
+    }
 
     std::string className = jsonObject["Class"].get<std::string>();
 
@@ -181,18 +191,28 @@ void FieldIoCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonValue, 
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json& jsonValue, const Serializer& serializer )
+void FieldIoCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
 {
     m_field->clear();
 
-    CAFFA_TRACE( "Writing " << jsonValue.dump() << " to ChildArrayField" );
+    CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildArrayField" );
 
-    if ( !jsonValue.is_array() ) return;
+    nlohmann::json jsonArray;
+    if ( jsonElement.is_array() )
+    {
+        jsonArray = jsonElement;
+    }
+    else if ( jsonElement.is_object() && jsonElement.contains( "value" ) )
+    {
+        jsonArray = jsonElement["value"];
+    }
+
+    CAFFA_ASSERT( jsonArray.is_array() );
 
     auto objectFactory = serializer.objectFactory();
     CAFFA_ASSERT( objectFactory );
 
-    for ( const auto& jsonObject : jsonValue )
+    for ( const auto& jsonObject : jsonArray )
     {
         if ( !jsonObject.is_object() ) continue;
 
