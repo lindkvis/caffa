@@ -3,6 +3,11 @@
 #include "cafDefaultObjectFactory.h"
 #include "cafFieldIoCapabilitySpecializations.h"
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+
 // Taken from gtest.h
 //
 // Due to C++ preprocessor weirdness, we need double indirection to
@@ -56,3 +61,7 @@ public:                                                                         
     CAFFA_ABSTRACT_SOURCE_INIT( ClassName, keyword, ##__VA_ARGS__ )          \
     static bool CAFFA_OBJECT_STRING_CONCATENATE( my##ClassName, __LINE__ ) = \
         caffa::DefaultObjectFactory::instance()->registerCreator<ClassName>();
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
