@@ -30,7 +30,7 @@
 
 namespace caffa
 {
-class AppInfo;
+struct AppInfo;
 }
 
 namespace caffa::rpc

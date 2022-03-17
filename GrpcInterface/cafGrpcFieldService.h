@@ -122,17 +122,17 @@ protected:
 class FieldService final : public FieldAccess::AsyncService, public ServiceInterface
 {
 public:
-    grpc::Status GetArrayValue( grpc::ServerContext*        context,
-                                const FieldRequest*         request,
-                                GenericArray*               reply,
-                                StateHandler<FieldRequest>* stateHandler );
+    grpc::Status GetArrayValueWithState( grpc::ServerContext*        context,
+                                         const FieldRequest*         request,
+                                         GenericArray*               reply,
+                                         StateHandler<FieldRequest>* stateHandler );
 
     grpc::Status GetValue( grpc::ServerContext* context, const FieldRequest* request, GenericScalar* reply ) override;
 
-    grpc::Status SetArrayValue( grpc::ServerContext*        context,
-                                const GenericArray*         chunk,
-                                SetterArrayReply*           reply,
-                                StateHandler<GenericArray>* stateHandler );
+    grpc::Status SetArrayValueWithState( grpc::ServerContext*        context,
+                                         const GenericArray*         chunk,
+                                         SetterArrayReply*           reply,
+                                         StateHandler<GenericArray>* stateHandler );
 
     grpc::Status SetValue( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply ) override;
     grpc::Status

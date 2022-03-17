@@ -253,8 +253,6 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json&
 template <typename DataType>
 void FieldIoCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& jsonValue, const Serializer& serializer ) const
 {
-    typename std::vector<ObservingPointer<DataType>>::iterator it;
-
     nlohmann::json jsonArray = nlohmann::json::array();
 
     for ( size_t i = 0; i < m_field->size(); ++i )

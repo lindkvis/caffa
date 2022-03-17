@@ -33,6 +33,7 @@ class Serializer;
 class FieldValueValidatorInterface
 {
 public:
+    virtual ~FieldValueValidatorInterface() = default;
     /**
      * @brief Read the validator from JSON.
      *

@@ -791,10 +791,10 @@ StateHandler<GenericArray>* SetterStateHandler::emptyClone() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status FieldService::GetArrayValue( grpc::ServerContext*        context,
-                                          const FieldRequest*         request,
-                                          GenericArray*               reply,
-                                          StateHandler<FieldRequest>* stateHandler )
+grpc::Status FieldService::GetArrayValueWithState( grpc::ServerContext*        context,
+                                                   const FieldRequest*         request,
+                                                   GenericArray*               reply,
+                                                   StateHandler<FieldRequest>* stateHandler )
 {
     CAFFA_TRACE( "Received GetArrayValue request" );
     auto getterHandler = dynamic_cast<GetterStateHandler*>( stateHandler );
@@ -949,10 +949,10 @@ grpc::Status FieldService::InsertChildObject( grpc::ServerContext* context, cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status FieldService::SetArrayValue( grpc::ServerContext*        context,
-                                          const GenericArray*         chunk,
-                                          SetterArrayReply*           reply,
-                                          StateHandler<GenericArray>* stateHandler )
+grpc::Status FieldService::SetArrayValueWithState( grpc::ServerContext*        context,
+                                                   const GenericArray*         chunk,
+                                                   SetterArrayReply*           reply,
+                                                   StateHandler<GenericArray>* stateHandler )
 {
     auto setterHandler = dynamic_cast<SetterStateHandler*>( stateHandler );
     CAFFA_ASSERT( setterHandler );
@@ -1040,11 +1040,11 @@ std::vector<AbstractCallback*> FieldService::createCallbacks()
 {
     typedef FieldService Self;
     return { new ServerToClientStreamCallback<Self, FieldRequest, GenericArray>( this,
-                                                                                 &Self::GetArrayValue,
+                                                                                 &Self::GetArrayValueWithState,
                                                                                  &Self::RequestGetArrayValue,
                                                                                  new GetterStateHandler ),
              new ClientToServerStreamCallback<Self, GenericArray, SetterArrayReply>( this,
-                                                                                     &Self::SetArrayValue,
+                                                                                     &Self::SetArrayValueWithState,
                                                                                      &Self::RequestSetArrayValue,
                                                                                      new SetterStateHandler ),
              new UnaryCallback<Self, FieldRequest, GenericScalar>( this, &Self::GetValue, &Self::RequestGetValue ),
