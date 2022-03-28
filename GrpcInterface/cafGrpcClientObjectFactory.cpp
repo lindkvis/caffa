@@ -27,7 +27,7 @@ std::unique_ptr<ObjectHandle> GrpcClientObjectFactory::doCreate( const std::stri
     CAFFA_ASSERT( m_grpcClient );
     if ( !m_grpcClient ) throw( Exception( grpc::Status( grpc::ABORTED, "No Client set in Grpc Client factory" ) ) );
 
-    CAFFA_DEBUG( "Creating object of type " << classNameKeyword );
+    CAFFA_TRACE( "Creating object of type " << classNameKeyword );
 
     auto objectHandle = caffa::DefaultObjectFactory::instance()->create( classNameKeyword );
 

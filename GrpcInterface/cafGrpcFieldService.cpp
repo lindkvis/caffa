@@ -582,7 +582,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
         }
     }
 
-    return grpc::Status( grpc::NOT_FOUND, "Field not found " + request->keyword() );
+    return grpc::Status( grpc::NOT_FOUND, "Field not found: '" + request->keyword() + "'" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -729,7 +729,7 @@ grpc::Status SetterStateHandler::init( const GenericArray* chunk )
             }
         }
     }
-    return grpc::Status( grpc::NOT_FOUND, "Field not found" );
+    return grpc::Status( grpc::NOT_FOUND, "Field not found: '" + fieldRequest.keyword() + "'" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -847,7 +847,7 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
                              "Field " + request->keyword() +
                                  " found, but it either isn't scriptable or does not have I/O capability" );
     }
-    return grpc::Status( grpc::NOT_FOUND, "Field not found" );
+    return grpc::Status( grpc::NOT_FOUND, "Field not found: '" + request->keyword() + "'" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -880,7 +880,7 @@ grpc::Status FieldService::ClearChildObjects( grpc::ServerContext* context, cons
             }
         }
     }
-    return grpc::Status( grpc::NOT_FOUND, "Field not found" );
+    return grpc::Status( grpc::NOT_FOUND, "Field not found: '" + request->keyword() + "'" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -906,7 +906,7 @@ grpc::Status FieldService::RemoveChildObject( grpc::ServerContext* context, cons
             }
         }
     }
-    return grpc::Status( grpc::NOT_FOUND, "Field not found" );
+    return grpc::Status( grpc::NOT_FOUND, "Field not found: '" + request->keyword() + "'" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -943,7 +943,7 @@ grpc::Status FieldService::InsertChildObject( grpc::ServerContext* context, cons
             }
         }
     }
-    return grpc::Status( grpc::NOT_FOUND, "Field not found" );
+    return grpc::Status( grpc::NOT_FOUND, "Field not found: '" + fieldRequest.keyword() + "'" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -994,7 +994,7 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
         return grpc::Status( grpc::FAILED_PRECONDITION, errMsg );
     }
     CAFFA_ERROR( "Field " << fieldRequest.keyword() << " not found in " << fieldOwner->classKeyword() );
-    return grpc::Status( grpc::NOT_FOUND, "Field not found" );
+    return grpc::Status( grpc::NOT_FOUND, "Field not found: '" + fieldRequest.keyword() + "'" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1008,7 +1008,7 @@ grpc::Status
     auto fieldOwner = ObjectService::findCafObjectFromFieldRequest( fieldRequest );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
 
-    CAFFA_TRACE( "Received Set Request for class " << fieldOwner->classKeyword() );
+    CAFFA_TRACE( "Received UINT64 Set Request for class " << fieldOwner->classKeyword() );
 
     auto [field, isScriptable] = fieldAndScriptableFromKeyword( fieldOwner, fieldRequest.keyword() );
     if ( field )
@@ -1030,7 +1030,7 @@ grpc::Status
         return grpc::Status( grpc::FAILED_PRECONDITION, errMsg );
     }
     CAFFA_ERROR( "Field " << fieldRequest.keyword() << " not found in " << fieldOwner->classKeyword() );
-    return grpc::Status( grpc::NOT_FOUND, "Field not found" );
+    return grpc::Status( grpc::NOT_FOUND, "Field not found: '" + fieldRequest.keyword() + "'" );
 }
 
 //--------------------------------------------------------------------------------------------------

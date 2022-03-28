@@ -151,7 +151,7 @@ grpc::Status ObjectService::ListMethods( grpc::ServerContext* context, const Rpc
 //--------------------------------------------------------------------------------------------------
 caffa::Object* ObjectService::findCafObjectFromRpcObject( const RpcObject& rpcObject )
 {
-    CAFFA_DEBUG( "Looking for object from json: " << rpcObject.json() );
+    CAFFA_TRACE( "Looking for object from json: " << rpcObject.json() );
     auto [classKeyword, uuid] = caffa::JsonSerializer().readClassKeywordAndUUIDFromObjectString( rpcObject.json() );
     return findCafObjectFromScriptNameAndUuid( classKeyword, uuid );
 }
