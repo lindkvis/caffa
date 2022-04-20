@@ -79,7 +79,14 @@ void FieldIoCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Seri
 
         nlohmann::json jsonValue = m_field->value();
 
-        jsonField["value"] = jsonValue;
+        if ( serializer.serializeSchema() )
+        {
+            jsonField["value"] = jsonValue;
+        }
+        else
+        {
+            jsonField = jsonValue;
+        }
     }
 
     jsonElement = jsonField;
