@@ -208,10 +208,8 @@ private:
         bool  ok = false;
 
         CAFFA_DEBUG( "Waiting for requests" );
-        while ( bool nextStatus = m_completionQueue->Next( &tag, &ok ) )
+        while ( m_completionQueue->Next( &tag, &ok ) )
         {
-            CAFFA_TRACE( "Received request with status: " << nextStatus );
-
             AbstractCallback* method = static_cast<AbstractCallback*>( tag );
             if ( ok )
             {
