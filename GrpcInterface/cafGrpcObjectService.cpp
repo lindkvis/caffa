@@ -239,6 +239,27 @@ static bool fieldIsScriptable( const caffa::FieldHandle* fieldHandle )
 {
     return fieldHandle->capability<caffa::FieldScriptingCapability>() != nullptr;
 }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void ObjectService::copyProjectSelfReferenceFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination )
+{
+    CAFFA_ASSERT( source && destination );
+    CAFFA_ASSERT( !source->uuid().empty() );
+
+    auto ioCapability = source->capability<caffa::ObjectIoCapability>();
+    CAFFA_ASSERT( ioCapability );
+
+    caffa::JsonSerializer serializer( DefaultObjectFactory::instance() );
+    serializer.setFieldSelector( fieldIsScriptable );
+    serializer.setSerializeDataValues( false );
+    serializer.setSerializeUuids( true );
+    serializer.setSerializeSchema( false );
+
+    std::string jsonString = serializer.writeObjectToString( source );
+    CAFFA_DEBUG( jsonString );
+    destination->set_json( jsonString );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

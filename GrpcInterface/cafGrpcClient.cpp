@@ -339,9 +339,7 @@ public:
     {
         auto self   = std::make_unique<RpcObject>();
         auto params = std::make_unique<RpcObject>();
-        CAFFA_TRACE( "Copying self" );
-        ObjectService::copyProjectObjectFromCafToRpc( method->self<caffa::ObjectHandle>(), self.get() );
-        CAFFA_TRACE( "Copying parameters" );
+        ObjectService::copyProjectSelfReferenceFromCafToRpc( method->self<caffa::ObjectHandle>(), self.get() );
         ObjectService::copyResultOrParameterObjectFromCafToRpc( method, params.get() );
 
         grpc::ClientContext context;

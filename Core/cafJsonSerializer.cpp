@@ -108,20 +108,23 @@ void writeFieldsToJson( const ObjectHandle* object, nlohmann::json& jsonObject, 
         }
     }
 
-    for ( auto field : object->fields() )
+    if ( serializer->serializeDataValues() || serializer->serializeSchema() )
     {
-        if ( serializer->fieldSelector() && !serializer->fieldSelector()( field ) ) continue;
-
-        std::string keyword = field->keyword();
-
-        const FieldIoCapability* ioCapability = field->capability<FieldIoCapability>();
-        if ( ioCapability && ( ioCapability->isIOWritable() || ioCapability->isIOReadable() ) && keyword != "UUID" )
+        for ( auto field : object->fields() )
         {
-            CAFFA_ASSERT( ObjectIoCapability::isValidElementName( keyword ) );
+            if ( serializer->fieldSelector() && !serializer->fieldSelector()( field ) ) continue;
 
-            nlohmann::json value;
-            ioCapability->writeToJson( value, *serializer );
-            jsonObject[keyword] = value;
+            std::string keyword = field->keyword();
+
+            const FieldIoCapability* ioCapability = field->capability<FieldIoCapability>();
+            if ( ioCapability && ( ioCapability->isIOWritable() || ioCapability->isIOReadable() ) && keyword != "UUID" )
+            {
+                CAFFA_ASSERT( ObjectIoCapability::isValidElementName( keyword ) );
+
+                nlohmann::json value;
+                ioCapability->writeToJson( value, *serializer );
+                jsonObject[keyword] = value;
+            }
         }
     }
 }

@@ -67,6 +67,7 @@ public:
     static caffa::Object* findCafObjectFromFieldRequest( const FieldRequest& fieldRequest );
     static caffa::Object* findCafObjectFromScriptNameAndUuid( const std::string& scriptClassName, const std::string& uuid );
 
+    static void copyProjectSelfReferenceFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination );
     static void copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination );
     static void copyProjectObjectFromRpcToCaf( const RpcObject*      source,
                                                caffa::ObjectHandle*  destination,
