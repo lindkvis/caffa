@@ -591,6 +591,66 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( BaseTest, EmptyVectorGettersAndSetters )
+{
+    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
+                                                  ServerApp::s_serverCertFile,
+                                                  ServerApp::s_serverKeyFile,
+                                                  ServerApp::s_caCertFile );
+
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+    auto client = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                        ServerApp::s_port,
+                                                        ServerApp::s_clientCertFile,
+                                                        ServerApp::s_clientKeyFile,
+                                                        ServerApp::s_caCertFile );
+
+    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
+    ASSERT_TRUE( serverDocument );
+
+    std::vector<double> emptyServerVector;
+    serverDocument->demoObject->doubleVector = emptyServerVector;
+
+    auto objectHandle   = client->document( "testDocument" );
+    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    ASSERT_TRUE( clientDocument != nullptr );
+
+    auto clientVector = clientDocument->demoObject->doubleVector();
+
+    ASSERT_EQ( emptyServerVector, clientVector );
+    ASSERT_TRUE( clientVector.empty() );
+
+    // Set back non-empty vector
+    std::vector<double> serverVector         = { 2.0, 3.0 };
+    serverDocument->demoObject->doubleVector = serverVector;
+
+    ASSERT_NE( serverVector, clientVector );
+    clientVector = clientDocument->demoObject->doubleVector();
+    ASSERT_EQ( serverVector, clientVector );
+    clientVector.clear();
+
+    clientDocument->demoObject->doubleVector = clientVector;
+    serverVector                             = serverDocument->demoObject->doubleVector();
+
+    ASSERT_EQ( clientVector, serverVector );
+    ASSERT_TRUE( serverVector.empty() );
+
+    bool ok = client->stopServer();
+    ASSERT_TRUE( ok );
+
+    thread.join();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( BaseTest, BoolVectorGettersAndSetters )
 {
     auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,

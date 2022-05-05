@@ -988,10 +988,11 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
                 return grpc::Status::OK;
             }
         }
-        std::string errMsg = "Field " + fieldRequest.keyword() +
-                             " found, but it either isn't scriptable or does not have I/O capability";
-        CAFFA_ERROR( errMsg );
-        return grpc::Status( grpc::FAILED_PRECONDITION, errMsg );
+        catch ( const std::exception& e )
+        {
+            CAFFA_ERROR( e.what() );
+            return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
+        }
     }
     CAFFA_ERROR( "Field " << fieldRequest.keyword() << " not found in " << fieldOwner->classKeyword() );
     return grpc::Status( grpc::NOT_FOUND, "Field not found: '" + fieldRequest.keyword() + "'" );
