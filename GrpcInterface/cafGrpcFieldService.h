@@ -135,8 +135,6 @@ public:
                                          StateHandler<GenericArray>* stateHandler );
 
     grpc::Status SetValue( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply ) override;
-    grpc::Status
-        SetUInt64Value( grpc::ServerContext* context, const SetterRequestUInt64* request, NullMessage* reply ) override;
 
     grpc::Status ClearChildObjects( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply ) override;
     grpc::Status RemoveChildObject( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply ) override;

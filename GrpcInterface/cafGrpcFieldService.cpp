@@ -1000,42 +1000,6 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status
-    FieldService::SetUInt64Value( grpc::ServerContext* context, const SetterRequestUInt64* request, NullMessage* reply )
-{
-    auto fieldRequest = request->field();
-
-    auto fieldOwner = ObjectService::findCafObjectFromFieldRequest( fieldRequest );
-    if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
-
-    CAFFA_TRACE( "Received UINT64 Set Request for class " << fieldOwner->classKeyword() );
-
-    auto [field, isScriptable] = fieldAndScriptableFromKeyword( fieldOwner, fieldRequest.keyword() );
-    if ( field )
-    {
-        if ( isScriptable )
-        {
-            auto uint64Field = dynamic_cast<caffa::Field<uint64_t>*>( field );
-            if ( uint64Field )
-            {
-                CAFFA_TRACE( "Set " << fieldOwner->classKeyword() << " -> " << fieldRequest.keyword() << " = "
-                                    << request->value() << "" );
-                uint64Field->setValue( request->value() );
-                return grpc::Status::OK;
-            }
-        }
-        std::string errMsg = "Field " + fieldRequest.keyword() +
-                             " found, but it either isn't scriptable or isn't an uint64 field";
-        CAFFA_ERROR( errMsg );
-        return grpc::Status( grpc::FAILED_PRECONDITION, errMsg );
-    }
-    CAFFA_ERROR( "Field " << fieldRequest.keyword() << " not found in " << fieldOwner->classKeyword() );
-    return grpc::Status( grpc::NOT_FOUND, "Field not found: '" + fieldRequest.keyword() + "'" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<AbstractCallback*> FieldService::createCallbacks()
 {
     typedef FieldService Self;
@@ -1049,9 +1013,6 @@ std::vector<AbstractCallback*> FieldService::createCallbacks()
                                                                                      new SetterStateHandler ),
              new UnaryCallback<Self, FieldRequest, GenericScalar>( this, &Self::GetValue, &Self::RequestGetValue ),
              new UnaryCallback<Self, SetterRequest, NullMessage>( this, &Self::SetValue, &Self::RequestSetValue ),
-             new UnaryCallback<Self, SetterRequestUInt64, NullMessage>( this,
-                                                                        &Self::SetUInt64Value,
-                                                                        &Self::RequestSetUInt64Value ),
              new UnaryCallback<Self, FieldRequest, NullMessage>( this,
                                                                  &Self::ClearChildObjects,
                                                                  &Self::RequestClearChildObjects ),

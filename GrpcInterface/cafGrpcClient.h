@@ -127,12 +127,6 @@ void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
 }
 
 template <>
-void Client::set<uint64_t>( const caffa::ObjectHandle* objectHandle,
-                            const std::string&         fieldName,
-                            const uint64_t&            value,
-                            uint32_t                   addressOffset );
-
-template <>
 void Client::set<std::vector<int>>( const caffa::ObjectHandle* objectHandle,
                                     const std::string&         fieldName,
                                     const std::vector<int>&    value,
