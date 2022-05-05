@@ -119,11 +119,11 @@ size_t DataHolder<int>::getValuesFromChunk( size_t startIndex, const GenericArra
 template <>
 void DataHolder<int>::applyValuesToField( ValueField* field )
 {
-    auto Field = dynamic_cast<caffa::Field<std::vector<int>>*>( field );
-    if ( Field )
+    auto typedField = dynamic_cast<caffa::Field<std::vector<int>>*>( field );
+    if ( typedField )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        Field->setValue( data );
+        typedField->setValue( data );
     }
 }
 
@@ -166,11 +166,11 @@ size_t DataHolder<uint32_t>::getValuesFromChunk( size_t startIndex, const Generi
 template <>
 void DataHolder<uint32_t>::applyValuesToField( ValueField* field )
 {
-    auto Field = dynamic_cast<caffa::Field<std::vector<uint32_t>>*>( field );
-    if ( Field )
+    auto typedField = dynamic_cast<caffa::Field<std::vector<uint32_t>>*>( field );
+    if ( typedField )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        Field->setValue( data );
+        typedField->setValue( data );
     }
 }
 
@@ -213,11 +213,11 @@ size_t DataHolder<int64_t>::getValuesFromChunk( size_t startIndex, const Generic
 template <>
 void DataHolder<int64_t>::applyValuesToField( ValueField* field )
 {
-    auto Field = dynamic_cast<caffa::Field<std::vector<int64_t>>*>( field );
-    if ( Field )
+    auto typedField = dynamic_cast<caffa::Field<std::vector<int64_t>>*>( field );
+    if ( typedField )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        Field->setValue( data );
+        typedField->setValue( data );
     }
 }
 
@@ -260,11 +260,11 @@ size_t DataHolder<uint64_t>::getValuesFromChunk( size_t startIndex, const Generi
 template <>
 void DataHolder<uint64_t>::applyValuesToField( ValueField* field )
 {
-    auto Field = dynamic_cast<caffa::Field<std::vector<uint64_t>>*>( field );
-    if ( Field )
+    auto typedField = dynamic_cast<caffa::Field<std::vector<uint64_t>>*>( field );
+    if ( typedField )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        Field->setValue( data );
+        typedField->setValue( data );
     }
 }
 
@@ -306,11 +306,11 @@ size_t DataHolder<double>::getValuesFromChunk( size_t startIndex, const GenericA
 template <>
 void DataHolder<double>::applyValuesToField( ValueField* field )
 {
-    auto Field = dynamic_cast<caffa::Field<std::vector<double>>*>( field );
-    if ( Field )
+    auto typedField = dynamic_cast<caffa::Field<std::vector<double>>*>( field );
+    if ( typedField )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        Field->setValue( data );
+        typedField->setValue( data );
     }
 }
 template <>
@@ -352,11 +352,11 @@ size_t DataHolder<float>::getValuesFromChunk( size_t startIndex, const GenericAr
 template <>
 void DataHolder<float>::applyValuesToField( ValueField* field )
 {
-    auto Field = dynamic_cast<caffa::Field<std::vector<float>>*>( field );
-    if ( Field )
+    auto typedField = dynamic_cast<caffa::Field<std::vector<float>>*>( field );
+    if ( typedField )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        Field->setValue( data );
+        typedField->setValue( data );
     }
 }
 
@@ -399,11 +399,11 @@ size_t DataHolder<std::string>::getValuesFromChunk( size_t startIndex, const Gen
 template <>
 void DataHolder<std::string>::applyValuesToField( ValueField* field )
 {
-    auto Field = dynamic_cast<caffa::Field<std::vector<std::string>>*>( field );
-    if ( Field )
+    auto typedField = dynamic_cast<caffa::Field<std::vector<std::string>>*>( field );
+    if ( typedField )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        Field->setValue( data );
+        typedField->setValue( data );
     }
 }
 
@@ -446,11 +446,11 @@ size_t DataHolder<bool>::getValuesFromChunk( size_t startIndex, const GenericArr
 template <>
 void DataHolder<bool>::applyValuesToField( ValueField* field )
 {
-    auto Field = dynamic_cast<caffa::Field<std::vector<bool>>*>( field );
-    if ( Field )
+    auto typedField = dynamic_cast<caffa::Field<std::vector<bool>>*>( field );
+    if ( typedField )
     {
         CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        Field->setValue( data );
+        typedField->setValue( data );
     }
 }
 
@@ -661,71 +661,91 @@ grpc::Status SetterStateHandler::init( const GenericArray* chunk )
 
     auto fieldRequest = setRequest.field();
     m_fieldOwner      = ObjectService::findCafObjectFromFieldRequest( fieldRequest );
-    int valueCount    = setRequest.value_count();
 
+    if ( !m_fieldOwner )
+    {
+        return grpc::Status( grpc::NOT_FOUND,
+                             "Could not found the self object " + fieldRequest.class_keyword() + ", " +
+                                 fieldRequest.uuid() );
+    }
+
+    int valueCount = setRequest.value_count();
+
+    grpc::Status status = grpc::Status::OK;
+    if ( valueCount == 0 )
+    {
+        status = grpc::Status( grpc::OUT_OF_RANGE,
+                               "We've reached the end. This is not an error but means transmission is finished" );
+    }
     for ( auto field : m_fieldOwner->fields() )
     {
         auto scriptability = field->capability<caffa::FieldScriptingCapability>();
         if ( scriptability && scriptability->scriptFieldName() == fieldRequest.keyword() )
         {
-            if ( valueCount == 0 )
+            try
             {
-                return grpc::Status( grpc::OUT_OF_RANGE,
-                                     "We've reached the end. This is not an error but means transmission is finished" );
+                if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int>>*>( field ); dataField != nullptr )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<int>( std::vector<int>( valueCount ) ) );
+                    return status;
+                }
+                else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<unsigned>>*>( field );
+                          dataField != nullptr )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<unsigned>( std::vector<unsigned>( valueCount ) ) );
+                    return status;
+                }
+                else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int64_t>>*>( field );
+                          dataField != nullptr )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<int64_t>( std::vector<int64_t>( valueCount ) ) );
+                    return status;
+                }
+                else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<uint64_t>>*>( field );
+                          dataField != nullptr )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<uint64_t>( std::vector<uint64_t>( valueCount ) ) );
+                    return status;
+                }
+                else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<double>>*>( field );
+                          dataField != nullptr )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<double>( std::vector<double>( valueCount ) ) );
+                    return status;
+                }
+                else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<float>>*>( field ); dataField != nullptr )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<float>( std::vector<float>( valueCount ) ) );
+                    return status;
+                }
+                else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<bool>>*>( field ); dataField != nullptr )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<bool>( std::vector<bool>( valueCount ) ) );
+                    return status;
+                }
+                else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<std::string>>*>( field );
+                          dataField != nullptr )
+                {
+                    m_field = dataField;
+                    m_dataHolder.reset( new DataHolder<std::string>( std::vector<std::string>( valueCount ) ) );
+                    return status;
+                }
+                else
+                {
+                    return grpc::Status( grpc::UNIMPLEMENTED, "Data type not implemented for grpc streaming fields" );
+                }
             }
-
-            if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int>>*>( field ); dataField != nullptr )
+            catch ( const std::exception& e )
             {
-                m_field = dataField;
-                m_dataHolder.reset( new DataHolder<int>( std::vector<int>( valueCount ) ) );
-                return grpc::Status::OK;
-            }
-            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<unsigned>>*>( field ); dataField != nullptr )
-            {
-                m_field = dataField;
-                m_dataHolder.reset( new DataHolder<unsigned>( std::vector<unsigned>( valueCount ) ) );
-                return grpc::Status::OK;
-            }
-            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int64_t>>*>( field ); dataField != nullptr )
-            {
-                m_field = dataField;
-                m_dataHolder.reset( new DataHolder<int64_t>( std::vector<int64_t>( valueCount ) ) );
-                return grpc::Status::OK;
-            }
-            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<uint64_t>>*>( field ); dataField != nullptr )
-            {
-                m_field = dataField;
-                m_dataHolder.reset( new DataHolder<uint64_t>( std::vector<uint64_t>( valueCount ) ) );
-                return grpc::Status::OK;
-            }
-            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<double>>*>( field ); dataField != nullptr )
-            {
-                m_field = dataField;
-                m_dataHolder.reset( new DataHolder<double>( std::vector<double>( valueCount ) ) );
-                return grpc::Status::OK;
-            }
-            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<float>>*>( field ); dataField != nullptr )
-            {
-                m_field = dataField;
-                m_dataHolder.reset( new DataHolder<float>( std::vector<float>( valueCount ) ) );
-                return grpc::Status::OK;
-            }
-            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<bool>>*>( field ); dataField != nullptr )
-            {
-                m_field = dataField;
-                m_dataHolder.reset( new DataHolder<bool>( std::vector<bool>( valueCount ) ) );
-                return grpc::Status::OK;
-            }
-            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<std::string>>*>( field );
-                      dataField != nullptr )
-            {
-                m_field = dataField;
-                m_dataHolder.reset( new DataHolder<std::string>( std::vector<std::string>( valueCount ) ) );
-                return grpc::Status::OK;
-            }
-            else
-            {
-                return grpc::Status( grpc::UNIMPLEMENTED, "Data type not implemented for grpc streaming fields" );
+                CAFFA_ERROR( "SetArrayValue for '" << fieldRequest.keyword() << "' failed with " << e.what() );
+                return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
             }
         }
     }
@@ -772,12 +792,11 @@ size_t SetterStateHandler::totalValueCount() const
 //--------------------------------------------------------------------------------------------------
 void SetterStateHandler::finish()
 {
-    if ( m_field )
-    {
-        auto scriptingCapability = m_field->capability<caffa::FieldScriptingCapability>();
-        CAFFA_ASSERT( scriptingCapability );
-        m_dataHolder->applyValuesToField( m_field );
-    }
+    CAFFA_ASSERT( m_field && "Field has to be set for any writing to work" );
+
+    auto scriptingCapability = m_field->capability<caffa::FieldScriptingCapability>();
+    CAFFA_ASSERT( scriptingCapability );
+    m_dataHolder->applyValuesToField( m_field );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -825,22 +844,30 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
             auto ioCapability  = field->capability<caffa::FieldIoCapability>();
             if ( ioCapability )
             {
-                nlohmann::json jsonValue;
-                JsonSerializer serializer;
-                serializer.setSerializeDataValues( !isObjectField );
-                ioCapability->writeToJson( jsonValue, serializer );
-                if ( jsonValue.is_object() && jsonValue.contains( "value" ) )
+                try
                 {
-                    reply->set_value( jsonValue["value"].dump() );
-                }
-                else
-                {
-                    reply->set_value( jsonValue.is_null() ? "" : jsonValue.dump() );
-                }
-                CAFFA_TRACE( "Get " << fieldOwner->classKeyword() << " -> " << field->keyword() << " = "
-                                    << reply->value() );
+                    nlohmann::json jsonValue;
+                    JsonSerializer serializer;
+                    serializer.setSerializeDataValues( !isObjectField );
+                    ioCapability->writeToJson( jsonValue, serializer );
+                    if ( jsonValue.is_object() && jsonValue.contains( "value" ) )
+                    {
+                        reply->set_value( jsonValue["value"].dump() );
+                    }
+                    else
+                    {
+                        reply->set_value( jsonValue.is_null() ? "" : jsonValue.dump() );
+                    }
+                    CAFFA_TRACE( "Get " << fieldOwner->classKeyword() << " -> " << field->keyword() << " = "
+                                        << reply->value() );
 
-                return grpc::Status::OK;
+                    return grpc::Status::OK;
+                }
+                catch ( const std::exception& e )
+                {
+                    CAFFA_ERROR( "GetValue for '" << request->keyword() << "' failed with " << e.what() );
+                    return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
+                }
             }
         }
         return grpc::Status( grpc::FAILED_PRECONDITION,
@@ -865,18 +892,26 @@ grpc::Status FieldService::ClearChildObjects( grpc::ServerContext* context, cons
         auto scriptability = field->capability<caffa::FieldScriptingCapability>();
         if ( scriptability && request->keyword() == scriptability->scriptFieldName() )
         {
-            auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
-            if ( childArrayField )
+            try
             {
-                childArrayField->clear();
-                return grpc::Status::OK;
-            }
+                auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
+                if ( childArrayField )
+                {
+                    childArrayField->clear();
+                    return grpc::Status::OK;
+                }
 
-            auto childField = dynamic_cast<ChildFieldHandle*>( field );
-            if ( childField )
+                auto childField = dynamic_cast<ChildFieldHandle*>( field );
+                if ( childField )
+                {
+                    childField->clear();
+                    return grpc::Status::OK;
+                }
+            }
+            catch ( const std::exception& e )
             {
-                childField->clear();
-                return grpc::Status::OK;
+                CAFFA_ERROR( "ClearChildObjects for '" << request->keyword() << "' failed with " << e.what() );
+                return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
             }
         }
     }
@@ -901,8 +936,16 @@ grpc::Status FieldService::RemoveChildObject( grpc::ServerContext* context, cons
             auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
             if ( childArrayField )
             {
-                childArrayField->erase( request->index() );
-                return grpc::Status::OK;
+                try
+                {
+                    childArrayField->erase( request->index() );
+                    return grpc::Status::OK;
+                }
+                catch ( const std::exception& e )
+                {
+                    CAFFA_ERROR( "RemoveChildObjects for '" << request->keyword() << "' failed with " << e.what() );
+                    return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
+                }
             }
         }
     }
@@ -928,18 +971,27 @@ grpc::Status FieldService::InsertChildObject( grpc::ServerContext* context, cons
             auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
             if ( childArrayField )
             {
-                std::unique_ptr<caffa::ObjectHandle> newCafObject =
-                    caffa::JsonSerializer( DefaultObjectFactory::instance() ).createObjectFromString( request->value() );
-                size_t index = fieldRequest.index();
-                if ( index >= childArrayField->size() )
+                try
                 {
-                    childArrayField->push_back_obj( std::move( newCafObject ) );
+                    std::unique_ptr<caffa::ObjectHandle> newCafObject =
+                        caffa::JsonSerializer( DefaultObjectFactory::instance() ).createObjectFromString( request->value() );
+                    if ( !newCafObject ) throw std::runtime_error( "Failed to create new caf object" );
+                    size_t index = fieldRequest.index();
+                    if ( index >= childArrayField->size() )
+                    {
+                        childArrayField->push_back_obj( std::move( newCafObject ) );
+                    }
+                    else
+                    {
+                        childArrayField->insertAt( index, std::move( newCafObject ) );
+                    }
+                    return grpc::Status::OK;
                 }
-                else
+                catch ( const std::exception& e )
                 {
-                    childArrayField->insertAt( index, std::move( newCafObject ) );
+                    CAFFA_ERROR( "InsertChildObjects for '" << fieldRequest.keyword() << "' failed with " << e.what() );
+                    return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
                 }
-                return grpc::Status::OK;
             }
         }
     }
@@ -972,25 +1024,27 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
     CAFFA_TRACE( "Received Set Request for class " << fieldOwner->classKeyword() );
 
     auto [field, isScriptable] = fieldAndScriptableFromKeyword( fieldOwner, fieldRequest.keyword() );
-    CAFFA_TRACE( "Field: " << field << ", " << isScriptable );
+
     if ( field != nullptr )
     {
-        if ( isScriptable )
+        auto ioCapability = field->capability<caffa::FieldIoCapability>();
+        try
         {
+            if ( !isScriptable ) throw std::runtime_error( "Field " + fieldRequest.keyword() + " is not scriptable" );
+            if ( !ioCapability )
+                throw std::runtime_error( "Field " + fieldRequest.keyword() + " does not have I/O capability" );
+
             CAFFA_TRACE( "Set " << fieldOwner->classKeyword() << " -> " << fieldRequest.keyword() << " = "
                                 << request->value() << "" );
-            auto ioCapability = field->capability<caffa::FieldIoCapability>();
-            if ( ioCapability )
-            {
-                auto           jsonValue = nlohmann::json::parse( request->value() );
-                JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
-                ioCapability->readFromJson( jsonValue, serializer );
-                return grpc::Status::OK;
-            }
+
+            auto           jsonValue = nlohmann::json::parse( request->value() );
+            JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
+            ioCapability->readFromJson( jsonValue, serializer );
+            return grpc::Status::OK;
         }
         catch ( const std::exception& e )
         {
-            CAFFA_ERROR( e.what() );
+            CAFFA_ERROR( "SetValue for '" << fieldRequest.keyword() << "' failed with " << e.what() );
             return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
         }
     }
