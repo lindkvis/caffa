@@ -473,28 +473,6 @@ public:
         return jsonValue;
     }
 
-    void set( const caffa::ObjectHandle* objectHandle, const std::string& setter, const uint64_t& value )
-    {
-        grpc::ClientContext context;
-
-        auto field = std::make_unique<FieldRequest>();
-        field->set_class_keyword( objectHandle->classKeywordDynamic() );
-        field->set_uuid( objectHandle->uuid() );
-        field->set_keyword( setter );
-
-        SetterRequestUInt64 setterRequest;
-        setterRequest.set_allocated_field( field.release() );
-        setterRequest.set_value( value );
-
-        NullMessage reply;
-        auto        status = m_fieldStub->SetUInt64Value( &context, setterRequest, &reply );
-
-        if ( !status.ok() )
-        {
-            throw Exception( status );
-        }
-    }
-
     bool set( const caffa::ObjectHandle* objectHandle, const std::string& setter, const std::vector<int>& values )
     {
         auto chunkSize = Application::instance()->packageByteSize();
@@ -948,18 +926,6 @@ nlohmann::json
 {
     CAFFA_ASSERT( m_clientImpl && "Client not properly initialized" );
     return m_clientImpl->getJson( objectHandle, fieldName, addressOffset );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <>
-void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
-                              const std::string&         fieldName,
-                              const uint64_t&            value,
-                              uint32_t                   addressOffset )
-{
-    m_clientImpl->set( objectHandle, fieldName, value );
 }
 
 //--------------------------------------------------------------------------------------------------
