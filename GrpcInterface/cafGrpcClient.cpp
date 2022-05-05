@@ -511,7 +511,7 @@ public:
         if ( !writer->WritesDone() ) return false;
 
         grpc::Status status = writer->Finish();
-        if ( !status.ok() )
+        if ( !status.ok() && status.error_code() != grpc::OUT_OF_RANGE )
         {
             throw Exception( status );
         }
@@ -555,7 +555,7 @@ public:
         if ( !writer->WritesDone() ) return false;
 
         grpc::Status status = writer->Finish();
-        if ( !status.ok() )
+        if ( !status.ok() && status.error_code() != grpc::OUT_OF_RANGE )
         {
             throw Exception( status );
         }
@@ -601,7 +601,7 @@ public:
         if ( !writer->WritesDone() ) return false;
 
         grpc::Status status = writer->Finish();
-        if ( !status.ok() )
+        if ( !status.ok() && status.error_code() != grpc::OUT_OF_RANGE )
         {
             throw Exception( status );
         }
