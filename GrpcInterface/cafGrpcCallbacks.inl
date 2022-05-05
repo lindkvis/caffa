@@ -324,6 +324,11 @@ void ClientToServerStreamCallback<ServiceT, RequestT, ReplyT>::onInitRequestComp
 
     if ( !this->m_status.ok() )
     {
+        // Out of range isn't really an error, just an empty set of values
+        if ( this->m_status.error_code() == grpc::OUT_OF_RANGE )
+        {
+            m_stateHandler->finish();
+        }
         // We have an error. Proceed to finish and report the status
         m_reader.FinishWithError( this->m_status, this );
         this->setNextCallState( AbstractCallback::FINISH_REQUEST );
