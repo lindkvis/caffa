@@ -42,7 +42,6 @@
 #include <boost/program_options.hpp>
 
 #include <iostream>
-#include <stdio.h>
 #include <string>
 
 namespace po = boost::program_options;

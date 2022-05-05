@@ -3,7 +3,7 @@
 
 #include "cafLogger.h"
 
-#include <assert.h>
+#include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
