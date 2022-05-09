@@ -28,14 +28,6 @@ namespace caffa::rpc
 class Exception : public std::runtime_error
 {
 public:
-    enum class Type
-    {
-        BadConnection,
-        BadConfiguration,
-        CorruptedData
-    };
-
-public:
     Exception( grpc::Status status )
         : std::runtime_error( status.error_message() )
         , m_status( status )
