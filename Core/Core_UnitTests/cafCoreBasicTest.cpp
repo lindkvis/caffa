@@ -9,7 +9,7 @@
 #include "cafFieldProxyAccessor.h"
 #include "cafObject.h"
 #include "cafPortableDataType.h"
-#include "cafValueField.h"
+#include "cafTypedField.h"
 
 #include <map>
 #include <vector>
@@ -159,9 +159,9 @@ TEST( BaseTest, TestField )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// TestProxyValueField
+/// TestProxyTypedField
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, TestProxyValueField )
+TEST( BaseTest, TestProxyTypedField )
 {
     auto a = std::make_unique<DemoObject>();
 

@@ -39,7 +39,6 @@ class Object;
 class ObjectFactory;
 class ObjectHandle;
 class ProxyFieldHandle;
-class ValueField;
 } // namespace caffa
 
 namespace caffa::rpc
@@ -60,7 +59,7 @@ struct AbstractDataHolder
     virtual void addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const = 0;
 
     virtual size_t getValuesFromChunk( size_t startIndex, const GenericArray* chunk ) = 0;
-    virtual void   applyValuesToField( caffa::ValueField* field )                     = 0;
+    virtual void   applyValuesToField( caffa::FieldHandle* field )                    = 0;
 };
 
 /**
@@ -83,7 +82,7 @@ public:
 
 protected:
     caffa::Object*                      m_fieldOwner;
-    caffa::ValueField*                  m_field;
+    caffa::FieldHandle*                 m_field;
     caffa::ChildArrayFieldHandle*       m_childArrayField;
     std::unique_ptr<AbstractDataHolder> m_dataHolder;
     size_t                              m_currentDataIndex;
@@ -109,7 +108,7 @@ public:
 
 protected:
     caffa::Object*                      m_fieldOwner;
-    caffa::ValueField*                  m_field;
+    caffa::FieldHandle*                 m_field;
     std::unique_ptr<AbstractDataHolder> m_dataHolder;
     size_t                              m_currentDataIndex;
 };

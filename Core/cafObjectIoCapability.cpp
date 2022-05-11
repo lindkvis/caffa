@@ -3,7 +3,7 @@
 #include "cafAssert.h"
 #include "cafDefaultObjectFactory.h"
 #include "cafFieldHandle.h"
-#include "cafFieldIoCapability.h"
+#include "cafFieldJsonCapability.h"
 #include "cafJsonSerializer.h"
 #include "cafObjectHandle.h"
 #include "cafStringTools.h"

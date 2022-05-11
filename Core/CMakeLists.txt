@@ -23,11 +23,11 @@ set(PUBLIC_HEADERS
     cafPortableDataType.h
     cafFieldProxyAccessor.h
     cafChildArrayFieldHandle.h
-    cafValueField.h
+    cafTypedField.h
     cafSignal.h
-    cafFieldIoCapabilitySpecializations.h
-    cafFieldIoCapabilitySpecializations.inl
-    cafFieldIoCapability.h
+    cafFieldJsonCapabilitySpecializations.h
+    cafFieldJsonCapabilitySpecializations.inl
+    cafFieldJsonCapability.h
     cafSerializer.h
     cafJsonSerializer.h
     cafObjectIoCapability.h
@@ -49,7 +49,7 @@ set(PROJECT_FILES
     cafObjectHandle.cpp
     cafObservingPointer.cpp
     cafSignal.cpp
-    cafFieldIoCapability.cpp
+    cafFieldJsonCapability.cpp
     cafObjectIoCapability.cpp
     cafSerializer.cpp
     cafJsonSerializer.cpp

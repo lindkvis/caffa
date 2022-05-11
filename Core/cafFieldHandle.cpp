@@ -9,6 +9,8 @@ namespace caffa
 ///
 //--------------------------------------------------------------------------------------------------
 FieldHandle::FieldHandle()
+    : m_isReadable( true )
+    , m_isWritable( true )
 {
     m_ownerObject = nullptr;
 }

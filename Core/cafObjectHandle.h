@@ -152,7 +152,7 @@ private:
     friend class Field; // For backwards compatibility layer
 
     template <class T>
-    friend class FieldIoCap;
+    friend class FieldJsonCap;
 
     // Support system for Pointer
     friend class ObservingPointerImpl;

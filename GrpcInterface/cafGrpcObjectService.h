@@ -40,7 +40,6 @@ class ObjectMethod;
 class ObjectMethodFactory;
 class ProxyFieldHandle;
 class Serializer;
-class ValueField;
 } // namespace caffa
 
 namespace caffa::rpc

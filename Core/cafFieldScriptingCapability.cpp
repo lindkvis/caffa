@@ -42,9 +42,9 @@ using namespace caffa;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FieldScriptingCapability::FieldScriptingCapability( caffa::FieldHandle*  owner,
-                                                    const std::string& scriptFieldName,
-                                                    bool               giveOwnership )
+FieldScriptingCapability::FieldScriptingCapability( caffa::FieldHandle* owner,
+                                                    const std::string&  scriptFieldName,
+                                                    bool                giveOwnership )
 {
     m_IOWriteable     = true;
     m_owner           = owner;
@@ -70,7 +70,7 @@ const std::string FieldScriptingCapability::scriptFieldName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool FieldScriptingCapability::isIOWriteable() const
+bool FieldScriptingCapability::isWritable() const
 {
     return m_IOWriteable;
 }

@@ -20,7 +20,7 @@
 
 #include "cafAssert.h"
 #include "cafDefaultObjectFactory.h"
-#include "cafFieldIoCapability.h"
+#include "cafFieldJsonCapability.h"
 #include "cafLogger.h"
 #include "cafObjectHandle.h"
 #include "cafObjectIoCapability.h"
@@ -65,12 +65,12 @@ void readFieldsFromJson( ObjectHandle* object, const nlohmann::json& jsonObject,
         else if ( serializer->serializeDataValues() && !value.is_null() )
         {
             auto fieldHandle = object->findField( keyword );
-            if ( fieldHandle && fieldHandle->capability<FieldIoCapability>() )
+            if ( fieldHandle && fieldHandle->capability<FieldJsonCapability>() )
             {
                 if ( serializer->fieldSelector() && !serializer->fieldSelector()( fieldHandle ) ) continue;
 
-                auto ioFieldHandle = fieldHandle->capability<FieldIoCapability>();
-                if ( ioFieldHandle && ioFieldHandle->isIOReadable() )
+                auto ioFieldHandle = fieldHandle->capability<FieldJsonCapability>();
+                if ( ioFieldHandle && fieldHandle->isReadable() )
                 {
                     ioFieldHandle->readFromJson( value, *serializer );
                 }
@@ -113,11 +113,12 @@ void writeFieldsToJson( const ObjectHandle* object, nlohmann::json& jsonObject, 
         for ( auto field : object->fields() )
         {
             if ( serializer->fieldSelector() && !serializer->fieldSelector()( field ) ) continue;
+            if ( !( field->isReadable() || field->isWritable() ) ) continue;
 
             std::string keyword = field->keyword();
 
-            const FieldIoCapability* ioCapability = field->capability<FieldIoCapability>();
-            if ( ioCapability && ( ioCapability->isIOWritable() || ioCapability->isIOReadable() ) && keyword != "UUID" )
+            const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
+            if ( ioCapability && keyword != "UUID" )
             {
                 CAFFA_ASSERT( ObjectIoCapability::isValidElementName( keyword ) );
 

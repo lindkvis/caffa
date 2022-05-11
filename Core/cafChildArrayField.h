@@ -13,7 +13,7 @@
 namespace caffa
 {
 template <typename T>
-class FieldIoCap;
+class FieldJsonCap;
 
 /// \private
 template <typename DataType>
@@ -83,7 +83,7 @@ private: // To be disabled
     CAFFA_DISABLE_COPY_AND_ASSIGN( ChildArrayField );
 
 private:
-    friend class FieldIoCap<ChildArrayField<DataType*>>;
+    friend class FieldJsonCap<ChildArrayField<DataType*>>;
     std::unique_ptr<DataAccessor> m_fieldDataAccessor;
 };
 

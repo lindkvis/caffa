@@ -76,7 +76,7 @@ struct DataHolder : public AbstractDataHolder
     }
 
     size_t                getValuesFromChunk( size_t startIndex, const GenericArray* chunk ) override;
-    void                  applyValuesToField( ValueField* field ) override;
+    void                  applyValuesToField( FieldHandle* field ) override;
     std::vector<DataType> data;
 };
 
@@ -117,7 +117,7 @@ size_t DataHolder<int>::getValuesFromChunk( size_t startIndex, const GenericArra
     return chunkSize;
 }
 template <>
-void DataHolder<int>::applyValuesToField( ValueField* field )
+void DataHolder<int>::applyValuesToField( FieldHandle* field )
 {
     auto typedField = dynamic_cast<caffa::Field<std::vector<int>>*>( field );
     if ( typedField )
@@ -164,7 +164,7 @@ size_t DataHolder<uint32_t>::getValuesFromChunk( size_t startIndex, const Generi
     return chunkSize;
 }
 template <>
-void DataHolder<uint32_t>::applyValuesToField( ValueField* field )
+void DataHolder<uint32_t>::applyValuesToField( FieldHandle* field )
 {
     auto typedField = dynamic_cast<caffa::Field<std::vector<uint32_t>>*>( field );
     if ( typedField )
@@ -211,7 +211,7 @@ size_t DataHolder<int64_t>::getValuesFromChunk( size_t startIndex, const Generic
     return chunkSize;
 }
 template <>
-void DataHolder<int64_t>::applyValuesToField( ValueField* field )
+void DataHolder<int64_t>::applyValuesToField( FieldHandle* field )
 {
     auto typedField = dynamic_cast<caffa::Field<std::vector<int64_t>>*>( field );
     if ( typedField )
@@ -258,7 +258,7 @@ size_t DataHolder<uint64_t>::getValuesFromChunk( size_t startIndex, const Generi
     return chunkSize;
 }
 template <>
-void DataHolder<uint64_t>::applyValuesToField( ValueField* field )
+void DataHolder<uint64_t>::applyValuesToField( FieldHandle* field )
 {
     auto typedField = dynamic_cast<caffa::Field<std::vector<uint64_t>>*>( field );
     if ( typedField )
@@ -304,7 +304,7 @@ size_t DataHolder<double>::getValuesFromChunk( size_t startIndex, const GenericA
     return chunkSize;
 }
 template <>
-void DataHolder<double>::applyValuesToField( ValueField* field )
+void DataHolder<double>::applyValuesToField( FieldHandle* field )
 {
     auto typedField = dynamic_cast<caffa::Field<std::vector<double>>*>( field );
     if ( typedField )
@@ -350,7 +350,7 @@ size_t DataHolder<float>::getValuesFromChunk( size_t startIndex, const GenericAr
     return chunkSize;
 }
 template <>
-void DataHolder<float>::applyValuesToField( ValueField* field )
+void DataHolder<float>::applyValuesToField( FieldHandle* field )
 {
     auto typedField = dynamic_cast<caffa::Field<std::vector<float>>*>( field );
     if ( typedField )
@@ -397,7 +397,7 @@ size_t DataHolder<std::string>::getValuesFromChunk( size_t startIndex, const Gen
     return chunkSize;
 }
 template <>
-void DataHolder<std::string>::applyValuesToField( ValueField* field )
+void DataHolder<std::string>::applyValuesToField( FieldHandle* field )
 {
     auto typedField = dynamic_cast<caffa::Field<std::vector<std::string>>*>( field );
     if ( typedField )
@@ -444,7 +444,7 @@ size_t DataHolder<bool>::getValuesFromChunk( size_t startIndex, const GenericArr
     return chunkSize;
 }
 template <>
-void DataHolder<bool>::applyValuesToField( ValueField* field )
+void DataHolder<bool>::applyValuesToField( FieldHandle* field )
 {
     auto typedField = dynamic_cast<caffa::Field<std::vector<bool>>*>( field );
     if ( typedField )
@@ -489,7 +489,7 @@ size_t DataHolder<ObjectHandle*>::getValuesFromChunk( size_t startIndex, const G
     CAFFA_ASSERT( false && "Not implemented" );
 }
 template <>
-void DataHolder<ObjectHandle*>::applyValuesToField( ValueField* field )
+void DataHolder<ObjectHandle*>::applyValuesToField( FieldHandle* field )
 {
     CAFFA_ASSERT( false && "Not implemented" );
 }
@@ -519,62 +519,56 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
         auto scriptability = field->capability<caffa::FieldScriptingCapability>();
         if ( scriptability && request->keyword() == scriptability->scriptFieldName() )
         {
-            auto ioCapability = field->capability<FieldIoCapability>();
-            if ( !ioCapability )
-            {
-                return grpc::Status( grpc::INVALID_ARGUMENT, "Data field does not have IO-access" );
-            }
-
-            if ( !ioCapability->isIOReadable() )
+            auto ioCapability = field->capability<FieldJsonCapability>();
+            if ( !field->isReadable() || !ioCapability )
             {
                 return grpc::Status( grpc::INVALID_ARGUMENT, "Data field is not readable" );
             }
 
-            if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int>>*>( field ); dataField != nullptr )
+            if ( auto dataField = dynamic_cast<TypedField<std::vector<int>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
                 m_dataHolder.reset( new DataHolder<int>( dataField->value() ) );
                 return grpc::Status::OK;
             }
-            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<unsigned>>*>( field ); dataField != nullptr )
+            else if ( auto dataField = dynamic_cast<TypedField<std::vector<unsigned>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
                 m_dataHolder.reset( new DataHolder<unsigned>( dataField->value() ) );
                 return grpc::Status::OK;
             }
-            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int64_t>>*>( field ); dataField != nullptr )
+            else if ( auto dataField = dynamic_cast<TypedField<std::vector<int64_t>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
                 m_dataHolder.reset( new DataHolder<int64_t>( dataField->value() ) );
                 return grpc::Status::OK;
             }
 
-            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<uint64_t>>*>( field ); dataField != nullptr )
+            else if ( auto dataField = dynamic_cast<TypedField<std::vector<uint64_t>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
                 m_dataHolder.reset( new DataHolder<uint64_t>( dataField->value() ) );
                 return grpc::Status::OK;
             }
-            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<double>>*>( field ); dataField != nullptr )
+            else if ( auto dataField = dynamic_cast<TypedField<std::vector<double>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
                 m_dataHolder.reset( new DataHolder<double>( dataField->value() ) );
                 return grpc::Status::OK;
             }
-            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<float>>*>( field ); dataField != nullptr )
+            else if ( auto dataField = dynamic_cast<TypedField<std::vector<float>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
                 m_dataHolder.reset( new DataHolder<float>( dataField->value() ) );
                 return grpc::Status::OK;
             }
-            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<std::string>>*>( field );
-                      dataField != nullptr )
+            else if ( auto dataField = dynamic_cast<TypedField<std::vector<std::string>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
                 m_dataHolder.reset( new DataHolder<std::string>( dataField->value() ) );
                 return grpc::Status::OK;
             }
-            else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<bool>>*>( field ); dataField != nullptr )
+            else if ( auto dataField = dynamic_cast<TypedField<std::vector<bool>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
                 m_dataHolder.reset( new DataHolder<bool>( dataField->value() ) );
@@ -693,66 +687,57 @@ grpc::Status SetterStateHandler::init( const GenericArray* chunk )
         auto scriptability = field->capability<caffa::FieldScriptingCapability>();
         if ( scriptability && scriptability->scriptFieldName() == fieldRequest.keyword() )
         {
-            auto ioCapability = field->capability<FieldIoCapability>();
-            if ( !ioCapability )
+            auto ioCapability = field->capability<FieldJsonCapability>();
+            if ( !field->isWritable() || !ioCapability )
             {
-                return grpc::Status( grpc::INVALID_ARGUMENT, "Data field does not have IO-access" );
-            }
-
-            if ( !ioCapability->isIOReadable() )
-            {
-                return grpc::Status( grpc::INVALID_ARGUMENT, "Data field is not readable" );
+                return grpc::Status( grpc::INVALID_ARGUMENT, "Data field is not writable" );
             }
 
             try
             {
-                if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int>>*>( field ); dataField != nullptr )
+                if ( auto dataField = dynamic_cast<TypedField<std::vector<int>>*>( field ); dataField != nullptr )
                 {
                     m_field = dataField;
                     m_dataHolder.reset( new DataHolder<int>( std::vector<int>( valueCount ) ) );
                     return status;
                 }
-                else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<unsigned>>*>( field );
-                          dataField != nullptr )
+                else if ( auto dataField = dynamic_cast<TypedField<std::vector<unsigned>>*>( field ); dataField != nullptr )
                 {
                     m_field = dataField;
                     m_dataHolder.reset( new DataHolder<unsigned>( std::vector<unsigned>( valueCount ) ) );
                     return status;
                 }
-                else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int64_t>>*>( field );
-                          dataField != nullptr )
+                else if ( auto dataField = dynamic_cast<TypedField<std::vector<int64_t>>*>( field ); dataField != nullptr )
                 {
                     m_field = dataField;
                     m_dataHolder.reset( new DataHolder<int64_t>( std::vector<int64_t>( valueCount ) ) );
                     return status;
                 }
-                else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<uint64_t>>*>( field );
-                          dataField != nullptr )
+                else if ( auto dataField = dynamic_cast<TypedField<std::vector<uint64_t>>*>( field ); dataField != nullptr )
                 {
                     m_field = dataField;
                     m_dataHolder.reset( new DataHolder<uint64_t>( std::vector<uint64_t>( valueCount ) ) );
                     return status;
                 }
-                else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<double>>*>( field );
-                          dataField != nullptr )
+                else if ( auto dataField = dynamic_cast<TypedField<std::vector<double>>*>( field ); dataField != nullptr )
                 {
                     m_field = dataField;
                     m_dataHolder.reset( new DataHolder<double>( std::vector<double>( valueCount ) ) );
                     return status;
                 }
-                else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<float>>*>( field ); dataField != nullptr )
+                else if ( auto dataField = dynamic_cast<TypedField<std::vector<float>>*>( field ); dataField != nullptr )
                 {
                     m_field = dataField;
                     m_dataHolder.reset( new DataHolder<float>( std::vector<float>( valueCount ) ) );
                     return status;
                 }
-                else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<bool>>*>( field ); dataField != nullptr )
+                else if ( auto dataField = dynamic_cast<TypedField<std::vector<bool>>*>( field ); dataField != nullptr )
                 {
                     m_field = dataField;
                     m_dataHolder.reset( new DataHolder<bool>( std::vector<bool>( valueCount ) ) );
                     return status;
                 }
-                else if ( auto dataField = dynamic_cast<TypedValueField<std::vector<std::string>>*>( field );
+                else if ( auto dataField = dynamic_cast<TypedField<std::vector<std::string>>*>( field );
                           dataField != nullptr )
                 {
                     m_field = dataField;
@@ -860,10 +845,10 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
 
     if ( field )
     {
-        if ( isScriptable )
+        if ( isScriptable && field->isReadable() )
         {
             bool isObjectField = dynamic_cast<caffa::ChildFieldHandle*>( field ) != nullptr;
-            auto ioCapability  = field->capability<caffa::FieldIoCapability>();
+            auto ioCapability  = field->capability<caffa::FieldJsonCapability>();
             if ( ioCapability )
             {
                 try
@@ -893,8 +878,7 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
             }
         }
         return grpc::Status( grpc::FAILED_PRECONDITION,
-                             "Field " + request->keyword() +
-                                 " found, but it either isn't scriptable or does not have I/O capability" );
+                             "Field " + request->keyword() + " found, but it either isn't scriptable or is not readable" );
     }
     return grpc::Status( grpc::NOT_FOUND, "Field not found: '" + request->keyword() + "'" );
 }
@@ -1051,7 +1035,7 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
 
     if ( field != nullptr )
     {
-        auto ioCapability = field->capability<caffa::FieldIoCapability>();
+        auto ioCapability = field->capability<caffa::FieldJsonCapability>();
         try
         {
             if ( !isScriptable ) throw std::runtime_error( "Field " + fieldRequest.keyword() + " is not scriptable" );

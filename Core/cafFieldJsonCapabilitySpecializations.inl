@@ -13,7 +13,7 @@
 namespace caffa
 {
 //==================================================================================================
-/// XML Implementation for FieldIoCap<> methods
+/// XML Implementation for FieldJsonCap<> methods
 ///
 //==================================================================================================
 
@@ -21,7 +21,7 @@ namespace caffa
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void FieldIoCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
+void FieldJsonCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
 {
     this->assertValid();
     if ( serializer.serializeDataValues() )
@@ -59,7 +59,7 @@ void FieldIoCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, con
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void FieldIoCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const
+void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const
 {
     this->assertValid();
 
@@ -99,7 +99,7 @@ void FieldIoCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Seri
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
+void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
 {
     CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildField" );
     if ( jsonElement.is_null() ) return;
@@ -169,7 +169,7 @@ void FieldIoCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& json
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonValue, const Serializer& serializer ) const
+void FieldJsonCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonValue, const Serializer& serializer ) const
 {
     auto childObjects = m_field->childObjects();
     if ( childObjects.empty() ) return;
@@ -198,7 +198,7 @@ void FieldIoCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonValue, 
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
+void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
 {
     m_field->clear();
 
@@ -258,7 +258,7 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json&
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& jsonValue, const Serializer& serializer ) const
+void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& jsonValue, const Serializer& serializer ) const
 {
     nlohmann::json jsonArray = nlohmann::json::array();
 
