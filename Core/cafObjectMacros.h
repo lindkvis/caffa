@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cafDefaultObjectFactory.h"
-#include "cafFieldIoCapabilitySpecializations.h"
+#include "cafFieldJsonCapabilitySpecializations.h"
 
 #ifdef __clang__
 #pragma clang diagnostic push

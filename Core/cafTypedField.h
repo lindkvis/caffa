@@ -54,14 +54,8 @@ struct is_vector<std::vector<T, A>> : public std::true_type
 {
 };
 
-class ValueField : public FieldHandle
-{
-public:
-    virtual bool isReadOnly() const = 0;
-};
-
 template <typename DataType>
-class TypedValueField : public ValueField
+class TypedField : public FieldHandle
 {
 public:
     using FieldDataType = DataType;

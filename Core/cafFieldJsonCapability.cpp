@@ -1,4 +1,4 @@
-#include "cafFieldIoCapability.h"
+#include "cafFieldJsonCapability.h"
 
 #include "cafAssert.h"
 #include "cafFieldHandle.h"
@@ -12,9 +12,7 @@ using namespace caffa;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FieldIoCapability::FieldIoCapability( FieldHandle* owner, bool giveOwnership )
-    : m_isIOReadable( true )
-    , m_isIOWritable( true )
+FieldJsonCapability::FieldJsonCapability( FieldHandle* owner, bool giveOwnership )
 {
     m_owner = owner;
     owner->addCapability( this, giveOwnership );
@@ -23,16 +21,7 @@ FieldIoCapability::FieldIoCapability( FieldHandle* owner, bool giveOwnership )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void FieldIoCapability::disableIO()
-{
-    setIOReadable( false );
-    setIOWritable( false );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool FieldIoCapability::assertValid() const
+bool FieldJsonCapability::assertValid() const
 {
     if ( m_owner->keyword().empty() )
     {

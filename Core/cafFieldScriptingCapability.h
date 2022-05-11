@@ -54,7 +54,7 @@ public:
 
     const std::string scriptFieldName() const;
 
-    bool        isIOWriteable() const;
+    bool        isWritable() const;
     void        setIOWriteable( bool writeable );
     static void addToField( caffa::FieldHandle* field, const std::string& fieldName );
 

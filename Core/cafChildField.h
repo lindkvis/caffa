@@ -12,7 +12,7 @@
 namespace caffa
 {
 template <typename T>
-class FieldIoCap;
+class FieldJsonCap;
 //==================================================================================================
 /// Specialization for pointers, but only applicable to Object derived objects.
 /// The pointer is guarded, meaning that it will be set to nullptr if the object pointed to
@@ -93,7 +93,7 @@ public:
 private:
     CAFFA_DISABLE_COPY_AND_ASSIGN( ChildField );
 
-    friend class FieldIoCap<ChildField<DataType*>>;
+    friend class FieldJsonCap<ChildField<DataType*>>;
     mutable std::unique_ptr<ChildFieldAccessor> m_fieldDataAccessor;
 };
 

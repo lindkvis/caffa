@@ -2,7 +2,7 @@
 
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
-#include "cafFieldIoCapability.h"
+#include "cafFieldJsonCapability.h"
 
 #include <nlohmann/json.hpp>
 
@@ -14,11 +14,11 @@ namespace caffa
 class Serializer;
 
 template <typename FieldType>
-class FieldIoCap : public FieldIoCapability
+class FieldJsonCap : public FieldJsonCapability
 {
 public:
-    FieldIoCap( FieldType* field, bool giveOwnership )
-        : FieldIoCapability( field, giveOwnership )
+    FieldJsonCap( FieldType* field, bool giveOwnership )
+        : FieldJsonCapability( field, giveOwnership )
     {
         m_field = field;
     }
@@ -33,13 +33,13 @@ private:
 };
 
 template <typename DataType>
-class FieldIoCap<ChildField<DataType*>> : public FieldIoCapability
+class FieldJsonCap<ChildField<DataType*>> : public FieldJsonCapability
 {
     typedef ChildField<DataType*> FieldType;
 
 public:
-    FieldIoCap( FieldType* field, bool giveOwnership )
-        : FieldIoCapability( field, giveOwnership )
+    FieldJsonCap( FieldType* field, bool giveOwnership )
+        : FieldJsonCapability( field, giveOwnership )
     {
         m_field = field;
     }
@@ -54,13 +54,13 @@ private:
 };
 
 template <typename DataType>
-class FieldIoCap<ChildArrayField<DataType*>> : public FieldIoCapability
+class FieldJsonCap<ChildArrayField<DataType*>> : public FieldJsonCapability
 {
     typedef ChildArrayField<DataType*> FieldType;
 
 public:
-    FieldIoCap( FieldType* field, bool giveOwnership )
-        : FieldIoCapability( field, giveOwnership )
+    FieldJsonCap( FieldType* field, bool giveOwnership )
+        : FieldJsonCapability( field, giveOwnership )
     {
         m_field = field;
     }
@@ -77,12 +77,12 @@ private:
 template <typename FieldType>
 void AddIoCapabilityToField( FieldType* field )
 {
-    if ( !field->template capability<FieldIoCapability>() )
+    if ( !field->template capability<FieldJsonCapability>() )
     {
-        new FieldIoCap<FieldType>( field, true );
+        new FieldJsonCap<FieldType>( field, true );
     }
 }
 
 } // End of namespace caffa
 
-#include "cafFieldIoCapabilitySpecializations.inl"
+#include "cafFieldJsonCapabilitySpecializations.inl"

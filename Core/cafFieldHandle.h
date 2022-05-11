@@ -46,6 +46,11 @@ public:
     template <typename CapabilityType>
     const CapabilityType* capability() const;
 
+    bool isReadable() const { return m_isReadable; }
+    bool isWritable() const { return m_isWritable; }
+    void setWritable( bool isWritable ) { m_isWritable = isWritable; }
+    void setReadable( bool isReadable ) { m_isReadable = isReadable; }
+
 protected:
     bool isInitializedByInitFieldMacro() const { return m_ownerObject != nullptr; }
 
@@ -59,6 +64,9 @@ private:
     ObjectHandle* m_ownerObject;
 
     std::string m_keyword;
+
+    bool m_isReadable;
+    bool m_isWritable;
 
     std::vector<std::pair<FieldCapability*, bool>> m_capabilities;
 };

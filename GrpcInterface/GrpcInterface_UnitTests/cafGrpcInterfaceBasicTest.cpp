@@ -17,7 +17,7 @@
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
 #include "cafObjectHandle.h"
-#include "cafValueField.h"
+#include "cafTypedField.h"
 
 #include <algorithm>
 #include <chrono>

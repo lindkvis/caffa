@@ -38,8 +38,8 @@
 
 #include "cafDataFieldAccessor.h"
 #include "cafField.h"
-#include "cafFieldIoCapability.h"
-#include "cafFieldIoCapabilitySpecializations.h"
+#include "cafFieldJsonCapability.h"
+#include "cafFieldJsonCapabilitySpecializations.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafObjectCapability.h"
 #include "cafObjectHandle.h"
@@ -90,13 +90,13 @@ public:
 
     FieldInitHelper& readOnly()
     {
-        m_field.template capability<FieldIoCapability>()->setIOWritable( false );
+        m_field.setWritable( false );
         return *this;
     }
 
     FieldInitHelper& writeOnly()
     {
-        m_field.template capability<FieldIoCapability>()->setIOReadable( false );
+        m_field.setReadable( false );
         return *this;
     }
 

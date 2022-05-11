@@ -22,7 +22,7 @@
 #pragma once
 
 #include "cafFieldValueValidator.h"
-#include "cafValueField.h"
+#include "cafTypedField.h"
 
 #include "cafAssert.h"
 #include "cafDataFieldAccessor.h"
@@ -43,7 +43,7 @@ class ObjectHandle;
 //==================================================================================================
 
 template <typename DataType>
-class Field : public TypedValueField<DataType>
+class Field : public TypedField<DataType>
 {
 public:
     typedef DataFieldAccessor<DataType>              DataAccessor;
@@ -119,10 +119,6 @@ public:
             throw std::runtime_error( errorMessage );
         }
     }
-
-    // Implementation of ValueField interface
-
-    bool isReadOnly() const override { return false; }
 
     // Access operators
 
