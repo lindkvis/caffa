@@ -519,6 +519,17 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
         auto scriptability = field->capability<caffa::FieldScriptingCapability>();
         if ( scriptability && request->keyword() == scriptability->scriptFieldName() )
         {
+            auto ioCapability = field->capability<FieldIoCapability>();
+            if ( !ioCapability )
+            {
+                return grpc::Status( grpc::INVALID_ARGUMENT, "Data field does not have IO-access" );
+            }
+
+            if ( !ioCapability->isIOReadable() )
+            {
+                return grpc::Status( grpc::INVALID_ARGUMENT, "Data field is not readable" );
+            }
+
             if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int>>*>( field ); dataField != nullptr )
             {
                 m_field = dataField;
@@ -682,6 +693,17 @@ grpc::Status SetterStateHandler::init( const GenericArray* chunk )
         auto scriptability = field->capability<caffa::FieldScriptingCapability>();
         if ( scriptability && scriptability->scriptFieldName() == fieldRequest.keyword() )
         {
+            auto ioCapability = field->capability<FieldIoCapability>();
+            if ( !ioCapability )
+            {
+                return grpc::Status( grpc::INVALID_ARGUMENT, "Data field does not have IO-access" );
+            }
+
+            if ( !ioCapability->isIOReadable() )
+            {
+                return grpc::Status( grpc::INVALID_ARGUMENT, "Data field is not readable" );
+            }
+
             try
             {
                 if ( auto dataField = dynamic_cast<TypedValueField<std::vector<int>>*>( field ); dataField != nullptr )
