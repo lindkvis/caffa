@@ -70,7 +70,7 @@ void readFieldsFromJson( ObjectHandle* object, const nlohmann::json& jsonObject,
                 if ( serializer->fieldSelector() && !serializer->fieldSelector()( fieldHandle ) ) continue;
 
                 auto ioFieldHandle = fieldHandle->capability<FieldJsonCapability>();
-                if ( ioFieldHandle && fieldHandle->isReadable() )
+                if ( ioFieldHandle )
                 {
                     ioFieldHandle->readFromJson( value, *serializer );
                 }
@@ -113,7 +113,6 @@ void writeFieldsToJson( const ObjectHandle* object, nlohmann::json& jsonObject, 
         for ( auto field : object->fields() )
         {
             if ( serializer->fieldSelector() && !serializer->fieldSelector()( field ) ) continue;
-            if ( !( field->isReadable() || field->isWritable() ) ) continue;
 
             std::string keyword = field->keyword();
 

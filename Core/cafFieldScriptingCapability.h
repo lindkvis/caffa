@@ -49,19 +49,25 @@ class ObjectHandle;
 class FieldScriptingCapability : public FieldCapability
 {
 public:
-    FieldScriptingCapability( caffa::FieldHandle* owner, const std::string& scriptFieldName, bool giveOwnership );
-    virtual ~FieldScriptingCapability();
+    FieldScriptingCapability( const std::string& scriptFieldName, bool readable = true, bool writeable = true );
 
     const std::string scriptFieldName() const;
 
-    bool        isWritable() const;
-    void        setIOWriteable( bool writeable );
-    static void addToField( caffa::FieldHandle* field, const std::string& fieldName );
+    bool isReadable() const;
+    bool isWritable() const;
+    void setReadable( bool readable );
+    void setWritable( bool writable );
 
 protected:
-    FieldHandle* m_owner;
-    std::string  m_scriptFieldName;
-    bool         m_IOWriteable;
+    const FieldHandle* owner() const override;
+    void               setOwner( FieldHandle* field ) override;
+
+private:
+    std::string m_scriptFieldName;
+    bool        m_readable;
+    bool        m_writeable;
+
+    FieldHandle* m_field;
 };
 
 } // namespace caffa

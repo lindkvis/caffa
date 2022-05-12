@@ -36,20 +36,12 @@ public:
     virtual std::string dataType() const = 0;
 
     // Capabilities
-    void addCapability( FieldCapability* capability, bool takeOwnership )
-    {
-        m_capabilities.push_back( std::make_pair( capability, takeOwnership ) );
-    }
+    void addCapability( std::unique_ptr<FieldCapability> capability );
 
     template <typename CapabilityType>
     CapabilityType* capability();
     template <typename CapabilityType>
     const CapabilityType* capability() const;
-
-    bool isReadable() const { return m_isReadable; }
-    bool isWritable() const { return m_isWritable; }
-    void setWritable( bool isWritable ) { m_isWritable = isWritable; }
-    void setReadable( bool isReadable ) { m_isReadable = isReadable; }
 
 protected:
     bool isInitializedByInitFieldMacro() const { return m_ownerObject != nullptr; }
@@ -65,10 +57,7 @@ private:
 
     std::string m_keyword;
 
-    bool m_isReadable;
-    bool m_isWritable;
-
-    std::vector<std::pair<FieldCapability*, bool>> m_capabilities;
+    std::vector<std::unique_ptr<FieldCapability>> m_capabilities;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -77,9 +66,9 @@ private:
 template <typename CapabilityType>
 CapabilityType* FieldHandle::capability()
 {
-    for ( size_t i = 0; i < m_capabilities.size(); ++i )
+    for ( auto& capabilityPtr : m_capabilities )
     {
-        CapabilityType* capability = dynamic_cast<CapabilityType*>( m_capabilities[i].first );
+        CapabilityType* capability = dynamic_cast<CapabilityType*>( capabilityPtr.get() );
         if ( capability ) return capability;
     }
     return nullptr;
@@ -91,9 +80,9 @@ CapabilityType* FieldHandle::capability()
 template <typename CapabilityType>
 const CapabilityType* FieldHandle::capability() const
 {
-    for ( size_t i = 0; i < m_capabilities.size(); ++i )
+    for ( const auto& capabilityPtr : m_capabilities )
     {
-        const CapabilityType* capability = dynamic_cast<CapabilityType*>( m_capabilities[i].first );
+        const CapabilityType* capability = dynamic_cast<const CapabilityType*>( capabilityPtr.get() );
         if ( capability ) return capability;
     }
     return nullptr;

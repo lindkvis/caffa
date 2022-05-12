@@ -9,10 +9,15 @@ namespace caffa
 ///
 //--------------------------------------------------------------------------------------------------
 FieldHandle::FieldHandle()
-    : m_isReadable( true )
-    , m_isWritable( true )
 {
     m_ownerObject = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+FieldHandle::~FieldHandle()
+{
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -30,17 +35,6 @@ bool FieldHandle::hasChildObjects()
 {
     std::vector<ObjectHandle*> children = this->childObjects();
     return ( children.size() > 0 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-FieldHandle::~FieldHandle()
-{
-    for ( size_t i = 0; i < m_capabilities.size(); ++i )
-    {
-        if ( m_capabilities[i].second ) delete m_capabilities[i].first;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,11 +68,20 @@ std::unique_ptr<ObjectHandle> FieldHandle::removeChildObject( ObjectHandle* )
 std::vector<FieldCapability*> FieldHandle::capabilities()
 {
     std::vector<FieldCapability*> allCapabilities;
-    for ( auto capability : m_capabilities )
+    for ( auto& capability : m_capabilities )
     {
-        allCapabilities.push_back( capability.first );
+        allCapabilities.push_back( capability.get() );
     }
     return allCapabilities;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void FieldHandle::addCapability( std::unique_ptr<FieldCapability> capability )
+{
+    capability->setOwner( this );
+    m_capabilities.push_back( std::move( capability ) );
 }
 
 } // End of namespace caffa

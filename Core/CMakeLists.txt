@@ -44,6 +44,7 @@ set(PROJECT_FILES
     ${PUBLIC_HEADERS}
     cafChildArrayFieldAccessor.cpp
     cafChildFieldAccessor.cpp
+    cafFieldCapability.cpp
     cafFieldHandle.cpp
     cafObjectCapability.cpp
     cafObjectHandle.cpp

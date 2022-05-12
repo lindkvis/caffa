@@ -76,27 +76,18 @@ public:
         return *this;
     }
 
-    FieldInitHelper& withScripting( const std::string& scriptFieldKeyword = "" )
+    FieldInitHelper& withScripting( const std::string& scriptFieldKeyword = "", bool readable = true, bool writable = true )
     {
-        FieldScriptingCapability::addToField( &m_field, scriptFieldKeyword.empty() ? m_keyword : scriptFieldKeyword );
+        m_field.addCapability(
+            std::make_unique<FieldScriptingCapability>( scriptFieldKeyword.empty() ? m_keyword : scriptFieldKeyword,
+                                                        readable,
+                                                        writable ) );
         return *this;
     }
 
     FieldInitHelper& withAccessor( std::unique_ptr<DataFieldAccessor<typename FieldType::FieldDataType>> accessor )
     {
         m_field.setAccessor( std::move( accessor ) );
-        return *this;
-    }
-
-    FieldInitHelper& readOnly()
-    {
-        m_field.setWritable( false );
-        return *this;
-    }
-
-    FieldInitHelper& writeOnly()
-    {
-        m_field.setReadable( false );
         return *this;
     }
 
@@ -137,7 +128,6 @@ public:
     FieldInitHelper<FieldType> initField( FieldType& field, const std::string& keyword )
     {
         AddIoCapabilityToField( &field );
-
         addField( &field, keyword );
         return FieldInitHelper( field, keyword );
     }

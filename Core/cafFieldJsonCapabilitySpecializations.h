@@ -17,16 +17,17 @@ template <typename FieldType>
 class FieldJsonCap : public FieldJsonCapability
 {
 public:
-    FieldJsonCap( FieldType* field, bool giveOwnership )
-        : FieldJsonCapability( field, giveOwnership )
+    FieldJsonCap()
+        : FieldJsonCapability()
     {
-        m_field = field;
     }
 
 public:
     // Json Serializing
-    void readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer ) override;
-    void writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
+    void               readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer ) override;
+    void               writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
+    const FieldHandle* owner() const override;
+    void               setOwner( FieldHandle* owner ) override;
 
 private:
     FieldType* m_field;
@@ -38,16 +39,17 @@ class FieldJsonCap<ChildField<DataType*>> : public FieldJsonCapability
     typedef ChildField<DataType*> FieldType;
 
 public:
-    FieldJsonCap( FieldType* field, bool giveOwnership )
-        : FieldJsonCapability( field, giveOwnership )
+    FieldJsonCap()
+        : FieldJsonCapability()
     {
-        m_field = field;
     }
 
 public:
     // Json Serializing
-    void readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer ) override;
-    void writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
+    void               readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer ) override;
+    void               writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
+    const FieldHandle* owner() const override;
+    void               setOwner( FieldHandle* owner ) override;
 
 private:
     FieldType* m_field;
@@ -59,16 +61,17 @@ class FieldJsonCap<ChildArrayField<DataType*>> : public FieldJsonCapability
     typedef ChildArrayField<DataType*> FieldType;
 
 public:
-    FieldJsonCap( FieldType* field, bool giveOwnership )
-        : FieldJsonCapability( field, giveOwnership )
+    FieldJsonCap()
+        : FieldJsonCapability()
     {
-        m_field = field;
     }
 
 public:
     // Json Serializing
-    void readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer ) override;
-    void writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
+    void               readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer ) override;
+    void               writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
+    const FieldHandle* owner() const override;
+    void               setOwner( FieldHandle* owner ) override;
 
 private:
     FieldType* m_field;
@@ -79,7 +82,7 @@ void AddIoCapabilityToField( FieldType* field )
 {
     if ( !field->template capability<FieldJsonCapability>() )
     {
-        new FieldJsonCap<FieldType>( field, true );
+        field->addCapability( std::make_unique<FieldJsonCap<FieldType>>() );
     }
 }
 

@@ -42,20 +42,12 @@ using namespace caffa;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FieldScriptingCapability::FieldScriptingCapability( caffa::FieldHandle* owner,
-                                                    const std::string&  scriptFieldName,
-                                                    bool                giveOwnership )
-{
-    m_IOWriteable     = true;
-    m_owner           = owner;
-    m_scriptFieldName = scriptFieldName;
-    owner->addCapability( this, giveOwnership );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-FieldScriptingCapability::~FieldScriptingCapability()
+FieldScriptingCapability::FieldScriptingCapability( const std::string& scriptFieldName, bool readable, bool writeable )
+    : FieldCapability()
+    , m_scriptFieldName( scriptFieldName )
+    , m_readable( readable )
+    , m_writeable( writeable )
+    , m_field( nullptr )
 {
 }
 
@@ -70,23 +62,47 @@ const std::string FieldScriptingCapability::scriptFieldName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool FieldScriptingCapability::isWritable() const
+bool FieldScriptingCapability::isReadable() const
 {
-    return m_IOWriteable;
+    return m_readable;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void FieldScriptingCapability::setIOWriteable( bool writeable )
+bool FieldScriptingCapability::isWritable() const
 {
-    m_IOWriteable = writeable;
+    return m_writeable;
 }
 
-void FieldScriptingCapability::addToField( caffa::FieldHandle* field, const std::string& fieldName )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void FieldScriptingCapability::setReadable( bool writeable )
 {
-    if ( field->capability<FieldScriptingCapability>() == nullptr )
-    {
-        new FieldScriptingCapability( field, fieldName, true );
-    }
+    m_writeable = writeable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void FieldScriptingCapability::setWritable( bool writeable )
+{
+    m_writeable = writeable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const FieldHandle* FieldScriptingCapability::owner() const
+{
+    return m_field;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void FieldScriptingCapability::setOwner( FieldHandle* field )
+{
+    m_field = field;
 }

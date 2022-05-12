@@ -519,8 +519,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
         auto scriptability = field->capability<caffa::FieldScriptingCapability>();
         if ( scriptability && request->keyword() == scriptability->scriptFieldName() )
         {
-            auto ioCapability = field->capability<FieldJsonCapability>();
-            if ( !field->isReadable() || !ioCapability )
+            if ( !scriptability->isReadable() )
             {
                 return grpc::Status( grpc::INVALID_ARGUMENT, "Data field is not readable" );
             }
@@ -687,8 +686,7 @@ grpc::Status SetterStateHandler::init( const GenericArray* chunk )
         auto scriptability = field->capability<caffa::FieldScriptingCapability>();
         if ( scriptability && scriptability->scriptFieldName() == fieldRequest.keyword() )
         {
-            auto ioCapability = field->capability<FieldJsonCapability>();
-            if ( !field->isWritable() || !ioCapability )
+            if ( !scriptability->isWritable() )
             {
                 return grpc::Status( grpc::INVALID_ARGUMENT, "Data field is not writable" );
             }
@@ -841,11 +839,13 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
     CAFFA_ASSERT( fieldOwner );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
 
-    auto [field, isScriptable] = fieldAndScriptableFromKeyword( fieldOwner, request->keyword() );
+    auto field = scriptableFieldFromKeyword( fieldOwner, request->keyword() );
 
     if ( field )
     {
-        if ( isScriptable && field->isReadable() )
+        auto scriptability = field->capability<caffa::FieldScriptingCapability>();
+        CAFFA_ASSERT( scriptability );
+        if ( scriptability->isReadable() )
         {
             bool isObjectField = dynamic_cast<caffa::ChildFieldHandle*>( field ) != nullptr;
             auto ioCapability  = field->capability<caffa::FieldJsonCapability>();
@@ -877,10 +877,11 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
                 }
             }
         }
-        return grpc::Status( grpc::FAILED_PRECONDITION,
-                             "Field " + request->keyword() + " found, but it either isn't scriptable or is not readable" );
+        return grpc::Status( grpc::FAILED_PRECONDITION, "Field " + request->keyword() + " found, but it isn't readable" );
     }
-    return grpc::Status( grpc::NOT_FOUND, "Field not found: '" + request->keyword() + "'" );
+    std::string errMsg = std::string( "Field " ) + request->keyword() + " not found in " + fieldOwner->classKeyword();
+    CAFFA_ERROR( errMsg );
+    return grpc::Status( grpc::NOT_FOUND, errMsg );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1031,16 +1032,18 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
 
     CAFFA_TRACE( "Received Set Request for class " << fieldOwner->classKeyword() );
 
-    auto [field, isScriptable] = fieldAndScriptableFromKeyword( fieldOwner, fieldRequest.keyword() );
+    auto field = scriptableFieldFromKeyword( fieldOwner, fieldRequest.keyword() );
 
-    if ( field != nullptr )
+    if ( field )
     {
+        auto scriptability = field->capability<caffa::FieldScriptingCapability>();
+        CAFFA_ASSERT( scriptability );
+
         auto ioCapability = field->capability<caffa::FieldJsonCapability>();
         try
         {
-            if ( !isScriptable ) throw std::runtime_error( "Field " + fieldRequest.keyword() + " is not scriptable" );
-            if ( !ioCapability )
-                throw std::runtime_error( "Field " + fieldRequest.keyword() + " does not have I/O capability" );
+            if ( !scriptability->isWritable() || !ioCapability )
+                throw std::runtime_error( "Field " + fieldRequest.keyword() + " is not writable" );
 
             CAFFA_TRACE( "Set " << fieldOwner->classKeyword() << " -> " << fieldRequest.keyword() << " = "
                                 << request->value() << "" );
@@ -1056,8 +1059,9 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
             return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
         }
     }
-    CAFFA_ERROR( "Field " << fieldRequest.keyword() << " not found in " << fieldOwner->classKeyword() );
-    return grpc::Status( grpc::NOT_FOUND, "Field not found: '" + fieldRequest.keyword() + "'" );
+    std::string errMsg = std::string( "Field " ) + fieldRequest.keyword() + " not found in " + fieldOwner->classKeyword();
+    CAFFA_ERROR( errMsg );
+    return grpc::Status( grpc::NOT_FOUND, errMsg );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1087,8 +1091,8 @@ std::vector<AbstractCallback*> FieldService::createCallbacks()
                                                                   &Self::RequestInsertChildObject ) };
 }
 
-std::pair<caffa::FieldHandle*, bool> FieldService::fieldAndScriptableFromKeyword( const caffa::ObjectHandle* fieldOwner,
-                                                                                  const std::string&         keyword )
+caffa::FieldHandle* FieldService::scriptableFieldFromKeyword( const caffa::ObjectHandle* fieldOwner,
+                                                              const std::string&         keyword )
 {
     CAFFA_ASSERT( fieldOwner );
 
@@ -1123,11 +1127,13 @@ std::pair<caffa::FieldHandle*, bool> FieldService::fieldAndScriptableFromKeyword
 
     if ( field )
     {
-        auto scriptability     = field->capability<caffa::FieldScriptingCapability>();
-        bool fieldIsScriptable = scriptability && keyword == scriptability->scriptFieldName();
-        return std::make_pair( field, fieldIsScriptable );
+        auto scriptability = field->capability<caffa::FieldScriptingCapability>();
+        if ( scriptability && keyword == scriptability->scriptFieldName() )
+        {
+            return field;
+        }
     }
-    return std::make_pair( nullptr, false );
+    return nullptr;
 }
 
 } // namespace caffa::rpc

@@ -98,6 +98,26 @@ void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Se
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+template <typename FieldType>
+const FieldHandle* FieldJsonCap<FieldType>::owner() const
+{
+    return m_field;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename FieldType>
+void FieldJsonCap<FieldType>::setOwner( FieldHandle* owner )
+{
+    auto field = dynamic_cast<FieldType*>( owner );
+    CAFFA_ASSERT( field );
+    m_field = field;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 template <typename DataType>
 void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
 {
@@ -198,6 +218,26 @@ void FieldJsonCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonValue
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
+const FieldHandle* FieldJsonCap<ChildField<DataType*>>::owner() const
+{
+    return m_field;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void FieldJsonCap<ChildField<DataType*>>::setOwner( FieldHandle* owner )
+{
+    auto field = dynamic_cast<ChildField<DataType*>*>( owner );
+    CAFFA_ASSERT( field );
+    m_field = field;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
 void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
 {
     m_field->clear();
@@ -286,4 +326,25 @@ void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& json
         jsonValue = jsonArray;
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+const FieldHandle* FieldJsonCap<ChildArrayField<DataType*>>::owner() const
+{
+    return m_field;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void FieldJsonCap<ChildArrayField<DataType*>>::setOwner( FieldHandle* owner )
+{
+    auto field = dynamic_cast<ChildArrayField<DataType*>*>( owner );
+    CAFFA_ASSERT( field );
+    m_field = field;
+}
+
 } // End namespace caffa
