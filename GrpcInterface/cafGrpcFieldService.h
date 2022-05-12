@@ -140,8 +140,8 @@ public:
     grpc::Status InsertChildObject( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply ) override;
     std::vector<AbstractCallback*> createCallbacks() override;
 
-    static std::pair<caffa::FieldHandle*, bool> fieldAndScriptableFromKeyword( const caffa::ObjectHandle* fieldOwner,
-                                                                               const std::string&         keyword );
+    static caffa::FieldHandle* scriptableFieldFromKeyword( const caffa::ObjectHandle* fieldOwner,
+                                                           const std::string&         keyword );
 
 private:
     static std::map<const caffa::ObjectHandle*, std::map<std::string, caffa::FieldHandle*>> s_fieldCache;

@@ -16,12 +16,11 @@ Object::Object()
     : ObjectHandle()
     , ObjectIoCapability( this, false )
 {
-    initField( m_uuid, "UUID" ).withScripting().readOnly();
-
     auto                         seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::mt19937                 generator( seed );
     uuids::uuid_random_generator gen( generator );
-    m_uuid = uuids::to_string( gen() );
+
+    initField( m_uuid, "UUID" ).withScripting( "UUID", true, false ).withDefault( uuids::to_string( gen() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
