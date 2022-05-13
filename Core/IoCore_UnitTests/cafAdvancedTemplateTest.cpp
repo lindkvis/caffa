@@ -2,7 +2,6 @@
 #include "gtest.h"
 
 #include "cafChildArrayField.h"
-#include "cafFieldJsonCapabilitySpecializations.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafJsonSerializer.h"
 #include "cafObject.h"

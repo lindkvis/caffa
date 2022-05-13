@@ -1,6 +1,7 @@
 
 #include "gtest.h"
 
+#include "cafAppEnum.h"
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafField.h"
@@ -15,6 +16,13 @@ class DemoObject : public caffa::Object
     CAFFA_HEADER_INIT;
 
 public:
+    enum TestEnumType
+    {
+        T1,
+        T2,
+        T3
+    };
+
     DemoObject()
     {
         initField( m_proxyDoubleField, "BigNumber" );
@@ -23,6 +31,14 @@ public:
         doubleProxyAccessor->registerSetMethod( this, &DemoObject::setDoubleMember );
         doubleProxyAccessor->registerGetMethod( this, &DemoObject::doubleMember );
         m_proxyDoubleField.setAccessor( std::move( doubleProxyAccessor ) );
+
+        initField( m_proxyEnumField, "EnumField" );
+        auto proxyEnumAccessor = std::make_unique<caffa::FieldProxyAccessor<caffa::AppEnum<TestEnumType>>>();
+        proxyEnumAccessor->registerSetMethod( this, &DemoObject::setEnumMember );
+        proxyEnumAccessor->registerGetMethod( this, &DemoObject::enumMember );
+        m_proxyEnumField.setAccessor( std::move( proxyEnumAccessor ) );
+
+        m_enumMember = T1;
     }
 
     ~DemoObject() {}
@@ -31,7 +47,8 @@ public:
 
     // Fields
 
-    caffa::Field<double> m_proxyDoubleField;
+    caffa::Field<caffa::AppEnum<TestEnumType>> m_proxyEnumField;
+    caffa::Field<double>                       m_proxyDoubleField;
 
 private:
     void setDoubleMember( const double& d )
@@ -45,10 +62,27 @@ private:
         return m_doubleMember;
     }
 
-    double m_doubleMember;
+    void setEnumMember( const caffa::AppEnum<TestEnumType>& val ) { m_enumMember = val.value(); }
+    caffa::AppEnum<TestEnumType> enumMember() const { return m_enumMember; }
+
+    double       m_doubleMember;
+    TestEnumType m_enumMember;
 };
 
 CAFFA_SOURCE_INIT( DemoObject, "DemoObject" )
+
+namespace caffa
+{
+template <>
+void AppEnum<DemoObject::TestEnumType>::setUp()
+{
+    addItem( DemoObject::T1, "T1" );
+    addItem( DemoObject::T2, "T2" );
+    addItem( DemoObject::T3, "T3" );
+    setDefault( DemoObject::T1 );
+}
+
+} // namespace caffa
 
 TEST( BaseTest, Delete )
 {
@@ -66,7 +100,10 @@ TEST( BaseTest, FieldWrite )
         auto a = std::make_unique<DemoObject>();
 
         a->m_proxyDoubleField.setValue( 2.5 );
+        a->m_proxyEnumField = DemoObject::T3;
+
         ASSERT_DOUBLE_EQ( 2.5, a->m_proxyDoubleField.value() );
+        ASSERT_EQ( DemoObject::T3, a->m_proxyEnumField.value() );
 
         serializedString = caffa::JsonSerializer().writeObjectToString( a.get() );
 
