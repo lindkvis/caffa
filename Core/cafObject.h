@@ -132,30 +132,6 @@ public:
         return FieldInitHelper( field, keyword );
     }
 
-    /**
-     * Initialises the field with a file keyword and registers it with the class
-     * including static user interface related information.
-     * Note that classKeyword() is not virtual in the constructor of the Object
-     * This is expected and fine.
-     * This version sets a default value
-     * @param field A reference to the field
-     * @param keyword The field keyword. Has to be unique within the class.
-     * @param defaultValue A default field value
-     */
-    template <typename FieldType>
-    FieldInitHelper<FieldType>
-        initField( FieldType& field, const std::string& keyword, const typename FieldType::FieldDataType& defaultValue )
-    {
-        AddIoCapabilityToField( &field );
-
-        addField( &field, keyword );
-
-        field.setDefaultValue( defaultValue );
-        field = defaultValue;
-
-        return FieldInitHelper( field, keyword );
-    }
-
     std::string uuid() const override;
     void        setUuid( const std::string& uuid ) override;
 
