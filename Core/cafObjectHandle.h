@@ -24,6 +24,7 @@
 
 #include "cafAssert.h"
 #include "cafBase.h"
+#include "cafDynamicUniqueCast.h"
 #include "cafFieldHandle.h"
 #include "cafLogger.h"
 #include "cafSignal.h"
@@ -158,28 +159,6 @@ private:
     friend class ObservingPointerImpl;
     std::set<ObjectHandle**> m_pointersReferencingMe;
 };
-
-template <typename ToObjectHandleDerivedClass, typename FromObjectHandleDerivedClass = ObjectHandle>
-bool dynamic_unique_cast_is_valid( const std::unique_ptr<FromObjectHandleDerivedClass>& fromPointer )
-{
-    return dynamic_cast<ToObjectHandleDerivedClass*>( fromPointer.get() ) != nullptr;
-}
-
-template <typename ToObjectHandleDerivedClass, typename FromObjectHandleDerivedClass = ObjectHandle>
-std::unique_ptr<ToObjectHandleDerivedClass> dynamic_unique_cast( std::unique_ptr<FromObjectHandleDerivedClass> fromPointer )
-{
-    if ( !dynamic_unique_cast_is_valid<ToObjectHandleDerivedClass, FromObjectHandleDerivedClass>( fromPointer ) )
-    {
-        CAFFA_ERROR( "Bad cast! " << typeid( FromObjectHandleDerivedClass ).name() << " cannot be cast to "
-                                  << typeid( ToObjectHandleDerivedClass ).name() );
-        CAFFA_ASSERT( false );
-        return nullptr;
-    }
-
-    std::unique_ptr<ToObjectHandleDerivedClass> toPointer(
-        static_cast<ToObjectHandleDerivedClass*>( fromPointer.release() ) );
-    return toPointer;
-}
 
 } // namespace caffa
 
