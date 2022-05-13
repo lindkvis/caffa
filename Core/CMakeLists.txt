@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.12)
 project(caffaCore)
 
 set(PUBLIC_HEADERS
+    cafAppEnum.h
     cafAssert.h
     cafFactory.h
     cafBase.h
