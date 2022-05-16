@@ -4,6 +4,19 @@
 
 CAFFA_SOURCE_INIT( DemoObject, "DemoObject", "Object" )
 
+namespace caffa
+{
+template <>
+void AppEnum<DemoObject::TestEnumType>::setUp()
+{
+    addItem( DemoObject::T1, "T1" );
+    addItem( DemoObject::T2, "T2" );
+    addItem( DemoObject::T3, "T3" );
+    setDefault( DemoObject::T1 );
+}
+
+} // namespace caffa
+
 DemoObject::DemoObject()
     : m_proxyDoubleValue( 2.1 )
     , m_proxyIntValue( 7 )
@@ -32,6 +45,7 @@ DemoObject::DemoObject()
     initField( floatVector, "floatVector" ).withScripting();
     initField( intVector, "proxyIntVector" ).withScripting();
     initField( stringVector, "proxyStringVector" ).withScripting();
+    initField( enumField, "enumField" ).withScripting();
 
     auto intVectorProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::vector<int>>>();
     intVectorProxyAccessor->registerSetMethod( this, &DemoObject::setIntVectorProxy );

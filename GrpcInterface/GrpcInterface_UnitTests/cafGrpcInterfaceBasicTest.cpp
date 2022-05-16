@@ -6,6 +6,7 @@
 #include "Parent.h"
 #include "ServerApp.h"
 
+#include "cafAppEnum.h"
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafDocument.h"
@@ -27,19 +28,24 @@
 #include <thread>
 #include <vector>
 
-TEST( IncludeTest, Basic )
+class GrpcTest : public ::testing::Test
 {
-    Parent* p = new Parent;
-    delete ( p );
-}
+protected:
+    GrpcTest()
+    {
+        caffa::rpc::GrpcClientObjectFactory* factory = caffa::rpc::GrpcClientObjectFactory::instance();
+        factory->registerBasicAccessorCreators<caffa::AppEnum<DemoObject::TestEnumType>>();
+        serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
+                                                 ServerApp::s_serverCertFile,
+                                                 ServerApp::s_serverKeyFile,
+                                                 ServerApp::s_caCertFile );
+    }
 
-TEST( BaseTest, Launch )
+    std::unique_ptr<ServerApp> serverApp;
+};
+
+TEST_F( GrpcTest, Launch )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
-                                                  ServerApp::s_serverCertFile,
-                                                  ServerApp::s_serverKeyFile,
-                                                  ServerApp::s_caCertFile );
-
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -72,13 +78,8 @@ TEST( BaseTest, Launch )
 //--------------------------------------------------------------------------------------------------
 /// TestField
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, Document )
+TEST_F( GrpcTest, Document )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
-                                                  ServerApp::s_serverCertFile,
-                                                  ServerApp::s_serverKeyFile,
-                                                  ServerApp::s_caCertFile );
-
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
@@ -187,14 +188,10 @@ TEST( BaseTest, Document )
     }
 }
 
-TEST( BaseTest, DocumentWithNonScriptableChild )
+TEST_F( GrpcTest, DocumentWithNonScriptableChild )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
-                                                  ServerApp::s_serverCertFile,
-                                                  ServerApp::s_serverKeyFile,
-                                                  ServerApp::s_caCertFile );
-
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
 
     CAFFA_DEBUG( "Launching Server" );
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -270,14 +267,10 @@ TEST( BaseTest, DocumentWithNonScriptableChild )
 //--------------------------------------------------------------------------------------------------
 /// TestField
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, Sync )
+TEST_F( GrpcTest, Sync )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
-                                                  ServerApp::s_serverCertFile,
-                                                  ServerApp::s_serverKeyFile,
-                                                  ServerApp::s_caCertFile );
-
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
@@ -320,14 +313,10 @@ TEST( BaseTest, Sync )
 //--------------------------------------------------------------------------------------------------
 /// TestField
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, ObjectMethod )
+TEST_F( GrpcTest, ObjectMethod )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
-                                                  ServerApp::s_serverCertFile,
-                                                  ServerApp::s_serverKeyFile,
-                                                  ServerApp::s_caCertFile );
-
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
@@ -409,14 +398,10 @@ TEST( BaseTest, ObjectMethod )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, ObjectIntGetterAndSetter )
+TEST_F( GrpcTest, ObjectIntGetterAndSetter )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
-                                                  ServerApp::s_serverCertFile,
-                                                  ServerApp::s_serverKeyFile,
-                                                  ServerApp::s_caCertFile );
-
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
@@ -465,15 +450,10 @@ TEST( BaseTest, ObjectIntGetterAndSetter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, ObjectDoubleGetterAndSetter )
+TEST_F( GrpcTest, ObjectDoubleGetterAndSetter )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
-                                                  ServerApp::s_serverCertFile,
-                                                  ServerApp::s_serverKeyFile,
-                                                  ServerApp::s_caCertFile );
-
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
-
+    ASSERT_TRUE( serverApp.get() );
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
@@ -524,15 +504,10 @@ TEST( BaseTest, ObjectDoubleGetterAndSetter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, ObjectIntegratedGettersAndSetters )
+TEST_F( GrpcTest, ObjectIntegratedGettersAndSetters )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
-                                                  ServerApp::s_serverCertFile,
-                                                  ServerApp::s_serverKeyFile,
-                                                  ServerApp::s_caCertFile );
-
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
-
+    ASSERT_TRUE( serverApp.get() );
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
@@ -552,6 +527,9 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
     serverDocument->demoObject->intField              = 10;
     serverDocument->demoObject->intFieldNonScriptable = 12;
 
+    serverDocument->demoObject->enumField = DemoObject::T2;
+    ASSERT_EQ( DemoObject::T2, serverDocument->demoObject->enumField() );
+
     ASSERT_EQ( 10, serverDocument->demoObject->intField() );
     ASSERT_EQ( 12, serverDocument->demoObject->intFieldNonScriptable() );
 
@@ -567,6 +545,11 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
 
     ASSERT_EQ( 10, clientDocument->demoObject->intField() );
     ASSERT_NE( 12, clientDocument->demoObject->intFieldNonScriptable() ); // Should not be equal
+    ASSERT_EQ( DemoObject::T2, clientDocument->demoObject->enumField() );
+    clientDocument->demoObject->enumField = DemoObject::T3;
+    ASSERT_EQ( DemoObject::T3, serverDocument->demoObject->enumField() );
+
+    clientDocument->demoObject->enumField = DemoObject::T3;
 
     auto clientVector = clientDocument->demoObject->doubleVector();
 
@@ -591,14 +574,10 @@ TEST( BaseTest, ObjectIntegratedGettersAndSetters )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, EmptyVectorGettersAndSetters )
+TEST_F( GrpcTest, EmptyVectorGettersAndSetters )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
-                                                  ServerApp::s_serverCertFile,
-                                                  ServerApp::s_serverKeyFile,
-                                                  ServerApp::s_caCertFile );
-
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
@@ -651,14 +630,10 @@ TEST( BaseTest, EmptyVectorGettersAndSetters )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, BoolVectorGettersAndSetters )
+TEST_F( GrpcTest, BoolVectorGettersAndSetters )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
-                                                  ServerApp::s_serverCertFile,
-                                                  ServerApp::s_serverKeyFile,
-                                                  ServerApp::s_caCertFile );
-
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
@@ -707,14 +682,10 @@ TEST( BaseTest, BoolVectorGettersAndSetters )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, ChildObjects )
+TEST_F( GrpcTest, ChildObjects )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
-                                                  ServerApp::s_serverCertFile,
-                                                  ServerApp::s_serverKeyFile,
-                                                  ServerApp::s_caCertFile );
-
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
@@ -802,14 +773,10 @@ TEST( BaseTest, ChildObjects )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, LocalResponseTimeAndDataTransfer )
+TEST_F( GrpcTest, LocalResponseTimeAndDataTransfer )
 {
-    auto serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
-                                                  ServerApp::s_serverCertFile,
-                                                  ServerApp::s_serverKeyFile,
-                                                  ServerApp::s_caCertFile );
-
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
