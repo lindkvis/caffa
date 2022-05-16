@@ -18,6 +18,7 @@
 //
 #pragma once
 
+#include "cafAppEnum.h"
 #include "cafDocument.h"
 #include "cafField.h"
 #include "cafObject.h"
@@ -30,6 +31,13 @@ class DemoObject : public caffa::Object
     CAFFA_HEADER_INIT;
 
 public:
+    enum TestEnumType
+    {
+        T1,
+        T2,
+        T3
+    };
+
     DemoObject();
 
     ~DemoObject() override {}
@@ -39,10 +47,11 @@ public:
     caffa::Field<int>         m_proxyIntField;
     caffa::Field<std::string> m_proxyStringField;
 
-    caffa::Field<double>      doubleField;
-    caffa::Field<int>         intField;
-    caffa::Field<int>         intFieldNonScriptable;
-    caffa::Field<std::string> stringField;
+    caffa::Field<double>                       doubleField;
+    caffa::Field<int>                          intField;
+    caffa::Field<int>                          intFieldNonScriptable;
+    caffa::Field<std::string>                  stringField;
+    caffa::Field<caffa::AppEnum<TestEnumType>> enumField;
 
     caffa::Field<bool>              boolField;
     caffa::Field<std::vector<bool>> boolVector;

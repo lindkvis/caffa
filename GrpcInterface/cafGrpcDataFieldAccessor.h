@@ -61,7 +61,7 @@ private:
     Client* m_client;
 
     caffa::ObjectHandle* m_fieldOwner;
-    std::string        m_fieldName;
+    std::string          m_fieldName;
 };
 
 } // namespace caffa::rpc

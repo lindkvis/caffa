@@ -21,6 +21,7 @@
 //##################################################################################################
 #pragma once
 
+#include "cafDynamicUniqueCast.h"
 #include "cafFieldValueValidator.h"
 #include "cafTypedField.h"
 
@@ -138,6 +139,12 @@ public:
 
     // Replace accessor
     void setAccessor( std::unique_ptr<DataAccessor> accessor ) { m_fieldDataAccessor = std::move( accessor ); }
+
+    void setUntypedAccessor( std::unique_ptr<DataFieldAccessorInterface> accessor ) override
+    {
+        CAFFA_ASSERT( caffa::dynamic_unique_cast_is_valid<DataAccessor>( accessor ) );
+        setAccessor( caffa::dynamic_unique_cast<DataAccessor>( std::move( accessor ) ) );
+    }
 
     FieldValueValidator<DataType>* valueValidator() const { return m_valueValidator.get(); }
     void                           setValueValidator( std::unique_ptr<FieldValueValidator<DataType>> valueValidator )

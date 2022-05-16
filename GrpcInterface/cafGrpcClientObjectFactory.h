@@ -24,6 +24,9 @@
 
 #include "cafAssert.h"
 #include "cafGrpcClient.h"
+#include "cafGrpcDataFieldAccessor.h"
+
+#include "cafPortableDataType.h"
 
 #include <map>
 #include <string>
@@ -31,11 +34,27 @@
 
 namespace caffa::rpc
 {
-//==================================================================================================
-/// "Private" class for implementation of a factory for ObjectBase derived objects
-/// Every Object must register with this factory to be readable
-/// This class can be considered private in the Pdm system
-//==================================================================================================
+class Client;
+
+class AccessorCreatorBase
+{
+public:
+    AccessorCreatorBase() {}
+    virtual ~AccessorCreatorBase() {}
+    virtual std::unique_ptr<DataFieldAccessorInterface>
+        create( Client* client, caffa::ObjectHandle* fieldOwner, const std::string& fieldName ) = 0;
+};
+
+template <typename DataType>
+class AccessorCreator : public AccessorCreatorBase
+{
+public:
+    std::unique_ptr<DataFieldAccessorInterface>
+        create( Client* client, caffa::ObjectHandle* fieldOwner, const std::string& fieldName ) override
+    {
+        return std::make_unique<GrpcDataFieldAccessor<DataType>>( client, fieldOwner, fieldName );
+    }
+};
 
 class GrpcClientObjectFactory : public ObjectFactory
 {
@@ -44,6 +63,13 @@ public:
 
     std::vector<std::string> classKeywords() const override;
     void                     setGrpcClient( Client* client );
+    template <typename DataType>
+    void registerBasicAccessorCreators()
+    {
+        registerAccessorCreator( PortableDataType<DataType>::name(), std::make_unique<AccessorCreator<DataType>>() );
+        registerAccessorCreator( PortableDataType<std::vector<DataType>>::name(),
+                                 std::make_unique<AccessorCreator<std::vector<DataType>>>() );
+    }
 
 private:
     std::unique_ptr<ObjectHandle> doCreate( const std::string& classNameKeyword ) override;
@@ -51,13 +77,21 @@ private:
     GrpcClientObjectFactory()
         : m_grpcClient( nullptr )
     {
+        registerAllBasicAccessorCreators();
     }
     ~GrpcClientObjectFactory() override = default;
 
     void applyAccessorToField( caffa::ObjectHandle* objectHandle, caffa::FieldHandle* fieldHandle );
 
+    void registerAccessorCreator( const std::string& dataType, std::unique_ptr<AccessorCreatorBase> creator );
+
+    void registerAllBasicAccessorCreators();
+
 private:
     Client* m_grpcClient;
+
+    // Map to store factory
+    std::map<std::string, std::unique_ptr<AccessorCreatorBase>> m_accessorCreatorMap;
 };
 
 } // namespace caffa::rpc

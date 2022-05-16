@@ -54,8 +54,14 @@ struct is_vector<std::vector<T, A>> : public std::true_type
 {
 };
 
+class DataField : public FieldHandle
+{
+public:
+    virtual void setUntypedAccessor( std::unique_ptr<DataFieldAccessorInterface> accessor ) = 0;
+};
+
 template <typename DataType>
-class TypedField : public FieldHandle
+class TypedField : public DataField
 {
 public:
     using FieldDataType = DataType;
