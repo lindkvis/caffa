@@ -51,6 +51,10 @@ set(GSL_CXX_STANDARD
 set(GSL_TEST
     OFF
     CACHE INTERNAL "Build GSL tests")
+set(UUID_BUILD_TESTS
+    OFF
+    CACHE INTERNAL "Build stduuid tests")
+
 add_subdirectory(ThirdParty/json)
 add_subdirectory(ThirdParty/GSL)
 add_subdirectory(ThirdParty/gtest)
