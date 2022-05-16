@@ -29,7 +29,6 @@
 #include "cafLogger.h"
 #include "cafSignal.h"
 
-#include <any>
 #include <list>
 #include <memory>
 #include <set>

@@ -39,7 +39,6 @@
 #include "cafFieldHandle.h"
 #include "cafPortableDataType.h"
 
-#include <any>
 #include <typeinfo>
 
 namespace caffa

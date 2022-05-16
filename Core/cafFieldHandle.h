@@ -3,7 +3,6 @@
 #include "cafBase.h"
 #include "cafSignal.h"
 
-#include <any>
 #include <memory>
 #include <string>
 #include <utility>
