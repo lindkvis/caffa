@@ -28,6 +28,7 @@
 
 #include <iostream>
 #include <list>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -87,6 +88,11 @@ public:
     AppEnum( T value )
         : m_value( value )
     {
+    }
+    AppEnum( const std::string& value )
+    {
+        m_value = EnumMapper::instance()->defaultValue();
+        if ( !setFromLabel( value ) ) throw std::runtime_error( value + " is not a valid option" );
     }
 
     bool operator==( T value ) const { return m_value == value; }
