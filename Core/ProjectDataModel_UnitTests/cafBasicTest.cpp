@@ -401,7 +401,7 @@ TEST( BaseTest, ValidXmlKeywords )
 
     EXPECT_FALSE( caffa::ObjectIoCapability::isValidElementName( "2Valid_name" ) );
     EXPECT_FALSE( caffa::ObjectIoCapability::isValidElementName( ".Valid_name" ) );
-    EXPECT_FALSE( caffa::ObjectIoCapability::isValidElementName( "xml_Valid_name" ) );
+    EXPECT_TRUE( caffa::ObjectIoCapability::isValidElementName( "xml_Valid_name" ) );
     EXPECT_FALSE( caffa::ObjectIoCapability::isValidElementName( "Valid_name_with_space " ) );
 }
 
