@@ -56,15 +56,6 @@ bool ObjectIoCapability::isValidElementName( const std::string& name )
         }
     }
 
-    if ( name.size() >= 3 )
-    {
-        auto lower = caffa::StringTools::tolower( name );
-        if ( lower.compare( 0, 3, "xml" ) == 0 )
-        {
-            return false;
-        }
-    }
-
     if ( name.find( ' ' ) != std::string::npos )
     {
         return false;
@@ -76,7 +67,7 @@ bool ObjectIoCapability::isValidElementName( const std::string& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> ObjectIoCapability::copyBySerialization( ObjectFactory* objectFactory )
+std::unique_ptr<ObjectHandle> ObjectIoCapability::copyBySerialization( ObjectFactory* objectFactory ) const
 {
     return JsonSerializer( objectFactory ).copyBySerialization( m_owner );
 }
@@ -85,7 +76,7 @@ std::unique_ptr<ObjectHandle> ObjectIoCapability::copyBySerialization( ObjectFac
 ///
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<ObjectHandle> ObjectIoCapability::copyAndCastBySerialization( const std::string& destinationClassKeyword,
-                                                                              ObjectFactory*     objectFactory )
+                                                                              ObjectFactory*     objectFactory ) const
 {
     return JsonSerializer( objectFactory ).copyAndCastBySerialization( m_owner, destinationClassKeyword );
 }

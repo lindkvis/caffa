@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cafDynamicUniqueCast.h"
 #include "cafObjectCapability.h"
 
 #include <iostream>
@@ -42,20 +43,24 @@ public:
     void initAfterReadRecursively() { initAfterReadRecursively( this->m_owner ); };
     void setupBeforeSaveRecursively() { setupBeforeSaveRecursively( this->m_owner ); };
 
-    std::unique_ptr<ObjectHandle> copyBySerialization( ObjectFactory* objectFactory );
+    std::unique_ptr<ObjectHandle> copyBySerialization( ObjectFactory* objectFactory ) const;
 
     std::unique_ptr<ObjectHandle> copyAndCastBySerialization( const std::string& destinationClassKeyword,
-                                                              ObjectFactory*     objectFactory );
+                                                              ObjectFactory*     objectFactory ) const;
 
+    /**
+     * @brief Copy the object by serializing it and then casting it to the given type.
+     * Note that the object will be deleted if the cast fails.
+     *
+     * @tparam ObjectType The type (derived from ObjectHandle) to cast to
+     * @param objectFactory The factory used to create the object
+     * @return std::unique_ptr<ObjectType>
+     */
     template <typename ObjectType>
-    std::unique_ptr<ObjectType> copyTypedObjectBySerialization( ObjectFactory* objectFactory )
+    std::unique_ptr<ObjectType> copyTypedObjectBySerialization( ObjectFactory* objectFactory ) const
     {
         auto objectHandle = this->copyBySerialization( objectFactory );
-        if ( dynamic_cast<ObjectType*>( objectHandle.get() ) != nullptr )
-        {
-            return std::unique_ptr<ObjectType>( static_cast<ObjectType*>( objectHandle.release() ) );
-        }
-        return nullptr; // Will delete the copy
+        return caffa::dynamic_unique_cast<ObjectType>( std::move( objectHandle ) );
     }
 
     bool readFile( const std::string& fileName, IoType ioType = IoType::JSON );
