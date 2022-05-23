@@ -676,6 +676,7 @@ grpc::Status SetterStateHandler::init( const GenericArray* chunk )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + fieldRequest.session().uuid() + "' is not valid" );
     }
+    ServerApplication::instance()->keepAliveSession( fieldRequest.session().uuid() );
 
     m_fieldOwner = ObjectService::findCafObjectFromFieldRequest( fieldRequest );
 
@@ -853,6 +854,7 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
     }
+    ServerApplication::instance()->keepAliveSession( request->session().uuid() );
 
     auto fieldOwner = ObjectService::ObjectService::findCafObjectFromFieldRequest( *request );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
@@ -914,6 +916,7 @@ grpc::Status FieldService::ClearChildObjects( grpc::ServerContext* context, cons
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
     }
+    ServerApplication::instance()->keepAliveSession( request->session().uuid() );
 
     auto fieldOwner = ObjectService::ObjectService::findCafObjectFromFieldRequest( *request );
     CAFFA_TRACE( "Clear Child Objects for field: " << request->keyword() );
@@ -962,6 +965,7 @@ grpc::Status FieldService::RemoveChildObject( grpc::ServerContext* context, cons
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
     }
+    ServerApplication::instance()->keepAliveSession( request->session().uuid() );
 
     auto fieldOwner = ObjectService::ObjectService::findCafObjectFromFieldRequest( *request );
     CAFFA_TRACE( "Remove Child Object at index " << request->index() << " for field: " << request->keyword() );
@@ -1003,6 +1007,7 @@ grpc::Status FieldService::InsertChildObject( grpc::ServerContext* context, cons
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + fieldRequest.session().uuid() + "' is not valid" );
     }
+    ServerApplication::instance()->keepAliveSession( fieldRequest.session().uuid() );
 
     auto fieldOwner = ObjectService::findCafObjectFromFieldRequest( fieldRequest );
     CAFFA_TRACE( " Inserting Child Object at index " << fieldRequest.index() << " for field: " << fieldRequest.keyword() );
@@ -1067,6 +1072,7 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + fieldRequest.session().uuid() + "' is not valid" );
     }
+    ServerApplication::instance()->keepAliveSession( fieldRequest.session().uuid() );
 
     auto fieldOwner = ObjectService::ObjectService::findCafObjectFromFieldRequest( fieldRequest );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );

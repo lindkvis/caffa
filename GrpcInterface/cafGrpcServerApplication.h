@@ -57,6 +57,7 @@ public:
     virtual Session* createSession()                                      = 0;
     virtual Session* getExistingSession( const std::string& sessionUuid ) = 0;
     virtual void     destroySession( const std::string& sessionUuid )     = 0;
+    virtual void     keepAliveSession( const std::string& sessionUuid )   = 0;
 
 private:
     virtual void onStartup() {}

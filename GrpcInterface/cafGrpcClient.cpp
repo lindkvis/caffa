@@ -102,6 +102,8 @@ public:
         destroySession();
     }
 
+    const std::string& sessionUuid() const { return m_sessionUuid; }
+
     void createSession()
     {
         caffa::rpc::SessionMessage session;
@@ -111,12 +113,29 @@ public:
         auto status = m_appInfoStub->CreateSession( &context, nullarg, &session );
         if ( !status.ok() )
         {
-            CAFFA_ERROR( "Failed to create session with error: " + status.error_message() );
+            CAFFA_ERROR( status.error_message() );
             throw Exception( status );
         }
 
         m_sessionUuid = session.uuid();
         CAFFA_DEBUG( "Created session " << m_sessionUuid );
+    }
+
+    void sendKeepAlive()
+    {
+        CAFFA_DEBUG( "Keeping session alive" << m_sessionUuid );
+
+        caffa::rpc::SessionMessage session;
+        session.set_uuid( m_sessionUuid );
+        grpc::ClientContext context;
+        NullMessage         nullreply;
+
+        auto status = m_appInfoStub->KeepSessionAlive( &context, session, &nullreply );
+        if ( !status.ok() )
+        {
+            CAFFA_ERROR( status.error_message() );
+            throw Exception( status );
+        }
     }
 
     void destroySession()
@@ -212,11 +231,16 @@ public:
 
             for ( auto documentId : objectListReply.document_id() )
             {
+                grpc::ClientContext docContext;
+
                 caffa::rpc::DocumentRequest request;
                 request.set_document_id( documentId );
+                auto session = std::make_unique<caffa::rpc::SessionMessage>();
+                session->set_uuid( m_sessionUuid );
+                request.set_allocated_session( session.release() );
                 caffa::rpc::RpcObject objectReply;
                 CAFFA_TRACE( "Calling GetDocument()" );
-                auto status = m_objectStub->GetDocument( &context, request, &objectReply );
+                auto status = m_objectStub->GetDocument( &docContext, request, &objectReply );
                 std::unique_ptr<caffa::ObjectHandle> document =
                     caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply, serializer );
                 documents.push_back( std::move( document ) );
@@ -1006,6 +1030,30 @@ std::unique_ptr<caffa::ObjectMethodResult> Client::execute( gsl::not_null<const 
 bool Client::stopServer()
 {
     return m_clientImpl->stopServer();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Tell the server to stay alive
+//--------------------------------------------------------------------------------------------------
+void Client::sendKeepAlive()
+{
+    m_clientImpl->sendKeepAlive();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Tell the server to destroy the session
+//--------------------------------------------------------------------------------------------------
+void Client::destroySession()
+{
+    m_clientImpl->destroySession();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Get the current session ID
+//--------------------------------------------------------------------------------------------------
+const std::string& Client::sessionUuid() const
+{
+    return m_clientImpl->sessionUuid();
 }
 
 //--------------------------------------------------------------------------------------------------

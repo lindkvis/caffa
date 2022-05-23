@@ -25,6 +25,7 @@
 #include "cafGrpcSession.h"
 #include "cafLogger.h"
 
+#include <chrono>
 #include <stdexcept>
 
 class ServerApp : public caffa::rpc::ServerApplication
@@ -96,9 +97,18 @@ public:
     {
         if ( m_session )
         {
-            throw std::runtime_error( "We already have a session and only allow one at a time!" );
+            auto now = std::chrono::steady_clock::now();
+            if ( now - m_lastKeepAlive < std::chrono::milliseconds( 500 ) )
+            {
+                throw std::runtime_error( "We already have a session and only allow one at a time!" );
+            }
+            else
+            {
+                CAFFA_DEBUG( "Had session " << m_session->uuid() << " but it has not been kept alive, so destroying it" );
+            }
         }
-        m_session = std::make_unique<caffa::rpc::Session>();
+        m_session       = std::make_unique<caffa::rpc::Session>();
+        m_lastKeepAlive = std::chrono::steady_clock::now();
         return m_session.get();
     }
 
@@ -111,6 +121,19 @@ public:
         return nullptr;
     }
 
+    void keepAliveSession( const std::string& sessionUuid ) override
+    {
+        if ( m_session && m_session->uuid() == sessionUuid )
+        {
+            m_lastKeepAlive = std::chrono::steady_clock::now();
+        }
+        else
+        {
+            CAFFA_ERROR( "Session does not exist " << sessionUuid );
+            throw std::runtime_error( std::string( "Session does not exist'" ) + sessionUuid + "'" );
+        }
+    }
+
     void destroySession( const std::string& sessionUuid )
     {
         CAFFA_TRACE( "Attempting to destroy session " << sessionUuid );
@@ -121,7 +144,6 @@ public:
         }
         else
         {
-            CAFFA_ERROR( "Failed to destroy " << sessionUuid );
             throw std::runtime_error( std::string( "Failed to destroy session '" ) + sessionUuid + "'" );
         }
     }
@@ -135,4 +157,6 @@ private:
     std::unique_ptr<DemoDocumentWithNonScriptableMember> m_demoDocumentWithNonScriptableMember;
 
     std::unique_ptr<caffa::rpc::Session> m_session;
+
+    std::chrono::steady_clock::time_point m_lastKeepAlive;
 };
