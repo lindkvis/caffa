@@ -37,6 +37,7 @@
 #include "cafGrpcCallbacks.h"
 #include "cafGrpcServer.h"
 #include "cafGrpcServerApplication.h"
+#include "cafGrpcSession.h"
 #include "cafLogger.h"
 
 #include "AppInfo.pb.h"
@@ -80,16 +81,64 @@ grpc::Status AppService::PerformResetToDefaultData( grpc::ServerContext*, const 
     return grpc::Status::OK;
 }
 
+grpc::Status AppService::CreateSession( grpc::ServerContext* context, const NullMessage* request, SessionMessage* reply )
+{
+    CAFFA_DEBUG( "Received create session request" );
+
+    try
+    {
+        Session* session = ServerApplication::instance()->createSession();
+        if ( !session ) throw std::runtime_error( "Failed to create session" );
+        reply->set_uuid( session->uuid() );
+        CAFFA_TRACE( "Created session: " << session->uuid() );
+    }
+    catch ( const std::exception& e )
+    {
+        CAFFA_ERROR( "Failed to create session with error: " << e.what() );
+        return grpc::Status( grpc::FAILED_PRECONDITION, std::string( "Failed to create session with error: " ) + e.what() );
+    }
+
+    return grpc::Status::OK;
+}
+
+grpc::Status AppService::KeepSessionAlive( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply )
+{
+    CAFFA_DEBUG( "Received session keep-alive" );
+
+    return grpc::Status::OK;
+}
+
+grpc::Status AppService::DestroySession( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply )
+{
+    CAFFA_DEBUG( "Received destroy session request for " << request->uuid() );
+
+    try
+    {
+        ServerApplication::instance()->destroySession( request->uuid() );
+    }
+    catch ( const std::exception& e )
+    {
+        CAFFA_ERROR( e.what() );
+        return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
+    }
+    return grpc::Status::OK;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<AbstractCallback*> AppService::createCallbacks()
 {
     typedef AppService Self;
-    return { new UnaryCallback<Self, NullMessage, NullMessage>( this, &Self::PerformQuit, &Self::RequestQuit ),
-             new UnaryCallback<Self, NullMessage, AppInfoReply>( this, &Self::PerformGetAppInfo, &Self::RequestGetAppInfo ),
-             new UnaryCallback<Self, NullMessage, NullMessage>( this, &Self::PerformPing, &Self::RequestPing ),
-             new UnaryCallback<Self, NullMessage, NullMessage>( this,
-                                                                &Self::PerformResetToDefaultData,
-                                                                &Self::RequestResetToDefaultData ) };
+    return {
+        new UnaryCallback<Self, NullMessage, NullMessage>( this, &Self::PerformQuit, &Self::RequestQuit ),
+        new UnaryCallback<Self, NullMessage, AppInfoReply>( this, &Self::PerformGetAppInfo, &Self::RequestGetAppInfo ),
+        new UnaryCallback<Self, NullMessage, NullMessage>( this, &Self::PerformPing, &Self::RequestPing ),
+        new UnaryCallback<Self, NullMessage, NullMessage>( this,
+                                                           &Self::PerformResetToDefaultData,
+                                                           &Self::RequestResetToDefaultData ),
+        new UnaryCallback<Self, NullMessage, SessionMessage>( this, &Self::CreateSession, &Self::RequestCreateSession ),
+        new UnaryCallback<Self, SessionMessage, NullMessage>( this, &Self::KeepSessionAlive, &Self::RequestKeepSessionAlive ),
+        new UnaryCallback<Self, SessionMessage, NullMessage>( this, &Self::DestroySession, &Self::RequestDestroySession ),
+    };
 }

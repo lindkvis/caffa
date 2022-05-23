@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Caffa
-//   Copyright (C) 2021- 3D-Radar AS
+//   Copyright (C) 2022- Kontur AS
 //
 //   GNU Lesser General Public License Usage
 //   This library is free software; you can redistribute it and/or modify
@@ -18,25 +18,19 @@
 //
 #pragma once
 
-#include "cafGrpcApplication.h"
-
-#include <memory>
 #include <string>
 
 namespace caffa::rpc
 {
-class Client;
-
-class ClientApplication : public Application
+class Session
 {
 public:
-    ClientApplication( const std::string& hostname, int portNumber );
-    static ClientApplication* instance();
+    Session();
+    ~Session() = default;
 
-    Client*       client();
-    const Client* client() const;
+    const std::string& uuid() const;
 
 private:
-    std::unique_ptr<Client> m_client;
+    std::string m_uuid;
 };
 } // namespace caffa::rpc

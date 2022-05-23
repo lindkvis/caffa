@@ -115,12 +115,12 @@ TEST_F( GrpcTest, Document )
 
     try
     {
-        auto objectHandle   = client->document( "testDocument" );
+        std::unique_ptr<caffa::ObjectHandle> objectHandle;
+        ASSERT_NO_THROW( objectHandle = client->document( "testDocument" ) );
         auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
         ASSERT_TRUE( clientDocument != nullptr );
 
-        auto nonExistentClientDocument = client->document( "wrongName" );
-        ASSERT_TRUE( nonExistentDocument == nullptr );
+        ASSERT_ANY_THROW( auto nonExistentClientDocument = client->document( "wrongName" ) );
 
         auto clientFileName = clientDocument->fileName();
         CAFFA_DEBUG( "Client Document File Name: " << clientFileName );
@@ -836,6 +836,75 @@ TEST_F( GrpcTest, LocalResponseTimeAndDataTransfer )
         bool ok = client->stopServer();
         ASSERT_TRUE( ok );
     }
+    CAFFA_DEBUG( "Stopping server and waiting for server to join" );
+    thread.join();
+    CAFFA_DEBUG( "Server joined" );
+}
+
+TEST_F( GrpcTest, MultipleSessions )
+{
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
+
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+
+    {
+        std::unique_ptr<caffa::rpc::Client> client1;
+
+        ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                                         ServerApp::s_port,
+                                                                         ServerApp::s_clientCertFile,
+                                                                         ServerApp::s_clientKeyFile,
+                                                                         ServerApp::s_caCertFile ) );
+        ASSERT_TRUE( client1 );
+    }
+    std::unique_ptr<caffa::rpc::Client> client2;
+    ASSERT_NO_THROW( client2 = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                                     ServerApp::s_port,
+                                                                     ServerApp::s_clientCertFile,
+                                                                     ServerApp::s_clientKeyFile,
+                                                                     ServerApp::s_caCertFile ) );
+    ASSERT_TRUE( client2 );
+    client2->stopServer();
+    CAFFA_DEBUG( "Stopping server and waiting for server to join" );
+    thread.join();
+    CAFFA_DEBUG( "Server joined" );
+}
+
+TEST_F( GrpcTest, MultipleConcurrentSessionsShouldBeRefused )
+{
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
+
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+
+    std::unique_ptr<caffa::rpc::Client> client1, client2;
+
+    ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                                     ServerApp::s_port,
+                                                                     ServerApp::s_clientCertFile,
+                                                                     ServerApp::s_clientKeyFile,
+                                                                     ServerApp::s_caCertFile ) );
+    ASSERT_TRUE( client1 );
+
+    ASSERT_ANY_THROW( client2 = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                                      ServerApp::s_port,
+                                                                      ServerApp::s_clientCertFile,
+                                                                      ServerApp::s_clientKeyFile,
+                                                                      ServerApp::s_caCertFile ) );
+    ASSERT_TRUE( client2 == nullptr );
+    CAFFA_INFO( "Failed to create new session as expected" );
+    client1->stopServer();
     CAFFA_DEBUG( "Stopping server and waiting for server to join" );
     thread.join();
     CAFFA_DEBUG( "Server joined" );

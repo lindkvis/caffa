@@ -51,10 +51,11 @@ public:
     std::unique_ptr<caffa::ObjectHandle>              document( const std::string& documentId ) const;
     std::vector<std::unique_ptr<caffa::ObjectHandle>> documents() const;
     std::unique_ptr<caffa::ObjectMethodResult>        execute( gsl::not_null<const caffa::ObjectMethod*> method ) const;
-    bool                                              stopServer() const;
-    bool                                              ping() const;
-    void                                              resetToDefaultData() const;
-    std::list<std::unique_ptr<caffa::ObjectHandle>>   objectMethods( caffa::ObjectHandle* objectHandle ) const;
+    bool                                              stopServer();
+
+    bool                                            ping() const;
+    void                                            resetToDefaultData() const;
+    std::list<std::unique_ptr<caffa::ObjectHandle>> objectMethods( caffa::ObjectHandle* objectHandle ) const;
 
     template <typename DataType>
     void set( const caffa::ObjectHandle* objectHandle,

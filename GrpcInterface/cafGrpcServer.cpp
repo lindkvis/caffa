@@ -1,7 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //   Caffa
-//   Copyright (C) Gaute Lindkvist
+//   Copyright (C) 2020-2021 Gaute Lindkvist
+//   Copyright (C) 2021- Kontur AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:

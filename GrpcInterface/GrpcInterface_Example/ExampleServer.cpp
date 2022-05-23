@@ -19,6 +19,7 @@
 
 #include "cafGrpcServer.h"
 #include "cafGrpcServerApplication.h"
+#include "cafGrpcSession.h"
 
 #include "cafLogger.h"
 
@@ -77,12 +78,37 @@ public:
 
     void resetToDefaultData() override { m_demoDocument = std::make_unique<DemoDocument>(); }
 
+    caffa::rpc::Session* createSession() override
+    {
+        m_session = std::make_unique<caffa::rpc::Session>();
+        return m_session.get();
+    }
+
+    caffa::rpc::Session* getExistingSession( const std::string& sessionUuid ) override
+    {
+        if ( m_session && m_session->uuid() == sessionUuid )
+        {
+            return m_session.get();
+        }
+        return nullptr;
+    }
+
+    void destroySession( const std::string& sessionUuid )
+    {
+        if ( m_session && m_session->uuid() == sessionUuid )
+        {
+            m_session.reset();
+        }
+    }
+
 private:
     void onStartup() override { CAFFA_INFO( "Starting Server" ); }
     void onShutdown() override { CAFFA_INFO( "Shutting down Server" ); }
 
 private:
     std::unique_ptr<DemoDocument> m_demoDocument;
+
+    std::unique_ptr<caffa::rpc::Session> m_session;
 };
 
 //--------------------------------------------------------------------------------------------------
