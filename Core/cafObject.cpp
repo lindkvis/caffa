@@ -1,9 +1,6 @@
 #include "cafObject.h"
 
-#include "uuid.h"
-
-#include <chrono>
-#include <random>
+#include "cafUuidGenerator.h"
 
 using namespace caffa;
 
@@ -18,16 +15,7 @@ Object::Object()
     : ObjectHandle()
     , ObjectIoCapability( this, false )
 {
-    auto     now                     = system_clock::now();
-    auto     nanoseconds_since_epoch = now.time_since_epoch();
-    auto     seconds_since_epoch     = duration_cast<seconds>( nanoseconds_since_epoch );
-    unsigned nanoseconds_since_last_second =
-        static_cast<unsigned>( ( nanoseconds_since_epoch - duration_cast<nanoseconds>( seconds_since_epoch ) ).count() );
-
-    std::mt19937                 generator( nanoseconds_since_last_second );
-    uuids::uuid_random_generator gen( generator );
-
-    initField( m_uuid, "UUID" ).withScripting( "UUID", true, false ).withDefault( uuids::to_string( gen() ) );
+    initField( m_uuid, "UUID" ).withScripting( "UUID", true, false ).withDefault( UuidGenerator::generate() );
 }
 
 //--------------------------------------------------------------------------------------------------

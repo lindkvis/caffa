@@ -42,6 +42,9 @@ public:
     grpc::Status PerformGetAppInfo( grpc::ServerContext* context, const NullMessage* request, AppInfoReply* reply );
     grpc::Status PerformPing( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply );
     grpc::Status PerformResetToDefaultData( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply );
+    grpc::Status CreateSession( grpc::ServerContext* context, const NullMessage* request, SessionMessage* reply );
+    grpc::Status KeepSessionAlive( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply );
+    grpc::Status DestroySession( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply );
 
     std::vector<AbstractCallback*> createCallbacks() override;
 };

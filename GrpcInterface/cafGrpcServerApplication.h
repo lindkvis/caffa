@@ -25,6 +25,8 @@
 
 namespace caffa::rpc
 {
+class Session;
+
 class ServerApplication : public Application
 {
 public:
@@ -51,6 +53,10 @@ public:
     virtual std::list<const Document*> documents() const                               = 0;
 
     virtual void resetToDefaultData() = 0;
+
+    virtual Session* createSession()                                      = 0;
+    virtual Session* getExistingSession( const std::string& sessionUuid ) = 0;
+    virtual void     destroySession( const std::string& sessionUuid )     = 0;
 
 private:
     virtual void onStartup() {}

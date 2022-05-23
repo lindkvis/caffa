@@ -65,6 +65,14 @@ std::mutex                            ObjectService::s_uuidCacheMutex;
 grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const DocumentRequest* request, RpcObject* reply )
 {
     CAFFA_TRACE( "Got document request" );
+
+    Session* session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
+    if ( !session )
+    {
+        CAFFA_ERROR( "Session '" << request->session().uuid() << "' is not valid" );
+        return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
+    }
+
     Document* document = ServerApplication::instance()->document( request->document_id() );
     if ( document )
     {
@@ -78,16 +86,20 @@ grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const Doc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status ObjectService::GetDocuments( grpc::ServerContext* context, const NullMessage* request, RpcObjectList* reply )
+grpc::Status ObjectService::ListDocuments( grpc::ServerContext* context, const SessionMessage* request, DocumentList* reply )
 {
     CAFFA_TRACE( "Got document request" );
+    Session* session = ServerApplication::instance()->getExistingSession( request->uuid() );
+    if ( !session )
+    {
+        return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->uuid() + "' is not valid" );
+    }
+
     auto documents = ServerApplication::instance()->documents();
     CAFFA_TRACE( "Found " << documents.size() << " document" );
     for ( auto document : documents )
     {
-        RpcObject* newRpcObject = reply->add_objects();
-        CAFFA_TRACE( "Copying document to gRPC data structure" );
-        copyProjectObjectFromCafToRpc( document, newRpcObject );
+        reply->add_document_id( document->id() );
     }
     return grpc::Status::OK;
 }
@@ -99,6 +111,12 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
 {
     const RpcObject& self = request->self_object();
     CAFFA_TRACE( "Execute method: " << request->method() );
+
+    Session* session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
+    if ( !session )
+    {
+        return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
+    }
 
     auto matchingObject = findCafObjectFromRpcObject( self );
     if ( matchingObject )
@@ -126,11 +144,19 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status ObjectService::ListMethods( grpc::ServerContext* context, const RpcObject* self, RpcObjectList* reply )
+grpc::Status
+    ObjectService::ListMethods( grpc::ServerContext* context, const ListMethodsRequest* request, RpcObjectList* reply )
 {
-    auto matchingObject = findCafObjectFromRpcObject( *self );
+    auto matchingObject = findCafObjectFromRpcObject( request->self() );
     CAFFA_ASSERT( matchingObject );
     CAFFA_TRACE( "Listing Object methods for " << matchingObject->classKeyword() );
+
+    Session* session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
+    if ( !session )
+    {
+        return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
+    }
+
     if ( matchingObject )
     {
         auto methodNames = ObjectMethodFactory::instance()->registeredMethodNames( matchingObject );
@@ -358,9 +384,9 @@ std::vector<AbstractCallback*> ObjectService::createCallbacks()
 {
     typedef ObjectService Self;
     return { new UnaryCallback<Self, DocumentRequest, RpcObject>( this, &Self::GetDocument, &Self::RequestGetDocument ),
-             new UnaryCallback<Self, NullMessage, RpcObjectList>( this, &Self::GetDocuments, &Self::RequestGetDocuments ),
+             new UnaryCallback<Self, SessionMessage, DocumentList>( this, &Self::ListDocuments, &Self::RequestListDocuments ),
              new UnaryCallback<Self, MethodRequest, RpcObject>( this, &Self::ExecuteMethod, &Self::RequestExecuteMethod ),
-             new UnaryCallback<Self, RpcObject, RpcObjectList>( this, &Self::ListMethods, &Self::RequestListMethods )
+             new UnaryCallback<Self, ListMethodsRequest, RpcObjectList>( this, &Self::ListMethods, &Self::RequestListMethods )
 
     };
 }

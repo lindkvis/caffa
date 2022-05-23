@@ -57,10 +57,10 @@ class ObjectService final : public ObjectAccess::AsyncService, public ServiceInt
 {
 public:
     grpc::Status GetDocument( grpc::ServerContext* context, const DocumentRequest* request, RpcObject* reply ) override;
-    grpc::Status GetDocuments( grpc::ServerContext* context, const NullMessage* request, RpcObjectList* reply ) override;
+    grpc::Status ListDocuments( grpc::ServerContext* context, const SessionMessage* request, DocumentList* reply ) override;
 
     grpc::Status ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, RpcObject* reply ) override;
-    grpc::Status ListMethods( grpc::ServerContext* context, const RpcObject* self, RpcObjectList* reply ) override;
+    grpc::Status ListMethods( grpc::ServerContext* context, const ListMethodsRequest* self, RpcObjectList* reply ) override;
 
     static caffa::Object* findCafObjectFromRpcObject( const RpcObject& rpcObject );
     static caffa::Object* findCafObjectFromFieldRequest( const FieldRequest& fieldRequest );

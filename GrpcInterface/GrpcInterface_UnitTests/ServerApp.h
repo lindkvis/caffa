@@ -22,7 +22,10 @@
 
 #include "cafGrpcServer.h"
 #include "cafGrpcServerApplication.h"
+#include "cafGrpcSession.h"
 #include "cafLogger.h"
+
+#include <stdexcept>
 
 class ServerApp : public caffa::rpc::ServerApplication
 {
@@ -89,6 +92,40 @@ public:
 
     void resetToDefaultData() override { m_demoDocument = std::make_unique<DemoDocument>(); }
 
+    caffa::rpc::Session* createSession() override
+    {
+        if ( m_session )
+        {
+            throw std::runtime_error( "We already have a session and only allow one at a time!" );
+        }
+        m_session = std::make_unique<caffa::rpc::Session>();
+        return m_session.get();
+    }
+
+    caffa::rpc::Session* getExistingSession( const std::string& sessionUuid ) override
+    {
+        if ( m_session && m_session->uuid() == sessionUuid )
+        {
+            return m_session.get();
+        }
+        return nullptr;
+    }
+
+    void destroySession( const std::string& sessionUuid )
+    {
+        CAFFA_TRACE( "Attempting to destroy session " << sessionUuid );
+        if ( m_session && m_session->uuid() == sessionUuid )
+        {
+            m_session.reset();
+            CAFFA_TRACE( "Session " << sessionUuid << " destroyed!" );
+        }
+        else
+        {
+            CAFFA_ERROR( "Failed to destroy " << sessionUuid );
+            throw std::runtime_error( std::string( "Failed to destroy session '" ) + sessionUuid + "'" );
+        }
+    }
+
 private:
     void onStartup() override { CAFFA_DEBUG( "Starting Server" ); }
     void onShutdown() override { CAFFA_DEBUG( "Shutting down Server" ); }
@@ -96,4 +133,6 @@ private:
 private:
     std::unique_ptr<DemoDocument>                        m_demoDocument;
     std::unique_ptr<DemoDocumentWithNonScriptableMember> m_demoDocumentWithNonScriptableMember;
+
+    std::unique_ptr<caffa::rpc::Session> m_session;
 };

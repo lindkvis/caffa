@@ -93,11 +93,53 @@ public:
         m_objectStub  = ObjectAccess::NewStub( m_channel );
         m_fieldStub   = FieldAccess::NewStub( m_channel );
         CAFFA_TRACE( "Created stubs" );
+        createSession();
     }
     ~ClientImpl()
     {
         //
         CAFFA_DEBUG( "Destroying client" );
+        destroySession();
+    }
+
+    void createSession()
+    {
+        caffa::rpc::SessionMessage session;
+        grpc::ClientContext        context;
+        NullMessage                nullarg;
+
+        auto status = m_appInfoStub->CreateSession( &context, nullarg, &session );
+        if ( !status.ok() )
+        {
+            CAFFA_ERROR( "Failed to create session with error: " + status.error_message() );
+            throw Exception( status );
+        }
+
+        m_sessionUuid = session.uuid();
+        CAFFA_DEBUG( "Created session " << m_sessionUuid );
+    }
+
+    void destroySession()
+    {
+        if ( !m_sessionUuid.empty() )
+        {
+            CAFFA_DEBUG( "Destroying session " << m_sessionUuid );
+
+            caffa::rpc::SessionMessage session;
+            session.set_uuid( m_sessionUuid );
+            grpc::ClientContext context;
+            NullMessage         nullreply;
+
+            auto status = m_appInfoStub->DestroySession( &context, session, &nullreply );
+            if ( !status.ok() )
+            {
+                CAFFA_ERROR( status.error_message() );
+                throw Exception( status );
+            }
+
+            m_sessionUuid = "";
+            CAFFA_TRACE( "Session destroyed" );
+        }
     }
 
     caffa::AppInfo appInfo() const
@@ -109,7 +151,7 @@ public:
         auto                     status = m_appInfoStub->GetAppInfo( &context, nullarg, &reply );
         if ( !status.ok() )
         {
-            CAFFA_ERROR( "Failed to get AppInfo with error message: " << status.error_message() );
+            throw Exception( status );
         }
         caffa::AppInfo appInfo = { reply.name(),
                                    reply.major_version(),
@@ -126,6 +168,10 @@ public:
         grpc::ClientContext         context;
         caffa::rpc::DocumentRequest request;
         request.set_document_id( documentId );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        request.set_allocated_session( session.release() );
+
         caffa::rpc::RpcObject objectReply;
         CAFFA_TRACE( "Calling GetDocument()" );
         auto status = m_objectStub->GetDocument( &context, request, &objectReply );
@@ -140,6 +186,7 @@ public:
         else
         {
             CAFFA_ERROR( "Failed to get document with server error message: " + status.error_message() );
+            throw Exception( status );
         }
         return document;
     }
@@ -148,28 +195,37 @@ public:
     {
         std::vector<std::unique_ptr<caffa::ObjectHandle>> documents;
 
-        grpc::ClientContext       context;
-        caffa::rpc::NullMessage   request;
-        caffa::rpc::RpcObjectList objectListReply;
-        CAFFA_TRACE( "Calling GetDocument()" );
-        auto status = m_objectStub->GetDocuments( &context, request, &objectListReply );
+        grpc::ClientContext        context;
+        caffa::rpc::SessionMessage request;
+        request.set_uuid( m_sessionUuid );
+
+        caffa::rpc::DocumentList objectListReply;
+        CAFFA_TRACE( "Calling ListDocuments()" );
+        auto status = m_objectStub->ListDocuments( &context, request, &objectListReply );
+
         if ( status.ok() )
         {
-            CAFFA_TRACE( "Got documents" );
+            CAFFA_TRACE( "Got list of documents" );
 
             caffa::JsonSerializer serializer( caffa::rpc::GrpcClientObjectFactory::instance() );
             serializer.setSerializeDataValues( false );
 
-            for ( auto object : objectListReply.objects() )
+            for ( auto documentId : objectListReply.document_id() )
             {
-                auto document = caffa::rpc::ObjectService::createCafObjectFromRpc( &object, serializer );
+                caffa::rpc::DocumentRequest request;
+                request.set_document_id( documentId );
+                caffa::rpc::RpcObject objectReply;
+                CAFFA_TRACE( "Calling GetDocument()" );
+                auto status = m_objectStub->GetDocument( &context, request, &objectReply );
+                std::unique_ptr<caffa::ObjectHandle> document =
+                    caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply, serializer );
                 documents.push_back( std::move( document ) );
             }
-            CAFFA_TRACE( "Document completed" );
         }
         else
         {
             CAFFA_ERROR( "Failed to get document with server error message: " + status.error_message() );
+            throw Exception( status );
         }
         return documents;
     }
@@ -187,6 +243,10 @@ public:
         field.set_class_keyword( objectHandle->classKeywordDynamic() );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
+
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field.set_allocated_session( session.release() );
 
         GenericScalar reply;
         grpc::Status  status = m_fieldStub->GetValue( &context, field, &reply );
@@ -213,6 +273,9 @@ public:
         field.set_class_keyword( objectHandle->classKeywordDynamic() );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( getter );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field.set_allocated_session( session.release() );
 
         std::vector<std::unique_ptr<ObjectHandle>> childObjects;
 
@@ -254,6 +317,9 @@ public:
         field->set_class_keyword( objectHandle->classKeywordDynamic() );
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( fieldName );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field->set_allocated_session( session.release() );
 
         SetterRequest setterRequest;
         setterRequest.set_allocated_field( field.release() );
@@ -282,8 +348,10 @@ public:
         field->set_class_keyword( objectHandle->classKeywordDynamic() );
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( fieldName );
-
         field->set_index( index );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field->set_allocated_session( session.release() );
 
         SetterRequest setterRequest;
         setterRequest.set_allocated_field( field.release() );
@@ -307,6 +375,9 @@ public:
         field.set_class_keyword( objectHandle->classKeywordDynamic() );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field.set_allocated_session( session.release() );
 
         NullMessage  reply;
         grpc::Status status = m_fieldStub->ClearChildObjects( &context, field, &reply );
@@ -326,6 +397,9 @@ public:
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
         field.set_index( index );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field.set_allocated_session( session.release() );
 
         NullMessage  reply;
         grpc::Status status = m_fieldStub->RemoveChildObject( &context, field, &reply );
@@ -347,6 +421,9 @@ public:
         request.set_allocated_self_object( self.release() );
         request.set_method( method->classKeyword() );
         request.set_allocated_params( params.release() );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        request.set_allocated_session( session.release() );
 
         std::unique_ptr<caffa::ObjectHandle> returnValue;
 
@@ -366,8 +443,10 @@ public:
         return objectMethodResult;
     }
 
-    bool stopServer() const
+    bool stopServer()
     {
+        destroySession();
+
         grpc::ClientContext context;
         NullMessage         nullarg, nullreply;
         CAFFA_DEBUG( "Telling server to quit" );
@@ -395,15 +474,23 @@ public:
     std::list<std::unique_ptr<caffa::ObjectHandle>> objectMethods( caffa::ObjectHandle* objectHandle ) const
     {
         grpc::ClientContext context;
-        auto                self = std::make_unique<RpcObject>();
+        auto                request = std::make_unique<ListMethodsRequest>();
+        auto                self    = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
+
+        request->set_allocated_self( self.release() );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        request->set_allocated_session( session.release() );
+
         RpcObjectList reply;
-        auto          status = m_objectStub->ListMethods( &context, *self, &reply );
+        auto          status = m_objectStub->ListMethods( &context, *request, &reply );
 
         std::list<std::unique_ptr<caffa::ObjectHandle>> methods;
         if ( !status.ok() )
         {
-            return methods;
+            CAFFA_ERROR( "Failed to get object methods with error: " + status.error_message() );
+            throw Exception( status );
         }
 
         for ( auto RpcObject : reply.objects() )
@@ -430,6 +517,9 @@ public:
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( fieldName );
         field->set_index( addressOffset );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field->set_allocated_session( session.release() );
 
         SetterRequest setterRequest;
         setterRequest.set_allocated_field( field.release() );
@@ -455,6 +545,9 @@ public:
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
         field.set_index( addressOffset );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field.set_allocated_session( session.release() );
 
         GenericScalar reply;
         grpc::Status  status = m_fieldStub->GetValue( &context, field, &reply );
@@ -483,6 +576,9 @@ public:
         field->set_class_keyword( objectHandle->classKeywordDynamic() );
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( setter );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field->set_allocated_session( session.release() );
 
         auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
@@ -527,6 +623,9 @@ public:
         field->set_class_keyword( objectHandle->classKeywordDynamic() );
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( setter );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field->set_allocated_session( session.release() );
 
         auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
@@ -573,6 +672,9 @@ public:
         field->set_class_keyword( objectHandle->classKeywordDynamic() );
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( setter );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field->set_allocated_session( session.release() );
 
         auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
@@ -618,6 +720,9 @@ public:
         field->set_class_keyword( objectHandle->classKeywordDynamic() );
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( setter );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field->set_allocated_session( session.release() );
 
         auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
@@ -661,6 +766,9 @@ public:
         field->set_class_keyword( objectHandle->classKeywordDynamic() );
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( setter );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field->set_allocated_session( session.release() );
 
         auto setterRequest = std::make_unique<ArrayRequest>();
         setterRequest->set_value_count( values.size() );
@@ -695,6 +803,9 @@ public:
         field.set_class_keyword( objectHandle->classKeywordDynamic() );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( getter );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field.set_allocated_session( session.release() );
 
         std::vector<int> values;
 
@@ -720,6 +831,9 @@ public:
         field.set_class_keyword( objectHandle->classKeywordDynamic() );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( getter );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field.set_allocated_session( session.release() );
 
         std::vector<uint64_t> values;
 
@@ -746,6 +860,9 @@ public:
         field.set_class_keyword( objectHandle->classKeywordDynamic() );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( getter );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field.set_allocated_session( session.release() );
 
         std::vector<double> values;
 
@@ -773,6 +890,9 @@ public:
         field.set_class_keyword( objectHandle->classKeywordDynamic() );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( getter );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field.set_allocated_session( session.release() );
 
         std::vector<float> values;
 
@@ -799,6 +919,9 @@ public:
         field.set_class_keyword( objectHandle->classKeywordDynamic() );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( getter );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field.set_allocated_session( session.release() );
 
         std::vector<std::string> values;
 
@@ -821,6 +944,8 @@ private:
     std::unique_ptr<App::Stub>          m_appInfoStub;
     std::unique_ptr<ObjectAccess::Stub> m_objectStub;
     std::unique_ptr<FieldAccess::Stub>  m_fieldStub;
+
+    std::string m_sessionUuid;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -878,7 +1003,7 @@ std::unique_ptr<caffa::ObjectMethodResult> Client::execute( gsl::not_null<const 
 //--------------------------------------------------------------------------------------------------
 /// Tell the server to stop operation. Returns a simple boolean status where true is ok.
 //--------------------------------------------------------------------------------------------------
-bool Client::stopServer() const
+bool Client::stopServer()
 {
     return m_clientImpl->stopServer();
 }

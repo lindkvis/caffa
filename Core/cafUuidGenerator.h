@@ -1,7 +1,9 @@
 //##################################################################################################
 //
-//   Caffa
-//   Copyright (C) 2021- 3D-Radar AS
+//   Custom Visualization Core library
+//   Copyright (C) 2022- Kontur AS
+//
+//   This library may be used under the terms of the GNU Lesser General Public License as follows:
 //
 //   GNU Lesser General Public License Usage
 //   This library is free software; you can redistribute it and/or modify
@@ -16,27 +18,30 @@
 //   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
 //   for more details.
 //
+//##################################################################################################
 #pragma once
 
-#include "cafGrpcApplication.h"
-
 #include <memory>
-#include <string>
+#include <mutex>
+#include <random>
 
-namespace caffa::rpc
+namespace uuids
 {
-class Client;
+template <typename GeneratorT>
+class basic_uuid_random_generator;
+using uuid_random_generator = basic_uuid_random_generator<std::mt19937>;
+} // namespace uuids
 
-class ClientApplication : public Application
+namespace caffa
+{
+class UuidGenerator
 {
 public:
-    ClientApplication( const std::string& hostname, int portNumber );
-    static ClientApplication* instance();
-
-    Client*       client();
-    const Client* client() const;
+    static std::string generate();
 
 private:
-    std::unique_ptr<Client> m_client;
+    static std::unique_ptr<uuids::uuid_random_generator> s_uuidGenerator;
+    static std::mutex                                    s_mutex;
 };
-} // namespace caffa::rpc
+
+} // namespace caffa
