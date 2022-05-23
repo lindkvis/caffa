@@ -57,7 +57,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     int patchVersion() const override { return 0; }
 
-    caffa::Document* document( const std::string& documentId ) override
+    caffa::Document* document( const std::string& documentId, const std::string& sessionUuid = "" ) override
     {
         CAFFA_TRACE( "Trying to get document with id " << documentId << " while our main document is called "
                                                        << m_demoDocument->id() );
@@ -66,15 +66,21 @@ public:
         else
             return nullptr;
     }
-    const caffa::Document* document( const std::string& documentId ) const override
+    const caffa::Document* document( const std::string& documentId, const std::string& sessionUuid = "" ) const override
     {
         if ( documentId.empty() || documentId == m_demoDocument->id() )
             return m_demoDocument.get();
         else
             return nullptr;
     }
-    std::list<caffa::Document*>       documents() override { return { document( "" ) }; }
-    std::list<const caffa::Document*> documents() const override { return { document( "" ) }; }
+    std::list<caffa::Document*> documents( const std::string& sessionUuid = "" ) override
+    {
+        return { document( "", sessionUuid ) };
+    }
+    std::list<const caffa::Document*> documents( const std::string& sessionUuid = "" ) const override
+    {
+        return { document( "", sessionUuid ) };
+    }
 
     void resetToDefaultData() override { m_demoDocument = std::make_unique<DemoDocument>(); }
 

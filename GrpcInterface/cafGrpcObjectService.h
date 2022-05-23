@@ -62,9 +62,11 @@ public:
     grpc::Status ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, RpcObject* reply ) override;
     grpc::Status ListMethods( grpc::ServerContext* context, const ListMethodsRequest* self, RpcObjectList* reply ) override;
 
-    static caffa::Object* findCafObjectFromRpcObject( const RpcObject& rpcObject );
+    static caffa::Object* findCafObjectFromRpcObject( const std::string& sessionUuid, const RpcObject& rpcObject );
     static caffa::Object* findCafObjectFromFieldRequest( const FieldRequest& fieldRequest );
-    static caffa::Object* findCafObjectFromScriptNameAndUuid( const std::string& scriptClassName, const std::string& uuid );
+    static caffa::Object* findCafObjectFromScriptNameAndUuid( const std::string& sessionUuid,
+                                                              const std::string& scriptClassName,
+                                                              const std::string& objectUuid );
 
     static void copyProjectSelfReferenceFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination );
     static void copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination );
