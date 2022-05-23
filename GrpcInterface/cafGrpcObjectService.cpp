@@ -37,6 +37,7 @@
 #include "cafGrpcCallbacks.h"
 #include "cafGrpcClientObjectFactory.h"
 #include "cafGrpcServerApplication.h"
+#include "cafGrpcSession.h"
 
 #include "cafDocument.h"
 #include "cafField.h"
@@ -73,7 +74,7 @@ grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const Doc
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
     }
 
-    Document* document = ServerApplication::instance()->document( request->document_id() );
+    Document* document = ServerApplication::instance()->document( request->document_id(), request->session().uuid() );
     if ( document )
     {
         CAFFA_TRACE( "Found document with UUID: " << document->uuid() << " and will copy i tot gRPC data structure" );
@@ -95,7 +96,7 @@ grpc::Status ObjectService::ListDocuments( grpc::ServerContext* context, const S
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->uuid() + "' is not valid" );
     }
 
-    auto documents = ServerApplication::instance()->documents();
+    auto documents = ServerApplication::instance()->documents( request->uuid() );
     CAFFA_TRACE( "Found " << documents.size() << " document" );
     for ( auto document : documents )
     {
@@ -118,7 +119,7 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
     }
 
-    auto matchingObject = findCafObjectFromRpcObject( self );
+    auto matchingObject = findCafObjectFromRpcObject( session->uuid(), self );
     if ( matchingObject )
     {
         auto method = ObjectMethodFactory::instance()->createMethod( matchingObject, request->method() );
@@ -147,15 +148,15 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
 grpc::Status
     ObjectService::ListMethods( grpc::ServerContext* context, const ListMethodsRequest* request, RpcObjectList* reply )
 {
-    auto matchingObject = findCafObjectFromRpcObject( request->self() );
-    CAFFA_ASSERT( matchingObject );
-    CAFFA_TRACE( "Listing Object methods for " << matchingObject->classKeyword() );
-
     Session* session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
     }
+
+    auto matchingObject = findCafObjectFromRpcObject( session->uuid(), request->self() );
+    CAFFA_ASSERT( matchingObject );
+    CAFFA_TRACE( "Listing Object methods for " << matchingObject->classKeyword() );
 
     if ( matchingObject )
     {
@@ -176,11 +177,11 @@ grpc::Status
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caffa::Object* ObjectService::findCafObjectFromRpcObject( const RpcObject& rpcObject )
+caffa::Object* ObjectService::findCafObjectFromRpcObject( const std::string& sessionUuid, const RpcObject& rpcObject )
 {
     CAFFA_TRACE( "Looking for object from json: " << rpcObject.json() );
-    auto [classKeyword, uuid] = caffa::JsonSerializer().readClassKeywordAndUUIDFromObjectString( rpcObject.json() );
-    return findCafObjectFromScriptNameAndUuid( classKeyword, uuid );
+    auto [classKeyword, objectUuid] = caffa::JsonSerializer().readClassKeywordAndUUIDFromObjectString( rpcObject.json() );
+    return findCafObjectFromScriptNameAndUuid( sessionUuid, classKeyword, objectUuid );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,19 +189,22 @@ caffa::Object* ObjectService::findCafObjectFromRpcObject( const RpcObject& rpcOb
 //--------------------------------------------------------------------------------------------------
 caffa::Object* ObjectService::findCafObjectFromFieldRequest( const FieldRequest& fieldRequest )
 {
-    return findCafObjectFromScriptNameAndUuid( fieldRequest.class_keyword(), fieldRequest.uuid() );
+    return findCafObjectFromScriptNameAndUuid( fieldRequest.session().uuid(),
+                                               fieldRequest.class_keyword(),
+                                               fieldRequest.uuid() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const std::string& scriptClassName,
-                                                                  const std::string& uuid )
+caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const std::string& sessionUuid,
+                                                                  const std::string& scriptClassName,
+                                                                  const std::string& objectUuid )
 {
-    CAFFA_TRACE( "Looking for caf object with class name '" << scriptClassName << "' and UUID '" << uuid << "'" );
+    CAFFA_TRACE( "Looking for caf object with class name '" << scriptClassName << "' and UUID '" << objectUuid << "'" );
     {
         std::scoped_lock lock( s_uuidCacheMutex );
-        auto             it = s_uuidCache.find( uuid );
+        auto             it = s_uuidCache.find( objectUuid );
         if ( it != s_uuidCache.end() )
         {
             return it->second;
@@ -214,7 +218,7 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const std::str
         objectsOfCurrentClass = GrpcClientObjectFactory::instance()->objectsWithClassKeyword( scriptClassName );
     }
 
-    for ( auto doc : ServerApplication::instance()->documents() )
+    for ( auto doc : ServerApplication::instance()->documents( sessionUuid ) )
     {
         std::list<caffa::ObjectHandle*> objects = doc->matchingDescendants(
             [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool
@@ -240,7 +244,7 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const std::str
         CAFFA_TRACE( "Testing object with class name '" << testObject->classKeywordDynamic() << "' and UUID '"
                                                         << testObject->uuid() << "'" );
 
-        if ( testObject && testObject->uuid() == uuid )
+        if ( testObject && testObject->uuid() == objectUuid )
         {
             matchingObject = testObject;
         }
@@ -249,10 +253,10 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const std::str
     {
         // Cache object
         std::scoped_lock lock( s_uuidCacheMutex );
-        auto             it = s_uuidCache.find( uuid );
+        auto             it = s_uuidCache.find( objectUuid );
         if ( it == s_uuidCache.end() )
         {
-            s_uuidCache[uuid] = matchingObject;
+            s_uuidCache[objectUuid] = matchingObject;
         }
     }
 
