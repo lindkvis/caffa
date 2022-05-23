@@ -909,3 +909,82 @@ TEST_F( GrpcTest, MultipleConcurrentSessionsShouldBeRefused )
     thread.join();
     CAFFA_DEBUG( "Server joined" );
 }
+
+TEST_F( GrpcTest, MultipleConcurrentSessionsDelayWithoutKeepalive )
+{
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
+
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+
+    std::unique_ptr<caffa::rpc::Client> client1, client2;
+
+    ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                                     ServerApp::s_port,
+                                                                     ServerApp::s_clientCertFile,
+                                                                     ServerApp::s_clientKeyFile,
+                                                                     ServerApp::s_caCertFile ) );
+    ASSERT_TRUE( client1 );
+
+    std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
+
+    ASSERT_NO_THROW( client2 = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                                     ServerApp::s_port,
+                                                                     ServerApp::s_clientCertFile,
+                                                                     ServerApp::s_clientKeyFile,
+                                                                     ServerApp::s_caCertFile ) );
+    ASSERT_TRUE( client2 );
+
+    client1->destroySession();
+    client2->destroySession();
+
+    client2->stopServer();
+    CAFFA_DEBUG( "Stopping server and waiting for server to join" );
+    thread.join();
+    CAFFA_DEBUG( "Server joined" );
+}
+
+TEST_F( GrpcTest, MultipleConcurrentSessionsWithKeepalive )
+{
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
+
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+
+    std::unique_ptr<caffa::rpc::Client> client1, client2;
+
+    ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                                     ServerApp::s_port,
+                                                                     ServerApp::s_clientCertFile,
+                                                                     ServerApp::s_clientKeyFile,
+                                                                     ServerApp::s_caCertFile ) );
+    ASSERT_TRUE( client1 );
+
+    for ( size_t i = 0; i < 10; ++i )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+        client1->sendKeepAlive();
+    }
+
+    ASSERT_ANY_THROW( client2 = std::make_unique<caffa::rpc::Client>( "localhost",
+                                                                      ServerApp::s_port,
+                                                                      ServerApp::s_clientCertFile,
+                                                                      ServerApp::s_clientKeyFile,
+                                                                      ServerApp::s_caCertFile ) );
+    ASSERT_TRUE( client2 == nullptr );
+
+    client1->stopServer();
+    CAFFA_DEBUG( "Stopping server and waiting for server to join" );
+    thread.join();
+    CAFFA_DEBUG( "Server joined" );
+}

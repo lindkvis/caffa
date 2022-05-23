@@ -103,7 +103,17 @@ grpc::Status AppService::CreateSession( grpc::ServerContext* context, const Null
 
 grpc::Status AppService::KeepSessionAlive( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply )
 {
-    CAFFA_DEBUG( "Received session keep-alive" );
+    CAFFA_TRACE( "Received session keep-alive from " << request->uuid() );
+    try
+    {
+        ServerApplication::instance()->keepAliveSession( request->uuid() );
+    }
+    catch ( const std::exception& e )
+    {
+        CAFFA_ERROR( "Failed to keep alive session with error: " << e.what() );
+        return grpc::Status( grpc::FAILED_PRECONDITION,
+                             std::string( "Failed to keep alive session with error: " ) + e.what() );
+    }
 
     return grpc::Status::OK;
 }
@@ -118,8 +128,7 @@ grpc::Status AppService::DestroySession( grpc::ServerContext* context, const Ses
     }
     catch ( const std::exception& e )
     {
-        CAFFA_ERROR( e.what() );
-        return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
+        CAFFA_WARNING( "Session did not exist. It may already have been destroyed due to lack of keepalive" );
     }
     return grpc::Status::OK;
 }

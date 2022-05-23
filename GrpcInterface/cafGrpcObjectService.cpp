@@ -73,6 +73,7 @@ grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const Doc
         CAFFA_ERROR( "Session '" << request->session().uuid() << "' is not valid" );
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
     }
+    ServerApplication::instance()->keepAliveSession( request->session().uuid() );
 
     Document* document = ServerApplication::instance()->document( request->document_id(), request->session().uuid() );
     if ( document )
@@ -95,6 +96,7 @@ grpc::Status ObjectService::ListDocuments( grpc::ServerContext* context, const S
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->uuid() + "' is not valid" );
     }
+    ServerApplication::instance()->keepAliveSession( request->uuid() );
 
     auto documents = ServerApplication::instance()->documents( request->uuid() );
     CAFFA_TRACE( "Found " << documents.size() << " document" );
@@ -118,6 +120,7 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
     }
+    ServerApplication::instance()->keepAliveSession( request->session().uuid() );
 
     auto matchingObject = findCafObjectFromRpcObject( session->uuid(), self );
     if ( matchingObject )
@@ -153,6 +156,7 @@ grpc::Status
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
     }
+    ServerApplication::instance()->keepAliveSession( request->session().uuid() );
 
     auto matchingObject = findCafObjectFromRpcObject( session->uuid(), request->self() );
     CAFFA_ASSERT( matchingObject );
