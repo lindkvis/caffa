@@ -97,8 +97,7 @@ public:
     {
         if ( m_session )
         {
-            auto now = std::chrono::steady_clock::now();
-            if ( now - m_lastKeepAlive < std::chrono::milliseconds( 500 ) )
+            if ( !m_session->isExpired() )
             {
                 throw std::runtime_error( "We already have a session and only allow one at a time!" );
             }
@@ -107,8 +106,7 @@ public:
                 CAFFA_DEBUG( "Had session " << m_session->uuid() << " but it has not been kept alive, so destroying it" );
             }
         }
-        m_session       = std::make_unique<caffa::Session>();
-        m_lastKeepAlive = std::chrono::steady_clock::now();
+        m_session = std::make_unique<caffa::Session>();
         return m_session.get();
     }
 
@@ -125,7 +123,7 @@ public:
     {
         if ( m_session && m_session->uuid() == sessionUuid )
         {
-            m_lastKeepAlive = std::chrono::steady_clock::now();
+            m_session->updateKeepAlive();
         }
         else
         {
@@ -157,6 +155,4 @@ private:
     std::unique_ptr<DemoDocumentWithNonScriptableMember> m_demoDocumentWithNonScriptableMember;
 
     std::unique_ptr<caffa::Session> m_session;
-
-    std::chrono::steady_clock::time_point m_lastKeepAlive;
 };
