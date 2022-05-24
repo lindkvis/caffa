@@ -18,6 +18,8 @@
 //
 #pragma once
 
+#include <chrono>
+
 #include <string>
 
 namespace caffa
@@ -29,12 +31,18 @@ namespace caffa
 class Session
 {
 public:
-    Session();
+    Session( std::chrono::milliseconds timeout = std::chrono::milliseconds( 500 ) );
     virtual ~Session() = default;
 
     const std::string& uuid() const;
 
+    bool isExpired() const;
+    void updateKeepAlive();
+
 private:
     std::string m_uuid;
+
+    std::chrono::steady_clock::time_point m_lastKeepAlive;
+    std::chrono::milliseconds             m_timeOut;
 };
 } // namespace caffa
