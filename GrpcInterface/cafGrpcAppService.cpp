@@ -37,8 +37,8 @@
 #include "cafGrpcCallbacks.h"
 #include "cafGrpcServer.h"
 #include "cafGrpcServerApplication.h"
-#include "cafGrpcSession.h"
 #include "cafLogger.h"
+#include "cafSession.h"
 
 #include "AppInfo.pb.h"
 
@@ -87,7 +87,7 @@ grpc::Status AppService::CreateSession( grpc::ServerContext* context, const Null
 
     try
     {
-        Session* session = ServerApplication::instance()->createSession();
+        caffa::Session* session = ServerApplication::instance()->createSession();
         if ( !session ) throw std::runtime_error( "Failed to create session" );
         reply->set_uuid( session->uuid() );
         CAFFA_TRACE( "Created session: " << session->uuid() );

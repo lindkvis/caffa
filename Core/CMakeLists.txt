@@ -41,6 +41,7 @@ set(PUBLIC_HEADERS
     cafObjectMethod.h
     cafDocument.h
     cafApplication.h
+    cafSession.h
     cafUuidGenerator.h)
 
 set(PROJECT_FILES
@@ -63,6 +64,7 @@ set(PROJECT_FILES
     cafObjectMethod.cpp
     cafDocument.cpp
     cafApplication.cpp
+    cafSession.cpp
     cafUuidGenerator.cpp)
 
 if(CAFFA_BUILD_SHARED)

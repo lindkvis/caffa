@@ -20,17 +20,21 @@
 
 #include <string>
 
-namespace caffa::rpc
+namespace caffa
 {
+/**
+ * @brief Abstract class representing an application session
+ *
+ */
 class Session
 {
 public:
     Session();
-    ~Session() = default;
+    virtual ~Session() = default;
 
     const std::string& uuid() const;
 
 private:
     std::string m_uuid;
 };
-} // namespace caffa::rpc
+} // namespace caffa

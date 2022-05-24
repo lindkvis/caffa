@@ -23,47 +23,51 @@
 
 #include <memory>
 
-namespace caffa::rpc
+namespace caffa
 {
 class Session;
 
-class ServerApplication : public Application
+namespace rpc
 {
-public:
-    /**
-     * Constructor. Provide a path to a serverCertFile and serverKeyFile to enable SSL/TLS
-     * @param port Port number
-     * @param serverCertFile File path to a server certificate
-     * @param serverKeyFile File path to a server private key
-     */
-    ServerApplication( int                portNumber,
-                       const std::string& serverCertFile = "",
-                       const std::string& serverKeyFile  = "",
-                       const std::string& caCertFile     = "" );
-    static ServerApplication* instance();
 
-    int  portNumber() const;
-    void run();
-    bool running() const;
-    void quit();
+    class ServerApplication : public Application
+    {
+    public:
+        /**
+         * Constructor. Provide a path to a serverCertFile and serverKeyFile to enable SSL/TLS
+         * @param port Port number
+         * @param serverCertFile File path to a server certificate
+         * @param serverKeyFile File path to a server private key
+         */
+        ServerApplication( int                portNumber,
+                           const std::string& serverCertFile = "",
+                           const std::string& serverKeyFile  = "",
+                           const std::string& caCertFile     = "" );
+        static ServerApplication* instance();
 
-    virtual Document*       document( const std::string& documentId, const std::string& sessionUuid = "" )       = 0;
-    virtual const Document* document( const std::string& documentId, const std::string& sessionUuid = "" ) const = 0;
-    virtual std::list<Document*>       documents( const std::string& sessionUuid = "" )                          = 0;
-    virtual std::list<const Document*> documents( const std::string& sessionUuid = "" ) const                    = 0;
+        int  portNumber() const;
+        void run();
+        bool running() const;
+        void quit();
 
-    virtual void resetToDefaultData() = 0;
+        virtual Document*       document( const std::string& documentId, const std::string& sessionUuid = "" ) = 0;
+        virtual const Document* document( const std::string& documentId, const std::string& sessionUuid = "" ) const = 0;
+        virtual std::list<Document*>       documents( const std::string& sessionUuid = "" )       = 0;
+        virtual std::list<const Document*> documents( const std::string& sessionUuid = "" ) const = 0;
 
-    virtual Session* createSession()                                      = 0;
-    virtual Session* getExistingSession( const std::string& sessionUuid ) = 0;
-    virtual void     destroySession( const std::string& sessionUuid )     = 0;
-    virtual void     keepAliveSession( const std::string& sessionUuid )   = 0;
+        virtual void resetToDefaultData() = 0;
 
-private:
-    virtual void onStartup() {}
-    virtual void onShutdown() {}
+        virtual caffa::Session* createSession()                                      = 0;
+        virtual caffa::Session* getExistingSession( const std::string& sessionUuid ) = 0;
+        virtual void            destroySession( const std::string& sessionUuid )     = 0;
+        virtual void            keepAliveSession( const std::string& sessionUuid )   = 0;
 
-private:
-    std::unique_ptr<Server> m_server;
-};
-} // namespace caffa::rpc
+    private:
+        virtual void onStartup() {}
+        virtual void onShutdown() {}
+
+    private:
+        std::unique_ptr<Server> m_server;
+    };
+} // namespace rpc
+} // namespace caffa
