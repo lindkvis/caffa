@@ -32,8 +32,7 @@ set(PUBLIC_HEADERS
     cafGrpcServerApplication.h
     cafGrpcClient.h
     cafGrpcClientObjectFactory.h
-    cafGrpcClientApplication.h
-    cafGrpcSession.h)
+    cafGrpcClientApplication.h)
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
@@ -45,8 +44,7 @@ set(PROJECT_FILES
     cafGrpcServerApplication.cpp
     cafGrpcClient.cpp
     cafGrpcClientObjectFactory.cpp
-    cafGrpcClientApplication.cpp
-    cafGrpcSession.cpp)
+    cafGrpcClientApplication.cpp)
 
 if(CAFFA_GRPC_FETCHCONTENT)
   include(FetchContent)

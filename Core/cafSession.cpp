@@ -1,11 +1,11 @@
-#include "cafGrpcSession.h"
+#include "cafSession.h"
 
 #include "cafUuidGenerator.h"
 
 #include <chrono>
 #include <random>
 
-using namespace caffa::rpc;
+using namespace caffa;
 
 Session::Session()
 {

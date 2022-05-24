@@ -22,8 +22,8 @@
 
 #include "cafGrpcServer.h"
 #include "cafGrpcServerApplication.h"
-#include "cafGrpcSession.h"
 #include "cafLogger.h"
+#include "cafSession.h"
 
 #include <chrono>
 #include <stdexcept>
@@ -93,7 +93,7 @@ public:
 
     void resetToDefaultData() override { m_demoDocument = std::make_unique<DemoDocument>(); }
 
-    caffa::rpc::Session* createSession() override
+    caffa::Session* createSession() override
     {
         if ( m_session )
         {
@@ -107,12 +107,12 @@ public:
                 CAFFA_DEBUG( "Had session " << m_session->uuid() << " but it has not been kept alive, so destroying it" );
             }
         }
-        m_session       = std::make_unique<caffa::rpc::Session>();
+        m_session       = std::make_unique<caffa::Session>();
         m_lastKeepAlive = std::chrono::steady_clock::now();
         return m_session.get();
     }
 
-    caffa::rpc::Session* getExistingSession( const std::string& sessionUuid ) override
+    caffa::Session* getExistingSession( const std::string& sessionUuid ) override
     {
         if ( m_session && m_session->uuid() == sessionUuid )
         {
@@ -156,7 +156,7 @@ private:
     std::unique_ptr<DemoDocument>                        m_demoDocument;
     std::unique_ptr<DemoDocumentWithNonScriptableMember> m_demoDocumentWithNonScriptableMember;
 
-    std::unique_ptr<caffa::rpc::Session> m_session;
+    std::unique_ptr<caffa::Session> m_session;
 
     std::chrono::steady_clock::time_point m_lastKeepAlive;
 };
