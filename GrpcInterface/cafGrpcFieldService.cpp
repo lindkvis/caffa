@@ -836,7 +836,6 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
                                         << request->uuid() );
 
     auto fieldOwner = ObjectService::ObjectService::findCafObjectFromFieldRequest( *request );
-    CAFFA_ASSERT( fieldOwner );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
 
     auto field = scriptableFieldFromKeyword( fieldOwner, request->keyword() );
@@ -891,7 +890,6 @@ grpc::Status FieldService::ClearChildObjects( grpc::ServerContext* context, cons
 {
     CAFFA_ASSERT( request != nullptr );
     auto fieldOwner = ObjectService::ObjectService::findCafObjectFromFieldRequest( *request );
-    CAFFA_ASSERT( fieldOwner );
     CAFFA_TRACE( "Clear Child Objects for field: " << request->keyword() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : fieldOwner->fields() )
@@ -933,7 +931,6 @@ grpc::Status FieldService::RemoveChildObject( grpc::ServerContext* context, cons
 {
     CAFFA_ASSERT( request != nullptr );
     auto fieldOwner = ObjectService::ObjectService::findCafObjectFromFieldRequest( *request );
-    CAFFA_ASSERT( fieldOwner );
     CAFFA_TRACE( "Remove Child Object at index " << request->index() << " for field: " << request->keyword() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : fieldOwner->fields() )
@@ -969,7 +966,6 @@ grpc::Status FieldService::InsertChildObject( grpc::ServerContext* context, cons
     auto fieldRequest = request->field();
 
     auto fieldOwner = ObjectService::findCafObjectFromFieldRequest( fieldRequest );
-    CAFFA_ASSERT( fieldOwner );
     CAFFA_TRACE( " Inserting Child Object at index " << fieldRequest.index() << " for field: " << fieldRequest.keyword() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : fieldOwner->fields() )
@@ -1027,7 +1023,6 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
 {
     auto fieldRequest = request->field();
     auto fieldOwner   = ObjectService::ObjectService::findCafObjectFromFieldRequest( fieldRequest );
-    CAFFA_ASSERT( fieldOwner );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
 
     CAFFA_TRACE( "Received Set Request for class " << fieldOwner->classKeyword() );

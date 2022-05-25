@@ -114,6 +114,7 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
             CAFFA_ASSERT( result );
 
             copyResultOrParameterObjectFromCafToRpc( result.get(), reply );
+            CAFFA_DEBUG( "Result JSON: " << reply->json() );
 
             return grpc::Status::OK;
         }
