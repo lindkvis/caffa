@@ -102,8 +102,7 @@ void GrpcClientObjectFactory::applyAccessorToField( caffa::ObjectHandle* fieldOw
         {
             throw( Exception( grpc::Status( grpc::ABORTED,
                                             std::string( "Data type " ) + fieldHandle->dataType() +
-                                                " not implemented "
-                                                "for GRPC" ) ) );
+                                                " not implemented in GRPC client" ) ) );
         }
         dataField->setUntypedAccessor( accessorCreator->create( m_grpcClient, fieldOwner, fieldHandle->keyword() ) );
     }
