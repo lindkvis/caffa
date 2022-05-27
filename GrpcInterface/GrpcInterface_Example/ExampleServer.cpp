@@ -59,8 +59,8 @@ public:
 
     caffa::Document* document( const std::string& documentId, const std::string& sessionUuid = "" ) override
     {
-        CAFFA_TRACE( "Trying to get document with id " << documentId << " while our main document is called "
-                                                       << m_demoDocument->id() );
+        CAFFA_TRACE( "Trying to get document with id '" << documentId << "' while our main document is called "
+                                                        << m_demoDocument->id() );
         if ( documentId.empty() || documentId == m_demoDocument->id() )
             return m_demoDocument.get();
         else

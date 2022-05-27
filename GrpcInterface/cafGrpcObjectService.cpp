@@ -82,6 +82,7 @@ grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const Doc
         copyProjectObjectFromCafToRpc( document, reply );
         return grpc::Status::OK;
     }
+    CAFFA_WARNING( "Document not found '" + request->document_id() + "'" );
     return grpc::Status( grpc::NOT_FOUND, "Document not found: '" + request->document_id() + "'" );
 }
 
