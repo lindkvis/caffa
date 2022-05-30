@@ -283,6 +283,7 @@ public:
         else
         {
             CAFFA_ERROR( "Failed to get object with server error message: " + status.error_message() );
+            throw Exception( status );
         }
 
         return childObject;
@@ -354,6 +355,7 @@ public:
         if ( !status.ok() )
         {
             CAFFA_ERROR( "Failed to set object" );
+            throw Exception( status );
         }
     }
 
@@ -386,6 +388,7 @@ public:
         if ( !status.ok() )
         {
             CAFFA_ERROR( "Failed to insert object" );
+            throw Exception( status );
         }
     }
 
@@ -408,6 +411,7 @@ public:
         if ( !status.ok() )
         {
             CAFFA_ERROR( "Failed to clear child objects" );
+            throw Exception( status );
         }
     }
 
@@ -430,6 +434,7 @@ public:
         if ( !status.ok() )
         {
             CAFFA_ERROR( "Failed to remove child object" );
+            throw Exception( status );
         }
     }
 
@@ -461,6 +466,7 @@ public:
         {
             CAFFA_ERROR( "Failed to execute object method " << method->classKeyword()
                                                             << " error: " << status.error_message() );
+            throw Exception( status );
         }
 
         auto objectMethodResult = caffa::dynamic_unique_cast<caffa::ObjectMethodResult>( std::move( returnValue ) );
@@ -485,6 +491,10 @@ public:
         grpc::ClientContext context;
         NullMessage         nullarg, nullreply;
         auto                status = m_appInfoStub->Ping( &context, nullarg, &nullreply );
+        if ( !status.ok() )
+        {
+            throw Exception( status );
+        }
         return status.ok();
     }
 
@@ -492,7 +502,11 @@ public:
     {
         grpc::ClientContext context;
         NullMessage         nullarg, nullreply;
-        m_appInfoStub->ResetToDefaultData( &context, nullarg, &nullreply );
+        auto                status = m_appInfoStub->ResetToDefaultData( &context, nullarg, &nullreply );
+        if ( !status.ok() )
+        {
+            throw Exception( status );
+        }
     }
 
     std::list<std::unique_ptr<caffa::ObjectHandle>> objectMethods( caffa::ObjectHandle* objectHandle ) const

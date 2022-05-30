@@ -123,27 +123,35 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
     }
     ServerApplication::instance()->keepAliveSession( request->session().uuid() );
 
-    auto matchingObject = findCafObjectFromRpcObject( session->uuid(), self );
-    if ( matchingObject )
+    try
     {
-        auto method = ObjectMethodFactory::instance()->createMethod( matchingObject, request->method() );
-        if ( method )
+        auto matchingObject = findCafObjectFromRpcObject( session->uuid(), self );
+        if ( matchingObject )
         {
-            CAFFA_DEBUG( "Copy parameters from: " << request->params().json() );
-            copyResultOrParameterObjectFromRpcToCaf( &( request->params() ), method.get() );
+            auto method = ObjectMethodFactory::instance()->createMethod( matchingObject, request->method() );
+            if ( method )
+            {
+                CAFFA_DEBUG( "Copy parameters from: " << request->params().json() );
+                copyResultOrParameterObjectFromRpcToCaf( &( request->params() ), method.get() );
 
-            CAFFA_TRACE( "Method parameters copied. Now executing!" );
-            auto result = method->execute();
-            CAFFA_ASSERT( result );
+                CAFFA_TRACE( "Method parameters copied. Now executing!" );
+                auto result = method->execute();
+                CAFFA_ASSERT( result != nullptr );
 
-            copyResultOrParameterObjectFromCafToRpc( result.get(), reply );
-            CAFFA_DEBUG( "Result JSON: " << reply->json() );
+                copyResultOrParameterObjectFromCafToRpc( result.get(), reply );
+                CAFFA_DEBUG( "Result JSON: " << reply->json() );
 
-            return grpc::Status::OK;
+                return grpc::Status::OK;
+            }
+            return grpc::Status( grpc::NOT_FOUND, "Could not find Method" );
         }
-        return grpc::Status( grpc::NOT_FOUND, "Could not find Method" );
+        return grpc::Status( grpc::NOT_FOUND, "Could not find Object" );
     }
-    return grpc::Status( grpc::NOT_FOUND, "Could not find Object" );
+    catch ( const std::exception& e )
+    {
+        CAFFA_ERROR( e.what() );
+        return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
