@@ -29,7 +29,7 @@ void FieldJsonCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, c
         CAFFA_TRACE( "Setting value from json to: " << jsonElement.dump() );
         if ( jsonElement.is_object() )
         {
-            if ( jsonElement.contains( "value" ) )
+            if ( jsonElement.contains( "value" ) && !jsonElement["value"].is_null() )
             {
                 typename FieldType::FieldDataType value = jsonElement["value"].get<typename FieldType::FieldDataType>();
                 m_field->setValue( value );
