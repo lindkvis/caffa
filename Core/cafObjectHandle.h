@@ -23,7 +23,6 @@
 #pragma once
 
 #include "cafAssert.h"
-#include "cafBase.h"
 #include "cafDynamicUniqueCast.h"
 #include "cafFieldHandle.h"
 #include "cafLogger.h"
@@ -127,7 +126,8 @@ protected:
     void addField( FieldHandle* field, const std::string& keyword );
 
 private:
-    CAFFA_DISABLE_COPY_AND_ASSIGN( ObjectHandle );
+    ObjectHandle( const ObjectHandle& ) = delete;
+    ObjectHandle& operator=( const ObjectHandle& ) = delete;
 
     // Fields
     std::vector<FieldHandle*> m_fields;

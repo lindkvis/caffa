@@ -80,7 +80,8 @@ public:
     }
 
 private: // To be disabled
-    CAFFA_DISABLE_COPY_AND_ASSIGN( ChildArrayField );
+    ChildArrayField( const ChildArrayField& ) = delete;
+    ChildArrayField& operator=( const ChildArrayField& ) = delete;
 
 private:
     friend class FieldJsonCap<ChildArrayField<DataType*>>;

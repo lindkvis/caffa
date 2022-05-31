@@ -327,6 +327,29 @@ struct PortableDataType<std::vector<AppEnum<EnumType>>>
     }
 };
 
+//==================================================================================================
+/// Implementation of stream operators to make Field<AppEnum<> > work smoothly
+/// Assumes that the stream ends at the end of the enum label
+//==================================================================================================
+
+template <typename T>
+std::istream& operator>>( std::istream& str, caffa::AppEnum<T>& appEnum )
+{
+    std::string label;
+    str >> label;
+    appEnum.setFromLabel( label );
+
+    return str;
+}
+
+template <typename T>
+std::ostream& operator<<( std::ostream& str, const caffa::AppEnum<T>& appEnum )
+{
+    std::string label = appEnum.label();
+    str << label;
+    return str;
+}
+
 template <typename T>
 void to_json( nlohmann::json& jsonValue, const AppEnum<T>& appEnum )
 {
@@ -358,27 +381,4 @@ template <class T>
 bool operator!=( T value, const caffa::AppEnum<T>& appEnum )
 {
     return ( appEnum != value );
-}
-
-//==================================================================================================
-/// Implementation of stream operators to make Field<AppEnum<> > work smoothly
-/// Assumes that the stream ends at the end of the enum label
-//==================================================================================================
-
-template <typename T>
-std::istream& operator>>( std::istream& str, caffa::AppEnum<T>& appEnum )
-{
-    std::string label;
-    str >> label;
-    appEnum.setFromLabel( label );
-
-    return str;
-}
-
-template <typename T>
-std::ostream& operator<<( std::ostream& str, const caffa::AppEnum<T>& appEnum )
-{
-    std::string label = appEnum.label();
-    str << label;
-    return str;
 }

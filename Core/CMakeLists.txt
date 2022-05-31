@@ -4,9 +4,7 @@ project(caffaCore)
 
 set(PUBLIC_HEADERS
     cafAppEnum.h
-    cafAssert.h
     cafFactory.h
-    cafBase.h
     cafChildArrayField.h
     cafChildArrayField.inl
     cafChildArrayFieldAccessor.h
