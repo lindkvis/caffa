@@ -16,6 +16,8 @@ endif()
 
 add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 
+find_package(Microsoft.GSL CONFIG)
+
 set(PUBLIC_HEADERS
     cafGrpcServer.h
     cafGrpcCallbacks.h
@@ -94,7 +96,7 @@ set(CURRENT_PROTOBUF_VERSION ${GRPC_protobuf_VERSION})
 message(STATUS "Using protobuf ${CURRENT_PROTOBUF_VERSION}")
 message(STATUS "Using gRPC ${CURRENT_GRPC_VERSION}")
 
-set(LINK_LIBRARIES ${GRPC_LINK_LIBRARIES} Microsoft.GSL::GSL caffaCore)
+set(LINK_LIBRARIES ${GRPC_LINK_LIBRARIES} caffaCore)
 
 # Proto files
 set(PROTO_FILES "AppInfo" "FieldService" "ObjectService")
@@ -133,7 +135,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_BINARY_DIR}/Generated")
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${LINK_LIBRARIES})
 
 if(MSVC)
   # GRPC generates a lot of harmless warnings on MSVC

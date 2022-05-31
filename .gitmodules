@@ -10,9 +10,9 @@
 [submodule "ThirdParty/stduuid"]
 	path = ThirdParty/stduuid
 	url = https://github.com/mariusbancila/stduuid.git
-[submodule "ThirdParty/caffa-logger"]
-	path = ThirdParty/caffa-logger
-	url = https://github.com/lindkvis/caffa-logger.git
 [submodule "Bindings/caffa-Java"]
 	path = Bindings/Java
 	url = https://github.com/lindkvis/caffa-Java.git
+[submodule "ThirdParty/caffa-base"]
+	path = ThirdParty/caffa-base
+	url = https://github.com/lindkvis/caffa-base

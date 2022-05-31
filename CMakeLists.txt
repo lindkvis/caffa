@@ -45,21 +45,14 @@ set(JSON_ImplicitConversions
 set(JSON_MultipleHeaders
     OFF
     CACHE INTERNAL "Split in multiple headers")
-set(GSL_CXX_STANDARD
-    17
-    CACHE INTERNAL "Make GSL confirm to which C++ standard?")
-set(GSL_TEST
-    OFF
-    CACHE INTERNAL "Build GSL tests")
 set(UUID_BUILD_TESTS
     OFF
     CACHE INTERNAL "Build stduuid tests")
 
 add_subdirectory(ThirdParty/json)
-add_subdirectory(ThirdParty/GSL)
 add_subdirectory(ThirdParty/gtest)
 add_subdirectory(ThirdParty/stduuid)
-add_subdirectory(ThirdParty/caffa-logger)
+add_subdirectory(ThirdParty/caffa-base)
 
 # libraries
 add_subdirectory(Core)

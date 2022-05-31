@@ -1033,7 +1033,7 @@ std::vector<std::unique_ptr<caffa::ObjectHandle>> Client::documents() const
 //--------------------------------------------------------------------------------------------------
 /// Execute a general non-streaming method.
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caffa::ObjectMethodResult> Client::execute( gsl::not_null<const caffa::ObjectMethod*> method ) const
+std::unique_ptr<caffa::ObjectMethodResult> Client::execute( caffa::not_null<const caffa::ObjectMethod*> method ) const
 {
     return m_clientImpl->execute( method );
 }

@@ -20,10 +20,9 @@
 
 #include "cafDocument.h"
 #include "cafLogger.h"
+#include "cafNotNull.h"
 #include "cafObjectMethod.h"
 #include "cafPortableDataType.h"
-
-#include <gsl/gsl>
 
 #include <memory>
 #include <string>
@@ -50,11 +49,11 @@ public:
     caffa::AppInfo                                    appInfo() const;
     std::unique_ptr<caffa::ObjectHandle>              document( const std::string& documentId ) const;
     std::vector<std::unique_ptr<caffa::ObjectHandle>> documents() const;
-    std::unique_ptr<caffa::ObjectMethodResult>        execute( gsl::not_null<const caffa::ObjectMethod*> method ) const;
-    bool                                              stopServer();
-    void                                              sendKeepAlive();
-    void                                              destroySession();
-    const std::string&                                sessionUuid() const;
+    std::unique_ptr<caffa::ObjectMethodResult> execute( caffa::not_null<const caffa::ObjectMethod*> method ) const;
+    bool                                       stopServer();
+    void                                       sendKeepAlive();
+    void                                       destroySession();
+    const std::string&                         sessionUuid() const;
 
     bool                                            ping() const;
     void                                            resetToDefaultData() const;
