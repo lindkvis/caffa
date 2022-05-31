@@ -1,6 +1,5 @@
 #pragma once
 
-#include "cafBase.h"
 #include "cafSignal.h"
 
 #include <memory>
@@ -48,7 +47,8 @@ protected:
     std::vector<FieldCapability*> capabilities();
 
 private:
-    CAFFA_DISABLE_COPY_AND_ASSIGN( FieldHandle );
+    FieldHandle( const FieldHandle& ) = delete;
+    FieldHandle& operator=( const FieldHandle& ) = delete;
 
     friend class ObjectHandle; // Give access to m_ownerObject and set Keyword
     void          setKeyword( const std::string& keyword );

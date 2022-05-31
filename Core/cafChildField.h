@@ -91,7 +91,8 @@ public:
     }
 
 private:
-    CAFFA_DISABLE_COPY_AND_ASSIGN( ChildField );
+    ChildField( const ChildField& ) = delete;
+    ChildField& operator=( const ChildField& ) = delete;
 
     friend class FieldJsonCap<ChildField<DataType*>>;
     mutable std::unique_ptr<ChildFieldAccessor> m_fieldDataAccessor;
