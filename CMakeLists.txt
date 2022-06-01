@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-set(CAFFA_VERSION 0.12.1)
+set(CAFFA_VERSION 0.13.0)
 
 project(
   caffa
@@ -8,6 +8,9 @@ project(
   DESCRIPTION "Caffa Application Framework")
 
 message(STATUS "Building ${PROJECT_NAME} version ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}-${GIT_HASH}")
+
+add_definitions(-DCAFFA_VERSION_MAJOR=${PROJECT_VERSION_MAJOR} -DCAFFA_VERSION_MINOR=${PROJECT_VERSION_MINOR}
+                -DCAFFA_VERSION_PATCH=${PROJECT_VERSION_PATCH})
 
 set(CMAKE_CXX_STANDARD 17)
 
