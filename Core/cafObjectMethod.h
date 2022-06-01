@@ -36,6 +36,7 @@
 #pragma once
 
 #include "cafAssert.h"
+#include "cafNotNull.h"
 #include "cafObject.h"
 #include "cafObjectFactory.h"
 #include "cafObservingPointer.h"
@@ -78,7 +79,7 @@ class ObjectMethod : public Object
     CAFFA_HEADER_INIT;
 
 public:
-    ObjectMethod( ObjectHandle* self );
+    ObjectMethod( caffa::not_null<ObjectHandle*> self );
 
     // The returned object contains the results of the method and is the responsibility of the caller.
     virtual std::unique_ptr<ObjectMethodResult> execute() = 0;
@@ -90,7 +91,7 @@ public:
     template <typename ObjectType>
     ObjectType* self()
     {
-        ObjectType* object = dynamic_cast<ObjectType*>( m_self.p() );
+        caffa::not_null<ObjectType*> object = dynamic_cast<ObjectType*>( m_self.p() );
         CAFFA_ASSERT( object );
         return object;
     }
@@ -99,7 +100,7 @@ public:
     template <typename ObjectType>
     const ObjectType* self() const
     {
-        const ObjectType* object = dynamic_cast<const ObjectType*>( m_self.p() );
+        caffa::not_null<const ObjectType*> object = dynamic_cast<const ObjectType*>( m_self.p() );
         CAFFA_ASSERT( object );
         return object;
     }
@@ -118,7 +119,7 @@ class ObjectMethodFactory
 public:
     static ObjectMethodFactory* instance();
 
-    std::unique_ptr<ObjectMethod> createMethod( ObjectHandle* self, const std::string& methodName );
+    std::unique_ptr<ObjectMethod> createMethod( caffa::not_null<ObjectHandle*> self, const std::string& methodName );
 
     template <typename ObjectDerivative, typename ObjectScriptMethodDerivative>
     bool registerMethod()
@@ -142,7 +143,7 @@ public:
         return true;
     }
 
-    std::vector<std::string> registeredMethodNames( const ObjectHandle* self ) const;
+    std::vector<std::string> registeredMethodNames( caffa::not_null<const ObjectHandle*> self ) const;
 
 private:
     ObjectMethodFactory()  = default;
@@ -154,14 +155,14 @@ private:
     public:
         ObjectMethodCreatorBase() {}
         virtual ~ObjectMethodCreatorBase() {}
-        virtual std::unique_ptr<ObjectMethod> create( ObjectHandle* self ) = 0;
+        virtual std::unique_ptr<ObjectMethod> create( caffa::not_null<ObjectHandle*> self ) = 0;
     };
 
     template <typename ObjectScriptMethodDerivative>
     class ObjectMethodCreator : public ObjectMethodCreatorBase
     {
     public:
-        std::unique_ptr<ObjectMethod> create( ObjectHandle* self ) override
+        std::unique_ptr<ObjectMethod> create( caffa::not_null<ObjectHandle*> self ) override
         {
             return std::unique_ptr<ObjectMethod>( new ObjectScriptMethodDerivative( self ) );
         }

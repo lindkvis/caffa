@@ -53,7 +53,7 @@ ObjectMethodResult::ObjectMethodResult( bool retValue, const std::string& errMsg
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectMethod::ObjectMethod( ObjectHandle* self )
+ObjectMethod::ObjectMethod( caffa::not_null<ObjectHandle*> self )
     : m_self( self )
 {
 }
@@ -70,7 +70,8 @@ ObjectMethodFactory* ObjectMethodFactory::instance()
 //--------------------------------------------------------------------------------------------------
 /// Check the object and the inheritance stack for the specified method name
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectMethod> ObjectMethodFactory::createMethod( ObjectHandle* self, const std::string& methodName )
+std::unique_ptr<ObjectMethod> ObjectMethodFactory::createMethod( caffa::not_null<ObjectHandle*> self,
+                                                                 const std::string&             methodName )
 {
     auto classNames = self->capability<ObjectIoCapability>()->classInheritanceStack();
     for ( auto className : classNames )
@@ -91,7 +92,7 @@ std::unique_ptr<ObjectMethod> ObjectMethodFactory::createMethod( ObjectHandle* s
 //--------------------------------------------------------------------------------------------------
 /// Return the methods registered for the className.
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> caffa::ObjectMethodFactory::registeredMethodNames( const ObjectHandle* self ) const
+std::vector<std::string> caffa::ObjectMethodFactory::registeredMethodNames( caffa::not_null<const ObjectHandle*> self ) const
 {
     std::vector<std::string> methods;
 
