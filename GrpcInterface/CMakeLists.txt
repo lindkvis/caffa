@@ -16,8 +16,6 @@ endif()
 
 add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 
-find_package(Microsoft.GSL CONFIG)
-
 set(PUBLIC_HEADERS
     cafGrpcServer.h
     cafGrpcCallbacks.h
