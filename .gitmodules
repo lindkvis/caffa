@@ -1,9 +1,6 @@
 [submodule "ThirdParty/json"]
 	path = ThirdParty/json
 	url = https://github.com/nlohmann/json.git
-[submodule "ThirdParty/GSL"]
-	path = ThirdParty/GSL
-	url = https://github.com/microsoft/GSL.git
 [submodule "GrpcInterface/Protos"]
 	path = GrpcInterface/Protos
 	url = https://github.com/lindkvis/caffa-GrpcProtos.git
@@ -16,3 +13,6 @@
 [submodule "ThirdParty/caffa-base"]
 	path = ThirdParty/caffa-base
 	url = https://github.com/lindkvis/caffa-base
+[submodule "Bindings/Python"]
+	path = Bindings/Python/caffa
+	url = git@github.com:lindkvis/caffa-python.git
