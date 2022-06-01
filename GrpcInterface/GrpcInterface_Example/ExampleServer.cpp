@@ -29,6 +29,17 @@
 #include <iostream>
 #include <string>
 
+#ifndef CAFFA_VERSION_MAJOR
+#define CAFFA_VERSION_MAJOR -1
+#endif
+
+#ifndef CAFFA_VERSION_MINOR
+#define CAFFA_VERSION_MINOR -2
+#endif
+
+#ifndef CAFFA_VERSION_PATCH
+#define CAFFA_VERSION_PATCH -3
+#endif
 class ServerApp : public caffa::rpc::ServerApplication
 {
 public:
@@ -45,17 +56,17 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    int majorVersion() const override { return 1; }
+    int majorVersion() const override { return CAFFA_VERSION_MAJOR; }
 
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    int minorVersion() const override { return 0; }
+    int minorVersion() const override { return CAFFA_VERSION_MINOR; }
 
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    int patchVersion() const override { return 0; }
+    int patchVersion() const override { return CAFFA_VERSION_PATCH; }
 
     caffa::Document* document( const std::string& documentId, const std::string& sessionUuid = "" ) override
     {
@@ -158,7 +169,8 @@ int main( int argc, char** argv )
         CAFFA_DEBUG( "Using package size " << packageByteSize << "B" );
     }
 
-    CAFFA_INFO( "Launching Server listening on port " << portNumber );
+    CAFFA_INFO( "Launching Server v" << serverApp->majorVersion() << "." << serverApp->minorVersion() << "."
+                                     << serverApp->patchVersion() << " listening on port " << portNumber );
 
     DemoDocument* serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
     CAFFA_ASSERT( serverDocument != nullptr );
