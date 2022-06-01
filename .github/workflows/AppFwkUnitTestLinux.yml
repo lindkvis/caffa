@@ -34,6 +34,19 @@ jobs:
           cmakebuild/bin/caffaIoCore_UnitTests
           cmakebuild/bin/caffaProjectDataModel_UnitTests
           cmakebuild/bin/caffaGrpcInterface_UnitTests
+      - name: Setup Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Install Python modules
+        run: |
+          python -m pip install --upgrade pip
+          pip install grpcio-tools setuptools
+      - name: Run pytest
+        run: |
+          cmakebuild/bin/caffaGrpcInterface_ExampleServer &
+          cd Bindings/Python/caffa
+          pytest --log-cli-level=DEBUG
       - name: Set up JDK 11
         uses: actions/setup-java@v2
         with:
