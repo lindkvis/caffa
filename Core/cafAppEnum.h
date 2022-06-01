@@ -92,7 +92,7 @@ public:
     AppEnum( const std::string& value )
     {
         m_value = EnumMapper::instance()->defaultValue();
-        if ( !setFromLabel( value ) ) throw std::runtime_error( value + " is not a valid option" );
+        setFromLabel( value );
     }
 
     bool operator==( T value ) const { return m_value == value; }
@@ -107,8 +107,20 @@ public:
         m_value = value;
         return *this;
     }
-    bool setFromLabel( const std::string& label ) { return EnumMapper::instance()->enumVal( m_value, label ); }
-    bool setFromIndex( size_t index ) { return EnumMapper::instance()->enumVal( m_value, index ); }
+    void setFromLabel( const std::string& label )
+    {
+        if ( !EnumMapper::instance()->enumVal( m_value, label ) )
+        {
+            throw std::runtime_error( label + " is not a valid option" );
+        }
+    }
+    void setFromIndex( size_t index )
+    {
+        if ( !EnumMapper::instance()->enumVal( m_value, index ) )
+        {
+            throw std::runtime_error( std::to_string( index ) + " is not a valid option index" );
+        }
+    }
 
     // Static interface to access the properties of the enum definition
 
@@ -120,15 +132,13 @@ public:
     static AppEnum<T>               fromIndex( size_t idx )
     {
         T val;
-        EnumMapper::instance()->enumVal( val, idx );
+        if ( !EnumMapper::instance()->enumVal( val, idx ) )
+        {
+            throw std::runtime_error( std::to_string( idx ) + " is not a valid option index" );
+        }
         return AppEnum<T>( val );
     }
-    static AppEnum<T> fromLabel( const std::string& label )
-    {
-        T val;
-        EnumMapper::instance()->enumVal( val, label );
-        return AppEnum<T>( val );
-    }
+    static AppEnum<T>  fromLabel( const std::string& label ) { return AppEnum<T>( label ); }
     static size_t      index( T enumValue ) { return EnumMapper::instance()->index( enumValue ); }
     static std::string label( T enumValue ) { return EnumMapper::instance()->label( enumValue ); }
     static std::string labelFromIndex( size_t idx ) { return label( fromIndex( idx ).value() ); }
