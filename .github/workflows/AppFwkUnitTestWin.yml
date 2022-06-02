@@ -36,4 +36,17 @@ jobs:
           cmakebuild/bin/Release/caffaCore_UnitTests.exe
           cmakebuild/bin/Release/caffaIoCore_UnitTests.exe
           cmakebuild/bin/Release/caffaProjectDataModel_UnitTests.exe
-
+      - name: Setup Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Install Python modules
+        run: |
+          python -m pip install --upgrade pip
+          pip install grpcio-tools setuptools pytest
+      - name: Run pytest
+        run: |
+          cmd /c "START /b cmakebuild/bin/Release/caffaGrpcInterface_ExampleServer.exe"
+          cd Bindings/Python/caffa
+          sleep 2
+          python -m pytest --log-cli-level=DEBUG
