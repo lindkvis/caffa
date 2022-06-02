@@ -22,11 +22,13 @@ jobs:
         with:
             boost_version: 1.77.0
             platform_version: 2019
-      - name: Build Caffa with Unit Tests
-        uses: lukka/run-cmake@v3
+      - name: Setup gRPC
         uses: eWaterCycle/setup-grpc@v5
         with:
           grpc-version: 1.35.0
+      - name: Build Caffa with Unit Tests
+        uses: lukka/run-cmake@v3
+        with:
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
           cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
           cmakeAppendedArgs: '-DCAFFA_GRPC_INTERFACE=ON -DCAFFA_BUILD_EXAMPLES=ON -DCAFFA_BUILD_UNIT_TESTS=ON -DBOOST_ROOT=${{ steps.install-boost.outputs.BOOST_ROOT }}'
