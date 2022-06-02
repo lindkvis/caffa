@@ -48,8 +48,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install grpcio-tools setuptools pytest
       - name: Run pytest
-        run: |
-          cmd /c "start /B \"\" cmakebuild/bin/Release/caffaGrpcInterface_ExampleServer.exe"
-          timeout 4 > NUL
-          cd Bindings/Python/caffa
-          python -m pytest --log-cli-level=DEBUG
+        uses: BerniWittmann/background-server-action@latest
+        with:          
+          command: |            
+            cd Bindings/Python/caffa
+            python -m pytest --log-cli-level=DEBUG
+          start: 
+            cmakebuild/bin/Release/caffaGrpcInterface_ExampleServer.exe
+          wait-on: 'http://localhost:50000'
+          
