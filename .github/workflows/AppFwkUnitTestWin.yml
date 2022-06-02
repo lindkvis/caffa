@@ -46,7 +46,7 @@ jobs:
           pip install grpcio-tools setuptools pytest
       - name: Run pytest
         run: |
-          cmd /c "START /b cmakebuild/bin/Release/caffaGrpcInterface_ExampleServer.exe"
+          start /B "" cmakebuild/bin/Release/caffaGrpcInterface_ExampleServer.exe
+          timeout 4 > NUL
           cd Bindings/Python/caffa
-          sleep 2
           python -m pytest --log-cli-level=DEBUG
