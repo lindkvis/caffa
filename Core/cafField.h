@@ -94,7 +94,7 @@ public:
         }
         catch ( const std::exception& e )
         {
-            std::string errorMessage = "Failed to get value for '" + this->keyword() + "' due to " + e.what();
+            std::string errorMessage = "Failed to get value for '" + this->keyword() + "': " + e.what();
             CAFFA_ERROR( errorMessage );
             throw std::runtime_error( errorMessage );
         }
@@ -125,7 +125,7 @@ public:
         }
         catch ( const std::exception& e )
         {
-            std::string errorMessage = "Failed to set value for '" + this->keyword() + "' due to " + e.what();
+            std::string errorMessage = "Failed to set value for '" + this->keyword() + "': " + e.what();
             CAFFA_ERROR( errorMessage );
             throw std::runtime_error( errorMessage );
         }
