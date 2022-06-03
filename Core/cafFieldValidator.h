@@ -26,6 +26,9 @@
 #include <nlohmann/json.hpp>
 
 #include <memory>
+#include <sstream>
+#include <string>
+#include <utility>
 
 namespace caffa
 {
@@ -114,7 +117,7 @@ public:
      * @return true if the value is acceptable
      * @return false if not
      */
-    virtual bool validate( const DataType& value ) const = 0;
+    virtual std::pair<bool, std::string> validate( const DataType& value ) const = 0;
 };
 
 /**
@@ -137,9 +140,9 @@ public:
 
     void readFromJson( const nlohmann::json& jsonFieldObject, const caffa::Serializer& serializer ) override
     {
-        if ( jsonFieldObject.is_object() && jsonFieldObject.contains( "range" ) )
+        if ( jsonFieldObject.is_object() && jsonFieldObject.contains( "valid-range" ) )
         {
-            auto jsonRange = jsonFieldObject["range"];
+            auto jsonRange = jsonFieldObject["valid-range"];
             CAFFA_ASSERT( jsonRange.is_object() );
             if ( jsonRange.contains( "min" ) && jsonRange.contains( "max" ) )
             {
@@ -152,12 +155,23 @@ public:
     void writeToJson( nlohmann::json& jsonFieldObject, const caffa::Serializer& serializer ) const override
     {
         CAFFA_ASSERT( jsonFieldObject.is_object() );
-        auto jsonRange           = nlohmann::json::object();
-        jsonRange["min"]         = m_minimum;
-        jsonRange["max"]         = m_maximum;
-        jsonFieldObject["range"] = jsonRange;
+        auto jsonRange                 = nlohmann::json::object();
+        jsonRange["min"]               = m_minimum;
+        jsonRange["max"]               = m_maximum;
+        jsonFieldObject["valid-range"] = jsonRange;
     }
-    bool validate( const DataType& value ) const override { return m_minimum <= value && value <= m_maximum; }
+
+    std::pair<bool, std::string> validate( const DataType& value ) const override
+    {
+        bool valid = m_minimum <= value && value <= m_maximum;
+        if ( !valid )
+        {
+            std::stringstream ss;
+            ss << "The value " << value << " is outside the limits [" << m_minimum << ", " << m_maximum << "]";
+            return std::make_pair( false, ss.str() );
+        }
+        return std::make_pair( true, "" );
+    }
 
     static std::unique_ptr<RangeValidator<DataType>>
         create( DataType minimum, DataType maximum, FailureSeverity failureSeverity = FailureSeverity::ERROR )
