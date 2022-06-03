@@ -6,6 +6,10 @@
 #include "cafJsonSerializer.h"
 #include "cafObject.h"
 
+#include <functional>
+
+using namespace std::placeholders;
+
 class ItemObject : public caffa::Object
 {
     CAFFA_HEADER_INIT;
@@ -58,8 +62,8 @@ public:
     {
         initField( m_doubleField, "BigNumber" );
         auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
-        doubleProxyAccessor->registerSetMethod( this, &DemoObjectA::setDoubleMember );
-        doubleProxyAccessor->registerGetMethod( this, &DemoObjectA::doubleMember );
+        doubleProxyAccessor->registerSetMethod( std::bind( &DemoObjectA::setDoubleMember, this, _1 ) );
+        doubleProxyAccessor->registerGetMethod( std::bind( &DemoObjectA::doubleMember, this ) );
         m_doubleField.setAccessor( std::move( doubleProxyAccessor ) );
     }
 

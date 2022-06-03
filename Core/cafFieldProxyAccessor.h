@@ -4,6 +4,7 @@
 #include "cafField.h"
 #include "cafObservingPointer.h"
 
+#include <functional>
 #include <type_traits>
 #include <vector>
 
@@ -18,33 +19,27 @@ public:
     virtual std::unique_ptr<SetValueInterface<DataType>> clone() const                     = 0;
 };
 
-template <typename DataType, typename ObjectType>
+template <typename DataType>
 class SetterMethodCB : public SetValueInterface<DataType>
 {
 public:
-    typedef void ( ObjectType::*SetterMethodType )( const DataType& value );
+    using SetterMethodType = std::function<void( const DataType& )>;
 
-    SetterMethodCB( ObjectType* obj, SetterMethodType setterMethod )
-    {
-        m_setterMethod = setterMethod;
-        m_obj          = obj;
-    }
+    SetterMethodCB( SetterMethodType setterMethod ) { m_setterMethod = setterMethod; }
 
     void setValue( const DataType& value )
     {
-        CAFFA_ASSERT( m_obj.notNull() );
         CAFFA_ASSERT( m_setterMethod );
-        ( m_obj->*m_setterMethod )( value );
+        m_setterMethod( value );
     }
 
     virtual std::unique_ptr<SetValueInterface<DataType>> clone() const
     {
-        return std::make_unique<SetterMethodCB<DataType, ObjectType>>( m_obj, m_setterMethod );
+        return std::make_unique<SetterMethodCB<DataType>>( m_setterMethod );
     }
 
 private:
-    SetterMethodType             m_setterMethod;
-    ObservingPointer<ObjectType> m_obj;
+    SetterMethodType m_setterMethod;
 };
 
 template <typename DataType>
@@ -56,28 +51,23 @@ public:
     virtual std::unique_ptr<GetValueInterface<DataType>> clone() const    = 0;
 };
 
-template <typename DataType, typename ObjectType>
+template <typename DataType>
 class GetterMethodCB : public GetValueInterface<DataType>
 {
 public:
-    typedef DataType ( ObjectType::*GetterMethodType )() const;
+    using GetterMethodType = std::function<DataType()>;
 
-    GetterMethodCB( ObjectType* obj, GetterMethodType setterMethod )
-    {
-        m_getterMethod = setterMethod;
-        m_obj          = obj;
-    }
+    GetterMethodCB( GetterMethodType setterMethod ) { m_getterMethod = setterMethod; }
 
-    DataType getValue() const { return ( m_obj->*m_getterMethod )(); }
+    DataType getValue() const { return m_getterMethod(); }
 
     virtual std::unique_ptr<GetValueInterface<DataType>> clone() const
     {
-        return std::make_unique<GetterMethodCB<DataType, ObjectType>>( m_obj, m_getterMethod );
+        return std::make_unique<GetterMethodCB<DataType>>( m_getterMethod );
     }
 
 private:
-    GetterMethodType             m_getterMethod;
-    ObservingPointer<ObjectType> m_obj;
+    GetterMethodType m_getterMethod;
 };
 
 template <typename DataType>
@@ -108,18 +98,14 @@ public:
     // For some reason. Forward declaration did some weirdness.
 private:
 public:
-    template <typename OwnerObjectType>
-    void registerSetMethod( OwnerObjectType*                                                     obj,
-                            typename SetterMethodCB<DataType, OwnerObjectType>::SetterMethodType setterMethod )
+    void registerSetMethod( typename SetterMethodCB<DataType>::SetterMethodType setterMethod )
     {
-        m_valueSetter = std::make_unique<SetterMethodCB<DataType, OwnerObjectType>>( obj, setterMethod );
+        m_valueSetter = std::make_unique<SetterMethodCB<DataType>>( setterMethod );
     }
 
-    template <typename OwnerObjectType>
-    void registerGetMethod( OwnerObjectType*                                                     obj,
-                            typename GetterMethodCB<DataType, OwnerObjectType>::GetterMethodType getterMethod )
+    void registerGetMethod( typename GetterMethodCB<DataType>::GetterMethodType getterMethod )
     {
-        m_valueGetter = std::make_unique<GetterMethodCB<DataType, OwnerObjectType>>( obj, getterMethod );
+        m_valueGetter = std::make_unique<GetterMethodCB<DataType>>( getterMethod );
     }
 
     bool hasSetter() const { return m_valueSetter != nullptr; }

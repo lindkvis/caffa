@@ -47,7 +47,10 @@
 #include "cafObservingPointer.h"
 
 #include <fstream>
+#include <functional>
 #include <memory>
+
+using namespace std::placeholders;
 
 /// Demo objects to show the usage of the Pdm system
 
@@ -66,8 +69,8 @@ public:
         initField( m_numbers, "Numbers" );
 
         auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
-        doubleProxyAccessor->registerSetMethod( this, &SimpleObj::setDoubleMember );
-        doubleProxyAccessor->registerGetMethod( this, &SimpleObj::doubleMember );
+        doubleProxyAccessor->registerSetMethod( std::bind( &SimpleObj::setDoubleMember, this, _1 ) );
+        doubleProxyAccessor->registerGetMethod( std::bind( &SimpleObj::doubleMember, this ) );
 
         initField( m_proxyDouble, "ProxyDouble" ).withAccessor( std::move( doubleProxyAccessor ) );
     }

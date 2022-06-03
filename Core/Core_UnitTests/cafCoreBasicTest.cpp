@@ -11,6 +11,7 @@
 #include "cafPortableDataType.h"
 #include "cafTypedField.h"
 
+#include <functional>
 #include <map>
 #include <vector>
 namespace caffa
@@ -19,6 +20,8 @@ class Serializer;
 }
 
 using IntRangeValidator = caffa::RangeValidator<int>;
+
+using namespace std::placeholders;
 
 class DemoObject : public caffa::Object
 {
@@ -29,20 +32,20 @@ public:
     {
         initField( m_proxyDoubleField, "m_proxyDoubleField" );
         auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
-        doubleProxyAccessor->registerSetMethod( this, &DemoObject::setDoubleMember );
-        doubleProxyAccessor->registerGetMethod( this, &DemoObject::doubleMember );
+        doubleProxyAccessor->registerSetMethod( std::bind( &DemoObject::setDoubleMember, this, _1 ) );
+        doubleProxyAccessor->registerGetMethod( std::bind( &DemoObject::doubleMember, this ) );
         m_proxyDoubleField.setAccessor( std::move( doubleProxyAccessor ) );
 
         initField( m_proxyIntField, "m_proxyIntField" );
         auto intProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<int>>();
-        intProxyAccessor->registerSetMethod( this, &DemoObject::setIntMember );
-        intProxyAccessor->registerGetMethod( this, &DemoObject::intMember );
+        intProxyAccessor->registerSetMethod( std::bind( &DemoObject::setIntMember, this, _1 ) );
+        intProxyAccessor->registerGetMethod( std::bind( &DemoObject::intMember, this ) );
         m_proxyIntField.setAccessor( std::move( intProxyAccessor ) );
 
         initField( m_proxyStringField, "m_proxyStringField" );
         auto stringProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::string>>();
-        stringProxyAccessor->registerSetMethod( this, &DemoObject::setStringMember );
-        stringProxyAccessor->registerGetMethod( this, &DemoObject::stringMember );
+        stringProxyAccessor->registerSetMethod( std::bind( &DemoObject::setStringMember, this, _1 ) );
+        stringProxyAccessor->registerGetMethod( std::bind( &DemoObject::stringMember, this ) );
         m_proxyStringField.setAccessor( std::move( stringProxyAccessor ) );
 
         initField( m_memberDoubleField, "m_memberDoubleField" );
