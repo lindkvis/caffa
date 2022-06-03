@@ -20,7 +20,12 @@
 //
 //##################################################################################################
 #pragma once
+
+#include "cafAssert.h"
+
 #include <nlohmann/json.hpp>
+
+#include <memory>
 
 namespace caffa
 {
@@ -110,6 +115,11 @@ public:
         jsonFieldObject["range"] = jsonRange;
     }
     bool validate( const DataType& value ) const override { return m_minimum <= value && value <= m_maximum; }
+
+    static std::unique_ptr<RangeValidator<DataType>> create( DataType minimum, DataType maximum )
+    {
+        return std::make_unique<RangeValidator<DataType>>( minimum, maximum );
+    }
 
 private:
     DataType m_minimum;
