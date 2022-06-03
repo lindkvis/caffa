@@ -18,23 +18,7 @@ namespace caffa
 class Serializer;
 }
 
-class IntRangeValidator : public caffa::FieldValueValidator<int>
-{
-public:
-    IntRangeValidator( int minimum, int maximum )
-        : m_minimum( minimum )
-        , m_maximum( maximum )
-    {
-    }
-
-    void readFromJson( const nlohmann::json& jsonValue, const caffa::Serializer& serializer ) override {}
-    void writeToJson( nlohmann::json& jsonValue, const caffa::Serializer& serializer ) const override {}
-    bool validate( const int& value ) const override { return m_minimum <= value && value <= m_maximum; }
-
-private:
-    int m_minimum;
-    int m_maximum;
-};
+using IntRangeValidator = caffa::RangeValueValidator<int>;
 
 class DemoObject : public caffa::Object
 {
@@ -65,7 +49,7 @@ public:
         initField( m_memberIntField, "m_memberIntField" );
         initField( m_memberStringField, "m_memberStringField" );
 
-        m_memberIntField.setValueValidator( std::make_unique<IntRangeValidator>( -10, 1000 ) );
+        m_memberIntField.addValueValidator( std::make_unique<IntRangeValidator>( -10, 1000 ) );
 
         // Default values
         m_doubleMember = 2.1;

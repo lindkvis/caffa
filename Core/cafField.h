@@ -106,9 +106,12 @@ public:
 
         try
         {
-            if ( m_valueValidator && !m_valueValidator->validate( fieldValue ) )
+            for ( const auto& validator : m_valueValidators )
             {
-                throw std::runtime_error( "An invalid value has been set!" );
+                if ( !validator->validate( fieldValue ) )
+                {
+                    throw std::runtime_error( "An invalid value has been set!" );
+                }
             }
             m_fieldDataAccessor->setValue( fieldValue );
         }
@@ -145,10 +148,51 @@ public:
         setAccessor( caffa::dynamic_unique_cast<DataAccessor>( std::move( accessor ) ) );
     }
 
-    FieldValueValidator<DataType>* valueValidator() const { return m_valueValidator.get(); }
-    void                           setValueValidator( std::unique_ptr<FieldValueValidator<DataType>> valueValidator )
+    template <typename ValidatorType>
+    const ValidatorType* valueValidator() const
     {
-        m_valueValidator = std::move( valueValidator );
+        for ( const auto& validator : m_valueValidators )
+        {
+            const ValidatorType* typedValidator = dynamic_cast<const ValidatorType*>( validator.get() );
+            if ( typedValidator ) return typedValidator;
+        }
+        return nullptr;
+    }
+
+    template <typename ValidatorType>
+    ValidatorType* valueValidator()
+    {
+        for ( auto& validator : m_valueValidators )
+        {
+            const ValidatorType* typedValidator = dynamic_cast<const ValidatorType*>( validator.get() );
+            if ( typedValidator ) return typedValidator;
+        }
+        return nullptr;
+    }
+
+    std::vector<const FieldValueValidator<DataType>*> valueValidators() const
+    {
+        std::vector<const FieldValueValidator<DataType>*> allValidators;
+        for ( const auto& validator : m_valueValidators )
+        {
+            allValidators.push_back( validator.get() );
+        }
+        return allValidators;
+    }
+
+    std::vector<FieldValueValidator<DataType>*> valueValidators()
+    {
+        std::vector<FieldValueValidator<DataType>*> allValidators;
+        for ( auto& validator : m_valueValidators )
+        {
+            allValidators.push_back( validator.get() );
+        }
+        return allValidators;
+    }
+
+    void addValueValidator( std::unique_ptr<FieldValueValidator<DataType>> valueValidator )
+    {
+        m_valueValidators.push_back( std::move( valueValidator ) );
     }
 
 public:
@@ -156,9 +200,9 @@ public:
     void                    setDefaultValue( const DataType& val ) { m_defaultValue = val; }
 
 protected:
-    std::unique_ptr<DataAccessor>                  m_fieldDataAccessor;
-    std::unique_ptr<FieldValueValidator<DataType>> m_valueValidator;
-    std::optional<DataType>                        m_defaultValue;
+    std::unique_ptr<DataAccessor>                               m_fieldDataAccessor;
+    std::vector<std::unique_ptr<FieldValueValidator<DataType>>> m_valueValidators;
+    std::optional<DataType>                                     m_defaultValue;
 };
 
 } // End of namespace caffa
