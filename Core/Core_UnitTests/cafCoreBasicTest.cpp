@@ -18,7 +18,7 @@ namespace caffa
 class Serializer;
 }
 
-using IntRangeValidator = caffa::RangeValueValidator<int>;
+using IntRangeValidator = caffa::RangeValidator<int>;
 
 class DemoObject : public caffa::Object
 {
@@ -49,7 +49,7 @@ public:
         initField( m_memberIntField, "m_memberIntField" );
         initField( m_memberStringField, "m_memberStringField" );
 
-        m_memberIntField.addValueValidator( std::make_unique<IntRangeValidator>( -10, 1000 ) );
+        m_memberIntField.addValidator( std::make_unique<IntRangeValidator>( -10, 1000 ) );
 
         // Default values
         m_doubleMember = 2.1;
