@@ -95,6 +95,7 @@ public:
     FieldInitHelper& withValidator( std::unique_ptr<FieldValidator<typename FieldType::FieldDataType>> validator )
     {
         m_field.addValidator( std::move( validator ) );
+        return *this;
     }
 
 private:
