@@ -37,18 +37,18 @@ public:
     /**
      * @brief Read the validator from JSON.
      *
-     * @param jsonValue the JSON value to read from
+     * @param jsonFieldObject the JSON value to read from
      * @param serializer the serializer object
      */
-    virtual void readFromJson( const nlohmann::json& jsonValue, const Serializer& serializer ) = 0;
+    virtual void readFromJson( const nlohmann::json& jsonFieldObject, const Serializer& serializer ) = 0;
 
     /**
      * @brief Write the validator to JSON.
      *
-     * @param jsonValue to JSON value to write to.
+     * @param jsonFieldObject to JSON value to write to.
      * @param serializer the serializer object
      */
-    virtual void writeToJson( nlohmann::json& jsonValue, const Serializer& serializer ) const = 0;
+    virtual void writeToJson( nlohmann::json& jsonFieldObject, const Serializer& serializer ) const = 0;
 };
 
 /**
@@ -69,6 +69,51 @@ public:
      * @return false if not
      */
     virtual bool validate( const DataType& value ) const = 0;
+};
+
+/**
+ * @brief Simple range validator.
+ *
+ * @tparam DataType
+ */
+template <typename DataType>
+class RangeValueValidator : public caffa::FieldValueValidator<DataType>
+{
+public:
+    RangeValueValidator( DataType minimum, DataType maximum )
+        : m_minimum( minimum )
+        , m_maximum( maximum )
+    {
+    }
+
+    void readFromJson( const nlohmann::json& jsonFieldObject, const caffa::Serializer& serializer ) override
+    {
+        CAFFA_ASSERT( jsonFieldObject.is_object() );
+        if ( jsonFieldObject.contains( "range" ) )
+        {
+            auto jsonRange = jsonFieldObject["range"];
+            CAFFA_ASSERT( jsonRange.is_object() );
+            if ( jsonRange.contains( "min" ) && jsonRange.contains( "max" ) )
+            {
+                m_minimum = jsonRange["min"];
+                m_maximum = jsonRange["max"];
+            }
+        }
+    }
+
+    void writeToJson( nlohmann::json& jsonFieldObject, const caffa::Serializer& serializer ) const override
+    {
+        CAFFA_ASSERT( jsonFieldObject.is_object() );
+        auto jsonRange           = nlohmann::json::object();
+        jsonRange["min"]         = m_minimum;
+        jsonRange["max"]         = m_maximum;
+        jsonFieldObject["range"] = jsonRange;
+    }
+    bool validate( const DataType& value ) const override { return m_minimum <= value && value <= m_maximum; }
+
+private:
+    DataType m_minimum;
+    DataType m_maximum;
 };
 
 } // namespace caffa

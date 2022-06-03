@@ -48,9 +48,9 @@ void FieldJsonCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, c
             CAFFA_ASSERT( jsonElement["type"] == m_field->dataType() );
         }
 
-        if ( m_field->valueValidator() )
+        for ( auto validator : m_field->valueValidators() )
         {
-            m_field->valueValidator()->readFromJson( jsonElement, serializer );
+            validator->readFromJson( jsonElement, serializer );
         }
     }
 }
@@ -68,9 +68,9 @@ void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Se
     if ( serializer.serializeSchema() )
     {
         jsonField["type"] = m_field->dataType();
-        if ( m_field->valueValidator() )
+        for ( auto validator : m_field->valueValidators() )
         {
-            m_field->valueValidator()->writeToJson( jsonField, serializer );
+            validator->writeToJson( jsonField, serializer );
         }
     }
     if ( serializer.serializeDataValues() )

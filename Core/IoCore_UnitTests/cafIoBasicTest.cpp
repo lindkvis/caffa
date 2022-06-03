@@ -199,7 +199,7 @@ public:
     }
     void setUpRange( int minimum, int maximum )
     {
-        m_up.setValueValidator( std::make_unique<IntRangeValidator>( minimum, maximum ) );
+        m_up.addValueValidator( std::make_unique<IntRangeValidator>( minimum, maximum ) );
     }
 
     std::string classKeywordDynamic() const override { return classKeyword(); }
