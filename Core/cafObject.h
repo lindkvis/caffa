@@ -40,6 +40,7 @@
 #include "cafField.h"
 #include "cafFieldJsonCapability.h"
 #include "cafFieldJsonCapabilitySpecializations.h"
+#include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafFieldValidator.h"
 #include "cafObjectCapability.h"
@@ -64,6 +65,9 @@ template <typename FieldType>
 class FieldInitHelper
 {
 public:
+    using GetMethod = std::function<typename FieldType::FieldDataType()>;
+    using SetMethod = std::function<void( const typename FieldType::FieldDataType& )>;
+
     FieldInitHelper( FieldType& field, const std::string& keyword )
         : m_field( field )
         , m_keyword( keyword )
@@ -77,7 +81,7 @@ public:
         return *this;
     }
 
-    FieldInitHelper& withScripting( const std::string& scriptFieldKeyword = "", bool readable = true, bool writable = true )
+    FieldInitHelper& withScripting( const std::string& scriptFieldKeyword, bool readable = true, bool writable = true )
     {
         m_field.addCapability(
             std::make_unique<FieldScriptingCapability>( scriptFieldKeyword.empty() ? m_keyword : scriptFieldKeyword,
@@ -86,10 +90,38 @@ public:
         return *this;
     }
 
+    FieldInitHelper& withScripting( bool readable = true, bool writable = true )
+    {
+        m_field.addCapability( std::make_unique<FieldScriptingCapability>( m_keyword, readable, writable ) );
+        return *this;
+    }
+
     FieldInitHelper& withAccessor( std::unique_ptr<DataFieldAccessor<typename FieldType::FieldDataType>> accessor )
     {
         m_field.setAccessor( std::move( accessor ) );
         return *this;
+    }
+
+    FieldInitHelper& withProxyGetAccessor( GetMethod getMethod )
+    {
+        auto accessor = std::make_unique<caffa::FieldProxyAccessor<typename FieldType::FieldDataType>>();
+        accessor->registerGetMethod( getMethod );
+        return withAccessor( std::move( accessor ) );
+    }
+
+    FieldInitHelper& withProxySetAccessor( SetMethod setMethod )
+    {
+        auto accessor = std::make_unique<caffa::FieldProxyAccessor<typename FieldType::FieldDataType>>();
+        accessor->registerSetMethod( setMethod );
+        return withAccessor( std::move( accessor ) );
+    }
+
+    FieldInitHelper& withProxyGetSetAccessor( GetMethod getMethod, SetMethod setMethod )
+    {
+        auto accessor = std::make_unique<caffa::FieldProxyAccessor<typename FieldType::FieldDataType>>();
+        accessor->registerGetMethod( getMethod );
+        accessor->registerSetMethod( setMethod );
+        return withAccessor( std::move( accessor ) );
     }
 
     FieldInitHelper& withValidator( std::unique_ptr<FieldValidator<typename FieldType::FieldDataType>> validator )

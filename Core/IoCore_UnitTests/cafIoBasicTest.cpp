@@ -12,6 +12,10 @@
 #include "cafJsonSerializer.h"
 #include "cafObject.h"
 
+#include <functional>
+
+using namespace std::placeholders;
+
 class DemoObject : public caffa::Object
 {
     CAFFA_HEADER_INIT;
@@ -29,14 +33,14 @@ public:
         initField( m_proxyDoubleField, "BigNumber" );
 
         auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
-        doubleProxyAccessor->registerSetMethod( this, &DemoObject::setDoubleMember );
-        doubleProxyAccessor->registerGetMethod( this, &DemoObject::doubleMember );
+        doubleProxyAccessor->registerSetMethod( std::bind( &DemoObject::setDoubleMember, this, _1 ) );
+        doubleProxyAccessor->registerGetMethod( std::bind( &DemoObject::doubleMember, this ) );
         m_proxyDoubleField.setAccessor( std::move( doubleProxyAccessor ) );
 
         initField( m_proxyEnumField, "EnumField" );
         auto proxyEnumAccessor = std::make_unique<caffa::FieldProxyAccessor<caffa::AppEnum<TestEnumType>>>();
-        proxyEnumAccessor->registerSetMethod( this, &DemoObject::setEnumMember );
-        proxyEnumAccessor->registerGetMethod( this, &DemoObject::enumMember );
+        proxyEnumAccessor->registerSetMethod( std::bind( &DemoObject::setEnumMember, this, _1 ) );
+        proxyEnumAccessor->registerGetMethod( std::bind( &DemoObject::enumMember, this ) );
         m_proxyEnumField.setAccessor( std::move( proxyEnumAccessor ) );
 
         m_enumMember = T1;
@@ -151,8 +155,8 @@ public:
 
         initField( m_proxyDouble, "m_proxyDouble" );
         auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
-        doubleProxyAccessor->registerSetMethod( this, &SimpleObj::setDoubleMember );
-        doubleProxyAccessor->registerGetMethod( this, &SimpleObj::doubleMember );
+        doubleProxyAccessor->registerSetMethod( std::bind( &SimpleObj::setDoubleMember, this, _1 ) );
+        doubleProxyAccessor->registerGetMethod( std::bind( &SimpleObj::doubleMember, this ) );
         m_proxyDouble.setAccessor( std::move( doubleProxyAccessor ) );
     }
 
