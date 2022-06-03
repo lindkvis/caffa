@@ -8,6 +8,7 @@
 #include "cafFieldJsonCapability.h"
 #include "cafFieldJsonCapabilitySpecializations.h"
 #include "cafFieldProxyAccessor.h"
+#include "cafFieldValidator.h"
 #include "cafJsonSerializer.h"
 #include "cafObject.h"
 
@@ -134,34 +135,7 @@ public:
 };
 CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj", "DemoObject" )
 
-class IntRangeValidator : public caffa::FieldValueValidator<int>
-{
-public:
-    IntRangeValidator( int minimum, int maximum )
-        : m_minimum( minimum )
-        , m_maximum( maximum )
-    {
-    }
-
-    void readFromJson( const nlohmann::json& jsonValue, const caffa::Serializer& serializer ) override
-    {
-        std::cout << "Reading range validator from json: " << jsonValue.dump() << std::endl;
-        if ( jsonValue.contains( "range" ) )
-        {
-            std::cout << "Found range!" << jsonValue["range"].dump() << std::endl;
-            std::tie( m_minimum, m_maximum ) = jsonValue["range"].get<std::pair<int, int>>();
-        }
-    }
-    void writeToJson( nlohmann::json& jsonValue, const caffa::Serializer& serializer ) const override
-    {
-        jsonValue["range"] = { m_minimum, m_maximum };
-    }
-    bool validate( const int& value ) const override { return m_minimum <= value && value <= m_maximum; }
-
-private:
-    int m_minimum;
-    int m_maximum;
-};
+using IntRangeValidator = caffa::RangeValidator<int>;
 
 class SimpleObj : public caffa::Object
 {
@@ -199,7 +173,7 @@ public:
     }
     void setUpRange( int minimum, int maximum )
     {
-        m_up.addValueValidator( std::make_unique<IntRangeValidator>( minimum, maximum ) );
+        m_up.addValidator( std::make_unique<IntRangeValidator>( minimum, maximum ) );
     }
 
     std::string classKeywordDynamic() const override { return classKeyword(); }

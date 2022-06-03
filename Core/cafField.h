@@ -22,7 +22,7 @@
 #pragma once
 
 #include "cafDynamicUniqueCast.h"
-#include "cafFieldValueValidator.h"
+#include "cafFieldValidator.h"
 #include "cafTypedField.h"
 
 #include "cafAssert.h"
@@ -169,9 +169,9 @@ public:
         return nullptr;
     }
 
-    std::vector<const FieldValueValidator<DataType>*> valueValidators() const
+    std::vector<const FieldValidator<DataType>*> valueValidators() const
     {
-        std::vector<const FieldValueValidator<DataType>*> allValidators;
+        std::vector<const FieldValidator<DataType>*> allValidators;
         for ( const auto& validator : m_valueValidators )
         {
             allValidators.push_back( validator.get() );
@@ -179,9 +179,9 @@ public:
         return allValidators;
     }
 
-    std::vector<FieldValueValidator<DataType>*> valueValidators()
+    std::vector<FieldValidator<DataType>*> valueValidators()
     {
-        std::vector<FieldValueValidator<DataType>*> allValidators;
+        std::vector<FieldValidator<DataType>*> allValidators;
         for ( auto& validator : m_valueValidators )
         {
             allValidators.push_back( validator.get() );
@@ -189,7 +189,7 @@ public:
         return allValidators;
     }
 
-    void addValueValidator( std::unique_ptr<FieldValueValidator<DataType>> valueValidator )
+    void addValidator( std::unique_ptr<FieldValidator<DataType>> valueValidator )
     {
         m_valueValidators.push_back( std::move( valueValidator ) );
     }
@@ -199,9 +199,9 @@ public:
     void                    setDefaultValue( const DataType& val ) { m_defaultValue = val; }
 
 protected:
-    std::unique_ptr<DataAccessor>                               m_fieldDataAccessor;
-    std::vector<std::unique_ptr<FieldValueValidator<DataType>>> m_valueValidators;
-    std::optional<DataType>                                     m_defaultValue;
+    std::unique_ptr<DataAccessor>                          m_fieldDataAccessor;
+    std::vector<std::unique_ptr<FieldValidator<DataType>>> m_valueValidators;
+    std::optional<DataType>                                m_defaultValue;
 };
 
 } // End of namespace caffa

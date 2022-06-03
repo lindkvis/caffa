@@ -19,7 +19,7 @@
 //   for more details.
 //
 //##################################################################################################
-
+#pragma once
 #include <nlohmann/json.hpp>
 
 namespace caffa
@@ -30,10 +30,10 @@ class Serializer;
  * @brief An abstract field validator interface for validating field values
  *
  */
-class FieldValueValidatorInterface
+class FieldValidatorInterface
 {
 public:
-    virtual ~FieldValueValidatorInterface() = default;
+    virtual ~FieldValidatorInterface() = default;
     /**
      * @brief Read the validator from JSON.
      *
@@ -58,7 +58,7 @@ public:
  * @tparam DataType
  */
 template <typename DataType>
-class FieldValueValidator : public FieldValueValidatorInterface
+class FieldValidator : public FieldValidatorInterface
 {
 public:
     /**
@@ -77,10 +77,10 @@ public:
  * @tparam DataType
  */
 template <typename DataType>
-class RangeValueValidator : public caffa::FieldValueValidator<DataType>
+class RangeValidator : public caffa::FieldValidator<DataType>
 {
 public:
-    RangeValueValidator( DataType minimum, DataType maximum )
+    RangeValidator( DataType minimum, DataType maximum )
         : m_minimum( minimum )
         , m_maximum( maximum )
     {

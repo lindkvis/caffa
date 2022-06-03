@@ -41,6 +41,7 @@
 #include "cafFieldJsonCapability.h"
 #include "cafFieldJsonCapabilitySpecializations.h"
 #include "cafFieldScriptingCapability.h"
+#include "cafFieldValidator.h"
 #include "cafObjectCapability.h"
 #include "cafObjectHandle.h"
 #include "cafObjectIoCapability.h"
@@ -89,6 +90,11 @@ public:
     {
         m_field.setAccessor( std::move( accessor ) );
         return *this;
+    }
+
+    FieldInitHelper& withValidator( std::unique_ptr<FieldValidator<typename FieldType::FieldDataType>> validator )
+    {
+        m_field.addValidator( std::move( validator ) );
     }
 
 private:
