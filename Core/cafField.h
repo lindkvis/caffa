@@ -107,9 +107,18 @@ public:
         {
             for ( const auto& validator : m_valueValidators )
             {
-                if ( !validator->validate( fieldValue ) )
+                if ( auto [status, message] = validator->validate( fieldValue ); !status )
                 {
-                    throw std::runtime_error( "An invalid value has been set!" );
+                    CAFFA_ASSERT( !message.empty() );
+                    if ( validator->failureSeverity() == FieldValidatorInterface::FailureSeverity::ERROR ||
+                         validator->failureSeverity() == FieldValidatorInterface::FailureSeverity::CRITICAL )
+                    {
+                        throw std::runtime_error( message );
+                    }
+                    else
+                    {
+                        CAFFA_WARNING( message );
+                    }
                 }
             }
             m_fieldDataAccessor->setValue( fieldValue );
