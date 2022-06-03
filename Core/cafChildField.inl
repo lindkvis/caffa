@@ -29,7 +29,7 @@ ChildField<DataType*>::~ChildField()
 template <typename DataType>
 ChildField<DataType*>& ChildField<DataType*>::operator=( DataTypePtr fieldValue )
 {
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitialized() );
     this->setValue( std::move( fieldValue ) );
     return *this;
 }
@@ -40,7 +40,7 @@ ChildField<DataType*>& ChildField<DataType*>::operator=( DataTypePtr fieldValue 
 template <typename DataType>
 void ChildField<DataType*>::setValue( DataTypePtr fieldValue )
 {
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitialized() );
     m_fieldDataAccessor->setValue( std::move( fieldValue ) );
 }
 
@@ -50,11 +50,11 @@ void ChildField<DataType*>::setValue( DataTypePtr fieldValue )
 template <typename DataType>
 std::vector<ObjectHandle*> ChildField<DataType*>::childObjects() const
 {
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitialized() );
 
     auto object = m_fieldDataAccessor->value();
-    if (!object) return {};
-    
+    if ( !object ) return {};
+
     return { object };
 }
 
@@ -64,7 +64,7 @@ std::vector<ObjectHandle*> ChildField<DataType*>::childObjects() const
 template <typename DataType>
 std::unique_ptr<ObjectHandle> ChildField<DataType*>::clear()
 {
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitialized() );
     return m_fieldDataAccessor->clear();
 }
 //--------------------------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ std::unique_ptr<ObjectHandle> ChildField<DataType*>::clear()
 template <typename DataType>
 std::unique_ptr<ObjectHandle> ChildField<DataType*>::removeChildObject( ObjectHandle* object )
 {
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitialized() );
     if ( m_fieldDataAccessor->value() == object )
     {
         return this->clear();
@@ -87,7 +87,7 @@ std::unique_ptr<ObjectHandle> ChildField<DataType*>::removeChildObject( ObjectHa
 template <typename DataType>
 void ChildField<DataType*>::setChildObject( std::unique_ptr<ObjectHandle> fieldValue )
 {
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitialized() );
 
     ObjectHandle* rawPtr = fieldValue.release();
 

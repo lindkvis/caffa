@@ -78,8 +78,7 @@ public:
     }
     Field& operator=( const DataType& fieldValue )
     {
-        CAFFA_ASSERT( this->isInitializedByInitFieldMacro() );
-        m_fieldDataAccessor->setValue( fieldValue );
+        this->setValue( fieldValue );
         return *this;
     }
 
@@ -87,7 +86,7 @@ public:
 
     DataType value() const override
     {
-        CAFFA_ASSERT( this->isInitializedByInitFieldMacro() );
+        CAFFA_ASSERT( this->isInitialized() );
 
         try
         {
@@ -102,7 +101,7 @@ public:
     }
     void setValue( const DataType& fieldValue ) override
     {
-        CAFFA_ASSERT( this->isInitializedByInitFieldMacro() );
+        CAFFA_ASSERT( this->isInitialized() );
 
         try
         {
@@ -128,12 +127,12 @@ public:
     /*Conversion */ operator DataType() const
     {
         CAFFA_ASSERT( m_fieldDataAccessor );
-        return m_fieldDataAccessor->value();
+        return this->value();
     }
     DataType operator()() const
     {
         CAFFA_ASSERT( m_fieldDataAccessor );
-        return m_fieldDataAccessor->value();
+        return this->value();
     }
 
     bool operator==( const DataType& fieldValue ) const { return m_fieldDataAccessor->value() == fieldValue; }
