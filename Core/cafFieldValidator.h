@@ -38,6 +38,30 @@ class Serializer;
 class FieldValidatorInterface
 {
 public:
+    /**
+     * @brief The severity of failure. Essentially tells the application
+     * how to treat a validator failure:
+     * WARNING -> user warning
+     * ERROR -> user error
+     * CRITICAL -> critical application failure
+     */
+    enum class FailureSeverity
+    {
+        WARNING,
+        ERROR,
+        CRITICAL
+    };
+
+    /**
+     * @brief Construct a new Field Validator Interface object
+     *
+     * @param failureSeverity the severity of a validation failure
+     */
+    FieldValidatorInterface( FailureSeverity failureSeverity )
+        : m_failureSeverity( failureSeverity )
+    {
+    }
+
     virtual ~FieldValidatorInterface() = default;
     /**
      * @brief Read the validator from JSON.
@@ -54,6 +78,16 @@ public:
      * @param serializer the serializer object
      */
     virtual void writeToJson( nlohmann::json& jsonFieldObject, const Serializer& serializer ) const = 0;
+
+    /**
+     * @brief Get the severity of a failure of the validator
+     *
+     * @return FailureSeverity
+     */
+    FailureSeverity failureSeverity() const { return m_failureSeverity; }
+
+private:
+    FailureSeverity m_failureSeverity;
 };
 
 /**
@@ -66,6 +100,13 @@ template <typename DataType>
 class FieldValidator : public FieldValidatorInterface
 {
 public:
+    using FailureSeverity = FieldValidatorInterface::FailureSeverity;
+
+    FieldValidator( FailureSeverity failureSeverity = FailureSeverity::ERROR )
+        : FieldValidatorInterface( failureSeverity )
+    {
+    }
+
     /**
      * @brief Validate the value
      *
@@ -82,19 +123,21 @@ public:
  * @tparam DataType
  */
 template <typename DataType>
-class RangeValidator : public caffa::FieldValidator<DataType>
+class RangeValidator : public FieldValidator<DataType>
 {
 public:
-    RangeValidator( DataType minimum, DataType maximum )
-        : m_minimum( minimum )
+    using FailureSeverity = FieldValidatorInterface::FailureSeverity;
+
+    RangeValidator( DataType minimum, DataType maximum, FailureSeverity failureSeverity = FailureSeverity::ERROR )
+        : FieldValidator<DataType>( failureSeverity )
+        , m_minimum( minimum )
         , m_maximum( maximum )
     {
     }
 
     void readFromJson( const nlohmann::json& jsonFieldObject, const caffa::Serializer& serializer ) override
     {
-        CAFFA_ASSERT( jsonFieldObject.is_object() );
-        if ( jsonFieldObject.contains( "range" ) )
+        if ( jsonFieldObject.is_object() && jsonFieldObject.contains( "range" ) )
         {
             auto jsonRange = jsonFieldObject["range"];
             CAFFA_ASSERT( jsonRange.is_object() );
@@ -116,9 +159,10 @@ public:
     }
     bool validate( const DataType& value ) const override { return m_minimum <= value && value <= m_maximum; }
 
-    static std::unique_ptr<RangeValidator<DataType>> create( DataType minimum, DataType maximum )
+    static std::unique_ptr<RangeValidator<DataType>>
+        create( DataType minimum, DataType maximum, FailureSeverity failureSeverity = FailureSeverity::ERROR )
     {
-        return std::make_unique<RangeValidator<DataType>>( minimum, maximum );
+        return std::make_unique<RangeValidator<DataType>>( minimum, maximum, failureSeverity );
     }
 
 private:
