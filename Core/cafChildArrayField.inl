@@ -20,7 +20,7 @@ ChildArrayField<DataType*>::~ChildArrayField()
 template <typename DataType>
 DataType* ChildArrayField<DataType*>::operator[]( size_t index ) const
 {
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitialized() );
     return static_cast<DataType*>( m_fieldDataAccessor->at( index ) );
 }
 
@@ -30,7 +30,7 @@ DataType* ChildArrayField<DataType*>::operator[]( size_t index ) const
 template <typename DataType>
 void ChildArrayField<DataType*>::push_back( DataTypeUniquePtr pointer )
 {
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitialized() );
     m_fieldDataAccessor->push_back( std::move( pointer ) );
 }
 
@@ -40,7 +40,7 @@ void ChildArrayField<DataType*>::push_back( DataTypeUniquePtr pointer )
 template <typename DataType>
 void ChildArrayField<DataType*>::push_back_obj( std::unique_ptr<ObjectHandle> obj )
 {
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitialized() );
 
     ObjectHandle* rawObjPtr = obj.release();
     CAFFA_ASSERT( rawObjPtr );
@@ -65,7 +65,7 @@ void ChildArrayField<DataType*>::push_back_obj( std::unique_ptr<ObjectHandle> ob
 template <typename DataType>
 void ChildArrayField<DataType*>::insert( size_t index, DataTypeUniquePtr pointer )
 {
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitialized() );
 
     DataType* rawDataPtr = pointer.release();
     if ( rawDataPtr )
@@ -80,7 +80,7 @@ void ChildArrayField<DataType*>::insert( size_t index, DataTypeUniquePtr pointer
 template <typename DataType>
 void ChildArrayField<DataType*>::insertAt( size_t index, std::unique_ptr<ObjectHandle> obj )
 {
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitialized() );
 
     // This method should assert if obj to insert is not castable to the container type, but since this
     // is a virtual method, its implementation is always created and that makes a dyn_cast add the need for
@@ -107,7 +107,7 @@ void ChildArrayField<DataType*>::insertAt( size_t index, std::unique_ptr<ObjectH
 template <typename DataType>
 std::vector<std::unique_ptr<ObjectHandle>> ChildArrayField<DataType*>::clear()
 {
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitialized() );
 
     return m_fieldDataAccessor->clear();
 }
@@ -118,7 +118,7 @@ std::vector<std::unique_ptr<ObjectHandle>> ChildArrayField<DataType*>::clear()
 template <typename DataType>
 void ChildArrayField<DataType*>::erase( size_t index )
 {
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitialized() );
     m_fieldDataAccessor->remove( index );
 }
 
@@ -128,7 +128,7 @@ void ChildArrayField<DataType*>::erase( size_t index )
 template <typename DataType>
 void ChildArrayField<DataType*>::setValue( std::vector<std::unique_ptr<DataType>>& objects )
 {
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitialized() );
 
     clear();
     for ( auto& object : objects )
@@ -143,7 +143,7 @@ void ChildArrayField<DataType*>::setValue( std::vector<std::unique_ptr<DataType>
 template <typename DataType>
 std::unique_ptr<ObjectHandle> ChildArrayField<DataType*>::removeChildObject( ObjectHandle* object )
 {
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitialized() );
 
     if ( object )
     {
@@ -171,7 +171,7 @@ std::vector<ObjectHandle*> caffa::ChildArrayField<DataType*>::childObjects() con
 template <typename DataType>
 std::vector<DataType*> caffa::ChildArrayField<DataType*>::value() const
 {
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitialized() );
 
     std::vector<DataType*> typedObjects;
     for ( auto childObject : this->childObjects() )
@@ -188,7 +188,7 @@ std::vector<DataType*> caffa::ChildArrayField<DataType*>::value() const
 template <typename DataType>
 ObjectHandle* ChildArrayField<DataType*>::at( size_t index )
 {
-    CAFFA_ASSERT( isInitializedByInitFieldMacro() );
+    CAFFA_ASSERT( isInitialized() );
 
     return m_fieldDataAccessor->at( index );
 }

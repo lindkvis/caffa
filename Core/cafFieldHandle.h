@@ -42,7 +42,7 @@ public:
     const CapabilityType* capability() const;
 
 protected:
-    bool isInitializedByInitFieldMacro() const { return m_ownerObject != nullptr; }
+    bool isInitialized() const { return m_ownerObject != nullptr; }
 
     std::vector<FieldCapability*> capabilities();
 
