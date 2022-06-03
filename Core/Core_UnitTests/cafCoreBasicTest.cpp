@@ -46,10 +46,8 @@ public:
         m_proxyStringField.setAccessor( std::move( stringProxyAccessor ) );
 
         initField( m_memberDoubleField, "m_memberDoubleField" );
-        initField( m_memberIntField, "m_memberIntField" );
+        initField( m_memberIntField, "m_memberIntField" ).withValidator( IntRangeValidator::create( -10, 1000 ) );
         initField( m_memberStringField, "m_memberStringField" );
-
-        m_memberIntField.addValidator( std::make_unique<IntRangeValidator>( -10, 1000 ) );
 
         // Default values
         m_doubleMember = 2.1;
