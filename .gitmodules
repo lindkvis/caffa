@@ -15,4 +15,5 @@
 	url = https://github.com/lindkvis/caffa-base
 [submodule "Bindings/Python"]
 	path = Bindings/Python/caffa
-	url = git@github.com:lindkvis/caffa-python.git
+	url = https://github.com/lindkvis/caffa-python.git
+
