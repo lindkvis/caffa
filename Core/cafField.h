@@ -203,6 +203,8 @@ public:
         m_valueValidators.push_back( std::move( valueValidator ) );
     }
 
+    void clearValidators() { m_valueValidators.clear(); }
+
 public:
     std::optional<DataType> defaultValue() const { return m_defaultValue; }
     void                    setDefaultValue( const DataType& val ) { m_defaultValue = val; }
