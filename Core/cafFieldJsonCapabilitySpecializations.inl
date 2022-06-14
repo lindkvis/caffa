@@ -135,7 +135,7 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
         jsonObject = jsonElement;
     }
 
-    std::string className = jsonObject["Class"].get<std::string>();
+    std::string className = jsonObject["class"].get<std::string>();
 
     ObservingPointer<ObjectHandle> objPtr;
 
@@ -263,7 +263,7 @@ void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::jso
     {
         if ( !jsonObject.is_object() ) continue;
 
-        std::string className = jsonObject["Class"].get<std::string>();
+        std::string className = jsonObject["class"].get<std::string>();
 
         std::unique_ptr<ObjectHandle> obj = objectFactory->create( className );
 
