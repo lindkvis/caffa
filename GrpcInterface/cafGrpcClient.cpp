@@ -516,7 +516,7 @@ public:
         auto                self    = std::make_unique<RpcObject>();
         ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
 
-        request->set_allocated_self( self.release() );
+        request->set_allocated_self_object( self.release() );
         auto session = std::make_unique<caffa::rpc::SessionMessage>();
         session->set_uuid( m_sessionUuid );
         request->set_allocated_session( session.release() );

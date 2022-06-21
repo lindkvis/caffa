@@ -167,7 +167,7 @@ grpc::Status
     }
     ServerApplication::instance()->keepAliveSession( request->session().uuid() );
 
-    auto matchingObject = findCafObjectFromRpcObject( session->uuid(), request->self() );
+    auto matchingObject = findCafObjectFromRpcObject( session->uuid(), request->self_object() );
     CAFFA_ASSERT( matchingObject );
     CAFFA_TRACE( "Listing Object methods for " << matchingObject->classKeyword() );
 
