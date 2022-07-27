@@ -196,8 +196,6 @@ public:
 
     void initializeAndWaitForNextRequest()
     {
-        caffa::Logger::registerThreadName( "gprc_thread" );
-
         initialize();
         waitForNextRequest();
     }
@@ -218,7 +216,7 @@ private:
             }
             if ( quitting() )
             {
-                CAFFA_TRACE( "Shutting down server and queue" )
+                CAFFA_TRACE( "Shutting down server and queue" );
                 // Shutdown server and queue
                 m_server->Shutdown();
                 m_completionQueue->Shutdown();
