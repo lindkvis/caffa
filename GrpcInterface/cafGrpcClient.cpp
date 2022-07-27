@@ -123,7 +123,7 @@ public:
 
     void sendKeepAlive()
     {
-        CAFFA_DEBUG( "Keeping session alive" << m_sessionUuid );
+        CAFFA_DEBUG( "Keeping session alive " << m_sessionUuid );
 
         caffa::rpc::SessionMessage session;
         session.set_uuid( m_sessionUuid );
@@ -600,7 +600,7 @@ public:
 
         CAFFA_TRACE( "Got scalar reply: " << reply.value() );
         jsonValue = nlohmann::json::parse( reply.value() );
-        CAFFA_TRACE( "Got json value: " << jsonValue )
+        CAFFA_TRACE( "Got json value: " << jsonValue );
         return jsonValue;
     }
 

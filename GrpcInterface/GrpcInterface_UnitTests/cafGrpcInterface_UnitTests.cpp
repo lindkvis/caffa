@@ -53,7 +53,7 @@ namespace po = boost::program_options;
 //--------------------------------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-    auto logLevel = caffa::Logger::Level::INFO;
+    auto logLevel = spdlog::level::info;
 
     auto        logLevels = caffa::Logger::logLevels();
     std::string logLevelString;
@@ -102,7 +102,7 @@ int main( int argc, char** argv )
 
         if ( vm.count( "logfile" ) )
         {
-            caffa::Logger::setLogFile( vm["logfile"].as<std::string>() );
+            caffa::Logger::registerDefaultFileLogger( vm["logfile"].as<std::string>() );
         }
 
         if ( vm.count( "verbosity" ) )
@@ -127,7 +127,6 @@ int main( int argc, char** argv )
         }
 
         caffa::Logger::setApplicationLogLevel( logLevel );
-        caffa::Logger::registerThreadName( "main" );
 
         testing::InitGoogleTest( &argc, argv );
         result = RUN_ALL_TESTS();
