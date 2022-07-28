@@ -763,7 +763,8 @@ grpc::Status SetterStateHandler::init( const GenericArray* chunk )
             }
             catch ( const std::exception& e )
             {
-                CAFFA_ERROR( "SetArrayValue for '" << fieldRequest.keyword() << "' failed with error '" << e.what() << "'" );
+                CAFFA_ERROR( "gRPC Field::SetArrayValue for '" << fieldRequest.keyword() << "' failed with error '"
+                                                               << e.what() << "'" );
                 return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
             }
         }
@@ -892,7 +893,8 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
                 }
                 catch ( const std::exception& e )
                 {
-                    CAFFA_ERROR( "GetValue for '" << request->keyword() << "' failed with error: '" << e.what() << "'" );
+                    CAFFA_ERROR( "gRPC Field::GetValue for '" << request->keyword() << "' failed with error: '"
+                                                              << e.what() << "'" );
                     return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
                 }
             }
@@ -944,8 +946,8 @@ grpc::Status FieldService::ClearChildObjects( grpc::ServerContext* context, cons
             }
             catch ( const std::exception& e )
             {
-                CAFFA_ERROR( "ClearChildObjects for '" << request->keyword() << "' failed with error: '" << e.what()
-                                                       << "'" );
+                CAFFA_ERROR( "gRPC Field::ClearChildObjects for '" << request->keyword() << "' failed with error: '"
+                                                                   << e.what() << "'" );
                 return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
             }
         }
@@ -985,8 +987,8 @@ grpc::Status FieldService::RemoveChildObject( grpc::ServerContext* context, cons
                 }
                 catch ( const std::exception& e )
                 {
-                    CAFFA_ERROR( "RemoveChildObjects for '" << request->keyword() << "' failed with error: '"
-                                                            << e.what() << "'" );
+                    CAFFA_ERROR( "gRPC Field::RemoveChildObjects for '"
+                                 << request->keyword() << "' failed with error: '" << e.what() << "'" );
                     return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
                 }
             }
@@ -1038,7 +1040,8 @@ grpc::Status FieldService::InsertChildObject( grpc::ServerContext* context, cons
                 }
                 catch ( const std::exception& e )
                 {
-                    CAFFA_ERROR( "InsertChildObjects for '" << fieldRequest.keyword() << "' failed with " << e.what() );
+                    CAFFA_ERROR( "gRPC Field::InsertChildObjects for '" << fieldRequest.keyword() << "' failed with "
+                                                                        << e.what() );
                     return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
                 }
             }
@@ -1102,7 +1105,8 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
         }
         catch ( const std::exception& e )
         {
-            CAFFA_ERROR( "SetValue for '" << fieldRequest.keyword() << "' failed with error: '" << e.what() << "'" );
+            CAFFA_ERROR( "gRPC Field::SetValue for '" << fieldRequest.keyword() << "' failed with error: '" << e.what()
+                                                      << "'" );
             return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
         }
     }
