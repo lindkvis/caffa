@@ -20,7 +20,7 @@
 
 #include "cafGrpcServiceInterface.h"
 
-#include "AppInfo.grpc.pb.h"
+#include "App.grpc.pb.h"
 
 #include <google/protobuf/empty.pb.h>
 #include <grpcpp/grpcpp.h>

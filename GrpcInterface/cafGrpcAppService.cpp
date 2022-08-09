@@ -40,7 +40,7 @@
 #include "cafLogger.h"
 #include "cafSession.h"
 
-#include "AppInfo.pb.h"
+#include "App.pb.h"
 
 using namespace caffa::rpc;
 

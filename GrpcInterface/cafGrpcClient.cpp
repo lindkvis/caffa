@@ -34,7 +34,7 @@
 //
 #include "cafGrpcClient.h"
 
-#include "AppInfo.grpc.pb.h"
+#include "App.grpc.pb.h"
 #include "ObjectService.grpc.pb.h"
 
 #include "cafDefaultObjectFactory.h"

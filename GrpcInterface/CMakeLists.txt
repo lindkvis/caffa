@@ -97,7 +97,7 @@ message(STATUS "Using gRPC ${CURRENT_GRPC_VERSION}")
 set(LINK_LIBRARIES ${GRPC_LINK_LIBRARIES} caffaCore)
 
 # Proto files
-set(PROTO_FILES "AppInfo" "FieldService" "ObjectService")
+set(PROTO_FILES "App" "FieldService" "ObjectService")
 
 foreach(proto_file ${PROTO_FILES})
   get_filename_component(caffa_proto "${CMAKE_CURRENT_LIST_DIR}/Protos/${proto_file}.proto" ABSOLUTE)
