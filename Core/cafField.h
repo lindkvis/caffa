@@ -110,8 +110,8 @@ public:
                 if ( auto [status, message] = validator->validate( fieldValue ); !status )
                 {
                     CAFFA_ASSERT( !message.empty() );
-                    if ( validator->failureSeverity() == FieldValidatorInterface::FailureSeverity::ERROR ||
-                         validator->failureSeverity() == FieldValidatorInterface::FailureSeverity::CRITICAL )
+                    if ( validator->failureSeverity() == FieldValidatorInterface::FailureSeverity::VALIDATOR_ERROR ||
+                         validator->failureSeverity() == FieldValidatorInterface::FailureSeverity::VALIDATOR_CRITICAL )
                     {
                         throw std::runtime_error( message );
                     }

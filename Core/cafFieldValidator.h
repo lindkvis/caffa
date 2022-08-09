@@ -44,15 +44,15 @@ public:
     /**
      * @brief The severity of failure. Essentially tells the application
      * how to treat a validator failure:
-     * WARNING -> user warning
-     * ERROR -> user error
-     * CRITICAL -> critical application failure
+     * VALIDATOR_WARNING -> user warning
+     * VALIDATOR_ERROR -> user error
+     * VALIDATOR_CRITICAL -> critical application failure
      */
     enum class FailureSeverity
     {
-        WARNING,
-        ERROR,
-        CRITICAL
+        VALIDATOR_WARNING,
+        VALIDATOR_ERROR,
+        VALIDATOR_CRITICAL
     };
 
     /**
@@ -105,7 +105,7 @@ class FieldValidator : public FieldValidatorInterface
 public:
     using FailureSeverity = FieldValidatorInterface::FailureSeverity;
 
-    FieldValidator( FailureSeverity failureSeverity = FailureSeverity::ERROR )
+    FieldValidator( FailureSeverity failureSeverity = FailureSeverity::VALIDATOR_ERROR )
         : FieldValidatorInterface( failureSeverity )
     {
     }
@@ -131,7 +131,7 @@ class RangeValidator : public FieldValidator<DataType>
 public:
     using FailureSeverity = FieldValidatorInterface::FailureSeverity;
 
-    RangeValidator( DataType minimum, DataType maximum, FailureSeverity failureSeverity = FailureSeverity::ERROR )
+    RangeValidator( DataType minimum, DataType maximum, FailureSeverity failureSeverity = FailureSeverity::VALIDATOR_ERROR )
         : FieldValidator<DataType>( failureSeverity )
         , m_minimum( minimum )
         , m_maximum( maximum )
@@ -174,7 +174,7 @@ public:
     }
 
     static std::unique_ptr<RangeValidator<DataType>>
-        create( DataType minimum, DataType maximum, FailureSeverity failureSeverity = FailureSeverity::ERROR )
+        create( DataType minimum, DataType maximum, FailureSeverity failureSeverity = FailureSeverity::VALIDATOR_ERROR )
     {
         return std::make_unique<RangeValidator<DataType>>( minimum, maximum, failureSeverity );
     }
