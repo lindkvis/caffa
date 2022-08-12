@@ -40,30 +40,42 @@ struct PortableDataType
 /**
  * Specialisations for common data types
  */
-#define CAFFA_DEFINE_PORTABLE_TYPE( DataType )                          \
-    template <>                                                         \
-    struct PortableDataType<DataType>                                   \
-    {                                                                   \
-        static std::string name() { return #DataType; }                 \
-    };                                                                  \
-                                                                        \
-    template <>                                                         \
-    struct PortableDataType<std::vector<DataType>>                      \
-    {                                                                   \
-        static std::string name() { return CONCAT( #DataType, "[]" ); } \
-    };
-
-#define CAFFA_DEFINE_PORTABLE_TYPE_NAME( DataType, StringAlias )          \
+#define CAFFA_DEFINE_PORTABLE_TYPE( DataType )                            \
     template <>                                                           \
     struct PortableDataType<DataType>                                     \
     {                                                                     \
-        static std::string name() { return StringAlias; }                 \
+        static std::string name() { return #DataType; }                   \
     };                                                                    \
                                                                           \
     template <>                                                           \
     struct PortableDataType<std::vector<DataType>>                        \
     {                                                                     \
-        static std::string name() { return CONCAT( StringAlias, "[]" ); } \
+        static std::string name() { return CONCAT( #DataType, "[]" ); }   \
+    };                                                                    \
+                                                                          \
+    template <>                                                           \
+    struct PortableDataType<std::vector<std::vector<DataType>>>           \
+    {                                                                     \
+        static std::string name() { return CONCAT( #DataType, "[][]" ); } \
+    };
+
+#define CAFFA_DEFINE_PORTABLE_TYPE_NAME( DataType, StringAlias )            \
+    template <>                                                             \
+    struct PortableDataType<DataType>                                       \
+    {                                                                       \
+        static std::string name() { return StringAlias; }                   \
+    };                                                                      \
+                                                                            \
+    template <>                                                             \
+    struct PortableDataType<std::vector<DataType>>                          \
+    {                                                                       \
+        static std::string name() { return CONCAT( StringAlias, "[]" ); }   \
+    };                                                                      \
+                                                                            \
+    template <>                                                             \
+    struct PortableDataType<std::vector<std::vector<DataType>>>             \
+    {                                                                       \
+        static std::string name() { return CONCAT( StringAlias, "[][]" ); } \
     };
 
 CAFFA_DEFINE_PORTABLE_TYPE( double )

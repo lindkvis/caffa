@@ -41,12 +41,7 @@ public:
 
     /**
      * Constructor
-     * @param serializeSchema Should we copy the values of the fields in the serialisation?
-     *                       if false only the names and data types will be copied. This is used
-     *                       for on-demand data value access.
      * @param objectFactory The factory used when creating new objects. Not relevant when writing.
-     * @param fieldSelector A method taking a FieldHandle pointer and returning true if that field should be serialized.
-     * @param writeUuids    Write object UUIDs. UUIDs are used for dynamic connection to runtime objects.
      */
     Serializer( ObjectFactory* objectFactory );
 
