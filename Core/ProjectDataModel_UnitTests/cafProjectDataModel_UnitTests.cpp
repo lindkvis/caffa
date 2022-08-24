@@ -46,7 +46,7 @@
 //--------------------------------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-    caffa::Logger::setApplicationLogLevel( spdlog::level::debug );
+    caffa::Logger::setApplicationLogLevel( caffa::Logger::Level::info );
     testing::InitGoogleTest( &argc, argv );
     int result = RUN_ALL_TESTS();
     return result;

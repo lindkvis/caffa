@@ -51,7 +51,7 @@ namespace po = boost::program_options;
 //--------------------------------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-    auto logLevel = spdlog::level::warn;
+    auto logLevel = caffa::Logger::Level::warn;
 
     auto        logLevels = caffa::Logger::logLevels();
     std::string logLevelString;
