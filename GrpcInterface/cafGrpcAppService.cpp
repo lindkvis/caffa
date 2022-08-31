@@ -118,6 +118,26 @@ grpc::Status AppService::KeepSessionAlive( grpc::ServerContext* context, const S
     return grpc::Status::OK;
 }
 
+grpc::Status AppService::CheckSession( grpc::ServerContext* context, const SessionMessage* request, SessionMessage* reply )
+{
+    CAFFA_TRACE( "Received session check from " << request->uuid() );
+    auto session = ServerApplication::instance()->getExistingSession( request->uuid() );
+    if ( session )
+    {
+        if ( !session->isExpired() )
+        {
+            CAFFA_ASSERT( session->uuid() == request->uuid() );
+            reply->set_uuid( request->uuid() );
+            return grpc::Status::OK;
+        }
+        else
+        {
+            return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->uuid() + "' has expired!" );
+        }
+    }
+    return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->uuid() + "' does not exist!" );
+}
+
 grpc::Status AppService::DestroySession( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply )
 {
     CAFFA_DEBUG( "Received destroy session request for " << request->uuid() );
@@ -148,6 +168,7 @@ std::vector<AbstractCallback*> AppService::createCallbacks()
                                                            &Self::RequestResetToDefaultData ),
         new UnaryCallback<Self, NullMessage, SessionMessage>( this, &Self::CreateSession, &Self::RequestCreateSession ),
         new UnaryCallback<Self, SessionMessage, NullMessage>( this, &Self::KeepSessionAlive, &Self::RequestKeepSessionAlive ),
+        new UnaryCallback<Self, SessionMessage, SessionMessage>( this, &Self::CheckSession, &Self::RequestCheckSession ),
         new UnaryCallback<Self, SessionMessage, NullMessage>( this, &Self::DestroySession, &Self::RequestDestroySession ),
     };
 }

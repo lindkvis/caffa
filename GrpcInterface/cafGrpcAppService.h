@@ -44,6 +44,7 @@ public:
     grpc::Status PerformResetToDefaultData( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply );
     grpc::Status CreateSession( grpc::ServerContext* context, const NullMessage* request, SessionMessage* reply );
     grpc::Status KeepSessionAlive( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply );
+    grpc::Status CheckSession( grpc::ServerContext* context, const SessionMessage* request, SessionMessage* reply );
     grpc::Status DestroySession( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply );
 
     std::vector<AbstractCallback*> createCallbacks() override;
