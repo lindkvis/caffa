@@ -131,7 +131,7 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
             auto method = ObjectMethodFactory::instance()->createMethod( matchingObject, request->method() );
             if ( method )
             {
-                CAFFA_DEBUG( "Copy parameters from: " << request->params().json() );
+                CAFFA_TRACE( "Copy parameters from: " << request->params().json() );
                 copyResultOrParameterObjectFromRpcToCaf( &( request->params() ), method.get() );
 
                 CAFFA_TRACE( "Method parameters copied. Now executing!" );
@@ -139,7 +139,7 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
                 CAFFA_ASSERT( result != nullptr );
 
                 copyResultOrParameterObjectFromCafToRpc( result.get(), reply );
-                CAFFA_DEBUG( "Result JSON: " << reply->json() );
+                CAFFA_TRACE( "Result JSON: " << reply->json() );
 
                 return grpc::Status::OK;
             }
@@ -301,7 +301,7 @@ void ObjectService::copyProjectSelfReferenceFromCafToRpc( const caffa::ObjectHan
     serializer.setSerializeSchema( false );
 
     std::string jsonString = serializer.writeObjectToString( source );
-    CAFFA_DEBUG( jsonString );
+    CAFFA_TRACE( jsonString );
     destination->set_json( jsonString );
 }
 
