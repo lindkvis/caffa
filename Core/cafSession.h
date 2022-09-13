@@ -19,7 +19,7 @@
 #pragma once
 
 #include <chrono>
-
+#include <mutex>
 #include <string>
 
 namespace caffa
@@ -44,5 +44,6 @@ private:
 
     std::chrono::steady_clock::time_point m_lastKeepAlive;
     std::chrono::milliseconds             m_timeOut;
+    mutable std::mutex                    m_mutex;
 };
 } // namespace caffa
