@@ -23,6 +23,7 @@
 #include "cafNotNull.h"
 #include "cafObjectMethod.h"
 #include "cafPortableDataType.h"
+#include "cafSession.h"
 
 #include <memory>
 #include <string>
@@ -39,11 +40,12 @@ class ClientImpl;
 class Client
 {
 public:
-    Client( const std::string& hostname,
-            int                port           = 50000,
-            const std::string& clientCertFile = "",
-            const std::string& clientKeyFile  = "",
-            const std::string& caCertFile     = "" );
+    Client( caffa::Session::Type sessionType,
+            const std::string&   hostname,
+            int                  port           = 50000,
+            const std::string&   clientCertFile = "",
+            const std::string&   clientKeyFile  = "",
+            const std::string&   caCertFile     = "" );
     virtual ~Client();
 
     caffa::AppInfo                                    appInfo() const;

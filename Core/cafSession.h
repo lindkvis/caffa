@@ -31,16 +31,28 @@ namespace caffa
 class Session
 {
 public:
-    Session( std::chrono::milliseconds timeout = std::chrono::milliseconds( 500 ) );
+    enum class Type
+    {
+        INVALID   = 0x0,
+        REGULAR   = 0x1,
+        OBSERVING = 0x2
+    };
+
+    Session( Type type, std::chrono::milliseconds timeout = std::chrono::milliseconds( 500 ) );
     virtual ~Session() = default;
 
     const std::string& uuid() const;
 
+    Type type() const;
+
     bool isExpired() const;
     void updateKeepAlive();
 
+    static Type typeFromUint( unsigned type );
+
 private:
     std::string m_uuid;
+    Type        m_type;
 
     std::chrono::steady_clock::time_point m_lastKeepAlive;
     std::chrono::milliseconds             m_timeOut;

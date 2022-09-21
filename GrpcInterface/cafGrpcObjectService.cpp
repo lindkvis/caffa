@@ -121,6 +121,7 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
     }
+
     ServerApplication::instance()->keepAliveSession( request->session().uuid() );
 
     try
@@ -131,6 +132,13 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
             auto method = ObjectMethodFactory::instance()->createMethod( matchingObject, request->method() );
             if ( method )
             {
+                if ( method->type() == ObjectMethod::Type::NON_CONST && session->type() == Session::Type::OBSERVING )
+                {
+                    return grpc::Status( grpc::UNAUTHENTICATED,
+                                         "Observing session '" + request->session().uuid() +
+                                             "' is not valid for non-const methods" );
+                }
+
                 CAFFA_TRACE( "Copy parameters from: " << request->params().json() );
                 copyResultOrParameterObjectFromRpcToCaf( &( request->params() ), method.get() );
 

@@ -31,7 +31,7 @@ ClientApplication::ClientApplication( const std::string& hostname, int portNumbe
     : Application( { AppInfo::AppCapability::GRPC_CLIENT } )
 
 {
-    m_client = std::make_unique<caffa::rpc::Client>( hostname, portNumber );
+    m_client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR, hostname, portNumber );
 }
 
 //--------------------------------------------------------------------------------------------------

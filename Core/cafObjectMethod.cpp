@@ -53,9 +53,15 @@ ObjectMethodResult::ObjectMethodResult( bool retValue, const std::string& errMsg
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectMethod::ObjectMethod( caffa::not_null<ObjectHandle*> self )
+ObjectMethod::ObjectMethod( caffa::not_null<ObjectHandle*> self, Type type )
     : m_self( self )
+    , m_type( type )
 {
+}
+
+ObjectMethod::Type ObjectMethod::type() const
+{
+    return m_type;
 }
 
 //--------------------------------------------------------------------------------------------------

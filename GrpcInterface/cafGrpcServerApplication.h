@@ -20,12 +20,12 @@
 
 #include "cafGrpcApplication.h"
 #include "cafGrpcServer.h"
+#include "cafSession.h"
 
 #include <memory>
 
 namespace caffa
 {
-class Session;
 
 namespace rpc
 {
@@ -57,7 +57,7 @@ namespace rpc
 
         virtual void resetToDefaultData() = 0;
 
-        virtual caffa::Session* createSession()                                      = 0;
+        virtual caffa::Session* createSession( caffa::Session::Type type )           = 0;
         virtual caffa::Session* getExistingSession( const std::string& sessionUuid ) = 0;
         virtual void            destroySession( const std::string& sessionUuid )     = 0;
         virtual void            keepAliveSession( const std::string& sessionUuid )   = 0;

@@ -42,7 +42,8 @@ public:
     grpc::Status PerformGetAppInfo( grpc::ServerContext* context, const NullMessage* request, AppInfoReply* reply );
     grpc::Status PerformPing( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply );
     grpc::Status PerformResetToDefaultData( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply );
-    grpc::Status CreateSession( grpc::ServerContext* context, const NullMessage* request, SessionMessage* reply ) override;
+    grpc::Status
+        CreateSession( grpc::ServerContext* context, const SessionParameters* request, SessionMessage* reply ) override;
     grpc::Status KeepSessionAlive( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply ) override;
     grpc::Status CheckSession( grpc::ServerContext* context, const SessionMessage* request, SessionMessage* reply ) override;
     grpc::Status DestroySession( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply ) override;
