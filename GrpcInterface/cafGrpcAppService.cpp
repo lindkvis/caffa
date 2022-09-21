@@ -81,13 +81,14 @@ grpc::Status AppService::PerformResetToDefaultData( grpc::ServerContext*, const 
     return grpc::Status::OK;
 }
 
-grpc::Status AppService::CreateSession( grpc::ServerContext* context, const NullMessage* request, SessionMessage* reply )
+grpc::Status AppService::CreateSession( grpc::ServerContext* context, const SessionParameters* request, SessionMessage* reply )
 {
     CAFFA_DEBUG( "Received create session request" );
 
     try
     {
-        caffa::Session* session = ServerApplication::instance()->createSession();
+        caffa::Session* session =
+            ServerApplication::instance()->createSession( caffa::Session::typeFromUint( request->type() ) );
         if ( !session ) throw std::runtime_error( "Failed to create session" );
         reply->set_uuid( session->uuid() );
         CAFFA_TRACE( "Created session: " << session->uuid() );
@@ -166,7 +167,7 @@ std::vector<AbstractCallback*> AppService::createCallbacks()
         new UnaryCallback<Self, NullMessage, NullMessage>( this,
                                                            &Self::PerformResetToDefaultData,
                                                            &Self::RequestResetToDefaultData ),
-        new UnaryCallback<Self, NullMessage, SessionMessage>( this, &Self::CreateSession, &Self::RequestCreateSession ),
+        new UnaryCallback<Self, SessionParameters, SessionMessage>( this, &Self::CreateSession, &Self::RequestCreateSession ),
         new UnaryCallback<Self, SessionMessage, NullMessage>( this, &Self::KeepSessionAlive, &Self::RequestKeepSessionAlive ),
         new UnaryCallback<Self, SessionMessage, SessionMessage>( this, &Self::CheckSession, &Self::RequestCheckSession ),
         new UnaryCallback<Self, SessionMessage, NullMessage>( this, &Self::DestroySession, &Self::RequestDestroySession ),

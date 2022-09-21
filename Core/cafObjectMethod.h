@@ -79,7 +79,13 @@ class ObjectMethod : public Object
     CAFFA_HEADER_INIT;
 
 public:
-    ObjectMethod( caffa::not_null<ObjectHandle*> self );
+    enum class Type
+    {
+        NON_CONST = 0,
+        CONST
+    };
+
+    ObjectMethod( caffa::not_null<ObjectHandle*> self, Type type = Type::NON_CONST );
 
     // The returned object contains the results of the method and is the responsibility of the caller.
     virtual std::unique_ptr<ObjectMethodResult> execute() = 0;
@@ -105,9 +111,13 @@ public:
         return object;
     }
 
+    Type type() const;
+
 private:
     friend class ObjectScriptingCapability;
     ObservingPointer<ObjectHandle> m_self;
+
+    Type m_type;
 };
 
 //==================================================================================================

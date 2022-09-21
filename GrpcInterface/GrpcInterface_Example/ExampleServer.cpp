@@ -95,7 +95,7 @@ public:
 
     void resetToDefaultData() override { m_demoDocument = std::make_unique<DemoDocument>(); }
 
-    caffa::Session* createSession() override
+    caffa::Session* createSession( caffa::Session::Type type ) override
     {
         if ( m_session )
         {
@@ -108,7 +108,7 @@ public:
                 CAFFA_DEBUG( "Had session " << m_session->uuid() << " but it has not been kept alive, so destroying it" );
             }
         }
-        m_session = std::make_unique<caffa::Session>();
+        m_session = std::make_unique<caffa::Session>( type );
         return m_session.get();
     }
 

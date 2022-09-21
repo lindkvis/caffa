@@ -93,21 +93,32 @@ public:
 
     void resetToDefaultData() override { m_demoDocument = std::make_unique<DemoDocument>(); }
 
-    caffa::Session* createSession() override
+    caffa::Session* createSession( caffa::Session::Type type ) override
     {
-        if ( m_session )
+        if ( type == caffa::Session::Type::REGULAR )
         {
-            if ( !m_session->isExpired() )
+            if ( m_session )
             {
-                throw std::runtime_error( "We already have a session and only allow one at a time!" );
+                if ( !m_session->isExpired() )
+                {
+                    throw std::runtime_error( "We already have a session and only allow one at a time!" );
+                }
+                else
+                {
+                    CAFFA_DEBUG( "Had session " << m_session->uuid()
+                                                << " but it has not been kept alive, so destroying it" );
+                }
             }
-            else
-            {
-                CAFFA_DEBUG( "Had session " << m_session->uuid() << " but it has not been kept alive, so destroying it" );
-            }
+            m_session = std::make_unique<caffa::Session>( type );
+            return m_session.get();
         }
-        m_session = std::make_unique<caffa::Session>();
-        return m_session.get();
+        else
+        {
+            auto observingSession = std::make_unique<caffa::Session>( type, std::chrono::seconds( 1 ) );
+            auto ptr              = observingSession.get();
+            m_observeringSessions.push_back( std::move( observingSession ) );
+            return ptr;
+        }
     }
 
     caffa::Session* getExistingSession( const std::string& sessionUuid ) override
@@ -116,6 +127,15 @@ public:
         {
             return m_session.get();
         }
+
+        for ( auto&& observingSession : m_observeringSessions )
+        {
+            if ( observingSession && observingSession->uuid() == sessionUuid && !observingSession->isExpired() )
+            {
+                return observingSession.get();
+            }
+        }
+
         return nullptr;
     }
 
@@ -127,6 +147,15 @@ public:
         }
         else
         {
+            for ( auto&& observingSession : m_observeringSessions )
+            {
+                if ( observingSession && observingSession->uuid() == sessionUuid && !observingSession->isExpired() )
+                {
+                    observingSession->updateKeepAlive();
+                    return;
+                }
+            }
+
             CAFFA_ERROR( "Session does not exist " << sessionUuid );
             throw std::runtime_error( std::string( "Session does not exist'" ) + sessionUuid + "'" );
         }
@@ -142,6 +171,17 @@ public:
         }
         else
         {
+            auto it = std::find_if( m_observeringSessions.begin(),
+                                    m_observeringSessions.end(),
+                                    [sessionUuid]( auto&& observingSession )
+                                    { return observingSession && observingSession->uuid() == sessionUuid; } );
+
+            if ( it != m_observeringSessions.end() )
+            {
+                m_observeringSessions.erase( it );
+                return;
+            }
+
             throw std::runtime_error( std::string( "Failed to destroy session '" ) + sessionUuid + "'" );
         }
     }
@@ -154,5 +194,6 @@ private:
     std::unique_ptr<DemoDocument>                        m_demoDocument;
     std::unique_ptr<DemoDocumentWithNonScriptableMember> m_demoDocumentWithNonScriptableMember;
 
-    std::unique_ptr<caffa::Session> m_session;
+    std::unique_ptr<caffa::Session>            m_session;
+    std::list<std::unique_ptr<caffa::Session>> m_observeringSessions;
 };

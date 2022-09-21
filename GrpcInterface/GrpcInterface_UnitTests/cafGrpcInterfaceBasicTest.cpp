@@ -55,7 +55,8 @@ TEST_F( GrpcTest, Launch )
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
     {
-        auto client = std::make_unique<caffa::rpc::Client>( "localhost",
+        auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                            "localhost",
                                                             ServerApp::s_port,
                                                             ServerApp::s_clientCertFile,
                                                             ServerApp::s_clientKeyFile,
@@ -91,7 +92,8 @@ TEST_F( GrpcTest, Document )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost",
+    auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                        "localhost",
                                                         ServerApp::s_port,
                                                         ServerApp::s_clientCertFile,
                                                         ServerApp::s_clientKeyFile,
@@ -201,7 +203,8 @@ TEST_F( GrpcTest, DocumentWithNonScriptableChild )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
-    auto client         = std::make_unique<caffa::rpc::Client>( "localhost",
+    auto client         = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                        "localhost",
                                                         ServerApp::s_port,
                                                         ServerApp::s_clientCertFile,
                                                         ServerApp::s_clientKeyFile,
@@ -278,7 +281,8 @@ TEST_F( GrpcTest, Sync )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client         = std::make_unique<caffa::rpc::Client>( "localhost",
+    auto client         = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                        "localhost",
                                                         ServerApp::s_port,
                                                         ServerApp::s_clientCertFile,
                                                         ServerApp::s_clientKeyFile,
@@ -313,6 +317,59 @@ TEST_F( GrpcTest, Sync )
 //--------------------------------------------------------------------------------------------------
 /// TestField
 //--------------------------------------------------------------------------------------------------
+TEST_F( GrpcTest, SettingValueWithObserver )
+{
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
+
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+    auto client         = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::OBSERVING,
+                                                        "localhost",
+                                                        ServerApp::s_port,
+                                                        ServerApp::s_clientCertFile,
+                                                        ServerApp::s_clientKeyFile,
+                                                        ServerApp::s_caCertFile );
+    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
+    ASSERT_TRUE( serverDocument );
+
+    size_t childCount = 11u;
+    for ( size_t i = 0; i < childCount; ++i )
+    {
+        serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
+    }
+
+    auto objectHandle   = client->document( "testDocument" );
+    auto clientDocument = dynamic_cast<caffa::Document*>( objectHandle.get() );
+    ASSERT_TRUE( clientDocument != nullptr );
+    CAFFA_DEBUG( "Client Document File Name: " << clientDocument->fileName() );
+    ASSERT_EQ( serverApp->document( "testDocument" )->fileName(), clientDocument->fileName() );
+    ASSERT_EQ( serverDocument->uuid(), clientDocument->uuid() );
+
+    std::string newFileName = "ChangedFileName.txt";
+    try
+    {
+        clientDocument->setFileName( newFileName );
+        CAFFA_ERROR( "Setting the file name should throw exception" );
+    }
+    catch ( const std::runtime_error& e )
+    {
+        CAFFA_INFO( "Setting file name with observing session threw exception as expected" );
+    }
+
+    bool ok = client->stopServer();
+    ASSERT_TRUE( ok );
+
+    thread.join();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// TestField
+//--------------------------------------------------------------------------------------------------
 TEST_F( GrpcTest, ObjectMethod )
 {
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
@@ -324,7 +381,8 @@ TEST_F( GrpcTest, ObjectMethod )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client         = std::make_unique<caffa::rpc::Client>( "localhost",
+    auto client         = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                        "localhost",
                                                         ServerApp::s_port,
                                                         ServerApp::s_clientCertFile,
                                                         ServerApp::s_clientKeyFile,
@@ -409,7 +467,8 @@ TEST_F( GrpcTest, ObjectIntGetterAndSetter )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client         = std::make_unique<caffa::rpc::Client>( "localhost",
+    auto client         = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                        "localhost",
                                                         ServerApp::s_port,
                                                         ServerApp::s_clientCertFile,
                                                         ServerApp::s_clientKeyFile,
@@ -460,7 +519,8 @@ TEST_F( GrpcTest, ObjectDoubleGetterAndSetter )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost",
+    auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                        "localhost",
                                                         ServerApp::s_port,
                                                         ServerApp::s_clientCertFile,
                                                         ServerApp::s_clientKeyFile,
@@ -514,7 +574,8 @@ TEST_F( GrpcTest, ObjectIntegratedGettersAndSetters )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost",
+    auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                        "localhost",
                                                         ServerApp::s_port,
                                                         ServerApp::s_clientCertFile,
                                                         ServerApp::s_clientKeyFile,
@@ -585,7 +646,8 @@ TEST_F( GrpcTest, EmptyVectorGettersAndSetters )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost",
+    auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                        "localhost",
                                                         ServerApp::s_port,
                                                         ServerApp::s_clientCertFile,
                                                         ServerApp::s_clientKeyFile,
@@ -641,7 +703,8 @@ TEST_F( GrpcTest, BoolVectorGettersAndSetters )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost",
+    auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                        "localhost",
                                                         ServerApp::s_port,
                                                         ServerApp::s_clientCertFile,
                                                         ServerApp::s_clientKeyFile,
@@ -693,7 +756,8 @@ TEST_F( GrpcTest, ChildObjects )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( "localhost",
+    auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                        "localhost",
                                                         ServerApp::s_port,
                                                         ServerApp::s_clientCertFile,
                                                         ServerApp::s_clientKeyFile,
@@ -785,7 +849,8 @@ TEST_F( GrpcTest, LocalResponseTimeAndDataTransfer )
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
     {
-        auto client = std::make_unique<caffa::rpc::Client>( "localhost",
+        auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                            "localhost",
                                                             ServerApp::s_port,
                                                             ServerApp::s_clientCertFile,
                                                             ServerApp::s_clientKeyFile,
@@ -856,7 +921,8 @@ TEST_F( GrpcTest, MultipleSessions )
     {
         std::unique_ptr<caffa::rpc::Client> client1;
 
-        ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::Client>( "localhost",
+        ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                                         "localhost",
                                                                          ServerApp::s_port,
                                                                          ServerApp::s_clientCertFile,
                                                                          ServerApp::s_clientKeyFile,
@@ -864,7 +930,8 @@ TEST_F( GrpcTest, MultipleSessions )
         ASSERT_TRUE( client1 );
     }
     std::unique_ptr<caffa::rpc::Client> client2;
-    ASSERT_NO_THROW( client2 = std::make_unique<caffa::rpc::Client>( "localhost",
+    ASSERT_NO_THROW( client2 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                                     "localhost",
                                                                      ServerApp::s_port,
                                                                      ServerApp::s_clientCertFile,
                                                                      ServerApp::s_clientKeyFile,
@@ -890,14 +957,16 @@ TEST_F( GrpcTest, MultipleConcurrentSessionsShouldBeRefused )
 
     std::unique_ptr<caffa::rpc::Client> client1, client2;
 
-    ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::Client>( "localhost",
+    ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                                     "localhost",
                                                                      ServerApp::s_port,
                                                                      ServerApp::s_clientCertFile,
                                                                      ServerApp::s_clientKeyFile,
                                                                      ServerApp::s_caCertFile ) );
     ASSERT_TRUE( client1 );
 
-    ASSERT_ANY_THROW( client2 = std::make_unique<caffa::rpc::Client>( "localhost",
+    ASSERT_ANY_THROW( client2 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                                      "localhost",
                                                                       ServerApp::s_port,
                                                                       ServerApp::s_clientCertFile,
                                                                       ServerApp::s_clientKeyFile,
@@ -905,6 +974,55 @@ TEST_F( GrpcTest, MultipleConcurrentSessionsShouldBeRefused )
     ASSERT_TRUE( client2 == nullptr );
     CAFFA_INFO( "Failed to create new session as expected" );
     client1->stopServer();
+    CAFFA_DEBUG( "Stopping server and waiting for server to join" );
+    thread.join();
+    CAFFA_DEBUG( "Server joined" );
+}
+
+TEST_F( GrpcTest, AdditionalObservingSessions )
+{
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
+
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+
+    std::unique_ptr<caffa::rpc::Client> client1, client2, client3;
+
+    ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                                     "localhost",
+                                                                     ServerApp::s_port,
+                                                                     ServerApp::s_clientCertFile,
+                                                                     ServerApp::s_clientKeyFile,
+                                                                     ServerApp::s_caCertFile ) );
+    ASSERT_TRUE( client1 );
+
+    ASSERT_NO_THROW( client2 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::OBSERVING,
+                                                                     "localhost",
+                                                                     ServerApp::s_port,
+                                                                     ServerApp::s_clientCertFile,
+                                                                     ServerApp::s_clientKeyFile,
+                                                                     ServerApp::s_caCertFile ) );
+    ASSERT_TRUE( client2 != nullptr );
+
+    ASSERT_NO_THROW( client3 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::OBSERVING,
+                                                                     "localhost",
+                                                                     ServerApp::s_port,
+                                                                     ServerApp::s_clientCertFile,
+                                                                     ServerApp::s_clientKeyFile,
+                                                                     ServerApp::s_caCertFile ) );
+    ASSERT_TRUE( client3 != nullptr );
+
+    // Close observing clients before stopping server
+    client2.reset();
+    client3.reset();
+
+    client1->stopServer();
+
     CAFFA_DEBUG( "Stopping server and waiting for server to join" );
     thread.join();
     CAFFA_DEBUG( "Server joined" );
@@ -924,7 +1042,8 @@ TEST_F( GrpcTest, MultipleConcurrentSessionsDelayWithoutKeepalive )
 
     std::unique_ptr<caffa::rpc::Client> client1, client2;
 
-    ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::Client>( "localhost",
+    ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                                     "localhost",
                                                                      ServerApp::s_port,
                                                                      ServerApp::s_clientCertFile,
                                                                      ServerApp::s_clientKeyFile,
@@ -933,7 +1052,8 @@ TEST_F( GrpcTest, MultipleConcurrentSessionsDelayWithoutKeepalive )
 
     std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
 
-    ASSERT_NO_THROW( client2 = std::make_unique<caffa::rpc::Client>( "localhost",
+    ASSERT_NO_THROW( client2 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                                     "localhost",
                                                                      ServerApp::s_port,
                                                                      ServerApp::s_clientCertFile,
                                                                      ServerApp::s_clientKeyFile,
@@ -963,7 +1083,8 @@ TEST_F( GrpcTest, MultipleConcurrentSessionsWithKeepalive )
 
     std::unique_ptr<caffa::rpc::Client> client1, client2;
 
-    ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::Client>( "localhost",
+    ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                                     "localhost",
                                                                      ServerApp::s_port,
                                                                      ServerApp::s_clientCertFile,
                                                                      ServerApp::s_clientKeyFile,
@@ -976,7 +1097,8 @@ TEST_F( GrpcTest, MultipleConcurrentSessionsWithKeepalive )
         client1->sendKeepAlive();
     }
 
-    ASSERT_ANY_THROW( client2 = std::make_unique<caffa::rpc::Client>( "localhost",
+    ASSERT_ANY_THROW( client2 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                                      "localhost",
                                                                       ServerApp::s_port,
                                                                       ServerApp::s_clientCertFile,
                                                                       ServerApp::s_clientKeyFile,

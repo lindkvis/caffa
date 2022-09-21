@@ -45,6 +45,7 @@
 #include "cafGrpcObjectService.h"
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
+#include "cafSession.h"
 
 #include <grpc/grpc.h>
 #include <grpcpp/channel.h>
@@ -60,11 +61,12 @@ namespace caffa::rpc
 class ClientImpl
 {
 public:
-    ClientImpl( const std::string& hostname,
-                int                port,
-                const std::string& clientCertFile,
-                const std::string& clientKeyFile,
-                const std::string& caCertFile )
+    ClientImpl( caffa::Session::Type sessionType,
+                const std::string&   hostname,
+                int                  port,
+                const std::string&   clientCertFile,
+                const std::string&   clientKeyFile,
+                const std::string&   caCertFile )
     {
         // Created new server
         if ( !caCertFile.empty() )
@@ -93,7 +95,7 @@ public:
         m_objectStub  = ObjectAccess::NewStub( m_channel );
         m_fieldStub   = FieldAccess::NewStub( m_channel );
         CAFFA_TRACE( "Created stubs" );
-        createSession();
+        createSession( sessionType );
     }
     ~ClientImpl()
     {
@@ -104,13 +106,16 @@ public:
 
     const std::string& sessionUuid() const { return m_sessionUuid; }
 
-    void createSession()
+    void createSession( caffa::Session::Type sessionType )
     {
-        caffa::rpc::SessionMessage session;
-        grpc::ClientContext        context;
-        NullMessage                nullarg;
+        caffa::rpc::SessionParameters params;
+        caffa::rpc::SessionMessage    session;
+        grpc::ClientContext           context;
+        NullMessage                   nullarg;
 
-        auto status = m_appInfoStub->CreateSession( &context, nullarg, &session );
+        params.set_type( static_cast<unsigned>( sessionType ) );
+
+        auto status = m_appInfoStub->CreateSession( &context, params, &session );
         if ( !status.ok() )
         {
             CAFFA_ERROR( status.error_message() );
@@ -989,12 +994,13 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Client::Client( const std::string& hostname,
-                int                port /*= 50000 */,
-                const std::string& clientCertFile,
-                const std::string& clientKeyFile,
-                const std::string& caCertFile )
-    : m_clientImpl( std::make_unique<ClientImpl>( hostname, port, clientCertFile, clientKeyFile, caCertFile ) )
+Client::Client( caffa::Session::Type sessionType,
+                const std::string&   hostname,
+                int                  port /*= 50000 */,
+                const std::string&   clientCertFile,
+                const std::string&   clientKeyFile,
+                const std::string&   caCertFile )
+    : m_clientImpl( std::make_unique<ClientImpl>( sessionType, hostname, port, clientCertFile, clientKeyFile, caCertFile ) )
 {
     caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( this );
 }
