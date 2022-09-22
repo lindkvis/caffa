@@ -81,11 +81,11 @@ class ObjectMethod : public Object
 public:
     enum class Type
     {
-        NON_CONST = 0,
-        CONST
+        READ_WRITE = 0,
+        READ_ONLY
     };
 
-    ObjectMethod( caffa::not_null<ObjectHandle*> self, Type type = Type::NON_CONST );
+    ObjectMethod( caffa::not_null<ObjectHandle*> self, Type type = Type::READ_WRITE );
 
     // The returned object contains the results of the method and is the responsibility of the caller.
     virtual std::unique_ptr<ObjectMethodResult> execute() = 0;

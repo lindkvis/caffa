@@ -132,7 +132,7 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
             auto method = ObjectMethodFactory::instance()->createMethod( matchingObject, request->method() );
             if ( method )
             {
-                if ( method->type() == ObjectMethod::Type::NON_CONST && session->type() == Session::Type::OBSERVING )
+                if ( method->type() == ObjectMethod::Type::READ_WRITE && session->type() == Session::Type::OBSERVING )
                 {
                     return grpc::Status( grpc::UNAUTHENTICATED,
                                          "Observing session '" + request->session().uuid() +
