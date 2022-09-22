@@ -128,7 +128,25 @@ public:
             return m_session.get();
         }
 
-        for ( auto&& observingSession : m_observeringSessions )
+        for ( auto& observingSession : m_observeringSessions )
+        {
+            if ( observingSession && observingSession->uuid() == sessionUuid && !observingSession->isExpired() )
+            {
+                return observingSession.get();
+            }
+        }
+
+        return nullptr;
+    }
+
+    const caffa::Session* getExistingSession( const std::string& sessionUuid ) const override
+    {
+        if ( m_session && m_session->uuid() == sessionUuid )
+        {
+            return m_session.get();
+        }
+
+        for ( const auto& observingSession : m_observeringSessions )
         {
             if ( observingSession && observingSession->uuid() == sessionUuid && !observingSession->isExpired() )
             {
