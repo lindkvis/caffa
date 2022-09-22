@@ -113,7 +113,7 @@ public:
         grpc::ClientContext           context;
         NullMessage                   nullarg;
 
-        params.set_type( static_cast<unsigned>( sessionType ) );
+        params.set_type( static_cast<caffa::rpc::SessionType>( sessionType ) );
 
         auto status = m_appInfoStub->CreateSession( &context, params, &session );
         if ( !status.ok() )
