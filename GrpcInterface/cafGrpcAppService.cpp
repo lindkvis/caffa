@@ -44,9 +44,23 @@
 
 using namespace caffa::rpc;
 
-grpc::Status AppService::PerformQuit( grpc::ServerContext*, const NullMessage*, NullMessage* )
+grpc::Status AppService::PerformQuit( grpc::ServerContext*, const SessionMessage* request, NullMessage* )
 {
     CAFFA_DEBUG( "Received quit request" );
+
+    Session* session = ServerApplication::instance()->getExistingSession( request->uuid() );
+    if ( !session )
+    {
+        return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->uuid() + "' is not valid" );
+    }
+    ServerApplication::instance()->keepAliveSession( session->uuid() );
+
+    if ( session->type() == Session::Type::OBSERVING )
+    {
+        return grpc::Status( grpc::UNAUTHENTICATED,
+                             "Observing session '" + session->uuid() + "' is not valid for telling server to quit" );
+    }
+
     ServerApplication::instance()->quit();
     return grpc::Status::OK;
 }
@@ -161,7 +175,7 @@ std::vector<AbstractCallback*> AppService::createCallbacks()
 {
     typedef AppService Self;
     return {
-        new UnaryCallback<Self, NullMessage, NullMessage>( this, &Self::PerformQuit, &Self::RequestQuit ),
+        new UnaryCallback<Self, SessionMessage, NullMessage>( this, &Self::PerformQuit, &Self::RequestQuit ),
         new UnaryCallback<Self, NullMessage, AppInfoReply>( this, &Self::PerformGetAppInfo, &Self::RequestGetAppInfo ),
         new UnaryCallback<Self, NullMessage, NullMessage>( this, &Self::PerformPing, &Self::RequestPing ),
         new UnaryCallback<Self, NullMessage, NullMessage>( this,

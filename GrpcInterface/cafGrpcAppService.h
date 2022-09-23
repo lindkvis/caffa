@@ -38,7 +38,7 @@ class Version;
 class AppService : public ServiceInterface, public App::AsyncService
 {
 public:
-    grpc::Status PerformQuit( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply );
+    grpc::Status PerformQuit( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply );
     grpc::Status PerformGetAppInfo( grpc::ServerContext* context, const NullMessage* request, AppInfoReply* reply );
     grpc::Status PerformPing( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply );
     grpc::Status PerformResetToDefaultData( grpc::ServerContext* context, const NullMessage* request, NullMessage* reply );

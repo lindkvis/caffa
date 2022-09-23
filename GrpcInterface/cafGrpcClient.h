@@ -56,6 +56,7 @@ public:
     void                                       sendKeepAlive();
     void                                       destroySession();
     const std::string&                         sessionUuid() const;
+    void                                       startKeepAliveThread();
 
     bool                                            ping() const;
     void                                            resetToDefaultData() const;

@@ -53,8 +53,11 @@
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
 
+#include <chrono>
 #include <iostream>
 #include <memory>
+#include <mutex>
+#include <thread>
 
 namespace caffa::rpc
 {
@@ -104,10 +107,16 @@ public:
         destroySession();
     }
 
-    const std::string& sessionUuid() const { return m_sessionUuid; }
+    const std::string& sessionUuid() const
+    {
+        std::scoped_lock<std::mutex> lock( m_sessionMutex );
+        return m_sessionUuid;
+    }
 
     void createSession( caffa::Session::Type sessionType )
     {
+        std::scoped_lock<std::mutex> lock( m_sessionMutex );
+
         caffa::rpc::SessionParameters params;
         caffa::rpc::SessionMessage    session;
         grpc::ClientContext           context;
@@ -128,7 +137,12 @@ public:
 
     void sendKeepAlive()
     {
+        std::scoped_lock<std::mutex> lock( m_sessionMutex );
         CAFFA_DEBUG( "Keeping session alive " << m_sessionUuid );
+        if ( m_sessionUuid.empty() )
+        {
+            throw std::runtime_error( "No session to keep alive" );
+        }
 
         caffa::rpc::SessionMessage session;
         session.set_uuid( m_sessionUuid );
@@ -143,12 +157,33 @@ public:
         }
     }
 
+    void startKeepAliveThread()
+    {
+        std::thread thread(
+            [this]()
+            {
+                while ( true )
+                {
+                    try
+                    {
+                        this->sendKeepAlive();
+                        std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+                    }
+                    catch ( ... )
+                    {
+                        break;
+                    }
+                }
+            } );
+        thread.detach();
+    }
+
     void destroySession()
     {
+        std::scoped_lock<std::mutex> lock( m_sessionMutex );
         if ( !m_sessionUuid.empty() )
         {
             CAFFA_DEBUG( "Destroying session " << m_sessionUuid );
-
             caffa::rpc::SessionMessage session;
             session.set_uuid( m_sessionUuid );
             grpc::ClientContext context;
@@ -187,6 +222,8 @@ public:
 
     std::unique_ptr<caffa::ObjectHandle> document( const std::string& documentId ) const
     {
+        std::scoped_lock<std::mutex> lock( m_sessionMutex );
+
         std::unique_ptr<caffa::ObjectHandle> document;
 
         grpc::ClientContext         context;
@@ -217,6 +254,8 @@ public:
 
     std::vector<std::unique_ptr<caffa::ObjectHandle>> documents() const
     {
+        std::scoped_lock<std::mutex> lock( m_sessionMutex );
+
         std::vector<std::unique_ptr<caffa::ObjectHandle>> documents;
 
         grpc::ClientContext        context;
@@ -480,15 +519,24 @@ public:
 
     bool stopServer()
     {
-        destroySession();
-
         grpc::ClientContext context;
-        NullMessage         nullarg, nullreply;
+        SessionMessage      sessionRequest;
+        sessionRequest.set_uuid( m_sessionUuid );
+        NullMessage nullreply;
         CAFFA_DEBUG( "Telling server to quit" );
-        auto status = m_appInfoStub->Quit( &context, nullarg, &nullreply );
 
-        CAFFA_DEBUG( " Got the following response: " << status.ok() );
-        return status.ok();
+        auto status = m_appInfoStub->Quit( &context, sessionRequest, &nullreply );
+        if ( status.ok() )
+        {
+            CAFFA_DEBUG( "Successfully quit" );
+            m_sessionUuid = "";
+            return status.ok();
+        }
+        else
+        {
+            CAFFA_ERROR( "Failed to quit because of: " + status.error_message() );
+            throw Exception( status );
+        }
     }
 
     bool ping() const
@@ -988,7 +1036,8 @@ private:
     std::unique_ptr<ObjectAccess::Stub> m_objectStub;
     std::unique_ptr<FieldAccess::Stub>  m_fieldStub;
 
-    std::string m_sessionUuid;
+    std::string        m_sessionUuid;
+    mutable std::mutex m_sessionMutex;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -1058,6 +1107,14 @@ bool Client::stopServer()
 void Client::sendKeepAlive()
 {
     m_clientImpl->sendKeepAlive();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Start sending keep-alives in a thread until the session is destroyed.
+//--------------------------------------------------------------------------------------------------
+void Client::startKeepAliveThread()
+{
+    m_clientImpl->startKeepAliveThread();
 }
 
 //--------------------------------------------------------------------------------------------------
