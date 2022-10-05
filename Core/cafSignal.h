@@ -178,8 +178,17 @@ public:
     }
     size_t observerCount() const { return m_observerCallbacks.size(); }
 
+    bool connected( const SignalObserver* observer ) const
+    {
+        for ( const auto& observerPair : m_observerCallbacks )
+        {
+            if ( observerPair.first == observer ) return true;
+        }
+        return false;
+    }
+
 private:
-    Signal( const Signal& rhs ) = delete;
+    Signal( const Signal& rhs )            = delete;
     Signal& operator=( const Signal& rhs ) = delete;
 
 private:
