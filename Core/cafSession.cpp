@@ -16,8 +16,8 @@ std::shared_ptr<Session> Session::create( Type type, std::chrono::milliseconds t
 Session::Session( Type type, std::chrono::milliseconds timeout )
     : m_uuid( caffa::UuidGenerator::generate() )
     , m_type( type )
-    , m_lastKeepAlive( std::chrono::steady_clock::now() )
     , m_timeOut( timeout )
+    , m_lastKeepAlive( std::chrono::steady_clock::now() )
     , m_expirationBlocked( false )
 {
 }
@@ -60,14 +60,14 @@ Session::Type Session::typeFromUint( unsigned type )
     return Session::Type::INVALID;
 }
 
-void Session::blockExpiration()
+void Session::blockExpiration() const
 {
     std::scoped_lock<std::mutex> lock( m_mutex );
     m_lastKeepAlive     = std::chrono::steady_clock::now();
     m_expirationBlocked = true;
 }
 
-void Session::unblockExpiration()
+void Session::unblockExpiration() const
 {
     std::scoped_lock<std::mutex> lock( m_mutex );
     m_lastKeepAlive     = std::chrono::steady_clock::now();
@@ -102,6 +102,38 @@ SessionMaintainer::operator bool() const
 }
 
 bool SessionMaintainer::operator!() const
+{
+    return !m_session;
+}
+
+ConstSessionMaintainer::ConstSessionMaintainer( std::shared_ptr<const Session> session )
+    : m_session( session )
+{
+    if ( m_session )
+    {
+        m_session->blockExpiration();
+    }
+}
+
+ConstSessionMaintainer::~ConstSessionMaintainer()
+{
+    if ( m_session )
+    {
+        m_session->unblockExpiration();
+    }
+}
+
+std::shared_ptr<const Session> ConstSessionMaintainer::operator->() const
+{
+    return m_session;
+}
+
+ConstSessionMaintainer::operator bool() const
+{
+    return !!m_session;
+}
+
+bool ConstSessionMaintainer::operator!() const
 {
     return !m_session;
 }

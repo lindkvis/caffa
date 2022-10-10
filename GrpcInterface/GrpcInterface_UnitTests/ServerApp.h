@@ -135,7 +135,25 @@ public:
             }
         }
 
-        return caffa::SessionMaintainer( nullptr );
+        return caffa::SessionMaintainer();
+    }
+
+    caffa::ConstSessionMaintainer getExistingSession( const std::string& sessionUuid ) const override
+    {
+        if ( m_session && m_session->uuid() == sessionUuid )
+        {
+            return caffa::ConstSessionMaintainer( m_session );
+        }
+
+        for ( auto& observingSession : m_observeringSessions )
+        {
+            if ( observingSession && observingSession->uuid() == sessionUuid && !observingSession->isExpired() )
+            {
+                return caffa::ConstSessionMaintainer( observingSession );
+            }
+        }
+
+        return caffa::ConstSessionMaintainer();
     }
 
     void keepAliveSession( const std::string& sessionUuid ) override

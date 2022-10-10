@@ -121,6 +121,15 @@ public:
         return caffa::SessionMaintainer( nullptr );
     }
 
+    caffa::ConstSessionMaintainer getExistingSession( const std::string& sessionUuid ) const override
+    {
+        if ( m_session && m_session->uuid() == sessionUuid )
+        {
+            return caffa::ConstSessionMaintainer( m_session );
+        }
+        return caffa::ConstSessionMaintainer( nullptr );
+    }
+
     void keepAliveSession( const std::string& sessionUuid ) override
     {
         if ( m_session && m_session->uuid() == sessionUuid )
