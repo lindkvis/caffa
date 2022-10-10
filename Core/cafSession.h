@@ -19,11 +19,13 @@
 #pragma once
 
 #include <chrono>
+#include <memory>
 #include <mutex>
 #include <string>
 
 namespace caffa
 {
+class SessioMaintainer;
 /**
  * @brief Abstract class representing an application session
  *
@@ -38,8 +40,10 @@ public:
         OBSERVING = 0x2
     };
 
-    Session( Type type, std::chrono::milliseconds timeout = std::chrono::milliseconds( 500 ) );
-    virtual ~Session() = default;
+    static std::shared_ptr<Session> create( Type                      type,
+                                            std::chrono::milliseconds timeout = std::chrono::milliseconds( 500 ) );
+
+    ~Session() = default;
 
     const std::string& uuid() const;
 
@@ -51,11 +55,34 @@ public:
     static Type typeFromUint( unsigned type );
 
 private:
+    friend class SessionMaintainer;
+
+    Session( Type type, std::chrono::milliseconds timeout );
+
+    void blockExpiration();
+    void unblockExpiration();
+
     std::string m_uuid;
     Type        m_type;
 
     std::chrono::steady_clock::time_point m_lastKeepAlive;
     std::chrono::milliseconds             m_timeOut;
     mutable std::mutex                    m_mutex;
+    bool                                  m_expirationBlocked;
 };
+
+class SessionMaintainer
+{
+public:
+    SessionMaintainer( std::shared_ptr<Session> session );
+    ~SessionMaintainer();
+
+    std::shared_ptr<Session> operator->();
+                             operator bool() const;
+    bool                     operator!() const;
+
+private:
+    std::shared_ptr<Session> m_session;
+};
+
 } // namespace caffa

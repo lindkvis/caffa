@@ -95,7 +95,7 @@ public:
 
     void resetToDefaultData() override { m_demoDocument = std::make_unique<DemoDocument>(); }
 
-    caffa::Session* createSession( caffa::Session::Type type ) override
+    caffa::SessionMaintainer createSession( caffa::Session::Type type ) override
     {
         if ( m_session )
         {
@@ -108,26 +108,17 @@ public:
                 CAFFA_DEBUG( "Had session " << m_session->uuid() << " but it has not been kept alive, so destroying it" );
             }
         }
-        m_session = std::make_unique<caffa::Session>( type );
-        return m_session.get();
+        m_session = caffa::Session::create( type );
+        return caffa::SessionMaintainer( m_session );
     }
 
-    caffa::Session* getExistingSession( const std::string& sessionUuid ) override
+    caffa::SessionMaintainer getExistingSession( const std::string& sessionUuid ) override
     {
         if ( m_session && m_session->uuid() == sessionUuid )
         {
-            return m_session.get();
+            return caffa::SessionMaintainer( m_session );
         }
-        return nullptr;
-    }
-
-    const caffa::Session* getExistingSession( const std::string& sessionUuid ) const override
-    {
-        if ( m_session && m_session->uuid() == sessionUuid )
-        {
-            return m_session.get();
-        }
-        return nullptr;
+        return caffa::SessionMaintainer( nullptr );
     }
 
     void keepAliveSession( const std::string& sessionUuid ) override
@@ -158,7 +149,7 @@ private:
 private:
     std::unique_ptr<DemoDocument> m_demoDocument;
 
-    std::unique_ptr<caffa::Session> m_session;
+    std::shared_ptr<caffa::Session> m_session;
 };
 
 //--------------------------------------------------------------------------------------------------

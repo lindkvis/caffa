@@ -57,11 +57,10 @@ namespace rpc
 
         virtual void resetToDefaultData() = 0;
 
-        virtual caffa::Session*       createSession( caffa::Session::Type type )                 = 0;
-        virtual caffa::Session*       getExistingSession( const std::string& sessionUuid )       = 0;
-        virtual const caffa::Session* getExistingSession( const std::string& sessionUuid ) const = 0;
-        virtual void                  destroySession( const std::string& sessionUuid )           = 0;
-        virtual void                  keepAliveSession( const std::string& sessionUuid )         = 0;
+        virtual caffa::SessionMaintainer createSession( caffa::Session::Type type )           = 0;
+        virtual caffa::SessionMaintainer getExistingSession( const std::string& sessionUuid ) = 0;
+        virtual void                     destroySession( const std::string& sessionUuid )     = 0;
+        virtual void                     keepAliveSession( const std::string& sessionUuid )   = 0;
 
     private:
         virtual void onStartup() {}

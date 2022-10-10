@@ -67,13 +67,12 @@ grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const Doc
 {
     CAFFA_TRACE( "Got document request" );
 
-    Session* session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
+    auto session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
     if ( !session )
     {
         CAFFA_ERROR( "Session '" << request->session().uuid() << "' is not valid" );
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
     }
-    ServerApplication::instance()->keepAliveSession( request->session().uuid() );
 
     Document* document = ServerApplication::instance()->document( request->document_id(), request->session().uuid() );
     if ( document )
@@ -92,12 +91,11 @@ grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const Doc
 grpc::Status ObjectService::ListDocuments( grpc::ServerContext* context, const SessionMessage* request, DocumentList* reply )
 {
     CAFFA_TRACE( "Got document request" );
-    Session* session = ServerApplication::instance()->getExistingSession( request->uuid() );
+    auto session = ServerApplication::instance()->getExistingSession( request->uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->uuid() + "' is not valid" );
     }
-    ServerApplication::instance()->keepAliveSession( request->uuid() );
 
     auto documents = ServerApplication::instance()->documents( request->uuid() );
     CAFFA_TRACE( "Found " << documents.size() << " document" );
@@ -116,13 +114,11 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
     const RpcObject& self = request->self_object();
     CAFFA_TRACE( "Execute method: " << request->method() );
 
-    Session* session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
+    auto session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
     }
-
-    ServerApplication::instance()->keepAliveSession( request->session().uuid() );
 
     try
     {
@@ -168,12 +164,11 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
 grpc::Status
     ObjectService::ListMethods( grpc::ServerContext* context, const ListMethodsRequest* request, RpcObjectList* reply )
 {
-    Session* session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
+    auto session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
     }
-    ServerApplication::instance()->keepAliveSession( request->session().uuid() );
 
     auto matchingObject = findCafObjectFromRpcObject( session->uuid(), request->self_object() );
     CAFFA_ASSERT( matchingObject );

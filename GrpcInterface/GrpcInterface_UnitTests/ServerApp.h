@@ -93,7 +93,7 @@ public:
 
     void resetToDefaultData() override { m_demoDocument = std::make_unique<DemoDocument>(); }
 
-    caffa::Session* createSession( caffa::Session::Type type ) override
+    caffa::SessionMaintainer createSession( caffa::Session::Type type ) override
     {
         if ( type == caffa::Session::Type::REGULAR )
         {
@@ -109,52 +109,33 @@ public:
                                                 << " but it has not been kept alive, so destroying it" );
                 }
             }
-            m_session = std::make_unique<caffa::Session>( type );
-            return m_session.get();
+            m_session = caffa::Session::create( type );
+            return caffa::SessionMaintainer( m_session );
         }
         else
         {
-            auto observingSession = std::make_unique<caffa::Session>( type, std::chrono::seconds( 1 ) );
-            auto ptr              = observingSession.get();
-            m_observeringSessions.push_back( std::move( observingSession ) );
-            return ptr;
+            auto observingSession = caffa::Session::create( type, std::chrono::seconds( 1 ) );
+            m_observeringSessions.push_back( observingSession );
+            return caffa::SessionMaintainer( observingSession );
         }
     }
 
-    caffa::Session* getExistingSession( const std::string& sessionUuid ) override
+    caffa::SessionMaintainer getExistingSession( const std::string& sessionUuid ) override
     {
         if ( m_session && m_session->uuid() == sessionUuid )
         {
-            return m_session.get();
+            return caffa::SessionMaintainer( m_session );
         }
 
         for ( auto& observingSession : m_observeringSessions )
         {
             if ( observingSession && observingSession->uuid() == sessionUuid && !observingSession->isExpired() )
             {
-                return observingSession.get();
+                return caffa::SessionMaintainer( observingSession );
             }
         }
 
-        return nullptr;
-    }
-
-    const caffa::Session* getExistingSession( const std::string& sessionUuid ) const override
-    {
-        if ( m_session && m_session->uuid() == sessionUuid )
-        {
-            return m_session.get();
-        }
-
-        for ( const auto& observingSession : m_observeringSessions )
-        {
-            if ( observingSession && observingSession->uuid() == sessionUuid && !observingSession->isExpired() )
-            {
-                return observingSession.get();
-            }
-        }
-
-        return nullptr;
+        return caffa::SessionMaintainer( nullptr );
     }
 
     void keepAliveSession( const std::string& sessionUuid ) override
@@ -212,6 +193,6 @@ private:
     std::unique_ptr<DemoDocument>                        m_demoDocument;
     std::unique_ptr<DemoDocumentWithNonScriptableMember> m_demoDocumentWithNonScriptableMember;
 
-    std::unique_ptr<caffa::Session>            m_session;
-    std::list<std::unique_ptr<caffa::Session>> m_observeringSessions;
+    std::shared_ptr<caffa::Session>            m_session;
+    std::list<std::shared_ptr<caffa::Session>> m_observeringSessions;
 };

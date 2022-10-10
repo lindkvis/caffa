@@ -1061,7 +1061,6 @@ TEST_F( GrpcTest, MultipleConcurrentSessionsDelayWithoutKeepalive )
     ASSERT_TRUE( client2 );
 
     client1->destroySession();
-    client2->destroySession();
 
     client2->stopServer();
     CAFFA_DEBUG( "Stopping server and waiting for server to join" );

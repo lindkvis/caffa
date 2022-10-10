@@ -511,7 +511,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
 {
     CAFFA_ASSERT( request != nullptr );
 
-    Session* session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
+    auto session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
@@ -671,7 +671,7 @@ grpc::Status SetterStateHandler::init( const GenericArray* chunk )
 
     auto fieldRequest = setRequest.field();
 
-    Session* session = ServerApplication::instance()->getExistingSession( fieldRequest.session().uuid() );
+    auto session = ServerApplication::instance()->getExistingSession( fieldRequest.session().uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + fieldRequest.session().uuid() + "' is not valid" );
@@ -856,7 +856,7 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
     CAFFA_TRACE( "GetValue for field: " << request->keyword() << ", " << request->class_keyword() << ", "
                                         << request->uuid() );
 
-    Session* session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
+    auto session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
@@ -919,7 +919,7 @@ grpc::Status FieldService::ClearChildObjects( grpc::ServerContext* context, cons
 {
     CAFFA_ASSERT( request != nullptr );
 
-    Session* session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
+    auto session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
@@ -974,7 +974,7 @@ grpc::Status FieldService::RemoveChildObject( grpc::ServerContext* context, cons
 {
     CAFFA_ASSERT( request != nullptr );
 
-    Session* session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
+    auto session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
@@ -1022,7 +1022,7 @@ grpc::Status FieldService::InsertChildObject( grpc::ServerContext* context, cons
 {
     auto fieldRequest = request->field();
 
-    Session* session = ServerApplication::instance()->getExistingSession( fieldRequest.session().uuid() );
+    auto session = ServerApplication::instance()->getExistingSession( fieldRequest.session().uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + fieldRequest.session().uuid() + "' is not valid" );
@@ -1094,7 +1094,7 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
 {
     auto fieldRequest = request->field();
 
-    Session* session = ServerApplication::instance()->getExistingSession( fieldRequest.session().uuid() );
+    auto session = ServerApplication::instance()->getExistingSession( fieldRequest.session().uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + fieldRequest.session().uuid() + "' is not valid" );

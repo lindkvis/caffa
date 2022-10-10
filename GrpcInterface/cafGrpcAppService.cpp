@@ -48,17 +48,10 @@ grpc::Status AppService::PerformQuit( grpc::ServerContext*, const SessionMessage
 {
     CAFFA_DEBUG( "Received quit request" );
 
-    Session* session = ServerApplication::instance()->getExistingSession( request->uuid() );
+    auto session = ServerApplication::instance()->getExistingSession( request->uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->uuid() + "' is not valid" );
-    }
-    ServerApplication::instance()->keepAliveSession( session->uuid() );
-
-    if ( session->type() == Session::Type::OBSERVING )
-    {
-        return grpc::Status( grpc::UNAUTHENTICATED,
-                             "Observing session '" + session->uuid() + "' is not valid for telling server to quit" );
     }
 
     ServerApplication::instance()->quit();
@@ -101,8 +94,7 @@ grpc::Status AppService::CreateSession( grpc::ServerContext* context, const Sess
 
     try
     {
-        caffa::Session* session =
-            ServerApplication::instance()->createSession( caffa::Session::typeFromUint( request->type() ) );
+        auto session = ServerApplication::instance()->createSession( caffa::Session::typeFromUint( request->type() ) );
         if ( !session ) throw std::runtime_error( "Failed to create session" );
         reply->set_uuid( session->uuid() );
         CAFFA_TRACE( "Created session: " << session->uuid() );
@@ -163,7 +155,8 @@ grpc::Status AppService::DestroySession( grpc::ServerContext* context, const Ses
     }
     catch ( const std::exception& e )
     {
-        CAFFA_WARNING( "Session did not exist. It may already have been destroyed due to lack of keepalive" );
+        CAFFA_WARNING( "Session '" << request->uuid()
+                                   << "' did not exist. It may already have been destroyed due to lack of keepalive" );
     }
     return grpc::Status::OK;
 }
