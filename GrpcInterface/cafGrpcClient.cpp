@@ -519,6 +519,8 @@ public:
 
     bool stopServer()
     {
+        std::scoped_lock<std::mutex> lock( m_sessionMutex );
+
         grpc::ClientContext context;
         SessionMessage      sessionRequest;
         sessionRequest.set_uuid( m_sessionUuid );
