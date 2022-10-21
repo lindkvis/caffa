@@ -105,6 +105,10 @@ public:
         //
         CAFFA_DEBUG( "Destroying client" );
         destroySession();
+        if ( m_keepAliveThread )
+        {
+            m_keepAliveThread->join();
+        }
     }
 
     const std::string& sessionUuid() const
@@ -159,7 +163,7 @@ public:
 
     void startKeepAliveThread()
     {
-        std::thread thread(
+        m_keepAliveThread = std::make_unique<std::thread>(
             [this]()
             {
                 while ( true )
@@ -175,7 +179,6 @@ public:
                     }
                 }
             } );
-        thread.detach();
     }
 
     void destroySession()
@@ -1038,8 +1041,9 @@ private:
     std::unique_ptr<ObjectAccess::Stub> m_objectStub;
     std::unique_ptr<FieldAccess::Stub>  m_fieldStub;
 
-    std::string        m_sessionUuid;
-    mutable std::mutex m_sessionMutex;
+    std::string                  m_sessionUuid;
+    std::unique_ptr<std::thread> m_keepAliveThread;
+    mutable std::mutex           m_sessionMutex;
 };
 
 //--------------------------------------------------------------------------------------------------
