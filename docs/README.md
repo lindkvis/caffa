@@ -55,5 +55,12 @@ TinyDemoObject::TinyDemoObject()
 # Requirements
 Caffa uses modern C++ and requires a C++17 compatible compiler, Boost 1.71.0+ spdlog 1.5.0 and CMake 3.12+ in addition to gRPC 1.16.1+ for gRPC-server deployment.
 
+# Building
+Caffa uses git submodules so it is important to initialise submodules recursively first
+
+```
+git submodule update --init --recursive
+```
+
 # Licensing
 Caffa is licensed under the LGPL 2.1 or newer.
