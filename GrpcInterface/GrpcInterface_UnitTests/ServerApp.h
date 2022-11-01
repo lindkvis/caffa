@@ -156,28 +156,6 @@ public:
         return caffa::ConstSessionMaintainer();
     }
 
-    void keepAliveSession( const std::string& sessionUuid ) override
-    {
-        if ( m_session && m_session->uuid() == sessionUuid )
-        {
-            m_session->updateKeepAlive();
-        }
-        else
-        {
-            for ( auto&& observingSession : m_observeringSessions )
-            {
-                if ( observingSession && observingSession->uuid() == sessionUuid && !observingSession->isExpired() )
-                {
-                    observingSession->updateKeepAlive();
-                    return;
-                }
-            }
-
-            CAFFA_ERROR( "Session does not exist " << sessionUuid );
-            throw std::runtime_error( std::string( "Session does not exist'" ) + sessionUuid + "'" );
-        }
-    }
-
     void destroySession( const std::string& sessionUuid )
     {
         CAFFA_TRACE( "Attempting to destroy session " << sessionUuid );
