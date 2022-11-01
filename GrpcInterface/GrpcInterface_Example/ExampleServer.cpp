@@ -130,19 +130,6 @@ public:
         return caffa::ConstSessionMaintainer( nullptr );
     }
 
-    void keepAliveSession( const std::string& sessionUuid ) override
-    {
-        if ( m_session && m_session->uuid() == sessionUuid )
-        {
-            m_session->updateKeepAlive();
-        }
-        else
-        {
-            CAFFA_ERROR( "Session does not exist " << sessionUuid );
-            throw std::runtime_error( std::string( "Session does not exist'" ) + sessionUuid + "'" );
-        }
-    }
-
     void destroySession( const std::string& sessionUuid )
     {
         if ( m_session && m_session->uuid() == sessionUuid )

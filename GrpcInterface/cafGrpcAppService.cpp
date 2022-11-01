@@ -111,18 +111,23 @@ grpc::Status AppService::CreateSession( grpc::ServerContext* context, const Sess
 grpc::Status AppService::KeepSessionAlive( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply )
 {
     CAFFA_TRACE( "Received session keep-alive from " << request->uuid() );
-    try
+    auto session = ServerApplication::instance()->getExistingSession( request->uuid() );
+    if ( session )
     {
-        ServerApplication::instance()->keepAliveSession( request->uuid() );
-    }
-    catch ( const std::exception& e )
-    {
-        CAFFA_ERROR( "Failed to keep alive session with error: " << e.what() );
-        return grpc::Status( grpc::FAILED_PRECONDITION,
-                             std::string( "Failed to keep alive session with error: " ) + e.what() );
-    }
+        try
+        {
+            session->updateKeepAlive();
+        }
+        catch ( const std::exception& e )
+        {
+            CAFFA_ERROR( "Failed to keep alive session with error: " << e.what() );
+            return grpc::Status( grpc::FAILED_PRECONDITION,
+                                 std::string( "Failed to keep alive session with error: " ) + e.what() );
+        }
 
-    return grpc::Status::OK;
+        return grpc::Status::OK;
+    }
+    return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->uuid() + "' does not exist or has expired!" );
 }
 
 grpc::Status AppService::CheckSession( grpc::ServerContext* context, const SessionMessage* request, SessionMessage* reply )
