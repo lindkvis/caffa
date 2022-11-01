@@ -131,18 +131,11 @@ grpc::Status AppService::CheckSession( grpc::ServerContext* context, const Sessi
     auto session = ServerApplication::instance()->getExistingSession( request->uuid() );
     if ( session )
     {
-        if ( !session->isExpired() )
-        {
-            CAFFA_ASSERT( session->uuid() == request->uuid() );
-            reply->set_uuid( request->uuid() );
-            return grpc::Status::OK;
-        }
-        else
-        {
-            return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->uuid() + "' has expired!" );
-        }
+        CAFFA_ASSERT( session->uuid() == request->uuid() );
+        reply->set_uuid( request->uuid() );
+        return grpc::Status::OK;
     }
-    return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->uuid() + "' does not exist!" );
+    return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->uuid() + "' does not exist or has expired!" );
 }
 
 grpc::Status AppService::DestroySession( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply )
