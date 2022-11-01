@@ -35,8 +35,13 @@ Session::Type Session::type() const
 bool Session::isExpired() const
 {
     std::scoped_lock<std::mutex> lock( m_mutex );
-    if ( m_expirationBlocked ) return false;
+
     auto now = std::chrono::steady_clock::now();
+
+    if ( m_expirationBlocked )
+    {
+        return ( now - m_lastKeepAlive > 4 * m_timeOut );
+    }
     return ( now - m_lastKeepAlive > m_timeOut );
 }
 
