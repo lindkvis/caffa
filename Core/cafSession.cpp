@@ -40,9 +40,9 @@ bool Session::isExpired() const
 
     if ( m_expirationBlocked )
     {
-        return ( now - m_lastKeepAlive > 4 * m_timeOut );
+        return ( now - m_lastKeepAlive ) > 4 * m_timeOut;
     }
-    return ( now - m_lastKeepAlive > m_timeOut );
+    return ( now - m_lastKeepAlive ) > m_timeOut;
 }
 
 void Session::updateKeepAlive()
