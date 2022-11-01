@@ -36,14 +36,16 @@ bool Session::isExpired() const
 {
     std::scoped_lock<std::mutex> lock( m_mutex );
 
-    auto now = std::chrono::steady_clock::now();
+    auto now                = std::chrono::steady_clock::now();
+    auto timeSinceKeepalive = now - m_lastKeepAlive;
 
     if ( m_expirationBlocked )
     {
-        CAFFA_DEBUG( "Session " << m_uuid << " is currently blocked from expiring. Trying with a longer timeout" );
-        return ( now - m_lastKeepAlive ) > 4 * m_timeOut;
+        CAFFA_DEBUG( "Session " << m_uuid << " is currently blocked from expiring without a keepalive for "
+                                << timeSinceKeepalive.count() / 1000.0 << " ms. Trying with a longer timeout" );
+        return timeSinceKeepalive > 4 * m_timeOut;
     }
-    return ( now - m_lastKeepAlive ) > m_timeOut;
+    return timeSinceKeepalive > m_timeOut;
 }
 
 void Session::updateKeepAlive()
