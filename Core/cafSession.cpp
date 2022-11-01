@@ -40,6 +40,7 @@ bool Session::isExpired() const
 
     if ( m_expirationBlocked )
     {
+        CAFFA_DEBUG( "Session " << m_uuid << " is currently blocked from expiring. Trying with a longer timeout" );
         return ( now - m_lastKeepAlive ) > 4 * m_timeOut;
     }
     return ( now - m_lastKeepAlive ) > m_timeOut;
