@@ -82,6 +82,7 @@ public:
     std::shared_ptr<Session> operator->();
                              operator bool() const;
     bool                     operator!() const;
+    Session*                 get();
 
 private:
     std::shared_ptr<Session> m_session;
@@ -96,6 +97,7 @@ public:
     std::shared_ptr<const Session> operator->() const;
                                    operator bool() const;
     bool                           operator!() const;
+    const Session*                 get() const;
 
 private:
     std::shared_ptr<const Session> m_session;

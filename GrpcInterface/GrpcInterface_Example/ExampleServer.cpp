@@ -68,7 +68,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     int patchVersion() const override { return CAFFA_VERSION_PATCH; }
 
-    caffa::Document* document( const std::string& documentId, const std::string& sessionUuid = "" ) override
+    caffa::Document* document( const std::string& documentId, const caffa::Session* session ) override
     {
         CAFFA_TRACE( "Trying to get document with id '" << documentId << "' while our main document is called "
                                                         << m_demoDocument->id() );
@@ -77,20 +77,20 @@ public:
         else
             return nullptr;
     }
-    const caffa::Document* document( const std::string& documentId, const std::string& sessionUuid = "" ) const override
+    const caffa::Document* document( const std::string& documentId, const caffa::Session* session ) const override
     {
         if ( documentId.empty() || documentId == m_demoDocument->id() )
             return m_demoDocument.get();
         else
             return nullptr;
     }
-    std::list<caffa::Document*> documents( const std::string& sessionUuid = "" ) override
+    std::list<caffa::Document*> documents( const caffa::Session* session ) override
     {
-        return { document( "", sessionUuid ) };
+        return { document( "", session ) };
     }
-    std::list<const caffa::Document*> documents( const std::string& sessionUuid = "" ) const override
+    std::list<const caffa::Document*> documents( const caffa::Session* session ) const override
     {
-        return { document( "", sessionUuid ) };
+        return { document( "", session ) };
     }
 
     void resetToDefaultData() override { m_demoDocument = std::make_unique<DemoDocument>(); }
@@ -168,7 +168,8 @@ int main( int argc, char** argv )
     CAFFA_INFO( "Launching Server v" << serverApp->majorVersion() << "." << serverApp->minorVersion() << "."
                                      << serverApp->patchVersion() << " listening on port " << portNumber );
 
-    DemoDocument* serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument" ) );
+    auto          session        = serverApp->createSession( caffa::Session::Type::REGULAR );
+    DemoDocument* serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
     CAFFA_ASSERT( serverDocument != nullptr );
     std::vector<float> serverVector;
     size_t             numberOfFloats = 1024u * 1024u * 4;
