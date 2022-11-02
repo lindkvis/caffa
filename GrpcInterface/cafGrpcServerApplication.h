@@ -50,10 +50,10 @@ namespace rpc
         bool running() const;
         void quit();
 
-        virtual Document*       document( const std::string& documentId, const std::string& sessionUuid = "" ) = 0;
-        virtual const Document* document( const std::string& documentId, const std::string& sessionUuid = "" ) const = 0;
-        virtual std::list<Document*>       documents( const std::string& sessionUuid = "" )       = 0;
-        virtual std::list<const Document*> documents( const std::string& sessionUuid = "" ) const = 0;
+        virtual Document*            document( const std::string& documentId, const caffa::Session* session )       = 0;
+        virtual const Document*      document( const std::string& documentId, const caffa::Session* session ) const = 0;
+        virtual std::list<Document*> documents( const caffa::Session* session )                                     = 0;
+        virtual std::list<const Document*> documents( const caffa::Session* session ) const                         = 0;
 
         virtual void resetToDefaultData() = 0;
 

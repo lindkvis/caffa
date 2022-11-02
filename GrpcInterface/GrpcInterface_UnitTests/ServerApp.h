@@ -54,10 +54,10 @@ public:
     int         minorVersion() const override { return 0; }
     int         patchVersion() const override { return 0; }
 
-    caffa::Document* document( const std::string& documentId, const std::string& sessionUuid = "" ) override
+    caffa::Document* document( const std::string& documentId, const caffa::Session* session ) override
     {
         CAFFA_TRACE( "Looking for " << documentId );
-        for ( auto document : documents( sessionUuid ) )
+        for ( auto document : documents( session ) )
         {
             CAFFA_TRACE( "Found document: " << document->id() );
             if ( documentId.empty() || documentId == document->id() )
@@ -68,10 +68,10 @@ public:
         }
         return nullptr;
     }
-    const caffa::Document* document( const std::string& documentId, const std::string& sessionUuid = "" ) const override
+    const caffa::Document* document( const std::string& documentId, const caffa::Session* session ) const override
     {
         CAFFA_TRACE( "Looking for " << documentId );
-        for ( auto document : documents( sessionUuid ) )
+        for ( auto document : documents( session ) )
         {
             CAFFA_TRACE( "Found document: " << document->id() );
             if ( documentId.empty() || documentId == document->id() )
@@ -82,11 +82,11 @@ public:
         }
         return nullptr;
     }
-    std::list<caffa::Document*> documents( const std::string& sessionUuid = "" ) override
+    std::list<caffa::Document*> documents( const caffa::Session* session ) override
     {
         return { m_demoDocument.get(), m_demoDocumentWithNonScriptableMember.get() };
     }
-    std::list<const caffa::Document*> documents( const std::string& sessionUuid = "" ) const override
+    std::list<const caffa::Document*> documents( const caffa::Session* session ) const override
     {
         return { m_demoDocument.get(), m_demoDocumentWithNonScriptableMember.get() };
     }

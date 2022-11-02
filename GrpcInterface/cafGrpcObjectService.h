@@ -40,6 +40,7 @@ class ObjectMethod;
 class ObjectMethodFactory;
 class ProxyFieldHandle;
 class Serializer;
+class Session;
 } // namespace caffa
 
 namespace caffa::rpc
@@ -62,11 +63,10 @@ public:
     grpc::Status ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, RpcObject* reply ) override;
     grpc::Status ListMethods( grpc::ServerContext* context, const ListMethodsRequest* self, RpcObjectList* reply ) override;
 
-    static caffa::Object* findCafObjectFromRpcObject( const std::string& sessionUuid, const RpcObject& rpcObject );
-    static caffa::Object* findCafObjectFromFieldRequest( const FieldRequest& fieldRequest );
-    static caffa::Object* findCafObjectFromScriptNameAndUuid( const std::string& sessionUuid,
-                                                              const std::string& scriptClassName,
-                                                              const std::string& objectUuid );
+    static caffa::Object* findCafObjectFromRpcObject( const caffa::Session* session, const RpcObject& rpcObject );
+    static caffa::Object* findCafObjectFromScriptNameAndUuid( const caffa::Session* session,
+                                                              const std::string&    scriptClassName,
+                                                              const std::string&    objectUuid );
 
     static void copyProjectSelfReferenceFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination );
     static void copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination );

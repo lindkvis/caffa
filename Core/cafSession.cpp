@@ -114,6 +114,11 @@ bool SessionMaintainer::operator!() const
     return !m_session;
 }
 
+Session* SessionMaintainer::get()
+{
+    return m_session.get();
+}
+
 ConstSessionMaintainer::ConstSessionMaintainer( std::shared_ptr<const Session> session )
     : m_session( session )
 {
@@ -144,4 +149,9 @@ ConstSessionMaintainer::operator bool() const
 bool ConstSessionMaintainer::operator!() const
 {
     return !m_session;
+}
+
+const Session* ConstSessionMaintainer::get() const
+{
+    return m_session.get();
 }
