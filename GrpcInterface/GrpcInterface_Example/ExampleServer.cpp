@@ -184,6 +184,9 @@ int main( int argc, char** argv )
     demoObject->intVector.setValue( { 42 } );
     demoObject->floatVector.setValue( serverVector );
     demoObject->boolVector.setValue( { true, false, false, true } );
+
+    serverApp->destroySession( session->uuid() );
+
     CAFFA_DEBUG( "Running server thread" );
     serverApp->run();
 }
