@@ -520,7 +520,7 @@ grpc::Status GetterStateHandler::init( const FieldRequest* request )
     m_fieldOwner = ObjectService::ObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
                                                                                      request->class_keyword(),
                                                                                      request->uuid() );
-    CAFFA_ASSERT( m_fieldOwner );
+
     if ( !m_fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : m_fieldOwner->fields() )
     {
@@ -1116,9 +1116,11 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
     auto fieldOwner = ObjectService::ObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
                                                                                         fieldRequest.class_keyword(),
                                                                                         fieldRequest.uuid() );
-    if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
 
-    CAFFA_TRACE( "Received Set Request for class " << fieldOwner->classKeyword() );
+    CAFFA_TRACE( "Received Set Request for " << fieldRequest.class_keyword() << "::" << fieldRequest.keyword()
+                                             << ", uuid: " << fieldRequest.uuid() );
+
+    if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
 
     auto field = scriptableFieldFromKeyword( fieldOwner, fieldRequest.keyword() );
 

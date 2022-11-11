@@ -87,8 +87,6 @@ private:
     void setupBeforeSaveRecursively( ObjectHandle* object );
 
 protected:
-    friend class ObjectHandle; // Only temporary for void Object::addFieldNoDefault( ) accessing findField
-
     ObjectHandle* m_owner;
 };
 
