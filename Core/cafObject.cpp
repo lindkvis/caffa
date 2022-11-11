@@ -15,7 +15,8 @@ Object::Object()
     : ObjectHandle()
     , ObjectIoCapability( this, false )
 {
-    initField( m_uuid, "uuid" ).withScripting( "uuid", true, false ).withDefault( UuidGenerator::generate() );
+    initField( m_uuid, "uuid" ).withScripting( "uuid", false, false );
+    m_uuid = UuidGenerator::generate();
 }
 
 //--------------------------------------------------------------------------------------------------

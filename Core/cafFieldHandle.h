@@ -41,13 +41,15 @@ public:
     template <typename CapabilityType>
     const CapabilityType* capability() const;
 
+    virtual void resetToDefault() {}
+
 protected:
     bool isInitialized() const { return m_ownerObject != nullptr; }
 
     std::vector<FieldCapability*> capabilities();
 
 private:
-    FieldHandle( const FieldHandle& ) = delete;
+    FieldHandle( const FieldHandle& )            = delete;
     FieldHandle& operator=( const FieldHandle& ) = delete;
 
     friend class ObjectHandle; // Give access to m_ownerObject and set Keyword

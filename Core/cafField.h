@@ -209,6 +209,14 @@ public:
     std::optional<DataType> defaultValue() const { return m_defaultValue; }
     void                    setDefaultValue( const DataType& val ) { m_defaultValue = val; }
 
+    void resetToDefault() override
+    {
+        if ( m_defaultValue )
+        {
+            this->setValue( *m_defaultValue );
+        }
+    }
+
 protected:
     std::unique_ptr<DataAccessor>                          m_fieldDataAccessor;
     std::vector<std::unique_ptr<FieldValidator<DataType>>> m_valueValidators;
