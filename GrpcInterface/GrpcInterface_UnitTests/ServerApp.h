@@ -91,8 +91,6 @@ public:
         return { m_demoDocument.get(), m_demoDocumentWithNonScriptableMember.get() };
     }
 
-    void resetToDefaultData() override { m_demoDocument = std::make_unique<DemoDocument>(); }
-
     caffa::SessionMaintainer createSession( caffa::Session::Type type ) override
     {
         if ( type == caffa::Session::Type::REGULAR )

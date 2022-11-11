@@ -55,8 +55,6 @@ namespace rpc
         virtual std::list<Document*> documents( const caffa::Session* session )                                     = 0;
         virtual std::list<const Document*> documents( const caffa::Session* session ) const                         = 0;
 
-        virtual void resetToDefaultData() = 0;
-
         virtual caffa::SessionMaintainer      createSession( caffa::Session::Type type )                 = 0;
         virtual caffa::SessionMaintainer      getExistingSession( const std::string& sessionUuid )       = 0;
         virtual caffa::ConstSessionMaintainer getExistingSession( const std::string& sessionUuid ) const = 0;

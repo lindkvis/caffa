@@ -93,8 +93,6 @@ public:
         return { document( "", session ) };
     }
 
-    void resetToDefaultData() override { m_demoDocument = std::make_unique<DemoDocument>(); }
-
     caffa::SessionMaintainer createSession( caffa::Session::Type type ) override
     {
         if ( m_session )

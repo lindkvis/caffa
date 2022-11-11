@@ -80,14 +80,6 @@ grpc::Status AppService::PerformPing( grpc::ServerContext*, const NullMessage*, 
     return grpc::Status::OK;
 }
 
-grpc::Status AppService::PerformResetToDefaultData( grpc::ServerContext*, const NullMessage*, NullMessage* )
-{
-    CAFFA_DEBUG( "Received reset request" );
-    ServerApplication::instance()->resetToDefaultData();
-
-    return grpc::Status::OK;
-}
-
 grpc::Status AppService::CreateSession( grpc::ServerContext* context, const SessionParameters* request, SessionMessage* reply )
 {
     CAFFA_DEBUG( "Received create session request" );
@@ -169,9 +161,6 @@ std::vector<AbstractCallback*> AppService::createCallbacks()
         new UnaryCallback<Self, SessionMessage, NullMessage>( this, &Self::PerformQuit, &Self::RequestQuit ),
         new UnaryCallback<Self, NullMessage, AppInfoReply>( this, &Self::PerformGetAppInfo, &Self::RequestGetAppInfo ),
         new UnaryCallback<Self, NullMessage, NullMessage>( this, &Self::PerformPing, &Self::RequestPing ),
-        new UnaryCallback<Self, NullMessage, NullMessage>( this,
-                                                           &Self::PerformResetToDefaultData,
-                                                           &Self::RequestResetToDefaultData ),
         new UnaryCallback<Self, SessionParameters, SessionMessage>( this, &Self::CreateSession, &Self::RequestCreateSession ),
         new UnaryCallback<Self, SessionMessage, NullMessage>( this, &Self::KeepSessionAlive, &Self::RequestKeepSessionAlive ),
         new UnaryCallback<Self, SessionMessage, SessionMessage>( this, &Self::CheckSession, &Self::RequestCheckSession ),

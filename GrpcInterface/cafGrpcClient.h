@@ -59,7 +59,6 @@ public:
     void                                       startKeepAliveThread();
 
     bool                                            ping() const;
-    void                                            resetToDefaultData() const;
     std::list<std::unique_ptr<caffa::ObjectHandle>> objectMethods( caffa::ObjectHandle* objectHandle ) const;
 
     template <typename DataType>
