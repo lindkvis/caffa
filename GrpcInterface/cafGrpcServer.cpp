@@ -182,7 +182,10 @@ public:
         m_completionQueue = builder.AddCompletionQueue();
         m_server          = builder.BuildAndStart();
 
-        CAFFA_ASSERT( m_server );
+        if ( !m_server )
+        {
+            throw std::runtime_error( "Failed to create server" );
+        }
 
         // Spawn new CallData instances to serve new clients.
         for ( auto service : m_services )
