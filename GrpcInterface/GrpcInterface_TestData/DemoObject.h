@@ -123,12 +123,12 @@ public:
         CAFFA_DEBUG( "Executing object method on server with values: " << m_doubleField() << ", " << m_intField()
                                                                        << ", " << m_stringField() );
         caffa::not_null<DemoObject*> demoObject = self<DemoObject>();
-        demoObject->doubleField                 = m_doubleField;
-        demoObject->intField                    = m_intField;
-        demoObject->stringField                 = m_stringField;
-        demoObject->intVector                   = m_intVector;
-        demoObject->boolVector                  = m_boolVector;
-        demoObject->floatVector                 = m_floatVector;
+        demoObject->doubleField                 = m_doubleField();
+        demoObject->intField                    = m_intField();
+        demoObject->stringField                 = m_stringField();
+        demoObject->intVector                   = m_intVector();
+        demoObject->boolVector                  = m_boolVector();
+        demoObject->floatVector                 = m_floatVector();
 
         auto demoObjectResult    = std::make_unique<DemoObject_copyObjectResult>();
         demoObjectResult->status = true;
