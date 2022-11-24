@@ -53,11 +53,9 @@ public:
         : m_fieldDataAccessor( std::make_unique<DirectStorageAccessor>() )
     {
     }
-    Field( const Field& other )
-    {
-        m_fieldDataAccessor = std::move( other.m_fieldDataAccessor->clone() );
-        m_defaultValue      = other.m_defaultValue;
-    }
+
+    explicit Field( const Field& other ) = delete;
+
     explicit Field( const DataType& fieldValue )
         : m_fieldDataAccessor( std::make_unique<DirectStorageAccessor>( fieldValue ) )
     {
@@ -67,15 +65,13 @@ public:
         : m_fieldDataAccessor( std::move( accessor ) )
     {
     }
+
     ~Field() noexcept override {}
 
     // Assignment
 
-    Field& operator=( const Field& other )
-    {
-        m_fieldDataAccessor = std::move( other.m_fieldDataAccessor->clone() );
-        return *this;
-    }
+    Field& operator=( const Field& other ) = delete;
+
     Field& operator=( const DataType& fieldValue )
     {
         this->setValue( fieldValue );
