@@ -172,7 +172,7 @@ public:
 
     explicit A( const std::vector<double>& testValue )
         : field2( testValue )
-        , field3( field2 )
+        , field3( field2() )
     {
         initField( field1, "field1" );
         initField( field2, "field2" );
@@ -213,7 +213,7 @@ TEST( BaseTest, NormalField )
     // ==
     EXPECT_FALSE( a.field1 == a.field3 );
     // = field to field
-    a.field1 = a.field2;
+    a.field1 = a.field2();
     // ()
     EXPECT_EQ( 1.3, a.field1()[2] );
     // = value to field
@@ -221,7 +221,7 @@ TEST( BaseTest, NormalField )
     // v()
     EXPECT_EQ( 2.3, a.field1.value()[2] );
     // ==
-    a.field3 = a.field1;
+    a.field3 = a.field1();
     EXPECT_TRUE( a.field1 == a.field3 );
 }
 
