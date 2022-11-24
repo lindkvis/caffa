@@ -85,10 +85,10 @@ public:
         initField( m_up, "Up" );
         initField( m_numbers, "Numbers" );
 
-        m_position     = other.m_position;
-        m_dir          = other.m_dir;
-        m_up           = other.m_up;
-        m_numbers      = other.m_numbers;
+        m_position     = other.m_position();
+        m_dir          = other.m_dir();
+        m_up           = other.m_up();
+        m_numbers      = other.m_numbers();
         m_doubleMember = other.m_doubleMember;
     }
 
@@ -214,17 +214,17 @@ TEST( BaseTest, NormalField )
     myObj.field2 = testValue;
     EXPECT_EQ( 1.3, myObj.field2.value()[2] );
 
-    myObj.field3 = myObj.field2;
+    myObj.field3 = myObj.field2();
     EXPECT_EQ( 1.3, myObj.field3.value()[2] );
     EXPECT_EQ( size_t( 0 ), myObj.field1().size() );
 
     // Operators
     EXPECT_FALSE( myObj.field1 == myObj.field3 );
-    myObj.field1 = myObj.field2;
+    myObj.field1 = myObj.field2();
     EXPECT_EQ( 1.3, myObj.field1()[2] );
     myObj.field1 = testValue2;
     EXPECT_EQ( 2.3, myObj.field1()[2] );
-    myObj.field3 = myObj.field1;
+    myObj.field3 = myObj.field1();
     EXPECT_TRUE( myObj.field1 == myObj.field3 );
 }
 
