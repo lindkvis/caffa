@@ -69,7 +69,7 @@ bool ObjectIoCapability::isValidElementName( const std::string& name )
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<ObjectHandle> ObjectIoCapability::copyBySerialization( ObjectFactory* objectFactory ) const
 {
-    return JsonSerializer( objectFactory ).copyBySerialization( m_owner );
+    return JsonSerializer( objectFactory ).setSerializeUuids( false ).copyBySerialization( m_owner );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ std::unique_ptr<ObjectHandle> ObjectIoCapability::copyBySerialization( ObjectFac
 std::unique_ptr<ObjectHandle> ObjectIoCapability::copyAndCastBySerialization( const std::string& destinationClassKeyword,
                                                                               ObjectFactory*     objectFactory ) const
 {
-    return JsonSerializer( objectFactory ).copyAndCastBySerialization( m_owner, destinationClassKeyword );
+    return JsonSerializer( objectFactory ).setSerializeUuids( false ).copyAndCastBySerialization( m_owner, destinationClassKeyword );
 }
 
 //--------------------------------------------------------------------------------------------------
