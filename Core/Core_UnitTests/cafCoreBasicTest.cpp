@@ -171,12 +171,13 @@ public:
     A() {}
 
     explicit A( const std::vector<double>& testValue )
-        : field2( testValue )
-        , field3( field2() )
     {
         initField( field1, "field1" );
         initField( field2, "field2" );
         initField( field3, "field3" );
+
+        field2 = testValue;
+        field3 = field2();
     }
 
     caffa::Field<std::vector<double>> field1;
