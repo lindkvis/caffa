@@ -45,6 +45,7 @@ CAFFA_ABSTRACT_SOURCE_INIT( ObjectMethod, "ObjectMethod", "Object" )
 ///
 //--------------------------------------------------------------------------------------------------
 ObjectMethodResult::ObjectMethodResult( bool retValue, const std::string& errMsg )
+    : Object( false ) // Don't generate UUID. The object method result should never be persistent.
 {
     initField( status, "status" ).withDefault( retValue );
     initField( errorMessage, "error_message" ).withDefault( errMsg );
@@ -54,7 +55,8 @@ ObjectMethodResult::ObjectMethodResult( bool retValue, const std::string& errMsg
 ///
 //--------------------------------------------------------------------------------------------------
 ObjectMethod::ObjectMethod( caffa::not_null<ObjectHandle*> self, Type type )
-    : m_self( self )
+    : Object( false )
+    , m_self( self )
     , m_type( type )
 {
 }

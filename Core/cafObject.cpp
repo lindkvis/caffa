@@ -11,12 +11,16 @@ using namespace std::chrono;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Object::Object()
+Object::Object( bool generateUuid /* = false*/ )
     : ObjectHandle()
     , ObjectIoCapability( this, false )
 {
     initField( m_uuid, "uuid" ).withScripting( "uuid", false, false );
-    m_uuid = UuidGenerator::generate();
+
+    if ( generateUuid )
+    {
+        m_uuid = UuidGenerator::generate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
