@@ -146,7 +146,7 @@ class Object : public ObjectHandle, public ObjectIoCapability
 public:
     CAFFA_HEADER_INIT;
 
-    Object();
+    Object(bool generateUuid = true);
     ~Object() noexcept override;
 
     /**
