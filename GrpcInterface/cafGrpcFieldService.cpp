@@ -33,6 +33,7 @@
 //   for more details.
 //
 #include "cafGrpcFieldService.h"
+#include "cafGrpcCallbacks.h"
 
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
@@ -55,805 +56,10 @@ namespace caffa::rpc
 std::map<const caffa::ObjectHandle*, std::map<std::string, caffa::FieldHandle*>> FieldService::s_fieldCache;
 std::mutex                                                                       FieldService::s_fieldCacheMutex;
 
-template <typename DataType>
-struct DataHolder : public AbstractDataHolder
-{
-    DataHolder( const std::vector<DataType>& data )
-        : data( data )
-    {
-    }
-
-    size_t valueCount() const override;
-    size_t valueSizeOf() const override;
-
-    void reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const override
-    {
-        static_assert( "Should never be called!" );
-    }
-    void addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const override
-    {
-        static_assert( "Should never be called!" );
-    }
-
-    size_t                getValuesFromChunk( size_t startIndex, const GenericArray* chunk ) override;
-    void                  applyValuesToField( FieldHandle* field ) override;
-    std::vector<DataType> data;
-};
-
-template <>
-size_t DataHolder<int>::valueCount() const
-{
-    return data.size();
-}
-template <>
-size_t DataHolder<int>::valueSizeOf() const
-{
-    return sizeof( int );
-}
-
-template <>
-void DataHolder<int>::reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const
-{
-    reply->mutable_ints()->mutable_data()->Reserve( numberOfDataUnits );
-}
-
-template <>
-void DataHolder<int>::addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const
-{
-    *( reply->mutable_ints()->mutable_data() ) = { data.begin() + startIndex,
-                                                   data.begin() + startIndex + numberOfDataUnits };
-}
-
-template <>
-size_t DataHolder<int>::getValuesFromChunk( size_t startIndex, const GenericArray* chunk )
-{
-    size_t chunkSize    = chunk->ints().data_size();
-    size_t currentIndex = startIndex;
-    size_t chunkIndex   = 0u;
-    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
-    {
-        data[currentIndex] = chunk->ints().data()[chunkIndex];
-    }
-    return chunkSize;
-}
-template <>
-void DataHolder<int>::applyValuesToField( FieldHandle* field )
-{
-    auto typedField = dynamic_cast<caffa::Field<std::vector<int>>*>( field );
-    if ( typedField )
-    {
-        CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        typedField->setValue( data );
-    }
-}
-
-template <>
-size_t DataHolder<uint32_t>::valueCount() const
-{
-    return data.size();
-}
-template <>
-size_t DataHolder<uint32_t>::valueSizeOf() const
-{
-    return sizeof( uint32_t );
-}
-
-template <>
-void DataHolder<uint32_t>::reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const
-{
-    reply->mutable_uints()->mutable_data()->Reserve( numberOfDataUnits );
-}
-
-template <>
-void DataHolder<uint32_t>::addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const
-{
-    *( reply->mutable_uints()->mutable_data() ) = { data.begin() + startIndex,
-                                                    data.begin() + startIndex + numberOfDataUnits };
-}
-
-template <>
-size_t DataHolder<uint32_t>::getValuesFromChunk( size_t startIndex, const GenericArray* chunk )
-{
-    size_t chunkSize    = chunk->uints().data_size();
-    size_t currentIndex = startIndex;
-    size_t chunkIndex   = 0u;
-    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
-    {
-        data[currentIndex] = chunk->uints().data()[chunkIndex];
-    }
-    return chunkSize;
-}
-template <>
-void DataHolder<uint32_t>::applyValuesToField( FieldHandle* field )
-{
-    auto typedField = dynamic_cast<caffa::Field<std::vector<uint32_t>>*>( field );
-    if ( typedField )
-    {
-        CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        typedField->setValue( data );
-    }
-}
-
-template <>
-size_t DataHolder<int64_t>::valueCount() const
-{
-    return data.size();
-}
-template <>
-size_t DataHolder<int64_t>::valueSizeOf() const
-{
-    return sizeof( int64_t );
-}
-
-template <>
-void DataHolder<int64_t>::reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const
-{
-    reply->mutable_int64s()->mutable_data()->Reserve( numberOfDataUnits );
-}
-
-template <>
-void DataHolder<int64_t>::addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const
-{
-    *( reply->mutable_int64s()->mutable_data() ) = { data.begin() + startIndex,
-                                                     data.begin() + startIndex + numberOfDataUnits };
-}
-
-template <>
-size_t DataHolder<int64_t>::getValuesFromChunk( size_t startIndex, const GenericArray* chunk )
-{
-    size_t chunkSize    = chunk->int64s().data_size();
-    size_t currentIndex = startIndex;
-    size_t chunkIndex   = 0u;
-    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
-    {
-        data[currentIndex] = chunk->int64s().data()[chunkIndex];
-    }
-    return chunkSize;
-}
-template <>
-void DataHolder<int64_t>::applyValuesToField( FieldHandle* field )
-{
-    auto typedField = dynamic_cast<caffa::Field<std::vector<int64_t>>*>( field );
-    if ( typedField )
-    {
-        CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        typedField->setValue( data );
-    }
-}
-
-template <>
-size_t DataHolder<uint64_t>::valueCount() const
-{
-    return data.size();
-}
-template <>
-size_t DataHolder<uint64_t>::valueSizeOf() const
-{
-    return sizeof( uint64_t );
-}
-
-template <>
-void DataHolder<uint64_t>::reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const
-{
-    reply->mutable_uint64s()->mutable_data()->Reserve( numberOfDataUnits );
-}
-
-template <>
-void DataHolder<uint64_t>::addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const
-{
-    *( reply->mutable_uint64s()->mutable_data() ) = { data.begin() + startIndex,
-                                                      data.begin() + startIndex + numberOfDataUnits };
-}
-
-template <>
-size_t DataHolder<uint64_t>::getValuesFromChunk( size_t startIndex, const GenericArray* chunk )
-{
-    size_t chunkSize    = chunk->uint64s().data_size();
-    size_t currentIndex = startIndex;
-    size_t chunkIndex   = 0u;
-    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
-    {
-        data[currentIndex] = chunk->uint64s().data()[chunkIndex];
-    }
-    return chunkSize;
-}
-template <>
-void DataHolder<uint64_t>::applyValuesToField( FieldHandle* field )
-{
-    auto typedField = dynamic_cast<caffa::Field<std::vector<uint64_t>>*>( field );
-    if ( typedField )
-    {
-        CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        typedField->setValue( data );
-    }
-}
-
-template <>
-size_t DataHolder<double>::valueCount() const
-{
-    return data.size();
-}
-template <>
-size_t DataHolder<double>::valueSizeOf() const
-{
-    return sizeof( double );
-}
-
-template <>
-void DataHolder<double>::reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const
-{
-    reply->mutable_doubles()->mutable_data()->Reserve( numberOfDataUnits );
-}
-
-template <>
-void DataHolder<double>::addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const
-{
-    *( reply->mutable_doubles()->mutable_data() ) = { data.begin() + startIndex,
-                                                      data.begin() + startIndex + numberOfDataUnits };
-}
-template <>
-size_t DataHolder<double>::getValuesFromChunk( size_t startIndex, const GenericArray* chunk )
-{
-    size_t chunkSize    = chunk->doubles().data_size();
-    size_t currentIndex = startIndex;
-    size_t chunkIndex   = 0u;
-    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
-    {
-        data[currentIndex] = chunk->doubles().data()[chunkIndex];
-    }
-    return chunkSize;
-}
-template <>
-void DataHolder<double>::applyValuesToField( FieldHandle* field )
-{
-    auto typedField = dynamic_cast<caffa::Field<std::vector<double>>*>( field );
-    if ( typedField )
-    {
-        CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        typedField->setValue( data );
-    }
-}
-template <>
-size_t DataHolder<float>::valueCount() const
-{
-    return data.size();
-}
-template <>
-size_t DataHolder<float>::valueSizeOf() const
-{
-    return sizeof( float );
-}
-
-template <>
-void DataHolder<float>::reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const
-{
-    reply->mutable_floats()->mutable_data()->Reserve( numberOfDataUnits );
-}
-
-template <>
-void DataHolder<float>::addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const
-{
-    *( reply->mutable_floats()->mutable_data() ) = { data.begin() + startIndex,
-                                                     data.begin() + startIndex + numberOfDataUnits };
-}
-
-template <>
-size_t DataHolder<float>::getValuesFromChunk( size_t startIndex, const GenericArray* chunk )
-{
-    size_t chunkSize    = chunk->floats().data_size();
-    size_t currentIndex = startIndex;
-    size_t chunkIndex   = 0u;
-    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
-    {
-        data[currentIndex] = chunk->floats().data()[chunkIndex];
-    }
-    return chunkSize;
-}
-template <>
-void DataHolder<float>::applyValuesToField( FieldHandle* field )
-{
-    auto typedField = dynamic_cast<caffa::Field<std::vector<float>>*>( field );
-    if ( typedField )
-    {
-        CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        typedField->setValue( data );
-    }
-}
-
-template <>
-size_t DataHolder<std::string>::valueCount() const
-{
-    return data.size();
-}
-template <>
-size_t DataHolder<std::string>::valueSizeOf() const
-{
-    return sizeof( std::string );
-}
-
-template <>
-void DataHolder<std::string>::reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const
-{
-    reply->mutable_strings()->mutable_data()->Reserve( numberOfDataUnits );
-}
-
-template <>
-void DataHolder<std::string>::addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const
-{
-    *( reply->mutable_strings()->mutable_data() ) = { data.begin() + startIndex,
-                                                      data.begin() + startIndex + numberOfDataUnits };
-}
-
-template <>
-size_t DataHolder<std::string>::getValuesFromChunk( size_t startIndex, const GenericArray* chunk )
-{
-    size_t chunkSize    = 1u;
-    size_t currentIndex = startIndex;
-    size_t chunkIndex   = 0u;
-    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
-    {
-        data[currentIndex] = chunk->strings().data()[chunkIndex];
-    }
-    return chunkSize;
-}
-template <>
-void DataHolder<std::string>::applyValuesToField( FieldHandle* field )
-{
-    auto typedField = dynamic_cast<caffa::Field<std::vector<std::string>>*>( field );
-    if ( typedField )
-    {
-        CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        typedField->setValue( data );
-    }
-}
-
-template <>
-size_t DataHolder<bool>::valueCount() const
-{
-    return data.size();
-}
-template <>
-size_t DataHolder<bool>::valueSizeOf() const
-{
-    return sizeof( bool );
-}
-
-template <>
-void DataHolder<bool>::reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const
-{
-    reply->mutable_bools()->mutable_data()->Reserve( numberOfDataUnits );
-}
-
-template <>
-void DataHolder<bool>::addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const
-{
-    *( reply->mutable_bools()->mutable_data() ) = { data.begin() + startIndex,
-                                                    data.begin() + startIndex + numberOfDataUnits };
-}
-
-template <>
-size_t DataHolder<bool>::getValuesFromChunk( size_t startIndex, const GenericArray* chunk )
-{
-    size_t chunkSize    = chunk->bools().data_size();
-    size_t currentIndex = startIndex;
-    size_t chunkIndex   = 0u;
-    for ( ; chunkIndex < chunkSize && currentIndex < data.size(); ++currentIndex, ++chunkIndex )
-    {
-        data[currentIndex] = chunk->bools().data()[chunkIndex];
-    }
-    return chunkSize;
-}
-template <>
-void DataHolder<bool>::applyValuesToField( FieldHandle* field )
-{
-    auto typedField = dynamic_cast<caffa::Field<std::vector<bool>>*>( field );
-    if ( typedField )
-    {
-        CAFFA_TRACE( "Applying " << data.size() << " values to field" );
-        typedField->setValue( data );
-    }
-}
-
-template <>
-size_t DataHolder<ObjectHandle*>::valueCount() const
-{
-    return data.size();
-}
-template <>
-size_t DataHolder<ObjectHandle*>::valueSizeOf() const
-{
-    return 1;
-}
-
-template <>
-void DataHolder<ObjectHandle*>::reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const
-{
-    // Do nothing
-}
-
-template <>
-void DataHolder<ObjectHandle*>::addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const
-{
-    for ( size_t i = 0; i < numberOfDataUnits; ++i )
-    {
-        auto          it           = data.begin() + startIndex + i;
-        RpcObject*    rpcObject    = reply->mutable_objects()->add_objects();
-        ObjectHandle* objectHandle = *it;
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, rpcObject );
-    }
-}
-
-template <>
-size_t DataHolder<ObjectHandle*>::getValuesFromChunk( size_t startIndex, const GenericArray* chunk )
-{
-    CAFFA_ASSERT( false && "Not implemented" );
-}
-template <>
-void DataHolder<ObjectHandle*>::applyValuesToField( FieldHandle* field )
-{
-    CAFFA_ASSERT( false && "Not implemented" );
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-GetterStateHandler::GetterStateHandler()
-    : m_fieldOwner( nullptr )
-    , m_field( nullptr )
-    , m_currentDataIndex( 0u )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-grpc::Status GetterStateHandler::init( const FieldRequest* request )
-{
-    CAFFA_ASSERT( request != nullptr );
-
-    auto session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
-    if ( !session )
-    {
-        return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
-    }
-
-    m_fieldOwner = ObjectService::ObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
-                                                                                     request->class_keyword(),
-                                                                                     request->uuid() );
-
-    if ( !m_fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
-    for ( auto field : m_fieldOwner->fields() )
-    {
-        auto scriptability = field->capability<caffa::FieldScriptingCapability>();
-        if ( scriptability && request->keyword() == scriptability->scriptFieldName() )
-        {
-            if ( !scriptability->isReadable() )
-            {
-                return grpc::Status( grpc::INVALID_ARGUMENT, "Data field is not readable" );
-            }
-
-            if ( auto dataField = dynamic_cast<TypedField<std::vector<int>>*>( field ); dataField != nullptr )
-            {
-                m_field = dataField;
-                m_dataHolder.reset( new DataHolder<int>( dataField->value() ) );
-                return grpc::Status::OK;
-            }
-            else if ( auto dataField = dynamic_cast<TypedField<std::vector<unsigned>>*>( field ); dataField != nullptr )
-            {
-                m_field = dataField;
-                m_dataHolder.reset( new DataHolder<unsigned>( dataField->value() ) );
-                return grpc::Status::OK;
-            }
-            else if ( auto dataField = dynamic_cast<TypedField<std::vector<int64_t>>*>( field ); dataField != nullptr )
-            {
-                m_field = dataField;
-                m_dataHolder.reset( new DataHolder<int64_t>( dataField->value() ) );
-                return grpc::Status::OK;
-            }
-
-            else if ( auto dataField = dynamic_cast<TypedField<std::vector<uint64_t>>*>( field ); dataField != nullptr )
-            {
-                m_field = dataField;
-                m_dataHolder.reset( new DataHolder<uint64_t>( dataField->value() ) );
-                return grpc::Status::OK;
-            }
-            else if ( auto dataField = dynamic_cast<TypedField<std::vector<double>>*>( field ); dataField != nullptr )
-            {
-                m_field = dataField;
-                m_dataHolder.reset( new DataHolder<double>( dataField->value() ) );
-                return grpc::Status::OK;
-            }
-            else if ( auto dataField = dynamic_cast<TypedField<std::vector<float>>*>( field ); dataField != nullptr )
-            {
-                m_field = dataField;
-                m_dataHolder.reset( new DataHolder<float>( dataField->value() ) );
-                return grpc::Status::OK;
-            }
-            else if ( auto dataField = dynamic_cast<TypedField<std::vector<std::string>>*>( field ); dataField != nullptr )
-            {
-                m_field = dataField;
-                m_dataHolder.reset( new DataHolder<std::string>( dataField->value() ) );
-                return grpc::Status::OK;
-            }
-            else if ( auto dataField = dynamic_cast<TypedField<std::vector<bool>>*>( field ); dataField != nullptr )
-            {
-                m_field = dataField;
-                m_dataHolder.reset( new DataHolder<bool>( dataField->value() ) );
-                return grpc::Status::OK;
-            }
-            else if ( auto objectField = dynamic_cast<ChildArrayFieldHandle*>( field ); objectField != nullptr )
-            {
-                m_childArrayField = objectField;
-                m_dataHolder.reset( new DataHolder<ObjectHandle*>( objectField->childObjects() ) );
-                return grpc::Status::OK;
-            }
-            else
-            {
-                return grpc::Status( grpc::UNIMPLEMENTED, "Data type not implemented for grpc streaming fields" );
-            }
-        }
-    }
-
-    return grpc::Status( grpc::NOT_FOUND, "Field not found: '" + request->keyword() + "'" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-grpc::Status GetterStateHandler::assignReply( GenericArray* reply )
-{
-    CAFFA_ASSERT( m_dataHolder );
-
-    size_t remainingData = m_dataHolder->valueCount() - m_currentDataIndex;
-
-    size_t defaultDataUnitsInPackage = Application::instance()->packageByteSize() / m_dataHolder->valueSizeOf();
-
-    size_t dataUnitsInPackage = std::min( defaultDataUnitsInPackage, remainingData );
-    CAFFA_TRACE( "Assigning values " << dataUnitsInPackage << " to getter reply" );
-
-    if ( dataUnitsInPackage == 0u )
-    {
-        return grpc::Status( grpc::OUT_OF_RANGE,
-                             "We've reached the end. This is not an error but means transmission is finished" );
-    }
-    m_dataHolder->addPackageValuesToReply( reply, m_currentDataIndex, dataUnitsInPackage );
-    m_currentDataIndex += dataUnitsInPackage;
-    CAFFA_TRACE( "Sending " << dataUnitsInPackage << " values" );
-    return grpc::Status::OK;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t GetterStateHandler::streamedValueCount() const
-{
-    return m_currentDataIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t GetterStateHandler::totalValueCount() const
-{
-    return m_dataHolder->valueCount();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void GetterStateHandler::finish()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-StateHandler<FieldRequest>* GetterStateHandler::emptyClone() const
-{
-    return new GetterStateHandler;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-SetterStateHandler::SetterStateHandler()
-    : m_fieldOwner( nullptr )
-    , m_field( nullptr )
-    , m_currentDataIndex( 0u )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------set
-grpc::Status SetterStateHandler::init( const GenericArray* chunk )
-{
-    CAFFA_ASSERT( chunk->has_request() );
-    auto setRequest = chunk->request();
-
-    auto fieldRequest = setRequest.field();
-
-    auto session = ServerApplication::instance()->getExistingSession( fieldRequest.session().uuid() );
-    if ( !session )
-    {
-        return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + fieldRequest.session().uuid() + "' is not valid" );
-    }
-
-    if ( session->type() == Session::Type::OBSERVING )
-    {
-        return grpc::Status( grpc::UNAUTHENTICATED,
-                             "Observing session '" + session->uuid() + "' is not valid for setting data values" );
-    }
-
-    m_fieldOwner = ObjectService::ObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
-                                                                                     fieldRequest.class_keyword(),
-                                                                                     fieldRequest.uuid() );
-
-    if ( !m_fieldOwner )
-    {
-        return grpc::Status( grpc::NOT_FOUND,
-                             "Could not found the self object " + fieldRequest.class_keyword() + ", " +
-                                 fieldRequest.uuid() );
-    }
-
-    int valueCount = setRequest.value_count();
-
-    grpc::Status status = grpc::Status::OK;
-    if ( valueCount == 0 )
-    {
-        status = grpc::Status( grpc::OUT_OF_RANGE,
-                               "We've reached the end. This is not an error but means transmission is finished" );
-    }
-    for ( auto field : m_fieldOwner->fields() )
-    {
-        auto scriptability = field->capability<caffa::FieldScriptingCapability>();
-        if ( scriptability && scriptability->scriptFieldName() == fieldRequest.keyword() )
-        {
-            if ( !scriptability->isWritable() )
-            {
-                return grpc::Status( grpc::INVALID_ARGUMENT, "Data field is not writable" );
-            }
-
-            try
-            {
-                if ( auto dataField = dynamic_cast<TypedField<std::vector<int>>*>( field ); dataField != nullptr )
-                {
-                    m_field = dataField;
-                    m_dataHolder.reset( new DataHolder<int>( std::vector<int>( valueCount ) ) );
-                    return status;
-                }
-                else if ( auto dataField = dynamic_cast<TypedField<std::vector<unsigned>>*>( field ); dataField != nullptr )
-                {
-                    m_field = dataField;
-                    m_dataHolder.reset( new DataHolder<unsigned>( std::vector<unsigned>( valueCount ) ) );
-                    return status;
-                }
-                else if ( auto dataField = dynamic_cast<TypedField<std::vector<int64_t>>*>( field ); dataField != nullptr )
-                {
-                    m_field = dataField;
-                    m_dataHolder.reset( new DataHolder<int64_t>( std::vector<int64_t>( valueCount ) ) );
-                    return status;
-                }
-                else if ( auto dataField = dynamic_cast<TypedField<std::vector<uint64_t>>*>( field ); dataField != nullptr )
-                {
-                    m_field = dataField;
-                    m_dataHolder.reset( new DataHolder<uint64_t>( std::vector<uint64_t>( valueCount ) ) );
-                    return status;
-                }
-                else if ( auto dataField = dynamic_cast<TypedField<std::vector<double>>*>( field ); dataField != nullptr )
-                {
-                    m_field = dataField;
-                    m_dataHolder.reset( new DataHolder<double>( std::vector<double>( valueCount ) ) );
-                    return status;
-                }
-                else if ( auto dataField = dynamic_cast<TypedField<std::vector<float>>*>( field ); dataField != nullptr )
-                {
-                    m_field = dataField;
-                    m_dataHolder.reset( new DataHolder<float>( std::vector<float>( valueCount ) ) );
-                    return status;
-                }
-                else if ( auto dataField = dynamic_cast<TypedField<std::vector<bool>>*>( field ); dataField != nullptr )
-                {
-                    m_field = dataField;
-                    m_dataHolder.reset( new DataHolder<bool>( std::vector<bool>( valueCount ) ) );
-                    return status;
-                }
-                else if ( auto dataField = dynamic_cast<TypedField<std::vector<std::string>>*>( field );
-                          dataField != nullptr )
-                {
-                    m_field = dataField;
-                    m_dataHolder.reset( new DataHolder<std::string>( std::vector<std::string>( valueCount ) ) );
-                    return status;
-                }
-                else
-                {
-                    return grpc::Status( grpc::UNIMPLEMENTED, "Data type not implemented for grpc streaming fields" );
-                }
-            }
-            catch ( const std::exception& e )
-            {
-                CAFFA_ERROR( "gRPC Field::SetArrayValue for '" << fieldRequest.keyword() << "' failed with error '"
-                                                               << e.what() << "'" );
-                return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
-            }
-        }
-    }
-    return grpc::Status( grpc::NOT_FOUND, "Field not found: '" + fieldRequest.keyword() + "'" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-grpc::Status SetterStateHandler::receiveRequest( const GenericArray* chunk, SetterArrayReply* reply )
-{
-    CAFFA_TRACE( "Received Setter Chunk" );
-
-    size_t valuesWritten = m_dataHolder->getValuesFromChunk( m_currentDataIndex, chunk );
-    m_currentDataIndex += valuesWritten;
-
-    if ( m_currentDataIndex > totalValueCount() )
-    {
-        return grpc::Status( grpc::OUT_OF_RANGE, "Attempting to write out of bounds" );
-    }
-    reply->set_value_count( static_cast<int64_t>( m_currentDataIndex ) );
-    CAFFA_TRACE( "Received " << reply->value_count() << " values" );
-    return grpc::Status::OK;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t SetterStateHandler::streamedValueCount() const
-{
-    return m_currentDataIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t SetterStateHandler::totalValueCount() const
-{
-    return m_dataHolder->valueCount();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void SetterStateHandler::finish()
-{
-    CAFFA_ASSERT( m_field && "Field has to be set for any writing to work" );
-
-    auto scriptingCapability = m_field->capability<caffa::FieldScriptingCapability>();
-    CAFFA_ASSERT( scriptingCapability );
-    m_dataHolder->applyValuesToField( m_field );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-StateHandler<GenericArray>* SetterStateHandler::emptyClone() const
-{
-    return new SetterStateHandler;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-grpc::Status FieldService::GetArrayValueWithState( grpc::ServerContext*        context,
-                                                   const FieldRequest*         request,
-                                                   GenericArray*               reply,
-                                                   StateHandler<FieldRequest>* stateHandler )
-{
-    CAFFA_TRACE( "Received GetArrayValue request" );
-    auto getterHandler = dynamic_cast<GetterStateHandler*>( stateHandler );
-    CAFFA_ASSERT( getterHandler );
-    return getterHandler->assignReply( reply );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRequest* request, GenericScalar* reply )
+grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRequest* request, GenericValue* reply )
 {
     CAFFA_ASSERT( request != nullptr );
     CAFFA_TRACE( "GetValue for field: " << request->keyword() << ", " << request->class_keyword() << ", "
@@ -912,6 +118,67 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
         return grpc::Status( grpc::FAILED_PRECONDITION, "Field " + request->keyword() + " found, but it isn't readable" );
     }
     std::string errMsg = std::string( "Field " ) + request->keyword() + " not found in " + fieldOwner->classKeyword();
+    CAFFA_ERROR( errMsg );
+    return grpc::Status( grpc::NOT_FOUND, errMsg );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply )
+{
+    auto fieldRequest = request->field();
+
+    auto session = ServerApplication::instance()->getExistingSession( fieldRequest.session().uuid() );
+    if ( !session )
+    {
+        return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + fieldRequest.session().uuid() + "' is not valid" );
+    }
+
+    if ( session->type() == Session::Type::OBSERVING )
+    {
+        return grpc::Status( grpc::UNAUTHENTICATED,
+                             "Observing session '" + session->uuid() + "' is not valid for setting field values" );
+    }
+
+    auto fieldOwner = ObjectService::ObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
+                                                                                        fieldRequest.class_keyword(),
+                                                                                        fieldRequest.uuid() );
+
+    CAFFA_TRACE( "Received Set Request for " << fieldRequest.class_keyword() << "::" << fieldRequest.keyword()
+                                             << ", uuid: " << fieldRequest.uuid() );
+
+    if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
+
+    auto field = scriptableFieldFromKeyword( fieldOwner, fieldRequest.keyword() );
+
+    if ( field )
+    {
+        auto scriptability = field->capability<caffa::FieldScriptingCapability>();
+        CAFFA_ASSERT( scriptability );
+
+        auto ioCapability = field->capability<caffa::FieldJsonCapability>();
+        try
+        {
+            if ( !scriptability->isWritable() || !ioCapability )
+                throw std::runtime_error( "Field " + fieldRequest.keyword() + " is not writable" );
+
+            CAFFA_TRACE( "Set " << fieldOwner->classKeyword() << " -> " << fieldRequest.keyword() << " = "
+                                << request->value() << "" );
+
+            auto           jsonValue = nlohmann::json::parse( request->value() );
+            JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
+            ioCapability->readFromJson( jsonValue, serializer );
+            return grpc::Status::OK;
+        }
+        catch ( const std::exception& e )
+        {
+            CAFFA_ERROR( "gRPC Field::SetValue for '" << fieldRequest.keyword() << "' failed with error: '" << e.what()
+                                                      << "'" );
+            return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
+        }
+    }
+    std::string errMsg = std::string( "Field " ) + fieldRequest.keyword() + " not found in " + fieldOwner->classKeyword();
     CAFFA_ERROR( errMsg );
     return grpc::Status( grpc::NOT_FOUND, errMsg );
 }
@@ -1084,102 +351,20 @@ grpc::Status FieldService::InsertChildObject( grpc::ServerContext* context, cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status FieldService::SetArrayValueWithState( grpc::ServerContext*        context,
-                                                   const GenericArray*         chunk,
-                                                   SetterArrayReply*           reply,
-                                                   StateHandler<GenericArray>* stateHandler )
-{
-    auto setterHandler = dynamic_cast<SetterStateHandler*>( stateHandler );
-    CAFFA_ASSERT( setterHandler );
-    return setterHandler->receiveRequest( chunk, reply );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply )
-{
-    auto fieldRequest = request->field();
-
-    auto session = ServerApplication::instance()->getExistingSession( fieldRequest.session().uuid() );
-    if ( !session )
-    {
-        return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + fieldRequest.session().uuid() + "' is not valid" );
-    }
-
-    if ( session->type() == Session::Type::OBSERVING )
-    {
-        return grpc::Status( grpc::UNAUTHENTICATED,
-                             "Observing session '" + session->uuid() + "' is not valid for setting field values" );
-    }
-
-    auto fieldOwner = ObjectService::ObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
-                                                                                        fieldRequest.class_keyword(),
-                                                                                        fieldRequest.uuid() );
-
-    CAFFA_TRACE( "Received Set Request for " << fieldRequest.class_keyword() << "::" << fieldRequest.keyword()
-                                             << ", uuid: " << fieldRequest.uuid() );
-
-    if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
-
-    auto field = scriptableFieldFromKeyword( fieldOwner, fieldRequest.keyword() );
-
-    if ( field )
-    {
-        auto scriptability = field->capability<caffa::FieldScriptingCapability>();
-        CAFFA_ASSERT( scriptability );
-
-        auto ioCapability = field->capability<caffa::FieldJsonCapability>();
-        try
-        {
-            if ( !scriptability->isWritable() || !ioCapability )
-                throw std::runtime_error( "Field " + fieldRequest.keyword() + " is not writable" );
-
-            CAFFA_TRACE( "Set " << fieldOwner->classKeyword() << " -> " << fieldRequest.keyword() << " = "
-                                << request->value() << "" );
-
-            auto           jsonValue = nlohmann::json::parse( request->value() );
-            JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
-            ioCapability->readFromJson( jsonValue, serializer );
-            return grpc::Status::OK;
-        }
-        catch ( const std::exception& e )
-        {
-            CAFFA_ERROR( "gRPC Field::SetValue for '" << fieldRequest.keyword() << "' failed with error: '" << e.what()
-                                                      << "'" );
-            return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
-        }
-    }
-    std::string errMsg = std::string( "Field " ) + fieldRequest.keyword() + " not found in " + fieldOwner->classKeyword();
-    CAFFA_ERROR( errMsg );
-    return grpc::Status( grpc::NOT_FOUND, errMsg );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<AbstractCallback*> FieldService::createCallbacks()
 {
     typedef FieldService Self;
-    return { new ServerToClientStreamCallback<Self, FieldRequest, GenericArray>( this,
-                                                                                 &Self::GetArrayValueWithState,
-                                                                                 &Self::RequestGetArrayValue,
-                                                                                 new GetterStateHandler ),
-             new ClientToServerStreamCallback<Self, GenericArray, SetterArrayReply>( this,
-                                                                                     &Self::SetArrayValueWithState,
-                                                                                     &Self::RequestSetArrayValue,
-                                                                                     new SetterStateHandler ),
-             new UnaryCallback<Self, FieldRequest, GenericScalar>( this, &Self::GetValue, &Self::RequestGetValue ),
-             new UnaryCallback<Self, SetterRequest, NullMessage>( this, &Self::SetValue, &Self::RequestSetValue ),
-             new UnaryCallback<Self, FieldRequest, NullMessage>( this,
-                                                                 &Self::ClearChildObjects,
-                                                                 &Self::RequestClearChildObjects ),
-             new UnaryCallback<Self, FieldRequest, NullMessage>( this,
-                                                                 &Self::RemoveChildObject,
-                                                                 &Self::RequestRemoveChildObject ),
-             new UnaryCallback<Self, SetterRequest, NullMessage>( this,
-                                                                  &Self::InsertChildObject,
-                                                                  &Self::RequestInsertChildObject ) };
+    return { new ServiceCallback<Self, FieldRequest, GenericValue>( this, &Self::GetValue, &Self::RequestGetValue ),
+             new ServiceCallback<Self, SetterRequest, NullMessage>( this, &Self::SetValue, &Self::RequestSetValue ),
+             new ServiceCallback<Self, FieldRequest, NullMessage>( this,
+                                                                   &Self::ClearChildObjects,
+                                                                   &Self::RequestClearChildObjects ),
+             new ServiceCallback<Self, FieldRequest, NullMessage>( this,
+                                                                   &Self::RemoveChildObject,
+                                                                   &Self::RequestRemoveChildObject ),
+             new ServiceCallback<Self, SetterRequest, NullMessage>( this,
+                                                                    &Self::InsertChildObject,
+                                                                    &Self::RequestInsertChildObject ) };
 }
 
 caffa::FieldHandle* FieldService::scriptableFieldFromKeyword( const caffa::ObjectHandle* fieldOwner,

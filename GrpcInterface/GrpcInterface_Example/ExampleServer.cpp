@@ -170,7 +170,7 @@ int main( int argc, char** argv )
     DemoDocument* serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
     CAFFA_ASSERT( serverDocument != nullptr );
     std::vector<float> serverVector;
-    size_t             numberOfFloats = 1024u * 1024u * 4;
+    size_t             numberOfFloats = 256u * 1024u;
     serverVector.reserve( numberOfFloats );
     for ( size_t i = 0; i < numberOfFloats; ++i )
     {

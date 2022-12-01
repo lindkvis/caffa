@@ -45,7 +45,12 @@ void FieldJsonCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, c
     {
         if ( jsonElement.contains( "type" ) )
         {
-            CAFFA_ASSERT( jsonElement["type"] == m_field->dataType() );
+            if ( jsonElement["type"] != m_field->dataType() )
+            {
+                CAFFA_ERROR( "Data type of json '" << jsonElement["type"] << "' does not match field data type '"
+                                                   << m_field->dataType() << "'" );
+                CAFFA_ASSERT( false );
+            }
         }
 
         for ( auto validator : m_field->valueValidators() )

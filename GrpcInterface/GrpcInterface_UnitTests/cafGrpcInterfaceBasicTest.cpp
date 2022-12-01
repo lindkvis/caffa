@@ -892,7 +892,7 @@ TEST_F( GrpcTest, LocalResponseTimeAndDataTransfer )
 
         std::vector<float> serverVector;
         std::mt19937       rng;
-        size_t             numberOfFloats = 1024u * 1024u * 4;
+        size_t             numberOfFloats = 128 * 1024;
         serverVector.reserve( numberOfFloats );
         for ( size_t i = 0; i < numberOfFloats; ++i )
         {
@@ -906,12 +906,12 @@ TEST_F( GrpcTest, LocalResponseTimeAndDataTransfer )
             auto   clientVector = clientDocument->demoObject->floatVector();
             auto   end_time     = std::chrono::system_clock::now();
             auto   duration = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
-            size_t MB       = numberOfFloats * sizeof( float ) / ( 1024u * 1024u );
-            CAFFA_INFO( "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" );
+            size_t KB       = numberOfFloats * sizeof( float ) / ( 1024u );
+            CAFFA_INFO( "Transferred " << numberOfFloats << " floats for a total of " << KB << " KB" );
             CAFFA_INFO( "Time spent: " << duration << "ms" );
             double fps = static_cast<float>( numberOfFloats ) / static_cast<float>( duration ) * 1000;
             CAFFA_INFO( "floats per second: " << fps );
-            CAFFA_INFO( "MB per second: " << static_cast<float>( MB ) / static_cast<float>( duration ) * 1000 );
+            CAFFA_INFO( "KB per second: " << static_cast<float>( KB ) / static_cast<float>( duration ) * 1000 );
         }
 
         bool ok = client->stopServer();

@@ -67,6 +67,9 @@ int main( int argc, char** argv )
 
     caffa::Logger::setApplicationLogLevel( caffa::Logger::Level::info );
 
+    caffa::rpc::GrpcClientObjectFactory* factory = caffa::rpc::GrpcClientObjectFactory::instance();
+    factory->registerBasicAccessorCreators<caffa::AppEnum<DemoObject::TestEnumType>>();
+
     auto clientApp = std::make_unique<ClientApp>( hostname, portNumber );
     CAFFA_INFO( "Launching Client connecting to " << hostname << ":" << portNumber );
 

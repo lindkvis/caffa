@@ -393,10 +393,10 @@ std::unique_ptr<caffa::ObjectMethod>
 std::vector<AbstractCallback*> ObjectService::createCallbacks()
 {
     typedef ObjectService Self;
-    return { new UnaryCallback<Self, DocumentRequest, RpcObject>( this, &Self::GetDocument, &Self::RequestGetDocument ),
-             new UnaryCallback<Self, SessionMessage, DocumentList>( this, &Self::ListDocuments, &Self::RequestListDocuments ),
-             new UnaryCallback<Self, MethodRequest, RpcObject>( this, &Self::ExecuteMethod, &Self::RequestExecuteMethod ),
-             new UnaryCallback<Self, ListMethodsRequest, RpcObjectList>( this, &Self::ListMethods, &Self::RequestListMethods )
+    return { new ServiceCallback<Self, DocumentRequest, RpcObject>( this, &Self::GetDocument, &Self::RequestGetDocument ),
+             new ServiceCallback<Self, SessionMessage, DocumentList>( this, &Self::ListDocuments, &Self::RequestListDocuments ),
+             new ServiceCallback<Self, MethodRequest, RpcObject>( this, &Self::ExecuteMethod, &Self::RequestExecuteMethod ),
+             new ServiceCallback<Self, ListMethodsRequest, RpcObjectList>( this, &Self::ListMethods, &Self::RequestListMethods )
 
     };
 }
