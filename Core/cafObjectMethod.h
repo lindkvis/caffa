@@ -91,7 +91,10 @@ public:
     virtual std::unique_ptr<ObjectMethodResult> execute() = 0;
 
     // A default created result object used as a pattern for clients
-    virtual std::unique_ptr<ObjectMethodResult> defaultResult() const = 0;
+    virtual std::unique_ptr<ObjectMethodResult> defaultResult() const
+    {
+        return std::make_unique<ObjectMethodResult>( false );
+    }
 
     // Basically the "this" pointer to the object the method belongs to
     template <typename ObjectType>

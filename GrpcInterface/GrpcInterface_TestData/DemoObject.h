@@ -86,16 +86,6 @@ private:
     std::vector<std::string> m_proxyStringVector;
 };
 
-struct DemoObject_copyObjectResult : public caffa::ObjectMethodResult
-{
-    CAFFA_HEADER_INIT;
-
-    DemoObject_copyObjectResult( bool status = false )
-        : caffa::ObjectMethodResult( status )
-    {
-    }
-};
-
 class DemoObject_copyObject : public caffa::ObjectMethod
 {
     CAFFA_HEADER_INIT;
@@ -130,13 +120,7 @@ public:
         demoObject->boolVector                  = m_boolVector();
         demoObject->floatVector                 = m_floatVector();
 
-        auto demoObjectResult    = std::make_unique<DemoObject_copyObjectResult>();
-        demoObjectResult->status = true;
-        return std::move( demoObjectResult );
-    }
-    std::unique_ptr<caffa::ObjectMethodResult> defaultResult() const override
-    {
-        return std::make_unique<DemoObject_copyObjectResult>();
+        return std::make_unique<caffa::ObjectMethodResult>( true );
     }
 
 public:
