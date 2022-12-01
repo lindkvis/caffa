@@ -439,9 +439,7 @@ TEST_F( GrpcTest, ObjectMethod )
     CAFFA_INFO( "Execute" );
     auto result = client->execute( &method );
     ASSERT_TRUE( result );
-    auto copyObjectResult = dynamic_cast<DemoObject_copyObjectResult*>( result.get() );
-    ASSERT_TRUE( copyObjectResult != nullptr );
-    ASSERT_EQ( true, copyObjectResult->status() );
+    ASSERT_EQ( true, result->status() );
 
     CAFFA_DEBUG( "Get double member" );
     ASSERT_EQ( 45.3, serverObjects.front()->doubleField() );

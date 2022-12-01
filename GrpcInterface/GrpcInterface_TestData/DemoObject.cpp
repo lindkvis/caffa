@@ -70,8 +70,6 @@ DemoObject::DemoObject()
     initField( boolVector, "boolVector" ).withScripting();
 }
 
-CAFFA_SOURCE_INIT( DemoObject_copyObjectResult, "DemoObject_copyObjectResult", "Object" )
-
 CAFFA_OBJECT_METHOD_SOURCE_INIT( DemoObject, DemoObject_copyObject, "copyObject" );
 
 CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject", "DemoObject" )
