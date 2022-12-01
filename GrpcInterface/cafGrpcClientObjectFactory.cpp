@@ -96,6 +96,7 @@ void GrpcClientObjectFactory::applyAccessorToField( caffa::ObjectHandle* fieldOw
             {
                 CAFFA_TRACE( "Yes!" );
                 accessorCreator = storedAccessorCreator.get();
+                break;
             }
         }
         if ( !accessorCreator )

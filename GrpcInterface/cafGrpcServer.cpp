@@ -236,16 +236,6 @@ private:
             method->createRequestHandler( m_completionQueue.get() );
             CAFFA_TRACE( "Request handler created" );
         }
-        else if ( method->callState() == AbstractCallback::INIT_REQUEST_STARTED )
-        {
-            CAFFA_TRACE( "Init request: " << method->name() );
-            method->onInitRequestStarted();
-        }
-        else if ( method->callState() == AbstractCallback::INIT_REQUEST_COMPLETED )
-        {
-            CAFFA_TRACE( "Init request completed: " << method->name() );
-            method->onInitRequestCompleted();
-        }
         else if ( method->callState() == AbstractCallback::PROCESS_REQUEST )
         {
             CAFFA_TRACE( "Processing request: " << method->name() );

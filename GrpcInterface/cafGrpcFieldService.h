@@ -18,7 +18,6 @@
 //
 #pragma once
 
-#include "cafGrpcCallbacks.h"
 #include "cafGrpcServiceInterface.h"
 
 #include "FieldService.grpc.pb.h"
@@ -32,86 +31,17 @@
 
 namespace caffa
 {
-class ChildArrayFieldHandle;
-class ChildFieldHandle;
 class FieldHandle;
-class Object;
-class ObjectFactory;
 class ObjectHandle;
-class ProxyFieldHandle;
 } // namespace caffa
 
 namespace caffa::rpc
 {
-class GenericArray;
-class GenericScalar;
+class AbstractCallback;
+class GenericValue;
 class FieldRequest;
-class GenericArray;
-class SetterArrayReply;
-class SetterReply;
-
-struct AbstractDataHolder
-{
-    virtual ~AbstractDataHolder()                                                             = default;
-    virtual size_t valueCount() const                                                         = 0;
-    virtual size_t valueSizeOf() const                                                        = 0;
-    virtual void   reserveReplyStorage( GenericArray* reply, size_t numberOfDataUnits ) const = 0;
-    virtual void addPackageValuesToReply( GenericArray* reply, size_t startIndex, size_t numberOfDataUnits ) const = 0;
-
-    virtual size_t getValuesFromChunk( size_t startIndex, const GenericArray* chunk ) = 0;
-    virtual void   applyValuesToField( caffa::FieldHandle* field )                    = 0;
-};
-
-/**
- *
- * State handler for client to server streaming
- *
- */
-class GetterStateHandler : public StateHandler<FieldRequest>
-{
-public:
-    GetterStateHandler();
-
-    grpc::Status init( const FieldRequest* request ) override;
-    grpc::Status assignReply( GenericArray* reply );
-    size_t       streamedValueCount() const override;
-    size_t       totalValueCount() const override;
-    void         finish() override;
-
-    StateHandler<FieldRequest>* emptyClone() const override;
-
-protected:
-    caffa::Object*                      m_fieldOwner;
-    caffa::FieldHandle*                 m_field;
-    caffa::ChildArrayFieldHandle*       m_childArrayField;
-    std::unique_ptr<AbstractDataHolder> m_dataHolder;
-    size_t                              m_currentDataIndex;
-};
-
-/**
- *
- * State handler for client to server streaming
- *
- */
-class SetterStateHandler : public StateHandler<GenericArray>
-{
-public:
-    SetterStateHandler();
-
-    grpc::Status init( const GenericArray* chunk ) override;
-    grpc::Status receiveRequest( const GenericArray* chunk, SetterArrayReply* reply );
-    size_t       streamedValueCount() const override;
-    size_t       totalValueCount() const override;
-    void         finish() override;
-
-    StateHandler<GenericArray>* emptyClone() const override;
-
-protected:
-    caffa::Object*                      m_fieldOwner;
-    caffa::FieldHandle*                 m_field;
-    std::unique_ptr<AbstractDataHolder> m_dataHolder;
-    size_t                              m_currentDataIndex;
-};
+class NullMessage;
+class SetterRequest;
 
 //==================================================================================================
 //
@@ -121,18 +51,7 @@ protected:
 class FieldService final : public FieldAccess::AsyncService, public ServiceInterface
 {
 public:
-    grpc::Status GetArrayValueWithState( grpc::ServerContext*        context,
-                                         const FieldRequest*         request,
-                                         GenericArray*               reply,
-                                         StateHandler<FieldRequest>* stateHandler );
-
-    grpc::Status GetValue( grpc::ServerContext* context, const FieldRequest* request, GenericScalar* reply ) override;
-
-    grpc::Status SetArrayValueWithState( grpc::ServerContext*        context,
-                                         const GenericArray*         chunk,
-                                         SetterArrayReply*           reply,
-                                         StateHandler<GenericArray>* stateHandler );
-
+    grpc::Status GetValue( grpc::ServerContext* context, const FieldRequest* request, GenericValue* reply ) override;
     grpc::Status SetValue( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply ) override;
 
     grpc::Status ClearChildObjects( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply ) override;
