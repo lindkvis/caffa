@@ -140,8 +140,8 @@ class InheritedDemoObj : public DemoObject
 public:
     InheritedDemoObj()
     {
-        initField( m_texts, "Texts" ).withScripting();
-        initField( m_childArrayField, "DemoObjectects" ).withScripting();
+        initField( m_texts, "texts" ).withScripting();
+        initField( m_childArrayField, "demoObjects" ).withScripting();
     }
 
     caffa::Field<std::string>           m_texts;
@@ -155,8 +155,8 @@ class DemoDocument : public caffa::Document
 public:
     DemoDocument()
     {
-        initField( demoObject, "DemoObject" ).withScripting();
-        initField( m_inheritedDemoObjects, "InheritedDemoObjects" ).withScripting();
+        initField( demoObject, "demoObject" ).withScripting();
+        initField( m_inheritedDemoObjects, "inheritedDemoObjects" ).withScripting();
         demoObject = std::make_unique<DemoObject>();
 
         this->setId( "testDocument" );
@@ -180,9 +180,9 @@ class DemoDocumentWithNonScriptableMember : public caffa::Document
 public:
     DemoDocumentWithNonScriptableMember()
     {
-        initField( demoObject, "DemoObject" ).withScripting();
-        initField( demoObjectNonScriptable, "DemoObjectNonScriptable" );
-        initField( m_inheritedDemoObjects, "InheritedDemoObjects" ).withScripting();
+        initField( demoObject, "demoObject" ).withScripting();
+        initField( demoObjectNonScriptable, "demoObjectNonScriptable" );
+        initField( m_inheritedDemoObjects, "inheritedDemoObjects" ).withScripting();
         demoObject              = std::make_unique<DemoObject>();
         demoObjectNonScriptable = std::make_unique<DemoObject>();
 
