@@ -169,6 +169,10 @@ int main( int argc, char** argv )
     auto          session        = serverApp->createSession( caffa::Session::Type::REGULAR );
     DemoDocument* serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
     CAFFA_ASSERT( serverDocument != nullptr );
+
+    serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
+    serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
+    serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
     std::vector<float> serverVector;
     size_t             numberOfFloats = 256u * 1024u;
     serverVector.reserve( numberOfFloats );
