@@ -25,8 +25,6 @@ public:
         initField( m_floatValueB, "FloatValueB" );
     }
 
-    std::string classKeywordDynamic() const override { return "SimpleObjectWithNumbers"; }
-
     caffa::Field<double> m_valueA;
     caffa::Field<double> m_valueB;
 

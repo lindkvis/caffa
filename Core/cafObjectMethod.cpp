@@ -81,7 +81,7 @@ ObjectMethodFactory* ObjectMethodFactory::instance()
 std::unique_ptr<ObjectMethod> ObjectMethodFactory::createMethod( caffa::not_null<ObjectHandle*> self,
                                                                  const std::string&             methodName )
 {
-    auto classNames = self->capability<ObjectIoCapability>()->classInheritanceStack();
+    auto classNames = self->classInheritanceStack();
     for ( auto className : classNames )
     {
         auto classIt = m_factoryMap.find( className );
@@ -104,7 +104,7 @@ std::vector<std::string> caffa::ObjectMethodFactory::registeredMethodNames( caff
 {
     std::vector<std::string> methods;
 
-    auto classNames = self->capability<ObjectIoCapability>()->classInheritanceStack();
+    auto classNames = self->classInheritanceStack();
     for ( auto className : classNames )
     {
         auto classIt = m_factoryMap.find( className );

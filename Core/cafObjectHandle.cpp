@@ -108,10 +108,7 @@ void ObjectHandle::prepareForDelete() noexcept
 {
     m_parentField = nullptr;
 
-    for ( size_t i = 0; i < m_capabilities.size(); ++i )
-    {
-        if ( m_capabilities[i].second ) delete m_capabilities[i].first;
-    }
+    m_capabilities.clear();
 
     // Set all guarded pointers pointing to this to nullptr
     std::set<ObjectHandle**>::iterator it;
@@ -120,7 +117,6 @@ void ObjectHandle::prepareForDelete() noexcept
         ( **it ) = nullptr;
     }
 
-    m_capabilities.clear();
     m_pointersReferencingMe.clear();
 }
 

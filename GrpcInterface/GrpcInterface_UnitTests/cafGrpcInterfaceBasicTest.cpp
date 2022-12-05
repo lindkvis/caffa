@@ -417,14 +417,8 @@ TEST_F( GrpcTest, ObjectMethod )
     CAFFA_DEBUG( "Listing object methods" );
     auto objectMethods = client->objectMethods( inheritedObjects.front() );
     ASSERT_EQ( (size_t)1, objectMethods.size() );
-    std::string methodKeyword;
-    for ( const auto& objectMethod : objectMethods )
-    {
-        auto ioCapability = objectMethod->capability<caffa::ObjectIoCapability>();
-        ASSERT_TRUE( ioCapability );
-        CAFFA_TRACE( "Found method: " << ioCapability->classKeyword() );
-        methodKeyword = ioCapability->classKeyword();
-    }
+    std::string methodKeyword = objectMethods.front()->classKeyword();
+    CAFFA_TRACE( "Found method: " << methodKeyword );
 
     std::vector<bool>  boolVector = { true, false, true };
     std::vector<int>   intVector( 10000 );

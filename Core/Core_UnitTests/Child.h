@@ -2,16 +2,16 @@
 
 #include "TestObj.h"
 #include "cafChildField.h"
-#include "cafObjectHandle.h"
+#include "cafObject.h"
 #include "cafObservingPointer.h"
 
-class Child : public caffa::ObjectHandle
+class Child : public caffa::Object
 {
+    CAFFA_HEADER_INIT;
+
 public:
     Child();
     ~Child();
-
-    std::string classKeywordDynamic() const override { return "Child"; }
 
     caffa::ChildField<TestObj*> m_testObj;
 };

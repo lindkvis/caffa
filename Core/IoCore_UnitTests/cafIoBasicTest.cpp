@@ -48,8 +48,6 @@ public:
 
     ~DemoObject() {}
 
-    std::string classKeywordDynamic() const override { return "DemoObject"; }
-
     // Fields
 
     caffa::Field<caffa::AppEnum<TestEnumType>> m_proxyEnumField;
@@ -180,8 +178,6 @@ public:
         m_up.addValidator( std::make_unique<IntRangeValidator>( minimum, maximum ) );
     }
 
-    std::string classKeywordDynamic() const override { return classKeyword(); }
-
     double m_doubleMember;
 };
 CAFFA_SOURCE_INIT( SimpleObj, "SimpleObj" )
@@ -196,8 +192,6 @@ public:
         initField( m_pointersField, "SimpleObjPtrField" );
         initField( m_simpleObjPtrField2, "SimpleObjPtrField2" );
     }
-
-    std::string classKeywordDynamic() const override { return classKeyword(); }
 
     // Fields
     caffa::ChildField<ObjectHandle*>   m_pointersField;

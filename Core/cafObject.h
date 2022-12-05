@@ -136,24 +136,18 @@ private:
     FieldInitHelper( FieldInitHelper&& )      = delete;
 
     FieldInitHelper& operator=( const FieldInitHelper& ) = delete;
-    FieldInitHelper& operator=( FieldInitHelper&& ) = delete;
+    FieldInitHelper& operator=( FieldInitHelper&& )      = delete;
 
     FieldType&         m_field;
     const std::string& m_keyword;
 };
-class Object : public ObjectHandle, public ObjectIoCapability
+class Object : public ObjectHandle
 {
 public:
     CAFFA_HEADER_INIT;
 
-    Object(bool generateUuid = true);
+    Object( bool generateUuid = true );
     ~Object() noexcept override;
-
-    /**
-     * @brief Get the class keyword through polymorphism
-     * @return a class keyword string
-     */
-    std::string classKeywordDynamic() const override;
 
     /**
      * Initialises the field with a file keyword and registers it with the class

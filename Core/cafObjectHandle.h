@@ -26,6 +26,7 @@
 #include "cafDynamicUniqueCast.h"
 #include "cafFieldHandle.h"
 #include "cafLogger.h"
+#include "cafObjectCapability.h"
 #include "cafSignal.h"
 
 #include <list>
@@ -35,7 +36,6 @@
 
 namespace caffa
 {
-class ObjectCapability;
 class FieldCapability;
 
 /**
@@ -52,7 +52,10 @@ public:
     static std::string classKeywordStatic(); // For IoFieldCap to be able to handle fields of ObjectHandle directly
     static std::vector<std::string> classInheritanceStackStatic();
 
-    virtual std::string classKeywordDynamic() const = 0;
+    /// The classKeyword method is overridden in subclasses by the CAFFA_HEADER_INIT macro
+    virtual std::string              classKeyword() const                                         = 0;
+    virtual bool                     matchesClassKeyword( const std::string& classKeyword ) const = 0;
+    virtual std::vector<std::string> classInheritanceStack() const                                = 0;
 
     /**
      * The registered fields contained in this Object.
@@ -93,12 +96,10 @@ public:
     /**
      * Add an object capability to the object
      * @param capability the new capability
-     * @param takeOwnership boolean stating whether the ObjectHandle takes
-     *                      over the responsibility of the object.
      */
-    void addCapability( ObjectCapability* capability, bool takeOwnership )
+    void addCapability( std::unique_ptr<ObjectCapability> capability )
     {
-        m_capabilities.push_back( std::make_pair( capability, takeOwnership ) );
+        m_capabilities.push_back( std::move( capability ) );
     }
 
     /**
@@ -108,9 +109,9 @@ public:
     template <typename CapabilityType>
     CapabilityType* capability() const
     {
-        for ( auto capabilityAndOwnership : m_capabilities )
+        for ( auto& cap : m_capabilities )
         {
-            CapabilityType* capability = dynamic_cast<CapabilityType*>( capabilityAndOwnership.first );
+            CapabilityType* capability = dynamic_cast<CapabilityType*>( cap.get() );
             if ( capability ) return capability;
         }
         return nullptr;
@@ -126,14 +127,14 @@ protected:
     void addField( FieldHandle* field, const std::string& keyword );
 
 private:
-    ObjectHandle( const ObjectHandle& ) = delete;
+    ObjectHandle( const ObjectHandle& )            = delete;
     ObjectHandle& operator=( const ObjectHandle& ) = delete;
 
     // Fields
     std::vector<FieldHandle*> m_fields;
 
     // Capabilities
-    std::vector<std::pair<ObjectCapability*, bool>> m_capabilities;
+    std::vector<std::unique_ptr<ObjectCapability>> m_capabilities;
 
     // Child/Parent Relationships
     void setAsParentField( FieldHandle* parentField );

@@ -16,10 +16,9 @@ namespace caffa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectIoCapability::ObjectIoCapability( ObjectHandle* owner, bool giveOwnership )
+ObjectIoCapability::ObjectIoCapability( ObjectHandle* owner )
 {
     m_owner = owner;
-    m_owner->addCapability( this, giveOwnership );
 }
 
 //--------------------------------------------------------------------------------------------------

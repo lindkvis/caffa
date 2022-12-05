@@ -82,7 +82,6 @@ public:
         std::cout << "doubleMember" << std::endl;
         return m_doubleMember;
     }
-    std::string classKeywordDynamic() const override { return classKeyword(); }
 
     double m_doubleMember;
 };

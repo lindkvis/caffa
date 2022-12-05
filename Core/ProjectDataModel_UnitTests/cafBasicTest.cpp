@@ -176,28 +176,30 @@ TEST( BaseTest, Delete )
     delete s2;
 }
 
+class ObjectWithVectors : public caffa::Object
+{
+    CAFFA_HEADER_INIT;
+
+public:
+    ObjectWithVectors()
+    {
+        initField( field1, "field1" );
+        initField( field2, "field2" );
+        initField( field3, "field3" );
+    }
+
+    caffa::Field<std::vector<double>> field1;
+    caffa::Field<std::vector<double>> field2;
+    caffa::Field<std::vector<double>> field3;
+};
+
+CAFFA_SOURCE_INIT( ObjectWithVectors, "ObjectWithVectors", "Objet" );
+
 //--------------------------------------------------------------------------------------------------
 /// Test of Field operations
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, NormalField )
 {
-    class ObjectWithVectors : public caffa::ObjectHandle
-    {
-    public:
-        ObjectWithVectors()
-        {
-            this->addField( &field1, "field1" );
-            this->addField( &field2, "field2" );
-            this->addField( &field3, "field3" );
-        }
-
-        std::string classKeywordDynamic() const override { return "ObjectWithVectors"; }
-
-        caffa::Field<std::vector<double>> field1;
-        caffa::Field<std::vector<double>> field2;
-        caffa::Field<std::vector<double>> field3;
-    };
-
     std::vector<double> testValue;
     testValue.push_back( 1.1 );
     testValue.push_back( 1.2 );
@@ -317,7 +319,8 @@ TEST( BaseTest, ReadWrite )
 
         // Write file
         std::ofstream file( "TestFile2.json" );
-        doc.writeStream( file, caffa::JsonSerializer().setSerializeUuids( false ).setSerializeSchema( false ) );
+        doc.capability<caffa::ObjectIoCapability>()
+            ->writeStream( file, caffa::JsonSerializer().setSerializeUuids( false ).setSerializeSchema( false ) );
         file.close();
     }
 

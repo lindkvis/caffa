@@ -5,18 +5,20 @@
 #include "cafChildField.h"
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
-#include "cafObjectHandle.h"
+#include "cafObject.h"
 
 #include <string>
 
-class MsjSimpleObj : public caffa::ObjectHandle
+class MsjSimpleObj : public caffa::Object
 {
+    CAFFA_HEADER_INIT;
+
 public:
     MsjSimpleObj()
-        : ObjectHandle()
+        : Object()
     {
-        this->addField( &name, "Name" );
-        this->addField( &id, "ID" );
+        initField( name, "Name" );
+        initField( id, "ID" );
 
         static int a = 0;
 
@@ -26,51 +28,61 @@ public:
 
     caffa::Field<std::string> name;
     caffa::Field<int>         id;
-
-    std::string classKeywordDynamic() const override { return "SimpleObj"; }
 };
+
+CAFFA_SOURCE_INIT( MsjSimpleObj, "MsjSimpleObj", "Object" );
 
 class SimpleObjDerived : public MsjSimpleObj
 {
+    CAFFA_HEADER_INIT;
+
 public:
     SimpleObjDerived()
         : MsjSimpleObj()
     {
-        this->addField( &valueA, "valueA" );
+        initField( valueA, "valueA" );
     }
 
     caffa::Field<int> valueA;
 };
 
+CAFFA_SOURCE_INIT( SimpleObjDerived, "SimpleObjDerived", "MsjSimpleObj", "Object" );
+
 class SimpleObjDerivedOther : public MsjSimpleObj
 {
+    CAFFA_HEADER_INIT;
+
 public:
     SimpleObjDerivedOther()
         : MsjSimpleObj()
     {
-        this->addField( &valueDouble, "valueDouble" );
+        initField( valueDouble, "valueDouble" );
     }
 
     caffa::Field<double> valueDouble;
 };
 
-class ContainerObj : public caffa::ObjectHandle
+CAFFA_SOURCE_INIT( SimpleObjDerivedOther, "SimpleObjDerivedOther", "MsjSimpleObj", "Object" );
+
+class ContainerObj : public caffa::Object
 {
+    CAFFA_HEADER_INIT;
+
 public:
     ContainerObj()
-        : ObjectHandle()
+        : Object()
     {
-        this->addField( &derivedObjs, "derivedObjs" );
-        this->addField( &derivedOtherObjs, "derivedOtherObjs" );
+        initField( derivedObjs, "derivedObjs" );
+        initField( derivedOtherObjs, "derivedOtherObjs" );
     }
 
     ~ContainerObj() {}
 
-    std::string classKeywordDynamic() const override { return "ContainerObj"; }
-
     caffa::ChildArrayField<SimpleObjDerived*>      derivedObjs;
     caffa::ChildArrayField<SimpleObjDerivedOther*> derivedOtherObjs;
 };
+
+CAFFA_SOURCE_INIT( ContainerObj, "ContainerObj", "Object" );
 
 template <class U, typename T>
 U findObjectById( T start, T end, int id )
