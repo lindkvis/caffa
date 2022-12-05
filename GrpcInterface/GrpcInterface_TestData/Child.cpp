@@ -1,9 +1,11 @@
 #include "Child.h"
 #include "TestObj.h"
 
+CAFFA_SOURCE_INIT( Child, "Child", "Object" );
+
 Child::Child()
 {
-    this->addField( &m_testObj, "Numbers" );
+    initField( m_testObj, "Numbers" );
 }
 
 Child::~Child()
