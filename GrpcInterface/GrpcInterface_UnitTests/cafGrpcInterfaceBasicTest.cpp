@@ -513,6 +513,121 @@ TEST_F( GrpcTest, ObjectIntGetterAndSetter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST_F( GrpcTest, ObjectDeepCopyVsShallowCopy )
+{
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
+
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+    auto client         = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                        "localhost",
+                                                        ServerApp::s_port,
+                                                        ServerApp::s_clientCertFile,
+                                                        ServerApp::s_clientKeyFile,
+                                                        ServerApp::s_caCertFile );
+    auto session        = serverApp->getExistingSession( client->sessionUuid() );
+    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
+    ASSERT_TRUE( serverDocument );
+    CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
+
+    std::vector<int> largeIntVector;
+    std::mt19937     rng;
+    std::generate_n( std::back_inserter( largeIntVector ), 10000u, std::ref( rng ) );
+
+    serverDocument->demoObject->intVector = largeIntVector;
+
+    auto objectHandle   = client->document( "testDocument" );
+    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+
+    auto clientDemoObjectReference = clientDocument->demoObject.value();
+    auto clientDemoObjectClone     = clientDocument->demoObject.cloneValue();
+
+    std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject );
+    CAFFA_DEBUG( serverJson );
+
+    // Stop server *before* we read the client JSON
+
+    bool ok = client->stopServer();
+    ASSERT_TRUE( ok );
+    thread.join();
+
+    // Should succeed in reading the clone but not the reference
+    std::string clientJson;
+    ASSERT_NO_THROW( clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() ) );
+    CAFFA_DEBUG( clientJson );
+    ASSERT_EQ( serverJson, clientJson );
+
+    CAFFA_INFO( "Expect errors when trying to write a shallow copied object reference back to the closed server" );
+    ASSERT_ANY_THROW( clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectReference ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST_F( GrpcTest, ObjectDeepCopyFromClient )
+{
+    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
+
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+    auto client         = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+                                                        "localhost",
+                                                        ServerApp::s_port,
+                                                        ServerApp::s_clientCertFile,
+                                                        ServerApp::s_clientKeyFile,
+                                                        ServerApp::s_caCertFile );
+    auto session        = serverApp->getExistingSession( client->sessionUuid() );
+    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
+    ASSERT_TRUE( serverDocument );
+    CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
+
+    std::vector<int> largeIntVector;
+    std::mt19937     rng;
+    std::generate_n( std::back_inserter( largeIntVector ), 100u, std::ref( rng ) );
+
+    serverDocument->demoObject->intVector = largeIntVector;
+
+    auto objectHandle   = client->document( "testDocument" );
+    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+
+    auto clientDemoObjectClone = clientDocument->demoObject.cloneValue();
+
+    std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject() );
+    std::string clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() );
+    ASSERT_EQ( serverJson, clientJson );
+
+    clientDemoObjectClone->intVector = { 1, 2, 3 };
+
+    serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject() );
+    clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() );
+    ASSERT_NE( serverJson, clientJson );
+
+    clientDocument->demoObject.copyValue( clientDemoObjectClone.get() );
+
+    serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject() );
+    clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() );
+    ASSERT_EQ( serverJson, clientJson );
+    CAFFA_INFO( serverJson );
+
+    bool ok = client->stopServer();
+    ASSERT_TRUE( ok );
+
+    thread.join();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST_F( GrpcTest, ObjectDoubleGetterAndSetter )
 {
     ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );

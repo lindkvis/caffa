@@ -141,11 +141,23 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
     }
 
     std::string className = jsonObject["class"].get<std::string>();
+    std::string uuid      = "";
+    if ( jsonObject.contains( "uuid" ) )
+    {
+        uuid = jsonObject["uuid"].get<std::string>();
+    }
 
     ObservingPointer<ObjectHandle> objPtr;
 
-    // Create a new object
+    auto existingValue = m_field->value();
+    if ( existingValue && !uuid.empty() && existingValue->uuid() == uuid )
     {
+        objPtr = existingValue;
+        CAFFA_TRACE( "Had existing object! Overwriting values!" );
+    }
+    else
+    {
+        // Create a new object
         auto objectFactory = serializer.objectFactory();
 
         CAFFA_ASSERT( objectFactory );
@@ -174,7 +186,7 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
 
     if ( !objPtr->matchesClassKeyword( className ) )
     {
-        // Error: Field contains different class type than on file
+        // Error: Field contains different class type than in the JSON
         std::cout << "Warning: Unknown object type with class name: " << className.c_str()
                   << " found while reading the field : " << m_field->keyword().c_str() << std::endl;
         std::cout << "                     Expected class name: " << objPtr->classKeyword().c_str() << std::endl;

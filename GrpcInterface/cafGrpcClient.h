@@ -70,8 +70,15 @@ public:
     template <typename DataType>
     DataType get( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, uint32_t addressOffset = 0u ) const;
 
-    std::unique_ptr<caffa::ObjectHandle> getChildObject( const caffa::ObjectHandle* objectHandle,
-                                                         const std::string&         fieldName ) const;
+    std::unique_ptr<caffa::ObjectHandle> getShallowCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
+                                                                      const std::string&         fieldName ) const;
+
+    std::unique_ptr<caffa::ObjectHandle> getDeepCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
+                                                                   const std::string&         fieldName ) const;
+
+    void deepCopyChildObject( const caffa::ObjectHandle* objectHandle,
+                              const std::string&         fieldName,
+                              const caffa::ObjectHandle* childObject );
 
     std::vector<std::unique_ptr<caffa::ObjectHandle>> getChildObjects( const caffa::ObjectHandle* objectHandle,
                                                                        const std::string&         fieldName ) const;

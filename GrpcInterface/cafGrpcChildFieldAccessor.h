@@ -21,6 +21,7 @@
 #include "cafChildFieldAccessor.h"
 #include "cafGrpcClient.h"
 #include "cafGrpcException.h"
+#include "cafJsonSerializer.h"
 
 namespace caffa::rpc
 {
@@ -35,7 +36,7 @@ public:
 
     ObjectHandle* value() const override
     {
-        getRemoteObjectIfNecessary();
+        m_remoteObject = getShallowCopyOfRemoteObject();
         return m_remoteObject.get();
     }
 
@@ -47,20 +48,34 @@ public:
 
     std::unique_ptr<ObjectHandle> clear() override
     {
-        getRemoteObjectIfNecessary();
+        m_remoteObject = getShallowCopyOfRemoteObject();
         m_client->clearChildObjects( m_field->ownerObject(), m_field->keyword() );
         return std::move( m_remoteObject );
     }
 
-private:
-    // TODO: This needs to be more sophisticated. At the moment we get the remote object if we don't already have it
-    // but the object could have changed.
-    void getRemoteObjectIfNecessary() const
+    std::unique_ptr<ObjectHandle> cloneValue() const override { return getDeepCopyOfRemoteObject(); }
+
+    void copyValue( const ObjectHandle* copyFrom )
     {
-        if (!m_remoteObject)
+        if ( m_remoteObject )
         {
-            m_remoteObject = m_client->getChildObject( m_field->ownerObject(), m_field->keyword() );
+            JsonSerializer serializer;
+            std::string    json = serializer.writeObjectToString( copyFrom );
+            serializer.readObjectFromString( m_remoteObject.get(), json );
         }
+        CAFFA_INFO( "Trying to copy object back to server" );
+        m_client->deepCopyChildObject( m_field->ownerObject(), m_field->keyword(), copyFrom );
+    }
+
+private:
+    std::unique_ptr<ObjectHandle> getShallowCopyOfRemoteObject() const
+    {
+        return m_client->getShallowCopyOfChildObject( m_field->ownerObject(), m_field->keyword() );
+    }
+
+    std::unique_ptr<ObjectHandle> getDeepCopyOfRemoteObject() const
+    {
+        return m_client->getDeepCopyOfChildObject( m_field->ownerObject(), m_field->keyword() );
     }
 
 private:

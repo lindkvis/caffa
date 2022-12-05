@@ -71,6 +71,9 @@ public:
     operator DataType*() { return this->value(); }
     operator const DataType*() const { return this->value(); }
 
+    std::unique_ptr<DataType> cloneValue() const;
+    void                      copyValue( const DataType* copyFrom );
+
     DataType*       operator->() { return this->value(); }
     const DataType* operator->() const { return this->value(); }
 
@@ -91,7 +94,7 @@ public:
     }
 
 private:
-    ChildField( const ChildField& ) = delete;
+    ChildField( const ChildField& )            = delete;
     ChildField& operator=( const ChildField& ) = delete;
 
     friend class FieldJsonCap<ChildField<DataType*>>;

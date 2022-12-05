@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Caffa
-//   Copyright (C) Gaute Lindkvist
+//   Copyright (C) 2021- Kontur AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -301,8 +301,8 @@ public:
         return documents;
     }
 
-    std::unique_ptr<caffa::ObjectHandle> getChildObject( const caffa::ObjectHandle* objectHandle,
-                                                         const std::string&         fieldName ) const
+    std::unique_ptr<caffa::ObjectHandle> getShallowCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
+                                                                      const std::string&         fieldName ) const
     {
         std::unique_ptr<caffa::ObjectHandle> childObject;
 
@@ -334,6 +334,75 @@ public:
         }
 
         return childObject;
+    }
+
+    std::unique_ptr<caffa::ObjectHandle> getDeepCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
+                                                                   const std::string&         fieldName ) const
+    {
+        std::unique_ptr<caffa::ObjectHandle> childObject;
+
+        CAFFA_TRACE( "Get Child Object from field " << fieldName );
+        CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
+        grpc::ClientContext context;
+
+        FieldRequest field;
+        field.set_class_keyword( objectHandle->classKeyword() );
+        field.set_uuid( objectHandle->uuid() );
+        field.set_keyword( fieldName );
+        field.set_copy_object_values( true );
+
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field.set_allocated_session( session.release() );
+
+        GenericValue reply;
+        grpc::Status status = m_fieldStub->GetValue( &context, field, &reply );
+        if ( status.ok() )
+        {
+            childObject = caffa::JsonSerializer( caffa::DefaultObjectFactory::instance() )
+                              .setSerializeDataValues( true )
+                              .createObjectFromString( reply.value() );
+        }
+        else
+        {
+            CAFFA_ERROR( "Failed to get object with server error message: " + status.error_message() );
+            throw Exception( status );
+        }
+
+        return childObject;
+    }
+
+    void deepCopyChildObject( const caffa::ObjectHandle* objectHandle,
+                              const std::string&         fieldName,
+                              const caffa::ObjectHandle* childObject )
+    {
+        CAFFA_INFO( "Copying Child Object back for field " << fieldName );
+        CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
+        grpc::ClientContext context;
+        auto                rpcChildObject = std::make_unique<RpcObject>();
+        ObjectService::copyResultOrParameterObjectFromCafToRpc( childObject, rpcChildObject.get() );
+
+        auto field = std::make_unique<FieldRequest>();
+        field->set_class_keyword( objectHandle->classKeyword() );
+        field->set_uuid( objectHandle->uuid() );
+        field->set_keyword( fieldName );
+        field->set_copy_object_values( true );
+        auto session = std::make_unique<caffa::rpc::SessionMessage>();
+        session->set_uuid( m_sessionUuid );
+        field->set_allocated_session( session.release() );
+
+        SetterRequest setterRequest;
+        setterRequest.set_allocated_field( field.release() );
+        setterRequest.set_value( rpcChildObject->json() );
+
+        CAFFA_INFO( "Performing SetValue" );
+        NullMessage  reply;
+        grpc::Status status = m_fieldStub->SetValue( &context, setterRequest, &reply );
+        if ( !status.ok() )
+        {
+            CAFFA_ERROR( "Failed to set object" );
+            throw Exception( status );
+        }
     }
 
     std::vector<std::unique_ptr<ObjectHandle>> getChildObjects( const caffa::ObjectHandle* objectHandle,
@@ -798,10 +867,29 @@ nlohmann::json
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caffa::ObjectHandle> Client::getChildObject( const caffa::ObjectHandle* objectHandle,
-                                                             const std::string&         fieldName ) const
+std::unique_ptr<caffa::ObjectHandle> Client::getShallowCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
+                                                                          const std::string&         fieldName ) const
 {
-    return m_clientImpl->getChildObject( objectHandle, fieldName );
+    return m_clientImpl->getShallowCopyOfChildObject( objectHandle, fieldName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caffa::ObjectHandle> Client::getDeepCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
+                                                                       const std::string&         fieldName ) const
+{
+    return m_clientImpl->getDeepCopyOfChildObject( objectHandle, fieldName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Client::deepCopyChildObject( const caffa::ObjectHandle* objectHandle,
+                                  const std::string&         fieldName,
+                                  const caffa::ObjectHandle* childObject )
+{
+    m_clientImpl->deepCopyChildObject( objectHandle, fieldName, childObject );
 }
 
 //--------------------------------------------------------------------------------------------------

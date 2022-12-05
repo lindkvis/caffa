@@ -18,6 +18,7 @@
 //
 #include "cafChildFieldAccessor.h"
 
+#include "cafJsonSerializer.h"
 #include "cafObjectHandle.h"
 
 using namespace caffa;
@@ -52,6 +53,34 @@ void ChildFieldDirectStorageAccessor::setValue( std::unique_ptr<ObjectHandle> va
         value->setAsParentField( this->m_field );
     }
     m_value = std::move( value );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<ObjectHandle> ChildFieldDirectStorageAccessor::cloneValue() const
+{
+    if ( !m_value ) return nullptr;
+
+    JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
+    return serializer.copyBySerialization( m_value.get() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void ChildFieldDirectStorageAccessor::copyValue( const ObjectHandle* copyFrom )
+{
+    JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
+    if ( !m_value )
+    {
+        m_value = serializer.copyBySerialization( copyFrom );
+    }
+    else
+    {
+        std::string json = serializer.writeObjectToString( copyFrom );
+        serializer.readObjectFromString( m_value.get(), json );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
