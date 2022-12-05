@@ -13,8 +13,9 @@ using namespace std::chrono;
 //--------------------------------------------------------------------------------------------------
 Object::Object( bool generateUuid /* = false*/ )
     : ObjectHandle()
-    , ObjectIoCapability( this, false )
 {
+    addCapability( std::make_unique<caffa::ObjectIoCapability>( this ) );
+
     initField( m_uuid, "uuid" ).withScripting( "uuid", false, false );
 
     if ( generateUuid )
@@ -28,14 +29,6 @@ Object::Object( bool generateUuid /* = false*/ )
 //--------------------------------------------------------------------------------------------------
 Object::~Object() noexcept
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::string Object::classKeywordDynamic() const
-{
-    return this->classKeyword();
 }
 
 //--------------------------------------------------------------------------------------------------

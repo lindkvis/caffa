@@ -117,7 +117,6 @@ public:
     Type type() const;
 
 private:
-    friend class ObjectScriptingCapability;
     ObservingPointer<ObjectHandle> m_self;
 
     Type m_type;

@@ -162,8 +162,7 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
         {
             objPtr = obj.get();
 
-            auto ioObject = obj->template capability<caffa::ObjectIoCapability>();
-            if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
+            if ( !obj->matchesClassKeyword( className ) )
             {
                 CAFFA_ASSERT( false ); // Inconsistency in the factory. It creates objects of wrong type from the
                                        // ClassKeyword
@@ -173,13 +172,12 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
         }
     }
 
-    auto ioObject = objPtr->template capability<caffa::ObjectIoCapability>();
-    if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
+    if ( !objPtr->matchesClassKeyword( className ) )
     {
         // Error: Field contains different class type than on file
         std::cout << "Warning: Unknown object type with class name: " << className.c_str()
                   << " found while reading the field : " << m_field->keyword().c_str() << std::endl;
-        std::cout << "                     Expected class name: " << ioObject->classKeyword().c_str() << std::endl;
+        std::cout << "                     Expected class name: " << objPtr->classKeyword().c_str() << std::endl;
 
         return;
     }
@@ -283,8 +281,7 @@ void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::jso
             continue;
         }
 
-        auto ioObject = obj->template capability<caffa::ObjectIoCapability>();
-        if ( !ioObject || !ioObject->matchesClassKeyword( className ) )
+        if ( !obj->matchesClassKeyword( className ) )
         {
             CAFFA_ASSERT( false ); // There is an inconsistency in the factory. It creates objects of type not matching
                                    // the ClassKeyword

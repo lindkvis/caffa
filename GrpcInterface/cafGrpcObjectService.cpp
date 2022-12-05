@@ -226,12 +226,9 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const caffa::S
 
     for ( auto doc : ServerApplication::instance()->documents( session ) )
     {
-        std::list<caffa::ObjectHandle*> objects = doc->matchingDescendants(
-            [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool
-            {
-                auto ioCapability = objectHandle->capability<caffa::ObjectIoCapability>();
-                return ioCapability ? ioCapability->classKeyword() == scriptClassName : false;
-            } );
+        std::list<caffa::ObjectHandle*> objects =
+            doc->matchingDescendants( [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool
+                                      { return objectHandle->classKeyword() == scriptClassName; } );
 
         for ( auto object : objects )
         {
@@ -247,7 +244,7 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const caffa::S
     for ( ObjectHandle* testObjectHandle : objectsOfCurrentClass )
     {
         caffa::Object* testObject = dynamic_cast<caffa::Object*>( testObjectHandle );
-        CAFFA_TRACE( "Testing object with class name '" << testObject->classKeywordDynamic() << "' and UUID '"
+        CAFFA_TRACE( "Testing object with class name '" << testObject->classKeyword() << "' and UUID '"
                                                         << testObject->uuid() << "'" );
 
         if ( testObject && testObject->uuid() == objectUuid )

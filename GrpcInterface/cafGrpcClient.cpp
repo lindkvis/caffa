@@ -311,7 +311,7 @@ public:
         grpc::ClientContext context;
 
         FieldRequest field;
-        field.set_class_keyword( objectHandle->classKeywordDynamic() );
+        field.set_class_keyword( objectHandle->classKeyword() );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
 
@@ -342,7 +342,7 @@ public:
         grpc::ClientContext context;
 
         FieldRequest field;
-        field.set_class_keyword( objectHandle->classKeywordDynamic() );
+        field.set_class_keyword( objectHandle->classKeyword() );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( getter );
         auto session = std::make_unique<caffa::rpc::SessionMessage>();
@@ -388,7 +388,7 @@ public:
         ObjectService::copyProjectObjectFromCafToRpc( childObject, rpcChildObject.get() );
 
         auto field = std::make_unique<FieldRequest>();
-        field->set_class_keyword( objectHandle->classKeywordDynamic() );
+        field->set_class_keyword( objectHandle->classKeyword() );
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( fieldName );
         auto session = std::make_unique<caffa::rpc::SessionMessage>();
@@ -420,7 +420,7 @@ public:
         ObjectService::copyResultOrParameterObjectFromCafToRpc( childObject, rpcChildObject.get() );
         auto field = std::make_unique<FieldRequest>();
 
-        field->set_class_keyword( objectHandle->classKeywordDynamic() );
+        field->set_class_keyword( objectHandle->classKeyword() );
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( fieldName );
         field->set_index( index );
@@ -448,7 +448,7 @@ public:
         grpc::ClientContext context;
 
         FieldRequest field;
-        field.set_class_keyword( objectHandle->classKeywordDynamic() );
+        field.set_class_keyword( objectHandle->classKeyword() );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
         auto session = std::make_unique<caffa::rpc::SessionMessage>();
@@ -470,7 +470,7 @@ public:
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
         FieldRequest        field;
-        field.set_class_keyword( objectHandle->classKeywordDynamic() );
+        field.set_class_keyword( objectHandle->classKeyword() );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
         field.set_index( index );
@@ -600,7 +600,7 @@ public:
         grpc::ClientContext context;
 
         auto field = std::make_unique<FieldRequest>();
-        field->set_class_keyword( objectHandle->classKeywordDynamic() );
+        field->set_class_keyword( objectHandle->classKeyword() );
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( fieldName );
         field->set_index( addressOffset );
@@ -623,12 +623,12 @@ public:
 
     nlohmann::json getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, uint32_t addressOffset ) const
     {
-        CAFFA_TRACE( "Get JSON value for field " << fieldName << " on class " << objectHandle->classKeywordDynamic()
+        CAFFA_TRACE( "Get JSON value for field " << fieldName << " on class " << objectHandle->classKeyword()
                                                  << " and UUID " << objectHandle->uuid() );
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
         FieldRequest        field;
-        field.set_class_keyword( objectHandle->classKeywordDynamic() );
+        field.set_class_keyword( objectHandle->classKeyword() );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
         field.set_index( addressOffset );

@@ -29,13 +29,8 @@ public:
     };
 
 public:
-    ObjectIoCapability( ObjectHandle* owner, bool giveOwnership );
+    ObjectIoCapability( ObjectHandle* owner );
     ~ObjectIoCapability() noexcept override;
-
-    /// The classKeyword method is overridden in subclasses by the CAFFA_HEADER_INIT macro
-    virtual std::string              classKeyword() const                                         = 0;
-    virtual bool                     matchesClassKeyword( const std::string& classKeyword ) const = 0;
-    virtual std::vector<std::string> classInheritanceStack() const                                = 0;
 
     /// Check if a string is a valid element name
     static bool isValidElementName( const std::string& name );

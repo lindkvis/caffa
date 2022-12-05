@@ -1,10 +1,12 @@
 #include "Parent.h"
 #include "Child.h"
 
+CAFFA_SOURCE_INIT( Parent, "Parent", "Object" )
+
 Parent::Parent()
 {
-    this->addField( &m_simpleObjectsField, "SimpleObjects" );
-    this->addField( &m_simpleObjectF, "SimpleObject" );
+    initField( m_simpleObjectsField, "SimpleObjects" );
+    initField( m_simpleObjectF, "SimpleObject" );
 }
 
 void Parent::doSome()
@@ -15,11 +17,6 @@ void Parent::doSome()
         // Child* c = m_simpleObjectsField[0];
         // TestObj* to = c->m_testObj();
     }
-}
-
-std::string Parent::classKeywordDynamic() const
-{
-    return "Parent";
 }
 
 #include "gtest.h"

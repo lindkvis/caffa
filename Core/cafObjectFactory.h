@@ -96,7 +96,7 @@ public:
         std::list<ObjectHandle*> objects;
         for ( auto object : m_objects )
         {
-            if ( object.notNull() && object->capability<ObjectIoCapability>()->matchesClassKeyword( classKeyword ) )
+            if ( object.notNull() && object->matchesClassKeyword( classKeyword ) )
             {
                 objects.push_back( object.p() );
             }

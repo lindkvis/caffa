@@ -59,8 +59,7 @@ void readFieldsFromJson( ObjectHandle* object, const nlohmann::json& jsonObject,
         {
             const auto& classKeyword = value;
 
-            CAFFA_ASSERT( classKeyword.is_string() &&
-                          classKeyword.get<std::string>() == object->capability<ObjectIoCapability>()->classKeyword() );
+            CAFFA_ASSERT( classKeyword.is_string() && classKeyword.get<std::string>() == object->classKeyword() );
         }
         else if ( serializer->serializeDataValues() && !value.is_null() )
         {
@@ -95,7 +94,7 @@ void writeFieldsToJson( const ObjectHandle* object, nlohmann::json& jsonObject, 
     CAFFA_TRACE( "Writing fields from json with serialize setting: serializeDataValues = "
                  << serializer->serializeDataValues() << ", serializeSchema = " << serializer->serializeSchema()
                  << ", serializeUuids = " << serializer->serializeUuids() );
-    std::string classKeyword = object->capability<ObjectIoCapability>()->classKeyword();
+    std::string classKeyword = object->classKeyword();
     CAFFA_ASSERT( ObjectIoCapability::isValidElementName( classKeyword ) );
     jsonObject["class"] = classKeyword;
 
@@ -211,8 +210,8 @@ std::unique_ptr<ObjectHandle> JsonSerializer::copyAndCastBySerialization( const 
     auto copyIoCapability = objectCopy->capability<ObjectIoCapability>();
     if ( !copyIoCapability ) return nullptr;
 
-    bool sourceInheritsDestination = ioCapability->matchesClassKeyword( destinationClassKeyword );
-    bool destinationInheritsSource = copyIoCapability->matchesClassKeyword( ioCapability->classKeyword() );
+    bool sourceInheritsDestination = object->matchesClassKeyword( destinationClassKeyword );
+    bool destinationInheritsSource = objectCopy->matchesClassKeyword( object->classKeyword() );
 
     if ( !sourceInheritsDestination && !destinationInheritsSource ) return nullptr;
 

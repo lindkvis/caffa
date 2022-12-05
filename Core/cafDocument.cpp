@@ -96,7 +96,7 @@ void Document::setFileName( const std::string& fileName )
 //--------------------------------------------------------------------------------------------------
 bool Document::read( ObjectIoCapability::IoType ioType /*= ObjectIoCapability::IoType::JSON */ )
 {
-    return ObjectIoCapability::readFile( m_fileName, ioType );
+    return capability<ObjectIoCapability>()->readFile( m_fileName, ioType );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ bool Document::read( ObjectIoCapability::IoType ioType /*= ObjectIoCapability::I
 //--------------------------------------------------------------------------------------------------
 bool Document::write( ObjectIoCapability::IoType ioType /*= ObjectIoCapability::IoType::JSON */ )
 {
-    return ObjectIoCapability::writeFile( m_fileName, ioType );
+    return capability<ObjectIoCapability>()->writeFile( m_fileName, ioType );
 }
 
 } // End of namespace caffa
