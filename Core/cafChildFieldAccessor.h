@@ -38,6 +38,9 @@ public:
     virtual void                          setValue( std::unique_ptr<ObjectHandle> value ) = 0;
     virtual std::unique_ptr<ObjectHandle> clear()                                         = 0;
 
+    virtual std::unique_ptr<ObjectHandle> cloneValue() const                     = 0;
+    virtual void                          copyValue( const ObjectHandle* value ) = 0;
+
 protected:
     FieldHandle* m_field;
 };
@@ -50,6 +53,9 @@ public:
     ObjectHandle*                 value() const override;
     void                          setValue( std::unique_ptr<ObjectHandle> value ) override;
     std::unique_ptr<ObjectHandle> clear() override;
+
+    std::unique_ptr<ObjectHandle> cloneValue() const override;
+    void                          copyValue( const ObjectHandle* value );
 
 private:
     std::unique_ptr<ObjectHandle> m_value;

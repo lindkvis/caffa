@@ -1,5 +1,7 @@
 #include "cafObjectHandle.h"
 
+#include "cafDynamicUniqueCast.h"
+
 #include <iostream>
 #include <vector>
 
@@ -42,6 +44,28 @@ void ChildField<DataType*>::setValue( DataTypePtr fieldValue )
 {
     CAFFA_ASSERT( isInitialized() );
     m_fieldDataAccessor->setValue( std::move( fieldValue ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+std::unique_ptr<DataType> ChildField<DataType*>::cloneValue() const
+{
+    CAFFA_ASSERT( isInitialized() );
+    auto clonedValue = m_fieldDataAccessor->cloneValue();
+    CAFFA_ASSERT( caffa::dynamic_unique_cast_is_valid<DataType>( clonedValue ) );
+    return caffa::dynamic_unique_cast<DataType>( std::move( clonedValue ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void ChildField<DataType*>::copyValue( const DataType* copyFrom )
+{
+    CAFFA_ASSERT( isInitialized() );
+    m_fieldDataAccessor->copyValue( copyFrom );
 }
 
 //--------------------------------------------------------------------------------------------------
