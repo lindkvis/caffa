@@ -55,7 +55,7 @@ public:
     std::unique_ptr<ObjectHandle> clear() override;
 
     std::unique_ptr<ObjectHandle> cloneValue() const override;
-    void                          copyValue( const ObjectHandle* value );
+    void                          copyValue( const ObjectHandle* value ) override;
 
 private:
     std::unique_ptr<ObjectHandle> m_value;
