@@ -126,7 +126,7 @@ void ChildArrayField<DataType*>::erase( size_t index )
 /// Assign objects to the field, replacing the current child objects
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void ChildArrayField<DataType*>::setValue( std::vector<std::unique_ptr<DataType>>& objects )
+void ChildArrayField<DataType*>::setObjects( std::vector<std::unique_ptr<DataType>>& objects )
 {
     CAFFA_ASSERT( isInitialized() );
 
@@ -160,20 +160,46 @@ std::unique_ptr<ObjectHandle> ChildArrayField<DataType*>::removeChildObject( Obj
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-std::vector<ObjectHandle*> caffa::ChildArrayField<DataType*>::childObjects() const
+std::vector<ObjectHandle*> caffa::ChildArrayField<DataType*>::childObjects()
 {
-    return m_fieldDataAccessor->value();
+    return m_fieldDataAccessor->objects();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-std::vector<DataType*> caffa::ChildArrayField<DataType*>::value() const
+std::vector<const ObjectHandle*> caffa::ChildArrayField<DataType*>::childObjects() const
+{
+    const caffa::ChildArrayFieldAccessor* accessor = m_fieldDataAccessor.get();
+    return accessor->objects();
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+std::vector<DataType*> caffa::ChildArrayField<DataType*>::objects()
 {
     CAFFA_ASSERT( isInitialized() );
 
     std::vector<DataType*> typedObjects;
+    for ( auto childObject : this->childObjects() )
+    {
+        typedObjects.push_back( static_cast<DataType*>( childObject ) );
+    }
+
+    return typedObjects;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+std::vector<const DataType*> caffa::ChildArrayField<DataType*>::objects() const
+{
+    CAFFA_ASSERT( isInitialized() );
+
+    std::vector<const DataType*> typedObjects;
     for ( auto childObject : this->childObjects() )
     {
         typedObjects.push_back( static_cast<DataType*>( childObject ) );

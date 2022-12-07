@@ -47,16 +47,19 @@ public:
     }
     ~ChildArrayField() override;
 
+    // Access operators
+    operator std::vector<DataType*>() { return this->objects(); }
+    operator std::vector<const DataType*>() const { return this->objects(); }
+
     ChildArrayField&       operator()() { return *this; }
     const ChildArrayField& operator()() const { return *this; }
-
-    // Reimplementation of PointersFieldHandle methods
 
     size_t                                     size() const override { return m_fieldDataAccessor->size(); }
     std::vector<std::unique_ptr<ObjectHandle>> clear() override;
     ObjectHandle*                              at( size_t index ) override;
-    std::vector<DataType*>                     value() const;
-    void                                       setValue( std::vector<std::unique_ptr<DataType>>& objects );
+    std::vector<DataType*>                     objects();
+    std::vector<const DataType*>               objects() const;
+    void                                       setObjects( std::vector<std::unique_ptr<DataType>>& objects );
 
     // std::vector-like access
 
@@ -69,8 +72,9 @@ public:
     void erase( size_t index ) override;
 
     // Child objects
-    std::vector<ObjectHandle*>    childObjects() const override;
-    std::unique_ptr<ObjectHandle> removeChildObject( ObjectHandle* object ) override;
+    std::vector<ObjectHandle*>       childObjects() override;
+    std::vector<const ObjectHandle*> childObjects() const override;
+    std::unique_ptr<ObjectHandle>    removeChildObject( ObjectHandle* object ) override;
 
     std::string dataType() const override { return std::string( "object[]" ); }
 
@@ -80,7 +84,7 @@ public:
     }
 
 private: // To be disabled
-    ChildArrayField( const ChildArrayField& ) = delete;
+    ChildArrayField( const ChildArrayField& )            = delete;
     ChildArrayField& operator=( const ChildArrayField& ) = delete;
 
 private:

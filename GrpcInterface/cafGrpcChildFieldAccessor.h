@@ -34,7 +34,13 @@ public:
     {
     }
 
-    ObjectHandle* object() const override
+    ObjectHandle* object() override
+    {
+        m_remoteObject = getShallowCopyOfRemoteObject();
+        return m_remoteObject.get();
+    }
+
+    const ObjectHandle* object() const override
     {
         m_remoteObject = getShallowCopyOfRemoteObject();
         return m_remoteObject.get();

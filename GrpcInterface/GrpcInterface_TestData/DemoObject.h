@@ -167,7 +167,7 @@ public:
     {
         m_inheritedDemoObjects.push_back( std::move( object ) );
     }
-    std::vector<InheritedDemoObj*> inheritedObjects() const { return m_inheritedDemoObjects.value(); }
+    std::vector<InheritedDemoObj*> inheritedObjects() { return m_inheritedDemoObjects; }
 
     caffa::ChildField<DemoObject*>            demoObject;
     caffa::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
@@ -194,7 +194,7 @@ public:
     {
         m_inheritedDemoObjects.push_back( std::move( object ) );
     }
-    std::vector<InheritedDemoObj*> inheritedObjects() const { return m_inheritedDemoObjects.value(); }
+    std::vector<InheritedDemoObj*> inheritedObjects() { return m_inheritedDemoObjects; }
 
     caffa::ChildField<DemoObject*>            demoObject;
     caffa::ChildField<DemoObject*>            demoObjectNonScriptable;

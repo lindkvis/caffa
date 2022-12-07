@@ -111,7 +111,7 @@ TEST( ChildArrayFieldHandle, DerivedObjects )
     auto s2p = s2.get();
     containerObj->derivedObjs.push_back( std::move( s2 ) );
 
-    auto allObjects = containerObj->derivedObjs.value();
+    auto allObjects = containerObj->derivedObjs.objects();
 
     SimpleObjDerived* myObj = findObjectById<SimpleObjDerived*>( allObjects.begin(), allObjects.end(), 2 );
     EXPECT_EQ( s2p, myObj );
@@ -135,7 +135,7 @@ TEST( ChildArrayFieldHandle, DerivedOtherObjects )
     auto s2p = s2.get();
     containerObj->derivedOtherObjs.push_back( std::move( s2 ) );
 
-    auto allObjects = containerObj->derivedOtherObjs.value();
+    auto allObjects = containerObj->derivedOtherObjs.objects();
 
     SimpleObjDerivedOther* myObj = findObjectById<SimpleObjDerivedOther*>( allObjects.begin(), allObjects.end(), s2Id );
 
@@ -143,7 +143,7 @@ TEST( ChildArrayFieldHandle, DerivedOtherObjects )
 
     containerObj->derivedOtherObjs.removeChildObject( myObj );
 
-    allObjects = containerObj->derivedOtherObjs.value();
+    allObjects = containerObj->derivedOtherObjs.objects();
 
     myObj = findObjectById<SimpleObjDerivedOther*>( allObjects.begin(), allObjects.end(), s2Id );
 

@@ -266,7 +266,7 @@ TEST( BaseTest, ChildArrayField )
     std::vector<caffa::ObjectHandle*> objects = ihd1->m_childArrayField.childObjects();
     EXPECT_EQ( size_t( 3 ), objects.size() );
 
-    std::vector<DemoObject*> typedObjects = ihd1->m_childArrayField.value();
+    std::vector<DemoObject*> typedObjects = ihd1->m_childArrayField.objects();
     EXPECT_EQ( size_t( 3 ), typedObjects.size() );
 
     // remove child object

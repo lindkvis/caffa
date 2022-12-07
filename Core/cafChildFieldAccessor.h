@@ -34,7 +34,8 @@ public:
     {
     }
     virtual ~ChildFieldAccessor()                                                           = default;
-    virtual ObjectHandle*                 object() const                                    = 0;
+    virtual ObjectHandle*                 object()                                          = 0;
+    virtual const ObjectHandle*           object() const                                    = 0;
     virtual void                          setObject( std::unique_ptr<ObjectHandle> object ) = 0;
     virtual std::unique_ptr<ObjectHandle> clear()                                           = 0;
 
@@ -50,7 +51,8 @@ class ChildFieldDirectStorageAccessor : public ChildFieldAccessor
 public:
     ChildFieldDirectStorageAccessor( FieldHandle* field );
     ~ChildFieldDirectStorageAccessor() override = default;
-    ObjectHandle*                 object() const override;
+    ObjectHandle*                 object() override;
+    const ObjectHandle*           object() const override;
     void                          setObject( std::unique_ptr<ObjectHandle> object ) override;
     std::unique_ptr<ObjectHandle> clear() override;
 

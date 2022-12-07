@@ -37,10 +37,11 @@ public:
         : m_field( field )
     {
     }
-    virtual ~ChildArrayFieldAccessor()                               = default;
-    virtual size_t                                     size() const  = 0;
-    virtual std::vector<std::unique_ptr<ObjectHandle>> clear()       = 0;
-    virtual std::vector<ObjectHandle*>                 value() const = 0;
+    virtual ~ChildArrayFieldAccessor()                                 = default;
+    virtual size_t                                     size() const    = 0;
+    virtual std::vector<std::unique_ptr<ObjectHandle>> clear()         = 0;
+    virtual std::vector<ObjectHandle*>                 objects()       = 0;
+    virtual std::vector<const ObjectHandle*>           objects() const = 0;
 
     virtual ObjectHandle*                 at( size_t index ) const                                      = 0;
     virtual void                          insert( size_t index, std::unique_ptr<ObjectHandle> pointer ) = 0;
@@ -60,7 +61,8 @@ public:
 
     size_t                                     size() const override;
     std::vector<std::unique_ptr<ObjectHandle>> clear() override;
-    std::vector<ObjectHandle*>                 value() const override;
+    std::vector<ObjectHandle*>                 objects() override;
+    std::vector<const ObjectHandle*>           objects() const override;
     ObjectHandle*                              at( size_t index ) const override;
     void                                       insert( size_t index, std::unique_ptr<ObjectHandle> pointer ) override;
     void                                       push_back( std::unique_ptr<ObjectHandle> pointer ) override;

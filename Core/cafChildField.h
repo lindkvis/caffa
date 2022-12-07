@@ -54,7 +54,6 @@ public:
     {
     }
 
-    explicit ChildField( DataTypePtr object );
     virtual ~ChildField();
 
     // Assignment
@@ -82,10 +81,11 @@ public:
     const DataType* operator()() const { return static_cast<const DataType*>( m_fieldDataAccessor->object() ); }
 
     // Child objects
-    std::vector<ObjectHandle*>    childObjects() const override;
-    std::unique_ptr<ObjectHandle> clear() override;
-    std::unique_ptr<ObjectHandle> removeChildObject( ObjectHandle* object ) override;
-    void                          setChildObject( std::unique_ptr<ObjectHandle> object ) override;
+    std::vector<ObjectHandle*>       childObjects() override;
+    std::vector<const ObjectHandle*> childObjects() const override;
+    std::unique_ptr<ObjectHandle>    clear() override;
+    std::unique_ptr<ObjectHandle>    removeChildObject( ObjectHandle* object ) override;
+    void                             setChildObject( std::unique_ptr<ObjectHandle> object ) override;
 
     std::string dataType() const override { return std::string( "object" ); }
 
