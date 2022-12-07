@@ -1001,7 +1001,7 @@ TEST_F( GrpcTest, LocalResponseTimeAndDataTransfer )
 
         std::vector<float> serverVector;
         std::mt19937       rng;
-        size_t             numberOfFloats = 128 * 1024;
+        size_t             numberOfFloats = 12 * 1024;
         serverVector.reserve( numberOfFloats );
         for ( size_t i = 0; i < numberOfFloats; ++i )
         {
