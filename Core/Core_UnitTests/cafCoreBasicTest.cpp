@@ -434,10 +434,10 @@ TEST( BaseTest, ChildField )
         auto c2   = std::make_unique<Child>();
         auto rawC = c2.get();
         // Assign
-        a.field2.setValue( std::move( c2 ) );
+        a.field2.setObject( std::move( c2 ) );
         // Access
         EXPECT_EQ( rawC, a.field2 );
-        EXPECT_EQ( rawC, a.field2.value() );
+        EXPECT_EQ( rawC, a.field2.object() );
         EXPECT_TRUE( rawC == a.field2 );
 
         std::vector<caffa::ObjectHandle*> objects = a.field2.childObjects();

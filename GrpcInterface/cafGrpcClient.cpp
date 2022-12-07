@@ -372,9 +372,9 @@ public:
         return childObject;
     }
 
-    void deepCopyChildObject( const caffa::ObjectHandle* objectHandle,
-                              const std::string&         fieldName,
-                              const caffa::ObjectHandle* childObject )
+    void deepCopyChildObjectFrom( const caffa::ObjectHandle* objectHandle,
+                                  const std::string&         fieldName,
+                                  const caffa::ObjectHandle* childObject )
     {
         CAFFA_INFO( "Copying Child Object back for field " << fieldName );
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
@@ -885,11 +885,11 @@ std::unique_ptr<caffa::ObjectHandle> Client::getDeepCopyOfChildObject( const caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Client::deepCopyChildObject( const caffa::ObjectHandle* objectHandle,
-                                  const std::string&         fieldName,
-                                  const caffa::ObjectHandle* childObject )
+void Client::deepCopyChildObjectFrom( const caffa::ObjectHandle* objectHandle,
+                                      const std::string&         fieldName,
+                                      const caffa::ObjectHandle* childObject )
 {
-    m_clientImpl->deepCopyChildObject( objectHandle, fieldName, childObject );
+    m_clientImpl->deepCopyChildObjectFrom( objectHandle, fieldName, childObject );
 }
 
 //--------------------------------------------------------------------------------------------------

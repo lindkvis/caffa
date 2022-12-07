@@ -54,31 +54,32 @@ public:
     {
     }
 
-    explicit ChildField( DataTypePtr fieldValue );
+    explicit ChildField( DataTypePtr object );
     virtual ~ChildField();
 
     // Assignment
 
-    ChildField& operator=( DataTypePtr fieldValue );
+    ChildField& operator=( DataTypePtr object );
 
     // Basic access
 
-    DataType*       value() { return static_cast<DataType*>( m_fieldDataAccessor->value() ); }
-    const DataType* value() const { return static_cast<const DataType*>( m_fieldDataAccessor->value() ); }
-    void            setValue( DataTypePtr fieldValue );
+    DataType*       object() { return static_cast<DataType*>( m_fieldDataAccessor->object() ); }
+    const DataType* object() const { return static_cast<const DataType*>( m_fieldDataAccessor->object() ); }
+    void            setObject( DataTypePtr object );
 
     // Access operators
-    operator DataType*() { return this->value(); }
-    operator const DataType*() const { return this->value(); }
+    operator DataType*() { return this->object(); }
+    operator const DataType*() const { return this->object(); }
 
-    std::unique_ptr<DataType> cloneValue() const;
-    void                      copyValue( const DataType* copyFrom );
+    // Deep copy of object content
+    std::unique_ptr<DataType> deepCloneObject() const;
+    void                      deepCopyObjectFrom( const DataType* copyFrom );
 
-    DataType*       operator->() { return this->value(); }
-    const DataType* operator->() const { return this->value(); }
+    DataType*       operator->() { return this->object(); }
+    const DataType* operator->() const { return this->object(); }
 
-    DataType*       operator()() { return static_cast<DataType*>( m_fieldDataAccessor->value() ); }
-    const DataType* operator()() const { return static_cast<const DataType*>( m_fieldDataAccessor->value() ); }
+    DataType*       operator()() { return static_cast<DataType*>( m_fieldDataAccessor->object() ); }
+    const DataType* operator()() const { return static_cast<const DataType*>( m_fieldDataAccessor->object() ); }
 
     // Child objects
     std::vector<ObjectHandle*>    childObjects() const override;

@@ -544,8 +544,8 @@ TEST_F( GrpcTest, ObjectDeepCopyVsShallowCopy )
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
 
-    auto clientDemoObjectReference = clientDocument->demoObject.value();
-    auto clientDemoObjectClone     = clientDocument->demoObject.cloneValue();
+    auto clientDemoObjectReference = clientDocument->demoObject.object();
+    auto clientDemoObjectClone     = clientDocument->demoObject.deepCloneObject();
 
     std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject );
     CAFFA_DEBUG( serverJson );
@@ -600,7 +600,7 @@ TEST_F( GrpcTest, ObjectDeepCopyFromClient )
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
 
-    auto clientDemoObjectClone = clientDocument->demoObject.cloneValue();
+    auto clientDemoObjectClone = clientDocument->demoObject.deepCloneObject();
 
     std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject() );
     std::string clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() );
@@ -612,7 +612,7 @@ TEST_F( GrpcTest, ObjectDeepCopyFromClient )
     clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() );
     ASSERT_NE( serverJson, clientJson );
 
-    clientDocument->demoObject.copyValue( clientDemoObjectClone.get() );
+    clientDocument->demoObject.deepCopyObjectFrom( clientDemoObjectClone.get() );
 
     serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject() );
     clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() );
@@ -895,9 +895,9 @@ TEST_F( GrpcTest, ChildObjects )
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
 
-    ASSERT_TRUE( clientDocument->demoObject.value() != nullptr );
+    ASSERT_TRUE( clientDocument->demoObject.object() != nullptr );
     clientDocument->demoObject.clear();
-    ASSERT_TRUE( clientDocument->demoObject.value() == nullptr );
+    ASSERT_TRUE( clientDocument->demoObject.object() == nullptr );
 
     size_t childCount = 12u;
     for ( size_t i = 0; i < childCount; ++i )

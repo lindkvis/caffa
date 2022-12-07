@@ -76,9 +76,9 @@ public:
     std::unique_ptr<caffa::ObjectHandle> getDeepCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
                                                                    const std::string&         fieldName ) const;
 
-    void deepCopyChildObject( const caffa::ObjectHandle* objectHandle,
-                              const std::string&         fieldName,
-                              const caffa::ObjectHandle* childObject );
+    void deepCopyChildObjectFrom( const caffa::ObjectHandle* objectHandle,
+                                  const std::string&         fieldName,
+                                  const caffa::ObjectHandle* childObject );
 
     std::vector<std::unique_ptr<caffa::ObjectHandle>> getChildObjects( const caffa::ObjectHandle* objectHandle,
                                                                        const std::string&         fieldName ) const;
