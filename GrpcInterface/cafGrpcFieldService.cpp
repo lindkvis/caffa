@@ -65,8 +65,7 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
     if ( field )
     {
         auto scriptability = field->capability<caffa::FieldScriptingCapability>();
-        CAFFA_ASSERT( scriptability );
-        if ( scriptability->isReadable() )
+        if ( scriptability && scriptability->isReadable() )
         {
             bool isObjectField = dynamic_cast<caffa::ChildFieldHandle*>( field ) != nullptr;
             auto ioCapability  = field->capability<caffa::FieldJsonCapability>();
@@ -95,7 +94,7 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
                 {
                     CAFFA_ERROR( "gRPC Field::GetValue for '" << request->keyword() << "' failed with error: '"
                                                               << e.what() << "'" );
-                    return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
+                    return grpc::Status( grpc::FAILED_PRECONDITION, std::string( "GetValue failed with " ) + e.what() );
                 }
             }
         }
@@ -159,7 +158,7 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
             {
                 CAFFA_ERROR( "gRPC Field::SetValue for '" << fieldRequest.keyword() << "' failed with error: '"
                                                           << e.what() << "'" );
-                return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
+                return grpc::Status( grpc::FAILED_PRECONDITION, std::string( "SetValue Failed with error: " ) + e.what() );
             }
         }
         else
