@@ -34,15 +34,15 @@ public:
     {
     }
 
-    ObjectHandle* value() const override
+    ObjectHandle* object() const override
     {
         m_remoteObject = getShallowCopyOfRemoteObject();
         return m_remoteObject.get();
     }
 
-    void setValue( std::unique_ptr<ObjectHandle> value ) override
+    void setObject( std::unique_ptr<ObjectHandle> object ) override
     {
-        m_remoteObject = std::move( value );
+        m_remoteObject = std::move( object );
         m_client->setChildObject( m_field->ownerObject(), m_field->keyword(), m_remoteObject.get() );
     }
 
@@ -53,9 +53,9 @@ public:
         return std::move( m_remoteObject );
     }
 
-    std::unique_ptr<ObjectHandle> cloneValue() const override { return getDeepCopyOfRemoteObject(); }
+    std::unique_ptr<ObjectHandle> deepCloneObject() const override { return getDeepCopyOfRemoteObject(); }
 
-    void copyValue( const ObjectHandle* copyFrom )
+    void deepCopyObjectFrom( const ObjectHandle* copyFrom )
     {
         if ( m_remoteObject )
         {
@@ -64,7 +64,7 @@ public:
             serializer.readObjectFromString( m_remoteObject.get(), json );
         }
         CAFFA_INFO( "Trying to copy object back to server" );
-        m_client->deepCopyChildObject( m_field->ownerObject(), m_field->keyword(), copyFrom );
+        m_client->deepCopyChildObjectFrom( m_field->ownerObject(), m_field->keyword(), copyFrom );
     }
 
 private:

@@ -11,10 +11,10 @@ namespace caffa
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-ChildField<DataType*>::ChildField( DataTypePtr fieldValue )
+ChildField<DataType*>::ChildField( DataTypePtr object )
     : m_fieldDataAccessor( std::make_unique<ChildFieldDirectStorageAccessor>() )
 {
-    m_fieldDataAccessor->setValue( std::move( fieldValue ) );
+    m_fieldDataAccessor->setObject( std::move( object ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -29,10 +29,10 @@ ChildField<DataType*>::~ChildField()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-ChildField<DataType*>& ChildField<DataType*>::operator=( DataTypePtr fieldValue )
+ChildField<DataType*>& ChildField<DataType*>::operator=( DataTypePtr object )
 {
     CAFFA_ASSERT( isInitialized() );
-    this->setValue( std::move( fieldValue ) );
+    this->setObject( std::move( object ) );
     return *this;
 }
 
@@ -40,32 +40,32 @@ ChildField<DataType*>& ChildField<DataType*>::operator=( DataTypePtr fieldValue 
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void ChildField<DataType*>::setValue( DataTypePtr fieldValue )
+void ChildField<DataType*>::setObject( DataTypePtr object )
 {
     CAFFA_ASSERT( isInitialized() );
-    m_fieldDataAccessor->setValue( std::move( fieldValue ) );
+    m_fieldDataAccessor->setObject( std::move( object ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-std::unique_ptr<DataType> ChildField<DataType*>::cloneValue() const
+std::unique_ptr<DataType> ChildField<DataType*>::deepCloneObject() const
 {
     CAFFA_ASSERT( isInitialized() );
-    auto clonedValue = m_fieldDataAccessor->cloneValue();
-    CAFFA_ASSERT( caffa::dynamic_unique_cast_is_valid<DataType>( clonedValue ) );
-    return caffa::dynamic_unique_cast<DataType>( std::move( clonedValue ) );
+    auto clonedObject = m_fieldDataAccessor->deepCloneObject();
+    CAFFA_ASSERT( caffa::dynamic_unique_cast_is_valid<DataType>( clonedObject ) );
+    return caffa::dynamic_unique_cast<DataType>( std::move( clonedObject ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void ChildField<DataType*>::copyValue( const DataType* copyFrom )
+void ChildField<DataType*>::deepCopyObjectFrom( const DataType* copyFrom )
 {
     CAFFA_ASSERT( isInitialized() );
-    m_fieldDataAccessor->copyValue( copyFrom );
+    m_fieldDataAccessor->deepCopyObjectFrom( copyFrom );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ std::vector<ObjectHandle*> ChildField<DataType*>::childObjects() const
 {
     CAFFA_ASSERT( isInitialized() );
 
-    auto object = m_fieldDataAccessor->value();
+    auto object = m_fieldDataAccessor->object();
     if ( !object ) return {};
 
     return { object };
@@ -98,7 +98,7 @@ template <typename DataType>
 std::unique_ptr<ObjectHandle> ChildField<DataType*>::removeChildObject( ObjectHandle* object )
 {
     CAFFA_ASSERT( isInitialized() );
-    if ( m_fieldDataAccessor->value() == object )
+    if ( this->object() == object )
     {
         return this->clear();
     }
@@ -109,16 +109,16 @@ std::unique_ptr<ObjectHandle> ChildField<DataType*>::removeChildObject( ObjectHa
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void ChildField<DataType*>::setChildObject( std::unique_ptr<ObjectHandle> fieldValue )
+void ChildField<DataType*>::setChildObject( std::unique_ptr<ObjectHandle> object )
 {
     CAFFA_ASSERT( isInitialized() );
 
-    ObjectHandle* rawPtr = fieldValue.release();
+    ObjectHandle* rawPtr = object.release();
 
     DataType* typedPtr = dynamic_cast<DataType*>( rawPtr );
     if ( typedPtr )
     {
-        m_fieldDataAccessor->setValue( std::unique_ptr<DataType>( typedPtr ) );
+        m_fieldDataAccessor->setObject( std::unique_ptr<DataType>( typedPtr ) );
     }
     else
     {

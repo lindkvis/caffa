@@ -1,5 +1,6 @@
 
 #include "cafAssert.h"
+#include "cafDynamicUniqueCast.h"
 #include "cafLogger.h"
 #include "cafObjectFactory.h"
 #include "cafObjectIoCapability.h"
@@ -147,12 +148,12 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
         uuid = jsonObject["uuid"].get<std::string>();
     }
 
-    ObservingPointer<ObjectHandle> objPtr;
+    ObservingPointer<DataType> objPtr;
 
-    auto existingValue = m_field->value();
-    if ( existingValue && !uuid.empty() && existingValue->uuid() == uuid )
+    auto existingObject = m_field->object();
+    if ( existingObject && !uuid.empty() && existingObject->uuid() == uuid )
     {
-        objPtr = existingValue;
+        objPtr = existingObject;
         CAFFA_TRACE( "Had existing object! Overwriting values!" );
     }
     else
@@ -162,40 +163,32 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
 
         CAFFA_ASSERT( objectFactory );
 
-        auto obj = objectFactory->create( className );
+        auto obj = caffa::dynamic_unique_cast<DataType>( objectFactory->create( className ) );
         if ( !obj )
         {
-            std::cout << "Warning: Unknown object type with class name: " << className
-                      << " found while reading the field : " << m_field->keyword() << std::endl;
-
+            CAFFA_ERROR( "Unknown object type with class name: " << className << " found while reading the field : "
+                                                                 << m_field->keyword() );
             return;
         }
         else
         {
             objPtr = obj.get();
-
-            if ( !obj->matchesClassKeyword( className ) )
-            {
-                CAFFA_ASSERT( false ); // Inconsistency in the factory. It creates objects of wrong type from the
-                                       // ClassKeyword
-                return;
-            }
-            m_field->setChildObject( std::move( obj ) );
+            m_field->setObject( std::move( obj ) );
         }
     }
 
+    CAFFA_ASSERT( objPtr.notNull() );
     if ( !objPtr->matchesClassKeyword( className ) )
     {
         // Error: Field contains different class type than in the JSON
-        std::cout << "Warning: Unknown object type with class name: " << className.c_str()
-                  << " found while reading the field : " << m_field->keyword().c_str() << std::endl;
-        std::cout << "                     Expected class name: " << objPtr->classKeyword().c_str() << std::endl;
+        CAFFA_ERROR( "Unknown object type with class name: " << className << " found while reading the field : "
+                                                             << m_field->keyword() );
+        CAFFA_ERROR( "                     Expected class name: " << objPtr->classKeyword() );
 
         return;
     }
 
     // Everything seems ok, so read the contents of the object:
-    CAFFA_ASSERT( objPtr.notNull() );
     std::string jsonString = jsonObject.dump();
     serializer.readObjectFromString( objPtr.p(), jsonString );
 }
@@ -206,10 +199,8 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
 template <typename DataType>
 void FieldJsonCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonValue, const Serializer& serializer ) const
 {
-    auto childObjects = m_field->childObjects();
-    if ( childObjects.empty() ) return;
-
-    auto object = childObjects.front();
+    auto object = m_field->object();
+    if ( !object ) return;
 
     auto ioObject = object->template capability<caffa::ObjectIoCapability>();
     if ( ioObject )

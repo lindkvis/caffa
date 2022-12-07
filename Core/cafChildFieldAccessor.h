@@ -33,13 +33,13 @@ public:
         : m_field( field )
     {
     }
-    virtual ~ChildFieldAccessor()                                                         = default;
-    virtual ObjectHandle*                 value() const                                   = 0;
-    virtual void                          setValue( std::unique_ptr<ObjectHandle> value ) = 0;
-    virtual std::unique_ptr<ObjectHandle> clear()                                         = 0;
+    virtual ~ChildFieldAccessor()                                                           = default;
+    virtual ObjectHandle*                 object() const                                    = 0;
+    virtual void                          setObject( std::unique_ptr<ObjectHandle> object ) = 0;
+    virtual std::unique_ptr<ObjectHandle> clear()                                           = 0;
 
-    virtual std::unique_ptr<ObjectHandle> cloneValue() const                     = 0;
-    virtual void                          copyValue( const ObjectHandle* value ) = 0;
+    virtual std::unique_ptr<ObjectHandle> deepCloneObject() const                          = 0;
+    virtual void                          deepCopyObjectFrom( const ObjectHandle* object ) = 0;
 
 protected:
     FieldHandle* m_field;
@@ -50,15 +50,15 @@ class ChildFieldDirectStorageAccessor : public ChildFieldAccessor
 public:
     ChildFieldDirectStorageAccessor( FieldHandle* field );
     ~ChildFieldDirectStorageAccessor() override = default;
-    ObjectHandle*                 value() const override;
-    void                          setValue( std::unique_ptr<ObjectHandle> value ) override;
+    ObjectHandle*                 object() const override;
+    void                          setObject( std::unique_ptr<ObjectHandle> object ) override;
     std::unique_ptr<ObjectHandle> clear() override;
 
-    std::unique_ptr<ObjectHandle> cloneValue() const override;
-    void                          copyValue( const ObjectHandle* value ) override;
+    std::unique_ptr<ObjectHandle> deepCloneObject() const override;
+    void                          deepCopyObjectFrom( const ObjectHandle* object ) override;
 
 private:
-    std::unique_ptr<ObjectHandle> m_value;
+    std::unique_ptr<ObjectHandle> m_object;
 };
 
 } // namespace caffa
