@@ -1,36 +1,20 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Caffa
-//   Copyright (C) Gaute Lindkvist
+//    Caffa
+//    Copyright (C) 2022- Kontur AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
-//   the GNU Lesser General Public License as follows:
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   GNU General Public License Usage
-//   This library is free software: you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation, either version 3 of the License, or
-//   (at your option) any later version.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
-//
-//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
-//   for more details.
-//
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
-//
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
-//
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
 #include "cafGrpcFieldService.h"
 #include "cafGrpcCallbacks.h"
@@ -155,27 +139,33 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
     if ( field )
     {
         auto scriptability = field->capability<caffa::FieldScriptingCapability>();
-        CAFFA_ASSERT( scriptability );
-
-        auto ioCapability = field->capability<caffa::FieldJsonCapability>();
-        try
+        if ( scriptability )
         {
-            if ( !scriptability->isWritable() || !ioCapability )
-                throw std::runtime_error( "Field " + fieldRequest.keyword() + " is not writable" );
+            auto ioCapability = field->capability<caffa::FieldJsonCapability>();
+            try
+            {
+                if ( !scriptability->isWritable() || !ioCapability )
+                    throw std::runtime_error( "Field " + fieldRequest.keyword() + " is not writable" );
 
-            CAFFA_TRACE( "Set " << fieldOwner->classKeyword() << " -> " << fieldRequest.keyword() << " = "
-                                << request->value() << "" );
+                CAFFA_TRACE( "Set " << fieldOwner->classKeyword() << " -> " << fieldRequest.keyword() << " = "
+                                    << request->value() << "" );
 
-            auto           jsonValue = nlohmann::json::parse( request->value() );
-            JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
-            ioCapability->readFromJson( jsonValue, serializer );
-            return grpc::Status::OK;
+                auto           jsonValue = nlohmann::json::parse( request->value() );
+                JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
+                ioCapability->readFromJson( jsonValue, serializer );
+                return grpc::Status::OK;
+            }
+            catch ( const std::exception& e )
+            {
+                CAFFA_ERROR( "gRPC Field::SetValue for '" << fieldRequest.keyword() << "' failed with error: '"
+                                                          << e.what() << "'" );
+                return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
+            }
         }
-        catch ( const std::exception& e )
+        else
         {
-            CAFFA_ERROR( "gRPC Field::SetValue for '" << fieldRequest.keyword() << "' failed with error: '" << e.what()
-                                                      << "'" );
-            return grpc::Status( grpc::FAILED_PRECONDITION, e.what() );
+            return grpc::Status( grpc::FAILED_PRECONDITION,
+                                 "Field " + fieldRequest.keyword() + " found, but it isn't writable" );
         }
     }
     std::string errMsg = std::string( "Field " ) + fieldRequest.keyword() + " not found in " + fieldOwner->classKeyword();
