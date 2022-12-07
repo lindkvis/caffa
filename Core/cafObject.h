@@ -37,6 +37,7 @@
 #pragma once
 
 #include "cafDataFieldAccessor.h"
+#include "cafDynamicUniqueCast.h"
 #include "cafField.h"
 #include "cafFieldJsonCapability.h"
 #include "cafFieldJsonCapabilitySpecializations.h"
@@ -56,6 +57,7 @@ namespace caffa
 class UiEditorAttribute;
 class UiTreeOrdering;
 class ObjectCapability;
+class ObjectFactory;
 
 /**
  * Helper class that is initialised with Object::initField and allows
@@ -167,6 +169,27 @@ public:
 
     std::string uuid() const override;
     void        setUuid( const std::string& uuid ) override;
+
+    /**
+     * @brief Deep clone the object using an optional object factory
+     *
+     * @param optionalObjectFactory if null the default object factory will be used
+     * @return std::unique_ptr<Object>
+     */
+    std::unique_ptr<ObjectHandle> deepClone( caffa::ObjectFactory* optionalObjectFactory = nullptr ) const override;
+
+    /**
+     * @brief Deep clone and cast to the typed class using an optional object factory
+     *
+     * @tparam DerivedClass
+     * @param optionalObjectFactory if null the default object factory will be used
+     * @return std::unique_ptr<DerivedClass>
+     */
+    template <typename DerivedClass>
+    std::unique_ptr<DerivedClass> typedDeepClone( caffa::ObjectFactory* optionalObjectFactory = nullptr ) const
+    {
+        return caffa::dynamic_unique_cast<DerivedClass>( deepClone( optionalObjectFactory ) );
+    }
 
 private:
     caffa::Field<std::string> m_uuid;

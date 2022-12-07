@@ -37,6 +37,7 @@
 namespace caffa
 {
 class FieldCapability;
+class ObjectFactory;
 
 /**
  * The base class of all objects
@@ -119,6 +120,14 @@ public:
 
     virtual std::string uuid() const { return ""; }
     virtual void        setUuid( const std::string& ) {}
+
+    /**
+     * @brief Deep clone the object using an optional object factory
+     *
+     * @param optionalObjectFactory if null the default object factory will be used
+     * @return std::unique_ptr<Object>
+     */
+    virtual std::unique_ptr<ObjectHandle> deepClone( caffa::ObjectFactory* optionalObjectFactory = nullptr ) const = 0;
 
 protected:
     /**
