@@ -202,7 +202,7 @@ std::vector<const DataType*> caffa::ChildArrayField<DataType*>::objects() const
     std::vector<const DataType*> typedObjects;
     for ( auto childObject : this->childObjects() )
     {
-        typedObjects.push_back( static_cast<DataType*>( childObject ) );
+        typedObjects.push_back( static_cast<const DataType*>( childObject ) );
     }
 
     return typedObjects;
