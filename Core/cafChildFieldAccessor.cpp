@@ -34,7 +34,15 @@ ChildFieldDirectStorageAccessor::ChildFieldDirectStorageAccessor( FieldHandle* f
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle* ChildFieldDirectStorageAccessor::object() const
+ObjectHandle* ChildFieldDirectStorageAccessor::object()
+{
+    return m_object.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const ObjectHandle* ChildFieldDirectStorageAccessor::object() const
 {
     return m_object.get();
 }

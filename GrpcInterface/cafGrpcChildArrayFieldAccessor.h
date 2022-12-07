@@ -49,12 +49,24 @@ public:
         return removedObjects;
     }
 
-    std::vector<ObjectHandle*> value() const override
+    std::vector<ObjectHandle*> objects() override
     {
         getRemoteObjectsIfNecessary();
 
         std::vector<ObjectHandle*> rawPtrs;
         for ( auto& objectPtr : m_remoteObjects )
+        {
+            rawPtrs.push_back( objectPtr.get() );
+        }
+        return rawPtrs;
+    }
+
+    std::vector<const ObjectHandle*> objects() const override
+    {
+        getRemoteObjectsIfNecessary();
+
+        std::vector<const ObjectHandle*> rawPtrs;
+        for ( const auto& objectPtr : m_remoteObjects )
         {
             rawPtrs.push_back( objectPtr.get() );
         }

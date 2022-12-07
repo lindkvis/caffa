@@ -48,9 +48,19 @@ std::vector<std::unique_ptr<ObjectHandle>> ChildArrayFieldDirectStorageAccessor:
     return returnValues;
 }
 
-std::vector<ObjectHandle*> ChildArrayFieldDirectStorageAccessor::value() const
+std::vector<ObjectHandle*> ChildArrayFieldDirectStorageAccessor::objects()
 {
     std::vector<ObjectHandle*> rawPointers;
+    for ( auto& ptr : m_pointers )
+    {
+        rawPointers.push_back( ptr.get() );
+    }
+    return rawPointers;
+}
+
+std::vector<const ObjectHandle*> ChildArrayFieldDirectStorageAccessor::objects() const
+{
+    std::vector<const ObjectHandle*> rawPointers;
     for ( auto& ptr : m_pointers )
     {
         rawPointers.push_back( ptr.get() );

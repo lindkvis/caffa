@@ -27,9 +27,10 @@ public:
     ObjectHandle* ownerObject();
 
     // Child objects
-    bool                                  hasChildObjects();
-    virtual std::vector<ObjectHandle*>    childObjects() const { return {}; }
-    virtual std::unique_ptr<ObjectHandle> removeChildObject( ObjectHandle* );
+    bool                                     hasChildObjects();
+    virtual std::vector<ObjectHandle*>       childObjects() { return {}; }
+    virtual std::vector<const ObjectHandle*> childObjects() const { return {}; }
+    virtual std::unique_ptr<ObjectHandle>    removeChildObject( ObjectHandle* );
 
     virtual std::string dataType() const = 0;
 

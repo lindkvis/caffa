@@ -11,16 +11,6 @@ namespace caffa
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-ChildField<DataType*>::ChildField( DataTypePtr object )
-    : m_fieldDataAccessor( std::make_unique<ChildFieldDirectStorageAccessor>() )
-{
-    m_fieldDataAccessor->setObject( std::move( object ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
 ChildField<DataType*>::~ChildField()
 {
 }
@@ -72,7 +62,21 @@ void ChildField<DataType*>::deepCopyObjectFrom( const DataType* copyFrom )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-std::vector<ObjectHandle*> ChildField<DataType*>::childObjects() const
+std::vector<ObjectHandle*> ChildField<DataType*>::childObjects()
+{
+    CAFFA_ASSERT( isInitialized() );
+
+    auto object = m_fieldDataAccessor->object();
+    if ( !object ) return {};
+
+    return { object };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+std::vector<const ObjectHandle*> ChildField<DataType*>::childObjects() const
 {
     CAFFA_ASSERT( isInitialized() );
 
