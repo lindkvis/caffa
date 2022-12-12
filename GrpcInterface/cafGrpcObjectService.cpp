@@ -1,36 +1,36 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Caffa
-//   Copyright (C) Gaute Lindkvist
+//    Caffa
+//    Copyright (C) Gaute Lindkvist
 //
-//   This library may be used under the terms of either the GNU General Public License or
-//   the GNU Lesser General Public License as follows:
+//    This library may be used under the terms of either the GNU General Public License or
+//    the GNU Lesser General Public License as follows:
 //
-//   GNU General Public License Usage
-//   This library is free software: you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation, either version 3 of the License, or
-//   (at your option) any later version.
+//    GNU General Public License Usage
+//    This library is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
-//   for more details.
+//    See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
+//    for more details.
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
 #include "cafGrpcObjectService.h"
 
@@ -269,10 +269,21 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const caffa::S
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-static bool fieldIsScriptable( const caffa::FieldHandle* fieldHandle )
+static bool fieldIsScriptReadable( const caffa::FieldHandle* fieldHandle )
 {
-    return fieldHandle->capability<caffa::FieldScriptingCapability>() != nullptr;
+    auto scriptability = fieldHandle->capability<caffa::FieldScriptingCapability>();
+    return scriptability && scriptability->isReadable();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+static bool fieldIsScriptWritable( const caffa::FieldHandle* fieldHandle )
+{
+    auto scriptability = fieldHandle->capability<caffa::FieldScriptingCapability>();
+    return scriptability && scriptability->isWritable();
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -285,7 +296,7 @@ void ObjectService::copyProjectSelfReferenceFromCafToRpc( const caffa::ObjectHan
     CAFFA_ASSERT( ioCapability );
 
     caffa::JsonSerializer serializer( DefaultObjectFactory::instance() );
-    serializer.setFieldSelector( fieldIsScriptable );
+    serializer.setFieldSelector( fieldIsScriptReadable );
     serializer.setSerializeDataValues( false );
     serializer.setSerializeUuids( true );
     serializer.setSerializeSchema( false );
@@ -307,7 +318,7 @@ void ObjectService::copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* so
     CAFFA_ASSERT( ioCapability );
 
     caffa::JsonSerializer serializer( DefaultObjectFactory::instance() );
-    serializer.setFieldSelector( fieldIsScriptable );
+    serializer.setFieldSelector( fieldIsScriptReadable );
     serializer.setSerializeDataValues( false );
     serializer.setSerializeUuids( true );
 
@@ -325,7 +336,7 @@ void ObjectService::copyProjectObjectFromRpcToCaf( const RpcObject*      source,
     CAFFA_ASSERT( source && destination );
 
     caffa::JsonSerializer serializer( DefaultObjectFactory::instance() );
-    serializer.setFieldSelector( fieldIsScriptable );
+    serializer.setFieldSelector( fieldIsScriptWritable );
     serializer.setSerializeDataValues( false );
 
     serializer.readObjectFromString( destination, source->json() );
