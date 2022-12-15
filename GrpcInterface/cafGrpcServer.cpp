@@ -89,7 +89,7 @@ public:
     {
         m_thread = std::thread( &ServerImpl::initializeAndWaitForNextRequest, this );
         m_thread.join();
-        CAFFA_DEBUG( "Request handling thread joined" );
+        CAFFA_TRACE( "Request handling thread joined" );
 
         cleanup();
     }
@@ -111,7 +111,7 @@ public:
         CAFFA_DEBUG( "Shutting down" );
         if ( m_server )
         {
-            CAFFA_DEBUG( "Processing requests" );
+            CAFFA_TRACE( "Processing requests" );
 
             // Must destroy server before services
             m_server.reset();
@@ -209,7 +209,7 @@ private:
         void* tag;
         bool  ok = false;
 
-        CAFFA_DEBUG( "Waiting for requests" );
+        CAFFA_TRACE( "Waiting for requests" );
         while ( m_completionQueue->Next( &tag, &ok ) )
         {
             AbstractCallback* method = static_cast<AbstractCallback*>( tag );
@@ -225,7 +225,7 @@ private:
                 m_completionQueue->Shutdown();
             }
         }
-        CAFFA_DEBUG( "Request handler quitting" );
+        CAFFA_TRACE( "Request handler quitting" );
     }
 
     void process( AbstractCallback* method )
