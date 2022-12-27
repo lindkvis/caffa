@@ -83,6 +83,8 @@ public:
         m_fieldDataAccessor = std::move( accessor );
     }
 
+    std::string childClassKeyword() const override { return DataType::classKeywordStatic(); }
+
 private: // To be disabled
     ChildArrayField( const ChildArrayField& )            = delete;
     ChildArrayField& operator=( const ChildArrayField& ) = delete;

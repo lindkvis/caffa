@@ -26,6 +26,7 @@ public:
     virtual void                          setChildObject( std::unique_ptr<ObjectHandle> object )      = 0;
     virtual void                          setAccessor( std::unique_ptr<ChildFieldAccessor> accessor ) = 0;
     virtual std::unique_ptr<ObjectHandle> clear()                                                     = 0;
+    virtual std::string                   childClassKeyword() const                                   = 0;
 };
 
 template <typename DataType>
@@ -93,6 +94,8 @@ public:
     {
         m_fieldDataAccessor = std::move( accessor );
     }
+
+    std::string childClassKeyword() const override { return DataType::classKeywordStatic(); }
 
 private:
     ChildField( const ChildField& )            = delete;
