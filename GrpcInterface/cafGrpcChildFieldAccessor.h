@@ -61,7 +61,7 @@ public:
 
     std::unique_ptr<ObjectHandle> deepCloneObject() const override { return getDeepCopyOfRemoteObject(); }
 
-    void deepCopyObjectFrom( const ObjectHandle* copyFrom )
+    void deepCopyObjectFrom( const ObjectHandle* copyFrom ) override
     {
         if ( m_remoteObject )
         {
