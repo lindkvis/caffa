@@ -91,7 +91,7 @@ public:
         return { m_demoDocument.get(), m_demoDocumentWithNonScriptableMember.get() };
     }
 
-    caffa::SessionMaintainer createSession( caffa::Session::Type type ) override
+    caffa::SessionMaintainer createSession( caffa::Session::Type type = caffa::Session::Type::REGULAR ) override
     {
         if ( type == caffa::Session::Type::REGULAR )
         {

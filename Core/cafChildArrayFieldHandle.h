@@ -78,6 +78,12 @@ public:
      * @param accessor
      */
     virtual void setAccessor( std::unique_ptr<ChildArrayFieldAccessor> accessor ) = 0;
+
+    /**
+     * @brief Get the class keyword of the contained children
+     *
+     */
+    virtual std::string childClassKeyword() const = 0;
 };
 
 } // namespace caffa
