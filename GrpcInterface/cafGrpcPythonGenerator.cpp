@@ -22,6 +22,7 @@
 #include "cafChildField.h"
 #include "cafDefaultObjectFactory.h"
 #include "cafDocument.h"
+#include "cafFieldDocumentationCapability.h"
 #include "cafFieldHandle.h"
 #include "cafFieldJsonCapability.h"
 #include "cafFieldScriptingCapability.h"
@@ -271,6 +272,11 @@ std::string PythonGenerator::generate( FieldHandle* field, std::vector<std::stri
 
     code += "    @property\n";
     code += "    def " + field->keyword() + "(self):\n";
+    auto doc = field->capability<FieldDocumentationCapability>();
+    if ( doc )
+    {
+        code += "        \"\"\"" + doc->documentation() + "\"\"\"\n\n";
+    }
     if ( scriptability->isReadable() )
     {
         code += "        return " + castFieldValue( field, "self.get(\"" + field->keyword() + "\")" ) + "\n\n";
@@ -336,7 +342,22 @@ std::string PythonGenerator::generate( caffa::ObjectMethod* method, std::vector<
     code += "):\n";
     if ( !method->classDocumentation().empty() )
     {
-        code += "        \"\"\"" + method->classDocumentation() + "\"\"\"\n\n";
+        code += "        \"\"\"" + method->classDocumentation() + "\n\n";
+        code += "        Parameters\n";
+        code += "        ----------\n";
+        for ( auto field : fields )
+        {
+            if ( field->keyword() != "uuid" )
+            {
+                auto doc = field->capability<FieldDocumentationCapability>();
+                if ( doc )
+                {
+                    code += "        " + field->keyword() + " : " + field->dataType() + "\n";
+                    code += "            " + doc->documentation() + "\n";
+                }
+            }
+        }
+        code += "        \"\"\"\n\n";
     }
     code += "        method = self.method(\"" + method->classKeyword() + "\")\n";
     for ( auto field : fields )

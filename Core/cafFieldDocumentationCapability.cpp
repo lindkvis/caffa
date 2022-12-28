@@ -19,6 +19,8 @@
 //##################################################################################################
 #include "cafFieldDocumentationCapability.h"
 
+#include "cafFieldHandle.h"
+
 using namespace caffa;
 
 //--------------------------------------------------------------------------------------------------
@@ -26,6 +28,7 @@ using namespace caffa;
 //--------------------------------------------------------------------------------------------------
 FieldDocumentationCapability::FieldDocumentationCapability( const std::string& documentation )
     : m_documentation( documentation )
+    , m_owner( nullptr )
 {
 }
 
@@ -35,4 +38,20 @@ FieldDocumentationCapability::FieldDocumentationCapability( const std::string& d
 std::string FieldDocumentationCapability::documentation() const
 {
     return m_documentation;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const FieldHandle* FieldDocumentationCapability::owner() const
+{
+    return m_owner;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void FieldDocumentationCapability::setOwner( FieldHandle* field )
+{
+    m_owner = field;
 }
