@@ -39,17 +39,17 @@ namespace rpc
         ~PythonGenerator() override;
 
         std::string generate( std::list<std::unique_ptr<caffa::Document>>& documents ) override;
-        std::string generate( caffa::ObjectHandle* object, bool objectMethodField = false ) override;
-        std::string generate( caffa::FieldHandle* field ) override;
-        std::string generate( caffa::ObjectMethod* method ) override;
+        std::string generate( caffa::ObjectHandle* object, bool objectMethodResultOrParameter = false ) override;
+        std::string generate( caffa::FieldHandle* field, std::vector<std::string>& dependencies ) override;
+        std::string generate( caffa::ObjectMethod* method, std::vector<std::string>& dependencies ) override;
 
     private:
-        std::string generateObjectMethodField( caffa::ObjectHandle* object );
-        std::string findParentClass( caffa::ObjectHandle* object ) const;
-        std::string pythonValue( const std::string& cppValue ) const;
-
-        std::map<std::string, bool> m_classesToGenerate;
-        std::set<std::string>       m_classesGenerated;
+        std::string           generateObjectMethodField( caffa::ObjectHandle* object );
+        std::string           findParentClass( caffa::ObjectHandle* object ) const;
+        std::string           pythonValue( const std::string& cppValue ) const;
+        std::string           castFieldValue( const caffa::FieldHandle* field, const std::string& value ) const;
+        std::string           dependency( const caffa::FieldHandle* field ) const;
+        std::set<std::string> m_classesGenerated;
     };
 } // namespace rpc
 } // namespace caffa
