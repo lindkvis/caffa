@@ -2,6 +2,8 @@
 //
 //   Custom Visualization Core library
 //   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2013-2020 Ceetron Solutions AS
+//   Copyright (C) 2020- Kontur AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -39,6 +41,7 @@
 #include "cafDataFieldAccessor.h"
 #include "cafDynamicUniqueCast.h"
 #include "cafField.h"
+#include "cafFieldDocumentationCapability.h"
 #include "cafFieldJsonCapability.h"
 #include "cafFieldJsonCapabilitySpecializations.h"
 #include "cafFieldProxyAccessor.h"
@@ -129,6 +132,13 @@ public:
     FieldInitHelper& withValidator( std::unique_ptr<FieldValidator<typename FieldType::FieldDataType>> validator )
     {
         m_field.addValidator( std::move( validator ) );
+        return *this;
+    }
+
+    FieldInitHelper& withDoc( const std::string& documentation )
+    {
+        auto doc = std::make_unique<caffa::FieldDocumentationCapability>( documentation );
+        m_field.addCapability( std::move( doc ) );
         return *this;
     }
 

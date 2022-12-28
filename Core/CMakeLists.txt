@@ -40,7 +40,8 @@ set(PUBLIC_HEADERS
     cafDocument.h
     cafApplication.h
     cafSession.h
-    cafUuidGenerator.h)
+    cafUuidGenerator.h
+    cafFieldDocumentationCapability.h)
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
@@ -63,7 +64,8 @@ set(PROJECT_FILES
     cafDocument.cpp
     cafApplication.cpp
     cafSession.cpp
-    cafUuidGenerator.cpp)
+    cafUuidGenerator.cpp
+    cafFieldDocumentationCapability.cpp)
 
 if(CAFFA_BUILD_SHARED)
   message(STATUS "Building ${PROJECT_NAME} shared")
