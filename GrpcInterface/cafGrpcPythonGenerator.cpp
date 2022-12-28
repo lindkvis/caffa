@@ -23,7 +23,9 @@
 #include "cafDefaultObjectFactory.h"
 #include "cafDocument.h"
 #include "cafFieldHandle.h"
+#include "cafFieldJsonCapability.h"
 #include "cafFieldScriptingCapability.h"
+#include "cafJsonSerializer.h"
 #include "cafObjectHandle.h"
 #include "cafObjectMethod.h"
 
@@ -36,7 +38,7 @@ PythonGenerator::~PythonGenerator()
 
 std::string PythonGenerator::generate( std::list<std::unique_ptr<caffa::Document>>& documents )
 {
-    std::string code = "import caffa\n\n";
+    std::string code = "from caffa import Object\n\n\n";
 
     for ( auto& doc : documents )
     {
@@ -45,20 +47,41 @@ std::string PythonGenerator::generate( std::list<std::unique_ptr<caffa::Document
     return code;
 }
 
-std::string PythonGenerator::generate( ObjectHandle* object, const std::string& parentClassKeyword )
+std::string PythonGenerator::generate( ObjectHandle* object, bool objectMethodField )
 {
-    std::string code = "class " + object->classKeyword() + "(" + parentClassKeyword + "):\n ";
-    code += "    def __init__(self, object):\n";
-    code += "        self._json_object = object._json_object\n";
-    code += "        self._session_uuid = object._session_uuid\n";
-    code += "        self._object_cache = object._object_cache\n";
-    code += "        self._channel = object._channel\n";
-    code += "        self._field_stub = object._field_stub\n";
-    code += "        self._object_stub = object._object_stub\n\n";
+    CAFFA_DEBUG( "Generating code for class " << object->classKeyword() );
+    if ( objectMethodField )
+    {
+        return generateObjectMethodField( object );
+    }
+
+    std::string dependencyCode;
+
+    auto parentClassKeyword = findParentClass( object );
+    if ( parentClassKeyword != "Object" && !m_classesGenerated.count( parentClassKeyword ) )
+    {
+        m_classesGenerated.insert( parentClassKeyword );
+        CAFFA_DEBUG( "Creating temp instance of " << parentClassKeyword );
+        auto tempObject = caffa::DefaultObjectFactory::instance()->create( parentClassKeyword );
+        dependencyCode += generate( tempObject.get(), objectMethodField );
+    }
+
+    std::string objectCode;
+    objectCode += "class " + object->classKeyword() + "(" + parentClassKeyword + "):\n";
+    objectCode += "    def __init__(self, object):\n";
+    objectCode += "        self._json_object = object._json_object\n";
+    objectCode += "        self._session_uuid = object._session_uuid\n";
+    objectCode += "        self._object_cache = object._object_cache\n";
+    objectCode += "        self._channel = object._channel\n";
+    objectCode += "        self._field_stub = object._field_stub\n";
+    objectCode += "        self._object_stub = object._object_stub\n\n";
 
     for ( auto field : object->fields() )
     {
-        if ( field->capability<caffa::FieldScriptingCapability>() != nullptr ) code += generate( field );
+        if ( field->capability<caffa::FieldScriptingCapability>() != nullptr )
+        {
+            objectCode += generate( field );
+        }
     }
 
     auto methodNames = ObjectMethodFactory::instance()->registeredMethodNames( object );
@@ -66,20 +89,131 @@ std::string PythonGenerator::generate( ObjectHandle* object, const std::string& 
     for ( auto methodName : methodNames )
     {
         auto method = ObjectMethodFactory::instance()->createMethod( object, methodName );
-        code += generate( method.get() );
+        objectCode += generate( method.get() );
     }
 
-    for ( auto className : m_classesToGenerate )
+    for ( auto [className, objectMethodField] : m_classesToGenerate )
     {
-        if ( !m_classesGenerated.count( className ) )
+        if ( className != "Object" && !m_classesGenerated.count( className ) )
         {
             m_classesGenerated.insert( className );
+            CAFFA_DEBUG( "Creating temp instance of " << className );
             auto tempObject = caffa::DefaultObjectFactory::instance()->create( className );
-            code += generate( tempObject.get(), object->classKeyword() );
+            dependencyCode += generate( tempObject.get(), objectMethodField );
         }
     }
 
-    return code;
+    return dependencyCode + objectCode;
+}
+
+std::string PythonGenerator::generateObjectMethodField( ObjectHandle* object )
+{
+    std::string dependencyCode;
+    auto        parentClassKeyword = findParentClass( object );
+    if ( parentClassKeyword != "Object" && !m_classesGenerated.count( parentClassKeyword ) )
+    {
+        m_classesGenerated.insert( parentClassKeyword );
+        CAFFA_INFO( "Creating temp instance of " << parentClassKeyword );
+        auto tempObject = caffa::DefaultObjectFactory::instance()->create( parentClassKeyword );
+        dependencyCode += generate( tempObject.get(), true );
+    }
+
+    std::string code;
+    code += "class " + object->classKeyword() + "(" + parentClassKeyword + "):\n";
+    code += "    def __init__(self";
+
+    for ( auto field : object->fields() )
+    {
+        if ( field->keyword() != "uuid" )
+        {
+            code += ", " + field->keyword();
+            auto childField      = dynamic_cast<ChildFieldHandle*>( field );
+            auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
+
+            if ( childField )
+            {
+                m_classesToGenerate.insert( std::make_pair( childField->childClassKeyword(), true ) );
+                code += ": " + childField->childClassKeyword() + " = " + childField->childClassKeyword() + "()";
+            }
+            else if ( childArrayField )
+            {
+                m_classesToGenerate.insert( std::make_pair( childArrayField->childClassKeyword(), true ) );
+                code += ": " + childArrayField->childClassKeyword() + " = []";
+            }
+
+            auto jsonCap = field->capability<FieldJsonCapability>();
+            if ( jsonCap )
+            {
+                nlohmann::json json;
+                jsonCap->writeToJson( json, JsonSerializer() );
+                code += " = " + pythonValue( json["value"].dump() );
+            }
+        }
+    }
+    code += "):\n";
+    for ( auto field : object->fields() )
+    {
+        if ( field->keyword() != "uuid" )
+        {
+            code += "        self." + field->keyword() + " = " + field->keyword() + "\n";
+        }
+    }
+    code += "\n";
+    code += "    @classmethod\n";
+    code += "    def copy(cls, object):\n";
+    code += "        return cls(";
+
+    bool first = true;
+    for ( auto field : object->fields() )
+    {
+        if ( field->keyword() != "uuid" )
+        {
+            if ( !first ) code += ", ";
+            code += "object.get(\"" + field->keyword() + "\")";
+            first = false;
+        }
+    }
+    code += ")\n";
+    code += "\n\n";
+
+    for ( auto [className, objectMethodField] : m_classesToGenerate )
+    {
+        if ( className != "Object" && !m_classesGenerated.count( className ) )
+        {
+            m_classesGenerated.insert( className );
+            CAFFA_DEBUG( "Creating temp instance of " << className );
+            auto tempObject = caffa::DefaultObjectFactory::instance()->create( className );
+            dependencyCode += generate( tempObject.get(), objectMethodField );
+        }
+    }
+
+    return dependencyCode + code;
+}
+
+std::string PythonGenerator::findParentClass( ObjectHandle* object ) const
+{
+    auto inheritanceStack = object->classInheritanceStack();
+    for ( size_t i = 1; i < inheritanceStack.size(); ++i )
+    {
+        auto object = DefaultObjectFactory::instance()->create( inheritanceStack[i] );
+        if ( object )
+        {
+            return inheritanceStack[i];
+        }
+    }
+    return "Object";
+}
+
+std::string PythonGenerator::pythonValue( const std::string& cppValue ) const
+{
+    if ( cppValue == "true" )
+        return "True";
+    else if ( cppValue == "false" )
+        return "False";
+    else if ( cppValue == "null" )
+        return "None";
+
+    return cppValue;
 }
 
 std::string PythonGenerator::generate( FieldHandle* field )
@@ -90,37 +224,45 @@ std::string PythonGenerator::generate( FieldHandle* field )
     auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
 
     auto scriptability = field->capability<caffa::FieldScriptingCapability>();
+
+    if ( !( scriptability && ( scriptability->isReadable() || scriptability->isWritable() ) ) ) return code;
+
+    code += "    @property\n";
+    code += "    def " + field->keyword() + "(self):\n";
     if ( scriptability->isReadable() )
     {
-        code += "    @property\n";
-        code += "    def " + field->keyword() + "(self):\n";
         if ( childField )
         {
-            code += "        return " + childField->childClassKeyword() + "(self.get(" + field->keyword() + "))\n\n";
+            code += "        return " + childField->childClassKeyword() + "(self.get(\"" + field->keyword() + "\"))\n\n";
         }
         else if ( childArrayField )
         {
-            code += "        return " + childArrayField->childClassKeyword() + "(self.get(" + field->keyword() + "))\n\n";
+            code += "        return " + childArrayField->childClassKeyword() + "(self.get(\"" + field->keyword() +
+                    "\"))\n\n";
         }
         else
         {
-            code += "        return self.get(" + field->keyword() + ")\n\n";
+            code += "        return self.get(\"" + field->keyword() + "\")\n\n";
         }
+    }
+    else
+    {
+        code += "        raise AttributeError(\"" + field->keyword() + " is write-only\")\n\n";
     }
     if ( scriptability->isWritable() )
     {
         code += "    @" + field->keyword() + ".setter\n";
         code += "    def " + field->keyword() + "(self, value):\n";
-        code += "        return self.set(" + field->keyword() + ", value)\n\n";
+        code += "        return self.set(\"" + field->keyword() + "\", value)\n\n";
     }
 
     if ( childField )
     {
-        m_classesToGenerate.insert( childField->childClassKeyword() );
+        m_classesToGenerate.insert( std::make_pair( childField->childClassKeyword(), false ) );
     }
     else if ( childArrayField )
     {
-        m_classesToGenerate.insert( childArrayField->childClassKeyword() );
+        m_classesToGenerate.insert( std::make_pair( childArrayField->childClassKeyword(), false ) );
     }
 
     return code;
@@ -138,7 +280,32 @@ std::string PythonGenerator::generate( caffa::ObjectMethod* method )
     {
         for ( auto field : fields )
         {
-            if ( field->keyword() != "uuid" ) code += ", " + field->keyword();
+            if ( field->keyword() == "uuid" ) continue;
+
+            code += ", " + field->keyword();
+            auto childField      = dynamic_cast<ChildFieldHandle*>( field );
+            auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
+
+            if ( childField )
+            {
+                m_classesToGenerate.insert( std::make_pair( childField->childClassKeyword(), true ) );
+                code += ": " + childField->childClassKeyword() + " = " + childField->childClassKeyword() + "()";
+            }
+            else if ( childArrayField )
+            {
+                m_classesToGenerate.insert( std::make_pair( childArrayField->childClassKeyword(), true ) );
+                code += ": " + childArrayField->childClassKeyword() + " = []";
+            }
+            else
+            {
+                auto jsonCap = field->capability<FieldJsonCapability>();
+                if ( jsonCap )
+                {
+                    nlohmann::json json;
+                    jsonCap->writeToJson( json, JsonSerializer() );
+                    code += " = " + pythonValue( json["value"].dump() );
+                }
+            }
         }
     }
 
@@ -151,7 +318,11 @@ std::string PythonGenerator::generate( caffa::ObjectMethod* method )
             code += "        method." + field->keyword() + " = " + field->keyword() + "\n";
         }
     }
-    code += "        return self.execute(method)\n";
+
+    auto resultObject = method->defaultResult();
+
+    code += "        return " + resultObject->classKeyword() + ".copy(self.execute(method))\n";
+    m_classesToGenerate.insert( std::make_pair( resultObject->classKeyword(), true ) );
 
     code += "\n";
     return code;
