@@ -2,6 +2,8 @@
 //
 //   Custom Visualization Core library
 //   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2013-2020 Ceetron Solutions AS
+//   Copyright (C) 2022- Kontur AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -48,8 +50,8 @@ CAFFA_SOURCE_INIT( Document, "Document", "Object" )
 //--------------------------------------------------------------------------------------------------
 Document::Document( const std::string& id )
 {
-    initField( m_id, "id" ).withScripting().withDefault( id );
-    initField( m_fileName, "fileName" ).withScripting();
+    initField( m_id, "id" ).withScripting().withDefault( id ).withDoc( "A unique document ID" );
+    initField( m_fileName, "fileName" ).withScripting().withDoc( "The filename of the document if saved to disk" );
 }
 
 //--------------------------------------------------------------------------------------------------

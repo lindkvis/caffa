@@ -25,6 +25,8 @@
 
 namespace caffa
 {
+class FieldHandle;
+
 class FieldDocumentationCapability : public FieldCapability
 {
 public:
@@ -32,8 +34,14 @@ public:
 
     std::string documentation() const;
 
+protected:
+    const FieldHandle* owner() const override;
+    void               setOwner( FieldHandle* field ) override;
+
 private:
     std::string m_documentation;
+
+    FieldHandle* m_owner;
 };
 
 } // namespace caffa

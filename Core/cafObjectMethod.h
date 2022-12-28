@@ -76,7 +76,7 @@ public:
 //==================================================================================================
 class ObjectMethod : public Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT_WITH_DOC( "A generic object method" );
 
 public:
     enum class Type
