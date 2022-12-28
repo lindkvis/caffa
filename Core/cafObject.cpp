@@ -16,7 +16,7 @@ Object::Object( bool generateUuid /* = false*/ )
 {
     addCapability( std::make_unique<caffa::ObjectIoCapability>( this ) );
 
-    initField( m_uuid, "uuid" ).withScripting( "uuid", false, false );
+    initField( m_uuid, "uuid" );
 
     if ( generateUuid )
     {
