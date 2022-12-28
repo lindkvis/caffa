@@ -57,6 +57,7 @@ public:
     virtual std::string              classKeyword() const                                         = 0;
     virtual bool                     matchesClassKeyword( const std::string& classKeyword ) const = 0;
     virtual std::vector<std::string> classInheritanceStack() const                                = 0;
+    virtual std::string              classDocumentation() const { return ""; }
 
     /**
      * The registered fields contained in this Object.

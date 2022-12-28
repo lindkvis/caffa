@@ -22,7 +22,7 @@ public:
 
 class TinyDemoObject : public caffa::Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT_WITH_DOC("A tiny demo object with some documentation");
 
 public:
     TinyDemoObject();

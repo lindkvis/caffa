@@ -62,6 +62,10 @@ std::string PythonGenerator::generate( ObjectHandle* object, bool objectMethodRe
 
     std::string objectCode;
     objectCode += "class " + object->classKeyword() + "(" + parentClassKeyword + "):\n";
+    if ( !object->classDocumentation().empty() )
+    {
+        objectCode += "    \"\"\"" + object->classDocumentation() + "\"\"\"\n\n";
+    }
     objectCode += "    def __init__(self, object):\n";
     objectCode += "        self._json_object = object._json_object\n";
     objectCode += "        self._session_uuid = object._session_uuid\n";
@@ -330,6 +334,10 @@ std::string PythonGenerator::generate( caffa::ObjectMethod* method, std::vector<
     }
 
     code += "):\n";
+    if ( !method->classDocumentation().empty() )
+    {
+        code += "        \"\"\"" + method->classDocumentation() + "\"\"\"\n\n";
+    }
     code += "        method = self.method(\"" + method->classKeyword() + "\")\n";
     for ( auto field : fields )
     {
