@@ -36,10 +36,10 @@ namespace rpc
     public:
         virtual ~CodeGenerator() = default;
 
-        virtual std::string generate( std::list<std::unique_ptr<caffa::Document>>& documents )      = 0;
-        virtual std::string generate( caffa::ObjectHandle* object, bool objectMethodField = false ) = 0;
-        virtual std::string generate( caffa::FieldHandle* field )                                   = 0;
-        virtual std::string generate( caffa::ObjectMethod* method )                                 = 0;
+        virtual std::string generate( std::list<std::unique_ptr<caffa::Document>>& documents )              = 0;
+        virtual std::string generate( caffa::ObjectHandle* object, bool objectMethodField = false )         = 0;
+        virtual std::string generate( caffa::FieldHandle* field, std::vector<std::string>& dependencies )   = 0;
+        virtual std::string generate( caffa::ObjectMethod* method, std::vector<std::string>& dependencies ) = 0;
     };
 } // namespace rpc
 } // namespace caffa
