@@ -48,7 +48,8 @@ namespace caffa
 //==================================================================================================
 class Document : public Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT_WITH_DOC( "The Document class is a top level object acting as a "
+                                "\"Project\" or container" );
 
 public:
     Document( const std::string& id = classKeywordStatic() );

@@ -34,17 +34,37 @@ public:                                                                         
                                                                                                        \
     static bool Error_You_forgot_to_add_the_macro_CAFFA_HEADER_INIT_and_or_CAFFA_SOURCE_INIT_to_your_cpp_file_for_this_class()
 
+/// Alternative macro that allows you to define class documentation as well
+#define CAFFA_HEADER_INIT_WITH_DOC( DOCUMENTATION ) \
+    CAFFA_HEADER_INIT;                              \
+    std::string classDocumentation() const override \
+    {                                               \
+        return std::string( DOCUMENTATION );        \
+    }
+
 #define CAFFA_ABSTRACT_SOURCE_INIT( ClassName, keyword, ... )                                                                      \
     bool ClassName::Error_You_forgot_to_add_the_macro_CAFFA_HEADER_INIT_and_or_CAFFA_SOURCE_INIT_to_your_cpp_file_for_this_class() \
     {                                                                                                                              \
         return false;                                                                                                              \
     }                                                                                                                              \
                                                                                                                                    \
-    std::string              ClassName::classKeyword() const { return classKeywordStatic(); }                                      \
-    std::string              ClassName::classKeywordStatic() { return classInheritanceStackStatic().front(); }                     \
-    std::vector<std::string> ClassName::classInheritanceStackStatic() { return { keyword, ##__VA_ARGS__ }; }                       \
-    std::vector<std::string> ClassName::classInheritanceStack() const { return classInheritanceStackStatic(); }                    \
-    bool                     ClassName::matchesClassKeyword( const std::string& matchKeyword ) const                               \
+    std::string ClassName::classKeyword() const                                                                                    \
+    {                                                                                                                              \
+        return classKeywordStatic();                                                                                               \
+    }                                                                                                                              \
+    std::string ClassName::classKeywordStatic()                                                                                    \
+    {                                                                                                                              \
+        return classInheritanceStackStatic().front();                                                                              \
+    }                                                                                                                              \
+    std::vector<std::string> ClassName::classInheritanceStackStatic()                                                              \
+    {                                                                                                                              \
+        return { keyword, ##__VA_ARGS__ };                                                                                         \
+    }                                                                                                                              \
+    std::vector<std::string> ClassName::classInheritanceStack() const                                                              \
+    {                                                                                                                              \
+        return classInheritanceStackStatic();                                                                                      \
+    }                                                                                                                              \
+    bool ClassName::matchesClassKeyword( const std::string& matchKeyword ) const                                                   \
     {                                                                                                                              \
         auto aliases = classInheritanceStackStatic();                                                                              \
         for ( auto alias : aliases )                                                                                               \
