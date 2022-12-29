@@ -29,6 +29,9 @@
 #include "cafJsonSerializer.h"
 #include "cafObjectHandle.h"
 #include "cafObjectMethod.h"
+#include "cafStringTools.h"
+
+#include <regex>
 
 using namespace caffa;
 using namespace caffa::rpc;
@@ -262,6 +265,30 @@ std::string PythonGenerator::dependency( const caffa::FieldHandle* field ) const
     return "";
 }
 
+std::string PythonGenerator::pythonDataType( const caffa::FieldHandle* field ) const
+{
+    auto childField      = dynamic_cast<const ChildFieldHandle*>( field );
+    auto childArrayField = dynamic_cast<const ChildArrayFieldHandle*>( field );
+
+    if ( childField )
+    {
+        return childField->childClassKeyword();
+    }
+    else if ( childArrayField )
+    {
+        return childArrayField->childClassKeyword();
+    }
+
+    auto dataType = field->dataType();
+    dataType      = StringTools::replace( dataType, "string", "str" );
+    dataType      = StringTools::replace( dataType, "uint", "int" );
+    dataType      = StringTools::replace( dataType, "64", "" );
+    dataType      = StringTools::replace( dataType, "32", "" );
+    dataType      = StringTools::replace( dataType, "bool", "boolean" );
+    dataType      = StringTools::replace( dataType, "double", "float" );
+    return dataType;
+}
+
 std::string PythonGenerator::generate( FieldHandle* field, std::vector<std::string>& dependencies )
 {
     std::string code;
@@ -342,22 +369,30 @@ std::string PythonGenerator::generate( caffa::ObjectMethod* method, std::vector<
     code += "):\n";
     if ( !method->classDocumentation().empty() )
     {
-        code += "        \"\"\"" + method->classDocumentation() + "\n\n";
-        code += "        Parameters\n";
-        code += "        ----------\n";
+        code += "        \"\"\"" + method->classDocumentation();
+        std::string parametersCode;
+        parametersCode += "        Parameters\n";
+        parametersCode += "        ----------\n";
+        size_t fieldCount = 0;
         for ( auto field : fields )
         {
             if ( field->keyword() != "uuid" )
             {
                 auto doc = field->capability<FieldDocumentationCapability>();
+                parametersCode += "        " + field->keyword() + " : " + pythonDataType( field ) + "\n";
+
                 if ( doc )
                 {
-                    code += "        " + field->keyword() + " : " + field->dataType() + "\n";
-                    code += "            " + doc->documentation() + "\n";
+                    parametersCode += "            " + doc->documentation() + "\n";
                 }
+                fieldCount++;
             }
         }
-        code += "        \"\"\"\n\n";
+        parametersCode += "        \"\"\"\n\n";
+        if ( fieldCount > 0u )
+            code += +"\n\n" + parametersCode;
+        else
+            code += "\"\"\"\n\n";
     }
     code += "        method = self.method(\"" + method->classKeyword() + "\")\n";
     for ( auto field : fields )
