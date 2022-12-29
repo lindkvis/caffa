@@ -44,11 +44,13 @@ namespace rpc
         std::string generate( caffa::ObjectMethod* method, std::vector<std::string>& dependencies ) override;
 
     private:
-        std::string           generateObjectMethodField( caffa::ObjectHandle* object );
-        std::string           findParentClass( caffa::ObjectHandle* object ) const;
-        std::string           pythonValue( const std::string& cppValue ) const;
-        std::string           castFieldValue( const caffa::FieldHandle* field, const std::string& value ) const;
-        std::string           dependency( const caffa::FieldHandle* field ) const;
+        std::string generateObjectMethodField( caffa::ObjectHandle* object );
+        std::string findParentClass( caffa::ObjectHandle* object ) const;
+        std::string pythonValue( const std::string& cppValue ) const;
+        std::string castFieldValue( const caffa::FieldHandle* field, const std::string& value ) const;
+        std::string dependency( const caffa::FieldHandle* field ) const;
+        std::string pythonDataType( const caffa::FieldHandle* field ) const;
+
         std::set<std::string> m_classesGenerated;
     };
 } // namespace rpc
