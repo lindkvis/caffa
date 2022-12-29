@@ -40,6 +40,11 @@ PythonGenerator::~PythonGenerator()
 {
 }
 
+std::string PythonGenerator::name() const
+{
+    return "python";
+}
+
 std::string PythonGenerator::generate( std::list<std::unique_ptr<caffa::Document>>& documents )
 {
     std::string code = "from caffa import Object\n\n\n";
@@ -132,6 +137,10 @@ std::string PythonGenerator::generateObjectMethodField( ObjectHandle* object )
 
     std::string code;
     code += "class " + object->classKeyword() + "(" + parentClassKeyword + "):\n";
+    if ( !object->classDocumentation().empty() )
+    {
+        code += "    \"\"\"" + object->classDocumentation() + "\"\"\"\n\n";
+    }
     code += "    def __init__(self";
 
     for ( auto field : object->fields() )
@@ -411,3 +420,6 @@ std::string PythonGenerator::generate( caffa::ObjectMethod* method, std::vector<
     code += "\n";
     return code;
 }
+
+bool pythonRegistered = caffa::rpc::CodeGeneratorFactory::instance()->registerCreator<caffa::rpc::PythonGenerator>(
+    typeid( caffa::rpc::PythonGenerator ).hash_code() );

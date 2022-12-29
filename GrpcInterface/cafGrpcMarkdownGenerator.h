@@ -33,11 +33,10 @@ class ObjectMethod;
 
 namespace rpc
 {
-    class PythonGenerator : public CodeGenerator
+    class MarkdownGenerator : public CodeGenerator
     {
     public:
-        ~PythonGenerator() override;
-
+        ~MarkdownGenerator() override;
         std::string name() const override;
 
         std::string generate( std::list<std::unique_ptr<caffa::Document>>& documents ) override;
@@ -48,10 +47,8 @@ namespace rpc
     private:
         std::string generateObjectMethodField( caffa::ObjectHandle* object );
         std::string findParentClass( caffa::ObjectHandle* object ) const;
-        std::string pythonValue( const std::string& cppValue ) const;
-        std::string castFieldValue( const caffa::FieldHandle* field, const std::string& value ) const;
         std::string dependency( const caffa::FieldHandle* field ) const;
-        std::string pythonDataType( const caffa::FieldHandle* field ) const;
+        std::string docDataType( const caffa::FieldHandle* field ) const;
 
         std::set<std::string> m_classesGenerated;
     };
