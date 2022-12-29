@@ -34,6 +34,7 @@ set(PUBLIC_HEADERS
     cafGrpcClientObjectFactory.h
     cafGrpcClientApplication.h
     cafGrpcCodeGenerator.h
+    cafGrpcMarkdownGenerator.h
     cafGrpcPythonGenerator.h
     )
 
@@ -48,6 +49,7 @@ set(PROJECT_FILES
     cafGrpcClient.cpp
     cafGrpcClientObjectFactory.cpp
     cafGrpcClientApplication.cpp
+    cafGrpcMarkdownGenerator.cpp
     cafGrpcPythonGenerator.cpp)
 
 if(CAFFA_GRPC_FETCHCONTENT)
