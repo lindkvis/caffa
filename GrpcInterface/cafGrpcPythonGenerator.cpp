@@ -178,7 +178,7 @@ std::string PythonGenerator::generateObjectMethodField( ObjectHandle* object )
     {
         if ( field->keyword() != "uuid" )
         {
-            code += "        self.create(keyword=\"" + field->keyword() + "\",type=\"" + field->dataType() +
+            code += "        self.create_field(keyword=\"" + field->keyword() + "\",type=\"" + field->dataType() +
                     "\", value=" + field->keyword() + ")\n";
         }
     }
