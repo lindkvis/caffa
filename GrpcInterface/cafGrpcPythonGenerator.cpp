@@ -153,7 +153,7 @@ std::string PythonGenerator::generateObjectMethodField( ObjectHandle* object )
             if ( childField )
             {
                 dependencies.push_back( childField->childClassKeyword() );
-                code += ": " + childField->childClassKeyword() + " = " + childField->childClassKeyword() + "()";
+                code += ": " + childField->childClassKeyword() + " = None";
             }
             else if ( childArrayField )
             {
@@ -173,14 +173,34 @@ std::string PythonGenerator::generateObjectMethodField( ObjectHandle* object )
         }
     }
     code += "):\n";
+    code += "        super().__init__()\n";
     for ( auto field : object->fields() )
     {
         if ( field->keyword() != "uuid" )
         {
-            code += "        self." + field->keyword() + " = " + field->keyword() + "\n";
+            code += "        self.create(keyword=\"" + field->keyword() + "\",type=\"" + field->dataType() +
+                    "\", value=" + field->keyword() + ")\n";
         }
     }
     code += "\n";
+
+    for ( auto field : object->fields() )
+    {
+        if ( field->keyword() != "uuid" )
+        {
+            code += "    @property\n";
+            code += "    def " + field->keyword() + "(self):\n";
+            auto doc = field->capability<FieldDocumentationCapability>();
+            if ( doc )
+            {
+                code += "        \"\"\"" + doc->documentation() + "\"\"\"\n\n";
+            }
+            code += "        return " + castFieldValue( field, "self.get(\"" + field->keyword() + "\")" ) + "\n\n";
+            code += "    @" + field->keyword() + ".setter\n";
+            code += "    def " + field->keyword() + "(self, value):\n";
+            code += "        return self.set(\"" + field->keyword() + "\", value)\n\n";
+        }
+    }
     code += "    @classmethod\n";
     code += "    def copy(cls, object):\n";
     code += "        return cls(";
