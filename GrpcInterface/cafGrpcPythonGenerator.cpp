@@ -47,7 +47,7 @@ std::string PythonGenerator::name() const
 
 std::string PythonGenerator::generate( std::list<std::unique_ptr<caffa::Document>>& documents )
 {
-    std::string code = "from caffa import Object\n\n\n";
+    std::string code = "from caffa import Object, Document\n\n\n";
 
     for ( auto& doc : documents )
     {
@@ -104,7 +104,7 @@ std::string PythonGenerator::generate( ObjectHandle* object, bool objectMethodRe
     std::string dependencyCode;
     for ( auto className : methodDependencies )
     {
-        if ( className != "Object" && !m_classesGenerated.count( className ) )
+        if ( !isBuiltInClass( className ) && !m_classesGenerated.count( className ) )
         {
             m_classesGenerated.insert( className );
             CAFFA_DEBUG( "Creating temp instance of " << className );
@@ -115,7 +115,7 @@ std::string PythonGenerator::generate( ObjectHandle* object, bool objectMethodRe
 
     for ( auto className : dependencies )
     {
-        if ( className != "Object" && !m_classesGenerated.count( className ) )
+        if ( !isBuiltInClass( className ) && !m_classesGenerated.count( className ) )
         {
             m_classesGenerated.insert( className );
             CAFFA_DEBUG( "Creating temp instance of " << className );
@@ -222,7 +222,7 @@ std::string PythonGenerator::generateObjectMethodField( ObjectHandle* object )
     std::string dependencyCode;
     for ( auto className : dependencies )
     {
-        if ( className != "Object" && !m_classesGenerated.count( className ) )
+        if ( !isBuiltInClass( className ) && !m_classesGenerated.count( className ) )
         {
             m_classesGenerated.insert( className );
             CAFFA_DEBUG( "Creating temp instance of " << className );
@@ -231,6 +231,11 @@ std::string PythonGenerator::generateObjectMethodField( ObjectHandle* object )
         }
     }
     return dependencyCode + code;
+}
+
+bool PythonGenerator::isBuiltInClass( const std::string& classKeyword ) const
+{
+    return classKeyword == "Object" || classKeyword == "Document";
 }
 
 std::string PythonGenerator::findParentClass( ObjectHandle* object ) const
