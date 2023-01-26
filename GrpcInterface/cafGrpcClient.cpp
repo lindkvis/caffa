@@ -131,7 +131,6 @@ public:
         auto status = m_appInfoStub->CreateSession( &context, params, &session );
         if ( !status.ok() )
         {
-            CAFFA_ERROR( status.error_message() );
             throw Exception( status );
         }
 
