@@ -67,16 +67,6 @@ public:
     bool readStream( std::istream& inStream, const Serializer& serializer );
     bool writeStream( std::ostream& outStream, const Serializer& serializer );
 
-protected: // Virtual
-    /// Method gets called from Document after all objects are read.
-    /// Re-implement to set up internal pointers etc. in your data structure
-    virtual void initAfterRead(){};
-    /// Method gets called from Document before saving document.
-    /// Re-implement to make sure your fields have correct data before saving
-    virtual void setupBeforeSave(){};
-
-    bool isInheritedFromSerializable() const { return true; }
-
 private:
     void initAfterReadRecursively( ObjectHandle* object );
     void setupBeforeSaveRecursively( ObjectHandle* object );

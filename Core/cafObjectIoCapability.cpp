@@ -75,7 +75,7 @@ std::unique_ptr<ObjectHandle> ObjectIoCapability::copyBySerialization( ObjectFac
 ///
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<ObjectHandle> ObjectIoCapability::copyAndCastBySerialization( const std::string& destinationClassKeyword,
-                                                                              ObjectFactory*     objectFactory ) const
+                                                                              ObjectFactory* objectFactory ) const
 {
     return JsonSerializer( objectFactory ).setSerializeUuids( false ).copyAndCastBySerialization( m_owner, destinationClassKeyword );
 }
@@ -225,11 +225,7 @@ void ObjectIoCapability::initAfterReadRecursively( ObjectHandle* object )
         initAfterReadRecursively( child );
     }
 
-    auto ioCapability = object->capability<ObjectIoCapability>();
-    if ( ioCapability )
-    {
-        ioCapability->initAfterRead();
-    }
+    object->initAfterRead();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -253,11 +249,7 @@ void ObjectIoCapability::setupBeforeSaveRecursively( ObjectHandle* object )
         setupBeforeSaveRecursively( child );
     }
 
-    auto ioCapability = object->capability<ObjectIoCapability>();
-    if ( ioCapability )
-    {
-        ioCapability->setupBeforeSave();
-    }
+    object->setupBeforeSave();
 }
 
 } // end namespace caffa
