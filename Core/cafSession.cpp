@@ -3,6 +3,7 @@
 #include "cafUuidGenerator.h"
 
 #include "cafAssert.h"
+#include "cafLogger.h"
 
 #include <random>
 

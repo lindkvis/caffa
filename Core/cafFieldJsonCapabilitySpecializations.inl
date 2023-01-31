@@ -5,7 +5,6 @@
 #include "cafObjectFactory.h"
 #include "cafObjectIoCapability.h"
 #include "cafSerializer.h"
-#include "cafStringTools.h"
 
 #include <nlohmann/json.hpp>
 

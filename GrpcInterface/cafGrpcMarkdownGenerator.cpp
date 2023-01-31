@@ -29,7 +29,6 @@
 #include "cafJsonSerializer.h"
 #include "cafObjectHandle.h"
 #include "cafObjectMethod.h"
-#include "cafStringTools.h"
 
 #include <regex>
 

@@ -6,7 +6,6 @@
 #include "cafFieldJsonCapability.h"
 #include "cafJsonSerializer.h"
 #include "cafObjectHandle.h"
-#include "cafStringTools.h"
 
 #include <fstream>
 #include <iostream>
