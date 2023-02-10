@@ -85,9 +85,10 @@ else()
   endif()
 
   if(EXISTS "${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
-    set(CAFFA_GRPC_CPP_PLUGIN "${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
+    set(CAFFA_GRPC_CPP_PLUGIN "${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin" CACHE FILEPATH "Protoc Plugin used to generate Caffa gRPC C++ code")
     message("Using grpc_cpp_plugin: ${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin")
   else()
+    set(CAFFA_GRPC_CPP_PLUGIN "" CACHE FILEPATH "Protoc Plugin used to generate Caffa gRPC C++ code")
     message(FATAL_ERROR "Could not find the grpc_cpp_plugin")
   endif()
 
