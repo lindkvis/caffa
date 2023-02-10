@@ -57,7 +57,7 @@ if(CAFFA_GRPC_FETCHCONTENT)
   FetchContent_Declare(
     gRPC
     GIT_REPOSITORY https://github.com/grpc/grpc
-    GIT_TAG v1.37.0)
+    GIT_TAG v1.43.0)
   set(FETCHCONTENT_QUIET OFF)
   FetchContent_MakeAvailable(gRPC)
   set(CAFFA_PROTOC $<TARGET_FILE:protoc>)
