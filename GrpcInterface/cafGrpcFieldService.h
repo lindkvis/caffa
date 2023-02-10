@@ -20,6 +20,8 @@
 
 #include "cafGrpcServiceInterface.h"
 
+#include <grpcpp/impl/codegen/method_handler_impl.h>
+
 #include "FieldService.grpc.pb.h"
 #include "FieldService.pb.h"
 
