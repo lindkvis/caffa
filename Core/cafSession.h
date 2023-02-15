@@ -49,6 +49,7 @@ public:
     const std::string& uuid() const;
 
     Type type() const;
+    void setType( Type type );
 
     bool isExpired() const;
     void updateKeepAlive();
@@ -65,7 +66,7 @@ private:
     void unblockExpiration() const;
 
     const std::string               m_uuid;
-    const Type                      m_type;
+    Type                            m_type;
     const std::chrono::milliseconds m_timeOut;
 
     mutable std::chrono::steady_clock::time_point m_lastKeepAlive;

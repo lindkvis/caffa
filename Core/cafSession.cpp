@@ -30,7 +30,14 @@ const std::string& Session::uuid() const
 
 Session::Type Session::type() const
 {
+    std::scoped_lock<std::mutex> lock( m_mutex );
     return m_type;
+}
+
+void Session::setType( Type type )
+{
+    std::scoped_lock<std::mutex> lock( m_mutex );
+    m_type = type;
 }
 
 bool Session::isExpired() const
