@@ -130,9 +130,7 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
             {
                 if ( method->type() == ObjectMethod::Type::READ_WRITE && session->type() == Session::Type::OBSERVING )
                 {
-                    return grpc::Status( grpc::UNAUTHENTICATED,
-                                         "Observing session '" + request->session().uuid() +
-                                             "' is not valid for non-const methods" );
+                    return grpc::Status( grpc::UNAUTHENTICATED, "Opertion cannot be completed with observing sessions" );
                 }
 
                 CAFFA_TRACE( "Copy parameters from: " << request->params().json() );

@@ -120,8 +120,7 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
 
     if ( session->type() == Session::Type::OBSERVING )
     {
-        return grpc::Status( grpc::UNAUTHENTICATED,
-                             "Observing session '" + session->uuid() + "' is not valid for setting field values" );
+        return grpc::Status( grpc::UNAUTHENTICATED, "Observing sessions are not valid for controlling operation" );
     }
 
     auto fieldOwner = ObjectService::ObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
@@ -187,8 +186,7 @@ grpc::Status FieldService::ClearChildObjects( grpc::ServerContext* context, cons
 
     if ( session->type() == Session::Type::OBSERVING )
     {
-        return grpc::Status( grpc::UNAUTHENTICATED,
-                             "Observing session '" + session->uuid() + "' is not valid for altering child fields" );
+        return grpc::Status( grpc::UNAUTHENTICATED, "Observing sessions are not valid for controlling operations" );
     }
 
     auto fieldOwner = ObjectService::ObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
@@ -243,8 +241,7 @@ grpc::Status FieldService::RemoveChildObject( grpc::ServerContext* context, cons
 
     if ( session->type() == Session::Type::OBSERVING )
     {
-        return grpc::Status( grpc::UNAUTHENTICATED,
-                             "Observing session '" + session->uuid() + "' is not valid for altering child fields" );
+        return grpc::Status( grpc::UNAUTHENTICATED, "Observing sessions are not valid for controlling operations" );
     }
 
     auto fieldOwner = ObjectService::ObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
@@ -292,8 +289,7 @@ grpc::Status FieldService::InsertChildObject( grpc::ServerContext* context, cons
 
     if ( session->type() == Session::Type::OBSERVING )
     {
-        return grpc::Status( grpc::UNAUTHENTICATED,
-                             "Observing session '" + session->uuid() + "' is not valid for altering child fields" );
+        return grpc::Status( grpc::UNAUTHENTICATED, "Observing sessions are not valid for controlling operations" );
     }
 
     auto fieldOwner = ObjectService::ObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
