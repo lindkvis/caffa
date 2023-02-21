@@ -1,20 +1,20 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Caffa
-//   Copyright (C) Gaute Lindkvist
+//    Caffa
+//    Copyright (C) Gaute Lindkvist
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
 #pragma once
 
@@ -54,9 +54,17 @@ public:
     std::unique_ptr<caffa::ObjectMethodResult> execute( caffa::not_null<const caffa::ObjectMethod*> method ) const;
     bool                                       stopServer();
     void                                       sendKeepAlive();
-    void                                       destroySession();
-    const std::string&                         sessionUuid() const;
-    void                                       startKeepAliveThread();
+
+    /**
+     * @brief Check the session. Will return a session type (including possibly INVALID) if the session exists.
+     * And throw an exception if it does not.
+     * @return caffa::Session::Type
+     */
+    caffa::Session::Type checkSession() const;
+    void                 changeSession( caffa::Session::Type newType );
+    void                 destroySession();
+    const std::string&   sessionUuid() const;
+    void                 startKeepAliveThread();
 
     bool                                            ping() const;
     std::list<std::unique_ptr<caffa::ObjectHandle>> objectMethods( caffa::ObjectHandle* objectHandle ) const;

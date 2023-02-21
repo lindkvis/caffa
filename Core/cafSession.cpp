@@ -66,6 +66,8 @@ Session::Type Session::typeFromUint( unsigned type )
 {
     switch ( type )
     {
+        case static_cast<unsigned>( Session::Type::INVALID ):
+            return Session::Type::INVALID;
         case static_cast<unsigned>( Session::Type::REGULAR ):
             return Session::Type::REGULAR;
         case static_cast<unsigned>( Session::Type::OBSERVING ):

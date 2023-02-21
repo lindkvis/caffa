@@ -180,6 +180,51 @@ public:
             } );
     }
 
+    caffa::Session::Type checkSession() const
+    {
+        std::scoped_lock<std::mutex> lock( m_sessionMutex );
+        if ( !m_sessionUuid.empty() )
+        {
+            CAFFA_DEBUG( "Checking session " << m_sessionUuid );
+            caffa::rpc::SessionMessage session;
+            session.set_uuid( m_sessionUuid );
+            grpc::ClientContext context;
+            SessionMessage      reply;
+
+            auto status = m_appInfoStub->CheckSession( &context, session, &reply );
+            if ( !status.ok() )
+            {
+                CAFFA_ERROR( status.error_message() );
+                throw Exception( status );
+            }
+            CAFFA_DEBUG( "Session exists and is of type " << static_cast<int>( reply.type() ) );
+            return static_cast<caffa::Session::Type>( reply.type() );
+        }
+        return caffa::Session::Type::INVALID;
+    }
+
+    void changeSession( caffa::Session::Type newType )
+    {
+        std::scoped_lock<std::mutex> lock( m_sessionMutex );
+        if ( m_sessionUuid.empty() ) throw std::runtime_error( "No session to change" );
+
+        CAFFA_DEBUG( "Changing session " << m_sessionUuid << " to " << static_cast<int>( newType ) );
+
+        caffa::rpc::SessionMessage session;
+        session.set_uuid( m_sessionUuid );
+        session.set_type( static_cast<caffa::rpc::SessionType>( newType ) );
+
+        grpc::ClientContext context;
+        SessionMessage      reply;
+
+        auto status = m_appInfoStub->ChangeSession( &context, session, &reply );
+        if ( !status.ok() )
+        {
+            CAFFA_ERROR( status.error_message() );
+            throw Exception( status );
+        }
+    }
+
     void destroySession()
     {
         std::scoped_lock<std::mutex> lock( m_sessionMutex );
@@ -808,6 +853,22 @@ void Client::sendKeepAlive()
 void Client::startKeepAliveThread()
 {
     m_clientImpl->startKeepAliveThread();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Check the current session
+//--------------------------------------------------------------------------------------------------
+caffa::Session::Type Client::checkSession() const
+{
+    return m_clientImpl->checkSession();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Change the session type
+//--------------------------------------------------------------------------------------------------
+void Client::changeSession( caffa::Session::Type newType )
+{
+    m_clientImpl->changeSession( newType );
 }
 
 //--------------------------------------------------------------------------------------------------

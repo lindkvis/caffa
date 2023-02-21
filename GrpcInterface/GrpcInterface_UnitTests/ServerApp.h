@@ -1,20 +1,20 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Caffa
-//   Copyright (C) 2021- 3D-Radar AS
+//    Caffa
+//    Copyright (C) 2021- 3D-Radar AS
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
 #pragma once
 
@@ -91,8 +91,29 @@ public:
         return { m_demoDocument.get(), m_demoDocumentWithNonScriptableMember.get() };
     }
 
+    bool readyForSession( caffa::Session::Type type ) const override
+    {
+        if ( type == caffa::Session::Type::INVALID ) return false;
+
+        if ( type == caffa::Session::Type::REGULAR )
+        {
+            if ( m_session )
+            {
+                if ( !m_session->isExpired() )
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return true;
+    }
+
     caffa::SessionMaintainer createSession( caffa::Session::Type type = caffa::Session::Type::REGULAR ) override
     {
+        if ( type == caffa::Session::Type::INVALID )
+            throw std::runtime_error( "Cannot create sessions of type 'INVALID'" );
+
         if ( type == caffa::Session::Type::REGULAR )
         {
             if ( m_session )
@@ -152,6 +173,11 @@ public:
         }
 
         return caffa::ConstSessionMaintainer();
+    }
+
+    void changeSession( caffa::not_null<caffa::Session*> session, caffa::Session::Type newType ) override
+    {
+        throw std::runtime_error( "Cannot change sessions in test app" );
     }
 
     void destroySession( const std::string& sessionUuid )
