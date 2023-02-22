@@ -80,17 +80,14 @@ grpc::Status AppService::PerformPing( grpc::ServerContext*, const NullMessage*, 
     return grpc::Status::OK;
 }
 
-grpc::Status AppService::ReadyForSession( grpc::ServerContext* context, const SessionParameters* request, NullMessage* reply )
+grpc::Status AppService::ReadyForSession( grpc::ServerContext* context, const SessionParameters* request, ReadyMessage* reply )
 {
     CAFFA_DEBUG( "Received ready for session request" );
 
     bool ready = ServerApplication::instance()->readyForSession( caffa::Session::typeFromUint( request->type() ) );
-    if ( ready )
-    {
-        return grpc::Status::OK;
-    }
+    reply->set_ready( ready );
 
-    return grpc::Status( grpc::UNAUTHENTICATED, "Server is not ready for the requested session" );
+    return grpc::Status::OK;
 }
 
 grpc::Status AppService::CreateSession( grpc::ServerContext* context, const SessionParameters* request, SessionMessage* reply )
@@ -205,7 +202,7 @@ std::vector<AbstractCallback*> AppService::createCallbacks()
         new ServiceCallback<Self, SessionMessage, NullMessage>( this, &Self::PerformQuit, &Self::RequestQuit ),
         new ServiceCallback<Self, NullMessage, AppInfoReply>( this, &Self::PerformGetAppInfo, &Self::RequestGetAppInfo ),
         new ServiceCallback<Self, NullMessage, NullMessage>( this, &Self::PerformPing, &Self::RequestPing ),
-        new ServiceCallback<Self, SessionParameters, NullMessage>( this, &Self::ReadyForSession, &Self::RequestReadyForSession ),
+        new ServiceCallback<Self, SessionParameters, ReadyMessage>( this, &Self::ReadyForSession, &Self::RequestReadyForSession ),
         new ServiceCallback<Self, SessionParameters, SessionMessage>( this, &Self::CreateSession, &Self::RequestCreateSession ),
         new ServiceCallback<Self, SessionMessage, SessionMessage>( this,
                                                                    &Self::KeepSessionAlive,
