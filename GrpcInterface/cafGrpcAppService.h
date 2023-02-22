@@ -46,7 +46,8 @@ public:
         ReadyForSession( grpc::ServerContext* context, const SessionParameters* request, NullMessage* reply ) override;
     grpc::Status
         CreateSession( grpc::ServerContext* context, const SessionParameters* request, SessionMessage* reply ) override;
-    grpc::Status KeepSessionAlive( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply ) override;
+    grpc::Status
+        KeepSessionAlive( grpc::ServerContext* context, const SessionMessage* request, SessionMessage* reply ) override;
     grpc::Status CheckSession( grpc::ServerContext* context, const SessionMessage* request, SessionMessage* reply ) override;
     grpc::Status ChangeSession( grpc::ServerContext* context, const SessionMessage* request, SessionMessage* reply ) override;
     grpc::Status DestroySession( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply ) override;

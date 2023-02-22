@@ -117,7 +117,7 @@ grpc::Status AppService::CreateSession( grpc::ServerContext* context, const Sess
     return grpc::Status::OK;
 }
 
-grpc::Status AppService::KeepSessionAlive( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply )
+grpc::Status AppService::KeepSessionAlive( grpc::ServerContext* context, const SessionMessage* request, SessionMessage* reply )
 {
     CAFFA_TRACE( "Received session keep-alive from " << request->uuid() );
     auto session = ServerApplication::instance()->getExistingSession( request->uuid() );
@@ -126,6 +126,8 @@ grpc::Status AppService::KeepSessionAlive( grpc::ServerContext* context, const S
         try
         {
             session->updateKeepAlive();
+            reply->set_uuid( request->uuid() );
+            reply->set_type( static_cast<caffa::rpc::SessionType>( session->type() ) );
         }
         catch ( const std::exception& e )
         {
@@ -205,7 +207,9 @@ std::vector<AbstractCallback*> AppService::createCallbacks()
         new ServiceCallback<Self, NullMessage, NullMessage>( this, &Self::PerformPing, &Self::RequestPing ),
         new ServiceCallback<Self, SessionParameters, NullMessage>( this, &Self::ReadyForSession, &Self::RequestReadyForSession ),
         new ServiceCallback<Self, SessionParameters, SessionMessage>( this, &Self::CreateSession, &Self::RequestCreateSession ),
-        new ServiceCallback<Self, SessionMessage, NullMessage>( this, &Self::KeepSessionAlive, &Self::RequestKeepSessionAlive ),
+        new ServiceCallback<Self, SessionMessage, SessionMessage>( this,
+                                                                   &Self::KeepSessionAlive,
+                                                                   &Self::RequestKeepSessionAlive ),
         new ServiceCallback<Self, SessionMessage, SessionMessage>( this, &Self::CheckSession, &Self::RequestCheckSession ),
         new ServiceCallback<Self, SessionMessage, SessionMessage>( this, &Self::ChangeSession, &Self::RequestChangeSession ),
         new ServiceCallback<Self, SessionMessage, NullMessage>( this, &Self::DestroySession, &Self::RequestDestroySession ),

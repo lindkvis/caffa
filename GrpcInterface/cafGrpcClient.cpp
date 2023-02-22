@@ -150,9 +150,9 @@ public:
         caffa::rpc::SessionMessage session;
         session.set_uuid( m_sessionUuid );
         grpc::ClientContext context;
-        NullMessage         nullreply;
+        SessionMessage      reply;
 
-        auto status = m_appInfoStub->KeepSessionAlive( &context, session, &nullreply );
+        auto status = m_appInfoStub->KeepSessionAlive( &context, session, &reply );
         if ( !status.ok() )
         {
             CAFFA_ERROR( status.error_message() );
