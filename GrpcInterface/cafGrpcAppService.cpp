@@ -86,6 +86,7 @@ grpc::Status AppService::ReadyForSession( grpc::ServerContext* context, const Se
 
     bool ready = ServerApplication::instance()->readyForSession( caffa::Session::typeFromUint( request->type() ) );
     reply->set_ready( ready );
+    reply->set_has_other_sessions( !ServerApplication::instance()->activeSessions().empty() );
 
     return grpc::Status::OK;
 }
