@@ -91,6 +91,17 @@ public:
         return { m_demoDocument.get(), m_demoDocumentWithNonScriptableMember.get() };
     }
 
+    std::list<caffa::ConstSessionMaintainer> activeSessions() const override
+    {
+        std::list<caffa::ConstSessionMaintainer> sessions;
+        sessions.push_back( caffa::ConstSessionMaintainer( m_session ) );
+        for ( auto session : m_observingSessions )
+        {
+            sessions.push_back( caffa::ConstSessionMaintainer( session ) );
+        }
+        return sessions;
+    }
+
     bool readyForSession( caffa::Session::Type type ) const override
     {
         if ( type == caffa::Session::Type::INVALID ) return false;
@@ -134,7 +145,7 @@ public:
         else
         {
             auto observingSession = caffa::Session::create( type, std::chrono::seconds( 1 ) );
-            m_observeringSessions.push_back( observingSession );
+            m_observingSessions.push_back( observingSession );
             return caffa::SessionMaintainer( observingSession );
         }
     }
@@ -146,7 +157,7 @@ public:
             return caffa::SessionMaintainer( m_session );
         }
 
-        for ( auto& observingSession : m_observeringSessions )
+        for ( auto& observingSession : m_observingSessions )
         {
             if ( observingSession && observingSession->uuid() == sessionUuid && !observingSession->isExpired() )
             {
@@ -164,7 +175,7 @@ public:
             return caffa::ConstSessionMaintainer( m_session );
         }
 
-        for ( auto& observingSession : m_observeringSessions )
+        for ( auto& observingSession : m_observingSessions )
         {
             if ( observingSession && observingSession->uuid() == sessionUuid && !observingSession->isExpired() )
             {
@@ -190,14 +201,14 @@ public:
         }
         else
         {
-            auto it = std::find_if( m_observeringSessions.begin(),
-                                    m_observeringSessions.end(),
+            auto it = std::find_if( m_observingSessions.begin(),
+                                    m_observingSessions.end(),
                                     [sessionUuid]( auto&& observingSession )
                                     { return observingSession && observingSession->uuid() == sessionUuid; } );
 
-            if ( it != m_observeringSessions.end() )
+            if ( it != m_observingSessions.end() )
             {
-                m_observeringSessions.erase( it );
+                m_observingSessions.erase( it );
                 return;
             }
 
@@ -214,5 +225,5 @@ private:
     std::unique_ptr<DemoDocumentWithNonScriptableMember> m_demoDocumentWithNonScriptableMember;
 
     std::shared_ptr<caffa::Session>            m_session;
-    std::list<std::shared_ptr<caffa::Session>> m_observeringSessions;
+    std::list<std::shared_ptr<caffa::Session>> m_observingSessions;
 };

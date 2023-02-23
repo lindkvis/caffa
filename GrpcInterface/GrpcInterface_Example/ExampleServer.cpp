@@ -1,21 +1,21 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Caffa
+//    Caffa
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
-//##################################################################################################
+// ##################################################################################################
 
 #include "cafGrpcServer.h"
 #include "cafGrpcServerApplication.h"
@@ -93,6 +93,30 @@ public:
         return { document( "", session ) };
     }
 
+    std::list<caffa::ConstSessionMaintainer> activeSessions() const override
+    {
+        std::list<caffa::ConstSessionMaintainer> sessions;
+        sessions.push_back( caffa::ConstSessionMaintainer( m_session ) );
+        return sessions;
+    }
+
+    bool readyForSession( caffa::Session::Type type ) const override
+    {
+        if ( type == caffa::Session::Type::INVALID ) return false;
+
+        if ( type == caffa::Session::Type::REGULAR )
+        {
+            if ( m_session )
+            {
+                if ( !m_session->isExpired() )
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return true;
+    }
     caffa::SessionMaintainer createSession( caffa::Session::Type type ) override
     {
         if ( m_session )
@@ -126,6 +150,11 @@ public:
             return caffa::ConstSessionMaintainer( m_session );
         }
         return caffa::ConstSessionMaintainer( nullptr );
+    }
+
+    void changeSession( caffa::not_null<caffa::Session*> session, caffa::Session::Type newType ) override
+    {
+        throw std::runtime_error( "Cannot change sessions in example app" );
     }
 
     void destroySession( const std::string& sessionUuid )
