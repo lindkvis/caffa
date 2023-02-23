@@ -106,12 +106,9 @@ public:
 
         if ( type == caffa::Session::Type::REGULAR )
         {
-            if ( m_session )
+            if ( m_session && !m_session->isExpired() )
             {
-                if ( !m_session->isExpired() )
-                {
-                    return false;
-                }
+                return false;
             }
             return true;
         }
