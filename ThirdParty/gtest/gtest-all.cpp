@@ -217,7 +217,10 @@ GTEST_DISABLE_MSC_WARNINGS_POP_() //  4251
         class GTestExpectFatalFailureHelper                                                                 \
         {                                                                                                   \
         public:                                                                                             \
-            static void Execute() { statement; }                                                            \
+            static void Execute()                                                                           \
+            {                                                                                               \
+                statement;                                                                                  \
+            }                                                                                               \
         };                                                                                                  \
         ::testing::TestPartResultArray            gtest_failures;                                           \
         ::testing::internal::SingleFailureChecker gtest_checker( &gtest_failures,                           \
@@ -237,7 +240,10 @@ GTEST_DISABLE_MSC_WARNINGS_POP_() //  4251
         class GTestExpectFatalFailureHelper                                                                            \
         {                                                                                                              \
         public:                                                                                                        \
-            static void Execute() { statement; }                                                                       \
+            static void Execute()                                                                                      \
+            {                                                                                                          \
+                statement;                                                                                             \
+            }                                                                                                          \
         };                                                                                                             \
         ::testing::TestPartResultArray            gtest_failures;                                                      \
         ::testing::internal::SingleFailureChecker gtest_checker( &gtest_failures,                                      \
@@ -1336,7 +1342,10 @@ namespace internal
 
     // Convenience function for accessing the global UnitTest
     // implementation object.
-    inline UnitTestImpl* GetUnitTestImpl() { return UnitTest::GetInstance()->impl(); }
+    inline UnitTestImpl* GetUnitTestImpl()
+    {
+        return UnitTest::GetInstance()->impl();
+    }
 
 #if GTEST_USES_SIMPLE_RE
 
@@ -1823,7 +1832,10 @@ namespace internal
     // GTestIsInitialized() returns true if and only if the user has initialized
     // Google Test.  Useful for catching the user mistake of not initializing
     // Google Test before calling RUN_ALL_TESTS().
-    static bool GTestIsInitialized() { return GetArgvs().size() > 0; }
+    static bool GTestIsInitialized()
+    {
+        return GetArgvs().size() > 0;
+    }
 
     // Iterates over a vector of TestSuites, keeping a running sum of the
     // results of calling a given int-returning method on each.
@@ -1852,7 +1864,10 @@ namespace internal
 
     // Returns true if and only if test_suite contains at least one test that
     // should run.
-    static bool ShouldRunTestSuite( const TestSuite* test_suite ) { return test_suite->should_run(); }
+    static bool ShouldRunTestSuite( const TestSuite* test_suite )
+    {
+        return test_suite->should_run();
+    }
 
     // AssertHelper constructor.
     AssertHelper::AssertHelper( TestPartResult::Type type, const char* file, int line, const char* message )
@@ -1860,7 +1875,10 @@ namespace internal
     {
     }
 
-    AssertHelper::~AssertHelper() { delete data_; }
+    AssertHelper::~AssertHelper()
+    {
+        delete data_;
+    }
 
     // Message assignment, for assertion streaming support.
     void AssertHelper::operator=( const Message& message ) const
@@ -2125,7 +2143,10 @@ namespace internal
     // from user test code.  GetTestTypeId() is guaranteed to always
     // return the same value, as it always calls GetTypeId<>() from the
     // gtest.cc, which is within the Google Test framework.
-    TypeId GetTestTypeId() { return GetTypeId<Test>(); }
+    TypeId GetTestTypeId()
+    {
+        return GetTypeId<Test>();
+    }
 
     // The value of GetTestTypeId() as seen from within the Google Test
     // library.  This is solely for testing GetTestTypeId().
@@ -2188,7 +2209,10 @@ namespace internal
     // TestPartResultArray contains exactly one failure that has the given
     // type and contains the given substring.  If that's not the case, a
     // non-fatal failure will be generated.
-    SingleFailureChecker::~SingleFailureChecker() { EXPECT_PRED_FORMAT3( HasOneFailure, *results_, type_, substr_ ); }
+    SingleFailureChecker::~SingleFailureChecker()
+    {
+        EXPECT_PRED_FORMAT3( HasOneFailure, *results_, type_, substr_ );
+    }
 
     DefaultGlobalTestPartResultReporter::DefaultGlobalTestPartResultReporter( UnitTestImpl* unit_test )
         : unit_test_( unit_test )
@@ -2238,17 +2262,29 @@ namespace internal
     }
 
     // Gets the number of successful test suites.
-    int UnitTestImpl::successful_test_suite_count() const { return CountIf( test_suites_, TestSuitePassed ); }
+    int UnitTestImpl::successful_test_suite_count() const
+    {
+        return CountIf( test_suites_, TestSuitePassed );
+    }
 
     // Gets the number of failed test suites.
-    int UnitTestImpl::failed_test_suite_count() const { return CountIf( test_suites_, TestSuiteFailed ); }
+    int UnitTestImpl::failed_test_suite_count() const
+    {
+        return CountIf( test_suites_, TestSuiteFailed );
+    }
 
     // Gets the number of all test suites.
-    int UnitTestImpl::total_test_suite_count() const { return static_cast<int>( test_suites_.size() ); }
+    int UnitTestImpl::total_test_suite_count() const
+    {
+        return static_cast<int>( test_suites_.size() );
+    }
 
     // Gets the number of all test suites that contain at least one test
     // that should run.
-    int UnitTestImpl::test_suite_to_run_count() const { return CountIf( test_suites_, ShouldRunTestSuite ); }
+    int UnitTestImpl::test_suite_to_run_count() const
+    {
+        return CountIf( test_suites_, ShouldRunTestSuite );
+    }
 
     // Gets the number of successful tests.
     int UnitTestImpl::successful_test_count() const
@@ -3537,7 +3573,10 @@ namespace internal
     }
 
     // Formats an int value as "%X".
-    std::string String::FormatHexInt( int value ) { return FormatHexUInt32( static_cast<UInt32>( value ) ); }
+    std::string String::FormatHexInt( int value )
+    {
+        return FormatHexUInt32( static_cast<UInt32>( value ) );
+    }
 
     // Formats a byte as "%02X".
     std::string String::FormatByte( unsigned char value )
@@ -5109,9 +5148,15 @@ namespace internal
         GTEST_DISALLOW_COPY_AND_ASSIGN_( TestEventRepeater );
     };
 
-    TestEventRepeater::~TestEventRepeater() { ForEach( listeners_, Delete<TestEventListener> ); }
+    TestEventRepeater::~TestEventRepeater()
+    {
+        ForEach( listeners_, Delete<TestEventListener> );
+    }
 
-    void TestEventRepeater::Append( TestEventListener* listener ) { listeners_.push_back( listener ); }
+    void TestEventRepeater::Append( TestEventListener* listener )
+    {
+        listeners_.push_back( listener );
+    }
 
     TestEventListener* TestEventRepeater::Release( TestEventListener* listener )
     {
@@ -5796,7 +5841,10 @@ namespace internal
                String::FormatIntWidth2( time_struct.tm_min ) + ":" + String::FormatIntWidth2( time_struct.tm_sec ) + "Z";
     }
 
-    static inline std::string Indent( size_t width ) { return std::string( width, ' ' ); }
+    static inline std::string Indent( size_t width )
+    {
+        return std::string( width, ' ' );
+    }
 
     void JsonUnitTestResultPrinter::OutputJsonKey( std::ostream*      stream,
                                                    const std::string& element_name,
@@ -6987,8 +7035,14 @@ namespace internal
 
     // Helpers for setting up / tearing down the given environment.  They
     // are for use in the ForEach() function.
-    static void SetUpEnvironment( Environment* env ) { env->SetUp(); }
-    static void TearDownEnvironment( Environment* env ) { env->TearDown(); }
+    static void SetUpEnvironment( Environment* env )
+    {
+        env->SetUp();
+    }
+    static void TearDownEnvironment( Environment* env )
+    {
+        env->TearDown();
+    }
 
     // Runs all tests in this UnitTest object, prints the result, and
     // returns true if all tests are successful.  If any exception is
@@ -7509,7 +7563,10 @@ namespace internal
         };
     } // namespace
 
-    bool IsTrue( bool condition ) { return condition; }
+    bool IsTrue( bool condition )
+    {
+        return condition;
+    }
 
     bool AlwaysTrue()
     {
@@ -7885,7 +7942,10 @@ namespace internal
 #endif
 #endif
     }
-    void ParseGoogleTestFlagsOnly( int* argc, wchar_t** argv ) { ParseGoogleTestFlagsOnlyImpl( argc, argv ); }
+    void ParseGoogleTestFlagsOnly( int* argc, wchar_t** argv )
+    {
+        ParseGoogleTestFlagsOnlyImpl( argc, argv );
+    }
 
     // The internal implementation of InitGoogleTest().
     //
@@ -8238,7 +8298,10 @@ namespace internal
 
     // Returns true if exit_status describes a process that was terminated
     // by a signal, or exited normally with a nonzero exit code.
-    bool ExitedUnsuccessfully( int exit_status ) { return !ExitedWithCode( 0 )( exit_status ); }
+    bool ExitedUnsuccessfully( int exit_status )
+    {
+        return !ExitedWithCode( 0 )( exit_status );
+    }
 
 #if !GTEST_OS_WINDOWS && !GTEST_OS_FUCHSIA
     // Generates a textual failure message when a death test finds more than
@@ -8358,7 +8421,10 @@ namespace internal
     } while ( ::testing::internal::AlwaysFalse() )
 
     // Returns the message describing the last system error in errno.
-    std::string GetLastErrnoDescription() { return errno == 0 ? "" : posix::StrError( errno ); }
+    std::string GetLastErrnoDescription()
+    {
+        return errno == 0 ? "" : posix::StrError( errno );
+    }
 
     // This is called from a death test parent process to read a failure
     // message from the death test child process and log it with the FATAL
@@ -8414,9 +8480,15 @@ namespace internal
         return GetUnitTestImpl()->death_test_factory()->Create( statement, std::move( matcher ), file, line, test );
     }
 
-    const char* DeathTest::LastMessage() { return last_death_test_message_.c_str(); }
+    const char* DeathTest::LastMessage()
+    {
+        return last_death_test_message_.c_str();
+    }
 
-    void DeathTest::set_last_death_test_message( const std::string& message ) { last_death_test_message_ = message; }
+    void DeathTest::set_last_death_test_message( const std::string& message )
+    {
+        last_death_test_message_ = message;
+    }
 
     std::string DeathTest::last_death_test_message_;
 
@@ -8535,7 +8607,10 @@ namespace internal
         set_read_fd( -1 );
     }
 
-    std::string DeathTestImpl::GetErrorLogs() { return GetCapturedStderr(); }
+    std::string DeathTestImpl::GetErrorLogs()
+    {
+        return GetCapturedStderr();
+    }
 
     // Signals that the death test code which should have exited, didn't.
     // Should be called only in a death test child process.
@@ -9108,7 +9183,10 @@ namespace internal
         return OVERSEE_TEST;
     }
 
-    std::string FuchsiaDeathTest::GetErrorLogs() { return captured_stderr_; }
+    std::string FuchsiaDeathTest::GetErrorLogs()
+    {
+        return captured_stderr_;
+    }
 
 #else // We are neither on Windows, nor on Fuchsia.
 
@@ -9294,7 +9372,10 @@ namespace internal
     // Some POSIX platforms expect you to declare environ. extern "C" makes
     // it reside in the global namespace.
     extern "C" char** environ;
-    inline char**     GetEnviron() { return environ; }
+    inline char**     GetEnviron()
+    {
+        return environ;
+    }
 #endif // GTEST_OS_MAC
 
 #if !GTEST_OS_QNX
@@ -9345,8 +9426,8 @@ namespace internal
     GTEST_ATTRIBUTE_NO_SANITIZE_HWADDRESS_
     static void StackLowerThanAddress( const void* ptr, bool* result )
     {
-        int dummy;
-        *result = ( &dummy < ptr );
+        int dummy = 0;
+        *result   = ( &dummy < ptr );
     }
 
     // Make sure AddressSanitizer does not tamper with the stack here.
@@ -9354,7 +9435,7 @@ namespace internal
     GTEST_ATTRIBUTE_NO_SANITIZE_HWADDRESS_
     static bool StackGrowsDown()
     {
-        int  dummy;
+        int  dummy = 0;
         bool result;
         StackLowerThanAddress( &dummy, &result );
         return result;
@@ -10491,7 +10572,10 @@ namespace internal
 
 #if GTEST_IS_THREADSAFE && GTEST_OS_WINDOWS
 
-    void SleepMilliseconds( int n ) { ::Sleep( static_cast<DWORD>( n ) ); }
+    void SleepMilliseconds( int n )
+    {
+        ::Sleep( static_cast<DWORD>( n ) );
+    }
 
     AutoHandle::AutoHandle()
         : handle_( INVALID_HANDLE_VALUE )
@@ -10503,11 +10587,20 @@ namespace internal
     {
     }
 
-    AutoHandle::~AutoHandle() { Reset(); }
+    AutoHandle::~AutoHandle()
+    {
+        Reset();
+    }
 
-    AutoHandle::Handle AutoHandle::Get() const { return handle_; }
+    AutoHandle::Handle AutoHandle::Get() const
+    {
+        return handle_;
+    }
 
-    void AutoHandle::Reset() { Reset( INVALID_HANDLE_VALUE ); }
+    void AutoHandle::Reset()
+    {
+        Reset( INVALID_HANDLE_VALUE );
+    }
 
     void AutoHandle::Reset( HANDLE handle )
     {
@@ -10543,7 +10636,10 @@ namespace internal
         GTEST_CHECK_( event_.Get() != nullptr );
     }
 
-    void Notification::Notify() { GTEST_CHECK_( ::SetEvent( event_.Get() ) != FALSE ); }
+    void Notification::Notify()
+    {
+        GTEST_CHECK_( ::SetEvent( event_.Get() ) != FALSE );
+    }
 
     void Notification::WaitForNotification()
     {
@@ -10739,7 +10835,10 @@ namespace internal
     {
     }
 
-    ThreadWithParamBase::~ThreadWithParamBase() { Join(); }
+    ThreadWithParamBase::~ThreadWithParamBase()
+    {
+        Join();
+    }
 
     void ThreadWithParamBase::Join()
     {
@@ -10984,22 +11083,40 @@ namespace internal
 
     // Returns true if and only if ch appears anywhere in str (excluding the
     // terminating '\0' character).
-    bool IsInSet( char ch, const char* str ) { return ch != '\0' && strchr( str, ch ) != nullptr; }
+    bool IsInSet( char ch, const char* str )
+    {
+        return ch != '\0' && strchr( str, ch ) != nullptr;
+    }
 
     // Returns true if and only if ch belongs to the given classification.
     // Unlike similar functions in <ctype.h>, these aren't affected by the
     // current locale.
-    bool IsAsciiDigit( char ch ) { return '0' <= ch && ch <= '9'; }
-    bool IsAsciiPunct( char ch ) { return IsInSet( ch, "^-!\"#$%&'()*+,./:;<=>?@[\\]_`{|}~" ); }
-    bool IsRepeat( char ch ) { return IsInSet( ch, "?*+" ); }
-    bool IsAsciiWhiteSpace( char ch ) { return IsInSet( ch, " \f\n\r\t\v" ); }
+    bool IsAsciiDigit( char ch )
+    {
+        return '0' <= ch && ch <= '9';
+    }
+    bool IsAsciiPunct( char ch )
+    {
+        return IsInSet( ch, "^-!\"#$%&'()*+,./:;<=>?@[\\]_`{|}~" );
+    }
+    bool IsRepeat( char ch )
+    {
+        return IsInSet( ch, "?*+" );
+    }
+    bool IsAsciiWhiteSpace( char ch )
+    {
+        return IsInSet( ch, " \f\n\r\t\v" );
+    }
     bool IsAsciiWordChar( char ch )
     {
         return ( 'a' <= ch && ch <= 'z' ) || ( 'A' <= ch && ch <= 'Z' ) || ( '0' <= ch && ch <= '9' ) || ch == '_';
     }
 
     // Returns true if and only if "\\c" is a supported escape sequence.
-    bool IsValidEscape( char c ) { return ( IsAsciiPunct( c ) || IsInSet( c, "dDfnrsStvwW" ) ); }
+    bool IsValidEscape( char c )
+    {
+        return ( IsAsciiPunct( c ) || IsInSet( c, "dDfnrsStvwW" ) );
+    }
 
     // Returns true if and only if the given atom (specified by escaped and
     // pattern) matches ch.  The result is undefined if the atom is invalid.
@@ -11428,16 +11545,28 @@ namespace internal
     }
 
     // Starts capturing stdout.
-    void CaptureStdout() { CaptureStream( kStdOutFileno, "stdout", &g_captured_stdout ); }
+    void CaptureStdout()
+    {
+        CaptureStream( kStdOutFileno, "stdout", &g_captured_stdout );
+    }
 
     // Starts capturing stderr.
-    void CaptureStderr() { CaptureStream( kStdErrFileno, "stderr", &g_captured_stderr ); }
+    void CaptureStderr()
+    {
+        CaptureStream( kStdErrFileno, "stderr", &g_captured_stderr );
+    }
 
     // Stops capturing stdout and returns the captured string.
-    std::string GetCapturedStdout() { return GetCapturedStream( &g_captured_stdout ); }
+    std::string GetCapturedStdout()
+    {
+        return GetCapturedStream( &g_captured_stdout );
+    }
 
     // Stops capturing stderr and returns the captured string.
-    std::string GetCapturedStderr() { return GetCapturedStream( &g_captured_stderr ); }
+    std::string GetCapturedStderr()
+    {
+        return GetCapturedStream( &g_captured_stderr );
+    }
 
 #endif // GTEST_HAS_STREAM_REDIRECTION
 
@@ -11785,7 +11914,10 @@ namespace internal
     // Returns true if c is a printable ASCII character.  We test the
     // value of c directly instead of calling isprint(), which is buggy on
     // Windows Mobile.
-    inline bool IsPrintableAscii( wchar_t c ) { return 0x20 <= c && c <= 0x7E; }
+    inline bool IsPrintableAscii( wchar_t c )
+    {
+        return 0x20 <= c && c <= 0x7E;
+    }
 
     // Prints a wide or narrow char c as a character literal without the
     // quotes, escaping it when necessary; returns how c was formatted.
@@ -11900,12 +12032,21 @@ namespace internal
         *os << ")";
     }
 
-    void PrintTo( unsigned char c, ::std::ostream* os ) { PrintCharAndCodeTo<unsigned char>( c, os ); }
-    void PrintTo( signed char c, ::std::ostream* os ) { PrintCharAndCodeTo<unsigned char>( c, os ); }
+    void PrintTo( unsigned char c, ::std::ostream* os )
+    {
+        PrintCharAndCodeTo<unsigned char>( c, os );
+    }
+    void PrintTo( signed char c, ::std::ostream* os )
+    {
+        PrintCharAndCodeTo<unsigned char>( c, os );
+    }
 
     // Prints a wchar_t as a symbol if it is printable or as its internal
     // code otherwise and also as its code.  L'\0' is printed as "L'\\0'".
-    void PrintTo( wchar_t wc, ostream* os ) { PrintCharAndCodeTo<wchar_t>( wc, os ); }
+    void PrintTo( wchar_t wc, ostream* os )
+    {
+        PrintCharAndCodeTo<wchar_t>( wc, os );
+    }
 
     // Prints the given array of characters to the ostream.  CharType must be either
     // char or wchar_t.
@@ -12043,7 +12184,10 @@ namespace internal
             return false;
         }
 
-        bool IsUTF8TrailByte( unsigned char t ) { return 0x80 <= t && t <= 0xbf; }
+        bool IsUTF8TrailByte( unsigned char t )
+        {
+            return 0x80 <= t && t <= 0xbf;
+        }
 
         bool IsValidUTF8( const char* str, size_t length )
         {
@@ -12109,7 +12253,10 @@ namespace internal
     }
 
 #if GTEST_HAS_STD_WSTRING
-    void PrintWideStringTo( const ::std::wstring& s, ostream* os ) { PrintCharsAsStringTo( s.data(), s.size(), os ); }
+    void PrintWideStringTo( const ::std::wstring& s, ostream* os )
+    {
+        PrintCharsAsStringTo( s.data(), s.size(), os );
+    }
 #endif // GTEST_HAS_STD_WSTRING
 
 } // namespace internal
