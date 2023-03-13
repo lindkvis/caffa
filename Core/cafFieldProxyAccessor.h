@@ -84,13 +84,14 @@ public:
 
     DataType value() override
     {
-        CAFFA_ASSERT( m_valueGetter );
+        if ( !m_valueGetter ) throw std::runtime_error( "No getter for field" );
         return m_valueGetter->getValue();
     }
 
     void setValue( const DataType& value ) override
     {
-        if ( m_valueSetter ) m_valueSetter->setValue( value );
+        if ( !m_valueSetter ) throw std::runtime_error( "No getter for field" );
+        m_valueSetter->setValue( value );
     }
 
     // Proxy Field stuff to handle the method pointers
