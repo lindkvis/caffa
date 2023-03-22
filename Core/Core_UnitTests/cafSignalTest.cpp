@@ -2,6 +2,7 @@
 
 #include "cafSignal.h"
 
+#include <compare>
 #include <memory>
 #include <string>
 #include <tuple>
@@ -19,11 +20,7 @@ struct SimpleStruct
     {
     }
 
-    bool operator==( const SimpleStruct& rhs ) const
-    {
-        return test1 == rhs.test1 && test2 == rhs.test2 && test3 == rhs.test3;
-    }
-    bool operator!=( const SimpleStruct& rhs ) const { return !( *this == rhs ); }
+    std::strong_ordering operator<=>( const SimpleStruct& rhs ) const = default;
 };
 
 class TestEmitter : public caffa::SignalEmitter
