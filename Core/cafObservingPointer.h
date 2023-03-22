@@ -1,38 +1,38 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//    Custom Visualization Core library
+//    Copyright (C) 2011-2013 Ceetron AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
-//   the GNU Lesser General Public License as follows:
+//    This library may be used under the terms of either the GNU General Public License or
+//    the GNU Lesser General Public License as follows:
 //
-//   GNU General Public License Usage
-//   This library is free software: you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation, either version 3 of the License, or
-//   (at your option) any later version.
+//    GNU General Public License Usage
+//    This library is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
-//   for more details.
+//    See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
+//    for more details.
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
-//##################################################################################################
+// ##################################################################################################
 
 #pragma once
 
@@ -91,12 +91,12 @@ public:
     }
     inline ~ObservingPointer() { ObservingPointerImpl::removeReference( &m_object ); }
 
-    T*          p() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
-    bool        isNull() const { return !m_object; }
-    bool        notNull() const { return !isNull(); }
-                operator T*() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
-    T&          operator*() const { return *static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
-    T*          operator->() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
+    T*                   p() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
+    bool                 isNull() const { return !m_object; }
+    bool                 notNull() const { return !isNull(); }
+                         operator T*() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
+    T&                   operator*() const { return *static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
+    T*                   operator->() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
     ObservingPointer<T>& operator=( const ObservingPointer<T>& p )
     {
         if ( this != &p ) ObservingPointerImpl::removeReference( &m_object );
@@ -112,9 +112,9 @@ public:
         return *this;
     }
     template <class S>
-    bool operator==( const ObservingPointer<S>& rhs ) const
+    auto operator<=>( const ObservingPointer<S>& rhs ) const
     {
-        return m_object == rhs.rawPtr();
+        return m_object <=> rhs.rawPtr();
     }
 
     // Private methods used by Field<T*> and PointersField<T*>. Do not use unless you mean it !
