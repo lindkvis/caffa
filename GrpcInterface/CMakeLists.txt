@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.16)
 
 project(caffaGrpcInterface)
 
@@ -35,8 +35,7 @@ set(PUBLIC_HEADERS
     cafGrpcClientApplication.h
     cafGrpcCodeGenerator.h
     cafGrpcMarkdownGenerator.h
-    cafGrpcPythonGenerator.h
-    )
+    cafGrpcPythonGenerator.h)
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
@@ -84,12 +83,14 @@ else()
     message(FATAL_ERROR "Could not find the protobuf compiler (protoc)")
   endif()
 
-  set(CAFFA_GRPC_CPP_PLUGIN "${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin" CACHE FILEPATH "Protoc Plugin used to generate Caffa gRPC C++ code")
+  set(CAFFA_GRPC_CPP_PLUGIN
+      "${GRPC_grpc++_PREFIX}/bin/grpc_cpp_plugin"
+      CACHE FILEPATH "Protoc Plugin used to generate Caffa gRPC C++ code")
 
-  if (EXISTS ${CAFFA_GRPC_CPP_PLUGIN})
-      message("Using grpc_cpp_plugin: ${CAFFA_GRPC_CPP_PLUGIN}")
+  if(EXISTS ${CAFFA_GRPC_CPP_PLUGIN})
+    message("Using grpc_cpp_plugin: ${CAFFA_GRPC_CPP_PLUGIN}")
   else()
-      message(FATAL_ERROR "Could not find the grpc_cpp_plugin ${CAFFA_GRPC_CPP_PLUGIN}")
+    message(FATAL_ERROR "Could not find the grpc_cpp_plugin ${CAFFA_GRPC_CPP_PLUGIN}")
   endif()
 
   include_directories(AFTER ${GRPC_INCLUDE_DIRS})
