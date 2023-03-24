@@ -1,9 +1,8 @@
 #pragma once
 
-#include "cafFieldHandle.h"
-
 #include "cafAssert.h"
 #include "cafChildFieldAccessor.h"
+#include "cafFieldHandle.h"
 #include "cafObservingPointer.h"
 #include "cafPortableDataType.h"
 
@@ -26,7 +25,7 @@ public:
     virtual void                          setChildObject( std::unique_ptr<ObjectHandle> object )      = 0;
     virtual void                          setAccessor( std::unique_ptr<ChildFieldAccessor> accessor ) = 0;
     virtual std::unique_ptr<ObjectHandle> clear()                                                     = 0;
-    virtual std::string                   childClassKeyword() const                                   = 0;
+    virtual constexpr std::string_view    childClassKeyword() const                                   = 0;
 };
 
 template <typename DataType>
@@ -95,7 +94,7 @@ public:
         m_fieldDataAccessor = std::move( accessor );
     }
 
-    std::string childClassKeyword() const override { return DataType::classKeywordStatic(); }
+    constexpr std::string_view childClassKeyword() const override { return DataType::classKeywordStatic(); }
 
 private:
     ChildField( const ChildField& )            = delete;

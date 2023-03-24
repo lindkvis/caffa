@@ -29,10 +29,13 @@
 #include "cafLogger.h"
 #include "cafObjectCapability.h"
 #include "cafSignal.h"
+#include "cafStringTools.h"
 
+#include <array>
 #include <list>
 #include <memory>
 #include <set>
+#include <string_view>
 #include <vector>
 
 namespace caffa
@@ -46,19 +49,57 @@ class ObjectFactory;
 class ObjectHandle : public SignalObserver, public SignalEmitter
 {
 public:
-    using Predicate = std::function<bool( const ObjectHandle* )>;
+    // Until compilers support std::vector with constexpr as specified by the C++ 20 standard
+    static constexpr auto MAX_INHERITANCE_STACK_LENGTH = 10; // Should be enough for everyone
+
+    using InheritanceStackType = std::array<std::string_view, MAX_INHERITANCE_STACK_LENGTH>;
+    using Predicate            = std::function<bool( const ObjectHandle* )>;
 
     ObjectHandle();
     virtual ~ObjectHandle() noexcept;
 
-    static std::string classKeywordStatic(); // For IoFieldCap to be able to handle fields of ObjectHandle directly
-    static std::vector<std::string> classInheritanceStackStatic();
+    static constexpr std::string_view  classKeywordStatic() { return std::string_view{ "caffa::ObjectHandle" }; }
+    virtual constexpr std::string_view classKeyword() const { return classKeywordStatic(); }
 
-    /// The classKeyword method is overridden in subclasses by the CAFFA_HEADER_INIT macro
-    virtual std::string              classKeyword() const                                         = 0;
-    virtual bool                     matchesClassKeyword( const std::string& classKeyword ) const = 0;
-    virtual std::vector<std::string> classInheritanceStack() const                                = 0;
-    virtual std::string              classDocumentation() const { return ""; }
+    virtual constexpr InheritanceStackType classInheritanceStack() const
+    {
+        InheritanceStackType stack = { std::string_view{} };
+        stack[0]                   = classKeyword();
+        return stack;
+    }
+
+    constexpr bool matchesClassKeyword( const std::string_view& classKeyword ) const
+    {
+        auto inheritanceStack = classInheritanceStack();
+        return std::any_of( inheritanceStack.begin(),
+                            inheritanceStack.end(),
+                            [&classKeyword]( const std::string_view& testKeyword )
+                            { return classKeyword == testKeyword; } );
+    }
+
+    static constexpr bool isValidCharacter( char c )
+    {
+        return caffa::StringTools::isalpha( c ) || caffa::StringTools::isdigit( c ) || c == '_' || c == ':';
+    }
+
+    /**
+     * Checks whether the keyword is a valid one.
+     * We accept regular letters and underscore '_'
+     */
+    static constexpr bool isValidKeyword( const std::string_view& type )
+    {
+        if ( caffa::StringTools::isdigit( type[0] ) ) return false;
+
+        auto end = std::find( type.begin(), type.end(), '\0' );
+
+        auto validCount = std::count_if( type.cbegin(), end, ObjectHandle::isValidCharacter );
+        auto invalidCount =
+            std::count_if( type.cbegin(), end, []( auto c ) { return !ObjectHandle::isValidCharacter( c ); } );
+
+        return validCount > 0u && invalidCount == 0u;
+    }
+
+    virtual std::string classDocumentation() const { return ""; }
 
     /**
      * The registered fields contained in this Object.

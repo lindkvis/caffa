@@ -1,20 +1,20 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Caffa
-//   Copyright (C) 2021- 3D-Radar AS
+//    Caffa
+//    Copyright (C) 2021- 3D-Radar AS
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
 #include "cafJsonSerializer.h"
 
@@ -59,7 +59,7 @@ void readFieldsFromJson( ObjectHandle* object, const nlohmann::json& jsonObject,
         {
             const auto& classKeyword = value;
 
-            CAFFA_ASSERT( classKeyword.is_string() && classKeyword.get<std::string>() == object->classKeyword() );
+            CAFFA_ASSERT( classKeyword.is_string() && object->matchesClassKeyword( classKeyword.get<std::string>() ) );
         }
         else if ( serializer->serializeDataValues() && !value.is_null() )
         {
@@ -94,9 +94,7 @@ void writeFieldsToJson( const ObjectHandle* object, nlohmann::json& jsonObject, 
     CAFFA_TRACE( "Writing fields from json with serialize setting: serializeDataValues = "
                  << serializer->serializeDataValues() << ", serializeSchema = " << serializer->serializeSchema()
                  << ", serializeUuids = " << serializer->serializeUuids() );
-    std::string classKeyword = object->classKeyword();
-    CAFFA_ASSERT( ObjectIoCapability::isValidElementName( classKeyword ) );
-    jsonObject["class"] = classKeyword;
+    jsonObject["class"] = object->classKeyword();
 
     if ( serializer->serializeUuids() )
     {
@@ -113,13 +111,11 @@ void writeFieldsToJson( const ObjectHandle* object, nlohmann::json& jsonObject, 
         {
             if ( serializer->fieldSelector() && !serializer->fieldSelector()( field ) ) continue;
 
-            std::string keyword = field->keyword();
+            auto keyword = field->keyword();
 
             const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
             if ( ioCapability && keyword != "uuid" )
             {
-                CAFFA_ASSERT( ObjectIoCapability::isValidElementName( keyword ) );
-
                 nlohmann::json value;
                 ioCapability->writeToJson( value, *serializer );
                 jsonObject[keyword] = value;

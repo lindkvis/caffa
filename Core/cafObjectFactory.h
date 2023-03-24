@@ -1,38 +1,38 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//    Custom Visualization Core library
+//    Copyright (C) 2011-2013 Ceetron AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
-//   the GNU Lesser General Public License as follows:
+//    This library may be used under the terms of either the GNU General Public License or
+//    the GNU Lesser General Public License as follows:
 //
-//   GNU General Public License Usage
-//   This library is free software: you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation, either version 3 of the License, or
-//   (at your option) any later version.
+//    GNU General Public License Usage
+//    This library is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
-//   for more details.
+//    See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
+//    for more details.
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
-//##################################################################################################
+// ##################################################################################################
 
 #pragma once
 
@@ -54,14 +54,12 @@ namespace caffa
 class ObjectFactory
 {
 public:
-    std::unique_ptr<ObjectHandle> create( const std::string& classNameKeyword )
+    std::unique_ptr<ObjectHandle> create( const std::string_view& classKeyword )
     {
-        std::unique_ptr<ObjectHandle> object = doCreate( classNameKeyword );
+        std::unique_ptr<ObjectHandle> object = doCreate( classKeyword );
         if ( object ) m_objects.push_back( ObservingPointer<ObjectHandle>( object.get() ) );
         return object;
     }
-
-    virtual std::vector<std::string> classKeywords() const = 0;
 
     std::list<ObjectHandle*> objects() const
     {
@@ -91,7 +89,7 @@ public:
         return typedObjects;
     }
 
-    std::list<ObjectHandle*> objectsWithClassKeyword( const std::string& classKeyword ) const
+    std::list<ObjectHandle*> objectsMatchingClassKeyword( const std::string_view& classKeyword ) const
     {
         std::list<ObjectHandle*> objects;
         for ( auto object : m_objects )
@@ -109,7 +107,7 @@ protected:
     virtual ~ObjectFactory() {}
 
 private:
-    virtual std::unique_ptr<ObjectHandle> doCreate( const std::string& classNameKeyword ) = 0;
+    virtual std::unique_ptr<ObjectHandle> doCreate( const std::string_view& classKeyword ) = 0;
 
     std::list<ObservingPointer<ObjectHandle>> m_objects;
 };

@@ -11,7 +11,7 @@
 
 class MsjSimpleObj : public caffa::Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( MsjSimpleObj, Object )
 
 public:
     MsjSimpleObj()
@@ -30,11 +30,11 @@ public:
     caffa::Field<int>         id;
 };
 
-CAFFA_SOURCE_INIT( MsjSimpleObj, "MsjSimpleObj", "Object" );
+CAFFA_SOURCE_INIT( MsjSimpleObj )
 
 class SimpleObjDerived : public MsjSimpleObj
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( SimpleObjDerived, MsjSimpleObj )
 
 public:
     SimpleObjDerived()
@@ -46,11 +46,11 @@ public:
     caffa::Field<int> valueA;
 };
 
-CAFFA_SOURCE_INIT( SimpleObjDerived, "SimpleObjDerived", "MsjSimpleObj", "Object" );
+CAFFA_SOURCE_INIT( SimpleObjDerived )
 
 class SimpleObjDerivedOther : public MsjSimpleObj
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( SimpleObjDerivedOther, MsjSimpleObj )
 
 public:
     SimpleObjDerivedOther()
@@ -62,11 +62,11 @@ public:
     caffa::Field<double> valueDouble;
 };
 
-CAFFA_SOURCE_INIT( SimpleObjDerivedOther, "SimpleObjDerivedOther", "MsjSimpleObj", "Object" );
+CAFFA_SOURCE_INIT( SimpleObjDerivedOther )
 
 class ContainerObj : public caffa::Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( ContainerObj, Object )
 
 public:
     ContainerObj()
@@ -82,7 +82,7 @@ public:
     caffa::ChildArrayField<SimpleObjDerivedOther*> derivedOtherObjs;
 };
 
-CAFFA_SOURCE_INIT( ContainerObj, "ContainerObj", "Object" );
+CAFFA_SOURCE_INIT( ContainerObj )
 
 template <class U, typename T>
 U findObjectById( T start, T end, int id )

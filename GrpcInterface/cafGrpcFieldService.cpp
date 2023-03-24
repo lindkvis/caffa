@@ -100,7 +100,8 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
         }
         return grpc::Status( grpc::FAILED_PRECONDITION, "Field " + request->keyword() + " found, but it isn't readable" );
     }
-    std::string errMsg = std::string( "Field " ) + request->keyword() + " not found in " + fieldOwner->classKeyword();
+    std::string errMsg = std::string( "Field " ) + request->keyword() + " not found in " +
+                         std::string( fieldOwner->classKeyword() );
     CAFFA_ERROR( errMsg );
     return grpc::Status( grpc::NOT_FOUND, errMsg );
 }
@@ -166,7 +167,8 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
                                  "Field " + fieldRequest.keyword() + " found, but it isn't writable" );
         }
     }
-    std::string errMsg = std::string( "Field " ) + fieldRequest.keyword() + " not found in " + fieldOwner->classKeyword();
+    std::string errMsg = std::string( "Field " ) + fieldRequest.keyword() + " not found in " +
+                         std::string( fieldOwner->classKeyword() );
     CAFFA_ERROR( errMsg );
     return grpc::Status( grpc::NOT_FOUND, errMsg );
 }

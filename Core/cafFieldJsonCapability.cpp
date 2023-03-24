@@ -29,7 +29,7 @@ bool FieldJsonCapability::assertValid() const
         return false;
     }
 
-    if ( !ObjectIoCapability::isValidElementName( owner()->keyword() ) )
+    if ( !ObjectHandle::isValidKeyword( owner()->keyword() ) )
     {
         std::cout << "Field: The supplied keyword: \"" << owner()->keyword()
                   << "\" is an invalid element name, and will break your file format!\n";

@@ -4,8 +4,6 @@
 
 using namespace caffa;
 
-CAFFA_ABSTRACT_SOURCE_INIT( Object, "Object" )
-
 using namespace std::chrono;
 
 //--------------------------------------------------------------------------------------------------

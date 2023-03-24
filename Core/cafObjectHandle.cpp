@@ -1,24 +1,24 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
-//   Copyright (C) 2013- Ceetron Solutions AS
-//   Copyright (C) 2021- 3D-Radar AS
+//    Custom Visualization Core library
+//    Copyright (C) 2011-2013 Ceetron AS
+//    Copyright (C) 2013- Ceetron Solutions AS
+//    Copyright (C) 2021- 3D-Radar AS
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
-//##################################################################################################
+// ##################################################################################################
 
 #include "cafObjectHandle.h"
 
@@ -34,7 +34,6 @@ using namespace caffa;
 //--------------------------------------------------------------------------------------------------
 ObjectHandle::ObjectHandle()
 {
-    m_parentField = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -42,23 +41,16 @@ ObjectHandle::ObjectHandle()
 //--------------------------------------------------------------------------------------------------
 ObjectHandle::~ObjectHandle() noexcept
 {
-    this->prepareForDelete();
-}
+    m_capabilities.clear();
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::string ObjectHandle::classKeywordStatic()
-{
-    return classInheritanceStackStatic().front();
-}
+    // Set all guarded pointers pointing to this to nullptr
+    std::set<ObjectHandle**>::iterator it;
+    for ( it = m_pointersReferencingMe.begin(); it != m_pointersReferencingMe.end(); ++it )
+    {
+        ( **it ) = nullptr;
+    }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<std::string> ObjectHandle::classInheritanceStackStatic()
-{
-    return { std::string( "ObjectHandle" ) };
+    m_pointersReferencingMe.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,25 +59,6 @@ std::vector<std::string> ObjectHandle::classInheritanceStackStatic()
 std::vector<caffa::FieldHandle*> ObjectHandle::fields() const
 {
     return m_fields;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void ObjectHandle::setAsParentField( FieldHandle* parentField )
-{
-    CAFFA_ASSERT( m_parentField == nullptr );
-
-    m_parentField = parentField;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void ObjectHandle::detachFromParentField()
-{
-    if ( m_parentField ) disconnectObserverFromAllSignals( m_parentField->ownerObject() );
-    m_parentField = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,24 +73,6 @@ void ObjectHandle::disconnectObserverFromAllSignals( SignalObserver* observer )
             emittedSignal->disconnect( observer );
         }
     }
-}
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void ObjectHandle::prepareForDelete() noexcept
-{
-    m_parentField = nullptr;
-
-    m_capabilities.clear();
-
-    // Set all guarded pointers pointing to this to nullptr
-    std::set<ObjectHandle**>::iterator it;
-    for ( it = m_pointersReferencingMe.begin(); it != m_pointersReferencingMe.end(); ++it )
-    {
-        ( **it ) = nullptr;
-    }
-
-    m_pointersReferencingMe.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,14 +103,6 @@ FieldHandle* ObjectHandle::findField( const std::string& keyword ) const
     }
 
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-FieldHandle* ObjectHandle::parentField() const
-{
-    return m_parentField;
 }
 
 //--------------------------------------------------------------------------------------------------

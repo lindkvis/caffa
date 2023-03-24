@@ -9,10 +9,9 @@ namespace caffa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> DefaultObjectFactory::doCreate( const std::string& classNameKeyword )
+std::unique_ptr<ObjectHandle> DefaultObjectFactory::doCreate( const std::string_view& classKeyword )
 {
-    std::map<std::string, ObjectCreatorBase*>::iterator entryIt;
-    entryIt = m_factoryMap.find( classNameKeyword );
+    auto entryIt = m_factoryMap.find( classKeyword );
     if ( entryIt != m_factoryMap.end() )
     {
         return entryIt->second->create();
@@ -21,21 +20,6 @@ std::unique_ptr<ObjectHandle> DefaultObjectFactory::doCreate( const std::string&
     {
         return nullptr;
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<std::string> DefaultObjectFactory::classKeywords() const
-{
-    std::vector<std::string> names;
-
-    for ( const auto& entry : m_factoryMap )
-    {
-        names.push_back( entry.first );
-    }
-
-    return names;
 }
 
 //--------------------------------------------------------------------------------------------------

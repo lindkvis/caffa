@@ -191,7 +191,7 @@ public:
         throw std::runtime_error( "Cannot change sessions in test app" );
     }
 
-    void destroySession( const std::string& sessionUuid )
+    void destroySession( const std::string& sessionUuid ) override
     {
         CAFFA_TRACE( "Attempting to destroy session " << sessionUuid );
         if ( m_session && m_session->uuid() == sessionUuid )

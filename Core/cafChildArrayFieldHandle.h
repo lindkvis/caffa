@@ -83,7 +83,7 @@ public:
      * @brief Get the class keyword of the contained children
      *
      */
-    virtual std::string childClassKeyword() const = 0;
+    virtual constexpr std::string_view childClassKeyword() const = 0;
 };
 
 } // namespace caffa

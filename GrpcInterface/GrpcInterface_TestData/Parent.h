@@ -8,7 +8,7 @@ class Child;
 
 class Parent : public caffa::Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( Parent, Object )
 
 public:
     Parent();

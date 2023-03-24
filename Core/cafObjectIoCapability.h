@@ -32,9 +32,6 @@ public:
     ObjectIoCapability( ObjectHandle* owner );
     ~ObjectIoCapability() noexcept override;
 
-    /// Check if a string is a valid element name
-    static bool isValidElementName( const std::string& name );
-
     void initAfterReadRecursively() { initAfterReadRecursively( this->m_owner ); };
     void setupBeforeSaveRecursively() { setupBeforeSaveRecursively( this->m_owner ); };
 

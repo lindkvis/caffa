@@ -12,7 +12,7 @@ using namespace std::placeholders;
 
 class ItemObject : public caffa::Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( ItemObject, Object )
 
 public:
     ItemObject() { initField( m_name, "Name" ); }
@@ -28,13 +28,13 @@ public:
     // Fields
     caffa::Field<std::string> m_name;
 };
-CAFFA_SOURCE_INIT( ItemObject, "ItemObject" )
+CAFFA_SOURCE_INIT( ItemObject )
 
 class DemoObjectA;
 
 class ContainerObject : public caffa::Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( ContainerObject, Object )
 
 public:
     ContainerObject()
@@ -51,11 +51,11 @@ public:
     caffa::ChildArrayField<ContainerObject*> m_containers;
     caffa::ChildArrayField<DemoObjectA*>     m_demoObjs;
 };
-CAFFA_SOURCE_INIT( ContainerObject, "ContainerObject" )
+CAFFA_SOURCE_INIT( ContainerObject )
 
 class DemoObjectA : public caffa::Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( DemoObjectA, Object )
 
 public:
     DemoObjectA()
@@ -86,7 +86,7 @@ public:
     double m_doubleMember;
 };
 
-CAFFA_SOURCE_INIT( DemoObjectA, "DemoObjectA" )
+CAFFA_SOURCE_INIT( DemoObjectA )
 
 //--------------------------------------------------------------------------------------------------
 /// Read/write fields to a valid Xml document encoded in a std::string
