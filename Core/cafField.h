@@ -140,9 +140,11 @@ public:
         return this->value();
     }
 
+    bool operator==( const Field<DataType>& rhs ) const { return this->value() == rhs.value(); }
     auto operator<=>( const Field<DataType>& rhs ) const { return this->value() <=> rhs.value(); }
-    auto operator<=>( const DataType& fieldValue ) const { return this->value() <=> fieldValue; }
+
     bool operator==( const DataType& fieldValue ) const { return this->value() == fieldValue; }
+    auto operator<=>( const DataType& fieldValue ) const { return this->value() <=> fieldValue; }
 
     // Replace accessor
     void setAccessor( std::unique_ptr<DataAccessor> accessor ) { m_fieldDataAccessor = std::move( accessor ); }
