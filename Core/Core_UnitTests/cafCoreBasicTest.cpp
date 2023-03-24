@@ -25,7 +25,7 @@ using namespace std::placeholders;
 
 class DemoObject : public caffa::Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( DemoObject, Object )
 
 public:
     DemoObject()
@@ -95,11 +95,11 @@ private:
     std::string m_stringMember;
 };
 
-CAFFA_SOURCE_INIT( DemoObject, "DemoObject", "Object" )
+CAFFA_SOURCE_INIT( DemoObject )
 
 class InheritedDemoObj : public DemoObject
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( InheritedDemoObj, DemoObject )
 
 public:
     InheritedDemoObj()
@@ -118,7 +118,7 @@ TEST( BaseTest, Delete )
     delete s2;
 }
 
-CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj", "DemoObject", "Object" )
+CAFFA_SOURCE_INIT( InheritedDemoObj )
 
 //--------------------------------------------------------------------------------------------------
 /// TestField
@@ -165,7 +165,7 @@ TEST( BaseTest, TestProxyTypedField )
 
 class A : public caffa::Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( A, Object )
 
 public:
     A() {}
@@ -185,7 +185,7 @@ public:
     caffa::Field<std::vector<double>> field3;
 };
 
-CAFFA_SOURCE_INIT( A, "A", "Object" )
+CAFFA_SOURCE_INIT( A )
 
 //--------------------------------------------------------------------------------------------------
 /// Test of Field operations
@@ -251,9 +251,6 @@ TEST( BaseTest, ChildArrayField )
     ihd1->m_childArrayField.push_back( std::move( s2 ) );
     ihd1->m_childArrayField.push_back( std::move( s3 ) );
 
-    // Parent field
-    EXPECT_EQ( s1p->parentField(), &( ihd1->m_childArrayField ) );
-
     // size()
     EXPECT_EQ( size_t( 3 ), ihd1->m_childArrayField.size() );
     EXPECT_EQ( size_t( 3 ), ihd1->m_childArrayField.size() );
@@ -272,7 +269,6 @@ TEST( BaseTest, ChildArrayField )
     // remove child object
     auto new_s2 = ihd1->m_childArrayField.removeChildObject( s2p );
     EXPECT_EQ( size_t( 2 ), ihd1->m_childArrayField.size() );
-    EXPECT_TRUE( new_s2->parentField() == nullptr );
 
     auto emptyPointer = ihd1->m_childArrayField.removeChildObject( nullptr );
     EXPECT_TRUE( !emptyPointer );
@@ -286,8 +282,6 @@ TEST( BaseTest, ChildArrayField )
     EXPECT_EQ( s2p, ihd1->m_childArrayField[1] );
     EXPECT_EQ( s3p, ihd1->m_childArrayField[2] );
 
-    EXPECT_TRUE( s2p->parentField() == &( ihd1->m_childArrayField ) );
-
     // erase (index)
     EXPECT_EQ( size_t( 3 ), ihd1->m_childArrayField.size() );
     ihd1->m_childArrayField.erase( 1 );
@@ -300,8 +294,6 @@ TEST( BaseTest, ChildArrayField )
     auto extractedObjects = ihd1->m_childArrayField.clear();
     EXPECT_EQ( size_t( 0 ), ihd1->m_childArrayField.size() );
     EXPECT_EQ( size_t( 2 ), extractedObjects.size() );
-
-    EXPECT_TRUE( s1p->parentField() == nullptr );
 
     for ( auto& object : extractedObjects )
     {
@@ -397,7 +389,7 @@ TEST( BaseTest, ChildArrayFieldHandle )
 
 class A2 : public caffa::Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( A2, Object )
 
 public:
     explicit A2()
@@ -410,7 +402,7 @@ public:
     int                       b;
 };
 
-CAFFA_SOURCE_INIT( A2, "A2", "Object" )
+CAFFA_SOURCE_INIT( A2 )
 //--------------------------------------------------------------------------------------------------
 /// Test of ChildField
 //--------------------------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 #include "Parent.h"
 #include "Child.h"
 
-CAFFA_SOURCE_INIT( Parent, "Parent", "Object" );
+CAFFA_SOURCE_INIT( Parent );
 
 Parent::Parent()
 {

@@ -125,7 +125,7 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
         auto matchingObject = findCafObjectFromRpcObject( session.get(), self );
         if ( matchingObject )
         {
-            auto method = ObjectMethodFactory::instance()->createMethod( matchingObject, request->method() );
+            auto method = ObjectMethodFactory::instance()->createMethodInstance( matchingObject, request->method() );
             if ( method )
             {
                 if ( method->type() == ObjectMethod::Type::READ_WRITE && session->type() == Session::Type::OBSERVING )
@@ -179,7 +179,7 @@ grpc::Status
         for ( auto methodName : methodNames )
         {
             CAFFA_TRACE( "Found method: " << methodName );
-            auto       method          = ObjectMethodFactory::instance()->createMethod( matchingObject, methodName );
+            auto       method = ObjectMethodFactory::instance()->createMethodInstance( matchingObject, methodName );
             RpcObject* newMethodObject = reply->add_objects();
             copyResultOrParameterObjectFromCafToRpc( method.get(), newMethodObject );
         }
@@ -219,20 +219,20 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const caffa::S
 
     if ( caffa::Application::instance()->hasCapability( AppInfo::AppCapability::GRPC_CLIENT ) )
     {
-        objectsOfCurrentClass = GrpcClientObjectFactory::instance()->objectsWithClassKeyword( scriptClassName );
+        objectsOfCurrentClass = GrpcClientObjectFactory::instance()->objectsMatchingClassKeyword( scriptClassName );
     }
 
     for ( auto doc : ServerApplication::instance()->documents( session ) )
     {
         std::list<caffa::ObjectHandle*> objects =
             doc->matchingDescendants( [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool
-                                      { return objectHandle->classKeyword() == scriptClassName; } );
+                                      { return objectHandle->matchesClassKeyword( scriptClassName ); } );
 
         for ( auto object : objects )
         {
             objectsOfCurrentClass.push_back( object );
         }
-        if ( doc->classKeyword() == scriptClassName )
+        if ( doc->matchesClassKeyword( scriptClassName ) )
         {
             objectsOfCurrentClass.push_front( doc );
         }
@@ -387,7 +387,7 @@ std::unique_ptr<caffa::ObjectMethod>
     caffa::JsonSerializer serializer( objectFactory );
     auto [classKeyword, uuid] = serializer.readClassKeywordAndUUIDFromObjectString( source->json() );
 
-    std::unique_ptr<caffa::ObjectMethod> method = objectMethodFactory->createMethod( self, classKeyword );
+    std::unique_ptr<caffa::ObjectMethod> method = objectMethodFactory->createMethodInstance( self, classKeyword );
 
     serializer.readObjectFromString( method.get(), source->json() );
     return method;

@@ -24,61 +24,42 @@
 /// CAFFA_HEADER_INIT assists the factory used when reading objects from file
 /// Place this in the header file inside the class definition of your Object
 
-#define CAFFA_HEADER_INIT                                                                              \
-public:                                                                                                \
-    virtual std::string              classKeyword() const override;                                    \
-    static std::string               classKeywordStatic();                                             \
-    static std::vector<std::string>  classInheritanceStackStatic();                                    \
-    virtual std::vector<std::string> classInheritanceStack() const override;                           \
-    virtual bool                     matchesClassKeyword( const std::string& keyword ) const override; \
-                                                                                                       \
-    static bool Error_You_forgot_to_add_the_macro_CAFFA_HEADER_INIT_and_or_CAFFA_SOURCE_INIT_to_your_cpp_file_for_this_class()
-
-/// Alternative macro that allows you to define class documentation as well
-#define CAFFA_HEADER_INIT_WITH_DOC( DOCUMENTATION ) \
-    CAFFA_HEADER_INIT;                              \
-    std::string classDocumentation() const override \
-    {                                               \
-        return std::string( DOCUMENTATION );        \
+#define CAFFA_HEADER_INIT( ClassName, ParentClassName )                                                                         \
+public:                                                                                                                         \
+    static bool Error_You_forgot_to_add_the_macro_CAFFA_HEADER_INIT_and_or_CAFFA_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
+    static constexpr std::string_view classKeywordStatic()                                                                      \
+    {                                                                                                                           \
+        constexpr auto classKeyword       = std::string_view{ #ClassName };                                                     \
+        constexpr auto parentClassKeyword = std::string_view{ #ParentClassName };                                               \
+        static_assert( isValidKeyword( parentClassKeyword ), "The provided parent class name is not valid" );                   \
+        static_assert( isValidKeyword( classKeyword ), "The provided class name is not valid" );                                \
+        return classKeyword;                                                                                                    \
+    }                                                                                                                           \
+    constexpr std::string_view classKeyword() const override                                                                    \
+    {                                                                                                                           \
+        return classKeywordStatic();                                                                                            \
+    }                                                                                                                           \
+    constexpr InheritanceStackType classInheritanceStack() const override                                                       \
+    {                                                                                                                           \
+        InheritanceStackType stack       = { std::string_view{} };                                                              \
+        stack[0]                         = classKeywordStatic();                                                                \
+        auto parentClassInheritanceStack = ParentClassName::classInheritanceStack();                                            \
+        std::copy_n( parentClassInheritanceStack.begin(), parentClassInheritanceStack.size() - 1, stack.begin() + 1 );          \
+        return stack;                                                                                                           \
     }
 
-#define CAFFA_ABSTRACT_SOURCE_INIT( ClassName, keyword, ... )                                                                      \
-    bool ClassName::Error_You_forgot_to_add_the_macro_CAFFA_HEADER_INIT_and_or_CAFFA_SOURCE_INIT_to_your_cpp_file_for_this_class() \
-    {                                                                                                                              \
-        return false;                                                                                                              \
-    }                                                                                                                              \
-                                                                                                                                   \
-    std::string ClassName::classKeyword() const                                                                                    \
-    {                                                                                                                              \
-        return classKeywordStatic();                                                                                               \
-    }                                                                                                                              \
-    std::string ClassName::classKeywordStatic()                                                                                    \
-    {                                                                                                                              \
-        return classInheritanceStackStatic().front();                                                                              \
-    }                                                                                                                              \
-    std::vector<std::string> ClassName::classInheritanceStackStatic()                                                              \
-    {                                                                                                                              \
-        return { keyword, ##__VA_ARGS__ };                                                                                         \
-    }                                                                                                                              \
-    std::vector<std::string> ClassName::classInheritanceStack() const                                                              \
-    {                                                                                                                              \
-        return classInheritanceStackStatic();                                                                                      \
-    }                                                                                                                              \
-    bool ClassName::matchesClassKeyword( const std::string& matchKeyword ) const                                                   \
-    {                                                                                                                              \
-        auto aliases = classInheritanceStackStatic();                                                                              \
-        for ( auto alias : aliases )                                                                                               \
-        {                                                                                                                          \
-            if ( alias == matchKeyword ) return true;                                                                              \
-        }                                                                                                                          \
-        return false;                                                                                                              \
+/// Alternative macro that allows you to define class documentation as well
+#define CAFFA_HEADER_INIT_WITH_DOC( DOCUMENTATION, ... ) \
+    CAFFA_HEADER_INIT( __VA_ARGS__ );                    \
+    std::string classDocumentation() const override      \
+    {                                                    \
+        return std::string( DOCUMENTATION );             \
     }
 
 /// CAFFA_SOURCE_INIT associates the file keyword used for storage with the class and
 //  initializes the factory
 /// Place this in the cpp file, preferably above the constructor
-#define CAFFA_SOURCE_INIT( ClassName, keyword, ... )                         \
-    CAFFA_ABSTRACT_SOURCE_INIT( ClassName, keyword, ##__VA_ARGS__ )          \
+#define CAFFA_SOURCE_INIT( ClassName )                                       \
     static bool CAFFA_OBJECT_STRING_CONCATENATE( my##ClassName, __LINE__ ) = \
         caffa::DefaultObjectFactory::instance()->registerCreator<ClassName>();
 

@@ -1,22 +1,22 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//    Custom Visualization Core library
+//    Copyright (C) 2011-2013 Ceetron AS
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
-//##################################################################################################
+// ##################################################################################################
 
 #pragma once
 
@@ -60,9 +60,7 @@ class GrpcClientObjectFactory : public ObjectFactory
 {
 public:
     static GrpcClientObjectFactory* instance();
-
-    std::vector<std::string> classKeywords() const override;
-    void                     setGrpcClient( Client* client );
+    void                            setGrpcClient( Client* client );
     template <typename DataType>
     void registerBasicAccessorCreators()
     {
@@ -74,7 +72,7 @@ public:
     }
 
 private:
-    std::unique_ptr<ObjectHandle> doCreate( const std::string& classNameKeyword ) override;
+    std::unique_ptr<ObjectHandle> doCreate( const std::string_view& classKeyword ) override;
 
     GrpcClientObjectFactory()
         : m_grpcClient( nullptr )

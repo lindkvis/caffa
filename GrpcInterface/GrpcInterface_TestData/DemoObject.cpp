@@ -4,7 +4,7 @@
 
 #include <functional>
 
-CAFFA_SOURCE_INIT( DemoObject, "DemoObject", "Object" )
+CAFFA_SOURCE_INIT( DemoObject )
 
 using namespace std::placeholders;
 
@@ -72,8 +72,8 @@ DemoObject::DemoObject()
 
 CAFFA_OBJECT_METHOD_SOURCE_INIT( DemoObject, DemoObject_copyObject, "copyObject" );
 
-CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObject", "DemoObject" )
+CAFFA_SOURCE_INIT( InheritedDemoObj )
 
-CAFFA_SOURCE_INIT( DemoDocument, "DemoDocument", "Document", "Object" )
+CAFFA_SOURCE_INIT( DemoDocument )
 
-CAFFA_SOURCE_INIT( DemoDocumentWithNonScriptableMember, "DemoDocumentNonScriptableMember", "Document", "Object" )
+CAFFA_SOURCE_INIT( DemoDocumentWithNonScriptableMember )

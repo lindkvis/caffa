@@ -358,7 +358,7 @@ public:
         grpc::ClientContext context;
 
         FieldRequest field;
-        field.set_class_keyword( objectHandle->classKeyword() );
+        field.set_class_keyword( std::string( objectHandle->classKeyword() ) );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
 
@@ -393,7 +393,7 @@ public:
         grpc::ClientContext context;
 
         FieldRequest field;
-        field.set_class_keyword( objectHandle->classKeyword() );
+        field.set_class_keyword( std::string( objectHandle->classKeyword() ) );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
         field.set_copy_object_values( true );
@@ -430,7 +430,7 @@ public:
         ObjectService::copyResultOrParameterObjectFromCafToRpc( childObject, rpcChildObject.get() );
 
         auto field = std::make_unique<FieldRequest>();
-        field->set_class_keyword( objectHandle->classKeyword() );
+        field->set_class_keyword( std::string( objectHandle->classKeyword() ) );
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( fieldName );
         field->set_copy_object_values( true );
@@ -458,7 +458,7 @@ public:
         grpc::ClientContext context;
 
         FieldRequest field;
-        field.set_class_keyword( objectHandle->classKeyword() );
+        field.set_class_keyword( std::string( objectHandle->classKeyword() ) );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( getter );
         auto session = std::make_unique<caffa::rpc::SessionMessage>();
@@ -504,7 +504,7 @@ public:
         ObjectService::copyProjectObjectFromCafToRpc( childObject, rpcChildObject.get() );
 
         auto field = std::make_unique<FieldRequest>();
-        field->set_class_keyword( objectHandle->classKeyword() );
+        field->set_class_keyword( std::string( objectHandle->classKeyword() ) );
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( fieldName );
         auto session = std::make_unique<caffa::rpc::SessionMessage>();
@@ -536,7 +536,7 @@ public:
         ObjectService::copyResultOrParameterObjectFromCafToRpc( childObject, rpcChildObject.get() );
         auto field = std::make_unique<FieldRequest>();
 
-        field->set_class_keyword( objectHandle->classKeyword() );
+        field->set_class_keyword( std::string( objectHandle->classKeyword() ) );
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( fieldName );
         field->set_index( index );
@@ -564,7 +564,7 @@ public:
         grpc::ClientContext context;
 
         FieldRequest field;
-        field.set_class_keyword( objectHandle->classKeyword() );
+        field.set_class_keyword( std::string( objectHandle->classKeyword() ) );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
         auto session = std::make_unique<caffa::rpc::SessionMessage>();
@@ -586,7 +586,7 @@ public:
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
         FieldRequest        field;
-        field.set_class_keyword( objectHandle->classKeyword() );
+        field.set_class_keyword( std::string( objectHandle->classKeyword() ) );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
         field.set_index( index );
@@ -613,7 +613,7 @@ public:
         grpc::ClientContext context;
         MethodRequest       request;
         request.set_allocated_self_object( self.release() );
-        request.set_method( method->classKeyword() );
+        request.set_method( std::string( method->classKeyword() ) );
         request.set_allocated_params( params.release() );
         auto session = std::make_unique<caffa::rpc::SessionMessage>();
         session->set_uuid( m_sessionUuid );
@@ -716,7 +716,7 @@ public:
         grpc::ClientContext context;
 
         auto field = std::make_unique<FieldRequest>();
-        field->set_class_keyword( objectHandle->classKeyword() );
+        field->set_class_keyword( std::string( objectHandle->classKeyword() ) );
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( fieldName );
         field->set_index( addressOffset );
@@ -744,7 +744,7 @@ public:
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
         FieldRequest        field;
-        field.set_class_keyword( objectHandle->classKeyword() );
+        field.set_class_keyword( std::string( objectHandle->classKeyword() ) );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
         field.set_index( addressOffset );

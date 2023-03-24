@@ -154,7 +154,7 @@ public:
         throw std::runtime_error( "Cannot change sessions in example app" );
     }
 
-    void destroySession( const std::string& sessionUuid )
+    void destroySession( const std::string& sessionUuid ) override
     {
         if ( m_session && m_session->uuid() == sessionUuid )
         {

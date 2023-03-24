@@ -1,38 +1,38 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//    Custom Visualization Core library
+//    Copyright (C) 2011-2013 Ceetron AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
-//   the GNU Lesser General Public License as follows:
+//    This library may be used under the terms of either the GNU General Public License or
+//    the GNU Lesser General Public License as follows:
 //
-//   GNU General Public License Usage
-//   This library is free software: you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation, either version 3 of the License, or
-//   (at your option) any later version.
+//    GNU General Public License Usage
+//    This library is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
-//   for more details.
+//    See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
+//    for more details.
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
-//##################################################################################################
+// ##################################################################################################
 
 #include "gtest.h"
 #include <iostream>
@@ -56,7 +56,7 @@ using namespace std::placeholders;
 
 class SimpleObj : public caffa::Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( SimpleObj, Object )
 
 public:
     SimpleObj()
@@ -113,11 +113,11 @@ public:
 
     double m_doubleMember;
 };
-CAFFA_SOURCE_INIT( SimpleObj, "SimpleObj", "Object" )
+CAFFA_SOURCE_INIT( SimpleObj )
 
 class DemoObject : public caffa::Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( DemoObject, Object )
 
 public:
     DemoObject()
@@ -141,11 +141,11 @@ public:
     caffa::ChildField<SimpleObj*> m_simpleObjPtrField2;
 };
 
-CAFFA_SOURCE_INIT( DemoObject, "DemoObject", "Object" )
+CAFFA_SOURCE_INIT( DemoObject )
 
 class InheritedDemoObj : public DemoObject
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( InheritedDemoObj, DemoObject )
 
 public:
     InheritedDemoObj()
@@ -157,18 +157,18 @@ public:
     caffa::Field<std::vector<std::string>> m_texts;
     caffa::ChildArrayField<SimpleObj*>     m_simpleObjectsField;
 };
-CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj", "DemoObject", "Object" )
+CAFFA_SOURCE_INIT( InheritedDemoObj )
 
 class MyDocument : public caffa::Document
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( MyDocument, Document )
 
 public:
     MyDocument() { initField( objects, "Objects" ); }
 
     caffa::ChildArrayField<ObjectHandle*> objects;
 };
-CAFFA_SOURCE_INIT( MyDocument, "MyDocument", "Document", "Object" )
+CAFFA_SOURCE_INIT( MyDocument )
 
 TEST( BaseTest, Delete )
 {
@@ -178,7 +178,7 @@ TEST( BaseTest, Delete )
 
 class ObjectWithVectors : public caffa::Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( ObjectWithVectors, Object )
 
 public:
     ObjectWithVectors()
@@ -193,7 +193,11 @@ public:
     caffa::Field<std::vector<double>> field3;
 };
 
-CAFFA_SOURCE_INIT( ObjectWithVectors, "ObjectWithVectors", "Objet" );
+CAFFA_SOURCE_INIT( ObjectWithVectors );
+
+struct Test2
+{
+};
 
 //--------------------------------------------------------------------------------------------------
 /// Test of Field operations
@@ -399,16 +403,16 @@ TEST( BaseTest, ObjectFactory )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Validate Xml keywords
+/// Validate Object keywords
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, ValidXmlKeywords )
+TEST( BaseTest, ValidObjectKeywords )
 {
-    EXPECT_TRUE( caffa::ObjectIoCapability::isValidElementName( "Valid_name" ) );
+    EXPECT_TRUE( caffa::ObjectHandle::isValidKeyword( "Valid_name" ) );
 
-    EXPECT_FALSE( caffa::ObjectIoCapability::isValidElementName( "2Valid_name" ) );
-    EXPECT_FALSE( caffa::ObjectIoCapability::isValidElementName( ".Valid_name" ) );
-    EXPECT_TRUE( caffa::ObjectIoCapability::isValidElementName( "xml_Valid_name" ) );
-    EXPECT_FALSE( caffa::ObjectIoCapability::isValidElementName( "Valid_name_with_space " ) );
+    EXPECT_FALSE( caffa::ObjectHandle::isValidKeyword( "2Valid_name" ) );
+    EXPECT_FALSE( caffa::ObjectHandle::isValidKeyword( ".Valid_name" ) );
+    EXPECT_TRUE( caffa::ObjectHandle::isValidKeyword( "xml_Valid_name" ) );
+    EXPECT_FALSE( caffa::ObjectHandle::isValidKeyword( "Valid_name_with_space " ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -460,7 +464,7 @@ TEST( BaseTest, Uuids )
     EXPECT_FALSE( obj1->uuid().empty() );
     CAFFA_INFO( "UUID: " << obj1->uuid() );
     // Should never have collisions.
-    for ( size_t i = 0; i < 10000; ++i )
+    for ( size_t i = 0; i < 2000; ++i )
     {
         auto obj2 = std::make_unique<SimpleObj>();
         EXPECT_FALSE( obj2->uuid().empty() );

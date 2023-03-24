@@ -1,38 +1,38 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//    Custom Visualization Core library
+//    Copyright (C) 2011-2013 Ceetron AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
-//   the GNU Lesser General Public License as follows:
+//    This library may be used under the terms of either the GNU General Public License or
+//    the GNU Lesser General Public License as follows:
 //
-//   GNU General Public License Usage
-//   This library is free software: you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation, either version 3 of the License, or
-//   (at your option) any later version.
+//    GNU General Public License Usage
+//    This library is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
-//   for more details.
+//    See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
+//    for more details.
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
-//##################################################################################################
+// ##################################################################################################
 
 #pragma once
 
@@ -60,24 +60,22 @@ public:
     template <typename ObjectBaseDerivative>
     bool registerCreator()
     {
-        std::string classNameKeyword = ObjectBaseDerivative::classKeywordStatic();
+        auto classKeyword = ObjectBaseDerivative::classKeywordStatic();
 
-        auto entryIt = m_factoryMap.find( classNameKeyword );
+        auto entryIt = m_factoryMap.find( classKeyword );
         if ( entryIt != m_factoryMap.end() )
         {
-            CAFFA_ASSERT( classNameKeyword != entryIt->first ); // classNameKeyword has already been used
+            CAFFA_ASSERT( classKeyword != entryIt->first ); // classKeyword has already been used
             CAFFA_ASSERT( false ); // To be sure ..
             return false; // never hit;
         }
-        auto object                    = new ObjectCreator<ObjectBaseDerivative>();
-        m_factoryMap[classNameKeyword] = object;
+        auto object                               = new ObjectCreator<ObjectBaseDerivative>();
+        m_factoryMap[std::string( classKeyword )] = object;
         return true;
     }
 
-    std::vector<std::string> classKeywords() const override;
-
 private:
-    std::unique_ptr<ObjectHandle> doCreate( const std::string& classNameKeyword ) override;
+    std::unique_ptr<ObjectHandle> doCreate( const std::string_view& classKeyword ) override;
 
     DefaultObjectFactory() {}
     ~DefaultObjectFactory() override
@@ -102,7 +100,7 @@ private:
     };
 
     // Map to store factory
-    std::map<std::string, ObjectCreatorBase*> m_factoryMap;
+    std::map<std::string, ObjectCreatorBase*, std::less<>> m_factoryMap;
 };
 
 } // End of namespace caffa

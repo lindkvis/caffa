@@ -1,38 +1,38 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Custom Visualization Core library
-//   Copyright (C) Ceetron Solutions AS
+//    Custom Visualization Core library
+//    Copyright (C) Ceetron Solutions AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
-//   the GNU Lesser General Public License as follows:
+//    This library may be used under the terms of either the GNU General Public License or
+//    the GNU Lesser General Public License as follows:
 //
-//   GNU General Public License Usage
-//   This library is free software: you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation, either version 3 of the License, or
-//   (at your option) any later version.
+//    GNU General Public License Usage
+//    This library is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
-//   for more details.
+//    See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
+//    for more details.
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
-//##################################################################################################
+// ##################################################################################################
 #pragma once
 
 #include "cafAssert.h"
@@ -46,7 +46,6 @@
 /// CAFFA_OBJECT_METHOD_SOURCE_INIT associates the self class keyword and the method keyword with the method factory
 /// Place this in the cpp file, preferably above the constructor
 #define CAFFA_OBJECT_METHOD_SOURCE_INIT( SelfClassName, MethodClassName, methodKeyword ) \
-    CAFFA_ABSTRACT_SOURCE_INIT( MethodClassName, methodKeyword, "ObjectMethod" )         \
     static bool CAFFA_OBJECT_STRING_CONCATENATE( method##MethodClassName, __LINE__ ) =   \
         caffa::ObjectMethodFactory::instance()->registerMethod<SelfClassName, MethodClassName>()
 
@@ -58,7 +57,7 @@ namespace caffa
 //==================================================================================================
 class ObjectMethodResult : public Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( ObjectMethodResult, Object )
 
 public:
     ObjectMethodResult( bool retValue = true, const std::string& errMsg = "" );
@@ -76,7 +75,7 @@ public:
 //==================================================================================================
 class ObjectMethod : public Object
 {
-    CAFFA_HEADER_INIT_WITH_DOC( "A generic object method" );
+    CAFFA_HEADER_INIT_WITH_DOC( "A generic object method", ObjectMethod, Object )
 
 public:
     enum class Type
@@ -131,13 +130,14 @@ class ObjectMethodFactory
 public:
     static ObjectMethodFactory* instance();
 
-    std::unique_ptr<ObjectMethod> createMethod( caffa::not_null<ObjectHandle*> self, const std::string& methodName );
+    std::unique_ptr<ObjectMethod> createMethodInstance( caffa::not_null<ObjectHandle*> self,
+                                                        const std::string_view&        methodName );
 
     template <typename ObjectDerivative, typename ObjectScriptMethodDerivative>
     bool registerMethod()
     {
-        std::string className  = ObjectDerivative::classKeywordStatic();
-        std::string methodName = ObjectScriptMethodDerivative::classKeywordStatic();
+        auto className  = ObjectDerivative::classKeywordStatic();
+        auto methodName = ObjectScriptMethodDerivative::classKeywordStatic();
 
         auto classEntryIt = m_factoryMap.find( className );
         if ( classEntryIt != m_factoryMap.end() )
@@ -145,12 +145,12 @@ public:
             auto methodEntryIt = classEntryIt->second.find( methodName );
             if ( methodEntryIt != classEntryIt->second.end() )
             {
-                CAFFA_ASSERT( methodName != methodEntryIt->first ); // classNameKeyword has already been used
+                CAFFA_ASSERT( methodName != methodEntryIt->first ); // classKeyword has already been used
                 CAFFA_ASSERT( false ); // To be sure ..
                 return false; // never hit;
             }
         }
-        m_factoryMap[className][methodName] =
+        m_factoryMap[std::string( className )][std::string( methodName )] =
             std::shared_ptr<ObjectMethodCreatorBase>( new ObjectMethodCreator<ObjectScriptMethodDerivative>() );
         return true;
     }
@@ -182,7 +182,7 @@ private:
 
 private:
     // Map to store factory
-    std::map<std::string, std::map<std::string, std::shared_ptr<ObjectMethodCreatorBase>>> m_factoryMap;
+    std::map<std::string, std::map<std::string, std::shared_ptr<ObjectMethodCreatorBase>, std::less<>>, std::less<>> m_factoryMap;
     // Self pointer
 
 }; // namespace caffa

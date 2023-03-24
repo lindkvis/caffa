@@ -13,7 +13,7 @@
 //--------------------------------------------------------------------------------------------------
 class SimpleObjectWithNumbers : public caffa::Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( SimpleObjectWithNumbers, Object )
 
 public:
     SimpleObjectWithNumbers()
@@ -31,7 +31,7 @@ public:
     caffa::Field<float> m_floatValueA;
     caffa::Field<float> m_floatValueB;
 };
-CAFFA_SOURCE_INIT( SimpleObjectWithNumbers, "SimpleObjectWithNumbers", "" )
+CAFFA_SOURCE_INIT( SimpleObjectWithNumbers )
 
 //--------------------------------------------------------------------------------------------------
 ///

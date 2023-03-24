@@ -1,9 +1,8 @@
 #pragma once
 
+#include "cafAssert.h"
 #include "cafChildArrayFieldAccessor.h"
 #include "cafChildArrayFieldHandle.h"
-
-#include "cafAssert.h"
 #include "cafFieldHandle.h"
 #include "cafObservingPointer.h"
 #include "cafPortableDataType.h"
@@ -83,7 +82,7 @@ public:
         m_fieldDataAccessor = std::move( accessor );
     }
 
-    std::string childClassKeyword() const override { return DataType::classKeywordStatic(); }
+    virtual constexpr std::string_view childClassKeyword() const override { return DataType::classKeywordStatic(); }
 
 private: // To be disabled
     ChildArrayField( const ChildArrayField& )            = delete;

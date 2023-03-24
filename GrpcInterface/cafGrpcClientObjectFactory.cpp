@@ -22,14 +22,14 @@ namespace caffa::rpc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> GrpcClientObjectFactory::doCreate( const std::string& classNameKeyword )
+std::unique_ptr<ObjectHandle> GrpcClientObjectFactory::doCreate( const std::string_view& classKeyword )
 {
     CAFFA_ASSERT( m_grpcClient );
     if ( !m_grpcClient ) throw( Exception( grpc::Status( grpc::ABORTED, "No Client set in Grpc Client factory" ) ) );
 
-    CAFFA_TRACE( "Creating object of type " << classNameKeyword );
+    CAFFA_TRACE( "Creating object of type " << classKeyword );
 
-    auto objectHandle = caffa::DefaultObjectFactory::instance()->create( classNameKeyword );
+    auto objectHandle = caffa::DefaultObjectFactory::instance()->create( classKeyword );
 
     CAFFA_ASSERT( objectHandle );
 
@@ -42,14 +42,6 @@ std::unique_ptr<ObjectHandle> GrpcClientObjectFactory::doCreate( const std::stri
     }
 
     return objectHandle;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<std::string> GrpcClientObjectFactory::classKeywords() const
-{
-    return caffa::DefaultObjectFactory::instance()->classKeywords();
 }
 
 //--------------------------------------------------------------------------------------------------

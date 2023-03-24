@@ -28,41 +28,6 @@ ObjectIoCapability::~ObjectIoCapability() noexcept
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Check if a string is a valid element name
-//
-/// http://www.w3schools.com/xml/xml_elements.asp
-///
-/// JSON elements must follow these naming rules:
-///   Names can contain letters, numbers, and other characters
-///   Names cannot start with a number or punctuation character
-///   Names cannot start with the letters xml (or JSON, or Xml, etc)
-///   Names cannot contain spaces
-//--------------------------------------------------------------------------------------------------
-bool ObjectIoCapability::isValidElementName( const std::string& name )
-{
-    if ( name.empty() )
-    {
-        return false;
-    }
-
-    if ( name.length() > 0 )
-    {
-        char firstChar = name[0];
-        if ( std::isdigit( firstChar ) || firstChar == '.' )
-        {
-            return false;
-        }
-    }
-
-    if ( name.find( ' ' ) != std::string::npos )
-    {
-        return false;
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<ObjectHandle> ObjectIoCapability::copyBySerialization( ObjectFactory* objectFactory ) const

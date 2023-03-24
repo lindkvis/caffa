@@ -18,7 +18,7 @@ using namespace std::placeholders;
 
 class DemoObject : public caffa::Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( DemoObject, Object )
 
 public:
     enum TestEnumType
@@ -72,7 +72,7 @@ private:
     TestEnumType m_enumMember;
 };
 
-CAFFA_SOURCE_INIT( DemoObject, "DemoObject" )
+CAFFA_SOURCE_INIT( DemoObject )
 
 namespace caffa
 {
@@ -123,7 +123,7 @@ TEST( BaseTest, FieldWrite )
 
 class InheritedDemoObj : public DemoObject
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( InheritedDemoObj, DemoObject )
 
 public:
     InheritedDemoObj()
@@ -135,13 +135,13 @@ public:
     caffa::Field<std::string>           m_texts;
     caffa::ChildArrayField<DemoObject*> m_childArrayField;
 };
-CAFFA_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj", "DemoObject" )
+CAFFA_SOURCE_INIT( InheritedDemoObj )
 
 using IntRangeValidator = caffa::RangeValidator<int>;
 
 class SimpleObj : public caffa::Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( SimpleObj, Object )
 
 public:
     SimpleObj()
@@ -180,11 +180,11 @@ public:
 
     double m_doubleMember;
 };
-CAFFA_SOURCE_INIT( SimpleObj, "SimpleObj" )
+CAFFA_SOURCE_INIT( SimpleObj )
 
 class ReferenceDemoObject : public caffa::Object
 {
-    CAFFA_HEADER_INIT;
+    CAFFA_HEADER_INIT( ReferenceDemoObject, Object )
 
 public:
     ReferenceDemoObject()
@@ -198,7 +198,7 @@ public:
     caffa::ChildArrayField<SimpleObj*> m_simpleObjPtrField2;
 };
 
-CAFFA_SOURCE_INIT( ReferenceDemoObject, "ReferenceDemoObject" )
+CAFFA_SOURCE_INIT( ReferenceDemoObject )
 
 //--------------------------------------------------------------------------------------------------
 ///

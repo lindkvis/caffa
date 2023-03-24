@@ -1,45 +1,44 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Custom Visualization Core library
-//   Copyright (C) Ceetron Solutions AS
+//    Custom Visualization Core library
+//    Copyright (C) Ceetron Solutions AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
-//   the GNU Lesser General Public License as follows:
+//    This library may be used under the terms of either the GNU General Public License or
+//    the GNU Lesser General Public License as follows:
 //
-//   GNU General Public License Usage
-//   This library is free software: you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation, either version 3 of the License, or
-//   (at your option) any later version.
+//    GNU General Public License Usage
+//    This library is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
-//   for more details.
+//    See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
+//    for more details.
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
-//##################################################################################################
+// ##################################################################################################
 
 #include "cafObjectMethod.h"
 
 using namespace caffa;
 
-CAFFA_SOURCE_INIT( ObjectMethodResult, "ObjectMethodResult", "Object" )
-CAFFA_ABSTRACT_SOURCE_INIT( ObjectMethod, "ObjectMethod", "Object" )
+CAFFA_SOURCE_INIT( ObjectMethodResult )
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -78,13 +77,13 @@ ObjectMethodFactory* ObjectMethodFactory::instance()
 //--------------------------------------------------------------------------------------------------
 /// Check the object and the inheritance stack for the specified method name
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectMethod> ObjectMethodFactory::createMethod( caffa::not_null<ObjectHandle*> self,
-                                                                 const std::string&             methodName )
+std::unique_ptr<ObjectMethod> ObjectMethodFactory::createMethodInstance( caffa::not_null<ObjectHandle*> self,
+                                                                         const std::string_view&        methodName )
 {
     auto classNames = self->classInheritanceStack();
     for ( auto className : classNames )
     {
-        auto classIt = m_factoryMap.find( className );
+        auto classIt = m_factoryMap.find( std::string( className ) );
         if ( classIt != m_factoryMap.end() )
         {
             auto methodIt = classIt->second.find( methodName );
@@ -107,12 +106,12 @@ std::vector<std::string> caffa::ObjectMethodFactory::registeredMethodNames( caff
     auto classNames = self->classInheritanceStack();
     for ( auto className : classNames )
     {
-        auto classIt = m_factoryMap.find( className );
+        auto classIt = m_factoryMap.find( std::string( className ) );
         if ( classIt != m_factoryMap.end() )
         {
-            for ( auto methodPair : classIt->second )
+            for ( const auto& [methodName, creator] : classIt->second )
             {
-                methods.push_back( methodPair.first );
+                methods.push_back( std::string( methodName ) );
             }
         }
     }

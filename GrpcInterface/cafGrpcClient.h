@@ -123,6 +123,7 @@ DataType caffa::rpc::Client::get( const caffa::ObjectHandle* objectHandle,
                                   const std::string&         fieldName,
                                   uint32_t                   addressOffset ) const
 {
+    CAFFA_DEBUG( "Got object Handle: " << objectHandle->classKeyword() );
     nlohmann::json jsonValue = getJson( objectHandle, fieldName, addressOffset );
     CAFFA_TRACE( "Attempting to get a value of datatype " << caffa::PortableDataType<DataType>::name()
                                                           << " from json value " << jsonValue );

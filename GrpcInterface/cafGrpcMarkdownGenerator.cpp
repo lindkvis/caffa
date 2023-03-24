@@ -65,7 +65,7 @@ std::string MarkdownGenerator::generate( ObjectHandle* object, bool objectMethod
     fieldDependencies.push_back( parentClassKeyword );
 
     std::string code;
-    code += "## " + object->classKeyword() + "\n";
+    code += "## " + std::string( object->classKeyword() ) + "\n";
     code += object->classDocumentation() + "\n";
 
     code += "### Fields\n";
@@ -121,7 +121,7 @@ std::string MarkdownGenerator::generate( ObjectHandle* object, bool objectMethod
         code += "### Methods\n";
         for ( auto methodName : methodNames )
         {
-            auto method = ObjectMethodFactory::instance()->createMethod( object, methodName );
+            auto method = ObjectMethodFactory::instance()->createMethodInstance( object, methodName );
             code += generate( method.get(), methodDependencies );
         }
     }
@@ -159,7 +159,7 @@ std::string MarkdownGenerator::findParentClass( ObjectHandle* object ) const
         auto object = DefaultObjectFactory::instance()->create( inheritanceStack[i] );
         if ( object )
         {
-            return inheritanceStack[i];
+            return std::string( inheritanceStack[i] );
         }
     }
     return "Object";
@@ -172,11 +172,11 @@ std::string MarkdownGenerator::dependency( const caffa::FieldHandle* field ) con
 
     if ( childField )
     {
-        return childField->childClassKeyword();
+        return std::string( childField->childClassKeyword() );
     }
     else if ( childArrayField )
     {
-        return childArrayField->childClassKeyword();
+        return std::string( childArrayField->childClassKeyword() );
     }
     return "";
 }
@@ -188,11 +188,11 @@ std::string MarkdownGenerator::docDataType( const caffa::FieldHandle* field ) co
 
     if ( childField )
     {
-        return childField->childClassKeyword();
+        return std::string( childField->childClassKeyword() );
     }
     else if ( childArrayField )
     {
-        return childArrayField->childClassKeyword() + "[]";
+        return std::string( childArrayField->childClassKeyword() ) + "[]";
     }
 
     return field->dataType();
@@ -225,7 +225,7 @@ std::string MarkdownGenerator::generate( caffa::ObjectMethod* method, std::vecto
 
     auto fields = method->fields();
 
-    code += "- " + method->classKeyword() + ": " + method->classDocumentation() + "\n";
+    code += "- " + std::string( method->classKeyword() ) + ": " + method->classDocumentation() + "\n";
 
     std::string parametersCode;
     int         index = 1;
@@ -258,7 +258,7 @@ std::string MarkdownGenerator::generate( caffa::ObjectMethod* method, std::vecto
 
     auto resultObject = method->defaultResult();
 
-    code += "    - Returns: *" + resultObject->classKeyword() + "*\n";
+    code += "    - Returns: *" + std::string( resultObject->classKeyword() ) + "*\n";
     code += "\n";
     return code;
 }
