@@ -46,8 +46,7 @@ bool FieldHandle::matchesKeyword( const std::string& keyword ) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// The class of the ownerObject() can be different to ownerClass().
-/// This is because the ownerClass() may be a super-class to the instantiated owner object.
+///
 //--------------------------------------------------------------------------------------------------
 caffa::ObjectHandle* FieldHandle::ownerObject()
 {

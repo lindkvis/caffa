@@ -3,7 +3,8 @@
 //    Custom Visualization Core library
 //    Copyright (C) 2011-2013 Ceetron AS
 //    Copyright (C) 2013- Ceetron Solutions AS
-//    Copyright (C) 2021- 3D-Radar AS
+//    Copyright (C) 2021-2022 3D-Radar AS
+//    Copyright (C) 2022- Kontur AS
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify
@@ -73,12 +74,6 @@ public:
     FieldHandle* findField( const std::string& keyword ) const;
 
     /**
-     * The field referencing this object as a child
-     * @return a FieldHandle pointer to the parent. If called on a root object this is nullptr
-     */
-    FieldHandle* parentField() const;
-
-    /**
      * Traverses all children recursively to find objects matching the predicate.
      * This object is also included if it matches.
      * @param predicate a function pointer predicate
@@ -91,9 +86,6 @@ public:
      * @return a list of matching children
      */
     std::list<ObjectHandle*> children() const;
-
-    // Perform cleanup before delete
-    void prepareForDelete() noexcept;
 
     /**
      * Add an object capability to the object
@@ -137,6 +129,8 @@ public:
     /// Re-implement to make sure your fields have correct data before saving
     virtual void setupBeforeSave(){};
 
+    void disconnectObserverFromAllSignals( SignalObserver* observer );
+
 protected:
     /**
      * Add a field to the object
@@ -153,30 +147,9 @@ private:
     // Capabilities
     std::vector<std::unique_ptr<ObjectCapability>> m_capabilities;
 
-    // Child/Parent Relationships
-    void setAsParentField( FieldHandle* parentField );
-    void detachFromParentField();
-    void disconnectObserverFromAllSignals( SignalObserver* observer );
-
-    FieldHandle* m_parentField;
-
-    // Give access to set/removeAsParentField
-    template <class T>
-    friend class ChildArrayField;
-    friend class ChildFieldDirectStorageAccessor;
-    friend class ChildArrayFieldDirectStorageAccessor;
-
-    template <class T>
-    friend class Field; // For backwards compatibility layer
-
-    template <class T>
-    friend class FieldJsonCap;
-
     // Support system for Pointer
     friend class ObservingPointerImpl;
     std::set<ObjectHandle**> m_pointersReferencingMe;
 };
 
 } // namespace caffa
-
-#include "cafFieldHandle.h"

@@ -1,20 +1,20 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Caffa
-//   Copyright (C) 3D-Radar AS
+//    Caffa
+//    Copyright (C) 3D-Radar AS
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
 #include "cafChildArrayFieldAccessor.h"
 
@@ -39,7 +39,7 @@ std::vector<std::unique_ptr<ObjectHandle>> ChildArrayFieldDirectStorageAccessor:
 {
     for ( auto& ptr : m_pointers )
     {
-        ptr->detachFromParentField();
+        ptr->disconnectObserverFromAllSignals( m_field->ownerObject() );
     }
 
     std::vector<std::unique_ptr<ObjectHandle>> returnValues;
@@ -78,13 +78,11 @@ void ChildArrayFieldDirectStorageAccessor::insert( size_t index, std::unique_ptr
 {
     CAFFA_ASSERT( pointer );
 
-    pointer->setAsParentField( this->m_field );
     auto it = m_pointers.begin() + index;
     m_pointers.insert( it, std::move( pointer ) );
 }
 void ChildArrayFieldDirectStorageAccessor::push_back( std::unique_ptr<ObjectHandle> pointer )
 {
-    pointer->setAsParentField( this->m_field );
     m_pointers.push_back( std::move( pointer ) );
 }
 size_t ChildArrayFieldDirectStorageAccessor::index( const ObjectHandle* object ) const
@@ -105,7 +103,7 @@ std::unique_ptr<ObjectHandle> ChildArrayFieldDirectStorageAccessor::remove( size
     {
         std::unique_ptr<ObjectHandle> detachedPtr = std::move( *it );
         m_pointers.erase( it );
-        detachedPtr->detachFromParentField();
+        detachedPtr->disconnectObserverFromAllSignals( m_field->ownerObject() );
         return detachedPtr;
     }
 
