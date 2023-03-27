@@ -26,6 +26,9 @@ namespace caffa
 class ChildFieldAccessor;
 class ObjectHandle;
 
+template <typename DataTypePtr>
+concept is_pointer = std::is_pointer<DataTypePtr>::value;
+
 class ChildFieldBaseHandle : public FieldHandle
 {
 public:

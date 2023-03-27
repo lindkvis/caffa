@@ -8,64 +8,58 @@
 #include "cafPortableDataType.h"
 #include "cafVisitor.h"
 
+#include <concepts>
 #include <memory>
+#include <type_traits>
 
 namespace caffa
 {
+class ObjectHandle;
+
 template <typename T>
 class FieldJsonCap;
 
-//==================================================================================================
-/// Specialization for pointers, but only applicable to Object derived objects.
-/// The pointer is guarded, meaning that it will be set to nullptr if the object pointed to
-/// is deleted. The referenced object will be printed in place in the xml-file
-/// This is supposed to be renamed to ChildField
-//==================================================================================================
-template <typename DataType>
+/**
+ * @brief Field class to handle a pointer to a caffa Object.
+ *
+ * @tparam DataTypePtr A pointer to a class derived from caffa::Object
+ */
+template <typename DataTypePtr>
+    requires is_pointer<DataTypePtr>
 class ChildField : public ChildFieldHandle
 {
 public:
-    using FieldDataType = DataType*;
-
-    ChildField()
-    {
-        bool doNotUseChildFieldForAnythingButPointersToObject = false;
-        CAFFA_ASSERT( doNotUseChildFieldForAnythingButPointersToObject );
-    }
-};
-
-template <typename DataType>
-class ChildField<DataType*> : public ChildFieldHandle
-{
-    using DataTypePtr = std::unique_ptr<DataType>;
+    using DataType      = typename std::remove_pointer<DataTypePtr>::type;
+    using UniquePtr     = std::unique_ptr<DataType>;
+    using FieldDataType = DataTypePtr;
 
 public:
-    using FieldDataType = DataType*;
-
     ChildField()
         : m_fieldDataAccessor( std::make_unique<ChildFieldDirectStorageAccessor>( this ) )
     {
+        static_assert( std::is_base_of<ObjectHandle, DataType>::value &&
+                       "Child fields can only contain ObjectHandle-derived objects" );
     }
 
     virtual ~ChildField();
 
     // Assignment
 
-    ChildField& operator=( DataTypePtr object );
+    ChildField& operator=( UniquePtr object );
 
     // Basic access
 
     DataType*       object() { return static_cast<DataType*>( m_fieldDataAccessor->object() ); }
     const DataType* object() const { return static_cast<const DataType*>( m_fieldDataAccessor->object() ); }
-    void            setObject( DataTypePtr object );
+    void            setObject( UniquePtr object );
 
     // Access operators
     operator DataType*() { return this->object(); }
     operator const DataType*() const { return this->object(); }
 
     // Deep copy of object content
-    std::unique_ptr<DataType> deepCloneObject() const;
-    void                      deepCopyObjectFrom( const DataType* copyFrom );
+    UniquePtr deepCloneObject() const;
+    void      deepCopyObjectFrom( const DataType* copyFrom );
 
     DataType*       operator->() { return this->object(); }
     const DataType* operator->() const { return this->object(); }

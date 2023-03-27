@@ -9,26 +9,26 @@ namespace caffa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template <typename DataType>
-ChildArrayField<DataType*>::~ChildArrayField()
+template <typename DataTypePtr>
+ChildArrayField<DataTypePtr>::~ChildArrayField()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template <typename DataType>
-DataType* ChildArrayField<DataType*>::operator[]( size_t index ) const
+template <typename DataTypePtr>
+ChildArrayField<DataTypePtr>::DataType* ChildArrayField<DataTypePtr>::operator[]( size_t index ) const
 {
     CAFFA_ASSERT( isInitialized() );
-    return static_cast<DataType*>( m_fieldDataAccessor->at( index ) );
+    return static_cast<DataTypePtr>( m_fieldDataAccessor->at( index ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Assign a unique pointer and take ownership.
 //--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void ChildArrayField<DataType*>::push_back( DataTypeUniquePtr pointer )
+template <typename DataTypePtr>
+void ChildArrayField<DataTypePtr>::push_back( UniquePtr pointer )
 {
     CAFFA_ASSERT( isInitialized() );
     m_fieldDataAccessor->push_back( std::move( pointer ) );
@@ -37,15 +37,15 @@ void ChildArrayField<DataType*>::push_back( DataTypeUniquePtr pointer )
 //--------------------------------------------------------------------------------------------------
 /// Assign a unique pointer and take ownership.
 //--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void ChildArrayField<DataType*>::push_back_obj( std::unique_ptr<ObjectHandle> obj )
+template <typename DataTypePtr>
+void ChildArrayField<DataTypePtr>::push_back_obj( std::unique_ptr<ObjectHandle> obj )
 {
     CAFFA_ASSERT( isInitialized() );
 
     ObjectHandle* rawObjPtr = obj.release();
     CAFFA_ASSERT( rawObjPtr );
 
-    DataType* rawDataPtr = dynamic_cast<DataType*>( rawObjPtr );
+    DataType* rawDataPtr = dynamic_cast<DataTypePtr>( rawObjPtr );
     CAFFA_ASSERT( rawDataPtr );
 
     if ( rawDataPtr )
@@ -62,8 +62,8 @@ void ChildArrayField<DataType*>::push_back_obj( std::unique_ptr<ObjectHandle> ob
 /// Insert pointer at position index, pushing the value previously at that position and all
 /// the preceding values backwards
 //--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void ChildArrayField<DataType*>::insert( size_t index, DataTypeUniquePtr pointer )
+template <typename DataTypePtr>
+void ChildArrayField<DataTypePtr>::insert( size_t index, UniquePtr pointer )
 {
     CAFFA_ASSERT( isInitialized() );
 
@@ -77,8 +77,8 @@ void ChildArrayField<DataType*>::insert( size_t index, DataTypeUniquePtr pointer
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void ChildArrayField<DataType*>::insertAt( size_t index, std::unique_ptr<ObjectHandle> obj )
+template <typename DataTypePtr>
+void ChildArrayField<DataTypePtr>::insertAt( size_t index, std::unique_ptr<ObjectHandle> obj )
 {
     CAFFA_ASSERT( isInitialized() );
 
@@ -88,7 +88,7 @@ void ChildArrayField<DataType*>::insertAt( size_t index, std::unique_ptr<ObjectH
     ObjectHandle* rawObjPtr = obj.release();
     CAFFA_ASSERT( rawObjPtr );
 
-    DataType* rawDataPtr = dynamic_cast<DataType*>( rawObjPtr );
+    DataType* rawDataPtr = dynamic_cast<DataTypePtr>( rawObjPtr );
     CAFFA_ASSERT( rawDataPtr );
 
     if ( rawDataPtr )
@@ -104,8 +104,8 @@ void ChildArrayField<DataType*>::insertAt( size_t index, std::unique_ptr<ObjectH
 //--------------------------------------------------------------------------------------------------
 /// Clears the container and returns a vector of unique_ptrs to the content
 //--------------------------------------------------------------------------------------------------
-template <typename DataType>
-std::vector<std::unique_ptr<ObjectHandle>> ChildArrayField<DataType*>::clear()
+template <typename DataTypePtr>
+std::vector<std::unique_ptr<ObjectHandle>> ChildArrayField<DataTypePtr>::clear()
 {
     CAFFA_ASSERT( isInitialized() );
 
@@ -115,8 +115,8 @@ std::vector<std::unique_ptr<ObjectHandle>> ChildArrayField<DataType*>::clear()
 //--------------------------------------------------------------------------------------------------
 /// Removes the pointer at index from the container and deletes the object pointed to.
 //--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void ChildArrayField<DataType*>::erase( size_t index )
+template <typename DataTypePtr>
+void ChildArrayField<DataTypePtr>::erase( size_t index )
 {
     CAFFA_ASSERT( isInitialized() );
     m_fieldDataAccessor->remove( index );
@@ -125,8 +125,8 @@ void ChildArrayField<DataType*>::erase( size_t index )
 //--------------------------------------------------------------------------------------------------
 /// Assign objects to the field, replacing the current child objects
 //--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void ChildArrayField<DataType*>::setObjects( std::vector<std::unique_ptr<DataType>>& objects )
+template <typename DataTypePtr>
+void ChildArrayField<DataTypePtr>::setObjects( std::vector<std::unique_ptr<DataType>>& objects )
 {
     CAFFA_ASSERT( isInitialized() );
 
@@ -140,8 +140,8 @@ void ChildArrayField<DataType*>::setObjects( std::vector<std::unique_ptr<DataTyp
 //--------------------------------------------------------------------------------------------------
 /// Removes all instances of object pointer from the container without deleting the object.
 //--------------------------------------------------------------------------------------------------
-template <typename DataType>
-std::unique_ptr<ObjectHandle> ChildArrayField<DataType*>::removeChildObject( ObjectHandle* object )
+template <typename DataTypePtr>
+std::unique_ptr<ObjectHandle> ChildArrayField<DataTypePtr>::removeChildObject( ObjectHandle* object )
 {
     CAFFA_ASSERT( isInitialized() );
 
@@ -159,8 +159,8 @@ std::unique_ptr<ObjectHandle> ChildArrayField<DataType*>::removeChildObject( Obj
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template <typename DataType>
-std::vector<ObjectHandle*> caffa::ChildArrayField<DataType*>::childObjects()
+template <typename DataTypePtr>
+std::vector<ObjectHandle*> ChildArrayField<DataTypePtr>::childObjects()
 {
     return m_fieldDataAccessor->objects();
 }
@@ -168,24 +168,24 @@ std::vector<ObjectHandle*> caffa::ChildArrayField<DataType*>::childObjects()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template <typename DataType>
-std::vector<const ObjectHandle*> caffa::ChildArrayField<DataType*>::childObjects() const
+template <typename DataTypePtr>
+std::vector<const ObjectHandle*> ChildArrayField<DataTypePtr>::childObjects() const
 {
-    const caffa::ChildArrayFieldAccessor* accessor = m_fieldDataAccessor.get();
+    const ChildArrayFieldAccessor* accessor = m_fieldDataAccessor.get();
     return accessor->objects();
 }
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template <typename DataType>
-std::vector<DataType*> caffa::ChildArrayField<DataType*>::objects()
+template <typename DataTypePtr>
+std::vector<typename ChildArrayField<DataTypePtr>::DataType*> ChildArrayField<DataTypePtr>::objects()
 {
     CAFFA_ASSERT( isInitialized() );
 
-    std::vector<DataType*> typedObjects;
+    std::vector<DataTypePtr> typedObjects;
     for ( auto childObject : this->childObjects() )
     {
-        typedObjects.push_back( static_cast<DataType*>( childObject ) );
+        typedObjects.push_back( static_cast<DataTypePtr>( childObject ) );
     }
 
     return typedObjects;
@@ -194,8 +194,8 @@ std::vector<DataType*> caffa::ChildArrayField<DataType*>::objects()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template <typename DataType>
-std::vector<const DataType*> caffa::ChildArrayField<DataType*>::objects() const
+template <typename DataTypePtr>
+std::vector<const typename ChildArrayField<DataTypePtr>::DataType*> ChildArrayField<DataTypePtr>::objects() const
 {
     CAFFA_ASSERT( isInitialized() );
 
@@ -211,8 +211,8 @@ std::vector<const DataType*> caffa::ChildArrayField<DataType*>::objects() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template <typename DataType>
-ObjectHandle* ChildArrayField<DataType*>::at( size_t index )
+template <typename DataTypePtr>
+ObjectHandle* ChildArrayField<DataTypePtr>::at( size_t index )
 {
     CAFFA_ASSERT( isInitialized() );
 
