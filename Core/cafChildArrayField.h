@@ -11,38 +11,33 @@
 
 namespace caffa
 {
+class ObjectHandle;
+
 template <typename T>
 class FieldJsonCap;
 
-/// \private
-template <typename DataType>
+/**
+ * @brief Field class to handle a collection of Object derived pointers
+ * The ChildArrayField will take over ownership of any object assigned to it.
+ */
+template <typename DataTypePtr>
+    requires is_pointer<DataTypePtr>
 class ChildArrayField : public ChildArrayFieldHandle
 {
 public:
-    ChildArrayField()
-    {
-        bool doNotUsePointersFieldForAnythingButPointersToObject = false;
-        CAFFA_ASSERT( doNotUsePointersFieldForAnythingButPointersToObject );
-    }
-};
+    using DataType = typename std::remove_pointer<DataTypePtr>::type;
 
-/**
- * @brief FieldClass to handle a collection of Object derived pointers
- * The ChildArrayField will take over ownership of any object assigned to it.
- */
-template <typename DataType>
-class ChildArrayField<DataType*> : public ChildArrayFieldHandle
-{
-    typedef std::unique_ptr<DataType> DataTypeUniquePtr;
+    using UniquePtr     = std::unique_ptr<DataType>;
+    using FieldDataType = DataTypePtr;
 
-public:
-    using FieldDataType         = DataType*;
     using DataAccessor          = ChildArrayFieldAccessor;
     using DirectStorageAccessor = ChildArrayFieldDirectStorageAccessor;
 
     ChildArrayField()
         : m_fieldDataAccessor( std::make_unique<DirectStorageAccessor>( this ) )
     {
+        static_assert( std::is_base_of<ObjectHandle, DataType>::value &&
+                       "Child Array fields can only contain ObjectHandle-derived objects" );
     }
     ~ChildArrayField() override;
 
@@ -64,9 +59,9 @@ public:
 
     DataType* operator[]( size_t index ) const;
 
-    void push_back( DataTypeUniquePtr pointer );
+    void push_back( UniquePtr pointer );
     void push_back_obj( std::unique_ptr<ObjectHandle> obj ) override;
-    void insert( size_t index, DataTypeUniquePtr pointer );
+    void insert( size_t index, UniquePtr pointer );
     void insertAt( size_t index, std::unique_ptr<ObjectHandle> obj ) override;
     void erase( size_t index ) override;
 
