@@ -98,7 +98,10 @@ public:
         m_objectStub  = ObjectAccess::NewStub( m_channel );
         m_fieldStub   = FieldAccess::NewStub( m_channel );
         CAFFA_TRACE( "Created stubs" );
-        createSession( sessionType );
+        if ( sessionType != caffa::Session::Type::INVALID )
+        {
+            createSession( sessionType );
+        }
     }
     ~ClientImpl()
     {
