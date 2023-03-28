@@ -44,9 +44,9 @@
 
 using namespace caffa::rpc;
 
-grpc::Status AppService::PerformQuit( grpc::ServerContext*, const SessionMessage* request, NullMessage* )
+grpc::Status AppService::PerformQuit( grpc::ServerContext* context, const SessionMessage* request, NullMessage* )
 {
-    CAFFA_DEBUG( "Received quit request" );
+    CAFFA_DEBUG( "Received quit request from " << context->peer() );
 
     auto session = ServerApplication::instance()->getExistingSession( request->uuid() );
     if ( !session )
@@ -58,9 +58,9 @@ grpc::Status AppService::PerformQuit( grpc::ServerContext*, const SessionMessage
     return grpc::Status::OK;
 }
 
-grpc::Status AppService::PerformGetAppInfo( grpc::ServerContext*, const NullMessage*, AppInfoReply* reply )
+grpc::Status AppService::PerformGetAppInfo( grpc::ServerContext* context, const NullMessage*, AppInfoReply* reply )
 {
-    CAFFA_DEBUG( "Received app info request" );
+    CAFFA_DEBUG( "Received app info request from " + context->peer() );
     Application* app = Application::instance();
     reply->set_name( app->name() );
     CAFFA_ASSERT( app->hasCapability( AppInfo::AppCapability::GRPC_SERVER ) );
@@ -74,15 +74,15 @@ grpc::Status AppService::PerformGetAppInfo( grpc::ServerContext*, const NullMess
     return grpc::Status::OK;
 }
 
-grpc::Status AppService::PerformPing( grpc::ServerContext*, const NullMessage*, NullMessage* )
+grpc::Status AppService::PerformPing( grpc::ServerContext* context, const NullMessage*, NullMessage* )
 {
-    CAFFA_DEBUG( "Received ping request" );
+    CAFFA_TRACE( "Received ping request from " + context->peer() );
     return grpc::Status::OK;
 }
 
 grpc::Status AppService::ReadyForSession( grpc::ServerContext* context, const SessionParameters* request, ReadyMessage* reply )
 {
-    CAFFA_DEBUG( "Received ready for session request" );
+    CAFFA_TRACE( "Received ready for session request from " + context->peer() );
 
     bool ready = ServerApplication::instance()->readyForSession( caffa::Session::typeFromUint( request->type() ) );
     reply->set_ready( ready );
@@ -93,7 +93,7 @@ grpc::Status AppService::ReadyForSession( grpc::ServerContext* context, const Se
 
 grpc::Status AppService::CreateSession( grpc::ServerContext* context, const SessionParameters* request, SessionMessage* reply )
 {
-    CAFFA_DEBUG( "Received create session request" );
+    CAFFA_DEBUG( "Received create session request from " << context->peer() );
 
     try
     {
@@ -117,7 +117,7 @@ grpc::Status AppService::CreateSession( grpc::ServerContext* context, const Sess
 
 grpc::Status AppService::KeepSessionAlive( grpc::ServerContext* context, const SessionMessage* request, SessionMessage* reply )
 {
-    CAFFA_TRACE( "Received session keep-alive from " << request->uuid() );
+    CAFFA_TRACE( "Received session keep-alive from " << request->uuid() << " from " << context->peer() );
     auto session = ServerApplication::instance()->getExistingSession( request->uuid() );
     if ( session )
     {
@@ -141,7 +141,7 @@ grpc::Status AppService::KeepSessionAlive( grpc::ServerContext* context, const S
 
 grpc::Status AppService::CheckSession( grpc::ServerContext* context, const SessionMessage* request, SessionMessage* reply )
 {
-    CAFFA_TRACE( "Received session check from " << request->uuid() );
+    CAFFA_TRACE( "Received session check from " << request->uuid() << " from " << context->peer() );
     auto session = ServerApplication::instance()->getExistingSession( request->uuid() );
     if ( session )
     {
@@ -156,7 +156,7 @@ grpc::Status AppService::CheckSession( grpc::ServerContext* context, const Sessi
 
 grpc::Status AppService::ChangeSession( grpc::ServerContext* context, const SessionMessage* request, SessionMessage* reply )
 {
-    CAFFA_TRACE( "Received session check from " << request->uuid() );
+    CAFFA_TRACE( "Received session check from " << request->uuid() << " from " << context->peer() );
     auto session = ServerApplication::instance()->getExistingSession( request->uuid() );
     if ( session )
     {
@@ -179,7 +179,7 @@ grpc::Status AppService::ChangeSession( grpc::ServerContext* context, const Sess
 
 grpc::Status AppService::DestroySession( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply )
 {
-    CAFFA_DEBUG( "Received destroy session request for " << request->uuid() );
+    CAFFA_DEBUG( "Received destroy session request for " << request->uuid() << " from " << context->peer() );
 
     try
     {
