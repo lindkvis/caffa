@@ -7,9 +7,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest]
+        os: [macos-13]
         include:
-          - os: macos-latest
+          - os: macos-13
             triplet: x64-osx
     steps:
       - name: Checkout
