@@ -20,7 +20,7 @@ jobs:
         uses: MarkusJx/install-boost@v2.0.0
         id: install-boost
         with:
-            boost_version: 1.79.0
+            boost_version: 1.78.0
             platform_version: 2022
       - name: Build Caffa with Unit Tests
         uses: lukka/run-cmake@v3
