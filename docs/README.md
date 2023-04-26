@@ -31,6 +31,7 @@ private:
     Field<bool>                     m_toggleField;
     Field<double>                   m_doubleField;
     Field<int>                      m_scriptableIntField;
+    Field<std::vector<int>>         m_intVectorField;
     ChildArrayField<ChildObject>    m_children; // ChildArrayFields hold caffa::Objects
 };
 ~~~
@@ -42,18 +43,18 @@ CAFFA_SOURCE_INIT(TinyDemoObject, "TinyDemoObject", "Object");
 
 TinyDemoObject::TinyDemoObject()
 {
-    initField(m_doubleField, "Number", 0.0);
-    initField(m_scriptableIntField, "Integer", 42).withScripting("AnInteger");
+    initField(m_doubleField, "Number").withDefault(11.0);
+    initField(m_scriptableIntField, "Integer").withDefault(42).withScripting();
     initField(m_children, "Children");
     
-    initField(m_toggleField, "Toggle", false).withScripting();   
+    initField(m_toggleField, "Toggle").withDefault(true).withScripting();   
     
     m_children.push_back(std::make_unique<ChildObject>)());
 }
 ~~~
 
 # Requirements
-Caffa uses modern C++ and requires a C++17 compatible compiler, Boost 1.71.0+ spdlog 1.5.0 and CMake 3.12+ in addition to gRPC 1.16.1+ for gRPC-server deployment.
+Caffa uses modern C++ and requires a C++20 compatible compiler, Boost 1.71.0+ and CMake 3.16+ in addition to gRPC 1.16.1+ for gRPC-server deployment.
 
 # Building
 Caffa uses git submodules so it is important to initialise submodules recursively first
