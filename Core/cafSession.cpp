@@ -44,8 +44,13 @@ bool Session::isExpired() const
 {
     std::scoped_lock<std::mutex> lock( m_mutex );
 
+    return unlockedIsExpired();
+}
+
+bool Session::unlockedIsExpired() const
+{
     auto now                = std::chrono::steady_clock::now();
-    auto timeSinceKeepalive = now - m_lastKeepAlive;
+    auto timeSinceKeepalive = std::chrono::duration_cast<std::chrono::milliseconds>( now - m_lastKeepAlive );
 
     if ( m_expirationBlocked )
     {
@@ -53,12 +58,15 @@ bool Session::isExpired() const
                                 << timeSinceKeepalive.count() / 1000.0 << " ms. Trying with a longer timeout" );
         return timeSinceKeepalive > 4 * m_timeOut;
     }
-    return timeSinceKeepalive > m_timeOut;
+    bool isExpired = timeSinceKeepalive > m_timeOut;
+    CAFFA_TRACE( "Was the session expired? " << isExpired );
+    return isExpired;
 }
 
 void Session::updateKeepAlive()
 {
     std::scoped_lock<std::mutex> lock( m_mutex );
+    CAFFA_DEBUG( "Update keepalive for session " << m_uuid );
     m_lastKeepAlive = std::chrono::steady_clock::now();
 }
 
@@ -81,14 +89,19 @@ Session::Type Session::typeFromUint( unsigned type )
 void Session::blockExpiration() const
 {
     std::scoped_lock<std::mutex> lock( m_mutex );
-    m_lastKeepAlive     = std::chrono::steady_clock::now();
-    m_expirationBlocked = true;
+    if ( !unlockedIsExpired() )
+    {
+        m_expirationBlocked = true;
+    }
+    else
+    {
+        throw std::runtime_error( "Session is already expired!" );
+    }
 }
 
 void Session::unblockExpiration() const
 {
     std::scoped_lock<std::mutex> lock( m_mutex );
-    m_lastKeepAlive     = std::chrono::steady_clock::now();
     m_expirationBlocked = false;
 }
 

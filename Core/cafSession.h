@@ -62,6 +62,7 @@ private:
 
     Session( Type type, std::chrono::milliseconds timeout );
 
+    bool unlockedIsExpired() const;
     void blockExpiration() const;
     void unblockExpiration() const;
 
@@ -81,9 +82,9 @@ public:
     ~SessionMaintainer();
 
     std::shared_ptr<Session> operator->();
-                             operator bool() const;
-    bool                     operator!() const;
-    Session*                 get();
+    operator bool() const;
+    bool     operator!() const;
+    Session* get();
 
 private:
     std::shared_ptr<Session> m_session;
@@ -96,9 +97,9 @@ public:
     ~ConstSessionMaintainer();
 
     std::shared_ptr<const Session> operator->() const;
-                                   operator bool() const;
-    bool                           operator!() const;
-    const Session*                 get() const;
+    operator bool() const;
+    bool           operator!() const;
+    const Session* get() const;
 
 private:
     std::shared_ptr<const Session> m_session;
