@@ -91,16 +91,7 @@ public:
         return { m_demoDocument.get(), m_demoDocumentWithNonScriptableMember.get() };
     }
 
-    std::list<caffa::ConstSessionMaintainer> activeSessions() const override
-    {
-        std::list<caffa::ConstSessionMaintainer> sessions;
-        sessions.push_back( caffa::ConstSessionMaintainer( m_session ) );
-        for ( auto session : m_observingSessions )
-        {
-            sessions.push_back( caffa::ConstSessionMaintainer( session ) );
-        }
-        return sessions;
-    }
+    bool hasActiveSessions() const override { return !m_observingSessions.empty(); }
 
     bool readyForSession( caffa::Session::Type type ) const override
     {

@@ -93,12 +93,7 @@ public:
         return { document( "", session ) };
     }
 
-    std::list<caffa::ConstSessionMaintainer> activeSessions() const override
-    {
-        std::list<caffa::ConstSessionMaintainer> sessions;
-        sessions.push_back( caffa::ConstSessionMaintainer( m_session ) );
-        return sessions;
-    }
+    bool hasActiveSessions() const override { return m_session && !m_session->isExpired(); }
 
     bool readyForSession( caffa::Session::Type type ) const override
     {
