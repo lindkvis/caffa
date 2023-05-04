@@ -60,7 +60,7 @@ grpc::Status AppService::PerformQuit( grpc::ServerContext* context, const Sessio
 
 grpc::Status AppService::PerformGetAppInfo( grpc::ServerContext* context, const NullMessage*, AppInfoReply* reply )
 {
-    CAFFA_DEBUG( "Received app info request from " + context->peer() );
+    CAFFA_TRACE( "Received app info request from " + context->peer() );
     Application* app = Application::instance();
     reply->set_name( app->name() );
     CAFFA_ASSERT( app->hasCapability( AppInfo::AppCapability::GRPC_SERVER ) );
