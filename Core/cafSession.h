@@ -62,7 +62,6 @@ private:
 
     Session( Type type, std::chrono::milliseconds timeout );
 
-    bool unlockedIsExpired() const;
     void blockExpiration() const;
     void unblockExpiration() const;
 

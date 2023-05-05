@@ -30,24 +30,15 @@ const std::string& Session::uuid() const
 
 Session::Type Session::type() const
 {
-    std::scoped_lock<std::mutex> lock( m_mutex );
     return m_type;
 }
 
 void Session::setType( Type type )
 {
-    std::scoped_lock<std::mutex> lock( m_mutex );
     m_type = type;
 }
 
 bool Session::isExpired() const
-{
-    std::scoped_lock<std::mutex> lock( m_mutex );
-
-    return unlockedIsExpired();
-}
-
-bool Session::unlockedIsExpired() const
 {
     auto now                = std::chrono::steady_clock::now();
     auto timeSinceKeepalive = std::chrono::duration_cast<std::chrono::milliseconds>( now - m_lastKeepAlive );
@@ -65,8 +56,7 @@ bool Session::unlockedIsExpired() const
 
 void Session::updateKeepAlive()
 {
-    std::scoped_lock<std::mutex> lock( m_mutex );
-    CAFFA_DEBUG( "Update keepalive for session " << m_uuid );
+    CAFFA_TRACE( "Update keepalive for session " << m_uuid );
     m_lastKeepAlive = std::chrono::steady_clock::now();
 }
 
@@ -88,8 +78,7 @@ Session::Type Session::typeFromUint( unsigned type )
 
 void Session::blockExpiration() const
 {
-    std::scoped_lock<std::mutex> lock( m_mutex );
-    if ( !unlockedIsExpired() )
+    if ( !isExpired() )
     {
         m_expirationBlocked = true;
     }
@@ -101,7 +90,6 @@ void Session::blockExpiration() const
 
 void Session::unblockExpiration() const
 {
-    std::scoped_lock<std::mutex> lock( m_mutex );
     m_expirationBlocked = false;
 }
 
