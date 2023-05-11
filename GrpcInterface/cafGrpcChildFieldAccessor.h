@@ -46,20 +46,20 @@ public:
         return m_remoteObject.get();
     }
 
-    void setObject( std::unique_ptr<ObjectHandle> object ) override
+    void setObject( ObjectHandle::Ptr object ) override
     {
         m_remoteObject = std::move( object );
         m_client->setChildObject( m_field->ownerObject(), m_field->keyword(), m_remoteObject.get() );
     }
 
-    std::unique_ptr<ObjectHandle> clear() override
+    ObjectHandle::Ptr clear() override
     {
         m_remoteObject = getShallowCopyOfRemoteObject();
         m_client->clearChildObjects( m_field->ownerObject(), m_field->keyword() );
         return std::move( m_remoteObject );
     }
 
-    std::unique_ptr<ObjectHandle> deepCloneObject() const override { return getDeepCopyOfRemoteObject(); }
+    ObjectHandle::Ptr deepCloneObject() const override { return getDeepCopyOfRemoteObject(); }
 
     void deepCopyObjectFrom( const ObjectHandle* copyFrom ) override
     {
@@ -74,12 +74,12 @@ public:
     }
 
 private:
-    std::unique_ptr<ObjectHandle> getShallowCopyOfRemoteObject() const
+    ObjectHandle::Ptr getShallowCopyOfRemoteObject() const
     {
         return m_client->getShallowCopyOfChildObject( m_field->ownerObject(), m_field->keyword() );
     }
 
-    std::unique_ptr<ObjectHandle> getDeepCopyOfRemoteObject() const
+    ObjectHandle::Ptr getDeepCopyOfRemoteObject() const
     {
         return m_client->getDeepCopyOfChildObject( m_field->ownerObject(), m_field->keyword() );
     }
@@ -87,7 +87,7 @@ private:
 private:
     Client* m_client;
 
-    mutable std::unique_ptr<ObjectHandle> m_remoteObject;
+    mutable ObjectHandle::Ptr m_remoteObject;
 };
 
 } // namespace caffa::rpc

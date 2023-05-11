@@ -54,9 +54,9 @@ namespace caffa
 class ObjectFactory
 {
 public:
-    std::unique_ptr<ObjectHandle> create( const std::string_view& classKeyword )
+    ObjectHandle::Ptr create( const std::string_view& classKeyword )
     {
-        std::unique_ptr<ObjectHandle> object = doCreate( classKeyword );
+        ObjectHandle::Ptr object = doCreate( classKeyword );
         if ( object ) m_objects.push_back( ObservingPointer<ObjectHandle>( object.get() ) );
         return object;
     }
@@ -107,7 +107,7 @@ protected:
     virtual ~ObjectFactory() {}
 
 private:
-    virtual std::unique_ptr<ObjectHandle> doCreate( const std::string_view& classKeyword ) = 0;
+    virtual ObjectHandle::Ptr doCreate( const std::string_view& classKeyword ) = 0;
 
     std::list<ObservingPointer<ObjectHandle>> m_objects;
 };

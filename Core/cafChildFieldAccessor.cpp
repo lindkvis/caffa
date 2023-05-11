@@ -50,7 +50,7 @@ const ObjectHandle* ChildFieldDirectStorageAccessor::object() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ChildFieldDirectStorageAccessor::setObject( std::unique_ptr<ObjectHandle> object )
+void ChildFieldDirectStorageAccessor::setObject( ObjectHandle::Ptr object )
 {
     if ( m_object )
     {
@@ -62,7 +62,7 @@ void ChildFieldDirectStorageAccessor::setObject( std::unique_ptr<ObjectHandle> o
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> ChildFieldDirectStorageAccessor::deepCloneObject() const
+ObjectHandle::Ptr ChildFieldDirectStorageAccessor::deepCloneObject() const
 {
     if ( !m_object ) return nullptr;
 
@@ -90,7 +90,7 @@ void ChildFieldDirectStorageAccessor::deepCopyObjectFrom( const ObjectHandle* co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> ChildFieldDirectStorageAccessor::clear()
+ObjectHandle::Ptr ChildFieldDirectStorageAccessor::clear()
 {
     if ( m_object && m_field && m_field->ownerObject() )
     {

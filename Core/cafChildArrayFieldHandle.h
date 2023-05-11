@@ -38,9 +38,9 @@ public:
      * @brief Remove all child objects and return a vector of unique pointers to the destroyed objects.
      * This way the called can take over ownership or just disregard the return value to destroy them.
      *
-     * @return std::vector<std::unique_ptr<ObjectHandle>>
+     * @return std::vector<ObjectHandle::Ptr>
      */
-    virtual std::vector<std::unique_ptr<ObjectHandle>> clear() = 0;
+    virtual std::vector<ObjectHandle::Ptr> clear() = 0;
 
     /**
      * @brief Erase a particular child object by index
@@ -63,14 +63,14 @@ public:
      * @param index the index to insert at
      * @param obj A unique pointer to the object.
      */
-    virtual void insertAt( size_t index, std::unique_ptr<ObjectHandle> obj ) = 0;
+    virtual void insertAt( size_t index, ObjectHandle::Ptr obj ) = 0;
 
     /**
      * @brief push back and object taking over ownership.
      *
      * @param obj object to take.
      */
-    virtual void push_back_obj( std::unique_ptr<ObjectHandle> obj ) = 0;
+    virtual void push_back_obj( ObjectHandle::Ptr obj ) = 0;
 
     /**
      * @brief Set a new accessor

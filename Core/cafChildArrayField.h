@@ -48,27 +48,27 @@ public:
     ChildArrayField&       operator()() { return *this; }
     const ChildArrayField& operator()() const { return *this; }
 
-    size_t                                     size() const override { return m_fieldDataAccessor->size(); }
-    std::vector<std::unique_ptr<ObjectHandle>> clear() override;
-    ObjectHandle*                              at( size_t index ) override;
-    std::vector<DataType*>                     objects();
-    std::vector<const DataType*>               objects() const;
-    void                                       setObjects( std::vector<std::unique_ptr<DataType>>& objects );
+    size_t                              size() const override { return m_fieldDataAccessor->size(); }
+    std::vector<ObjectHandle::Ptr> clear() override;
+    ObjectHandle*                       at( size_t index ) override;
+    std::vector<DataType*>              objects();
+    std::vector<const DataType*>        objects() const;
+    void                                setObjects( std::vector<std::unique_ptr<DataType>>& objects );
 
     // std::vector-like access
 
     DataType* operator[]( size_t index ) const;
 
     void push_back( Ptr pointer );
-    void push_back_obj( std::unique_ptr<ObjectHandle> obj ) override;
+    void push_back_obj( ObjectHandle::Ptr obj ) override;
     void insert( size_t index, Ptr pointer );
-    void insertAt( size_t index, std::unique_ptr<ObjectHandle> obj ) override;
+    void insertAt( size_t index, ObjectHandle::Ptr obj ) override;
     void erase( size_t index ) override;
 
     // Child objects
     std::vector<ObjectHandle*>       childObjects() override;
     std::vector<const ObjectHandle*> childObjects() const override;
-    std::unique_ptr<ObjectHandle>    removeChildObject( ObjectHandle* object );
+    ObjectHandle::Ptr           removeChildObject( ObjectHandle* object );
 
     std::string dataType() const override { return std::string( "object[]" ); }
 

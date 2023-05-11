@@ -35,14 +35,14 @@ size_t ChildArrayFieldDirectStorageAccessor::size() const
 {
     return m_pointers.size();
 }
-std::vector<std::unique_ptr<ObjectHandle>> ChildArrayFieldDirectStorageAccessor::clear()
+std::vector<ObjectHandle::Ptr> ChildArrayFieldDirectStorageAccessor::clear()
 {
     for ( auto& ptr : m_pointers )
     {
         ptr->disconnectObserverFromAllSignals( m_field->ownerObject() );
     }
 
-    std::vector<std::unique_ptr<ObjectHandle>> returnValues;
+    std::vector<ObjectHandle::Ptr> returnValues;
     returnValues.swap( m_pointers );
 
     return returnValues;
@@ -74,14 +74,14 @@ ObjectHandle* ChildArrayFieldDirectStorageAccessor::at( size_t index ) const
     return m_pointers[index].get();
 }
 
-void ChildArrayFieldDirectStorageAccessor::insert( size_t index, std::unique_ptr<ObjectHandle> pointer )
+void ChildArrayFieldDirectStorageAccessor::insert( size_t index, ObjectHandle::Ptr pointer )
 {
     CAFFA_ASSERT( pointer );
 
     auto it = m_pointers.begin() + index;
     m_pointers.insert( it, std::move( pointer ) );
 }
-void ChildArrayFieldDirectStorageAccessor::push_back( std::unique_ptr<ObjectHandle> pointer )
+void ChildArrayFieldDirectStorageAccessor::push_back( ObjectHandle::Ptr pointer )
 {
     m_pointers.push_back( std::move( pointer ) );
 }
@@ -93,7 +93,7 @@ size_t ChildArrayFieldDirectStorageAccessor::index( const ObjectHandle* object )
     return it - m_pointers.begin();
 }
 
-std::unique_ptr<ObjectHandle> ChildArrayFieldDirectStorageAccessor::remove( size_t index )
+ObjectHandle::Ptr ChildArrayFieldDirectStorageAccessor::remove( size_t index )
 {
     CAFFA_ASSERT( index < m_pointers.size() );
 
@@ -101,7 +101,7 @@ std::unique_ptr<ObjectHandle> ChildArrayFieldDirectStorageAccessor::remove( size
 
     if ( it != m_pointers.end() )
     {
-        std::unique_ptr<ObjectHandle> detachedPtr = std::move( *it );
+        ObjectHandle::Ptr detachedPtr = std::move( *it );
         m_pointers.erase( it );
         if ( detachedPtr && m_field && m_field->ownerObject() )
         {

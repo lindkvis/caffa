@@ -452,7 +452,7 @@ public:
         }
     }
 
-    std::vector<std::unique_ptr<ObjectHandle>> getChildObjects( const caffa::ObjectHandle* objectHandle,
+    std::vector<ObjectHandle::Ptr> getChildObjects( const caffa::ObjectHandle* objectHandle,
                                                                 const std::string&         getter ) const
     {
         grpc::ClientContext context;
@@ -465,7 +465,7 @@ public:
         session->set_uuid( m_sessionUuid );
         field.set_allocated_session( session.release() );
 
-        std::vector<std::unique_ptr<ObjectHandle>> childObjects;
+        std::vector<ObjectHandle::Ptr> childObjects;
 
         caffa::JsonSerializer serializer( caffa::rpc::GrpcClientObjectFactory::instance() );
         serializer.setSerializeDataValues( false );

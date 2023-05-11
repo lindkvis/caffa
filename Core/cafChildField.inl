@@ -90,7 +90,7 @@ std::vector<const ObjectHandle*> ChildField<DataTypePtr>::childObjects() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
-std::unique_ptr<ObjectHandle> ChildField<DataTypePtr>::clear()
+ObjectHandle::Ptr ChildField<DataTypePtr>::clear()
 {
     CAFFA_ASSERT( isInitialized() );
     return m_fieldDataAccessor->clear();
@@ -99,7 +99,7 @@ std::unique_ptr<ObjectHandle> ChildField<DataTypePtr>::clear()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
-std::unique_ptr<ObjectHandle> ChildField<DataTypePtr>::removeChildObject( ObjectHandle* object )
+ObjectHandle::Ptr ChildField<DataTypePtr>::removeChildObject( ObjectHandle* object )
 {
     CAFFA_ASSERT( isInitialized() );
     if ( this->object() == object )
@@ -113,7 +113,7 @@ std::unique_ptr<ObjectHandle> ChildField<DataTypePtr>::removeChildObject( Object
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
-void ChildField<DataTypePtr>::setChildObject( std::unique_ptr<ObjectHandle> object )
+void ChildField<DataTypePtr>::setChildObject( ObjectHandle::Ptr object )
 {
     CAFFA_ASSERT( isInitialized() );
 

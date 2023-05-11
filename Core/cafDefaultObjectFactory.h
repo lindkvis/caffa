@@ -75,7 +75,7 @@ public:
     }
 
 private:
-    std::unique_ptr<ObjectHandle> doCreate( const std::string_view& classKeyword ) override;
+    ObjectHandle::Ptr doCreate( const std::string_view& classKeyword ) override;
 
     DefaultObjectFactory() {}
     ~DefaultObjectFactory() override
@@ -89,14 +89,14 @@ private:
     public:
         ObjectCreatorBase() {}
         virtual ~ObjectCreatorBase() {}
-        virtual std::unique_ptr<ObjectHandle> create() = 0;
+        virtual ObjectHandle::Ptr create() = 0;
     };
 
     template <typename ObjectBaseDerivative>
     class ObjectCreator : public ObjectCreatorBase
     {
     public:
-        std::unique_ptr<ObjectHandle> create() override { return std::make_unique<ObjectBaseDerivative>(); }
+        ObjectHandle::Ptr create() override { return std::make_unique<ObjectBaseDerivative>(); }
     };
 
     // Map to store factory

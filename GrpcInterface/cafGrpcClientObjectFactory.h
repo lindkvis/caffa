@@ -72,7 +72,7 @@ public:
     }
 
 private:
-    std::unique_ptr<ObjectHandle> doCreate( const std::string_view& classKeyword ) override;
+    ObjectHandle::Ptr doCreate( const std::string_view& classKeyword ) override;
 
     GrpcClientObjectFactory()
         : m_grpcClient( nullptr )

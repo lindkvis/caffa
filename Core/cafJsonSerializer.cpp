@@ -173,14 +173,14 @@ std::string JsonSerializer::writeObjectToString( const ObjectHandle* object ) co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> JsonSerializer::copyBySerialization( const ObjectHandle* object ) const
+ObjectHandle::Ptr JsonSerializer::copyBySerialization( const ObjectHandle* object ) const
 {
     auto ioCapability = object->capability<ObjectIoCapability>();
     ioCapability->setupBeforeSaveRecursively();
 
     std::string string = writeObjectToString( object );
 
-    std::unique_ptr<ObjectHandle> objectCopy = createObjectFromString( string );
+    ObjectHandle::Ptr objectCopy = createObjectFromString( string );
     if ( !objectCopy ) return nullptr;
 
     objectCopy->capability<ObjectIoCapability>()->initAfterReadRecursively();
@@ -191,7 +191,7 @@ std::unique_ptr<ObjectHandle> JsonSerializer::copyBySerialization( const ObjectH
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> JsonSerializer::copyAndCastBySerialization( const ObjectHandle* object,
+ObjectHandle::Ptr JsonSerializer::copyAndCastBySerialization( const ObjectHandle* object,
                                                                           const std::string& destinationClassKeyword ) const
 {
     // Can not do this without an IO capability
@@ -201,7 +201,7 @@ std::unique_ptr<ObjectHandle> JsonSerializer::copyAndCastBySerialization( const 
     ioCapability->setupBeforeSaveRecursively();
     std::string string = writeObjectToString( object );
 
-    std::unique_ptr<ObjectHandle> objectCopy = m_objectFactory->create( destinationClassKeyword );
+    ObjectHandle::Ptr objectCopy = m_objectFactory->create( destinationClassKeyword );
 
     auto copyIoCapability = objectCopy->capability<ObjectIoCapability>();
     if ( !copyIoCapability ) return nullptr;
@@ -221,7 +221,7 @@ std::unique_ptr<ObjectHandle> JsonSerializer::copyAndCastBySerialization( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> JsonSerializer::createObjectFromString( const std::string& string ) const
+ObjectHandle::Ptr JsonSerializer::createObjectFromString( const std::string& string ) const
 {
     CAFFA_TRACE( string );
     if ( string.empty() ) return nullptr;
@@ -232,7 +232,7 @@ std::unique_ptr<ObjectHandle> JsonSerializer::createObjectFromString( const std:
     CAFFA_ASSERT( jsonClassKeyword.is_string() );
     std::string classKeyword = jsonClassKeyword.get<std::string>();
 
-    std::unique_ptr<ObjectHandle> newObject = m_objectFactory->create( classKeyword );
+    ObjectHandle::Ptr newObject = m_objectFactory->create( classKeyword );
 
     if ( !newObject ) return nullptr;
 

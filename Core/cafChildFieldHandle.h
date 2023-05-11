@@ -48,6 +48,6 @@ class ChildFieldHandle : public ChildFieldBaseHandle
 {
 public:
     virtual void                          setAccessor( std::unique_ptr<ChildFieldAccessor> accessor ) = 0;
-    virtual std::unique_ptr<ObjectHandle> clear()                                                     = 0;
+    virtual ObjectHandle::Ptr clear()                                                     = 0;
 };
 } // namespace caffa

@@ -45,7 +45,7 @@ void Object::setUuid( const std::string& uuid )
     m_uuid = uuid;
 }
 
-std::unique_ptr<ObjectHandle> Object::deepClone( caffa::ObjectFactory* optionalObjectFactory ) const
+ObjectHandle::Ptr Object::deepClone( caffa::ObjectFactory* optionalObjectFactory ) const
 {
     caffa::ObjectFactory* objectFactory = optionalObjectFactory ? optionalObjectFactory
                                                                 : caffa::DefaultObjectFactory::instance();

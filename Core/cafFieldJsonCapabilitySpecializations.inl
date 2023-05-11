@@ -270,7 +270,7 @@ void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::jso
 
         std::string className = jsonObject["class"].get<std::string>();
 
-        std::unique_ptr<ObjectHandle> obj = objectFactory->create( className );
+        ObjectHandle::Ptr obj = objectFactory->create( className );
 
         if ( !obj )
         {
