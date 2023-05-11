@@ -196,9 +196,9 @@ int main( int argc, char** argv )
     DemoDocument* serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
     CAFFA_ASSERT( serverDocument != nullptr );
 
-    serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
-    serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
-    serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
+    serverDocument->addInheritedObject( std::make_shared<InheritedDemoObj>() );
+    serverDocument->addInheritedObject( std::make_shared<InheritedDemoObj>() );
+    serverDocument->addInheritedObject( std::make_shared<InheritedDemoObj>() );
     std::vector<float> serverVector;
     size_t             numberOfFloats = 256u * 1024u;
     serverVector.reserve( numberOfFloats );
@@ -207,7 +207,7 @@ int main( int argc, char** argv )
         serverVector.push_back( (float)i );
     }
 
-    DemoObject* demoObject = serverDocument->demoObject();
+    auto demoObject = serverDocument->demoObject();
 
     demoObject->intVector.setValue( { 42 } );
     demoObject->floatVector.setValue( serverVector );

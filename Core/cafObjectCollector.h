@@ -43,6 +43,8 @@ public:
 
     void visitObject( const ObjectHandle* object )
     {
+        CAFFA_ASSERT( object );
+        CAFFA_DEBUG( "Visiting OBJECT " << object->uuid() );
         auto typedObject = dynamic_cast<const ObjectType*>( object );
         if ( typedObject && ( !m_predicate || m_predicate( object ) ) )
         {

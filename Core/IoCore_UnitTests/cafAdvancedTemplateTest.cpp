@@ -93,32 +93,32 @@ CAFFA_SOURCE_INIT( DemoObjectA )
 //--------------------------------------------------------------------------------------------------
 TEST( AdvancedObjectTest, FieldWrite )
 {
-    auto root         = std::make_unique<ContainerObject>();
-    auto container    = std::make_unique<ContainerObject>();
-    auto sibling      = std::make_unique<ContainerObject>();
+    auto root         = std::make_shared<ContainerObject>();
+    auto container    = std::make_shared<ContainerObject>();
+    auto sibling      = std::make_shared<ContainerObject>();
     auto containerPtr = container.get();
-    root->m_containers.push_back( std::move( container ) );
+    root->m_containers.push_back( container );
     auto siblingPtr = sibling.get();
-    root->m_containers.push_back( std::move( sibling ) );
+    root->m_containers.push_back( sibling );
 
     {
-        auto item    = std::make_unique<ItemObject>();
+        auto item    = std::make_shared<ItemObject>();
         item->m_name = "Obj A";
 
-        containerPtr->m_items.push_back( std::move( item ) );
+        containerPtr->m_items.push_back( item );
     }
     {
-        auto item    = std::make_unique<ItemObject>();
+        auto item    = std::make_shared<ItemObject>();
         item->m_name = "Obj B";
 
-        containerPtr->m_items.push_back( std::move( item ) );
+        containerPtr->m_items.push_back( item );
     }
 
     {
-        auto item    = std::make_unique<ItemObject>();
+        auto item    = std::make_shared<ItemObject>();
         item->m_name = "Obj C";
 
-        containerPtr->m_items.push_back( std::move( item ) );
+        containerPtr->m_items.push_back( item );
     }
 
     caffa::JsonSerializer serializer;
@@ -126,9 +126,8 @@ TEST( AdvancedObjectTest, FieldWrite )
 
     std::cout << string << std::endl;
 
-    std::unique_ptr<caffa::ObjectHandle> objCopy  = serializer.createObjectFromString( string );
-    auto                                 rootCopy = dynamic_cast<ContainerObject*>( objCopy.get() );
-    ASSERT_TRUE( rootCopy != nullptr );
+    caffa::ObjectHandle::Ptr objCopy = serializer.createObjectFromString( string );
+    ASSERT_TRUE( std::dynamic_pointer_cast<ContainerObject>( objCopy ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,50 +135,49 @@ TEST( AdvancedObjectTest, FieldWrite )
 //--------------------------------------------------------------------------------------------------
 TEST( AdvancedObjectTest, CopyOfObjects )
 {
-    auto root         = std::make_unique<ContainerObject>();
-    auto container    = std::make_unique<ContainerObject>();
-    auto sibling      = std::make_unique<ContainerObject>();
+    auto root         = std::make_shared<ContainerObject>();
+    auto container    = std::make_shared<ContainerObject>();
+    auto sibling      = std::make_shared<ContainerObject>();
     auto containerPtr = container.get();
-    root->m_containers.push_back( std::move( container ) );
+    root->m_containers.push_back( container );
     auto siblingPtr = sibling.get();
-    root->m_containers.push_back( std::move( sibling ) );
+    root->m_containers.push_back( sibling );
 
     {
-        auto item    = std::make_unique<ItemObject>();
+        auto item    = std::make_shared<ItemObject>();
         item->m_name = "Obj A";
 
-        containerPtr->m_items.push_back( std::move( item ) );
+        containerPtr->m_items.push_back( item );
     }
     {
-        auto item    = std::make_unique<ItemObject>();
+        auto item    = std::make_shared<ItemObject>();
         item->m_name = "Obj B";
 
-        containerPtr->m_items.push_back( std::move( item ) );
+        containerPtr->m_items.push_back( item );
     }
 
     {
-        auto item    = std::make_unique<ItemObject>();
+        auto item    = std::make_shared<ItemObject>();
         item->m_name = "Obj C";
 
-        containerPtr->m_items.push_back( std::move( item ) );
+        containerPtr->m_items.push_back( item );
 
         caffa::JsonSerializer serializer;
 
         {
-            auto a  = std::make_unique<DemoObjectA>();
+            auto a  = std::make_shared<DemoObjectA>();
             auto ap = a.get();
-            siblingPtr->m_demoObjs.push_back( std::move( a ) );
+            siblingPtr->m_demoObjs.push_back( a );
             std::string originalOutput = serializer.writeObjectToString( ap );
             {
                 auto        objCopy    = serializer.copyBySerialization( ap );
-                auto        demoObj    = caffa::dynamic_unique_cast<DemoObjectA>( std::move( objCopy ) );
-                std::string copyOutput = serializer.writeObjectToString( demoObj.get() );
+                std::string copyOutput = serializer.writeObjectToString( objCopy.get() );
                 ASSERT_EQ( originalOutput, copyOutput );
             }
 
             {
                 auto objCopy = serializer.copyBySerialization( ap );
-                siblingPtr->m_demoObjs.push_back( caffa::dynamic_unique_cast<DemoObjectA>( std::move( objCopy ) ) );
+                siblingPtr->m_demoObjs.push_back( std::dynamic_pointer_cast<DemoObjectA>( objCopy ) );
             }
         }
     }

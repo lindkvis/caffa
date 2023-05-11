@@ -54,7 +54,8 @@ public:
     static constexpr auto MAX_INHERITANCE_STACK_LENGTH = 10; // Should be enough for everyone
 
     using InheritanceStackType = std::array<std::string_view, MAX_INHERITANCE_STACK_LENGTH>;
-    using Ptr                  = std::unique_ptr<ObjectHandle>;
+    using Ptr                  = std::shared_ptr<ObjectHandle>;
+    using ConstPtr             = std::shared_ptr<const ObjectHandle>;
 
     ObjectHandle();
     virtual ~ObjectHandle() noexcept;
@@ -146,7 +147,7 @@ public:
      * @brief Deep clone the object using an optional object factory
      *
      * @param optionalObjectFactory if null the default object factory will be used
-     * @return std::unique_ptr<Object>
+     * @return std::shared_ptr<Object>
      */
     virtual ObjectHandle::Ptr deepClone( caffa::ObjectFactory* optionalObjectFactory = nullptr ) const = 0;
 

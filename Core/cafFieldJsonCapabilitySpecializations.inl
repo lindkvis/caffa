@@ -147,7 +147,7 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
         uuid = jsonObject["uuid"].get<std::string>();
     }
 
-    ObservingPointer<DataType> objPtr;
+    typename DataType::Ptr objPtr;
 
     auto existingObject = m_field->object();
     if ( existingObject && !uuid.empty() && existingObject->uuid() == uuid )
@@ -162,7 +162,7 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
 
         CAFFA_ASSERT( objectFactory );
 
-        auto obj = caffa::dynamic_unique_cast<DataType>( objectFactory->create( className ) );
+        auto obj = std::dynamic_pointer_cast<DataType>( objectFactory->create( className ) );
         if ( !obj )
         {
             CAFFA_ERROR( "Unknown object type with class name: " << className << " found while reading the field : "
@@ -171,12 +171,12 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
         }
         else
         {
-            objPtr = obj.get();
-            m_field->setObject( std::move( obj ) );
+            objPtr = obj;
+            m_field->setObject( obj );
         }
     }
 
-    CAFFA_ASSERT( objPtr.notNull() );
+    CAFFA_ASSERT( objPtr );
     if ( !objPtr->matchesClassKeyword( className ) )
     {
         // Error: Field contains different class type than in the JSON
@@ -189,7 +189,7 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
 
     // Everything seems ok, so read the contents of the object:
     std::string jsonString = jsonObject.dump();
-    serializer.readObjectFromString( objPtr.p(), jsonString );
+    serializer.readObjectFromString( objPtr.get(), jsonString );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -204,7 +204,7 @@ void FieldJsonCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonValue
     auto ioObject = object->template capability<caffa::ObjectIoCapability>();
     if ( ioObject )
     {
-        std::string    jsonString = serializer.writeObjectToString( object );
+        std::string    jsonString = serializer.writeObjectToString( object.get() );
         nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
         CAFFA_ASSERT( jsonObject.is_object() );
         if ( serializer.serializeSchema() )
@@ -295,7 +295,7 @@ void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::jso
         serializer.readObjectFromString( obj.get(), jsonString );
 
         size_t currentSize = m_field->size();
-        m_field->insertAt( currentSize, std::move( obj ) );
+        m_field->insertAt( currentSize, obj );
     }
 }
 //--------------------------------------------------------------------------------------------------
@@ -308,13 +308,13 @@ void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& json
 
     for ( size_t i = 0; i < m_field->size(); ++i )
     {
-        ObjectHandle* object = m_field->at( i );
+        ObjectHandle::Ptr object = m_field->at( i );
         if ( !object ) continue;
 
-        auto ioObject = object->capability<caffa::ObjectIoCapability>();
+        auto ioObject = object->capability<ObjectIoCapability>();
         if ( ioObject )
         {
-            std::string    jsonString = serializer.writeObjectToString( object );
+            std::string    jsonString = serializer.writeObjectToString( object.get() );
             nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
             jsonArray.push_back( jsonObject );
         }

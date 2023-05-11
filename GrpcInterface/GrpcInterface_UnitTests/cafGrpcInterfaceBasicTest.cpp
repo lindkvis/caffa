@@ -113,14 +113,14 @@ TEST_F( GrpcTest, Document )
     size_t childCount = 11u;
     for ( size_t i = 0; i < childCount; ++i )
     {
-        serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
+        serverDocument->addInheritedObject( std::make_shared<InheritedDemoObj>() );
     }
 
     CAFFA_DEBUG( "Now getting client document" );
 
     try
     {
-        std::unique_ptr<caffa::ObjectHandle> objectHandle;
+        std::shared_ptr<caffa::ObjectHandle> objectHandle;
         ASSERT_NO_THROW( objectHandle = client->document( "testDocument" ) );
         auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
         ASSERT_TRUE( clientDocument != nullptr );
@@ -134,7 +134,9 @@ TEST_F( GrpcTest, Document )
 
         {
             caffa::ConstObjectCollector<DemoObject> serverCollector, clientCollector;
+            CAFFA_DEBUG( "VISITING SERVER" );
             serverDocument->accept( &serverCollector );
+            CAFFA_DEBUG( "VISITING CLIENT" );
             clientDocument->accept( &clientCollector );
 
             auto serverDescendants = serverCollector.objects();
@@ -145,7 +147,11 @@ TEST_F( GrpcTest, Document )
                   server_it != serverDescendants.end();
                   ++server_it, ++client_it )
             {
-                ASSERT_EQ( ( *server_it )->uuid(), ( *client_it )->uuid() );
+                auto serverObject = *server_it;
+                auto clientObject = *client_it;
+                ASSERT_TRUE( serverObject && clientObject );
+                CAFFA_DEBUG( "Testing SERVER OBJECT: " << serverObject->uuid() );
+                ASSERT_EQ( serverObject->uuid(), clientObject->uuid() );
             }
         }
 
@@ -228,7 +234,7 @@ TEST_F( GrpcTest, DocumentWithNonScriptableChild )
     size_t childCount = 11u;
     for ( size_t i = 0; i < childCount; ++i )
     {
-        serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
+        serverDocument->addInheritedObject( std::make_shared<InheritedDemoObj>() );
     }
 
     {
@@ -299,7 +305,7 @@ TEST_F( GrpcTest, Sync )
     size_t childCount = 11u;
     for ( size_t i = 0; i < childCount; ++i )
     {
-        serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
+        serverDocument->addInheritedObject( std::make_shared<InheritedDemoObj>() );
     }
 
     auto objectHandle   = client->document( "testDocument" );
@@ -347,7 +353,7 @@ TEST_F( GrpcTest, SettingValueWithObserver )
     size_t childCount = 11u;
     for ( size_t i = 0; i < childCount; ++i )
     {
-        serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
+        serverDocument->addInheritedObject( std::make_shared<InheritedDemoObj>() );
     }
 
     auto objectHandle   = client->document( "testDocument" );
@@ -400,7 +406,7 @@ TEST_F( GrpcTest, ObjectMethod )
     ASSERT_TRUE( serverDocument );
 
     CAFFA_DEBUG( "Adding object to server" );
-    serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
+    serverDocument->addInheritedObject( std::make_shared<InheritedDemoObj>() );
 
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
@@ -413,7 +419,7 @@ TEST_F( GrpcTest, ObjectMethod )
     ASSERT_EQ( (size_t)1, inheritedObjects.size() );
 
     CAFFA_DEBUG( "Listing object methods" );
-    auto objectMethods = client->objectMethods( inheritedObjects.front() );
+    auto objectMethods = client->objectMethods( inheritedObjects.front().get() );
     ASSERT_EQ( (size_t)1, objectMethods.size() );
     auto methodKeyword = objectMethods.front()->classKeyword();
     CAFFA_TRACE( "Found method: " << methodKeyword );
@@ -425,7 +431,7 @@ TEST_F( GrpcTest, ObjectMethod )
     std::iota( intVector.begin(), intVector.end(), 0 );
 
     CAFFA_INFO( "Creating object method" );
-    DemoObject_copyObject method( inheritedObjects.front(), 45.3, 43, "AnotherValue", boolVector, intVector, floatVector );
+    DemoObject_copyObject method( inheritedObjects.front().get(), 45.3, 43, "AnotherValue", boolVector, intVector, floatVector );
     ASSERT_EQ( method.classKeyword(), methodKeyword );
 
     CAFFA_INFO( "Execute" );
@@ -488,8 +494,8 @@ TEST_F( GrpcTest, ObjectIntGetterAndSetter )
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
-    auto clientIntVector =
-        client->get<std::vector<int>>( clientDocument->demoObject, clientDocument->demoObject->intVector.keyword() );
+    auto clientIntVector = client->get<std::vector<int>>( clientDocument->demoObject().get(),
+                                                          clientDocument->demoObject->intVector.keyword() );
     ASSERT_EQ( largeIntVector, clientIntVector );
 
     for ( auto& i : clientIntVector )
@@ -497,7 +503,7 @@ TEST_F( GrpcTest, ObjectIntGetterAndSetter )
         i += 2;
     }
     ASSERT_NE( largeIntVector, clientIntVector );
-    client->set( clientDocument->demoObject, clientDocument->demoObject->intVector.keyword(), clientIntVector );
+    client->set( clientDocument->demoObject().get(), clientDocument->demoObject->intVector.keyword(), clientIntVector );
 
     largeIntVector = serverDocument->demoObject->intVector();
     ASSERT_EQ( largeIntVector, clientIntVector );
@@ -545,7 +551,7 @@ TEST_F( GrpcTest, ObjectDeepCopyVsShallowCopy )
     auto clientDemoObjectReference = clientDocument->demoObject.object();
     auto clientDemoObjectClone     = clientDocument->demoObject.deepCloneObject();
 
-    std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject );
+    std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject().get() );
     CAFFA_DEBUG( serverJson );
 
     // Stop server *before* we read the client JSON
@@ -561,7 +567,7 @@ TEST_F( GrpcTest, ObjectDeepCopyVsShallowCopy )
     ASSERT_EQ( serverJson, clientJson );
 
     CAFFA_INFO( "Expect errors when trying to write a shallow copied object reference back to the closed server" );
-    ASSERT_ANY_THROW( clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectReference ) );
+    ASSERT_ANY_THROW( clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectReference.get() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -600,19 +606,19 @@ TEST_F( GrpcTest, ObjectDeepCopyFromClient )
 
     auto clientDemoObjectClone = clientDocument->demoObject.deepCloneObject();
 
-    std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject() );
+    std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject().get() );
     std::string clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() );
     ASSERT_EQ( serverJson, clientJson );
 
     clientDemoObjectClone->intVector = { 1, 2, 3 };
 
-    serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject() );
+    serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject().get() );
     clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() );
     ASSERT_NE( serverJson, clientJson );
 
-    clientDocument->demoObject.deepCopyObjectFrom( clientDemoObjectClone.get() );
+    clientDocument->demoObject.deepCopyObjectFrom( clientDemoObjectClone );
 
-    serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject() );
+    serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject().get() );
     clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() );
     ASSERT_EQ( serverJson, clientJson );
     CAFFA_INFO( serverJson );
@@ -657,7 +663,7 @@ TEST_F( GrpcTest, ObjectDoubleGetterAndSetter )
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
     ASSERT_TRUE( clientDocument != nullptr );
-    auto clientDoubleVector = client->get<std::vector<double>>( clientDocument->demoObject,
+    auto clientDoubleVector = client->get<std::vector<double>>( clientDocument->demoObject().get(),
                                                                 clientDocument->demoObject->doubleVector.keyword() );
     ASSERT_EQ( largeDoubleVector, clientDoubleVector );
 
@@ -666,7 +672,7 @@ TEST_F( GrpcTest, ObjectDoubleGetterAndSetter )
         i += 2;
     }
     ASSERT_NE( largeDoubleVector, clientDoubleVector );
-    client->set<std::vector<double>>( clientDocument->demoObject,
+    client->set<std::vector<double>>( clientDocument->demoObject().get(),
                                       clientDocument->demoObject->doubleVector.keyword(),
                                       clientDoubleVector );
 
@@ -900,7 +906,7 @@ TEST_F( GrpcTest, ChildObjects )
     size_t childCount = 12u;
     for ( size_t i = 0; i < childCount; ++i )
     {
-        serverDocument->addInheritedObject( std::make_unique<InheritedDemoObj>() );
+        serverDocument->addInheritedObject( std::make_shared<InheritedDemoObj>() );
     }
 
     ASSERT_EQ( childCount, clientDocument->m_inheritedDemoObjects.size() );
@@ -910,9 +916,9 @@ TEST_F( GrpcTest, ChildObjects )
     size_t clientChildCount = 4u;
     for ( size_t i = 0; i < clientChildCount; ++i )
     {
-        auto inheritedObject     = std::make_unique<InheritedDemoObj>();
+        auto inheritedObject     = std::make_shared<InheritedDemoObj>();
         inheritedObject->m_texts = "whatever test";
-        clientDocument->addInheritedObject( std::move( inheritedObject ) );
+        clientDocument->addInheritedObject( inheritedObject );
     }
     ASSERT_EQ( clientChildCount, serverDocument->m_inheritedDemoObjects.size() );
     ASSERT_EQ( clientChildCount, clientDocument->m_inheritedDemoObjects.size() );
@@ -927,17 +933,17 @@ TEST_F( GrpcTest, ChildObjects )
 
     for ( size_t i = 0; i < clientChildCount; ++i )
     {
-        auto inheritedObject     = std::make_unique<InheritedDemoObj>();
+        auto inheritedObject     = std::make_shared<InheritedDemoObj>();
         inheritedObject->m_texts = "whatever test";
-        clientDocument->addInheritedObject( std::move( inheritedObject ) );
+        clientDocument->addInheritedObject( inheritedObject );
     }
     ASSERT_EQ( clientChildCount, serverDocument->m_inheritedDemoObjects.size() );
     ASSERT_EQ( clientChildCount, clientDocument->m_inheritedDemoObjects.size() );
 
     {
-        auto inheritedObject      = std::make_unique<InheritedDemoObj>();
+        auto inheritedObject      = std::make_shared<InheritedDemoObj>();
         inheritedObject->intField = 1113;
-        clientDocument->m_inheritedDemoObjects.insert( 2u, std::move( inheritedObject ) );
+        clientDocument->m_inheritedDemoObjects.insert( 2u, inheritedObject );
     }
     ASSERT_EQ( clientChildCount + 1u, serverDocument->m_inheritedDemoObjects.size() );
     ASSERT_EQ( clientChildCount + 1u, clientDocument->m_inheritedDemoObjects.size() );

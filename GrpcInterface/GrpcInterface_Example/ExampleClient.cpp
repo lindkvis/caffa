@@ -84,7 +84,7 @@ int main( int argc, char** argv )
     bool worked = client->ping();
     CAFFA_ASSERT( worked );
 
-    DemoObject* demoObject = clientDocument->demoObject();
+    auto demoObject = clientDocument->demoObject();
 
     auto   clientVector   = demoObject->floatVector();
     size_t numberOfFloats = clientVector.size();

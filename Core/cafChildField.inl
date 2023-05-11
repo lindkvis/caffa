@@ -22,8 +22,26 @@ template <typename DataTypePtr>
 ChildField<DataTypePtr>& ChildField<DataTypePtr>::operator=( Ptr object )
 {
     CAFFA_ASSERT( isInitialized() );
-    this->setObject( std::move( object ) );
+    this->setObject( object );
     return *this;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataTypePtr>
+bool ChildField<DataTypePtr>::operator==( ObjectHandle::ConstPtr object ) const
+{
+    return this->object() == object;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataTypePtr>
+bool ChildField<DataTypePtr>::operator==( const ObjectHandle* object ) const
+{
+    return this->object().get() == object;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -33,7 +51,7 @@ template <typename DataTypePtr>
 void ChildField<DataTypePtr>::setObject( Ptr object )
 {
     CAFFA_ASSERT( isInitialized() );
-    m_fieldDataAccessor->setObject( std::move( object ) );
+    m_fieldDataAccessor->setObject( object );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -44,15 +62,14 @@ ChildField<DataTypePtr>::Ptr ChildField<DataTypePtr>::deepCloneObject() const
 {
     CAFFA_ASSERT( isInitialized() );
     auto clonedObject = m_fieldDataAccessor->deepCloneObject();
-    CAFFA_ASSERT( caffa::dynamic_unique_cast_is_valid<DataType>( clonedObject ) );
-    return caffa::dynamic_unique_cast<DataType>( std::move( clonedObject ) );
+    return std::dynamic_pointer_cast<DataType>( clonedObject );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
-void ChildField<DataTypePtr>::deepCopyObjectFrom( const DataType* copyFrom )
+void ChildField<DataTypePtr>::deepCopyObjectFrom( std::shared_ptr<const DataType> copyFrom )
 {
     CAFFA_ASSERT( isInitialized() );
     m_fieldDataAccessor->deepCopyObjectFrom( copyFrom );
@@ -62,7 +79,7 @@ void ChildField<DataTypePtr>::deepCopyObjectFrom( const DataType* copyFrom )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
-std::vector<ObjectHandle*> ChildField<DataTypePtr>::childObjects()
+std::vector<ObjectHandle::Ptr> ChildField<DataTypePtr>::childObjects()
 {
     CAFFA_ASSERT( isInitialized() );
 
@@ -76,7 +93,7 @@ std::vector<ObjectHandle*> ChildField<DataTypePtr>::childObjects()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
-std::vector<const ObjectHandle*> ChildField<DataTypePtr>::childObjects() const
+std::vector<ObjectHandle::ConstPtr> ChildField<DataTypePtr>::childObjects() const
 {
     CAFFA_ASSERT( isInitialized() );
 
@@ -90,23 +107,22 @@ std::vector<const ObjectHandle*> ChildField<DataTypePtr>::childObjects() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
-ObjectHandle::Ptr ChildField<DataTypePtr>::clear()
+void ChildField<DataTypePtr>::clear()
 {
     CAFFA_ASSERT( isInitialized() );
-    return m_fieldDataAccessor->clear();
+    m_fieldDataAccessor->clear();
 }
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
-ObjectHandle::Ptr ChildField<DataTypePtr>::removeChildObject( ObjectHandle* object )
+void ChildField<DataTypePtr>::removeChildObject( ObjectHandle::ConstPtr object )
 {
     CAFFA_ASSERT( isInitialized() );
     if ( this->object() == object )
     {
-        return this->clear();
+        this->clear();
     }
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,16 +133,10 @@ void ChildField<DataTypePtr>::setChildObject( ObjectHandle::Ptr object )
 {
     CAFFA_ASSERT( isInitialized() );
 
-    ObjectHandle* rawPtr = object.release();
-
-    DataType* typedPtr = dynamic_cast<DataType*>( rawPtr );
-    if ( typedPtr )
+    auto typedObject = std::dynamic_pointer_cast<DataType>( object );
+    if ( typedObject )
     {
-        m_fieldDataAccessor->setObject( std::unique_ptr<DataType>( typedPtr ) );
-    }
-    else
-    {
-        delete rawPtr;
+        this->setObject( typedObject );
     }
 }
 

@@ -44,7 +44,7 @@ std::string MarkdownGenerator::name() const
     return "markdown";
 }
 
-std::string MarkdownGenerator::generate( std::list<std::unique_ptr<caffa::Document>>& documents )
+std::string MarkdownGenerator::generate( std::list<std::shared_ptr<caffa::Document>>& documents )
 {
     std::string code = "# ARU Server API\n\n";
 

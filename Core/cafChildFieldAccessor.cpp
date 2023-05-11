@@ -34,17 +34,17 @@ ChildFieldDirectStorageAccessor::ChildFieldDirectStorageAccessor( FieldHandle* f
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle* ChildFieldDirectStorageAccessor::object()
+ObjectHandle::Ptr ChildFieldDirectStorageAccessor::object()
 {
-    return m_object.get();
+    return m_object;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const ObjectHandle* ChildFieldDirectStorageAccessor::object() const
+ObjectHandle::ConstPtr ChildFieldDirectStorageAccessor::object() const
 {
-    return m_object.get();
+    return m_object;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,11 +52,7 @@ const ObjectHandle* ChildFieldDirectStorageAccessor::object() const
 //--------------------------------------------------------------------------------------------------
 void ChildFieldDirectStorageAccessor::setObject( ObjectHandle::Ptr object )
 {
-    if ( m_object )
-    {
-        m_object->disconnectObserverFromAllSignals( m_field->ownerObject() );
-    }
-    m_object = std::move( object );
+    m_object = object;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,16 +69,16 @@ ObjectHandle::Ptr ChildFieldDirectStorageAccessor::deepCloneObject() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ChildFieldDirectStorageAccessor::deepCopyObjectFrom( const ObjectHandle* copyFrom )
+void ChildFieldDirectStorageAccessor::deepCopyObjectFrom( ObjectHandle::ConstPtr copyFrom )
 {
     JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
     if ( !m_object )
     {
-        m_object = serializer.copyBySerialization( copyFrom );
+        m_object = serializer.copyBySerialization( copyFrom.get() );
     }
     else
     {
-        std::string json = serializer.writeObjectToString( copyFrom );
+        std::string json = serializer.writeObjectToString( copyFrom.get() );
         serializer.readObjectFromString( m_object.get(), json );
     }
 }
@@ -90,11 +86,11 @@ void ChildFieldDirectStorageAccessor::deepCopyObjectFrom( const ObjectHandle* co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle::Ptr ChildFieldDirectStorageAccessor::clear()
+void ChildFieldDirectStorageAccessor::clear()
 {
     if ( m_object && m_field && m_field->ownerObject() )
     {
         m_object->disconnectObserverFromAllSignals( m_field->ownerObject() );
     }
-    return std::move( m_object );
+    m_object.reset();
 }

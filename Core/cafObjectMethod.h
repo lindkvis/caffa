@@ -87,12 +87,12 @@ public:
     ObjectMethod( caffa::not_null<ObjectHandle*> self, Type type = Type::READ_WRITE );
 
     // The returned object contains the results of the method and is the responsibility of the caller.
-    virtual std::unique_ptr<ObjectMethodResult> execute() = 0;
+    virtual std::shared_ptr<ObjectMethodResult> execute() = 0;
 
     // A default created result object used as a pattern for clients
-    virtual std::unique_ptr<ObjectMethodResult> defaultResult() const
+    virtual std::shared_ptr<ObjectMethodResult> defaultResult() const
     {
-        return std::make_unique<ObjectMethodResult>( false );
+        return std::make_shared<ObjectMethodResult>( false );
     }
 
     // Basically the "this" pointer to the object the method belongs to

@@ -1,20 +1,20 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Caffa
-//   Copyright (C) 3D-Radar AS
+//    Caffa
+//    Copyright (C) 3D-Radar AS
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
 #pragma once
 
@@ -39,47 +39,39 @@ public:
         return m_remoteObjects.size();
     }
 
-    std::vector<ObjectHandle::Ptr> clear() override
+    void clear() override
     {
-        getRemoteObjectsIfNecessary();
         m_client->clearChildObjects( m_field->ownerObject(), m_field->keyword() );
 
         std::vector<ObjectHandle::Ptr> removedObjects;
         removedObjects.swap( m_remoteObjects );
-        return removedObjects;
     }
 
-    std::vector<ObjectHandle*> objects() override
+    std::vector<ObjectHandle::Ptr> objects() override
+    {
+        getRemoteObjectsIfNecessary();
+        return m_remoteObjects;
+    }
+
+    std::vector<ObjectHandle::ConstPtr> objects() const override
     {
         getRemoteObjectsIfNecessary();
 
-        std::vector<ObjectHandle*> rawPtrs;
-        for ( auto& objectPtr : m_remoteObjects )
+        std::vector<ObjectHandle::ConstPtr> constPtrs;
+        for ( auto objectPtr : m_remoteObjects )
         {
-            rawPtrs.push_back( objectPtr.get() );
+            constPtrs.push_back( objectPtr );
         }
-        return rawPtrs;
+        return constPtrs;
     }
 
-    std::vector<const ObjectHandle*> objects() const override
-    {
-        getRemoteObjectsIfNecessary();
-
-        std::vector<const ObjectHandle*> rawPtrs;
-        for ( const auto& objectPtr : m_remoteObjects )
-        {
-            rawPtrs.push_back( objectPtr.get() );
-        }
-        return rawPtrs;
-    }
-
-    ObjectHandle* at( size_t index ) const override
+    ObjectHandle::Ptr at( size_t index ) const override
     {
         getRemoteObjectsIfNecessary();
 
         CAFFA_ASSERT( index < m_remoteObjects.size() );
 
-        return m_remoteObjects[index].get();
+        return m_remoteObjects[index];
     }
 
     void insert( size_t index, ObjectHandle::Ptr pointer ) override
@@ -93,36 +85,30 @@ public:
 
     void push_back( ObjectHandle::Ptr pointer ) override { insert( size(), std::move( pointer ) ); }
 
-    size_t index( const ObjectHandle* pointer ) const override
+    size_t index( ObjectHandle::ConstPtr pointer ) const override
     {
         getRemoteObjectsIfNecessary();
         for ( size_t i = 0; i < m_remoteObjects.size(); ++i )
         {
-            if ( pointer == m_remoteObjects[i].get() )
+            if ( pointer.get() == m_remoteObjects[i].get() )
             {
                 return i;
             }
         }
         return -1;
     }
-    ObjectHandle::Ptr remove( size_t index ) override
+    void remove( size_t index ) override
     {
         CAFFA_ASSERT( index < size() );
-        auto detachedPtr = std::move( m_remoteObjects[index] );
         m_remoteObjects.erase( m_remoteObjects.begin() + index );
         m_client->removeChildObject( m_field->ownerObject(), m_field->keyword(), index );
-        return detachedPtr;
     }
 
 private:
     // TODO: This needs to be more sophisticated. At the moment we get the remote objects no matter what.
     void getRemoteObjectsIfNecessary() const
     {
-        auto serverObjects = m_client->getChildObjects( m_field->ownerObject(), m_field->keyword() );
-        if ( m_remoteObjects.size() != serverObjects.size() )
-        {
-            m_remoteObjects.swap( serverObjects );
-        }
+        m_remoteObjects = m_client->getChildObjects( m_field->ownerObject(), m_field->keyword() );
     }
 
 private:

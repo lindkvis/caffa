@@ -184,7 +184,7 @@ public:
      * @brief Deep clone the object using an optional object factory
      *
      * @param optionalObjectFactory if null the default object factory will be used
-     * @return std::unique_ptr<Object>
+     * @return std::shared_ptr<Object>
      */
     ObjectHandle::Ptr deepClone( caffa::ObjectFactory* optionalObjectFactory = nullptr ) const override;
 
@@ -193,12 +193,12 @@ public:
      *
      * @tparam DerivedClass
      * @param optionalObjectFactory if null the default object factory will be used
-     * @return std::unique_ptr<DerivedClass>
+     * @return std::shared_ptr<DerivedClass>
      */
     template <typename DerivedClass>
-    std::unique_ptr<DerivedClass> typedDeepClone( caffa::ObjectFactory* optionalObjectFactory = nullptr ) const
+    std::shared_ptr<DerivedClass> typedDeepClone( caffa::ObjectFactory* optionalObjectFactory = nullptr ) const
     {
-        return caffa::dynamic_unique_cast<DerivedClass>( deepClone( optionalObjectFactory ) );
+        return std::dynamic_pointer_cast<DerivedClass>( deepClone( optionalObjectFactory ) );
     }
 
 private:

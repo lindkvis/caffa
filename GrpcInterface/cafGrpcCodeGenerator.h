@@ -40,7 +40,7 @@ namespace rpc
 
         virtual std::string name() const = 0;
 
-        virtual std::string generate( std::list<std::unique_ptr<caffa::Document>>& documents )              = 0;
+        virtual std::string generate( std::list<std::shared_ptr<caffa::Document>>& documents )              = 0;
         virtual std::string generate( caffa::ObjectHandle* object, bool objectMethodField = false )         = 0;
         virtual std::string generate( caffa::FieldHandle* field, std::vector<std::string>& dependencies )   = 0;
         virtual std::string generate( caffa::ObjectMethod* method, std::vector<std::string>& dependencies ) = 0;

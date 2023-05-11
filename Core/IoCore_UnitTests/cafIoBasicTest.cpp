@@ -100,7 +100,7 @@ TEST( BaseTest, FieldWrite )
 {
     std::string serializedString;
     {
-        auto a = std::make_unique<DemoObject>();
+        auto a = std::make_shared<DemoObject>();
 
         a->m_proxyDoubleField.setValue( 2.5 );
         a->m_proxyEnumField = DemoObject::T3;
@@ -205,9 +205,9 @@ CAFFA_SOURCE_INIT( ReferenceDemoObject )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ChildArrayFieldSerializing )
 {
-    auto s1 = std::make_unique<DemoObject>();
-    auto s2 = std::make_unique<DemoObject>();
-    auto s3 = std::make_unique<DemoObject>();
+    auto s1 = std::make_shared<DemoObject>();
+    auto s2 = std::make_shared<DemoObject>();
+    auto s3 = std::make_shared<DemoObject>();
 
     s1->m_proxyDoubleField.setValue( 10 );
     s2->m_proxyDoubleField.setValue( 20 );
@@ -215,13 +215,13 @@ TEST( BaseTest, ChildArrayFieldSerializing )
 
     std::string serializedString;
     {
-        auto ihd1 = std::make_unique<InheritedDemoObj>();
+        auto ihd1 = std::make_shared<InheritedDemoObj>();
         auto s1p  = s1.get();
-        ihd1->m_childArrayField.push_back( std::move( s1 ) );
+        ihd1->m_childArrayField.push_back( s1 );
         auto s2p = s2.get();
-        ihd1->m_childArrayField.push_back( std::move( s2 ) );
+        ihd1->m_childArrayField.push_back( s2 );
         auto s3p = s3.get();
-        ihd1->m_childArrayField.push_back( std::move( s3 ) );
+        ihd1->m_childArrayField.push_back( s3 );
 
         serializedString = caffa::JsonSerializer().writeObjectToString( ihd1.get() );
 
@@ -229,7 +229,7 @@ TEST( BaseTest, ChildArrayFieldSerializing )
     }
 
     {
-        auto ihd1 = std::make_unique<InheritedDemoObj>();
+        auto ihd1 = std::make_shared<InheritedDemoObj>();
         ASSERT_EQ( 0u, ihd1->m_childArrayField.size() );
 
         caffa::JsonSerializer().readObjectFromString( ihd1.get(), serializedString );
@@ -249,7 +249,7 @@ TEST( BaseTest, ChildArrayFieldSerializing )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, TestDataType )
 {
-    auto s1 = std::make_unique<SimpleObj>();
+    auto s1 = std::make_shared<SimpleObj>();
 
     {
         auto dataType = s1->m_position.dataType();
@@ -267,7 +267,7 @@ TEST( BaseTest, TestDataType )
     }
 
     {
-        auto obj      = std::make_unique<InheritedDemoObj>();
+        auto obj      = std::make_shared<InheritedDemoObj>();
         auto dataType = obj->m_childArrayField.dataType();
         EXPECT_EQ( std::string( "object[]" ), dataType );
     }
@@ -278,7 +278,7 @@ TEST( BaseTest, TestDataType )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, TestRangeValidation )
 {
-    auto s1 = std::make_unique<SimpleObj>();
+    auto s1 = std::make_shared<SimpleObj>();
     ASSERT_NO_THROW( s1->m_up.setValue( -10 ) );
     ASSERT_NO_THROW( s1->m_up.setValue( 0 ) );
     s1->setUpRange( 0, 10 );
@@ -290,7 +290,7 @@ TEST( BaseTest, TestRangeValidation )
     auto serializedString = caffa::JsonSerializer().writeObjectToString( s1.get() );
     std::cout << "Wrote object to json with validator: " << serializedString << std::endl;
 
-    auto s2 = std::make_unique<SimpleObj>();
+    auto s2 = std::make_shared<SimpleObj>();
     s2->m_up.setValue( 5 );
     auto serializedString2 = caffa::JsonSerializer().writeObjectToString( s2.get() );
     std::cout << "Wrote object to json without validator: " << serializedString2 << std::endl;

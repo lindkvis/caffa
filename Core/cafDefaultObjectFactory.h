@@ -96,7 +96,7 @@ private:
     class ObjectCreator : public ObjectCreatorBase
     {
     public:
-        ObjectHandle::Ptr create() override { return std::make_unique<ObjectBaseDerivative>(); }
+        ObjectHandle::Ptr create() override { return std::make_shared<ObjectBaseDerivative>(); }
     };
 
     // Map to store factory

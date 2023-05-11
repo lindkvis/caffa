@@ -144,7 +144,7 @@ TEST( BaseTest, TestInheritanceStack )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, TestField )
 {
-    auto a = std::make_unique<DemoObject>();
+    auto a = std::make_shared<DemoObject>();
 
     ASSERT_DOUBLE_EQ( 0.0, a->m_memberDoubleField.value() );
     a->m_memberDoubleField.setValue( 1.2 );
@@ -167,7 +167,7 @@ TEST( BaseTest, TestField )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, TestProxyTypedField )
 {
-    auto a = std::make_unique<DemoObject>();
+    auto a = std::make_shared<DemoObject>();
 
     ASSERT_DOUBLE_EQ( 2.1, a->m_proxyDoubleField.value() );
     a->m_proxyDoubleField.setValue( 1.2 );
@@ -251,74 +251,111 @@ TEST( BaseTest, NormalField )
 
 TEST( BaseTest, ChildArrayField )
 {
-    auto ihd1 = std::make_unique<InheritedDemoObj>();
+    auto ihd1 = std::make_shared<InheritedDemoObj>();
 
-    auto s1 = std::make_unique<DemoObject>();
-    auto s2 = std::make_unique<DemoObject>();
-    auto s3 = std::make_unique<DemoObject>();
+    auto s1 = std::make_shared<DemoObject>();
+    auto s2 = std::make_shared<DemoObject>();
+    auto s3 = std::make_shared<DemoObject>();
+
+    caffa::ObservingPointer<DemoObject> s1p = s1.get();
+    caffa::ObservingPointer<DemoObject> s2p = s2.get();
+    caffa::ObservingPointer<DemoObject> s3p = s3.get();
 
     // empty() number 1
     EXPECT_TRUE( ihd1->m_childArrayField.empty() );
     EXPECT_EQ( size_t( 0 ), ihd1->m_childArrayField.size() );
 
-    // push_back()
-    auto s1p = caffa::ObservingPointer<DemoObject>( s1.get() );
-    auto s2p = caffa::ObservingPointer<DemoObject>( s2.get() );
-    auto s3p = caffa::ObservingPointer<DemoObject>( s3.get() );
+    ihd1->m_childArrayField.push_back( s1 );
+    ihd1->m_childArrayField.push_back( s2 );
+    ihd1->m_childArrayField.push_back( s3 );
 
-    ihd1->m_childArrayField.push_back( std::move( s1 ) );
-    ihd1->m_childArrayField.push_back( std::move( s2 ) );
-    ihd1->m_childArrayField.push_back( std::move( s3 ) );
+    EXPECT_EQ( 2, s1.use_count() );
+    EXPECT_EQ( 2, s2.use_count() );
+    EXPECT_EQ( 2, s3.use_count() );
 
     // size()
     EXPECT_EQ( size_t( 3 ), ihd1->m_childArrayField.size() );
-    EXPECT_EQ( size_t( 3 ), ihd1->m_childArrayField.size() );
 
     // operator[]
-    EXPECT_EQ( s2p, ihd1->m_childArrayField[1] );
-    EXPECT_EQ( s3p, ihd1->m_childArrayField[2] );
+    EXPECT_EQ( s1, ihd1->m_childArrayField[0] );
+    EXPECT_EQ( s2, ihd1->m_childArrayField[1] );
+    EXPECT_EQ( s3, ihd1->m_childArrayField[2] );
 
     // childObjects
-    std::vector<caffa::ObjectHandle*> objects = ihd1->m_childArrayField.childObjects();
+    auto objects = ihd1->m_childArrayField.childObjects();
     EXPECT_EQ( size_t( 3 ), objects.size() );
+    EXPECT_EQ( 3, s1.use_count() );
+    EXPECT_EQ( 3, s2.use_count() );
+    EXPECT_EQ( 3, s3.use_count() );
+    objects.clear();
+    EXPECT_EQ( 2, s1.use_count() );
+    EXPECT_EQ( 2, s2.use_count() );
+    EXPECT_EQ( 2, s3.use_count() );
 
-    std::vector<DemoObject*> typedObjects = ihd1->m_childArrayField.objects();
+    auto typedObjects = ihd1->m_childArrayField.objects();
     EXPECT_EQ( size_t( 3 ), typedObjects.size() );
+    EXPECT_EQ( 3, s1.use_count() );
+    EXPECT_EQ( 3, s2.use_count() );
+    EXPECT_EQ( 3, s3.use_count() );
+    typedObjects.clear();
 
     // remove child object
-    auto new_s2 = ihd1->m_childArrayField.removeChildObject( s2p );
+    ihd1->m_childArrayField.removeChildObject( s2 );
     EXPECT_EQ( size_t( 2 ), ihd1->m_childArrayField.size() );
+    EXPECT_EQ( 2, s1.use_count() );
+    EXPECT_EQ( 1, s2.use_count() );
+    EXPECT_EQ( 2, s3.use_count() );
 
-    auto emptyPointer = ihd1->m_childArrayField.removeChildObject( nullptr );
-    EXPECT_TRUE( !emptyPointer );
-    EXPECT_EQ( s3p, ihd1->m_childArrayField[1] );
-    EXPECT_EQ( s1p, ihd1->m_childArrayField[0] );
+    ihd1->m_childArrayField.removeChildObject( nullptr );
 
-    EXPECT_EQ( s2p, new_s2.get() );
+    EXPECT_EQ( s3, ihd1->m_childArrayField[1] );
+    EXPECT_EQ( s1, ihd1->m_childArrayField[0] );
+
     // insertAt()
-    ihd1->m_childArrayField.insertAt( 1, std::move( new_s2 ) );
-    EXPECT_EQ( s1p, ihd1->m_childArrayField[0] );
-    EXPECT_EQ( s2p, ihd1->m_childArrayField[1] );
-    EXPECT_EQ( s3p, ihd1->m_childArrayField[2] );
+    ihd1->m_childArrayField.insertAt( 1, s2 );
+    EXPECT_EQ( s1, ihd1->m_childArrayField[0] );
+    EXPECT_EQ( s2, ihd1->m_childArrayField[1] );
+    EXPECT_EQ( s3, ihd1->m_childArrayField[2] );
 
     // erase (index)
     EXPECT_EQ( size_t( 3 ), ihd1->m_childArrayField.size() );
     ihd1->m_childArrayField.erase( 1 );
-    EXPECT_TRUE( s2p.isNull() );
+    EXPECT_TRUE( s2 );
     EXPECT_EQ( size_t( 2 ), ihd1->m_childArrayField.size() );
-    EXPECT_EQ( s3p, ihd1->m_childArrayField[1] );
-    EXPECT_EQ( s1p, ihd1->m_childArrayField[0] );
+    EXPECT_EQ( s3, ihd1->m_childArrayField[1] );
+    EXPECT_EQ( s1, ihd1->m_childArrayField[0] );
 
     // clear()
-    auto extractedObjects = ihd1->m_childArrayField.clear();
-    EXPECT_EQ( size_t( 0 ), ihd1->m_childArrayField.size() );
+    auto extractedObjects = ihd1->m_childArrayField.objects();
+
+    EXPECT_EQ( 3, s1.use_count() );
+    EXPECT_EQ( 1, s2.use_count() );
+    EXPECT_EQ( 3, s3.use_count() );
+
+    ihd1->m_childArrayField.clear();
+
     EXPECT_EQ( size_t( 2 ), extractedObjects.size() );
+    EXPECT_EQ( size_t( 0 ), ihd1->m_childArrayField.size() );
 
     for ( auto& object : extractedObjects )
     {
-        ihd1->m_childArrayField.push_back_obj( std::move( object ) );
+        ihd1->m_childArrayField.push_back_obj( object );
     }
+
+    s1.reset();
+    s2.reset();
+    s3.reset();
+
+    EXPECT_TRUE( s1 == nullptr );
+    EXPECT_TRUE( s2 == nullptr );
+    EXPECT_TRUE( s3 == nullptr );
+
     EXPECT_EQ( size_t( 2 ), ihd1->m_childArrayField.size() );
+    EXPECT_TRUE( s1p.notNull() );
+    EXPECT_TRUE( s2p.isNull() );
+    EXPECT_TRUE( s3p.notNull() );
+
+    extractedObjects.clear();
     EXPECT_TRUE( s1p.notNull() );
     EXPECT_TRUE( s2p.isNull() );
     EXPECT_TRUE( s3p.notNull() );
@@ -342,25 +379,24 @@ TEST( BaseTest, ChildArrayParentField )
 
 TEST( BaseTest, PointersFieldInsertVector )
 {
-    auto ihd1 = std::make_unique<Parent>();
+    auto ihd1 = std::make_shared<Parent>();
 
-    auto s1 = std::make_unique<Child>();
-    auto s2 = std::make_unique<Child>();
-    auto s3 = std::make_unique<Child>();
+    auto s1 = std::make_shared<Child>();
+    auto s2 = std::make_shared<Child>();
+    auto s3 = std::make_shared<Child>();
 
-    std::vector<std::unique_ptr<Child>> typedObjects;
-    typedObjects.push_back( std::move( s1 ) );
-    typedObjects.push_back( std::move( s2 ) );
-    auto s3p = s3.get();
-    typedObjects.push_back( std::move( s3 ) );
+    std::vector<std::shared_ptr<Child>> typedObjects;
+    typedObjects.push_back( s1 );
+    typedObjects.push_back( s2 );
+    typedObjects.push_back( s3 );
 
-    ihd1->m_simpleObjectsField.push_back( std::make_unique<Child>() );
+    ihd1->m_simpleObjectsField.push_back( std::make_shared<Child>() );
     for ( auto& typedObject : typedObjects )
     {
-        ihd1->m_simpleObjectsField.push_back( std::move( typedObject ) );
+        ihd1->m_simpleObjectsField.push_back( typedObject );
     }
     EXPECT_EQ( size_t( 4 ), ihd1->m_simpleObjectsField.size() );
-    EXPECT_EQ( ihd1->m_simpleObjectsField[3], s3p );
+    EXPECT_EQ( ihd1->m_simpleObjectsField[3], s3 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -368,31 +404,31 @@ TEST( BaseTest, PointersFieldInsertVector )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ChildArrayFieldHandle )
 {
-    auto s0                 = std::make_unique<DemoObject>();
+    auto s0                 = std::make_shared<DemoObject>();
     s0->m_memberDoubleField = 1000;
 
-    auto s1                 = std::make_unique<DemoObject>();
+    auto s1                 = std::make_shared<DemoObject>();
     s1->m_memberDoubleField = 1000;
 
-    auto s2                 = std::make_unique<DemoObject>();
+    auto s2                 = std::make_shared<DemoObject>();
     s2->m_memberDoubleField = 2000;
 
-    auto s3                 = std::make_unique<DemoObject>();
+    auto s3                 = std::make_shared<DemoObject>();
     s3->m_memberDoubleField = 3000;
 
-    auto                          ihd1      = std::make_unique<InheritedDemoObj>();
+    auto                          ihd1      = std::make_shared<InheritedDemoObj>();
     caffa::ChildArrayFieldHandle* listField = &( ihd1->m_childArrayField );
 
     EXPECT_EQ( 0u, listField->size() );
     EXPECT_TRUE( listField->empty() );
 
-    listField->insertAt( 0u, std::move( s0 ) );
+    listField->insertAt( 0u, s0 );
     EXPECT_EQ( 1u, listField->size() );
     EXPECT_FALSE( listField->empty() );
 
-    ihd1->m_childArrayField.push_back( std::move( s1 ) );
-    ihd1->m_childArrayField.push_back( std::move( s2 ) );
-    ihd1->m_childArrayField.push_back( std::move( s3 ) );
+    ihd1->m_childArrayField.push_back( s1 );
+    ihd1->m_childArrayField.push_back( s2 );
+    ihd1->m_childArrayField.push_back( s3 );
 
     EXPECT_EQ( 4u, listField->size() );
     EXPECT_FALSE( listField->empty() );
@@ -429,31 +465,33 @@ CAFFA_SOURCE_INIT( A2 )
 TEST( BaseTest, ChildField )
 {
     {
-        auto                           testValue = std::make_unique<Child>();
-        caffa::ObservingPointer<Child> rawValue  = testValue.get();
+        caffa::ObservingPointer<Child> rawValue = nullptr;
 
         {
+            auto testValue = std::make_shared<Child>();
+            rawValue       = testValue.get();
+            EXPECT_TRUE( rawValue.notNull() );
+
             A2 a;
-            a.field2 = std::move( testValue );
-            EXPECT_EQ( rawValue.p(), a.field2() );
+            a.field2 = testValue;
+            EXPECT_EQ( a.field2, rawValue.p() );
         }
         // Guarded
         EXPECT_TRUE( rawValue.isNull() );
     }
     {
         A2   a;
-        auto c2   = std::make_unique<Child>();
-        auto rawC = c2.get();
+        auto c2 = std::make_shared<Child>();
         // Assign
-        a.field2.setObject( std::move( c2 ) );
+        a.field2.setObject( c2 );
         // Access
-        EXPECT_EQ( rawC, a.field2 );
-        EXPECT_EQ( rawC, a.field2.object() );
-        EXPECT_TRUE( rawC == a.field2 );
+        EXPECT_EQ( c2, a.field2 );
+        EXPECT_EQ( c2, a.field2.object() );
+        EXPECT_TRUE( c2 == a.field2 );
 
-        std::vector<caffa::ObjectHandle*> objects = a.field2.childObjects();
+        std::vector<caffa::ObjectHandle::Ptr> objects = a.field2.childObjects();
         EXPECT_EQ( (size_t)1, objects.size() );
-        EXPECT_EQ( rawC, objects[0] );
+        EXPECT_EQ( c2, objects[0] );
     }
 }
 
@@ -462,7 +500,7 @@ TEST( BaseTest, ChildField )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, Pointer )
 {
-    auto d = std::make_unique<InheritedDemoObj>();
+    auto d = std::make_shared<InheritedDemoObj>();
 
     {
         caffa::ObservingPointer<InheritedDemoObj> p;

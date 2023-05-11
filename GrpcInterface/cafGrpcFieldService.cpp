@@ -309,17 +309,17 @@ grpc::Status FieldService::InsertChildObject( grpc::ServerContext* context, cons
             {
                 try
                 {
-                    std::unique_ptr<caffa::ObjectHandle> newCafObject =
+                    auto newCafObject =
                         caffa::JsonSerializer( DefaultObjectFactory::instance() ).createObjectFromString( request->value() );
                     if ( !newCafObject ) throw std::runtime_error( "Failed to create new caf object" );
                     size_t index = fieldRequest.index();
                     if ( index >= childArrayField->size() )
                     {
-                        childArrayField->push_back_obj( std::move( newCafObject ) );
+                        childArrayField->push_back_obj( newCafObject );
                     }
                     else
                     {
-                        childArrayField->insertAt( index, std::move( newCafObject ) );
+                        childArrayField->insertAt( index, newCafObject );
                     }
                     return grpc::Status::OK;
                 }
