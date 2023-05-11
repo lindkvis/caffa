@@ -31,7 +31,7 @@ ObjectIoCapability::~ObjectIoCapability() noexcept
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> ObjectIoCapability::copyBySerialization( ObjectFactory* objectFactory ) const
+ObjectHandle::Ptr ObjectIoCapability::copyBySerialization( ObjectFactory* objectFactory ) const
 {
     return JsonSerializer( objectFactory ).setSerializeUuids( false ).copyBySerialization( m_owner );
 }
@@ -39,8 +39,8 @@ std::unique_ptr<ObjectHandle> ObjectIoCapability::copyBySerialization( ObjectFac
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> ObjectIoCapability::copyAndCastBySerialization( const std::string& destinationClassKeyword,
-                                                                              ObjectFactory* objectFactory ) const
+ObjectHandle::Ptr ObjectIoCapability::copyAndCastBySerialization( const std::string& destinationClassKeyword,
+                                                                  ObjectFactory*     objectFactory ) const
 {
     return JsonSerializer( objectFactory ).setSerializeUuids( false ).copyAndCastBySerialization( m_owner, destinationClassKeyword );
 }

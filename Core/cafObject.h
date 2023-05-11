@@ -186,7 +186,7 @@ public:
      * @param optionalObjectFactory if null the default object factory will be used
      * @return std::unique_ptr<Object>
      */
-    std::unique_ptr<ObjectHandle> deepClone( caffa::ObjectFactory* optionalObjectFactory = nullptr ) const override;
+    ObjectHandle::Ptr deepClone( caffa::ObjectFactory* optionalObjectFactory = nullptr ) const override;
 
     /**
      * @brief Deep clone and cast to the typed class using an optional object factory

@@ -63,7 +63,7 @@ public:
      * @param object The object to copy
      * @return unique ptr containing a new copy
      */
-    std::unique_ptr<ObjectHandle> copyBySerialization( const ObjectHandle* object ) const override;
+    ObjectHandle::Ptr copyBySerialization( const ObjectHandle* object ) const override;
 
     /**
      * Copy the object by serializing to text string but cast to a different class keyword.
@@ -73,7 +73,7 @@ public:
      * @param destinationClassKeyword The class of the object to create.
      * @return unique ptr containing a new copy
      */
-    std::unique_ptr<ObjectHandle> copyAndCastBySerialization( const ObjectHandle* object,
+    ObjectHandle::Ptr copyAndCastBySerialization( const ObjectHandle* object,
                                                               const std::string& destinationClassKeyword ) const override;
 
     /**
@@ -81,7 +81,7 @@ public:
      * @param string The JSON text string
      * @return unique ptr to new object
      */
-    std::unique_ptr<ObjectHandle> createObjectFromString( const std::string& string ) const override;
+    ObjectHandle::Ptr createObjectFromString( const std::string& string ) const override;
 
     /**
      * Read object from an input stream

@@ -38,7 +38,7 @@ void ChildArrayField<DataTypePtr>::push_back( Ptr pointer )
 /// Assign a unique pointer and take ownership.
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
-void ChildArrayField<DataTypePtr>::push_back_obj( std::unique_ptr<ObjectHandle> obj )
+void ChildArrayField<DataTypePtr>::push_back_obj( ObjectHandle::Ptr obj )
 {
     CAFFA_ASSERT( isInitialized() );
 
@@ -70,7 +70,7 @@ void ChildArrayField<DataTypePtr>::insert( size_t index, Ptr pointer )
     DataType* rawDataPtr = pointer.release();
     if ( rawDataPtr )
     {
-        m_fieldDataAccessor->insert( index, std::unique_ptr<ObjectHandle>( rawDataPtr ) );
+        m_fieldDataAccessor->insert( index, ObjectHandle::Ptr( rawDataPtr ) );
     }
 }
 
@@ -78,7 +78,7 @@ void ChildArrayField<DataTypePtr>::insert( size_t index, Ptr pointer )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
-void ChildArrayField<DataTypePtr>::insertAt( size_t index, std::unique_ptr<ObjectHandle> obj )
+void ChildArrayField<DataTypePtr>::insertAt( size_t index, ObjectHandle::Ptr obj )
 {
     CAFFA_ASSERT( isInitialized() );
 
@@ -93,7 +93,7 @@ void ChildArrayField<DataTypePtr>::insertAt( size_t index, std::unique_ptr<Objec
 
     if ( rawDataPtr )
     {
-        m_fieldDataAccessor->insert( index, std::unique_ptr<ObjectHandle>( rawDataPtr ) );
+        m_fieldDataAccessor->insert( index, ObjectHandle::Ptr( rawDataPtr ) );
     }
     else if ( rawObjPtr )
     {
@@ -105,7 +105,7 @@ void ChildArrayField<DataTypePtr>::insertAt( size_t index, std::unique_ptr<Objec
 /// Clears the container and returns a vector of unique_ptrs to the content
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
-std::vector<std::unique_ptr<ObjectHandle>> ChildArrayField<DataTypePtr>::clear()
+std::vector<ObjectHandle::Ptr> ChildArrayField<DataTypePtr>::clear()
 {
     CAFFA_ASSERT( isInitialized() );
 
@@ -141,7 +141,7 @@ void ChildArrayField<DataTypePtr>::setObjects( std::vector<std::unique_ptr<DataT
 /// Removes all instances of object pointer from the container without deleting the object.
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
-std::unique_ptr<ObjectHandle> ChildArrayField<DataTypePtr>::removeChildObject( ObjectHandle* object )
+ObjectHandle::Ptr ChildArrayField<DataTypePtr>::removeChildObject( ObjectHandle* object )
 {
     CAFFA_ASSERT( isInitialized() );
 

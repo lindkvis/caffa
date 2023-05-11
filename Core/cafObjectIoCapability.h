@@ -2,6 +2,7 @@
 
 #include "cafDynamicUniqueCast.h"
 #include "cafObjectCapability.h"
+#include "cafObjectHandle.h"
 
 #include <iostream>
 #include <list>
@@ -35,10 +36,10 @@ public:
     void initAfterReadRecursively() { initAfterReadRecursively( this->m_owner ); };
     void setupBeforeSaveRecursively() { setupBeforeSaveRecursively( this->m_owner ); };
 
-    std::unique_ptr<ObjectHandle> copyBySerialization( ObjectFactory* objectFactory ) const;
+    ObjectHandle::Ptr copyBySerialization( ObjectFactory* objectFactory ) const;
 
-    std::unique_ptr<ObjectHandle> copyAndCastBySerialization( const std::string& destinationClassKeyword,
-                                                              ObjectFactory*     objectFactory ) const;
+    ObjectHandle::Ptr copyAndCastBySerialization( const std::string& destinationClassKeyword,
+                                                  ObjectFactory*     objectFactory ) const;
 
     /**
      * @brief Copy the object by serializing it and then casting it to the given type.

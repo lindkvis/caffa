@@ -22,7 +22,7 @@ namespace caffa::rpc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> GrpcClientObjectFactory::doCreate( const std::string_view& classKeyword )
+ObjectHandle::Ptr GrpcClientObjectFactory::doCreate( const std::string_view& classKeyword )
 {
     CAFFA_ASSERT( m_grpcClient );
     if ( !m_grpcClient ) throw( Exception( grpc::Status( grpc::ABORTED, "No Client set in Grpc Client factory" ) ) );

@@ -24,7 +24,6 @@
 #pragma once
 
 #include "cafAssert.h"
-#include "cafDynamicUniqueCast.h"
 #include "cafFieldHandle.h"
 #include "cafLogger.h"
 #include "cafObjectCapability.h"
@@ -55,6 +54,7 @@ public:
     static constexpr auto MAX_INHERITANCE_STACK_LENGTH = 10; // Should be enough for everyone
 
     using InheritanceStackType = std::array<std::string_view, MAX_INHERITANCE_STACK_LENGTH>;
+    using Ptr                  = std::unique_ptr<ObjectHandle>;
 
     ObjectHandle();
     virtual ~ObjectHandle() noexcept;
@@ -148,7 +148,7 @@ public:
      * @param optionalObjectFactory if null the default object factory will be used
      * @return std::unique_ptr<Object>
      */
-    virtual std::unique_ptr<ObjectHandle> deepClone( caffa::ObjectFactory* optionalObjectFactory = nullptr ) const = 0;
+    virtual ObjectHandle::Ptr deepClone( caffa::ObjectFactory* optionalObjectFactory = nullptr ) const = 0;
 
     /// Method gets called from Document after all objects are read.
     /// Re-implement to set up internal pointers etc. in your data structure

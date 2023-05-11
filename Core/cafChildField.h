@@ -70,9 +70,9 @@ public:
     // Child objects
     std::vector<ObjectHandle*>       childObjects() override;
     std::vector<const ObjectHandle*> childObjects() const override;
-    std::unique_ptr<ObjectHandle>    clear() override;
-    std::unique_ptr<ObjectHandle>    removeChildObject( ObjectHandle* object );
-    void                             setChildObject( std::unique_ptr<ObjectHandle> object );
+    ObjectHandle::Ptr                clear() override;
+    ObjectHandle::Ptr                removeChildObject( ObjectHandle* object );
+    void                             setChildObject( ObjectHandle::Ptr object );
 
     std::string dataType() const override { return std::string( "object" ); }
 

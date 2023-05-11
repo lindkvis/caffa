@@ -9,7 +9,7 @@ namespace caffa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> DefaultObjectFactory::doCreate( const std::string_view& classKeyword )
+ObjectHandle::Ptr DefaultObjectFactory::doCreate( const std::string_view& classKeyword )
 {
     auto entryIt = m_factoryMap.find( classKeyword );
     if ( entryIt != m_factoryMap.end() )

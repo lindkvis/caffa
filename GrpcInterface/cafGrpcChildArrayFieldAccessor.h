@@ -39,12 +39,12 @@ public:
         return m_remoteObjects.size();
     }
 
-    std::vector<std::unique_ptr<ObjectHandle>> clear() override
+    std::vector<ObjectHandle::Ptr> clear() override
     {
         getRemoteObjectsIfNecessary();
         m_client->clearChildObjects( m_field->ownerObject(), m_field->keyword() );
 
-        std::vector<std::unique_ptr<ObjectHandle>> removedObjects;
+        std::vector<ObjectHandle::Ptr> removedObjects;
         removedObjects.swap( m_remoteObjects );
         return removedObjects;
     }
@@ -82,7 +82,7 @@ public:
         return m_remoteObjects[index].get();
     }
 
-    void insert( size_t index, std::unique_ptr<ObjectHandle> pointer ) override
+    void insert( size_t index, ObjectHandle::Ptr pointer ) override
     {
         auto   object  = std::move( pointer );
         size_t oldSize = m_remoteObjects.size();
@@ -91,7 +91,7 @@ public:
         CAFFA_ASSERT( m_remoteObjects.size() == ( oldSize + 1u ) );
     }
 
-    void push_back( std::unique_ptr<ObjectHandle> pointer ) override { insert( size(), std::move( pointer ) ); }
+    void push_back( ObjectHandle::Ptr pointer ) override { insert( size(), std::move( pointer ) ); }
 
     size_t index( const ObjectHandle* pointer ) const override
     {
@@ -105,7 +105,7 @@ public:
         }
         return -1;
     }
-    std::unique_ptr<ObjectHandle> remove( size_t index ) override
+    ObjectHandle::Ptr remove( size_t index ) override
     {
         CAFFA_ASSERT( index < size() );
         auto detachedPtr = std::move( m_remoteObjects[index] );
@@ -128,7 +128,7 @@ private:
 private:
     Client* m_client;
 
-    mutable std::vector<std::unique_ptr<ObjectHandle>> m_remoteObjects;
+    mutable std::vector<ObjectHandle::Ptr> m_remoteObjects;
 };
 
 } // namespace caffa::rpc
