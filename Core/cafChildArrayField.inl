@@ -28,7 +28,7 @@ ChildArrayField<DataTypePtr>::DataType* ChildArrayField<DataTypePtr>::operator[]
 /// Assign a unique pointer and take ownership.
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
-void ChildArrayField<DataTypePtr>::push_back( UniquePtr pointer )
+void ChildArrayField<DataTypePtr>::push_back( Ptr pointer )
 {
     CAFFA_ASSERT( isInitialized() );
     m_fieldDataAccessor->push_back( std::move( pointer ) );
@@ -63,7 +63,7 @@ void ChildArrayField<DataTypePtr>::push_back_obj( std::unique_ptr<ObjectHandle> 
 /// the preceding values backwards
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
-void ChildArrayField<DataTypePtr>::insert( size_t index, UniquePtr pointer )
+void ChildArrayField<DataTypePtr>::insert( size_t index, Ptr pointer )
 {
     CAFFA_ASSERT( isInitialized() );
 
