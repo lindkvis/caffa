@@ -19,7 +19,7 @@ ChildField<DataTypePtr>::~ChildField()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
-ChildField<DataTypePtr>& ChildField<DataTypePtr>::operator=( UniquePtr object )
+ChildField<DataTypePtr>& ChildField<DataTypePtr>::operator=( Ptr object )
 {
     CAFFA_ASSERT( isInitialized() );
     this->setObject( std::move( object ) );
@@ -30,7 +30,7 @@ ChildField<DataTypePtr>& ChildField<DataTypePtr>::operator=( UniquePtr object )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
-void ChildField<DataTypePtr>::setObject( UniquePtr object )
+void ChildField<DataTypePtr>::setObject( Ptr object )
 {
     CAFFA_ASSERT( isInitialized() );
     m_fieldDataAccessor->setObject( std::move( object ) );
@@ -40,7 +40,7 @@ void ChildField<DataTypePtr>::setObject( UniquePtr object )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
-ChildField<DataTypePtr>::UniquePtr ChildField<DataTypePtr>::deepCloneObject() const
+ChildField<DataTypePtr>::Ptr ChildField<DataTypePtr>::deepCloneObject() const
 {
     CAFFA_ASSERT( isInitialized() );
     auto clonedObject = m_fieldDataAccessor->deepCloneObject();

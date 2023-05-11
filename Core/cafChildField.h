@@ -30,7 +30,7 @@ class ChildField : public ChildFieldHandle
 {
 public:
     using DataType      = typename std::remove_pointer<DataTypePtr>::type;
-    using UniquePtr     = std::unique_ptr<DataType>;
+    using Ptr           = std::unique_ptr<DataType>;
     using FieldDataType = DataTypePtr;
 
 public:
@@ -45,21 +45,21 @@ public:
 
     // Assignment
 
-    ChildField& operator=( UniquePtr object );
+    ChildField& operator=( Ptr object );
 
     // Basic access
 
     DataType*       object() { return static_cast<DataType*>( m_fieldDataAccessor->object() ); }
     const DataType* object() const { return static_cast<const DataType*>( m_fieldDataAccessor->object() ); }
-    void            setObject( UniquePtr object );
+    void            setObject( Ptr object );
 
     // Access operators
     operator DataType*() { return this->object(); }
     operator const DataType*() const { return this->object(); }
 
     // Deep copy of object content
-    UniquePtr deepCloneObject() const;
-    void      deepCopyObjectFrom( const DataType* copyFrom );
+    Ptr  deepCloneObject() const;
+    void deepCopyObjectFrom( const DataType* copyFrom );
 
     DataType*       operator->() { return this->object(); }
     const DataType* operator->() const { return this->object(); }

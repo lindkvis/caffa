@@ -27,7 +27,7 @@ class ChildArrayField : public ChildArrayFieldHandle
 public:
     using DataType = typename std::remove_pointer<DataTypePtr>::type;
 
-    using UniquePtr     = std::unique_ptr<DataType>;
+    using Ptr           = std::unique_ptr<DataType>;
     using FieldDataType = DataTypePtr;
 
     using DataAccessor          = ChildArrayFieldAccessor;
@@ -59,9 +59,9 @@ public:
 
     DataType* operator[]( size_t index ) const;
 
-    void push_back( UniquePtr pointer );
+    void push_back( Ptr pointer );
     void push_back_obj( std::unique_ptr<ObjectHandle> obj ) override;
-    void insert( size_t index, UniquePtr pointer );
+    void insert( size_t index, Ptr pointer );
     void insertAt( size_t index, std::unique_ptr<ObjectHandle> obj ) override;
     void erase( size_t index ) override;
 
