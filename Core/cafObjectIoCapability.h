@@ -47,13 +47,13 @@ public:
      *
      * @tparam ObjectType The type (derived from ObjectHandle) to cast to
      * @param objectFactory The factory used to create the object
-     * @return std::unique_ptr<ObjectType>
+     * @return std::shared_ptr<ObjectType>
      */
     template <typename ObjectType>
-    std::unique_ptr<ObjectType> copyTypedObjectBySerialization( ObjectFactory* objectFactory ) const
+    std::shared_ptr<ObjectType> copyTypedObjectBySerialization( ObjectFactory* objectFactory ) const
     {
         auto objectHandle = this->copyBySerialization( objectFactory );
-        return caffa::dynamic_unique_cast<ObjectType>( std::move( objectHandle ) );
+        return std::dynamic_pointer_cast<ObjectType>( objectHandle );
     }
 
     bool readFile( const std::string& fileName, IoType ioType = IoType::JSON );

@@ -49,9 +49,9 @@ public:
     virtual ~Client();
 
     caffa::AppInfo                                    appInfo() const;
-    std::unique_ptr<caffa::ObjectHandle>              document( const std::string& documentId ) const;
-    std::vector<std::unique_ptr<caffa::ObjectHandle>> documents() const;
-    std::unique_ptr<caffa::ObjectMethodResult> execute( caffa::not_null<const caffa::ObjectMethod*> method ) const;
+    std::shared_ptr<caffa::ObjectHandle>              document( const std::string& documentId ) const;
+    std::vector<std::shared_ptr<caffa::ObjectHandle>> documents() const;
+    std::shared_ptr<caffa::ObjectMethodResult> execute( caffa::not_null<const caffa::ObjectMethod*> method ) const;
     bool                                       stopServer();
     void                                       sendKeepAlive();
 
@@ -67,7 +67,7 @@ public:
     void                 startKeepAliveThread();
 
     bool                                            ping() const;
-    std::list<std::unique_ptr<caffa::ObjectHandle>> objectMethods( caffa::ObjectHandle* objectHandle ) const;
+    std::list<std::shared_ptr<caffa::ObjectHandle>> objectMethods( caffa::ObjectHandle* objectHandle ) const;
 
     template <typename DataType>
     void set( const caffa::ObjectHandle* objectHandle,
@@ -78,17 +78,17 @@ public:
     template <typename DataType>
     DataType get( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, uint32_t addressOffset = 0u ) const;
 
-    std::unique_ptr<caffa::ObjectHandle> getShallowCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
+    std::shared_ptr<caffa::ObjectHandle> getShallowCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
                                                                       const std::string&         fieldName ) const;
 
-    std::unique_ptr<caffa::ObjectHandle> getDeepCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
+    std::shared_ptr<caffa::ObjectHandle> getDeepCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
                                                                    const std::string&         fieldName ) const;
 
     void deepCopyChildObjectFrom( const caffa::ObjectHandle* objectHandle,
                                   const std::string&         fieldName,
                                   const caffa::ObjectHandle* childObject );
 
-    std::vector<std::unique_ptr<caffa::ObjectHandle>> getChildObjects( const caffa::ObjectHandle* objectHandle,
+    std::vector<std::shared_ptr<caffa::ObjectHandle>> getChildObjects( const caffa::ObjectHandle* objectHandle,
                                                                        const std::string&         fieldName ) const;
 
     void setChildObject( const caffa::ObjectHandle* objectHandle,

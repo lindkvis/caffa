@@ -243,13 +243,13 @@ TEST( BaseTest, ReadWrite )
         MyDocument doc;
 
         // Create objects
-        auto d1  = std::make_unique<DemoObject>();
-        auto d2  = std::make_unique<DemoObject>();
-        auto id1 = std::make_unique<InheritedDemoObj>();
-        auto id2 = std::make_unique<InheritedDemoObj>();
+        auto d1  = std::make_shared<DemoObject>();
+        auto d2  = std::make_shared<DemoObject>();
+        auto id1 = std::make_shared<InheritedDemoObj>();
+        auto id2 = std::make_shared<InheritedDemoObj>();
 
-        auto s1 = std::make_unique<SimpleObj>();
-        auto s2 = std::make_unique<SimpleObj>();
+        auto s1 = std::make_shared<SimpleObj>();
+        auto s2 = std::make_shared<SimpleObj>();
 
         s1->m_numbers = { 1.7 };
 
@@ -258,17 +258,17 @@ TEST( BaseTest, ReadWrite )
 
         id1->m_texts = { "Hi", "and", "Test with whitespace" };
 
-        d2->m_simpleObjPtrField  = std::move( s2 );
-        d2->m_simpleObjPtrField2 = std::move( s1 );
+        d2->m_simpleObjPtrField  = s2;
+        d2->m_simpleObjPtrField2 = s1;
 
-        id1->m_simpleObjectsField.push_back( std::make_unique<SimpleObj>() );
+        id1->m_simpleObjectsField.push_back( std::make_shared<SimpleObj>() );
         {
             auto v = id1->m_simpleObjectsField[0]->m_numbers();
             v.push_back( 3.0 );
             id1->m_simpleObjectsField[0]->m_numbers = v;
         }
 
-        id1->m_simpleObjectsField.push_back( std::make_unique<SimpleObj>() );
+        id1->m_simpleObjectsField.push_back( std::make_shared<SimpleObj>() );
         {
             auto v = id1->m_simpleObjectsField[1]->m_numbers();
             v.push_back( 3.1 );
@@ -277,14 +277,14 @@ TEST( BaseTest, ReadWrite )
             v.push_back( 3.13 );
             id1->m_simpleObjectsField[1]->m_numbers = v;
         }
-        id1->m_simpleObjectsField.push_back( std::make_unique<SimpleObj>() );
+        id1->m_simpleObjectsField.push_back( std::make_shared<SimpleObj>() );
         {
             auto v = id1->m_simpleObjectsField[2]->m_numbers();
             v.push_back( 3.2 );
             id1->m_simpleObjectsField[2]->m_numbers = v;
         }
 
-        id1->m_simpleObjectsField.push_back( std::make_unique<SimpleObj>() );
+        id1->m_simpleObjectsField.push_back( std::make_shared<SimpleObj>() );
         {
             auto v = id1->m_simpleObjectsField[3]->m_numbers();
             v.push_back( 3.3 );
@@ -293,12 +293,12 @@ TEST( BaseTest, ReadWrite )
 
         // Add to document
 
-        doc.objects.push_back( std::move( d1 ) );
+        doc.objects.push_back( d1 );
         auto d2p = d2.get();
-        doc.objects.push_back( std::move( d2 ) );
-        doc.objects.push_back( std::make_unique<SimpleObj>() );
-        doc.objects.push_back( std::move( id1 ) );
-        doc.objects.push_back( std::move( id2 ) );
+        doc.objects.push_back( d2 );
+        doc.objects.push_back( std::make_shared<SimpleObj>() );
+        doc.objects.push_back( id1 );
+        doc.objects.push_back( id2 );
 
         // Write file
         doc.setFileName( "TestFile.json" );
@@ -345,7 +345,7 @@ TEST( BaseTest, ReadWrite )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, Pointer )
 {
-    auto d = std::make_unique<caffa::Document>();
+    auto d = std::make_shared<caffa::Document>();
 
     {
         caffa::ObservingPointer<caffa::Document> p;
@@ -381,23 +381,23 @@ TEST( BaseTest, ObjectFactory )
 {
     {
         auto s(
-            caffa::dynamic_unique_cast<SimpleObj>( caffa::DefaultObjectFactory::instance()->create( "SimpleObj" ) ) );
+            std::dynamic_pointer_cast<SimpleObj>( caffa::DefaultObjectFactory::instance()->create( "SimpleObj" ) ) );
         EXPECT_TRUE( s );
     }
     {
         auto s(
-            caffa::dynamic_unique_cast<DemoObject>( caffa::DefaultObjectFactory::instance()->create( "DemoObject" ) ) );
+            std::dynamic_pointer_cast<DemoObject>( caffa::DefaultObjectFactory::instance()->create( "DemoObject" ) ) );
         EXPECT_TRUE( s );
     }
     {
-        auto s = caffa::dynamic_unique_cast<InheritedDemoObj>(
+        auto s = std::dynamic_pointer_cast<InheritedDemoObj>(
             caffa::DefaultObjectFactory::instance()->create( "InheritedDemoObj" ) );
         EXPECT_TRUE( s );
     }
 
     {
-        auto s = caffa::dynamic_unique_cast<caffa::Document>(
-            caffa::DefaultObjectFactory::instance()->create( "Document" ) );
+        auto s =
+            std::dynamic_pointer_cast<caffa::Document>( caffa::DefaultObjectFactory::instance()->create( "Document" ) );
         EXPECT_TRUE( s );
     }
 }
@@ -420,31 +420,31 @@ TEST( BaseTest, ValidObjectKeywords )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ChildArrayFieldHandle )
 {
-    auto s1        = std::make_unique<SimpleObj>();
+    auto s1        = std::make_shared<SimpleObj>();
     s1->m_position = 1000;
     auto v         = s1->m_numbers();
     v.push_back( 10 );
     s1->m_numbers = v;
 
-    auto s2        = std::make_unique<SimpleObj>();
+    auto s2        = std::make_shared<SimpleObj>();
     s2->m_position = 2000;
 
-    auto s3        = std::make_unique<SimpleObj>();
+    auto s3        = std::make_shared<SimpleObj>();
     s3->m_position = 3000;
 
-    auto                          ihd1      = std::make_unique<InheritedDemoObj>();
+    auto                          ihd1      = std::make_shared<InheritedDemoObj>();
     caffa::ChildArrayFieldHandle* listField = &( ihd1->m_simpleObjectsField );
 
     EXPECT_EQ( 0u, listField->size() );
     EXPECT_TRUE( listField->empty() );
 
-    ihd1->m_simpleObjectsField.push_back( std::make_unique<SimpleObj>() );
+    ihd1->m_simpleObjectsField.push_back( std::make_shared<SimpleObj>() );
     EXPECT_EQ( 1u, listField->size() );
     EXPECT_FALSE( listField->empty() );
 
-    ihd1->m_simpleObjectsField.push_back( std::move( s1 ) );
-    ihd1->m_simpleObjectsField.push_back( std::move( s2 ) );
-    ihd1->m_simpleObjectsField.push_back( std::move( s3 ) );
+    ihd1->m_simpleObjectsField.push_back( s1 );
+    ihd1->m_simpleObjectsField.push_back( s2 );
+    ihd1->m_simpleObjectsField.push_back( s3 );
 
     EXPECT_EQ( 4u, listField->size() );
     EXPECT_FALSE( listField->empty() );
@@ -460,13 +460,13 @@ TEST( BaseTest, ChildArrayFieldHandle )
 
 TEST( BaseTest, Uuids )
 {
-    auto obj1 = std::make_unique<SimpleObj>();
+    auto obj1 = std::make_shared<SimpleObj>();
     EXPECT_FALSE( obj1->uuid().empty() );
     CAFFA_INFO( "UUID: " << obj1->uuid() );
     // Should never have collisions.
     for ( size_t i = 0; i < 2000; ++i )
     {
-        auto obj2 = std::make_unique<SimpleObj>();
+        auto obj2 = std::make_shared<SimpleObj>();
         EXPECT_FALSE( obj2->uuid().empty() );
         EXPECT_NE( obj1->uuid(), obj2->uuid() );
     }

@@ -40,7 +40,7 @@ namespace rpc
 
         std::string name() const override;
 
-        std::string generate( std::list<std::unique_ptr<caffa::Document>>& documents ) override;
+        std::string generate( std::list<std::shared_ptr<caffa::Document>>& documents ) override;
         std::string generate( caffa::ObjectHandle* object, bool objectMethodResultOrParameter = false ) override;
         std::string generate( caffa::FieldHandle* field, std::vector<std::string>& dependencies ) override;
         std::string generate( caffa::ObjectMethod* method, std::vector<std::string>& dependencies ) override;

@@ -108,7 +108,7 @@ public:
         initField( m_intVector, "intArrayArgument" ).withDefault( intVector );
         initField( m_floatVector, "floatArrayArgument" ).withDefault( floatVector );
     }
-    std::unique_ptr<caffa::ObjectMethodResult> execute() override
+    std::shared_ptr<caffa::ObjectMethodResult> execute() override
     {
         CAFFA_DEBUG( "Executing object method on server with values: " << m_doubleField() << ", " << m_intField()
                                                                        << ", " << m_stringField() );
@@ -120,7 +120,7 @@ public:
         demoObject->boolVector                  = m_boolVector();
         demoObject->floatVector                 = m_floatVector();
 
-        return std::make_unique<caffa::ObjectMethodResult>( true );
+        return std::make_shared<caffa::ObjectMethodResult>( true );
     }
 
 public:
@@ -157,17 +157,14 @@ public:
     {
         initField( demoObject, "demoObject" ).withScripting();
         initField( m_inheritedDemoObjects, "inheritedDemoObjects" ).withScripting();
-        demoObject = std::make_unique<DemoObject>();
+        demoObject = std::make_shared<DemoObject>();
 
         this->setId( "testDocument" );
         this->setFileName( "dummyFileName" );
     }
 
-    void addInheritedObject( std::unique_ptr<InheritedDemoObj> object )
-    {
-        m_inheritedDemoObjects.push_back( std::move( object ) );
-    }
-    std::vector<InheritedDemoObj*> inheritedObjects() { return m_inheritedDemoObjects; }
+    void addInheritedObject( std::shared_ptr<InheritedDemoObj> object ) { m_inheritedDemoObjects.push_back( object ); }
+    std::vector<std::shared_ptr<InheritedDemoObj>> inheritedObjects() { return m_inheritedDemoObjects; }
 
     caffa::ChildField<DemoObject*>            demoObject;
     caffa::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
@@ -183,18 +180,15 @@ public:
         initField( demoObject, "demoObject" ).withScripting();
         initField( demoObjectNonScriptable, "demoObjectNonScriptable" );
         initField( m_inheritedDemoObjects, "inheritedDemoObjects" ).withScripting();
-        demoObject              = std::make_unique<DemoObject>();
-        demoObjectNonScriptable = std::make_unique<DemoObject>();
+        demoObject              = std::make_shared<DemoObject>();
+        demoObjectNonScriptable = std::make_shared<DemoObject>();
 
         this->setId( "testDocument2" );
         this->setFileName( "dummyFileName2" );
     }
 
-    void addInheritedObject( std::unique_ptr<InheritedDemoObj> object )
-    {
-        m_inheritedDemoObjects.push_back( std::move( object ) );
-    }
-    std::vector<InheritedDemoObj*> inheritedObjects() { return m_inheritedDemoObjects; }
+    void addInheritedObject( std::shared_ptr<InheritedDemoObj> object ) { m_inheritedDemoObjects.push_back( object ); }
+    std::vector<std::shared_ptr<InheritedDemoObj>> inheritedObjects() { return m_inheritedDemoObjects; }
 
     caffa::ChildField<DemoObject*>            demoObject;
     caffa::ChildField<DemoObject*>            demoObjectNonScriptable;

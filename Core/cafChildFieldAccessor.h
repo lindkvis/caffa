@@ -34,14 +34,14 @@ public:
         : m_field( field )
     {
     }
-    virtual ~ChildFieldAccessor()                                     = default;
-    virtual ObjectHandle*       object()                              = 0;
-    virtual const ObjectHandle* object() const                        = 0;
-    virtual void                setObject( ObjectHandle::Ptr object ) = 0;
-    virtual ObjectHandle::Ptr   clear()                               = 0;
+    virtual ~ChildFieldAccessor()                                        = default;
+    virtual ObjectHandle::Ptr      object()                              = 0;
+    virtual ObjectHandle::ConstPtr object() const                        = 0;
+    virtual void                   setObject( ObjectHandle::Ptr object ) = 0;
+    virtual void                   clear()                               = 0;
 
-    virtual ObjectHandle::Ptr deepCloneObject() const                          = 0;
-    virtual void              deepCopyObjectFrom( const ObjectHandle* object ) = 0;
+    virtual ObjectHandle::Ptr deepCloneObject() const                             = 0;
+    virtual void              deepCopyObjectFrom( ObjectHandle::ConstPtr object ) = 0;
 
 protected:
     FieldHandle* m_field;
@@ -52,13 +52,13 @@ class ChildFieldDirectStorageAccessor : public ChildFieldAccessor
 public:
     ChildFieldDirectStorageAccessor( FieldHandle* field );
     ~ChildFieldDirectStorageAccessor() override = default;
-    ObjectHandle*       object() override;
-    const ObjectHandle* object() const override;
-    void                setObject( ObjectHandle::Ptr object ) override;
-    ObjectHandle::Ptr   clear() override;
+    ObjectHandle::Ptr      object() override;
+    ObjectHandle::ConstPtr object() const override;
+    void                   setObject( ObjectHandle::Ptr object ) override;
+    void                   clear() override;
 
     ObjectHandle::Ptr deepCloneObject() const override;
-    void              deepCopyObjectFrom( const ObjectHandle* object ) override;
+    void              deepCopyObjectFrom( ObjectHandle::ConstPtr object ) override;
 
 private:
     ObjectHandle::Ptr m_object;

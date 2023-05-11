@@ -38,17 +38,17 @@ public:
         : m_field( field )
     {
     }
-    virtual ~ChildArrayFieldAccessor()                       = default;
-    virtual size_t                           size() const    = 0;
-    virtual std::vector<ObjectHandle::Ptr>   clear()         = 0;
-    virtual std::vector<ObjectHandle*>       objects()       = 0;
-    virtual std::vector<const ObjectHandle*> objects() const = 0;
+    virtual ~ChildArrayFieldAccessor()                          = default;
+    virtual size_t                              size() const    = 0;
+    virtual void                                clear()         = 0;
+    virtual std::vector<ObjectHandle::Ptr>      objects()       = 0;
+    virtual std::vector<ObjectHandle::ConstPtr> objects() const = 0;
 
-    virtual ObjectHandle*     at( size_t index ) const                          = 0;
+    virtual ObjectHandle::Ptr at( size_t index ) const                          = 0;
     virtual void              insert( size_t index, ObjectHandle::Ptr pointer ) = 0;
     virtual void              push_back( ObjectHandle::Ptr pointer )            = 0;
-    virtual size_t            index( const ObjectHandle* pointer ) const        = 0;
-    virtual ObjectHandle::Ptr remove( size_t index )                            = 0;
+    virtual size_t            index( ObjectHandle::ConstPtr pointer ) const     = 0;
+    virtual void              remove( size_t index )                            = 0;
 
 protected:
     FieldHandle* m_field;
@@ -60,15 +60,15 @@ public:
     ChildArrayFieldDirectStorageAccessor( FieldHandle* field );
     ~ChildArrayFieldDirectStorageAccessor() override;
 
-    size_t                           size() const override;
-    std::vector<ObjectHandle::Ptr>   clear() override;
-    std::vector<ObjectHandle*>       objects() override;
-    std::vector<const ObjectHandle*> objects() const override;
-    ObjectHandle*                    at( size_t index ) const override;
-    void                             insert( size_t index, ObjectHandle::Ptr pointer ) override;
-    void                             push_back( ObjectHandle::Ptr pointer ) override;
-    size_t                           index( const ObjectHandle* object ) const override;
-    ObjectHandle::Ptr                remove( size_t index ) override;
+    size_t                              size() const override;
+    void                                clear() override;
+    std::vector<ObjectHandle::Ptr>      objects() override;
+    std::vector<ObjectHandle::ConstPtr> objects() const override;
+    ObjectHandle::Ptr                   at( size_t index ) const override;
+    void                                insert( size_t index, ObjectHandle::Ptr pointer ) override;
+    void                                push_back( ObjectHandle::Ptr pointer ) override;
+    size_t                              index( ObjectHandle::ConstPtr object ) const override;
+    virtual void                        remove( size_t index ) override;
 
 private:
     std::vector<ObjectHandle::Ptr> m_pointers;

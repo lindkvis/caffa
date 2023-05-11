@@ -27,7 +27,8 @@ class ChildArrayField : public ChildArrayFieldHandle
 public:
     using DataType = typename std::remove_pointer<DataTypePtr>::type;
 
-    using Ptr           = std::unique_ptr<DataType>;
+    using Ptr           = std::shared_ptr<DataType>;
+    using ConstPtr      = std::shared_ptr<const DataType>;
     using FieldDataType = DataTypePtr;
 
     using DataAccessor          = ChildArrayFieldAccessor;
@@ -42,33 +43,30 @@ public:
     ~ChildArrayField() override;
 
     // Access operators
-    operator std::vector<DataType*>() { return this->objects(); }
-    operator std::vector<const DataType*>() const { return this->objects(); }
+    operator std::vector<std::shared_ptr<DataType>>() { return this->objects(); }
+    operator std::vector<std::shared_ptr<const DataType>>() const { return this->objects(); }
 
-    ChildArrayField&       operator()() { return *this; }
-    const ChildArrayField& operator()() const { return *this; }
-
-    size_t                              size() const override { return m_fieldDataAccessor->size(); }
-    std::vector<ObjectHandle::Ptr> clear() override;
-    ObjectHandle*                       at( size_t index ) override;
-    std::vector<DataType*>              objects();
-    std::vector<const DataType*>        objects() const;
-    void                                setObjects( std::vector<std::unique_ptr<DataType>>& objects );
+    size_t                                       size() const override { return m_fieldDataAccessor->size(); }
+    void                                         clear() override;
+    ObjectHandle::Ptr                            at( size_t index ) override;
+    std::vector<std::shared_ptr<DataType>>       objects();
+    std::vector<std::shared_ptr<const DataType>> objects() const;
+    void                                         setObjects( std::vector<std::shared_ptr<DataType>>& objects );
 
     // std::vector-like access
 
-    DataType* operator[]( size_t index ) const;
+    std::shared_ptr<DataType> operator[]( size_t index ) const;
 
-    void push_back( Ptr pointer );
+    void push_back( std::shared_ptr<DataType> pointer );
     void push_back_obj( ObjectHandle::Ptr obj ) override;
-    void insert( size_t index, Ptr pointer );
+    void insert( size_t index, std::shared_ptr<DataType> pointer );
     void insertAt( size_t index, ObjectHandle::Ptr obj ) override;
     void erase( size_t index ) override;
 
     // Child objects
-    std::vector<ObjectHandle*>       childObjects() override;
-    std::vector<const ObjectHandle*> childObjects() const override;
-    ObjectHandle::Ptr           removeChildObject( ObjectHandle* object );
+    std::vector<ObjectHandle::Ptr>      childObjects() override;
+    std::vector<ObjectHandle::ConstPtr> childObjects() const override;
+    void                                removeChildObject( ObjectHandle::ConstPtr object );
 
     std::string dataType() const override { return std::string( "object[]" ); }
 

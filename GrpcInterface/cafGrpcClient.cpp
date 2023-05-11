@@ -270,11 +270,11 @@ public:
         return appInfo;
     }
 
-    std::unique_ptr<caffa::ObjectHandle> document( const std::string& documentId ) const
+    std::shared_ptr<caffa::ObjectHandle> document( const std::string& documentId ) const
     {
         std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
-        std::unique_ptr<caffa::ObjectHandle> document;
+        std::shared_ptr<caffa::ObjectHandle> document;
 
         grpc::ClientContext         context;
         caffa::rpc::DocumentRequest request;
@@ -302,11 +302,11 @@ public:
         return document;
     }
 
-    std::vector<std::unique_ptr<caffa::ObjectHandle>> documents() const
+    std::vector<std::shared_ptr<caffa::ObjectHandle>> documents() const
     {
         std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
-        std::vector<std::unique_ptr<caffa::ObjectHandle>> documents;
+        std::vector<std::shared_ptr<caffa::ObjectHandle>> documents;
 
         grpc::ClientContext        context;
         caffa::rpc::SessionMessage request;
@@ -335,9 +335,9 @@ public:
                 caffa::rpc::RpcObject objectReply;
                 CAFFA_TRACE( "Calling GetDocument()" );
                 auto status = m_objectStub->GetDocument( &docContext, request, &objectReply );
-                std::unique_ptr<caffa::ObjectHandle> document =
+                std::shared_ptr<caffa::ObjectHandle> document =
                     caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply, serializer );
-                documents.push_back( std::move( document ) );
+                documents.push_back( document );
             }
         }
         else
@@ -348,10 +348,10 @@ public:
         return documents;
     }
 
-    std::unique_ptr<caffa::ObjectHandle> getShallowCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
+    std::shared_ptr<caffa::ObjectHandle> getShallowCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
                                                                       const std::string&         fieldName ) const
     {
-        std::unique_ptr<caffa::ObjectHandle> childObject;
+        std::shared_ptr<caffa::ObjectHandle> childObject;
 
         CAFFA_TRACE( "Get Child Object from field " << fieldName );
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
@@ -370,6 +370,7 @@ public:
         grpc::Status status = m_fieldStub->GetValue( &context, field, &reply );
         if ( status.ok() )
         {
+            CAFFA_DEBUG( "Got JSON: " + reply.value() );
             childObject = caffa::JsonSerializer( caffa::rpc::GrpcClientObjectFactory::instance() )
                               .setSerializeDataValues( false )
                               .createObjectFromString( reply.value() );
@@ -383,10 +384,10 @@ public:
         return childObject;
     }
 
-    std::unique_ptr<caffa::ObjectHandle> getDeepCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
+    std::shared_ptr<caffa::ObjectHandle> getDeepCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
                                                                    const std::string&         fieldName ) const
     {
-        std::unique_ptr<caffa::ObjectHandle> childObject;
+        std::shared_ptr<caffa::ObjectHandle> childObject;
 
         CAFFA_TRACE( "Get Child Object from field " << fieldName );
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
@@ -452,8 +453,7 @@ public:
         }
     }
 
-    std::vector<ObjectHandle::Ptr> getChildObjects( const caffa::ObjectHandle* objectHandle,
-                                                                const std::string&         getter ) const
+    std::vector<ObjectHandle::Ptr> getChildObjects( const caffa::ObjectHandle* objectHandle, const std::string& getter ) const
     {
         grpc::ClientContext context;
 
@@ -481,7 +481,7 @@ public:
                 auto childObject = caffa::JsonSerializer( caffa::rpc::GrpcClientObjectFactory::instance() )
                                        .setSerializeDataValues( false )
                                        .createObjectFromString( arrayEntry.dump() );
-                childObjects.push_back( std::move( childObject ) );
+                childObjects.push_back( childObject );
             }
         }
         else
@@ -603,7 +603,7 @@ public:
         }
     }
 
-    std::unique_ptr<caffa::ObjectMethodResult> execute( const caffa::ObjectMethod* method ) const
+    std::shared_ptr<caffa::ObjectMethodResult> execute( const caffa::ObjectMethod* method ) const
     {
         auto self   = std::make_unique<RpcObject>();
         auto params = std::make_unique<RpcObject>();
@@ -619,7 +619,7 @@ public:
         session->set_uuid( m_sessionUuid );
         request.set_allocated_session( session.release() );
 
-        std::unique_ptr<caffa::ObjectHandle> returnValue;
+        std::shared_ptr<caffa::ObjectHandle> returnValue;
 
         caffa::rpc::RpcObject objectReply;
         auto                  status = m_objectStub->ExecuteMethod( &context, request, &objectReply );
@@ -634,7 +634,7 @@ public:
             throw Exception( status );
         }
 
-        auto objectMethodResult = caffa::dynamic_unique_cast<caffa::ObjectMethodResult>( std::move( returnValue ) );
+        auto objectMethodResult = std::dynamic_pointer_cast<caffa::ObjectMethodResult>( returnValue );
         return objectMethodResult;
     }
 
@@ -674,7 +674,7 @@ public:
         return status.ok();
     }
 
-    std::list<std::unique_ptr<caffa::ObjectHandle>> objectMethods( caffa::ObjectHandle* objectHandle ) const
+    std::list<std::shared_ptr<caffa::ObjectHandle>> objectMethods( caffa::ObjectHandle* objectHandle ) const
     {
         grpc::ClientContext context;
         auto                request = std::make_unique<ListMethodsRequest>();
@@ -689,7 +689,7 @@ public:
         RpcObjectList reply;
         auto          status = m_objectStub->ListMethods( &context, *request, &reply );
 
-        std::list<std::unique_ptr<caffa::ObjectHandle>> methods;
+        std::list<std::shared_ptr<caffa::ObjectHandle>> methods;
         if ( !status.ok() )
         {
             CAFFA_ERROR( "Failed to get object methods with error: " + status.error_message() );
@@ -698,12 +698,12 @@ public:
 
         for ( auto RpcObject : reply.objects() )
         {
-            std::unique_ptr<caffa::ObjectHandle> caffaObject =
+            std::shared_ptr<caffa::ObjectHandle> caffaObject =
                 ObjectService::createCafObjectMethodFromRpc( objectHandle,
                                                              &RpcObject,
                                                              caffa::ObjectMethodFactory::instance(),
                                                              caffa::rpc::GrpcClientObjectFactory::instance() );
-            methods.push_back( std::move( caffaObject ) );
+            methods.push_back( caffaObject );
         }
         return methods;
     }
@@ -813,7 +813,7 @@ caffa::AppInfo Client::appInfo() const
 //--------------------------------------------------------------------------------------------------
 /// Retrieve a top level document (project)
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caffa::ObjectHandle> Client::document( const std::string& documentId ) const
+std::shared_ptr<caffa::ObjectHandle> Client::document( const std::string& documentId ) const
 {
     return m_clientImpl->document( documentId );
 }
@@ -821,7 +821,7 @@ std::unique_ptr<caffa::ObjectHandle> Client::document( const std::string& docume
 //--------------------------------------------------------------------------------------------------
 /// Retrieve all top level documents
 //--------------------------------------------------------------------------------------------------
-std::vector<std::unique_ptr<caffa::ObjectHandle>> Client::documents() const
+std::vector<std::shared_ptr<caffa::ObjectHandle>> Client::documents() const
 {
     return m_clientImpl->documents();
 }
@@ -829,7 +829,7 @@ std::vector<std::unique_ptr<caffa::ObjectHandle>> Client::documents() const
 //--------------------------------------------------------------------------------------------------
 /// Execute a general non-streaming method.
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caffa::ObjectMethodResult> Client::execute( caffa::not_null<const caffa::ObjectMethod*> method ) const
+std::shared_ptr<caffa::ObjectMethodResult> Client::execute( caffa::not_null<const caffa::ObjectMethod*> method ) const
 {
     return m_clientImpl->execute( method );
 }
@@ -901,7 +901,7 @@ bool Client::ping() const
 //--------------------------------------------------------------------------------------------------
 /// Get a list of all object methods available for object
 //--------------------------------------------------------------------------------------------------
-std::list<std::unique_ptr<caffa::ObjectHandle>> Client::objectMethods( caffa::ObjectHandle* objectHandle ) const
+std::list<std::shared_ptr<caffa::ObjectHandle>> Client::objectMethods( caffa::ObjectHandle* objectHandle ) const
 {
     return m_clientImpl->objectMethods( objectHandle );
 }
@@ -930,7 +930,7 @@ nlohmann::json
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caffa::ObjectHandle> Client::getShallowCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
+std::shared_ptr<caffa::ObjectHandle> Client::getShallowCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
                                                                           const std::string&         fieldName ) const
 {
     return m_clientImpl->getShallowCopyOfChildObject( objectHandle, fieldName );
@@ -939,7 +939,7 @@ std::unique_ptr<caffa::ObjectHandle> Client::getShallowCopyOfChildObject( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caffa::ObjectHandle> Client::getDeepCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
+std::shared_ptr<caffa::ObjectHandle> Client::getDeepCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
                                                                        const std::string&         fieldName ) const
 {
     return m_clientImpl->getDeepCopyOfChildObject( objectHandle, fieldName );
@@ -958,7 +958,7 @@ void Client::deepCopyChildObjectFrom( const caffa::ObjectHandle* objectHandle,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::unique_ptr<caffa::ObjectHandle>> Client::getChildObjects( const caffa::ObjectHandle* objectHandle,
+std::vector<std::shared_ptr<caffa::ObjectHandle>> Client::getChildObjects( const caffa::ObjectHandle* objectHandle,
                                                                            const std::string&         fieldName ) const
 {
     return m_clientImpl->getChildObjects( objectHandle, fieldName );

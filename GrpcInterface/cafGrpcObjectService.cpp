@@ -349,7 +349,7 @@ void ObjectService::copyResultOrParameterObjectFromRpcToCaf( const RpcObject* so
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( const RpcObject*  source,
+std::shared_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( const RpcObject*  source,
                                                                             const Serializer& serializer )
 {
     CAFFA_ASSERT( source );

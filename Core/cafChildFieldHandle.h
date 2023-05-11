@@ -19,6 +19,7 @@
 #pragma once
 
 #include "cafFieldHandle.h"
+#include "cafObjectHandle.h"
 #include "cafVisitor.h"
 
 namespace caffa
@@ -38,8 +39,8 @@ public:
      */
     virtual constexpr std::string_view childClassKeyword() const = 0;
 
-    virtual std::vector<ObjectHandle*>       childObjects()       = 0;
-    virtual std::vector<const ObjectHandle*> childObjects() const = 0;
+    virtual std::vector<ObjectHandle::Ptr>      childObjects()       = 0;
+    virtual std::vector<ObjectHandle::ConstPtr> childObjects() const = 0;
     void accept( Inspector* visitor ) const override { visitor->visitChildField( this ); }
     void accept( Editor* visitor ) override { visitor->visitChildField( this ); }
 };
@@ -47,7 +48,7 @@ public:
 class ChildFieldHandle : public ChildFieldBaseHandle
 {
 public:
-    virtual void                          setAccessor( std::unique_ptr<ChildFieldAccessor> accessor ) = 0;
-    virtual ObjectHandle::Ptr clear()                                                     = 0;
+    virtual void setAccessor( std::unique_ptr<ChildFieldAccessor> accessor ) = 0;
+    virtual void clear()                                                     = 0;
 };
 } // namespace caffa

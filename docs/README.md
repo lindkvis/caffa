@@ -49,7 +49,7 @@ TinyDemoObject::TinyDemoObject()
     
     initField(m_toggleField, "Toggle").withDefault(true).withScripting();   
     
-    m_children.push_back(std::make_unique<ChildObject>)());
+    m_children.push_back(std::make_shared<ChildObject>)());
 }
 ~~~
 

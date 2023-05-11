@@ -34,16 +34,16 @@ public:
     {
     }
 
-    ObjectHandle* object() override
+    ObjectHandle::Ptr object() override
     {
         m_remoteObject = getShallowCopyOfRemoteObject();
-        return m_remoteObject.get();
+        return m_remoteObject;
     }
 
-    const ObjectHandle* object() const override
+    ObjectHandle::ConstPtr object() const override
     {
         m_remoteObject = getShallowCopyOfRemoteObject();
-        return m_remoteObject.get();
+        return m_remoteObject;
     }
 
     void setObject( ObjectHandle::Ptr object ) override
@@ -52,25 +52,24 @@ public:
         m_client->setChildObject( m_field->ownerObject(), m_field->keyword(), m_remoteObject.get() );
     }
 
-    ObjectHandle::Ptr clear() override
+    void clear() override
     {
-        m_remoteObject = getShallowCopyOfRemoteObject();
+        m_remoteObject.reset();
         m_client->clearChildObjects( m_field->ownerObject(), m_field->keyword() );
-        return std::move( m_remoteObject );
     }
 
     ObjectHandle::Ptr deepCloneObject() const override { return getDeepCopyOfRemoteObject(); }
 
-    void deepCopyObjectFrom( const ObjectHandle* copyFrom ) override
+    void deepCopyObjectFrom( ObjectHandle::ConstPtr copyFrom ) override
     {
         if ( m_remoteObject )
         {
             JsonSerializer serializer;
-            std::string    json = serializer.writeObjectToString( copyFrom );
+            std::string    json = serializer.writeObjectToString( copyFrom.get() );
             serializer.readObjectFromString( m_remoteObject.get(), json );
         }
         CAFFA_TRACE( "Trying to copy object back to server" );
-        m_client->deepCopyChildObjectFrom( m_field->ownerObject(), m_field->keyword(), copyFrom );
+        m_client->deepCopyChildObjectFrom( m_field->ownerObject(), m_field->keyword(), copyFrom.get() );
     }
 
 private:

@@ -84,39 +84,29 @@ public:
 
 CAFFA_SOURCE_INIT( ContainerObj )
 
-template <class U, typename T>
-U findObjectById( T start, T end, int id )
-{
-    for ( T it = start; it != end; it++ )
-    {
-        if ( id == ( *it )->id.value() )
-        {
-            return *it;
-        }
-    }
-
-    return nullptr;
-}
-
 TEST( ChildArrayFieldHandle, DerivedObjects )
 {
-    auto containerObj = std::make_unique<ContainerObj>();
+    auto containerObj = std::make_shared<ContainerObj>();
 
-    auto s0 = std::make_unique<SimpleObjDerived>();
-    auto s1 = std::make_unique<SimpleObjDerived>();
-    auto s2 = std::make_unique<SimpleObjDerived>();
+    auto s0 = std::make_shared<SimpleObjDerived>();
+    auto s1 = std::make_shared<SimpleObjDerived>();
+    auto s2 = std::make_shared<SimpleObjDerived>();
 
-    containerObj->derivedObjs.push_back( std::move( s0 ) );
-    containerObj->derivedObjs.push_back( std::move( s1 ) );
-    auto s2p = s2.get();
-    containerObj->derivedObjs.push_back( std::move( s2 ) );
+    containerObj->derivedObjs.push_back( s0 );
+    containerObj->derivedObjs.push_back( s1 );
+    containerObj->derivedObjs.push_back( s2 );
 
     auto allObjects = containerObj->derivedObjs.objects();
 
-    SimpleObjDerived* myObj = findObjectById<SimpleObjDerived*>( allObjects.begin(), allObjects.end(), 2 );
-    EXPECT_EQ( s2p, myObj );
+    auto it =
+        std::find_if( allObjects.begin(), allObjects.end(), []( auto objectPtr ) { return objectPtr->id.value() == 2; } );
 
-    myObj = findObjectById<SimpleObjDerived*>( allObjects.begin(), allObjects.end(), -1 );
+    auto myObj = it != allObjects.end() ? *it : nullptr;
+    EXPECT_EQ( s2, myObj );
+
+    it = std::find_if( allObjects.begin(), allObjects.end(), []( auto objectPtr ) { return objectPtr->id.value() == -1; } );
+
+    myObj = it != allObjects.end() ? *it : nullptr;
     EXPECT_EQ( nullptr, myObj );
 }
 
@@ -124,28 +114,35 @@ TEST( ChildArrayFieldHandle, DerivedOtherObjects )
 {
     ContainerObj* containerObj = new ContainerObj;
 
-    auto s0 = std::make_unique<SimpleObjDerivedOther>();
-    auto s1 = std::make_unique<SimpleObjDerivedOther>();
-    auto s2 = std::make_unique<SimpleObjDerivedOther>();
+    auto s0 = std::make_shared<SimpleObjDerivedOther>();
+    auto s1 = std::make_shared<SimpleObjDerivedOther>();
+    auto s2 = std::make_shared<SimpleObjDerivedOther>();
 
     int s2Id = s2->id;
 
-    containerObj->derivedOtherObjs.push_back( std::move( s0 ) );
-    containerObj->derivedOtherObjs.push_back( std::move( s1 ) );
-    auto s2p = s2.get();
-    containerObj->derivedOtherObjs.push_back( std::move( s2 ) );
+    containerObj->derivedOtherObjs.push_back( s0 );
+    containerObj->derivedOtherObjs.push_back( s1 );
+    containerObj->derivedOtherObjs.push_back( s2 );
 
     auto allObjects = containerObj->derivedOtherObjs.objects();
 
-    SimpleObjDerivedOther* myObj = findObjectById<SimpleObjDerivedOther*>( allObjects.begin(), allObjects.end(), s2Id );
+    auto it = std::find_if( allObjects.begin(),
+                            allObjects.end(),
+                            [s2Id]( auto objectPtr ) { return objectPtr->id.value() == s2Id; } );
 
-    EXPECT_EQ( s2p, myObj );
+    auto myObj = it != allObjects.end() ? *it : nullptr;
+
+    EXPECT_EQ( s2, myObj );
 
     containerObj->derivedOtherObjs.removeChildObject( myObj );
 
     allObjects = containerObj->derivedOtherObjs.objects();
 
-    myObj = findObjectById<SimpleObjDerivedOther*>( allObjects.begin(), allObjects.end(), s2Id );
+    it = std::find_if( allObjects.begin(),
+                       allObjects.end(),
+                       [s2Id]( auto objectPtr ) { return objectPtr->id.value() == s2Id; } );
+
+    myObj = it != allObjects.end() ? *it : nullptr;
 
     EXPECT_EQ( nullptr, myObj );
 }

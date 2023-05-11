@@ -4,6 +4,7 @@
 #include "cafChildFieldAccessor.h"
 #include "cafChildFieldHandle.h"
 #include "cafFieldHandle.h"
+#include "cafObjectHandle.h"
 #include "cafObservingPointer.h"
 #include "cafPortableDataType.h"
 #include "cafVisitor.h"
@@ -14,8 +15,6 @@
 
 namespace caffa
 {
-class ObjectHandle;
-
 template <typename T>
 class FieldJsonCap;
 
@@ -30,7 +29,8 @@ class ChildField : public ChildFieldHandle
 {
 public:
     using DataType      = typename std::remove_pointer<DataTypePtr>::type;
-    using Ptr           = std::unique_ptr<DataType>;
+    using Ptr           = std::shared_ptr<DataType>;
+    using ConstPtr      = std::shared_ptr<const DataType>;
     using FieldDataType = DataTypePtr;
 
 public:
@@ -46,33 +46,38 @@ public:
     // Assignment
 
     ChildField& operator=( Ptr object );
+    bool        operator==( ObjectHandle::ConstPtr object ) const;
+    bool        operator==( const ObjectHandle* object ) const;
 
     // Basic access
 
-    DataType*       object() { return static_cast<DataType*>( m_fieldDataAccessor->object() ); }
-    const DataType* object() const { return static_cast<const DataType*>( m_fieldDataAccessor->object() ); }
-    void            setObject( Ptr object );
+    std::shared_ptr<DataType> object() { return std::dynamic_pointer_cast<DataType>( m_fieldDataAccessor->object() ); }
+    std::shared_ptr<const DataType> object() const
+    {
+        return std::dynamic_pointer_cast<const DataType>( m_fieldDataAccessor->object() );
+    }
+    void setObject( Ptr object );
 
     // Access operators
-    operator DataType*() { return this->object(); }
-    operator const DataType*() const { return this->object(); }
+    operator std::shared_ptr<DataType>() { return this->object(); }
+    operator std::shared_ptr<const DataType>() const { return this->object(); }
 
     // Deep copy of object content
-    Ptr  deepCloneObject() const;
-    void deepCopyObjectFrom( const DataType* copyFrom );
+    std::shared_ptr<DataType> deepCloneObject() const;
+    void                      deepCopyObjectFrom( std::shared_ptr<const DataType> copyFrom );
 
-    DataType*       operator->() { return this->object(); }
-    const DataType* operator->() const { return this->object(); }
+    std::shared_ptr<DataType>       operator->() { return this->object(); }
+    std::shared_ptr<const DataType> operator->() const { return this->object(); }
 
-    DataType*       operator()() { return static_cast<DataType*>( m_fieldDataAccessor->object() ); }
-    const DataType* operator()() const { return static_cast<const DataType*>( m_fieldDataAccessor->object() ); }
+    std::shared_ptr<DataType>       operator()() { return this->object(); }
+    std::shared_ptr<const DataType> operator()() const { return this->object(); }
 
     // Child objects
-    std::vector<ObjectHandle*>       childObjects() override;
-    std::vector<const ObjectHandle*> childObjects() const override;
-    ObjectHandle::Ptr                clear() override;
-    ObjectHandle::Ptr                removeChildObject( ObjectHandle* object );
-    void                             setChildObject( ObjectHandle::Ptr object );
+    std::vector<ObjectHandle::Ptr>      childObjects() override;
+    std::vector<ObjectHandle::ConstPtr> childObjects() const override;
+    void                                clear() override;
+    void                                removeChildObject( ObjectHandle::ConstPtr object );
+    void                                setChildObject( ObjectHandle::Ptr object );
 
     std::string dataType() const override { return std::string( "object" ); }
 

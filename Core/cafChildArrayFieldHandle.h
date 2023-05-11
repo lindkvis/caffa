@@ -35,12 +35,9 @@ public:
     bool empty() const { return this->size() == 0u; }
 
     /**
-     * @brief Remove all child objects and return a vector of unique pointers to the destroyed objects.
-     * This way the called can take over ownership or just disregard the return value to destroy them.
-     *
-     * @return std::vector<ObjectHandle::Ptr>
+     * @brief Clear all content
      */
-    virtual std::vector<ObjectHandle::Ptr> clear() = 0;
+    virtual void clear() = 0;
 
     /**
      * @brief Erase a particular child object by index
@@ -55,7 +52,7 @@ public:
      * @param index The index to look up
      * @return A raw pointer to the Caffa object.
      */
-    virtual ObjectHandle* at( size_t index ) = 0;
+    virtual ObjectHandle::Ptr at( size_t index ) = 0;
 
     /**
      * @brief Insert an object at a particular index. Ownership will be taken.

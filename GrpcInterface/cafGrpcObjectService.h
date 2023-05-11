@@ -79,7 +79,7 @@ public:
     static void copyResultOrParameterObjectFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination );
     static void copyResultOrParameterObjectFromRpcToCaf( const RpcObject* source, caffa::ObjectHandle* destination );
 
-    static std::unique_ptr<caffa::ObjectHandle> createCafObjectFromRpc( const RpcObject*         source,
+    static std::shared_ptr<caffa::ObjectHandle> createCafObjectFromRpc( const RpcObject*         source,
                                                                         const caffa::Serializer& serializer );
 
     static std::unique_ptr<caffa::ObjectMethod> createCafObjectMethodFromRpc( ObjectHandle*    self,

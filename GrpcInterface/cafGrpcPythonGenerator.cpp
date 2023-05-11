@@ -51,7 +51,7 @@ std::string childClassKeyword( ChildFieldType& field )
     return std::string( field->childClassKeyword() );
 }
 
-std::string PythonGenerator::generate( std::list<std::unique_ptr<caffa::Document>>& documents )
+std::string PythonGenerator::generate( std::list<std::shared_ptr<caffa::Document>>& documents )
 {
     std::string code = "from caffa import Object, Document\n\n\n";
 
