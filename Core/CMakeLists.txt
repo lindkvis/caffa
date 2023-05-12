@@ -8,6 +8,7 @@ set(PUBLIC_HEADERS
     cafChildArrayField.h
     cafChildArrayField.inl
     cafChildArrayFieldAccessor.h
+    cafChildFieldHandle.h
     cafChildField.h
     cafChildField.inl
     cafChildFieldAccessor.h
@@ -18,6 +19,7 @@ set(PUBLIC_HEADERS
     cafFieldHandle.h
     cafFieldValidator.h
     cafObjectCapability.h
+    cafObjectCollector.h
     cafObjectHandle.h
     cafObservingPointer.h
     cafPortableDataType.h

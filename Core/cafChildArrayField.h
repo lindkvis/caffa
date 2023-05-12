@@ -73,7 +73,7 @@ public:
     // Child objects
     std::vector<ObjectHandle*>       childObjects() override;
     std::vector<const ObjectHandle*> childObjects() const override;
-    std::unique_ptr<ObjectHandle>    removeChildObject( ObjectHandle* object ) override;
+    std::unique_ptr<ObjectHandle>    removeChildObject( ObjectHandle* object );
 
     std::string dataType() const override { return std::string( "object[]" ); }
 

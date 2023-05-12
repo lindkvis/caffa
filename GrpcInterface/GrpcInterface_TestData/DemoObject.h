@@ -88,7 +88,7 @@ private:
 
 class DemoObject_copyObject : public caffa::ObjectMethod
 {
-    CAFFA_HEADER_INIT( DeoObject_copyObject, ObjectMethod )
+    CAFFA_HEADER_INIT( copyObject, ObjectMethod )
 
 public:
     DemoObject_copyObject( caffa::ObjectHandle*      self,

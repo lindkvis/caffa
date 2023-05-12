@@ -17,6 +17,7 @@
 #include "cafGrpcClientObjectFactory.h"
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
+#include "cafObjectCollector.h"
 #include "cafObjectHandle.h"
 #include "cafTypedField.h"
 
@@ -132,14 +133,13 @@ TEST_F( GrpcTest, Document )
         ASSERT_EQ( serverDocument->uuid(), clientDocument->uuid() );
 
         {
-            auto serverDescendants = serverDocument->matchingDescendants(
-                []( const caffa::ObjectHandle* objectHandle ) -> bool
-                { return dynamic_cast<const DemoObject*>( objectHandle ) != nullptr; } );
+            caffa::ConstObjectCollector<DemoObject> serverCollector, clientCollector;
+            serverDocument->accept( &serverCollector );
+            clientDocument->accept( &clientCollector );
 
-            auto clientDescendants = clientDocument->matchingDescendants(
-                []( const caffa::ObjectHandle* objectHandle ) -> bool
-                { return dynamic_cast<const DemoObject*>( objectHandle ) != nullptr; } );
-
+            auto serverDescendants = serverCollector.objects();
+            auto clientDescendants = clientCollector.objects();
+            ASSERT_TRUE( serverDescendants.size() > 0 );
             ASSERT_EQ( serverDescendants.size(), clientDescendants.size() );
             for ( auto server_it = serverDescendants.begin(), client_it = clientDescendants.begin();
                   server_it != serverDescendants.end();
@@ -150,13 +150,12 @@ TEST_F( GrpcTest, Document )
         }
 
         {
-            auto serverDescendants = serverDocument->matchingDescendants(
-                []( const caffa::ObjectHandle* objectHandle ) -> bool
-                { return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr; } );
+            caffa::ConstObjectCollector<InheritedDemoObj> serverCollector, clientCollector;
+            serverDocument->accept( &serverCollector );
+            clientDocument->accept( &clientCollector );
 
-            auto clientDescendants = clientDocument->matchingDescendants(
-                []( const caffa::ObjectHandle* objectHandle ) -> bool
-                { return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr; } );
+            auto serverDescendants = serverCollector.objects();
+            auto clientDescendants = clientCollector.objects();
 
             ASSERT_EQ( childCount, serverDescendants.size() );
             ASSERT_EQ( serverDescendants.size(), clientDescendants.size() );
@@ -241,13 +240,12 @@ TEST_F( GrpcTest, DocumentWithNonScriptableChild )
     }
 
     {
-        auto serverDescendants = serverDocument->matchingDescendants(
-            []( const caffa::ObjectHandle* objectHandle ) -> bool
-            { return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr; } );
+        caffa::ConstObjectCollector<InheritedDemoObj> serverCollector, clientCollector;
+        serverDocument->accept( &serverCollector );
+        clientDocument->accept( &clientCollector );
 
-        auto clientDescendants = clientDocument->matchingDescendants(
-            []( const caffa::ObjectHandle* objectHandle ) -> bool
-            { return dynamic_cast<const InheritedDemoObj*>( objectHandle ) != nullptr; } );
+        auto serverDescendants = serverCollector.objects();
+        auto clientDescendants = clientCollector.objects();
 
         ASSERT_EQ( childCount, serverDescendants.size() );
         ASSERT_EQ( serverDescendants.size(), clientDescendants.size() );

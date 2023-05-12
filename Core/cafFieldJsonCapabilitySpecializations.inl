@@ -96,8 +96,8 @@ void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Se
 
     jsonElement = jsonField;
 
-    CAFFA_TRACE( "Writing field to json " << m_field->keyword() << "(" << m_field->dataType()
-                                          << ") = " << jsonElement.dump() );
+    CAFFA_DEBUG( "Writing field to json " << m_field->keyword() << "(" << m_field->dataType() << ") = " );
+    CAFFA_DEBUG( jsonElement.dump() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -46,6 +46,7 @@
 #include "cafGrpcServerApplication.h"
 #include "cafJsonSerializer.h"
 #include "cafObject.h"
+#include "cafObjectCollector.h"
 #include "cafObjectMethod.h"
 
 #include "FieldService.pb.h"
@@ -215,31 +216,16 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const caffa::S
         }
     }
 
-    std::list<caffa::ObjectHandle*> objectsOfCurrentClass;
-
-    if ( caffa::Application::instance()->hasCapability( AppInfo::AppCapability::GRPC_CLIENT ) )
-    {
-        objectsOfCurrentClass = GrpcClientObjectFactory::instance()->objectsMatchingClassKeyword( scriptClassName );
-    }
+    caffa::ObjectCollector collector( [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool
+                                      { return objectHandle->matchesClassKeyword( scriptClassName ); } );
 
     for ( auto doc : ServerApplication::instance()->documents( session ) )
     {
-        std::list<caffa::ObjectHandle*> objects =
-            doc->matchingDescendants( [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool
-                                      { return objectHandle->matchesClassKeyword( scriptClassName ); } );
-
-        for ( auto object : objects )
-        {
-            objectsOfCurrentClass.push_back( object );
-        }
-        if ( doc->matchesClassKeyword( scriptClassName ) )
-        {
-            objectsOfCurrentClass.push_front( doc );
-        }
+        doc->accept( &collector );
     }
 
     caffa::Object* matchingObject = nullptr;
-    for ( ObjectHandle* testObjectHandle : objectsOfCurrentClass )
+    for ( ObjectHandle* testObjectHandle : collector.objects() )
     {
         caffa::Object* testObject = dynamic_cast<caffa::Object*>( testObjectHandle );
         CAFFA_TRACE( "Testing object with class name '" << testObject->classKeyword() << "' and UUID '"

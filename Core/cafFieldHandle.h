@@ -9,13 +9,15 @@
 
 namespace caffa
 {
+class FieldCapability;
 class ObjectHandle;
+
+class Editor;
+class Inspector;
 
 //==================================================================================================
 /// Base class for all fields, making it possible to handle them generically
 //==================================================================================================
-class FieldCapability;
-
 class FieldHandle : public SignalEmitter
 {
 public:
@@ -23,14 +25,7 @@ public:
     virtual ~FieldHandle();
 
     std::string   keyword() const { return m_keyword; }
-    bool          matchesKeyword( const std::string& keyword ) const;
     ObjectHandle* ownerObject();
-
-    // Child objects
-    bool                                     hasChildObjects();
-    virtual std::vector<ObjectHandle*>       childObjects() { return {}; }
-    virtual std::vector<const ObjectHandle*> childObjects() const { return {}; }
-    virtual std::unique_ptr<ObjectHandle>    removeChildObject( ObjectHandle* );
 
     virtual std::string dataType() const = 0;
 
@@ -42,7 +37,17 @@ public:
     template <typename CapabilityType>
     const CapabilityType* capability() const;
 
-    virtual void resetToDefault() {}
+    /**
+     * Accept the visit by an inspecting visitor
+     * @param visitor
+     */
+    virtual void accept( Inspector* visitor ) const;
+
+    /**
+     * Accept the visit by an editing visitor
+     * @param visitor
+     */
+    virtual void accept( Editor* visitor );
 
 protected:
     bool isInitialized() const { return m_ownerObject != nullptr; }

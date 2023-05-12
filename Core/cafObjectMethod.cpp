@@ -102,10 +102,10 @@ std::unique_ptr<ObjectMethod> ObjectMethodFactory::createMethodInstance( caffa::
 std::vector<std::string> caffa::ObjectMethodFactory::registeredMethodNames( caffa::not_null<const ObjectHandle*> self ) const
 {
     std::vector<std::string> methods;
-
-    auto classNames = self->classInheritanceStack();
+    auto                     classNames = self->classInheritanceStack();
     for ( auto className : classNames )
     {
+        if ( className.empty() ) continue;
         auto classIt = m_factoryMap.find( std::string( className ) );
         if ( classIt != m_factoryMap.end() )
         {
@@ -115,5 +115,6 @@ std::vector<std::string> caffa::ObjectMethodFactory::registeredMethodNames( caff
             }
         }
     }
+
     return methods;
 }
