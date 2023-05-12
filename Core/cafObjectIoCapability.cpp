@@ -5,6 +5,7 @@
 #include "cafFieldHandle.h"
 #include "cafFieldJsonCapability.h"
 #include "cafJsonSerializer.h"
+#include "cafObjectCollector.h"
 #include "cafObjectHandle.h"
 
 #include <fstream>
@@ -175,18 +176,12 @@ void ObjectIoCapability::initAfterReadRecursively( ObjectHandle* object )
 {
     if ( object == nullptr ) return;
 
-    std::vector<ObjectHandle*> children;
-    for ( auto field : object->fields() )
-    {
-        if ( !field ) continue;
+    ObjectCollector collector;
+    object->accept( &collector );
 
-        auto fieldObjects = field->childObjects();
-        children.insert( children.end(), fieldObjects.begin(), fieldObjects.end() );
-    }
-
-    for ( auto child : children )
+    for ( auto child : collector.objects() )
     {
-        initAfterReadRecursively( child );
+        child->initAfterRead();
     }
 
     object->initAfterRead();
@@ -199,18 +194,12 @@ void ObjectIoCapability::setupBeforeSaveRecursively( ObjectHandle* object )
 {
     if ( object == nullptr ) return;
 
-    std::vector<ObjectHandle*> children;
-    for ( auto field : object->fields() )
-    {
-        if ( !field ) continue;
+    ObjectCollector collector;
+    object->accept( &collector );
 
-        auto fieldObjects = field->childObjects();
-        children.insert( children.end(), fieldObjects.begin(), fieldObjects.end() );
-    }
-
-    for ( auto child : children )
+    for ( auto child : collector.objects() )
     {
-        setupBeforeSaveRecursively( child );
+        child->setupBeforeSave();
     }
 
     object->setupBeforeSave();

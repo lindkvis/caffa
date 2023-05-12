@@ -121,6 +121,25 @@ TEST( BaseTest, Delete )
 CAFFA_SOURCE_INIT( InheritedDemoObj )
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( BaseTest, TestInheritanceStack )
+{
+    InheritedDemoObj              demoObj;
+    auto                          stack = demoObj.classInheritanceStack();
+    std::vector<std::string_view> validEntries;
+    for ( auto entry : stack )
+    {
+        if ( !entry.empty() )
+        {
+            CAFFA_INFO( "Valid entry in stack for InheritedDemoObj: " << entry );
+            validEntries.push_back( entry );
+        }
+    }
+    ASSERT_EQ( (size_t)4, validEntries.size() );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// TestField
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, TestField )

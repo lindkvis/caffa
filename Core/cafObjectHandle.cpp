@@ -26,6 +26,7 @@
 #include "cafChildArrayField.h"
 #include "cafFieldHandle.h"
 #include "cafObjectCapability.h"
+#include "cafVisitor.h"
 
 using namespace caffa;
 
@@ -56,9 +57,14 @@ ObjectHandle::~ObjectHandle() noexcept
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<caffa::FieldHandle*> ObjectHandle::fields() const
+std::list<FieldHandle*> ObjectHandle::fields() const
 {
-    return m_fields;
+    std::list<FieldHandle*> fieldList;
+    for ( auto& [ignore, field] : m_fields )
+    {
+        fieldList.push_back( field );
+    }
+    return fieldList;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,10 +89,10 @@ void ObjectHandle::addField( FieldHandle* field, const std::string& keyword )
     field->m_ownerObject = this;
 
     CAFFA_ASSERT( !keyword.empty() );
-    CAFFA_ASSERT( this->findField( keyword ) == nullptr && "Object already has a field with this keyword!" );
+    CAFFA_ASSERT( !m_fields.contains( keyword ) && "Object already has a field with this keyword!" );
 
     field->setKeyword( keyword );
-    m_fields.push_back( field );
+    m_fields[keyword] = field;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,50 +100,22 @@ void ObjectHandle::addField( FieldHandle* field, const std::string& keyword )
 //--------------------------------------------------------------------------------------------------
 FieldHandle* ObjectHandle::findField( const std::string& keyword ) const
 {
-    for ( auto field : fields() )
-    {
-        if ( field->matchesKeyword( keyword ) )
-        {
-            return field;
-        }
-    }
-
-    return nullptr;
+    auto it = m_fields.find( keyword );
+    return it != m_fields.end() ? it->second : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::list<ObjectHandle*> ObjectHandle::matchingDescendants( ObjectHandle::Predicate predicate ) const
+void ObjectHandle::accept( Inspector* visitor ) const
 {
-    std::list<ObjectHandle*> descendants;
-    for ( auto field : m_fields )
-    {
-        for ( auto childObject : field->childObjects() )
-        {
-            if ( childObject )
-            {
-                if ( predicate( childObject ) )
-                {
-                    descendants.push_back( childObject );
-                }
-                std::list<ObjectHandle*> childsDescendants = childObject->matchingDescendants( predicate );
-                descendants.insert( descendants.end(), childsDescendants.begin(), childsDescendants.end() );
-            }
-        }
-    }
-    return descendants;
+    visitor->visitObject( this );
 }
 
-std::list<ObjectHandle*> ObjectHandle::children() const
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void ObjectHandle::accept( Editor* visitor )
 {
-    std::list<ObjectHandle*> allChildren;
-    for ( auto field : m_fields )
-    {
-        for ( auto childObject : field->childObjects() )
-        {
-            allChildren.push_back( childObject );
-        }
-    }
-    return allChildren;
+    visitor->visitObject( this );
 }

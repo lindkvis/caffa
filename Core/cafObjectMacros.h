@@ -41,7 +41,8 @@ public:                                                                         
     }                                                                                                                           \
     constexpr InheritanceStackType classInheritanceStack() const override                                                       \
     {                                                                                                                           \
-        InheritanceStackType stack       = { std::string_view{} };                                                              \
+        InheritanceStackType stack;                                                                                             \
+        std::fill( stack.begin(), stack.end(), "" );                                                                            \
         stack[0]                         = classKeywordStatic();                                                                \
         auto parentClassInheritanceStack = ParentClassName::classInheritanceStack();                                            \
         std::copy_n( parentClassInheritanceStack.begin(), parentClassInheritanceStack.size() - 1, stack.begin() + 1 );          \

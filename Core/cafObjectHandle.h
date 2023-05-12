@@ -42,6 +42,8 @@ namespace caffa
 {
 class FieldCapability;
 class ObjectFactory;
+class Inspector;
+class Editor;
 
 /**
  * The base class of all objects
@@ -53,18 +55,17 @@ public:
     static constexpr auto MAX_INHERITANCE_STACK_LENGTH = 10; // Should be enough for everyone
 
     using InheritanceStackType = std::array<std::string_view, MAX_INHERITANCE_STACK_LENGTH>;
-    using Predicate            = std::function<bool( const ObjectHandle* )>;
 
     ObjectHandle();
     virtual ~ObjectHandle() noexcept;
 
-    static constexpr std::string_view  classKeywordStatic() { return std::string_view{ "caffa::ObjectHandle" }; }
+    static constexpr std::string_view  classKeywordStatic() { return std::string_view{ "ObjectHandle" }; }
     virtual constexpr std::string_view classKeyword() const { return classKeywordStatic(); }
 
     virtual constexpr InheritanceStackType classInheritanceStack() const
     {
         InheritanceStackType stack = { std::string_view{} };
-        stack[0]                   = classKeyword();
+        stack[0]                   = classKeywordStatic();
         return stack;
     }
 
@@ -105,7 +106,7 @@ public:
      * The registered fields contained in this Object.
      * @return a vector of FieldHandle pointers
      */
-    std::vector<FieldHandle*> fields() const;
+    std::list<FieldHandle*> fields() const;
 
     /**
      * Find a particular field by keyword
@@ -113,20 +114,6 @@ public:
      * @return a FieldHandle pointer
      */
     FieldHandle* findField( const std::string& keyword ) const;
-
-    /**
-     * Traverses all children recursively to find objects matching the predicate.
-     * This object is also included if it matches.
-     * @param predicate a function pointer predicate
-     * @return a list of matching descendants
-     */
-    std::list<ObjectHandle*> matchingDescendants( Predicate predicate ) const;
-
-    /**
-     * Get a list of all child objects
-     * @return a list of matching children
-     */
-    std::list<ObjectHandle*> children() const;
 
     /**
      * Add an object capability to the object
@@ -172,6 +159,18 @@ public:
 
     void disconnectObserverFromAllSignals( SignalObserver* observer );
 
+    /**
+     * Accept the visit by an inspecting visitor
+     * @param visitor
+     */
+    void accept( Inspector* visitor ) const;
+
+    /**
+     * Accept the visit by an editing visitor
+     * @param visitor
+     */
+    void accept( Editor* visitor );
+
 protected:
     /**
      * Add a field to the object
@@ -183,7 +182,7 @@ private:
     ObjectHandle& operator=( const ObjectHandle& ) = delete;
 
     // Fields
-    std::vector<FieldHandle*> m_fields;
+    std::map<std::string, FieldHandle*> m_fields;
 
     // Capabilities
     std::vector<std::unique_ptr<ObjectCapability>> m_capabilities;

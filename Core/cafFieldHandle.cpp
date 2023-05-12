@@ -2,6 +2,7 @@
 
 #include "cafFieldCapability.h"
 #include "cafObjectHandle.h"
+#include "cafVisitor.h"
 
 namespace caffa
 {
@@ -31,34 +32,9 @@ void FieldHandle::setKeyword( const std::string& keyword )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool FieldHandle::hasChildObjects()
-{
-    std::vector<ObjectHandle*> children = this->childObjects();
-    return ( children.size() > 0 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool FieldHandle::matchesKeyword( const std::string& keyword ) const
-{
-    return m_keyword == keyword;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 caffa::ObjectHandle* FieldHandle::ownerObject()
 {
     return m_ownerObject;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectHandle> FieldHandle::removeChildObject( ObjectHandle* )
-{
-    return std::unique_ptr<ObjectHandle>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,6 +57,22 @@ void FieldHandle::addCapability( std::unique_ptr<FieldCapability> capability )
 {
     capability->setOwner( this );
     m_capabilities.push_back( std::move( capability ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void FieldHandle::accept( Inspector* visitor ) const
+{
+    visitor->visitField( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void FieldHandle::accept( Editor* visitor )
+{
+    visitor->visitField( this );
 }
 
 } // End of namespace caffa

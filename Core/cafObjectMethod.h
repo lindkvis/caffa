@@ -47,7 +47,7 @@
 /// Place this in the cpp file, preferably above the constructor
 #define CAFFA_OBJECT_METHOD_SOURCE_INIT( SelfClassName, MethodClassName, methodKeyword ) \
     static bool CAFFA_OBJECT_STRING_CONCATENATE( method##MethodClassName, __LINE__ ) =   \
-        caffa::ObjectMethodFactory::instance()->registerMethod<SelfClassName, MethodClassName>()
+        caffa::ObjectMethodFactory::instance()->registerMethod<SelfClassName, MethodClassName>( methodKeyword )
 
 namespace caffa
 {
@@ -134,10 +134,9 @@ public:
                                                         const std::string_view&        methodName );
 
     template <typename ObjectDerivative, typename ObjectScriptMethodDerivative>
-    bool registerMethod()
+    bool registerMethod( const std::string& methodName )
     {
-        auto className  = ObjectDerivative::classKeywordStatic();
-        auto methodName = ObjectScriptMethodDerivative::classKeywordStatic();
+        auto className = ObjectDerivative::classKeywordStatic();
 
         auto classEntryIt = m_factoryMap.find( className );
         if ( classEntryIt != m_factoryMap.end() )

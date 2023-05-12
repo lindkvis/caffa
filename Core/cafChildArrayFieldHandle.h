@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cafFieldHandle.h"
+#include "cafChildFieldHandle.h"
 
 #include <memory>
 
@@ -14,7 +14,7 @@ class ObjectHandle;
  * Used so we can have pointers to any ChildArrayField.
  *
  */
-class ChildArrayFieldHandle : public FieldHandle
+class ChildArrayFieldHandle : public ChildFieldBaseHandle
 {
 public:
     ChildArrayFieldHandle() {}
@@ -78,12 +78,6 @@ public:
      * @param accessor
      */
     virtual void setAccessor( std::unique_ptr<ChildArrayFieldAccessor> accessor ) = 0;
-
-    /**
-     * @brief Get the class keyword of the contained children
-     *
-     */
-    virtual constexpr std::string_view childClassKeyword() const = 0;
 };
 
 } // namespace caffa
