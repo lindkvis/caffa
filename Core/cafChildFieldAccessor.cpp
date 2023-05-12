@@ -92,6 +92,9 @@ void ChildFieldDirectStorageAccessor::deepCopyObjectFrom( const ObjectHandle* co
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<ObjectHandle> ChildFieldDirectStorageAccessor::clear()
 {
-    m_object->disconnectObserverFromAllSignals( m_field->ownerObject() );
+    if ( m_object && m_field && m_field->ownerObject() )
+    {
+        m_object->disconnectObserverFromAllSignals( m_field->ownerObject() );
+    }
     return std::move( m_object );
 }

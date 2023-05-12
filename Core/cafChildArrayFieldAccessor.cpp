@@ -103,7 +103,10 @@ std::unique_ptr<ObjectHandle> ChildArrayFieldDirectStorageAccessor::remove( size
     {
         std::unique_ptr<ObjectHandle> detachedPtr = std::move( *it );
         m_pointers.erase( it );
-        detachedPtr->disconnectObserverFromAllSignals( m_field->ownerObject() );
+        if ( detachedPtr && m_field && m_field->ownerObject() )
+        {
+            detachedPtr->disconnectObserverFromAllSignals( m_field->ownerObject() );
+        }
         return detachedPtr;
     }
 
