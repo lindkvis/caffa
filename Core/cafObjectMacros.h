@@ -50,11 +50,11 @@ public:                                                                         
     }
 
 /// Alternative macro that allows you to define class documentation as well
-#define CAFFA_HEADER_INIT_WITH_DOC( DOCUMENTATION, ... ) \
-    CAFFA_HEADER_INIT( __VA_ARGS__ );                    \
-    std::string classDocumentation() const override      \
-    {                                                    \
-        return std::string( DOCUMENTATION );             \
+#define CAFFA_HEADER_INIT_WITH_DOC( DOCUMENTATION, ClassName, ParentClassName ) \
+    CAFFA_HEADER_INIT( ClassName, ParentClassName );                            \
+    std::string classDocumentation() const override                             \
+    {                                                                           \
+        return DOCUMENTATION;                                                   \
     }
 
 /// CAFFA_SOURCE_INIT associates the file keyword used for storage with the class and
