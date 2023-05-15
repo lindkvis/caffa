@@ -58,8 +58,9 @@ void readFieldsFromJson( ObjectHandle* object, const nlohmann::json& jsonObject,
         else if ( keyword == "class" )
         {
             const auto& classKeyword = value;
-
-            CAFFA_ASSERT( classKeyword.is_string() && object->matchesClassKeyword( classKeyword.get<std::string>() ) );
+            CAFFA_ASSERT(
+                classKeyword.is_string() &&
+                ObjectHandle::matchesClassKeyword( classKeyword.get<std::string>(), object->classInheritanceStack() ) );
         }
         else if ( serializer->serializeDataValues() && !value.is_null() )
         {
@@ -192,7 +193,7 @@ ObjectHandle::Ptr JsonSerializer::copyBySerialization( const ObjectHandle* objec
 ///
 //--------------------------------------------------------------------------------------------------
 ObjectHandle::Ptr JsonSerializer::copyAndCastBySerialization( const ObjectHandle* object,
-                                                                          const std::string& destinationClassKeyword ) const
+                                                              const std::string&  destinationClassKeyword ) const
 {
     // Can not do this without an IO capability
     auto ioCapability = object->capability<ObjectIoCapability>();
@@ -206,8 +207,10 @@ ObjectHandle::Ptr JsonSerializer::copyAndCastBySerialization( const ObjectHandle
     auto copyIoCapability = objectCopy->capability<ObjectIoCapability>();
     if ( !copyIoCapability ) return nullptr;
 
-    bool sourceInheritsDestination = object->matchesClassKeyword( destinationClassKeyword );
-    bool destinationInheritsSource = objectCopy->matchesClassKeyword( object->classKeyword() );
+    bool sourceInheritsDestination =
+        ObjectHandle::matchesClassKeyword( destinationClassKeyword, object->classInheritanceStack() );
+    bool destinationInheritsSource =
+        ObjectHandle::matchesClassKeyword( object->classKeyword(), objectCopy->classInheritanceStack() );
 
     if ( !sourceInheritsDestination && !destinationInheritsSource ) return nullptr;
 

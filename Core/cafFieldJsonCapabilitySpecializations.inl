@@ -177,7 +177,7 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
     }
 
     CAFFA_ASSERT( objPtr );
-    if ( !objPtr->matchesClassKeyword( className ) )
+    if ( !ObjectHandle::matchesClassKeyword( className, objPtr->classInheritanceStack() ) )
     {
         // Error: Field contains different class type than in the JSON
         CAFFA_ERROR( "Unknown object type with class name: " << className << " found while reading the field : "
@@ -283,7 +283,7 @@ void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::jso
             continue;
         }
 
-        if ( !obj->matchesClassKeyword( className ) )
+        if ( !ObjectHandle::matchesClassKeyword( className, obj->classInheritanceStack() ) )
         {
             CAFFA_ASSERT( false ); // There is an inconsistency in the factory. It creates objects of type not matching
                                    // the ClassKeyword

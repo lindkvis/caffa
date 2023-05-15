@@ -89,19 +89,6 @@ public:
         return typedObjects;
     }
 
-    std::list<ObjectHandle*> objectsMatchingClassKeyword( const std::string_view& classKeyword ) const
-    {
-        std::list<ObjectHandle*> objects;
-        for ( auto object : m_objects )
-        {
-            if ( object.notNull() && object->matchesClassKeyword( classKeyword ) )
-            {
-                objects.push_back( object.p() );
-            }
-        }
-        return objects;
-    }
-
 protected:
     ObjectFactory() {}
     virtual ~ObjectFactory() {}

@@ -216,8 +216,9 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const caffa::S
         }
     }
 
-    caffa::ObjectCollector collector( [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool
-                                      { return objectHandle->matchesClassKeyword( scriptClassName ); } );
+    caffa::ObjectCollector collector(
+        [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool
+        { return ObjectHandle::matchesClassKeyword( scriptClassName, objectHandle->classInheritanceStack() ); } );
 
     for ( auto doc : ServerApplication::instance()->documents( session ) )
     {
