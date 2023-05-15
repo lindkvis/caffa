@@ -70,9 +70,9 @@ public:
         return stack;
     }
 
-    constexpr bool matchesClassKeyword( const std::string_view& classKeyword ) const
+    static constexpr bool matchesClassKeyword( const std::string_view&     classKeyword,
+                                               const InheritanceStackType& inheritanceStack )
     {
-        auto inheritanceStack = classInheritanceStack();
         return std::any_of( inheritanceStack.begin(),
                             inheritanceStack.end(),
                             [&classKeyword]( const std::string_view& testKeyword )
