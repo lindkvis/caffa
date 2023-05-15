@@ -41,7 +41,7 @@ public:
     {
     }
 
-    void visitObject( const ObjectHandle* object )
+    void visitObject( const ObjectHandle* object ) override
     {
         CAFFA_ASSERT( object );
         CAFFA_DEBUG( "Visiting OBJECT " << object->uuid() );
@@ -88,7 +88,7 @@ public:
     {
     }
 
-    void visitObject( ObjectHandle* object )
+    void visitObject( ObjectHandle* object ) override
     {
         auto typedObject = dynamic_cast<ObjectType*>( object );
         if ( typedObject && ( !m_predicate || m_predicate( object ) ) )
