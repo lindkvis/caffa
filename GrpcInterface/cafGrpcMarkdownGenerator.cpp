@@ -172,11 +172,11 @@ std::string MarkdownGenerator::dependency( const caffa::FieldHandle* field ) con
 
     if ( childField )
     {
-        return std::string( childField->childClassKeyword() );
+        return childField->childClassKeyword();
     }
     else if ( childArrayField )
     {
-        return std::string( childArrayField->childClassKeyword() );
+        return childArrayField->childClassKeyword();
     }
     return "";
 }
@@ -188,11 +188,11 @@ std::string MarkdownGenerator::docDataType( const caffa::FieldHandle* field ) co
 
     if ( childField )
     {
-        return std::string( childField->childClassKeyword() );
+        return childField->childClassKeyword();
     }
     else if ( childArrayField )
     {
-        return std::string( childArrayField->childClassKeyword() ) + "[]";
+        return childArrayField->childClassKeyword() + "[]";
     }
 
     return field->dataType();

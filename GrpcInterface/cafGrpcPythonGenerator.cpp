@@ -45,12 +45,6 @@ std::string PythonGenerator::name() const
     return "python";
 }
 
-template <typename ChildFieldType>
-std::string childClassKeyword( ChildFieldType& field )
-{
-    return std::string( field->childClassKeyword() );
-}
-
 std::string PythonGenerator::generate( std::list<std::shared_ptr<caffa::Document>>& documents )
 {
     std::string code = "from caffa import Object, Document\n\n\n";
@@ -158,13 +152,13 @@ std::string PythonGenerator::generateObjectMethodField( ObjectHandle* object )
 
             if ( childField )
             {
-                dependencies.push_back( childClassKeyword( childField ) );
-                code += ": " + childClassKeyword( childField ) + " = None";
+                dependencies.push_back( childField->childClassKeyword() );
+                code += ": " + childField->childClassKeyword() + " = None";
             }
             else if ( childArrayField )
             {
-                dependencies.push_back( childClassKeyword( childArrayField ) );
-                code += ": " + childClassKeyword( childArrayField ) + " = []";
+                dependencies.push_back( childArrayField->childClassKeyword() );
+                code += ": " + childArrayField->childClassKeyword() + " = []";
             }
             else
             {
@@ -276,11 +270,11 @@ std::string PythonGenerator::castFieldValue( const caffa::FieldHandle* field, co
 
     if ( childField )
     {
-        return childClassKeyword( childField ) + "(" + value + ")";
+        return childArrayField->childClassKeyword() + "(" + value + ")";
     }
     else if ( childArrayField )
     {
-        return childClassKeyword( childArrayField ) + "(" + value + ")";
+        return childArrayField->childClassKeyword() + "(" + value + ")";
     }
 
     return value;
@@ -293,11 +287,11 @@ std::string PythonGenerator::dependency( const caffa::FieldHandle* field ) const
 
     if ( childField )
     {
-        return childClassKeyword( childField );
+        return childField->childClassKeyword();
     }
     else if ( childArrayField )
     {
-        return childClassKeyword( childArrayField );
+        return childArrayField->childClassKeyword();
     }
     return "";
 }
@@ -309,11 +303,11 @@ std::string PythonGenerator::pythonDataType( const caffa::FieldHandle* field ) c
 
     if ( childField )
     {
-        return childClassKeyword( childField );
+        return childField->childClassKeyword();
     }
     else if ( childArrayField )
     {
-        return childClassKeyword( childArrayField );
+        return childArrayField->childClassKeyword();
     }
 
     auto dataType = field->dataType();
@@ -382,13 +376,13 @@ std::string PythonGenerator::generate( caffa::ObjectMethod* method, std::vector<
 
             if ( childField )
             {
-                dependencies.push_back( childClassKeyword( childField ) );
-                code += ": " + childClassKeyword( childField ) + " = " + childClassKeyword( childField ) + "()";
+                dependencies.push_back( childField->childClassKeyword() );
+                code += ": " + childField->childClassKeyword() + " = " + childField->childClassKeyword() + "()";
             }
             else if ( childArrayField )
             {
-                dependencies.push_back( childClassKeyword( childArrayField ) );
-                code += ": " + childClassKeyword( childArrayField ) + " = []";
+                dependencies.push_back( childArrayField->childClassKeyword() );
+                code += ": " + childArrayField->childClassKeyword() + " = []";
             }
             else
             {

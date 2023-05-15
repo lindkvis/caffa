@@ -86,7 +86,7 @@ public:
         m_fieldDataAccessor = std::move( accessor );
     }
 
-    constexpr std::string_view childClassKeyword() const override { return DataType::classKeywordStatic(); }
+    std::string childClassKeyword() const override { return std::string( DataType::classKeywordStatic() ); }
 
 private:
     ChildField( const ChildField& )            = delete;

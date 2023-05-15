@@ -75,7 +75,7 @@ public:
         m_fieldDataAccessor = std::move( accessor );
     }
 
-    virtual constexpr std::string_view childClassKeyword() const override { return DataType::classKeywordStatic(); }
+    virtual std::string childClassKeyword() const override { return std::string( DataType::classKeywordStatic() ); }
 
 private: // To be disabled
     ChildArrayField( const ChildArrayField& )            = delete;

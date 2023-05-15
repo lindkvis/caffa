@@ -37,7 +37,7 @@ public:
      * @brief Get the class keyword of the contained child(ren)
      *
      */
-    virtual constexpr std::string_view childClassKeyword() const = 0;
+    virtual std::string childClassKeyword() const = 0;
 
     virtual std::vector<ObjectHandle::Ptr>      childObjects()       = 0;
     virtual std::vector<ObjectHandle::ConstPtr> childObjects() const = 0;
