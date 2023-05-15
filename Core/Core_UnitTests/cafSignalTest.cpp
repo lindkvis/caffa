@@ -20,7 +20,7 @@ struct SimpleStruct
     {
     }
 
-    std::strong_ordering operator<=>( const SimpleStruct& rhs ) const = default;
+    auto operator<=>( const SimpleStruct& rhs ) const = default;
 };
 
 class TestEmitter : public caffa::SignalEmitter
