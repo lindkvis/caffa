@@ -27,25 +27,24 @@
 #define CAFFA_HEADER_INIT( ClassName, ParentClassName )                                                                         \
 public:                                                                                                                         \
     static bool Error_You_forgot_to_add_the_macro_CAFFA_HEADER_INIT_and_or_CAFFA_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
-    static constexpr std::string_view classKeywordStatic()                                                                      \
+    static std::string classKeywordStatic()                                                                                     \
     {                                                                                                                           \
         constexpr auto classKeyword       = std::string_view{ #ClassName };                                                     \
         constexpr auto parentClassKeyword = std::string_view{ #ParentClassName };                                               \
         static_assert( isValidKeyword( parentClassKeyword ), "The provided parent class name is not valid" );                   \
         static_assert( isValidKeyword( classKeyword ), "The provided class name is not valid" );                                \
-        return classKeyword;                                                                                                    \
+        return std::string( classKeyword );                                                                                     \
     }                                                                                                                           \
-    constexpr std::string_view classKeyword() const override                                                                    \
+    std::string classKeyword() const override                                                                                   \
     {                                                                                                                           \
         return classKeywordStatic();                                                                                            \
     }                                                                                                                           \
-    constexpr InheritanceStackType classInheritanceStack() const override                                                       \
+    InheritanceStackType classInheritanceStack() const override                                                                 \
     {                                                                                                                           \
-        InheritanceStackType stack;                                                                                             \
-        std::fill( stack.begin(), stack.end(), "" );                                                                            \
-        stack[0]                         = classKeywordStatic();                                                                \
-        auto parentClassInheritanceStack = ParentClassName::classInheritanceStack();                                            \
-        std::copy_n( parentClassInheritanceStack.begin(), parentClassInheritanceStack.size() - 1, stack.begin() + 1 );          \
+        auto                 parentClassInheritanceStack = ParentClassName::classInheritanceStack();                            \
+        InheritanceStackType stack( parentClassInheritanceStack.size() + 1 );                                                   \
+        stack[0] = classKeywordStatic();                                                                                        \
+        std::copy( parentClassInheritanceStack.begin(), parentClassInheritanceStack.end(), stack.begin() + 1 );                 \
         return stack;                                                                                                           \
     }
 
