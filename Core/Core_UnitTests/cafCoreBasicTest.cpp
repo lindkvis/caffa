@@ -559,6 +559,24 @@ TEST( BaseTest, PortableDataType )
     EXPECT_EQ( "string[]", caffa::PortableDataType<std::vector<std::string>>::name() );
 }
 
+class ObjectWithPointerInField : public caffa::Object
+{
+    CAFFA_HEADER_INIT( DemoObject, Object )
+
+public:
+    ObjectWithPointerInField() { initField( fieldWithPointer, "fieldWithPointer" ); }
+
+    caffa::Field<std::shared_ptr<DemoObject>> fieldWithPointer;
+};
+
+TEST( BaseTest, PointerInRegularField )
+{
+    ObjectWithPointerInField object;
+    object.fieldWithPointer = std::make_shared<DemoObject>();
+
+    // object.fieldWithPointer->
+}
+
 TEST( BaseTest, Methods )
 {
     DemoObject object;

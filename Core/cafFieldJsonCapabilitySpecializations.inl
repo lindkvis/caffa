@@ -124,6 +124,241 @@ void FieldJsonCap<FieldType>::setOwner( FieldHandle* owner )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
+void FieldJsonCap<Field<std::shared_ptr<DataType>>>::readFromJson( const nlohmann::json& jsonElement,
+                                                                   const Serializer&     serializer )
+{
+    CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildField" );
+    if ( jsonElement.is_null() ) return;
+    CAFFA_ASSERT( jsonElement.is_object() );
+
+    nlohmann::json jsonObject;
+    if ( jsonElement.contains( "value" ) )
+    {
+        jsonObject = jsonElement["value"];
+    }
+    else
+    {
+        jsonObject = jsonElement;
+    }
+
+    std::string className = jsonObject["class"].get<std::string>();
+    std::string uuid      = "";
+    if ( jsonObject.contains( "uuid" ) )
+    {
+        uuid = jsonObject["uuid"].get<std::string>();
+    }
+
+    std::shared_ptr<DataType> objPtr = nullptr;
+
+    auto existingObject = m_field->value();
+    if ( existingObject && !uuid.empty() && existingObject->uuid() == uuid )
+    {
+        objPtr = existingObject;
+        CAFFA_TRACE( "Had existing object! Overwriting values!" );
+    }
+    else
+    {
+        // Create a new object
+        auto objectFactory = serializer.objectFactory();
+
+        CAFFA_ASSERT( objectFactory );
+
+        auto obj = std::dynamic_pointer_cast<DataType>( objectFactory->create( className ) );
+        if ( !obj )
+        {
+            CAFFA_ERROR( "Unknown object type with class name: " << className << " found while reading the field : "
+                                                                 << m_field->keyword() );
+            return;
+        }
+        else
+        {
+            objPtr = obj;
+            m_field->setValue( obj );
+        }
+    }
+
+    CAFFA_ASSERT( objPtr );
+    if ( !ObjectHandle::matchesClassKeyword( className, objPtr->classInheritanceStack() ) )
+    {
+        // Error: Field contains different class type than in the JSON
+        CAFFA_ERROR( "Unknown object type with class name: " << className << " found while reading the field : "
+                                                             << m_field->keyword() );
+        CAFFA_ERROR( "                     Expected class name: " << objPtr->classKeyword() );
+
+        return;
+    }
+
+    // Everything seems ok, so read the contents of the object:
+    std::string jsonString = jsonObject.dump();
+    serializer.readObjectFromString( objPtr.get(), jsonString );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void FieldJsonCap<Field<std::shared_ptr<DataType>>>::writeToJson( nlohmann::json&   jsonValue,
+                                                                  const Serializer& serializer ) const
+{
+    auto object = m_field->value();
+    if ( !object ) return;
+
+    auto ioObject = object->template capability<caffa::ObjectIoCapability>();
+    if ( ioObject )
+    {
+        std::string    jsonString = serializer.writeObjectToString( object.get() );
+        nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
+        CAFFA_ASSERT( jsonObject.is_object() );
+        if ( serializer.serializeSchema() )
+        {
+            jsonValue["type"]  = "object";
+            jsonValue["value"] = jsonObject;
+        }
+        else
+        {
+            jsonValue = jsonObject;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+const FieldHandle* FieldJsonCap<Field<std::shared_ptr<DataType>>>::owner() const
+{
+    return m_field;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void FieldJsonCap<Field<std::shared_ptr<DataType>>>::setOwner( FieldHandle* owner )
+{
+    auto field = dynamic_cast<Field<std::shared_ptr<DataType>>*>( owner );
+    CAFFA_ASSERT( field );
+    m_field = field;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::readFromJson( const nlohmann::json& jsonElement,
+                                                                                const Serializer&     serializer )
+{
+    m_field->clear();
+
+    CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildArrayField" );
+
+    nlohmann::json jsonArray;
+    if ( jsonElement.is_array() )
+    {
+        jsonArray = jsonElement;
+    }
+    else if ( jsonElement.is_object() && jsonElement.contains( "value" ) )
+    {
+        jsonArray = jsonElement["value"];
+    }
+
+    CAFFA_ASSERT( jsonArray.is_array() );
+
+    auto objectFactory = serializer.objectFactory();
+    CAFFA_ASSERT( objectFactory );
+
+    for ( const auto& jsonObject : jsonArray )
+    {
+        if ( !jsonObject.is_object() ) continue;
+
+        std::string className = jsonObject["class"].get<std::string>();
+
+        ObjectHandle::Ptr obj = objectFactory->create( className );
+
+        if ( !obj )
+        {
+            // Warning: Unknown className read
+            // Skip to corresponding end element
+
+            std::cout << "Warning: Unknown object type with class name: " << className
+                      << " found while reading the field : " << m_field->keyword() << std::endl;
+
+            continue;
+        }
+
+        if ( !ObjectHandle::matchesClassKeyword( className, obj->classInheritanceStack() ) )
+        {
+            CAFFA_ASSERT( false ); // There is an inconsistency in the factory. It creates objects of type not matching
+                                   // the ClassKeyword
+
+            continue;
+        }
+
+        std::string jsonString = jsonObject.dump();
+        serializer.readObjectFromString( obj.get(), jsonString );
+
+        size_t currentSize = m_field->size();
+        m_field->insertAt( currentSize, obj );
+    }
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::writeToJson( nlohmann::json&   jsonValue,
+                                                                               const Serializer& serializer ) const
+{
+    nlohmann::json jsonArray = nlohmann::json::array();
+
+    for ( size_t i = 0; i < m_field->size(); ++i )
+    {
+        ObjectHandle::Ptr object = m_field->at( i );
+        if ( !object ) continue;
+
+        auto ioObject = object->capability<ObjectIoCapability>();
+        if ( ioObject )
+        {
+            std::string    jsonString = serializer.writeObjectToString( object.get() );
+            nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
+            jsonArray.push_back( jsonObject );
+        }
+    }
+
+    if ( serializer.serializeSchema() )
+    {
+        jsonValue["type"]  = "object[]";
+        jsonValue["value"] = jsonArray;
+    }
+    else
+    {
+        jsonValue = jsonArray;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+const FieldHandle* FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::owner() const
+{
+    return m_field;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::setOwner( FieldHandle* owner )
+{
+    auto field = dynamic_cast<FieldType*>( owner );
+    CAFFA_ASSERT( field );
+    m_field = field;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
 void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
 {
     CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildField" );
