@@ -50,33 +50,24 @@ class Editor;
 class ObjectHandle : public SignalObserver, public SignalEmitter
 {
 public:
-    // Until compilers support std::vector with constexpr as specified by the C++ 20 standard
-    static constexpr auto MAX_INHERITANCE_STACK_LENGTH = 10; // Should be enough for everyone
-
-    using InheritanceStackType = std::array<std::string_view, MAX_INHERITANCE_STACK_LENGTH>;
+    using InheritanceStackType = std::vector<std::string>;
     using Ptr                  = std::shared_ptr<ObjectHandle>;
     using ConstPtr             = std::shared_ptr<const ObjectHandle>;
 
     ObjectHandle();
     virtual ~ObjectHandle() noexcept;
 
-    static constexpr std::string_view  classKeywordStatic() { return std::string_view{ "ObjectHandle" }; }
-    virtual constexpr std::string_view classKeyword() const { return classKeywordStatic(); }
+    // TODO: Once compilers support constexpr std::vector and std::string these can be made constexpr
+    static std::string  classKeywordStatic() { return "ObjectHandle"; }
+    virtual std::string classKeyword() const { return classKeywordStatic(); }
 
-    virtual constexpr InheritanceStackType classInheritanceStack() const
-    {
-        InheritanceStackType stack = { std::string_view{} };
-        stack[0]                   = classKeywordStatic();
-        return stack;
-    }
+    virtual InheritanceStackType classInheritanceStack() const { return { classKeywordStatic() }; }
 
-    static constexpr bool matchesClassKeyword( const std::string_view&     classKeyword,
-                                               const InheritanceStackType& inheritanceStack )
+    static bool matchesClassKeyword( const std::string& classKeyword, const InheritanceStackType& inheritanceStack )
     {
         return std::any_of( inheritanceStack.begin(),
                             inheritanceStack.end(),
-                            [&classKeyword]( const std::string_view& testKeyword )
-                            { return classKeyword == testKeyword; } );
+                            [&classKeyword]( const std::string& testKeyword ) { return classKeyword == testKeyword; } );
     }
 
     static constexpr bool isValidCharacter( char c )
