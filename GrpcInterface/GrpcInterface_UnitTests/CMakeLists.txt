@@ -17,6 +17,6 @@ target_link_libraries(
   gtest
   caffaCore
   caffaGrpcInterface
-  caffaGrpcInterface_TestData)
+  caffaTestData)
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
