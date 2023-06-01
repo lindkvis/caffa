@@ -48,7 +48,7 @@ ObjectHandle::Ptr ObjectIoCapability::copyAndCastBySerialization( const std::str
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ObjectIoCapability::readFile( const std::string& fileName, IoType ioType /*=IoType::JSON*/ )
+bool ObjectIoCapability::readFile( const std::string& fileName )
 {
     std::ifstream inStream( fileName );
     if ( !inStream.good() )
@@ -57,13 +57,13 @@ bool ObjectIoCapability::readFile( const std::string& fileName, IoType ioType /*
         return false;
     }
 
-    return readStream( inStream, ioType );
+    return readStream( inStream );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ObjectIoCapability::writeFile( const std::string& fileName, IoType ioType /*=IoType::JSON*/ )
+bool ObjectIoCapability::writeFile( const std::string& fileName )
 {
     std::ofstream outStream( fileName );
     if ( !outStream.good() )
@@ -71,56 +71,27 @@ bool ObjectIoCapability::writeFile( const std::string& fileName, IoType ioType /
         CAFFA_ERROR( "Could not open file for writing: " << fileName );
         return false;
     }
-
-    switch ( ioType )
-    {
-        case IoType::JSON:
-        {
-            // Do not write UUID or data types to file. UUID is only for dynamic connection to runtime objects.
-            return writeStream( outStream,
-                                JsonSerializer( DefaultObjectFactory::instance() )
-                                    .setSerializeSchema( false )
-                                    .setSerializeUuids( false ) );
-        }
-    }
-
-    CAFFA_ERROR( "IO Type not implemented" );
-    return false;
+    // Do not write UUID or data types to file. UUID is only for dynamic connection to runtime objects.
+    return writeStream( outStream,
+                        JsonSerializer( DefaultObjectFactory::instance() ).setSerializeSchema( false ).setSerializeUuids( false ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ObjectIoCapability::readStream( std::istream& inStream, IoType ioType )
+bool ObjectIoCapability::readStream( std::istream& inStream )
 {
-    switch ( ioType )
-    {
-        case IoType::JSON:
-        {
-            JsonSerializer jsonSerializer;
-            return readStream( inStream, jsonSerializer );
-        }
-    }
-    CAFFA_ERROR( "IO Type not implemented" );
-    return false;
+    JsonSerializer jsonSerializer;
+    return readStream( inStream, jsonSerializer );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ObjectIoCapability::writeStream( std::ostream& outStream, IoType ioType )
+bool ObjectIoCapability::writeStream( std::ostream& outStream )
 {
-    switch ( ioType )
-    {
-        case IoType::JSON:
-        {
-            JsonSerializer jsonSerializer;
-            return writeStream( outStream, jsonSerializer );
-        }
-    }
-
-    CAFFA_ERROR( "IO Type not implemented" );
-    return false;
+    JsonSerializer jsonSerializer;
+    return writeStream( outStream, jsonSerializer );
 }
 
 //--------------------------------------------------------------------------------------------------

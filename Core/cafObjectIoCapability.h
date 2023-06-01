@@ -23,12 +23,6 @@ class Serializer;
 class ObjectIoCapability : public ObjectCapability
 {
 public:
-    enum class IoType
-    {
-        JSON
-    };
-
-public:
     ObjectIoCapability( ObjectHandle* owner );
     ~ObjectIoCapability() noexcept override;
 
@@ -55,11 +49,11 @@ public:
         return std::dynamic_pointer_cast<ObjectType>( objectHandle );
     }
 
-    bool readFile( const std::string& fileName, IoType ioType = IoType::JSON );
-    bool writeFile( const std::string& fileName, IoType ioType = IoType::JSON );
+    bool readFile( const std::string& fileName );
+    bool writeFile( const std::string& fileName );
 
-    bool readStream( std::istream& inStream, IoType ioType = IoType::JSON );
-    bool writeStream( std::ostream& outStream, IoType ioType = IoType::JSON );
+    bool readStream( std::istream& inStream );
+    bool writeStream( std::ostream& outStream );
 
     bool readStream( std::istream& inStream, const Serializer& serializer );
     bool writeStream( std::ostream& outStream, const Serializer& serializer );
