@@ -7,6 +7,7 @@
 #include "cafChildField.h"
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
+#include "cafMethod.h"
 #include "cafObject.h"
 #include "cafPortableDataType.h"
 #include "cafTypedField.h"
@@ -60,6 +61,16 @@ public:
         m_memberDoubleField = 0.0;
         m_memberIntField    = 0;
         m_memberStringField = "";
+
+        initMethod( multiply,
+                    "multiply",
+                    std::bind( []( int a, int b ) -> double { return a * b; }, std::placeholders::_1, std::placeholders::_2 ),
+                    caffa::MethodHandle::Type::READ_ONLY );
+
+        initMethod( add,
+                    "add",
+                    std::bind( &DemoObject::_add, this, std::placeholders::_1, std::placeholders::_2 ),
+                    caffa::MethodHandle::Type::READ_ONLY );
     }
 
     // Fields
@@ -70,6 +81,9 @@ public:
     caffa::Field<double>      m_memberDoubleField;
     caffa::Field<int>         m_memberIntField;
     caffa::Field<std::string> m_memberStringField;
+
+    caffa::Method<double( int, int )> multiply;
+    caffa::Method<int( int, int )>    add;
 
     // Internal class members accessed by proxy fields
     double doubleMember() const
@@ -88,6 +102,8 @@ public:
 
     std::string stringMember() const { return m_stringMember; }
     void        setStringMember( const std::string& val ) { m_stringMember = val; }
+
+    int _add( int a, int b ) const { return a + b; }
 
 private:
     double      m_doubleMember;
@@ -541,4 +557,28 @@ TEST( BaseTest, PortableDataType )
     EXPECT_EQ( "int32[]", caffa::PortableDataType<std::vector<int>>::name() );
     EXPECT_EQ( "uint32[]", caffa::PortableDataType<std::vector<uint32_t>>::name() );
     EXPECT_EQ( "string[]", caffa::PortableDataType<std::vector<std::string>>::name() );
+}
+
+TEST( BaseTest, Methods )
+{
+    DemoObject object;
+
+    EXPECT_EQ( 5, object.add( 3, 2 ) );
+    EXPECT_DOUBLE_EQ( 12.0, object.multiply( 4, 3 ) );
+
+    {
+        nlohmann::json result = nlohmann::json::parse( object.add.execute( "[3, 8]" ) );
+        CAFFA_DEBUG( "Got result: "
+                     << "type = " << result["type"] << ", result = " << result["value"] );
+        EXPECT_EQ( "int32", result["type"].get<std::string>() );
+        EXPECT_EQ( 11, result["value"].get<int>() );
+    }
+
+    {
+        nlohmann::json result = nlohmann::json::parse( object.multiply.execute( "[4, 5]" ) );
+        CAFFA_DEBUG( "Got result: "
+                     << "type = " << result["type"] << ", result = " << result["value"] );
+        EXPECT_EQ( "double", result["type"].get<std::string>() );
+        EXPECT_DOUBLE_EQ( 20.0, result["value"].get<int>() );
+    }
 }

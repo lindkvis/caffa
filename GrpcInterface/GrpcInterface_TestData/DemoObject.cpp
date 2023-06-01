@@ -68,6 +68,15 @@ DemoObject::DemoObject()
 
     initField( boolField, "boolField" ).withScripting();
     initField( boolVector, "boolVector" ).withScripting();
+
+    initMethod( myMethod,
+                "myMethod",
+                std::bind( &DemoObject::methodTest, this, std::placeholders::_1, std::placeholders::_2 ) );
+}
+
+double DemoObject::methodTest( int a, int b ) const
+{
+    return a + b;
 }
 
 CAFFA_OBJECT_METHOD_SOURCE_INIT( DemoObject, DemoObject_copyObject, "copyObject" );

@@ -32,6 +32,8 @@ set(PUBLIC_HEADERS
     cafFieldJsonCapability.h
     cafSerializer.h
     cafJsonSerializer.h
+    cafMethodHandle.h
+    cafMethod.h
     cafObjectIoCapability.h
     cafObjectMacros.h
     cafDefaultObjectFactory.h

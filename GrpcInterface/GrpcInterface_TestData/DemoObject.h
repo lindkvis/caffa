@@ -21,6 +21,7 @@
 #include "cafAppEnum.h"
 #include "cafDocument.h"
 #include "cafField.h"
+#include "cafMethod.h"
 #include "cafNotNull.h"
 #include "cafObject.h"
 #include "cafObjectMethod.h"
@@ -39,7 +40,7 @@ public:
 
     DemoObject();
 
-    ~DemoObject() override {}
+    ~DemoObject() noexcept override {}
 
     // Fields
     caffa::Field<double>      m_proxyDoubleField;
@@ -61,6 +62,8 @@ public:
     caffa::Field<std::vector<double>> doubleVector;
     caffa::Field<std::vector<float>>  floatVector;
 
+    caffa::Method<double( int, int )> myMethod;
+
 private:
     // These are proxy getter/setters and should never be called from client, thus are private
     double getDoubleProxy() const { return m_proxyDoubleValue; }
@@ -77,6 +80,8 @@ private:
 
     std::vector<std::string> getStringVectorProxy() const { return m_proxyStringVector; }
     void setStringVectorProxy( const std::vector<std::string>& values ) { m_proxyStringVector = values; }
+
+    double methodTest( int a, int b ) const;
 
     double      m_proxyDoubleValue;
     int         m_proxyIntValue;

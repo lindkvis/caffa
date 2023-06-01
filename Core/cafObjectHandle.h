@@ -26,6 +26,7 @@
 #include "cafAssert.h"
 #include "cafFieldHandle.h"
 #include "cafLogger.h"
+#include "cafMethodHandle.h"
 #include "cafObjectCapability.h"
 #include "cafSignal.h"
 #include "cafStringTools.h"
@@ -35,6 +36,7 @@
 #include <memory>
 #include <set>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 
 namespace caffa
@@ -101,11 +103,24 @@ public:
     std::list<FieldHandle*> fields() const;
 
     /**
+     * The registered methods for this Object.
+     * @return a list of MethodHandle pointers
+     */
+    std::list<MethodHandle*> methods() const;
+
+    /**
      * Find a particular field by keyword
      * @param keyword
      * @return a FieldHandle pointer
      */
     FieldHandle* findField( const std::string& keyword ) const;
+
+    /**
+     * Find a particular method by keyword
+     * @param keyword
+     * @return a MethodHandle pointer
+     */
+    MethodHandle* findMethod( const std::string& keyword ) const;
 
     /**
      * Add an object capability to the object
@@ -169,12 +184,20 @@ protected:
      */
     void addField( FieldHandle* field, const std::string& keyword );
 
+    /**
+     * Add a method to the object
+     */
+    void addMethod( MethodHandle* method, const std::string& keyword, MethodHandle::Type type );
+
 private:
     ObjectHandle( const ObjectHandle& )            = delete;
     ObjectHandle& operator=( const ObjectHandle& ) = delete;
 
     // Fields
     std::map<std::string, FieldHandle*> m_fields;
+
+    // Methods
+    std::map<std::string, MethodHandle*> m_methods;
 
     // Capabilities
     std::vector<std::unique_ptr<ObjectCapability>> m_capabilities;
@@ -183,5 +206,8 @@ private:
     friend class ObservingPointerImpl;
     std::set<ObjectHandle**> m_pointersReferencingMe;
 };
+
+template <typename T>
+concept DerivesFromObjectHandle = std::is_base_of<ObjectHandle, T>::value;
 
 } // namespace caffa

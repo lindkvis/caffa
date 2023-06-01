@@ -70,6 +70,19 @@ std::list<FieldHandle*> ObjectHandle::fields() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::list<MethodHandle*> ObjectHandle::methods() const
+{
+    std::list<MethodHandle*> methodList;
+    for ( auto& [ignore, method] : m_methods )
+    {
+        methodList.push_back( method );
+    }
+    return methodList;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void ObjectHandle::disconnectObserverFromAllSignals( SignalObserver* observer )
 {
     if ( observer )
@@ -98,10 +111,32 @@ void ObjectHandle::addField( FieldHandle* field, const std::string& keyword )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void ObjectHandle::addMethod( MethodHandle* method, const std::string& keyword, MethodHandle::Type type )
+{
+    CAFFA_ASSERT( !keyword.empty() );
+    CAFFA_ASSERT( !m_methods.contains( keyword ) && "Object already has a field with this keyword!" );
+
+    method->setName( keyword );
+    method->setType( type );
+    m_methods[keyword] = method;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 FieldHandle* ObjectHandle::findField( const std::string& keyword ) const
 {
     auto it = m_fields.find( keyword );
     return it != m_fields.end() ? it->second : nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+MethodHandle* ObjectHandle::findMethod( const std::string& keyword ) const
+{
+    auto it = m_methods.find( keyword );
+    return it != m_methods.end() ? it->second : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

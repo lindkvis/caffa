@@ -153,6 +153,7 @@ private:
     FieldType&         m_field;
     const std::string& m_keyword;
 };
+
 class Object : public ObjectHandle
 {
 public:
@@ -162,10 +163,7 @@ public:
     ~Object() noexcept override;
 
     /**
-     * Initialises the field with a file keyword and registers it with the class
-     * including static user interface related information.
-     * Note that classKeyword() is not virtual in the constructor of the Object
-     * This is expected and fine.
+     * Initialises the field with a keyword and registers it with the class
      * @param field A reference to the field
      * @param keyword The field keyword. Has to be unique within the class.
      */
@@ -175,6 +173,21 @@ public:
         AddIoCapabilityToField( &field );
         addField( &field, keyword );
         return FieldInitHelper( field, keyword );
+    }
+
+    /**
+     * Initialises the method with a keyword and registers it with the class
+     * @param method A reference to the method
+     * @param keyword The method keyword. Has to be unique within the class.
+     */
+    template <typename MethodType, typename CallbackT>
+    void initMethod( MethodType&        method,
+                     const std::string& keyword,
+                     CallbackT&&        callback,
+                     MethodHandle::Type type = MethodHandle::Type::READ_WRITE )
+    {
+        addMethod( &method, keyword, type );
+        method.callback = callback;
     }
 
     std::string uuid() const override;
