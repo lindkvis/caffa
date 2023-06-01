@@ -1,6 +1,5 @@
 #pragma once
 
-#include "cafDynamicUniqueCast.h"
 #include "cafObjectCapability.h"
 #include "cafObjectHandle.h"
 

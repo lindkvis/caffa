@@ -37,7 +37,6 @@
 #pragma once
 
 #include "cafObjectHandle.h"
-#include "cafObjectIoCapability.h"
 #include "cafObservingPointer.h"
 
 #include <list>

@@ -1,10 +1,9 @@
 
 #include "cafAssert.h"
-#include "cafDynamicUniqueCast.h"
+#include "cafJsonSerializer.h"
 #include "cafLogger.h"
 #include "cafObjectFactory.h"
 #include "cafObjectIoCapability.h"
-#include "cafSerializer.h"
 
 #include <nlohmann/json.hpp>
 

@@ -39,7 +39,6 @@
 #pragma once
 
 #include "cafDataFieldAccessor.h"
-#include "cafDynamicUniqueCast.h"
 #include "cafField.h"
 #include "cafFieldDocumentationCapability.h"
 #include "cafFieldJsonCapability.h"
@@ -49,7 +48,6 @@
 #include "cafFieldValidator.h"
 #include "cafObjectCapability.h"
 #include "cafObjectHandle.h"
-#include "cafObjectIoCapability.h"
 #include "cafObjectMacros.h"
 #include "cafObservingPointer.h"
 

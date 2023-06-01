@@ -1,7 +1,5 @@
 #include "cafObjectHandle.h"
 
-#include "cafDynamicUniqueCast.h"
-
 #include <iostream>
 #include <vector>
 

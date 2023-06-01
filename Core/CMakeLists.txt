@@ -13,7 +13,6 @@ set(PUBLIC_HEADERS
     cafChildField.inl
     cafChildFieldAccessor.h
     cafDataFieldAccessor.h
-    cafDynamicUniqueCast.h
     cafField.h
     cafFieldCapability.h
     cafFieldHandle.h
