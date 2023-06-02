@@ -147,12 +147,9 @@ void FieldJsonCap<Field<std::shared_ptr<DataType>>>::readFromJson( const nlohman
         uuid = jsonObject["uuid"].get<std::string>();
     }
 
-    std::shared_ptr<DataType> objPtr = nullptr;
-
-    auto existingObject = m_field->value();
-    if ( existingObject && !uuid.empty() && existingObject->uuid() == uuid )
+    auto object = m_field->value();
+    if ( object && !uuid.empty() && object->uuid() == uuid )
     {
-        objPtr = existingObject;
         CAFFA_TRACE( "Had existing object! Overwriting values!" );
     }
     else
@@ -162,8 +159,8 @@ void FieldJsonCap<Field<std::shared_ptr<DataType>>>::readFromJson( const nlohman
 
         CAFFA_ASSERT( objectFactory );
 
-        auto obj = std::dynamic_pointer_cast<DataType>( objectFactory->create( className ) );
-        if ( !obj )
+        object = std::dynamic_pointer_cast<DataType>( objectFactory->create( className ) );
+        if ( !object )
         {
             CAFFA_ERROR( "Unknown object type with class name: " << className << " found while reading the field : "
                                                                  << m_field->keyword() );
@@ -171,25 +168,24 @@ void FieldJsonCap<Field<std::shared_ptr<DataType>>>::readFromJson( const nlohman
         }
         else
         {
-            objPtr = obj;
-            m_field->setValue( obj );
+            m_field->setValue( object );
         }
     }
 
-    CAFFA_ASSERT( objPtr );
-    if ( !ObjectHandle::matchesClassKeyword( className, objPtr->classInheritanceStack() ) )
+    CAFFA_ASSERT( object );
+    if ( !ObjectHandle::matchesClassKeyword( className, object->classInheritanceStack() ) )
     {
         // Error: Field contains different class type than in the JSON
         CAFFA_ERROR( "Unknown object type with class name: " << className << " found while reading the field : "
                                                              << m_field->keyword() );
-        CAFFA_ERROR( "                     Expected class name: " << objPtr->classKeyword() );
+        CAFFA_ERROR( "                     Expected class name: " << object->classKeyword() );
 
         return;
     }
 
     // Everything seems ok, so read the contents of the object:
     std::string jsonString = jsonObject.dump();
-    serializer.readObjectFromString( objPtr.get(), jsonString );
+    serializer.readObjectFromString( object.get(), jsonString );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -272,9 +268,9 @@ void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::readFromJson( 
 
         std::string className = jsonObject["class"].get<std::string>();
 
-        ObjectHandle::Ptr obj = objectFactory->create( className );
+        ObjectHandle::Ptr object = objectFactory->create( className );
 
-        if ( !obj )
+        if ( !object )
         {
             // Warning: Unknown className read
             // Skip to corresponding end element
@@ -285,7 +281,7 @@ void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::readFromJson( 
             continue;
         }
 
-        if ( !ObjectHandle::matchesClassKeyword( className, obj->classInheritanceStack() ) )
+        if ( !ObjectHandle::matchesClassKeyword( className, object->classInheritanceStack() ) )
         {
             CAFFA_ASSERT( false ); // There is an inconsistency in the factory. It creates objects of type not matching
                                    // the ClassKeyword
@@ -294,10 +290,10 @@ void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::readFromJson( 
         }
 
         std::string jsonString = jsonObject.dump();
-        serializer.readObjectFromString( obj.get(), jsonString );
+        serializer.readObjectFromString( object.get(), jsonString );
 
         size_t currentSize = m_field->size();
-        m_field->insertAt( currentSize, obj );
+        m_field->insertAt( currentSize, object );
     }
 }
 //--------------------------------------------------------------------------------------------------
@@ -381,12 +377,9 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
         uuid = jsonObject["uuid"].get<std::string>();
     }
 
-    typename DataType::Ptr objPtr;
-
-    auto existingObject = m_field->object();
-    if ( existingObject && !uuid.empty() && existingObject->uuid() == uuid )
+    auto object = m_field->object();
+    if ( object && !uuid.empty() && object->uuid() == uuid )
     {
-        objPtr = existingObject;
         CAFFA_TRACE( "Had existing object! Overwriting values!" );
     }
     else
@@ -396,8 +389,8 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
 
         CAFFA_ASSERT( objectFactory );
 
-        auto obj = std::dynamic_pointer_cast<DataType>( objectFactory->create( className ) );
-        if ( !obj )
+        object = std::dynamic_pointer_cast<DataType>( objectFactory->create( className ) );
+        if ( !object )
         {
             CAFFA_ERROR( "Unknown object type with class name: " << className << " found while reading the field : "
                                                                  << m_field->keyword() );
@@ -405,25 +398,22 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
         }
         else
         {
-            objPtr = obj;
-            m_field->setObject( obj );
+            m_field->setObject( object );
         }
     }
-
-    CAFFA_ASSERT( objPtr );
-    if ( !ObjectHandle::matchesClassKeyword( className, objPtr->classInheritanceStack() ) )
+    if ( !ObjectHandle::matchesClassKeyword( className, object->classInheritanceStack() ) )
     {
         // Error: Field contains different class type than in the JSON
         CAFFA_ERROR( "Unknown object type with class name: " << className << " found while reading the field : "
                                                              << m_field->keyword() );
-        CAFFA_ERROR( "                     Expected class name: " << objPtr->classKeyword() );
+        CAFFA_ERROR( "                     Expected class name: " << object->classKeyword() );
 
         return;
     }
 
     // Everything seems ok, so read the contents of the object:
     std::string jsonString = jsonObject.dump();
-    serializer.readObjectFromString( objPtr.get(), jsonString );
+    serializer.readObjectFromString( object.get(), jsonString );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -504,9 +494,9 @@ void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::jso
 
         std::string className = jsonObject["class"].get<std::string>();
 
-        ObjectHandle::Ptr obj = objectFactory->create( className );
+        ObjectHandle::Ptr object = objectFactory->create( className );
 
-        if ( !obj )
+        if ( !object )
         {
             // Warning: Unknown className read
             // Skip to corresponding end element
@@ -517,7 +507,7 @@ void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::jso
             continue;
         }
 
-        if ( !ObjectHandle::matchesClassKeyword( className, obj->classInheritanceStack() ) )
+        if ( !ObjectHandle::matchesClassKeyword( className, object->classInheritanceStack() ) )
         {
             CAFFA_ASSERT( false ); // There is an inconsistency in the factory. It creates objects of type not matching
                                    // the ClassKeyword
@@ -526,10 +516,10 @@ void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::jso
         }
 
         std::string jsonString = jsonObject.dump();
-        serializer.readObjectFromString( obj.get(), jsonString );
+        serializer.readObjectFromString( object.get(), jsonString );
 
         size_t currentSize = m_field->size();
-        m_field->insertAt( currentSize, obj );
+        m_field->insertAt( currentSize, object );
     }
 }
 //--------------------------------------------------------------------------------------------------

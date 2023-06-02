@@ -31,6 +31,22 @@ ObjectIoCapability::~ObjectIoCapability() noexcept
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void ObjectIoCapability::initAfterReadRecursively()
+{
+    initAfterReadRecursively( m_owner );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void ObjectIoCapability::setupBeforeSaveRecursively()
+{
+    setupBeforeSaveRecursively( m_owner );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 ObjectHandle::Ptr ObjectIoCapability::copyBySerialization( ObjectFactory* objectFactory ) const
 {
     return JsonSerializer( objectFactory ).setSerializeUuids( false ).copyBySerialization( m_owner );

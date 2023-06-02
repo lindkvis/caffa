@@ -26,8 +26,8 @@ public:
     ObjectIoCapability( ObjectHandle* owner );
     ~ObjectIoCapability() noexcept override;
 
-    void initAfterReadRecursively() { initAfterReadRecursively( this->m_owner ); };
-    void setupBeforeSaveRecursively() { setupBeforeSaveRecursively( this->m_owner ); };
+    void initAfterReadRecursively();
+    void setupBeforeSaveRecursively();
 
     ObjectHandle::Ptr copyBySerialization( ObjectFactory* objectFactory ) const;
 
@@ -59,8 +59,8 @@ public:
     bool writeStream( std::ostream& outStream, const Serializer& serializer );
 
 private:
-    void initAfterReadRecursively( ObjectHandle* object );
-    void setupBeforeSaveRecursively( ObjectHandle* object );
+    static void initAfterReadRecursively( ObjectHandle* object );
+    static void setupBeforeSaveRecursively( ObjectHandle* object );
 
 protected:
     ObjectHandle* m_owner;

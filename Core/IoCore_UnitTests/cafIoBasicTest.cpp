@@ -100,15 +100,15 @@ TEST( BaseTest, FieldWrite )
 {
     std::string serializedString;
     {
-        auto a = std::make_shared<DemoObject>();
+        DemoObject a;
 
-        a->m_proxyDoubleField.setValue( 2.5 );
-        a->m_proxyEnumField = DemoObject::T3;
+        a.m_proxyDoubleField.setValue( 2.5 );
+        a.m_proxyEnumField = DemoObject::T3;
 
-        ASSERT_DOUBLE_EQ( 2.5, a->m_proxyDoubleField.value() );
-        ASSERT_EQ( DemoObject::T3, a->m_proxyEnumField.value() );
+        ASSERT_DOUBLE_EQ( 2.5, a.m_proxyDoubleField.value() );
+        ASSERT_EQ( DemoObject::T3, a.m_proxyEnumField.value() );
 
-        serializedString = caffa::JsonSerializer().writeObjectToString( a.get() );
+        serializedString = caffa::JsonSerializer().writeObjectToString( &a );
 
         std::cout << serializedString << std::endl;
     }
@@ -216,11 +216,8 @@ TEST( BaseTest, ChildArrayFieldSerializing )
     std::string serializedString;
     {
         auto ihd1 = std::make_shared<InheritedDemoObj>();
-        auto s1p  = s1.get();
         ihd1->m_childArrayField.push_back( s1 );
-        auto s2p = s2.get();
         ihd1->m_childArrayField.push_back( s2 );
-        auto s3p = s3.get();
         ihd1->m_childArrayField.push_back( s3 );
 
         serializedString = caffa::JsonSerializer().writeObjectToString( ihd1.get() );
