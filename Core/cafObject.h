@@ -49,7 +49,6 @@
 #include "cafObjectCapability.h"
 #include "cafObjectHandle.h"
 #include "cafObjectMacros.h"
-#include "cafObservingPointer.h"
 
 #include <set>
 

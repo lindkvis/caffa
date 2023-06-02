@@ -2,7 +2,6 @@
 
 #include "cafAssert.h"
 #include "cafField.h"
-#include "cafObservingPointer.h"
 
 #include <functional>
 #include <type_traits>

@@ -5,7 +5,6 @@
 #include "cafChildFieldHandle.h"
 #include "cafFieldHandle.h"
 #include "cafObjectHandle.h"
-#include "cafObservingPointer.h"
 #include "cafPortableDataType.h"
 #include "cafVisitor.h"
 

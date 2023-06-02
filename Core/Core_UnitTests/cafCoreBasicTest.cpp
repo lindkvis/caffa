@@ -9,6 +9,7 @@
 #include "cafFieldProxyAccessor.h"
 #include "cafMethod.h"
 #include "cafObject.h"
+#include "cafObservingPointer.h"
 #include "cafPortableDataType.h"
 #include "cafTypedField.h"
 

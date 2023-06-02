@@ -37,9 +37,9 @@
 #pragma once
 
 #include "cafObjectHandle.h"
-#include "cafObservingPointer.h"
 
 #include <list>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -53,40 +53,7 @@ namespace caffa
 class ObjectFactory
 {
 public:
-    ObjectHandle::Ptr create( const std::string_view& classKeyword )
-    {
-        ObjectHandle::Ptr object = doCreate( classKeyword );
-        if ( object ) m_objects.push_back( ObservingPointer<ObjectHandle>( object.get() ) );
-        return object;
-    }
-
-    std::list<ObjectHandle*> objects() const
-    {
-        std::list<ObjectHandle*> objects;
-        for ( auto object : m_objects )
-        {
-            if ( object.notNull() )
-            {
-                objects.push_back( object.p() );
-            }
-        }
-        return objects;
-    }
-
-    template <typename T>
-    std::list<T*> objectsOfType() const
-    {
-        std::list<T*> typedObjects;
-        for ( auto object : m_objects )
-        {
-            T* typedObject = dynamic_cast<T*>( object.p() );
-            if ( typedObject )
-            {
-                typedObjects.push_back( typedObject );
-            }
-        }
-        return typedObjects;
-    }
+    ObjectHandle::Ptr create( const std::string_view& classKeyword ) { return doCreate( classKeyword ); }
 
 protected:
     ObjectFactory() {}
@@ -94,8 +61,6 @@ protected:
 
 private:
     virtual ObjectHandle::Ptr doCreate( const std::string_view& classKeyword ) = 0;
-
-    std::list<ObservingPointer<ObjectHandle>> m_objects;
 };
 
 } // End of namespace caffa
