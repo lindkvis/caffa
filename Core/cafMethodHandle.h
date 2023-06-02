@@ -37,7 +37,7 @@ public:
     std::string name() const { return m_name; }
     Type        type() const { return m_type; }
 
-    virtual std::string execute( const std::string& jsonArguments ) const = 0;
+    virtual std::string execute( const std::string& jsonArgumentsString ) const = 0;
 
 private:
     friend class ObjectHandle;

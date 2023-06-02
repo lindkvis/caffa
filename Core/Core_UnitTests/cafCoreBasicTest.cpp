@@ -586,7 +586,7 @@ TEST( BaseTest, Methods )
     EXPECT_DOUBLE_EQ( 12.0, object.multiply( 4, 3 ) );
 
     {
-        nlohmann::json result = nlohmann::json::parse( object.add.execute( "[3, 8]" ) );
+        auto result = nlohmann::json::parse( object.add.execute( "[3, 8]" ) );
         CAFFA_DEBUG( "Got result: "
                      << "type = " << result["type"] << ", result = " << result["value"] );
         EXPECT_EQ( "int32", result["type"].get<std::string>() );
@@ -594,10 +594,18 @@ TEST( BaseTest, Methods )
     }
 
     {
-        nlohmann::json result = nlohmann::json::parse( object.multiply.execute( "[4, 5]" ) );
+        auto result = nlohmann::json::parse( object.multiply.execute( "[4, 5]" ) );
         CAFFA_DEBUG( "Got result: "
                      << "type = " << result["type"] << ", result = " << result["value"] );
         EXPECT_EQ( "double", result["type"].get<std::string>() );
         EXPECT_DOUBLE_EQ( 20.0, result["value"].get<int>() );
+    }
+
+    {
+        auto stringArguments = object.multiply.jsonArguments( 4, 5 );
+        CAFFA_DEBUG( "Parameter json: " << stringArguments );
+
+        auto stringResult = object.multiply.jsonReturnType();
+        CAFFA_DEBUG( "Result type json: " << stringResult.dump() );
     }
 }

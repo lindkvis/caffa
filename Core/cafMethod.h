@@ -51,23 +51,58 @@ public:
         return callback( args... );
     }
 
+    std::string execute( const std::string& jsonArgumentsString ) const override
+    {
+        return executeJson( nlohmann::json::parse( jsonArgumentsString ) ).dump();
+    }
+
+    template <typename T>
+    static std::string dataType( const T& value )
+    {
+        return PortableDataType<T>::name();
+    }
+
+    static nlohmann::json jsonArguments( ArgTypes... args )
+    {
+        auto jsonArray = nlohmann::json::array();
+        (
+            [&]
+            {
+                nlohmann::json jsonArg = nlohmann::json::object();
+                jsonArg["type"]        = dataType( args );
+                jsonArg["value"]       = args;
+                jsonArray.push_back( jsonArg );
+            }(),
+            ... );
+        return jsonArray;
+    }
+
+    static nlohmann::json jsonReturnType()
+    {
+        nlohmann::json jsonResult = nlohmann::json::object();
+        jsonResult["type"]        = PortableDataType<Result>::name();
+        return jsonResult;
+    }
+
+    void setCallback( Callback callback ) { this->callback = callback; }
+
+private:
     template <std::size_t... Is>
-    Result execute( const nlohmann::json& args, std::index_sequence<Is...> ) const
+    Result executeJson( const nlohmann::json& args, std::index_sequence<Is...> ) const
     {
         return this->operator()( args[Is].get<ArgTypes>()... );
     }
 
-    std::string execute( const std::string& jsonArguments ) const override
+    nlohmann::json executeJson( const nlohmann::json& jsonArguments ) const
     {
-        nlohmann::json json   = nlohmann::json::parse( jsonArguments );
-        Result         result = execute( json, std::index_sequence_for<ArgTypes...>() );
+        Result result = this->executeJson( jsonArguments, std::index_sequence_for<ArgTypes...>() );
 
-        nlohmann::json jsonResult = nlohmann::json::object();
-        jsonResult["type"]        = PortableDataType<Result>::name();
+        nlohmann::json jsonResult = jsonReturnType();
         jsonResult["value"]       = result;
-        return jsonResult.dump();
+        return jsonResult;
     }
 
+private:
     Callback callback;
 };
 

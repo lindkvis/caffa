@@ -184,7 +184,7 @@ public:
                      MethodHandle::Type type = MethodHandle::Type::READ_WRITE )
     {
         addMethod( &method, keyword, type );
-        method.callback = callback;
+        method.setCallback( callback );
     }
 
     std::string uuid() const override;
