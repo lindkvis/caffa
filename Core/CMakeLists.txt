@@ -19,6 +19,7 @@ set(PUBLIC_HEADERS
     cafFieldValidator.h
     cafObjectCapability.h
     cafObjectCollector.h
+    cafObjectPerformer.h
     cafObjectHandle.h
     cafObservingPointer.h
     cafPortableDataType.h
@@ -33,7 +34,6 @@ set(PUBLIC_HEADERS
     cafJsonSerializer.h
     cafMethodHandle.h
     cafMethod.h
-    cafObjectIoCapability.h
     cafObjectMacros.h
     cafDefaultObjectFactory.h
     cafObjectFactory.h
@@ -57,7 +57,6 @@ set(PROJECT_FILES
     cafObservingPointer.cpp
     cafSignal.cpp
     cafFieldJsonCapability.cpp
-    cafObjectIoCapability.cpp
     cafSerializer.cpp
     cafJsonSerializer.cpp
     cafDefaultObjectFactory.cpp

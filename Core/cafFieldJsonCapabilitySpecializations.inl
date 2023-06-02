@@ -3,7 +3,6 @@
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
 #include "cafObjectFactory.h"
-#include "cafObjectIoCapability.h"
 
 #include <nlohmann/json.hpp>
 
@@ -198,21 +197,17 @@ void FieldJsonCap<Field<std::shared_ptr<DataType>>>::writeToJson( nlohmann::json
     auto object = m_field->value();
     if ( !object ) return;
 
-    auto ioObject = object->template capability<caffa::ObjectIoCapability>();
-    if ( ioObject )
+    std::string    jsonString = serializer.writeObjectToString( object.get() );
+    nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
+    CAFFA_ASSERT( jsonObject.is_object() );
+    if ( serializer.serializeSchema() )
     {
-        std::string    jsonString = serializer.writeObjectToString( object.get() );
-        nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
-        CAFFA_ASSERT( jsonObject.is_object() );
-        if ( serializer.serializeSchema() )
-        {
-            jsonValue["type"]  = "object";
-            jsonValue["value"] = jsonObject;
-        }
-        else
-        {
-            jsonValue = jsonObject;
-        }
+        jsonValue["type"]  = "object";
+        jsonValue["value"] = jsonObject;
+    }
+    else
+    {
+        jsonValue = jsonObject;
     }
 }
 
@@ -310,13 +305,9 @@ void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::writeToJson( n
         ObjectHandle::Ptr object = m_field->at( i );
         if ( !object ) continue;
 
-        auto ioObject = object->capability<ObjectIoCapability>();
-        if ( ioObject )
-        {
-            std::string    jsonString = serializer.writeObjectToString( object.get() );
-            nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
-            jsonArray.push_back( jsonObject );
-        }
+        std::string    jsonString = serializer.writeObjectToString( object.get() );
+        nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
+        jsonArray.push_back( jsonObject );
     }
 
     if ( serializer.serializeSchema() )
@@ -425,21 +416,17 @@ void FieldJsonCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonValue
     auto object = m_field->object();
     if ( !object ) return;
 
-    auto ioObject = object->template capability<caffa::ObjectIoCapability>();
-    if ( ioObject )
+    std::string    jsonString = serializer.writeObjectToString( object.get() );
+    nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
+    CAFFA_ASSERT( jsonObject.is_object() );
+    if ( serializer.serializeSchema() )
     {
-        std::string    jsonString = serializer.writeObjectToString( object.get() );
-        nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
-        CAFFA_ASSERT( jsonObject.is_object() );
-        if ( serializer.serializeSchema() )
-        {
-            jsonValue["type"]  = "object";
-            jsonValue["value"] = jsonObject;
-        }
-        else
-        {
-            jsonValue = jsonObject;
-        }
+        jsonValue["type"]  = "object";
+        jsonValue["value"] = jsonObject;
+    }
+    else
+    {
+        jsonValue = jsonObject;
     }
 }
 
@@ -535,13 +522,9 @@ void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& json
         ObjectHandle::Ptr object = m_field->at( i );
         if ( !object ) continue;
 
-        auto ioObject = object->capability<ObjectIoCapability>();
-        if ( ioObject )
-        {
-            std::string    jsonString = serializer.writeObjectToString( object.get() );
-            nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
-            jsonArray.push_back( jsonObject );
-        }
+        std::string    jsonString = serializer.writeObjectToString( object.get() );
+        nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
+        jsonArray.push_back( jsonObject );
     }
 
     if ( serializer.serializeSchema() )

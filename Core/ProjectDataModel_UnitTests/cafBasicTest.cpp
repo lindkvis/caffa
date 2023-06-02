@@ -323,8 +323,7 @@ TEST( BaseTest, ReadWrite )
 
         // Write file
         std::ofstream file( "TestFile2.json" );
-        doc.capability<caffa::ObjectIoCapability>()
-            ->writeStream( file, caffa::JsonSerializer().setSerializeUuids( false ).setSerializeSchema( false ) );
+        caffa::JsonSerializer().setSerializeUuids( false ).setSerializeSchema( false ).writeStream( &doc, file );
         file.close();
     }
 

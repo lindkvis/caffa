@@ -216,7 +216,7 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const caffa::S
         }
     }
 
-    caffa::ObjectCollector collector(
+    caffa::ObjectCollector<> collector(
         [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool
         { return ObjectHandle::matchesClassKeyword( scriptClassName, objectHandle->classInheritanceStack() ); } );
 
@@ -277,9 +277,6 @@ void ObjectService::copyProjectSelfReferenceFromCafToRpc( const caffa::ObjectHan
     CAFFA_ASSERT( source && destination );
     CAFFA_ASSERT( !source->uuid().empty() );
 
-    auto ioCapability = source->capability<caffa::ObjectIoCapability>();
-    CAFFA_ASSERT( ioCapability );
-
     caffa::JsonSerializer serializer( DefaultObjectFactory::instance() );
     serializer.setFieldSelector( fieldIsScriptReadable );
     serializer.setSerializeDataValues( false );
@@ -298,9 +295,6 @@ void ObjectService::copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* so
 {
     CAFFA_ASSERT( source && destination );
     CAFFA_ASSERT( !source->uuid().empty() );
-
-    auto ioCapability = source->capability<caffa::ObjectIoCapability>();
-    CAFFA_ASSERT( ioCapability );
 
     caffa::JsonSerializer serializer( DefaultObjectFactory::instance() );
     serializer.setFieldSelector( fieldIsScriptReadable );

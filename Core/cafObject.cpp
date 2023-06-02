@@ -12,8 +12,6 @@ using namespace std::chrono;
 Object::Object( bool generateUuid /* = false*/ )
     : ObjectHandle()
 {
-    addCapability( std::make_unique<caffa::ObjectIoCapability>( this ) );
-
     initField( m_uuid, "uuid" );
 
     if ( generateUuid )
@@ -49,5 +47,6 @@ ObjectHandle::Ptr Object::deepClone( caffa::ObjectFactory* optionalObjectFactory
 {
     caffa::ObjectFactory* objectFactory = optionalObjectFactory ? optionalObjectFactory
                                                                 : caffa::DefaultObjectFactory::instance();
-    return capability<caffa::ObjectIoCapability>()->copyBySerialization( objectFactory );
+
+    return JsonSerializer( objectFactory ).setSerializeUuids( false ).copyBySerialization( this );
 }

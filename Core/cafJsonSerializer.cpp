@@ -23,7 +23,7 @@
 #include "cafFieldJsonCapability.h"
 #include "cafLogger.h"
 #include "cafObjectHandle.h"
-#include "cafObjectIoCapability.h"
+#include "cafObjectPerformer.h"
 
 #include "cafFieldHandle.h"
 
@@ -176,15 +176,13 @@ std::string JsonSerializer::writeObjectToString( const ObjectHandle* object ) co
 //--------------------------------------------------------------------------------------------------
 ObjectHandle::Ptr JsonSerializer::copyBySerialization( const ObjectHandle* object ) const
 {
-    auto ioCapability = object->capability<ObjectIoCapability>();
-    ioCapability->setupBeforeSaveRecursively();
-
     std::string string = writeObjectToString( object );
 
     ObjectHandle::Ptr objectCopy = createObjectFromString( string );
     if ( !objectCopy ) return nullptr;
 
-    objectCopy->capability<ObjectIoCapability>()->initAfterReadRecursively();
+    ObjectPerformer<> performer( []( ObjectHandle* object ) { object->initAfterRead(); } );
+    performer.visitObject( objectCopy.get() );
 
     return objectCopy;
 }
@@ -195,17 +193,9 @@ ObjectHandle::Ptr JsonSerializer::copyBySerialization( const ObjectHandle* objec
 ObjectHandle::Ptr JsonSerializer::copyAndCastBySerialization( const ObjectHandle* object,
                                                               const std::string&  destinationClassKeyword ) const
 {
-    // Can not do this without an IO capability
-    auto ioCapability = object->capability<ObjectIoCapability>();
-    if ( !ioCapability ) return nullptr;
-
-    ioCapability->setupBeforeSaveRecursively();
     std::string string = writeObjectToString( object );
 
     ObjectHandle::Ptr objectCopy = m_objectFactory->create( destinationClassKeyword );
-
-    auto copyIoCapability = objectCopy->capability<ObjectIoCapability>();
-    if ( !copyIoCapability ) return nullptr;
 
     bool sourceInheritsDestination =
         ObjectHandle::matchesClassKeyword( destinationClassKeyword, object->classInheritanceStack() );
@@ -216,7 +206,9 @@ ObjectHandle::Ptr JsonSerializer::copyAndCastBySerialization( const ObjectHandle
 
     nlohmann::json jsonObject = nlohmann::json::parse( string );
     readFieldsFromJson( objectCopy.get(), jsonObject, this );
-    objectCopy->capability<ObjectIoCapability>()->initAfterReadRecursively();
+
+    ObjectPerformer<> performer( []( ObjectHandle* object ) { object->initAfterRead(); } );
+    performer.visitObject( objectCopy.get() );
 
     return objectCopy;
 }
