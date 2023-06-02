@@ -48,7 +48,7 @@ public:
 
     void setObject( ObjectHandle::Ptr object ) override
     {
-        m_remoteObject = std::move( object );
+        m_remoteObject = object;
         m_client->setChildObject( m_field->ownerObject(), m_field->keyword(), m_remoteObject.get() );
     }
 

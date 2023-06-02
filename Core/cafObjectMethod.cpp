@@ -77,7 +77,7 @@ ObjectMethodFactory* ObjectMethodFactory::instance()
 //--------------------------------------------------------------------------------------------------
 /// Check the object and the inheritance stack for the specified method name
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<ObjectMethod> ObjectMethodFactory::createMethodInstance( caffa::not_null<ObjectHandle*> self,
+std::shared_ptr<ObjectMethod> ObjectMethodFactory::createMethodInstance( caffa::not_null<ObjectHandle*> self,
                                                                          const std::string_view&        methodName )
 {
     auto classNames = self->classInheritanceStack();
@@ -93,7 +93,7 @@ std::unique_ptr<ObjectMethod> ObjectMethodFactory::createMethodInstance( caffa::
             }
         }
     }
-    return std::unique_ptr<ObjectMethod>();
+    return std::shared_ptr<ObjectMethod>();
 }
 
 //--------------------------------------------------------------------------------------------------

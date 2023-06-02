@@ -50,12 +50,12 @@ std::string MarkdownGenerator::generate( std::list<std::shared_ptr<caffa::Docume
 
     for ( auto& doc : documents )
     {
-        code += generate( doc.get() );
+        code += generate( doc );
     }
     return code;
 }
 
-std::string MarkdownGenerator::generate( ObjectHandle* object, bool objectMethodResultOrParameter )
+std::string MarkdownGenerator::generate( std::shared_ptr<ObjectHandle> object, bool objectMethodResultOrParameter )
 {
     JsonSerializer serializer;
     CAFFA_DEBUG( "Generating code for class " << object->classKeyword() );
@@ -114,14 +114,14 @@ std::string MarkdownGenerator::generate( ObjectHandle* object, bool objectMethod
 
     std::vector<std::string> methodDependencies;
 
-    auto methodNames = ObjectMethodFactory::instance()->registeredMethodNames( object );
+    auto methodNames = ObjectMethodFactory::instance()->registeredMethodNames( object.get() );
 
     if ( !methodNames.empty() )
     {
         code += "### Methods\n";
         for ( auto methodName : methodNames )
         {
-            auto method = ObjectMethodFactory::instance()->createMethodInstance( object, methodName );
+            auto method = ObjectMethodFactory::instance()->createMethodInstance( object.get(), methodName );
             code += generate( method.get(), methodDependencies );
         }
     }
@@ -134,7 +134,7 @@ std::string MarkdownGenerator::generate( ObjectHandle* object, bool objectMethod
             m_classesGenerated.insert( className );
             CAFFA_DEBUG( "Creating temp instance of " << className );
             auto tempObject = caffa::DefaultObjectFactory::instance()->create( className );
-            dependencyCode += generate( tempObject.get(), true );
+            dependencyCode += generate( tempObject, true );
         }
     }
 
@@ -145,13 +145,13 @@ std::string MarkdownGenerator::generate( ObjectHandle* object, bool objectMethod
             m_classesGenerated.insert( className );
             CAFFA_DEBUG( "Creating temp instance of " << className );
             auto tempObject = caffa::DefaultObjectFactory::instance()->create( className );
-            dependencyCode += generate( tempObject.get() );
+            dependencyCode += generate( tempObject );
         }
     }
     return dependencyCode + code;
 }
 
-std::string MarkdownGenerator::findParentClass( ObjectHandle* object ) const
+std::string MarkdownGenerator::findParentClass( std::shared_ptr<ObjectHandle> object ) const
 {
     auto inheritanceStack = object->classInheritanceStack();
     for ( size_t i = 1; i < inheritanceStack.size(); ++i )

@@ -51,12 +51,12 @@ std::string PythonGenerator::generate( std::list<std::shared_ptr<caffa::Document
 
     for ( auto& doc : documents )
     {
-        code += generate( doc.get() );
+        code += generate( doc );
     }
     return code;
 }
 
-std::string PythonGenerator::generate( ObjectHandle* object, bool objectMethodResultOrParameter )
+std::string PythonGenerator::generate( std::shared_ptr<ObjectHandle> object, bool objectMethodResultOrParameter )
 {
     CAFFA_DEBUG( "Generating code for class " << object->classKeyword() );
     if ( objectMethodResultOrParameter )
@@ -93,11 +93,11 @@ std::string PythonGenerator::generate( ObjectHandle* object, bool objectMethodRe
 
     std::vector<std::string> methodDependencies;
 
-    auto methodNames = ObjectMethodFactory::instance()->registeredMethodNames( object );
+    auto methodNames = ObjectMethodFactory::instance()->registeredMethodNames( object.get() );
 
     for ( auto methodName : methodNames )
     {
-        auto method = ObjectMethodFactory::instance()->createMethodInstance( object, methodName );
+        auto method = ObjectMethodFactory::instance()->createMethodInstance( object.get(), methodName );
         objectCode += generate( method.get(), methodDependencies );
     }
 
@@ -109,7 +109,7 @@ std::string PythonGenerator::generate( ObjectHandle* object, bool objectMethodRe
             m_classesGenerated.insert( className );
             CAFFA_DEBUG( "Creating temp instance of " << className );
             auto tempObject = caffa::DefaultObjectFactory::instance()->create( className );
-            dependencyCode += generateObjectMethodField( tempObject.get() );
+            dependencyCode += generateObjectMethodField( tempObject );
         }
     }
 
@@ -120,14 +120,14 @@ std::string PythonGenerator::generate( ObjectHandle* object, bool objectMethodRe
             m_classesGenerated.insert( className );
             CAFFA_DEBUG( "Creating temp instance of " << className );
             auto tempObject = caffa::DefaultObjectFactory::instance()->create( className );
-            dependencyCode += generate( tempObject.get(), false );
+            dependencyCode += generate( tempObject, false );
         }
     }
 
     return dependencyCode + objectCode;
 }
 
-std::string PythonGenerator::generateObjectMethodField( ObjectHandle* object )
+std::string PythonGenerator::generateObjectMethodField( std::shared_ptr<ObjectHandle> object )
 {
     std::vector<std::string> dependencies;
 
@@ -226,7 +226,7 @@ std::string PythonGenerator::generateObjectMethodField( ObjectHandle* object )
         {
             m_classesGenerated.insert( className );
             auto tempObject = caffa::DefaultObjectFactory::instance()->create( className );
-            dependencyCode += generateObjectMethodField( tempObject.get() );
+            dependencyCode += generateObjectMethodField( tempObject );
         }
     }
     return dependencyCode + code;
@@ -237,7 +237,7 @@ bool PythonGenerator::isBuiltInClass( const std::string& classKeyword ) const
     return classKeyword == "Object" || classKeyword == "Document";
 }
 
-std::string PythonGenerator::findParentClass( ObjectHandle* object ) const
+std::string PythonGenerator::findParentClass( std::shared_ptr<ObjectHandle> object ) const
 {
     auto inheritanceStack = object->classInheritanceStack();
     for ( size_t i = 1; i < inheritanceStack.size(); ++i )

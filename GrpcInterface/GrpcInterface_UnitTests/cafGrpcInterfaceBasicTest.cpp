@@ -102,11 +102,11 @@ TEST_F( GrpcTest, Document )
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
     CAFFA_INFO( "Expect failure to get document with the wrong document ID. Next line should be an error." );
-    auto nonExistentDocument = dynamic_cast<DemoDocument*>( serverApp->document( "wrongName", session.get() ) );
+    auto nonExistentDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "wrongName", session.get() ) );
     ASSERT_TRUE( nonExistentDocument == nullptr );
-    auto blankNameDocument = dynamic_cast<DemoDocument*>( serverApp->document( "", session.get() ) );
+    auto blankNameDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "", session.get() ) );
     ASSERT_TRUE( blankNameDocument );
-    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
+    auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
@@ -122,7 +122,7 @@ TEST_F( GrpcTest, Document )
     {
         std::shared_ptr<caffa::ObjectHandle> objectHandle;
         ASSERT_NO_THROW( objectHandle = client->document( "testDocument" ) );
-        auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+        auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
         ASSERT_TRUE( clientDocument != nullptr );
 
         ASSERT_ANY_THROW( auto nonExistentClientDocument = client->document( "wrongName" ) );
@@ -172,9 +172,9 @@ TEST_F( GrpcTest, Document )
                 ASSERT_EQ( ( *server_it )->uuid(), ( *client_it )->uuid() );
             }
         }
-        std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument );
+        std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument.get() );
         CAFFA_DEBUG( serverJson );
-        std::string clientJson = caffa::JsonSerializer().writeObjectToString( clientDocument );
+        std::string clientJson = caffa::JsonSerializer().writeObjectToString( clientDocument.get() );
         CAFFA_DEBUG( clientJson );
         ASSERT_EQ( serverJson, clientJson );
 
@@ -219,13 +219,13 @@ TEST_F( GrpcTest, DocumentWithNonScriptableChild )
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
 
-    auto serverDocument =
-        dynamic_cast<DemoDocumentWithNonScriptableMember*>( serverApp->document( "testDocument2", session.get() ) );
+    auto serverDocument = std::dynamic_pointer_cast<DemoDocumentWithNonScriptableMember>(
+        serverApp->document( "testDocument2", session.get() ) );
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
     auto objectHandle   = client->document( "testDocument2" );
-    auto clientDocument = dynamic_cast<DemoDocumentWithNonScriptableMember*>( objectHandle.get() );
+    auto clientDocument = std::dynamic_pointer_cast<DemoDocumentWithNonScriptableMember>( objectHandle );
     ASSERT_TRUE( clientDocument != nullptr );
 
     ASSERT_EQ( serverDocument->fileName(), clientDocument->fileName() );
@@ -263,9 +263,9 @@ TEST_F( GrpcTest, DocumentWithNonScriptableChild )
         }
     }
 
-    std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument );
+    std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument.get() );
     CAFFA_DEBUG( serverJson );
-    std::string clientJson = caffa::JsonSerializer().writeObjectToString( clientDocument );
+    std::string clientJson = caffa::JsonSerializer().writeObjectToString( clientDocument.get() );
     CAFFA_DEBUG( clientJson );
     ASSERT_NE( serverJson, clientJson );
 
@@ -298,8 +298,8 @@ TEST_F( GrpcTest, Sync )
                                                         ServerApp::s_clientKeyFile,
                                                         ServerApp::s_caCertFile );
 
-    auto session        = serverApp->getExistingSession( client->sessionUuid() );
-    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
+    auto session = serverApp->getExistingSession( client->sessionUuid() );
+    auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
 
     size_t childCount = 11u;
@@ -309,7 +309,7 @@ TEST_F( GrpcTest, Sync )
     }
 
     auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<caffa::Document*>( objectHandle.get() );
+    auto clientDocument = std::dynamic_pointer_cast<caffa::Document>( objectHandle );
     ASSERT_TRUE( clientDocument != nullptr );
     CAFFA_DEBUG( "Client Document File Name: " << clientDocument->fileName() );
     ASSERT_EQ( serverApp->document( "testDocument", session.get() )->fileName(), clientDocument->fileName() );
@@ -340,14 +340,14 @@ TEST_F( GrpcTest, SettingValueWithObserver )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client         = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::OBSERVING,
+    auto client  = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::OBSERVING,
                                                         "localhost",
                                                         ServerApp::s_port,
                                                         ServerApp::s_clientCertFile,
                                                         ServerApp::s_clientKeyFile,
                                                         ServerApp::s_caCertFile );
-    auto session        = serverApp->getExistingSession( client->sessionUuid() );
-    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
+    auto session = serverApp->getExistingSession( client->sessionUuid() );
+    auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
 
     size_t childCount = 11u;
@@ -357,7 +357,7 @@ TEST_F( GrpcTest, SettingValueWithObserver )
     }
 
     auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<caffa::Document*>( objectHandle.get() );
+    auto clientDocument = std::dynamic_pointer_cast<caffa::Document>( objectHandle );
     ASSERT_TRUE( clientDocument != nullptr );
     CAFFA_DEBUG( "Client Document File Name: " << clientDocument->fileName() );
     ASSERT_EQ( serverApp->document( "testDocument", session.get() )->fileName(), clientDocument->fileName() );
@@ -401,15 +401,15 @@ TEST_F( GrpcTest, ObjectMethod )
                                                         ServerApp::s_clientKeyFile,
                                                         ServerApp::s_caCertFile );
 
-    auto session        = serverApp->getExistingSession( client->sessionUuid() );
-    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
+    auto session = serverApp->getExistingSession( client->sessionUuid() );
+    auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
 
     CAFFA_DEBUG( "Adding object to server" );
     serverDocument->addInheritedObject( std::make_shared<InheritedDemoObj>() );
 
     auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
     ASSERT_TRUE( clientDocument != nullptr );
 
     auto serverObjects = serverDocument->inheritedObjects();
@@ -474,14 +474,14 @@ TEST_F( GrpcTest, ObjectIntGetterAndSetter )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client         = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+    auto client  = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
                                                         "localhost",
                                                         ServerApp::s_port,
                                                         ServerApp::s_clientCertFile,
                                                         ServerApp::s_clientKeyFile,
                                                         ServerApp::s_caCertFile );
-    auto session        = serverApp->getExistingSession( client->sessionUuid() );
-    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
+    auto session = serverApp->getExistingSession( client->sessionUuid() );
+    auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
@@ -492,7 +492,7 @@ TEST_F( GrpcTest, ObjectIntGetterAndSetter )
     serverDocument->demoObject->intVector = largeIntVector;
 
     auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
     ASSERT_TRUE( clientDocument != nullptr );
     auto clientIntVector = client->get<std::vector<int>>( clientDocument->demoObject().get(),
                                                           clientDocument->demoObject->intVector.keyword() );
@@ -528,14 +528,14 @@ TEST_F( GrpcTest, ObjectDeepCopyVsShallowCopy )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client         = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+    auto client  = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
                                                         "localhost",
                                                         ServerApp::s_port,
                                                         ServerApp::s_clientCertFile,
                                                         ServerApp::s_clientKeyFile,
                                                         ServerApp::s_caCertFile );
-    auto session        = serverApp->getExistingSession( client->sessionUuid() );
-    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
+    auto session = serverApp->getExistingSession( client->sessionUuid() );
+    auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
@@ -546,7 +546,7 @@ TEST_F( GrpcTest, ObjectDeepCopyVsShallowCopy )
     serverDocument->demoObject->intVector = largeIntVector;
 
     auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
 
     auto clientDemoObjectReference = clientDocument->demoObject.object();
     auto clientDemoObjectClone     = clientDocument->demoObject.deepCloneObject();
@@ -584,14 +584,14 @@ TEST_F( GrpcTest, ObjectDeepCopyFromClient )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client         = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+    auto client  = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
                                                         "localhost",
                                                         ServerApp::s_port,
                                                         ServerApp::s_clientCertFile,
                                                         ServerApp::s_clientKeyFile,
                                                         ServerApp::s_caCertFile );
-    auto session        = serverApp->getExistingSession( client->sessionUuid() );
-    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
+    auto session = serverApp->getExistingSession( client->sessionUuid() );
+    auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
@@ -602,7 +602,7 @@ TEST_F( GrpcTest, ObjectDeepCopyFromClient )
     serverDocument->demoObject->intVector = largeIntVector;
 
     auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
 
     auto clientDemoObjectClone = clientDocument->demoObject.deepCloneObject();
 
@@ -649,8 +649,8 @@ TEST_F( GrpcTest, ObjectDoubleGetterAndSetter )
                                                         ServerApp::s_clientKeyFile,
                                                         ServerApp::s_caCertFile );
 
-    auto session        = serverApp->getExistingSession( client->sessionUuid() );
-    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
+    auto session = serverApp->getExistingSession( client->sessionUuid() );
+    auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
@@ -661,7 +661,7 @@ TEST_F( GrpcTest, ObjectDoubleGetterAndSetter )
     serverDocument->demoObject->doubleVector = largeDoubleVector;
 
     auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
     ASSERT_TRUE( clientDocument != nullptr );
     auto clientDoubleVector = client->get<std::vector<double>>( clientDocument->demoObject().get(),
                                                                 clientDocument->demoObject->doubleVector.keyword() );
@@ -705,8 +705,8 @@ TEST_F( GrpcTest, ObjectIntegratedGettersAndSetters )
                                                         ServerApp::s_clientKeyFile,
                                                         ServerApp::s_caCertFile );
 
-    auto session        = serverApp->getExistingSession( client->sessionUuid() );
-    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
+    auto session = serverApp->getExistingSession( client->sessionUuid() );
+    auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
@@ -726,7 +726,7 @@ TEST_F( GrpcTest, ObjectIntegratedGettersAndSetters )
     serverDocument->demoObject->doubleVector = serverVector;
 
     auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
     ASSERT_TRUE( clientDocument != nullptr );
 
     ASSERT_EQ( 10, clientDocument->demoObject->intField() );
@@ -778,15 +778,15 @@ TEST_F( GrpcTest, EmptyVectorGettersAndSetters )
                                                         ServerApp::s_clientKeyFile,
                                                         ServerApp::s_caCertFile );
 
-    auto session        = serverApp->getExistingSession( client->sessionUuid() );
-    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
+    auto session = serverApp->getExistingSession( client->sessionUuid() );
+    auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
 
     std::vector<double> emptyServerVector;
     serverDocument->demoObject->doubleVector = emptyServerVector;
 
     auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
     ASSERT_TRUE( clientDocument != nullptr );
 
     auto clientVector = clientDocument->demoObject->doubleVector();
@@ -836,8 +836,8 @@ TEST_F( GrpcTest, BoolVectorGettersAndSetters )
                                                         ServerApp::s_clientKeyFile,
                                                         ServerApp::s_caCertFile );
 
-    auto session        = serverApp->getExistingSession( client->sessionUuid() );
-    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
+    auto session = serverApp->getExistingSession( client->sessionUuid() );
+    auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
@@ -848,7 +848,7 @@ TEST_F( GrpcTest, BoolVectorGettersAndSetters )
     ASSERT_TRUE( serverDocument->demoObject->boolVector().empty() );
 
     auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
     ASSERT_TRUE( clientDocument != nullptr );
 
     ASSERT_EQ( true, clientDocument->demoObject->boolField() );
@@ -890,13 +890,13 @@ TEST_F( GrpcTest, ChildObjects )
                                                         ServerApp::s_clientKeyFile,
                                                         ServerApp::s_caCertFile );
 
-    auto session        = serverApp->getExistingSession( client->sessionUuid() );
-    auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
+    auto session = serverApp->getExistingSession( client->sessionUuid() );
+    auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
     CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
     auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
     ASSERT_TRUE( clientDocument != nullptr );
 
     ASSERT_TRUE( clientDocument->demoObject.object() != nullptr );
@@ -984,13 +984,14 @@ TEST_F( GrpcTest, LocalResponseTimeAndDataTransfer )
                                                             ServerApp::s_clientKeyFile,
                                                             ServerApp::s_caCertFile );
 
-        auto session        = serverApp->getExistingSession( client->sessionUuid() );
-        auto serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
+        auto session = serverApp->getExistingSession( client->sessionUuid() );
+        auto serverDocument =
+            std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
         ASSERT_TRUE( serverDocument );
         CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
         auto objectHandle   = client->document( "testDocument" );
-        auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+        auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
         ASSERT_TRUE( clientDocument != nullptr );
 
         {

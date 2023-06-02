@@ -68,27 +68,27 @@ public:
     //--------------------------------------------------------------------------------------------------
     int patchVersion() const override { return CAFFA_VERSION_PATCH; }
 
-    caffa::Document* document( const std::string& documentId, const caffa::Session* session ) override
+    std::shared_ptr<caffa::Document> document( const std::string& documentId, const caffa::Session* session ) override
     {
         CAFFA_TRACE( "Trying to get document with id '" << documentId << "' while our main document is called "
                                                         << m_demoDocument->id() );
         if ( documentId.empty() || documentId == m_demoDocument->id() )
-            return m_demoDocument.get();
+            return m_demoDocument;
         else
             return nullptr;
     }
-    const caffa::Document* document( const std::string& documentId, const caffa::Session* session ) const override
+    std::shared_ptr<const caffa::Document> document( const std::string& documentId, const caffa::Session* session ) const override
     {
         if ( documentId.empty() || documentId == m_demoDocument->id() )
-            return m_demoDocument.get();
+            return m_demoDocument;
         else
             return nullptr;
     }
-    std::list<caffa::Document*> documents( const caffa::Session* session ) override
+    std::list<std::shared_ptr<caffa::Document>> documents( const caffa::Session* session ) override
     {
         return { document( "", session ) };
     }
-    std::list<const caffa::Document*> documents( const caffa::Session* session ) const override
+    std::list<std::shared_ptr<const caffa::Document>> documents( const caffa::Session* session ) const override
     {
         return { document( "", session ) };
     }
@@ -162,7 +162,7 @@ private:
     void onShutdown() override { CAFFA_INFO( "Shutting down Server" ); }
 
 private:
-    std::unique_ptr<DemoDocument> m_demoDocument;
+    std::shared_ptr<DemoDocument> m_demoDocument;
 
     std::shared_ptr<caffa::Session> m_session;
 };
@@ -187,8 +187,8 @@ int main( int argc, char** argv )
     CAFFA_INFO( "Launching Server v" << serverApp->majorVersion() << "." << serverApp->minorVersion() << "."
                                      << serverApp->patchVersion() << " listening on port " << portNumber );
 
-    auto          session        = serverApp->createSession( caffa::Session::Type::REGULAR );
-    DemoDocument* serverDocument = dynamic_cast<DemoDocument*>( serverApp->document( "testDocument", session.get() ) );
+    auto session = serverApp->createSession( caffa::Session::Type::REGULAR );
+    auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     CAFFA_ASSERT( serverDocument != nullptr );
 
     serverDocument->addInheritedObject( std::make_shared<InheritedDemoObj>() );

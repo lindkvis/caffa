@@ -54,7 +54,7 @@ public:
     int         minorVersion() const override { return 0; }
     int         patchVersion() const override { return 0; }
 
-    caffa::Document* document( const std::string& documentId, const caffa::Session* session ) override
+    std::shared_ptr<caffa::Document> document( const std::string& documentId, const caffa::Session* session ) override
     {
         CAFFA_TRACE( "Looking for " << documentId );
         for ( auto document : documents( session ) )
@@ -68,7 +68,7 @@ public:
         }
         return nullptr;
     }
-    const caffa::Document* document( const std::string& documentId, const caffa::Session* session ) const override
+    std::shared_ptr<const caffa::Document> document( const std::string& documentId, const caffa::Session* session ) const override
     {
         CAFFA_TRACE( "Looking for " << documentId );
         for ( auto document : documents( session ) )
@@ -82,13 +82,13 @@ public:
         }
         return nullptr;
     }
-    std::list<caffa::Document*> documents( const caffa::Session* session ) override
+    std::list<std::shared_ptr<caffa::Document>> documents( const caffa::Session* session ) override
     {
-        return { m_demoDocument.get(), m_demoDocumentWithNonScriptableMember.get() };
+        return { m_demoDocument, m_demoDocumentWithNonScriptableMember };
     }
-    std::list<const caffa::Document*> documents( const caffa::Session* session ) const override
+    std::list<std::shared_ptr<const caffa::Document>> documents( const caffa::Session* session ) const override
     {
-        return { m_demoDocument.get(), m_demoDocumentWithNonScriptableMember.get() };
+        return { m_demoDocument, m_demoDocumentWithNonScriptableMember };
     }
 
     bool hasActiveSessions() const override { return !m_observingSessions.empty(); }
@@ -212,8 +212,8 @@ private:
     void onShutdown() override { CAFFA_DEBUG( "Shutting down Server" ); }
 
 private:
-    std::unique_ptr<DemoDocument>                        m_demoDocument;
-    std::unique_ptr<DemoDocumentWithNonScriptableMember> m_demoDocumentWithNonScriptableMember;
+    std::shared_ptr<DemoDocument>                        m_demoDocument;
+    std::shared_ptr<DemoDocumentWithNonScriptableMember> m_demoDocumentWithNonScriptableMember;
 
     std::shared_ptr<caffa::Session>            m_session;
     std::list<std::shared_ptr<caffa::Session>> m_observingSessions;

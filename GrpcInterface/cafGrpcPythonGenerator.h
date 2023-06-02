@@ -41,15 +41,16 @@ namespace rpc
         std::string name() const override;
 
         std::string generate( std::list<std::shared_ptr<caffa::Document>>& documents ) override;
-        std::string generate( caffa::ObjectHandle* object, bool objectMethodResultOrParameter = false ) override;
+        std::string generate( std::shared_ptr<caffa::ObjectHandle> object,
+                              bool                                 objectMethodResultOrParameter = false ) override;
         std::string generate( caffa::FieldHandle* field, std::vector<std::string>& dependencies ) override;
         std::string generate( caffa::ObjectMethod* method, std::vector<std::string>& dependencies ) override;
 
     private:
         bool isBuiltInClass( const std::string& classKeyword ) const;
 
-        std::string generateObjectMethodField( caffa::ObjectHandle* object );
-        std::string findParentClass( caffa::ObjectHandle* object ) const;
+        std::string generateObjectMethodField( std::shared_ptr<caffa::ObjectHandle> object );
+        std::string findParentClass( std::shared_ptr<caffa::ObjectHandle> object ) const;
         std::string pythonValue( const std::string& cppValue ) const;
         std::string castFieldValue( const caffa::FieldHandle* field, const std::string& value ) const;
         std::string dependency( const caffa::FieldHandle* field ) const;

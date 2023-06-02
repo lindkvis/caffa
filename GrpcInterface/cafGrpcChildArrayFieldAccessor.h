@@ -76,14 +76,13 @@ public:
 
     void insert( size_t index, ObjectHandle::Ptr pointer ) override
     {
-        auto   object  = std::move( pointer );
         size_t oldSize = m_remoteObjects.size();
-        m_client->insertChildObject( m_field->ownerObject(), m_field->keyword(), index, object.get() );
-        m_remoteObjects.insert( m_remoteObjects.begin() + index, std::move( pointer ) );
+        m_client->insertChildObject( m_field->ownerObject(), m_field->keyword(), index, pointer.get() );
+        m_remoteObjects.insert( m_remoteObjects.begin() + index, pointer );
         CAFFA_ASSERT( m_remoteObjects.size() == ( oldSize + 1u ) );
     }
 
-    void push_back( ObjectHandle::Ptr pointer ) override { insert( size(), std::move( pointer ) ); }
+    void push_back( ObjectHandle::Ptr pointer ) override { insert( size(), pointer ); }
 
     size_t index( ObjectHandle::ConstPtr pointer ) const override
     {

@@ -75,11 +75,11 @@ grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const Doc
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
     }
 
-    Document* document = ServerApplication::instance()->document( request->document_id(), session.get() );
+    auto document = ServerApplication::instance()->document( request->document_id(), session.get() );
     if ( document )
     {
         CAFFA_TRACE( "Found document with UUID: " << document->uuid() << " and will copy i tot gRPC data structure" );
-        copyProjectObjectFromCafToRpc( document, reply );
+        copyProjectObjectFromCafToRpc( document.get(), reply );
         return grpc::Status::OK;
     }
     CAFFA_WARNING( "Document not found '" + request->document_id() + "'" );
@@ -362,7 +362,7 @@ std::shared_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caffa::ObjectMethod>
+std::shared_ptr<caffa::ObjectMethod>
     ObjectService::createCafObjectMethodFromRpc( ObjectHandle*               self,
                                                  const RpcObject*            source,
                                                  caffa::ObjectMethodFactory* objectMethodFactory,
@@ -374,7 +374,7 @@ std::unique_ptr<caffa::ObjectMethod>
     caffa::JsonSerializer serializer( objectFactory );
     auto [classKeyword, uuid] = serializer.readClassKeywordAndUUIDFromObjectString( source->json() );
 
-    std::unique_ptr<caffa::ObjectMethod> method = objectMethodFactory->createMethodInstance( self, classKeyword );
+    std::shared_ptr<caffa::ObjectMethod> method = objectMethodFactory->createMethodInstance( self, classKeyword );
 
     serializer.readObjectFromString( method.get(), source->json() );
     return method;

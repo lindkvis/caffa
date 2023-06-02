@@ -41,6 +41,7 @@
 #include "cafObjectFactory.h"
 #include "cafObservingPointer.h"
 
+#include <memory>
 #include <string>
 
 /// CAFFA_OBJECT_METHOD_SOURCE_INIT associates the self class keyword and the method keyword with the method factory
@@ -130,7 +131,7 @@ class ObjectMethodFactory
 public:
     static ObjectMethodFactory* instance();
 
-    std::unique_ptr<ObjectMethod> createMethodInstance( caffa::not_null<ObjectHandle*> self,
+    std::shared_ptr<ObjectMethod> createMethodInstance( caffa::not_null<ObjectHandle*> self,
                                                         const std::string_view&        methodName );
 
     template <typename ObjectDerivative, typename ObjectScriptMethodDerivative>
@@ -166,16 +167,16 @@ private:
     public:
         ObjectMethodCreatorBase() {}
         virtual ~ObjectMethodCreatorBase() {}
-        virtual std::unique_ptr<ObjectMethod> create( caffa::not_null<ObjectHandle*> self ) = 0;
+        virtual std::shared_ptr<ObjectMethod> create( caffa::not_null<ObjectHandle*> self ) = 0;
     };
 
     template <typename ObjectScriptMethodDerivative>
     class ObjectMethodCreator : public ObjectMethodCreatorBase
     {
     public:
-        std::unique_ptr<ObjectMethod> create( caffa::not_null<ObjectHandle*> self ) override
+        std::shared_ptr<ObjectMethod> create( caffa::not_null<ObjectHandle*> self ) override
         {
-            return std::unique_ptr<ObjectMethod>( new ObjectScriptMethodDerivative( self ) );
+            return std::shared_ptr<ObjectMethod>( new ObjectScriptMethodDerivative( self ) );
         }
     };
 
