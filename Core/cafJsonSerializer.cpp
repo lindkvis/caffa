@@ -38,8 +38,8 @@ using namespace caffa;
 //--------------------------------------------------------------------------------------------------
 void readFieldsFromJson( ObjectHandle* object, const nlohmann::json& jsonObject, const JsonSerializer* serializer )
 {
-    CAFFA_TRACE( "Reading fields from json with serialize setting: serializeDataValues = "
-                 << serializer->serializeDataValues() << ", serializeSchema = " << serializer->serializeSchema()
+    CAFFA_TRACE( "Reading fields from json with serialize setting: writeTypesAndValidators = "
+                 << serializer->writeTypesAndValidators() << ", serializeDataTypes = " << serializer->serializeDataTypes()
                  << ", serializeUuids = " << serializer->serializeUuids() );
 
     CAFFA_ASSERT( jsonObject.is_object() );
@@ -62,7 +62,7 @@ void readFieldsFromJson( ObjectHandle* object, const nlohmann::json& jsonObject,
                 classKeyword.is_string() &&
                 ObjectHandle::matchesClassKeyword( classKeyword.get<std::string>(), object->classInheritanceStack() ) );
         }
-        else if ( serializer->serializeDataValues() && !value.is_null() )
+        else if ( serializer->writeTypesAndValidators() && !value.is_null() )
         {
             auto fieldHandle = object->findField( keyword );
             if ( fieldHandle && fieldHandle->capability<FieldJsonCapability>() )
@@ -92,8 +92,8 @@ void readFieldsFromJson( ObjectHandle* object, const nlohmann::json& jsonObject,
 //--------------------------------------------------------------------------------------------------
 void writeFieldsToJson( const ObjectHandle* object, nlohmann::json& jsonObject, const JsonSerializer* serializer )
 {
-    CAFFA_TRACE( "Writing fields from json with serialize setting: serializeDataValues = "
-                 << serializer->serializeDataValues() << ", serializeSchema = " << serializer->serializeSchema()
+    CAFFA_TRACE( "Writing fields from json with serialize setting: writeTypesAndValidators = "
+                 << serializer->writeTypesAndValidators() << ", serializeDataTypes = " << serializer->serializeDataTypes()
                  << ", serializeUuids = " << serializer->serializeUuids() );
     jsonObject["class"] = object->classKeyword();
 
@@ -106,21 +106,18 @@ void writeFieldsToJson( const ObjectHandle* object, nlohmann::json& jsonObject, 
         }
     }
 
-    if ( serializer->serializeDataValues() || serializer->serializeSchema() )
+    for ( auto field : object->fields() )
     {
-        for ( auto field : object->fields() )
+        if ( serializer->fieldSelector() && !serializer->fieldSelector()( field ) ) continue;
+
+        auto keyword = field->keyword();
+
+        const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
+        if ( ioCapability && keyword != "uuid" )
         {
-            if ( serializer->fieldSelector() && !serializer->fieldSelector()( field ) ) continue;
-
-            auto keyword = field->keyword();
-
-            const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
-            if ( ioCapability && keyword != "uuid" )
-            {
-                nlohmann::json value;
-                ioCapability->writeToJson( value, *serializer );
-                jsonObject[keyword] = value;
-            }
+            nlohmann::json value;
+            ioCapability->writeToJson( value, *serializer );
+            jsonObject[keyword] = value;
         }
     }
 }

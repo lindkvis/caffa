@@ -22,7 +22,7 @@ template <typename FieldType>
 void FieldJsonCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
 {
     this->assertValid();
-    if ( serializer.serializeDataValues() )
+    if ( serializer.writeTypesAndValidators() )
     {
         CAFFA_TRACE( "Setting value from json to: " << jsonElement.dump() );
         if ( jsonElement.is_object() )
@@ -39,22 +39,20 @@ void FieldJsonCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, c
             m_field->setValue( value );
         }
     }
-    if ( serializer.serializeSchema() )
-    {
-        if ( jsonElement.contains( "type" ) )
-        {
-            if ( jsonElement["type"] != m_field->dataType() )
-            {
-                CAFFA_ERROR( "Data type of json '" << jsonElement["type"] << "' does not match field data type '"
-                                                   << m_field->dataType() << "'" );
-                CAFFA_ASSERT( false );
-            }
-        }
 
-        for ( auto validator : m_field->valueValidators() )
+    if ( jsonElement.contains( "type" ) )
+    {
+        if ( jsonElement["type"] != m_field->dataType() )
         {
-            validator->readFromJson( jsonElement, serializer );
+            CAFFA_ERROR( "Data type of json '" << jsonElement["type"] << "' does not match field data type '"
+                                               << m_field->dataType() << "'" );
+            CAFFA_ASSERT( false );
         }
+    }
+
+    for ( auto validator : m_field->valueValidators() )
+    {
+        validator->readFromJson( jsonElement, serializer );
     }
 }
 
@@ -68,7 +66,7 @@ void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Se
 
     nlohmann::json jsonField = nlohmann::json::object();
 
-    if ( serializer.serializeSchema() )
+    if ( serializer.serializeDataTypes() )
     {
         jsonField["type"] = m_field->dataType();
         for ( auto validator : m_field->valueValidators() )
@@ -76,13 +74,13 @@ void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Se
             validator->writeToJson( jsonField, serializer );
         }
     }
-    if ( serializer.serializeDataValues() )
+    if ( serializer.writeTypesAndValidators() )
     {
         CAFFA_TRACE( "Getting value from field: " << m_field );
 
         nlohmann::json jsonValue = m_field->value();
 
-        if ( serializer.serializeSchema() )
+        if ( serializer.serializeDataTypes() )
         {
             jsonField["value"] = jsonValue;
         }
@@ -200,7 +198,7 @@ void FieldJsonCap<Field<std::shared_ptr<DataType>>>::writeToJson( nlohmann::json
     std::string    jsonString = serializer.writeObjectToString( object.get() );
     nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
     CAFFA_ASSERT( jsonObject.is_object() );
-    if ( serializer.serializeSchema() )
+    if ( serializer.serializeDataTypes() )
     {
         jsonValue["type"]  = "object";
         jsonValue["value"] = jsonObject;
@@ -310,7 +308,7 @@ void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::writeToJson( n
         jsonArray.push_back( jsonObject );
     }
 
-    if ( serializer.serializeSchema() )
+    if ( serializer.serializeDataTypes() )
     {
         jsonValue["type"]  = "object[]";
         jsonValue["value"] = jsonArray;
@@ -419,7 +417,7 @@ void FieldJsonCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonValue
     std::string    jsonString = serializer.writeObjectToString( object.get() );
     nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
     CAFFA_ASSERT( jsonObject.is_object() );
-    if ( serializer.serializeSchema() )
+    if ( serializer.serializeDataTypes() )
     {
         jsonValue["type"]  = "object";
         jsonValue["value"] = jsonObject;
@@ -527,7 +525,7 @@ void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& json
         jsonArray.push_back( jsonObject );
     }
 
-    if ( serializer.serializeSchema() )
+    if ( serializer.serializeDataTypes() )
     {
         jsonValue["type"]  = "object[]";
         jsonValue["value"] = jsonArray;

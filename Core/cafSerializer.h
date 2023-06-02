@@ -117,21 +117,22 @@ public:
 
     /**
      * Set whether to serialize data values.
-     * Since it returns a reference to it it can be used like: Serializer(objectFactory).setSerializeDataValues(false);
+     * Since it returns a reference to it it can be used like:
+     * Serializer(objectFactory).setWriteTypesAndValidators(false);
      *
-     * @param serializeDataValues
+     * @param writeTypesAndValidators
      * @return cafSerializer& reference to this
      */
-    Serializer& setSerializeDataValues( bool serializeDataValues );
+    Serializer& setWriteTypesAndValidators( bool writeTypesAndValidators );
 
     /**
      * Set whether to serialize data types
-     * Since it returns a reference to it it can be used like: Serializer(objectFactory).setSerializeSchema(false);
+     * Since it returns a reference to it it can be used like: Serializer(objectFactory).setSerializeDataTypes(false);
      *
-     * @param serializeSchema
+     * @param serializeDataTypes
      * @return cafSerializer& reference to this
      */
-    Serializer& setSerializeSchema( bool serializeSchema );
+    Serializer& setSerializeDataTypes( bool serializeDataTypes );
 
     /**
      * Set whether to serialize UUIDs
@@ -158,13 +159,13 @@ public:
      * Check if we're meant to serialize data values
      * @return true if we should serialize data values
      */
-    bool serializeDataValues() const;
+    bool writeTypesAndValidators() const;
 
     /**
      * Check if we're meant to serialize data types
      * @return true if we should serialize schema (labels and types)
      */
-    bool serializeSchema() const;
+    bool serializeDataTypes() const;
 
     /**
      * Check if we're meant to serialize UUIDs. UUIDs are used for dynamic connection to runtime objects,
@@ -177,8 +178,8 @@ protected:
     ObjectFactory* m_objectFactory;
     FieldSelector  m_fieldSelector;
 
-    bool m_serializeDataValues;
-    bool m_serializeSchema;
+    bool m_writeTypesAndValidators;
+    bool m_serializeDataTypes;
     bool m_serializeUuids;
 };
 

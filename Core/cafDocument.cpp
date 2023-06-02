@@ -144,7 +144,7 @@ bool Document::write()
     try
     {
         JsonSerializer serializer;
-        serializer.setSerializeSchema( false ).setSerializeUuids( false );
+        serializer.setSerializeDataTypes( false ).setSerializeUuids( false );
         serializer.writeStream( this, outStream );
     }
     catch ( std::runtime_error& err )

@@ -279,9 +279,9 @@ void ObjectService::copyProjectSelfReferenceFromCafToRpc( const caffa::ObjectHan
 
     caffa::JsonSerializer serializer( DefaultObjectFactory::instance() );
     serializer.setFieldSelector( fieldIsScriptReadable );
-    serializer.setSerializeDataValues( false );
+    serializer.setWriteTypesAndValidators( false );
     serializer.setSerializeUuids( true );
-    serializer.setSerializeSchema( false );
+    serializer.setSerializeDataTypes( false );
 
     std::string jsonString = serializer.writeObjectToString( source );
     CAFFA_TRACE( jsonString );
@@ -298,7 +298,7 @@ void ObjectService::copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* so
 
     caffa::JsonSerializer serializer( DefaultObjectFactory::instance() );
     serializer.setFieldSelector( fieldIsScriptReadable );
-    serializer.setSerializeDataValues( false );
+    serializer.setWriteTypesAndValidators( false );
     serializer.setSerializeUuids( true );
 
     std::string jsonString = serializer.writeObjectToString( source );
@@ -316,7 +316,7 @@ void ObjectService::copyProjectObjectFromRpcToCaf( const RpcObject*      source,
 
     caffa::JsonSerializer serializer( DefaultObjectFactory::instance() );
     serializer.setFieldSelector( fieldIsScriptWritable );
-    serializer.setSerializeDataValues( false );
+    serializer.setWriteTypesAndValidators( false );
 
     serializer.readObjectFromString( destination, source->json() );
 }

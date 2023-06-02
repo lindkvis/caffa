@@ -75,7 +75,7 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
                 {
                     nlohmann::json jsonValue;
                     JsonSerializer serializer;
-                    serializer.setSerializeDataValues( !isObjectField || request->copy_object_values() );
+                    serializer.setWriteTypesAndValidators( !isObjectField || request->copy_object_values() );
                     ioCapability->writeToJson( jsonValue, serializer );
                     if ( jsonValue.is_object() && jsonValue.contains( "value" ) )
                     {

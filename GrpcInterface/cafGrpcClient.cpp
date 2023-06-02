@@ -290,7 +290,7 @@ public:
         {
             CAFFA_TRACE( "Got document" );
             caffa::JsonSerializer serializer( caffa::rpc::GrpcClientObjectFactory::instance() );
-            serializer.setSerializeDataValues( false );
+            serializer.setWriteTypesAndValidators( false );
             document = caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply, serializer );
             CAFFA_TRACE( "Document completed with UUID " << document->uuid() );
         }
@@ -321,7 +321,7 @@ public:
             CAFFA_TRACE( "Got list of documents" );
 
             caffa::JsonSerializer serializer( caffa::rpc::GrpcClientObjectFactory::instance() );
-            serializer.setSerializeDataValues( false );
+            serializer.setWriteTypesAndValidators( false );
 
             for ( auto documentId : objectListReply.document_id() )
             {
@@ -372,7 +372,7 @@ public:
         {
             CAFFA_DEBUG( "Got JSON: " + reply.value() );
             childObject = caffa::JsonSerializer( caffa::rpc::GrpcClientObjectFactory::instance() )
-                              .setSerializeDataValues( false )
+                              .setWriteTypesAndValidators( false )
                               .createObjectFromString( reply.value() );
         }
         else
@@ -408,7 +408,7 @@ public:
         if ( status.ok() )
         {
             childObject = caffa::JsonSerializer( caffa::DefaultObjectFactory::instance() )
-                              .setSerializeDataValues( true )
+                              .setWriteTypesAndValidators( true )
                               .createObjectFromString( reply.value() );
         }
         else
@@ -468,7 +468,7 @@ public:
         std::vector<ObjectHandle::Ptr> childObjects;
 
         caffa::JsonSerializer serializer( caffa::rpc::GrpcClientObjectFactory::instance() );
-        serializer.setSerializeDataValues( false );
+        serializer.setWriteTypesAndValidators( false );
 
         GenericValue reply;
         grpc::Status status = m_fieldStub->GetValue( &context, field, &reply );
@@ -479,7 +479,7 @@ public:
             for ( auto arrayEntry : jsonArray )
             {
                 auto childObject = caffa::JsonSerializer( caffa::rpc::GrpcClientObjectFactory::instance() )
-                                       .setSerializeDataValues( false )
+                                       .setWriteTypesAndValidators( false )
                                        .createObjectFromString( arrayEntry.dump() );
                 childObjects.push_back( childObject );
             }
