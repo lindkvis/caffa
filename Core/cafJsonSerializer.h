@@ -20,6 +20,8 @@
 
 #include "cafSerializer.h"
 
+#include <nlohmann/json.hpp>
+
 namespace caffa
 {
 class ObjectHandle;
@@ -96,5 +98,8 @@ public:
      * @param stream The output stream
      */
     void writeStream( const ObjectHandle* object, std::ostream& stream ) const override;
+
+    void readObjectFromJson( ObjectHandle* object, const nlohmann::json& jsonObject ) const;
+    void writeObjectToJson( const ObjectHandle* object, nlohmann::json& jsonObject ) const;
 };
 } // End of namespace caffa

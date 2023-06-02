@@ -24,6 +24,8 @@
 #include "cafMethodHandle.h"
 #include "cafPortableDataType.h"
 
+#include "cafObjectJsonSpecializations.h"
+
 #include <nlohmann/json.hpp>
 
 #include <functional>

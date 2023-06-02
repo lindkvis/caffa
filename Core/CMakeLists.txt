@@ -38,6 +38,7 @@ set(PUBLIC_HEADERS
     cafDefaultObjectFactory.h
     cafObjectFactory.h
     cafObject.h
+    cafObjectJsonSpecializations.h
     cafFieldScriptingCapability.h
     cafObjectMethod.h
     cafDocument.h
@@ -61,6 +62,7 @@ set(PROJECT_FILES
     cafJsonSerializer.cpp
     cafDefaultObjectFactory.cpp
     cafObject.cpp
+    cafObjectJsonSpecializations.cpp
     cafFieldScriptingCapability.cpp
     cafObjectMethod.cpp
     cafDocument.cpp

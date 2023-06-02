@@ -72,6 +72,12 @@ public:
                     "add",
                     std::bind( &DemoObject::_add, this, std::placeholders::_1, std::placeholders::_2 ),
                     caffa::MethodHandle::Type::READ_ONLY );
+
+        initMethod( clone,
+                    "clone",
+                    std::bind( [this]() -> std::shared_ptr<DemoObject>
+                               { return std::dynamic_pointer_cast<DemoObject>( this->deepClone() ); } ),
+                    caffa::MethodHandle::Type::READ_ONLY );
     }
 
     // Fields
@@ -83,8 +89,9 @@ public:
     caffa::Field<int>         m_memberIntField;
     caffa::Field<std::string> m_memberStringField;
 
-    caffa::Method<double( int, int )> multiply;
-    caffa::Method<int( int, int )>    add;
+    caffa::Method<double( int, int )>            multiply;
+    caffa::Method<int( int, int )>               add;
+    caffa::Method<std::shared_ptr<DemoObject>()> clone;
 
     // Internal class members accessed by proxy fields
     double doubleMember() const
@@ -584,6 +591,20 @@ TEST( BaseTest, Methods )
 
     EXPECT_EQ( 5, object.add( 3, 2 ) );
     EXPECT_DOUBLE_EQ( 12.0, object.multiply( 4, 3 ) );
+
+    object.setIntMember( 513 );
+    object.setDoubleMember( 589.123 );
+
+    EXPECT_EQ( 513, object.intMember() );
+    EXPECT_DOUBLE_EQ( 589.123, object.doubleMember() );
+
+    auto result = object.clone();
+    EXPECT_TRUE( result != nullptr );
+    EXPECT_EQ( object.intMember(), result->intMember() );
+    EXPECT_DOUBLE_EQ( object.doubleMember(), result->doubleMember() );
+
+    caffa::JsonSerializer serializer;
+    CAFFA_DEBUG( "Clone: " << serializer.writeObjectToString( result.get() ) );
 
     {
         auto result = nlohmann::json::parse( object.add.execute( "[3, 8]" ) );
