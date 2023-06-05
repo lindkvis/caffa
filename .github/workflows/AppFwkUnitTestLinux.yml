@@ -33,7 +33,7 @@ jobs:
           cmakebuild/bin/caffaCore_UnitTests
           cmakebuild/bin/caffaIoCore_UnitTests
           cmakebuild/bin/caffaProjectDataModel_UnitTests
-          cmakebuild/bin/caffaGrpcInterface_UnitTests
+          cmakebuild/bin/caffaGrpcInterface_UnitTests -V debug
       - name: Setup Python
         uses: actions/setup-python@v1
         with:
@@ -54,7 +54,7 @@ jobs:
           distribution: 'adopt'
           cache: gradle
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b        
+        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
       - name: Build with Gradle
         run: |
           cmakebuild/bin/caffaGrpcInterface_ExampleServer &
