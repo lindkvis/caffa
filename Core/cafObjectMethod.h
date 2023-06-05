@@ -101,7 +101,6 @@ public:
     ObjectType* self()
     {
         caffa::not_null<ObjectType*> object = dynamic_cast<ObjectType*>( m_self.p() );
-        CAFFA_ASSERT( object );
         return object;
     }
 
@@ -110,7 +109,6 @@ public:
     const ObjectType* self() const
     {
         caffa::not_null<const ObjectType*> object = dynamic_cast<const ObjectType*>( m_self.p() );
-        CAFFA_ASSERT( object );
         return object;
     }
 

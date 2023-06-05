@@ -36,11 +36,12 @@
 
 #pragma once
 
+#include "cafObjectHandle.h"
+
 #include <cstddef>
 
 namespace caffa
 {
-class ObjectHandle;
 
 //==================================================================================================
 /// Helper class for the Pointer class
@@ -57,7 +58,9 @@ class ObservingPointerImpl
 {
 private:
     template <class T>
+        requires DerivesFromObjectHandle<T>
     friend class ObservingPointer;
+
     static void addReference( ObjectHandle** addressToObjectPointer );
     static void removeReference( ObjectHandle** addressToObjectPointer );
 };
@@ -70,6 +73,7 @@ private:
 //==================================================================================================
 
 template <class T>
+    requires DerivesFromObjectHandle<T>
 class ObservingPointer
 {
     ObjectHandle* m_object;
@@ -91,10 +95,10 @@ public:
     }
     inline ~ObservingPointer() { ObservingPointerImpl::removeReference( &m_object ); }
 
-    T*                   p() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
-    bool                 isNull() const { return !m_object; }
-    bool                 notNull() const { return !isNull(); }
-                         operator T*() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
+    T*   p() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
+    bool isNull() const { return !m_object; }
+    bool notNull() const { return !isNull(); }
+    operator T*() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
     T&                   operator*() const { return *static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
     T*                   operator->() const { return static_cast<T*>( const_cast<ObjectHandle*>( m_object ) ); }
     ObservingPointer<T>& operator=( const ObservingPointer<T>& p )
@@ -114,16 +118,7 @@ public:
     template <class S>
     auto operator<=>( const ObservingPointer<S>& rhs ) const
     {
-        return m_object <=> rhs.rawPtr();
-    }
-
-    // Private methods used by Field<T*> and PointersField<T*>. Do not use unless you mean it !
-    ObjectHandle* rawPtr() const { return m_object; }
-    void          setRawPtr( ObjectHandle* p )
-    {
-        if ( m_object != p ) ObservingPointerImpl::removeReference( &m_object );
-        m_object = p;
-        ObservingPointerImpl::addReference( &m_object );
+        return m_object <=> rhs.m_object;
     }
 };
 
