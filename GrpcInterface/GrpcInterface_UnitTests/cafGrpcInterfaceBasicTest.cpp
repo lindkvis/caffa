@@ -1179,7 +1179,7 @@ TEST_F( GrpcTest, MultipleConcurrentSessionsDelayWithoutKeepalive )
                                                                      ServerApp::s_caCertFile ) );
     ASSERT_TRUE( client1 );
 
-    std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
+    std::this_thread::sleep_for( std::chrono::milliseconds( 2100 ) );
 
     ASSERT_NO_THROW( client2 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
                                                                      "localhost",
