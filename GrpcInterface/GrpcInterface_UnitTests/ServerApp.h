@@ -130,7 +130,7 @@ public:
                                                 << " but it has not been kept alive, so destroying it" );
                 }
             }
-            m_session = caffa::Session::create( type );
+            m_session = caffa::Session::create( type, std::chrono::seconds( 2 ) );
             return caffa::SessionMaintainer( m_session );
         }
         else
