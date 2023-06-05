@@ -38,10 +38,10 @@ template <class CallbackT>
 class Method : public MethodHandle
 {
 public:
-    std::function<CallbackT> callback;
+    std::function<CallbackT> m_callback;
 };
 
-template <class Result, typename... ArgTypes>
+template <typename Result, typename... ArgTypes>
 class Method<Result( ArgTypes... )> : public MethodHandle
 {
 public:
@@ -49,8 +49,8 @@ public:
 
     Result operator()( ArgTypes... args ) const
     {
-        CAFFA_ASSERT( callback );
-        return callback( args... );
+        CAFFA_ASSERT( m_callback );
+        return m_callback( args... );
     }
 
     std::string execute( const std::string& jsonArgumentsString ) const override
@@ -58,54 +58,125 @@ public:
         return executeJson( nlohmann::json::parse( jsonArgumentsString ) ).dump();
     }
 
-    template <typename T>
-    static std::string dataType( const T& value )
+    nlohmann::json toJson( ArgTypes... args ) const
     {
-        return PortableDataType<T>::name();
-    }
+        auto jsonMethod = nlohmann::json::object();
+        CAFFA_ASSERT( !name().empty() );
 
-    static nlohmann::json jsonArguments( ArgTypes... args )
-    {
-        auto jsonArray = nlohmann::json::array();
+        jsonMethod["keyword"]     = name();
+        auto        jsonArguments = nlohmann::json::array();
+        const auto& argumentNames = this->argumentNames();
+        size_t      i             = 0;
+
+        // Fold expression
+        // https://en.cppreference.com/w/cpp/language/fold
         (
             [&]
             {
                 nlohmann::json jsonArg = nlohmann::json::object();
-                jsonArg["type"]        = dataType( args );
+                jsonArg["keyword"]     = i < argumentNames.size() ? argumentNames[i]
+                                                                  : std::string( "arg" ) + std::to_string( i );
+                jsonArg["type"]        = PortableDataType<ArgTypes>::name();
                 jsonArg["value"]       = args;
-                jsonArray.push_back( jsonArg );
+                jsonArguments.push_back( jsonArg );
+                i++;
             }(),
             ... );
-        return jsonArray;
+        jsonMethod["arguments"] = jsonArguments;
+        jsonMethod["returns"]   = PortableDataType<Result>::name();
+
+        return jsonMethod;
     }
 
-    static nlohmann::json jsonReturnType()
+    nlohmann::json jsonSkeleton() const
     {
-        nlohmann::json jsonResult = nlohmann::json::object();
-        jsonResult["type"]        = PortableDataType<Result>::name();
-        return jsonResult;
+        auto jsonMethod = nlohmann::json::object();
+        CAFFA_ASSERT( !name().empty() );
+
+        jsonMethod["keyword"] = name();
+        auto jsonArguments    = jsonArgumentArray( std::index_sequence_for<ArgTypes...>() );
+        if ( !jsonArguments.empty() )
+        {
+            jsonMethod["arguments"] = jsonArguments;
+        }
+        jsonMethod["returns"] = PortableDataType<Result>::name();
+
+        return jsonMethod;
     }
 
-    void setCallback( Callback callback ) { this->callback = callback; }
+    void setCallback( Callback callback ) { this->m_callback = callback; }
 
 private:
+    template <typename ArgType>
+        requires IsSharedPtr<ArgType>
+    static ArgType jsonToArgument( const nlohmann::json& value )
+    {
+        JsonSerializer serializer;
+        return std::dynamic_pointer_cast<typename ArgType::element_type>(
+            serializer.createObjectFromString( value.dump() ) );
+    }
+
+    template <typename ArgType>
+        requires( not IsSharedPtr<ArgType> )
+    static ArgType jsonToArgument( const nlohmann::json& value )
+    {
+        return value.get<ArgType>();
+    }
+
+    template <typename ReturnType, std::size_t... Is>
+        requires std::same_as<ReturnType, void>
+    nlohmann::json executeJson( const nlohmann::json& args, std::index_sequence<Is...> ) const
+    {
+        this->operator()( jsonToArgument<ArgTypes>( args[Is]["value"] )... );
+
+        nlohmann::json returnValue = nlohmann::json::object();
+        returnValue["type"]        = PortableDataType<Result>::name();
+        return returnValue;
+    }
+
+    template <typename ReturnType, std::size_t... Is>
+        requires( not std::same_as<ReturnType, void> )
+    nlohmann::json executeJson( const nlohmann::json& args, std::index_sequence<Is...> ) const
+    {
+        nlohmann::json returnValue = nlohmann::json::object();
+        returnValue["type"]        = PortableDataType<Result>::name();
+        returnValue["value"]       = this->operator()( jsonToArgument<ArgTypes>( args[Is]["value"] )... );
+        return returnValue;
+    }
+
+    nlohmann::json executeJson( const nlohmann::json& jsonMethod ) const
+    {
+        nlohmann::json jsonArguments = jsonMethod["arguments"];
+        return this->executeJson<Result>( jsonArguments, std::index_sequence_for<ArgTypes...>() );
+    }
+
+    template <typename... T>
+    void argumentHelper( nlohmann::json& jsonArguments, const T&... argumentTypes ) const
+    {
+        const auto& argumentNames = this->argumentNames();
+        size_t      i             = 0;
+        (
+            [&]
+            {
+                nlohmann::json jsonArg = nlohmann::json::object();
+                jsonArg["name"]        = argumentNames[i];
+                jsonArg["type"]        = argumentTypes;
+                jsonArguments.push_back( jsonArg );
+                i++;
+            }(),
+            ... );
+    }
+
     template <std::size_t... Is>
-    Result executeJson( const nlohmann::json& args, std::index_sequence<Is...> ) const
+    nlohmann::json jsonArgumentArray( std::index_sequence<Is...> ) const
     {
-        return this->operator()( args[Is].get<ArgTypes>()... );
-    }
-
-    nlohmann::json executeJson( const nlohmann::json& jsonArguments ) const
-    {
-        Result result = this->executeJson( jsonArguments, std::index_sequence_for<ArgTypes...>() );
-
-        nlohmann::json jsonResult = jsonReturnType();
-        jsonResult["value"]       = result;
-        return jsonResult;
+        auto jsonArguments = nlohmann::json::array();
+        argumentHelper( jsonArguments, PortableDataType<ArgTypes>::name()... );
+        return jsonArguments;
     }
 
 private:
-    Callback callback;
+    Callback m_callback;
 };
 
 } // namespace caffa

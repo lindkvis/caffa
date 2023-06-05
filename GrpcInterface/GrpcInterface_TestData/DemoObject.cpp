@@ -71,6 +71,7 @@ DemoObject::DemoObject()
 
     initMethod( myMethod,
                 "myMethod",
+                { "a", "b" },
                 std::bind( &DemoObject::methodTest, this, std::placeholders::_1, std::placeholders::_2 ) );
 }
 

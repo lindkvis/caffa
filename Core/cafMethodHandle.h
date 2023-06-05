@@ -35,7 +35,10 @@ public:
     };
 
     std::string name() const { return m_name; }
-    Type        type() const { return m_type; }
+    void        setArgumentNames( const std::vector<std::string>& argumentNames ) { m_argumentNames = argumentNames; }
+    const std::vector<std::string>& argumentNames() const { return m_argumentNames; }
+
+    Type type() const { return m_type; }
 
     virtual std::string execute( const std::string& jsonArgumentsString ) const = 0;
 
@@ -44,7 +47,8 @@ private:
     void setName( const std::string name ) { m_name = name; }
     void setType( Type type ) { m_type = type; }
 
-    std::string m_name;
-    Type        m_type;
+    std::string              m_name;
+    std::vector<std::string> m_argumentNames;
+    Type                     m_type;
 };
 } // namespace caffa

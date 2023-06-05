@@ -7,6 +7,7 @@
 #include "cafChildField.h"
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
+#include "cafJsonSerializer.h"
 #include "cafMethod.h"
 #include "cafObject.h"
 #include "cafObservingPointer.h"
@@ -65,19 +66,24 @@ public:
 
         initMethod( multiply,
                     "multiply",
+                    { "a", "b" },
                     std::bind( []( int a, int b ) -> double { return a * b; }, std::placeholders::_1, std::placeholders::_2 ),
                     caffa::MethodHandle::Type::READ_ONLY );
 
         initMethod( add,
                     "add",
+                    { "a", "b" },
                     std::bind( &DemoObject::_add, this, std::placeholders::_1, std::placeholders::_2 ),
                     caffa::MethodHandle::Type::READ_ONLY );
 
         initMethod( clone,
                     "clone",
+                    {},
                     std::bind( [this]() -> std::shared_ptr<DemoObject>
                                { return std::dynamic_pointer_cast<DemoObject>( this->deepClone() ); } ),
                     caffa::MethodHandle::Type::READ_ONLY );
+
+        initMethod( copyFrom, "copyFrom", { "rhs" }, std::bind( &DemoObject::_copyFrom, this, std::placeholders::_1 ) );
     }
 
     // Fields
@@ -89,9 +95,10 @@ public:
     caffa::Field<int>         m_memberIntField;
     caffa::Field<std::string> m_memberStringField;
 
-    caffa::Method<double( int, int )>            multiply;
-    caffa::Method<int( int, int )>               add;
-    caffa::Method<std::shared_ptr<DemoObject>()> clone;
+    caffa::Method<double( int, int )>                        multiply;
+    caffa::Method<int( int, int )>                           add;
+    caffa::Method<std::shared_ptr<DemoObject>()>             clone;
+    caffa::Method<void( std::shared_ptr<const DemoObject> )> copyFrom;
 
     // Internal class members accessed by proxy fields
     double doubleMember() const
@@ -112,6 +119,13 @@ public:
     void        setStringMember( const std::string& val ) { m_stringMember = val; }
 
     int _add( int a, int b ) const { return a + b; }
+
+    void _copyFrom( std::shared_ptr<const DemoObject> rhs )
+    {
+        caffa::JsonSerializer serializer;
+        std::string           json = serializer.writeObjectToString( rhs.get() );
+        serializer.readObjectFromString( this, json );
+    }
 
 private:
     double      m_doubleMember;
@@ -598,6 +612,8 @@ TEST( BaseTest, Methods )
     EXPECT_EQ( 513, object.intMember() );
     EXPECT_DOUBLE_EQ( 589.123, object.doubleMember() );
 
+    CAFFA_DEBUG( "Clone method skeleton: " << object.clone.jsonSkeleton().dump() );
+
     auto result = object.clone();
     EXPECT_TRUE( result != nullptr );
     EXPECT_EQ( object.intMember(), result->intMember() );
@@ -607,7 +623,13 @@ TEST( BaseTest, Methods )
     CAFFA_DEBUG( "Clone: " << serializer.writeObjectToString( result.get() ) );
 
     {
-        auto result = nlohmann::json::parse( object.add.execute( "[3, 8]" ) );
+        CAFFA_DEBUG( "Method skeleton: " << object.add.jsonSkeleton().dump() );
+
+        auto argumentJson = object.add.toJson( 3, 8 );
+        CAFFA_DEBUG( "Argument json: " << argumentJson.dump() );
+        auto stringResult = object.add.execute( argumentJson.dump() );
+        CAFFA_DEBUG( "String result: " << stringResult );
+        auto result = nlohmann::json::parse( stringResult );
         CAFFA_DEBUG( "Got result: "
                      << "type = " << result["type"] << ", result = " << result["value"] );
         EXPECT_EQ( "int32", result["type"].get<std::string>() );
@@ -615,7 +637,7 @@ TEST( BaseTest, Methods )
     }
 
     {
-        auto result = nlohmann::json::parse( object.multiply.execute( "[4, 5]" ) );
+        auto result = nlohmann::json::parse( object.multiply.execute( object.multiply.toJson( 4, 5 ).dump() ) );
         CAFFA_DEBUG( "Got result: "
                      << "type = " << result["type"] << ", result = " << result["value"] );
         EXPECT_EQ( "double", result["type"].get<std::string>() );
@@ -623,10 +645,14 @@ TEST( BaseTest, Methods )
     }
 
     {
-        auto stringArguments = object.multiply.jsonArguments( 4, 5 );
+        auto stringArguments = object.multiply.toJson( 4, 5 );
         CAFFA_DEBUG( "Parameter json: " << stringArguments );
-
-        auto stringResult = object.multiply.jsonReturnType();
-        CAFFA_DEBUG( "Result type json: " << stringResult.dump() );
     }
+
+    result->setIntMember( 10001 );
+    EXPECT_EQ( 10001, result->intMember() );
+    object.copyFrom( result );
+    EXPECT_EQ( 10001, object.intMember() );
+
+    CAFFA_DEBUG( "Method skeleton for copyFrom(): " << object.copyFrom.jsonSkeleton().dump() );
 }

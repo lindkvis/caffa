@@ -176,15 +176,20 @@ public:
      * Initialises the method with a keyword and registers it with the class
      * @param method A reference to the method
      * @param keyword The method keyword. Has to be unique within the class.
+     * @param argumentNames A vector of argument names
+     * @param callback The method that will be called locally
+     * @param type Whether it is a READ_WRITE or a READ_ONLY (const) type method
      */
     template <typename MethodType, typename CallbackT>
-    void initMethod( MethodType&        method,
-                     const std::string& keyword,
-                     CallbackT&&        callback,
-                     MethodHandle::Type type = MethodHandle::Type::READ_WRITE )
+    void initMethod( MethodType&                     method,
+                     const std::string&              keyword,
+                     const std::vector<std::string>& argumentNames,
+                     CallbackT&&                     callback,
+                     MethodHandle::Type              type = MethodHandle::Type::READ_WRITE )
     {
         addMethod( &method, keyword, type );
         method.setCallback( callback );
+        method.setArgumentNames( argumentNames );
     }
 
     std::string uuid() const override;
