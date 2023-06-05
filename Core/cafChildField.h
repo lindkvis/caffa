@@ -5,7 +5,6 @@
 #include "cafChildFieldHandle.h"
 #include "cafFieldHandle.h"
 #include "cafObjectHandle.h"
-#include "cafPortableDataType.h"
 #include "cafVisitor.h"
 
 #include <concepts>
@@ -36,7 +35,7 @@ public:
     ChildField()
         : m_fieldDataAccessor( std::make_unique<ChildFieldDirectStorageAccessor>( this ) )
     {
-        static_assert( std::is_base_of<ObjectHandle, DataType>::value &&
+        static_assert( DerivesFromObjectHandle<DataType> &&
                        "Child fields can only contain ObjectHandle-derived objects" );
     }
 
@@ -78,7 +77,7 @@ public:
     void                                removeChildObject( ObjectHandle::ConstPtr object );
     void                                setChildObject( ObjectHandle::Ptr object );
 
-    std::string dataType() const override { return std::string( "object" ); }
+    std::string dataType() const override { return PortableDataType<DataType>::name(); }
 
     void setAccessor( std::unique_ptr<ChildFieldAccessor> accessor ) override
     {

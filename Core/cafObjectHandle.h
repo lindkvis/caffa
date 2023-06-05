@@ -28,6 +28,7 @@
 #include "cafLogger.h"
 #include "cafMethodHandle.h"
 #include "cafObjectCapability.h"
+#include "cafPortableDataType.h"
 #include "cafSignal.h"
 #include "cafStringTools.h"
 
@@ -206,5 +207,38 @@ private:
 
 template <typename T>
 concept DerivesFromObjectHandle = std::is_base_of<ObjectHandle, T>::value;
+
+template <typename T>
+struct is_shared_ptr : std::false_type
+{
+};
+template <typename T>
+struct is_shared_ptr<std::shared_ptr<T>> : std::true_type
+{
+};
+
+template <typename T>
+concept IsSharedPtr = is_shared_ptr<T>::value;
+
+template <typename T>
+concept IsSharedPtrOrObject = ( IsSharedPtr<T> || DerivesFromObjectHandle<T> );
+
+/**
+ * The portable type id for an ObjectHandle
+ */
+template <IsSharedPtrOrObject DataType>
+struct PortableDataType<DataType>
+{
+    static std::string name() { return "object"; }
+};
+
+/**
+ * The portable type id for an ObjectHandle
+ */
+template <IsSharedPtrOrObject DataType>
+struct PortableDataType<std::vector<DataType>>
+{
+    static std::string name() { return "object[]"; }
+};
 
 } // namespace caffa
