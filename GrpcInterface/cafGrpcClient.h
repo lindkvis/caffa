@@ -21,7 +21,6 @@
 #include "cafDocument.h"
 #include "cafLogger.h"
 #include "cafNotNull.h"
-#include "cafObjectMethod.h"
 #include "cafPortableDataType.h"
 #include "cafSession.h"
 
@@ -51,9 +50,9 @@ public:
     caffa::AppInfo                                    appInfo() const;
     std::shared_ptr<caffa::ObjectHandle>              document( const std::string& documentId ) const;
     std::vector<std::shared_ptr<caffa::ObjectHandle>> documents() const;
-    std::shared_ptr<caffa::ObjectMethodResult> execute( caffa::not_null<const caffa::ObjectMethod*> method ) const;
-    bool                                       stopServer();
-    void                                       sendKeepAlive();
+    std::string execute( caffa::not_null<const caffa::ObjectHandle*> selfObject, const std::string& jsonMethod ) const;
+    bool        stopServer();
+    void        sendKeepAlive();
 
     /**
      * @brief Check the session. Will return a session type (including possibly INVALID) if the session exists.
@@ -66,8 +65,7 @@ public:
     const std::string&   sessionUuid() const;
     void                 startKeepAliveThread();
 
-    bool                                            ping() const;
-    std::list<std::shared_ptr<caffa::ObjectHandle>> objectMethods( caffa::ObjectHandle* objectHandle ) const;
+    bool ping() const;
 
     template <typename DataType>
     void set( const caffa::ObjectHandle* objectHandle,

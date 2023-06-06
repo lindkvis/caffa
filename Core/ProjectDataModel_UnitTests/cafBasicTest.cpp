@@ -44,7 +44,6 @@
 #include "cafFieldProxyAccessor.h"
 #include "cafJsonSerializer.h"
 #include "cafObject.h"
-#include "cafObservingPointer.h"
 
 #include <fstream>
 #include <functional>
@@ -337,40 +336,6 @@ TEST( BaseTest, ReadWrite )
         bool equal = str1 == str2;
         EXPECT_TRUE( equal );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Tests the features of Pointer
-//--------------------------------------------------------------------------------------------------
-TEST( BaseTest, Pointer )
-{
-    auto d = std::make_shared<caffa::Document>();
-
-    {
-        caffa::ObservingPointer<caffa::Document> p;
-        EXPECT_TRUE( p == nullptr );
-    }
-
-    {
-        caffa::ObservingPointer<caffa::Document> p( d.get() );
-        caffa::ObservingPointer<caffa::Document> p2( p.p() );
-
-        EXPECT_EQ( p, d.get() );
-        EXPECT_EQ( p2, d.get() );
-        EXPECT_TRUE( p.p() == d.get() );
-        p = 0;
-        EXPECT_TRUE( p == nullptr );
-        EXPECT_TRUE( p.isNull() );
-        EXPECT_TRUE( p2 == d.get() );
-        p = p2;
-        EXPECT_TRUE( p == d.get() );
-        d.reset();
-        EXPECT_TRUE( p.isNull() && p2.isNull() );
-    }
-
-    caffa::ObservingPointer<DemoObject> p3( new DemoObject() );
-
-    delete p3;
 }
 
 //--------------------------------------------------------------------------------------------------

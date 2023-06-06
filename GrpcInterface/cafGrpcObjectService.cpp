@@ -47,7 +47,6 @@
 #include "cafJsonSerializer.h"
 #include "cafObject.h"
 #include "cafObjectCollector.h"
-#include "cafObjectMethod.h"
 
 #include "FieldService.pb.h"
 
@@ -113,7 +112,7 @@ grpc::Status ObjectService::ListDocuments( grpc::ServerContext* context, const S
 grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, RpcObject* reply )
 {
     const RpcObject& self = request->self_object();
-    CAFFA_TRACE( "Execute method: " << request->method() );
+    CAFFA_TRACE( "Execute method: " << request->method().json() );
 
     auto session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
     if ( !session )
@@ -126,22 +125,19 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
         auto matchingObject = findCafObjectFromRpcObject( session.get(), self );
         if ( matchingObject )
         {
-            auto method = ObjectMethodFactory::instance()->createMethodInstance( matchingObject, request->method() );
+            auto methodJson = nlohmann::json::parse( request->method().json() );
+            auto method     = matchingObject->findMethod( methodJson["keyword"] );
+
             if ( method )
             {
-                if ( method->type() == ObjectMethod::Type::READ_WRITE && session->type() == Session::Type::OBSERVING )
+                if ( method->type() == MethodHandle::Type::READ_WRITE && session->type() == Session::Type::OBSERVING )
                 {
                     return grpc::Status( grpc::UNAUTHENTICATED, "Operation cannot be completed with observing sessions" );
                 }
 
-                CAFFA_TRACE( "Copy parameters from: " << request->params().json() );
-                copyResultOrParameterObjectFromRpcToCaf( &( request->params() ), method.get() );
+                auto result = method->execute( request->method().json() );
+                reply->set_json( result );
 
-                CAFFA_TRACE( "Method parameters copied. Now executing!" );
-                auto result = method->execute();
-                CAFFA_ASSERT( result != nullptr );
-
-                copyResultOrParameterObjectFromCafToRpc( result.get(), reply );
                 CAFFA_TRACE( "Result JSON: " << reply->json() );
 
                 return grpc::Status::OK;
@@ -175,14 +171,13 @@ grpc::Status
 
     if ( matchingObject )
     {
-        auto methodNames = ObjectMethodFactory::instance()->registeredMethodNames( matchingObject );
-        CAFFA_TRACE( "Found " << methodNames.size() << " methods" );
-        for ( auto methodName : methodNames )
+        auto methods = matchingObject->methods();
+        CAFFA_TRACE( "Found " << methods.size() << " methods" );
+        for ( auto method : methods )
         {
-            CAFFA_TRACE( "Found method: " << methodName );
-            auto       method = ObjectMethodFactory::instance()->createMethodInstance( matchingObject, methodName );
+            CAFFA_TRACE( "Found method: " << method->name() );
             RpcObject* newMethodObject = reply->add_objects();
-            copyResultOrParameterObjectFromCafToRpc( method.get(), newMethodObject );
+            newMethodObject->set_json( method->schema() );
         }
         return grpc::Status::OK;
     }
@@ -351,27 +346,6 @@ std::shared_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( cons
 
     auto destination = serializer.createObjectFromString( source->json() );
     return destination;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::shared_ptr<caffa::ObjectMethod>
-    ObjectService::createCafObjectMethodFromRpc( ObjectHandle*               self,
-                                                 const RpcObject*            source,
-                                                 caffa::ObjectMethodFactory* objectMethodFactory,
-                                                 caffa::ObjectFactory*       objectFactory )
-{
-    CAFFA_ASSERT( self && source );
-    if ( !self ) return nullptr;
-
-    caffa::JsonSerializer serializer( objectFactory );
-    auto [classKeyword, uuid] = serializer.readClassKeywordAndUUIDFromObjectString( source->json() );
-
-    std::shared_ptr<caffa::ObjectMethod> method = objectMethodFactory->createMethodInstance( self, classKeyword );
-
-    serializer.readObjectFromString( method.get(), source->json() );
-    return method;
 }
 
 //--------------------------------------------------------------------------------------------------

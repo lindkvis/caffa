@@ -1,6 +1,6 @@
 // ##################################################################################################
 //
-//    Custom Visualization Core library
+//    Caffa
 //    Copyright (C) 2011-2013 Ceetron AS
 //    Copyright (C) 2021 3D-Radar AS
 //    Copyright (C) 2022- Kontur AS

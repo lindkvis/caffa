@@ -82,11 +82,6 @@ public:
     static std::shared_ptr<caffa::ObjectHandle> createCafObjectFromRpc( const RpcObject*         source,
                                                                         const caffa::Serializer& serializer );
 
-    static std::shared_ptr<caffa::ObjectMethod> createCafObjectMethodFromRpc( ObjectHandle*    self,
-                                                                              const RpcObject* source,
-                                                                              caffa::ObjectMethodFactory* objectMethodFactory,
-                                                                              caffa::ObjectFactory* objectFactory );
-
     std::vector<AbstractCallback*> createCallbacks() override;
 
 private:

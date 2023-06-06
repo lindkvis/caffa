@@ -43,15 +43,6 @@ ObjectHandle::ObjectHandle()
 ObjectHandle::~ObjectHandle() noexcept
 {
     m_capabilities.clear();
-
-    // Set all guarded pointers pointing to this to nullptr
-    std::set<ObjectHandle**>::iterator it;
-    for ( it = m_pointersReferencingMe.begin(); it != m_pointersReferencingMe.end(); ++it )
-    {
-        ( **it ) = nullptr;
-    }
-
-    m_pointersReferencingMe.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

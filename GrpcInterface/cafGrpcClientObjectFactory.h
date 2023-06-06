@@ -82,6 +82,7 @@ private:
     ~GrpcClientObjectFactory() override = default;
 
     void applyAccessorToField( caffa::ObjectHandle* objectHandle, caffa::FieldHandle* fieldHandle );
+    void applyAccessorToMethod( caffa::ObjectHandle* objectHandle, caffa::MethodHandle* methodHandle );
 
     void registerAccessorCreator( const std::string& dataType, std::unique_ptr<AccessorCreatorBase> creator );
 

@@ -35,7 +35,8 @@ set(PUBLIC_HEADERS
     cafGrpcClientApplication.h
     cafGrpcCodeGenerator.h
     cafGrpcMarkdownGenerator.h
-    cafGrpcPythonGenerator.h)
+    cafGrpcPythonGenerator.h
+    cafGrpcMethodAccessor.h)
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}

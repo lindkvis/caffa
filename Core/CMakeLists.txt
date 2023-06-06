@@ -21,7 +21,6 @@ set(PUBLIC_HEADERS
     cafObjectCollector.h
     cafObjectPerformer.h
     cafObjectHandle.h
-    cafObservingPointer.h
     cafPortableDataType.h
     cafFieldProxyAccessor.h
     cafChildArrayFieldHandle.h
@@ -40,7 +39,6 @@ set(PUBLIC_HEADERS
     cafObject.h
     cafObjectJsonSpecializations.h
     cafFieldScriptingCapability.h
-    cafObjectMethod.h
     cafDocument.h
     cafApplication.h
     cafSession.h
@@ -55,7 +53,6 @@ set(PROJECT_FILES
     cafFieldHandle.cpp
     cafObjectCapability.cpp
     cafObjectHandle.cpp
-    cafObservingPointer.cpp
     cafSignal.cpp
     cafFieldJsonCapability.cpp
     cafSerializer.cpp
@@ -64,7 +61,6 @@ set(PROJECT_FILES
     cafObject.cpp
     cafObjectJsonSpecializations.cpp
     cafFieldScriptingCapability.cpp
-    cafObjectMethod.cpp
     cafDocument.cpp
     cafApplication.cpp
     cafSession.cpp

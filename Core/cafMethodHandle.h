@@ -23,7 +23,23 @@
 
 namespace caffa
 {
+class MethodHandle;
 class ObjectHandle;
+
+class MethodAccessorInterface
+{
+public:
+    MethodAccessorInterface( const ObjectHandle* selfHandle, const MethodHandle* methodHandle )
+        : m_selfHandle( selfHandle )
+        , m_methodHandle( methodHandle )
+    {
+    }
+    virtual std::string execute( const std::string& jsonArgumentsString ) const = 0;
+
+protected:
+    const ObjectHandle* m_selfHandle;
+    const MethodHandle* m_methodHandle;
+};
 
 class MethodHandle
 {
@@ -41,6 +57,10 @@ public:
     Type type() const { return m_type; }
 
     virtual std::string execute( const std::string& jsonArgumentsString ) const = 0;
+    virtual std::string schema() const                                          = 0;
+
+    MethodAccessorInterface* accessor() const { return m_accessor.get(); }
+    void setAccessor( std::unique_ptr<MethodAccessorInterface> accessor ) { m_accessor = std::move( accessor ); }
 
 private:
     friend class ObjectHandle;
@@ -50,5 +70,7 @@ private:
     std::string              m_name;
     std::vector<std::string> m_argumentNames;
     Type                     m_type;
+
+    std::unique_ptr<MethodAccessorInterface> m_accessor;
 };
 } // namespace caffa

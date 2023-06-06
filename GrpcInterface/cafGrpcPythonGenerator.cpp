@@ -27,8 +27,8 @@
 #include "cafFieldJsonCapability.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafJsonSerializer.h"
+#include "cafMethodHandle.h"
 #include "cafObjectHandle.h"
-#include "cafObjectMethod.h"
 #include "cafStringTools.h"
 
 #include <regex>
@@ -56,13 +56,9 @@ std::string PythonGenerator::generate( std::list<std::shared_ptr<caffa::Document
     return code;
 }
 
-std::string PythonGenerator::generate( std::shared_ptr<ObjectHandle> object, bool objectMethodResultOrParameter )
+std::string PythonGenerator::generate( std::shared_ptr<ObjectHandle> object )
 {
     CAFFA_DEBUG( "Generating code for class " << object->classKeyword() );
-    if ( objectMethodResultOrParameter )
-    {
-        return generateObjectMethodField( object );
-    }
 
     std::vector<std::string> dependencies;
 
@@ -91,27 +87,13 @@ std::string PythonGenerator::generate( std::shared_ptr<ObjectHandle> object, boo
         }
     }
 
-    std::vector<std::string> methodDependencies;
+    auto methods = object->methods();
 
-    auto methodNames = ObjectMethodFactory::instance()->registeredMethodNames( object.get() );
-
-    for ( auto methodName : methodNames )
+    for ( auto method : methods )
     {
-        auto method = ObjectMethodFactory::instance()->createMethodInstance( object.get(), methodName );
-        objectCode += generate( method.get(), methodDependencies );
+        objectCode += generate( method );
     }
-
     std::string dependencyCode;
-    for ( auto className : methodDependencies )
-    {
-        if ( !isBuiltInClass( className ) && !m_classesGenerated.count( className ) )
-        {
-            m_classesGenerated.insert( className );
-            CAFFA_DEBUG( "Creating temp instance of " << className );
-            auto tempObject = caffa::DefaultObjectFactory::instance()->create( className );
-            dependencyCode += generateObjectMethodField( tempObject );
-        }
-    }
 
     for ( auto className : dependencies )
     {
@@ -120,116 +102,11 @@ std::string PythonGenerator::generate( std::shared_ptr<ObjectHandle> object, boo
             m_classesGenerated.insert( className );
             CAFFA_DEBUG( "Creating temp instance of " << className );
             auto tempObject = caffa::DefaultObjectFactory::instance()->create( className );
-            dependencyCode += generate( tempObject, false );
+            dependencyCode += generate( tempObject );
         }
     }
 
     return dependencyCode + objectCode;
-}
-
-std::string PythonGenerator::generateObjectMethodField( std::shared_ptr<ObjectHandle> object )
-{
-    std::vector<std::string> dependencies;
-
-    auto parentClassKeyword = findParentClass( object );
-    dependencies.push_back( parentClassKeyword );
-
-    std::string code;
-    code += "class " + std::string( object->classKeyword() ) + "(" + parentClassKeyword + "):\n";
-    if ( !object->classDocumentation().empty() )
-    {
-        code += "    \"\"\"" + object->classDocumentation() + "\"\"\"\n\n";
-    }
-    code += "    def __init__(self";
-
-    for ( auto field : object->fields() )
-    {
-        if ( field->keyword() != "uuid" )
-        {
-            code += ", " + field->keyword();
-            auto childField      = dynamic_cast<ChildFieldHandle*>( field );
-            auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
-
-            if ( childField )
-            {
-                dependencies.push_back( childField->childClassKeyword() );
-                code += ": " + childField->childClassKeyword() + " = None";
-            }
-            else if ( childArrayField )
-            {
-                dependencies.push_back( childArrayField->childClassKeyword() );
-                code += ": " + childArrayField->childClassKeyword() + " = []";
-            }
-            else
-            {
-                auto jsonCap = field->capability<FieldJsonCapability>();
-                if ( jsonCap )
-                {
-                    nlohmann::json json;
-                    jsonCap->writeToJson( json, JsonSerializer() );
-                    code += " = " + pythonValue( json["value"].dump() );
-                }
-            }
-        }
-    }
-    code += "):\n";
-    code += "        super().__init__()\n";
-    for ( auto field : object->fields() )
-    {
-        if ( field->keyword() != "uuid" )
-        {
-            code += "        self.create_field(keyword=\"" + field->keyword() + "\",type=\"" + field->dataType() +
-                    "\", value=" + field->keyword() + ")\n";
-        }
-    }
-    code += "\n";
-
-    for ( auto field : object->fields() )
-    {
-        if ( field->keyword() != "uuid" )
-        {
-            code += "    @property\n";
-            code += "    def " + field->keyword() + "(self):\n";
-            auto doc = field->capability<FieldDocumentationCapability>();
-            if ( doc )
-            {
-                code += "        \"\"\"" + doc->documentation() + "\"\"\"\n\n";
-            }
-            code += "        return " + castFieldValue( field, "self.get(\"" + field->keyword() + "\")" ) + "\n\n";
-            code += "    @" + field->keyword() + ".setter\n";
-            code += "    def " + field->keyword() + "(self, value):\n";
-            code += "        return self.set(\"" + field->keyword() + "\", value)\n\n";
-        }
-    }
-    code += "    @classmethod\n";
-    code += "    def copy(cls, object):\n";
-    code += "        return cls(";
-
-    bool first = true;
-    for ( auto field : object->fields() )
-    {
-        if ( field->keyword() != "uuid" )
-        {
-            if ( !first ) code += ", ";
-
-            code += castFieldValue( field, "object.get(\"" + field->keyword() + "\")" );
-            first = false;
-        }
-    }
-    code += ")\n";
-    code += "\n\n";
-
-    std::string dependencyCode;
-    for ( auto className : dependencies )
-    {
-        if ( !isBuiltInClass( className ) && !m_classesGenerated.count( className ) )
-        {
-            m_classesGenerated.insert( className );
-            auto tempObject = caffa::DefaultObjectFactory::instance()->create( className );
-            dependencyCode += generateObjectMethodField( tempObject );
-        }
-    }
-    return dependencyCode + code;
 }
 
 bool PythonGenerator::isBuiltInClass( const std::string& classKeyword ) const
@@ -356,91 +233,9 @@ std::string PythonGenerator::generate( FieldHandle* field, std::vector<std::stri
     return code;
 }
 
-std::string PythonGenerator::generate( caffa::ObjectMethod* method, std::vector<std::string>& dependencies )
+std::string PythonGenerator::generate( caffa::MethodHandle* method )
 {
-    std::string code;
-
-    auto fields = method->fields();
-
-    code += "    def " + std::string( method->classKeyword() ) + "(self";
-
-    if ( fields.size() > 0 )
-    {
-        for ( auto field : fields )
-        {
-            if ( field->keyword() == "uuid" ) continue;
-
-            code += ", " + field->keyword();
-            auto childField      = dynamic_cast<ChildFieldHandle*>( field );
-            auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
-
-            if ( childField )
-            {
-                dependencies.push_back( childField->childClassKeyword() );
-                code += ": " + childField->childClassKeyword() + " = " + childField->childClassKeyword() + "()";
-            }
-            else if ( childArrayField )
-            {
-                dependencies.push_back( childArrayField->childClassKeyword() );
-                code += ": " + childArrayField->childClassKeyword() + " = []";
-            }
-            else
-            {
-                auto jsonCap = field->capability<FieldJsonCapability>();
-                if ( jsonCap )
-                {
-                    nlohmann::json json;
-                    jsonCap->writeToJson( json, JsonSerializer() );
-                    code += " = " + pythonValue( json["value"].dump() );
-                }
-            }
-        }
-    }
-
-    code += "):\n";
-    if ( !method->classDocumentation().empty() )
-    {
-        code += "        \"\"\"" + method->classDocumentation();
-        std::string parametersCode;
-        parametersCode += "        Parameters\n";
-        parametersCode += "        ----------\n";
-        size_t fieldCount = 0;
-        for ( auto field : fields )
-        {
-            if ( field->keyword() != "uuid" )
-            {
-                auto doc = field->capability<FieldDocumentationCapability>();
-                parametersCode += "        " + field->keyword() + " : " + pythonDataType( field ) + "\n";
-
-                if ( doc )
-                {
-                    parametersCode += "            " + doc->documentation() + "\n";
-                }
-                fieldCount++;
-            }
-        }
-        parametersCode += "        \"\"\"\n\n";
-        if ( fieldCount > 0u )
-            code += +"\n\n" + parametersCode;
-        else
-            code += "\"\"\"\n\n";
-    }
-    code += "        method = self.method(\"" + std::string( method->classKeyword() ) + "\")\n";
-    for ( auto field : fields )
-    {
-        if ( field->keyword() != "uuid" )
-        {
-            code += "        method." + field->keyword() + " = " + field->keyword() + "\n";
-        }
-    }
-
-    auto resultObject = method->defaultResult();
-
-    code += "        return " + std::string( resultObject->classKeyword() ) + ".copy(self.execute(method))\n";
-    dependencies.push_back( std::string( resultObject->classKeyword() ) );
-
-    code += "\n";
-    return code;
+    return "";
 }
 
 bool pythonRegistered = caffa::rpc::CodeGeneratorFactory::instance()->registerCreator<caffa::rpc::PythonGenerator>(

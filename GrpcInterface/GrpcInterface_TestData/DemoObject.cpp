@@ -69,18 +69,18 @@ DemoObject::DemoObject()
     initField( boolField, "boolField" ).withScripting();
     initField( boolVector, "boolVector" ).withScripting();
 
-    initMethod( myMethod,
-                "myMethod",
-                { "a", "b" },
-                std::bind( &DemoObject::methodTest, this, std::placeholders::_1, std::placeholders::_2 ) );
+    initMethod( copyValues,
+                "copyValues",
+                { "intValue", "doubleValue", "stringValue" },
+                std::bind( &DemoObject::_copyValues, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 ) );
 }
 
-double DemoObject::methodTest( int a, int b ) const
+void DemoObject::_copyValues( int intValue, double doubleValue, std::string stringValue )
 {
-    return a + b;
+    this->intField    = intValue;
+    this->doubleField = doubleValue;
+    this->stringField = stringValue;
 }
-
-CAFFA_OBJECT_METHOD_SOURCE_INIT( DemoObject, DemoObject_copyObject, "copyObject" );
 
 CAFFA_SOURCE_INIT( InheritedDemoObj )
 

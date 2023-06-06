@@ -418,41 +418,14 @@ TEST_F( GrpcTest, ObjectMethod )
     auto inheritedObjects = clientDocument->inheritedObjects();
     ASSERT_EQ( (size_t)1, inheritedObjects.size() );
 
-    CAFFA_DEBUG( "Listing object methods" );
-    auto objectMethods = client->objectMethods( inheritedObjects.front().get() );
-    ASSERT_EQ( (size_t)1, objectMethods.size() );
-    auto methodKeyword = objectMethods.front()->classKeyword();
-    CAFFA_TRACE( "Found method: " << methodKeyword );
-
-    std::vector<bool>  boolVector = { true, false, true };
-    std::vector<int>   intVector( 10000 );
-    std::vector<float> floatVector = { -2.0, 3.0, 4.0, 8.0 };
-
-    std::iota( intVector.begin(), intVector.end(), 0 );
-
-    CAFFA_INFO( "Creating object method" );
-    DemoObject_copyObject method( inheritedObjects.front().get(), 45.3, 43, "AnotherValue", boolVector, intVector, floatVector );
-    ASSERT_EQ( method.classKeyword(), methodKeyword );
-
-    CAFFA_INFO( "Execute" );
-    auto result = client->execute( &method );
-    ASSERT_TRUE( result );
-    ASSERT_EQ( true, result->status() );
+    CAFFA_INFO( "Execute remote method" );
+    inheritedObjects.front()->copyValues( 43, 45.3, "AnotherValue" );
 
     CAFFA_DEBUG( "Get double member" );
     ASSERT_EQ( 45.3, serverObjects.front()->doubleField() );
     CAFFA_DEBUG( "Get int member" );
     ASSERT_EQ( 43, serverObjects.front()->intField() );
     ASSERT_EQ( "AnotherValue", serverObjects.front()->stringField() );
-
-    ASSERT_EQ( boolVector, serverObjects.front()->boolVector() );
-    CAFFA_INFO( "Comparing integer vector of size " << intVector.size() << " on server" );
-    ASSERT_EQ( intVector, serverObjects.front()->intVector() );
-    ASSERT_EQ( floatVector, serverObjects.front()->floatVector() );
-
-    auto roundtripIntVector = inheritedObjects.front()->intVector();
-    CAFFA_INFO( "Comparing integer vector of size " << intVector.size() << " on client" );
-    ASSERT_EQ( intVector, roundtripIntVector );
 
     bool ok = client->stopServer();
     ASSERT_TRUE( ok );

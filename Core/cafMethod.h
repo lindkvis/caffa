@@ -1,7 +1,7 @@
 // ##################################################################################################
 //
-//    Custom Visualization Core library
-//    Copyright (C) Kontur As
+//    CAFFA
+//    Copyright (C) 2023- Kontur AS
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify
@@ -50,12 +50,35 @@ public:
     Result operator()( ArgTypes... args ) const
     {
         CAFFA_ASSERT( m_callback );
+        if ( auto accessor = this->accessor(); accessor )
+        {
+            auto serializedMethod = toJson( args... ).dump();
+            CAFFA_DEBUG( "Serialized method: " << serializedMethod );
+            auto serialisedResult = accessor->execute( serializedMethod );
+            CAFFA_DEBUG( "Got serialized result: " << serialisedResult );
+            return resultFromJsonString( serialisedResult );
+        }
         return m_callback( args... );
     }
 
+    /**
+     * Execute the method from a JSON string and return result as a JSON string
+     * @param jsonArgumentsString
+     * @return a JSON result string
+     */
     std::string execute( const std::string& jsonArgumentsString ) const override
     {
         return executeJson( nlohmann::json::parse( jsonArgumentsString ) ).dump();
+    }
+
+    std::string schema() const override { return this->jsonSkeleton().dump(); }
+
+    Result resultFromJsonString( const std::string& jsonResultString ) const
+    {
+        CAFFA_DEBUG( "Attempting to get a value of type " << PortableDataType<Result>::name()
+                                                          << " from JSON: " << jsonResultString );
+        auto jsonResult = nlohmann::json::parse( jsonResultString );
+        return jsonToValue<Result>( jsonResult );
     }
 
     nlohmann::json toJson( ArgTypes... args ) const
@@ -108,26 +131,33 @@ public:
 
 private:
     template <typename ArgType>
-        requires IsSharedPtr<ArgType>
-    static ArgType jsonToArgument( const nlohmann::json& value )
+        requires std::same_as<ArgType, void>
+    static ArgType jsonToValue( const nlohmann::json& value )
     {
-        JsonSerializer serializer;
-        return std::dynamic_pointer_cast<typename ArgType::element_type>(
-            serializer.createObjectFromString( value.dump() ) );
+        return;
     }
 
     template <typename ArgType>
-        requires( not IsSharedPtr<ArgType> )
-    static ArgType jsonToArgument( const nlohmann::json& value )
+        requires IsSharedPtr<ArgType>
+    static ArgType jsonToValue( const nlohmann::json& value )
     {
-        return value.get<ArgType>();
+        JsonSerializer serializer;
+        return std::dynamic_pointer_cast<typename ArgType::element_type>(
+            serializer.createObjectFromString( value["value"].dump() ) );
+    }
+
+    template <typename ArgType>
+        requires( not IsSharedPtr<ArgType> && not std::same_as<ArgType, void> )
+    static ArgType jsonToValue( const nlohmann::json& value )
+    {
+        return value["value"].get<ArgType>();
     }
 
     template <typename ReturnType, std::size_t... Is>
         requires std::same_as<ReturnType, void>
     nlohmann::json executeJson( const nlohmann::json& args, std::index_sequence<Is...> ) const
     {
-        this->operator()( jsonToArgument<ArgTypes>( args[Is]["value"] )... );
+        this->operator()( jsonToValue<ArgTypes>( args[Is] )... );
 
         nlohmann::json returnValue = nlohmann::json::object();
         returnValue["type"]        = PortableDataType<Result>::name();
@@ -140,7 +170,7 @@ private:
     {
         nlohmann::json returnValue = nlohmann::json::object();
         returnValue["type"]        = PortableDataType<Result>::name();
-        returnValue["value"]       = this->operator()( jsonToArgument<ArgTypes>( args[Is]["value"] )... );
+        returnValue["value"]       = this->operator()( jsonToValue<ArgTypes>( args[Is] )... );
         return returnValue;
     }
 

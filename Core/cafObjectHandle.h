@@ -199,10 +199,6 @@ private:
 
     // Capabilities
     std::vector<std::unique_ptr<ObjectCapability>> m_capabilities;
-
-    // Support system for Pointer
-    friend class ObservingPointerImpl;
-    std::set<ObjectHandle**> m_pointersReferencingMe;
 };
 
 template <typename T>

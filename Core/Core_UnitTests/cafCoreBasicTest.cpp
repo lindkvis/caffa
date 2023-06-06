@@ -10,7 +10,6 @@
 #include "cafJsonSerializer.h"
 #include "cafMethod.h"
 #include "cafObject.h"
-#include "cafObservingPointer.h"
 #include "cafPortableDataType.h"
 #include "cafTypedField.h"
 
@@ -295,9 +294,9 @@ TEST( BaseTest, ChildArrayField )
     auto s2 = std::make_shared<DemoObject>();
     auto s3 = std::make_shared<DemoObject>();
 
-    caffa::ObservingPointer<DemoObject> s1p = s1.get();
-    caffa::ObservingPointer<DemoObject> s2p = s2.get();
-    caffa::ObservingPointer<DemoObject> s3p = s3.get();
+    std::weak_ptr<DemoObject> s1p = s1;
+    std::weak_ptr<DemoObject> s2p = s2;
+    std::weak_ptr<DemoObject> s3p = s3;
 
     // empty() number 1
     EXPECT_TRUE( ihd1->m_childArrayField.empty() );
@@ -389,20 +388,20 @@ TEST( BaseTest, ChildArrayField )
     EXPECT_TRUE( s3 == nullptr );
 
     EXPECT_EQ( size_t( 2 ), ihd1->m_childArrayField.size() );
-    EXPECT_TRUE( s1p.notNull() );
-    EXPECT_TRUE( s2p.isNull() );
-    EXPECT_TRUE( s3p.notNull() );
+    EXPECT_FALSE( s1p.expired() );
+    EXPECT_TRUE( s2p.expired() );
+    EXPECT_FALSE( s3p.expired() );
 
     extractedObjects.clear();
-    EXPECT_TRUE( s1p.notNull() );
-    EXPECT_TRUE( s2p.isNull() );
-    EXPECT_TRUE( s3p.notNull() );
+    EXPECT_FALSE( s1p.expired() );
+    EXPECT_TRUE( s2p.expired() );
+    EXPECT_FALSE( s3p.expired() );
 
     ihd1->m_childArrayField.clear();
     EXPECT_EQ( size_t( 0 ), ihd1->m_childArrayField.size() );
-    EXPECT_TRUE( s1p.isNull() );
-    EXPECT_TRUE( s2p.isNull() );
-    EXPECT_TRUE( s3p.isNull() );
+    EXPECT_TRUE( s1p.expired() );
+    EXPECT_TRUE( s2p.expired() );
+    EXPECT_TRUE( s3p.expired() );
 }
 
 TEST( BaseTest, ChildArrayParentField )
@@ -503,19 +502,19 @@ CAFFA_SOURCE_INIT( A2 )
 TEST( BaseTest, ChildField )
 {
     {
-        caffa::ObservingPointer<Child> rawValue = nullptr;
+        std::weak_ptr<Child> weapPtr;
 
         {
             auto testValue = std::make_shared<Child>();
-            rawValue       = testValue.get();
-            EXPECT_TRUE( rawValue.notNull() );
+            weapPtr        = testValue;
+            EXPECT_FALSE( weapPtr.expired() );
 
             A2 a;
             a.field2 = testValue;
-            EXPECT_EQ( a.field2, rawValue.p() );
+            EXPECT_EQ( a.field2, weapPtr.lock() );
         }
         // Guarded
-        EXPECT_TRUE( rawValue.isNull() );
+        EXPECT_TRUE( weapPtr.expired() );
     }
     {
         A2   a;
@@ -541,30 +540,24 @@ TEST( BaseTest, Pointer )
     auto d = std::make_shared<InheritedDemoObj>();
 
     {
-        caffa::ObservingPointer<InheritedDemoObj> p;
-        EXPECT_TRUE( p == nullptr );
+        std::weak_ptr<InheritedDemoObj> p;
+        EXPECT_TRUE( p.expired() );
     }
 
     {
-        caffa::ObservingPointer<InheritedDemoObj> p( d.get() );
-        caffa::ObservingPointer<InheritedDemoObj> p2( p );
+        std::weak_ptr<InheritedDemoObj> p  = d;
+        std::weak_ptr<InheritedDemoObj> p2 = p.lock();
 
-        EXPECT_EQ( p, d.get() );
-        EXPECT_EQ( p2, d.get() );
-        EXPECT_TRUE( p.p() == d.get() );
-        p = 0;
-        EXPECT_TRUE( p == nullptr );
-        EXPECT_TRUE( p.isNull() );
-        EXPECT_TRUE( p2 == d.get() );
-        p = p2;
-        EXPECT_TRUE( p == d.get() );
+        EXPECT_EQ( p.lock().get(), d.get() );
+        EXPECT_EQ( p2.lock().get(), d.get() );
+        p.reset();
+        EXPECT_TRUE( p.lock() == nullptr );
+        EXPECT_TRUE( p.expired() );
+        p = p2.lock();
+        EXPECT_TRUE( p.lock() == d );
         d.reset();
-        EXPECT_TRUE( p.isNull() && p2.isNull() );
+        EXPECT_TRUE( p.expired() && p2.expired() );
     }
-
-    caffa::ObservingPointer<DemoObject> p3( new DemoObject() );
-
-    delete p3;
 }
 
 TEST( BaseTest, PortableDataType )

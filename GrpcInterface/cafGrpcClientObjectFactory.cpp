@@ -10,6 +10,7 @@
 #include "cafGrpcClient.h"
 #include "cafGrpcDataFieldAccessor.h"
 #include "cafGrpcException.h"
+#include "cafGrpcMethodAccessor.h"
 
 #include <memory>
 
@@ -39,6 +40,11 @@ ObjectHandle::Ptr GrpcClientObjectFactory::doCreate( const std::string_view& cla
         {
             applyAccessorToField( objectHandle.get(), field );
         }
+    }
+
+    for ( auto method : objectHandle->methods() )
+    {
+        applyAccessorToMethod( objectHandle.get(), method );
     }
 
     return objectHandle;
@@ -105,10 +111,15 @@ void GrpcClientObjectFactory::applyAccessorToField( caffa::ObjectHandle* fieldOw
     }
 }
 
+void GrpcClientObjectFactory::applyAccessorToMethod( caffa::ObjectHandle* objectHandle, caffa::MethodHandle* methodHandle )
+{
+    methodHandle->setAccessor( std::make_unique<MethodAccessor>( m_grpcClient, objectHandle, methodHandle ) );
+}
+
 void GrpcClientObjectFactory::registerAccessorCreator( const std::string&                   dataType,
                                                        std::unique_ptr<AccessorCreatorBase> creator )
 {
-    CAFFA_DEBUG( "Registering accessor for data type: " << dataType );
+    CAFFA_TRACE( "Registering accessor for data type: " << dataType );
     m_accessorCreatorMap.insert( std::make_pair( dataType, std::move( creator ) ) );
 }
 
