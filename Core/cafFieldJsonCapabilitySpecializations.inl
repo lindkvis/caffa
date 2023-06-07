@@ -137,7 +137,7 @@ void FieldJsonCap<Field<std::shared_ptr<DataType>>>::readFromJson( const nlohman
         jsonObject = jsonElement;
     }
 
-    std::string className = jsonObject["class"].get<std::string>();
+    std::string className = jsonObject["keyword"].get<std::string>();
     std::string uuid      = "";
     if ( jsonObject.contains( "uuid" ) )
     {
@@ -259,7 +259,7 @@ void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::readFromJson( 
     {
         if ( !jsonObject.is_object() ) continue;
 
-        std::string className = jsonObject["class"].get<std::string>();
+        std::string className = jsonObject["keyword"].get<std::string>();
 
         ObjectHandle::Ptr object = objectFactory->create( className );
 
@@ -359,7 +359,7 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
         jsonObject = jsonElement;
     }
 
-    std::string className = jsonObject["class"].get<std::string>();
+    std::string className = jsonObject["keyword"].get<std::string>();
     std::string uuid      = "";
     if ( jsonObject.contains( "uuid" ) )
     {
@@ -477,7 +477,7 @@ void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::jso
     {
         if ( !jsonObject.is_object() ) continue;
 
-        std::string className = jsonObject["class"].get<std::string>();
+        std::string className = jsonObject["keyword"].get<std::string>();
 
         ObjectHandle::Ptr object = objectFactory->create( className );
 

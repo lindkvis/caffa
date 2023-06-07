@@ -176,8 +176,33 @@ private:
 
     nlohmann::json executeJson( const nlohmann::json& jsonMethod ) const
     {
-        nlohmann::json jsonArguments = jsonMethod["arguments"];
+        auto jsonArguments = nlohmann::json::array();
+        if ( jsonMethod.contains( "arguments" ) )
+        {
+            jsonArguments = jsonMethod["arguments"];
+            sortArguments( jsonArguments, argumentNames() );
+        }
         return this->executeJson<Result>( jsonArguments, std::index_sequence_for<ArgTypes...>() );
+    }
+
+    void sortArguments( nlohmann::json& jsonArray, const std::vector<std::string>& argumentNames ) const
+    {
+        nlohmann::json sortedArray = nlohmann::json::array();
+        for ( const auto& argumentName : argumentNames )
+        {
+            auto it = std::find_if( jsonArray.begin(),
+                                    jsonArray.end(),
+                                    [&argumentName]( auto jsonElement )
+                                    { return jsonElement["keyword"] == argumentName; } );
+            if ( it != jsonArray.end() )
+            {
+                sortedArray.push_back( *it );
+                jsonArray.erase( it );
+            }
+        }
+        // All unnamed arguments
+        sortedArray.insert( sortedArray.end(), jsonArray.begin(), jsonArray.end() );
+        jsonArray.swap( sortedArray );
     }
 
     template <typename... T>
@@ -189,7 +214,7 @@ private:
             [&]
             {
                 nlohmann::json jsonArg = nlohmann::json::object();
-                jsonArg["name"]        = argumentNames[i];
+                jsonArg["keyword"]     = argumentNames[i];
                 jsonArg["type"]        = argumentTypes;
                 jsonArguments.push_back( jsonArg );
                 i++;

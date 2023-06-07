@@ -195,7 +195,7 @@ int main( int argc, char** argv )
     serverDocument->addInheritedObject( std::make_shared<InheritedDemoObj>() );
     serverDocument->addInheritedObject( std::make_shared<InheritedDemoObj>() );
     std::vector<float> serverVector;
-    size_t             numberOfFloats = 256u * 1024u;
+    size_t             numberOfFloats = 1024u;
     serverVector.reserve( numberOfFloats );
     for ( size_t i = 0; i < numberOfFloats; ++i )
     {

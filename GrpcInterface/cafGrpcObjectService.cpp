@@ -166,11 +166,10 @@ grpc::Status
     }
 
     auto matchingObject = findCafObjectFromRpcObject( session.get(), request->self_object() );
-    CAFFA_ASSERT( matchingObject );
-    CAFFA_TRACE( "Listing Object methods for " << matchingObject->classKeyword() );
 
     if ( matchingObject )
     {
+        CAFFA_TRACE( "Listing Object methods for " << matchingObject->classKeyword() );
         auto methods = matchingObject->methods();
         CAFFA_TRACE( "Found " << methods.size() << " methods" );
         for ( auto method : methods )

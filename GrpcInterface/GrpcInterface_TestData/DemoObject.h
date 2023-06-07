@@ -63,6 +63,9 @@ public:
 
     caffa::Method<void( int, double, std::string )> copyValues;
 
+    caffa::Method<std::vector<int>()>       getIntVector;
+    caffa::Method<void( std::vector<int> )> setIntVector;
+
 private:
     // These are proxy getter/setters and should never be called from client, thus are private
     double getDoubleProxy() const { return m_proxyDoubleValue; }
