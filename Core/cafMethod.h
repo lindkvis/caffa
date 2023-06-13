@@ -86,27 +86,33 @@ public:
         auto jsonMethod = nlohmann::json::object();
         CAFFA_ASSERT( !name().empty() );
 
-        jsonMethod["keyword"]     = name();
-        auto        jsonArguments = nlohmann::json::array();
-        const auto& argumentNames = this->argumentNames();
-        size_t      i             = 0;
+        jsonMethod["keyword"] = name();
 
-        // Fold expression
-        // https://en.cppreference.com/w/cpp/language/fold
-        (
-            [&]
-            {
-                nlohmann::json jsonArg = nlohmann::json::object();
-                jsonArg["keyword"]     = i < argumentNames.size() ? argumentNames[i]
-                                                                  : std::string( "arg" ) + std::to_string( i );
-                jsonArg["type"]        = PortableDataType<ArgTypes>::name();
-                jsonArg["value"]       = args;
-                jsonArguments.push_back( jsonArg );
-                i++;
-            }(),
-            ... );
-        jsonMethod["arguments"] = jsonArguments;
-        jsonMethod["returns"]   = PortableDataType<Result>::name();
+        constexpr std::size_t n = sizeof...( args );
+        if constexpr ( n > 0 )
+        {
+            auto        jsonArguments = nlohmann::json::array();
+            const auto& argumentNames = this->argumentNames();
+            size_t      i             = 0;
+
+            // Fold expression
+            // https://en.cppreference.com/w/cpp/language/fold
+            (
+                [&]
+                {
+                    nlohmann::json jsonArg = nlohmann::json::object();
+                    jsonArg["keyword"]     = i < argumentNames.size() ? argumentNames[i]
+                                                                      : std::string( "arg" ) + std::to_string( i );
+                    jsonArg["type"]        = PortableDataType<ArgTypes>::name();
+                    jsonArg["value"]       = args;
+                    jsonArguments.push_back( jsonArg );
+                    i++;
+                }(),
+                ... );
+            jsonMethod["arguments"] = jsonArguments;
+        }
+
+        jsonMethod["returns"] = PortableDataType<Result>::name();
 
         return jsonMethod;
     }
