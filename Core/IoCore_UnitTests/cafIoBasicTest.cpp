@@ -10,6 +10,7 @@
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldValidator.h"
 #include "cafJsonSerializer.h"
+#include "cafMethod.h"
 #include "cafObject.h"
 
 #include <functional>
@@ -44,14 +45,30 @@ public:
         m_proxyEnumField.setAccessor( std::move( proxyEnumAccessor ) );
 
         m_enumMember = T1;
+
+        initMethod(
+            getEnum,
+            "getEnum",
+            {},
+            [this]() -> caffa::AppEnum<TestEnumType> { return this->m_proxyEnumField.value(); },
+            caffa::MethodHandle::Type::READ_ONLY );
+
+        initMethod(
+            setEnum,
+            "setEnum",
+            { "enum" },
+            [this]( caffa::AppEnum<TestEnumType> val ) -> void { return m_proxyEnumField.setValue( val ); },
+            caffa::MethodHandle::Type::READ_ONLY );
     }
 
     ~DemoObject() {}
 
     // Fields
 
-    caffa::Field<caffa::AppEnum<TestEnumType>> m_proxyEnumField;
-    caffa::Field<double>                       m_proxyDoubleField;
+    caffa::Field<caffa::AppEnum<TestEnumType>>          m_proxyEnumField;
+    caffa::Field<double>                                m_proxyDoubleField;
+    caffa::Method<caffa::AppEnum<TestEnumType>()>       getEnum;
+    caffa::Method<void( caffa::AppEnum<TestEnumType> )> setEnum;
 
 private:
     void setDoubleMember( const double& d )
@@ -107,6 +124,32 @@ TEST( BaseTest, FieldWrite )
 
         ASSERT_DOUBLE_EQ( 2.5, a.m_proxyDoubleField.value() );
         ASSERT_EQ( DemoObject::T3, a.m_proxyEnumField.value() );
+
+        serializedString = caffa::JsonSerializer().writeObjectToString( &a );
+
+        std::cout << serializedString << std::endl;
+    }
+
+    std::string secondSerializedString;
+    {
+        auto a                 = caffa::JsonSerializer().createObjectFromString( serializedString );
+        secondSerializedString = caffa::JsonSerializer().writeObjectToString( a.get() );
+    }
+    ASSERT_EQ( serializedString, secondSerializedString );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Read/write fields to a valid Xml document encoded in a std::string
+//--------------------------------------------------------------------------------------------------
+TEST( BaseTest, MethodWrite )
+{
+    std::string serializedString;
+    {
+        DemoObject a;
+
+        a.setEnum( DemoObject::T3 );
+
+        ASSERT_EQ( DemoObject::T3, a.getEnum() );
 
         serializedString = caffa::JsonSerializer().writeObjectToString( &a );
 
