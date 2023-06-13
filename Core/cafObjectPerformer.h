@@ -37,8 +37,8 @@ public:
     using Selector = std::function<bool( const ObjectType* )>;
 
     ObjectPerformer( Callback callback, Selector selector = nullptr )
-        : m_callback( callback )
-        , m_selector( selector )
+        : m_selector( selector )
+        , m_callback( callback )
     {
     }
 
