@@ -60,6 +60,8 @@ public:
     operator std::shared_ptr<DataType>() { return this->object(); }
     operator std::shared_ptr<const DataType>() const { return this->object(); }
 
+    operator bool() const { return !!this->object(); }
+
     // Deep copy of object content
     std::shared_ptr<DataType> deepCloneObject() const;
     void                      deepCopyObjectFrom( std::shared_ptr<const DataType> copyFrom );
