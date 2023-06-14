@@ -97,67 +97,17 @@ void Document::setFileName( const std::string& fileName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Document::read()
+bool Document::readFromJsonFile()
 {
-    std::ifstream inStream( m_fileName );
-    if ( !inStream.good() )
-    {
-        CAFFA_ERROR( "Could not open file for reading: " << m_fileName() );
-        return false;
-    }
-
-    JsonSerializer serializer;
-
-    try
-    {
-        serializer.readStream( this, inStream );
-
-        ObjectPerformer<> performer( []( ObjectHandle* object ) { object->initAfterRead(); } );
-        performer.visitObject( this );
-    }
-    catch ( std::runtime_error& err )
-    {
-        CAFFA_ERROR( err.what() );
-        return false;
-    }
-    catch ( ... )
-    {
-        CAFFA_ERROR( "Generic object reading error" );
-        return false;
-    }
-    return true;
+    return Object::readFromJsonFile( m_fileName() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Document::write()
+bool Document::writeToJsonFile() const
 {
-    std::ofstream outStream( m_fileName );
-
-    if ( !outStream.good() )
-    {
-        CAFFA_ERROR( "Could not open file for writing: " << m_fileName() );
-        return false;
-    }
-
-    try
-    {
-        JsonSerializer serializer;
-        serializer.setSerializeDataTypes( false ).setSerializeUuids( false );
-        serializer.writeStream( this, outStream );
-    }
-    catch ( std::runtime_error& err )
-    {
-        CAFFA_ERROR( err.what() );
-        return false;
-    }
-    catch ( ... )
-    {
-        CAFFA_ERROR( "Generic object writing error" );
-        return false;
-    }
-    return true;
+    return Object::writeToJsonFile( m_fileName() );
 }
 
 } // End of namespace caffa

@@ -214,18 +214,22 @@ private:
     template <typename... T>
     void argumentHelper( nlohmann::json& jsonArguments, const T&... argumentTypes ) const
     {
-        const auto& argumentNames = this->argumentNames();
-        size_t      i             = 0;
-        (
-            [&]
-            {
-                nlohmann::json jsonArg = nlohmann::json::object();
-                jsonArg["keyword"]     = argumentNames[i];
-                jsonArg["type"]        = argumentTypes;
-                jsonArguments.push_back( jsonArg );
-                i++;
-            }(),
-            ... );
+        const auto&           argumentNames = this->argumentNames();
+        constexpr std::size_t n             = sizeof...( argumentTypes );
+        if constexpr ( n > 0 )
+        {
+            size_t i = 0;
+            (
+                [&]
+                {
+                    nlohmann::json jsonArg = nlohmann::json::object();
+                    jsonArg["keyword"]     = argumentNames[i];
+                    jsonArg["type"]        = argumentTypes;
+                    jsonArguments.push_back( jsonArg );
+                    i++;
+                }(),
+                ... );
+        }
     }
 
     template <std::size_t... Is>
