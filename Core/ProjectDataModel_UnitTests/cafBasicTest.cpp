@@ -301,7 +301,7 @@ TEST( BaseTest, ReadWrite )
 
         // Write file
         doc.setFileName( "TestFile.json" );
-        doc.write();
+        doc.writeToJsonFile();
 
         {
             std::ifstream f1( doc.fileName() );
@@ -318,7 +318,7 @@ TEST( BaseTest, ReadWrite )
 
         // Read file
         doc.setFileName( "TestFile.json" );
-        ASSERT_TRUE( doc.read() );
+        ASSERT_TRUE( doc.readFromJsonFile() );
 
         // Write file
         std::ofstream file( "TestFile2.json" );
