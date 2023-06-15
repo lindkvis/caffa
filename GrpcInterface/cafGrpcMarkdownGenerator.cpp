@@ -50,12 +50,12 @@ std::string MarkdownGenerator::generate( std::list<std::shared_ptr<caffa::Docume
 
     for ( auto& doc : documents )
     {
-        code += generate( doc );
+        code += generate( doc.get() );
     }
     return code;
 }
 
-std::string MarkdownGenerator::generate( std::shared_ptr<ObjectHandle> object )
+std::string MarkdownGenerator::generate( const ObjectHandle* object, bool passByValue )
 {
     JsonSerializer serializer;
     CAFFA_DEBUG( "Generating code for class " << object->classKeyword() );
@@ -106,13 +106,13 @@ std::string MarkdownGenerator::generate( std::shared_ptr<ObjectHandle> object )
             m_classesGenerated.insert( className );
             CAFFA_DEBUG( "Creating temp instance of " << className );
             auto tempObject = caffa::DefaultObjectFactory::instance()->create( className );
-            dependencyCode += generate( tempObject );
+            dependencyCode += generate( tempObject.get() );
         }
     }
     return dependencyCode + code;
 }
 
-std::string MarkdownGenerator::findParentClass( std::shared_ptr<ObjectHandle> object ) const
+std::string MarkdownGenerator::findParentClass( const ObjectHandle* object ) const
 {
     auto inheritanceStack = object->classInheritanceStack();
     for ( size_t i = 1; i < inheritanceStack.size(); ++i )
@@ -159,7 +159,7 @@ std::string MarkdownGenerator::docDataType( const caffa::FieldHandle* field ) co
     return field->dataType();
 }
 
-std::string MarkdownGenerator::generate( FieldHandle* field, std::vector<std::string>& dependencies )
+std::string MarkdownGenerator::generate( const FieldHandle* field, std::vector<std::string>& dependencies )
 {
     std::string code;
 
@@ -180,7 +180,7 @@ std::string MarkdownGenerator::generate( FieldHandle* field, std::vector<std::st
     return code;
 }
 
-std::string MarkdownGenerator::generate( caffa::MethodHandle* method )
+std::string MarkdownGenerator::generate( const caffa::MethodHandle* method, std::vector<std::string>& dependencies )
 {
     return "";
 }

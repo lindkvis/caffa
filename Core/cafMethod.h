@@ -81,6 +81,16 @@ public:
         return jsonToValue<Result>( jsonResult );
     }
 
+    std::vector<std::string> dependencies() const override
+    {
+        std::vector<std::string> dependencies;
+
+        addDependency<Result>( dependencies );
+        // addArgumentDependencies( dependencies, std::index_sequence_for<ArgTypes...>() );
+
+        return dependencies;
+    }
+
     nlohmann::json toJson( ArgTypes... args ) const
     {
         auto jsonMethod = nlohmann::json::object();
@@ -240,6 +250,31 @@ private:
         argumentHelper( jsonArguments, PortableDataType<ArgTypes>::name()... );
         return jsonArguments;
     }
+
+    template <typename T>
+        requires IsSharedPtr<T>
+    static void addDependency( std::vector<std::string>& dependencies )
+    {
+        dependencies.push_back( T::element_type::classKeywordStatic() );
+    }
+
+    template <typename T>
+        requires( not IsSharedPtr<T> )
+    static void addDependency( std::vector<std::string>& dependencies )
+    {
+    }
+
+    /* template <typename... T>
+     void argumentDependencyHelper( std::vector<std::string>& dependencies, const T&... argumentTypes ) const
+     {
+         ( [&] { addDependency<T>( dependencies ); }(), ... );
+     }
+
+     template <std::size_t... Is>
+     void addArgumentDependencies( std::vector<std::string>& dependencies, std::index_sequence<Is...> ) const
+     {
+         argumentDependencyHelper( dependencies, argumentDependencyHelper<ArgTypes>()... );
+     } */
 
 private:
     Callback m_callback;

@@ -192,6 +192,29 @@ public:
         method.setArgumentNames( argumentNames );
     }
 
+    /**
+     * Initialises the method with a keyword and registers it with the class
+     * @param method A reference to the method
+     * @param keyword The method keyword. Has to be unique within the class.
+     * @param argumentNames A vector of argument names
+     * @param documentation A documentation string
+     * @param callback The method that will be called locally
+     * @param type Whether it is a READ_WRITE or a READ_ONLY (const) type method
+     */
+    template <typename MethodType, typename CallbackT>
+    void initMethodWithDoc( MethodType&                     method,
+                            const std::string&              keyword,
+                            const std::vector<std::string>& argumentNames,
+                            const std::string&              documentation,
+                            CallbackT&&                     callback,
+                            MethodHandle::Type              type = MethodHandle::Type::READ_WRITE )
+    {
+        addMethod( &method, keyword, type );
+        method.setCallback( callback );
+        method.setArgumentNames( argumentNames );
+        method.setDocumentation( documentation );
+    }
+
     std::string uuid() const override;
     void        setUuid( const std::string& uuid ) override;
 

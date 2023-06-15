@@ -49,21 +49,25 @@ std::string PythonGenerator::generate( std::list<std::shared_ptr<caffa::Document
 {
     std::string code = "from caffa import Object, Document\n\n\n";
 
-    for ( auto& doc : documents )
+    for ( auto doc : documents )
     {
-        code += generate( doc );
+        code += generate( doc.get() );
     }
     return code;
 }
 
-std::string PythonGenerator::generate( std::shared_ptr<ObjectHandle> object )
+std::string PythonGenerator::generate( const ObjectHandle* object, bool passByValue )
 {
     CAFFA_DEBUG( "Generating code for class " << object->classKeyword() );
+    if ( passByValue )
+    {
+        return generateObjectPassedByValue( object );
+    }
 
-    std::vector<std::string> dependencies;
+    std::vector<std::string> fieldDependencies;
 
     auto parentClassKeyword = findParentClass( object );
-    dependencies.push_back( parentClassKeyword );
+    fieldDependencies.push_back( parentClassKeyword );
 
     std::string objectCode;
     objectCode += "class " + std::string( object->classKeyword() ) + "(" + parentClassKeyword + "):\n";
@@ -83,30 +87,147 @@ std::string PythonGenerator::generate( std::shared_ptr<ObjectHandle> object )
     {
         if ( field->capability<caffa::FieldScriptingCapability>() != nullptr )
         {
-            objectCode += generate( field, dependencies );
+            objectCode += generate( field, fieldDependencies );
         }
     }
 
-    auto methods = object->methods();
+    std::vector<std::string> methodDependencies;
+    auto                     methods = object->methods();
 
     for ( auto method : methods )
     {
-        objectCode += generate( method );
+        CAFFA_INFO( "Generating method: " << method->name() );
+        objectCode += generate( method, methodDependencies );
     }
     std::string dependencyCode;
 
-    for ( auto className : dependencies )
+    for ( auto className : fieldDependencies )
     {
         if ( !isBuiltInClass( className ) && !m_classesGenerated.count( className ) )
         {
             m_classesGenerated.insert( className );
             CAFFA_DEBUG( "Creating temp instance of " << className );
             auto tempObject = caffa::DefaultObjectFactory::instance()->create( className );
-            dependencyCode += generate( tempObject );
+            dependencyCode += generate( tempObject.get(), true );
+        }
+    }
+    for ( auto className : fieldDependencies )
+    {
+        if ( !isBuiltInClass( className ) && !m_classesGenerated.count( className ) )
+        {
+            m_classesGenerated.insert( className );
+            CAFFA_DEBUG( "Creating temp instance of " << className );
+            auto tempObject = caffa::DefaultObjectFactory::instance()->create( className );
+            dependencyCode += generate( tempObject.get() );
         }
     }
 
     return dependencyCode + objectCode;
+}
+
+std::string PythonGenerator::generateObjectPassedByValue( const ObjectHandle* object )
+{
+    std::vector<std::string> dependencies;
+
+    auto parentClassKeyword = findParentClass( object );
+    dependencies.push_back( parentClassKeyword );
+
+    std::string code;
+    code += "class " + std::string( object->classKeyword() ) + "(" + parentClassKeyword + "):\n";
+    if ( !object->classDocumentation().empty() )
+    {
+        code += "    \"\"\"" + object->classDocumentation() + "\"\"\"\n\n";
+    }
+    code += "    def __init__(self";
+
+    for ( auto field : object->fields() )
+    {
+        if ( field->keyword() != "uuid" )
+        {
+            code += ", " + field->keyword();
+            auto childField      = dynamic_cast<ChildFieldHandle*>( field );
+            auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
+
+            if ( childField )
+            {
+                dependencies.push_back( childField->childClassKeyword() );
+                code += ": " + childField->childClassKeyword() + " = None";
+            }
+            else if ( childArrayField )
+            {
+                dependencies.push_back( childArrayField->childClassKeyword() );
+                code += ": " + childArrayField->childClassKeyword() + " = []";
+            }
+            else
+            {
+                auto jsonCap = field->capability<FieldJsonCapability>();
+                if ( jsonCap )
+                {
+                    nlohmann::json json;
+                    jsonCap->writeToJson( json, JsonSerializer() );
+                    code += " = " + pythonValue( json["value"].dump() );
+                }
+            }
+        }
+    }
+    code += "):\n";
+    code += "        super().__init__()\n";
+    for ( auto field : object->fields() )
+    {
+        if ( field->keyword() != "uuid" )
+        {
+            code += "        self.create_field(keyword=\"" + field->keyword() + "\",type=\"" + field->dataType() +
+                    "\", value=" + field->keyword() + ")\n";
+        }
+    }
+    code += "\n";
+
+    for ( auto field : object->fields() )
+    {
+        if ( field->keyword() != "uuid" )
+        {
+            code += "    @property\n";
+            code += "    def " + field->keyword() + "(self):\n";
+            auto doc = field->capability<FieldDocumentationCapability>();
+            if ( doc )
+            {
+                code += "        \"\"\"" + doc->documentation() + "\"\"\"\n\n";
+            }
+            code += "        return " + castFieldValue( field, "self.get(\"" + field->keyword() + "\")" ) + "\n\n";
+            code += "    @" + field->keyword() + ".setter\n";
+            code += "    def " + field->keyword() + "(self, value):\n";
+            code += "        return self.set(\"" + field->keyword() + "\", value)\n\n";
+        }
+    }
+    code += "    @classmethod\n";
+    code += "    def copy(cls, object):\n";
+    code += "        return cls(";
+
+    bool first = true;
+    for ( auto field : object->fields() )
+    {
+        if ( field->keyword() != "uuid" )
+        {
+            if ( !first ) code += ", ";
+
+            code += castFieldValue( field, "object.get(\"" + field->keyword() + "\")" );
+            first = false;
+        }
+    }
+    code += ")\n";
+    code += "\n\n";
+
+    std::string dependencyCode;
+    for ( auto className : dependencies )
+    {
+        if ( !isBuiltInClass( className ) && !m_classesGenerated.count( className ) )
+        {
+            m_classesGenerated.insert( className );
+            auto tempObject = caffa::DefaultObjectFactory::instance()->create( className );
+            dependencyCode += generateObjectPassedByValue( tempObject.get() );
+        }
+    }
+    return dependencyCode + code;
 }
 
 bool PythonGenerator::isBuiltInClass( const std::string& classKeyword ) const
@@ -114,7 +235,7 @@ bool PythonGenerator::isBuiltInClass( const std::string& classKeyword ) const
     return classKeyword == "Object" || classKeyword == "Document";
 }
 
-std::string PythonGenerator::findParentClass( std::shared_ptr<ObjectHandle> object ) const
+std::string PythonGenerator::findParentClass( const ObjectHandle* object ) const
 {
     auto inheritanceStack = object->classInheritanceStack();
     for ( size_t i = 1; i < inheritanceStack.size(); ++i )
@@ -147,7 +268,7 @@ std::string PythonGenerator::castFieldValue( const caffa::FieldHandle* field, co
 
     if ( childField )
     {
-        return childArrayField->childClassKeyword() + "(" + value + ")";
+        return childField->childClassKeyword() + "(" + value + ")";
     }
     else if ( childArrayField )
     {
@@ -173,21 +294,9 @@ std::string PythonGenerator::dependency( const caffa::FieldHandle* field ) const
     return "";
 }
 
-std::string PythonGenerator::pythonDataType( const caffa::FieldHandle* field ) const
+std::string PythonGenerator::pythonDataType( const std::string& caffaDataType ) const
 {
-    auto childField      = dynamic_cast<const ChildFieldHandle*>( field );
-    auto childArrayField = dynamic_cast<const ChildArrayFieldHandle*>( field );
-
-    if ( childField )
-    {
-        return childField->childClassKeyword();
-    }
-    else if ( childArrayField )
-    {
-        return childArrayField->childClassKeyword();
-    }
-
-    auto dataType = field->dataType();
+    auto dataType = caffaDataType;
     dataType      = StringTools::replace( dataType, "string", "str" );
     dataType      = StringTools::replace( dataType, "uint", "int" );
     dataType      = StringTools::replace( dataType, "64", "" );
@@ -197,7 +306,7 @@ std::string PythonGenerator::pythonDataType( const caffa::FieldHandle* field ) c
     return dataType;
 }
 
-std::string PythonGenerator::generate( FieldHandle* field, std::vector<std::string>& dependencies )
+std::string PythonGenerator::generate( const FieldHandle* field, std::vector<std::string>& dependencies )
 {
     std::string code;
 
@@ -233,9 +342,60 @@ std::string PythonGenerator::generate( FieldHandle* field, std::vector<std::stri
     return code;
 }
 
-std::string PythonGenerator::generate( caffa::MethodHandle* method )
+std::string PythonGenerator::generate( const caffa::MethodHandle* method, std::vector<std::string>& dependencies )
 {
-    return "";
+    auto methodDependencies = method->dependencies();
+    dependencies.insert( dependencies.end(), methodDependencies.begin(), methodDependencies.end() );
+
+    auto jsonMethod = nlohmann::json::parse( method->schema() );
+
+    CAFFA_INFO( jsonMethod );
+
+    std::string code = "    def " + jsonMethod["keyword"].get<std::string>() + "(self";
+    if ( jsonMethod.contains( "arguments" ) )
+    {
+        for ( auto argument : jsonMethod["arguments"] )
+        {
+            code += ", " + argument["keyword"].get<std::string>();
+        }
+    }
+
+    code += "):\n";
+
+    if ( !method->documentation().empty() )
+    {
+        code += "        \"\"\"" + method->documentation();
+
+        if ( jsonMethod.contains( "arguments" ) )
+        {
+            std::string parametersCode;
+            parametersCode += "        Parameters\n";
+            parametersCode += "        ----------\n";
+            size_t argCount = 0;
+
+            for ( auto argument : jsonMethod["arguments"] )
+            {
+                parametersCode += "        " + argument["keyword"].get<std::string>() + " : " +
+                                  pythonDataType( argument["type"].get<std::string>() ) + "\n";
+                argCount++;
+            }
+            parametersCode += "        \"\"\"\n\n";
+            code += +"\n\n" + parametersCode;
+        }
+        else
+        {
+            code += "\"\"\"\n\n";
+        }
+    }
+
+    code += "        method = self.method(\"" + method->name() + "\")\n";
+    for ( auto argument : method->argumentNames() )
+    {
+        code += "        method." + argument + " = " + argument + "\n";
+    }
+
+    code += "        return self.execute(method)\n\n";
+    return code;
 }
 
 bool pythonRegistered = caffa::rpc::CodeGeneratorFactory::instance()->registerCreator<caffa::rpc::PythonGenerator>(

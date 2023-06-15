@@ -41,18 +41,20 @@ namespace rpc
         std::string name() const override;
 
         std::string generate( std::list<std::shared_ptr<caffa::Document>>& documents ) override;
-        std::string generate( std::shared_ptr<caffa::ObjectHandle> object ) override;
-        std::string generate( caffa::FieldHandle* field, std::vector<std::string>& dependencies ) override;
-        std::string generate( caffa::MethodHandle* method ) override;
+        std::string generate( const ObjectHandle* object, bool passByValue = false ) override;
+        std::string generate( const caffa::FieldHandle* field, std::vector<std::string>& dependencies ) override;
+        std::string generate( const caffa::MethodHandle* method, std::vector<std::string>& dependencies ) override;
 
     private:
         bool isBuiltInClass( const std::string& classKeyword ) const;
 
-        std::string findParentClass( std::shared_ptr<caffa::ObjectHandle> object ) const;
+        std::string generateObjectPassedByValue( const caffa::ObjectHandle* object );
+
+        std::string findParentClass( const ObjectHandle* object ) const;
         std::string pythonValue( const std::string& cppValue ) const;
         std::string castFieldValue( const caffa::FieldHandle* field, const std::string& value ) const;
         std::string dependency( const caffa::FieldHandle* field ) const;
-        std::string pythonDataType( const caffa::FieldHandle* field ) const;
+        std::string pythonDataType( const std::string& dataType ) const;
 
         std::set<std::string> m_classesGenerated;
     };

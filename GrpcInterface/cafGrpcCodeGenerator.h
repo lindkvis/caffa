@@ -40,10 +40,10 @@ namespace rpc
 
         virtual std::string name() const = 0;
 
-        virtual std::string generate( std::list<std::shared_ptr<caffa::Document>>& documents )            = 0;
-        virtual std::string generate( std::shared_ptr<caffa::ObjectHandle> object )                       = 0;
-        virtual std::string generate( caffa::FieldHandle* field, std::vector<std::string>& dependencies ) = 0;
-        virtual std::string generate( caffa::MethodHandle* method )                                       = 0;
+        virtual std::string generate( std::list<std::shared_ptr<caffa::Document>>& documents ) = 0;
+        virtual std::string generate( const caffa::ObjectHandle* object, bool objectMethodResultOrParameter = false ) = 0;
+        virtual std::string generate( const caffa::FieldHandle* field, std::vector<std::string>& dependencies )   = 0;
+        virtual std::string generate( const caffa::MethodHandle* method, std::vector<std::string>& dependencies ) = 0;
     };
 
     typedef caffa::Factory<CodeGenerator, size_t> CodeGeneratorFactory;

@@ -216,25 +216,47 @@ struct is_shared_ptr<std::shared_ptr<T>> : std::true_type
 template <typename T>
 concept IsSharedPtr = is_shared_ptr<T>::value;
 
-template <typename T>
-concept IsSharedPtrOrObject = ( IsSharedPtr<T> || DerivesFromObjectHandle<T> );
-
 /**
  * The portable type id for an ObjectHandle
  */
-template <IsSharedPtrOrObject DataType>
+template <IsSharedPtr DataType>
 struct PortableDataType<DataType>
 {
-    static std::string name() { return "object"; }
+    static std::string name()
+    {
+        static_assert( DerivesFromObjectHandle<typename DataType::element_type> );
+        return DataType::element_type::classKeywordStatic();
+    }
 };
 
 /**
  * The portable type id for an ObjectHandle
  */
-template <IsSharedPtrOrObject DataType>
+template <IsSharedPtr DataType>
 struct PortableDataType<std::vector<DataType>>
 {
-    static std::string name() { return "object[]"; }
+    static std::string name()
+    {
+        static_assert( DerivesFromObjectHandle<typename DataType::element_type> );
+        return DataType::element_type::classKeywordStatic() + "[]";
+    }
 };
 
+/**
+ * The portable type id for an ObjectHandle
+ */
+template <DerivesFromObjectHandle DataType>
+struct PortableDataType<DataType>
+{
+    static std::string name() { return DataType::classKeywordStatic(); }
+};
+
+/**
+ * The portable type id for an ObjectHandle
+ */
+template <DerivesFromObjectHandle DataType>
+struct PortableDataType<std::vector<DataType>>
+{
+    static std::string name() { return DataType::classKeywordStatic() + "[]"; }
+};
 } // namespace caffa
