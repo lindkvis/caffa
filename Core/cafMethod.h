@@ -148,6 +148,7 @@ private:
     static ArgType jsonToValue( const nlohmann::json& value )
     {
         JsonSerializer serializer;
+        CAFFA_DEBUG( "JSON VALUE: " << value["value"].dump() );
         return std::dynamic_pointer_cast<typename ArgType::element_type>(
             serializer.createObjectFromString( value["value"].dump() ) );
     }

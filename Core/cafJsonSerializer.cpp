@@ -219,16 +219,20 @@ ObjectHandle::Ptr JsonSerializer::copyAndCastBySerialization( const ObjectHandle
 //--------------------------------------------------------------------------------------------------
 ObjectHandle::Ptr JsonSerializer::createObjectFromString( const std::string& string ) const
 {
-    CAFFA_TRACE( string );
+    CAFFA_INFO( string );
     if ( string.empty() ) return nullptr;
 
-    nlohmann::json jsonObject       = nlohmann::json::parse( string );
-    auto           classNameElement = jsonObject.find( "keyword" );
+    nlohmann::json jsonObject = nlohmann::json::parse( string );
+
+    if ( jsonObject.is_null() ) return nullptr;
+
+    auto classNameElement = jsonObject.find( "keyword" );
     if ( classNameElement == jsonObject.end() )
     {
         classNameElement = jsonObject.find( "class" );
     }
-    CAFFA_ASSERT( classNameElement != jsonObject.end() );
+
+    if ( classNameElement == jsonObject.end() ) return nullptr;
 
     const auto& jsonClassKeyword = *classNameElement;
 

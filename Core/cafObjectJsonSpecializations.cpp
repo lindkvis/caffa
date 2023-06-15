@@ -36,11 +36,17 @@ void from_json( const nlohmann::json& jsonValue, ObjectHandle& object )
 
 void to_json( nlohmann::json& jsonValue, std::shared_ptr<const ObjectHandle> object )
 {
-    to_json( jsonValue, *object );
+    if ( object )
+    {
+        to_json( jsonValue, *object );
+    }
 }
 
 void from_json( const nlohmann::json& jsonValue, std::shared_ptr<ObjectHandle> object )
 {
-    from_json( jsonValue, *object );
+    if ( object )
+    {
+        from_json( jsonValue, *object );
+    }
 }
-}
+} // namespace caffa
