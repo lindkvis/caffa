@@ -101,7 +101,7 @@ std::string PythonGenerator::generate( const ObjectHandle* object, bool passByVa
     }
     std::string dependencyCode;
 
-    for ( auto className : fieldDependencies )
+    for ( auto className : methodDependencies )
     {
         if ( !isBuiltInClass( className ) && !m_classesGenerated.count( className ) )
         {
