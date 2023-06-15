@@ -137,8 +137,16 @@ void FieldJsonCap<Field<std::shared_ptr<DataType>>>::readFromJson( const nlohman
         jsonObject = jsonElement;
     }
 
-    std::string className = jsonObject["keyword"].get<std::string>();
-    std::string uuid      = "";
+    auto classNameElement = jsonObject.find( "keyword" );
+    if ( classNameElement == jsonObject.end() )
+    {
+        classNameElement = jsonObject.find( "class" );
+    }
+    CAFFA_ASSERT( classNameElement != jsonObject.end() );
+
+    std::string className = *classNameElement;
+
+    std::string uuid = "";
     if ( jsonObject.contains( "uuid" ) )
     {
         uuid = jsonObject["uuid"].get<std::string>();
@@ -259,7 +267,14 @@ void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::readFromJson( 
     {
         if ( !jsonObject.is_object() ) continue;
 
-        std::string className = jsonObject["keyword"].get<std::string>();
+        auto classNameElement = jsonObject.find( "keyword" );
+        if ( classNameElement == jsonObject.end() )
+        {
+            classNameElement = jsonObject.find( "class" );
+        }
+        CAFFA_ASSERT( classNameElement != jsonObject.end() );
+
+        std::string className = *classNameElement;
 
         ObjectHandle::Ptr object = objectFactory->create( className );
 
@@ -359,8 +374,16 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
         jsonObject = jsonElement;
     }
 
-    std::string className = jsonObject["keyword"].get<std::string>();
-    std::string uuid      = "";
+    auto classNameElement = jsonObject.find( "keyword" );
+    if ( classNameElement == jsonObject.end() )
+    {
+        classNameElement = jsonObject.find( "class" );
+    }
+    CAFFA_ASSERT( classNameElement != jsonObject.end() );
+
+    std::string className = *classNameElement;
+
+    std::string uuid = "";
     if ( jsonObject.contains( "uuid" ) )
     {
         uuid = jsonObject["uuid"].get<std::string>();
@@ -477,7 +500,14 @@ void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::jso
     {
         if ( !jsonObject.is_object() ) continue;
 
-        std::string className = jsonObject["keyword"].get<std::string>();
+        auto classNameElement = jsonObject.find( "keyword" );
+        if ( classNameElement == jsonObject.end() )
+        {
+            classNameElement = jsonObject.find( "class" );
+        }
+        CAFFA_ASSERT( classNameElement != jsonObject.end() );
+
+        std::string className = *classNameElement;
 
         ObjectHandle::Ptr object = objectFactory->create( className );
 

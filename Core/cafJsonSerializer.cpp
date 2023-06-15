@@ -55,7 +55,7 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
             CAFFA_ASSERT( uuid.is_string() && !uuid.empty() );
             object->setUuid( uuid );
         }
-        else if ( keyword == "keyword" )
+        else if ( keyword == "keyword" || keyword == "class" )
         {
             const auto& classKeyword = value;
             CAFFA_ASSERT(
@@ -142,7 +142,11 @@ std::pair<std::string, std::string> JsonSerializer::readClassKeywordAndUUIDFromO
     if ( jsonValue.is_object() )
     {
         auto keyword_it = jsonValue.find( "keyword" );
-        auto uuid_it    = jsonValue.find( "uuid" );
+        if ( keyword_it == jsonValue.end() )
+        {
+            keyword_it = jsonValue.find( "class" );
+        }
+        auto uuid_it = jsonValue.find( "uuid" );
         if ( keyword_it != jsonValue.end() ) keywordUuidPair.first = keyword_it.value();
         if ( uuid_it != jsonValue.end() ) keywordUuidPair.second = uuid_it.value();
     }
@@ -219,7 +223,14 @@ ObjectHandle::Ptr JsonSerializer::createObjectFromString( const std::string& str
     if ( string.empty() ) return nullptr;
 
     nlohmann::json jsonObject       = nlohmann::json::parse( string );
-    const auto&    jsonClassKeyword = jsonObject["keyword"];
+    auto           classNameElement = jsonObject.find( "keyword" );
+    if ( classNameElement == jsonObject.end() )
+    {
+        classNameElement = jsonObject.find( "class" );
+    }
+    CAFFA_ASSERT( classNameElement != jsonObject.end() );
+
+    const auto& jsonClassKeyword = *classNameElement;
 
     CAFFA_ASSERT( jsonClassKeyword.is_string() );
     std::string classKeyword = jsonClassKeyword.get<std::string>();
