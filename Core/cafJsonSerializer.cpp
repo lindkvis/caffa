@@ -219,7 +219,6 @@ ObjectHandle::Ptr JsonSerializer::copyAndCastBySerialization( const ObjectHandle
 //--------------------------------------------------------------------------------------------------
 ObjectHandle::Ptr JsonSerializer::createObjectFromString( const std::string& string ) const
 {
-    CAFFA_INFO( string );
     if ( string.empty() ) return nullptr;
 
     nlohmann::json jsonObject = nlohmann::json::parse( string );
