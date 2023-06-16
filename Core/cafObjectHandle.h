@@ -225,7 +225,7 @@ struct PortableDataType<DataType>
     static std::string name()
     {
         static_assert( DerivesFromObjectHandle<typename DataType::element_type> );
-        return DataType::element_type::classKeywordStatic();
+        return std::string( "object::" ) + DataType::element_type::classKeywordStatic();
     }
 };
 
@@ -238,7 +238,7 @@ struct PortableDataType<std::vector<DataType>>
     static std::string name()
     {
         static_assert( DerivesFromObjectHandle<typename DataType::element_type> );
-        return DataType::element_type::classKeywordStatic() + "[]";
+        return std::string( "object[]::" ) + DataType::element_type::classKeywordStatic();
     }
 };
 
@@ -248,7 +248,7 @@ struct PortableDataType<std::vector<DataType>>
 template <DerivesFromObjectHandle DataType>
 struct PortableDataType<DataType>
 {
-    static std::string name() { return DataType::classKeywordStatic(); }
+    static std::string name() { return std::string( "object::" ) + DataType::classKeywordStatic(); }
 };
 
 /**
@@ -257,6 +257,6 @@ struct PortableDataType<DataType>
 template <DerivesFromObjectHandle DataType>
 struct PortableDataType<std::vector<DataType>>
 {
-    static std::string name() { return DataType::classKeywordStatic() + "[]"; }
+    static std::string name() { return std::string( "object[]::" ) + DataType::classKeywordStatic(); }
 };
 } // namespace caffa

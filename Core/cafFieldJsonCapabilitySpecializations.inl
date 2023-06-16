@@ -208,7 +208,7 @@ void FieldJsonCap<Field<std::shared_ptr<DataType>>>::writeToJson( nlohmann::json
     CAFFA_ASSERT( jsonObject.is_object() );
     if ( serializer.serializeDataTypes() )
     {
-        jsonValue["type"]  = DataType::classKeywordStatic();
+        jsonValue["type"]  = PortableDataType<DataType>::name();
         jsonValue["value"] = jsonObject;
     }
     else
@@ -325,7 +325,7 @@ void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::writeToJson( n
 
     if ( serializer.serializeDataTypes() )
     {
-        jsonValue["type"]  = DataType::classKeywordStatic();
+        jsonValue["type"]  = PortableDataType<std::vector<std::shared_ptr<DataType>>>::name();
         jsonValue["value"] = jsonArray;
     }
     else
@@ -442,7 +442,7 @@ void FieldJsonCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonValue
     CAFFA_ASSERT( jsonObject.is_object() );
     if ( serializer.serializeDataTypes() )
     {
-        jsonValue["type"]  = DataType::classKeywordStatic();
+        jsonValue["type"]  = PortableDataType<DataType>::name();
         jsonValue["value"] = jsonObject;
     }
     else
@@ -557,7 +557,7 @@ void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& json
 
     if ( serializer.serializeDataTypes() )
     {
-        jsonValue["type"]  = DataType::classKeywordStatic() + "[]";
+        jsonValue["type"]  = PortableDataType<std::vector<DataType>>::name();
         jsonValue["value"] = jsonArray;
     }
     else
