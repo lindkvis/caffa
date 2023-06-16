@@ -309,7 +309,9 @@ TEST( BaseTest, TestDataType )
     {
         auto obj      = std::make_shared<InheritedDemoObj>();
         auto dataType = obj->m_childArrayField.dataType();
-        EXPECT_EQ( std::string( "object[]" ), dataType );
+
+        // We've stored an InheritedDemoObj in the field, but the field is actually of the parent type DemoObject
+        EXPECT_EQ( ( std::string( DemoObject::classKeywordStatic() ) + "[]" ), dataType );
     }
 }
 
