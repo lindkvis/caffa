@@ -125,8 +125,8 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-JsonSerializer::JsonSerializer( ObjectFactory* objectFactory )
-    : Serializer( objectFactory )
+JsonSerializer::JsonSerializer( ObjectFactory* objectFactory /* = nullptr */ )
+    : Serializer( objectFactory == nullptr ? DefaultObjectFactory::instance() : objectFactory )
 {
 }
 
@@ -175,11 +175,11 @@ std::string JsonSerializer::writeObjectToString( const ObjectHandle* object ) co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle::Ptr JsonSerializer::copyBySerialization( const ObjectHandle* object ) const
+std::shared_ptr<ObjectHandle> JsonSerializer::copyBySerialization( const ObjectHandle* object ) const
 {
     std::string string = writeObjectToString( object );
 
-    ObjectHandle::Ptr objectCopy = createObjectFromString( string );
+    std::shared_ptr<ObjectHandle> objectCopy = createObjectFromString( string );
     if ( !objectCopy ) return nullptr;
 
     ObjectPerformer<> performer( []( ObjectHandle* object ) { object->initAfterRead(); } );
@@ -191,12 +191,12 @@ ObjectHandle::Ptr JsonSerializer::copyBySerialization( const ObjectHandle* objec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle::Ptr JsonSerializer::copyAndCastBySerialization( const ObjectHandle* object,
-                                                              const std::string&  destinationClassKeyword ) const
+std::shared_ptr<ObjectHandle> JsonSerializer::copyAndCastBySerialization( const ObjectHandle* object,
+                                                                          const std::string& destinationClassKeyword ) const
 {
     std::string string = writeObjectToString( object );
 
-    ObjectHandle::Ptr objectCopy = m_objectFactory->create( destinationClassKeyword );
+    std::shared_ptr<ObjectHandle> objectCopy = m_objectFactory->create( destinationClassKeyword );
 
     bool sourceInheritsDestination =
         ObjectHandle::matchesClassKeyword( destinationClassKeyword, object->classInheritanceStack() );
@@ -217,7 +217,7 @@ ObjectHandle::Ptr JsonSerializer::copyAndCastBySerialization( const ObjectHandle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle::Ptr JsonSerializer::createObjectFromString( const std::string& string ) const
+std::shared_ptr<ObjectHandle> JsonSerializer::createObjectFromString( const std::string& string ) const
 {
     if ( string.empty() ) return nullptr;
 
@@ -238,7 +238,7 @@ ObjectHandle::Ptr JsonSerializer::createObjectFromString( const std::string& str
     CAFFA_ASSERT( jsonClassKeyword.is_string() );
     std::string classKeyword = jsonClassKeyword.get<std::string>();
 
-    ObjectHandle::Ptr newObject = m_objectFactory->create( classKeyword );
+    std::shared_ptr<ObjectHandle> newObject = m_objectFactory->create( classKeyword );
 
     if ( !newObject ) return nullptr;
 

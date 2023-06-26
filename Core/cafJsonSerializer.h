@@ -36,7 +36,7 @@ public:
      * Constructor
      * @param objectFactory The factory used when creating new objects. Not relevant when writing.
      */
-    JsonSerializer( ObjectFactory* objectFactory = DefaultObjectFactory::instance() );
+    JsonSerializer( ObjectFactory* objectFactory = nullptr );
 
     /**
      * Convenience method for reading the class keyword and uuid from a json string.
@@ -65,7 +65,7 @@ public:
      * @param object The object to copy
      * @return unique ptr containing a new copy
      */
-    ObjectHandle::Ptr copyBySerialization( const ObjectHandle* object ) const override;
+    std::shared_ptr<ObjectHandle> copyBySerialization( const ObjectHandle* object ) const override;
 
     /**
      * Copy the object by serializing to text string but cast to a different class keyword.
@@ -75,15 +75,15 @@ public:
      * @param destinationClassKeyword The class of the object to create.
      * @return unique ptr containing a new copy
      */
-    ObjectHandle::Ptr copyAndCastBySerialization( const ObjectHandle* object,
-                                                  const std::string&  destinationClassKeyword ) const override;
+    std::shared_ptr<ObjectHandle> copyAndCastBySerialization( const ObjectHandle* object,
+                                                              const std::string& destinationClassKeyword ) const override;
 
     /**
      * Create a new object from a JSON text string
      * @param string The JSON text string
      * @return unique ptr to new object
      */
-    ObjectHandle::Ptr createObjectFromString( const std::string& string ) const override;
+    std::shared_ptr<ObjectHandle> createObjectFromString( const std::string& string ) const override;
 
     /**
      * Read object from an input stream

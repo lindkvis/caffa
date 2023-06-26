@@ -18,7 +18,6 @@
 //
 #pragma once
 
-#include "cafDefaultObjectFactory.h"
 #include "cafFieldHandle.h"
 
 #include <functional>
@@ -72,7 +71,7 @@ public:
      * @param object The object to copy
      * @return unique ptr containing a new copy
      */
-    virtual ObjectHandle::Ptr copyBySerialization( const ObjectHandle* object ) const = 0;
+    virtual std::shared_ptr<ObjectHandle> copyBySerialization( const ObjectHandle* object ) const = 0;
 
     /**
      * Copy the object by serializing to text string but cast to a different class keyword.
@@ -82,15 +81,15 @@ public:
      * @param destinationClassKeyword The class of the object to create.
      * @return unique ptr containing a new copy
      */
-    virtual ObjectHandle::Ptr copyAndCastBySerialization( const ObjectHandle* object,
-                                                          const std::string&  destinationClassKeyword ) const = 0;
+    virtual std::shared_ptr<ObjectHandle>
+        copyAndCastBySerialization( const ObjectHandle* object, const std::string& destinationClassKeyword ) const = 0;
 
     /**
      * Create a new object from a JSON text string
      * @param string The JSON text string
      * @return unique ptr to new object
      */
-    virtual ObjectHandle::Ptr createObjectFromString( const std::string& string ) const = 0;
+    virtual std::shared_ptr<ObjectHandle> createObjectFromString( const std::string& string ) const = 0;
 
     /**
      * Read object from an input stream

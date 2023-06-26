@@ -62,7 +62,7 @@ ObjectHandle::Ptr ChildFieldDirectStorageAccessor::deepCloneObject() const
 {
     if ( !m_object ) return nullptr;
 
-    JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
+    JsonSerializer serializer;
     return serializer.copyBySerialization( m_object.get() );
 }
 
@@ -71,7 +71,7 @@ ObjectHandle::Ptr ChildFieldDirectStorageAccessor::deepCloneObject() const
 //--------------------------------------------------------------------------------------------------
 void ChildFieldDirectStorageAccessor::deepCopyObjectFrom( ObjectHandle::ConstPtr copyFrom )
 {
-    JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
+    JsonSerializer serializer;
     if ( !m_object )
     {
         m_object = serializer.copyBySerialization( copyFrom.get() );
