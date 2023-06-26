@@ -66,3 +66,12 @@ AppInfo Application::appInfo() const
 {
     return { name(), majorVersion(), minorVersion(), patchVersion(), m_capabilities };
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Application::assertCapability( AppInfo::AppCapability typeToAssert )
+{
+    auto app = instance();
+    CAFFA_ASSERT( app->hasCapability( typeToAssert ) );
+}
