@@ -14,7 +14,7 @@
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafGrpcClient.h"
-#include "cafGrpcClientObjectFactory.h"
+#include "cafGrpcClientPassByRefObjectFactory.h"
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
 #include "cafObjectCollector.h"
@@ -34,7 +34,7 @@ class GrpcTest : public ::testing::Test
 protected:
     GrpcTest()
     {
-        caffa::rpc::GrpcClientObjectFactory* factory = caffa::rpc::GrpcClientObjectFactory::instance();
+        caffa::rpc::ClientPassByRefObjectFactory* factory = caffa::rpc::ClientPassByRefObjectFactory::instance();
         factory->registerBasicAccessorCreators<caffa::AppEnum<DemoObject::TestEnumType>>();
         serverApp = std::make_unique<ServerApp>( ServerApp::s_port,
                                                  ServerApp::s_serverCertFile,

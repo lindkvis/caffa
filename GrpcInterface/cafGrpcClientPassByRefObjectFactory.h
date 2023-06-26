@@ -1,7 +1,8 @@
 // ##################################################################################################
 //
-//    Custom Visualization Core library
-//    Copyright (C) 2011-2013 Ceetron AS
+//    Caffa
+//    Copyright (C) 2011- Ceetron AS (Changes up until April 2021)
+//    Copyright (C) 2021- Kontur AS (Changes from April 2021 and onwards)
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify
@@ -56,11 +57,19 @@ public:
     }
 };
 
-class GrpcClientObjectFactory : public ObjectFactory
+/**
+ * Client object factory which creates data fields and methods by reference.
+ * If you wish to pass fields by value and still access remote methods, use the ClientPassByValueObjectFactory
+ */
+
+class ClientPassByRefObjectFactory : public ObjectFactory
 {
 public:
-    static GrpcClientObjectFactory* instance();
-    void                            setGrpcClient( Client* client );
+    static ClientPassByRefObjectFactory* instance();
+
+    std::string name() const override { return "gRPC Client Pass By Reference ObjectFactory"; }
+
+    void setGrpcClient( Client* client );
     template <typename DataType>
     void registerBasicAccessorCreators()
     {
@@ -72,14 +81,14 @@ public:
     }
 
 private:
-    ObjectHandle::Ptr doCreate( const std::string_view& classKeyword ) override;
+    std::shared_ptr<ObjectHandle> doCreate( const std::string_view& classKeyword ) override;
 
-    GrpcClientObjectFactory()
+    ClientPassByRefObjectFactory()
         : m_grpcClient( nullptr )
     {
         registerAllBasicAccessorCreators();
     }
-    ~GrpcClientObjectFactory() override = default;
+    ~ClientPassByRefObjectFactory() override = default;
 
     void applyAccessorToField( caffa::ObjectHandle* objectHandle, caffa::FieldHandle* fieldHandle );
     void applyAccessorToMethod( caffa::ObjectHandle* objectHandle, caffa::MethodHandle* methodHandle );

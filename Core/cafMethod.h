@@ -24,6 +24,7 @@
 #include "cafMethodHandle.h"
 #include "cafPortableDataType.h"
 
+#include "cafObjectFactory.h"
 #include "cafObjectJsonSpecializations.h"
 
 #include <nlohmann/json.hpp>
@@ -56,7 +57,7 @@ public:
             CAFFA_DEBUG( "Serialized method: " << serializedMethod );
             auto serialisedResult = accessor->execute( serializedMethod );
             CAFFA_DEBUG( "Got serialized result: " << serialisedResult );
-            return resultFromJsonString( serialisedResult );
+            return resultFromJsonString( serialisedResult, accessor->objectFactory() );
         }
         return m_callback( args... );
     }
@@ -73,12 +74,12 @@ public:
 
     std::string schema() const override { return this->jsonSkeleton().dump(); }
 
-    Result resultFromJsonString( const std::string& jsonResultString ) const
+    Result resultFromJsonString( const std::string& jsonResultString, ObjectFactory* objectFactory ) const
     {
         CAFFA_DEBUG( "Attempting to get a value of type " << PortableDataType<Result>::name()
                                                           << " from JSON: " << jsonResultString );
         auto jsonResult = nlohmann::json::parse( jsonResultString );
-        return jsonToValue<Result>( jsonResult );
+        return jsonToValue<Result>( jsonResult, objectFactory );
     }
 
     std::vector<std::string> dependencies() const override
@@ -148,16 +149,16 @@ public:
 private:
     template <typename ArgType>
         requires std::same_as<ArgType, void>
-    static ArgType jsonToValue( const nlohmann::json& value )
+    static ArgType jsonToValue( const nlohmann::json& value, ObjectFactory* objectFactory )
     {
         return;
     }
 
     template <typename ArgType>
         requires IsSharedPtr<ArgType>
-    static ArgType jsonToValue( const nlohmann::json& value )
+    static ArgType jsonToValue( const nlohmann::json& value, ObjectFactory* objectFactory )
     {
-        JsonSerializer serializer;
+        JsonSerializer serializer( objectFactory );
         CAFFA_DEBUG( "JSON VALUE: " << value["value"].dump() );
         return std::dynamic_pointer_cast<typename ArgType::element_type>(
             serializer.createObjectFromString( value["value"].dump() ) );
@@ -165,7 +166,7 @@ private:
 
     template <typename ArgType>
         requires( not IsSharedPtr<ArgType> && not std::same_as<ArgType, void> )
-    static ArgType jsonToValue( const nlohmann::json& value )
+    static ArgType jsonToValue( const nlohmann::json& value, ObjectFactory* objectFactory )
     {
         return value["value"].get<ArgType>();
     }
@@ -174,7 +175,7 @@ private:
         requires std::same_as<ReturnType, void>
     nlohmann::json executeJson( const nlohmann::json& args, std::index_sequence<Is...> ) const
     {
-        this->operator()( jsonToValue<ArgTypes>( args[Is] )... );
+        this->operator()( jsonToValue<ArgTypes>( args[Is], nullptr )... );
 
         nlohmann::json returnValue = nlohmann::json::object();
         returnValue["type"]        = PortableDataType<Result>::name();
@@ -187,7 +188,7 @@ private:
     {
         nlohmann::json returnValue = nlohmann::json::object();
         returnValue["type"]        = PortableDataType<Result>::name();
-        returnValue["value"]       = this->operator()( jsonToValue<ArgTypes>( args[Is] )... );
+        returnValue["value"]       = this->operator()( jsonToValue<ArgTypes>( args[Is], nullptr )... );
         return returnValue;
     }
 

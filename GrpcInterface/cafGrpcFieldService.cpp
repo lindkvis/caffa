@@ -131,7 +131,10 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
     CAFFA_TRACE( "Received Set Request for " << fieldRequest.class_keyword() << "::" << fieldRequest.keyword()
                                              << ", uuid: " << fieldRequest.uuid() );
 
-    if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
+    if ( !fieldOwner )
+        return grpc::Status( grpc::NOT_FOUND,
+                             "Object with class keyword " + fieldRequest.class_keyword() + " and UUID " +
+                                 fieldRequest.uuid() + " not found" );
 
     auto field = scriptableFieldFromKeyword( fieldOwner, fieldRequest.keyword() );
 

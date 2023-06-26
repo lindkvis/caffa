@@ -35,7 +35,7 @@
 #include "cafGrpcObjectService.h"
 
 #include "cafGrpcCallbacks.h"
-#include "cafGrpcClientObjectFactory.h"
+#include "cafGrpcClientPassByRefObjectFactory.h"
 #include "cafGrpcServerApplication.h"
 #include "cafSession.h"
 

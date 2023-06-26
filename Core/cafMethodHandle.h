@@ -25,20 +25,25 @@ namespace caffa
 {
 class MethodHandle;
 class ObjectHandle;
+class ObjectFactory;
 
 class MethodAccessorInterface
 {
 public:
-    MethodAccessorInterface( const ObjectHandle* selfHandle, const MethodHandle* methodHandle )
+    MethodAccessorInterface( const ObjectHandle* selfHandle, const MethodHandle* methodHandle, ObjectFactory* objectFactory )
         : m_selfHandle( selfHandle )
         , m_methodHandle( methodHandle )
+        , m_objectFactory( objectFactory )
     {
     }
     virtual std::string execute( const std::string& jsonArgumentsString ) const = 0;
 
+    ObjectFactory* objectFactory() const { return m_objectFactory; }
+
 protected:
     const ObjectHandle* m_selfHandle;
     const MethodHandle* m_methodHandle;
+    ObjectFactory*      m_objectFactory;
 };
 
 class MethodHandle

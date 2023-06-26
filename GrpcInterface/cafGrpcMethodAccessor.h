@@ -27,8 +27,11 @@ namespace caffa::rpc
 class MethodAccessor : public caffa::MethodAccessorInterface
 {
 public:
-    MethodAccessor( const Client* client, const caffa::ObjectHandle* selfHandle, caffa::MethodHandle* methodHandle )
-        : MethodAccessorInterface( selfHandle, methodHandle )
+    MethodAccessor( const Client*              client,
+                    const caffa::ObjectHandle* selfHandle,
+                    caffa::MethodHandle*       methodHandle,
+                    caffa::ObjectFactory*      objectFactory )
+        : MethodAccessorInterface( selfHandle, methodHandle, objectFactory )
         , m_client( client )
     {
     }

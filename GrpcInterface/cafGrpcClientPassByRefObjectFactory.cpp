@@ -1,4 +1,24 @@
-#include "cafGrpcClientObjectFactory.h"
+// ##################################################################################################
+//
+//    Caffa
+//    Copyright (C) 2011- Ceetron AS (Changes up until April 2021)
+//    Copyright (C) 2021- Kontur AS (Changes from April 2021 and onwards)
+//
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
+//
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
+//
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
+//
+// ##################################################################################################
+#include "cafGrpcClientPassByRefObjectFactory.h"
 
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
@@ -8,6 +28,7 @@
 #include "cafGrpcChildArrayFieldAccessor.h"
 #include "cafGrpcChildFieldAccessor.h"
 #include "cafGrpcClient.h"
+#include "cafGrpcClientPassByValueObjectFactory.h"
 #include "cafGrpcDataFieldAccessor.h"
 #include "cafGrpcException.h"
 #include "cafGrpcMethodAccessor.h"
@@ -23,12 +44,12 @@ namespace caffa::rpc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle::Ptr GrpcClientObjectFactory::doCreate( const std::string_view& classKeyword )
+std::shared_ptr<ObjectHandle> ClientPassByRefObjectFactory::doCreate( const std::string_view& classKeyword )
 {
     CAFFA_ASSERT( m_grpcClient );
     if ( !m_grpcClient ) throw( Exception( grpc::Status( grpc::ABORTED, "No Client set in Grpc Client factory" ) ) );
 
-    CAFFA_TRACE( "Creating object of type " << classKeyword );
+    CAFFA_TRACE( "Creating Passed-By-Reference Object of type " << classKeyword );
 
     auto objectHandle = caffa::DefaultObjectFactory::instance()->create( classKeyword );
 
@@ -53,16 +74,16 @@ ObjectHandle::Ptr GrpcClientObjectFactory::doCreate( const std::string_view& cla
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-GrpcClientObjectFactory* GrpcClientObjectFactory::instance()
+ClientPassByRefObjectFactory* ClientPassByRefObjectFactory::instance()
 {
-    static GrpcClientObjectFactory* fact = new GrpcClientObjectFactory;
+    static ClientPassByRefObjectFactory* fact = new ClientPassByRefObjectFactory;
     return fact;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void GrpcClientObjectFactory::setGrpcClient( Client* client )
+void ClientPassByRefObjectFactory::setGrpcClient( Client* client )
 {
     m_grpcClient = client;
 }
@@ -70,7 +91,7 @@ void GrpcClientObjectFactory::setGrpcClient( Client* client )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void GrpcClientObjectFactory::applyAccessorToField( caffa::ObjectHandle* fieldOwner, caffa::FieldHandle* fieldHandle )
+void ClientPassByRefObjectFactory::applyAccessorToField( caffa::ObjectHandle* fieldOwner, caffa::FieldHandle* fieldHandle )
 {
     CAFFA_ASSERT( m_grpcClient );
     if ( !m_grpcClient ) throw( Exception( grpc::Status( grpc::ABORTED, "No Client set in Grpc Client factory" ) ) );
@@ -111,19 +132,23 @@ void GrpcClientObjectFactory::applyAccessorToField( caffa::ObjectHandle* fieldOw
     }
 }
 
-void GrpcClientObjectFactory::applyAccessorToMethod( caffa::ObjectHandle* objectHandle, caffa::MethodHandle* methodHandle )
+void ClientPassByRefObjectFactory::applyAccessorToMethod( caffa::ObjectHandle* objectHandle,
+                                                          caffa::MethodHandle* methodHandle )
 {
-    methodHandle->setAccessor( std::make_unique<MethodAccessor>( m_grpcClient, objectHandle, methodHandle ) );
+    methodHandle->setAccessor( std::make_unique<MethodAccessor>( m_grpcClient,
+                                                                 objectHandle,
+                                                                 methodHandle,
+                                                                 ClientPassByValueObjectFactory::instance() ) );
 }
 
-void GrpcClientObjectFactory::registerAccessorCreator( const std::string&                   dataType,
-                                                       std::unique_ptr<AccessorCreatorBase> creator )
+void ClientPassByRefObjectFactory::registerAccessorCreator( const std::string&                   dataType,
+                                                            std::unique_ptr<AccessorCreatorBase> creator )
 {
     CAFFA_TRACE( "Registering accessor for data type: " << dataType );
     m_accessorCreatorMap.insert( std::make_pair( dataType, std::move( creator ) ) );
 }
 
-void GrpcClientObjectFactory::registerAllBasicAccessorCreators()
+void ClientPassByRefObjectFactory::registerAllBasicAccessorCreators()
 {
     registerBasicAccessorCreators<double>();
     registerBasicAccessorCreators<float>();

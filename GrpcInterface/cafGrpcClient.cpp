@@ -39,7 +39,8 @@
 
 #include "cafDefaultObjectFactory.h"
 #include "cafGrpcApplication.h"
-#include "cafGrpcClientObjectFactory.h"
+#include "cafGrpcClientPassByRefObjectFactory.h"
+#include "cafGrpcClientPassByValueObjectFactory.h"
 #include "cafGrpcException.h"
 #include "cafGrpcFieldService.h"
 #include "cafGrpcObjectService.h"
@@ -289,7 +290,7 @@ public:
         if ( status.ok() )
         {
             CAFFA_TRACE( "Got document" );
-            caffa::JsonSerializer serializer( caffa::rpc::GrpcClientObjectFactory::instance() );
+            caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
             serializer.setWriteTypesAndValidators( false );
             document = caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply, serializer );
             CAFFA_TRACE( "Document completed with UUID " << document->uuid() );
@@ -320,7 +321,7 @@ public:
         {
             CAFFA_TRACE( "Got list of documents" );
 
-            caffa::JsonSerializer serializer( caffa::rpc::GrpcClientObjectFactory::instance() );
+            caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
             serializer.setWriteTypesAndValidators( false );
 
             for ( auto documentId : objectListReply.document_id() )
@@ -371,7 +372,7 @@ public:
         if ( status.ok() )
         {
             CAFFA_DEBUG( "Got JSON: " + reply.value() );
-            childObject = caffa::JsonSerializer( caffa::rpc::GrpcClientObjectFactory::instance() )
+            childObject = caffa::JsonSerializer( caffa::rpc::ClientPassByRefObjectFactory::instance() )
                               .setWriteTypesAndValidators( false )
                               .createObjectFromString( reply.value() );
         }
@@ -407,7 +408,7 @@ public:
         grpc::Status status = m_fieldStub->GetValue( &context, field, &reply );
         if ( status.ok() )
         {
-            childObject = caffa::JsonSerializer( caffa::DefaultObjectFactory::instance() )
+            childObject = caffa::JsonSerializer( ClientPassByValueObjectFactory::instance() )
                               .setWriteTypesAndValidators( true )
                               .createObjectFromString( reply.value() );
         }
@@ -467,7 +468,7 @@ public:
 
         std::vector<ObjectHandle::Ptr> childObjects;
 
-        caffa::JsonSerializer serializer( caffa::rpc::GrpcClientObjectFactory::instance() );
+        caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
         serializer.setWriteTypesAndValidators( false );
 
         GenericValue reply;
@@ -478,7 +479,7 @@ public:
             nlohmann::json jsonArray = nlohmann::json::parse( reply.value() );
             for ( auto arrayEntry : jsonArray )
             {
-                auto childObject = caffa::JsonSerializer( caffa::rpc::GrpcClientObjectFactory::instance() )
+                auto childObject = caffa::JsonSerializer( caffa::rpc::ClientPassByRefObjectFactory::instance() )
                                        .setWriteTypesAndValidators( false )
                                        .createObjectFromString( arrayEntry.dump() );
                 childObjects.push_back( childObject );
@@ -757,7 +758,9 @@ Client::Client( caffa::Session::Type sessionType,
                 const std::string&   caCertFile )
     : m_clientImpl( std::make_unique<ClientImpl>( sessionType, hostname, port, clientCertFile, clientKeyFile, caCertFile ) )
 {
-    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( this );
+    // Apply gRPC client to the two client object factories.
+    caffa::rpc::ClientPassByRefObjectFactory::instance()->setGrpcClient( this );
+    caffa::rpc::ClientPassByValueObjectFactory::instance()->setGrpcClient( this );
 }
 
 //--------------------------------------------------------------------------------------------------
