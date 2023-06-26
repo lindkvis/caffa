@@ -26,7 +26,6 @@
 #include "ObjectService.grpc.pb.h"
 #include "ObjectService.pb.h"
 
-#include <map>
 #include <string>
 #include <thread>
 #include <vector>
@@ -83,10 +82,6 @@ public:
                                                                         const caffa::Serializer& serializer );
 
     std::vector<AbstractCallback*> createCallbacks() override;
-
-private:
-    static std::map<std::string, caffa::Object*> s_uuidCache;
-    static std::mutex                            s_uuidCacheMutex;
 };
 
 } // namespace caffa::rpc

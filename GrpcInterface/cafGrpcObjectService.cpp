@@ -57,9 +57,6 @@
 
 namespace caffa::rpc
 {
-std::map<std::string, caffa::Object*> ObjectService::s_uuidCache;
-std::mutex                            ObjectService::s_uuidCacheMutex;
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -201,14 +198,6 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const caffa::S
                                                                   const std::string&    objectUuid )
 {
     CAFFA_TRACE( "Looking for caf object with class name '" << scriptClassName << "' and UUID '" << objectUuid << "'" );
-    {
-        std::scoped_lock lock( s_uuidCacheMutex );
-        auto             it = s_uuidCache.find( objectUuid );
-        if ( it != s_uuidCache.end() )
-        {
-            return it->second;
-        }
-    }
 
     caffa::ObjectCollector<> collector(
         [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool
@@ -229,16 +218,6 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const caffa::S
         if ( testObject && testObject->uuid() == objectUuid )
         {
             matchingObject = testObject;
-        }
-    }
-
-    {
-        // Cache object
-        std::scoped_lock lock( s_uuidCacheMutex );
-        auto             it = s_uuidCache.find( objectUuid );
-        if ( it == s_uuidCache.end() )
-        {
-            s_uuidCache[objectUuid] = matchingObject;
         }
     }
 
