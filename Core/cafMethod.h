@@ -139,26 +139,36 @@ public:
 private:
     template <typename ArgType>
         requires std::same_as<ArgType, void>
-    static ArgType jsonToValue( const nlohmann::json& value, ObjectFactory* objectFactory )
+    static ArgType jsonToValue( const nlohmann::json& jsonData, ObjectFactory* objectFactory )
     {
         return;
     }
 
     template <typename ArgType>
         requires IsSharedPtr<ArgType>
-    static ArgType jsonToValue( const nlohmann::json& value, ObjectFactory* objectFactory )
+    static ArgType jsonToValue( const nlohmann::json& jsonData, ObjectFactory* objectFactory )
     {
         JsonSerializer serializer( objectFactory );
-        CAFFA_DEBUG( "JSON VALUE: " << value.dump() );
+        if ( !jsonData.contains( "value" ) )
+        {
+            CAFFA_ASSERT( jsonData.contains( "keyword" ) );
+            throw std::runtime_error( "The json data " + jsonData["keyword"].get<std::string>() + " does not have a value" );
+        }
+
         return std::dynamic_pointer_cast<typename ArgType::element_type>(
-            serializer.createObjectFromString( value["value"].dump() ) );
+            serializer.createObjectFromString( jsonData["value"].dump() ) );
     }
 
     template <typename ArgType>
         requires( not IsSharedPtr<ArgType> && not std::same_as<ArgType, void> )
-    static ArgType jsonToValue( const nlohmann::json& value, ObjectFactory* objectFactory )
+    static ArgType jsonToValue( const nlohmann::json& jsonData, ObjectFactory* objectFactory )
     {
-        return value["value"].get<ArgType>();
+        if ( !jsonData.contains( "value" ) )
+        {
+            CAFFA_ASSERT( jsonData.contains( "keyword" ) );
+            throw std::runtime_error( "The json data " + jsonData["keyword"].get<std::string>() + " does not have a value" );
+        }
+        return jsonData["value"].get<ArgType>();
     }
 
     template <typename ReturnType, std::size_t... Is>
