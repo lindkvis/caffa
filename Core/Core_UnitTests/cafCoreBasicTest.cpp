@@ -7,6 +7,8 @@
 #include "cafChildField.h"
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
+#include "cafJsonSerializer.h"
+#include "cafMethod.h"
 #include "cafObject.h"
 #include "cafPortableDataType.h"
 #include "cafTypedField.h"
@@ -60,6 +62,27 @@ public:
         m_memberDoubleField = 0.0;
         m_memberIntField    = 0;
         m_memberStringField = "";
+
+        initMethod( multiply,
+                    "multiply",
+                    { "a", "b" },
+                    std::bind( []( int a, int b ) -> double { return a * b; }, std::placeholders::_1, std::placeholders::_2 ),
+                    caffa::MethodHandle::Type::READ_ONLY );
+
+        initMethod( add,
+                    "add",
+                    { "a", "b" },
+                    std::bind( &DemoObject::_add, this, std::placeholders::_1, std::placeholders::_2 ),
+                    caffa::MethodHandle::Type::READ_ONLY );
+
+        initMethod( clone,
+                    "clone",
+                    {},
+                    std::bind( [this]() -> std::shared_ptr<DemoObject>
+                               { return std::dynamic_pointer_cast<DemoObject>( this->deepClone() ); } ),
+                    caffa::MethodHandle::Type::READ_ONLY );
+
+        initMethod( copyFrom, "copyFrom", { "rhs" }, std::bind( &DemoObject::_copyFrom, this, std::placeholders::_1 ) );
     }
 
     // Fields
@@ -70,6 +93,11 @@ public:
     caffa::Field<double>      m_memberDoubleField;
     caffa::Field<int>         m_memberIntField;
     caffa::Field<std::string> m_memberStringField;
+
+    caffa::Method<double( int, int )>                        multiply;
+    caffa::Method<int( int, int )>                           add;
+    caffa::Method<std::shared_ptr<DemoObject>()>             clone;
+    caffa::Method<void( std::shared_ptr<const DemoObject> )> copyFrom;
 
     // Internal class members accessed by proxy fields
     double doubleMember() const
@@ -88,6 +116,15 @@ public:
 
     std::string stringMember() const { return m_stringMember; }
     void        setStringMember( const std::string& val ) { m_stringMember = val; }
+
+    int _add( int a, int b ) const { return a + b; }
+
+    void _copyFrom( std::shared_ptr<const DemoObject> rhs )
+    {
+        caffa::JsonSerializer serializer;
+        std::string           json = serializer.writeObjectToString( rhs.get() );
+        serializer.readObjectFromString( this, json );
+    }
 
 private:
     double      m_doubleMember;
@@ -257,9 +294,9 @@ TEST( BaseTest, ChildArrayField )
     auto s2 = std::make_shared<DemoObject>();
     auto s3 = std::make_shared<DemoObject>();
 
-    caffa::ObservingPointer<DemoObject> s1p = s1.get();
-    caffa::ObservingPointer<DemoObject> s2p = s2.get();
-    caffa::ObservingPointer<DemoObject> s3p = s3.get();
+    std::weak_ptr<DemoObject> s1p = s1;
+    std::weak_ptr<DemoObject> s2p = s2;
+    std::weak_ptr<DemoObject> s3p = s3;
 
     // empty() number 1
     EXPECT_TRUE( ihd1->m_childArrayField.empty() );
@@ -351,20 +388,20 @@ TEST( BaseTest, ChildArrayField )
     EXPECT_TRUE( s3 == nullptr );
 
     EXPECT_EQ( size_t( 2 ), ihd1->m_childArrayField.size() );
-    EXPECT_TRUE( s1p.notNull() );
-    EXPECT_TRUE( s2p.isNull() );
-    EXPECT_TRUE( s3p.notNull() );
+    EXPECT_FALSE( s1p.expired() );
+    EXPECT_TRUE( s2p.expired() );
+    EXPECT_FALSE( s3p.expired() );
 
     extractedObjects.clear();
-    EXPECT_TRUE( s1p.notNull() );
-    EXPECT_TRUE( s2p.isNull() );
-    EXPECT_TRUE( s3p.notNull() );
+    EXPECT_FALSE( s1p.expired() );
+    EXPECT_TRUE( s2p.expired() );
+    EXPECT_FALSE( s3p.expired() );
 
     ihd1->m_childArrayField.clear();
     EXPECT_EQ( size_t( 0 ), ihd1->m_childArrayField.size() );
-    EXPECT_TRUE( s1p.isNull() );
-    EXPECT_TRUE( s2p.isNull() );
-    EXPECT_TRUE( s3p.isNull() );
+    EXPECT_TRUE( s1p.expired() );
+    EXPECT_TRUE( s2p.expired() );
+    EXPECT_TRUE( s3p.expired() );
 }
 
 TEST( BaseTest, ChildArrayParentField )
@@ -465,19 +502,19 @@ CAFFA_SOURCE_INIT( A2 )
 TEST( BaseTest, ChildField )
 {
     {
-        caffa::ObservingPointer<Child> rawValue = nullptr;
+        std::weak_ptr<Child> weapPtr;
 
         {
             auto testValue = std::make_shared<Child>();
-            rawValue       = testValue.get();
-            EXPECT_TRUE( rawValue.notNull() );
+            weapPtr        = testValue;
+            EXPECT_FALSE( weapPtr.expired() );
 
             A2 a;
             a.field2 = testValue;
-            EXPECT_EQ( a.field2, rawValue.p() );
+            EXPECT_EQ( a.field2, weapPtr.lock() );
         }
         // Guarded
-        EXPECT_TRUE( rawValue.isNull() );
+        EXPECT_TRUE( weapPtr.expired() );
     }
     {
         A2   a;
@@ -503,30 +540,24 @@ TEST( BaseTest, Pointer )
     auto d = std::make_shared<InheritedDemoObj>();
 
     {
-        caffa::ObservingPointer<InheritedDemoObj> p;
-        EXPECT_TRUE( p == nullptr );
+        std::weak_ptr<InheritedDemoObj> p;
+        EXPECT_TRUE( p.expired() );
     }
 
     {
-        caffa::ObservingPointer<InheritedDemoObj> p( d.get() );
-        caffa::ObservingPointer<InheritedDemoObj> p2( p );
+        std::weak_ptr<InheritedDemoObj> p  = d;
+        std::weak_ptr<InheritedDemoObj> p2 = p.lock();
 
-        EXPECT_EQ( p, d.get() );
-        EXPECT_EQ( p2, d.get() );
-        EXPECT_TRUE( p.p() == d.get() );
-        p = 0;
-        EXPECT_TRUE( p == nullptr );
-        EXPECT_TRUE( p.isNull() );
-        EXPECT_TRUE( p2 == d.get() );
-        p = p2;
-        EXPECT_TRUE( p == d.get() );
+        EXPECT_EQ( p.lock().get(), d.get() );
+        EXPECT_EQ( p2.lock().get(), d.get() );
+        p.reset();
+        EXPECT_TRUE( p.lock() == nullptr );
+        EXPECT_TRUE( p.expired() );
+        p = p2.lock();
+        EXPECT_TRUE( p.lock() == d );
         d.reset();
-        EXPECT_TRUE( p.isNull() && p2.isNull() );
+        EXPECT_TRUE( p.expired() && p2.expired() );
     }
-
-    caffa::ObservingPointer<DemoObject> p3( new DemoObject() );
-
-    delete p3;
 }
 
 TEST( BaseTest, PortableDataType )
@@ -541,4 +572,80 @@ TEST( BaseTest, PortableDataType )
     EXPECT_EQ( "int32[]", caffa::PortableDataType<std::vector<int>>::name() );
     EXPECT_EQ( "uint32[]", caffa::PortableDataType<std::vector<uint32_t>>::name() );
     EXPECT_EQ( "string[]", caffa::PortableDataType<std::vector<std::string>>::name() );
+}
+
+class ObjectWithPointerInField : public caffa::Object
+{
+    CAFFA_HEADER_INIT( DemoObject, Object )
+
+public:
+    ObjectWithPointerInField() { initField( fieldWithPointer, "fieldWithPointer" ); }
+
+    caffa::Field<std::shared_ptr<DemoObject>> fieldWithPointer;
+};
+
+TEST( BaseTest, PointerInRegularField )
+{
+    ObjectWithPointerInField object;
+    object.fieldWithPointer = std::make_shared<DemoObject>();
+
+    // object.fieldWithPointer->
+}
+
+TEST( BaseTest, Methods )
+{
+    DemoObject object;
+
+    EXPECT_EQ( 5, object.add( 3, 2 ) );
+    EXPECT_DOUBLE_EQ( 12.0, object.multiply( 4, 3 ) );
+
+    object.setIntMember( 513 );
+    object.setDoubleMember( 589.123 );
+
+    EXPECT_EQ( 513, object.intMember() );
+    EXPECT_DOUBLE_EQ( 589.123, object.doubleMember() );
+
+    CAFFA_DEBUG( "Clone method skeleton: " << object.clone.jsonSkeleton().dump() );
+
+    auto result = object.clone();
+    EXPECT_TRUE( result != nullptr );
+    EXPECT_EQ( object.intMember(), result->intMember() );
+    EXPECT_DOUBLE_EQ( object.doubleMember(), result->doubleMember() );
+
+    caffa::JsonSerializer serializer;
+    CAFFA_DEBUG( "Clone: " << serializer.writeObjectToString( result.get() ) );
+
+    {
+        CAFFA_DEBUG( "Method skeleton: " << object.add.jsonSkeleton().dump() );
+
+        auto argumentJson = object.add.toJson( 3, 8 );
+        CAFFA_DEBUG( "Argument json: " << argumentJson.dump() );
+        auto stringResult = object.add.execute( argumentJson.dump() );
+        CAFFA_DEBUG( "String result: " << stringResult );
+        auto result = nlohmann::json::parse( stringResult );
+        CAFFA_DEBUG( "Got result: "
+                     << "type = " << result["type"] << ", result = " << result["value"] );
+        EXPECT_EQ( "int32", result["type"].get<std::string>() );
+        EXPECT_EQ( 11, result["value"].get<int>() );
+    }
+
+    {
+        auto result = nlohmann::json::parse( object.multiply.execute( object.multiply.toJson( 4, 5 ).dump() ) );
+        CAFFA_DEBUG( "Got result: "
+                     << "type = " << result["type"] << ", result = " << result["value"] );
+        EXPECT_EQ( "double", result["type"].get<std::string>() );
+        EXPECT_DOUBLE_EQ( 20.0, result["value"].get<int>() );
+    }
+
+    {
+        auto stringArguments = object.multiply.toJson( 4, 5 );
+        CAFFA_DEBUG( "Parameter json: " << stringArguments );
+    }
+
+    result->setIntMember( 10001 );
+    EXPECT_EQ( 10001, result->intMember() );
+    object.copyFrom( result );
+    EXPECT_EQ( 10001, object.intMember() );
+
+    CAFFA_DEBUG( "Method skeleton for copyFrom(): " << object.copyFrom.jsonSkeleton().dump() );
 }

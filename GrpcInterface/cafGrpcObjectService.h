@@ -26,7 +26,6 @@
 #include "ObjectService.grpc.pb.h"
 #include "ObjectService.pb.h"
 
-#include <map>
 #include <string>
 #include <thread>
 #include <vector>
@@ -82,16 +81,7 @@ public:
     static std::shared_ptr<caffa::ObjectHandle> createCafObjectFromRpc( const RpcObject*         source,
                                                                         const caffa::Serializer& serializer );
 
-    static std::unique_ptr<caffa::ObjectMethod> createCafObjectMethodFromRpc( ObjectHandle*    self,
-                                                                              const RpcObject* source,
-                                                                              caffa::ObjectMethodFactory* objectMethodFactory,
-                                                                              caffa::ObjectFactory* objectFactory );
-
     std::vector<AbstractCallback*> createCallbacks() override;
-
-private:
-    static std::map<std::string, caffa::Object*> s_uuidCache;
-    static std::mutex                            s_uuidCacheMutex;
 };
 
 } // namespace caffa::rpc

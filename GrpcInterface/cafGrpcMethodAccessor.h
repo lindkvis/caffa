@@ -1,7 +1,7 @@
 // ##################################################################################################
 //
 //    Caffa
-//    Copyright (C) 2022- Kontur AS
+//    Copyright (C) 2023- Kontur AS
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify
@@ -17,12 +17,28 @@
 //    for more details.
 //
 // ##################################################################################################
+#pragma once
 
-#include "cafFieldCapability.h"
+#include "cafGrpcClient.h"
+#include "cafMethodHandle.h"
 
-using namespace caffa;
-
-FieldCapability::FieldCapability()
+namespace caffa::rpc
 {
-}
-FieldCapability::~FieldCapability() = default;
+class MethodAccessor : public caffa::MethodAccessorInterface
+{
+public:
+    MethodAccessor( const Client*              client,
+                    const caffa::ObjectHandle* selfHandle,
+                    caffa::MethodHandle*       methodHandle,
+                    caffa::ObjectFactory*      objectFactory )
+        : MethodAccessorInterface( selfHandle, methodHandle, objectFactory )
+        , m_client( client )
+    {
+    }
+
+    std::string execute( const std::string& jsonMethod ) const { return m_client->execute( m_selfHandle, jsonMethod ); }
+
+private:
+    const Client* m_client;
+};
+} // namespace caffa::rpc

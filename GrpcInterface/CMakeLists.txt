@@ -31,11 +31,13 @@ set(PUBLIC_HEADERS
     cafGrpcApplication.h
     cafGrpcServerApplication.h
     cafGrpcClient.h
-    cafGrpcClientObjectFactory.h
+    cafGrpcClientPassByRefObjectFactory.h
+    cafGrpcClientPassByValueObjectFactory.h
     cafGrpcClientApplication.h
     cafGrpcCodeGenerator.h
     cafGrpcMarkdownGenerator.h
-    cafGrpcPythonGenerator.h)
+    cafGrpcPythonGenerator.h
+    cafGrpcMethodAccessor.h)
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
@@ -46,7 +48,8 @@ set(PROJECT_FILES
     cafGrpcApplication.cpp
     cafGrpcServerApplication.cpp
     cafGrpcClient.cpp
-    cafGrpcClientObjectFactory.cpp
+    cafGrpcClientPassByRefObjectFactory.cpp
+    cafGrpcClientPassByValueObjectFactory.cpp
     cafGrpcClientApplication.cpp
     cafGrpcMarkdownGenerator.cpp
     cafGrpcPythonGenerator.cpp)

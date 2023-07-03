@@ -3,7 +3,6 @@
 #include "cafAssert.h"
 #include "cafFieldHandle.h"
 #include "cafObjectHandle.h"
-#include "cafObjectIoCapability.h"
 
 #include <iostream>
 

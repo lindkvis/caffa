@@ -81,33 +81,28 @@ TEST( SerializeNumbers, SimpleObjectWithFloatValues )
     float valueA = 0.123456789f;
     float valueB = 123456 + valueA;
 
-    std::vector<caffa::ObjectIoCapability::IoType> ioTypes = { caffa::ObjectIoCapability::IoType::JSON };
+    std::string objectAsText;
 
-    for ( auto ioType : ioTypes )
     {
-        std::string objectAsText;
+        SimpleObjectWithNumbers obj1;
 
-        {
-            SimpleObjectWithNumbers obj1;
+        obj1.m_floatValueA = valueA;
+        obj1.m_floatValueB = valueB;
 
-            obj1.m_floatValueA = valueA;
-            obj1.m_floatValueB = valueB;
+        objectAsText = caffa::JsonSerializer().writeObjectToString( &obj1 );
+    }
 
-            objectAsText = caffa::JsonSerializer().writeObjectToString( &obj1 );
-        }
+    {
+        SimpleObjectWithNumbers obj1;
 
-        {
-            SimpleObjectWithNumbers obj1;
+        caffa::JsonSerializer().readObjectFromString( &obj1, objectAsText );
 
-            caffa::JsonSerializer().readObjectFromString( &obj1, objectAsText );
+        double epsilon = 1e-7;
 
-            double epsilon = 1e-7;
+        double diffA = fabs( obj1.m_floatValueA - valueA );
+        EXPECT_TRUE( diffA < epsilon );
 
-            double diffA = fabs( obj1.m_floatValueA - valueA );
-            EXPECT_TRUE( diffA < epsilon );
-
-            double diffB = fabs( obj1.m_floatValueB - valueB );
-            EXPECT_TRUE( diffB < epsilon );
-        }
+        double diffB = fabs( obj1.m_floatValueB - valueB );
+        EXPECT_TRUE( diffB < epsilon );
     }
 }

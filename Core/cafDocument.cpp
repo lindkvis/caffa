@@ -1,6 +1,6 @@
 // ##################################################################################################
 //
-//    Custom Visualization Core library
+//    Caffa
 //    Copyright (C) 2011-2013 Ceetron AS
 //    Copyright (C) 2013-2020 Ceetron Solutions AS
 //    Copyright (C) 2022- Kontur AS
@@ -38,6 +38,7 @@
 
 #include "cafDocument.h"
 #include "cafFieldScriptingCapability.h"
+#include "cafObjectPerformer.h"
 
 #include <fstream>
 
@@ -96,17 +97,17 @@ void Document::setFileName( const std::string& fileName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Document::read( ObjectIoCapability::IoType ioType /*= ObjectIoCapability::IoType::JSON */ )
+bool Document::readFromJsonFile()
 {
-    return capability<ObjectIoCapability>()->readFile( m_fileName, ioType );
+    return Object::readFromJsonFile( m_fileName() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Document::write( ObjectIoCapability::IoType ioType /*= ObjectIoCapability::IoType::JSON */ )
+bool Document::writeToJsonFile() const
 {
-    return capability<ObjectIoCapability>()->writeFile( m_fileName, ioType );
+    return Object::writeToJsonFile( m_fileName() );
 }
 
 } // End of namespace caffa

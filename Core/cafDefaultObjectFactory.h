@@ -1,23 +1,8 @@
 // ##################################################################################################
 //
-//    Custom Visualization Core library
-//    Copyright (C) 2011-2013 Ceetron AS
-//
-//    This library may be used under the terms of either the GNU General Public License or
-//    the GNU Lesser General Public License as follows:
-//
-//    GNU General Public License Usage
-//    This library is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
-//
-//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//    FITNESS FOR A PARTICULAR PURPOSE.
-//
-//    See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
-//    for more details.
+//    Caffa
+//    Copyright (C) 2011- Ceetron AS (Changes up until April 2021)
+//    Copyright (C) 2021- Kontur AS (Changes from April 2021 and onwards)
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify
@@ -56,6 +41,8 @@ class DefaultObjectFactory : public ObjectFactory
 {
 public:
     static DefaultObjectFactory* instance();
+
+    std::string name() const override { return "Default ObjectFactory"; }
 
     template <typename ObjectBaseDerivative>
     bool registerCreator()

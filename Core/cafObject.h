@@ -39,7 +39,6 @@
 #pragma once
 
 #include "cafDataFieldAccessor.h"
-#include "cafDynamicUniqueCast.h"
 #include "cafField.h"
 #include "cafFieldDocumentationCapability.h"
 #include "cafFieldJsonCapability.h"
@@ -49,9 +48,7 @@
 #include "cafFieldValidator.h"
 #include "cafObjectCapability.h"
 #include "cafObjectHandle.h"
-#include "cafObjectIoCapability.h"
 #include "cafObjectMacros.h"
-#include "cafObservingPointer.h"
 
 #include <set>
 
@@ -153,6 +150,7 @@ private:
     FieldType&         m_field;
     const std::string& m_keyword;
 };
+
 class Object : public ObjectHandle
 {
 public:
@@ -162,10 +160,7 @@ public:
     ~Object() noexcept override;
 
     /**
-     * Initialises the field with a file keyword and registers it with the class
-     * including static user interface related information.
-     * Note that classKeyword() is not virtual in the constructor of the Object
-     * This is expected and fine.
+     * Initialises the field with a keyword and registers it with the class
      * @param field A reference to the field
      * @param keyword The field keyword. Has to be unique within the class.
      */
@@ -175,6 +170,49 @@ public:
         AddIoCapabilityToField( &field );
         addField( &field, keyword );
         return FieldInitHelper( field, keyword );
+    }
+
+    /**
+     * Initialises the method with a keyword and registers it with the class
+     * @param method A reference to the method
+     * @param keyword The method keyword. Has to be unique within the class.
+     * @param argumentNames A vector of argument names
+     * @param callback The method that will be called locally
+     * @param type Whether it is a READ_WRITE or a READ_ONLY (const) type method
+     */
+    template <typename MethodType, typename CallbackT>
+    void initMethod( MethodType&                     method,
+                     const std::string&              keyword,
+                     const std::vector<std::string>& argumentNames,
+                     CallbackT&&                     callback,
+                     MethodHandle::Type              type = MethodHandle::Type::READ_WRITE )
+    {
+        addMethod( &method, keyword, type );
+        method.setCallback( callback );
+        method.setArgumentNames( argumentNames );
+    }
+
+    /**
+     * Initialises the method with a keyword and registers it with the class
+     * @param method A reference to the method
+     * @param keyword The method keyword. Has to be unique within the class.
+     * @param argumentNames A vector of argument names
+     * @param documentation A documentation string
+     * @param callback The method that will be called locally
+     * @param type Whether it is a READ_WRITE or a READ_ONLY (const) type method
+     */
+    template <typename MethodType, typename CallbackT>
+    void initMethodWithDoc( MethodType&                     method,
+                            const std::string&              keyword,
+                            const std::vector<std::string>& argumentNames,
+                            const std::string&              documentation,
+                            CallbackT&&                     callback,
+                            MethodHandle::Type              type = MethodHandle::Type::READ_WRITE )
+    {
+        addMethod( &method, keyword, type );
+        method.setCallback( callback );
+        method.setArgumentNames( argumentNames );
+        method.setDocumentation( documentation );
     }
 
     std::string uuid() const override;
@@ -200,6 +238,20 @@ public:
     {
         return std::dynamic_pointer_cast<DerivedClass>( deepClone( optionalObjectFactory ) );
     }
+
+    /**
+     * @brief Read the object content from JSON file
+     * @param filePath The file path to read from
+     * @return true if ok, false if not
+     */
+    bool readFromJsonFile( const std::string& filePath );
+
+    /**
+     * @brief Write the object content to a JSON file
+     * @param filePath The file path to write to
+     * @return true if ok, false if not
+     */
+    bool writeToJsonFile( const std::string& filePath ) const;
 
 private:
     caffa::Field<std::string> m_uuid;

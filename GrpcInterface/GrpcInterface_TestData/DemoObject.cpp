@@ -68,9 +68,30 @@ DemoObject::DemoObject()
 
     initField( boolField, "boolField" ).withScripting();
     initField( boolVector, "boolVector" ).withScripting();
+
+    initMethod( copyValues,
+                "copyValues",
+                { "intValue", "doubleValue", "stringValue" },
+                std::bind( &DemoObject::_copyValues, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 ) );
+
+    initMethod( setIntVector,
+                "setIntVector",
+                { "intVector" },
+                std::bind( &DemoObject::setIntVectorProxy, this, std::placeholders::_1 ) );
+
+    initMethod( getIntVector,
+                "getIntVector",
+                {},
+                std::bind( &DemoObject::getIntVectorProxy, this ),
+                caffa::MethodHandle::Type::READ_ONLY );
 }
 
-CAFFA_OBJECT_METHOD_SOURCE_INIT( DemoObject, DemoObject_copyObject, "copyObject" );
+void DemoObject::_copyValues( int intValue, double doubleValue, std::string stringValue )
+{
+    this->intField    = intValue;
+    this->doubleField = doubleValue;
+    this->stringField = stringValue;
+}
 
 CAFFA_SOURCE_INIT( InheritedDemoObj )
 

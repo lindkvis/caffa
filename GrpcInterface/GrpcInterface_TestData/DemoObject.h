@@ -21,9 +21,9 @@
 #include "cafAppEnum.h"
 #include "cafDocument.h"
 #include "cafField.h"
+#include "cafMethod.h"
 #include "cafNotNull.h"
 #include "cafObject.h"
-#include "cafObjectMethod.h"
 
 class DemoObject : public caffa::Object
 {
@@ -39,7 +39,7 @@ public:
 
     DemoObject();
 
-    ~DemoObject() override {}
+    ~DemoObject() noexcept override {}
 
     // Fields
     caffa::Field<double>      m_proxyDoubleField;
@@ -61,6 +61,11 @@ public:
     caffa::Field<std::vector<double>> doubleVector;
     caffa::Field<std::vector<float>>  floatVector;
 
+    caffa::Method<void( int, double, std::string )> copyValues;
+
+    caffa::Method<std::vector<int>()>       getIntVector;
+    caffa::Method<void( std::vector<int> )> setIntVector;
+
 private:
     // These are proxy getter/setters and should never be called from client, thus are private
     double getDoubleProxy() const { return m_proxyDoubleValue; }
@@ -78,59 +83,14 @@ private:
     std::vector<std::string> getStringVectorProxy() const { return m_proxyStringVector; }
     void setStringVectorProxy( const std::vector<std::string>& values ) { m_proxyStringVector = values; }
 
+    void _copyValues( int intValue, double doubleValue, std::string stringValue );
+
     double      m_proxyDoubleValue;
     int         m_proxyIntValue;
     std::string m_proxyStringValue;
 
     std::vector<int>         m_proxyIntVector;
     std::vector<std::string> m_proxyStringVector;
-};
-
-class DemoObject_copyObject : public caffa::ObjectMethod
-{
-    CAFFA_HEADER_INIT( copyObject, ObjectMethod )
-
-public:
-    DemoObject_copyObject( caffa::ObjectHandle*      self,
-                           double                    doubleValue = -123.0,
-                           int                       intValue    = 42,
-                           const std::string&        stringValue = "SomeValue",
-                           const std::vector<bool>&  boolVector  = {},
-                           const std::vector<int>&   intVector   = {},
-                           const std::vector<float>& floatVector = {} )
-        : caffa::ObjectMethod( self )
-    {
-        initField( m_doubleField, "doubleArgument" ).withDefault( doubleValue );
-        initField( m_intField, "intArgument" ).withDefault( intValue );
-        initField( m_stringField, "stringArgument" ).withDefault( stringValue );
-
-        initField( m_boolVector, "boolArrayArgument" ).withDefault( boolVector );
-        initField( m_intVector, "intArrayArgument" ).withDefault( intVector );
-        initField( m_floatVector, "floatArrayArgument" ).withDefault( floatVector );
-    }
-    std::shared_ptr<caffa::ObjectMethodResult> execute() override
-    {
-        CAFFA_DEBUG( "Executing object method on server with values: " << m_doubleField() << ", " << m_intField()
-                                                                       << ", " << m_stringField() );
-        caffa::not_null<DemoObject*> demoObject = self<DemoObject>();
-        demoObject->doubleField                 = m_doubleField();
-        demoObject->intField                    = m_intField();
-        demoObject->stringField                 = m_stringField();
-        demoObject->intVector                   = m_intVector();
-        demoObject->boolVector                  = m_boolVector();
-        demoObject->floatVector                 = m_floatVector();
-
-        return std::make_shared<caffa::ObjectMethodResult>( true );
-    }
-
-public:
-    caffa::Field<double>      m_doubleField;
-    caffa::Field<int>         m_intField;
-    caffa::Field<std::string> m_stringField;
-
-    caffa::Field<std::vector<bool>>  m_boolVector;
-    caffa::Field<std::vector<int>>   m_intVector;
-    caffa::Field<std::vector<float>> m_floatVector;
 };
 
 class InheritedDemoObj : public DemoObject

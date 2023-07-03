@@ -1,6 +1,7 @@
 // ##################################################################################################
 //
-//    Caffa
+//    Caffa - File copied and altered from cafGrpcClientPassByRefObjectFactory.h
+//
 //    Copyright (C) 2011- Ceetron AS (Changes up until April 2021)
 //    Copyright (C) 2021- Kontur AS (Changes from April 2021 and onwards)
 //
@@ -21,33 +22,38 @@
 
 #pragma once
 
-#include "cafObjectHandle.h"
+#include "cafGrpcClientPassByRefObjectFactory.h"
 
-#include <list>
-#include <memory>
-#include <string>
-#include <vector>
-
-namespace caffa
+namespace caffa::rpc
 {
-//==================================================================================================
-//
-// Factory interface for creating CAF objects derived from ObjectHandle based on class name keyword
-//
-//==================================================================================================
-class ObjectFactory
+class Client;
+
+/**
+ * Adaptation of ClientPassByRefObjectFactory which assigns gRPC *Method* Accessors but not field accessors.
+ * Thus: fields are passed by value, but you can still call remote methods on them.
+ */
+class ClientPassByValueObjectFactory : public ObjectFactory
 {
 public:
-    ObjectHandle::Ptr create( const std::string_view& classKeyword ) { return doCreate( classKeyword ); }
+    static ClientPassByValueObjectFactory* instance();
 
-    virtual std::string name() const = 0;
+    std::string name() const override { return "gRPC Client Pass By Value ObjectFactory"; }
 
-protected:
-    ObjectFactory() {}
-    virtual ~ObjectFactory() {}
+    void setGrpcClient( Client* client );
 
 private:
-    virtual ObjectHandle::Ptr doCreate( const std::string_view& classKeyword ) = 0;
+    std::shared_ptr<ObjectHandle> doCreate( const std::string_view& classKeyword ) override;
+
+    ClientPassByValueObjectFactory()
+        : m_grpcClient( nullptr )
+    {
+    }
+    ~ClientPassByValueObjectFactory() override = default;
+
+    void applyAccessorToMethod( caffa::ObjectHandle* objectHandle, caffa::MethodHandle* methodHandle );
+
+private:
+    Client* m_grpcClient;
 };
 
-} // End of namespace caffa
+} // namespace caffa::rpc

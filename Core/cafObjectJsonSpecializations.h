@@ -1,7 +1,6 @@
 // ##################################################################################################
 //
-//    Caffa
-//    Copyright (C) 2022- Kontur AS
+//    Copyright (C) 2023- Kontur AS
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify
@@ -17,12 +16,22 @@
 //    for more details.
 //
 // ##################################################################################################
+#pragma once
 
-#include "cafFieldCapability.h"
+#include "cafJsonSerializer.h"
+#include "cafObjectHandle.h"
 
-using namespace caffa;
+#include <nlohmann/json.hpp>
 
-FieldCapability::FieldCapability()
+#include <memory>
+
+namespace caffa
 {
-}
-FieldCapability::~FieldCapability() = default;
+
+void to_json( nlohmann::json& jsonValue, const ObjectHandle& object );
+void from_json( const nlohmann::json& jsonValue, ObjectHandle& object );
+
+void to_json( nlohmann::json& jsonValue, std::shared_ptr<const ObjectHandle> object );
+void from_json( const nlohmann::json& jsonValue, std::shared_ptr<ObjectHandle> object );
+
+} // namespace caffa

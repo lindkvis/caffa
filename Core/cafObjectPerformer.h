@@ -19,72 +19,26 @@
 #pragma once
 
 #include "cafChildFieldHandle.h"
+#include "cafObjectHandle.h"
 #include "cafVisitor.h"
 
 #include <list>
 
 namespace caffa
 {
-class ObjectHandle;
-
-/**
- * A simple depth first collector of const pointers to objects
- */
-template <typename ObjectType = ObjectHandle>
-class ConstObjectCollector : public Inspector
-{
-public:
-    using Selector = std::function<bool( const ObjectType* )>;
-
-    ConstObjectCollector( Selector selector = nullptr )
-        : m_selector( selector )
-    {
-    }
-
-    void visitObject( const ObjectHandle* object ) override
-    {
-        CAFFA_ASSERT( object );
-        CAFFA_DEBUG( "Visiting OBJECT " << object->uuid() );
-        auto typedObject = dynamic_cast<const ObjectType*>( object );
-        if ( typedObject && ( !m_selector || m_selector( typedObject ) ) )
-        {
-            m_objects.push_back( typedObject );
-        }
-
-        for ( auto field : object->fields() )
-        {
-            field->accept( this );
-        }
-    }
-
-    void visitField( const FieldHandle* field ) override {}
-
-    void visitChildField( const ChildFieldBaseHandle* childField ) override
-    {
-        for ( auto object : childField->childObjects() )
-        {
-            object->accept( this );
-        }
-    }
-
-    const std::list<const ObjectType*>& objects() const { return m_objects; }
-
-private:
-    Selector                     m_selector;
-    std::list<const ObjectType*> m_objects;
-};
-
 /**
  * A simple depth first collector
  */
 template <typename ObjectType = ObjectHandle>
-class ObjectCollector : public Editor
+class ObjectPerformer : public Editor
 {
 public:
+    using Callback = std::function<void( ObjectType* )>;
     using Selector = std::function<bool( const ObjectType* )>;
 
-    ObjectCollector( Selector selector = nullptr )
+    ObjectPerformer( Callback callback, Selector selector = nullptr )
         : m_selector( selector )
+        , m_callback( callback )
     {
     }
 
@@ -93,7 +47,7 @@ public:
         auto typedObject = dynamic_cast<ObjectType*>( object );
         if ( typedObject && ( !m_selector || m_selector( typedObject ) ) )
         {
-            m_objects.push_back( typedObject );
+            m_callback( typedObject );
         }
 
         for ( auto field : object->fields() )
@@ -112,10 +66,8 @@ public:
         }
     }
 
-    const std::list<ObjectType*>& objects() { return m_objects; }
-
 private:
-    Selector               m_selector;
-    std::list<ObjectType*> m_objects;
+    Selector m_selector;
+    Callback m_callback;
 };
 } // namespace caffa

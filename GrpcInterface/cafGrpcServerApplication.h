@@ -51,10 +51,11 @@ namespace rpc
         bool running() const;
         void quit();
 
-        virtual Document*            document( const std::string& documentId, const caffa::Session* session )       = 0;
-        virtual const Document*      document( const std::string& documentId, const caffa::Session* session ) const = 0;
-        virtual std::list<Document*> documents( const caffa::Session* session )                                     = 0;
-        virtual std::list<const Document*> documents( const caffa::Session* session ) const                         = 0;
+        virtual std::shared_ptr<Document> document( const std::string& documentId, const caffa::Session* session ) = 0;
+        virtual std::shared_ptr<const Document>            document( const std::string&    documentId,
+                                                                     const caffa::Session* session ) const         = 0;
+        virtual std::list<std::shared_ptr<Document>>       documents( const caffa::Session* session )              = 0;
+        virtual std::list<std::shared_ptr<const Document>> documents( const caffa::Session* session ) const        = 0;
 
         virtual bool                          readyForSession( caffa::Session::Type type ) const             = 0;
         virtual caffa::SessionMaintainer      createSession( caffa::Session::Type type )                     = 0;

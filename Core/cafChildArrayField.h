@@ -4,8 +4,6 @@
 #include "cafChildArrayFieldAccessor.h"
 #include "cafChildArrayFieldHandle.h"
 #include "cafFieldHandle.h"
-#include "cafObservingPointer.h"
-#include "cafPortableDataType.h"
 
 #include <memory>
 
@@ -68,7 +66,7 @@ public:
     std::vector<ObjectHandle::ConstPtr> childObjects() const override;
     void                                removeChildObject( ObjectHandle::ConstPtr object );
 
-    std::string dataType() const override { return std::string( "object[]" ); }
+    std::string dataType() const override { return PortableDataType<std::vector<DataType>>::name(); }
 
     void setAccessor( std::unique_ptr<ChildArrayFieldAccessor> accessor ) override
     {

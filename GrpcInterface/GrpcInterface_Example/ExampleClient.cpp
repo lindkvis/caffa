@@ -18,7 +18,7 @@
 
 #include "cafGrpcClient.h"
 #include "cafGrpcClientApplication.h"
-#include "cafGrpcClientObjectFactory.h"
+#include "cafGrpcClientPassByRefObjectFactory.h"
 
 #include "cafLogger.h"
 
@@ -67,7 +67,7 @@ int main( int argc, char** argv )
 
     caffa::Logger::setApplicationLogLevel( caffa::Logger::Level::info );
 
-    caffa::rpc::GrpcClientObjectFactory* factory = caffa::rpc::GrpcClientObjectFactory::instance();
+    caffa::rpc::ClientPassByRefObjectFactory* factory = caffa::rpc::ClientPassByRefObjectFactory::instance();
     factory->registerBasicAccessorCreators<caffa::AppEnum<DemoObject::TestEnumType>>();
 
     auto clientApp = std::make_unique<ClientApp>( hostname, portNumber );

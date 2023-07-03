@@ -26,7 +26,9 @@
 #include "cafAssert.h"
 #include "cafFieldHandle.h"
 #include "cafLogger.h"
+#include "cafMethodHandle.h"
 #include "cafObjectCapability.h"
+#include "cafPortableDataType.h"
 #include "cafSignal.h"
 #include "cafStringTools.h"
 
@@ -35,6 +37,7 @@
 #include <memory>
 #include <set>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 
 namespace caffa
@@ -101,11 +104,24 @@ public:
     std::list<FieldHandle*> fields() const;
 
     /**
+     * The registered methods for this Object.
+     * @return a list of MethodHandle pointers
+     */
+    std::list<MethodHandle*> methods() const;
+
+    /**
      * Find a particular field by keyword
      * @param keyword
      * @return a FieldHandle pointer
      */
     FieldHandle* findField( const std::string& keyword ) const;
+
+    /**
+     * Find a particular method by keyword
+     * @param keyword
+     * @return a MethodHandle pointer
+     */
+    MethodHandle* findMethod( const std::string& keyword ) const;
 
     /**
      * Add an object capability to the object
@@ -145,9 +161,6 @@ public:
     /// Method gets called from Document after all objects are read.
     /// Re-implement to set up internal pointers etc. in your data structure
     virtual void initAfterRead(){};
-    /// Method gets called from Document before saving document.
-    /// Re-implement to make sure your fields have correct data before saving
-    virtual void setupBeforeSave(){};
 
     void disconnectObserverFromAllSignals( SignalObserver* observer );
 
@@ -169,6 +182,11 @@ protected:
      */
     void addField( FieldHandle* field, const std::string& keyword );
 
+    /**
+     * Add a method to the object
+     */
+    void addMethod( MethodHandle* method, const std::string& keyword, MethodHandle::Type type );
+
 private:
     ObjectHandle( const ObjectHandle& )            = delete;
     ObjectHandle& operator=( const ObjectHandle& ) = delete;
@@ -176,12 +194,69 @@ private:
     // Fields
     std::map<std::string, FieldHandle*> m_fields;
 
+    // Methods
+    std::map<std::string, MethodHandle*> m_methods;
+
     // Capabilities
     std::vector<std::unique_ptr<ObjectCapability>> m_capabilities;
-
-    // Support system for Pointer
-    friend class ObservingPointerImpl;
-    std::set<ObjectHandle**> m_pointersReferencingMe;
 };
 
+template <typename T>
+concept DerivesFromObjectHandle = std::is_base_of<ObjectHandle, T>::value;
+
+template <typename T>
+struct is_shared_ptr : std::false_type
+{
+};
+template <typename T>
+struct is_shared_ptr<std::shared_ptr<T>> : std::true_type
+{
+};
+
+template <typename T>
+concept IsSharedPtr = is_shared_ptr<T>::value;
+
+/**
+ * The portable type id for an ObjectHandle
+ */
+template <IsSharedPtr DataType>
+struct PortableDataType<DataType>
+{
+    static std::string name()
+    {
+        static_assert( DerivesFromObjectHandle<typename DataType::element_type> );
+        return std::string( "object::" ) + DataType::element_type::classKeywordStatic();
+    }
+};
+
+/**
+ * The portable type id for an ObjectHandle
+ */
+template <IsSharedPtr DataType>
+struct PortableDataType<std::vector<DataType>>
+{
+    static std::string name()
+    {
+        static_assert( DerivesFromObjectHandle<typename DataType::element_type> );
+        return std::string( "object[]::" ) + DataType::element_type::classKeywordStatic();
+    }
+};
+
+/**
+ * The portable type id for an ObjectHandle
+ */
+template <DerivesFromObjectHandle DataType>
+struct PortableDataType<DataType>
+{
+    static std::string name() { return std::string( "object::" ) + DataType::classKeywordStatic(); }
+};
+
+/**
+ * The portable type id for an ObjectHandle
+ */
+template <DerivesFromObjectHandle DataType>
+struct PortableDataType<std::vector<DataType>>
+{
+    static std::string name() { return std::string( "object[]::" ) + DataType::classKeywordStatic(); }
+};
 } // namespace caffa

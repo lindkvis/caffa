@@ -10,6 +10,7 @@
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldValidator.h"
 #include "cafJsonSerializer.h"
+#include "cafMethod.h"
 #include "cafObject.h"
 
 #include <functional>
@@ -44,14 +45,30 @@ public:
         m_proxyEnumField.setAccessor( std::move( proxyEnumAccessor ) );
 
         m_enumMember = T1;
+
+        initMethod(
+            getEnum,
+            "getEnum",
+            {},
+            [this]() -> caffa::AppEnum<TestEnumType> { return this->m_proxyEnumField.value(); },
+            caffa::MethodHandle::Type::READ_ONLY );
+
+        initMethod(
+            setEnum,
+            "setEnum",
+            { "enum" },
+            [this]( caffa::AppEnum<TestEnumType> val ) -> void { return m_proxyEnumField.setValue( val ); },
+            caffa::MethodHandle::Type::READ_ONLY );
     }
 
     ~DemoObject() {}
 
     // Fields
 
-    caffa::Field<caffa::AppEnum<TestEnumType>> m_proxyEnumField;
-    caffa::Field<double>                       m_proxyDoubleField;
+    caffa::Field<caffa::AppEnum<TestEnumType>>          m_proxyEnumField;
+    caffa::Field<double>                                m_proxyDoubleField;
+    caffa::Method<caffa::AppEnum<TestEnumType>()>       getEnum;
+    caffa::Method<void( caffa::AppEnum<TestEnumType> )> setEnum;
 
 private:
     void setDoubleMember( const double& d )
@@ -100,15 +117,41 @@ TEST( BaseTest, FieldWrite )
 {
     std::string serializedString;
     {
-        auto a = std::make_shared<DemoObject>();
+        DemoObject a;
 
-        a->m_proxyDoubleField.setValue( 2.5 );
-        a->m_proxyEnumField = DemoObject::T3;
+        a.m_proxyDoubleField.setValue( 2.5 );
+        a.m_proxyEnumField = DemoObject::T3;
 
-        ASSERT_DOUBLE_EQ( 2.5, a->m_proxyDoubleField.value() );
-        ASSERT_EQ( DemoObject::T3, a->m_proxyEnumField.value() );
+        ASSERT_DOUBLE_EQ( 2.5, a.m_proxyDoubleField.value() );
+        ASSERT_EQ( DemoObject::T3, a.m_proxyEnumField.value() );
 
-        serializedString = caffa::JsonSerializer().writeObjectToString( a.get() );
+        serializedString = caffa::JsonSerializer().writeObjectToString( &a );
+
+        std::cout << serializedString << std::endl;
+    }
+
+    std::string secondSerializedString;
+    {
+        auto a                 = caffa::JsonSerializer().createObjectFromString( serializedString );
+        secondSerializedString = caffa::JsonSerializer().writeObjectToString( a.get() );
+    }
+    ASSERT_EQ( serializedString, secondSerializedString );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Read/write fields to a valid Xml document encoded in a std::string
+//--------------------------------------------------------------------------------------------------
+TEST( BaseTest, MethodWrite )
+{
+    std::string serializedString;
+    {
+        DemoObject a;
+
+        a.setEnum( DemoObject::T3 );
+
+        ASSERT_EQ( DemoObject::T3, a.getEnum() );
+
+        serializedString = caffa::JsonSerializer().writeObjectToString( &a );
 
         std::cout << serializedString << std::endl;
     }
@@ -216,11 +259,8 @@ TEST( BaseTest, ChildArrayFieldSerializing )
     std::string serializedString;
     {
         auto ihd1 = std::make_shared<InheritedDemoObj>();
-        auto s1p  = s1.get();
         ihd1->m_childArrayField.push_back( s1 );
-        auto s2p = s2.get();
         ihd1->m_childArrayField.push_back( s2 );
-        auto s3p = s3.get();
         ihd1->m_childArrayField.push_back( s3 );
 
         serializedString = caffa::JsonSerializer().writeObjectToString( ihd1.get() );
@@ -269,7 +309,9 @@ TEST( BaseTest, TestDataType )
     {
         auto obj      = std::make_shared<InheritedDemoObj>();
         auto dataType = obj->m_childArrayField.dataType();
-        EXPECT_EQ( std::string( "object[]" ), dataType );
+
+        // We've stored an InheritedDemoObj in the field, but the field is actually of the parent type DemoObject
+        EXPECT_EQ( ( std::string( "object[]::" ) + DemoObject::classKeywordStatic() ), dataType );
     }
 }
 

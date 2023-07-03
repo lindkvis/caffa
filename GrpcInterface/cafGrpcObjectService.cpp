@@ -35,7 +35,7 @@
 #include "cafGrpcObjectService.h"
 
 #include "cafGrpcCallbacks.h"
-#include "cafGrpcClientObjectFactory.h"
+#include "cafGrpcClientPassByRefObjectFactory.h"
 #include "cafGrpcServerApplication.h"
 #include "cafSession.h"
 
@@ -47,7 +47,6 @@
 #include "cafJsonSerializer.h"
 #include "cafObject.h"
 #include "cafObjectCollector.h"
-#include "cafObjectMethod.h"
 
 #include "FieldService.pb.h"
 
@@ -58,9 +57,6 @@
 
 namespace caffa::rpc
 {
-std::map<std::string, caffa::Object*> ObjectService::s_uuidCache;
-std::mutex                            ObjectService::s_uuidCacheMutex;
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -75,11 +71,11 @@ grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const Doc
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
     }
 
-    Document* document = ServerApplication::instance()->document( request->document_id(), session.get() );
+    auto document = ServerApplication::instance()->document( request->document_id(), session.get() );
     if ( document )
     {
         CAFFA_TRACE( "Found document with UUID: " << document->uuid() << " and will copy i tot gRPC data structure" );
-        copyProjectObjectFromCafToRpc( document, reply );
+        copyProjectObjectFromCafToRpc( document.get(), reply );
         return grpc::Status::OK;
     }
     CAFFA_WARNING( "Document not found '" + request->document_id() + "'" );
@@ -113,7 +109,7 @@ grpc::Status ObjectService::ListDocuments( grpc::ServerContext* context, const S
 grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, RpcObject* reply )
 {
     const RpcObject& self = request->self_object();
-    CAFFA_TRACE( "Execute method: " << request->method() );
+    CAFFA_TRACE( "Execute method: " << request->method().json() );
 
     auto session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
     if ( !session )
@@ -126,22 +122,19 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
         auto matchingObject = findCafObjectFromRpcObject( session.get(), self );
         if ( matchingObject )
         {
-            auto method = ObjectMethodFactory::instance()->createMethodInstance( matchingObject, request->method() );
+            auto methodJson = nlohmann::json::parse( request->method().json() );
+            auto method     = matchingObject->findMethod( methodJson["keyword"] );
+
             if ( method )
             {
-                if ( method->type() == ObjectMethod::Type::READ_WRITE && session->type() == Session::Type::OBSERVING )
+                if ( method->type() == MethodHandle::Type::READ_WRITE && session->type() == Session::Type::OBSERVING )
                 {
                     return grpc::Status( grpc::UNAUTHENTICATED, "Operation cannot be completed with observing sessions" );
                 }
 
-                CAFFA_TRACE( "Copy parameters from: " << request->params().json() );
-                copyResultOrParameterObjectFromRpcToCaf( &( request->params() ), method.get() );
+                auto result = method->execute( request->method().json() );
+                reply->set_json( result );
 
-                CAFFA_TRACE( "Method parameters copied. Now executing!" );
-                auto result = method->execute();
-                CAFFA_ASSERT( result != nullptr );
-
-                copyResultOrParameterObjectFromCafToRpc( result.get(), reply );
                 CAFFA_TRACE( "Result JSON: " << reply->json() );
 
                 return grpc::Status::OK;
@@ -170,19 +163,17 @@ grpc::Status
     }
 
     auto matchingObject = findCafObjectFromRpcObject( session.get(), request->self_object() );
-    CAFFA_ASSERT( matchingObject );
-    CAFFA_TRACE( "Listing Object methods for " << matchingObject->classKeyword() );
 
     if ( matchingObject )
     {
-        auto methodNames = ObjectMethodFactory::instance()->registeredMethodNames( matchingObject );
-        CAFFA_TRACE( "Found " << methodNames.size() << " methods" );
-        for ( auto methodName : methodNames )
+        CAFFA_TRACE( "Listing Object methods for " << matchingObject->classKeyword() );
+        auto methods = matchingObject->methods();
+        CAFFA_TRACE( "Found " << methods.size() << " methods" );
+        for ( auto method : methods )
         {
-            CAFFA_TRACE( "Found method: " << methodName );
-            auto       method = ObjectMethodFactory::instance()->createMethodInstance( matchingObject, methodName );
+            CAFFA_TRACE( "Found method: " << method->name() );
             RpcObject* newMethodObject = reply->add_objects();
-            copyResultOrParameterObjectFromCafToRpc( method.get(), newMethodObject );
+            newMethodObject->set_json( method->schema() );
         }
         return grpc::Status::OK;
     }
@@ -207,16 +198,8 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const caffa::S
                                                                   const std::string&    objectUuid )
 {
     CAFFA_TRACE( "Looking for caf object with class name '" << scriptClassName << "' and UUID '" << objectUuid << "'" );
-    {
-        std::scoped_lock lock( s_uuidCacheMutex );
-        auto             it = s_uuidCache.find( objectUuid );
-        if ( it != s_uuidCache.end() )
-        {
-            return it->second;
-        }
-    }
 
-    caffa::ObjectCollector collector(
+    caffa::ObjectCollector<> collector(
         [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool
         { return ObjectHandle::matchesClassKeyword( scriptClassName, objectHandle->classInheritanceStack() ); } );
 
@@ -235,16 +218,6 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const caffa::S
         if ( testObject && testObject->uuid() == objectUuid )
         {
             matchingObject = testObject;
-        }
-    }
-
-    {
-        // Cache object
-        std::scoped_lock lock( s_uuidCacheMutex );
-        auto             it = s_uuidCache.find( objectUuid );
-        if ( it == s_uuidCache.end() )
-        {
-            s_uuidCache[objectUuid] = matchingObject;
         }
     }
 
@@ -277,14 +250,11 @@ void ObjectService::copyProjectSelfReferenceFromCafToRpc( const caffa::ObjectHan
     CAFFA_ASSERT( source && destination );
     CAFFA_ASSERT( !source->uuid().empty() );
 
-    auto ioCapability = source->capability<caffa::ObjectIoCapability>();
-    CAFFA_ASSERT( ioCapability );
-
     caffa::JsonSerializer serializer( DefaultObjectFactory::instance() );
     serializer.setFieldSelector( fieldIsScriptReadable );
-    serializer.setSerializeDataValues( false );
+    serializer.setWriteTypesAndValidators( false );
     serializer.setSerializeUuids( true );
-    serializer.setSerializeSchema( false );
+    serializer.setSerializeDataTypes( false );
 
     std::string jsonString = serializer.writeObjectToString( source );
     CAFFA_TRACE( jsonString );
@@ -299,12 +269,9 @@ void ObjectService::copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* so
     CAFFA_ASSERT( source && destination );
     CAFFA_ASSERT( !source->uuid().empty() );
 
-    auto ioCapability = source->capability<caffa::ObjectIoCapability>();
-    CAFFA_ASSERT( ioCapability );
-
     caffa::JsonSerializer serializer( DefaultObjectFactory::instance() );
     serializer.setFieldSelector( fieldIsScriptReadable );
-    serializer.setSerializeDataValues( false );
+    serializer.setWriteTypesAndValidators( false );
     serializer.setSerializeUuids( true );
 
     std::string jsonString = serializer.writeObjectToString( source );
@@ -322,7 +289,7 @@ void ObjectService::copyProjectObjectFromRpcToCaf( const RpcObject*      source,
 
     caffa::JsonSerializer serializer( DefaultObjectFactory::instance() );
     serializer.setFieldSelector( fieldIsScriptWritable );
-    serializer.setSerializeDataValues( false );
+    serializer.setWriteTypesAndValidators( false );
 
     serializer.readObjectFromString( destination, source->json() );
 }
@@ -357,27 +324,6 @@ std::shared_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( cons
 
     auto destination = serializer.createObjectFromString( source->json() );
     return destination;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caffa::ObjectMethod>
-    ObjectService::createCafObjectMethodFromRpc( ObjectHandle*               self,
-                                                 const RpcObject*            source,
-                                                 caffa::ObjectMethodFactory* objectMethodFactory,
-                                                 caffa::ObjectFactory*       objectFactory )
-{
-    CAFFA_ASSERT( self && source );
-    if ( !self ) return nullptr;
-
-    caffa::JsonSerializer serializer( objectFactory );
-    auto [classKeyword, uuid] = serializer.readClassKeywordAndUUIDFromObjectString( source->json() );
-
-    std::unique_ptr<caffa::ObjectMethod> method = objectMethodFactory->createMethodInstance( self, classKeyword );
-
-    serializer.readObjectFromString( method.get(), source->json() );
-    return method;
 }
 
 //--------------------------------------------------------------------------------------------------

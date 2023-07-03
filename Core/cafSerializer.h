@@ -1,24 +1,23 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Caffa
-//   Copyright (C) 2021- 3D-Radar AS
+//    Caffa
+//    Copyright (C) 2021- 3D-Radar AS
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
 #pragma once
 
-#include "cafDefaultObjectFactory.h"
 #include "cafFieldHandle.h"
 
 #include <functional>
@@ -27,7 +26,6 @@
 
 namespace caffa
 {
-class ObjectIoCapability;
 class ObjectHandle;
 class ObjectFactory;
 
@@ -73,7 +71,7 @@ public:
      * @param object The object to copy
      * @return unique ptr containing a new copy
      */
-    virtual ObjectHandle::Ptr copyBySerialization( const ObjectHandle* object ) const = 0;
+    virtual std::shared_ptr<ObjectHandle> copyBySerialization( const ObjectHandle* object ) const = 0;
 
     /**
      * Copy the object by serializing to text string but cast to a different class keyword.
@@ -83,7 +81,7 @@ public:
      * @param destinationClassKeyword The class of the object to create.
      * @return unique ptr containing a new copy
      */
-    virtual ObjectHandle::Ptr
+    virtual std::shared_ptr<ObjectHandle>
         copyAndCastBySerialization( const ObjectHandle* object, const std::string& destinationClassKeyword ) const = 0;
 
     /**
@@ -91,7 +89,7 @@ public:
      * @param string The JSON text string
      * @return unique ptr to new object
      */
-    virtual ObjectHandle::Ptr createObjectFromString( const std::string& string ) const = 0;
+    virtual std::shared_ptr<ObjectHandle> createObjectFromString( const std::string& string ) const = 0;
 
     /**
      * Read object from an input stream
@@ -118,21 +116,22 @@ public:
 
     /**
      * Set whether to serialize data values.
-     * Since it returns a reference to it it can be used like: Serializer(objectFactory).setSerializeDataValues(false);
+     * Since it returns a reference to it it can be used like:
+     * Serializer(objectFactory).setWriteTypesAndValidators(false);
      *
-     * @param serializeDataValues
+     * @param writeTypesAndValidators
      * @return cafSerializer& reference to this
      */
-    Serializer& setSerializeDataValues( bool serializeDataValues );
+    Serializer& setWriteTypesAndValidators( bool writeTypesAndValidators );
 
     /**
      * Set whether to serialize data types
-     * Since it returns a reference to it it can be used like: Serializer(objectFactory).setSerializeSchema(false);
+     * Since it returns a reference to it it can be used like: Serializer(objectFactory).setSerializeDataTypes(false);
      *
-     * @param serializeSchema
+     * @param serializeDataTypes
      * @return cafSerializer& reference to this
      */
-    Serializer& setSerializeSchema( bool serializeSchema );
+    Serializer& setSerializeDataTypes( bool serializeDataTypes );
 
     /**
      * Set whether to serialize UUIDs
@@ -159,13 +158,13 @@ public:
      * Check if we're meant to serialize data values
      * @return true if we should serialize data values
      */
-    bool serializeDataValues() const;
+    bool writeTypesAndValidators() const;
 
     /**
      * Check if we're meant to serialize data types
      * @return true if we should serialize schema (labels and types)
      */
-    bool serializeSchema() const;
+    bool serializeDataTypes() const;
 
     /**
      * Check if we're meant to serialize UUIDs. UUIDs are used for dynamic connection to runtime objects,
@@ -178,8 +177,8 @@ protected:
     ObjectFactory* m_objectFactory;
     FieldSelector  m_fieldSelector;
 
-    bool m_serializeDataValues;
-    bool m_serializeSchema;
+    bool m_writeTypesAndValidators;
+    bool m_serializeDataTypes;
     bool m_serializeUuids;
 };
 

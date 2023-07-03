@@ -93,32 +93,30 @@ CAFFA_SOURCE_INIT( DemoObjectA )
 //--------------------------------------------------------------------------------------------------
 TEST( AdvancedObjectTest, FieldWrite )
 {
-    auto root         = std::make_shared<ContainerObject>();
-    auto container    = std::make_shared<ContainerObject>();
-    auto sibling      = std::make_shared<ContainerObject>();
-    auto containerPtr = container.get();
+    auto root      = std::make_shared<ContainerObject>();
+    auto container = std::make_shared<ContainerObject>();
+    auto sibling   = std::make_shared<ContainerObject>();
     root->m_containers.push_back( container );
-    auto siblingPtr = sibling.get();
     root->m_containers.push_back( sibling );
 
     {
         auto item    = std::make_shared<ItemObject>();
         item->m_name = "Obj A";
 
-        containerPtr->m_items.push_back( item );
+        container->m_items.push_back( item );
     }
     {
         auto item    = std::make_shared<ItemObject>();
         item->m_name = "Obj B";
 
-        containerPtr->m_items.push_back( item );
+        container->m_items.push_back( item );
     }
 
     {
         auto item    = std::make_shared<ItemObject>();
         item->m_name = "Obj C";
 
-        containerPtr->m_items.push_back( item );
+        container->m_items.push_back( item );
     }
 
     caffa::JsonSerializer serializer;
@@ -135,49 +133,46 @@ TEST( AdvancedObjectTest, FieldWrite )
 //--------------------------------------------------------------------------------------------------
 TEST( AdvancedObjectTest, CopyOfObjects )
 {
-    auto root         = std::make_shared<ContainerObject>();
-    auto container    = std::make_shared<ContainerObject>();
-    auto sibling      = std::make_shared<ContainerObject>();
-    auto containerPtr = container.get();
+    auto root      = std::make_shared<ContainerObject>();
+    auto container = std::make_shared<ContainerObject>();
+    auto sibling   = std::make_shared<ContainerObject>();
     root->m_containers.push_back( container );
-    auto siblingPtr = sibling.get();
     root->m_containers.push_back( sibling );
 
     {
         auto item    = std::make_shared<ItemObject>();
         item->m_name = "Obj A";
 
-        containerPtr->m_items.push_back( item );
+        container->m_items.push_back( item );
     }
     {
         auto item    = std::make_shared<ItemObject>();
         item->m_name = "Obj B";
 
-        containerPtr->m_items.push_back( item );
+        container->m_items.push_back( item );
     }
 
     {
         auto item    = std::make_shared<ItemObject>();
         item->m_name = "Obj C";
 
-        containerPtr->m_items.push_back( item );
+        container->m_items.push_back( item );
 
         caffa::JsonSerializer serializer;
 
         {
-            auto a  = std::make_shared<DemoObjectA>();
-            auto ap = a.get();
-            siblingPtr->m_demoObjs.push_back( a );
-            std::string originalOutput = serializer.writeObjectToString( ap );
+            auto a = std::make_shared<DemoObjectA>();
+            sibling->m_demoObjs.push_back( a );
+            std::string originalOutput = serializer.writeObjectToString( a.get() );
             {
-                auto        objCopy    = serializer.copyBySerialization( ap );
+                auto        objCopy    = serializer.copyBySerialization( a.get() );
                 std::string copyOutput = serializer.writeObjectToString( objCopy.get() );
                 ASSERT_EQ( originalOutput, copyOutput );
             }
 
             {
-                auto objCopy = serializer.copyBySerialization( ap );
-                siblingPtr->m_demoObjs.push_back( std::dynamic_pointer_cast<DemoObjectA>( objCopy ) );
+                auto objCopy = serializer.copyBySerialization( a.get() );
+                sibling->m_demoObjs.push_back( std::dynamic_pointer_cast<DemoObjectA>( objCopy ) );
             }
         }
     }

@@ -36,7 +36,6 @@
 #pragma once
 #include "cafField.h"
 #include "cafObject.h"
-#include "cafObservingPointer.h"
 #include "cafStringTools.h"
 
 #include <string>
@@ -64,8 +63,8 @@ public:
     void setId( const std::string& id );
     void setFileName( const std::string& fileName );
 
-    bool read( ObjectIoCapability::IoType ioType = ObjectIoCapability::IoType::JSON );
-    bool write( ObjectIoCapability::IoType ioType = ObjectIoCapability::IoType::JSON );
+    bool readFromJsonFile();
+    bool writeToJsonFile() const;
 
 private:
     Field<std::string> m_id;

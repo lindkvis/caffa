@@ -1,24 +1,26 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Caffa
-//   Copyright (C) 2021- 3D-Radar AS
+//    Caffa
+//    Copyright (C) 2021- 3D-Radar AS
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
 #pragma once
 
 #include "cafSerializer.h"
+
+#include <nlohmann/json.hpp>
 
 namespace caffa
 {
@@ -34,7 +36,7 @@ public:
      * Constructor
      * @param objectFactory The factory used when creating new objects. Not relevant when writing.
      */
-    JsonSerializer( ObjectFactory* objectFactory = DefaultObjectFactory::instance() );
+    JsonSerializer( ObjectFactory* objectFactory = nullptr );
 
     /**
      * Convenience method for reading the class keyword and uuid from a json string.
@@ -63,7 +65,7 @@ public:
      * @param object The object to copy
      * @return unique ptr containing a new copy
      */
-    ObjectHandle::Ptr copyBySerialization( const ObjectHandle* object ) const override;
+    std::shared_ptr<ObjectHandle> copyBySerialization( const ObjectHandle* object ) const override;
 
     /**
      * Copy the object by serializing to text string but cast to a different class keyword.
@@ -73,7 +75,7 @@ public:
      * @param destinationClassKeyword The class of the object to create.
      * @return unique ptr containing a new copy
      */
-    ObjectHandle::Ptr copyAndCastBySerialization( const ObjectHandle* object,
+    std::shared_ptr<ObjectHandle> copyAndCastBySerialization( const ObjectHandle* object,
                                                               const std::string& destinationClassKeyword ) const override;
 
     /**
@@ -81,7 +83,7 @@ public:
      * @param string The JSON text string
      * @return unique ptr to new object
      */
-    ObjectHandle::Ptr createObjectFromString( const std::string& string ) const override;
+    std::shared_ptr<ObjectHandle> createObjectFromString( const std::string& string ) const override;
 
     /**
      * Read object from an input stream
@@ -96,5 +98,8 @@ public:
      * @param stream The output stream
      */
     void writeStream( const ObjectHandle* object, std::ostream& stream ) const override;
+
+    void readObjectFromJson( ObjectHandle* object, const nlohmann::json& jsonObject ) const;
+    void writeObjectToJson( const ObjectHandle* object, nlohmann::json& jsonObject ) const;
 };
 } // End of namespace caffa

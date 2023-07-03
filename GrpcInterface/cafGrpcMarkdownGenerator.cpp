@@ -27,8 +27,8 @@
 #include "cafFieldJsonCapability.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafJsonSerializer.h"
+#include "cafMethodHandle.h"
 #include "cafObjectHandle.h"
-#include "cafObjectMethod.h"
 
 #include <regex>
 
@@ -55,7 +55,7 @@ std::string MarkdownGenerator::generate( std::list<std::shared_ptr<caffa::Docume
     return code;
 }
 
-std::string MarkdownGenerator::generate( ObjectHandle* object, bool objectMethodResultOrParameter )
+std::string MarkdownGenerator::generate( const ObjectHandle* object, bool passByValue )
 {
     JsonSerializer serializer;
     CAFFA_DEBUG( "Generating code for class " << object->classKeyword() );
@@ -83,21 +83,7 @@ std::string MarkdownGenerator::generate( ObjectHandle* object, bool objectMethod
             {
                 fieldDependencies.push_back( fieldDependency );
             }
-            else if ( objectMethodResultOrParameter )
-            {
-                CAFFA_DEBUG( "Creating json value" );
-                auto jsonCap = field->capability<FieldJsonCapability>();
-                if ( jsonCap )
-                {
-                    nlohmann::json json;
-                    jsonCap->writeToJson( json, serializer );
-                    CAFFA_DEBUG( "Got JSON: " << json.dump() );
-                    if ( json.contains( "value" ) )
-                    {
-                        code += " = *" + json["value"].dump() + "*";
-                    }
-                }
-            }
+
             auto doc = field->capability<FieldDocumentationCapability>();
             if ( doc )
             {
@@ -112,32 +98,7 @@ std::string MarkdownGenerator::generate( ObjectHandle* object, bool objectMethod
 
     CAFFA_DEBUG( "Test 2" );
 
-    std::vector<std::string> methodDependencies;
-
-    auto methodNames = ObjectMethodFactory::instance()->registeredMethodNames( object );
-
-    if ( !methodNames.empty() )
-    {
-        code += "### Methods\n";
-        for ( auto methodName : methodNames )
-        {
-            auto method = ObjectMethodFactory::instance()->createMethodInstance( object, methodName );
-            code += generate( method.get(), methodDependencies );
-        }
-    }
-
     std::string dependencyCode;
-    for ( auto className : methodDependencies )
-    {
-        if ( className != "Object" && !m_classesGenerated.count( className ) )
-        {
-            m_classesGenerated.insert( className );
-            CAFFA_DEBUG( "Creating temp instance of " << className );
-            auto tempObject = caffa::DefaultObjectFactory::instance()->create( className );
-            dependencyCode += generate( tempObject.get(), true );
-        }
-    }
-
     for ( auto className : fieldDependencies )
     {
         if ( className != "Object" && !m_classesGenerated.count( className ) )
@@ -151,7 +112,7 @@ std::string MarkdownGenerator::generate( ObjectHandle* object, bool objectMethod
     return dependencyCode + code;
 }
 
-std::string MarkdownGenerator::findParentClass( ObjectHandle* object ) const
+std::string MarkdownGenerator::findParentClass( const ObjectHandle* object ) const
 {
     auto inheritanceStack = object->classInheritanceStack();
     for ( size_t i = 1; i < inheritanceStack.size(); ++i )
@@ -198,13 +159,9 @@ std::string MarkdownGenerator::docDataType( const caffa::FieldHandle* field ) co
     return field->dataType();
 }
 
-std::string MarkdownGenerator::generate( FieldHandle* field, std::vector<std::string>& dependencies )
+std::string MarkdownGenerator::generate( const FieldHandle* field, bool passByValue, std::vector<std::string>& dependencies )
 {
     std::string code;
-
-    auto scriptability = field->capability<caffa::FieldScriptingCapability>();
-
-    if ( !( scriptability && ( scriptability->isReadable() || scriptability->isWritable() ) ) ) return code;
 
     code += "    def " + field->keyword() + "(self):\n";
     auto doc = field->capability<FieldDocumentationCapability>();
@@ -219,48 +176,9 @@ std::string MarkdownGenerator::generate( FieldHandle* field, std::vector<std::st
     return code;
 }
 
-std::string MarkdownGenerator::generate( caffa::ObjectMethod* method, std::vector<std::string>& dependencies )
+std::string MarkdownGenerator::generate( const caffa::MethodHandle* method, std::vector<std::string>& dependencies )
 {
-    std::string code;
-
-    auto fields = method->fields();
-
-    code += "- " + std::string( method->classKeyword() ) + ": " + method->classDocumentation() + "\n";
-
-    std::string parametersCode;
-    int         index = 1;
-    for ( auto field : fields )
-    {
-        if ( field->keyword() == "uuid" ) continue;
-
-        parametersCode += "        " + std::to_string( index ) + ". **" + field->keyword() + "**, type: *" +
-                          docDataType( field ) + "*";
-        auto fieldDependency = dependency( field );
-        if ( !fieldDependency.empty() )
-            dependencies.push_back( fieldDependency );
-        else
-        {
-            auto jsonCap = field->capability<FieldJsonCapability>();
-            if ( jsonCap )
-            {
-                nlohmann::json json;
-                jsonCap->writeToJson( json, JsonSerializer() );
-                parametersCode += ", default: " + json["value"].dump();
-            }
-        }
-        index++;
-        parametersCode += "\n";
-    }
-    if ( !parametersCode.empty() )
-    {
-        code += "    - Parameters:\n" + parametersCode;
-    }
-
-    auto resultObject = method->defaultResult();
-
-    code += "    - Returns: *" + std::string( resultObject->classKeyword() ) + "*\n";
-    code += "\n";
-    return code;
+    return "";
 }
 
 bool markdownRegistered = caffa::rpc::CodeGeneratorFactory::instance()->registerCreator<caffa::rpc::MarkdownGenerator>(

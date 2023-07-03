@@ -13,15 +13,14 @@ set(PUBLIC_HEADERS
     cafChildField.inl
     cafChildFieldAccessor.h
     cafDataFieldAccessor.h
-    cafDynamicUniqueCast.h
     cafField.h
     cafFieldCapability.h
     cafFieldHandle.h
     cafFieldValidator.h
     cafObjectCapability.h
     cafObjectCollector.h
+    cafObjectPerformer.h
     cafObjectHandle.h
-    cafObservingPointer.h
     cafPortableDataType.h
     cafFieldProxyAccessor.h
     cafChildArrayFieldHandle.h
@@ -32,13 +31,14 @@ set(PUBLIC_HEADERS
     cafFieldJsonCapability.h
     cafSerializer.h
     cafJsonSerializer.h
-    cafObjectIoCapability.h
+    cafMethodHandle.h
+    cafMethod.h
     cafObjectMacros.h
     cafDefaultObjectFactory.h
     cafObjectFactory.h
     cafObject.h
+    cafObjectJsonSpecializations.h
     cafFieldScriptingCapability.h
-    cafObjectMethod.h
     cafDocument.h
     cafApplication.h
     cafSession.h
@@ -53,16 +53,14 @@ set(PROJECT_FILES
     cafFieldHandle.cpp
     cafObjectCapability.cpp
     cafObjectHandle.cpp
-    cafObservingPointer.cpp
     cafSignal.cpp
     cafFieldJsonCapability.cpp
-    cafObjectIoCapability.cpp
     cafSerializer.cpp
     cafJsonSerializer.cpp
     cafDefaultObjectFactory.cpp
     cafObject.cpp
+    cafObjectJsonSpecializations.cpp
     cafFieldScriptingCapability.cpp
-    cafObjectMethod.cpp
     cafDocument.cpp
     cafApplication.cpp
     cafSession.cpp

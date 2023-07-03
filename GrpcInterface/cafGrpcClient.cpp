@@ -39,7 +39,8 @@
 
 #include "cafDefaultObjectFactory.h"
 #include "cafGrpcApplication.h"
-#include "cafGrpcClientObjectFactory.h"
+#include "cafGrpcClientPassByRefObjectFactory.h"
+#include "cafGrpcClientPassByValueObjectFactory.h"
 #include "cafGrpcException.h"
 #include "cafGrpcFieldService.h"
 #include "cafGrpcObjectService.h"
@@ -289,8 +290,8 @@ public:
         if ( status.ok() )
         {
             CAFFA_TRACE( "Got document" );
-            caffa::JsonSerializer serializer( caffa::rpc::GrpcClientObjectFactory::instance() );
-            serializer.setSerializeDataValues( false );
+            caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
+            serializer.setWriteTypesAndValidators( false );
             document = caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply, serializer );
             CAFFA_TRACE( "Document completed with UUID " << document->uuid() );
         }
@@ -320,8 +321,8 @@ public:
         {
             CAFFA_TRACE( "Got list of documents" );
 
-            caffa::JsonSerializer serializer( caffa::rpc::GrpcClientObjectFactory::instance() );
-            serializer.setSerializeDataValues( false );
+            caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
+            serializer.setWriteTypesAndValidators( false );
 
             for ( auto documentId : objectListReply.document_id() )
             {
@@ -371,8 +372,8 @@ public:
         if ( status.ok() )
         {
             CAFFA_DEBUG( "Got JSON: " + reply.value() );
-            childObject = caffa::JsonSerializer( caffa::rpc::GrpcClientObjectFactory::instance() )
-                              .setSerializeDataValues( false )
+            childObject = caffa::JsonSerializer( caffa::rpc::ClientPassByRefObjectFactory::instance() )
+                              .setWriteTypesAndValidators( false )
                               .createObjectFromString( reply.value() );
         }
         else
@@ -407,8 +408,8 @@ public:
         grpc::Status status = m_fieldStub->GetValue( &context, field, &reply );
         if ( status.ok() )
         {
-            childObject = caffa::JsonSerializer( caffa::DefaultObjectFactory::instance() )
-                              .setSerializeDataValues( true )
+            childObject = caffa::JsonSerializer( ClientPassByValueObjectFactory::instance() )
+                              .setWriteTypesAndValidators( true )
                               .createObjectFromString( reply.value() );
         }
         else
@@ -467,8 +468,8 @@ public:
 
         std::vector<ObjectHandle::Ptr> childObjects;
 
-        caffa::JsonSerializer serializer( caffa::rpc::GrpcClientObjectFactory::instance() );
-        serializer.setSerializeDataValues( false );
+        caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
+        serializer.setWriteTypesAndValidators( false );
 
         GenericValue reply;
         grpc::Status status = m_fieldStub->GetValue( &context, field, &reply );
@@ -478,8 +479,8 @@ public:
             nlohmann::json jsonArray = nlohmann::json::parse( reply.value() );
             for ( auto arrayEntry : jsonArray )
             {
-                auto childObject = caffa::JsonSerializer( caffa::rpc::GrpcClientObjectFactory::instance() )
-                                       .setSerializeDataValues( false )
+                auto childObject = caffa::JsonSerializer( caffa::rpc::ClientPassByRefObjectFactory::instance() )
+                                       .setWriteTypesAndValidators( false )
                                        .createObjectFromString( arrayEntry.dump() );
                 childObjects.push_back( childObject );
             }
@@ -603,18 +604,18 @@ public:
         }
     }
 
-    std::shared_ptr<caffa::ObjectMethodResult> execute( const caffa::ObjectMethod* method ) const
+    std::string execute( caffa::not_null<const caffa::ObjectHandle*> selfObject, const std::string& jsonMethod ) const
     {
         auto self   = std::make_unique<RpcObject>();
-        auto params = std::make_unique<RpcObject>();
-        ObjectService::copyProjectSelfReferenceFromCafToRpc( method->self<caffa::ObjectHandle>(), self.get() );
-        ObjectService::copyResultOrParameterObjectFromCafToRpc( method, params.get() );
+        auto method = std::make_unique<RpcObject>();
+        ObjectService::copyProjectSelfReferenceFromCafToRpc( selfObject, self.get() );
+
+        method->set_json( jsonMethod );
 
         grpc::ClientContext context;
         MethodRequest       request;
         request.set_allocated_self_object( self.release() );
-        request.set_method( std::string( method->classKeyword() ) );
-        request.set_allocated_params( params.release() );
+        request.set_allocated_method( method.release() );
         auto session = std::make_unique<caffa::rpc::SessionMessage>();
         session->set_uuid( m_sessionUuid );
         request.set_allocated_session( session.release() );
@@ -625,17 +626,16 @@ public:
         auto                  status = m_objectStub->ExecuteMethod( &context, request, &objectReply );
         if ( status.ok() )
         {
-            returnValue = caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply, caffa::JsonSerializer() );
+            return objectReply.json();
         }
         else
         {
-            CAFFA_ERROR( "Failed to execute object method " << method->classKeyword()
-                                                            << " error: " << status.error_message() );
+            auto json = nlohmann::json::parse( jsonMethod );
+            CAFFA_ERROR( "Failed to execute method " << selfObject->classKeyword()
+                                                     << "::" << json["keyword"].get<std::string>()
+                                                     << " with error: " << status.error_message() );
             throw Exception( status );
         }
-
-        auto objectMethodResult = std::dynamic_pointer_cast<caffa::ObjectMethodResult>( returnValue );
-        return objectMethodResult;
     }
 
     bool stopServer()
@@ -672,40 +672,6 @@ public:
             throw Exception( status );
         }
         return status.ok();
-    }
-
-    std::list<std::shared_ptr<caffa::ObjectHandle>> objectMethods( caffa::ObjectHandle* objectHandle ) const
-    {
-        grpc::ClientContext context;
-        auto                request = std::make_unique<ListMethodsRequest>();
-        auto                self    = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( objectHandle, self.get() );
-
-        request->set_allocated_self_object( self.release() );
-        auto session = std::make_unique<caffa::rpc::SessionMessage>();
-        session->set_uuid( m_sessionUuid );
-        request->set_allocated_session( session.release() );
-
-        RpcObjectList reply;
-        auto          status = m_objectStub->ListMethods( &context, *request, &reply );
-
-        std::list<std::shared_ptr<caffa::ObjectHandle>> methods;
-        if ( !status.ok() )
-        {
-            CAFFA_ERROR( "Failed to get object methods with error: " + status.error_message() );
-            throw Exception( status );
-        }
-
-        for ( auto RpcObject : reply.objects() )
-        {
-            std::shared_ptr<caffa::ObjectHandle> caffaObject =
-                ObjectService::createCafObjectMethodFromRpc( objectHandle,
-                                                             &RpcObject,
-                                                             caffa::ObjectMethodFactory::instance(),
-                                                             caffa::rpc::GrpcClientObjectFactory::instance() );
-            methods.push_back( caffaObject );
-        }
-        return methods;
     }
 
     void setJson( const caffa::ObjectHandle* objectHandle,
@@ -792,7 +758,9 @@ Client::Client( caffa::Session::Type sessionType,
                 const std::string&   caCertFile )
     : m_clientImpl( std::make_unique<ClientImpl>( sessionType, hostname, port, clientCertFile, clientKeyFile, caCertFile ) )
 {
-    caffa::rpc::GrpcClientObjectFactory::instance()->setGrpcClient( this );
+    // Apply gRPC client to the two client object factories.
+    caffa::rpc::ClientPassByRefObjectFactory::instance()->setGrpcClient( this );
+    caffa::rpc::ClientPassByValueObjectFactory::instance()->setGrpcClient( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -829,9 +797,9 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> Client::documents() const
 //--------------------------------------------------------------------------------------------------
 /// Execute a general non-streaming method.
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<caffa::ObjectMethodResult> Client::execute( caffa::not_null<const caffa::ObjectMethod*> method ) const
+std::string Client::execute( caffa::not_null<const caffa::ObjectHandle*> selfObject, const std::string& jsonMethod ) const
 {
-    return m_clientImpl->execute( method );
+    return m_clientImpl->execute( selfObject, jsonMethod );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -896,14 +864,6 @@ const std::string& Client::sessionUuid() const
 bool Client::ping() const
 {
     return m_clientImpl->ping();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Get a list of all object methods available for object
-//--------------------------------------------------------------------------------------------------
-std::list<std::shared_ptr<caffa::ObjectHandle>> Client::objectMethods( caffa::ObjectHandle* objectHandle ) const
-{
-    return m_clientImpl->objectMethods( objectHandle );
 }
 
 //--------------------------------------------------------------------------------------------------
