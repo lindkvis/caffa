@@ -224,13 +224,13 @@ TEST( BaseTest, NormalField )
     EXPECT_EQ( size_t( 0 ), myObj.field1().size() );
 
     // Operators
-    EXPECT_FALSE( myObj.field1 == myObj.field3 );
+    EXPECT_FALSE( myObj.field1() == myObj.field3() );
     myObj.field1 = myObj.field2();
     EXPECT_EQ( 1.3, myObj.field1()[2] );
     myObj.field1 = testValue2;
     EXPECT_EQ( 2.3, myObj.field1()[2] );
     myObj.field3 = myObj.field1();
-    EXPECT_TRUE( myObj.field1 == myObj.field3 );
+    EXPECT_TRUE( myObj.field1() == myObj.field3() );
 }
 
 //--------------------------------------------------------------------------------------------------
