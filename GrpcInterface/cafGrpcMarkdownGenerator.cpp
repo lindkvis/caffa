@@ -159,13 +159,9 @@ std::string MarkdownGenerator::docDataType( const caffa::FieldHandle* field ) co
     return field->dataType();
 }
 
-std::string MarkdownGenerator::generate( const FieldHandle* field, std::vector<std::string>& dependencies )
+std::string MarkdownGenerator::generate( const FieldHandle* field, bool passByValue, std::vector<std::string>& dependencies )
 {
     std::string code;
-
-    auto scriptability = field->capability<caffa::FieldScriptingCapability>();
-
-    if ( !( scriptability && ( scriptability->isReadable() || scriptability->isWritable() ) ) ) return code;
 
     code += "    def " + field->keyword() + "(self):\n";
     auto doc = field->capability<FieldDocumentationCapability>();

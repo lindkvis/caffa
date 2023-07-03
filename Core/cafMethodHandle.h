@@ -74,8 +74,6 @@ public:
     MethodAccessorInterface* accessor() const { return m_accessor.get(); }
     void setAccessor( std::unique_ptr<MethodAccessorInterface> accessor ) { m_accessor = std::move( accessor ); }
 
-    virtual std::vector<std::string> dependencies() const = 0;
-
 private:
     friend class ObjectHandle;
     void setName( const std::string& name ) { m_name = name; }

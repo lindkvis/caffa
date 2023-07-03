@@ -59,10 +59,8 @@ std::string PythonGenerator::generate( std::list<std::shared_ptr<caffa::Document
 std::string PythonGenerator::generate( const ObjectHandle* object, bool passByValue )
 {
     CAFFA_DEBUG( "Generating code for class " << object->classKeyword() );
-    if ( passByValue )
-    {
-        return generateObjectPassedByValue( object );
-    }
+
+    std::string localTag = passByValue ? "True" : "False";
 
     std::vector<std::string> fieldDependencies;
 
@@ -70,24 +68,26 @@ std::string PythonGenerator::generate( const ObjectHandle* object, bool passByVa
     fieldDependencies.push_back( parentClassKeyword );
 
     std::string objectCode;
-    objectCode += "class " + std::string( object->classKeyword() ) + "(" + parentClassKeyword + "):\n";
+    objectCode += "class " + object->classKeyword() + "(" + parentClassKeyword + "):\n";
     if ( !object->classDocumentation().empty() )
     {
         objectCode += "    \"\"\"" + object->classDocumentation() + "\"\"\"\n\n";
     }
-    objectCode += "    def __init__(self, object):\n";
-    objectCode += "        self._json_object = object._json_object\n";
-    objectCode += "        self._session_uuid = object._session_uuid\n";
-    objectCode += "        self._object_cache = object._object_cache\n";
-    objectCode += "        self._channel = object._channel\n";
-    objectCode += "        self._field_stub = object._field_stub\n";
-    objectCode += "        self._object_stub = object._object_stub\n\n";
+    objectCode += "    def __init__(self, json_object=\"\", session_uuid=\"\", grpc_channel=None, local=" + localTag +
+                  "):\n";
+    objectCode += "        super().__init__(json_object, session_uuid, grpc_channel, local)\n";
+    objectCode += "\n";
+
+    if ( passByValue )
+    {
+        objectCode += generateCreateMethod( object );
+    }
 
     for ( auto field : object->fields() )
     {
-        if ( field->capability<caffa::FieldScriptingCapability>() != nullptr )
+        if ( passByValue || field->capability<caffa::FieldScriptingCapability>() != nullptr )
         {
-            objectCode += generate( field, fieldDependencies );
+            objectCode += generate( field, passByValue, fieldDependencies );
         }
     }
 
@@ -125,20 +125,14 @@ std::string PythonGenerator::generate( const ObjectHandle* object, bool passByVa
     return dependencyCode + objectCode;
 }
 
-std::string PythonGenerator::generateObjectPassedByValue( const ObjectHandle* object )
+std::string PythonGenerator::generateCreateMethod( const ObjectHandle* object )
 {
     std::vector<std::string> dependencies;
 
-    auto parentClassKeyword = findParentClass( object );
-    dependencies.push_back( parentClassKeyword );
-
     std::string code;
-    code += "class " + std::string( object->classKeyword() ) + "(" + parentClassKeyword + "):\n";
-    if ( !object->classDocumentation().empty() )
-    {
-        code += "    \"\"\"" + object->classDocumentation() + "\"\"\"\n\n";
-    }
-    code += "    def __init__(self";
+
+    code += "    @classmethod\n";
+    code += "    def create(cls, session_uuid = \"\", grpc_channel = None";
 
     for ( auto field : object->fields() )
     {
@@ -171,7 +165,7 @@ std::string PythonGenerator::generateObjectPassedByValue( const ObjectHandle* ob
         }
     }
     code += "):\n";
-    code += "        super().__init__()\n";
+    code += "        self = cls(json_object=\"\", session_uuid=session_uuid, grpc_channel=grpc_channel, local=True)\n";
     for ( auto field : object->fields() )
     {
         if ( field->keyword() != "uuid" )
@@ -180,54 +174,10 @@ std::string PythonGenerator::generateObjectPassedByValue( const ObjectHandle* ob
                     "\", value=" + field->keyword() + ")\n";
         }
     }
+    code += "        return self\n";
     code += "\n";
 
-    for ( auto field : object->fields() )
-    {
-        if ( field->keyword() != "uuid" )
-        {
-            code += "    @property\n";
-            code += "    def " + field->keyword() + "(self):\n";
-            auto doc = field->capability<FieldDocumentationCapability>();
-            if ( doc )
-            {
-                code += "        \"\"\"" + doc->documentation() + "\"\"\"\n\n";
-            }
-            code += "        return " + castFieldValue( field, "self.get(\"" + field->keyword() + "\")" ) + "\n\n";
-            code += "    @" + field->keyword() + ".setter\n";
-            code += "    def " + field->keyword() + "(self, value):\n";
-            code += "        return self.set(\"" + field->keyword() + "\", value)\n\n";
-        }
-    }
-    code += "    @classmethod\n";
-    code += "    def copy(cls, object):\n";
-    code += "        return cls(";
-
-    bool first = true;
-    for ( auto field : object->fields() )
-    {
-        if ( field->keyword() != "uuid" )
-        {
-            if ( !first ) code += ", ";
-
-            code += castFieldValue( field, "object.get(\"" + field->keyword() + "\")" );
-            first = false;
-        }
-    }
-    code += ")\n";
-    code += "\n\n";
-
-    std::string dependencyCode;
-    for ( auto className : dependencies )
-    {
-        if ( !isBuiltInClass( className ) && !m_classesGenerated.count( className ) )
-        {
-            m_classesGenerated.insert( className );
-            auto tempObject = caffa::DefaultObjectFactory::instance()->create( className );
-            dependencyCode += generateObjectPassedByValue( tempObject.get() );
-        }
-    }
-    return dependencyCode + code;
+    return code;
 }
 
 bool PythonGenerator::isBuiltInClass( const std::string& classKeyword ) const
@@ -306,13 +256,15 @@ std::string PythonGenerator::pythonDataType( const std::string& caffaDataType ) 
     return dataType;
 }
 
-std::string PythonGenerator::generate( const FieldHandle* field, std::vector<std::string>& dependencies )
+std::string
+    PythonGenerator::generate( const caffa::FieldHandle* field, bool passByValue, std::vector<std::string>& dependencies )
 {
     std::string code;
 
     auto scriptability = field->capability<caffa::FieldScriptingCapability>();
 
-    if ( !( scriptability && ( scriptability->isReadable() || scriptability->isWritable() ) ) ) return code;
+    bool writable = passByValue || ( scriptability && scriptability->isWritable() );
+    bool readable = passByValue || ( scriptability && scriptability->isReadable() );
 
     code += "    @property\n";
     code += "    def " + field->keyword() + "(self):\n";
@@ -321,7 +273,7 @@ std::string PythonGenerator::generate( const FieldHandle* field, std::vector<std
     {
         code += "        \"\"\"" + doc->documentation() + "\"\"\"\n\n";
     }
-    if ( scriptability->isReadable() )
+    if ( readable )
     {
         code += "        return " + castFieldValue( field, "self.get(\"" + field->keyword() + "\")" ) + "\n\n";
     }
@@ -329,7 +281,7 @@ std::string PythonGenerator::generate( const FieldHandle* field, std::vector<std
     {
         code += "        raise AttributeError(\"" + field->keyword() + " is write-only\")\n\n";
     }
-    if ( scriptability->isWritable() )
+    if ( writable )
     {
         code += "    @" + field->keyword() + ".setter\n";
         code += "    def " + field->keyword() + "(self, value):\n";
@@ -344,9 +296,6 @@ std::string PythonGenerator::generate( const FieldHandle* field, std::vector<std
 
 std::string PythonGenerator::generate( const caffa::MethodHandle* method, std::vector<std::string>& dependencies )
 {
-    auto methodDependencies = method->dependencies();
-    dependencies.insert( dependencies.end(), methodDependencies.begin(), methodDependencies.end() );
-
     auto jsonMethod = nlohmann::json::parse( method->schema() );
 
     CAFFA_INFO( jsonMethod );
@@ -357,6 +306,12 @@ std::string PythonGenerator::generate( const caffa::MethodHandle* method, std::v
         for ( auto argument : jsonMethod["arguments"] )
         {
             code += ", " + argument["keyword"].get<std::string>();
+            auto dependency = argument["type"].get<std::string>();
+            auto split      = caffa::StringTools::split( dependency, "::" );
+            if ( split.size() == 2 )
+            {
+                dependencies.push_back( split.back() );
+            }
         }
     }
 
@@ -364,37 +319,68 @@ std::string PythonGenerator::generate( const caffa::MethodHandle* method, std::v
 
     if ( !method->documentation().empty() )
     {
-        code += "        \"\"\"" + method->documentation();
+        code += "        \"\"\"" + method->documentation() + "\n";
+    }
 
-        if ( jsonMethod.contains( "arguments" ) )
+    if ( jsonMethod.contains( "arguments" ) )
+    {
+        std::string parametersCode;
+        parametersCode += "        Parameters\n";
+        size_t argCount = 0;
+
+        for ( auto argument : jsonMethod["arguments"] )
         {
-            std::string parametersCode;
-            parametersCode += "        Parameters\n";
-            parametersCode += "        ----------\n";
-            size_t argCount = 0;
+            parametersCode += "        " + argument["keyword"].get<std::string>() + " : " +
+                              pythonDataType( argument["type"].get<std::string>() ) + "\n";
+            argCount++;
+        }
+        code += +"\n" + parametersCode;
+    }
 
-            for ( auto argument : jsonMethod["arguments"] )
+    bool        returnTypeIsObject = false;
+    std::string returnType         = "";
+
+    if ( jsonMethod.contains( "returns" ) )
+    {
+        auto returnValue = jsonMethod["returns"].get<std::string>();
+        if ( returnValue != "void" )
+        {
+            returnType = jsonMethod["returns"].get<std::string>();
+
+            std::string returnsCode;
+            returnsCode += "        Returns: " + returnType + "\n";
+            code += +"\n" + returnsCode;
+
+            auto dependency = jsonMethod["returns"].get<std::string>();
+            auto split      = caffa::StringTools::split( dependency, "::" );
+            if ( split.size() == 2 )
             {
-                parametersCode += "        " + argument["keyword"].get<std::string>() + " : " +
-                                  pythonDataType( argument["type"].get<std::string>() ) + "\n";
-                argCount++;
+                returnTypeIsObject = true;
+                returnType         = split.back();
+                dependencies.push_back( returnType );
             }
-            parametersCode += "        \"\"\"\n\n";
-            code += +"\n\n" + parametersCode;
         }
-        else
-        {
-            code += "\"\"\"\n\n";
-        }
+
+        code += "\n        \"\"\"\n\n";
     }
 
     code += "        method = self.method(\"" + method->name() + "\")\n";
     for ( auto argument : method->argumentNames() )
     {
-        code += "        method." + argument + " = " + argument + "\n";
+        code += "        method.set_argument(\"" + argument + "\", " + argument + ")\n";
     }
 
-    code += "        return self.execute(method)\n\n";
+    if ( returnTypeIsObject )
+    {
+        code +=
+            "        return " + returnType +
+            "(json_object=self.execute(method), session_uuid=self.session_uuid(), grpc_channel=self.grpc_channel(), "
+            "local=True)\n\n";
+    }
+    else
+    {
+        code += "        return " + pythonDataType( returnType ) + "(self.execute(method))\n\n";
+    }
     return code;
 }
 
