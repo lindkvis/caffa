@@ -268,7 +268,7 @@ TEST( BaseTest, NormalField )
 
     // Operators
     // ==
-    EXPECT_FALSE( a.field1 == a.field3 );
+    EXPECT_FALSE( a.field1() == a.field3() );
     // = field to field
     a.field1 = a.field2();
     // ()
@@ -279,7 +279,7 @@ TEST( BaseTest, NormalField )
     EXPECT_EQ( 2.3, a.field1.value()[2] );
     // ==
     a.field3 = a.field1();
-    EXPECT_TRUE( a.field1 == a.field3 );
+    EXPECT_TRUE( a.field1() == a.field3() );
 }
 
 //--------------------------------------------------------------------------------------------------

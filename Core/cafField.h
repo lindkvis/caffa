@@ -139,10 +139,6 @@ public:
         return this->value();
     }
 
-    bool operator==( const Field<DataType>& rhs ) const { return this->value() == rhs.value(); }
-    auto operator<=>( const Field<DataType>& rhs ) const { return this->value() <=> rhs.value(); }
-
-    bool operator==( const DataType& fieldValue ) const { return this->value() == fieldValue; }
     auto operator<=>( const DataType& fieldValue ) const { return this->value() <=> fieldValue; }
 
     // Replace accessor
@@ -209,6 +205,9 @@ public:
 public:
     std::optional<DataType> defaultValue() const { return m_defaultValue; }
     void                    setDefaultValue( const DataType& val ) { m_defaultValue = val; }
+
+    bool operator==( const Field<DataType>& rhs ) const  = delete;
+    auto operator<=>( const Field<DataType>& rhs ) const = delete;
 
 protected:
     std::unique_ptr<DataAccessor>                          m_fieldDataAccessor;
