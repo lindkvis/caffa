@@ -65,6 +65,10 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
     if ( field )
     {
         auto scriptability = field->capability<caffa::FieldScriptingCapability>();
+
+        CAFFA_INFO( "field " << request->keyword() << " is readable: " << scriptability->isReadable()
+                             << ", field is writable: " << scriptability->isWritable() );
+
         if ( scriptability && scriptability->isReadable() )
         {
             bool isObjectField = dynamic_cast<caffa::ChildFieldHandle*>( field ) != nullptr;
@@ -97,6 +101,8 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
                     return grpc::Status( grpc::FAILED_PRECONDITION, std::string( "GetValue failed with " ) + e.what() );
                 }
             }
+            return grpc::Status( grpc::FAILED_PRECONDITION,
+                                 "Field " + request->keyword() + " found, but it has no JSON capability" );
         }
         return grpc::Status( grpc::FAILED_PRECONDITION, "Field " + request->keyword() + " found, but it isn't readable" );
     }

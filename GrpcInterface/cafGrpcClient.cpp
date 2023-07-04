@@ -723,7 +723,7 @@ public:
         if ( !status.ok() )
         {
             Exception e( status );
-            CAFFA_ERROR( e.what() );
+            CAFFA_ERROR( "Server error: " << e.what() );
             throw e;
         }
 
