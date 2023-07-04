@@ -2,10 +2,10 @@
 
 #include "cafSignal.h"
 
+#include <list>
 #include <memory>
 #include <string>
 #include <utility>
-#include <vector>
 
 namespace caffa
 {
@@ -52,7 +52,7 @@ public:
 protected:
     bool isInitialized() const { return m_ownerObject != nullptr; }
 
-    std::vector<FieldCapability*> capabilities();
+    std::list<FieldCapability*> capabilities();
 
 private:
     FieldHandle( const FieldHandle& )            = delete;
@@ -64,7 +64,7 @@ private:
 
     std::string m_keyword;
 
-    std::vector<std::unique_ptr<FieldCapability>> m_capabilities;
+    std::list<std::unique_ptr<FieldCapability>> m_capabilities;
 };
 
 //--------------------------------------------------------------------------------------------------

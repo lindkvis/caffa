@@ -66,9 +66,6 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
     {
         auto scriptability = field->capability<caffa::FieldScriptingCapability>();
 
-        CAFFA_INFO( "field " << request->keyword() << " is readable: " << scriptability->isReadable()
-                             << ", field is writable: " << scriptability->isWritable() );
-
         if ( scriptability && scriptability->isReadable() )
         {
             bool isObjectField = dynamic_cast<caffa::ChildFieldHandle*>( field ) != nullptr;

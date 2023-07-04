@@ -40,9 +40,9 @@ caffa::ObjectHandle* FieldHandle::ownerObject()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<FieldCapability*> FieldHandle::capabilities()
+std::list<FieldCapability*> FieldHandle::capabilities()
 {
-    std::vector<FieldCapability*> allCapabilities;
+    std::list<FieldCapability*> allCapabilities;
     for ( auto& capability : m_capabilities )
     {
         allCapabilities.push_back( capability.get() );
@@ -56,7 +56,9 @@ std::vector<FieldCapability*> FieldHandle::capabilities()
 void FieldHandle::addCapability( std::unique_ptr<FieldCapability> capability )
 {
     capability->setOwner( this );
-    m_capabilities.push_back( std::move( capability ) );
+
+    // Push to the front, so that any new capability takes precedence over old ones.
+    m_capabilities.push_front( std::move( capability ) );
 }
 
 //--------------------------------------------------------------------------------------------------
