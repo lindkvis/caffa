@@ -1,7 +1,7 @@
 // ##################################################################################################
 //
 //    Caffa
-//    Copyright (C) Gaute Lindkvist
+//    Copyright (C) Kontur AS
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify

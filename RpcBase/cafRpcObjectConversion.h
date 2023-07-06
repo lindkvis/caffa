@@ -1,7 +1,7 @@
 // ##################################################################################################
 //
 //    Caffa
-//    Copyright (C) 2021- 3d Radar AS
+//    Copyright (C) 2023- Kontur AS
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify
@@ -18,20 +18,22 @@
 //
 #pragma once
 
-#include "cafApplication.h"
+#include <string>
 
-#include <memory>
+namespace caffa
+{
+class ObjectHandle;
+class Session;
+} // namespace caffa
 
 namespace caffa::rpc
 {
-class Application : public caffa::Application
-{
-public:
-    Application( unsigned int capabilities );
-    Application( AppInfo::AppCapability capability );
+caffa::ObjectHandle* findCafObjectFromJsonObject( const caffa::Session* session, const std::string& jsonObject );
+caffa::ObjectHandle* findCafObjectFromScriptNameAndUuid( const caffa::Session* session,
+                                                         const std::string&    scriptClassName,
+                                                         const std::string&    objectUuid );
 
-    static Application* instance();
+std::string createJsonSelfReferenceFromCaf( const caffa::ObjectHandle* source );
+std::string createJsonFromProjectObject( const caffa::ObjectHandle* source );
 
-    static std::string readKeyAndCertificate( const std::string& path );
-};
 } // namespace caffa::rpc

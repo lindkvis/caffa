@@ -20,7 +20,7 @@
 
 #include "cafGrpcServer.h"
 #include "cafNotNull.h"
-#include "cafRpcApplication.h"
+#include "cafRpcServerApplication.h"
 #include "cafSession.h"
 
 #include <memory>
@@ -31,7 +31,7 @@ namespace caffa
 namespace rpc
 {
 
-    class GrpcServerApplication : public Application
+    class GrpcServerApplication : public ServerApplication
     {
     public:
         /**
@@ -46,28 +46,10 @@ namespace rpc
                                const std::string& caCertFile     = "" );
         static GrpcServerApplication* instance();
 
-        int  portNumber() const;
-        void run();
-        bool running() const;
-        void quit();
-
-        virtual std::shared_ptr<Document> document( const std::string& documentId, const caffa::Session* session ) = 0;
-        virtual std::shared_ptr<const Document>            document( const std::string&    documentId,
-                                                                     const caffa::Session* session ) const         = 0;
-        virtual std::list<std::shared_ptr<Document>>       documents( const caffa::Session* session )              = 0;
-        virtual std::list<std::shared_ptr<const Document>> documents( const caffa::Session* session ) const        = 0;
-
-        virtual bool                          readyForSession( caffa::Session::Type type ) const             = 0;
-        virtual caffa::SessionMaintainer      createSession( caffa::Session::Type type )                     = 0;
-        virtual bool                          hasActiveSessions() const                                      = 0;
-        virtual caffa::SessionMaintainer      getExistingSession( const std::string& sessionUuid )           = 0;
-        virtual caffa::ConstSessionMaintainer getExistingSession( const std::string& sessionUuid ) const     = 0;
-        virtual void changeSession( caffa::not_null<caffa::Session*> session, caffa::Session::Type newType ) = 0;
-        virtual void destroySession( const std::string& sessionUuid )                                        = 0;
-
-    private:
-        virtual void onStartup() {}
-        virtual void onShutdown() {}
+        int  portNumber() const override;
+        void run() override;
+        bool running() const override;
+        void quit() override;
 
     private:
         std::unique_ptr<GrpcServer> m_server;

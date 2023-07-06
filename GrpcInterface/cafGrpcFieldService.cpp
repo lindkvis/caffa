@@ -29,6 +29,8 @@
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
 #include "cafObject.h"
+#include "cafRpcObjectConversion.h"
+#include "cafRpcServer.h"
 
 #include <grpcpp/grpcpp.h>
 
@@ -36,8 +38,6 @@
 
 namespace caffa::rpc
 {
-std::map<const caffa::ObjectHandle*, std::map<std::string, caffa::FieldHandle*>> GrpcFieldService::s_fieldCache;
-std::mutex                                                                       GrpcFieldService::s_fieldCacheMutex;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -54,12 +54,10 @@ grpc::Status GrpcFieldService::GetValue( grpc::ServerContext* context, const Fie
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
     }
 
-    auto fieldOwner = GrpcObjectService::GrpcObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
-                                                                                                request->class_keyword(),
-                                                                                                request->uuid() );
+    auto fieldOwner = findCafObjectFromScriptNameAndUuid( session.get(), request->class_keyword(), request->uuid() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
 
-    auto field = scriptableFieldFromKeyword( fieldOwner, request->keyword() );
+    auto field = fieldFromKeyword( fieldOwner, request->keyword() );
 
     if ( field )
     {
@@ -127,9 +125,7 @@ grpc::Status GrpcFieldService::SetValue( grpc::ServerContext* context, const Set
     }
 
     auto fieldOwner =
-        GrpcObjectService::GrpcObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
-                                                                                  fieldRequest.class_keyword(),
-                                                                                  fieldRequest.uuid() );
+        findCafObjectFromScriptNameAndUuid( session.get(), fieldRequest.class_keyword(), fieldRequest.uuid() );
 
     CAFFA_TRACE( "Received Set Request for " << fieldRequest.class_keyword() << "::" << fieldRequest.keyword()
                                              << ", uuid: " << fieldRequest.uuid() );
@@ -139,7 +135,7 @@ grpc::Status GrpcFieldService::SetValue( grpc::ServerContext* context, const Set
                              "Object with class keyword " + fieldRequest.class_keyword() + " and UUID " +
                                  fieldRequest.uuid() + " not found" );
 
-    auto field = scriptableFieldFromKeyword( fieldOwner, fieldRequest.keyword() );
+    auto field = fieldFromKeyword( fieldOwner, fieldRequest.keyword() );
 
     if ( field )
     {
@@ -198,9 +194,7 @@ grpc::Status
         return grpc::Status( grpc::UNAUTHENTICATED, "Observing sessions are not valid for controlling operations" );
     }
 
-    auto fieldOwner = GrpcObjectService::GrpcObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
-                                                                                                request->class_keyword(),
-                                                                                                request->uuid() );
+    auto fieldOwner = findCafObjectFromScriptNameAndUuid( session.get(), request->class_keyword(), request->uuid() );
     CAFFA_TRACE( "Clear Child Objects for field: " << request->keyword() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : fieldOwner->fields() )
@@ -254,9 +248,7 @@ grpc::Status
         return grpc::Status( grpc::UNAUTHENTICATED, "Observing sessions are not valid for controlling operations" );
     }
 
-    auto fieldOwner = GrpcObjectService::GrpcObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
-                                                                                                request->class_keyword(),
-                                                                                                request->uuid() );
+    auto fieldOwner = findCafObjectFromScriptNameAndUuid( session.get(), request->class_keyword(), request->uuid() );
     CAFFA_TRACE( "Remove Child Object at index " << request->index() << " for field: " << request->keyword() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : fieldOwner->fields() )
@@ -304,9 +296,7 @@ grpc::Status
     }
 
     auto fieldOwner =
-        GrpcObjectService::GrpcObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
-                                                                                  fieldRequest.class_keyword(),
-                                                                                  fieldRequest.uuid() );
+        findCafObjectFromScriptNameAndUuid( session.get(), fieldRequest.class_keyword(), fieldRequest.uuid() );
     CAFFA_TRACE( " Inserting Child Object at index " << fieldRequest.index() << " for field: " << fieldRequest.keyword() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : fieldOwner->fields() )
@@ -364,48 +354,18 @@ std::vector<AbstractGrpcCallback*> GrpcFieldService::createCallbacks()
                                                                         &Self::RequestInsertChildObject ) };
 }
 
-caffa::FieldHandle* GrpcFieldService::scriptableFieldFromKeyword( const caffa::ObjectHandle* fieldOwner,
-                                                                  const std::string&         keyword )
+caffa::FieldHandle* GrpcFieldService::fieldFromKeyword( const caffa::ObjectHandle* fieldOwner, const std::string& keyword )
 {
     CAFFA_ASSERT( fieldOwner );
 
-    caffa::FieldHandle* field = nullptr;
+    for ( auto field : fieldOwner->fields() )
     {
-        std::scoped_lock cacheLock( s_fieldCacheMutex );
-        auto             it = s_fieldCache.find( fieldOwner );
-        if ( it != s_fieldCache.end() )
-        {
-            auto jt = it->second.find( keyword );
-            if ( jt != it->second.end() )
-            {
-                field = jt->second;
-            }
-        }
-    }
-
-    if ( !field )
-    {
-        for ( auto tryField : fieldOwner->fields() )
-        {
-            if ( tryField->keyword() == keyword )
-            {
-                field = tryField;
-
-                std::scoped_lock cacheLock( s_fieldCacheMutex );
-                s_fieldCache[fieldOwner].insert( std::make_pair( keyword, field ) );
-                break;
-            }
-        }
-    }
-
-    if ( field )
-    {
-        auto scriptability = field->capability<caffa::FieldScriptingCapability>();
-        if ( scriptability && keyword == scriptability->scriptFieldName() )
+        if ( field->keyword() == keyword )
         {
             return field;
         }
     }
+
     return nullptr;
 }
 

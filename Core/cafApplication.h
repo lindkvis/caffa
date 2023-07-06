@@ -101,8 +101,8 @@ struct AppInfo
 class Application
 {
 public:
-    Application( const unsigned int& capabilities );
-    Application( const AppInfo::AppCapability& capability );
+    Application( unsigned int capabilities );
+    Application( AppInfo::AppCapability capability );
     virtual ~Application();
 
     virtual std::string name() const = 0;
