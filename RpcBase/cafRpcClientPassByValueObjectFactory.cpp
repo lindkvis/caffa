@@ -1,6 +1,6 @@
 // ##################################################################################################
 //
-//    Caffa - File copied and altered from cafGrpcClientPassByRefObjectFactory.cpp
+//    Caffa - File copied and altered from cafClientPassByRefObjectFactory.cpp
 //
 //    Copyright (C) 2011- Ceetron AS (Changes up until April 2021)
 //    Copyright (C) 2021- Kontur AS (Changes from April 2021 and onwards)
@@ -20,19 +20,18 @@
 //
 // ##################################################################################################
 
-#include "cafGrpcClientPassByValueObjectFactory.h"
+#include "cafRpcClientPassByValueObjectFactory.h"
 
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafDefaultObjectFactory.h"
 #include "cafField.h"
 #include "cafFieldScriptingCapability.h"
-#include "cafGrpcChildArrayFieldAccessor.h"
-#include "cafGrpcChildFieldAccessor.h"
-#include "cafGrpcClient.h"
-#include "cafGrpcDataFieldAccessor.h"
-#include "cafGrpcException.h"
-#include "cafGrpcMethodAccessor.h"
+#include "cafRpcChildArrayFieldAccessor.h"
+#include "cafRpcChildFieldAccessor.h"
+#include "cafRpcClient.h"
+#include "cafRpcDataFieldAccessor.h"
+#include "cafRpcMethodAccessor.h"
 
 #include <memory>
 
@@ -47,8 +46,8 @@ namespace caffa::rpc
 //--------------------------------------------------------------------------------------------------
 std::shared_ptr<ObjectHandle> ClientPassByValueObjectFactory::doCreate( const std::string_view& classKeyword )
 {
-    CAFFA_ASSERT( m_grpcClient );
-    if ( !m_grpcClient ) throw( Exception( grpc::Status( grpc::ABORTED, "No Client set in Grpc Client factory" ) ) );
+    CAFFA_ASSERT( m_client );
+    if ( !m_client ) throw std::runtime_error( "No Client set in Client factory" );
 
     CAFFA_TRACE( "Creating Passed-By-Value Object of type " << classKeyword );
 
@@ -76,15 +75,15 @@ ClientPassByValueObjectFactory* ClientPassByValueObjectFactory::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ClientPassByValueObjectFactory::setGrpcClient( Client* client )
+void ClientPassByValueObjectFactory::setClient( Client* client )
 {
-    m_grpcClient = client;
+    m_client = client;
 }
 
 void ClientPassByValueObjectFactory::applyAccessorToMethod( caffa::ObjectHandle* objectHandle,
                                                             caffa::MethodHandle* methodHandle )
 {
-    methodHandle->setAccessor( std::make_unique<MethodAccessor>( m_grpcClient, objectHandle, methodHandle, this ) );
+    methodHandle->setAccessor( std::make_unique<MethodAccessor>( m_client, objectHandle, methodHandle, this ) );
 }
 
 } // namespace caffa::rpc

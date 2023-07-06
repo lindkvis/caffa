@@ -18,9 +18,9 @@
 //
 #pragma once
 
-#include "cafGrpcApplication.h"
 #include "cafGrpcServer.h"
 #include "cafNotNull.h"
+#include "cafRpcApplication.h"
 #include "cafSession.h"
 
 #include <memory>
@@ -31,7 +31,7 @@ namespace caffa
 namespace rpc
 {
 
-    class ServerApplication : public Application
+    class GrpcServerApplication : public Application
     {
     public:
         /**
@@ -40,11 +40,11 @@ namespace rpc
          * @param serverCertFile File path to a server certificate
          * @param serverKeyFile File path to a server private key
          */
-        ServerApplication( int                portNumber,
-                           const std::string& serverCertFile = "",
-                           const std::string& serverKeyFile  = "",
-                           const std::string& caCertFile     = "" );
-        static ServerApplication* instance();
+        GrpcServerApplication( int                portNumber,
+                               const std::string& serverCertFile = "",
+                               const std::string& serverKeyFile  = "",
+                               const std::string& caCertFile     = "" );
+        static GrpcServerApplication* instance();
 
         int  portNumber() const;
         void run();
@@ -70,7 +70,7 @@ namespace rpc
         virtual void onShutdown() {}
 
     private:
-        std::unique_ptr<Server> m_server;
+        std::unique_ptr<GrpcServer> m_server;
     };
 } // namespace rpc
 } // namespace caffa

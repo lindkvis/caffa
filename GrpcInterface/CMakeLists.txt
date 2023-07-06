@@ -22,19 +22,12 @@ set(PUBLIC_HEADERS
     cafGrpcCallbacks.inl
     cafGrpcServiceInterface.h
     cafGrpcAppService.h
-    cafGrpcChildFieldAccessor.h
-    cafGrpcChildArrayFieldAccessor.h
-    cafGrpcDataFieldAccessor.h
     cafGrpcException.h
     cafGrpcFieldService.h
     cafGrpcObjectService.h
-    cafGrpcApplication.h
     cafGrpcServerApplication.h
     cafGrpcClient.h
-    cafGrpcClientPassByRefObjectFactory.h
-    cafGrpcClientPassByValueObjectFactory.h
-    cafGrpcClientApplication.h
-    cafGrpcMethodAccessor.h)
+    cafGrpcClientApplication.h)
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
@@ -42,11 +35,8 @@ set(PROJECT_FILES
     cafGrpcAppService.cpp
     cafGrpcFieldService.cpp
     cafGrpcObjectService.cpp
-    cafGrpcApplication.cpp
     cafGrpcServerApplication.cpp
     cafGrpcClient.cpp
-    cafGrpcClientPassByRefObjectFactory.cpp
-    cafGrpcClientPassByValueObjectFactory.cpp
     cafGrpcClientApplication.cpp)
 
 if(CAFFA_GRPC_FETCHCONTENT)
@@ -100,7 +90,7 @@ set(CURRENT_PROTOBUF_VERSION ${GRPC_protobuf_VERSION})
 message(STATUS "Using protobuf ${CURRENT_PROTOBUF_VERSION}")
 message(STATUS "Using gRPC ${CURRENT_GRPC_VERSION}")
 
-set(LINK_LIBRARIES ${GRPC_LINK_LIBRARIES} caffaCore)
+set(LINK_LIBRARIES ${GRPC_LINK_LIBRARIES} caffaCore caffaRpcBase)
 
 # Proto files
 set(PROTO_FILES "App" "FieldService" "ObjectService")

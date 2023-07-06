@@ -44,21 +44,21 @@
 
 using namespace caffa::rpc;
 
-grpc::Status AppService::PerformQuit( grpc::ServerContext* context, const SessionMessage* request, NullMessage* )
+grpc::Status GrpcAppService::PerformQuit( grpc::ServerContext* context, const SessionMessage* request, NullMessage* )
 {
     CAFFA_DEBUG( "Received quit request from " << context->peer() );
 
-    auto session = ServerApplication::instance()->getExistingSession( request->uuid() );
+    auto session = GrpcServerApplication::instance()->getExistingSession( request->uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->uuid() + "' is not valid" );
     }
 
-    ServerApplication::instance()->quit();
+    GrpcServerApplication::instance()->quit();
     return grpc::Status::OK;
 }
 
-grpc::Status AppService::PerformGetAppInfo( grpc::ServerContext* context, const NullMessage*, AppInfoReply* reply )
+grpc::Status GrpcAppService::PerformGetAppInfo( grpc::ServerContext* context, const NullMessage*, AppInfoReply* reply )
 {
     CAFFA_TRACE( "Received app info request from " + context->peer() );
     Application* app = Application::instance();
@@ -74,30 +74,32 @@ grpc::Status AppService::PerformGetAppInfo( grpc::ServerContext* context, const 
     return grpc::Status::OK;
 }
 
-grpc::Status AppService::PerformPing( grpc::ServerContext* context, const NullMessage*, NullMessage* )
+grpc::Status GrpcAppService::PerformPing( grpc::ServerContext* context, const NullMessage*, NullMessage* )
 {
     CAFFA_TRACE( "Received ping request from " + context->peer() );
     return grpc::Status::OK;
 }
 
-grpc::Status AppService::ReadyForSession( grpc::ServerContext* context, const SessionParameters* request, ReadyMessage* reply )
+grpc::Status
+    GrpcAppService::ReadyForSession( grpc::ServerContext* context, const SessionParameters* request, ReadyMessage* reply )
 {
     CAFFA_TRACE( "Received ready for session request from " + context->peer() );
 
-    bool ready = ServerApplication::instance()->readyForSession( caffa::Session::typeFromUint( request->type() ) );
+    bool ready = GrpcServerApplication::instance()->readyForSession( caffa::Session::typeFromUint( request->type() ) );
     reply->set_ready( ready );
-    reply->set_has_other_sessions( ServerApplication::instance()->hasActiveSessions() );
+    reply->set_has_other_sessions( GrpcServerApplication::instance()->hasActiveSessions() );
 
     return grpc::Status::OK;
 }
 
-grpc::Status AppService::CreateSession( grpc::ServerContext* context, const SessionParameters* request, SessionMessage* reply )
+grpc::Status
+    GrpcAppService::CreateSession( grpc::ServerContext* context, const SessionParameters* request, SessionMessage* reply )
 {
     CAFFA_DEBUG( "Received create session request from " << context->peer() );
 
     try
     {
-        auto session = ServerApplication::instance()->createSession( caffa::Session::typeFromUint( request->type() ) );
+        auto session = GrpcServerApplication::instance()->createSession( caffa::Session::typeFromUint( request->type() ) );
         if ( !session )
         {
             throw std::runtime_error( "Failed to create session" );
@@ -115,10 +117,11 @@ grpc::Status AppService::CreateSession( grpc::ServerContext* context, const Sess
     return grpc::Status::OK;
 }
 
-grpc::Status AppService::KeepSessionAlive( grpc::ServerContext* context, const SessionMessage* request, SessionMessage* reply )
+grpc::Status
+    GrpcAppService::KeepSessionAlive( grpc::ServerContext* context, const SessionMessage* request, SessionMessage* reply )
 {
     CAFFA_TRACE( "Received session keep-alive from " << request->uuid() << " from " << context->peer() );
-    auto session = ServerApplication::instance()->getExistingSession( request->uuid() );
+    auto session = GrpcServerApplication::instance()->getExistingSession( request->uuid() );
     if ( session )
     {
         try
@@ -139,10 +142,10 @@ grpc::Status AppService::KeepSessionAlive( grpc::ServerContext* context, const S
     return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->uuid() + "' does not exist or has expired!" );
 }
 
-grpc::Status AppService::CheckSession( grpc::ServerContext* context, const SessionMessage* request, SessionMessage* reply )
+grpc::Status GrpcAppService::CheckSession( grpc::ServerContext* context, const SessionMessage* request, SessionMessage* reply )
 {
     CAFFA_TRACE( "Received session check from " << request->uuid() << " from " << context->peer() );
-    auto session = ServerApplication::instance()->getExistingSession( request->uuid() );
+    auto session = GrpcServerApplication::instance()->getExistingSession( request->uuid() );
     if ( session )
     {
         CAFFA_ASSERT( session->uuid() == request->uuid() );
@@ -154,16 +157,18 @@ grpc::Status AppService::CheckSession( grpc::ServerContext* context, const Sessi
     return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->uuid() + "' does not exist or has expired!" );
 }
 
-grpc::Status AppService::ChangeSession( grpc::ServerContext* context, const SessionMessage* request, SessionMessage* reply )
+grpc::Status
+    GrpcAppService::ChangeSession( grpc::ServerContext* context, const SessionMessage* request, SessionMessage* reply )
 {
     CAFFA_TRACE( "Received session check from " << request->uuid() << " from " << context->peer() );
-    auto session = ServerApplication::instance()->getExistingSession( request->uuid() );
+    auto session = GrpcServerApplication::instance()->getExistingSession( request->uuid() );
     if ( session )
     {
         CAFFA_ASSERT( session->uuid() == request->uuid() );
         try
         {
-            ServerApplication::instance()->changeSession( session.get(), caffa::Session::typeFromUint( request->type() ) );
+            GrpcServerApplication::instance()->changeSession( session.get(),
+                                                              caffa::Session::typeFromUint( request->type() ) );
             reply->set_uuid( request->uuid() );
             reply->set_type( static_cast<caffa::rpc::SessionType>( session->type() ) );
             return grpc::Status::OK;
@@ -177,13 +182,13 @@ grpc::Status AppService::ChangeSession( grpc::ServerContext* context, const Sess
     return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->uuid() + "' does not exist or has expired!" );
 }
 
-grpc::Status AppService::DestroySession( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply )
+grpc::Status GrpcAppService::DestroySession( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply )
 {
     CAFFA_DEBUG( "Received destroy session request for " << request->uuid() << " from " << context->peer() );
 
     try
     {
-        ServerApplication::instance()->destroySession( request->uuid() );
+        GrpcServerApplication::instance()->destroySession( request->uuid() );
     }
     catch ( const std::exception& e )
     {
@@ -196,20 +201,24 @@ grpc::Status AppService::DestroySession( grpc::ServerContext* context, const Ses
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<AbstractCallback*> AppService::createCallbacks()
+std::vector<AbstractGrpcCallback*> GrpcAppService::createCallbacks()
 {
-    typedef AppService Self;
+    typedef GrpcAppService Self;
     return {
-        new ServiceCallback<Self, SessionMessage, NullMessage>( this, &Self::PerformQuit, &Self::RequestQuit ),
-        new ServiceCallback<Self, NullMessage, AppInfoReply>( this, &Self::PerformGetAppInfo, &Self::RequestGetAppInfo ),
-        new ServiceCallback<Self, NullMessage, NullMessage>( this, &Self::PerformPing, &Self::RequestPing ),
-        new ServiceCallback<Self, SessionParameters, ReadyMessage>( this, &Self::ReadyForSession, &Self::RequestReadyForSession ),
-        new ServiceCallback<Self, SessionParameters, SessionMessage>( this, &Self::CreateSession, &Self::RequestCreateSession ),
-        new ServiceCallback<Self, SessionMessage, SessionMessage>( this,
-                                                                   &Self::KeepSessionAlive,
-                                                                   &Self::RequestKeepSessionAlive ),
-        new ServiceCallback<Self, SessionMessage, SessionMessage>( this, &Self::CheckSession, &Self::RequestCheckSession ),
-        new ServiceCallback<Self, SessionMessage, SessionMessage>( this, &Self::ChangeSession, &Self::RequestChangeSession ),
-        new ServiceCallback<Self, SessionMessage, NullMessage>( this, &Self::DestroySession, &Self::RequestDestroySession ),
+        new GrpcServiceCallback<Self, SessionMessage, NullMessage>( this, &Self::PerformQuit, &Self::RequestQuit ),
+        new GrpcServiceCallback<Self, NullMessage, AppInfoReply>( this, &Self::PerformGetAppInfo, &Self::RequestGetAppInfo ),
+        new GrpcServiceCallback<Self, NullMessage, NullMessage>( this, &Self::PerformPing, &Self::RequestPing ),
+        new GrpcServiceCallback<Self, SessionParameters, ReadyMessage>( this,
+                                                                        &Self::ReadyForSession,
+                                                                        &Self::RequestReadyForSession ),
+        new GrpcServiceCallback<Self, SessionParameters, SessionMessage>( this,
+                                                                          &Self::CreateSession,
+                                                                          &Self::RequestCreateSession ),
+        new GrpcServiceCallback<Self, SessionMessage, SessionMessage>( this,
+                                                                       &Self::KeepSessionAlive,
+                                                                       &Self::RequestKeepSessionAlive ),
+        new GrpcServiceCallback<Self, SessionMessage, SessionMessage>( this, &Self::CheckSession, &Self::RequestCheckSession ),
+        new GrpcServiceCallback<Self, SessionMessage, SessionMessage>( this, &Self::ChangeSession, &Self::RequestChangeSession ),
+        new GrpcServiceCallback<Self, SessionMessage, NullMessage>( this, &Self::DestroySession, &Self::RequestDestroySession ),
     };
 }

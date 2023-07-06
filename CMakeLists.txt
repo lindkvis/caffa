@@ -62,6 +62,7 @@ add_subdirectory(ThirdParty/caffa-base)
 
 # libraries
 add_subdirectory(Core)
+add_subdirectory(RpcBase)
 
 if(CAFFA_GRPC_INTERFACE)
   add_subdirectory(GrpcInterface)

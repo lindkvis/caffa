@@ -30,13 +30,13 @@
 
 namespace caffa::rpc
 {
-class AbstractCallback;
+class AbstractGrpcCallback;
 class Version;
 
 /**
  * Implementation of the App.proto-service
  */
-class AppService : public ServiceInterface, public App::AsyncService
+class GrpcAppService : public GrpcServiceInterface, public App::AsyncService
 {
 public:
     grpc::Status PerformQuit( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply );
@@ -52,6 +52,6 @@ public:
     grpc::Status ChangeSession( grpc::ServerContext* context, const SessionMessage* request, SessionMessage* reply ) override;
     grpc::Status DestroySession( grpc::ServerContext* context, const SessionMessage* request, NullMessage* reply ) override;
 
-    std::vector<AbstractCallback*> createCallbacks() override;
+    std::vector<AbstractGrpcCallback*> createCallbacks() override;
 };
 } // namespace caffa::rpc

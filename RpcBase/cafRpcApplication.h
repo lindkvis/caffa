@@ -1,7 +1,7 @@
 // ##################################################################################################
 //
 //    Caffa
-//    Copyright (C) 2023- Kontur AS
+//    Copyright (C) 2021- 3d Radar AS
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify
@@ -16,29 +16,22 @@
 //    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
 //    for more details.
 //
-// ##################################################################################################
 #pragma once
 
-#include "cafGrpcClient.h"
-#include "cafMethodHandle.h"
+#include "cafApplication.h"
+
+#include <memory>
 
 namespace caffa::rpc
 {
-class MethodAccessor : public caffa::MethodAccessorInterface
+class Application : public caffa::Application
 {
 public:
-    MethodAccessor( const Client*              client,
-                    const caffa::ObjectHandle* selfHandle,
-                    caffa::MethodHandle*       methodHandle,
-                    caffa::ObjectFactory*      objectFactory )
-        : MethodAccessorInterface( selfHandle, methodHandle, objectFactory )
-        , m_client( client )
-    {
-    }
+    Application( const unsigned int& capabilities );
+    Application( const AppInfo::AppCapability& capability );
 
-    std::string execute( const std::string& jsonMethod ) const { return m_client->execute( m_selfHandle, jsonMethod ); }
+    static Application* instance();
 
-private:
-    const Client* m_client;
+    static std::string readKeyAndCertificate( const std::string& path );
 };
 } // namespace caffa::rpc

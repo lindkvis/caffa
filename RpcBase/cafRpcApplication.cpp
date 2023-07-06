@@ -1,7 +1,7 @@
 // ##################################################################################################
 //
 //    Caffa
-//    Copyright (C) 2021- 3D-Radar AS
+//    Copyright (C) 2021- 3d Radar AS
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify
@@ -16,27 +16,39 @@
 //    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
 //    for more details.
 //
-#pragma once
-
 #include "cafRpcApplication.h"
 
-#include <memory>
-#include <string>
+#include "cafLogger.h"
 
-namespace caffa::rpc
+#include <fstream>
+#include <sstream>
+
+using namespace caffa::rpc;
+
+Application::Application( const unsigned int& capabilities )
+    : caffa::Application( capabilities )
 {
-class GrpcClient;
+}
 
-class GrpcClientApplication : public Application
+Application::Application( const AppInfo::AppCapability& capability )
+    : caffa::Application( capability )
 {
-public:
-    GrpcClientApplication( const std::string& hostname, int portNumber );
-    static GrpcClientApplication* instance();
+}
 
-    GrpcClient*       client();
-    const GrpcClient* client() const;
+Application* Application::instance()
+{
+    caffa::Application* appInstance = caffa::Application::instance();
+    return dynamic_cast<Application*>( appInstance );
+}
 
-private:
-    std::unique_ptr<GrpcClient> m_client;
-};
-} // namespace caffa::rpc
+std::string Application::readKeyAndCertificate( const std::string& path )
+{
+    std::ifstream stream( path );
+    if ( !stream.good() )
+    {
+        CAFFA_CRITICAL( "Failed to open file: " << path );
+    }
+    std::stringstream buffer;
+    buffer << stream.rdbuf();
+    return buffer.str();
+}

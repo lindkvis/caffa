@@ -36,9 +36,9 @@
 
 #include "cafGrpcServer.h"
 
-#include "cafGrpcApplication.h"
 #include "cafGrpcCallbacks.h"
 #include "cafGrpcServiceInterface.h"
+#include "cafRpcApplication.h"
 
 #include "cafAssert.h"
 #include "cafLogger.h"
@@ -68,13 +68,13 @@ namespace caffa::rpc
 // The GRPC server implementation
 //
 //==================================================================================================
-class ServerImpl
+class GrpcServerImpl
 {
 public:
-    ServerImpl( int                portNumber /* = 50000 */,
-                const std::string& serverCertFile /* = ""*/,
-                const std::string& serverKeyFile /* = ""*/,
-                const std::string& caCertFile /* = ""*/ )
+    GrpcServerImpl( int                portNumber /* = 50000 */,
+                    const std::string& serverCertFile /* = ""*/,
+                    const std::string& serverKeyFile /* = ""*/,
+                    const std::string& caCertFile /* = ""*/ )
         : m_portNumber( portNumber )
         , m_serverCertFile( serverCertFile )
         , m_serverKeyFile( serverKeyFile )
@@ -83,11 +83,11 @@ public:
     {
     }
 
-    ~ServerImpl() {}
+    ~GrpcServerImpl() {}
 
     void run()
     {
-        m_thread = std::thread( &ServerImpl::initializeAndWaitForNextRequest, this );
+        m_thread = std::thread( &GrpcServerImpl::initializeAndWaitForNextRequest, this );
         m_thread.join();
         CAFFA_TRACE( "Request handling thread joined" );
 
@@ -172,8 +172,8 @@ public:
 
         for ( auto key : ServiceFactory::instance()->allKeys() )
         {
-            std::shared_ptr<ServiceInterface> service( ServiceFactory::instance()->create( key ) );
-            auto                              grpcService = dynamic_cast<grpc::Service*>( service.get() );
+            std::shared_ptr<GrpcServiceInterface> service( ServiceFactory::instance()->create( key ) );
+            auto                                  grpcService = dynamic_cast<grpc::Service*>( service.get() );
             CAFFA_ASSERT( grpcService );
             builder.RegisterService( grpcService );
             m_services.push_back( service );
@@ -212,7 +212,7 @@ private:
         CAFFA_TRACE( "Waiting for requests" );
         while ( m_completionQueue->Next( &tag, &ok ) )
         {
-            AbstractCallback* method = static_cast<AbstractCallback*>( tag );
+            AbstractGrpcCallback* method = static_cast<AbstractGrpcCallback*>( tag );
             if ( ok )
             {
                 process( method );
@@ -228,22 +228,22 @@ private:
         CAFFA_TRACE( "Request handler quitting" );
     }
 
-    void process( AbstractCallback* method )
+    void process( AbstractGrpcCallback* method )
     {
-        if ( method->callState() == AbstractCallback::CREATE )
+        if ( method->callState() == AbstractGrpcCallback::CREATE )
         {
             CAFFA_TRACE( "Create request handler: " << method->name() );
             method->createRequestHandler( m_completionQueue.get() );
             CAFFA_TRACE( "Request handler created" );
         }
-        else if ( method->callState() == AbstractCallback::PROCESS_REQUEST )
+        else if ( method->callState() == AbstractGrpcCallback::PROCESS_REQUEST )
         {
             CAFFA_TRACE( "Processing request: " << method->name() );
             method->onProcessRequest();
         }
         else
         {
-            CAFFA_ASSERT( method->callState() == AbstractCallback::FINISH_REQUEST );
+            CAFFA_ASSERT( method->callState() == AbstractGrpcCallback::FINISH_REQUEST );
             CAFFA_TRACE( "Finishing request: " << method->name() );
             method->onFinishRequest();
             if ( !quitting() )
@@ -260,11 +260,11 @@ private:
     std::string m_serverKeyFile;
     std::string m_caCertFile;
 
-    std::unique_ptr<grpc::ServerCompletionQueue> m_completionQueue;
-    std::unique_ptr<grpc::Server>                m_server;
-    std::list<std::shared_ptr<ServiceInterface>> m_services;
-    mutable std::mutex                           m_appStateMutex;
-    std::thread                                  m_thread;
+    std::unique_ptr<grpc::ServerCompletionQueue>     m_completionQueue;
+    std::unique_ptr<grpc::Server>                    m_server;
+    std::list<std::shared_ptr<GrpcServiceInterface>> m_services;
+    mutable std::mutex                               m_appStateMutex;
+    std::thread                                      m_thread;
 
     bool m_receivedQuitRequest;
 };
@@ -272,18 +272,18 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Server::Server( int                portNumber /* = 50000 */,
-                const std::string& serverCertFile /* = ""*/,
-                const std::string& serverKeyFile /* = ""*/,
-                const std::string& caCertFile /* = ""*/ )
+GrpcServer::GrpcServer( int                portNumber /* = 50000 */,
+                        const std::string& serverCertFile /* = ""*/,
+                        const std::string& serverKeyFile /* = ""*/,
+                        const std::string& caCertFile /* = ""*/ )
 {
-    m_serverImpl = new ServerImpl( portNumber, serverCertFile, serverKeyFile, caCertFile );
+    m_serverImpl = new GrpcServerImpl( portNumber, serverCertFile, serverKeyFile, caCertFile );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Server::~Server()
+GrpcServer::~GrpcServer()
 {
     delete m_serverImpl;
 }
@@ -291,7 +291,7 @@ Server::~Server()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int Server::port() const
+int GrpcServer::port() const
 {
     if ( m_serverImpl ) return m_serverImpl->port();
 
@@ -301,7 +301,7 @@ int Server::port() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Server::running() const
+bool GrpcServer::running() const
 {
     if ( m_serverImpl ) return m_serverImpl->running();
 
@@ -311,7 +311,7 @@ bool Server::running() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Server::run()
+void GrpcServer::run()
 {
     m_serverImpl->run();
 }
@@ -319,7 +319,7 @@ void Server::run()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Server::initialize()
+void GrpcServer::initialize()
 {
     m_serverImpl->initialize();
 }
@@ -327,7 +327,7 @@ void Server::initialize()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Server::quit()
+void GrpcServer::quit()
 {
     if ( m_serverImpl ) m_serverImpl->quit();
 }
@@ -335,7 +335,7 @@ void Server::quit()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Server::cleanup()
+void GrpcServer::cleanup()
 {
     if ( m_serverImpl ) m_serverImpl->cleanup();
 }
@@ -343,7 +343,7 @@ void Server::cleanup()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Server::quitting() const
+bool GrpcServer::quitting() const
 {
     if ( m_serverImpl ) return m_serverImpl->quitting();
 

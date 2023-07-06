@@ -19,15 +19,14 @@
 #pragma once
 
 #include "cafChildArrayFieldAccessor.h"
-#include "cafGrpcClient.h"
-#include "cafGrpcException.h"
+#include "cafRpcClient.h"
 
 namespace caffa::rpc
 {
-class GrpcChildArrayFieldAccessor : public caffa::ChildArrayFieldAccessor
+class ChildArrayFieldAccessor : public caffa::ChildArrayFieldAccessor
 {
 public:
-    GrpcChildArrayFieldAccessor( Client* client, caffa::FieldHandle* fieldHandle )
+    ChildArrayFieldAccessor( Client* client, caffa::FieldHandle* fieldHandle )
         : caffa::ChildArrayFieldAccessor( fieldHandle )
         , m_client( client )
     {

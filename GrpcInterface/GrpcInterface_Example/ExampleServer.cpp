@@ -40,11 +40,11 @@
 #ifndef CAFFA_VERSION_PATCH
 #define CAFFA_VERSION_PATCH -3
 #endif
-class ServerApp : public caffa::rpc::ServerApplication
+class ServerApp : public caffa::rpc::GrpcServerApplication
 {
 public:
     ServerApp( int port )
-        : caffa::rpc::ServerApplication( port )
+        : caffa::rpc::GrpcServerApplication( port )
         , m_demoDocument( std::make_unique<DemoDocument>() )
     {
     }
@@ -176,13 +176,6 @@ int main( int argc, char** argv )
 
     int  portNumber = argc >= 2 ? std::atoi( argv[1] ) : 50000;
     auto serverApp  = std::make_unique<ServerApp>( portNumber );
-
-    if ( argc >= 3 )
-    {
-        int packageByteSize = std::atoi( argv[2] );
-        serverApp->setPackageByteSize( (size_t)packageByteSize );
-        CAFFA_DEBUG( "Using package size " << packageByteSize << "B" );
-    }
 
     CAFFA_INFO( "Launching Server v" << serverApp->majorVersion() << "." << serverApp->minorVersion() << "."
                                      << serverApp->patchVersion() << " listening on port " << portNumber );

@@ -1,6 +1,6 @@
 // ##################################################################################################
 //
-//    Caffa - File copied and altered from cafGrpcClientPassByRefObjectFactory.h
+//    Caffa - File copied and altered from cafClientPassByRefObjectFactory.h
 //
 //    Copyright (C) 2011- Ceetron AS (Changes up until April 2021)
 //    Copyright (C) 2021- Kontur AS (Changes from April 2021 and onwards)
@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "cafGrpcClientPassByRefObjectFactory.h"
+#include "cafRpcClientPassByRefObjectFactory.h"
 
 namespace caffa::rpc
 {
@@ -37,15 +37,15 @@ class ClientPassByValueObjectFactory : public ObjectFactory
 public:
     static ClientPassByValueObjectFactory* instance();
 
-    std::string name() const override { return "gRPC Client Pass By Value ObjectFactory"; }
+    std::string name() const override { return "Client Pass By Value ObjectFactory"; }
 
-    void setGrpcClient( Client* client );
+    void setClient( Client* client );
 
 private:
     std::shared_ptr<ObjectHandle> doCreate( const std::string_view& classKeyword ) override;
 
     ClientPassByValueObjectFactory()
-        : m_grpcClient( nullptr )
+        : m_client( nullptr )
     {
     }
     ~ClientPassByValueObjectFactory() override = default;
@@ -53,7 +53,7 @@ private:
     void applyAccessorToMethod( caffa::ObjectHandle* objectHandle, caffa::MethodHandle* methodHandle );
 
 private:
-    Client* m_grpcClient;
+    Client* m_client;
 };
 
 } // namespace caffa::rpc

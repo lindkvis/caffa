@@ -35,8 +35,8 @@
 #include "cafGrpcObjectService.h"
 
 #include "cafGrpcCallbacks.h"
-#include "cafGrpcClientPassByRefObjectFactory.h"
 #include "cafGrpcServerApplication.h"
+#include "cafRpcClientPassByRefObjectFactory.h"
 #include "cafSession.h"
 
 #include "cafDocument.h"
@@ -60,18 +60,18 @@ namespace caffa::rpc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const DocumentRequest* request, RpcObject* reply )
+grpc::Status GrpcObjectService::GetDocument( grpc::ServerContext* context, const DocumentRequest* request, RpcObject* reply )
 {
     CAFFA_TRACE( "Got document request" );
 
-    auto session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
+    auto session = GrpcServerApplication::instance()->getExistingSession( request->session().uuid() );
     if ( !session )
     {
         CAFFA_ERROR( "Session '" << request->session().uuid() << "' is not valid" );
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
     }
 
-    auto document = ServerApplication::instance()->document( request->document_id(), session.get() );
+    auto document = GrpcServerApplication::instance()->document( request->document_id(), session.get() );
     if ( document )
     {
         CAFFA_TRACE( "Found document with UUID: " << document->uuid() << " and will copy i tot gRPC data structure" );
@@ -85,16 +85,17 @@ grpc::Status ObjectService::GetDocument( grpc::ServerContext* context, const Doc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status ObjectService::ListDocuments( grpc::ServerContext* context, const SessionMessage* request, DocumentList* reply )
+grpc::Status
+    GrpcObjectService::ListDocuments( grpc::ServerContext* context, const SessionMessage* request, DocumentList* reply )
 {
     CAFFA_TRACE( "Got document request" );
-    auto session = ServerApplication::instance()->getExistingSession( request->uuid() );
+    auto session = GrpcServerApplication::instance()->getExistingSession( request->uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->uuid() + "' is not valid" );
     }
 
-    auto documents = ServerApplication::instance()->documents( session.get() );
+    auto documents = GrpcServerApplication::instance()->documents( session.get() );
     CAFFA_TRACE( "Found " << documents.size() << " document" );
     for ( auto document : documents )
     {
@@ -106,12 +107,12 @@ grpc::Status ObjectService::ListDocuments( grpc::ServerContext* context, const S
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, RpcObject* reply )
+grpc::Status GrpcObjectService::ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, RpcObject* reply )
 {
     const RpcObject& self = request->self_object();
     CAFFA_TRACE( "Execute method: " << request->method().json() );
 
-    auto session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
+    auto session = GrpcServerApplication::instance()->getExistingSession( request->session().uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
@@ -154,9 +155,9 @@ grpc::Status ObjectService::ExecuteMethod( grpc::ServerContext* context, const M
 ///
 //--------------------------------------------------------------------------------------------------
 grpc::Status
-    ObjectService::ListMethods( grpc::ServerContext* context, const ListMethodsRequest* request, RpcObjectList* reply )
+    GrpcObjectService::ListMethods( grpc::ServerContext* context, const ListMethodsRequest* request, RpcObjectList* reply )
 {
-    auto session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
+    auto session = GrpcServerApplication::instance()->getExistingSession( request->session().uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
@@ -183,7 +184,7 @@ grpc::Status
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caffa::Object* ObjectService::findCafObjectFromRpcObject( const caffa::Session* session, const RpcObject& rpcObject )
+caffa::Object* GrpcObjectService::findCafObjectFromRpcObject( const caffa::Session* session, const RpcObject& rpcObject )
 {
     CAFFA_TRACE( "Looking for object from json: " << rpcObject.json() );
     auto [classKeyword, objectUuid] = caffa::JsonSerializer().readClassKeywordAndUUIDFromObjectString( rpcObject.json() );
@@ -193,9 +194,9 @@ caffa::Object* ObjectService::findCafObjectFromRpcObject( const caffa::Session* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const caffa::Session* session,
-                                                                  const std::string&    scriptClassName,
-                                                                  const std::string&    objectUuid )
+caffa::Object* GrpcObjectService::findCafObjectFromScriptNameAndUuid( const caffa::Session* session,
+                                                                      const std::string&    scriptClassName,
+                                                                      const std::string&    objectUuid )
 {
     CAFFA_TRACE( "Looking for caf object with class name '" << scriptClassName << "' and UUID '" << objectUuid << "'" );
 
@@ -203,7 +204,7 @@ caffa::Object* ObjectService::findCafObjectFromScriptNameAndUuid( const caffa::S
         [scriptClassName]( const caffa::ObjectHandle* objectHandle ) -> bool
         { return ObjectHandle::matchesClassKeyword( scriptClassName, objectHandle->classInheritanceStack() ); } );
 
-    for ( auto doc : ServerApplication::instance()->documents( session ) )
+    for ( auto doc : GrpcServerApplication::instance()->documents( session ) )
     {
         doc->accept( &collector );
     }
@@ -245,7 +246,7 @@ static bool fieldIsScriptWritable( const caffa::FieldHandle* fieldHandle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectService::copyProjectSelfReferenceFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination )
+void GrpcObjectService::copyProjectSelfReferenceFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination )
 {
     CAFFA_ASSERT( source && destination );
     CAFFA_ASSERT( !source->uuid().empty() );
@@ -264,7 +265,7 @@ void ObjectService::copyProjectSelfReferenceFromCafToRpc( const caffa::ObjectHan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectService::copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination )
+void GrpcObjectService::copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination )
 {
     CAFFA_ASSERT( source && destination );
     CAFFA_ASSERT( !source->uuid().empty() );
@@ -281,9 +282,9 @@ void ObjectService::copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* so
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectService::copyProjectObjectFromRpcToCaf( const RpcObject*      source,
-                                                   caffa::ObjectHandle*  destination,
-                                                   caffa::ObjectFactory* objectFactory )
+void GrpcObjectService::copyProjectObjectFromRpcToCaf( const RpcObject*      source,
+                                                       caffa::ObjectHandle*  destination,
+                                                       caffa::ObjectFactory* objectFactory )
 {
     CAFFA_ASSERT( source && destination );
 
@@ -297,7 +298,7 @@ void ObjectService::copyProjectObjectFromRpcToCaf( const RpcObject*      source,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectService::copyResultOrParameterObjectFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination )
+void GrpcObjectService::copyResultOrParameterObjectFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination )
 {
     CAFFA_ASSERT( source && destination );
 
@@ -308,7 +309,7 @@ void ObjectService::copyResultOrParameterObjectFromCafToRpc( const caffa::Object
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectService::copyResultOrParameterObjectFromRpcToCaf( const RpcObject* source, caffa::ObjectHandle* destination )
+void GrpcObjectService::copyResultOrParameterObjectFromRpcToCaf( const RpcObject* source, caffa::ObjectHandle* destination )
 {
     CAFFA_ASSERT( source );
     caffa::JsonSerializer().readObjectFromString( destination, source->json() );
@@ -317,8 +318,8 @@ void ObjectService::copyResultOrParameterObjectFromRpcToCaf( const RpcObject* so
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( const RpcObject*  source,
-                                                                            const Serializer& serializer )
+std::shared_ptr<caffa::ObjectHandle> GrpcObjectService::createCafObjectFromRpc( const RpcObject*  source,
+                                                                                const Serializer& serializer )
 {
     CAFFA_ASSERT( source );
 
@@ -329,13 +330,15 @@ std::shared_ptr<caffa::ObjectHandle> ObjectService::createCafObjectFromRpc( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<AbstractCallback*> ObjectService::createCallbacks()
+std::vector<AbstractGrpcCallback*> GrpcObjectService::createCallbacks()
 {
-    typedef ObjectService Self;
-    return { new ServiceCallback<Self, DocumentRequest, RpcObject>( this, &Self::GetDocument, &Self::RequestGetDocument ),
-             new ServiceCallback<Self, SessionMessage, DocumentList>( this, &Self::ListDocuments, &Self::RequestListDocuments ),
-             new ServiceCallback<Self, MethodRequest, RpcObject>( this, &Self::ExecuteMethod, &Self::RequestExecuteMethod ),
-             new ServiceCallback<Self, ListMethodsRequest, RpcObjectList>( this, &Self::ListMethods, &Self::RequestListMethods )
+    typedef GrpcObjectService Self;
+    return { new GrpcServiceCallback<Self, DocumentRequest, RpcObject>( this, &Self::GetDocument, &Self::RequestGetDocument ),
+             new GrpcServiceCallback<Self, SessionMessage, DocumentList>( this,
+                                                                          &Self::ListDocuments,
+                                                                          &Self::RequestListDocuments ),
+             new GrpcServiceCallback<Self, MethodRequest, RpcObject>( this, &Self::ExecuteMethod, &Self::RequestExecuteMethod ),
+             new GrpcServiceCallback<Self, ListMethodsRequest, RpcObjectList>( this, &Self::ListMethods, &Self::RequestListMethods )
 
     };
 }
