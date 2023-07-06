@@ -64,22 +64,22 @@ public:
     grpc::Status ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, RpcObject* reply ) override;
     grpc::Status ListMethods( grpc::ServerContext* context, const ListMethodsRequest* self, RpcObjectList* reply ) override;
 
-    static caffa::Object* findCafObjectFromRpcObject( const caffa::Session* session, const RpcObject& rpcObject );
+    static caffa::Object* findCafObjectFromJsonObject( const caffa::Session* session, const std::string& jsonObject );
     static caffa::Object* findCafObjectFromScriptNameAndUuid( const caffa::Session* session,
                                                               const std::string&    scriptClassName,
                                                               const std::string&    objectUuid );
 
-    static void copyProjectSelfReferenceFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination );
-    static void copyProjectObjectFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination );
-    static void copyProjectObjectFromRpcToCaf( const RpcObject*      source,
-                                               caffa::ObjectHandle*  destination,
-                                               caffa::ObjectFactory* objectFactory );
+    static std::string createJsonSelfReferenceFromCaf( const caffa::ObjectHandle* source );
+    static std::string createJsonFromProjectObject( const caffa::ObjectHandle* source );
+    static void        copyProjectObjectFromJsonToCaf( const std::string&    jsonSource,
+                                                       caffa::ObjectHandle*  destination,
+                                                       caffa::ObjectFactory* objectFactory );
 
-    static void copyResultOrParameterObjectFromCafToRpc( const caffa::ObjectHandle* source, RpcObject* destination );
-    static void copyResultOrParameterObjectFromRpcToCaf( const RpcObject* source, caffa::ObjectHandle* destination );
+    static std::string createJsonFromResultOrParameterObject( const caffa::ObjectHandle* source );
+    static void copyResultOrParameterObjectFromJsonToCaf( const std::string& jsonSource, caffa::ObjectHandle* destination );
 
-    static std::shared_ptr<caffa::ObjectHandle> createCafObjectFromRpc( const RpcObject*         source,
-                                                                        const caffa::Serializer& serializer );
+    static std::shared_ptr<caffa::ObjectHandle> createCafObjectFromJson( const std::string&       jsonSource,
+                                                                         const caffa::Serializer& serializer );
 
     std::vector<AbstractGrpcCallback*> createCallbacks() override;
 };
