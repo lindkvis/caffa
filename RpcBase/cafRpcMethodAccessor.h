@@ -1,7 +1,7 @@
 // ##################################################################################################
 //
 //    Caffa
-//    Copyright (C) Gaute Lindkvist
+//    Copyright (C) 2023- Kontur AS
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify
@@ -16,27 +16,29 @@
 //    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
 //    for more details.
 //
+// ##################################################################################################
 #pragma once
 
-#include <grpcpp/grpcpp.h>
-
-#include <stdexcept>
-#include <string>
+#include "cafMethodHandle.h"
+#include "cafRpcClient.h"
 
 namespace caffa::rpc
 {
-class GrpcException : public std::runtime_error
+class MethodAccessor : public caffa::MethodAccessorInterface
 {
 public:
-    GrpcException( grpc::Status status )
-        : std::runtime_error( status.error_message() )
-        , m_status( status )
+    MethodAccessor( const Client*              client,
+                    const caffa::ObjectHandle* selfHandle,
+                    caffa::MethodHandle*       methodHandle,
+                    caffa::ObjectFactory*      objectFactory )
+        : MethodAccessorInterface( selfHandle, methodHandle, objectFactory )
+        , m_client( client )
     {
     }
 
-    const grpc::Status& status() const { return m_status; }
+    std::string execute( const std::string& jsonMethod ) const { return m_client->execute( m_selfHandle, jsonMethod ); }
 
 private:
-    grpc::Status m_status;
+    const Client* m_client;
 };
 } // namespace caffa::rpc

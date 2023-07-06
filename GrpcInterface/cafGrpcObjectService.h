@@ -55,7 +55,7 @@ class NullMessage;
 // gRPC-service answering request searching for Objects in property tree
 //
 //==================================================================================================
-class ObjectService final : public ObjectAccess::AsyncService, public ServiceInterface
+class GrpcObjectService final : public ObjectAccess::AsyncService, public GrpcServiceInterface
 {
 public:
     grpc::Status GetDocument( grpc::ServerContext* context, const DocumentRequest* request, RpcObject* reply ) override;
@@ -81,7 +81,7 @@ public:
     static std::shared_ptr<caffa::ObjectHandle> createCafObjectFromRpc( const RpcObject*         source,
                                                                         const caffa::Serializer& serializer );
 
-    std::vector<AbstractCallback*> createCallbacks() override;
+    std::vector<AbstractGrpcCallback*> createCallbacks() override;
 };
 
 } // namespace caffa::rpc

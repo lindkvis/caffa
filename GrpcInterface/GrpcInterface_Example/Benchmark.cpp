@@ -24,11 +24,11 @@
 #include <cstdlib>
 #include <iostream>
 
-class ClientApp : public caffa::rpc::ClientApplication
+class ClientApp : public caffa::rpc::GrpcClientApplication
 {
 public:
     ClientApp( const std::string& hostname, int port )
-        : caffa::rpc::ClientApplication( hostname, port )
+        : caffa::rpc::GrpcClientApplication( hostname, port )
     {
     }
     ~ClientApp() = default;
@@ -64,13 +64,6 @@ int main( int argc, char** argv )
 
     auto clientApp = std::make_unique<ClientApp>( hostname, portNumber );
     std::cout << "Launching Client connecting to " << hostname << ":" << portNumber << std::endl;
-
-    if ( argc >= 4 )
-    {
-        int packageByteSize = std::atoi( argv[3] );
-        clientApp->setPackageByteSize( (size_t)packageByteSize );
-        std::cout << "Package size: " << packageByteSize << std::endl;
-    }
 
     auto client = clientApp->client();
     std::cout << "Getting document" << std::endl;

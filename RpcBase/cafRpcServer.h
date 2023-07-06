@@ -19,8 +19,6 @@
 //
 #pragma once
 
-#include "cafRpcServer.h"
-
 #include <iostream>
 #include <list>
 #include <memory>
@@ -28,37 +26,20 @@
 
 namespace caffa::rpc
 {
-class GrpcServerImpl;
-
-class GrpcServer : public Server
+class Server
 {
 public:
-    /**
-     * Constructor. Provide a path to a serverCertFile and serverKeyFile to enable SSL/TLS
-     * @param port Port number (default 50000)
-     * @param serverCertFile File path to a server certificate
-     * @param serverKeyFile File path to a server private key
-     */
-    GrpcServer( int                port           = 50000,
-                const std::string& serverCertFile = "",
-                const std::string& serverKeyFile  = "",
-                const std::string& caCertFile     = "" );
-    ~GrpcServer() override;
+    Server()          = default;
+    virtual ~Server() = default;
 
-    void run() override;
-    void quit() override;
-    bool quitting() const override;
+    virtual void run()            = 0;
+    virtual void quit()           = 0;
+    virtual bool quitting() const = 0;
 
-    int  port() const override;
-    bool running() const override;
+    virtual int  port() const    = 0;
+    virtual bool running() const = 0;
 
 private:
-    void initialize();
-    void cleanup();
-
-private:
-    GrpcServer( const GrpcServer& ) = delete;
-
-    GrpcServerImpl* m_serverImpl;
+    Server( const Server& ) = delete;
 };
 } // namespace caffa::rpc

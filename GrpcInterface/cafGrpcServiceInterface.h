@@ -22,17 +22,17 @@
 
 namespace caffa::rpc
 {
-class AbstractCallback;
+class AbstractGrpcCallback;
 
 /**
  * The base interface for all gRPC-services. Implement this to create a new service.
  */
-class ServiceInterface
+class GrpcServiceInterface
 {
 public:
-    virtual std::vector<AbstractCallback*> createCallbacks() = 0;
-    virtual ~ServiceInterface()                              = default;
+    virtual std::vector<AbstractGrpcCallback*> createCallbacks() = 0;
+    virtual ~GrpcServiceInterface()                              = default;
 };
 
-typedef caffa::Factory<ServiceInterface, size_t> ServiceFactory;
+typedef caffa::Factory<GrpcServiceInterface, size_t> ServiceFactory;
 } // namespace caffa::rpc

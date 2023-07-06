@@ -26,26 +26,26 @@ using namespace caffa::rpc;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ClientApplication::ClientApplication( const std::string& hostname, int portNumber )
+GrpcClientApplication::GrpcClientApplication( const std::string& hostname, int portNumber )
     : Application( { AppInfo::AppCapability::CLIENT } )
 
 {
-    m_client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR, hostname, portNumber );
+    m_client = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR, hostname, portNumber );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ClientApplication* ClientApplication::instance()
+GrpcClientApplication* GrpcClientApplication::instance()
 {
     Application* appInstance = Application::instance();
-    return dynamic_cast<ClientApplication*>( appInstance );
+    return dynamic_cast<GrpcClientApplication*>( appInstance );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Client* ClientApplication::client()
+GrpcClient* GrpcClientApplication::client()
 {
     return m_client.get();
 }
@@ -53,7 +53,7 @@ Client* ClientApplication::client()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const Client* ClientApplication::client() const
+const GrpcClient* GrpcClientApplication::client() const
 {
     return m_client.get();
 }

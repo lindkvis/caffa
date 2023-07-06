@@ -19,16 +19,15 @@
 #pragma once
 
 #include "cafChildFieldAccessor.h"
-#include "cafGrpcClient.h"
-#include "cafGrpcException.h"
 #include "cafJsonSerializer.h"
+#include "cafRpcClient.h"
 
 namespace caffa::rpc
 {
-class GrpcChildFieldAccessor : public caffa::ChildFieldAccessor
+class ChildFieldAccessor : public caffa::ChildFieldAccessor
 {
 public:
-    GrpcChildFieldAccessor( Client* client, caffa::FieldHandle* fieldHandle )
+    ChildFieldAccessor( Client* client, caffa::FieldHandle* fieldHandle )
         : caffa::ChildFieldAccessor( fieldHandle )
         , m_client( client )
     {

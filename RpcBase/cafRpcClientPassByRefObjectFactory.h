@@ -24,8 +24,8 @@
 #include "cafObjectFactory.h"
 
 #include "cafAssert.h"
-#include "cafGrpcClient.h"
-#include "cafGrpcDataFieldAccessor.h"
+#include "cafRpcClient.h"
+#include "cafRpcDataFieldAccessor.h"
 
 #include "cafPortableDataType.h"
 
@@ -53,7 +53,7 @@ public:
     std::unique_ptr<DataFieldAccessorInterface>
         create( Client* client, caffa::ObjectHandle* fieldOwner, const std::string& fieldName ) override
     {
-        return std::make_unique<GrpcDataFieldAccessor<DataType>>( client, fieldOwner, fieldName );
+        return std::make_unique<DataFieldAccessor<DataType>>( client, fieldOwner, fieldName );
     }
 };
 
@@ -69,7 +69,7 @@ public:
 
     std::string name() const override { return "gRPC Client Pass By Reference ObjectFactory"; }
 
-    void setGrpcClient( Client* client );
+    void setClient( Client* client );
     template <typename DataType>
     void registerBasicAccessorCreators()
     {
@@ -84,7 +84,7 @@ private:
     std::shared_ptr<ObjectHandle> doCreate( const std::string_view& classKeyword ) override;
 
     ClientPassByRefObjectFactory()
-        : m_grpcClient( nullptr )
+        : m_client( nullptr )
     {
         registerAllBasicAccessorCreators();
     }
@@ -98,7 +98,7 @@ private:
     void registerAllBasicAccessorCreators();
 
 private:
-    Client* m_grpcClient;
+    Client* m_client;
 
     // Map to store factory
     std::map<std::string, std::unique_ptr<AccessorCreatorBase>> m_accessorCreatorMap;

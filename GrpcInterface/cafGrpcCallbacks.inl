@@ -26,7 +26,7 @@
 
 namespace caffa::rpc
 {
-inline AbstractCallback::AbstractCallback()
+inline AbstractGrpcCallback::AbstractGrpcCallback()
     : m_state( CREATE )
     , m_status( grpc::Status::OK )
 {
@@ -35,7 +35,7 @@ inline AbstractCallback::AbstractCallback()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-AbstractCallback::CallState AbstractCallback::callState() const
+AbstractGrpcCallback::CallState AbstractGrpcCallback::callState() const
 {
     return m_state;
 }
@@ -43,7 +43,7 @@ AbstractCallback::CallState AbstractCallback::callState() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const grpc::Status& AbstractCallback::status() const
+const grpc::Status& AbstractGrpcCallback::status() const
 {
     return m_status;
 }
@@ -51,7 +51,7 @@ const grpc::Status& AbstractCallback::status() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-inline void AbstractCallback::setNextCallState( CallState state )
+inline void AbstractGrpcCallback::setNextCallState( CallState state )
 {
     m_state = state;
 }
@@ -60,7 +60,7 @@ inline void AbstractCallback::setNextCallState( CallState state )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename ServiceT, typename RequestT, typename ReplyT>
-ServiceCallback<ServiceT, RequestT, ReplyT>::ServiceCallback( ServiceT*      service,
+GrpcServiceCallback<ServiceT, RequestT, ReplyT>::GrpcServiceCallback( ServiceT*      service,
                                                               MethodImplT    methodImpl,
                                                               MethodRequestT methodRequest )
     : m_service( service )
@@ -73,7 +73,7 @@ ServiceCallback<ServiceT, RequestT, ReplyT>::ServiceCallback( ServiceT*      ser
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename ServiceT, typename RequestT, typename ReplyT>
-std::string ServiceCallback<ServiceT, RequestT, ReplyT>::name() const
+std::string GrpcServiceCallback<ServiceT, RequestT, ReplyT>::name() const
 {
     std::string        fullName;
     std::ostringstream ss;
@@ -86,7 +86,7 @@ std::string ServiceCallback<ServiceT, RequestT, ReplyT>::name() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename ServiceT, typename RequestT, typename ReplyT>
-const RequestT& ServiceCallback<ServiceT, RequestT, ReplyT>::request() const
+const RequestT& GrpcServiceCallback<ServiceT, RequestT, ReplyT>::request() const
 {
     return m_request;
 }
@@ -95,7 +95,7 @@ const RequestT& ServiceCallback<ServiceT, RequestT, ReplyT>::request() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename ServiceT, typename RequestT, typename ReplyT>
-ReplyT& ServiceCallback<ServiceT, RequestT, ReplyT>::reply()
+ReplyT& GrpcServiceCallback<ServiceT, RequestT, ReplyT>::reply()
 {
     return m_reply;
 }
@@ -104,34 +104,34 @@ ReplyT& ServiceCallback<ServiceT, RequestT, ReplyT>::reply()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename ServiceT, typename RequestT, typename ReplyT>
-AbstractCallback* ServiceCallback<ServiceT, RequestT, ReplyT>::emptyClone() const
+AbstractGrpcCallback* GrpcServiceCallback<ServiceT, RequestT, ReplyT>::emptyClone() const
 {
-    return new ServiceCallback<ServiceT, RequestT, ReplyT>( this->m_service, this->m_methodImpl, this->m_methodRequest );
+    return new GrpcServiceCallback<ServiceT, RequestT, ReplyT>( this->m_service, this->m_methodImpl, this->m_methodRequest );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename ServiceT, typename RequestT, typename ReplyT>
-void ServiceCallback<ServiceT, RequestT, ReplyT>::createRequestHandler( grpc::ServerCompletionQueue* completionQueue )
+void GrpcServiceCallback<ServiceT, RequestT, ReplyT>::createRequestHandler( grpc::ServerCompletionQueue* completionQueue )
 {
     // The Request-method is where the service gets registered to respond to a given request.
     m_methodRequest( *this->m_service, &m_context, &this->m_request, &m_responder, completionQueue, completionQueue, this );
     // Simple Service requests don't need initialisation, so proceed to process as soon as a request turns up.
-    this->setNextCallState( AbstractCallback::PROCESS_REQUEST );
+    this->setNextCallState( AbstractGrpcCallback::PROCESS_REQUEST );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename ServiceT, typename RequestT, typename ReplyT>
-void ServiceCallback<ServiceT, RequestT, ReplyT>::onProcessRequest()
+void GrpcServiceCallback<ServiceT, RequestT, ReplyT>::onProcessRequest()
 {
     // Call request handler method
     this->m_status = m_methodImpl( *this->m_service, &m_context, &this->m_request, &this->m_reply );
     // Simply Service requests are finished as soon as you've done any processing.
     // So next time we receive a new tag on the command queue we should proceed to finish.
-    this->setNextCallState( AbstractCallback::FINISH_REQUEST );
+    this->setNextCallState( AbstractGrpcCallback::FINISH_REQUEST );
     // Finish will push this callback back on the command queue (now with Finish as the call state).
     m_responder.Finish( this->m_reply, this->m_status, this );
 }

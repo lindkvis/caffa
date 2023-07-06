@@ -22,6 +22,7 @@
 #include "cafLogger.h"
 #include "cafNotNull.h"
 #include "cafPortableDataType.h"
+#include "cafRpcClient.h"
 #include "cafSession.h"
 
 #include <memory>
@@ -34,115 +35,72 @@ struct AppInfo;
 
 namespace caffa::rpc
 {
-class ClientImpl;
+class GrpcClientImpl;
 
-class Client
+class GrpcClient : public Client
 {
 public:
-    Client( caffa::Session::Type sessionType,
-            const std::string&   hostname,
-            int                  port           = 50000,
-            const std::string&   clientCertFile = "",
-            const std::string&   clientKeyFile  = "",
-            const std::string&   caCertFile     = "" );
-    virtual ~Client();
+    GrpcClient( caffa::Session::Type sessionType,
+                const std::string&   hostname,
+                int                  port           = 50000,
+                const std::string&   clientCertFile = "",
+                const std::string&   clientKeyFile  = "",
+                const std::string&   caCertFile     = "" );
+    ~GrpcClient() override;
 
-    caffa::AppInfo                                    appInfo() const;
-    std::shared_ptr<caffa::ObjectHandle>              document( const std::string& documentId ) const;
+    caffa::AppInfo                                    appInfo() const override;
+    std::shared_ptr<caffa::ObjectHandle>              document( const std::string& documentId ) const override;
     std::vector<std::shared_ptr<caffa::ObjectHandle>> documents() const;
-    std::string execute( caffa::not_null<const caffa::ObjectHandle*> selfObject, const std::string& jsonMethod ) const;
-    bool        stopServer();
-    void        sendKeepAlive();
+    std::string                                       execute( caffa::not_null<const caffa::ObjectHandle*> selfObject,
+                                                               const std::string&                          jsonMethod ) const override;
+    bool                                              stopServer() override;
+    void                                              sendKeepAlive() override;
 
     /**
      * @brief Check the session. Will return a session type (including possibly INVALID) if the session exists.
      * And throw an exception if it does not.
      * @return caffa::Session::Type
      */
-    caffa::Session::Type checkSession() const;
-    void                 changeSession( caffa::Session::Type newType );
-    void                 destroySession();
-    const std::string&   sessionUuid() const;
-    void                 startKeepAliveThread();
+    caffa::Session::Type checkSession() const override;
+    void                 changeSession( caffa::Session::Type newType ) override;
+    void                 destroySession() override;
+    const std::string&   sessionUuid() const override;
+    void                 startKeepAliveThread() override;
 
-    bool ping() const;
-
-    template <typename DataType>
-    void set( const caffa::ObjectHandle* objectHandle,
-              const std::string&         fieldName,
-              const DataType&            value,
-              uint32_t                   addressOffset = 0u );
-
-    template <typename DataType>
-    DataType get( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, uint32_t addressOffset = 0u ) const;
+    bool ping() const override;
 
     std::shared_ptr<caffa::ObjectHandle> getShallowCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
-                                                                      const std::string&         fieldName ) const;
+                                                                      const std::string& fieldName ) const override;
 
     std::shared_ptr<caffa::ObjectHandle> getDeepCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
-                                                                   const std::string&         fieldName ) const;
+                                                                   const std::string& fieldName ) const override;
 
     void deepCopyChildObjectFrom( const caffa::ObjectHandle* objectHandle,
                                   const std::string&         fieldName,
-                                  const caffa::ObjectHandle* childObject );
+                                  const caffa::ObjectHandle* childObject ) override;
 
     std::vector<std::shared_ptr<caffa::ObjectHandle>> getChildObjects( const caffa::ObjectHandle* objectHandle,
-                                                                       const std::string&         fieldName ) const;
+                                                                       const std::string& fieldName ) const override;
 
     void setChildObject( const caffa::ObjectHandle* objectHandle,
                          const std::string&         fieldName,
-                         const caffa::ObjectHandle* childObject );
+                         const caffa::ObjectHandle* childObject ) override;
 
-    void removeChildObject( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, size_t index );
+    void removeChildObject( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, size_t index ) override;
 
-    void clearChildObjects( const caffa::ObjectHandle* objectHandle, const std::string& fieldName );
+    void clearChildObjects( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) override;
 
     void insertChildObject( const caffa::ObjectHandle* objectHandle,
                             const std::string&         fieldName,
                             size_t                     index,
-                            const caffa::ObjectHandle* childObject );
+                            const caffa::ObjectHandle* childObject ) override;
 
 private:
-    void           setJson( const caffa::ObjectHandle* objectHandle,
-                            const std::string&         fieldName,
-                            const nlohmann::json&      value,
-                            uint32_t                   addressOffset );
-    nlohmann::json getJson( const caffa::ObjectHandle*, const std::string& fieldName, uint32_t addressOffset ) const;
+    void setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value ) override;
+    nlohmann::json getJson( const caffa::ObjectHandle*, const std::string& fieldName ) const override;
 
 private:
-    std::unique_ptr<ClientImpl> m_clientImpl;
+    std::unique_ptr<GrpcClientImpl> m_clientImpl;
 };
-
-//--------------------------------------------------------------------------------------------------
-/// Get a value through gRPC. Note the addressOffset is only relevant for register fields
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-DataType caffa::rpc::Client::get( const caffa::ObjectHandle* objectHandle,
-                                  const std::string&         fieldName,
-                                  uint32_t                   addressOffset ) const
-{
-    CAFFA_DEBUG( "Got object Handle: " << objectHandle->classKeyword() );
-    nlohmann::json jsonValue = getJson( objectHandle, fieldName, addressOffset );
-    CAFFA_TRACE( "Attempting to get a value of datatype " << caffa::PortableDataType<DataType>::name()
-                                                          << " from json value " << jsonValue );
-    if ( jsonValue.is_object() && jsonValue.contains( "value" ) )
-    {
-        return jsonValue["value"].get<DataType>();
-    }
-    return jsonValue.get<DataType>();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Set a value through gRPC. Note the addressOffset is only relevant for register fields
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle,
-                              const std::string&         fieldName,
-                              const DataType&            value,
-                              uint32_t                   addressOffset )
-{
-    nlohmann::json jsonValue = value;
-    setJson( objectHandle, fieldName, jsonValue, addressOffset );
-}
 
 } // namespace caffa::rpc

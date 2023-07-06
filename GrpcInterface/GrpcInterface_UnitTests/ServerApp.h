@@ -28,7 +28,7 @@
 #include <chrono>
 #include <stdexcept>
 
-class ServerApp : public caffa::rpc::ServerApplication
+class ServerApp : public caffa::rpc::GrpcServerApplication
 {
 public:
     static int         s_port;
@@ -42,7 +42,7 @@ public:
                const std::string& serverCertFile = "",
                const std::string& serverKeyFile  = "",
                const std::string& caCertFile     = "" )
-        : caffa::rpc::ServerApplication( port, serverCertFile, serverKeyFile, caCertFile )
+        : caffa::rpc::GrpcServerApplication( port, serverCertFile, serverKeyFile, caCertFile )
         , m_demoDocument( std::make_unique<DemoDocument>() )
         , m_demoDocumentWithNonScriptableMember( std::make_unique<DemoDocumentWithNonScriptableMember>() )
     {

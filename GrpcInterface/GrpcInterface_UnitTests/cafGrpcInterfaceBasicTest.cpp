@@ -14,11 +14,11 @@
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafGrpcClient.h"
-#include "cafGrpcClientPassByRefObjectFactory.h"
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
 #include "cafObjectCollector.h"
 #include "cafObjectHandle.h"
+#include "cafRpcClientPassByRefObjectFactory.h"
 #include "cafTypedField.h"
 
 #include <algorithm>
@@ -47,7 +47,7 @@ protected:
 
 TEST_F( GrpcTest, Launch )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
@@ -56,12 +56,12 @@ TEST_F( GrpcTest, Launch )
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
     {
-        auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                            "localhost",
-                                                            ServerApp::s_port,
-                                                            ServerApp::s_clientCertFile,
-                                                            ServerApp::s_clientKeyFile,
-                                                            ServerApp::s_caCertFile );
+        auto client = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                                "localhost",
+                                                                ServerApp::s_port,
+                                                                ServerApp::s_clientCertFile,
+                                                                ServerApp::s_clientKeyFile,
+                                                                ServerApp::s_caCertFile );
 
         caffa::AppInfo appInfo = client->appInfo();
         ASSERT_EQ( serverApp->name(), appInfo.name );
@@ -82,7 +82,7 @@ TEST_F( GrpcTest, Launch )
 //--------------------------------------------------------------------------------------------------
 TEST_F( GrpcTest, Document )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
     CAFFA_DEBUG( "Launching Server" );
@@ -93,12 +93,12 @@ TEST_F( GrpcTest, Document )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                        "localhost",
-                                                        ServerApp::s_port,
-                                                        ServerApp::s_clientCertFile,
-                                                        ServerApp::s_clientKeyFile,
-                                                        ServerApp::s_caCertFile );
+    auto client = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                            "localhost",
+                                                            ServerApp::s_port,
+                                                            ServerApp::s_clientCertFile,
+                                                            ServerApp::s_clientKeyFile,
+                                                            ServerApp::s_caCertFile );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
     CAFFA_INFO( "Expect failure to get document with the wrong document ID. Next line should be an error." );
@@ -199,7 +199,7 @@ TEST_F( GrpcTest, Document )
 
 TEST_F( GrpcTest, DocumentWithNonScriptableChild )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
     CAFFA_DEBUG( "Launching Server" );
@@ -210,12 +210,12 @@ TEST_F( GrpcTest, DocumentWithNonScriptableChild )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                        "localhost",
-                                                        ServerApp::s_port,
-                                                        ServerApp::s_clientCertFile,
-                                                        ServerApp::s_clientKeyFile,
-                                                        ServerApp::s_caCertFile );
+    auto client = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                            "localhost",
+                                                            ServerApp::s_port,
+                                                            ServerApp::s_clientCertFile,
+                                                            ServerApp::s_clientKeyFile,
+                                                            ServerApp::s_caCertFile );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
 
@@ -282,7 +282,7 @@ TEST_F( GrpcTest, DocumentWithNonScriptableChild )
 //--------------------------------------------------------------------------------------------------
 TEST_F( GrpcTest, Sync )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -291,12 +291,12 @@ TEST_F( GrpcTest, Sync )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                        "localhost",
-                                                        ServerApp::s_port,
-                                                        ServerApp::s_clientCertFile,
-                                                        ServerApp::s_clientKeyFile,
-                                                        ServerApp::s_caCertFile );
+    auto client = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                            "localhost",
+                                                            ServerApp::s_port,
+                                                            ServerApp::s_clientCertFile,
+                                                            ServerApp::s_clientKeyFile,
+                                                            ServerApp::s_caCertFile );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
     auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -331,7 +331,7 @@ TEST_F( GrpcTest, Sync )
 //--------------------------------------------------------------------------------------------------
 TEST_F( GrpcTest, SettingValueWithObserver )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -340,12 +340,12 @@ TEST_F( GrpcTest, SettingValueWithObserver )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client  = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::OBSERVING,
-                                                        "localhost",
-                                                        ServerApp::s_port,
-                                                        ServerApp::s_clientCertFile,
-                                                        ServerApp::s_clientKeyFile,
-                                                        ServerApp::s_caCertFile );
+    auto client  = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::OBSERVING,
+                                                            "localhost",
+                                                            ServerApp::s_port,
+                                                            ServerApp::s_clientCertFile,
+                                                            ServerApp::s_clientKeyFile,
+                                                            ServerApp::s_caCertFile );
     auto session = serverApp->getExistingSession( client->sessionUuid() );
     auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
@@ -385,7 +385,7 @@ TEST_F( GrpcTest, SettingValueWithObserver )
 //--------------------------------------------------------------------------------------------------
 TEST_F( GrpcTest, ObjectMethod )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -394,12 +394,12 @@ TEST_F( GrpcTest, ObjectMethod )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                        "localhost",
-                                                        ServerApp::s_port,
-                                                        ServerApp::s_clientCertFile,
-                                                        ServerApp::s_clientKeyFile,
-                                                        ServerApp::s_caCertFile );
+    auto client = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                            "localhost",
+                                                            ServerApp::s_port,
+                                                            ServerApp::s_clientCertFile,
+                                                            ServerApp::s_clientKeyFile,
+                                                            ServerApp::s_caCertFile );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
     auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -438,7 +438,7 @@ TEST_F( GrpcTest, ObjectMethod )
 //--------------------------------------------------------------------------------------------------
 TEST_F( GrpcTest, ObjectIntGetterAndSetter )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -447,12 +447,12 @@ TEST_F( GrpcTest, ObjectIntGetterAndSetter )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client  = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                        "localhost",
-                                                        ServerApp::s_port,
-                                                        ServerApp::s_clientCertFile,
-                                                        ServerApp::s_clientKeyFile,
-                                                        ServerApp::s_caCertFile );
+    auto client  = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                            "localhost",
+                                                            ServerApp::s_port,
+                                                            ServerApp::s_clientCertFile,
+                                                            ServerApp::s_clientKeyFile,
+                                                            ServerApp::s_caCertFile );
     auto session = serverApp->getExistingSession( client->sessionUuid() );
     auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
@@ -492,7 +492,7 @@ TEST_F( GrpcTest, ObjectIntGetterAndSetter )
 //--------------------------------------------------------------------------------------------------
 TEST_F( GrpcTest, ObjectDeepCopyVsShallowCopy )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -501,12 +501,12 @@ TEST_F( GrpcTest, ObjectDeepCopyVsShallowCopy )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client  = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                        "localhost",
-                                                        ServerApp::s_port,
-                                                        ServerApp::s_clientCertFile,
-                                                        ServerApp::s_clientKeyFile,
-                                                        ServerApp::s_caCertFile );
+    auto client  = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                            "localhost",
+                                                            ServerApp::s_port,
+                                                            ServerApp::s_clientCertFile,
+                                                            ServerApp::s_clientKeyFile,
+                                                            ServerApp::s_caCertFile );
     auto session = serverApp->getExistingSession( client->sessionUuid() );
     auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
@@ -548,7 +548,7 @@ TEST_F( GrpcTest, ObjectDeepCopyVsShallowCopy )
 //--------------------------------------------------------------------------------------------------
 TEST_F( GrpcTest, ObjectDeepCopyFromClient )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -557,12 +557,12 @@ TEST_F( GrpcTest, ObjectDeepCopyFromClient )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client  = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                        "localhost",
-                                                        ServerApp::s_port,
-                                                        ServerApp::s_clientCertFile,
-                                                        ServerApp::s_clientKeyFile,
-                                                        ServerApp::s_caCertFile );
+    auto client  = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                            "localhost",
+                                                            ServerApp::s_port,
+                                                            ServerApp::s_clientCertFile,
+                                                            ServerApp::s_clientKeyFile,
+                                                            ServerApp::s_caCertFile );
     auto session = serverApp->getExistingSession( client->sessionUuid() );
     auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
@@ -607,7 +607,7 @@ TEST_F( GrpcTest, ObjectDeepCopyFromClient )
 //--------------------------------------------------------------------------------------------------
 TEST_F( GrpcTest, ObjectDoubleGetterAndSetter )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
@@ -615,12 +615,12 @@ TEST_F( GrpcTest, ObjectDoubleGetterAndSetter )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                        "localhost",
-                                                        ServerApp::s_port,
-                                                        ServerApp::s_clientCertFile,
-                                                        ServerApp::s_clientKeyFile,
-                                                        ServerApp::s_caCertFile );
+    auto client = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                            "localhost",
+                                                            ServerApp::s_port,
+                                                            ServerApp::s_clientCertFile,
+                                                            ServerApp::s_clientKeyFile,
+                                                            ServerApp::s_caCertFile );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
     auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -663,7 +663,7 @@ TEST_F( GrpcTest, ObjectDoubleGetterAndSetter )
 //--------------------------------------------------------------------------------------------------
 TEST_F( GrpcTest, ObjectIntegratedGettersAndSetters )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
@@ -671,12 +671,12 @@ TEST_F( GrpcTest, ObjectIntegratedGettersAndSetters )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                        "localhost",
-                                                        ServerApp::s_port,
-                                                        ServerApp::s_clientCertFile,
-                                                        ServerApp::s_clientKeyFile,
-                                                        ServerApp::s_caCertFile );
+    auto client = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                            "localhost",
+                                                            ServerApp::s_port,
+                                                            ServerApp::s_clientCertFile,
+                                                            ServerApp::s_clientKeyFile,
+                                                            ServerApp::s_caCertFile );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
     auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -735,7 +735,7 @@ TEST_F( GrpcTest, ObjectIntegratedGettersAndSetters )
 //--------------------------------------------------------------------------------------------------
 TEST_F( GrpcTest, EmptyVectorGettersAndSetters )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -744,12 +744,12 @@ TEST_F( GrpcTest, EmptyVectorGettersAndSetters )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                        "localhost",
-                                                        ServerApp::s_port,
-                                                        ServerApp::s_clientCertFile,
-                                                        ServerApp::s_clientKeyFile,
-                                                        ServerApp::s_caCertFile );
+    auto client = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                            "localhost",
+                                                            ServerApp::s_port,
+                                                            ServerApp::s_clientCertFile,
+                                                            ServerApp::s_clientKeyFile,
+                                                            ServerApp::s_caCertFile );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
     auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -793,7 +793,7 @@ TEST_F( GrpcTest, EmptyVectorGettersAndSetters )
 //--------------------------------------------------------------------------------------------------
 TEST_F( GrpcTest, BoolVectorGettersAndSetters )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -802,12 +802,12 @@ TEST_F( GrpcTest, BoolVectorGettersAndSetters )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                        "localhost",
-                                                        ServerApp::s_port,
-                                                        ServerApp::s_clientCertFile,
-                                                        ServerApp::s_clientKeyFile,
-                                                        ServerApp::s_caCertFile );
+    auto client = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                            "localhost",
+                                                            ServerApp::s_port,
+                                                            ServerApp::s_clientCertFile,
+                                                            ServerApp::s_clientKeyFile,
+                                                            ServerApp::s_caCertFile );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
     auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -847,7 +847,7 @@ TEST_F( GrpcTest, BoolVectorGettersAndSetters )
 //--------------------------------------------------------------------------------------------------
 TEST_F( GrpcTest, ChildObjects )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -856,12 +856,12 @@ TEST_F( GrpcTest, ChildObjects )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
-    auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                        "localhost",
-                                                        ServerApp::s_port,
-                                                        ServerApp::s_clientCertFile,
-                                                        ServerApp::s_clientKeyFile,
-                                                        ServerApp::s_caCertFile );
+    auto client = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                            "localhost",
+                                                            ServerApp::s_port,
+                                                            ServerApp::s_clientCertFile,
+                                                            ServerApp::s_clientKeyFile,
+                                                            ServerApp::s_caCertFile );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
     auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -940,7 +940,7 @@ TEST_F( GrpcTest, ChildObjects )
 //--------------------------------------------------------------------------------------------------
 TEST_F( GrpcTest, LocalResponseTimeAndDataTransfer )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -950,12 +950,12 @@ TEST_F( GrpcTest, LocalResponseTimeAndDataTransfer )
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
     {
-        auto client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                            "localhost",
-                                                            ServerApp::s_port,
-                                                            ServerApp::s_clientCertFile,
-                                                            ServerApp::s_clientKeyFile,
-                                                            ServerApp::s_caCertFile );
+        auto client = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                                "localhost",
+                                                                ServerApp::s_port,
+                                                                ServerApp::s_clientCertFile,
+                                                                ServerApp::s_clientKeyFile,
+                                                                ServerApp::s_caCertFile );
 
         auto session = serverApp->getExistingSession( client->sessionUuid() );
         auto serverDocument =
@@ -1011,7 +1011,7 @@ TEST_F( GrpcTest, LocalResponseTimeAndDataTransfer )
 
 TEST_F( GrpcTest, MultipleSessions )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -1022,23 +1022,23 @@ TEST_F( GrpcTest, MultipleSessions )
     }
 
     {
-        std::unique_ptr<caffa::rpc::Client> client1;
+        std::unique_ptr<caffa::rpc::GrpcClient> client1;
 
-        ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
+        ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                                             "localhost",
+                                                                             ServerApp::s_port,
+                                                                             ServerApp::s_clientCertFile,
+                                                                             ServerApp::s_clientKeyFile,
+                                                                             ServerApp::s_caCertFile ) );
+        ASSERT_TRUE( client1 );
+    }
+    std::unique_ptr<caffa::rpc::GrpcClient> client2;
+    ASSERT_NO_THROW( client2 = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
                                                                          "localhost",
                                                                          ServerApp::s_port,
                                                                          ServerApp::s_clientCertFile,
                                                                          ServerApp::s_clientKeyFile,
                                                                          ServerApp::s_caCertFile ) );
-        ASSERT_TRUE( client1 );
-    }
-    std::unique_ptr<caffa::rpc::Client> client2;
-    ASSERT_NO_THROW( client2 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                                     "localhost",
-                                                                     ServerApp::s_port,
-                                                                     ServerApp::s_clientCertFile,
-                                                                     ServerApp::s_clientKeyFile,
-                                                                     ServerApp::s_caCertFile ) );
     ASSERT_TRUE( client2 );
     client2->stopServer();
     CAFFA_DEBUG( "Stopping server and waiting for server to join" );
@@ -1048,7 +1048,7 @@ TEST_F( GrpcTest, MultipleSessions )
 
 TEST_F( GrpcTest, MultipleConcurrentSessionsShouldBeRefused )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -1058,22 +1058,22 @@ TEST_F( GrpcTest, MultipleConcurrentSessionsShouldBeRefused )
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
 
-    std::unique_ptr<caffa::rpc::Client> client1, client2;
+    std::unique_ptr<caffa::rpc::GrpcClient> client1, client2;
 
-    ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                                     "localhost",
-                                                                     ServerApp::s_port,
-                                                                     ServerApp::s_clientCertFile,
-                                                                     ServerApp::s_clientKeyFile,
-                                                                     ServerApp::s_caCertFile ) );
+    ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                                         "localhost",
+                                                                         ServerApp::s_port,
+                                                                         ServerApp::s_clientCertFile,
+                                                                         ServerApp::s_clientKeyFile,
+                                                                         ServerApp::s_caCertFile ) );
     ASSERT_TRUE( client1 );
 
-    ASSERT_ANY_THROW( client2 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                                      "localhost",
-                                                                      ServerApp::s_port,
-                                                                      ServerApp::s_clientCertFile,
-                                                                      ServerApp::s_clientKeyFile,
-                                                                      ServerApp::s_caCertFile ) );
+    ASSERT_ANY_THROW( client2 = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                                          "localhost",
+                                                                          ServerApp::s_port,
+                                                                          ServerApp::s_clientCertFile,
+                                                                          ServerApp::s_clientKeyFile,
+                                                                          ServerApp::s_caCertFile ) );
     ASSERT_TRUE( client2 == nullptr );
     CAFFA_INFO( "Failed to create new session as expected" );
     client1->stopServer();
@@ -1084,7 +1084,7 @@ TEST_F( GrpcTest, MultipleConcurrentSessionsShouldBeRefused )
 
 TEST_F( GrpcTest, AdditionalObservingSessions )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -1094,30 +1094,30 @@ TEST_F( GrpcTest, AdditionalObservingSessions )
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
 
-    std::unique_ptr<caffa::rpc::Client> client1, client2, client3;
+    std::unique_ptr<caffa::rpc::GrpcClient> client1, client2, client3;
 
-    ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                                     "localhost",
-                                                                     ServerApp::s_port,
-                                                                     ServerApp::s_clientCertFile,
-                                                                     ServerApp::s_clientKeyFile,
-                                                                     ServerApp::s_caCertFile ) );
+    ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                                         "localhost",
+                                                                         ServerApp::s_port,
+                                                                         ServerApp::s_clientCertFile,
+                                                                         ServerApp::s_clientKeyFile,
+                                                                         ServerApp::s_caCertFile ) );
     ASSERT_TRUE( client1 );
 
-    ASSERT_NO_THROW( client2 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::OBSERVING,
-                                                                     "localhost",
-                                                                     ServerApp::s_port,
-                                                                     ServerApp::s_clientCertFile,
-                                                                     ServerApp::s_clientKeyFile,
-                                                                     ServerApp::s_caCertFile ) );
+    ASSERT_NO_THROW( client2 = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::OBSERVING,
+                                                                         "localhost",
+                                                                         ServerApp::s_port,
+                                                                         ServerApp::s_clientCertFile,
+                                                                         ServerApp::s_clientKeyFile,
+                                                                         ServerApp::s_caCertFile ) );
     ASSERT_TRUE( client2 != nullptr );
 
-    ASSERT_NO_THROW( client3 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::OBSERVING,
-                                                                     "localhost",
-                                                                     ServerApp::s_port,
-                                                                     ServerApp::s_clientCertFile,
-                                                                     ServerApp::s_clientKeyFile,
-                                                                     ServerApp::s_caCertFile ) );
+    ASSERT_NO_THROW( client3 = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::OBSERVING,
+                                                                         "localhost",
+                                                                         ServerApp::s_port,
+                                                                         ServerApp::s_clientCertFile,
+                                                                         ServerApp::s_clientKeyFile,
+                                                                         ServerApp::s_caCertFile ) );
     ASSERT_TRUE( client3 != nullptr );
 
     // Close observing clients before stopping server
@@ -1133,7 +1133,7 @@ TEST_F( GrpcTest, AdditionalObservingSessions )
 
 TEST_F( GrpcTest, MultipleConcurrentSessionsDelayWithoutKeepalive )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -1143,24 +1143,24 @@ TEST_F( GrpcTest, MultipleConcurrentSessionsDelayWithoutKeepalive )
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
 
-    std::unique_ptr<caffa::rpc::Client> client1, client2;
+    std::unique_ptr<caffa::rpc::GrpcClient> client1, client2;
 
-    ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                                     "localhost",
-                                                                     ServerApp::s_port,
-                                                                     ServerApp::s_clientCertFile,
-                                                                     ServerApp::s_clientKeyFile,
-                                                                     ServerApp::s_caCertFile ) );
+    ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                                         "localhost",
+                                                                         ServerApp::s_port,
+                                                                         ServerApp::s_clientCertFile,
+                                                                         ServerApp::s_clientKeyFile,
+                                                                         ServerApp::s_caCertFile ) );
     ASSERT_TRUE( client1 );
 
     std::this_thread::sleep_for( std::chrono::milliseconds( 2100 ) );
 
-    ASSERT_NO_THROW( client2 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                                     "localhost",
-                                                                     ServerApp::s_port,
-                                                                     ServerApp::s_clientCertFile,
-                                                                     ServerApp::s_clientKeyFile,
-                                                                     ServerApp::s_caCertFile ) );
+    ASSERT_NO_THROW( client2 = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                                         "localhost",
+                                                                         ServerApp::s_port,
+                                                                         ServerApp::s_clientCertFile,
+                                                                         ServerApp::s_clientKeyFile,
+                                                                         ServerApp::s_caCertFile ) );
     ASSERT_TRUE( client2 );
 
     client1->destroySession();
@@ -1173,7 +1173,7 @@ TEST_F( GrpcTest, MultipleConcurrentSessionsDelayWithoutKeepalive )
 
 TEST_F( GrpcTest, MultipleConcurrentSessionsWithKeepalive )
 {
-    ASSERT_TRUE( caffa::rpc::ServerApplication::instance() != nullptr );
+    ASSERT_TRUE( caffa::rpc::GrpcServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
@@ -1183,14 +1183,14 @@ TEST_F( GrpcTest, MultipleConcurrentSessionsWithKeepalive )
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
 
-    std::unique_ptr<caffa::rpc::Client> client1, client2;
+    std::unique_ptr<caffa::rpc::GrpcClient> client1, client2;
 
-    ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                                     "localhost",
-                                                                     ServerApp::s_port,
-                                                                     ServerApp::s_clientCertFile,
-                                                                     ServerApp::s_clientKeyFile,
-                                                                     ServerApp::s_caCertFile ) );
+    ASSERT_NO_THROW( client1 = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                                         "localhost",
+                                                                         ServerApp::s_port,
+                                                                         ServerApp::s_clientCertFile,
+                                                                         ServerApp::s_clientKeyFile,
+                                                                         ServerApp::s_caCertFile ) );
     ASSERT_TRUE( client1 );
 
     for ( size_t i = 0; i < 10; ++i )
@@ -1199,12 +1199,12 @@ TEST_F( GrpcTest, MultipleConcurrentSessionsWithKeepalive )
         client1->sendKeepAlive();
     }
 
-    ASSERT_ANY_THROW( client2 = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR,
-                                                                      "localhost",
-                                                                      ServerApp::s_port,
-                                                                      ServerApp::s_clientCertFile,
-                                                                      ServerApp::s_clientKeyFile,
-                                                                      ServerApp::s_caCertFile ) );
+    ASSERT_ANY_THROW( client2 = std::make_unique<caffa::rpc::GrpcClient>( caffa::Session::Type::REGULAR,
+                                                                          "localhost",
+                                                                          ServerApp::s_port,
+                                                                          ServerApp::s_clientCertFile,
+                                                                          ServerApp::s_clientKeyFile,
+                                                                          ServerApp::s_caCertFile ) );
     ASSERT_TRUE( client2 == nullptr );
 
     client1->stopServer();

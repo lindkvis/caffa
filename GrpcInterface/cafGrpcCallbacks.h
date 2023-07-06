@@ -1,20 +1,20 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Caffa
-//   Copyright (C) Gaute Lindkvist
+//    Caffa
+//    Copyright (C) Gaute Lindkvist
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
 #pragma once
 
@@ -31,7 +31,7 @@ namespace caffa::rpc
 /**
  * Non-templated Base class for all caf grpc callbacks
  */
-class AbstractCallback
+class AbstractGrpcCallback
 {
 public:
     enum CallState
@@ -42,14 +42,14 @@ public:
     };
 
 public:
-    AbstractCallback();
+    AbstractGrpcCallback();
 
-    virtual ~AbstractCallback() {}
-    virtual std::string       name() const                                                         = 0;
-    virtual AbstractCallback* emptyClone() const                                                   = 0;
-    virtual void              createRequestHandler( grpc::ServerCompletionQueue* completionQueue ) = 0;
-    virtual void              onProcessRequest()                                                   = 0;
-    virtual void              onFinishRequest() {}
+    virtual ~AbstractGrpcCallback() {}
+    virtual std::string           name() const                                                         = 0;
+    virtual AbstractGrpcCallback* emptyClone() const                                                   = 0;
+    virtual void                  createRequestHandler( grpc::ServerCompletionQueue* completionQueue ) = 0;
+    virtual void                  onProcessRequest()                                                   = 0;
+    virtual void                  onFinishRequest() {}
 
     inline CallState           callState() const;
     inline const grpc::Status& status() const;
@@ -64,7 +64,7 @@ protected:
  * Templated callback for any grpc service
  */
 template <typename ServiceT, typename RequestT, typename ReplyT>
-class ServiceCallback : public AbstractCallback
+class GrpcServiceCallback : public AbstractGrpcCallback
 {
 public:
     using ResponseWriterT = grpc::ServerAsyncResponseWriter<ReplyT>;
@@ -72,15 +72,15 @@ public:
     using MethodRequestT  = std::function<
         void( ServiceT&, grpc::ServerContext*, RequestT*, ResponseWriterT*, grpc::CompletionQueue*, grpc::ServerCompletionQueue*, void* )>;
 
-    ServiceCallback( ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest );
+    GrpcServiceCallback( ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest );
 
     std::string     name() const override;
     const RequestT& request() const;
     ReplyT&         reply();
 
-    AbstractCallback* emptyClone() const override;
-    void              createRequestHandler( grpc::ServerCompletionQueue* completionQueue ) override;
-    void              onProcessRequest() override;
+    AbstractGrpcCallback* emptyClone() const override;
+    void                  createRequestHandler( grpc::ServerCompletionQueue* completionQueue ) override;
+    void                  onProcessRequest() override;
 
 protected:
     ServiceT* m_service;

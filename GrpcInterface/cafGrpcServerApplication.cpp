@@ -31,33 +31,33 @@ using namespace caffa::rpc;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ServerApplication::ServerApplication( int                portNumber,
-                                      const std::string& serverCertFile /* = ""*/,
-                                      const std::string& serverKeyFile /* = ""*/,
-                                      const std::string& caCertFile /* = ""*/ )
+GrpcServerApplication::GrpcServerApplication( int                portNumber,
+                                              const std::string& serverCertFile /* = ""*/,
+                                              const std::string& serverKeyFile /* = ""*/,
+                                              const std::string& caCertFile /* = ""*/ )
     : Application( AppInfo::AppCapability::SERVER )
 
 {
-    m_server = std::make_unique<caffa::rpc::Server>( portNumber, serverCertFile, serverKeyFile, caCertFile );
+    m_server = std::make_unique<caffa::rpc::GrpcServer>( portNumber, serverCertFile, serverKeyFile, caCertFile );
 
-    caffa::rpc::ServiceFactory::instance()->registerCreator<caffa::rpc::AppService>(
-        typeid( caffa::rpc::AppService ).hash_code() );
-    caffa::rpc::ServiceFactory::instance()->registerCreator<caffa::rpc::FieldService>(
-        typeid( caffa::rpc::FieldService ).hash_code() );
-    caffa::rpc::ServiceFactory::instance()->registerCreator<caffa::rpc::ObjectService>(
-        typeid( caffa::rpc::ObjectService ).hash_code() );
+    caffa::rpc::ServiceFactory::instance()->registerCreator<caffa::rpc::GrpcAppService>(
+        typeid( caffa::rpc::GrpcAppService ).hash_code() );
+    caffa::rpc::ServiceFactory::instance()->registerCreator<caffa::rpc::GrpcFieldService>(
+        typeid( caffa::rpc::GrpcFieldService ).hash_code() );
+    caffa::rpc::ServiceFactory::instance()->registerCreator<caffa::rpc::GrpcObjectService>(
+        typeid( caffa::rpc::GrpcObjectService ).hash_code() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ServerApplication* caffa::rpc::ServerApplication::instance()
+GrpcServerApplication* caffa::rpc::GrpcServerApplication::instance()
 {
     Application* appInstance = Application::instance();
-    return dynamic_cast<ServerApplication*>( appInstance );
+    return dynamic_cast<GrpcServerApplication*>( appInstance );
 }
 
-int ServerApplication::portNumber() const
+int GrpcServerApplication::portNumber() const
 {
     return m_server->port();
 }
@@ -65,7 +65,7 @@ int ServerApplication::portNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caffa::rpc::ServerApplication::run()
+void caffa::rpc::GrpcServerApplication::run()
 {
     CAFFA_ASSERT( m_server );
     onStartup();
@@ -75,7 +75,7 @@ void caffa::rpc::ServerApplication::run()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ServerApplication::quit()
+void GrpcServerApplication::quit()
 {
     m_server->quit();
     onShutdown();
@@ -84,7 +84,7 @@ void ServerApplication::quit()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ServerApplication::running() const
+bool GrpcServerApplication::running() const
 {
     return m_server->running();
 }

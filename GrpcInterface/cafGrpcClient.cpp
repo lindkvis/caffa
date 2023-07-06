@@ -38,14 +38,14 @@
 #include "ObjectService.grpc.pb.h"
 
 #include "cafDefaultObjectFactory.h"
-#include "cafGrpcApplication.h"
-#include "cafGrpcClientPassByRefObjectFactory.h"
-#include "cafGrpcClientPassByValueObjectFactory.h"
 #include "cafGrpcException.h"
 #include "cafGrpcFieldService.h"
 #include "cafGrpcObjectService.h"
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
+#include "cafRpcApplication.h"
+#include "cafRpcClientPassByRefObjectFactory.h"
+#include "cafRpcClientPassByValueObjectFactory.h"
 #include "cafSession.h"
 
 #include <grpc/grpc.h>
@@ -62,15 +62,15 @@
 
 namespace caffa::rpc
 {
-class ClientImpl
+class GrpcClientImpl
 {
 public:
-    ClientImpl( caffa::Session::Type sessionType,
-                const std::string&   hostname,
-                int                  port,
-                const std::string&   clientCertFile,
-                const std::string&   clientKeyFile,
-                const std::string&   caCertFile )
+    GrpcClientImpl( caffa::Session::Type sessionType,
+                    const std::string&   hostname,
+                    int                  port,
+                    const std::string&   clientCertFile,
+                    const std::string&   clientKeyFile,
+                    const std::string&   caCertFile )
     {
         // Created new server
         if ( !caCertFile.empty() )
@@ -104,7 +104,7 @@ public:
             createSession( sessionType );
         }
     }
-    ~ClientImpl()
+    ~GrpcClientImpl()
     {
         //
         CAFFA_DEBUG( "Destroying client" );
@@ -135,7 +135,7 @@ public:
         auto status = m_appInfoStub->CreateSession( &context, params, &session );
         if ( !status.ok() )
         {
-            throw Exception( status );
+            throw GrpcException( status );
         }
 
         m_sessionUuid = session.uuid();
@@ -160,7 +160,7 @@ public:
         if ( !status.ok() )
         {
             CAFFA_ERROR( status.error_message() );
-            throw Exception( status );
+            throw GrpcException( status );
         }
     }
 
@@ -199,7 +199,7 @@ public:
             if ( !status.ok() )
             {
                 CAFFA_ERROR( status.error_message() );
-                throw Exception( status );
+                throw GrpcException( status );
             }
             CAFFA_DEBUG( "Session exists and is of type " << static_cast<int>( reply.type() ) );
             return static_cast<caffa::Session::Type>( reply.type() );
@@ -225,7 +225,7 @@ public:
         if ( !status.ok() )
         {
             CAFFA_ERROR( status.error_message() );
-            throw Exception( status );
+            throw GrpcException( status );
         }
     }
 
@@ -244,7 +244,7 @@ public:
             if ( !status.ok() )
             {
                 CAFFA_ERROR( status.error_message() );
-                throw Exception( status );
+                throw GrpcException( status );
             }
 
             m_sessionUuid = "";
@@ -261,7 +261,7 @@ public:
         auto                     status = m_appInfoStub->GetAppInfo( &context, nullarg, &reply );
         if ( !status.ok() )
         {
-            throw Exception( status );
+            throw GrpcException( status );
         }
         caffa::AppInfo appInfo = { reply.name(),
                                    reply.major_version(),
@@ -292,13 +292,13 @@ public:
             CAFFA_TRACE( "Got document" );
             caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
             serializer.setWriteTypesAndValidators( false );
-            document = caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply, serializer );
+            document = caffa::rpc::GrpcObjectService::createCafObjectFromRpc( &objectReply, serializer );
             CAFFA_TRACE( "Document completed with UUID " << document->uuid() );
         }
         else
         {
             CAFFA_ERROR( "Failed to get document with server error message: " + status.error_message() );
-            throw Exception( status );
+            throw GrpcException( status );
         }
         return document;
     }
@@ -337,14 +337,14 @@ public:
                 CAFFA_TRACE( "Calling GetDocument()" );
                 auto status = m_objectStub->GetDocument( &docContext, request, &objectReply );
                 std::shared_ptr<caffa::ObjectHandle> document =
-                    caffa::rpc::ObjectService::createCafObjectFromRpc( &objectReply, serializer );
+                    caffa::rpc::GrpcObjectService::createCafObjectFromRpc( &objectReply, serializer );
                 documents.push_back( document );
             }
         }
         else
         {
             CAFFA_ERROR( "Failed to get document with server error message: " + status.error_message() );
-            throw Exception( status );
+            throw GrpcException( status );
         }
         return documents;
     }
@@ -379,7 +379,7 @@ public:
         else
         {
             CAFFA_ERROR( "Failed to get object with server error message: " + status.error_message() );
-            throw Exception( status );
+            throw GrpcException( status );
         }
 
         return childObject;
@@ -415,7 +415,7 @@ public:
         else
         {
             CAFFA_ERROR( "Failed to get object with server error message: " + status.error_message() );
-            throw Exception( status );
+            throw GrpcException( status );
         }
 
         return childObject;
@@ -429,7 +429,7 @@ public:
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
         auto                rpcChildObject = std::make_unique<RpcObject>();
-        ObjectService::copyResultOrParameterObjectFromCafToRpc( childObject, rpcChildObject.get() );
+        GrpcObjectService::copyResultOrParameterObjectFromCafToRpc( childObject, rpcChildObject.get() );
 
         auto field = std::make_unique<FieldRequest>();
         field->set_class_keyword( std::string( objectHandle->classKeyword() ) );
@@ -450,7 +450,7 @@ public:
         if ( !status.ok() )
         {
             CAFFA_ERROR( "Failed to set object" );
-            throw Exception( status );
+            throw GrpcException( status );
         }
     }
 
@@ -488,7 +488,7 @@ public:
         else
         {
             CAFFA_ERROR( "Failed to get object with server error message: " + status.error_message() );
-            throw Exception( status );
+            throw GrpcException( status );
         }
 
         return childObjects;
@@ -502,7 +502,7 @@ public:
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
         auto                rpcChildObject = std::make_unique<RpcObject>();
-        ObjectService::copyProjectObjectFromCafToRpc( childObject, rpcChildObject.get() );
+        GrpcObjectService::copyProjectObjectFromCafToRpc( childObject, rpcChildObject.get() );
 
         auto field = std::make_unique<FieldRequest>();
         field->set_class_keyword( std::string( objectHandle->classKeyword() ) );
@@ -521,7 +521,7 @@ public:
         if ( !status.ok() )
         {
             CAFFA_ERROR( "Failed to set object" );
-            throw Exception( status );
+            throw GrpcException( status );
         }
     }
 
@@ -534,7 +534,7 @@ public:
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
         auto                rpcChildObject = std::make_unique<RpcObject>();
-        ObjectService::copyResultOrParameterObjectFromCafToRpc( childObject, rpcChildObject.get() );
+        GrpcObjectService::copyResultOrParameterObjectFromCafToRpc( childObject, rpcChildObject.get() );
         auto field = std::make_unique<FieldRequest>();
 
         field->set_class_keyword( std::string( objectHandle->classKeyword() ) );
@@ -554,7 +554,7 @@ public:
         if ( !status.ok() )
         {
             CAFFA_ERROR( "Failed to insert object" );
-            throw Exception( status );
+            throw GrpcException( status );
         }
     }
 
@@ -577,7 +577,7 @@ public:
         if ( !status.ok() )
         {
             CAFFA_ERROR( "Failed to clear child objects" );
-            throw Exception( status );
+            throw GrpcException( status );
         }
     }
 
@@ -600,7 +600,7 @@ public:
         if ( !status.ok() )
         {
             CAFFA_ERROR( "Failed to remove child object" );
-            throw Exception( status );
+            throw GrpcException( status );
         }
     }
 
@@ -608,7 +608,7 @@ public:
     {
         auto self   = std::make_unique<RpcObject>();
         auto method = std::make_unique<RpcObject>();
-        ObjectService::copyProjectSelfReferenceFromCafToRpc( selfObject, self.get() );
+        GrpcObjectService::copyProjectSelfReferenceFromCafToRpc( selfObject, self.get() );
 
         method->set_json( jsonMethod );
 
@@ -634,7 +634,7 @@ public:
             CAFFA_ERROR( "Failed to execute method " << selfObject->classKeyword()
                                                      << "::" << json["keyword"].get<std::string>()
                                                      << " with error: " << status.error_message() );
-            throw Exception( status );
+            throw GrpcException( status );
         }
     }
 
@@ -658,7 +658,7 @@ public:
         else
         {
             CAFFA_ERROR( "Failed to quit because of: " + status.error_message() );
-            throw Exception( status );
+            throw GrpcException( status );
         }
     }
 
@@ -669,15 +669,12 @@ public:
         auto                status = m_appInfoStub->Ping( &context, nullarg, &nullreply );
         if ( !status.ok() )
         {
-            throw Exception( status );
+            throw GrpcException( status );
         }
         return status.ok();
     }
 
-    void setJson( const caffa::ObjectHandle* objectHandle,
-                  const std::string&         fieldName,
-                  const nlohmann::json&      jsonValue,
-                  uint32_t                   addressOffset )
+    void setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& jsonValue )
     {
         grpc::ClientContext context;
 
@@ -685,7 +682,6 @@ public:
         field->set_class_keyword( std::string( objectHandle->classKeyword() ) );
         field->set_uuid( objectHandle->uuid() );
         field->set_keyword( fieldName );
-        field->set_index( addressOffset );
         auto session = std::make_unique<caffa::rpc::SessionMessage>();
         session->set_uuid( m_sessionUuid );
         field->set_allocated_session( session.release() );
@@ -699,11 +695,11 @@ public:
 
         if ( !status.ok() )
         {
-            throw Exception( status );
+            throw GrpcException( status );
         }
     }
 
-    nlohmann::json getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, uint32_t addressOffset ) const
+    nlohmann::json getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
     {
         CAFFA_TRACE( "Get JSON value for field " << fieldName << " on class " << objectHandle->classKeyword()
                                                  << " and UUID " << objectHandle->uuid() );
@@ -713,7 +709,6 @@ public:
         field.set_class_keyword( std::string( objectHandle->classKeyword() ) );
         field.set_uuid( objectHandle->uuid() );
         field.set_keyword( fieldName );
-        field.set_index( addressOffset );
         auto session = std::make_unique<caffa::rpc::SessionMessage>();
         session->set_uuid( m_sessionUuid );
         field.set_allocated_session( session.release() );
@@ -722,7 +717,7 @@ public:
         grpc::Status status = m_fieldStub->GetValue( &context, field, &reply );
         if ( !status.ok() )
         {
-            Exception e( status );
+            GrpcException e( status );
             CAFFA_ERROR( "Server error: " << e.what() );
             throw e;
         }
@@ -750,30 +745,31 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Client::Client( caffa::Session::Type sessionType,
-                const std::string&   hostname,
-                int                  port /*= 50000 */,
-                const std::string&   clientCertFile,
-                const std::string&   clientKeyFile,
-                const std::string&   caCertFile )
-    : m_clientImpl( std::make_unique<ClientImpl>( sessionType, hostname, port, clientCertFile, clientKeyFile, caCertFile ) )
+GrpcClient::GrpcClient( caffa::Session::Type sessionType,
+                        const std::string&   hostname,
+                        int                  port /*= 50000 */,
+                        const std::string&   clientCertFile,
+                        const std::string&   clientKeyFile,
+                        const std::string&   caCertFile )
+    : m_clientImpl(
+          std::make_unique<GrpcClientImpl>( sessionType, hostname, port, clientCertFile, clientKeyFile, caCertFile ) )
 {
     // Apply gRPC client to the two client object factories.
-    caffa::rpc::ClientPassByRefObjectFactory::instance()->setGrpcClient( this );
-    caffa::rpc::ClientPassByValueObjectFactory::instance()->setGrpcClient( this );
+    caffa::rpc::ClientPassByRefObjectFactory::instance()->setClient( this );
+    caffa::rpc::ClientPassByValueObjectFactory::instance()->setClient( this );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Client::~Client()
+GrpcClient::~GrpcClient()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Retrieve Application information
 //--------------------------------------------------------------------------------------------------
-caffa::AppInfo Client::appInfo() const
+caffa::AppInfo GrpcClient::appInfo() const
 {
     return m_clientImpl->appInfo();
 }
@@ -781,7 +777,7 @@ caffa::AppInfo Client::appInfo() const
 //--------------------------------------------------------------------------------------------------
 /// Retrieve a top level document (project)
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<caffa::ObjectHandle> Client::document( const std::string& documentId ) const
+std::shared_ptr<caffa::ObjectHandle> GrpcClient::document( const std::string& documentId ) const
 {
     return m_clientImpl->document( documentId );
 }
@@ -789,7 +785,7 @@ std::shared_ptr<caffa::ObjectHandle> Client::document( const std::string& docume
 //--------------------------------------------------------------------------------------------------
 /// Retrieve all top level documents
 //--------------------------------------------------------------------------------------------------
-std::vector<std::shared_ptr<caffa::ObjectHandle>> Client::documents() const
+std::vector<std::shared_ptr<caffa::ObjectHandle>> GrpcClient::documents() const
 {
     return m_clientImpl->documents();
 }
@@ -797,7 +793,7 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> Client::documents() const
 //--------------------------------------------------------------------------------------------------
 /// Execute a general non-streaming method.
 //--------------------------------------------------------------------------------------------------
-std::string Client::execute( caffa::not_null<const caffa::ObjectHandle*> selfObject, const std::string& jsonMethod ) const
+std::string GrpcClient::execute( caffa::not_null<const caffa::ObjectHandle*> selfObject, const std::string& jsonMethod ) const
 {
     return m_clientImpl->execute( selfObject, jsonMethod );
 }
@@ -805,7 +801,7 @@ std::string Client::execute( caffa::not_null<const caffa::ObjectHandle*> selfObj
 //--------------------------------------------------------------------------------------------------
 /// Tell the server to stop operation. Returns a simple boolean status where true is ok.
 //--------------------------------------------------------------------------------------------------
-bool Client::stopServer()
+bool GrpcClient::stopServer()
 {
     return m_clientImpl->stopServer();
 }
@@ -813,7 +809,7 @@ bool Client::stopServer()
 //--------------------------------------------------------------------------------------------------
 // Tell the server to stay alive
 //--------------------------------------------------------------------------------------------------
-void Client::sendKeepAlive()
+void GrpcClient::sendKeepAlive()
 {
     m_clientImpl->sendKeepAlive();
 }
@@ -821,7 +817,7 @@ void Client::sendKeepAlive()
 //--------------------------------------------------------------------------------------------------
 // Start sending keep-alives in a thread until the session is destroyed.
 //--------------------------------------------------------------------------------------------------
-void Client::startKeepAliveThread()
+void GrpcClient::startKeepAliveThread()
 {
     m_clientImpl->startKeepAliveThread();
 }
@@ -829,7 +825,7 @@ void Client::startKeepAliveThread()
 //--------------------------------------------------------------------------------------------------
 // Check the current session
 //--------------------------------------------------------------------------------------------------
-caffa::Session::Type Client::checkSession() const
+caffa::Session::Type GrpcClient::checkSession() const
 {
     return m_clientImpl->checkSession();
 }
@@ -837,7 +833,7 @@ caffa::Session::Type Client::checkSession() const
 //--------------------------------------------------------------------------------------------------
 // Change the session type
 //--------------------------------------------------------------------------------------------------
-void Client::changeSession( caffa::Session::Type newType )
+void GrpcClient::changeSession( caffa::Session::Type newType )
 {
     m_clientImpl->changeSession( newType );
 }
@@ -845,7 +841,7 @@ void Client::changeSession( caffa::Session::Type newType )
 //--------------------------------------------------------------------------------------------------
 // Tell the server to destroy the session
 //--------------------------------------------------------------------------------------------------
-void Client::destroySession()
+void GrpcClient::destroySession()
 {
     m_clientImpl->destroySession();
 }
@@ -853,7 +849,7 @@ void Client::destroySession()
 //--------------------------------------------------------------------------------------------------
 // Get the current session ID
 //--------------------------------------------------------------------------------------------------
-const std::string& Client::sessionUuid() const
+const std::string& GrpcClient::sessionUuid() const
 {
     return m_clientImpl->sessionUuid();
 }
@@ -861,7 +857,7 @@ const std::string& Client::sessionUuid() const
 //--------------------------------------------------------------------------------------------------
 /// Send a ping to the server
 //--------------------------------------------------------------------------------------------------
-bool Client::ping() const
+bool GrpcClient::ping() const
 {
     return m_clientImpl->ping();
 }
@@ -869,29 +865,25 @@ bool Client::ping() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Client::setJson( const caffa::ObjectHandle* objectHandle,
-                      const std::string&         fieldName,
-                      const nlohmann::json&      value,
-                      uint32_t                   addressOffset )
+void GrpcClient::setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value )
 {
-    m_clientImpl->setJson( objectHandle, fieldName, value, addressOffset );
+    m_clientImpl->setJson( objectHandle, fieldName, value );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-nlohmann::json
-    Client::getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, uint32_t addressOffset ) const
+nlohmann::json GrpcClient::getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     CAFFA_ASSERT( m_clientImpl && "Client not properly initialized" );
-    return m_clientImpl->getJson( objectHandle, fieldName, addressOffset );
+    return m_clientImpl->getJson( objectHandle, fieldName );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<caffa::ObjectHandle> Client::getShallowCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
-                                                                          const std::string&         fieldName ) const
+std::shared_ptr<caffa::ObjectHandle> GrpcClient::getShallowCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
+                                                                              const std::string& fieldName ) const
 {
     return m_clientImpl->getShallowCopyOfChildObject( objectHandle, fieldName );
 }
@@ -899,8 +891,8 @@ std::shared_ptr<caffa::ObjectHandle> Client::getShallowCopyOfChildObject( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<caffa::ObjectHandle> Client::getDeepCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
-                                                                       const std::string&         fieldName ) const
+std::shared_ptr<caffa::ObjectHandle> GrpcClient::getDeepCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
+                                                                           const std::string&         fieldName ) const
 {
     return m_clientImpl->getDeepCopyOfChildObject( objectHandle, fieldName );
 }
@@ -908,9 +900,9 @@ std::shared_ptr<caffa::ObjectHandle> Client::getDeepCopyOfChildObject( const caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Client::deepCopyChildObjectFrom( const caffa::ObjectHandle* objectHandle,
-                                      const std::string&         fieldName,
-                                      const caffa::ObjectHandle* childObject )
+void GrpcClient::deepCopyChildObjectFrom( const caffa::ObjectHandle* objectHandle,
+                                          const std::string&         fieldName,
+                                          const caffa::ObjectHandle* childObject )
 {
     m_clientImpl->deepCopyChildObjectFrom( objectHandle, fieldName, childObject );
 }
@@ -918,8 +910,8 @@ void Client::deepCopyChildObjectFrom( const caffa::ObjectHandle* objectHandle,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::shared_ptr<caffa::ObjectHandle>> Client::getChildObjects( const caffa::ObjectHandle* objectHandle,
-                                                                           const std::string&         fieldName ) const
+std::vector<std::shared_ptr<caffa::ObjectHandle>> GrpcClient::getChildObjects( const caffa::ObjectHandle* objectHandle,
+                                                                               const std::string& fieldName ) const
 {
     return m_clientImpl->getChildObjects( objectHandle, fieldName );
 }
@@ -927,9 +919,9 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> Client::getChildObjects( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Client::setChildObject( const caffa::ObjectHandle* objectHandle,
-                             const std::string&         fieldName,
-                             const caffa::ObjectHandle* childObject )
+void GrpcClient::setChildObject( const caffa::ObjectHandle* objectHandle,
+                                 const std::string&         fieldName,
+                                 const caffa::ObjectHandle* childObject )
 {
     return m_clientImpl->setChildObject( objectHandle, fieldName, childObject );
 }
@@ -937,7 +929,7 @@ void Client::setChildObject( const caffa::ObjectHandle* objectHandle,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Client::removeChildObject( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, size_t index )
+void GrpcClient::removeChildObject( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, size_t index )
 {
     m_clientImpl->removeChildObject( objectHandle, fieldName, index );
 }
@@ -945,7 +937,7 @@ void Client::removeChildObject( const caffa::ObjectHandle* objectHandle, const s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Client::clearChildObjects( const caffa::ObjectHandle* objectHandle, const std::string& fieldName )
+void GrpcClient::clearChildObjects( const caffa::ObjectHandle* objectHandle, const std::string& fieldName )
 {
     m_clientImpl->clearChildObjects( objectHandle, fieldName );
 }
@@ -953,10 +945,10 @@ void Client::clearChildObjects( const caffa::ObjectHandle* objectHandle, const s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Client::insertChildObject( const caffa::ObjectHandle* objectHandle,
-                                const std::string&         fieldName,
-                                size_t                     index,
-                                const caffa::ObjectHandle* childObject )
+void GrpcClient::insertChildObject( const caffa::ObjectHandle* objectHandle,
+                                    const std::string&         fieldName,
+                                    size_t                     index,
+                                    const caffa::ObjectHandle* childObject )
 {
     m_clientImpl->insertChildObject( objectHandle, fieldName, index, childObject );
 }

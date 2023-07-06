@@ -22,7 +22,6 @@
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
-#include "cafGrpcApplication.h"
 #include "cafGrpcCallbacks.h"
 #include "cafGrpcFieldService.h"
 #include "cafGrpcObjectService.h"
@@ -37,27 +36,27 @@
 
 namespace caffa::rpc
 {
-std::map<const caffa::ObjectHandle*, std::map<std::string, caffa::FieldHandle*>> FieldService::s_fieldCache;
-std::mutex                                                                       FieldService::s_fieldCacheMutex;
+std::map<const caffa::ObjectHandle*, std::map<std::string, caffa::FieldHandle*>> GrpcFieldService::s_fieldCache;
+std::mutex                                                                       GrpcFieldService::s_fieldCacheMutex;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRequest* request, GenericValue* reply )
+grpc::Status GrpcFieldService::GetValue( grpc::ServerContext* context, const FieldRequest* request, GenericValue* reply )
 {
     CAFFA_ASSERT( request != nullptr );
     CAFFA_TRACE( "GetValue for field: " << request->keyword() << ", " << request->class_keyword() << ", "
                                         << request->uuid() );
 
-    auto session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
+    auto session = GrpcServerApplication::instance()->getExistingSession( request->session().uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
     }
 
-    auto fieldOwner = ObjectService::ObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
-                                                                                        request->class_keyword(),
-                                                                                        request->uuid() );
+    auto fieldOwner = GrpcObjectService::GrpcObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
+                                                                                                request->class_keyword(),
+                                                                                                request->uuid() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
 
     auto field = scriptableFieldFromKeyword( fieldOwner, request->keyword() );
@@ -112,11 +111,11 @@ grpc::Status FieldService::GetValue( grpc::ServerContext* context, const FieldRe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply )
+grpc::Status GrpcFieldService::SetValue( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply )
 {
     auto fieldRequest = request->field();
 
-    auto session = ServerApplication::instance()->getExistingSession( fieldRequest.session().uuid() );
+    auto session = GrpcServerApplication::instance()->getExistingSession( fieldRequest.session().uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + fieldRequest.session().uuid() + "' is not valid" );
@@ -127,9 +126,10 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
         return grpc::Status( grpc::UNAUTHENTICATED, "Observing sessions are not valid for controlling operation" );
     }
 
-    auto fieldOwner = ObjectService::ObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
-                                                                                        fieldRequest.class_keyword(),
-                                                                                        fieldRequest.uuid() );
+    auto fieldOwner =
+        GrpcObjectService::GrpcObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
+                                                                                  fieldRequest.class_keyword(),
+                                                                                  fieldRequest.uuid() );
 
     CAFFA_TRACE( "Received Set Request for " << fieldRequest.class_keyword() << "::" << fieldRequest.keyword()
                                              << ", uuid: " << fieldRequest.uuid() );
@@ -182,11 +182,12 @@ grpc::Status FieldService::SetValue( grpc::ServerContext* context, const SetterR
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status FieldService::ClearChildObjects( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply )
+grpc::Status
+    GrpcFieldService::ClearChildObjects( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply )
 {
     CAFFA_ASSERT( request != nullptr );
 
-    auto session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
+    auto session = GrpcServerApplication::instance()->getExistingSession( request->session().uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
@@ -197,9 +198,9 @@ grpc::Status FieldService::ClearChildObjects( grpc::ServerContext* context, cons
         return grpc::Status( grpc::UNAUTHENTICATED, "Observing sessions are not valid for controlling operations" );
     }
 
-    auto fieldOwner = ObjectService::ObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
-                                                                                        request->class_keyword(),
-                                                                                        request->uuid() );
+    auto fieldOwner = GrpcObjectService::GrpcObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
+                                                                                                request->class_keyword(),
+                                                                                                request->uuid() );
     CAFFA_TRACE( "Clear Child Objects for field: " << request->keyword() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : fieldOwner->fields() )
@@ -237,11 +238,12 @@ grpc::Status FieldService::ClearChildObjects( grpc::ServerContext* context, cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status FieldService::RemoveChildObject( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply )
+grpc::Status
+    GrpcFieldService::RemoveChildObject( grpc::ServerContext* context, const FieldRequest* request, NullMessage* reply )
 {
     CAFFA_ASSERT( request != nullptr );
 
-    auto session = ServerApplication::instance()->getExistingSession( request->session().uuid() );
+    auto session = GrpcServerApplication::instance()->getExistingSession( request->session().uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + request->session().uuid() + "' is not valid" );
@@ -252,9 +254,9 @@ grpc::Status FieldService::RemoveChildObject( grpc::ServerContext* context, cons
         return grpc::Status( grpc::UNAUTHENTICATED, "Observing sessions are not valid for controlling operations" );
     }
 
-    auto fieldOwner = ObjectService::ObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
-                                                                                        request->class_keyword(),
-                                                                                        request->uuid() );
+    auto fieldOwner = GrpcObjectService::GrpcObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
+                                                                                                request->class_keyword(),
+                                                                                                request->uuid() );
     CAFFA_TRACE( "Remove Child Object at index " << request->index() << " for field: " << request->keyword() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : fieldOwner->fields() )
@@ -285,11 +287,12 @@ grpc::Status FieldService::RemoveChildObject( grpc::ServerContext* context, cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status FieldService::InsertChildObject( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply )
+grpc::Status
+    GrpcFieldService::InsertChildObject( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply )
 {
     auto fieldRequest = request->field();
 
-    auto session = ServerApplication::instance()->getExistingSession( fieldRequest.session().uuid() );
+    auto session = GrpcServerApplication::instance()->getExistingSession( fieldRequest.session().uuid() );
     if ( !session )
     {
         return grpc::Status( grpc::UNAUTHENTICATED, "Session '" + fieldRequest.session().uuid() + "' is not valid" );
@@ -300,9 +303,10 @@ grpc::Status FieldService::InsertChildObject( grpc::ServerContext* context, cons
         return grpc::Status( grpc::UNAUTHENTICATED, "Observing sessions are not valid for controlling operations" );
     }
 
-    auto fieldOwner = ObjectService::ObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
-                                                                                        fieldRequest.class_keyword(),
-                                                                                        fieldRequest.uuid() );
+    auto fieldOwner =
+        GrpcObjectService::GrpcObjectService::findCafObjectFromScriptNameAndUuid( session.get(),
+                                                                                  fieldRequest.class_keyword(),
+                                                                                  fieldRequest.uuid() );
     CAFFA_TRACE( " Inserting Child Object at index " << fieldRequest.index() << " for field: " << fieldRequest.keyword() );
     if ( !fieldOwner ) return grpc::Status( grpc::NOT_FOUND, "Object not found" );
     for ( auto field : fieldOwner->fields() )
@@ -344,24 +348,24 @@ grpc::Status FieldService::InsertChildObject( grpc::ServerContext* context, cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<AbstractCallback*> FieldService::createCallbacks()
+std::vector<AbstractGrpcCallback*> GrpcFieldService::createCallbacks()
 {
-    typedef FieldService Self;
-    return { new ServiceCallback<Self, FieldRequest, GenericValue>( this, &Self::GetValue, &Self::RequestGetValue ),
-             new ServiceCallback<Self, SetterRequest, NullMessage>( this, &Self::SetValue, &Self::RequestSetValue ),
-             new ServiceCallback<Self, FieldRequest, NullMessage>( this,
-                                                                   &Self::ClearChildObjects,
-                                                                   &Self::RequestClearChildObjects ),
-             new ServiceCallback<Self, FieldRequest, NullMessage>( this,
-                                                                   &Self::RemoveChildObject,
-                                                                   &Self::RequestRemoveChildObject ),
-             new ServiceCallback<Self, SetterRequest, NullMessage>( this,
-                                                                    &Self::InsertChildObject,
-                                                                    &Self::RequestInsertChildObject ) };
+    typedef GrpcFieldService Self;
+    return { new GrpcServiceCallback<Self, FieldRequest, GenericValue>( this, &Self::GetValue, &Self::RequestGetValue ),
+             new GrpcServiceCallback<Self, SetterRequest, NullMessage>( this, &Self::SetValue, &Self::RequestSetValue ),
+             new GrpcServiceCallback<Self, FieldRequest, NullMessage>( this,
+                                                                       &Self::ClearChildObjects,
+                                                                       &Self::RequestClearChildObjects ),
+             new GrpcServiceCallback<Self, FieldRequest, NullMessage>( this,
+                                                                       &Self::RemoveChildObject,
+                                                                       &Self::RequestRemoveChildObject ),
+             new GrpcServiceCallback<Self, SetterRequest, NullMessage>( this,
+                                                                        &Self::InsertChildObject,
+                                                                        &Self::RequestInsertChildObject ) };
 }
 
-caffa::FieldHandle* FieldService::scriptableFieldFromKeyword( const caffa::ObjectHandle* fieldOwner,
-                                                              const std::string&         keyword )
+caffa::FieldHandle* GrpcFieldService::scriptableFieldFromKeyword( const caffa::ObjectHandle* fieldOwner,
+                                                                  const std::string&         keyword )
 {
     CAFFA_ASSERT( fieldOwner );
 
