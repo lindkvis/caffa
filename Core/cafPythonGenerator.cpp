@@ -16,7 +16,7 @@
 //    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
 //    for more details.
 //
-#include "cafGrpcPythonGenerator.h"
+#include "cafPythonGenerator.h"
 
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
@@ -34,7 +34,6 @@
 #include <regex>
 
 using namespace caffa;
-using namespace caffa::rpc;
 
 PythonGenerator::~PythonGenerator()
 {
@@ -384,5 +383,5 @@ std::string PythonGenerator::generate( const caffa::MethodHandle* method, std::v
     return code;
 }
 
-bool pythonRegistered = caffa::rpc::CodeGeneratorFactory::instance()->registerCreator<caffa::rpc::PythonGenerator>(
-    typeid( caffa::rpc::PythonGenerator ).hash_code() );
+bool pythonRegistered = caffa::CodeGeneratorFactory::instance()->registerCreator<caffa::PythonGenerator>(
+    typeid( caffa::PythonGenerator ).hash_code() );
