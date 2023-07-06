@@ -16,7 +16,7 @@
 //    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
 //    for more details.
 //
-#include "cafGrpcMarkdownGenerator.h"
+#include "cafMarkdownGenerator.h"
 
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
@@ -33,7 +33,6 @@
 #include <regex>
 
 using namespace caffa;
-using namespace caffa::rpc;
 
 MarkdownGenerator::~MarkdownGenerator()
 {
@@ -181,5 +180,5 @@ std::string MarkdownGenerator::generate( const caffa::MethodHandle* method, std:
     return "";
 }
 
-bool markdownRegistered = caffa::rpc::CodeGeneratorFactory::instance()->registerCreator<caffa::rpc::MarkdownGenerator>(
-    typeid( caffa::rpc::MarkdownGenerator ).hash_code() );
+bool markdownRegistered = caffa::CodeGeneratorFactory::instance()->registerCreator<caffa::MarkdownGenerator>(
+    typeid( caffa::MarkdownGenerator ).hash_code() );

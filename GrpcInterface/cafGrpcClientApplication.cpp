@@ -27,7 +27,7 @@ using namespace caffa::rpc;
 ///
 //--------------------------------------------------------------------------------------------------
 ClientApplication::ClientApplication( const std::string& hostname, int portNumber )
-    : Application( { AppInfo::AppCapability::GRPC_CLIENT } )
+    : Application( { AppInfo::AppCapability::CLIENT } )
 
 {
     m_client = std::make_unique<caffa::rpc::Client>( caffa::Session::Type::REGULAR, hostname, portNumber );

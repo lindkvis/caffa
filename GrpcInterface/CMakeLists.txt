@@ -34,9 +34,6 @@ set(PUBLIC_HEADERS
     cafGrpcClientPassByRefObjectFactory.h
     cafGrpcClientPassByValueObjectFactory.h
     cafGrpcClientApplication.h
-    cafGrpcCodeGenerator.h
-    cafGrpcMarkdownGenerator.h
-    cafGrpcPythonGenerator.h
     cafGrpcMethodAccessor.h)
 
 set(PROJECT_FILES
@@ -50,9 +47,7 @@ set(PROJECT_FILES
     cafGrpcClient.cpp
     cafGrpcClientPassByRefObjectFactory.cpp
     cafGrpcClientPassByValueObjectFactory.cpp
-    cafGrpcClientApplication.cpp
-    cafGrpcMarkdownGenerator.cpp
-    cafGrpcPythonGenerator.cpp)
+    cafGrpcClientApplication.cpp)
 
 if(CAFFA_GRPC_FETCHCONTENT)
   include(FetchContent)

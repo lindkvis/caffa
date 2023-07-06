@@ -1,7 +1,7 @@
 // ##################################################################################################
 //
 //    Caffa
-//    Copyright (C) 2021- 3D-Radar AS
+//    Copyright (C) 2021- Kontur AS
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify

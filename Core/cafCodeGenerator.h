@@ -31,22 +31,19 @@ class FieldHandle;
 class ObjectHandle;
 class MethodHandle;
 
-namespace rpc
+class CodeGenerator
 {
-    class CodeGenerator
-    {
-    public:
-        virtual ~CodeGenerator() = default;
+public:
+    virtual ~CodeGenerator() = default;
 
-        virtual std::string name() const = 0;
+    virtual std::string name() const = 0;
 
-        virtual std::string generate( std::list<std::shared_ptr<caffa::Document>>& documents )      = 0;
-        virtual std::string generate( const caffa::ObjectHandle* object, bool passByValue = false ) = 0;
-        virtual std::string
-            generate( const caffa::FieldHandle* field, bool passByValue, std::vector<std::string>& dependencies ) = 0;
-        virtual std::string generate( const caffa::MethodHandle* method, std::vector<std::string>& dependencies ) = 0;
-    };
+    virtual std::string generate( std::list<std::shared_ptr<caffa::Document>>& documents )      = 0;
+    virtual std::string generate( const caffa::ObjectHandle* object, bool passByValue = false ) = 0;
+    virtual std::string
+        generate( const caffa::FieldHandle* field, bool passByValue, std::vector<std::string>& dependencies ) = 0;
+    virtual std::string generate( const caffa::MethodHandle* method, std::vector<std::string>& dependencies ) = 0;
+};
 
-    typedef caffa::Factory<CodeGenerator, size_t> CodeGeneratorFactory;
-} // namespace rpc
+typedef caffa::Factory<CodeGenerator, size_t> CodeGeneratorFactory;
 } // namespace caffa
