@@ -61,12 +61,7 @@ public:
     grpc::Status InsertChildObject( grpc::ServerContext* context, const SetterRequest* request, NullMessage* reply ) override;
     std::vector<AbstractGrpcCallback*> createCallbacks() override;
 
-    static caffa::FieldHandle* scriptableFieldFromKeyword( const caffa::ObjectHandle* fieldOwner,
-                                                           const std::string&         keyword );
-
-private:
-    static std::map<const caffa::ObjectHandle*, std::map<std::string, caffa::FieldHandle*>> s_fieldCache;
-    static std::mutex                                                                       s_fieldCacheMutex;
+    static caffa::FieldHandle* fieldFromKeyword( const caffa::ObjectHandle* fieldOwner, const std::string& keyword );
 };
 
 } // namespace caffa::rpc

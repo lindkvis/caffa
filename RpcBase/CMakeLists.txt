@@ -10,14 +10,17 @@ set(PUBLIC_HEADERS
     cafRpcServer.h
     cafRpcClient.h
     cafRpcApplication.h
+    cafRpcServerApplication.h
     cafRpcChildFieldAccessor.h
     cafRpcChildArrayFieldAccessor.h
     cafRpcDataFieldAccessor.h
     cafRpcClientPassByRefObjectFactory.h
     cafRpcClientPassByValueObjectFactory.h
-    cafRpcMethodAccessor.h)
+    cafRpcMethodAccessor.h
+    cafRpcObjectConversion.h)
 
-set(PROJECT_FILES ${PUBLIC_HEADERS} cafRpcApplication.cpp cafRpcClientPassByRefObjectFactory.cpp cafRpcClientPassByValueObjectFactory.cpp)
+set(PROJECT_FILES ${PUBLIC_HEADERS} cafRpcApplication.cpp cafRpcClientPassByRefObjectFactory.cpp cafRpcClientPassByValueObjectFactory.cpp
+                  cafRpcObjectConversion.cpp cafRpcServerApplication.cpp)
 
 if(CAFFA_BUILD_SHARED)
   message(STATUS "Building ${PROJECT_NAME} shared")

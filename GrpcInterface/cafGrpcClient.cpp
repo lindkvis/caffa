@@ -46,6 +46,7 @@
 #include "cafRpcApplication.h"
 #include "cafRpcClientPassByRefObjectFactory.h"
 #include "cafRpcClientPassByValueObjectFactory.h"
+#include "cafRpcObjectConversion.h"
 #include "cafSession.h"
 
 #include <grpc/grpc.h>
@@ -292,7 +293,7 @@ public:
             CAFFA_TRACE( "Got document" );
             caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
             serializer.setWriteTypesAndValidators( false );
-            document = caffa::rpc::GrpcObjectService::createCafObjectFromJson( objectReply.json(), serializer );
+            document = serializer.createObjectFromString( objectReply.json() );
             CAFFA_TRACE( "Document completed with UUID " << document->uuid() );
         }
         else
@@ -336,8 +337,7 @@ public:
                 caffa::rpc::RpcObject objectReply;
                 CAFFA_TRACE( "Calling GetDocument()" );
                 auto status = m_objectStub->GetDocument( &docContext, request, &objectReply );
-                std::shared_ptr<caffa::ObjectHandle> document =
-                    caffa::rpc::GrpcObjectService::createCafObjectFromJson( objectReply.json(), serializer );
+                std::shared_ptr<caffa::ObjectHandle> document = serializer.createObjectFromString( objectReply.json() );
                 documents.push_back( document );
             }
         }
@@ -429,7 +429,7 @@ public:
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
         auto                rpcChildObject = std::make_unique<RpcObject>();
-        rpcChildObject->set_json( GrpcObjectService::createJsonFromResultOrParameterObject( childObject ) );
+        rpcChildObject->set_json( caffa::JsonSerializer().writeObjectToString( childObject ) );
 
         auto field = std::make_unique<FieldRequest>();
         field->set_class_keyword( std::string( objectHandle->classKeyword() ) );
@@ -502,7 +502,7 @@ public:
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
         auto                rpcChildObject = std::make_unique<RpcObject>();
-        rpcChildObject->set_json( GrpcObjectService::createJsonFromProjectObject( childObject ) );
+        rpcChildObject->set_json( createJsonFromProjectObject( childObject ) );
 
         auto field = std::make_unique<FieldRequest>();
         field->set_class_keyword( std::string( objectHandle->classKeyword() ) );
@@ -534,7 +534,7 @@ public:
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
         auto                rpcChildObject = std::make_unique<RpcObject>();
-        rpcChildObject->set_json( GrpcObjectService::createJsonFromResultOrParameterObject( childObject ) );
+        rpcChildObject->set_json( caffa::JsonSerializer().writeObjectToString( childObject ) );
         auto field = std::make_unique<FieldRequest>();
 
         field->set_class_keyword( std::string( objectHandle->classKeyword() ) );
@@ -608,7 +608,7 @@ public:
     {
         auto self   = std::make_unique<RpcObject>();
         auto method = std::make_unique<RpcObject>();
-        self->set_json( GrpcObjectService::createJsonSelfReferenceFromCaf( selfObject ) );
+        self->set_json( createJsonSelfReferenceFromCaf( selfObject ) );
 
         method->set_json( jsonMethod );
 

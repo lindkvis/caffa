@@ -25,12 +25,12 @@
 
 using namespace caffa::rpc;
 
-Application::Application( const unsigned int& capabilities )
+Application::Application( unsigned int capabilities )
     : caffa::Application( capabilities )
 {
 }
 
-Application::Application( const AppInfo::AppCapability& capability )
+Application::Application( AppInfo::AppCapability capability )
     : caffa::Application( capability )
 {
 }

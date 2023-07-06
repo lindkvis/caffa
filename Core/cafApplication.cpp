@@ -25,7 +25,7 @@ void Application::registerInstance( Application* instance )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Application::Application( const unsigned int& capabilities )
+Application::Application( unsigned int capabilities )
     : m_capabilities( capabilities )
 {
     registerInstance( const_cast<Application*>( this ) );
@@ -34,7 +34,7 @@ Application::Application( const unsigned int& capabilities )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caffa::Application::Application( const AppInfo::AppCapability& capability )
+caffa::Application::Application( AppInfo::AppCapability capability )
     : m_capabilities( static_cast<unsigned int>( capability ) )
 {
     registerInstance( const_cast<Application*>( this ) );

@@ -23,6 +23,13 @@
 #include <list>
 #include <memory>
 #include <mutex>
+#include <string>
+
+namespace caffa
+{
+class Object;
+class Session;
+} // namespace caffa
 
 namespace caffa::rpc
 {
@@ -31,6 +38,11 @@ class Server
 public:
     Server()          = default;
     virtual ~Server() = default;
+
+    static caffa::Object* findCafObjectFromJsonObject( const caffa::Session* session, const std::string& jsonObject );
+    static caffa::Object* findCafObjectFromScriptNameAndUuid( const caffa::Session* session,
+                                                              const std::string&    scriptClassName,
+                                                              const std::string&    objectUuid );
 
     virtual void run()            = 0;
     virtual void quit()           = 0;
