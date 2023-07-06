@@ -40,7 +40,6 @@ namespace rpc
 
         virtual int  portNumber() const = 0;
         virtual void run()              = 0;
-        virtual bool running() const    = 0;
         virtual void quit()             = 0;
 
         virtual std::shared_ptr<Document> document( const std::string& documentId, const caffa::Session* session ) = 0;

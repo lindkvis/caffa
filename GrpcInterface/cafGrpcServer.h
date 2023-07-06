@@ -47,10 +47,10 @@ public:
 
     void run() override;
     void quit() override;
-    bool quitting() const override;
-
-    int  port() const override;
     bool running() const override;
+
+    bool quitting() const;
+    int  port() const;
 
 private:
     void initialize();

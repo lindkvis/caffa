@@ -44,11 +44,8 @@ public:
                                                               const std::string&    scriptClassName,
                                                               const std::string&    objectUuid );
 
-    virtual void run()            = 0;
-    virtual void quit()           = 0;
-    virtual bool quitting() const = 0;
-
-    virtual int  port() const    = 0;
+    virtual void run()           = 0;
+    virtual void quit()          = 0;
     virtual bool running() const = 0;
 
 private:

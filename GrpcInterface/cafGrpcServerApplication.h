@@ -48,8 +48,9 @@ namespace rpc
 
         int  portNumber() const override;
         void run() override;
-        bool running() const override;
         void quit() override;
+
+        bool running() const;
 
     private:
         std::unique_ptr<GrpcServer> m_server;
