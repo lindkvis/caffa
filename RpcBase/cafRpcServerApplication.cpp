@@ -18,13 +18,16 @@
 //
 #include "cafRpcServerApplication.h"
 
+#include <cafDocument.h>
+
 using namespace caffa::rpc;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 ServerApplication::ServerApplication( unsigned capability )
-    : Application( capability )
+    : RpcApplication( capability )
+    , m_requiresValidSession( true )
 {
 }
 
@@ -32,7 +35,8 @@ ServerApplication::ServerApplication( unsigned capability )
 ///
 //--------------------------------------------------------------------------------------------------
 ServerApplication::ServerApplication( AppInfo::AppCapability capability )
-    : Application( capability )
+    : RpcApplication( capability )
+    , m_requiresValidSession( true )
 {
 }
 
@@ -43,4 +47,20 @@ ServerApplication* caffa::rpc::ServerApplication::instance()
 {
     Application* appInstance = Application::instance();
     return dynamic_cast<ServerApplication*>( appInstance );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool caffa::rpc::ServerApplication::requiresValidSession() const
+{
+    return m_requiresValidSession;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void caffa::rpc::ServerApplication::setRequiresValidSession( bool requiresValidSession )
+{
+    m_requiresValidSession = requiresValidSession;
 }

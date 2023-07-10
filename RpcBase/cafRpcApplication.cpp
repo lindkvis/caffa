@@ -25,23 +25,23 @@
 
 using namespace caffa::rpc;
 
-Application::Application( unsigned int capabilities )
+RpcApplication::RpcApplication( unsigned int capabilities )
     : caffa::Application( capabilities )
 {
 }
 
-Application::Application( AppInfo::AppCapability capability )
+RpcApplication::RpcApplication( AppInfo::AppCapability capability )
     : caffa::Application( capability )
 {
 }
 
-Application* Application::instance()
+RpcApplication* RpcApplication::instance()
 {
     caffa::Application* appInstance = caffa::Application::instance();
-    return dynamic_cast<Application*>( appInstance );
+    return dynamic_cast<RpcApplication*>( appInstance );
 }
 
-std::string Application::readKeyAndCertificate( const std::string& path )
+std::string RpcApplication::readKeyAndCertificate( const std::string& path )
 {
     std::ifstream stream( path );
     if ( !stream.good() )

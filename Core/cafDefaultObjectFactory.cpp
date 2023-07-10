@@ -6,6 +6,16 @@ namespace caffa
 ///  ObjectFactory implementations
 //--------------------------------------------------------------------------------------------------
 
+std::list<std::string> DefaultObjectFactory::classes() const
+{
+    std::list<std::string> classList;
+    for ( auto [name, creator] : m_factoryMap )
+    {
+        classList.push_back( name );
+    }
+    return classList;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

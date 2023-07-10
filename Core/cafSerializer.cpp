@@ -20,10 +20,24 @@
 
 using namespace caffa;
 
+std::string Serializer::serializationTypeLabel( SerializationType type )
+{
+    switch ( type )
+    {
+        case SerializationType::DATA_FULL:
+            return "DATA";
+        case SerializationType::DATA_SKELETON:
+            return "DATA_SKELETON";
+        case SerializationType::SCHEMA:
+            return "SCHEMA";
+    }
+    CAFFA_ASSERT( false );
+    return "";
+}
+
 Serializer::Serializer( ObjectFactory* objectFactory )
     : m_objectFactory( objectFactory )
-    , m_writeTypesAndValidators( true )
-    , m_serializeDataTypes( true )
+    , m_serializationType( SerializationType::DATA_FULL )
     , m_serializeUuids( true )
 {
 }
@@ -34,15 +48,9 @@ Serializer& Serializer::setFieldSelector( FieldSelector fieldSelector )
     return *this;
 }
 
-Serializer& Serializer::setWriteTypesAndValidators( bool writeTypesAndValidators )
+Serializer& Serializer::setSerializationType( SerializationType type )
 {
-    m_writeTypesAndValidators = writeTypesAndValidators;
-    return *this;
-}
-
-Serializer& Serializer::setSerializeDataTypes( bool serializeDataTypes )
-{
-    m_serializeDataTypes = serializeDataTypes;
+    m_serializationType = type;
     return *this;
 }
 
@@ -62,14 +70,9 @@ Serializer::FieldSelector Serializer::fieldSelector() const
     return m_fieldSelector;
 }
 
-bool Serializer::writeTypesAndValidators() const
+Serializer::SerializationType Serializer::serializationType() const
 {
-    return m_writeTypesAndValidators;
-}
-
-bool Serializer::serializeDataTypes() const
-{
-    return m_serializeDataTypes;
+    return m_serializationType;
 }
 
 bool Serializer::serializeUuids() const

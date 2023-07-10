@@ -23,15 +23,17 @@ bool FieldJsonCapability::assertValid() const
 {
     if ( owner()->keyword().empty() )
     {
-        std::cout << "Field: Detected use of non-initialized field. Did you forget to do initField() on "
+        std::cerr << "Field: Detected use of non-initialized field. Did you forget to do initField() on "
                      "this field ?\n";
+        CAFFA_ASSERT( false );
         return false;
     }
 
     if ( !ObjectHandle::isValidKeyword( owner()->keyword() ) )
     {
-        std::cout << "Field: The supplied keyword: \"" << owner()->keyword()
+        std::cerr << "Field: The supplied keyword: \"" << owner()->keyword()
                   << "\" is an invalid element name, and will break your file format!\n";
+        CAFFA_ASSERT( false );
         return false;
     }
 

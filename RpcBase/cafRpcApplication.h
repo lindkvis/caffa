@@ -20,17 +20,17 @@
 
 #include "cafApplication.h"
 
-#include <memory>
+#include <string>
 
 namespace caffa::rpc
 {
-class Application : public caffa::Application
+class RpcApplication : public caffa::Application
 {
 public:
-    Application( unsigned int capabilities );
-    Application( AppInfo::AppCapability capability );
+    RpcApplication( unsigned int capabilities );
+    RpcApplication( AppInfo::AppCapability capability );
 
-    static Application* instance();
+    static RpcApplication* instance();
 
     static std::string readKeyAndCertificate( const std::string& path );
 };

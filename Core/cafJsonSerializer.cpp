@@ -38,22 +38,38 @@ using namespace caffa;
 //--------------------------------------------------------------------------------------------------
 void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::json& jsonObject ) const
 {
-    CAFFA_TRACE( "Reading fields from json with serialize setting: writeTypesAndValidators = "
-                 << this->writeTypesAndValidators() << ", serializeDataTypes = " << this->serializeDataTypes()
-                 << ", serializeUuids = " << this->serializeUuids() );
+    CAFFA_DEBUG( "Reading fields from json with type = " << serializationTypeLabel( this->serializationType() )
+                                                         << ", serializeUuids = " << this->serializeUuids() );
+
+    if ( this->serializationType() != Serializer::SerializationType::DATA_FULL &&
+         this->serializationType() != Serializer::SerializationType::DATA_SKELETON )
+    {
+        CAFFA_ERROR( "Reading JSON into objects only makes sense for data" );
+        return;
+    }
 
     CAFFA_ASSERT( jsonObject.is_object() );
 
+    if ( this->serializeUuids() && jsonObject.contains( "uuid" ) )
+    {
+        auto uuid = jsonObject["uuid"].get<std::string>();
+        CAFFA_DEBUG( "Found UUID: " << uuid );
+        object->setUuid( uuid );
+    }
+
+    if ( this->serializationType() == Serializer::SerializationType::DATA_SKELETON )
+    {
+        CAFFA_ASSERT( this->serializeUuids() && "Does not make sense to serialise data skeleton without UUIDs" );
+        CAFFA_ASSERT( jsonObject.contains( "uuid" ) );
+    }
+
     for ( const auto& [keyword, value] : jsonObject.items() )
     {
-        CAFFA_TRACE( "Reading field: " << keyword << " with value " << value.dump() );
+        CAFFA_DEBUG( "Reading field: " << keyword << " with value " << value.dump() );
 
-        if ( keyword == "uuid" && this->serializeUuids() )
+        if ( keyword == "uuid" )
         {
-            CAFFA_TRACE( "Found UUID: " << value );
-            const auto& uuid = value;
-            CAFFA_ASSERT( uuid.is_string() && !uuid.empty() );
-            object->setUuid( uuid );
+            continue;
         }
         else if ( keyword == "keyword" || keyword == "class" )
         {
@@ -62,7 +78,8 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
                 classKeyword.is_string() &&
                 ObjectHandle::matchesClassKeyword( classKeyword.get<std::string>(), object->classInheritanceStack() ) );
         }
-        else if ( this->writeTypesAndValidators() && !value.is_null() )
+        else if ( this->serializationType() == Serializer::SerializationType::DATA_FULL && !value.is_null() &&
+                  keyword != "methods" )
         {
             auto fieldHandle = object->findField( keyword );
             if ( fieldHandle && fieldHandle->capability<FieldJsonCapability>() )
@@ -72,6 +89,7 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
                 auto ioFieldHandle = fieldHandle->capability<FieldJsonCapability>();
                 if ( ioFieldHandle )
                 {
+                    CAFFA_DEBUG( "Reading field " << keyword );
                     ioFieldHandle->readFromJson( value, *this );
                 }
                 else
@@ -92,32 +110,71 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
 //--------------------------------------------------------------------------------------------------
 void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::json& jsonObject ) const
 {
-    CAFFA_TRACE( "Writing fields from json with serialize setting: writeTypesAndValidators = "
-                 << this->writeTypesAndValidators() << ", serializeDataTypes = " << this->serializeDataTypes()
+    CAFFA_TRACE( "Writing fields from json with serialize setting: type = "
+                 << serializationTypeLabel( this->serializationType() )
                  << ", serializeUuids = " << this->serializeUuids() );
-    jsonObject["keyword"] = object->classKeyword();
 
-    if ( this->serializeUuids() )
+    if ( this->serializationType() == Serializer::SerializationType::SCHEMA )
     {
-        if ( !object->uuid().empty() )
+        jsonObject["type"]  = "object";
+        auto jsonProperties = nlohmann::json::object();
+
+        jsonProperties["keyword"] = { { "type", "string" } };
+        jsonProperties["uuid"]    = { { "type", "string" } };
+        if ( !object->classDocumentation().empty() )
         {
-            CAFFA_TRACE( "Writing UUID: " << object->uuid() );
+            jsonProperties["description"] = object->classDocumentation();
+        }
+
+        for ( auto field : object->fields() )
+        {
+            if ( this->fieldSelector() && !this->fieldSelector()( field ) ) continue;
+
+            auto keyword = field->keyword();
+
+            const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
+            if ( ioCapability && keyword != "uuid" )
+            {
+                nlohmann::json value;
+                ioCapability->writeToJson( value, *this );
+                jsonProperties[keyword] = value;
+            }
+        }
+
+        auto methods = nlohmann::json::array();
+        for ( auto method : object->methods() )
+        {
+            methods.push_back( method->jsonSkeleton() );
+        }
+        if ( !methods.empty() )
+        {
+            jsonProperties["methods"] = methods;
+        }
+
+        jsonObject["properties"] = jsonProperties;
+        jsonObject["required"]   = { "keyword" };
+    }
+    else
+    {
+        jsonObject["keyword"] = object->classKeyword();
+        if ( this->serializeUuids() && !object->uuid().empty() )
+        {
             jsonObject["uuid"] = object->uuid();
         }
-    }
 
-    for ( auto field : object->fields() )
-    {
-        if ( this->fieldSelector() && !this->fieldSelector()( field ) ) continue;
-
-        auto keyword = field->keyword();
-
-        const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
-        if ( ioCapability && keyword != "uuid" )
+        for ( auto field : object->fields() )
         {
-            nlohmann::json value;
-            ioCapability->writeToJson( value, *this );
-            jsonObject[keyword] = value;
+            if ( this->fieldSelector() && !this->fieldSelector()( field ) ) continue;
+
+            auto keyword = field->keyword();
+
+            const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
+            if ( ioCapability && keyword != "uuid" )
+            {
+                nlohmann::json value;
+                ioCapability->writeToJson( value, *this );
+                if ( !value.is_null() ) jsonObject[keyword] = value;
+            }
         }
     }
 }
@@ -133,24 +190,16 @@ JsonSerializer::JsonSerializer( ObjectFactory* objectFactory /* = nullptr */ )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::string, std::string> JsonSerializer::readClassKeywordAndUUIDFromObjectString( const std::string& string ) const
+std::string JsonSerializer::readUUIDFromObjectString( const std::string& string ) const
 {
     nlohmann::json jsonValue = nlohmann::json::parse( string );
 
-    std::pair<std::string, std::string> keywordUuidPair;
-
     if ( jsonValue.is_object() )
     {
-        auto keyword_it = jsonValue.find( "keyword" );
-        if ( keyword_it == jsonValue.end() )
-        {
-            keyword_it = jsonValue.find( "class" );
-        }
         auto uuid_it = jsonValue.find( "uuid" );
-        if ( keyword_it != jsonValue.end() ) keywordUuidPair.first = keyword_it.value();
-        if ( uuid_it != jsonValue.end() ) keywordUuidPair.second = uuid_it.value();
+        if ( uuid_it != jsonValue.end() ) return uuid_it->get<std::string>();
     }
-    return keywordUuidPair;
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,6 +268,8 @@ std::shared_ptr<ObjectHandle> JsonSerializer::copyAndCastBySerialization( const 
 //--------------------------------------------------------------------------------------------------
 std::shared_ptr<ObjectHandle> JsonSerializer::createObjectFromString( const std::string& string ) const
 {
+    CAFFA_DEBUG( "Creating object from JSON string '" << string << "'" );
+
     if ( string.empty() ) return nullptr;
 
     nlohmann::json jsonObject = nlohmann::json::parse( string );
@@ -241,6 +292,8 @@ std::shared_ptr<ObjectHandle> JsonSerializer::createObjectFromString( const std:
     std::shared_ptr<ObjectHandle> newObject = m_objectFactory->create( classKeyword );
 
     if ( !newObject ) return nullptr;
+    CAFFA_DEBUG( "New Object got UUID: " << newObject->uuid() );
+    CAFFA_DEBUG( "Now reading JSON: " << string );
 
     readObjectFromJson( newObject.get(), jsonObject );
 

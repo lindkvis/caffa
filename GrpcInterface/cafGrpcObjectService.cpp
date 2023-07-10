@@ -77,7 +77,7 @@ grpc::Status GrpcObjectService::GetDocument( grpc::ServerContext* context, const
     if ( document )
     {
         CAFFA_TRACE( "Found document with UUID: " << document->uuid() << " and will copy i tot gRPC data structure" );
-        reply->set_json( createJsonFromProjectObject( document.get() ) );
+        reply->set_json( createJsonSchemaFromProjectObject( document.get() ).dump() );
         return grpc::Status::OK;
     }
     CAFFA_WARNING( "Document not found '" + request->document_id() + "'" );
@@ -112,7 +112,7 @@ grpc::Status
 grpc::Status GrpcObjectService::ExecuteMethod( grpc::ServerContext* context, const MethodRequest* request, RpcObject* reply )
 {
     const RpcObject& self = request->self_object();
-    CAFFA_TRACE( "Execute method: " << request->method().json() );
+    CAFFA_TRACE( "Execute method: " << request->method_name() );
 
     auto session = GrpcServerApplication::instance()->getExistingSession( request->session().uuid() );
     if ( !session )
@@ -125,7 +125,7 @@ grpc::Status GrpcObjectService::ExecuteMethod( grpc::ServerContext* context, con
         auto matchingObject = findCafObjectFromJsonObject( session.get(), self.json() );
         if ( matchingObject )
         {
-            auto methodJson = nlohmann::json::parse( request->method().json() );
+            auto methodJson = nlohmann::json::parse( request->method_name() );
             auto method     = matchingObject->findMethod( methodJson["keyword"] );
 
             if ( method )
@@ -135,7 +135,7 @@ grpc::Status GrpcObjectService::ExecuteMethod( grpc::ServerContext* context, con
                     return grpc::Status( grpc::UNAUTHENTICATED, "Operation cannot be completed with observing sessions" );
                 }
 
-                auto result = method->execute( request->method().json() );
+                auto result = method->execute( request->arguments().json() );
                 reply->set_json( result );
 
                 CAFFA_TRACE( "Result JSON: " << reply->json() );
@@ -174,7 +174,7 @@ grpc::Status
         CAFFA_TRACE( "Found " << methods.size() << " methods" );
         for ( auto method : methods )
         {
-            CAFFA_TRACE( "Found method: " << method->name() );
+            CAFFA_TRACE( "Found method: " << method->keyword() );
             RpcObject* newMethodObject = reply->add_objects();
             newMethodObject->set_json( method->schema() );
         }

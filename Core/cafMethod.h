@@ -78,16 +78,20 @@ public:
     {
         CAFFA_DEBUG( "Attempting to get a value of type " << PortableDataType<Result>::name()
                                                           << " from JSON: " << jsonResultString );
-        auto jsonResult = nlohmann::json::parse( jsonResultString );
+        nlohmann::json jsonResult;
+        if ( !jsonResultString.empty() )
+        {
+            jsonResult = nlohmann::json::parse( jsonResultString );
+        }
         return jsonToValue<Result>( jsonResult, objectFactory );
     }
 
     nlohmann::json toJson( ArgTypes... args ) const
     {
         auto jsonMethod = nlohmann::json::object();
-        CAFFA_ASSERT( !name().empty() );
+        CAFFA_ASSERT( !keyword().empty() );
 
-        jsonMethod["keyword"] = name();
+        jsonMethod["keyword"] = keyword();
 
         constexpr std::size_t n = sizeof...( args );
         if constexpr ( n > 0 )
@@ -117,12 +121,12 @@ public:
         return jsonMethod;
     }
 
-    nlohmann::json jsonSkeleton() const
+    nlohmann::json jsonSkeleton() const override
     {
         auto jsonMethod = nlohmann::json::object();
-        CAFFA_ASSERT( !name().empty() );
+        CAFFA_ASSERT( !keyword().empty() );
 
-        jsonMethod["keyword"] = name();
+        jsonMethod["keyword"] = keyword();
         auto jsonArguments    = jsonArgumentArray( std::index_sequence_for<ArgTypes...>() );
         if ( !jsonArguments.empty() )
         {

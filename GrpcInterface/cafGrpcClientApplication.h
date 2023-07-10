@@ -27,7 +27,7 @@ namespace caffa::rpc
 {
 class GrpcClient;
 
-class GrpcClientApplication : public Application
+class GrpcClientApplication : public RpcApplication
 {
 public:
     GrpcClientApplication( const std::string& hostname, int portNumber );

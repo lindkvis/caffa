@@ -5,6 +5,25 @@ using namespace caffa;
 
 Application* Application::s_instance = nullptr;
 
+void caffa::to_json( nlohmann::json& jsonValue, const AppInfo& appInfo )
+{
+    jsonValue                  = nlohmann::json::object();
+    jsonValue["name"]          = appInfo.name;
+    jsonValue["type"]          = appInfo.appType;
+    jsonValue["major_version"] = appInfo.majorVersion;
+    jsonValue["minor_version"] = appInfo.minorVersion;
+    jsonValue["patch_version"] = appInfo.patchVersion;
+}
+
+void caffa::from_json( const nlohmann::json& jsonValue, AppInfo& appInfo )
+{
+    appInfo.name         = jsonValue["name"].get<std::string>();
+    appInfo.appType      = jsonValue["type"].get<unsigned>();
+    appInfo.majorVersion = jsonValue["major_version"].get<int>();
+    appInfo.minorVersion = jsonValue["minor_version"].get<int>();
+    appInfo.patchVersion = jsonValue["patch_version"].get<int>();
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

@@ -148,9 +148,9 @@ public:
 
             CAFFA_ASSERT( !m_serverKeyFile.empty() && !m_serverCertFile.empty() && !m_caCertFile.empty() );
 
-            std::string serverCert = caffa::rpc::Application::readKeyAndCertificate( m_serverCertFile );
-            std::string serverKey  = caffa::rpc::Application::readKeyAndCertificate( m_serverKeyFile );
-            std::string caCert     = caffa::rpc::Application::readKeyAndCertificate( m_caCertFile );
+            std::string serverCert = caffa::rpc::RpcApplication::readKeyAndCertificate( m_serverCertFile );
+            std::string serverKey  = caffa::rpc::RpcApplication::readKeyAndCertificate( m_serverKeyFile );
+            std::string caCert     = caffa::rpc::RpcApplication::readKeyAndCertificate( m_caCertFile );
 
             grpc::SslServerCredentialsOptions::PemKeyCertPair pkcp;
             pkcp.private_key = serverKey;

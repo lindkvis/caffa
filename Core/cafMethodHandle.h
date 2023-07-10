@@ -1,6 +1,6 @@
 // ##################################################################################################
 //
-//    CAFFA
+//    Caffa
 //    Copyright (C) Kontur As
 //
 //    GNU Lesser General Public License Usage
@@ -18,6 +18,10 @@
 //
 // ##################################################################################################
 #pragma once
+
+#include "cafObjectAttribute.h"
+
+#include <nlohmann/json.hpp>
 
 #include <string>
 #include <vector>
@@ -47,7 +51,7 @@ protected:
     ObjectFactory*      m_objectFactory;
 };
 
-class MethodHandle
+class MethodHandle : public ObjectAttribute
 {
 public:
     enum class Type
@@ -60,8 +64,9 @@ public:
         : m_documentation( "A generic object method" )
     {
     }
+    ~MethodHandle() override = default;
 
-    std::string name() const { return m_name; }
+    std::string keyword() const override { return m_name; }
     void        setArgumentNames( const std::vector<std::string>& argumentNames ) { m_argumentNames = argumentNames; }
     const std::vector<std::string>& argumentNames() const { return m_argumentNames; }
 
@@ -69,8 +74,9 @@ public:
     const std::string& documentation() const { return m_documentation; }
     void               setDocumentation( const std::string& documentation ) { m_documentation = documentation; }
 
-    virtual std::string execute( const std::string& jsonArgumentsString ) const = 0;
-    virtual std::string schema() const                                          = 0;
+    virtual std::string    execute( const std::string& jsonArgumentsString ) const = 0;
+    virtual std::string    schema() const                                          = 0;
+    virtual nlohmann::json jsonSkeleton() const                                    = 0;
 
     MethodAccessorInterface* accessor() const { return m_accessor.get(); }
     void setAccessor( std::unique_ptr<MethodAccessorInterface> accessor ) { m_accessor = std::move( accessor ); }

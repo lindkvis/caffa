@@ -23,6 +23,7 @@
 #pragma once
 
 #include "cafAssert.h"
+#include "cafJsonDataType.h"
 #include "cafPortableDataType.h"
 
 #include <nlohmann/json.hpp>
@@ -305,23 +306,20 @@ struct PortableDataType<std::vector<AppEnum<EnumType>>>
 };
 
 template <typename EnumType>
-struct PortableDataType<std::vector<std::vector<AppEnum<EnumType>>>>
+struct JsonDataType<AppEnum<EnumType>>
 {
-    static std::string name()
+    static nlohmann::json type()
     {
-        auto              labels = AppEnum<EnumType>::labels();
-        std::stringstream ss;
-        ss << "AppEnum[][](";
-        for ( size_t i = 0; i < labels.size(); ++i )
+        auto values = nlohmann::json::array();
+        for ( auto entry : AppEnum<EnumType>::labels() )
         {
-            if ( i > 0u ) ss << ",";
-            ss << labels[i];
+            values.push_back( entry );
         }
-        ss << ")";
-        return ss.str();
+        auto object    = nlohmann::json::object();
+        object["enum"] = values;
+        return object;
     }
 };
-
 //==================================================================================================
 /// Implementation of stream operators to make Field<AppEnum<> > work smoothly
 /// Assumes that the stream ends at the end of the enum label

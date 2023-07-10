@@ -25,6 +25,7 @@
 
 #include "cafAssert.h"
 #include "cafFieldHandle.h"
+#include "cafJsonDataType.h"
 #include "cafLogger.h"
 #include "cafMethodHandle.h"
 #include "cafObjectCapability.h"
@@ -84,6 +85,11 @@ public:
      */
     static constexpr bool isValidKeyword( const std::string_view& type )
     {
+        if ( type == "keyword" ) return false;
+        if ( type == "required" ) return false;
+        if ( type == "methods" ) return false;
+        if ( type == "type" ) return false;
+
         if ( caffa::StringTools::isdigit( type[0] ) ) return false;
 
         auto end = std::find( type.begin(), type.end(), '\0' );
@@ -219,6 +225,24 @@ concept IsSharedPtr = is_shared_ptr<T>::value;
 /**
  * The portable type id for an ObjectHandle
  */
+template <DerivesFromObjectHandle DataType>
+struct PortableDataType<DataType>
+{
+    static std::string name() { return std::string( "object::" ) + DataType::classKeywordStatic(); }
+};
+
+/**
+ * The portable type id for an ObjectHandle
+ */
+template <DerivesFromObjectHandle DataType>
+struct PortableDataType<std::vector<DataType>>
+{
+    static std::string name() { return std::string( "object[]::" ) + DataType::classKeywordStatic(); }
+};
+
+/**
+ * The portable type id for an ObjectHandle
+ */
 template <IsSharedPtr DataType>
 struct PortableDataType<DataType>
 {
@@ -246,17 +270,14 @@ struct PortableDataType<std::vector<DataType>>
  * The portable type id for an ObjectHandle
  */
 template <DerivesFromObjectHandle DataType>
-struct PortableDataType<DataType>
+struct JsonDataType<DataType>
 {
-    static std::string name() { return std::string( "object::" ) + DataType::classKeywordStatic(); }
+    static nlohmann::json type()
+    {
+        auto object    = nlohmann::json::object();
+        object["$ref"] = DataType::classKeywordStatic();
+        return object;
+    }
 };
 
-/**
- * The portable type id for an ObjectHandle
- */
-template <DerivesFromObjectHandle DataType>
-struct PortableDataType<std::vector<DataType>>
-{
-    static std::string name() { return std::string( "object[]::" ) + DataType::classKeywordStatic(); }
-};
 } // namespace caffa

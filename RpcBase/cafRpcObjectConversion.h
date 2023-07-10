@@ -18,6 +18,8 @@
 //
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include <string>
 
 namespace caffa
@@ -29,11 +31,10 @@ class Session;
 namespace caffa::rpc
 {
 caffa::ObjectHandle* findCafObjectFromJsonObject( const caffa::Session* session, const std::string& jsonObject );
-caffa::ObjectHandle* findCafObjectFromScriptNameAndUuid( const caffa::Session* session,
-                                                         const std::string&    scriptClassName,
-                                                         const std::string&    objectUuid );
+caffa::ObjectHandle* findCafObjectFromUuid( const caffa::Session* session, const std::string& objectUuid );
 
-std::string createJsonSelfReferenceFromCaf( const caffa::ObjectHandle* source );
-std::string createJsonFromProjectObject( const caffa::ObjectHandle* source );
+nlohmann::json createJsonSchemaFromProjectObject( const caffa::ObjectHandle* source );
+nlohmann::json createJsonSkeletonFromProjectObject( const caffa::ObjectHandle* source );
+nlohmann::json createJsonFromProjectObject( const caffa::ObjectHandle* source );
 
 } // namespace caffa::rpc
