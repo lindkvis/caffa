@@ -1,7 +1,7 @@
 // ##################################################################################################
 //
 //    Caffa
-//    Copyright (C) Gaute Lindkvist
+//    Copyright (C) 2023- Kontur AS
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify
@@ -52,7 +52,8 @@ public:
     std::shared_ptr<caffa::ObjectHandle>              document( const std::string& documentId ) const override;
     std::vector<std::shared_ptr<caffa::ObjectHandle>> documents() const;
     std::string                                       execute( caffa::not_null<const caffa::ObjectHandle*> selfObject,
-                                                               const std::string&                          jsonMethod ) const override;
+                                                               const std::string&                          methodName,
+                                                               const std::string&                          jsonArguments ) const override;
     bool                                              stopServer() override;
     void                                              sendKeepAlive() override;
 

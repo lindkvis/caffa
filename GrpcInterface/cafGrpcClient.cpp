@@ -79,9 +79,9 @@ public:
             CAFFA_DEBUG( "Connecting to " << hostname << " using client cert: " << clientCertFile
                                           << " and key: " << clientKeyFile << " plus CA cert: " << caCertFile );
 
-            std::string clientCert = Application::readKeyAndCertificate( clientCertFile );
-            std::string clientKey  = Application::readKeyAndCertificate( clientKeyFile );
-            std::string caCert     = Application::readKeyAndCertificate( caCertFile );
+            std::string clientCert = RpcApplication::readKeyAndCertificate( clientCertFile );
+            std::string clientKey  = RpcApplication::readKeyAndCertificate( clientKeyFile );
+            std::string caCert     = RpcApplication::readKeyAndCertificate( caCertFile );
 
             grpc::SslCredentialsOptions ssl_opts;
             ssl_opts.pem_cert_chain  = clientCert;
@@ -292,7 +292,7 @@ public:
         {
             CAFFA_TRACE( "Got document" );
             caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
-            serializer.setWriteTypesAndValidators( false );
+            // serializer.setSerializeValues( false );
             document = serializer.createObjectFromString( objectReply.json() );
             CAFFA_TRACE( "Document completed with UUID " << document->uuid() );
         }
@@ -323,7 +323,7 @@ public:
             CAFFA_TRACE( "Got list of documents" );
 
             caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
-            serializer.setWriteTypesAndValidators( false );
+            // serializer.setSerializeValues( false );
 
             for ( auto documentId : objectListReply.document_id() )
             {
@@ -373,7 +373,7 @@ public:
         {
             CAFFA_DEBUG( "Got JSON: " + reply.value() );
             childObject = caffa::JsonSerializer( caffa::rpc::ClientPassByRefObjectFactory::instance() )
-                              .setWriteTypesAndValidators( false )
+                              //.setSerializeValues( false )
                               .createObjectFromString( reply.value() );
         }
         else
@@ -409,7 +409,7 @@ public:
         if ( status.ok() )
         {
             childObject = caffa::JsonSerializer( ClientPassByValueObjectFactory::instance() )
-                              .setWriteTypesAndValidators( true )
+                              //.setSerializeValues( true )
                               .createObjectFromString( reply.value() );
         }
         else
@@ -469,7 +469,7 @@ public:
         std::vector<ObjectHandle::Ptr> childObjects;
 
         caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
-        serializer.setWriteTypesAndValidators( false );
+        // serializer.setSerializeValues( false );
 
         GenericValue reply;
         grpc::Status status = m_fieldStub->GetValue( &context, field, &reply );
@@ -480,7 +480,7 @@ public:
             for ( auto arrayEntry : jsonArray )
             {
                 auto childObject = caffa::JsonSerializer( caffa::rpc::ClientPassByRefObjectFactory::instance() )
-                                       .setWriteTypesAndValidators( false )
+                                       //.setSerializeValues( false )
                                        .createObjectFromString( arrayEntry.dump() );
                 childObjects.push_back( childObject );
             }
@@ -502,7 +502,7 @@ public:
         CAFFA_ASSERT( m_fieldStub.get() && "Field Stub not initialized!" );
         grpc::ClientContext context;
         auto                rpcChildObject = std::make_unique<RpcObject>();
-        rpcChildObject->set_json( createJsonFromProjectObject( childObject ) );
+        rpcChildObject->set_json( createJsonSchemaFromProjectObject( childObject ).dump() );
 
         auto field = std::make_unique<FieldRequest>();
         field->set_class_keyword( std::string( objectHandle->classKeyword() ) );
@@ -604,18 +604,21 @@ public:
         }
     }
 
-    std::string execute( caffa::not_null<const caffa::ObjectHandle*> selfObject, const std::string& jsonMethod ) const
+    std::string execute( caffa::not_null<const caffa::ObjectHandle*> selfObject,
+                         const std::string&                          methodName,
+                         const std::string&                          jsonArguments ) const
     {
-        auto self   = std::make_unique<RpcObject>();
-        auto method = std::make_unique<RpcObject>();
-        self->set_json( createJsonSelfReferenceFromCaf( selfObject ) );
+        auto self      = std::make_unique<RpcObject>();
+        auto arguments = std::make_unique<RpcObject>();
+        self->set_json( createJsonFromProjectObject( selfObject ).dump() );
 
-        method->set_json( jsonMethod );
+        arguments->set_json( jsonArguments );
 
         grpc::ClientContext context;
         MethodRequest       request;
         request.set_allocated_self_object( self.release() );
-        request.set_allocated_method( method.release() );
+        request.set_method_name( methodName );
+        request.set_allocated_arguments( arguments.release() );
         auto session = std::make_unique<caffa::rpc::SessionMessage>();
         session->set_uuid( m_sessionUuid );
         request.set_allocated_session( session.release() );
@@ -630,7 +633,7 @@ public:
         }
         else
         {
-            auto json = nlohmann::json::parse( jsonMethod );
+            auto json = nlohmann::json::parse( jsonArguments );
             CAFFA_ERROR( "Failed to execute method " << selfObject->classKeyword()
                                                      << "::" << json["keyword"].get<std::string>()
                                                      << " with error: " << status.error_message() );
@@ -751,7 +754,8 @@ GrpcClient::GrpcClient( caffa::Session::Type sessionType,
                         const std::string&   clientCertFile,
                         const std::string&   clientKeyFile,
                         const std::string&   caCertFile )
-    : m_clientImpl(
+    : Client( hostname, port )
+    , m_clientImpl(
           std::make_unique<GrpcClientImpl>( sessionType, hostname, port, clientCertFile, clientKeyFile, caCertFile ) )
 {
     // Apply gRPC client to the two client object factories.
@@ -793,9 +797,11 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> GrpcClient::documents() const
 //--------------------------------------------------------------------------------------------------
 /// Execute a general non-streaming method.
 //--------------------------------------------------------------------------------------------------
-std::string GrpcClient::execute( caffa::not_null<const caffa::ObjectHandle*> selfObject, const std::string& jsonMethod ) const
+std::string GrpcClient::execute( caffa::not_null<const caffa::ObjectHandle*> selfObject,
+                                 const std::string&                          methodName,
+                                 const std::string&                          jsonArguments ) const
 {
-    return m_clientImpl->execute( selfObject, jsonMethod );
+    return m_clientImpl->execute( selfObject, methodName, jsonArguments );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -92,6 +92,7 @@ void ObjectHandle::addField( FieldHandle* field, const std::string& keyword )
 {
     field->m_ownerObject = this;
 
+    CAFFA_ASSERT( ObjectHandle::isValidKeyword( keyword ) );
     CAFFA_ASSERT( !keyword.empty() );
     CAFFA_ASSERT( !m_fields.contains( keyword ) && "Object already has a field with this keyword!" );
 
@@ -107,6 +108,7 @@ void ObjectHandle::addMethod( MethodHandle* method, const std::string& keyword, 
     CAFFA_ASSERT( !keyword.empty() );
     CAFFA_ASSERT( !m_methods.contains( keyword ) && "Object already has a field with this keyword!" );
 
+    CAFFA_ASSERT( ObjectHandle::isValidKeyword( keyword ) );
     method->setName( keyword );
     method->setType( type );
     m_methods[keyword] = method;

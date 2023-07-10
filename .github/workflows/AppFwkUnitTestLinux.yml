@@ -13,8 +13,8 @@ jobs:
             triplet: x64-linux
 
     steps:
-      - name: Install gRPC
-        run: sudo apt-get install libgrpc++-dev libprotoc-dev protobuf-compiler-grpc libboost-all-dev
+      - name: Install dependencies
+        run: sudo apt-get install libboost-all-dev
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -33,7 +33,7 @@ jobs:
           cmakebuild/bin/caffaCore_UnitTests
           cmakebuild/bin/caffaIoCore_UnitTests
           cmakebuild/bin/caffaProjectDataModel_UnitTests
-          cmakebuild/bin/caffaGrpcInterface_UnitTests -V debug
+          cmakebuild/bin/caffaRestInterface_UnitTests -V debug
       - name: Setup Python
         uses: actions/setup-python@v1
         with:
@@ -41,10 +41,10 @@ jobs:
       - name: Install Python modules
         run: |
           python -m pip install --upgrade pip
-          pip install grpcio-tools setuptools pytest
+          pip install setuptools pytest
       - name: Run pytest
         run: |
-          cmakebuild/bin/caffaGrpcInterface_ExampleServer &
+          cmakebuild/bin/caffaRestInterface_ExampleServer 50000 1 &
           cd Bindings/Python/caffa
           python -m pytest --log-cli-level=DEBUG
       - name: Set up JDK 11
@@ -57,7 +57,7 @@ jobs:
         uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
       - name: Build with Gradle
         run: |
-          cmakebuild/bin/caffaGrpcInterface_ExampleServer &
+          cmakebuild/bin/caffaRestInterface_ExampleServer 50000 1&
           cd Bindings/Java
           gradle wrapper
           ./gradlew build

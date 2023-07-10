@@ -44,6 +44,8 @@ public:
 
     std::string name() const override { return "Default ObjectFactory"; }
 
+    std::list<std::string> classes() const;
+
     template <typename ObjectBaseDerivative>
     bool registerCreator()
     {

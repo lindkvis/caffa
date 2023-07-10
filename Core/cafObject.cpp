@@ -13,10 +13,10 @@ using namespace std::chrono;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Object::Object( bool generateUuid /* = false*/ )
+Object::Object( bool generateUuid /* = true*/ )
     : ObjectHandle()
 {
-    initField( m_uuid, "uuid" );
+    initField( m_uuid, "uuid" ).withScripting( true, false );
 
     if ( generateUuid )
     {
@@ -47,6 +47,9 @@ void Object::setUuid( const std::string& uuid )
     m_uuid = uuid;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 ObjectHandle::Ptr Object::deepClone( caffa::ObjectFactory* optionalObjectFactory ) const
 {
     caffa::ObjectFactory* objectFactory = optionalObjectFactory ? optionalObjectFactory
@@ -55,6 +58,9 @@ ObjectHandle::Ptr Object::deepClone( caffa::ObjectFactory* optionalObjectFactory
     return JsonSerializer( objectFactory ).setSerializeUuids( false ).copyBySerialization( this );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool Object::readFromJsonFile( const std::string& filePath )
 {
     std::ifstream inStream( filePath );
@@ -99,7 +105,7 @@ bool Object::writeToJsonFile( const std::string& filePath ) const
     try
     {
         JsonSerializer serializer;
-        serializer.setSerializeDataTypes( false ).setSerializeUuids( false );
+        serializer.setSerializeUuids( false );
         serializer.writeStream( this, outStream );
     }
     catch ( std::runtime_error& err )

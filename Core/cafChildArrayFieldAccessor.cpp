@@ -84,6 +84,10 @@ size_t ChildArrayFieldDirectStorageAccessor::index( ObjectHandle::ConstPtr objec
     auto it = std::find_if( m_pointers.begin(),
                             m_pointers.end(),
                             [object]( const auto& ptr ) { return ptr.get() == object.get(); } );
+    if ( it == m_pointers.end() )
+    {
+        return std::numeric_limits<size_t>::infinity();
+    }
     return it - m_pointers.begin();
 }
 
@@ -101,5 +105,9 @@ void ChildArrayFieldDirectStorageAccessor::remove( size_t index )
         {
             detachedPtr->disconnectObserverFromAllSignals( m_field->ownerObject() );
         }
+    }
+    else
+    {
+        throw std::runtime_error( "Index out of range " + std::to_string( index ) );
     }
 }

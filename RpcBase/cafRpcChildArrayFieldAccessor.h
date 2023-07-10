@@ -106,7 +106,9 @@ private:
     // TODO: This needs to be more sophisticated. At the moment we get the remote objects no matter what.
     void getRemoteObjectsIfNecessary() const
     {
+        CAFFA_DEBUG( "!!!!!!!Getting remote objects!!!!" );
         m_remoteObjects = m_client->getChildObjects( m_field->ownerObject(), m_field->keyword() );
+        CAFFA_DEBUG( "HAD " << m_remoteObjects.size() << " children" );
     }
 
 private:

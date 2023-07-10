@@ -17,6 +17,7 @@ set(PUBLIC_HEADERS
     cafFieldCapability.h
     cafFieldHandle.h
     cafFieldValidator.h
+    cafObjectAttribute.h
     cafObjectCapability.h
     cafObjectCollector.h
     cafObjectPerformer.h
@@ -43,10 +44,7 @@ set(PUBLIC_HEADERS
     cafApplication.h
     cafSession.h
     cafUuidGenerator.h
-    cafFieldDocumentationCapability.h
-    cafCodeGenerator.h
-    cafMarkdownGenerator.h
-    cafPythonGenerator.h)
+    cafFieldDocumentationCapability.h)
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
@@ -68,9 +66,7 @@ set(PROJECT_FILES
     cafApplication.cpp
     cafSession.cpp
     cafUuidGenerator.cpp
-    cafFieldDocumentationCapability.cpp
-    cafMarkdownGenerator.cpp
-    cafPythonGenerator.cpp)
+    cafFieldDocumentationCapability.cpp)
 
 if(CAFFA_BUILD_SHARED)
   message(STATUS "Building ${PROJECT_NAME} shared")

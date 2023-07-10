@@ -30,7 +30,7 @@ namespace caffa
 namespace rpc
 {
 
-    class ServerApplication : public Application
+    class ServerApplication : public RpcApplication
     {
     public:
         ServerApplication( unsigned capability );
@@ -41,12 +41,16 @@ namespace rpc
         virtual int  portNumber() const = 0;
         virtual void run()              = 0;
         virtual void quit()             = 0;
+        virtual bool running() const    = 0;
 
         virtual std::shared_ptr<Document> document( const std::string& documentId, const caffa::Session* session ) = 0;
         virtual std::shared_ptr<const Document>            document( const std::string&    documentId,
                                                                      const caffa::Session* session ) const         = 0;
         virtual std::list<std::shared_ptr<Document>>       documents( const caffa::Session* session )              = 0;
         virtual std::list<std::shared_ptr<const Document>> documents( const caffa::Session* session ) const        = 0;
+
+        bool requiresValidSession() const;
+        void setRequiresValidSession( bool requiresValidSession );
 
         virtual bool                          readyForSession( caffa::Session::Type type ) const             = 0;
         virtual caffa::SessionMaintainer      createSession( caffa::Session::Type type )                     = 0;
@@ -59,6 +63,9 @@ namespace rpc
     protected:
         virtual void onStartup() {}
         virtual void onShutdown() {}
+
+    private:
+        bool m_requiresValidSession;
     };
 } // namespace rpc
 } // namespace caffa

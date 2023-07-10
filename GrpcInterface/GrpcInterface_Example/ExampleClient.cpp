@@ -18,9 +18,8 @@
 
 #include "cafGrpcClient.h"
 #include "cafGrpcClientApplication.h"
-#include "cafRpcClientPassByRefObjectFactory.h"
-
 #include "cafLogger.h"
+#include "cafRpcClientPassByRefObjectFactory.h"
 
 #include "DemoObject.h"
 
@@ -73,9 +72,9 @@ int main( int argc, char** argv )
     auto clientApp = std::make_unique<ClientApp>( hostname, portNumber );
     CAFFA_INFO( "Launching Client connecting to " << hostname << ":" << portNumber );
 
-    auto          client         = clientApp->client();
-    auto          objectHandle   = client->document( "testDocument" );
-    DemoDocument* clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    auto client         = clientApp->client();
+    auto objectHandle   = client->document( "testDocument" );
+    auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
     if ( !clientDocument )
     {
         CAFFA_ERROR( "Failed to get main document" );

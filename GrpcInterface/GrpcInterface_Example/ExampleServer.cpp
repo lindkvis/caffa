@@ -19,12 +19,12 @@
 
 #include "cafGrpcServer.h"
 #include "cafGrpcServerApplication.h"
-#include "cafSession.h"
-
 #include "cafLogger.h"
+#include "cafSession.h"
 
 #include "DemoObject.h"
 
+#include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -122,7 +122,7 @@ public:
                 CAFFA_DEBUG( "Had session " << m_session->uuid() << " but it has not been kept alive, so destroying it" );
             }
         }
-        m_session = caffa::Session::create( type );
+        m_session = caffa::Session::create( type, std::chrono::seconds( 30 ) );
         return caffa::SessionMaintainer( m_session );
     }
 
@@ -154,6 +154,10 @@ public:
         if ( m_session && m_session->uuid() == sessionUuid )
         {
             m_session.reset();
+        }
+        else
+        {
+            throw std::runtime_error( "Failed to destroy session " + sessionUuid );
         }
     }
 

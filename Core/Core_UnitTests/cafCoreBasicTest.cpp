@@ -78,8 +78,14 @@ public:
         initMethod( clone,
                     "clone",
                     {},
-                    std::bind( [this]() -> std::shared_ptr<DemoObject>
-                               { return std::dynamic_pointer_cast<DemoObject>( this->deepClone() ); } ),
+                    std::bind(
+                        [this]() -> std::shared_ptr<DemoObject>
+                        {
+                            caffa::ObjectFactory* objectFactory = caffa::DefaultObjectFactory::instance();
+                            auto                  object =
+                                caffa::JsonSerializer( objectFactory ).setSerializeUuids( false ).copyBySerialization( this );
+                            return std::dynamic_pointer_cast<DemoObject>( object );
+                        } ),
                     caffa::MethodHandle::Type::READ_ONLY );
 
         initMethod( copyFrom, "copyFrom", { "rhs" }, std::bind( &DemoObject::_copyFrom, this, std::placeholders::_1 ) );
@@ -623,18 +629,12 @@ TEST( BaseTest, Methods )
         auto stringResult = object.add.execute( argumentJson.dump() );
         CAFFA_DEBUG( "String result: " << stringResult );
         auto result = nlohmann::json::parse( stringResult );
-        CAFFA_DEBUG( "Got result: "
-                     << "type = " << result["type"] << ", result = " << result["value"] );
-        EXPECT_EQ( "int32", result["type"].get<std::string>() );
-        EXPECT_EQ( 11, result["value"].get<int>() );
+        EXPECT_EQ( 11, result.get<int>() );
     }
 
     {
         auto result = nlohmann::json::parse( object.multiply.execute( object.multiply.toJson( 4, 5 ).dump() ) );
-        CAFFA_DEBUG( "Got result: "
-                     << "type = " << result["type"] << ", result = " << result["value"] );
-        EXPECT_EQ( "double", result["type"].get<std::string>() );
-        EXPECT_DOUBLE_EQ( 20.0, result["value"].get<int>() );
+        EXPECT_DOUBLE_EQ( 20.0, result.get<int>() );
     }
 
     {

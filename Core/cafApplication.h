@@ -17,6 +17,8 @@
 //    FITNESS FOR A PARTICULAR PURPOSE.
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include <list>
 #include <set>
 #include <string>
@@ -97,6 +99,9 @@ struct AppInfo
         return std::to_string( majorVersion ) + "." + std::to_string( minorVersion ) + "." + std::to_string( patchVersion );
     }
 };
+
+void to_json( nlohmann::json& jsonValue, const AppInfo& appInfo );
+void from_json( const nlohmann::json& jsonValue, AppInfo& appInfo );
 
 class Application
 {

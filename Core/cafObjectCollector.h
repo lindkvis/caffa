@@ -53,6 +53,7 @@ public:
 
         for ( auto field : object->fields() )
         {
+            CAFFA_DEBUG( "Testing field: " << field->keyword() );
             field->accept( this );
         }
     }
@@ -61,6 +62,7 @@ public:
 
     void visitChildField( const ChildFieldBaseHandle* childField ) override
     {
+        CAFFA_DEBUG( "Checking childField" );
         for ( auto object : childField->childObjects() )
         {
             object->accept( this );

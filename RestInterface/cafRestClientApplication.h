@@ -1,7 +1,7 @@
 // ##################################################################################################
 //
 //    Caffa
-//    Copyright (C) 2022- Kontur AS
+//    Copyright (C) 2023- Kontur AS
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify
@@ -18,32 +18,25 @@
 //
 #pragma once
 
-#include "cafFactory.h"
+#include "cafRpcApplication.h"
 
-#include <list>
 #include <memory>
 #include <string>
 
-namespace caffa
+namespace caffa::rpc
 {
-class Document;
-class FieldHandle;
-class ObjectHandle;
-class MethodHandle;
+class RestClient;
 
-class CodeGenerator
+class RestClientApplication : public RpcApplication
 {
 public:
-    virtual ~CodeGenerator() = default;
+    RestClientApplication( const std::string& hostname, int portNumber );
+    static RestClientApplication* instance();
 
-    virtual std::string name() const = 0;
+    RestClient*       client();
+    const RestClient* client() const;
 
-    virtual std::string generate( std::list<std::shared_ptr<caffa::Document>>& documents )      = 0;
-    virtual std::string generate( const caffa::ObjectHandle* object, bool passByValue = false ) = 0;
-    virtual std::string
-        generate( const caffa::FieldHandle* field, bool passByValue, std::vector<std::string>& dependencies ) = 0;
-    virtual std::string generate( const caffa::MethodHandle* method, std::vector<std::string>& dependencies ) = 0;
+private:
+    std::unique_ptr<RestClient> m_client;
 };
-
-typedef caffa::Factory<CodeGenerator, size_t> CodeGeneratorFactory;
-} // namespace caffa
+} // namespace caffa::rpc

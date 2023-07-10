@@ -35,7 +35,16 @@ class ObjectFactory;
 class Serializer
 {
 public:
+    enum class SerializationType
+    {
+        DATA_FULL,
+        DATA_SKELETON,
+        SCHEMA,
+    };
+
     using FieldSelector = std::function<bool( const FieldHandle* )>;
+
+    static std::string serializationTypeLabel( SerializationType type );
 
     /**
      * Constructor
@@ -49,8 +58,7 @@ public:
      * @param string The text string containing the object
      * @return pair of keyword and uuid in that order.
      */
-    virtual std::pair<std::string, std::string>
-        readClassKeywordAndUUIDFromObjectString( const std::string& string ) const = 0;
+    virtual std::string readUUIDFromObjectString( const std::string& string ) const = 0;
 
     /**
      * Convenience method to read this particular object (with children) from a json string
@@ -107,7 +115,7 @@ public:
 
     /**
      * Set Field Selector
-     * Since it returns a reference to it it can be used like: Serializer(objectFactory).setFieldSelector(functor);
+     * Since it returns a reference it can be used like: Serializer(objectFactory).setFieldSelector(functor);
      *
      * @param fieldSelector
      * @return cafSerializer& reference to this
@@ -115,27 +123,17 @@ public:
     Serializer& setFieldSelector( FieldSelector fieldSelector );
 
     /**
-     * Set whether to serialize data values.
-     * Since it returns a reference to it it can be used like:
-     * Serializer(objectFactory).setWriteTypesAndValidators(false);
+     * Set what to serialize (data, schema, etc)
+     * Since it returns a reference it can be used like: Serializer(objectFactory).setSerializationTypes(...);
      *
-     * @param writeTypesAndValidators
+     * @param serializationType
      * @return cafSerializer& reference to this
      */
-    Serializer& setWriteTypesAndValidators( bool writeTypesAndValidators );
+    Serializer& setSerializationType( SerializationType type );
 
     /**
-     * Set whether to serialize data types
-     * Since it returns a reference to it it can be used like: Serializer(objectFactory).setSerializeDataTypes(false);
-     *
-     * @param serializeDataTypes
-     * @return cafSerializer& reference to this
-     */
-    Serializer& setSerializeDataTypes( bool serializeDataTypes );
-
-    /**
-     * Set whether to serialize UUIDs
-     * Since it returns a reference to it it can be used like: Serializer(objectFactory).setSerializeUuids(false);
+     * Set whether to serialize UUIDs. Only makes a difference when serializing data
+     * Since it returns a reference, it can be used like: Serializer(objectFactory).setSerializeUuids(false);
      *
      * @param serializeUuids
      * @return cafSerializer& reference to this
@@ -155,20 +153,14 @@ public:
     FieldSelector fieldSelector() const;
 
     /**
-     * Check if we're meant to serialize data values
-     * @return true if we should serialize data values
+     * Check which type of serialization we're doing
+     * @return The type of serialization to do
      */
-    bool writeTypesAndValidators() const;
-
-    /**
-     * Check if we're meant to serialize data types
-     * @return true if we should serialize schema (labels and types)
-     */
-    bool serializeDataTypes() const;
+    SerializationType serializationType() const;
 
     /**
      * Check if we're meant to serialize UUIDs. UUIDs are used for dynamic connection to runtime objects,
-     * not for writing to file.
+     * not for writing to file. Only makes a difference when serializing data.
      * @return true if we should write the UUIDs
      */
     bool serializeUuids() const;
@@ -177,9 +169,8 @@ protected:
     ObjectFactory* m_objectFactory;
     FieldSelector  m_fieldSelector;
 
-    bool m_writeTypesAndValidators;
-    bool m_serializeDataTypes;
-    bool m_serializeUuids;
+    SerializationType m_serializationType;
+    bool              m_serializeUuids;
 };
 
 } // End of namespace caffa

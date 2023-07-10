@@ -48,7 +48,7 @@ std::shared_ptr<ObjectHandle> ClientPassByRefObjectFactory::doCreate( const std:
     CAFFA_ASSERT( m_client );
     if ( !m_client ) throw std::runtime_error( "No Client set in Rpc Client factory" );
 
-    CAFFA_TRACE( "Creating Passed-By-Reference Object of type " << classKeyword );
+    CAFFA_DEBUG( "Creating Passed-By-Reference Object of type " << classKeyword );
 
     auto objectHandle = caffa::DefaultObjectFactory::instance()->create( classKeyword );
 
@@ -132,6 +132,7 @@ void ClientPassByRefObjectFactory::applyAccessorToField( caffa::ObjectHandle* fi
 void ClientPassByRefObjectFactory::applyAccessorToMethod( caffa::ObjectHandle* objectHandle,
                                                           caffa::MethodHandle* methodHandle )
 {
+    CAFFA_DEBUG( "Applying remote accessor to " << objectHandle->classKeyword() << "::" << methodHandle->keyword() << "()" );
     methodHandle->setAccessor(
         std::make_unique<MethodAccessor>( m_client, objectHandle, methodHandle, ClientPassByValueObjectFactory::instance() ) );
 }

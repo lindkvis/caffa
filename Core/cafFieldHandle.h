@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cafObjectAttribute.h"
 #include "cafSignal.h"
 
 #include <list>
@@ -18,13 +19,13 @@ class Inspector;
 //==================================================================================================
 /// Base class for all fields, making it possible to handle them generically
 //==================================================================================================
-class FieldHandle : public SignalEmitter
+class FieldHandle : public ObjectAttribute, public SignalEmitter
 {
 public:
     FieldHandle();
-    virtual ~FieldHandle();
+    ~FieldHandle() override;
 
-    std::string   keyword() const { return m_keyword; }
+    std::string   keyword() const override { return m_keyword; }
     ObjectHandle* ownerObject();
 
     virtual std::string dataType() const = 0;

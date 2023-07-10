@@ -50,7 +50,7 @@ namespace rpc
         void run() override;
         void quit() override;
 
-        bool running() const;
+        bool running() const override;
 
     private:
         std::unique_ptr<GrpcServer> m_server;

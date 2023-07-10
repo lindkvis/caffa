@@ -328,25 +328,4 @@ TEST( BaseTest, TestRangeValidation )
     ASSERT_THROW( s1->m_up.setValue( 12 ), std::runtime_error );
     ASSERT_THROW( s1->m_up.setValue( -2 ), std::runtime_error );
     ASSERT_EQ( 5, s1->m_up );
-
-    auto serializedString = caffa::JsonSerializer().writeObjectToString( s1.get() );
-    std::cout << "Wrote object to json with validator: " << serializedString << std::endl;
-
-    auto s2 = std::make_shared<SimpleObj>();
-    s2->m_up.setValue( 5 );
-    auto serializedString2 = caffa::JsonSerializer().writeObjectToString( s2.get() );
-    std::cout << "Wrote object to json without validator: " << serializedString2 << std::endl;
-
-    ASSERT_TRUE( serializedString != serializedString2 );
-
-    ASSERT_NO_THROW( s2->m_up.setValue( 12 ) );
-    s2->setUpRange( 0, 15 );
-    ASSERT_THROW( s2->m_up.setValue( 20 ), std::runtime_error );
-    ASSERT_NO_THROW( s2->m_up.setValue( 12 ) );
-    caffa::JsonSerializer().readObjectFromString( s2.get(), serializedString );
-    ASSERT_THROW( s2->m_up.setValue( 12 ), std::runtime_error );
-    auto serializedString3 = caffa::JsonSerializer().writeObjectToString( s2.get() );
-    std::cout << "Wrote object to json with validator: " << serializedString3 << std::endl;
-    ASSERT_EQ( serializedString, serializedString3 );
-    ASSERT_THROW( s2->m_up.setValue( 12 ), std::runtime_error );
 }

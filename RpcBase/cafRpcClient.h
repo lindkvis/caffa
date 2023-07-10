@@ -37,13 +37,19 @@ namespace caffa::rpc
 class Client
 {
 public:
+    Client( const std::string& hostname, int port )
+        : m_hostname( hostname )
+        , m_port( port )
+    {
+    }
     virtual ~Client() = default;
 
     virtual caffa::AppInfo                                    appInfo() const                                 = 0;
     virtual std::shared_ptr<caffa::ObjectHandle>              document( const std::string& documentId ) const = 0;
     virtual std::vector<std::shared_ptr<caffa::ObjectHandle>> documents() const                               = 0;
     virtual std::string execute( caffa::not_null<const caffa::ObjectHandle*> selfObject,
-                                 const std::string&                          jsonMethod ) const                                        = 0;
+                                 const std::string&                          methodName,
+                                 const std::string&                          jsonArguments ) const                                     = 0;
     virtual bool        stopServer()                                                                          = 0;
     virtual void        sendKeepAlive()                                                                       = 0;
 
@@ -92,10 +98,17 @@ public:
                                     size_t                     index,
                                     const caffa::ObjectHandle* childObject ) = 0;
 
+    const std::string& hostname() const { return m_hostname; }
+    int                port() const { return m_port; }
+
 private:
     virtual void
         setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value ) = 0;
     virtual nlohmann::json getJson( const caffa::ObjectHandle*, const std::string& fieldName ) const = 0;
+
+private:
+    std::string m_hostname;
+    int         m_port;
 };
 
 //--------------------------------------------------------------------------------------------------

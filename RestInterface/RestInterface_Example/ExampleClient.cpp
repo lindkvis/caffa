@@ -1,6 +1,7 @@
 // ##################################################################################################
 //
 //    Caffa
+//    Copyright (C) 2023- Kontur AS
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify
@@ -16,19 +17,23 @@
 //    for more details.
 //
 
-#include "cafGrpcClient.h"
-#include "cafGrpcClientApplication.h"
+#include "cafRestClient.h"
+#include "cafRestClientApplication.h"
+#include "cafRpcClientPassByRefObjectFactory.h"
+
+#include "cafJsonSerializer.h"
+#include "cafLogger.h"
 
 #include "DemoObject.h"
 
 #include <cstdlib>
 #include <iostream>
 
-class ClientApp : public caffa::rpc::GrpcClientApplication
+class ClientApp : public caffa::rpc::RestClientApplication
 {
 public:
     ClientApp( const std::string& hostname, int port )
-        : caffa::rpc::GrpcClientApplication( hostname, port )
+        : caffa::rpc::RestClientApplication( hostname, port )
     {
     }
     ~ClientApp() = default;
@@ -62,51 +67,31 @@ int main( int argc, char** argv )
     std::string hostname   = argc >= 2 ? argv[1] : "localhost";
     int         portNumber = argc >= 3 ? std::atoi( argv[2] ) : 50000;
 
-    auto clientApp = std::make_unique<ClientApp>( hostname, portNumber );
-    std::cout << "Launching Client connecting to " << hostname << ":" << portNumber << std::endl;
+    caffa::Logger::setApplicationLogLevel( caffa::Logger::Level::info );
 
-    auto client = clientApp->client();
-    std::cout << "Getting document" << std::endl;
+    caffa::rpc::ClientPassByRefObjectFactory* factory = caffa::rpc::ClientPassByRefObjectFactory::instance();
+    factory->registerBasicAccessorCreators<caffa::AppEnum<DemoObject::TestEnumType>>();
+
+    auto clientApp = std::make_unique<ClientApp>( hostname, portNumber );
+    CAFFA_INFO( "Launching Client connecting to " << hostname << ":" << portNumber );
+
+    auto client  = clientApp->client();
+    auto appInfo = clientApp->appInfo();
+
+    CAFFA_INFO( "Found server " << appInfo.name << " version " << appInfo.version_string() );
+
     auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = dynamic_cast<DemoDocument*>( objectHandle.get() );
+    auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
     if ( !clientDocument )
     {
-        std::cerr << "Failed to get main document" << std::endl;
+        CAFFA_ERROR( "Failed to get main document" );
         return 1;
     }
-    {
-        auto start_time = std::chrono::system_clock::now();
-        bool worked     = client->ping();
-        CAFFA_ASSERT( worked );
-        auto end_time = std::chrono::system_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>( end_time - start_time ).count();
-        std::cout << "Ping time: " << duration << "µs" << std::endl;
-    }
-    {
-        auto start_time   = std::chrono::system_clock::now();
-        auto clientVector = clientDocument->demoObject()->intVector();
-        auto end_time     = std::chrono::system_clock::now();
-        auto duration     = std::chrono::duration_cast<std::chrono::microseconds>( end_time - start_time ).count();
-        std::cout << "Client vector: " << clientVector[0] << std::endl;
-        assert( clientVector.size() == 1u && clientVector[0] == 42 );
 
-        std::cout << "Getting vector containing single integer took " << duration << "µs" << std::endl;
-    }
+    auto demoObject = clientDocument->demoObject();
+    demoObject->intField.setValue( 31337 );
 
-    {
-        auto   start_time     = std::chrono::system_clock::now();
-        auto   clientVector   = clientDocument->demoObject()->floatVector();
-        auto   end_time       = std::chrono::system_clock::now();
-        auto   duration       = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
-        size_t numberOfFloats = clientVector.size();
-        size_t MB             = numberOfFloats * sizeof( float ) / ( 1024u * 1024u );
-        std::cout << "Transferred " << numberOfFloats << " floats for a total of " << MB << " MB" << std::endl;
-        std::cout << "Time spent: " << duration << "ms" << std::endl;
-        double fps = static_cast<float>( numberOfFloats ) / static_cast<float>( duration ) * 1000;
-        std::cout << "floats per second: " << fps << std::endl;
-        std::cout << "MB per second: " << static_cast<float>( MB ) / static_cast<float>( duration ) * 1000 << std::endl;
-        std::cout << "Mbit per second: " << static_cast<float>( MB ) / static_cast<float>( duration ) * 1000 * 8
-                  << std::endl;
-    }
+    CAFFA_INFO( "Int field set to:  " << demoObject->intField.value() );
+
     return 0;
 }

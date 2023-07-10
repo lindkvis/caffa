@@ -36,7 +36,10 @@ public:
     {
     }
 
-    std::string execute( const std::string& jsonMethod ) const { return m_client->execute( m_selfHandle, jsonMethod ); }
+    std::string execute( const std::string& jsonArguments ) const
+    {
+        return m_client->execute( m_selfHandle, m_methodHandle->keyword(), jsonArguments );
+    }
 
 private:
     const Client* m_client;
