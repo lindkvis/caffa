@@ -56,6 +56,8 @@ public:
 
     static Type typeFromUint( unsigned type );
 
+    std::chrono::milliseconds timeout() const;
+
 private:
     friend class SessionMaintainer;
     friend class ConstSessionMaintainer;
