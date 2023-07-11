@@ -86,6 +86,11 @@ Session::Type Session::typeFromUint( unsigned type )
     return Session::Type::INVALID;
 }
 
+std::chrono::milliseconds Session::timeout() const
+{
+    return m_timeOut;
+}
+
 void Session::blockExpiration() const
 {
     std::scoped_lock<std::mutex> lock( m_mutex );
