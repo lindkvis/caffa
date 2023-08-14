@@ -36,7 +36,7 @@ namespace caffa::rpc
 class AbstractRestCallback;
 
 /**
- * The base interface for all gRPC-services. Implement this to create a new service.
+ * The base interface for all REST-services. Implement this to create a new service.
  */
 class RestServiceInterface
 {

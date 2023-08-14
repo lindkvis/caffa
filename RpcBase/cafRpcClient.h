@@ -112,7 +112,7 @@ private:
 };
 
 //--------------------------------------------------------------------------------------------------
-/// Get a value through gRPC
+/// Get a value through RPC
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 DataType caffa::rpc::Client::get( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
@@ -129,7 +129,7 @@ DataType caffa::rpc::Client::get( const caffa::ObjectHandle* objectHandle, const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Set a value through gRPC
+/// Set a value through RPC
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value )

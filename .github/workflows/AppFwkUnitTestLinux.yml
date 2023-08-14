@@ -24,7 +24,7 @@ jobs:
         with:
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
           cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-          cmakeAppendedArgs: '-DCAFFA_GRPC_INTERFACE=ON -DCAFFA_BUILD_UNIT_TESTS=ON -DCAFFA_BUILD_EXAMPLES=ON'
+          cmakeAppendedArgs: '-DCAFFA_REST_INTERFACE=ON -DCAFFA_BUILD_UNIT_TESTS=ON -DCAFFA_BUILD_EXAMPLES=ON'
           buildDirectory: ${{ github.workspace }}/cmakebuild
           buildWithCMakeArgs: '--config Release'
       - name: Run Unit Tests Linux

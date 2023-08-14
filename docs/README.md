@@ -1,5 +1,5 @@
 # About Caffa
-Caffa is an Application Framework for Embedded server applications written in C++. It features Runtime Introspection, serialisation and a gRPC-interface 
+Caffa is an Application Framework for Embedded server applications written in C++. It features Runtime Introspection, serialisation and a REST-interface 
 
 Caffa has been forked from the Ceetron Application Framework used as part of ResInsight (https://github.com/OPM/ResInsight) but has diverged considerably with a simplified API, removal of User Interface code and uses JSON rather than XML for serialisation.
 
@@ -54,7 +54,7 @@ TinyDemoObject::TinyDemoObject()
 ~~~
 
 # Requirements
-Caffa uses modern C++ and requires a C++20 compatible compiler, Boost 1.71.0+ and CMake 3.16+ in addition to gRPC 1.16.1+ for gRPC-server deployment.
+Caffa uses modern C++ and requires a C++20 compatible compiler, Boost 1.71.0+ and CMake 3.16+.
 
 # Building
 Caffa uses git submodules so it is important to initialise submodules recursively first
