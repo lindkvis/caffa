@@ -29,7 +29,7 @@ namespace caffa::rpc
 class Client;
 
 /**
- * Adaptation of ClientPassByRefObjectFactory which assigns gRPC *Method* Accessors but not field accessors.
+ * Adaptation of ClientPassByRefObjectFactory which assigns RPC *Method* Accessors but not field accessors.
  * Thus: fields are passed by value, but you can still call remote methods on them.
  */
 class ClientPassByValueObjectFactory : public ObjectFactory

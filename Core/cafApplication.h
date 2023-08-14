@@ -39,8 +39,8 @@ struct AppInfo
 {
     /**
      * @brief Application capability
-     * Defines what type of application it is. These flags can be combined. I.e. a Console GRPC-Server or GUI
-     * Grpc-client.
+     * Defines what type of application it is. These flags can be combined. I.e. a Console Server or GUI
+     * client.
      *
      */
     enum class AppCapability : unsigned int

@@ -67,7 +67,7 @@ class ClientPassByRefObjectFactory : public ObjectFactory
 public:
     static ClientPassByRefObjectFactory* instance();
 
-    std::string name() const override { return "gRPC Client Pass By Reference ObjectFactory"; }
+    std::string name() const override { return "RPC Client Pass By Reference ObjectFactory"; }
 
     void setClient( Client* client );
     template <typename DataType>

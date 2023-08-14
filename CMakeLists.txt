@@ -16,7 +16,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/scripts")
 
-option(CAFFA_GRPC_INTERFACE "Enable the gRPC interface to the Project Data Model" OFF)
 option(CAFFA_REST_INTERFACE "Enable the REST API interface to the Project Data Model" OFF)
 option(CAFFA_BUILD_EXAMPLES "Build examples" OFF)
 option(CAFFA_BUILD_UNIT_TESTS "Build unit tests" ON)
@@ -65,10 +64,6 @@ add_subdirectory(ThirdParty/caffa-base)
 add_subdirectory(Core)
 add_subdirectory(RpcBase)
 
-if(CAFFA_GRPC_INTERFACE)
-  add_subdirectory(GrpcInterface)
-endif()
-
 if(CAFFA_REST_INTERFACE)
   add_subdirectory(RestInterface)
   if(CAFFA_BUILD_UNIT_TESTS)
@@ -84,15 +79,6 @@ if(CAFFA_BUILD_UNIT_TESTS)
   add_subdirectory(Core/IoCore_UnitTests)
   add_subdirectory(Core/ProjectDataModel_UnitTests)
   add_subdirectory(TestData)
-endif()
-
-if(CAFFA_GRPC_INTERFACE)
-  if(CAFFA_BUILD_UNIT_TESTS)
-    add_subdirectory(GrpcInterface/GrpcInterface_UnitTests)
-  endif()
-  if(CAFFA_BUILD_EXAMPLES)
-    add_subdirectory(GrpcInterface/GrpcInterface_Example)
-  endif()
 endif()
 
 # Organize sub-projects into folders on Visual Studio Turn on using solution folders
