@@ -121,9 +121,12 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
 
         jsonProperties["keyword"] = { { "type", "string" } };
         jsonProperties["uuid"]    = { { "type", "string" } };
+        jsonObject["$schema"]     = "https://json-schema.org/draft/2020-12/schema";
+        jsonObject["$id"]         = "/schemas/" + object->classKeyword();
+
         if ( !object->classDocumentation().empty() )
         {
-            jsonProperties["description"] = object->classDocumentation();
+            jsonObject["description"] = object->classDocumentation();
         }
 
         for ( auto field : object->fields() )
@@ -141,14 +144,17 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             }
         }
 
-        auto methods = nlohmann::json::array();
+        auto methods = nlohmann::json::object();
         for ( auto method : object->methods() )
         {
-            methods.push_back( method->jsonSkeleton() );
+            methods[method->keyword()] = method->jsonSchema();
         }
         if ( !methods.empty() )
         {
-            jsonProperties["methods"] = methods;
+            auto methodsObject          = nlohmann::json::object();
+            methodsObject["type"]       = "object";
+            methodsObject["properties"] = methods;
+            jsonProperties["methods"]   = methodsObject;
         }
 
         jsonObject["properties"] = jsonProperties;
@@ -157,6 +163,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
     else
     {
         jsonObject["keyword"] = object->classKeyword();
+
         if ( this->serializeUuids() && !object->uuid().empty() )
         {
             jsonObject["uuid"] = object->uuid();

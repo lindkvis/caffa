@@ -611,7 +611,7 @@ TEST( BaseTest, Methods )
     EXPECT_EQ( 513, object.intMember() );
     EXPECT_DOUBLE_EQ( 589.123, object.doubleMember() );
 
-    CAFFA_DEBUG( "Clone method skeleton: " << object.clone.jsonSkeleton().dump() );
+    CAFFA_DEBUG( "Clone method skeleton: " << object.clone.jsonSchema().dump() );
 
     auto result = object.clone();
     EXPECT_TRUE( result != nullptr );
@@ -622,7 +622,7 @@ TEST( BaseTest, Methods )
     CAFFA_DEBUG( "Clone: " << serializer.writeObjectToString( result.get() ) );
 
     {
-        CAFFA_DEBUG( "Method skeleton: " << object.add.jsonSkeleton().dump() );
+        CAFFA_DEBUG( "Method skeleton: " << object.add.jsonSchema().dump() );
 
         auto argumentJson = object.add.toJson( 3, 8 );
         CAFFA_DEBUG( "Argument json: " << argumentJson.dump() );
@@ -647,5 +647,5 @@ TEST( BaseTest, Methods )
     object.copyFrom( result );
     EXPECT_EQ( 10001, object.intMember() );
 
-    CAFFA_DEBUG( "Method skeleton for copyFrom(): " << object.copyFrom.jsonSkeleton().dump() );
+    CAFFA_DEBUG( "Method skeleton for copyFrom(): " << object.copyFrom.jsonSchema().dump() );
 }
