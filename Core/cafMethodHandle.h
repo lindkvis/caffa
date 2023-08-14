@@ -61,7 +61,7 @@ public:
     };
 
     MethodHandle()
-        : m_documentation( "A generic object method" )
+        : m_documentation( "" )
     {
     }
     ~MethodHandle() override = default;
@@ -76,7 +76,7 @@ public:
 
     virtual std::string    execute( const std::string& jsonArgumentsString ) const = 0;
     virtual std::string    schema() const                                          = 0;
-    virtual nlohmann::json jsonSkeleton() const                                    = 0;
+    virtual nlohmann::json jsonSchema() const                                      = 0;
 
     MethodAccessorInterface* accessor() const { return m_accessor.get(); }
     void setAccessor( std::unique_ptr<MethodAccessorInterface> accessor ) { m_accessor = std::move( accessor ); }

@@ -20,9 +20,9 @@
 #pragma once
 
 #include "cafAssert.h"
+#include "cafJsonDataType.h"
 #include "cafLogger.h"
 #include "cafMethodHandle.h"
-#include "cafPortableDataType.h"
 
 #include "cafObjectFactory.h"
 #include "cafObjectJsonSpecializations.h"
@@ -72,11 +72,11 @@ public:
         return executeJson( nlohmann::json::parse( jsonArgumentsString ) ).dump();
     }
 
-    std::string schema() const override { return this->jsonSkeleton().dump(); }
+    std::string schema() const override { return this->jsonSchema().dump(); }
 
     Result resultFromJsonString( const std::string& jsonResultString, ObjectFactory* objectFactory ) const
     {
-        CAFFA_DEBUG( "Attempting to get a value of type " << PortableDataType<Result>::name()
+        CAFFA_DEBUG( "Attempting to get a value of type " << JsonDataType<Result>::type()
                                                           << " from JSON: " << jsonResultString );
         nlohmann::json jsonResult;
         if ( !jsonResultString.empty() )
@@ -91,8 +91,6 @@ public:
         auto jsonMethod = nlohmann::json::object();
         CAFFA_ASSERT( !keyword().empty() );
 
-        jsonMethod["keyword"] = keyword();
-
         constexpr std::size_t n = sizeof...( args );
         if constexpr ( n > 0 )
         {
@@ -104,35 +102,56 @@ public:
             (
                 [&]
                 {
-                    nlohmann::json jsonArg = nlohmann::json::object();
-                    jsonArg["keyword"]     = i < argumentNames.size() ? argumentNames[i]
-                                                                      : std::string( "arg" ) + std::to_string( i );
-                    jsonArg["type"]        = PortableDataType<ArgTypes>::name();
-                    jsonArg["value"]       = args;
-                    jsonArguments.push_back( jsonArg );
+                    jsonArguments.push_back( args );
                     i++;
                 }(),
                 ... );
-            jsonMethod["arguments"] = jsonArguments;
+            jsonMethod["numberedArguments"] = jsonArguments;
         }
-
-        jsonMethod["returns"] = PortableDataType<Result>::name();
-
         return jsonMethod;
     }
 
-    nlohmann::json jsonSkeleton() const override
+    nlohmann::json jsonSchema() const override
     {
         auto jsonMethod = nlohmann::json::object();
         CAFFA_ASSERT( !keyword().empty() );
-
-        jsonMethod["keyword"] = keyword();
-        auto jsonArguments    = jsonArgumentArray( std::index_sequence_for<ArgTypes...>() );
-        if ( !jsonArguments.empty() )
+        jsonMethod["type"] = "object";
+        if ( !this->documentation().empty() )
         {
-            jsonMethod["arguments"] = jsonArguments;
+            jsonMethod["description"] = this->documentation();
         }
-        jsonMethod["returns"] = PortableDataType<Result>::name();
+        auto jsonProperties    = nlohmann::json::object();
+        auto jsonArgumentItems = jsonArgumentSchemaArray( std::index_sequence_for<ArgTypes...>() );
+
+        if ( !jsonArgumentItems.empty() )
+        {
+            auto jsonNumberedArguments        = nlohmann::json::object();
+            jsonNumberedArguments["type"]     = "array";
+            jsonNumberedArguments["minItems"] = jsonArgumentItems.size();
+            jsonNumberedArguments["maxItems"] = jsonArgumentItems.size();
+
+            auto jsonNumberedArgumentItems = nlohmann::json::array();
+            auto jsonLabelledArguments     = nlohmann::json::object();
+            for ( const nlohmann::json& argument : jsonArgumentItems )
+            {
+                CAFFA_ASSERT( argument.is_object() );
+                auto keyword                   = argument["keyword"].get<std::string>();
+                auto type                      = argument["type"];
+                jsonLabelledArguments[keyword] = type;
+                jsonNumberedArgumentItems.push_back( type );
+            }
+            jsonNumberedArguments["items"] = jsonNumberedArgumentItems;
+            auto jsonOneOf                 = nlohmann::json::object();
+            jsonOneOf["numberedArguments"] = jsonNumberedArguments;
+            jsonOneOf["labelledArguments"] = jsonLabelledArguments;
+            jsonProperties["oneOf"]        = jsonOneOf;
+        }
+        if ( !JsonDataType<Result>::type().empty() )
+        {
+            jsonProperties["returns"] = JsonDataType<Result>::type();
+        }
+
+        jsonMethod["properties"] = jsonProperties;
 
         return jsonMethod;
     }
@@ -152,26 +171,15 @@ private:
     static ArgType jsonToValue( const nlohmann::json& jsonData, ObjectFactory* objectFactory )
     {
         JsonSerializer serializer( objectFactory );
-        if ( !jsonData.contains( "value" ) )
-        {
-            CAFFA_ASSERT( jsonData.contains( "keyword" ) );
-            throw std::runtime_error( "The json data " + jsonData["keyword"].get<std::string>() + " does not have a value" );
-        }
-
         return std::dynamic_pointer_cast<typename ArgType::element_type>(
-            serializer.createObjectFromString( jsonData["value"].dump() ) );
+            serializer.createObjectFromString( jsonData.dump() ) );
     }
 
     template <typename ArgType>
         requires( not IsSharedPtr<ArgType> && not std::same_as<ArgType, void> )
     static ArgType jsonToValue( const nlohmann::json& jsonData, ObjectFactory* objectFactory )
     {
-        if ( !jsonData.contains( "value" ) )
-        {
-            CAFFA_ASSERT( jsonData.contains( "keyword" ) );
-            throw std::runtime_error( "The json data " + jsonData["keyword"].get<std::string>() + " does not have a value" );
-        }
-        return jsonData["value"].get<ArgType>();
+        return jsonData.get<ArgType>();
     }
 
     template <typename ReturnType, std::size_t... Is>
@@ -181,7 +189,6 @@ private:
         this->operator()( jsonToValue<ArgTypes>( args[Is], nullptr )... );
 
         nlohmann::json returnValue = nlohmann::json::object();
-        returnValue["type"]        = PortableDataType<Result>::name();
         return returnValue;
     }
 
@@ -189,41 +196,39 @@ private:
         requires( not std::same_as<ReturnType, void> )
     nlohmann::json executeJson( const nlohmann::json& args, std::index_sequence<Is...> ) const
     {
-        nlohmann::json returnValue = nlohmann::json::object();
-        returnValue["type"]        = PortableDataType<Result>::name();
-        returnValue["value"]       = this->operator()( jsonToValue<ArgTypes>( args[Is], nullptr )... );
-        return returnValue;
+        return this->operator()( jsonToValue<ArgTypes>( args[Is], nullptr )... );
     }
 
     nlohmann::json executeJson( const nlohmann::json& jsonMethod ) const
     {
         auto jsonArguments = nlohmann::json::array();
-        if ( jsonMethod.contains( "arguments" ) )
+        if ( jsonMethod.contains( "numberedArguments" ) )
         {
-            jsonArguments = jsonMethod["arguments"];
+            jsonArguments = jsonMethod["numberedArguments"];
+        }
+        else if ( jsonMethod.contains( "labelledArguments" ) )
+        {
+            jsonArguments = jsonMethod["labelledArguments"];
             sortArguments( jsonArguments, argumentNames() );
         }
         return this->executeJson<Result>( jsonArguments, std::index_sequence_for<ArgTypes...>() );
     }
 
-    void sortArguments( nlohmann::json& jsonArray, const std::vector<std::string>& argumentNames ) const
+    void sortArguments( nlohmann::json& jsonMap, const std::vector<std::string>& argumentNames ) const
     {
         nlohmann::json sortedArray = nlohmann::json::array();
         for ( const auto& argumentName : argumentNames )
         {
-            auto it = std::find_if( jsonArray.begin(),
-                                    jsonArray.end(),
-                                    [&argumentName]( auto jsonElement )
-                                    { return jsonElement["keyword"] == argumentName; } );
-            if ( it != jsonArray.end() )
+            auto it = jsonMap.find( argumentName );
+            if ( it != jsonMap.end() )
             {
                 sortedArray.push_back( *it );
-                jsonArray.erase( it );
+                jsonMap.erase( it );
             }
         }
         // All unnamed arguments
-        sortedArray.insert( sortedArray.end(), jsonArray.begin(), jsonArray.end() );
-        jsonArray.swap( sortedArray );
+        sortedArray.insert( sortedArray.end(), jsonMap.begin(), jsonMap.end() );
+        jsonMap.swap( sortedArray );
     }
 
     template <typename... T>
@@ -248,10 +253,10 @@ private:
     }
 
     template <std::size_t... Is>
-    nlohmann::json jsonArgumentArray( std::index_sequence<Is...> ) const
+    nlohmann::json jsonArgumentSchemaArray( std::index_sequence<Is...> ) const
     {
         auto jsonArguments = nlohmann::json::array();
-        argumentHelper( jsonArguments, PortableDataType<ArgTypes>::name()... );
+        argumentHelper( jsonArguments, JsonDataType<ArgTypes>::type()... );
         return jsonArguments;
     }
 

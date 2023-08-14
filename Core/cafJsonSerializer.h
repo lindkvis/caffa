@@ -22,6 +22,9 @@
 
 #include <nlohmann/json.hpp>
 
+#include <set>
+#include <string>
+
 namespace caffa
 {
 class ObjectHandle;
