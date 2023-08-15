@@ -201,13 +201,20 @@ void handle_request( std::shared_ptr<WebSession>                          sessio
     try
     {
         auto [status, message] = service->perform( req.method(), pathComponents, jsonArguments, jsonMetaData );
-        CAFFA_DEBUG( "Responding with " << status << ": " << message );
+        if ( status == http::status::ok )
+        {
+            CAFFA_DEBUG( "Responding with " << status << ": " << message );
+        }
+        else
+        {
+            CAFFA_ERROR( "Responding with " << status << ": " << message );
+        }
 
         return send( createResponse( status, message ) );
     }
     catch ( const std::exception& e )
     {
-        CAFFA_DEBUG( "Got exception: " << e.what() );
+        CAFFA_ERROR( "Got exception: " << e.what() );
         return send( createResponse( http::status::internal_server_error, e.what() ) );
     }
 }

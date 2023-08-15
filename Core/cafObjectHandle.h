@@ -275,7 +275,7 @@ struct JsonDataType<DataType>
     static nlohmann::json type()
     {
         auto object    = nlohmann::json::object();
-        object["$ref"] = std::string( "/schemas/" ) + DataType::classKeywordStatic();
+        object["$ref"] = std::string( "#/schemas/" ) + DataType::classKeywordStatic();
         return object;
     }
 };

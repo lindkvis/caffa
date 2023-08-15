@@ -21,6 +21,8 @@
 #include "cafSession.h"
 
 #include "cafDefaultObjectFactory.h"
+#include "cafFieldJsonCapability.h"
+#include "cafFieldScriptingCapability.h"
 #include "cafJsonSerializer.h"
 #include "cafRestServerApplication.h"
 #include "cafRpcObjectConversion.h"
@@ -36,6 +38,11 @@ std::pair<http::status, std::string> RestSchemaService::perform( http::verb     
                                                                  const nlohmann::json&         arguments,
                                                                  const nlohmann::json&         metaData )
 {
+    if ( verb != http::verb::get )
+    {
+        return std::make_pair( http::status::bad_request, "Only GET requests are allowed for schema queries" );
+    }
+
     std::string session_uuid = "";
     if ( arguments.contains( "session_uuid" ) )
     {
@@ -57,25 +64,73 @@ std::pair<http::status, std::string> RestSchemaService::perform( http::verb     
         return std::make_pair( http::status::unauthorized, "No session provided" );
     }
 
-    auto factory = DefaultObjectFactory::instance();
-
     if ( path.empty() )
     {
-        auto array = nlohmann::json::array();
-
-        for ( auto className : factory->classes() )
-        {
-            array.push_back( className );
-        }
-        return std::make_pair( http::status::ok, array.dump() );
+        return getAllSchemas();
     }
 
-    auto object = factory->create( path.front() );
+    auto factory = DefaultObjectFactory::instance();
+    auto object  = factory->create( path.front() );
 
     if ( !object )
     {
         return std::make_pair( http::status::not_found, "No such class" );
     }
 
-    return std::make_pair( http::status::ok, createJsonSchemaFromProjectObject( object.get() ).dump() );
+    auto reducedPath = path;
+    reducedPath.pop_front();
+    if ( reducedPath.empty() )
+    {
+        return std::make_pair( http::status::ok, createJsonSchemaFromProjectObject( object.get() ).dump() );
+    }
+    return getFieldSchema( object.get(), reducedPath.front() );
+}
+
+std::pair<http::status, std::string> RestSchemaService::getAllSchemas()
+{
+    auto factory = DefaultObjectFactory::instance();
+
+    auto root    = nlohmann::json::object();
+    root["$id"]  = "/schemas";
+    root["type"] = "object";
+
+    auto oneOf   = nlohmann::json::array();
+    auto schemas = nlohmann::json::object();
+
+    for ( auto className : factory->classes() )
+    {
+        auto object = factory->create( className );
+
+        oneOf.push_back( { { "$ref", "#/schemas/" + className } } );
+        schemas[className] = createJsonSchemaFromProjectObject( object.get() );
+    }
+    root["oneOf"]   = oneOf;
+    root["schemas"] = schemas;
+
+    return std::make_pair( http::status::ok, root.dump() );
+}
+
+std::pair<http::status, std::string> RestSchemaService::getFieldSchema( const caffa::ObjectHandle* object,
+                                                                        const std::string&         fieldName )
+{
+    auto field = object->findField( fieldName );
+    if ( !field ) return std::make_pair( http::status::not_found, "Field does not exist" );
+
+    auto scriptability = field->capability<caffa::FieldScriptingCapability>();
+    if ( !scriptability || !scriptability->isWritable() )
+        return std::make_pair( http::status::forbidden, "Field is not remote writable" );
+
+    auto ioCapability = field->capability<caffa::FieldJsonCapability>();
+    if ( !ioCapability )
+    {
+        return std::make_pair( http::status::forbidden,
+                               "Field " + field->keyword() + " found, but it has no JSON capability" );
+    }
+
+    caffa::JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
+    serializer.setSerializationType( Serializer::SerializationType::SCHEMA );
+
+    nlohmann::json json;
+    ioCapability->writeToJson( json, serializer );
+    return std::make_pair( http::status::ok, json.dump() );
 }
