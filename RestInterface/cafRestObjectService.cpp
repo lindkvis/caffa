@@ -331,13 +331,6 @@ std::pair<http::status, std::string>
                                "Field " + field->keyword() + " found, but it has no JSON capability" );
     }
 
-    nlohmann::json value = arguments;
-
-    if ( value.is_object() && value.contains( "value" ) )
-    {
-        value = value["value"];
-    }
-
     JsonSerializer serializer;
 
     try
@@ -349,7 +342,7 @@ std::pair<http::status, std::string>
             {
                 return std::make_pair( http::status::bad_request, "Index does not make sense for a simple Child Field" );
             }
-            ioCapability->readFromJson( value, serializer );
+            ioCapability->readFromJson( arguments, serializer );
             return std::make_pair( http::status::ok, "" );
         }
 
@@ -362,24 +355,24 @@ std::pair<http::status, std::string>
                 auto childObjects = childArrayField->childObjects();
                 if ( index >= static_cast<int64_t>( childObjects.size() ) )
                 {
-                    auto object = serializer.createObjectFromString( value.dump() );
+                    auto object = serializer.createObjectFromString( arguments.dump() );
                     childArrayField->push_back_obj( object );
                     return std::make_pair( http::status::ok, "" );
                 }
                 else if ( !replace )
                 {
-                    auto object = serializer.createObjectFromString( value.dump() );
+                    auto object = serializer.createObjectFromString( arguments.dump() );
                     childArrayField->insertAt( index, object );
                     return std::make_pair( http::status::ok, "" );
                 }
                 else
                 {
-                    serializer.readObjectFromString( childObjects[index].get(), value.dump() );
+                    serializer.readObjectFromString( childObjects[index].get(), arguments.dump() );
                     return std::make_pair( http::status::ok, "" );
                 }
             }
         }
-        ioCapability->readFromJson( value, serializer );
+        ioCapability->readFromJson( arguments, serializer );
         return std::make_pair( http::status::ok, "" );
     }
     catch ( const std::exception& e )
@@ -401,13 +394,6 @@ std::pair<http::status, std::string>
     {
         return std::make_pair( http::status::forbidden,
                                "Field " + field->keyword() + " found, but it has no JSON capability" );
-    }
-
-    nlohmann::json value = arguments;
-
-    if ( value.is_object() && value.contains( "value" ) )
-    {
-        value = value["value"];
     }
 
     JsonSerializer serializer;

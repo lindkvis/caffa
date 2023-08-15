@@ -106,7 +106,7 @@ public:
                     i++;
                 }(),
                 ... );
-            jsonMethod["numberedArguments"] = jsonArguments;
+            jsonMethod["positionalArguments"] = jsonArguments;
         }
         return jsonMethod;
     }
@@ -125,26 +125,27 @@ public:
 
         if ( !jsonArgumentItems.empty() )
         {
-            auto jsonNumberedArguments        = nlohmann::json::object();
-            jsonNumberedArguments["type"]     = "array";
-            jsonNumberedArguments["minItems"] = jsonArgumentItems.size();
-            jsonNumberedArguments["maxItems"] = jsonArgumentItems.size();
+            auto jsonpositionalArguments        = nlohmann::json::object();
+            jsonpositionalArguments["type"]     = "array";
+            jsonpositionalArguments["minItems"] = jsonArgumentItems.size();
+            jsonpositionalArguments["maxItems"] = jsonArgumentItems.size();
 
-            auto jsonNumberedArgumentItems = nlohmann::json::array();
-            auto jsonLabelledArguments     = nlohmann::json::object();
+            auto jsonNumberedArgumentItems      = nlohmann::json::array();
+            auto jsonLabelledArguments          = nlohmann::json::object();
+            jsonLabelledArguments["type"]       = "object";
+            auto jsonLabelledArgumentProperties = nlohmann::json::object();
             for ( const nlohmann::json& argument : jsonArgumentItems )
             {
                 CAFFA_ASSERT( argument.is_object() );
-                auto keyword                   = argument["keyword"].get<std::string>();
-                auto type                      = argument["type"];
-                jsonLabelledArguments[keyword] = type;
+                auto keyword                            = argument["keyword"].get<std::string>();
+                auto type                               = argument["type"];
+                jsonLabelledArgumentProperties[keyword] = type;
                 jsonNumberedArgumentItems.push_back( type );
             }
-            jsonNumberedArguments["items"] = jsonNumberedArgumentItems;
-            auto jsonOneOf                 = nlohmann::json::object();
-            jsonOneOf["numberedArguments"] = jsonNumberedArguments;
-            jsonOneOf["labelledArguments"] = jsonLabelledArguments;
-            jsonProperties["oneOf"]        = jsonOneOf;
+            jsonpositionalArguments["items"]      = jsonNumberedArgumentItems;
+            jsonProperties["positionalArguments"] = jsonpositionalArguments;
+            jsonLabelledArguments["properties"]   = jsonLabelledArgumentProperties;
+            jsonProperties["labelledArguments"]   = jsonLabelledArguments;
         }
         if ( !JsonDataType<Result>::type().empty() )
         {
@@ -202,14 +203,18 @@ private:
     nlohmann::json executeJson( const nlohmann::json& jsonMethod ) const
     {
         auto jsonArguments = nlohmann::json::array();
-        if ( jsonMethod.contains( "numberedArguments" ) )
+        if ( jsonMethod.contains( "positionalArguments" ) )
         {
-            jsonArguments = jsonMethod["numberedArguments"];
+            jsonArguments = jsonMethod["positionalArguments"];
         }
         else if ( jsonMethod.contains( "labelledArguments" ) )
         {
             jsonArguments = jsonMethod["labelledArguments"];
             sortArguments( jsonArguments, argumentNames() );
+        }
+        if ( jsonArguments.size() != jsonArgumentSchemaArray( std::index_sequence_for<ArgTypes...>() ).size() )
+        {
+            throw std::runtime_error( "Wrong number of arguments!" );
         }
         return this->executeJson<Result>( jsonArguments, std::index_sequence_for<ArgTypes...>() );
     }

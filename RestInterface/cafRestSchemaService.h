@@ -45,10 +45,14 @@ namespace caffa::rpc
 class RestSchemaService : public RestServiceInterface
 {
 public:
-    std::pair<http::status, std::string> perform( http::verb                    verb,
-                                                  const std::list<std::string>& path,
-                                                  const nlohmann::json&         arguments,
-                                                  const nlohmann::json&         metaData ) override;
+    std::pair<http::status, std::string>        perform( http::verb                    verb,
+                                                         const std::list<std::string>& path,
+                                                         const nlohmann::json&         arguments,
+                                                         const nlohmann::json&         metaData ) override;
+    static std::pair<http::status, std::string> getFieldSchema( const caffa::ObjectHandle* object,
+                                                                const std::string&         fieldName );
+
+    static std::pair<http::status, std::string> getAllSchemas();
 };
 
 } // namespace caffa::rpc

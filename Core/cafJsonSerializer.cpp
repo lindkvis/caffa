@@ -123,6 +123,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
         jsonProperties["uuid"]    = { { "type", "string" } };
         jsonObject["$schema"]     = "https://json-schema.org/draft/2020-12/schema";
         jsonObject["$id"]         = "/schemas/" + object->classKeyword();
+        jsonObject["title"]       = object->classKeyword();
 
         if ( !object->classDocumentation().empty() )
         {
