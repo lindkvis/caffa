@@ -44,7 +44,7 @@ public:
     void visitObject( const ObjectHandle* object ) override
     {
         CAFFA_ASSERT( object );
-        CAFFA_DEBUG( "Visiting OBJECT " << object->uuid() );
+        CAFFA_TRACE( "Visiting OBJECT " << object->uuid() );
         auto typedObject = dynamic_cast<const ObjectType*>( object );
         if ( typedObject && ( !m_selector || m_selector( typedObject ) ) )
         {
@@ -53,7 +53,7 @@ public:
 
         for ( auto field : object->fields() )
         {
-            CAFFA_DEBUG( "Testing field: " << field->keyword() );
+            CAFFA_TRACE( "Testing field: " << field->keyword() );
             field->accept( this );
         }
     }
@@ -62,7 +62,6 @@ public:
 
     void visitChildField( const ChildFieldBaseHandle* childField ) override
     {
-        CAFFA_DEBUG( "Checking childField" );
         for ( auto object : childField->childObjects() )
         {
             object->accept( this );
