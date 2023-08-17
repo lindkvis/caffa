@@ -848,6 +848,7 @@ TEST_F( RestTest, ChildObjects )
     {
         auto inheritedObject      = std::make_shared<InheritedDemoObj>();
         inheritedObject->intField = 1113;
+        ASSERT_THROW( inheritedObject->intField = 10000, std::exception );
         clientDocument->m_inheritedDemoObjects.insert( 2u, inheritedObject );
     }
     ASSERT_EQ( clientChildCount + 1u, serverDocument->m_inheritedDemoObjects.size() );
@@ -992,8 +993,10 @@ TEST_F( RestTest, MultipleConcurrentSessionsShouldBeRefused )
                                                                           ServerApp::s_port ) );
     ASSERT_TRUE( client2 == nullptr );
     CAFFA_INFO( "Failed to create new session as expected" );
+
+    CAFFA_INFO( "Stopping server and waiting for server to join" );
     client1->stopServer();
-    CAFFA_DEBUG( "Stopping server and waiting for server to join" );
+
     thread.join();
     CAFFA_DEBUG( "Server joined" );
 }
@@ -1064,7 +1067,7 @@ TEST_F( RestTest, MultipleConcurrentSessionsDelayWithoutKeepalive )
                                                                          ServerApp::s_port ) );
     ASSERT_TRUE( client2 );
 
-    client1->destroySession();
+    ASSERT_NO_THROW( client1->destroySession() );
 
     client2->stopServer();
     CAFFA_DEBUG( "Stopping server and waiting for server to join" );
