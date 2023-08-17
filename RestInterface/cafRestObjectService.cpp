@@ -66,12 +66,6 @@ std::pair<http::status, std::string> RestObjectService::perform( http::verb     
         return std::make_pair( http::status::unauthorized, "No session provided" );
     }
 
-    CAFFA_DEBUG( "Path size: " << path.size() );
-    for ( auto str : path )
-    {
-        CAFFA_DEBUG( "Path component: '" << str << "'" );
-    }
-
     bool skeleton = metaData.contains( "skeleton" ) && metaData["skeleton"].get<bool>();
     bool replace  = metaData.contains( "replace" ) && metaData["replace"].get<bool>();
 
@@ -87,11 +81,11 @@ std::pair<http::status, std::string> RestObjectService::perform( http::verb     
         auto reducedPath = path;
         reducedPath.pop_front();
 
-        CAFFA_DEBUG( "Trying to look for document id '" << documentId << "'" );
+        CAFFA_TRACE( "Trying to look for document id '" << documentId << "'" );
         if ( documentId == "uuid" && !reducedPath.empty() )
         {
             auto uuid = reducedPath.front();
-            CAFFA_DEBUG( "Using uuid: " << uuid );
+            CAFFA_TRACE( "Using uuid: " << uuid );
             object = findObject( reducedPath.front(), session.get() );
             reducedPath.pop_front();
             if ( !object )
@@ -231,7 +225,7 @@ std::pair<caffa::ObjectAttribute*, int64_t> RestObjectService::findFieldOrMethod
         }
     }
 
-    CAFFA_DEBUG( "Looking for field '" << fieldOrMethodName << "', index: " << index );
+    CAFFA_TRACE( "Looking for field '" << fieldOrMethodName << "', index: " << index );
     if ( auto currentLevelField = object->findField( fieldOrMethodName ); currentLevelField )
     {
         auto reducedPath = path;
@@ -247,7 +241,7 @@ std::pair<caffa::ObjectAttribute*, int64_t> RestObjectService::findFieldOrMethod
                     index = 0;
                 }
 
-                CAFFA_DEBUG( "Looking for index " << index << " in an array of size " << childObjects.size() );
+                CAFFA_TRACE( "Looking for index " << index << " in an array of size " << childObjects.size() );
                 if ( index >= static_cast<int64_t>( childObjects.size() ) )
                 {
                     return std::make_pair( nullptr, -1 );
@@ -284,7 +278,6 @@ std::pair<http::status, std::string>
         JsonSerializer serializer;
         if ( childField )
         {
-            CAFFA_DEBUG( "skeleton: " << skeleton );
             // The skeleton serialization only makes sense for objects
             if ( skeleton ) serializer.setSerializationType( Serializer::SerializationType::DATA_SKELETON );
 

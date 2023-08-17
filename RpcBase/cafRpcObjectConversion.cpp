@@ -115,7 +115,7 @@ caffa::ObjectHandle* caffa::rpc::findCafObjectFromJsonObject( const caffa::Sessi
 //--------------------------------------------------------------------------------------------------
 caffa::ObjectHandle* caffa::rpc::findCafObjectFromUuid( const caffa::Session* session, const std::string& objectUuid )
 {
-    CAFFA_DEBUG( "Looking for caf object with UUID '" << objectUuid << "'" );
+    CAFFA_TRACE( "Looking for caf object with UUID '" << objectUuid << "'" );
 
     caffa::ObjectCollector<> collector( [objectUuid]( const caffa::ObjectHandle* objectHandle ) -> bool
                                         { return objectHandle->uuid() == objectUuid; } );

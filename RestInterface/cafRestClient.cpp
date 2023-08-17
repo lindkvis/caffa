@@ -90,7 +90,7 @@ public:
         m_req.set( http::field::user_agent, BOOST_BEAST_VERSION_STRING );
         if ( !body.empty() )
         {
-            CAFFA_DEBUG( "Setting request body: " << body );
+            CAFFA_TRACE( "Setting request body: " << body );
             m_req.body() = body;
             m_req.prepare_payload();
         }
@@ -199,7 +199,6 @@ std::pair<http::status, std::string>
 
     auto result = request->wait();
 
-    CAFFA_DEBUG( "Got result" );
     return result;
 }
 
@@ -255,7 +254,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::document( const std::string& do
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
-    CAFFA_DEBUG( "Trying to get document: " << documentId );
+    CAFFA_TRACE( "Trying to get document: " << documentId );
 
     auto [status, body] =
         performGetRequest( hostname(),
@@ -266,7 +265,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::document( const std::string& do
     {
         throw std::runtime_error( "Failed to get document " + documentId + ": " + body );
     }
-    CAFFA_DEBUG( "Got document JSON '" << body << "'" );
+    CAFFA_TRACE( "Got document JSON '" << body << "'" );
 
     caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
     serializer.setSerializationType( Serializer::SerializationType::DATA_SKELETON );
@@ -443,7 +442,7 @@ caffa::Session::Type RestClient::checkSession() const
         throw std::runtime_error( "Failed to check session: " + body );
     }
 
-    CAFFA_DEBUG( "Got result: " << body );
+    CAFFA_TRACE( "Got result: " << body );
 
     auto jsonResult = nlohmann::json::parse( body );
     CAFFA_ASSERT( jsonResult.contains( "type" ) );
@@ -570,7 +569,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::getShallowCopyOfChildObject( co
     {
         throw std::runtime_error( "Failed to get field value" );
     }
-    CAFFA_DEBUG( "Got body: " << body );
+    CAFFA_TRACE( "Got body: " << body );
 
     return caffa::JsonSerializer( caffa::rpc::ClientPassByRefObjectFactory::instance() )
         .setSerializationType( Serializer::SerializationType::DATA_SKELETON )
@@ -639,7 +638,7 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::getChildObjects( c
     {
         throw std::runtime_error( "Failed to get field value" );
     }
-    CAFFA_DEBUG( "Got body: " << body );
+    CAFFA_TRACE( "Got body: " << body );
 
     auto jsonArray = nlohmann::json::parse( body );
     if ( !jsonArray.is_array() )

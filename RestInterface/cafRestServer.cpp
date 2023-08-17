@@ -112,8 +112,7 @@ void handle_request( std::shared_ptr<WebSession>                          sessio
 
     std::string target( req.target() );
 
-    CAFFA_DEBUG( "GOT REQUEST: " << target );
-    CAFFA_DEBUG( "Request body: " << req.body() );
+    CAFFA_DEBUG( "Request for " << target << ", body length: " << req.body().length() );
 
     std::regex paramRegex( "[\?&]" );
 
@@ -128,7 +127,6 @@ void handle_request( std::shared_ptr<WebSession>                          sessio
     for ( size_t i = 1; i < targetComponents.size(); ++i )
     {
         params.push_back( targetComponents[i] );
-        CAFFA_DEBUG( "Found parameter: " << targetComponents[i] );
     }
 
     std::shared_ptr<caffa::rpc::RestServiceInterface> service;
@@ -195,15 +193,14 @@ void handle_request( std::shared_ptr<WebSession>                          sessio
         }
     }
 
-    CAFFA_DEBUG( "Arguments: " << jsonArguments.dump() );
-    CAFFA_DEBUG( "Meta data: " << jsonMetaData.dump() );
+    CAFFA_TRACE( "Arguments: " << jsonArguments.dump() << ", Meta data: " << jsonMetaData.dump() );
 
     try
     {
         auto [status, message] = service->perform( req.method(), pathComponents, jsonArguments, jsonMetaData );
         if ( status == http::status::ok )
         {
-            CAFFA_DEBUG( "Responding with " << status << ": " << message );
+            CAFFA_TRACE( "Responding with " << status << ": " << message );
         }
         else
         {
@@ -334,11 +331,8 @@ void WebSession::close()
 
 std::shared_ptr<RestServiceInterface> WebSession::service( const std::string& key ) const
 {
-    CAFFA_DEBUG( "Trying to find service " << key );
-
     for ( const auto& [serviceName, service] : m_services )
     {
-        CAFFA_DEBUG( "Trying " << serviceName );
         if ( serviceName == key ) return service;
     }
     return nullptr;

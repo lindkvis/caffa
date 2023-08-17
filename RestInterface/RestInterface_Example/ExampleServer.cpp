@@ -117,7 +117,7 @@ public:
             }
             else
             {
-                CAFFA_DEBUG( "Had session " << m_session->uuid() << " but it has not been kept alive, so destroying it" );
+                CAFFA_WARNING( "Had session " << m_session->uuid() << " but it has not been kept alive, so destroying it" );
             }
         }
         m_session = caffa::Session::create( type, std::chrono::seconds( 60 ) );

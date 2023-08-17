@@ -53,7 +53,6 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
     if ( this->serializeUuids() && jsonObject.contains( "uuid" ) )
     {
         auto uuid = jsonObject["uuid"].get<std::string>();
-        CAFFA_DEBUG( "Found UUID: " << uuid );
         object->setUuid( uuid );
     }
 
@@ -65,7 +64,7 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
 
     for ( const auto& [keyword, value] : jsonObject.items() )
     {
-        CAFFA_DEBUG( "Reading field: " << keyword << " with value " << value.dump() );
+        CAFFA_TRACE( "Reading field: " << keyword << " with value " << value.dump() );
 
         if ( keyword == "uuid" )
         {
@@ -89,7 +88,6 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
                 auto ioFieldHandle = fieldHandle->capability<FieldJsonCapability>();
                 if ( ioFieldHandle )
                 {
-                    CAFFA_DEBUG( "Reading field " << keyword );
                     ioFieldHandle->readFromJson( value, *this );
                 }
                 else
@@ -276,7 +274,7 @@ std::shared_ptr<ObjectHandle> JsonSerializer::copyAndCastBySerialization( const 
 //--------------------------------------------------------------------------------------------------
 std::shared_ptr<ObjectHandle> JsonSerializer::createObjectFromString( const std::string& string ) const
 {
-    CAFFA_DEBUG( "Creating object from JSON string '" << string << "'" );
+    CAFFA_TRACE( "Creating object from JSON string '" << string << "'" );
 
     if ( string.empty() ) return nullptr;
 
@@ -300,8 +298,6 @@ std::shared_ptr<ObjectHandle> JsonSerializer::createObjectFromString( const std:
     std::shared_ptr<ObjectHandle> newObject = m_objectFactory->create( classKeyword );
 
     if ( !newObject ) return nullptr;
-    CAFFA_DEBUG( "New Object got UUID: " << newObject->uuid() );
-    CAFFA_DEBUG( "Now reading JSON: " << string );
 
     readObjectFromJson( newObject.get(), jsonObject );
 
