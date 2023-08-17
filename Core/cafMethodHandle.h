@@ -41,6 +41,7 @@ public:
         , m_objectFactory( objectFactory )
     {
     }
+    virtual ~MethodAccessorInterface()                                          = default;
     virtual std::string execute( const std::string& jsonArgumentsString ) const = 0;
 
     ObjectFactory* objectFactory() const { return m_objectFactory; }
