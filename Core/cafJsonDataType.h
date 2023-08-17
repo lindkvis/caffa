@@ -44,6 +44,12 @@ struct JsonDataType
     }
 };
 
+template <>
+struct JsonDataType<void>
+{
+    static nlohmann::json type() { return nlohmann::json::object(); }
+};
+
 template <typename DataType>
 struct JsonDataType<std::vector<DataType>>
 {
