@@ -35,7 +35,13 @@ namespace caffa
 template <typename DataType>
 struct JsonDataType
 {
-    static nlohmann::json type() { return nlohmann::json::object(); }
+    static nlohmann::json type()
+    {
+        auto object    = nlohmann::json::object();
+        object["type"] = "object";
+
+        return object;
+    }
 };
 
 template <typename DataType>
