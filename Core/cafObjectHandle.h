@@ -277,4 +277,18 @@ struct JsonDataType<DataType>
     }
 };
 
+/**
+ * The portable type id for an ObjectHandle
+ */
+template <IsSharedPtr DataType>
+struct JsonDataType<DataType>
+{
+    static nlohmann::json type()
+    {
+        auto object    = nlohmann::json::object();
+        object["$ref"] = std::string( "#/schemas/" ) + DataType::element_type::classKeywordStatic();
+        return object;
+    }
+};
+
 } // namespace caffa
