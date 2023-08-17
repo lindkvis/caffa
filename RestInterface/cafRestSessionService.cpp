@@ -68,7 +68,7 @@ std::map<std::string, RestSessionService::ServiceCallback> RestSessionService::c
 std::pair<http::status, std::string>
     RestSessionService::ready( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
 {
-    CAFFA_DEBUG( "Received ready for session request with arguments " << arguments );
+    CAFFA_TRACE( "Received ready for session request with arguments " << arguments );
 
     try
     {

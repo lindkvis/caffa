@@ -128,9 +128,7 @@ TEST_F( RestTest, Document )
 
         {
             caffa::ConstObjectCollector<DemoObject> serverCollector, clientCollector;
-            CAFFA_DEBUG( "VISITING SERVER" );
             serverDocument->accept( &serverCollector );
-            CAFFA_DEBUG( "VISITING CLIENT" );
             clientDocument->accept( &clientCollector );
 
             auto serverDescendants = serverCollector.objects();
@@ -144,7 +142,6 @@ TEST_F( RestTest, Document )
                 auto serverObject = *server_it;
                 auto clientObject = *client_it;
                 ASSERT_TRUE( serverObject && clientObject );
-                CAFFA_DEBUG( "Testing SERVER OBJECT: " << serverObject->uuid() );
                 ASSERT_EQ( serverObject->uuid(), clientObject->uuid() );
             }
         }
@@ -490,7 +487,7 @@ TEST_F( RestTest, ObjectDeepCopyVsShallowCopy )
     auto clientDemoObjectClone     = clientDocument->demoObject.deepCloneObject();
 
     std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject().get() );
-    CAFFA_DEBUG( serverJson );
+    CAFFA_TRACE( serverJson );
 
     // Stop server *before* we read the client JSON
 
@@ -501,7 +498,7 @@ TEST_F( RestTest, ObjectDeepCopyVsShallowCopy )
     // Should succeed in reading the clone but not the reference
     std::string clientJson;
     ASSERT_NO_THROW( clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() ) );
-    CAFFA_DEBUG( clientJson );
+    CAFFA_TRACE( clientJson );
     ASSERT_EQ( serverJson, clientJson );
 
     CAFFA_INFO( "Expect errors when trying to write a shallow copied object reference after the server is closed" );
