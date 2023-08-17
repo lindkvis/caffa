@@ -484,7 +484,7 @@ void RestClient::destroySession()
     auto [status, body] =
         performRequest( http::verb::delete_, hostname(), port(), std::string( "/session/destroy" ), jsonObject.dump() );
 
-    if ( status != http::status::ok )
+    if ( status != http::status::ok && status != http::status::not_found )
     {
         throw std::runtime_error( "Failed to destroy session: " + body );
     }
