@@ -92,9 +92,8 @@ public:
         constexpr std::size_t n = sizeof...( args );
         if constexpr ( n > 0 )
         {
-            auto        jsonArguments = nlohmann::json::array();
-            const auto& argumentNames = this->argumentNames();
-            size_t      i             = 0;
+            auto   jsonArguments = nlohmann::json::array();
+            size_t i             = 0;
 
             // Fold expression
             // https://en.cppreference.com/w/cpp/language/fold
