@@ -160,7 +160,7 @@ public:
             return;
         }
 
-        m_result.set_value( std::make_pair( http::status::ok, m_res.body() ) );
+        m_result.set_value( std::make_pair( m_res.result(), m_res.body() ) );
 
         // Gracefully close the socket
         m_stream.socket().shutdown( tcp::socket::shutdown_both, ec );
