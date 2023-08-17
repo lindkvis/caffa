@@ -86,9 +86,6 @@ public:
     static constexpr bool isValidKeyword( const std::string_view& type )
     {
         if ( type == "keyword" ) return false;
-        if ( type == "required" ) return false;
-        if ( type == "methods" ) return false;
-        if ( type == "type" ) return false;
 
         if ( caffa::StringTools::isdigit( type[0] ) ) return false;
 
