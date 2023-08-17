@@ -42,22 +42,12 @@ static bool fieldIsScriptReadable( const caffa::FieldHandle* fieldHandle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-static bool fieldIsScriptReadableOrWritable( const caffa::FieldHandle* fieldHandle )
-{
-    auto scriptability = fieldHandle->capability<caffa::FieldScriptingCapability>();
-    return scriptability && ( scriptability->isWritable() || scriptability->isReadable() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 nlohmann::json caffa::rpc::createJsonSchemaFromProjectObject( const caffa::ObjectHandle* source )
 {
     CAFFA_ASSERT( source );
     CAFFA_ASSERT( !source->uuid().empty() );
 
     caffa::JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
-    serializer.setFieldSelector( fieldIsScriptReadableOrWritable );
     serializer.setSerializationType( Serializer::SerializationType::SCHEMA );
 
     auto object = nlohmann::json::object();
@@ -74,7 +64,6 @@ nlohmann::json caffa::rpc::createJsonFromProjectObject( const caffa::ObjectHandl
     CAFFA_ASSERT( !source->uuid().empty() );
 
     caffa::JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
-    serializer.setFieldSelector( fieldIsScriptReadable );
     serializer.setSerializeUuids( true );
 
     auto object = nlohmann::json::object();
