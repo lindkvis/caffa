@@ -28,9 +28,9 @@ public:
     Field<std::string> name;
 };
 
-class TinyDemoObject : public Object
+class TinyDemoDocument : public Document
 {
-    CAFFA_HEADER_INIT_WITH_DOC("A tiny demo object with some documentation", TinyDemoObject, Object);
+    CAFFA_HEADER_INIT_WITH_DOC("A tiny demo object with some documentation", TinyDemoDocument, Object);
 
 public:
     enum TestEnumType
@@ -40,8 +40,8 @@ public:
         T3
     };
 
-    TinyDemoObject();
-    ~TinyDemoObject() noexcept override;
+    TinyDemoDocument();
+    ~TinyDemoDocument() noexcept override;
 
 public:
 
@@ -54,7 +54,7 @@ public:
     ChildField<ChildObject>         specialChild; // Child fields hold a single Caffa Object
 
 public:
-    Method<void(double)>            scaleDoubleField; // A registered method taking a double parameter
+    Method<void(double)>            scaleDoubleField; // A registered method
 };
 ~~~
 
@@ -68,25 +68,25 @@ ChildObject::ChildObject(const std::string& childName)
     initField(name, "name").withDefault(childName).withScripting();
 }
 
-CAFFA_SOURCE_INIT(TinyDemoObject)
+CAFFA_SOURCE_INIT(TinyDemoDocument)
 
 // Must be in caffa namespace
 namespace caffa
 {
 template <>
-void AppEnum<TinyDemoObject::TestEnumType>::setUp()
+void AppEnum<TinyDemoDocument::TestEnumType>::setUp()
 {
     // Register enum values with a corresponding text string
-    addItem( TinyDemoObject::T1, "T1" );
-    addItem( TinyDemoObject::T2, "T2" );
-    addItem( TinyDemoObject::T3, "T3" );
-    setDefault( TinyDemoObject::T1 );
+    addItem( TinyDemoDocument::T1, "T1" );
+    addItem( TinyDemoDocument::T2, "T2" );
+    addItem( TinyDemoDocument::T3, "T3" );
+    setDefault( TinyDemoDocument::T1 );
 }
 
 } // namespace caffa
 
 
-TinyDemoObject::TinyDemoObject()
+TinyDemoDocument::TinyDemoDocument()
 {
     initField(toggleField, "Toggle").withDefault(true).withScripting();    
     initField(doubleField, "Number").withDefault(11.0).withScripting();
@@ -94,7 +94,7 @@ TinyDemoObject::TinyDemoObject()
     initField(enumField, "Enum").withScripting();
     initField(intVectorField, "Integers").withScripting();
     initField(children, "Children").withScripting();
-    initFIeld(specialChild, "SpecialChild"); // Omitted withScripting. This field will not be remote accessible.
+    initFIeld(specialChild, "SpecialChild"); // Omitted withScripting => not remote accessible.
     
     initMethod(scaleDoubleField, "scaleDouble", {"scalingFactor"}, [this](double scalingFactor)
     {
@@ -110,6 +110,27 @@ TinyDemoObject::TinyDemoObject()
     specialChild = std::make_shared<ChildObject>("Balthazar");
 }
 ~~~
+
+Fields and methods can be accessed locally in the following way:
+~~~cpp
+
+    auto doc = std::make_shared<TinyDemoDocument>();
+    doc->toggleField = true;
+    int currentIntValue = doc->intField;
+    doc->scaleDoubleField(3.0);
+~~~
+
+If your application inherits the caffa::rpc::RestServerApplication and the document is provided by the server app through your implementation of the virtual document and documents() methods, you can access the same fields and methods remotely.
+
+~~~cpp
+    auto doc = std::dynamic_pointer_cast<TinyDemoDocument>(client->document("TinyDemoDocument"));
+    doc->toggleField = true;
+    int currentIntValue = doc->intField;
+    doc->scaleDoubleField(3.0);
+~~~
+
+See [ExampleServer.cpp](https://github.com/lindkvis/caffa/blob/master/RestInterface/RestInterface_Example/ExampleServer.cpp) and [ExampleClient.cpp](https://github.com/lindkvis/caffa/blob/master/RestInterface/RestInterface_Example/ExampleClient.cpp) for a
+more complete example.
 
 # Requirements
 Caffa uses modern C++ and requires a C++20 compatible compiler, Boost 1.71.0+ and CMake 3.16+.
