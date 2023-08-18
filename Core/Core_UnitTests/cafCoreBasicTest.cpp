@@ -197,15 +197,14 @@ TEST( BaseTest, TestField )
     ASSERT_DOUBLE_EQ( 1.2, a->m_memberDoubleField );
     a->m_memberDoubleField = 42.0;
     ASSERT_DOUBLE_EQ( 42.0, a->m_memberDoubleField );
-
-    ASSERT_EQ( 0, a->m_memberIntField.value() );
-    ASSERT_NO_THROW( a->m_memberIntField.setValue( 1000 ) );
-    ASSERT_NO_THROW( a->m_memberIntField.setValue( -10 ) );
-    ASSERT_NO_THROW( a->m_memberIntField.setValue( 11 ) );
-    ASSERT_THROW( a->m_memberIntField.setValue( 1001 ), std::runtime_error );
+    ASSERT_EQ( 0, *a->m_memberIntField );
+    ASSERT_NO_THROW( a->m_memberIntField = 1000 );
+    ASSERT_NO_THROW( a->m_memberIntField = -10 );
+    ASSERT_NO_THROW( a->m_memberIntField = 11 );
+    ASSERT_THROW( a->m_memberIntField = 1001, std::runtime_error );
     ASSERT_EQ( 11, a->m_memberIntField.value() );
 
-    ASSERT_TRUE( a->m_memberStringField.value().empty() );
+    ASSERT_TRUE( ( *a->m_memberStringField ).empty() );
     a->m_memberStringField.setValue( "123" );
     ASSERT_TRUE( a->m_memberStringField.value() == "123" );
 }

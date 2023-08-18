@@ -128,12 +128,18 @@ public:
 
     // Access operators
 
-    /*Conversion */ operator DataType() const
+    /*Conversion */
+    operator DataType() const
     {
         CAFFA_ASSERT( m_fieldDataAccessor );
         return this->value();
     }
     DataType operator()() const
+    {
+        CAFFA_ASSERT( m_fieldDataAccessor );
+        return this->value();
+    }
+    DataType operator*() const
     {
         CAFFA_ASSERT( m_fieldDataAccessor );
         return this->value();
