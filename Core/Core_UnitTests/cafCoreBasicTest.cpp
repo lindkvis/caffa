@@ -193,6 +193,11 @@ TEST( BaseTest, TestField )
     a->m_memberDoubleField.setValue( 1.2 );
     ASSERT_DOUBLE_EQ( 1.2, a->m_memberDoubleField.value() );
 
+    // Simpler access
+    ASSERT_DOUBLE_EQ( 1.2, a->m_memberDoubleField );
+    a->m_memberDoubleField = 42.0;
+    ASSERT_DOUBLE_EQ( 42.0, a->m_memberDoubleField );
+
     ASSERT_EQ( 0, a->m_memberIntField.value() );
     ASSERT_NO_THROW( a->m_memberIntField.setValue( 1000 ) );
     ASSERT_NO_THROW( a->m_memberIntField.setValue( -10 ) );
