@@ -45,34 +45,32 @@ namespace caffa::rpc
 class RestObjectService : public RestServiceInterface
 {
 public:
-    std::pair<http::status, std::string> perform( http::verb                    verb,
-                                                  const std::list<std::string>& path,
-                                                  const nlohmann::json&         arguments,
-                                                  const nlohmann::json&         metaData ) override;
+    ServiceResponse perform( http::verb                    verb,
+                             const std::list<std::string>& path,
+                             const nlohmann::json&         arguments,
+                             const nlohmann::json&         metaData ) override;
 
 private:
     static caffa::Document*     document( const std::string& documentId, const caffa::Session* session );
     static caffa::ObjectHandle* findObject( const std::string& uuid, const caffa::Session* session );
-    static std::pair<http::status, std::string> documents( const caffa::Session* session, bool skeleton );
+    static ServiceResponse      documents( const caffa::Session* session, bool skeleton );
 
-    static std::pair<http::status, std::string> perform( http::verb                    verb,
-                                                         caffa::ObjectHandle*          object,
-                                                         const std::list<std::string>& path,
-                                                         const nlohmann::json&         arguments,
-                                                         bool                          skeleton,
-                                                         bool                          replace );
+    static ServiceResponse perform( http::verb                    verb,
+                                    caffa::ObjectHandle*          object,
+                                    const std::list<std::string>& path,
+                                    const nlohmann::json&         arguments,
+                                    bool                          skeleton,
+                                    bool                          replace );
 
     static std::pair<caffa::ObjectAttribute*, int64_t> findFieldOrMethod( caffa::ObjectHandle*          object,
                                                                           const std::list<std::string>& path );
 
-    static std::pair<http::status, std::string>
-        getFieldValue( const caffa::FieldHandle* fieldHandle, int64_t index, bool skeleton );
-    static std::pair<http::status, std::string> putFieldValue( caffa::FieldHandle*   fieldHandle,
-                                                               int64_t               index,
-                                                               const nlohmann::json& arguments,
-                                                               bool                  replace = false );
-    static std::pair<http::status, std::string>
-        deleteChildObject( caffa::FieldHandle* field, int64_t index, const nlohmann::json& arguments );
+    static ServiceResponse getFieldValue( const caffa::FieldHandle* fieldHandle, int64_t index, bool skeleton );
+    static ServiceResponse putFieldValue( caffa::FieldHandle*   fieldHandle,
+                                          int64_t               index,
+                                          const nlohmann::json& arguments,
+                                          bool                  replace = false );
+    static ServiceResponse deleteChildObject( caffa::FieldHandle* field, int64_t index, const nlohmann::json& arguments );
 };
 
 } // namespace caffa::rpc

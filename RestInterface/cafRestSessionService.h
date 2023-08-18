@@ -28,28 +28,28 @@ namespace caffa::rpc
 class RestSessionService : public RestServiceInterface
 {
 public:
-    std::pair<http::status, std::string> perform( http::verb                    verb,
+    ServiceResponse perform( http::verb                    verb,
                                                   const std::list<std::string>& path,
                                                   const nlohmann::json&         arguments,
                                                   const nlohmann::json&         metaData ) override;
 
 private:
     using ServiceCallback =
-        std::function<std::pair<http::status, std::string>( http::verb verb, const nlohmann::json&, const nlohmann::json& )>;
+        std::function<ServiceResponse( http::verb verb, const nlohmann::json&, const nlohmann::json& )>;
 
     std::map<std::string, ServiceCallback> callbacks() const;
 
-    static std::pair<http::status, std::string>
+    static ServiceResponse
         ready( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
-    static std::pair<http::status, std::string>
+    static ServiceResponse
         check( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
-    static std::pair<http::status, std::string>
+    static ServiceResponse
         change( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
-    static std::pair<http::status, std::string>
+    static ServiceResponse
         create( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
-    static std::pair<http::status, std::string>
+    static ServiceResponse
         destroy( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
-    static std::pair<http::status, std::string>
+    static ServiceResponse
         keepalive( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
 };
 } // namespace caffa::rpc

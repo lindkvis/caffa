@@ -40,10 +40,10 @@
 
 using namespace caffa::rpc;
 
-std::pair<http::status, std::string> RestObjectService::perform( http::verb                    verb,
-                                                                 const std::list<std::string>& path,
-                                                                 const nlohmann::json&         arguments,
-                                                                 const nlohmann::json&         metaData )
+RestObjectService::ServiceResponse RestObjectService::perform( http::verb                    verb,
+                                                               const std::list<std::string>& path,
+                                                               const nlohmann::json&         arguments,
+                                                               const nlohmann::json&         metaData )
 {
     std::string session_uuid = "";
     if ( arguments.contains( "session_uuid" ) )
@@ -63,7 +63,7 @@ std::pair<http::status, std::string> RestObjectService::perform( http::verb     
 
     if ( !session && RestServerApplication::instance()->requiresValidSession() )
     {
-        return std::make_pair( http::status::unauthorized, "No session provided" );
+        return std::make_tuple( http::status::unauthorized, "No session provided", nullptr );
     }
 
     bool skeleton = metaData.contains( "skeleton" ) && metaData["skeleton"].get<bool>();
@@ -90,7 +90,7 @@ std::pair<http::status, std::string> RestObjectService::perform( http::verb     
             reducedPath.pop_front();
             if ( !object )
             {
-                return std::make_pair( http::status::not_found, "Object " + uuid + " not found" );
+                return std::make_tuple( http::status::not_found, "Object " + uuid + " not found", nullptr );
             }
         }
         else
@@ -98,7 +98,7 @@ std::pair<http::status, std::string> RestObjectService::perform( http::verb     
             object = document( documentId, session.get() );
             if ( !object )
             {
-                return std::make_pair( http::status::not_found, "Document not found '" + documentId + "'" );
+                return std::make_tuple( http::status::not_found, "Document not found '" + documentId + "'", nullptr );
             }
         }
 
@@ -107,11 +107,11 @@ std::pair<http::status, std::string> RestObjectService::perform( http::verb     
         {
             if ( skeleton )
             {
-                return std::make_pair( http::status::ok, createJsonSkeletonFromProjectObject( object ).dump() );
+                return std::make_tuple( http::status::ok, createJsonSkeletonFromProjectObject( object ).dump(), nullptr );
             }
             else
             {
-                return std::make_pair( http::status::ok, createJsonFromProjectObject( object ).dump() );
+                return std::make_tuple( http::status::ok, createJsonFromProjectObject( object ).dump(), nullptr );
             }
         }
         return perform( verb, object, reducedPath, arguments, skeleton, replace );
@@ -142,7 +142,7 @@ caffa::ObjectHandle* RestObjectService::findObject( const std::string& uuid, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<http::status, std::string> RestObjectService::documents( const caffa::Session* session, bool skeleton )
+RestObjectService::ServiceResponse RestObjectService::documents( const caffa::Session* session, bool skeleton )
 {
     CAFFA_DEBUG( "Got list document request for" );
 
@@ -161,21 +161,21 @@ std::pair<http::status, std::string> RestObjectService::documents( const caffa::
             jsonResult.push_back( createJsonFromProjectObject( document.get() ) );
         }
     }
-    return std::make_pair( http::status::ok, jsonResult.dump() );
+    return std::make_tuple( http::status::ok, jsonResult.dump(), nullptr );
 }
 
-std::pair<http::status, std::string> RestObjectService::perform( http::verb                    verb,
-                                                                 caffa::ObjectHandle*          object,
-                                                                 const std::list<std::string>& path,
-                                                                 const nlohmann::json&         arguments,
-                                                                 bool                          skeleton,
-                                                                 bool                          replace )
+RestObjectService::ServiceResponse RestObjectService::perform( http::verb                    verb,
+                                                               caffa::ObjectHandle*          object,
+                                                               const std::list<std::string>& path,
+                                                               const nlohmann::json&         arguments,
+                                                               bool                          skeleton,
+                                                               bool                          replace )
 {
     auto [fieldOrMethod, index] = findFieldOrMethod( object, path );
 
     if ( !fieldOrMethod )
     {
-        return std::make_pair( http::status::not_found, "Failed to find field or method" );
+        return std::make_tuple( http::status::not_found, "Failed to find field or method", nullptr );
     }
 
     auto field = dynamic_cast<caffa::FieldHandle*>( fieldOrMethod );
@@ -193,7 +193,7 @@ std::pair<http::status, std::string> RestObjectService::perform( http::verb     
         {
             return deleteChildObject( field, index, arguments );
         }
-        return std::make_pair( http::status::bad_request, "Verb not implemented" );
+        return std::make_tuple( http::status::bad_request, "Verb not implemented", nullptr );
     }
 
     auto method = dynamic_cast<caffa::MethodHandle*>( fieldOrMethod );
@@ -202,7 +202,7 @@ std::pair<http::status, std::string> RestObjectService::perform( http::verb     
     CAFFA_DEBUG( "Found method: " << method->keyword() );
 
     auto result = method->execute( arguments.dump() );
-    return std::make_pair( http::status::ok, result );
+    return std::make_tuple( http::status::ok, result, nullptr );
 }
 
 std::pair<caffa::ObjectAttribute*, int64_t> RestObjectService::findFieldOrMethod( caffa::ObjectHandle*          object,
@@ -259,18 +259,19 @@ std::pair<caffa::ObjectAttribute*, int64_t> RestObjectService::findFieldOrMethod
     return std::make_pair( nullptr, -1 );
 }
 
-std::pair<http::status, std::string>
+RestObjectService::ServiceResponse
     RestObjectService::getFieldValue( const caffa::FieldHandle* field, int64_t index, bool skeleton )
 {
     auto scriptability = field->capability<caffa::FieldScriptingCapability>();
     if ( !scriptability || !scriptability->isReadable() )
-        return std::make_pair( http::status::forbidden, "Field is not remote readable" );
+        return std::make_tuple( http::status::forbidden, "Field is not remote readable", nullptr );
 
     auto ioCapability = field->capability<caffa::FieldJsonCapability>();
     if ( !ioCapability )
     {
-        return std::make_pair( http::status::forbidden,
-                               "Field " + field->keyword() + " found, but it has no JSON capability" );
+        return std::make_tuple( http::status::forbidden,
+                                "Field " + field->keyword() + " found, but it has no JSON capability",
+                                nullptr );
     }
     auto childField = dynamic_cast<const caffa::ChildFieldBaseHandle*>( field );
     try
@@ -288,40 +289,43 @@ std::pair<http::status, std::string>
                 {
                     CAFFA_ERROR( "Failed to get field value for  '" << field->keyword()
                                                                     << "' because index was out of range" );
-                    return std::make_pair( http::status::forbidden, "index out of range" );
+                    return std::make_tuple( http::status::forbidden, "index out of range", nullptr );
                 }
-                return std::make_pair( http::status::ok, serializer.writeObjectToString( childObjects[index].get() ) );
+                return std::make_tuple( http::status::ok,
+                                        serializer.writeObjectToString( childObjects[index].get() ),
+                                        nullptr );
             }
             nlohmann::json jsonValue;
             ioCapability->writeToJson( jsonValue, serializer );
 
-            return std::make_pair( http::status::ok, jsonValue.dump() );
+            return std::make_tuple( http::status::ok, jsonValue.dump(), nullptr );
         }
 
         nlohmann::json jsonValue;
         ioCapability->writeToJson( jsonValue, serializer );
 
-        return std::make_pair( http::status::ok, jsonValue.dump() );
+        return std::make_tuple( http::status::ok, jsonValue.dump(), nullptr );
     }
     catch ( const std::exception& e )
     {
         CAFFA_ERROR( "Failed to get field value for  '" << field->keyword() << "' with error: '" << e.what() << "'" );
-        return std::make_pair( http::status::internal_server_error, e.what() );
+        return std::make_tuple( http::status::internal_server_error, e.what(), nullptr );
     }
 }
 
-std::pair<http::status, std::string>
+RestObjectService::ServiceResponse
     RestObjectService::putFieldValue( caffa::FieldHandle* field, int64_t index, const nlohmann::json& arguments, bool replace )
 {
     auto scriptability = field->capability<caffa::FieldScriptingCapability>();
     if ( !scriptability || !scriptability->isWritable() )
-        return std::make_pair( http::status::forbidden, "Field is not remote writable" );
+        return std::make_tuple( http::status::forbidden, "Field is not remote writable", nullptr );
 
     auto ioCapability = field->capability<caffa::FieldJsonCapability>();
     if ( !ioCapability )
     {
-        return std::make_pair( http::status::forbidden,
-                               "Field " + field->keyword() + " found, but it has no JSON capability" );
+        return std::make_tuple( http::status::forbidden,
+                                "Field " + field->keyword() + " found, but it has no JSON capability",
+                                nullptr );
     }
 
     JsonSerializer serializer;
@@ -333,10 +337,12 @@ std::pair<http::status, std::string>
         {
             if ( index >= 0 )
             {
-                return std::make_pair( http::status::bad_request, "Index does not make sense for a simple Child Field" );
+                return std::make_tuple( http::status::bad_request,
+                                        "Index does not make sense for a simple Child Field",
+                                        nullptr );
             }
             ioCapability->readFromJson( arguments, serializer );
-            return std::make_pair( http::status::ok, "" );
+            return std::make_tuple( http::status::ok, "", nullptr );
         }
 
         auto childArrayField = dynamic_cast<caffa::ChildArrayFieldHandle*>( field );
@@ -350,43 +356,44 @@ std::pair<http::status, std::string>
                 {
                     auto object = serializer.createObjectFromString( arguments.dump() );
                     childArrayField->push_back_obj( object );
-                    return std::make_pair( http::status::ok, "" );
+                    return std::make_tuple( http::status::ok, "", nullptr );
                 }
                 else if ( !replace )
                 {
                     auto object = serializer.createObjectFromString( arguments.dump() );
                     childArrayField->insertAt( index, object );
-                    return std::make_pair( http::status::ok, "" );
+                    return std::make_tuple( http::status::ok, "", nullptr );
                 }
                 else
                 {
                     serializer.readObjectFromString( childObjects[index].get(), arguments.dump() );
-                    return std::make_pair( http::status::ok, "" );
+                    return std::make_tuple( http::status::ok, "", nullptr );
                 }
             }
         }
         ioCapability->readFromJson( arguments, serializer );
-        return std::make_pair( http::status::ok, "" );
+        return std::make_tuple( http::status::ok, "", nullptr );
     }
     catch ( const std::exception& e )
     {
         CAFFA_ERROR( "Failed to set field value for  '" << field->keyword() << "' with error: '" << e.what() << "'" );
-        return std::make_pair( http::status::internal_server_error, e.what() );
+        return std::make_tuple( http::status::internal_server_error, e.what(), nullptr );
     }
 }
 
-std::pair<http::status, std::string>
+RestObjectService::ServiceResponse
     RestObjectService::deleteChildObject( caffa::FieldHandle* field, int64_t index, const nlohmann::json& arguments )
 {
     auto scriptability = field->capability<caffa::FieldScriptingCapability>();
     if ( !scriptability || !scriptability->isWritable() )
-        return std::make_pair( http::status::forbidden, "Field is not remote writable" );
+        return std::make_tuple( http::status::forbidden, "Field is not remote writable", nullptr );
 
     auto ioCapability = field->capability<caffa::FieldJsonCapability>();
     if ( !ioCapability )
     {
-        return std::make_pair( http::status::forbidden,
-                               "Field " + field->keyword() + " found, but it has no JSON capability" );
+        return std::make_tuple( http::status::forbidden,
+                                "Field " + field->keyword() + " found, but it has no JSON capability",
+                                nullptr );
     }
 
     JsonSerializer serializer;
@@ -398,15 +405,16 @@ std::pair<http::status, std::string>
         {
             if ( index >= 0 )
             {
-                return std::make_pair( http::status::bad_request,
-                                       "It does not make sense to provide an index for deleting objects from a single "
-                                       "Child "
-                                       "Field" );
+                return std::make_tuple( http::status::bad_request,
+                                        "It does not make sense to provide an index for deleting objects from a single "
+                                        "Child "
+                                        "Field",
+                                        nullptr );
             }
             else
             {
                 childField->clear();
-                return std::make_pair( http::status::ok, "" );
+                return std::make_tuple( http::status::ok, "", nullptr );
             }
         }
 
@@ -421,13 +429,13 @@ std::pair<http::status, std::string>
             {
                 childArrayField->clear();
             }
-            return std::make_pair( http::status::ok, "" );
+            return std::make_tuple( http::status::ok, "", nullptr );
         }
-        return std::make_pair( http::status::bad_request, "Can not delete from a non-child field" );
+        return std::make_tuple( http::status::bad_request, "Can not delete from a non-child field", nullptr );
     }
     catch ( const std::exception& e )
     {
         CAFFA_ERROR( "Failed to delete child object for  '" << field->keyword() << "' with error: '" << e.what() << "'" );
-        return std::make_pair( http::status::internal_server_error, e.what() );
+        return std::make_tuple( http::status::internal_server_error, e.what(), nullptr );
     }
 }
