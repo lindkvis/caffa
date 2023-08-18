@@ -30,7 +30,7 @@ public:
 
 class TinyDemoDocument : public Document
 {
-    CAFFA_HEADER_INIT_WITH_DOC("A tiny demo object with some documentation", TinyDemoDocument, Object);
+    CAFFA_HEADER_INIT_WITH_DOC("A tiny object with documentation", TinyDemoDocument, Object);
 
 public:
     enum TestEnumType
@@ -123,13 +123,14 @@ Fields and methods can be accessed locally in the following way:
 If your application inherits the caffa::rpc::RestServerApplication and the document is provided by the server app through your implementation of the virtual document and documents() methods, you can access the same fields and methods remotely.
 
 ~~~cpp
+    // The result of the document method is a generic document, so need casting.
     auto doc = std::dynamic_pointer_cast<TinyDemoDocument>(client->document("TinyDemoDocument"));
     doc->toggleField = true;
     int currentIntValue = doc->intField;
     doc->scaleDoubleField(3.0);
 ~~~
 
-See [ExampleServer.cpp](https://github.com/lindkvis/caffa/blob/master/RestInterface/RestInterface_Example/ExampleServer.cpp) and [ExampleClient.cpp](https://github.com/lindkvis/caffa/blob/master/RestInterface/RestInterface_Example/ExampleClient.cpp) for a
+See [ExampleServer.h](https://github.com/lindkvis/caffa/blob/master/RestInterface/RestInterface_Example/ExampleServer.h), [ExampleServer.cpp](https://github.com/lindkvis/caffa/blob/master/RestInterface/RestInterface_Example/ExampleServer.cpp), [ExampleClient.cpp](https://github.com/lindkvis/caffa/blob/master/RestInterface/RestInterface_Example/ExampleClient.h) and [ExampleClient.cpp](https://github.com/lindkvis/caffa/blob/master/RestInterface/RestInterface_Example/ExampleClient.cpp) for a
 more complete example.
 
 # Requirements
