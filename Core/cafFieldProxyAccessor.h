@@ -89,7 +89,7 @@ public:
 
     void setValue( const DataType& value ) override
     {
-        if ( !m_valueSetter ) throw std::runtime_error( "No getter for field" );
+        if ( !m_valueSetter ) throw std::runtime_error( "No setter for field" );
         m_valueSetter->setValue( value );
     }
 

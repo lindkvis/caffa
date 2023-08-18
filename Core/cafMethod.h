@@ -212,9 +212,11 @@ private:
             jsonArguments = jsonMethod["labelledArguments"];
             sortArguments( jsonArguments, argumentNames() );
         }
-        if ( jsonArguments.size() != jsonArgumentSchemaArray( std::index_sequence_for<ArgTypes...>() ).size() )
+        auto expectedSize = jsonArgumentSchemaArray( std::index_sequence_for<ArgTypes...>() ).size();
+        if ( jsonArguments.size() != expectedSize )
         {
-            throw std::runtime_error( "Wrong number of arguments!" );
+            throw std::runtime_error( "Wrong number of arguments! Got " + std::to_string( jsonArguments.size() ) +
+                                      ", Expected " + std::to_string( expectedSize ) );
         }
         return this->executeJson<Result>( jsonArguments, std::index_sequence_for<ArgTypes...>() );
     }

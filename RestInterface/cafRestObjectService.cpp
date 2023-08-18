@@ -55,15 +55,16 @@ RestObjectService::ServiceResponse RestObjectService::perform( http::verb       
         session_uuid = metaData["session_uuid"].get<std::string>();
     }
 
-    if ( session_uuid.empty() )
+    if ( session_uuid.empty() && RestServerApplication::instance()->requiresValidSession() )
     {
-        CAFFA_WARNING( "No session uuid provided" );
+        CAFFA_ERROR( "No session uuid provided" );
+        return std::make_tuple( http::status::unauthorized, "No session provided", nullptr );
     }
     auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
 
     if ( !session && RestServerApplication::instance()->requiresValidSession() )
     {
-        return std::make_tuple( http::status::unauthorized, "No session provided", nullptr );
+        return std::make_tuple( http::status::unauthorized, "Session " + session_uuid + " is not valid!", nullptr );
     }
 
     bool skeleton = metaData.contains( "skeleton" ) && metaData["skeleton"].get<bool>();
