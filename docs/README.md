@@ -7,6 +7,8 @@ As an example, you would write Data Model Objects with Fields holding data inste
 
 The REST-interface is designed to be as transparent as possible, and fields and methods can be accessed remotely from the client as if they are local fields through the use of remote REST-accessors being applied to them when the object is instantiated on the client.
 
+The REST-interface communicates via JSON adhering to the latest draft [JSON Schema](http://json-schema.org/) specification and the REST-server provides access to both schemas and data.
+
 ~~~cpp
 #pragma once
 #include "cafObject.h"
