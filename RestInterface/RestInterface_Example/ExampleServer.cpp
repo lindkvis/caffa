@@ -38,11 +38,14 @@
 #ifndef CAFFA_VERSION_PATCH
 #define CAFFA_VERSION_PATCH -3
 #endif
-class ServerApp : public caffa::rpc::RestServerApplication
+
+using namespace caffa;
+
+class ServerApp : public rpc::RestServerApplication
 {
 public:
     ServerApp( int port, int threads )
-        : caffa::rpc::RestServerApplication( port, threads )
+        : rpc::RestServerApplication( port, threads )
         , m_demoDocument( std::make_shared<DemoDocument>() )
     {
     }
@@ -66,7 +69,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     int patchVersion() const override { return CAFFA_VERSION_PATCH; }
 
-    std::shared_ptr<caffa::Document> document( const std::string& documentId, const caffa::Session* session ) override
+    std::shared_ptr<Document> document( const std::string& documentId, const Session* session ) override
     {
         CAFFA_TRACE( "Trying to get document with id '" << documentId << "' while our main document is called "
                                                         << m_demoDocument->id() );
@@ -75,29 +78,29 @@ public:
         else
             return nullptr;
     }
-    std::shared_ptr<const caffa::Document> document( const std::string& documentId, const caffa::Session* session ) const override
+    std::shared_ptr<const Document> document( const std::string& documentId, const Session* session ) const override
     {
         if ( documentId.empty() || documentId == m_demoDocument->id() )
             return m_demoDocument;
         else
             return nullptr;
     }
-    std::list<std::shared_ptr<caffa::Document>> documents( const caffa::Session* session ) override
+    std::list<std::shared_ptr<Document>> documents( const Session* session ) override
     {
         return { document( "", session ) };
     }
-    std::list<std::shared_ptr<const caffa::Document>> documents( const caffa::Session* session ) const override
+    std::list<std::shared_ptr<const Document>> documents( const Session* session ) const override
     {
         return { document( "", session ) };
     }
 
     bool hasActiveSessions() const override { return m_session && !m_session->isExpired(); }
 
-    bool readyForSession( caffa::Session::Type type ) const override
+    bool readyForSession( Session::Type type ) const override
     {
-        if ( type == caffa::Session::Type::INVALID ) return false;
+        if ( type == Session::Type::INVALID ) return false;
 
-        if ( type == caffa::Session::Type::REGULAR )
+        if ( type == Session::Type::REGULAR )
         {
             if ( m_session && !m_session->isExpired() )
             {
@@ -107,7 +110,7 @@ public:
         }
         return true;
     }
-    caffa::SessionMaintainer createSession( caffa::Session::Type type ) override
+    SessionMaintainer createSession( Session::Type type ) override
     {
         if ( m_session )
         {
@@ -120,29 +123,29 @@ public:
                 CAFFA_WARNING( "Had session " << m_session->uuid() << " but it has not been kept alive, so destroying it" );
             }
         }
-        m_session = caffa::Session::create( type, std::chrono::seconds( 60 ) );
-        return caffa::SessionMaintainer( m_session );
+        m_session = Session::create( type, std::chrono::seconds( 60 ) );
+        return SessionMaintainer( m_session );
     }
 
-    caffa::SessionMaintainer getExistingSession( const std::string& sessionUuid ) override
+    SessionMaintainer getExistingSession( const std::string& sessionUuid ) override
     {
         if ( m_session && m_session->uuid() == sessionUuid )
         {
-            return caffa::SessionMaintainer( m_session );
+            return SessionMaintainer( m_session );
         }
-        return caffa::SessionMaintainer( nullptr );
+        return SessionMaintainer( nullptr );
     }
 
-    caffa::ConstSessionMaintainer getExistingSession( const std::string& sessionUuid ) const override
+    ConstSessionMaintainer getExistingSession( const std::string& sessionUuid ) const override
     {
         if ( m_session && m_session->uuid() == sessionUuid )
         {
-            return caffa::ConstSessionMaintainer( m_session );
+            return ConstSessionMaintainer( m_session );
         }
-        return caffa::ConstSessionMaintainer( nullptr );
+        return ConstSessionMaintainer( nullptr );
     }
 
-    void changeSession( caffa::not_null<caffa::Session*> session, caffa::Session::Type newType ) override
+    void changeSession( not_null<Session*> session, Session::Type newType ) override
     {
         throw std::runtime_error( "Cannot change sessions in example app" );
     }
@@ -166,7 +169,7 @@ private:
 private:
     std::shared_ptr<DemoDocument> m_demoDocument;
 
-    std::shared_ptr<caffa::Session> m_session;
+    std::shared_ptr<Session> m_session;
 };
 
 int main( int argc, char* argv[] )
@@ -182,12 +185,12 @@ int main( int argc, char* argv[] )
     auto const port    = static_cast<unsigned short>( std::atoi( argv[1] ) );
     auto const threads = std::max<int>( 1, std::atoi( argv[2] ) );
 
-    caffa::Logger::setApplicationLogLevel( caffa::Logger::Level::debug );
+    Logger::setApplicationLogLevel( Logger::Level::debug );
 
     // Create and launch a listening port
     auto serverApp = std::make_shared<ServerApp>( port, threads );
 
-    auto session = serverApp->createSession( caffa::Session::Type::REGULAR );
+    auto session = serverApp->createSession( Session::Type::REGULAR );
     auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     CAFFA_ASSERT( serverDocument != nullptr );
 
