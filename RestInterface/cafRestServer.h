@@ -74,6 +74,8 @@ private:
     std::shared_ptr<void>            m_result;
     std::shared_ptr<SendLambda>      m_lambda;
 
+    RestServiceInterface::CleanupCallback m_cleanupCallback;
+
     std::map<std::string, std::shared_ptr<RestServiceInterface>> m_services;
 };
 

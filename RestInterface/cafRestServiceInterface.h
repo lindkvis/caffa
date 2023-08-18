@@ -27,7 +27,7 @@
 #include <functional>
 #include <list>
 #include <map>
-#include <utility>
+#include <tuple>
 
 namespace http = boost::beast::http;
 
@@ -41,12 +41,16 @@ class AbstractRestCallback;
 class RestServiceInterface
 {
 public:
+    // Callback to be called after sending response. Can be nullptr
+    using CleanupCallback = std::function<void()>;
+    using ServiceResponse = std::tuple<http::status, std::string, CleanupCallback>;
+
     virtual ~RestServiceInterface() = default;
 
-    virtual std::pair<http::status, std::string> perform( http::verb                    verb,
-                                                          const std::list<std::string>& path,
-                                                          const nlohmann::json&         arguments,
-                                                          const nlohmann::json&         metaData ) = 0;
+    virtual ServiceResponse perform( http::verb                    verb,
+                                     const std::list<std::string>& path,
+                                     const nlohmann::json&         arguments,
+                                     const nlohmann::json&         metaData ) = 0;
 };
 
 typedef caffa::Factory<RestServiceInterface, std::string> RestServiceFactory;

@@ -334,19 +334,29 @@ std::string RestClient::execute( caffa::not_null<const caffa::ObjectHandle*> sel
 //--------------------------------------------------------------------------------------------------
 bool RestClient::stopServer()
 {
-    std::scoped_lock<std::mutex> lock( m_sessionMutex );
-
-    auto [status, body] =
-        performRequest( http::verb::delete_, hostname(), port(), std::string( "/app/quit?session_uuid=" ) + m_sessionUuid, "" );
-
-    if ( status != http::status::ok )
+    std::thread* keepAliveThread;
     {
-        throw std::runtime_error( "Failed to stop server: " + body );
+        std::scoped_lock<std::mutex> lock( m_sessionMutex );
+
+        auto [status, body] = performRequest( http::verb::delete_,
+                                              hostname(),
+                                              port(),
+                                              std::string( "/app/quit?session_uuid=" ) + m_sessionUuid,
+                                              "" );
+
+        if ( status != http::status::ok )
+        {
+            throw std::runtime_error( "Failed to stop server: " + body );
+        }
+
+        CAFFA_TRACE( "Stopped server, which also destroys session" );
+        m_sessionUuid   = "";
+        keepAliveThread = m_keepAliveThread.get();
     }
-
-    CAFFA_TRACE( "Stopped server, which also destroys session" );
-    m_sessionUuid = "";
-
+    if ( keepAliveThread )
+    {
+        keepAliveThread->join();
+    }
     return true;
 }
 
@@ -376,11 +386,17 @@ void RestClient::sendKeepAlive()
 //--------------------------------------------------------------------------------------------------
 void RestClient::startKeepAliveThread()
 {
+    std::scoped_lock<std::mutex> lock( m_sessionMutex );
+
     m_keepAliveThread = std::make_unique<std::thread>(
         [this]()
         {
             while ( true )
             {
+                {
+                    std::scoped_lock<std::mutex> lock( m_sessionMutex );
+                    if ( m_sessionUuid.empty() ) break;
+                }
                 try
                 {
                     this->sendKeepAlive();
@@ -477,6 +493,8 @@ void RestClient::destroySession()
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
     if ( m_sessionUuid.empty() ) return;
+
+    CAFFA_DEBUG( "Destroing session " << m_sessionUuid );
 
     auto jsonObject            = nlohmann::json::object();
     jsonObject["session_uuid"] = m_sessionUuid;

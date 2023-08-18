@@ -26,10 +26,10 @@
 
 using namespace caffa::rpc;
 
-std::pair<http::status, std::string> RestSessionService::perform( http::verb                    verb,
-                                                                  const std::list<std::string>& path,
-                                                                  const nlohmann::json&         arguments,
-                                                                  const nlohmann::json&         metaData )
+RestSessionService::ServiceResponse RestSessionService::perform( http::verb                    verb,
+                                                                 const std::list<std::string>& path,
+                                                                 const nlohmann::json&         arguments,
+                                                                 const nlohmann::json&         metaData )
 {
     auto allCallbacks = callbacks();
 
@@ -40,7 +40,7 @@ std::pair<http::status, std::string> RestSessionService::perform( http::verb    
         {
             jsonArray.push_back( name );
         }
-        return std::make_pair( http::status::ok, jsonArray.dump() );
+        return std::make_tuple( http::status::ok, jsonArray.dump(), nullptr );
     }
     auto name = path.front();
 
@@ -49,7 +49,7 @@ std::pair<http::status, std::string> RestSessionService::perform( http::verb    
     {
         return it->second( verb, arguments, metaData );
     }
-    return std::make_pair( http::status::not_found, "No such method" );
+    return std::make_tuple( http::status::not_found, "No such method", nullptr );
 }
 
 std::map<std::string, RestSessionService::ServiceCallback> RestSessionService::callbacks() const
@@ -65,7 +65,7 @@ std::map<std::string, RestSessionService::ServiceCallback> RestSessionService::c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<http::status, std::string>
+RestSessionService::ServiceResponse
     RestSessionService::ready( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
 {
     CAFFA_TRACE( "Received ready for session request with arguments " << arguments );
@@ -87,18 +87,18 @@ std::pair<http::status, std::string>
 
         jsonResponse["ready"]          = ready;
         jsonResponse["other_sessions"] = RestServerApplication::instance()->hasActiveSessions();
-        return std::make_pair( http::status::ok, jsonResponse.dump() );
+        return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
     }
     catch ( ... )
     {
-        return std::make_pair( http::status::not_found, "Failed to check for session readiness" );
+        return std::make_tuple( http::status::not_found, "Failed to check for session readiness", nullptr );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<http::status, std::string>
+RestSessionService::ServiceResponse
     RestSessionService::check( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
 {
     CAFFA_TRACE( "Got session check request with arguments " << arguments );
@@ -115,20 +115,20 @@ std::pair<http::status, std::string>
     auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
     if ( !session )
     {
-        return std::make_pair( http::status::unauthorized, "Session '" + session_uuid + "' is not valid" );
+        return std::make_tuple( http::status::unauthorized, "Session '" + session_uuid + "' is not valid", nullptr );
     }
 
     auto jsonResponse            = nlohmann::json::object();
     jsonResponse["session_uuid"] = session->uuid();
     jsonResponse["type"]         = static_cast<unsigned>( session->type() );
     jsonResponse["timeout"]      = session->timeout().count();
-    return std::make_pair( http::status::ok, jsonResponse.dump() );
+    return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<http::status, std::string>
+RestSessionService::ServiceResponse
     RestSessionService::change( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
 {
     CAFFA_TRACE( "Got session check request with arguments " << arguments );
@@ -145,11 +145,11 @@ std::pair<http::status, std::string>
     auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
     if ( !session )
     {
-        return std::make_pair( http::status::unauthorized, "Session '" + session_uuid + "' is not valid" );
+        return std::make_tuple( http::status::unauthorized, "Session '" + session_uuid + "' is not valid", nullptr );
     }
     if ( !arguments.contains( "type" ) && !metaData.contains( "type" ) )
     {
-        return std::make_pair( http::status::bad_request, "No new type provided" );
+        return std::make_tuple( http::status::bad_request, "No new type provided", nullptr );
     }
 
     caffa::Session::Type type = caffa::Session::Type::REGULAR;
@@ -168,13 +168,13 @@ std::pair<http::status, std::string>
     jsonResponse["session_uuid"] = session->uuid();
     jsonResponse["type"]         = static_cast<unsigned>( session->type() );
     jsonResponse["timeout"]      = session->timeout().count();
-    return std::make_pair( http::status::ok, jsonResponse.dump() );
+    return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<http::status, std::string>
+RestSessionService::ServiceResponse
     RestSessionService::create( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
 {
     CAFFA_DEBUG( "Received create session request" );
@@ -198,19 +198,19 @@ std::pair<http::status, std::string>
         jsonResponse["session_uuid"] = session->uuid();
         jsonResponse["type"]         = static_cast<unsigned>( session->type() );
         jsonResponse["timeout"]      = session->timeout().count();
-        return std::make_pair( http::status::ok, jsonResponse.dump() );
+        return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
     }
     catch ( const std::exception& e )
     {
         CAFFA_ERROR( "Failed to create session with error: " << e.what() );
-        return std::make_pair( http::status::unauthorized, e.what() );
+        return std::make_tuple( http::status::unauthorized, e.what(), nullptr );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<http::status, std::string>
+RestSessionService::ServiceResponse
     RestSessionService::keepalive( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
 {
     CAFFA_TRACE( "Got session keep-alive request with arguments " << arguments );
@@ -228,7 +228,7 @@ std::pair<http::status, std::string>
     auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
     if ( !session )
     {
-        return std::make_pair( http::status::unauthorized, "Session '" + session_uuid + "' is not valid" );
+        return std::make_tuple( http::status::unauthorized, "Session '" + session_uuid + "' is not valid", nullptr );
     }
 
     session->updateKeepAlive();
@@ -237,13 +237,13 @@ std::pair<http::status, std::string>
     jsonResponse["session_uuid"] = session->uuid();
     jsonResponse["type"]         = static_cast<unsigned>( session->type() );
     jsonResponse["timeout"]      = session->timeout().count();
-    return std::make_pair( http::status::ok, jsonResponse.dump() );
+    return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<http::status, std::string>
+RestSessionService::ServiceResponse
     RestSessionService::destroy( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
 {
     CAFFA_DEBUG( "Got destroy session request with arguments " << arguments );
@@ -260,12 +260,14 @@ std::pair<http::status, std::string>
     try
     {
         RestServerApplication::instance()->destroySession( session_uuid );
-        return std::make_pair( http::status::ok, "Session successfully destroyed" );
+        return std::make_tuple( http::status::ok, "Session successfully destroyed", nullptr );
     }
     catch ( const std::exception& e )
     {
         CAFFA_WARNING( "Session '" << session_uuid
                                    << "' did not exist. It may already have been destroyed due to lack of keepalive" );
-        return std::make_pair( http::status::not_found, "Failed to destroy session. It may already have been destroyed." );
+        return std::make_tuple( http::status::not_found,
+                                "Failed to destroy session. It may already have been destroyed.",
+                                nullptr );
     }
 }

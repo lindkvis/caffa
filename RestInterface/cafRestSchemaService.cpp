@@ -33,14 +33,14 @@
 
 using namespace caffa::rpc;
 
-std::pair<http::status, std::string> RestSchemaService::perform( http::verb                    verb,
-                                                                 const std::list<std::string>& path,
-                                                                 const nlohmann::json&         arguments,
-                                                                 const nlohmann::json&         metaData )
+RestSchemaService::ServiceResponse RestSchemaService::perform( http::verb                    verb,
+                                                               const std::list<std::string>& path,
+                                                               const nlohmann::json&         arguments,
+                                                               const nlohmann::json&         metaData )
 {
     if ( verb != http::verb::get )
     {
-        return std::make_pair( http::status::bad_request, "Only GET requests are allowed for schema queries" );
+        return std::make_tuple( http::status::bad_request, "Only GET requests are allowed for schema queries", nullptr );
     }
 
     std::string session_uuid = "";
@@ -61,7 +61,7 @@ std::pair<http::status, std::string> RestSchemaService::perform( http::verb     
 
     if ( !session && RestServerApplication::instance()->requiresValidSession() )
     {
-        return std::make_pair( http::status::unauthorized, "No session provided" );
+        return std::make_tuple( http::status::unauthorized, "No session provided", nullptr );
     }
 
     if ( path.empty() )
@@ -74,19 +74,19 @@ std::pair<http::status, std::string> RestSchemaService::perform( http::verb     
 
     if ( !object )
     {
-        return std::make_pair( http::status::not_found, "No such class" );
+        return std::make_tuple( http::status::not_found, "No such class", nullptr );
     }
 
     auto reducedPath = path;
     reducedPath.pop_front();
     if ( reducedPath.empty() )
     {
-        return std::make_pair( http::status::ok, createJsonSchemaFromProjectObject( object.get() ).dump() );
+        return std::make_tuple( http::status::ok, createJsonSchemaFromProjectObject( object.get() ).dump(), nullptr );
     }
     return getFieldSchema( object.get(), reducedPath.front() );
 }
 
-std::pair<http::status, std::string> RestSchemaService::getAllSchemas()
+RestSchemaService::ServiceResponse RestSchemaService::getAllSchemas()
 {
     auto factory = DefaultObjectFactory::instance();
 
@@ -107,24 +107,25 @@ std::pair<http::status, std::string> RestSchemaService::getAllSchemas()
     root["oneOf"]   = oneOf;
     root["schemas"] = schemas;
 
-    return std::make_pair( http::status::ok, root.dump() );
+    return std::make_tuple( http::status::ok, root.dump(), nullptr );
 }
 
-std::pair<http::status, std::string> RestSchemaService::getFieldSchema( const caffa::ObjectHandle* object,
-                                                                        const std::string&         fieldName )
+RestSchemaService::ServiceResponse RestSchemaService::getFieldSchema( const caffa::ObjectHandle* object,
+                                                                      const std::string&         fieldName )
 {
     auto field = object->findField( fieldName );
-    if ( !field ) return std::make_pair( http::status::not_found, "Field does not exist" );
+    if ( !field ) return std::make_tuple( http::status::not_found, "Field does not exist", nullptr );
 
     auto scriptability = field->capability<caffa::FieldScriptingCapability>();
     if ( !scriptability || !scriptability->isWritable() )
-        return std::make_pair( http::status::forbidden, "Field is not remote writable" );
+        return std::make_tuple( http::status::forbidden, "Field is not remote writable", nullptr );
 
     auto ioCapability = field->capability<caffa::FieldJsonCapability>();
     if ( !ioCapability )
     {
-        return std::make_pair( http::status::forbidden,
-                               "Field " + field->keyword() + " found, but it has no JSON capability" );
+        return std::make_tuple( http::status::forbidden,
+                                "Field " + field->keyword() + " found, but it has no JSON capability",
+                                nullptr );
     }
 
     caffa::JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
@@ -132,5 +133,5 @@ std::pair<http::status, std::string> RestSchemaService::getFieldSchema( const ca
 
     nlohmann::json json;
     ioCapability->writeToJson( json, serializer );
-    return std::make_pair( http::status::ok, json.dump() );
+    return std::make_tuple( http::status::ok, json.dump(), nullptr );
 }

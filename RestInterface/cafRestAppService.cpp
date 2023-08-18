@@ -26,10 +26,10 @@
 
 using namespace caffa::rpc;
 
-std::pair<http::status, std::string> RestAppService::perform( http::verb                    verb,
-                                                              const std::list<std::string>& path,
-                                                              const nlohmann::json&         arguments,
-                                                              const nlohmann::json&         metaData )
+RestAppService::ServiceResponse RestAppService::perform( http::verb                    verb,
+                                                         const std::list<std::string>& path,
+                                                         const nlohmann::json&         arguments,
+                                                         const nlohmann::json&         metaData )
 {
     auto allCallbacks = callbacks();
 
@@ -40,7 +40,7 @@ std::pair<http::status, std::string> RestAppService::perform( http::verb        
         {
             jsonArray.push_back( name );
         }
-        return std::make_pair( http::status::ok, jsonArray.dump() );
+        return std::make_tuple( http::status::ok, jsonArray.dump(), nullptr );
     }
     auto name = path.front();
 
@@ -49,31 +49,31 @@ std::pair<http::status, std::string> RestAppService::perform( http::verb        
     {
         return it->second( verb, arguments, metaData );
     }
-    return std::make_pair( http::status::not_found, "No such method" );
+    return std::make_tuple( http::status::not_found, "No such method", nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<http::status, std::string>
+RestAppService::ServiceResponse
     RestAppService::info( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
 {
     CAFFA_DEBUG( "Received appInfo request" );
     if ( verb != http::verb::get )
     {
-        return std::make_pair( http::status::bad_request, "Only GET makes any sense with app/info" );
+        return std::make_tuple( http::status::bad_request, "Only GET makes any sense with app/info", nullptr );
     }
     auto app     = RestServerApplication::instance();
     auto appInfo = app->appInfo();
 
     nlohmann::json json = appInfo;
-    return std::make_pair( http::status::ok, json.dump() );
+    return std::make_tuple( http::status::ok, json.dump(), nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<http::status, std::string>
+RestAppService::ServiceResponse
     RestAppService::quit( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
 {
     std::string session_uuid = "";
@@ -89,17 +89,22 @@ std::pair<http::status, std::string>
     auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
     if ( !session )
     {
-        return std::make_pair( http::status::unauthorized, "Session '" + session_uuid + "' is not valid" );
+        return std::make_tuple( http::status::unauthorized, "Session '" + session_uuid + "' is not valid", nullptr );
     }
 
-    RestServerApplication::instance()->quit();
-    return std::make_pair( http::status::ok, "" );
+    return std::make_tuple( http::status::ok,
+                            "",
+                            []()
+                            {
+                                CAFFA_INFO( "Now calling cleanup callback" );
+                                RestServerApplication::instance()->quit();
+                            } );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<http::status, std::string>
+RestAppService::ServiceResponse
     RestAppService::ping( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
 {
     std::string session_uuid = "";
@@ -115,10 +120,10 @@ std::pair<http::status, std::string>
     auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
     if ( !session )
     {
-        return std::make_pair( http::status::unauthorized, "Session '" + session_uuid + "' is not valid" );
+        return std::make_tuple( http::status::unauthorized, "Session '" + session_uuid + "' is not valid", nullptr );
     }
 
-    return std::make_pair( http::status::ok, "" );
+    return std::make_tuple( http::status::ok, "", nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -77,10 +77,10 @@ std::string path_cat( beast::string_view base, beast::string_view path )
 // contents of the request, so the interface requires the
 // caller to pass a generic lambda for receiving the response.
 template <class Body, class Allocator, class Send>
-void handle_request( std::shared_ptr<WebSession>                          session,
-                     beast::string_view                                   docRoot,
-                     http::request<Body, http::basic_fields<Allocator>>&& req,
-                     Send&&                                               send )
+RestServiceInterface::CleanupCallback handle_request( std::shared_ptr<WebSession>                          session,
+                                                      beast::string_view                                   docRoot,
+                                                      http::request<Body, http::basic_fields<Allocator>>&& req,
+                                                      Send&&                                               send )
 {
     // Returns an error response
     auto const createResponse = [&req]( http::status status, beast::string_view response )
@@ -104,11 +104,17 @@ void handle_request( std::shared_ptr<WebSession>                          sessio
     // Make sure we can handle the method
     if ( req.method() != http::verb::post && req.method() != http::verb::delete_ && req.method() != http::verb::patch &&
          req.method() != http::verb::put && req.method() != http::verb::get && req.method() != http::verb::head )
-        return send( createResponse( http::status::bad_request, "Unknown HTTP-method" ) );
+    {
+        send( createResponse( http::status::bad_request, "Unknown HTTP-method" ) );
+        return nullptr;
+    }
 
     // Request path must be absolute and not contain "..".
     if ( req.target().empty() || req.target()[0] != '/' || req.target().find( ".." ) != beast::string_view::npos )
-        return send( createResponse( http::status::bad_request, "Illegal request-target" ) );
+    {
+        send( createResponse( http::status::bad_request, "Illegal request-target" ) );
+        return nullptr;
+    }
 
     std::string target( req.target() );
 
@@ -119,7 +125,8 @@ void handle_request( std::shared_ptr<WebSession>                          sessio
     auto targetComponents = caffa::StringTools::split<std::vector<std::string>>( target, paramRegex );
     if ( targetComponents.empty() )
     {
-        return send( createResponse( http::status::bad_request, "Malformed request" ) );
+        send( createResponse( http::status::bad_request, "Malformed request" ) );
+        return nullptr;
     }
 
     auto                     path = targetComponents.front();
@@ -160,8 +167,9 @@ void handle_request( std::shared_ptr<WebSession>                          sessio
         catch ( const nlohmann::detail::parse_error& )
         {
             CAFFA_ERROR( "Could not parse arguments \'" << req.body() << "\'" );
-            return send( createResponse( http::status::bad_request,
-                                         std::string( "Could not parse arguments \'" ) + req.body() + "\'" ) );
+            send( createResponse( http::status::bad_request,
+                                  std::string( "Could not parse arguments \'" ) + req.body() + "\'" ) );
+            return nullptr;
         }
     }
     nlohmann::json jsonMetaData = nlohmann::json::object();
@@ -197,7 +205,8 @@ void handle_request( std::shared_ptr<WebSession>                          sessio
 
     try
     {
-        auto [status, message] = service->perform( req.method(), pathComponents, jsonArguments, jsonMetaData );
+        auto [status, message, cleanupCallback] =
+            service->perform( req.method(), pathComponents, jsonArguments, jsonMetaData );
         if ( status == http::status::ok )
         {
             CAFFA_TRACE( "Responding with " << status << ": " << message );
@@ -207,12 +216,14 @@ void handle_request( std::shared_ptr<WebSession>                          sessio
             CAFFA_ERROR( "Responding with " << status << ": " << message );
         }
 
-        return send( createResponse( status, message ) );
+        send( createResponse( status, message ) );
+        return cleanupCallback;
     }
     catch ( const std::exception& e )
     {
         CAFFA_ERROR( "Got exception: " << e.what() );
-        return send( createResponse( http::status::internal_server_error, e.what() ) );
+        send( createResponse( http::status::internal_server_error, e.what() ) );
+        return nullptr;
     }
 }
 
@@ -297,7 +308,9 @@ void WebSession::onRead( beast::error_code ec, std::size_t bytes_transferred )
     if ( ec ) return fail( ec, "read" );
 
     // Send the response
-    handle_request( shared_from_this(), m_docRoot, std::move( m_request ), *m_lambda );
+    m_cleanupCallback = handle_request( shared_from_this(), m_docRoot, std::move( m_request ), *m_lambda );
+
+    CAFFA_INFO( "Handled the request!" );
 }
 
 void WebSession::onWrite( bool closeConnection, beast::error_code ec, std::size_t bytes_transferred )
@@ -315,6 +328,7 @@ void WebSession::onWrite( bool closeConnection, beast::error_code ec, std::size_
 
     // We're done with the response so delete it
     m_result = nullptr;
+    if ( m_cleanupCallback ) m_cleanupCallback();
 
     // Read another request
     read();
@@ -327,6 +341,7 @@ void WebSession::close()
     m_stream.socket().shutdown( tcp::socket::shutdown_send, ec );
 
     // At this point the connection is closed gracefully
+    if ( m_cleanupCallback ) m_cleanupCallback();
 }
 
 std::shared_ptr<RestServiceInterface> WebSession::service( const std::string& key ) const
