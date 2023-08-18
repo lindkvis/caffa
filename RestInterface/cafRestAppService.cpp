@@ -92,13 +92,7 @@ RestAppService::ServiceResponse
         return std::make_tuple( http::status::unauthorized, "Session '" + session_uuid + "' is not valid", nullptr );
     }
 
-    return std::make_tuple( http::status::ok,
-                            "",
-                            []()
-                            {
-                                CAFFA_INFO( "Now calling cleanup callback" );
-                                RestServerApplication::instance()->quit();
-                            } );
+    return std::make_tuple( http::status::ok, "", []() { RestServerApplication::instance()->quit(); } );
 }
 
 //--------------------------------------------------------------------------------------------------

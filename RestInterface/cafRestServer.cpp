@@ -309,8 +309,6 @@ void WebSession::onRead( beast::error_code ec, std::size_t bytes_transferred )
 
     // Send the response
     m_cleanupCallback = handle_request( shared_from_this(), m_docRoot, std::move( m_request ), *m_lambda );
-
-    CAFFA_INFO( "Handled the request!" );
 }
 
 void WebSession::onWrite( bool closeConnection, beast::error_code ec, std::size_t bytes_transferred )
