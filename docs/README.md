@@ -7,7 +7,7 @@ As an example, you would write Data Model Objects with Fields holding data inste
 
 The REST-interface is designed to be as transparent as possible, and fields and methods can be accessed remotely from the client as if they are local fields through the use of remote REST-accessors being applied to them when the object is instantiated on the client.
 
-~~~{.cpp}
+~~~cpp
 #pragma once
 #include "cafObject.h"
 
@@ -60,7 +60,7 @@ public:
 
 In the cpp file you then register the object and fields.
 
-~~~{.cpp}
+~~~cpp
 CAFFA_SOURCE_INIT(ChildObject)
 
 ChildObject::ChildObject(const std::string& childName)
@@ -117,7 +117,7 @@ Caffa uses modern C++ and requires a C++20 compatible compiler, Boost 1.71.0+ an
 # Building
 Caffa uses git submodules so it is important to initialise submodules recursively first
 
-```
+```bash
 git submodule update --init --recursive
 ```
 
