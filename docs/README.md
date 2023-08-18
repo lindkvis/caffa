@@ -130,7 +130,7 @@ If your application inherits the caffa::rpc::RestServerApplication and the docum
     doc->scaleDoubleField(3.0);
 ~~~
 
-See [ExampleServer.h](https://github.com/lindkvis/caffa/blob/master/RestInterface/RestInterface_Example/ExampleServer.h), [ExampleServer.cpp](https://github.com/lindkvis/caffa/blob/master/RestInterface/RestInterface_Example/ExampleServer.cpp), [ExampleClient.cpp](https://github.com/lindkvis/caffa/blob/master/RestInterface/RestInterface_Example/ExampleClient.h) and [ExampleClient.cpp](https://github.com/lindkvis/caffa/blob/master/RestInterface/RestInterface_Example/ExampleClient.cpp) for a
+See [ExampleServer.cpp](https://github.com/lindkvis/caffa/blob/master/RestInterface/RestInterface_Example/ExampleServer.cpp) and [ExampleClient.cpp](https://github.com/lindkvis/caffa/blob/master/RestInterface/RestInterface_Example/ExampleClient.cpp) for a
 more complete example.
 
 # Requirements
