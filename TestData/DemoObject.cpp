@@ -8,6 +8,7 @@
 CAFFA_SOURCE_INIT( DemoObject )
 
 using namespace std::placeholders;
+using namespace caffa;
 
 namespace caffa
 {
@@ -31,17 +32,17 @@ DemoObject::DemoObject()
     initField( m_proxyIntField, "proxyIntField" ).withScripting();
     initField( m_proxyStringField, "proxyStringField" ).withScripting();
 
-    auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
+    auto doubleProxyAccessor = std::make_unique<FieldProxyAccessor<double>>();
     doubleProxyAccessor->registerSetMethod( std::bind( &DemoObject::setDoubleProxy, this, _1 ) );
     doubleProxyAccessor->registerGetMethod( std::bind( &DemoObject::getDoubleProxy, this ) );
     m_proxyDoubleField.setAccessor( std::move( doubleProxyAccessor ) );
 
-    auto intProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<int>>();
+    auto intProxyAccessor = std::make_unique<FieldProxyAccessor<int>>();
     intProxyAccessor->registerSetMethod( std::bind( &DemoObject::setIntProxy, this, _1 ) );
     intProxyAccessor->registerGetMethod( std::bind( &DemoObject::getIntProxy, this ) );
     m_proxyIntField.setAccessor( std::move( intProxyAccessor ) );
 
-    auto stringProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::string>>();
+    auto stringProxyAccessor = std::make_unique<FieldProxyAccessor<std::string>>();
     stringProxyAccessor->registerSetMethod( std::bind( &DemoObject::setStringProxy, this, _1 ) );
     stringProxyAccessor->registerGetMethod( std::bind( &DemoObject::getStringProxy, this ) );
     m_proxyStringField.setAccessor( std::move( stringProxyAccessor ) );
@@ -52,21 +53,18 @@ DemoObject::DemoObject()
     initField( stringVector, "proxyStringVector" ).withScripting();
     initField( enumField, "enumField" ).withScripting();
 
-    auto intVectorProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::vector<int>>>();
+    auto intVectorProxyAccessor = std::make_unique<FieldProxyAccessor<std::vector<int>>>();
     intVectorProxyAccessor->registerSetMethod( std::bind( &DemoObject::setIntVectorProxy, this, _1 ) );
     intVectorProxyAccessor->registerGetMethod( std::bind( &DemoObject::getIntVectorProxy, this ) );
     intVector.setAccessor( std::move( intVectorProxyAccessor ) );
 
-    auto stringVectorProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::vector<std::string>>>();
+    auto stringVectorProxyAccessor = std::make_unique<FieldProxyAccessor<std::vector<std::string>>>();
     stringVectorProxyAccessor->registerSetMethod( std::bind( &DemoObject::setStringVectorProxy, this, _1 ) );
     stringVectorProxyAccessor->registerGetMethod( std::bind( &DemoObject::getStringVectorProxy, this ) );
     stringVector.setAccessor( std::move( stringVectorProxyAccessor ) );
 
     initField( doubleField, "doubleField" ).withScripting().withDefault( 0.0 );
-    initField( intField, "intField" )
-        .withScripting()
-        .withDefault( 0 )
-        .withValidator( caffa::RangeValidator<int>::create( -100, 2000 ) );
+    initField( intField, "intField" ).withScripting().withDefault( 0 ).withValidator( RangeValidator<int>::create( -100, 2000 ) );
     initField( stringField, "stringField" ).withScripting().withDefault( "" );
     initField( intFieldNonScriptable, "intFieldNonScriptable" ).withDefault( -1 );
 
@@ -87,7 +85,7 @@ DemoObject::DemoObject()
                 "getIntVector",
                 {},
                 std::bind( &DemoObject::getIntVectorProxy, this ),
-                caffa::MethodHandle::Type::READ_ONLY );
+                MethodHandle::Type::READ_ONLY );
 }
 
 void DemoObject::_copyValues( int intValue, double doubleValue, std::string stringValue )

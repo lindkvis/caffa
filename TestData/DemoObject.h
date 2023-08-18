@@ -25,7 +25,9 @@
 #include "cafNotNull.h"
 #include "cafObject.h"
 
-class DemoObject : public caffa::Object
+using namespace caffa;
+
+class DemoObject : public Object
 {
     CAFFA_HEADER_INIT( DemoObject, Object )
 
@@ -42,29 +44,29 @@ public:
     ~DemoObject() noexcept override {}
 
     // Fields
-    caffa::Field<double>      m_proxyDoubleField;
-    caffa::Field<int>         m_proxyIntField;
-    caffa::Field<std::string> m_proxyStringField;
+    Field<double>      m_proxyDoubleField;
+    Field<int>         m_proxyIntField;
+    Field<std::string> m_proxyStringField;
 
-    caffa::Field<double>                       doubleField;
-    caffa::Field<int>                          intField;
-    caffa::Field<int>                          intFieldNonScriptable;
-    caffa::Field<std::string>                  stringField;
-    caffa::Field<caffa::AppEnum<TestEnumType>> enumField;
+    Field<double>                doubleField;
+    Field<int>                   intField;
+    Field<int>                   intFieldNonScriptable;
+    Field<std::string>           stringField;
+    Field<AppEnum<TestEnumType>> enumField;
 
-    caffa::Field<bool>              boolField;
-    caffa::Field<std::vector<bool>> boolVector;
+    Field<bool>              boolField;
+    Field<std::vector<bool>> boolVector;
 
-    caffa::Field<std::vector<int>>         intVector;
-    caffa::Field<std::vector<std::string>> stringVector;
+    Field<std::vector<int>>         intVector;
+    Field<std::vector<std::string>> stringVector;
 
-    caffa::Field<std::vector<double>> doubleVector;
-    caffa::Field<std::vector<float>>  floatVector;
+    Field<std::vector<double>> doubleVector;
+    Field<std::vector<float>>  floatVector;
 
-    caffa::Method<void( int, double, std::string )> copyValues;
+    Method<void( int, double, std::string )> copyValues;
 
-    caffa::Method<std::vector<int>()>       getIntVector;
-    caffa::Method<void( std::vector<int> )> setIntVector;
+    Method<std::vector<int>()>       getIntVector;
+    Method<void( std::vector<int> )> setIntVector;
 
 private:
     // These are proxy getter/setters and should never be called from client, thus are private
@@ -104,11 +106,11 @@ public:
         initField( m_childArrayField, "demoObjects" ).withScripting();
     }
 
-    caffa::Field<std::string>           m_texts;
-    caffa::ChildArrayField<DemoObject*> m_childArrayField;
+    Field<std::string>           m_texts;
+    ChildArrayField<DemoObject*> m_childArrayField;
 };
 
-class DemoDocument : public caffa::Document
+class DemoDocument : public Document
 {
     CAFFA_HEADER_INIT( DemoDocument, Document )
 
@@ -126,11 +128,11 @@ public:
     void addInheritedObject( std::shared_ptr<InheritedDemoObj> object ) { m_inheritedDemoObjects.push_back( object ); }
     std::vector<std::shared_ptr<InheritedDemoObj>> inheritedObjects() { return m_inheritedDemoObjects; }
 
-    caffa::ChildField<DemoObject*>            demoObject;
-    caffa::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
+    ChildField<DemoObject*>            demoObject;
+    ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
 };
 
-class DemoDocumentWithNonScriptableMember : public caffa::Document
+class DemoDocumentWithNonScriptableMember : public Document
 {
     CAFFA_HEADER_INIT( DemoDocumentWithNonScriptableMember, Document )
 
@@ -150,7 +152,7 @@ public:
     void addInheritedObject( std::shared_ptr<InheritedDemoObj> object ) { m_inheritedDemoObjects.push_back( object ); }
     std::vector<std::shared_ptr<InheritedDemoObj>> inheritedObjects() { return m_inheritedDemoObjects; }
 
-    caffa::ChildField<DemoObject*>            demoObject;
-    caffa::ChildField<DemoObject*>            demoObjectNonScriptable;
-    caffa::ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
+    ChildField<DemoObject*>            demoObject;
+    ChildField<DemoObject*>            demoObjectNonScriptable;
+    ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
 };
