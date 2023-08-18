@@ -29,6 +29,18 @@
 #include <cstdlib>
 #include <iostream>
 
+#ifndef CAFFA_VERSION_MAJOR
+#define CAFFA_VERSION_MAJOR -1
+#endif
+
+#ifndef CAFFA_VERSION_MINOR
+#define CAFFA_VERSION_MINOR -2
+#endif
+
+#ifndef CAFFA_VERSION_PATCH
+#define CAFFA_VERSION_PATCH -3
+#endif
+
 class ClientApp : public caffa::rpc::RestClientApplication
 {
 public:
@@ -46,17 +58,17 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    int majorVersion() const override { return 5; }
+    int majorVersion() const override { return CAFFA_VERSION_MAJOR; }
 
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    int minorVersion() const override { return 1; }
+    int minorVersion() const override { return CAFFA_VERSION_MINOR; }
 
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    int patchVersion() const override { return 0; }
+    int patchVersion() const override { return CAFFA_VERSION_PATCH; }
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -88,10 +100,10 @@ int main( int argc, char** argv )
         return 1;
     }
 
-    auto demoObject = clientDocument->demoObject();
-    demoObject->intField.setValue( 31337 );
+    auto demoObject      = clientDocument->demoObject();
+    demoObject->intField = 1337;
 
-    CAFFA_INFO( "Int field set to:  " << demoObject->intField.value() );
+    CAFFA_INFO( "Int field set to:  " << *demoObject->intField );
 
     return 0;
 }
