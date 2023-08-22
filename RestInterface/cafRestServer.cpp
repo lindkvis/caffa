@@ -46,32 +46,6 @@
 
 using namespace caffa::rpc;
 
-// Return a reasonable mime type based on the extension of a file.
-beast::string_view mime_type( beast::string_view path )
-{
-    return "application/json";
-}
-
-// Append an HTTP rel-path to a local filesystem path.
-// The returned path is normalized for the platform.
-std::string path_cat( beast::string_view base, beast::string_view path )
-{
-    if ( base.empty() ) return std::string( path );
-    std::string result( base );
-#ifdef BOOST_MSVC
-    char constexpr path_separator = '\\';
-    if ( result.back() == path_separator ) result.resize( result.size() - 1 );
-    result.append( path.data(), path.size() );
-    for ( auto& c : result )
-        if ( c == '/' ) c = path_separator;
-#else
-    char constexpr path_separator = '/';
-    if ( result.back() == path_separator ) result.resize( result.size() - 1 );
-    result.append( path.data(), path.size() );
-#endif
-    return result;
-}
-
 // This function produces an HTTP response for the given
 // request. The type of the response object depends on the
 // contents of the request, so the interface requires the
@@ -95,9 +69,14 @@ RestServiceInterface::CleanupCallback handle_request( std::shared_ptr<WebSession
         {
             res.set( http::field::content_type, "text/plain" );
         }
+        if ( status == http::status::unauthorized )
+        {
+            res.set( http::field::www_authenticate, "Basic realm=\"Restricted Area\"" );
+        }
         res.keep_alive( req.keep_alive() );
         res.body() = std::string( response );
         res.prepare_payload();
+        CAFFA_DEBUG( "FULL HEADER: " << res.base() );
         return res;
     };
 
@@ -152,10 +131,28 @@ RestServiceInterface::CleanupCallback handle_request( std::shared_ptr<WebSession
 
     if ( !service )
     {
-        service = session->service( "object" );
+        service = session->service( "session" );
     }
 
     CAFFA_ASSERT( service );
+
+    if ( service->requiresAuthentication( pathComponents ) )
+    {
+        auto authorisation = req[http::field::authorization];
+        if ( authorisation.empty() )
+        {
+            send( createResponse( http::status::unauthorized, "Need to provide password" ) );
+            return nullptr;
+        }
+
+        auto trimmed = caffa::StringTools::replace( std::string( authorisation ), "Basic ", "" );
+
+        if ( !session->authenticate( caffa::StringTools::decodeBase64( trimmed ) ) )
+        {
+            send( createResponse( http::status::forbidden, "Failed to authenticate" ) );
+            return nullptr;
+        }
+    }
 
     nlohmann::json jsonArguments = nlohmann::json::object();
     if ( !req.body().empty() )
@@ -267,11 +264,13 @@ struct WebSession::SendLambda
 
 WebSession::WebSession( tcp::socket&&                                                       socket,
                         const std::string&                                                  docRoot,
-                        const std::map<std::string, std::shared_ptr<RestServiceInterface>>& services )
+                        const std::map<std::string, std::shared_ptr<RestServiceInterface>>& services,
+                        std::shared_ptr<const WebAuthenticator>                             authenticator )
     : m_stream( std::move( socket ) )
     , m_docRoot( docRoot )
     , m_lambda( std::make_shared<SendLambda>( *this ) )
     , m_services( services )
+    , m_authenticator( authenticator )
 {
 }
 
@@ -362,10 +361,19 @@ std::string WebSession::peer() const
     return m_stream.socket().remote_endpoint().address().to_string();
 }
 
-RestServer::RestServer( net::io_context& ioc, tcp::endpoint endpoint, const std::string& docRoot )
+bool WebSession::authenticate( const std::string& authorizationHeader ) const
+{
+    return m_authenticator->authenticate( authorizationHeader );
+}
+
+RestServer::RestServer( net::io_context&                        ioc,
+                        tcp::endpoint                           endpoint,
+                        const std::string&                      docRoot,
+                        std::shared_ptr<const WebAuthenticator> authenticator )
     : m_ioContext( ioc )
     , m_acceptor( net::make_strand( ioc ) )
     , m_docRoot( docRoot )
+    , m_authenticator( authenticator )
 {
     for ( auto key : RestServiceFactory::instance()->allKeys() )
     {
@@ -434,7 +442,7 @@ void RestServer::onAccept( beast::error_code ec, tcp::socket socket )
     else
     {
         // Create the session and run it
-        std::make_shared<WebSession>( std::move( socket ), m_docRoot, m_services )->run();
+        std::make_shared<WebSession>( std::move( socket ), m_docRoot, m_services, m_authenticator )->run();
     }
 
     // Accept another connection

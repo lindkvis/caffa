@@ -29,27 +29,22 @@ class RestSessionService : public RestServiceInterface
 {
 public:
     ServiceResponse perform( http::verb                    verb,
-                                                  const std::list<std::string>& path,
-                                                  const nlohmann::json&         arguments,
-                                                  const nlohmann::json&         metaData ) override;
+                             const std::list<std::string>& path,
+                             const nlohmann::json&         arguments,
+                             const nlohmann::json&         metaData ) override;
+
+    bool requiresAuthentication( const std::list<std::string>& path ) const override;
 
 private:
-    using ServiceCallback =
-        std::function<ServiceResponse( http::verb verb, const nlohmann::json&, const nlohmann::json& )>;
+    using ServiceCallback = std::function<ServiceResponse( http::verb verb, const nlohmann::json&, const nlohmann::json& )>;
 
     std::map<std::string, ServiceCallback> callbacks() const;
 
-    static ServiceResponse
-        ready( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
-    static ServiceResponse
-        check( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
-    static ServiceResponse
-        change( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
-    static ServiceResponse
-        create( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
-    static ServiceResponse
-        destroy( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
-    static ServiceResponse
-        keepalive( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
+    static ServiceResponse ready( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
+    static ServiceResponse check( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
+    static ServiceResponse change( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
+    static ServiceResponse create( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
+    static ServiceResponse destroy( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
+    static ServiceResponse keepalive( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
 };
 } // namespace caffa::rpc

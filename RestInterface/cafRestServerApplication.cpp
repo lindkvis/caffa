@@ -33,7 +33,9 @@ using namespace caffa::rpc;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestServerApplication::RestServerApplication( unsigned short portNumber, int threads )
+RestServerApplication::RestServerApplication( unsigned short                          portNumber,
+                                              int                                     threads,
+                                              std::shared_ptr<const WebAuthenticator> authenticator )
     : ServerApplication( AppInfo::AppCapability::SERVER )
     , m_portNumber( portNumber )
     , m_threads( threads )
@@ -44,8 +46,10 @@ RestServerApplication::RestServerApplication( unsigned short portNumber, int thr
     caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestSchemaService>( "schemas" );
     caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestSessionService>( "session" );
 
-    m_server =
-        std::make_shared<RestServer>( m_ioContext, tcp::endpoint{ net::ip::make_address( "0.0.0.0" ), m_portNumber }, "." );
+    m_server = std::make_shared<RestServer>( m_ioContext,
+                                             tcp::endpoint{ net::ip::make_address( "0.0.0.0" ), m_portNumber },
+                                             ".",
+                                             authenticator );
 }
 
 //--------------------------------------------------------------------------------------------------

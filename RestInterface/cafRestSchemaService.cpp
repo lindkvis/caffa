@@ -61,7 +61,7 @@ RestSchemaService::ServiceResponse RestSchemaService::perform( http::verb       
 
     if ( !session && RestServerApplication::instance()->requiresValidSession() )
     {
-        return std::make_tuple( http::status::unauthorized, "No session provided", nullptr );
+        return std::make_tuple( http::status::forbidden, "No session provided", nullptr );
     }
 
     if ( path.empty() )
@@ -84,6 +84,11 @@ RestSchemaService::ServiceResponse RestSchemaService::perform( http::verb       
         return std::make_tuple( http::status::ok, createJsonSchemaFromProjectObject( object.get() ).dump(), nullptr );
     }
     return getFieldSchema( object.get(), reducedPath.front() );
+}
+
+bool RestSchemaService::requiresAuthentication( const std::list<std::string>& path ) const
+{
+    return false;
 }
 
 RestSchemaService::ServiceResponse RestSchemaService::getAllSchemas()

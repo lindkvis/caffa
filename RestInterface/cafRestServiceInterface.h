@@ -51,6 +51,8 @@ public:
                                      const std::list<std::string>& path,
                                      const nlohmann::json&         arguments,
                                      const nlohmann::json&         metaData ) = 0;
+
+    virtual bool requiresAuthentication( const std::list<std::string>& path ) const = 0;
 };
 
 typedef caffa::Factory<RestServiceInterface, std::string> RestServiceFactory;

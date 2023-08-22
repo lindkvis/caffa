@@ -52,6 +52,11 @@ RestSessionService::ServiceResponse RestSessionService::perform( http::verb     
     return std::make_tuple( http::status::not_found, "No such method", nullptr );
 }
 
+bool RestSessionService::requiresAuthentication( const std::list<std::string>& path ) const
+{
+    return !path.empty() && path.front() == "create";
+}
+
 std::map<std::string, RestSessionService::ServiceCallback> RestSessionService::callbacks() const
 {
     return { { "ready", &RestSessionService::ready },
@@ -115,7 +120,7 @@ RestSessionService::ServiceResponse
     auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
     if ( !session )
     {
-        return std::make_tuple( http::status::unauthorized, "Session '" + session_uuid + "' is not valid", nullptr );
+        return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is not valid", nullptr );
     }
 
     auto jsonResponse            = nlohmann::json::object();
@@ -145,7 +150,7 @@ RestSessionService::ServiceResponse
     auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
     if ( !session )
     {
-        return std::make_tuple( http::status::unauthorized, "Session '" + session_uuid + "' is not valid", nullptr );
+        return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is not valid", nullptr );
     }
     if ( !arguments.contains( "type" ) && !metaData.contains( "type" ) )
     {
@@ -228,7 +233,7 @@ RestSessionService::ServiceResponse
     auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
     if ( !session )
     {
-        return std::make_tuple( http::status::unauthorized, "Session '" + session_uuid + "' is not valid", nullptr );
+        return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is not valid", nullptr );
     }
 
     session->updateKeepAlive();

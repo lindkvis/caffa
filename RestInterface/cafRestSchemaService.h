@@ -45,12 +45,14 @@ namespace caffa::rpc
 class RestSchemaService : public RestServiceInterface
 {
 public:
-    ServiceResponse        perform( http::verb                    verb,
-                                                         const std::list<std::string>& path,
-                                                         const nlohmann::json&         arguments,
-                                                         const nlohmann::json&         metaData ) override;
-    static ServiceResponse getFieldSchema( const caffa::ObjectHandle* object,
-                                                                const std::string&         fieldName );
+    ServiceResponse perform( http::verb                    verb,
+                             const std::list<std::string>& path,
+                             const nlohmann::json&         arguments,
+                             const nlohmann::json&         metaData ) override;
+
+    bool requiresAuthentication( const std::list<std::string>& path ) const override;
+
+    static ServiceResponse getFieldSchema( const caffa::ObjectHandle* object, const std::string& fieldName );
 
     static ServiceResponse getAllSchemas();
 };
