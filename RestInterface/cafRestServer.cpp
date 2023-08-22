@@ -118,7 +118,7 @@ RestServiceInterface::CleanupCallback handle_request( std::shared_ptr<WebSession
 
     std::string target( req.target() );
 
-    CAFFA_DEBUG( "Request for " << target << ", body length: " << req.body().length() );
+    CAFFA_DEBUG( "Request for " << target << ", body length: " << req.body().length() << " from " << session->peer() );
 
     std::regex paramRegex( "[\?&]" );
 
