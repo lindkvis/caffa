@@ -58,13 +58,13 @@ RestObjectService::ServiceResponse RestObjectService::perform( http::verb       
     if ( session_uuid.empty() && RestServerApplication::instance()->requiresValidSession() )
     {
         CAFFA_ERROR( "No session uuid provided" );
-        return std::make_tuple( http::status::unauthorized, "No session provided", nullptr );
+        return std::make_tuple( http::status::forbidden, "No session provided", nullptr );
     }
     auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
 
     if ( !session && RestServerApplication::instance()->requiresValidSession() )
     {
-        return std::make_tuple( http::status::unauthorized, "Session " + session_uuid + " is not valid!", nullptr );
+        return std::make_tuple( http::status::forbidden, "Session " + session_uuid + " is not valid!", nullptr );
     }
 
     bool skeleton = metaData.contains( "skeleton" ) && metaData["skeleton"].get<bool>();
@@ -117,6 +117,14 @@ RestObjectService::ServiceResponse RestObjectService::perform( http::verb       
         }
         return perform( verb, object, reducedPath, arguments, skeleton, replace );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The object service uses session uuids to decide if it accepts the request or not
+//--------------------------------------------------------------------------------------------------
+bool RestObjectService::requiresAuthentication( const std::list<std::string>& path ) const
+{
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

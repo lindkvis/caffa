@@ -53,12 +53,37 @@ RestAppService::ServiceResponse RestAppService::perform( http::verb             
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The app service uses session uuids to decide if it accepts the request or not
+//--------------------------------------------------------------------------------------------------
+bool RestAppService::requiresAuthentication( const std::list<std::string>& path ) const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RestAppService::ServiceResponse
     RestAppService::info( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
 {
     CAFFA_DEBUG( "Received appInfo request" );
+
+    std::string session_uuid = "";
+    if ( arguments.contains( "session_uuid" ) )
+    {
+        session_uuid = arguments["session_uuid"].get<std::string>();
+    }
+    else if ( metaData.contains( "session_uuid" ) )
+    {
+        session_uuid = metaData["session_uuid"].get<std::string>();
+    }
+
+    auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
+    if ( !session && RestServerApplication::instance()->requiresValidSession() )
+    {
+        return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is not valid", nullptr );
+    }
+
     if ( verb != http::verb::get )
     {
         return std::make_tuple( http::status::bad_request, "Only GET makes any sense with app/info", nullptr );
@@ -87,9 +112,9 @@ RestAppService::ServiceResponse
     }
 
     auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
-    if ( !session )
+    if ( !session && RestServerApplication::instance()->requiresValidSession() )
     {
-        return std::make_tuple( http::status::unauthorized, "Session '" + session_uuid + "' is not valid", nullptr );
+        return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is not valid", nullptr );
     }
 
     return std::make_tuple( http::status::ok, "", []() { RestServerApplication::instance()->quit(); } );

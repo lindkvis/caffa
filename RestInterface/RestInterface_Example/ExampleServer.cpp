@@ -26,6 +26,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <set>
 
 #ifndef CAFFA_VERSION_MAJOR
 #define CAFFA_VERSION_MAJOR -1
@@ -41,11 +42,28 @@
 
 using namespace caffa;
 
+class DemoAuthenticator : public rpc::WebAuthenticator
+{
+public:
+    DemoAuthenticator( const std::set<std::string>& validAuthentications )
+        : m_validAuthentications( validAuthentications )
+    {
+    }
+    bool authenticate( const std::string& authenticationHeader ) const override
+    {
+        CAFFA_DEBUG( "Got authorization header: " << authenticationHeader );
+        return m_validAuthentications.contains( authenticationHeader );
+    }
+
+private:
+    std::set<std::string> m_validAuthentications;
+};
+
 class ServerApp : public rpc::RestServerApplication
 {
 public:
-    ServerApp( int port, int threads )
-        : rpc::RestServerApplication( port, threads )
+    ServerApp( int port, int threads, std::shared_ptr<const rpc::WebAuthenticator> authenticator )
+        : rpc::RestServerApplication( port, threads, authenticator )
         , m_demoDocument( std::make_shared<DemoDocument>() )
     {
     }
@@ -188,7 +206,10 @@ int main( int argc, char* argv[] )
     Logger::setApplicationLogLevel( Logger::Level::debug );
 
     // Create and launch a listening port
-    auto serverApp = std::make_shared<ServerApp>( port, threads );
+    auto serverApp =
+        std::make_shared<ServerApp>( port,
+                                     threads,
+                                     std::make_shared<DemoAuthenticator>( std::set<std::string>{ "test:floff" } ) );
 
     auto session = serverApp->createSession( Session::Type::REGULAR );
     auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -213,7 +234,7 @@ int main( int argc, char* argv[] )
 
     serverApp->destroySession( session->uuid() );
 
-    serverApp->setRequiresValidSession( false );
+    serverApp->setRequiresValidSession( true );
     serverApp->run();
 
     return EXIT_SUCCESS;

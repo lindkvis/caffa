@@ -33,6 +33,8 @@ public:
                              const nlohmann::json&         arguments,
                              const nlohmann::json&         metaData ) override;
 
+    bool requiresAuthentication( const std::list<std::string>& path ) const override;
+
 private:
     using ServiceCallback = std::function<ServiceResponse( http::verb verb, const nlohmann::json&, const nlohmann::json& )>;
 

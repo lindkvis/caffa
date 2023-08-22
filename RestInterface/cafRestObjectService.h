@@ -50,6 +50,8 @@ public:
                              const nlohmann::json&         arguments,
                              const nlohmann::json&         metaData ) override;
 
+    bool requiresAuthentication( const std::list<std::string>& path ) const override;
+
 private:
     static caffa::Document*     document( const std::string& documentId, const caffa::Session* session );
     static caffa::ObjectHandle* findObject( const std::string& uuid, const caffa::Session* session );

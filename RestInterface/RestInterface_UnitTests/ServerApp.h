@@ -28,13 +28,19 @@
 #include <chrono>
 #include <stdexcept>
 
+class UnitTestAuthenticator : public caffa::rpc::WebAuthenticator
+{
+public:
+    bool authenticate( const std::string& authenticationHeader ) const override { return true; }
+};
+
 class ServerApp : public caffa::rpc::RestServerApplication
 {
 public:
     static int s_port;
 
     ServerApp( int port, int threads )
-        : caffa::rpc::RestServerApplication( port, threads )
+        : caffa::rpc::RestServerApplication( port, threads, std::make_shared<UnitTestAuthenticator>() )
         , m_demoDocument( std::make_unique<DemoDocument>() )
         , m_demoDocumentWithNonScriptableMember( std::make_unique<DemoDocumentWithNonScriptableMember>() )
     {

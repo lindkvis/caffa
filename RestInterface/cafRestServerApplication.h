@@ -34,6 +34,8 @@ namespace net = boost::asio; // from <boost/asio.hpp>
 namespace caffa::rpc
 {
 class RestServer;
+class WebAuthenticator;
+
 class RestServerApplication : public caffa::rpc::ServerApplication
 {
 public:
@@ -42,7 +44,7 @@ public:
      * @param portNumber Port number
      * @param threads The number of accept threads
      */
-    RestServerApplication( unsigned short portNumber, int threads );
+    RestServerApplication( unsigned short portNumber, int thread, std::shared_ptr<const WebAuthenticator> authenticator );
     static RestServerApplication* instance();
 
     int  portNumber() const override;
