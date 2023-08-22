@@ -64,8 +64,6 @@ public:
     virtual const std::string&   sessionUuid() const                           = 0;
     virtual void                 startKeepAliveThread()                        = 0;
 
-    virtual bool ping() const = 0;
-
     template <typename DataType>
     void set( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value );
 

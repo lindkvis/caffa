@@ -521,25 +521,6 @@ const std::string& RestClient::sessionUuid() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Send a ping to the server
-//--------------------------------------------------------------------------------------------------
-bool RestClient::ping() const
-{
-    std::scoped_lock<std::mutex> lock( m_sessionMutex );
-
-    auto [status, body] =
-        performGetRequest( hostname(), port(), std::string( "/object/documents?session_uuid=" ) + m_sessionUuid );
-
-    if ( status != http::status::ok )
-    {
-        throw std::runtime_error( "Failed to ping server: " + body );
-    }
-
-    CAFFA_INFO( "Ping response: " << body );
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RestClient::setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value )

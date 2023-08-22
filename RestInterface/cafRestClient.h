@@ -61,8 +61,6 @@ public:
     const std::string&   sessionUuid() const override;
     void                 startKeepAliveThread() override;
 
-    bool ping() const override;
-
     std::shared_ptr<caffa::ObjectHandle> getShallowCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
                                                                       const std::string& fieldName ) const override;
 

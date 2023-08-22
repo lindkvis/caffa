@@ -98,37 +98,11 @@ RestAppService::ServiceResponse
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestAppService::ServiceResponse
-    RestAppService::ping( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
-{
-    std::string session_uuid = "";
-    if ( arguments.contains( "session_uuid" ) )
-    {
-        session_uuid = arguments["session_uuid"].get<std::string>();
-    }
-    else if ( metaData.contains( "session_uuid" ) )
-    {
-        session_uuid = metaData["session_uuid"].get<std::string>();
-    }
-
-    auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
-    if ( !session )
-    {
-        return std::make_tuple( http::status::unauthorized, "Session '" + session_uuid + "' is not valid", nullptr );
-    }
-
-    return std::make_tuple( http::status::ok, "", nullptr );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::map<std::string, RestAppService::ServiceCallback> RestAppService::callbacks() const
 {
     std::map<std::string, ServiceCallback> callbacks = {
         { "info", &RestAppService::info },
         { "quit", &RestAppService::quit },
-        { "ping", &RestAppService::ping },
     };
     return callbacks;
 }

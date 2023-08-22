@@ -40,6 +40,5 @@ private:
 
     static ServiceResponse info( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
     static ServiceResponse quit( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
-    static ServiceResponse ping( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData );
 };
 } // namespace caffa::rpc
