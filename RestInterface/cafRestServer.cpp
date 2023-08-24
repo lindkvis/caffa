@@ -232,7 +232,7 @@ RestServiceInterface::CleanupCallback handle_request( std::shared_ptr<WebSession
 // Report a failure
 void fail( beast::error_code ec, char const* what )
 {
-    std::cerr << what << ": " << ec.message() << "\n";
+    CAFFA_WARNING( what << ": " << ec.message() );
 }
 
 // This is the C++11 equivalent of a generic lambda.
@@ -300,12 +300,13 @@ void WebSession::read()
 
 void WebSession::onRead( beast::error_code ec, std::size_t bytes_transferred )
 {
-    boost::ignore_unused( bytes_transferred );
-
     // This means they closed the connection
-    if ( ec == http::error::end_of_stream ) return close();
-
-    if ( ec ) return fail( ec, "read" );
+    if ( ec == http::error::end_of_stream )
+        return close();
+    else if ( bytes_transferred == 0u )
+        return;
+    else if ( ec )
+        return fail( ec, "read" );
 
     // Send the response
     m_cleanupCallback = handle_request( shared_from_this(), m_docRoot, std::move( m_request ), *m_lambda );
