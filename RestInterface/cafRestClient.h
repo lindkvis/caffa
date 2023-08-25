@@ -22,10 +22,14 @@
 #include "cafRpcClient.h"
 #include "cafSession.h"
 
+#include <boost/beast/http/status.hpp>
+#include <boost/beast/http/verb.hpp>
+
 #include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
+#include <utility>
 
 namespace caffa
 {
@@ -33,12 +37,18 @@ struct AppInfo;
 class ObjectHandle;
 } // namespace caffa
 
+namespace http = boost::beast::http; // from <boost/beast/http.hpp>
+
 namespace caffa::rpc
 {
 class RestClient : public Client
 {
 public:
-    RestClient( caffa::Session::Type sessionType, const std::string& hostname, int port = 50000 );
+    RestClient( caffa::Session::Type sessionType,
+                const std::string&   hostname,
+                int                  port     = 50000,
+                const std::string&   username = "",
+                const std::string&   password = "" );
     ~RestClient() override;
 
     caffa::AppInfo                                    appInfo() const override;
@@ -93,10 +103,21 @@ private:
     void setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value ) override;
     nlohmann::json getJson( const caffa::ObjectHandle*, const std::string& fieldName ) const override;
 
+    std::pair<http::status, std::string> performRequest( http::verb         verb,
+                                                         const std::string& hostname,
+                                                         int                port,
+                                                         const std::string& target,
+                                                         const std::string& body ) const;
+    std::pair<http::status, std::string>
+        performGetRequest( const std::string& hostname, int port, const std::string& target ) const;
+
 private:
     std::string                  m_sessionUuid;
     std::unique_ptr<std::thread> m_keepAliveThread;
     mutable std::mutex           m_sessionMutex;
+
+    std::string m_username;
+    std::string m_password;
 };
 
 } // namespace caffa::rpc

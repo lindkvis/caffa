@@ -19,6 +19,7 @@
 #include "cafRestServerApplication.h"
 
 #include "cafRestAppService.h"
+#include "cafRestAuthenticator.h"
 #include "cafRestObjectService.h"
 #include "cafRestSchemaService.h"
 #include "cafRestServer.h"
@@ -33,9 +34,9 @@ using namespace caffa::rpc;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestServerApplication::RestServerApplication( unsigned short                          portNumber,
-                                              int                                     threads,
-                                              std::shared_ptr<const WebAuthenticator> authenticator )
+RestServerApplication::RestServerApplication( unsigned short                           portNumber,
+                                              int                                      threads,
+                                              std::shared_ptr<const RestAuthenticator> authenticator )
     : ServerApplication( AppInfo::AppCapability::SERVER )
     , m_portNumber( portNumber )
     , m_threads( threads )
@@ -46,7 +47,28 @@ RestServerApplication::RestServerApplication( unsigned short                    
     caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestSchemaService>( "schemas" );
     caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestSessionService>( "session" );
 
+    auto cert = authenticator->sslCertificate();
+    auto key  = authenticator->sslKey();
+    auto dh   = authenticator->sslDhParameters();
+
+    if ( !cert.empty() && !key.empty() && !dh.empty() )
+    {
+        CAFFA_INFO( "Loading SSL certificates" );
+
+        m_sslContext = std::make_shared<ssl::context>( ssl::context::tlsv12 );
+
+        m_sslContext->set_options( boost::asio::ssl::context::default_workarounds |
+                                   boost::asio::ssl::context::no_sslv2 | boost::asio::ssl::context::single_dh_use );
+
+        m_sslContext->use_certificate_chain( boost::asio::buffer( cert.data(), cert.size() ) );
+
+        m_sslContext->use_private_key( boost::asio::buffer( key.data(), key.size() ),
+                                       boost::asio::ssl::context::file_format::pem );
+
+        m_sslContext->use_tmp_dh( boost::asio::buffer( dh.data(), dh.size() ) );
+    }
     m_server = std::make_shared<RestServer>( m_ioContext,
+                                             m_sslContext,
                                              tcp::endpoint{ net::ip::make_address( "0.0.0.0" ), m_portNumber },
                                              ".",
                                              authenticator );

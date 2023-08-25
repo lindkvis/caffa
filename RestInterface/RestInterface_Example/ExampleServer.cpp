@@ -20,6 +20,7 @@
 #include "cafLogger.h"
 #include "cafRestServer.h"
 #include "cafRestServerApplication.h"
+#include "cafRestSession.h"
 #include "cafSession.h"
 
 #include "DemoObject.h"
@@ -42,27 +43,47 @@
 
 using namespace caffa;
 
-class DemoAuthenticator : public rpc::WebAuthenticator
+/**
+ * A very simple, *not at all* production ready authenticator.
+ * It uses plain text, unhashed passwords.
+ * DO NOT USE THIS FOR PRODUCTION CODE.
+ */
+class DemoAuthenticator : public rpc::RestAuthenticator
 {
 public:
-    DemoAuthenticator( const std::set<std::string>& validAuthentications )
+    DemoAuthenticator( const std::set<std::string>& validAuthentications,
+                       const std::string&           cert,
+                       const std::string&           key,
+                       const std::string&           dh )
         : m_validAuthentications( validAuthentications )
+        , m_cert( cert )
+        , m_key( key )
+        , m_dh( dh )
     {
     }
+
+    std::string sslCertificate() const override { return m_cert; }
+    std::string sslKey() const override { return m_key; }
+    std::string sslDhParameters() const override { return m_dh; }
+
     bool authenticate( const std::string& authenticationHeader ) const override
     {
-        CAFFA_DEBUG( "Got authorization header: " << authenticationHeader );
+        CAFFA_DEBUG( "Got authorisation header: " << authenticationHeader );
         return m_validAuthentications.contains( authenticationHeader );
     }
 
 private:
     std::set<std::string> m_validAuthentications;
+
+    std::string m_cert;
+    std::string m_key;
+    std::string m_dh;
 };
 
 class ServerApp : public rpc::RestServerApplication
 {
 public:
-    ServerApp( int port, int threads, std::shared_ptr<const rpc::WebAuthenticator> authenticator )
+    ServerApp( int port, int threads, std::shared_ptr<const rpc::RestAuthenticator> authenticator )
         : rpc::RestServerApplication( port, threads, authenticator )
         , m_demoDocument( std::make_shared<DemoDocument>() )
     {
@@ -193,9 +214,9 @@ private:
 int main( int argc, char* argv[] )
 {
     // Check command line arguments.
-    if ( argc != 3 )
+    if ( argc < 3 )
     {
-        std::cerr << "Usage: ExampleServer <port> <threads>\n"
+        std::cerr << "Usage: ExampleServer <port> <threads> <cert> <key> <dh>\n"
                   << "Example:\n"
                   << "    ExampleServer 8080 1\n";
         return EXIT_FAILURE;
@@ -203,13 +224,29 @@ int main( int argc, char* argv[] )
     auto const port    = static_cast<unsigned short>( std::atoi( argv[1] ) );
     auto const threads = std::max<int>( 1, std::atoi( argv[2] ) );
 
+    std::string cert, key, dh;
+    if ( argc > 3 )
+    {
+        if ( argc != 6 )
+        {
+            std::cerr << "If using SSL you need to provide three extra arguments" << std::endl;
+            return EXIT_FAILURE;
+        }
+        cert = caffa::rpc::RpcApplication::readKeyOrCertificate( argv[3] );
+        key  = caffa::rpc::RpcApplication::readKeyOrCertificate( argv[4] );
+        dh   = caffa::rpc::RpcApplication::readKeyOrCertificate( argv[5] );
+    }
+
     Logger::setApplicationLogLevel( Logger::Level::debug );
 
     // Create and launch a listening port
     auto serverApp =
         std::make_shared<ServerApp>( port,
                                      threads,
-                                     std::make_shared<DemoAuthenticator>( std::set<std::string>{ "test:floff" } ) );
+                                     std::make_shared<DemoAuthenticator>( std::set<std::string>{ "test:password" },
+                                                                          cert,
+                                                                          key,
+                                                                          dh ) );
 
     auto session = serverApp->createSession( Session::Type::REGULAR );
     auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );

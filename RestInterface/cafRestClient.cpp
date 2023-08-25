@@ -39,6 +39,7 @@
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
 #include "cafRestObjectService.h"
+#include "cafRestUtility.h"
 #include "cafRpcApplication.h"
 #include "cafRpcClientPassByRefObjectFactory.h"
 #include "cafRpcClientPassByValueObjectFactory.h"
@@ -73,9 +74,11 @@ using namespace std::chrono_literals;
 class Request : public std::enable_shared_from_this<Request>
 {
 public:
-    explicit Request( net::io_context& ioc )
+    explicit Request( net::io_context& ioc, const std::string& username, const std::string& password )
         : m_resolver( net::make_strand( ioc ) )
         , m_stream( net::make_strand( ioc ) )
+        , m_username( username )
+        , m_password( password )
     {
     }
 
@@ -88,6 +91,11 @@ public:
         m_req.target( target );
         m_req.set( http::field::host, host );
         m_req.set( http::field::user_agent, BOOST_BEAST_VERSION_STRING );
+        if ( !m_username.empty() && !m_password.empty() )
+        {
+            CAFFA_DEBUG( "Setting authorisation header!" );
+            m_req.set( http::field::authorization, "Basic " + encodeBase64( m_username + ":" + m_password ) );
+        }
         if ( !body.empty() )
         {
             CAFFA_TRACE( "Setting request body: " << body );
@@ -185,15 +193,21 @@ private:
     http::response<http::string_body> m_res;
 
     std::promise<std::pair<http::status, std::string>> m_result;
+
+    std::string m_username;
+    std::string m_password;
 };
 
-std::pair<http::status, std::string>
-    performRequest( http::verb verb, const std::string& hostname, int port, const std::string& target, const std::string& body )
+std::pair<http::status, std::string> RestClient::performRequest( http::verb         verb,
+                                                                 const std::string& hostname,
+                                                                 int                port,
+                                                                 const std::string& target,
+                                                                 const std::string& body ) const
 {
     // The io_context is required for all I/O
     net::io_context ioc;
 
-    auto request = std::make_shared<Request>( ioc );
+    auto request = std::make_shared<Request>( ioc, m_username, m_password );
     request->run( verb, hostname, port, target, body );
     ioc.run();
 
@@ -202,7 +216,8 @@ std::pair<http::status, std::string>
     return result;
 }
 
-std::pair<http::status, std::string> performGetRequest( const std::string& hostname, int port, const std::string& target )
+std::pair<http::status, std::string>
+    RestClient::performGetRequest( const std::string& hostname, int port, const std::string& target ) const
 {
     return performRequest( http::verb::get, hostname, port, target, "" );
 }
@@ -210,8 +225,14 @@ std::pair<http::status, std::string> performGetRequest( const std::string& hostn
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestClient::RestClient( caffa::Session::Type sessionType, const std::string& hostname, int port /*= 50000 */ )
+RestClient::RestClient( caffa::Session::Type sessionType,
+                        const std::string&   hostname,
+                        int                  port /*= 50000 */,
+                        const std::string&   username,
+                        const std::string&   password )
     : Client( hostname, port )
+    , m_username( username )
+    , m_password( password )
 {
     // Apply current client to the two client object factories.
     caffa::rpc::ClientPassByRefObjectFactory::instance()->setClient( this );

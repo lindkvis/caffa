@@ -1,7 +1,7 @@
 // ##################################################################################################
 //
 //    Caffa
-//    Copyright (C) 2021- 3d Radar AS
+//    Copyright (C) 2023- Kontur AS
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify
@@ -16,22 +16,13 @@
 //    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
 //    for more details.
 //
+// ##################################################################################################
 #pragma once
-
-#include "cafApplication.h"
 
 #include <string>
 
 namespace caffa::rpc
 {
-class RpcApplication : public caffa::Application
-{
-public:
-    RpcApplication( unsigned int capabilities );
-    RpcApplication( AppInfo::AppCapability capability );
-
-    static RpcApplication* instance();
-
-    static std::string readKeyOrCertificate( const std::string& path );
-};
+std::string decodeBase64( std::string encodedValue );
+std::string encodeBase64( std::string unencodedValue );
 } // namespace caffa::rpc
