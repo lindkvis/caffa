@@ -34,6 +34,11 @@
 
 #include <nlohmann/json.hpp>
 
+#include <boost/archive/iterators/base64_from_binary.hpp>
+#include <boost/archive/iterators/binary_from_base64.hpp>
+#include <boost/archive/iterators/insert_linebreaks.hpp>
+#include <boost/archive/iterators/remove_whitespace.hpp>
+#include <boost/archive/iterators/transform_width.hpp>
 #include <boost/beast/version.hpp>
 
 #include <cstdlib>
@@ -45,6 +50,29 @@
 #include <vector>
 
 using namespace caffa::rpc;
+
+std::string decodeBase64( std::string input )
+{
+    using namespace boost::archive::iterators;
+    typedef transform_width<binary_from_base64<remove_whitespace<std::string::const_iterator>>, 8, 6> ItBinaryT;
+
+    try
+    {
+        // If the input isn't a multiple of 4, pad with =
+        size_t num_pad_chars( ( 4 - input.size() % 4 ) % 4 );
+        input.append( num_pad_chars, '=' );
+
+        size_t pad_chars( std::count( input.begin(), input.end(), '=' ) );
+        std::replace( input.begin(), input.end(), '=', 'A' );
+        std::string output( ItBinaryT( input.begin() ), ItBinaryT( input.end() ) );
+        output.erase( output.end() - pad_chars, output.end() );
+        return output;
+    }
+    catch ( std::exception const& )
+    {
+        return std::string( "" );
+    }
+}
 
 // This function produces an HTTP response for the given
 // request. The type of the response object depends on the
@@ -147,7 +175,7 @@ RestServiceInterface::CleanupCallback handle_request( std::shared_ptr<WebSession
 
         auto trimmed = caffa::StringTools::replace( std::string( authorisation ), "Basic ", "" );
 
-        if ( !session->authenticate( caffa::StringTools::decodeBase64( trimmed ) ) )
+        if ( !session->authenticate( decodeBase64( trimmed ) ) )
         {
             send( createResponse( http::status::forbidden, "Failed to authenticate" ) );
             return nullptr;
