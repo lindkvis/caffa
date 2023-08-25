@@ -41,7 +41,7 @@ RpcApplication* RpcApplication::instance()
     return dynamic_cast<RpcApplication*>( appInstance );
 }
 
-std::string RpcApplication::readKeyAndCertificate( const std::string& path )
+std::string RpcApplication::readKeyOrCertificate( const std::string& path )
 {
     std::ifstream stream( path );
     if ( !stream.good() )

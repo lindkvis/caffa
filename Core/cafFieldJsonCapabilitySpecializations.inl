@@ -108,7 +108,7 @@ void FieldJsonCap<FieldType>::setOwner( FieldHandle* owner )
 template <typename DataType>
 void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
 {
-    CAFFA_DEBUG( "Writing " << jsonElement.dump() << " to ChildField" );
+    CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildField" );
     if ( jsonElement.is_null() ) return;
     CAFFA_ASSERT( jsonElement.is_object() );
 
@@ -236,7 +236,7 @@ void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::jso
 {
     m_field->clear();
 
-    CAFFA_DEBUG( "Writing " << jsonElement.dump() << " to ChildArrayField " << m_field->keyword() );
+    CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildArrayField " << m_field->keyword() );
 
     nlohmann::json jsonArray;
     if ( jsonElement.is_array() )

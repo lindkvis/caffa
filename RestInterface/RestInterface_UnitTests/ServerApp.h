@@ -23,15 +23,19 @@
 #include "cafLogger.h"
 #include "cafRestServer.h"
 #include "cafRestServerApplication.h"
+#include "cafRestSession.h"
 #include "cafSession.h"
 
 #include <chrono>
 #include <stdexcept>
 
-class UnitTestAuthenticator : public caffa::rpc::WebAuthenticator
+class UnitTestAuthenticator : public caffa::rpc::RestAuthenticator
 {
 public:
-    bool authenticate( const std::string& authenticationHeader ) const override { return true; }
+    std::string sslCertificate() const override { return ""; }
+    std::string sslKey() const override { return ""; }
+    std::string sslDhParameters() const override { return ""; }
+    bool        authenticate( const std::string& authenticationHeader ) const override { return true; }
 };
 
 class ServerApp : public caffa::rpc::RestServerApplication

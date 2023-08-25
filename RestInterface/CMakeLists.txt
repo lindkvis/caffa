@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.16)
 project(caffaRestInterface)
 
 set(PUBLIC_HEADERS
+    cafRestAuthenticator.h
+    cafRestSession.h
     cafRestServer.h
     cafRestClient.h
     cafRestServerApplication.h
@@ -11,10 +13,12 @@ set(PUBLIC_HEADERS
     cafRestAppService.h
     cafRestObjectService.h
     cafRestSessionService.h
-    cafRestSchemaService.h)
+    cafRestSchemaService.h
+    cafRestUtility.h)
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
+    cafRestSession.cpp
     cafRestServer.cpp
     cafRestClient.cpp
     cafRestServerApplication.cpp
@@ -22,7 +26,8 @@ set(PROJECT_FILES
     cafRestAppService.cpp
     cafRestObjectService.cpp
     cafRestSessionService.cpp
-    cafRestSchemaService.cpp)
+    cafRestSchemaService.cpp
+    cafRestUtility.cpp)
 
 if(CAFFA_BUILD_SHARED)
   message(STATUS "Building ${PROJECT_NAME} shared")
@@ -42,7 +47,8 @@ endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(${PROJECT_NAME} PUBLIC caffaBase caffaCore caffaRpcBase nlohmann_json::nlohmann_json)
+find_package(OpenSSL REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC caffaBase caffaCore caffaRpcBase nlohmann_json::nlohmann_json OpenSSL::SSL OpenSSL::Crypto)
 
 install(
   TARGETS ${PROJECT_NAME}

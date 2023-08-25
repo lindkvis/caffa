@@ -55,6 +55,7 @@ TEST_F( RestTest, Launch )
     std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
 
     CAFFA_DEBUG( "Connecting client to server" );
+    try
     {
         auto client =
             std::make_unique<caffa::rpc::RestClient>( caffa::Session::Type::REGULAR, "localhost", ServerApp::s_port );
@@ -65,6 +66,11 @@ TEST_F( RestTest, Launch )
         CAFFA_DEBUG( "Confirmed test results!" );
         bool ok = client->stopServer();
         ASSERT_TRUE( ok );
+    }
+    catch ( const std::exception& e )
+    {
+        CAFFA_ERROR( "Exception when connecting to client: " << e.what() );
+        FAIL();
     }
     std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
 

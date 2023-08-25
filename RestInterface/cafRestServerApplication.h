@@ -25,26 +25,34 @@
 #include <utility>
 
 #include <boost/asio.hpp>
+#include <boost/beast/ssl.hpp>
 
 #include <memory>
 #include <vector>
 
 namespace net = boost::asio; // from <boost/asio.hpp>
+namespace ssl = boost::asio::ssl; // from <boost/asio/ssl.hpp>
 
 namespace caffa::rpc
 {
 class RestServer;
-class WebAuthenticator;
+class RestAuthenticator;
 
+/**
+ * A base class for a REST server application.
+ * Sub-class to create your REST application.
+ */
 class RestServerApplication : public caffa::rpc::ServerApplication
 {
 public:
     /**
      * Constructor.
+     *
      * @param portNumber Port number
      * @param threads The number of accept threads
+     * @param authenticator The authenticator used to determine if a client is allowed to access the server.
      */
-    RestServerApplication( unsigned short portNumber, int thread, std::shared_ptr<const WebAuthenticator> authenticator );
+    RestServerApplication( unsigned short portNumber, int threads, std::shared_ptr<const RestAuthenticator> authenticator );
     static RestServerApplication* instance();
 
     int  portNumber() const override;
@@ -53,9 +61,10 @@ public:
     bool running() const override;
 
 private:
-    unsigned short              m_portNumber;
-    int                         m_threads;
-    net::io_context             m_ioContext;
-    std::shared_ptr<RestServer> m_server;
+    unsigned short                m_portNumber;
+    int                           m_threads;
+    net::io_context               m_ioContext;
+    std::shared_ptr<ssl::context> m_sslContext;
+    std::shared_ptr<RestServer>   m_server;
 };
 } // namespace caffa::rpc
