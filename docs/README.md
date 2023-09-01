@@ -9,6 +9,19 @@ The REST-interface is designed to be as transparent as possible, and fields and 
 
 The REST-interface communicates via JSON adhering to the latest draft [JSON Schema](http://json-schema.org/) specification and the REST-server provides access to both schemas and data.
 
+# Advantages
+Caffa enables easy access to the full power of C++ while the introspection and clear separation of network code and data model gives some of the advantages of higher level languages such as Python.
+
+# Bindings
+Caffa has currently implemented client bindings to the following langages:
+
+    - Python
+    - Java
+
+This means you write your server application on your embedded device in C++ and you can write the client code in Python, Java (or any other languages using REST and JSON directly).
+
+# Examples
+
 ~~~cpp
 #pragma once
 #include "cafObject.h"
@@ -147,3 +160,6 @@ git submodule update --init --recursive
 
 # Licensing
 Caffa is licensed under the LGPL 2.1 or newer.
+
+# Credits
+Caffa is originally adapted from by Ceetron and Ceetron Solutions for the [ResInsight](https://resinsight.org/) reservoir visualisation package. The code bases have, however, diverged over several years of active development.
