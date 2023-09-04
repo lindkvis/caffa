@@ -166,13 +166,15 @@ To serialize an object to string or file (both JSON) you can do the following:
     // To string
     auto string = caffa::JsonSerializer().writeObjectToString(child.get());
 ~~~
+
 The child object will yield the following JSON file:
+
 ~~~json
 {
   "keyword": "ChildObject",
   "name": "Alice"
 }
-~~
+~~~
 
 The TinyDemoDocument will yield the following JSON (with random UUIDs):
 ~~~json
