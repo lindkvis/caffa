@@ -1,0 +1,7 @@
+<map id="caffa::rpc::RpcApplication" name="caffa::rpc::RpcApplication">
+<area shape="rect" id="node1" title=" " alt="" coords="149,80,335,107"/>
+<area shape="rect" id="node3" href="$classcaffa_1_1rpc_1_1RestClientApplication.html" title=" " alt="" coords="5,155,236,181"/>
+<area shape="rect" id="node4" href="$classcaffa_1_1rpc_1_1ServerApplication.html" title=" " alt="" coords="261,155,466,181"/>
+<area shape="rect" id="node2" href="$classcaffa_1_1Application.html" title=" " alt="" coords="175,5,309,32"/>
+<area shape="rect" id="node5" href="$classcaffa_1_1rpc_1_1RestServerApplication.html" title=" " alt="" coords="246,229,481,256"/>
+</map>

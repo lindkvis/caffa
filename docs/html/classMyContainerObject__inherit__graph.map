@@ -1,8 +1,0 @@
-<map id="MyContainerObject" name="MyContainerObject">
-<area shape="rect" id="node1" title=" " alt="" coords="258,155,405,181"/>
-<area shape="rect" id="node2" href="$classcaf_1_1ObjectHandle.html" title=" " alt="" coords="175,80,312,107"/>
-<area shape="rect" id="node3" href="$classcaf_1_1SignalObserver.html" title=" " alt="" coords="5,5,153,32"/>
-<area shape="rect" id="node4" href="$classcaf_1_1SignalEmitter.html" title=" " alt="" coords="177,5,315,32"/>
-<area shape="rect" id="node5" href="$classcaf_1_1ObjectIoCapability.html" title=" " alt="" coords="336,80,505,107"/>
-<area shape="rect" id="node6" href="$classcaf_1_1ObjectCapability.html" title=" " alt="" coords="342,5,499,32"/>
-</map>

@@ -1,4 +1,0 @@
-<map id="caf::UiOrdering" name="caf::UiOrdering">
-<area shape="rect" id="node1" title="Class storing the order and grouping of fields and groups of fields etc. to be used in the Gui." alt="" coords="5,5,124,32"/>
-<area shape="rect" id="node2" href="$classcaf_1_1UiGroup.html" title="Class representing a group of fields communicated to the Gui." alt="" coords="13,80,116,107"/>
-</map>

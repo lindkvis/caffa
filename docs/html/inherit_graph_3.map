@@ -1,4 +1,9 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classcaf_1_1ActionCreatorInterface.html" title=" " alt="" coords="5,5,201,32"/>
-<area shape="rect" id="node2" href="$classcaf_1_1QActionCreator.html" title=" " alt="" coords="249,5,397,32"/>
+<area shape="rect" id="node1" title=" " alt="" coords="5,132,68,159"/>
+<area shape="rect" id="node2" href="$classcaffa_1_1object_1_1Object.html" title=" " alt="" coords="159,5,303,32"/>
+<area shape="rect" id="node3" href="$classobject_1_1Object_1_1FileNameProperty.html" title=" " alt="" coords="116,56,345,83"/>
+<area shape="rect" id="node4" href="$classobject_1_1Object_1_1IdProperty.html" title=" " alt="" coords="141,107,320,133"/>
+<area shape="rect" id="node5" href="$classobject_1_1Object_1_1KeywordProperty.html" title=" " alt="" coords="119,157,342,184"/>
+<area shape="rect" id="node6" href="$classobject_1_1Object_1_1UuidProperty.html" title=" " alt="" coords="132,208,329,235"/>
+<area shape="rect" id="node7" href="$classtest__objects_1_1TestObjects.html" title=" " alt="" coords="141,259,321,285"/>
 </map>

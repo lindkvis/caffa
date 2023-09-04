@@ -1,17 +1,8 @@
 var searchData=
 [
-  ['object_448',['Object',['../classcaf_1_1Object.html',1,'caf']]],
-  ['objectcapability_449',['ObjectCapability',['../classcaf_1_1ObjectCapability.html',1,'caf']]],
-  ['objectclientcapability_450',['ObjectClientCapability',['../classcaf_1_1rpc_1_1ObjectClientCapability.html',1,'caf::rpc']]],
-  ['objectcollection_451',['ObjectCollection',['../classcaf_1_1ObjectCollection.html',1,'caf']]],
-  ['objectfactory_452',['ObjectFactory',['../classcaf_1_1ObjectFactory.html',1,'caf']]],
-  ['objectgroup_453',['ObjectGroup',['../classcaf_1_1ObjectGroup.html',1,'caf']]],
-  ['objecthandle_454',['ObjectHandle',['../classcaf_1_1ObjectHandle.html',1,'caf']]],
-  ['objectiocapability_455',['ObjectIoCapability',['../classcaf_1_1ObjectIoCapability.html',1,'caf']]],
-  ['objectjsoncapability_456',['ObjectJsonCapability',['../classcaf_1_1ObjectJsonCapability.html',1,'caf']]],
-  ['objectmethod_457',['ObjectMethod',['../classcaf_1_1ObjectMethod.html',1,'caf']]],
-  ['objectmethodfactory_458',['ObjectMethodFactory',['../classcaf_1_1ObjectMethodFactory.html',1,'caf']]],
-  ['objectservice_459',['ObjectService',['../classcaf_1_1rpc_1_1ObjectService.html',1,'caf::rpc']]],
-  ['objectuicapability_460',['ObjectUiCapability',['../classcaf_1_1ObjectUiCapability.html',1,'caf']]],
-  ['optioniteminfo_461',['OptionItemInfo',['../classcaf_1_1OptionItemInfo.html',1,'caf']]]
+  ['method_322',['Method',['../classcaffa_1_1Method.html',1,'caffa::Method&lt; CallbackT &gt;'],['../classcaffa_1_1method_1_1Method.html',1,'caffa.method.Method']]],
+  ['method_3c_20result_28argtypes_2e_2e_2e_29_3e_323',['Method&lt; Result(ArgTypes...)&gt;',['../classcaffa_1_1Method_3_01Result_07ArgTypes_8_8_8_08_4.html',1,'caffa']]],
+  ['methodaccessor_324',['MethodAccessor',['../classcaffa_1_1rpc_1_1MethodAccessor.html',1,'caffa::rpc']]],
+  ['methodaccessorinterface_325',['MethodAccessorInterface',['../classcaffa_1_1MethodAccessorInterface.html',1,'caffa']]],
+  ['methodhandle_326',['MethodHandle',['../classcaffa_1_1MethodHandle.html',1,'caffa']]]
 ];

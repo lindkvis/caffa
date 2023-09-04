@@ -1,0 +1,7 @@
+<map id="caffa::ChildArrayFieldHandle" name="caffa::ChildArrayFieldHandle">
+<area shape="rect" id="node1" title="A non&#45;templated base interface for ChildArrayField&lt;DataType*&gt; Used so we can have pointers to any Chi..." alt="" coords="72,229,279,256"/>
+<area shape="rect" id="node2" href="$classcaffa_1_1ChildFieldBaseHandle.html" title=" " alt="" coords="73,155,277,181"/>
+<area shape="rect" id="node3" href="$classcaffa_1_1FieldHandle.html" title="Base class for all fields, making it possible to handle them generically." alt="" coords="106,80,245,107"/>
+<area shape="rect" id="node4" href="$classcaffa_1_1ObjectAttribute.html" title=" " alt="" coords="5,5,167,32"/>
+<area shape="rect" id="node5" href="$classcaffa_1_1SignalEmitter.html" title=" " alt="" coords="191,5,341,32"/>
+</map>

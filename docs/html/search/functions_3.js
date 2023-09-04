@@ -1,10 +1,7 @@
 var searchData=
 [
-  ['datatypename_631',['dataTypeName',['../classcaf_1_1FieldIoCapability.html#a14da0acc2235e82bea56e1c4a50698a7',1,'caf::FieldIoCapability']]],
-  ['defineeditorattribute_632',['defineEditorAttribute',['../classcaf_1_1ObjectUiCapability.html#a37540ffe451695c144ebfd1199c5a34d',1,'caf::ObjectUiCapability']]],
-  ['defineobjecteditorattribute_633',['defineObjectEditorAttribute',['../classcaf_1_1ObjectUiCapability.html#a592bfe12888a01cbe808b3b838b03641',1,'caf::ObjectUiCapability']]],
-  ['defineuiordering_634',['defineUiOrdering',['../classcaf_1_1ObjectUiCapability.html#a65b5ed116a7609ada78f688f20e021ca',1,'caf::ObjectUiCapability']]],
-  ['defineuitreeordering_635',['defineUiTreeOrdering',['../classcaf_1_1ObjectUiCapability.html#aa9e502b0c159ee55a94a85d9a4a003a1',1,'caf::ObjectUiCapability']]],
-  ['descendantsoftype_636',['descendantsOfType',['../classcaf_1_1ObjectHandle.html#a3991f51f937c43982b9a9547a9448640',1,'caf::ObjectHandle']]],
-  ['document_637',['document',['../classcaf_1_1rpc_1_1Client.html#aa38875cc6fbe9204b0f93a3ac01bc4e3',1,'caf::rpc::Client']]]
+  ['datafielddirectstorageaccessor_396',['DataFieldDirectStorageAccessor',['../classcaffa_1_1DataFieldDirectStorageAccessor.html#a92d1dbd56618270a4df56a2eee334144',1,'caffa::DataFieldDirectStorageAccessor::DataFieldDirectStorageAccessor()=default'],['../classcaffa_1_1DataFieldDirectStorageAccessor.html#a8e2de05f033cffd5d6aab87339c85323',1,'caffa::DataFieldDirectStorageAccessor::DataFieldDirectStorageAccessor(const DataType &amp;value)']]],
+  ['deepclone_397',['deepClone',['../classcaffa_1_1Object.html#a1a74d4c1148d2b620225334e9f258f3b',1,'caffa::Object::deepClone()'],['../classcaffa_1_1ObjectHandle.html#aee45ba6690e9564bb77ebb821a3dffa7',1,'caffa::ObjectHandle::deepClone()']]],
+  ['document_398',['document',['../classcaffa_1_1rpc_1_1RestClient.html#ad9ea41aab4077a4021d8a657aead0016',1,'caffa::rpc::RestClient']]],
+  ['documents_399',['documents',['../classcaffa_1_1rpc_1_1RestClient.html#a9274f690ab84a3c2fe9d110f7feed4e3',1,'caffa::rpc::RestClient']]]
 ];

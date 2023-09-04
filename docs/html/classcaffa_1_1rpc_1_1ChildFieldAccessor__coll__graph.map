@@ -1,0 +1,7 @@
+<map id="caffa::rpc::ChildFieldAccessor" name="caffa::rpc::ChildFieldAccessor">
+<area shape="rect" id="node1" title=" " alt="" coords="69,247,281,273"/>
+<area shape="rect" id="node2" href="$classcaffa_1_1ChildFieldAccessor.html" title=" " alt="" coords="83,171,267,197"/>
+<area shape="rect" id="node3" href="$classcaffa_1_1FieldHandle.html" title="Base class for all fields, making it possible to handle them generically." alt="" coords="106,81,245,108"/>
+<area shape="rect" id="node4" href="$classcaffa_1_1ObjectAttribute.html" title=" " alt="" coords="5,5,167,32"/>
+<area shape="rect" id="node5" href="$classcaffa_1_1SignalEmitter.html" title=" " alt="" coords="191,5,341,32"/>
+</map>

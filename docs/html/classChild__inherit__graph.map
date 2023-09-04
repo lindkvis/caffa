@@ -1,6 +1,5 @@
 <map id="Child" name="Child">
-<area shape="rect" id="node1" title=" " alt="" coords="135,155,189,181"/>
-<area shape="rect" id="node2" href="$classcaf_1_1ObjectHandle.html" title=" " alt="" coords="93,80,231,107"/>
-<area shape="rect" id="node3" href="$classcaf_1_1SignalObserver.html" title=" " alt="" coords="5,5,153,32"/>
-<area shape="rect" id="node4" href="$classcaf_1_1SignalEmitter.html" title=" " alt="" coords="177,5,315,32"/>
+<area shape="rect" id="node1" title=" " alt="" coords="32,155,87,181"/>
+<area shape="rect" id="node2" href="$classobject_1_1Object.html" title=" " alt="" coords="5,80,113,107"/>
+<area shape="rect" id="node3" title=" " alt="" coords="20,5,99,32"/>
 </map>

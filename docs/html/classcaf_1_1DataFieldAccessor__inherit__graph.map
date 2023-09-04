@@ -1,7 +1,0 @@
-<map id="caf::DataFieldAccessor&lt; DataType &gt;" name="caf::DataFieldAccessor&lt; DataType &gt;">
-<area shape="rect" id="node1" title=" " alt="" coords="280,71,449,112"/>
-<area shape="rect" id="node3" href="$classcaf_1_1DataFieldDirectStorageAccessor.html" title=" " alt="" coords="511,5,711,47"/>
-<area shape="rect" id="node4" href="$classcaf_1_1FieldProxyAccessor.html" title=" " alt="" coords="523,71,698,112"/>
-<area shape="rect" id="node5" href="$classcaf_1_1rpc_1_1GrpcDataFieldAccessor.html" title=" " alt="" coords="497,136,724,177"/>
-<area shape="rect" id="node2" href="$classcaf_1_1DataFieldAccessorInterface.html" title=" " alt="" coords="5,78,232,105"/>
-</map>

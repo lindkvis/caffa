@@ -1,0 +1,4 @@
+<map id="caffa::DataFieldAccessor&lt; DataType &gt;" name="caffa::DataFieldAccessor&lt; DataType &gt;">
+<area shape="rect" id="node1" title="Abstract but typed data field accessor. Inherit to create different storage mechanisms." alt="" coords="5,95,188,136"/>
+<area shape="rect" id="node2" href="$classcaffa_1_1DataFieldAccessorInterface.html" title="Basic non&#45;typed interface which exists only to allow non&#45;typed pointers." alt="" coords="5,5,188,47"/>
+</map>

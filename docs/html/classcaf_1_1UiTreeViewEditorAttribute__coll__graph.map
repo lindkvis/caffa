@@ -1,9 +1,0 @@
-<map id="caf::UiTreeViewEditorAttribute" name="caf::UiTreeViewEditorAttribute">
-<area shape="rect" id="node1" title=" " alt="" coords="860,31,1077,57"/>
-<area shape="rect" id="node2" href="$classcaf_1_1UiEditorAttribute.html" title=" " alt="" coords="560,5,719,32"/>
-<area shape="rect" id="node3" href="$classcaf_1_1ObjectHandle.html" title=" " alt="" coords="571,56,708,83"/>
-<area shape="rect" id="node4" href="$classcaf_1_1SignalObserver.html" title=" " alt="" coords="236,5,384,32"/>
-<area shape="rect" id="node5" href="$classcaf_1_1SignalEmitter.html" title=" " alt="" coords="241,56,379,83"/>
-<area shape="rect" id="node6" href="$classcaf_1_1Signal.html" title=" " alt="" coords="197,107,423,163"/>
-<area shape="rect" id="node7" href="$classcaf_1_1AbstractSignal.html" title=" " alt="" coords="5,121,148,148"/>
-</map>

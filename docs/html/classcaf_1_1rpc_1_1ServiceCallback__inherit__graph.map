@@ -1,7 +1,0 @@
-<map id="caf::rpc::ServiceCallback&lt; ServiceT, RequestT, ReplyT &gt;" name="caf::rpc::ServiceCallback&lt; ServiceT, RequestT, ReplyT &gt;">
-<area shape="rect" id="node1" title=" " alt="" coords="240,93,471,134"/>
-<area shape="rect" id="node3" href="$classcaf_1_1rpc_1_1ClientToServerStreamCallback.html" title=" " alt="" coords="519,5,719,61"/>
-<area shape="rect" id="node4" href="$classcaf_1_1rpc_1_1ServerToClientStreamCallback.html" title=" " alt="" coords="519,85,719,141"/>
-<area shape="rect" id="node5" href="$classcaf_1_1rpc_1_1UnaryCallback.html" title=" " alt="" coords="533,165,705,221"/>
-<area shape="rect" id="node2" href="$classcaf_1_1rpc_1_1AbstractCallback.html" title=" " alt="" coords="5,100,192,127"/>
-</map>

@@ -1,7 +1,0 @@
-<map id="caf::UiCheckBoxTristateEditor" name="caf::UiCheckBoxTristateEditor">
-<area shape="rect" id="node1" title=" " alt="" coords="5,229,220,256"/>
-<area shape="rect" id="node2" href="$classcaf_1_1UiFieldEditorHandle.html" title="Abstract class to handle editors of Fields." alt="" coords="23,155,202,181"/>
-<area shape="rect" id="node3" title=" " alt="" coords="9,80,83,107"/>
-<area shape="rect" id="node4" href="$classcaf_1_1UiEditorHandle.html" title="Abstract class to handle editors." alt="" coords="107,80,254,107"/>
-<area shape="rect" id="node5" href="$classcaf_1_1SignalEmitter.html" title=" " alt="" coords="112,5,249,32"/>
-</map>

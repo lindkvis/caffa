@@ -1,0 +1,19 @@
+<map id="caffa::SignalEmitter" name="caffa::SignalEmitter">
+<area shape="rect" id="node1" title=" " alt="" coords="5,321,156,347"/>
+<area shape="rect" id="node2" href="$classcaffa_1_1FieldHandle.html" title="Base class for all fields, making it possible to handle them generically." alt="" coords="210,295,349,322"/>
+<area shape="rect" id="node16" href="$classcaffa_1_1ObjectHandle.html" title=" " alt="" coords="204,346,355,373"/>
+<area shape="rect" id="node3" href="$classcaffa_1_1ChildFieldBaseHandle.html" title=" " alt="" coords="403,209,607,235"/>
+<area shape="rect" id="node11" href="$classcaffa_1_1DataField.html" title=" " alt="" coords="443,295,567,322"/>
+<area shape="rect" id="node4" href="$classcaffa_1_1ChildArrayFieldHandle.html" title="A non&#45;templated base interface for ChildArrayField&lt;DataType*&gt; Used so we can have pointers to any Chi..." alt="" coords="655,78,861,105"/>
+<area shape="rect" id="node7" href="$classcaffa_1_1ChildFieldHandle.html" title=" " alt="" coords="672,209,844,235"/>
+<area shape="rect" id="node5" href="$classcaffa_1_1ChildArrayField.html" title=" " alt="" coords="921,5,1082,47"/>
+<area shape="rect" id="node6" href="$classcaffa_1_1ChildArrayField.html" title="Field class to handle a collection of Object derived pointers The ChildArrayField will take over owne..." alt="" coords="921,71,1082,112"/>
+<area shape="rect" id="node8" href="$classcaffa_1_1ChildField.html" title=" " alt="" coords="933,136,1070,177"/>
+<area shape="rect" id="node9" href="$classcaffa_1_1ChildField.html" title=" " alt="" coords="933,201,1070,243"/>
+<area shape="rect" id="node10" href="$classcaffa_1_1ChildField.html" title="Field class to handle a pointer to a caffa Object." alt="" coords="933,267,1070,308"/>
+<area shape="rect" id="node12" href="$classcaffa_1_1TypedField.html" title=" " alt="" coords="687,355,829,396"/>
+<area shape="rect" id="node13" href="$classcaffa_1_1Field.html" title=" " alt="" coords="918,333,1085,359"/>
+<area shape="rect" id="node14" href="$classcaffa_1_1Field.html" title=" " alt="" coords="933,384,1069,425"/>
+<area shape="rect" id="node15" href="$classcaffa_1_1Field.html" title=" " alt="" coords="909,450,1093,477"/>
+<area shape="rect" id="node17" href="$classcaffa_1_1Object.html" title=" " alt="" coords="453,346,557,373"/>
+</map>

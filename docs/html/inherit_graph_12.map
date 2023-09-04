@@ -1,7 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classcaf_1_1DataFieldAccessorInterface.html" title=" " alt="" coords="5,78,232,105"/>
-<area shape="rect" id="node2" href="$classcaf_1_1DataFieldAccessor.html" title=" " alt="" coords="280,71,449,112"/>
-<area shape="rect" id="node3" href="$classcaf_1_1DataFieldDirectStorageAccessor.html" title=" " alt="" coords="511,5,711,47"/>
-<area shape="rect" id="node4" href="$classcaf_1_1FieldProxyAccessor.html" title=" " alt="" coords="523,71,698,112"/>
-<area shape="rect" id="node5" href="$classcaf_1_1rpc_1_1GrpcDataFieldAccessor.html" title=" " alt="" coords="497,136,724,177"/>
+<area shape="rect" id="node1" href="$classcaffa_1_1Editor.html" title=" " alt="" coords="5,46,105,73"/>
+<area shape="rect" id="node2" href="$classcaffa_1_1ObjectCollector.html" title=" " alt="" coords="157,5,319,47"/>
+<area shape="rect" id="node3" href="$classcaffa_1_1ObjectPerformer.html" title=" " alt="" coords="153,71,323,112"/>
 </map>

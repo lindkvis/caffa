@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['hasgrandchildren_652',['hasGrandChildren',['../classcaf_1_1UiTreeSelectionQModel.html#a33d465d3f712099df6d3c51c1a58857c',1,'caf::UiTreeSelectionQModel']]]
+  ['hascapability_411',['hasCapability',['../structcaffa_1_1AppInfo.html#ac47047394b87037778a16e27cb4e3587',1,'caffa::AppInfo']]]
 ];

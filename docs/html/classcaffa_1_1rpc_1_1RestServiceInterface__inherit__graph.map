@@ -1,0 +1,7 @@
+<map id="caffa::rpc::RestServiceInterface" name="caffa::rpc::RestServiceInterface">
+<area shape="rect" id="node1" title=" " alt="" coords="5,81,231,108"/>
+<area shape="rect" id="node2" href="$classcaffa_1_1rpc_1_1RestAppService.html" title=" " alt="" coords="292,5,484,32"/>
+<area shape="rect" id="node3" href="$classcaffa_1_1rpc_1_1RestObjectService.html" title=" " alt="" coords="283,56,493,83"/>
+<area shape="rect" id="node4" href="$classcaffa_1_1rpc_1_1RestSchemaService.html" title=" " alt="" coords="279,107,497,133"/>
+<area shape="rect" id="node5" href="$classcaffa_1_1rpc_1_1RestSessionService.html" title=" " alt="" coords="279,157,497,184"/>
+</map>

@@ -1,3 +1,24 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$structcaf_1_1isVariantMember.html" title=" " alt="" coords="5,5,165,47"/>
+<area shape="rect" id="node1" href="$classcaffa_1_1ObjectAttribute.html" title=" " alt="" coords="5,126,167,153"/>
+<area shape="rect" id="node2" href="$classcaffa_1_1FieldHandle.html" title="Base class for all fields, making it possible to handle them generically." alt="" coords="224,202,363,229"/>
+<area shape="rect" id="node16" href="$classcaffa_1_1MethodHandle.html" title=" " alt="" coords="215,113,372,139"/>
+<area shape="rect" id="node3" href="$classcaffa_1_1ChildFieldBaseHandle.html" title=" " alt="" coords="421,214,625,241"/>
+<area shape="rect" id="node11" href="$classcaffa_1_1DataField.html" title=" " alt="" coords="461,163,585,190"/>
+<area shape="rect" id="node4" href="$classcaffa_1_1ChildArrayFieldHandle.html" title="A non&#45;templated base interface for ChildArrayField&lt;DataType*&gt; Used so we can have pointers to any Chi..." alt="" coords="673,214,880,241"/>
+<area shape="rect" id="node7" href="$classcaffa_1_1ChildFieldHandle.html" title=" " alt="" coords="691,343,863,370"/>
+<area shape="rect" id="node5" href="$classcaffa_1_1ChildArrayField.html" title=" " alt="" coords="939,239,1101,280"/>
+<area shape="rect" id="node6" href="$classcaffa_1_1ChildArrayField.html" title="Field class to handle a collection of Object derived pointers The ChildArrayField will take over owne..." alt="" coords="939,173,1101,215"/>
+<area shape="rect" id="node8" href="$classcaffa_1_1ChildField.html" title=" " alt="" coords="951,435,1089,476"/>
+<area shape="rect" id="node9" href="$classcaffa_1_1ChildField.html" title=" " alt="" coords="951,304,1089,345"/>
+<area shape="rect" id="node10" href="$classcaffa_1_1ChildField.html" title="Field class to handle a pointer to a caffa Object." alt="" coords="951,369,1089,411"/>
+<area shape="rect" id="node12" href="$classcaffa_1_1TypedField.html" title=" " alt="" coords="705,89,848,131"/>
+<area shape="rect" id="node13" href="$classcaffa_1_1Field.html" title=" " alt="" coords="937,122,1103,149"/>
+<area shape="rect" id="node14" href="$classcaffa_1_1Field.html" title=" " alt="" coords="952,5,1088,47"/>
+<area shape="rect" id="node15" href="$classcaffa_1_1Field.html" title=" " alt="" coords="928,71,1112,98"/>
+<area shape="rect" id="node17" href="$classcaffa_1_1Method.html" title=" " alt="" coords="420,113,625,139"/>
+<area shape="rect" id="node18" href="$classcaffa_1_1Method_3_01Result_07ArgTypes_8_8_8_08_4.html" title=" " alt="" coords="439,47,606,88"/>
+<area shape="rect" id="node19" href="$classcaffa_1_1SignalEmitter.html" title=" " alt="" coords="11,202,161,229"/>
+<area shape="rect" id="node20" href="$classcaffa_1_1ObjectHandle.html" title=" " alt="" coords="218,253,369,279"/>
+<area shape="rect" id="node21" href="$classcaffa_1_1Object.html" title=" " alt="" coords="471,265,575,291"/>
+<area shape="rect" id="node22" href="$classcaffa_1_1SignalObserver.html" title=" " alt="" coords="5,253,167,279"/>
 </map>

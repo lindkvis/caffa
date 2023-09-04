@@ -1,9 +1,11 @@
 var searchData=
 [
-  ['m_5fdatatypename_140',['m_dataTypeName',['../classcaf_1_1FieldIoCapability.html#a8702e7237412ebd9a06ccda138c05de4',1,'caf::FieldIoCapability']]],
-  ['matchingancestors_141',['matchingAncestors',['../classcaf_1_1ObjectHandle.html#aafe6fae22894512555389ee37d2fb336',1,'caf::ObjectHandle']]],
-  ['matchingdescendants_142',['matchingDescendants',['../classcaf_1_1ObjectHandle.html#a531aff65f10df34d01d44ed81d294a0e',1,'caf::ObjectHandle']]],
-  ['menuinterface_143',['MenuInterface',['../classcaf_1_1MenuInterface.html',1,'caf']]],
-  ['minimumheight_144',['minimumHeight',['../classcaf_1_1UiTableViewEditorAttribute.html#a5685679180c2b277847ebccbc29542cf',1,'caf::UiTableViewEditorAttribute']]],
-  ['mystringlistmodel_145',['MyStringListModel',['../classMyStringListModel.html',1,'']]]
+  ['jsondatatype_128',['JsonDataType',['../structcaffa_1_1JsonDataType.html',1,'caffa']]],
+  ['jsondatatype_3c_20appenum_3c_20enumtype_20_3e_20_3e_129',['JsonDataType&lt; AppEnum&lt; EnumType &gt; &gt;',['../structcaffa_1_1JsonDataType_3_01AppEnum_3_01EnumType_01_4_01_4.html',1,'caffa']]],
+  ['jsondatatype_3c_20bool_20_3e_130',['JsonDataType&lt; bool &gt;',['../structcaffa_1_1JsonDataType_3_01bool_01_4.html',1,'caffa']]],
+  ['jsondatatype_3c_20datatype_20_3e_131',['JsonDataType&lt; DataType &gt;',['../structcaffa_1_1JsonDataType_3_01DataType_01_4.html',1,'caffa']]],
+  ['jsondatatype_3c_20std_3a_3astring_20_3e_132',['JsonDataType&lt; std::string &gt;',['../structcaffa_1_1JsonDataType_3_01std_1_1string_01_4.html',1,'caffa']]],
+  ['jsondatatype_3c_20std_3a_3avector_3c_20datatype_20_3e_20_3e_133',['JsonDataType&lt; std::vector&lt; DataType &gt; &gt;',['../structcaffa_1_1JsonDataType_3_01std_1_1vector_3_01DataType_01_4_01_4.html',1,'caffa']]],
+  ['jsondatatype_3c_20void_20_3e_134',['JsonDataType&lt; void &gt;',['../structcaffa_1_1JsonDataType_3_01void_01_4.html',1,'caffa']]],
+  ['jsonserializer_135',['JsonSerializer',['../classcaffa_1_1JsonSerializer.html',1,'caffa::JsonSerializer'],['../classcaffa_1_1JsonSerializer.html#a4c5f2afb6f05fd82d93729d15da8de62',1,'caffa::JsonSerializer::JsonSerializer()']]]
 ];

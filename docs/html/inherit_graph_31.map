@@ -1,4 +1,6 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classcaf_1_1MenuInterface.html" title=" " alt="" coords="5,5,148,32"/>
-<area shape="rect" id="node2" href="$classcaf_1_1QMenuWrapper.html" title=" " alt="" coords="196,5,347,32"/>
+<area shape="rect" id="node1" href="$classcaffa_1_1ObjectFactory.html" title=" " alt="" coords="5,64,156,91"/>
+<area shape="rect" id="node2" href="$classcaffa_1_1DefaultObjectFactory.html" title=" " alt="" coords="204,5,403,32"/>
+<area shape="rect" id="node3" href="$classcaffa_1_1rpc_1_1ClientPassByRefObjectFactory.html" title=" " alt="" coords="216,57,391,98"/>
+<area shape="rect" id="node4" href="$classcaffa_1_1rpc_1_1ClientPassByValueObjectFactory.html" title=" " alt="" coords="216,122,391,163"/>
 </map>

@@ -1,12 +1,13 @@
 var searchData=
 [
-  ['editorattribute_70',['editorAttribute',['../classcaf_1_1ObjectUiCapability.html#abd51063e3480944bfe853b47bd4998c9',1,'caf::ObjectUiCapability']]],
-  ['editorevent_71',['editorEvent',['../classcaf_1_1UiCheckBoxDelegate.html#af0110d548e92fa4b9f2cf905b06bfb99',1,'caf::UiCheckBoxDelegate']]],
-  ['enableselectionmanagerupdating_72',['enableSelectionManagerUpdating',['../classcaf_1_1UiTreeView.html#a741ee17f6f2e81dd203168a22d1578fb',1,'caf::UiTreeView']]],
-  ['encodestringfrommodelindex_73',['encodeStringFromModelIndex',['../classcaf_1_1QTreeViewStateSerializer.html#aaabc7cef9cbb7acdf52b6715f8506bd5',1,'caf::QTreeViewStateSerializer']]],
-  ['erase_74',['erase',['../classcaf_1_1ChildArrayField_3_01DataType_01_5_01_4.html#a96a2add8f1d892474eba968eb01e8931',1,'caf::ChildArrayField&lt; DataType * &gt;::erase()'],['../classcaf_1_1PtrArrayField_3_01DataType_01_5_01_4.html#a836b4d97ba159f09735620b0e41756bd',1,'caf::PtrArrayField&lt; DataType * &gt;::erase()']]],
-  ['eventfilter_75',['eventFilter',['../classcaf_1_1UiLineEditor.html#aecb7f35ce7a4dda237155d168f28c49a',1,'caf::UiLineEditor']]],
-  ['exception_76',['Exception',['../classcaf_1_1Exception.html',1,'caf::Exception'],['../classcaf_1_1rpc_1_1Exception.html',1,'caf::rpc::Exception']]],
-  ['execute_77',['execute',['../classcaf_1_1rpc_1_1Client.html#af84de37b6270f2274535cc5e8932fd82',1,'caf::rpc::Client']]],
-  ['expanduitree_78',['expandUiTree',['../classcaf_1_1ObjectUiCapability.html#a8c963f745db699c098adfee8205f8f70',1,'caf::ObjectUiCapability']]]
+  ['datafield_70',['DataField',['../classcaffa_1_1DataField.html',1,'caffa']]],
+  ['datafieldaccessor_71',['DataFieldAccessor',['../classcaffa_1_1DataFieldAccessor.html',1,'caffa::DataFieldAccessor&lt; DataType &gt;'],['../classcaffa_1_1rpc_1_1DataFieldAccessor.html',1,'caffa::rpc::DataFieldAccessor&lt; DataType &gt;']]],
+  ['datafieldaccessorinterface_72',['DataFieldAccessorInterface',['../classcaffa_1_1DataFieldAccessorInterface.html',1,'caffa']]],
+  ['datafielddirectstorageaccessor_73',['DataFieldDirectStorageAccessor',['../classcaffa_1_1DataFieldDirectStorageAccessor.html',1,'caffa::DataFieldDirectStorageAccessor&lt; DataType &gt;'],['../classcaffa_1_1DataFieldDirectStorageAccessor.html#a92d1dbd56618270a4df56a2eee334144',1,'caffa::DataFieldDirectStorageAccessor::DataFieldDirectStorageAccessor()=default'],['../classcaffa_1_1DataFieldDirectStorageAccessor.html#a8e2de05f033cffd5d6aab87339c85323',1,'caffa::DataFieldDirectStorageAccessor::DataFieldDirectStorageAccessor(const DataType &amp;value)']]],
+  ['deepclone_74',['deepClone',['../classcaffa_1_1Object.html#a1a74d4c1148d2b620225334e9f258f3b',1,'caffa::Object::deepClone()'],['../classcaffa_1_1ObjectHandle.html#aee45ba6690e9564bb77ebb821a3dffa7',1,'caffa::ObjectHandle::deepClone()']]],
+  ['defaultobjectfactory_75',['DefaultObjectFactory',['../classcaffa_1_1DefaultObjectFactory.html',1,'caffa']]],
+  ['detectsession_76',['DetectSession',['../classcaffa_1_1rpc_1_1DetectSession.html',1,'caffa::rpc']]],
+  ['document_77',['Document',['../classcaffa_1_1Document.html',1,'caffa']]],
+  ['document_78',['document',['../classcaffa_1_1rpc_1_1RestClient.html#ad9ea41aab4077a4021d8a657aead0016',1,'caffa::rpc::RestClient']]],
+  ['documents_79',['documents',['../classcaffa_1_1rpc_1_1RestClient.html#a9274f690ab84a3c2fe9d110f7feed4e3',1,'caffa::rpc::RestClient']]]
 ];

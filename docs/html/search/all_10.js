@@ -1,7 +1,26 @@
 var searchData=
 [
-  ['tableviewpushbutton_256',['TableViewPushButton',['../classcaf_1_1TableViewPushButton.html',1,'caf']]],
-  ['textedit_257',['TextEdit',['../classcaf_1_1TextEdit.html',1,'caf']]],
-  ['tristate_258',['Tristate',['../classcaf_1_1Tristate.html',1,'caf']]],
-  ['typedvaluefield_259',['TypedValueField',['../classcaf_1_1TypedValueField.html',1,'caf']]]
+  ['rangevalidator_165',['RangeValidator',['../classcaffa_1_1RangeValidator.html',1,'caffa']]],
+  ['readfromjson_166',['readFromJson',['../classcaffa_1_1RangeValidator.html#ad878d045e959950f296746ea2abe86ab',1,'caffa::RangeValidator::readFromJson()'],['../classcaffa_1_1FieldValidatorInterface.html#afbcab09ac6a3a4fdf6fe9e4ec50748bb',1,'caffa::FieldValidatorInterface::readFromJson()'],['../classcaffa_1_1FieldJsonCap.html#ae21da5fd35e003fc74d3f2b0d79b3055',1,'caffa::FieldJsonCap::readFromJson()']]],
+  ['readfromjsonfile_167',['readFromJsonFile',['../classcaffa_1_1Object.html#a8c552f03f9f4ee516d5fba3db8eb8b98',1,'caffa::Object']]],
+  ['readobjectfromstring_168',['readObjectFromString',['../classcaffa_1_1Serializer.html#afba8e1a2a449114fac7d671ebe8d1777',1,'caffa::Serializer::readObjectFromString()'],['../classcaffa_1_1JsonSerializer.html#aa973474722d68a6c33302152550b727e',1,'caffa::JsonSerializer::readObjectFromString()']]],
+  ['readstream_169',['readStream',['../classcaffa_1_1Serializer.html#a2dc755f74579d718fee1eed24ee15c50',1,'caffa::Serializer::readStream()'],['../classcaffa_1_1JsonSerializer.html#a14bba9aeac5797bc0ad587b2f162b13d',1,'caffa::JsonSerializer::readStream()']]],
+  ['readuuidfromobjectstring_170',['readUUIDFromObjectString',['../classcaffa_1_1Serializer.html#aa885dd423c2c8445df3c27852cbcbe6d',1,'caffa::Serializer::readUUIDFromObjectString()'],['../classcaffa_1_1JsonSerializer.html#ab189a5c559c815a16839f92df9324365',1,'caffa::JsonSerializer::readUUIDFromObjectString()']]],
+  ['removechildobject_171',['removeChildObject',['../classcaffa_1_1ChildArrayField.html#a58d34fd55ce052852961093c819e3896',1,'caffa::ChildArrayField']]],
+  ['request_172',['Request',['../classRequest.html',1,'']]],
+  ['requiresauthentication_173',['requiresAuthentication',['../classcaffa_1_1rpc_1_1RestObjectService.html#ac3ec77094aa6d0432ba80a13c909ef38',1,'caffa::rpc::RestObjectService::requiresAuthentication()'],['../classcaffa_1_1rpc_1_1RestAppService.html#af48fc8f051e2074f6e58a1935d94b9b5',1,'caffa::rpc::RestAppService::requiresAuthentication()']]],
+  ['restappservice_174',['RestAppService',['../classcaffa_1_1rpc_1_1RestAppService.html',1,'caffa::rpc']]],
+  ['restauthenticator_175',['RestAuthenticator',['../classcaffa_1_1rpc_1_1RestAuthenticator.html',1,'caffa::rpc']]],
+  ['restclient_176',['RestClient',['../classcaffa_1_1rpc_1_1RestClient.html',1,'caffa::rpc::RestClient'],['../classorg_1_1caffa_1_1rpc_1_1RestClient.html',1,'org.caffa.rpc.RestClient'],['../classorg_1_1caffa_1_1rpc_1_1RestClient.html#ac9eafc2a7f504775c5b60bd79c1f8817',1,'org.caffa.rpc.RestClient.RestClient(String host, int port)'],['../classorg_1_1caffa_1_1rpc_1_1RestClient.html#a92cbbf4e897078a3af761f6bf9f1e35b',1,'org.caffa.rpc.RestClient.RestClient(String host, int port, String logConfigFilePath)'],['../classorg_1_1caffa_1_1rpc_1_1RestClient.html#a2f030ef9a319e18d275750065b5a1dd7',1,'org.caffa.rpc.RestClient.RestClient(String host, int port, String logConfigFilePath, CaffaSession.Type sessionType, SSLContext sslContext)']]],
+  ['restclientapplication_177',['RestClientApplication',['../classcaffa_1_1rpc_1_1RestClientApplication.html',1,'caffa::rpc']]],
+  ['restobjectservice_178',['RestObjectService',['../classcaffa_1_1rpc_1_1RestObjectService.html',1,'caffa::rpc']]],
+  ['restschemaservice_179',['RestSchemaService',['../classcaffa_1_1rpc_1_1RestSchemaService.html',1,'caffa::rpc']]],
+  ['restserver_180',['RestServer',['../classcaffa_1_1rpc_1_1RestServer.html',1,'caffa::rpc']]],
+  ['restserverapplication_181',['RestServerApplication',['../classcaffa_1_1rpc_1_1RestServerApplication.html',1,'caffa::rpc::RestServerApplication'],['../classcaffa_1_1rpc_1_1RestServerApplication.html#a4ad5a78befdbb3c66828df44c8275d68',1,'caffa::rpc::RestServerApplication::RestServerApplication()']]],
+  ['restserviceinterface_182',['RestServiceInterface',['../classcaffa_1_1rpc_1_1RestServiceInterface.html',1,'caffa::rpc']]],
+  ['restsession_183',['RestSession',['../classcaffa_1_1rpc_1_1RestSession.html',1,'caffa::rpc']]],
+  ['restsession_3c_20plainrestsession_20_3e_184',['RestSession&lt; PlainRestSession &gt;',['../classcaffa_1_1rpc_1_1RestSession.html',1,'caffa::rpc']]],
+  ['restsession_3c_20sslrestsession_20_3e_185',['RestSession&lt; SslRestSession &gt;',['../classcaffa_1_1rpc_1_1RestSession.html',1,'caffa::rpc']]],
+  ['restsessionservice_186',['RestSessionService',['../classcaffa_1_1rpc_1_1RestSessionService.html',1,'caffa::rpc']]],
+  ['rpcapplication_187',['RpcApplication',['../classcaffa_1_1rpc_1_1RpcApplication.html',1,'caffa::rpc']]]
 ];

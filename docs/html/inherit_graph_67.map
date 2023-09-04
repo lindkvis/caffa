@@ -1,3 +1,10 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classcaf_1_1Tristate.html" title=" " alt="" coords="5,5,103,32"/>
+<area shape="rect" id="node1" title=" " alt="" coords="17,85,163,126"/>
+<area shape="rect" id="node2" href="$classRequest.html" title=" " alt="" coords="286,5,361,32"/>
+<area shape="rect" id="node3" href="$classcaffa_1_1rpc_1_1DetectSession.html" title=" " alt="" coords="232,56,415,83"/>
+<area shape="rect" id="node4" href="$classcaffa_1_1rpc_1_1PlainRestSession.html" title=" " alt="" coords="223,157,424,184"/>
+<area shape="rect" id="node5" href="$classcaffa_1_1rpc_1_1RestServer.html" title="HTTP Server." alt="" coords="243,107,404,133"/>
+<area shape="rect" id="node6" href="$classcaffa_1_1rpc_1_1SslRestSession.html" title=" " alt="" coords="229,215,417,241"/>
+<area shape="rect" id="node7" href="$classcaffa_1_1rpc_1_1RestSession.html" title=" " alt="" coords="5,150,175,191"/>
+<area shape="rect" id="node8" href="$classcaffa_1_1rpc_1_1RestSession.html" title=" " alt="" coords="5,215,175,257"/>
 </map>

@@ -1,4 +1,0 @@
-<map id="caf::TextEdit" name="caf::TextEdit">
-<area shape="rect" id="node1" title="Override focus out event and emit editinghFinished to avoid multiple field changed events." alt="" coords="5,80,107,107"/>
-<area shape="rect" id="node2" title=" " alt="" coords="14,5,98,32"/>
-</map>
