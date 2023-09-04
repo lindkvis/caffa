@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(caffaIoCore_UnitTests)
 
 # add the executable
-add_executable(${PROJECT_NAME} cafIo_UnitTests.cpp cafIoBasicTest.cpp cafAdvancedTemplateTest.cpp cafIoNumberTest.cpp)
+add_executable(${PROJECT_NAME} cafIo_UnitTests.cpp cafIoBasicTest.cpp cafAdvancedTemplateTest.cpp cafIoNumberTest.cpp cafReadmeObjects.cpp)
 
 target_link_libraries(${PROJECT_NAME} caffaCore ${THREAD_LIBRARY} nlohmann_json::nlohmann_json gtest)
 
