@@ -16,7 +16,7 @@
 
 DOXYFILE = docs/doxygen.config.in
 
-PROJECT_NUMBER = 0.12.1
+PROJECT_NUMBER = 1.1.0
 
 # Specify external repository to link documentation with.
 # This is similar to Doxygen's TAGFILES option, but will automatically link to
