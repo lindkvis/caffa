@@ -176,7 +176,7 @@ The child object will yield the following JSON file:
 }
 ~~~
 
-The TinyDemoDocument will yield the following JSON (with random UUIDs):
+The TinyDemoDocument will yield the following JSON:
 ~~~json
 {
   "Children": [
