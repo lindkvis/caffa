@@ -10,7 +10,9 @@ The REST-interface is designed to be as transparent as possible, and fields and 
 The REST-interface communicates via JSON adhering to the latest draft [JSON Schema](http://json-schema.org/) specification and the REST-server provides access to both schemas and data.
 
 # Advantages
-Caffa enables easy access to the full power of C++ while the introspection and clear separation of network code and data model gives some of the advantages of higher level languages such as Python.
+- Caffa enables easy access to the full power of C++ while the introspection and clear separation of network code and data model gives some of the advantages of higher level languages such as Python.
+- Serialisation to JSON is as easy as calling a single method on a Caffa Object.
+- You get a REST-interface to your classes virtually "for free" once you have set up your application as a Caffa application.
 
 # Bindings
 Caffa has currently implemented client bindings to the following langages:
@@ -31,7 +33,7 @@ class ChildObject : public Object
 {
     // Repeat the class name and parent Caffa Object
     // This registers methods for inspecting the class hierarchy
-    CAFFA_HEADER_INIT(DemoObject, Object)
+    CAFFA_HEADER_INIT(ChildObject, Object)
 
 public:
     // Caffa classes must be default instantiable, since they are created by a factory for serialization
@@ -44,7 +46,7 @@ public:
 
 class TinyDemoDocument : public Document
 {
-    CAFFA_HEADER_INIT_WITH_DOC("A tiny object with documentation", TinyDemoDocument, Object);
+    CAFFA_HEADER_INIT_WITH_DOC("A tiny object with documentation", TinyDemoDocument, Document)
 
 public:
     enum TestEnumType
@@ -64,8 +66,8 @@ public:
     Field<int>                      intField;
     Field<std::vector<int>>         intVectorField;
     Field<AppEnum<TestEnumType>>    enumField;
-    ChildArrayField<ChildObject>    children; // ChildArrayFields hold a vector of Caffa Objects
-    ChildField<ChildObject>         specialChild; // Child fields hold a single Caffa Object
+    ChildArrayField<ChildObject*>   children; // ChildArrayFields hold a vector of Caffa Objects
+    ChildField<ChildObject*>        specialChild; // Child fields hold a single Caffa Object
 
 public:
     Method<void(double)>            scaleDoubleField; // A registered method
@@ -108,7 +110,7 @@ TinyDemoDocument::TinyDemoDocument()
     initField(enumField, "Enum").withScripting();
     initField(intVectorField, "Integers").withScripting();
     initField(children, "Children").withScripting();
-    initFIeld(specialChild, "SpecialChild"); // Omitted withScripting => not remote accessible.
+    initField(specialChild, "SpecialChild"); // Omitted withScripting => not remote accessible.
     
     initMethod(scaleDoubleField, "scaleDouble", {"scalingFactor"}, [this](double scalingFactor)
     {
@@ -134,7 +136,8 @@ Fields and methods can be accessed locally in the following way:
     doc->scaleDoubleField(3.0);
 ~~~
 
-If your application inherits the caffa::rpc::RestServerApplication and the document is provided by the server app through your implementation of the virtual document and documents() methods, you can access the same fields and methods remotely.
+If your application inherits the caffa::rpc::RestServerApplication and the document is provided by the server app through your implementation of the virtual document and documents() methods, you can access the same fields and methods remotely. The server object
+will automatically be updated.
 
 ~~~cpp
     // The result of the document method is a generic document, so need casting.
@@ -142,6 +145,61 @@ If your application inherits the caffa::rpc::RestServerApplication and the docum
     doc->toggleField = true;
     int currentIntValue = doc->intField;
     doc->scaleDoubleField(3.0);
+~~~
+
+~~~cpp
+    // The result of the document method is a generic document, so need casting.
+    auto doc = std::dynamic_pointer_cast<TinyDemoDocument>(client->document("TinyDemoDocument"));
+    doc->toggleField = true;
+    int currentIntValue = doc->intField;
+    doc->scaleDoubleField(3.0);
+~~~
+
+To serialize an object to string or file (both JSON) you can do the following:
+~~~cpp
+    // The result of the document method is a generic document, so need casting.
+    auto doc =  std::dynamic_pointer_cast<TinyDemoDocument>(client->document("TinyDemoDocument"));
+    doc->writeToFile(); // Will write it to the file set as "filename" in the document
+    auto child = doc->children.objects().front();
+    // To file
+    child->writeObjectToFile("/tmp/child.json");
+    // To string
+    auto string = caffa::JsonSerializer().writeObjectToString(child.get());
+~~~
+The child object will yield the following JSON file:
+~~~json
+{
+  "keyword": "ChildObject",
+  "name": "Alice"
+}
+~~
+
+The TinyDemoDocument will yield the following JSON (with random UUIDs):
+~~~json
+{
+  "Children": [
+    {
+      "keyword": "ChildObject",
+      "name": "Alice",
+    },
+    {
+      "keyword": "ChildObject",
+      "name": "Bob",
+    }
+  ],
+  "Enum": "T1",
+  "Integer": 42,
+  "Integers": [],
+  "Number": 33,
+  "SpecialChild": {
+    "keyword": "ChildObject",
+    "name": "Balthazar",
+  },
+  "Toggle": true,
+  "fileName": "",
+  "id": "Document",
+  "keyword": "TinyDemoDocument",
+}
 ~~~
 
 See [ExampleServer.cpp](https://github.com/lindkvis/caffa/blob/master/RestInterface/RestInterface_Example/ExampleServer.cpp) and [ExampleClient.cpp](https://github.com/lindkvis/caffa/blob/master/RestInterface/RestInterface_Example/ExampleClient.cpp) for a
