@@ -79,7 +79,7 @@ bool Object::readFromJsonFile( const std::string& filePath )
         ObjectPerformer<> performer( []( ObjectHandle* object ) { object->initAfterRead(); } );
         performer.visitObject( this );
     }
-    catch ( std::runtime_error& err )
+    catch ( const std::exception& err )
     {
         CAFFA_ERROR( err.what() );
         return false;
@@ -108,7 +108,7 @@ bool Object::writeToJsonFile( const std::string& filePath ) const
         serializer.setSerializeUuids( false );
         serializer.writeStream( this, outStream );
     }
-    catch ( std::runtime_error& err )
+    catch ( const std::exception& err )
     {
         CAFFA_ERROR( err.what() );
         return false;
