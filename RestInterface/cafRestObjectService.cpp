@@ -115,7 +115,7 @@ RestObjectService::ServiceResponse RestObjectService::perform( http::verb       
                 return std::make_tuple( http::status::ok, createJsonFromProjectObject( object ).dump(), nullptr );
             }
         }
-        return perform( verb, object, reducedPath, arguments, skeleton, replace );
+        return perform( *session, verb, object, reducedPath, arguments, skeleton, replace );
     }
 }
 
@@ -173,12 +173,13 @@ RestObjectService::ServiceResponse RestObjectService::documents( const caffa::Se
     return std::make_tuple( http::status::ok, jsonResult.dump(), nullptr );
 }
 
-RestObjectService::ServiceResponse RestObjectService::perform( http::verb                    verb,
-                                                               caffa::ObjectHandle*          object,
-                                                               const std::list<std::string>& path,
-                                                               const nlohmann::json&         arguments,
-                                                               bool                          skeleton,
-                                                               bool                          replace )
+RestObjectService::ServiceResponse RestObjectService::perform( std::shared_ptr<caffa::Session> session,
+                                                               http::verb                      verb,
+                                                               caffa::ObjectHandle*            object,
+                                                               const std::list<std::string>&   path,
+                                                               const nlohmann::json&           arguments,
+                                                               bool                            skeleton,
+                                                               bool                            replace )
 {
     auto [fieldOrMethod, index] = findFieldOrMethod( object, path );
 
@@ -210,7 +211,7 @@ RestObjectService::ServiceResponse RestObjectService::perform( http::verb       
 
     CAFFA_DEBUG( "Found method: " << method->keyword() );
 
-    auto result = method->execute( arguments.dump() );
+    auto result = method->execute( session, arguments.dump() );
     return std::make_tuple( http::status::ok, result, nullptr );
 }
 

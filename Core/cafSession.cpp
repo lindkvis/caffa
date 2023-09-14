@@ -132,6 +132,10 @@ std::shared_ptr<Session> SessionMaintainer::operator->()
     return m_session;
 }
 
+std::shared_ptr<Session> SessionMaintainer::operator*()
+{
+    return m_session;
+}
 SessionMaintainer::operator bool() const
 {
     return !!m_session;
@@ -165,6 +169,11 @@ ConstSessionMaintainer::~ConstSessionMaintainer()
 }
 
 std::shared_ptr<const Session> ConstSessionMaintainer::operator->() const
+{
+    return m_session;
+}
+
+std::shared_ptr<const Session> ConstSessionMaintainer::operator*() const
 {
     return m_session;
 }

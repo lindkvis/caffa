@@ -11,6 +11,7 @@
 #include "cafMethod.h"
 #include "cafObject.h"
 #include "cafPortableDataType.h"
+#include "cafSession.h"
 #include "cafTypedField.h"
 
 #include <functional>
@@ -625,19 +626,21 @@ TEST( BaseTest, Methods )
     caffa::JsonSerializer serializer;
     CAFFA_DEBUG( "Clone: " << serializer.writeObjectToString( result.get() ) );
 
+    auto session = caffa::Session::create( caffa::Session::Type::REGULAR );
+
     {
         CAFFA_DEBUG( "Method skeleton: " << object.add.jsonSchema().dump() );
 
         auto argumentJson = object.add.toJson( 3, 8 );
         CAFFA_DEBUG( "Argument json: " << argumentJson.dump() );
-        auto stringResult = object.add.execute( argumentJson.dump() );
+        auto stringResult = object.add.execute( session, argumentJson.dump() );
         CAFFA_DEBUG( "String result: " << stringResult );
         auto result = nlohmann::json::parse( stringResult );
         EXPECT_EQ( 11, result.get<int>() );
     }
 
     {
-        auto result = nlohmann::json::parse( object.multiply.execute( object.multiply.toJson( 4, 5 ).dump() ) );
+        auto result = nlohmann::json::parse( object.multiply.execute( session, object.multiply.toJson( 4, 5 ).dump() ) );
         EXPECT_DOUBLE_EQ( 20.0, result.get<int>() );
     }
 

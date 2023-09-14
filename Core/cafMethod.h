@@ -26,6 +26,7 @@
 
 #include "cafObjectFactory.h"
 #include "cafObjectJsonSpecializations.h"
+#include "cafSession.h"
 
 #include <nlohmann/json.hpp>
 
@@ -46,11 +47,23 @@ template <typename Result, typename... ArgTypes>
 class Method<Result( ArgTypes... )> : public MethodHandle
 {
 public:
-    using Callback = std::function<Result( ArgTypes... )>;
+    using Callback            = std::function<Result( ArgTypes... )>;
+    using CallbackWithSession = std::function<Result( std::shared_ptr<Session>, ArgTypes... )>;
+
+    Result operator()( std::shared_ptr<Session> session, ArgTypes... args ) const
+    {
+        if ( !m_callbackWithSession )
+        {
+            return this->operator()( args... ); // pass on to operator without session
+        }
+
+        CAFFA_ASSERT( m_callbackWithSession );
+        CAFFA_ASSERT( !this->accessor() );
+        return m_callbackWithSession( session, args... );
+    }
 
     Result operator()( ArgTypes... args ) const
     {
-        CAFFA_ASSERT( m_callback );
         if ( auto accessor = this->accessor(); accessor )
         {
             auto serializedMethod = toJson( args... ).dump();
@@ -59,6 +72,7 @@ public:
             CAFFA_DEBUG( "Got serialized result: " << serialisedResult );
             return resultFromJsonString( serialisedResult, accessor->objectFactory() );
         }
+        CAFFA_ASSERT( m_callback );
         return m_callback( args... );
     }
 
@@ -67,9 +81,9 @@ public:
      * @param jsonArgumentsString
      * @return a JSON result string
      */
-    std::string execute( const std::string& jsonArgumentsString ) const override
+    std::string execute( std::shared_ptr<Session> session, const std::string& jsonArgumentsString ) const override
     {
-        return executeJson( nlohmann::json::parse( jsonArgumentsString ) ).dump();
+        return executeJson( session, nlohmann::json::parse( jsonArgumentsString ) ).dump();
     }
 
     std::string schema() const override { return this->jsonSchema().dump(); }
@@ -158,6 +172,7 @@ public:
     }
 
     void setCallback( Callback callback ) { this->m_callback = callback; }
+    void setCallbackWithSession( CallbackWithSession callback ) { this->m_callbackWithSession = callback; }
 
 private:
     template <typename ArgType>
@@ -185,9 +200,9 @@ private:
 
     template <typename ReturnType, std::size_t... Is>
         requires std::same_as<ReturnType, void>
-    nlohmann::json executeJson( const nlohmann::json& args, std::index_sequence<Is...> ) const
+    nlohmann::json executeJson( std::shared_ptr<Session> session, const nlohmann::json& args, std::index_sequence<Is...> ) const
     {
-        this->operator()( jsonToValue<ArgTypes>( args[Is], nullptr )... );
+        this->operator()( session, jsonToValue<ArgTypes>( args[Is], nullptr )... );
 
         nlohmann::json returnValue = nlohmann::json::object();
         return returnValue;
@@ -195,12 +210,12 @@ private:
 
     template <typename ReturnType, std::size_t... Is>
         requires( not std::same_as<ReturnType, void> )
-    nlohmann::json executeJson( const nlohmann::json& args, std::index_sequence<Is...> ) const
+    nlohmann::json executeJson( std::shared_ptr<Session> session, const nlohmann::json& args, std::index_sequence<Is...> ) const
     {
-        return this->operator()( jsonToValue<ArgTypes>( args[Is], nullptr )... );
+        return this->operator()( session, jsonToValue<ArgTypes>( args[Is], nullptr )... );
     }
 
-    nlohmann::json executeJson( const nlohmann::json& jsonMethod ) const
+    nlohmann::json executeJson( std::shared_ptr<Session> session, const nlohmann::json& jsonMethod ) const
     {
         auto jsonArguments = nlohmann::json::array();
         if ( jsonMethod.contains( "positionalArguments" ) )
@@ -218,7 +233,7 @@ private:
             throw std::runtime_error( "Wrong number of arguments! Got " + std::to_string( jsonArguments.size() ) +
                                       ", Expected " + std::to_string( expectedSize ) );
         }
-        return this->executeJson<Result>( jsonArguments, std::index_sequence_for<ArgTypes...>() );
+        return this->executeJson<Result>( session, jsonArguments, std::index_sequence_for<ArgTypes...>() );
     }
 
     void sortArguments( nlohmann::json& jsonMap, const std::vector<std::string>& argumentNames ) const
@@ -268,7 +283,8 @@ private:
     }
 
 private:
-    Callback m_callback;
+    Callback            m_callback;
+    CallbackWithSession m_callbackWithSession;
 };
 
 } // namespace caffa

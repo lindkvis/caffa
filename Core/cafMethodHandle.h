@@ -31,6 +31,7 @@ namespace caffa
 class MethodHandle;
 class ObjectHandle;
 class ObjectFactory;
+class Session;
 
 class MethodAccessorInterface
 {
@@ -75,9 +76,9 @@ public:
     const std::string& documentation() const { return m_documentation; }
     void               setDocumentation( const std::string& documentation ) { m_documentation = documentation; }
 
-    virtual std::string    execute( const std::string& jsonArgumentsString ) const = 0;
-    virtual std::string    schema() const                                          = 0;
-    virtual nlohmann::json jsonSchema() const                                      = 0;
+    virtual std::string execute( std::shared_ptr<Session> session, const std::string& jsonArgumentsString ) const = 0;
+    virtual std::string schema() const                                                                            = 0;
+    virtual nlohmann::json jsonSchema() const                                                                     = 0;
 
     MethodAccessorInterface* accessor() const { return m_accessor.get(); }
     void setAccessor( std::unique_ptr<MethodAccessorInterface> accessor ) { m_accessor = std::move( accessor ); }

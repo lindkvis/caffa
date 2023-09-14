@@ -57,12 +57,13 @@ private:
     static caffa::ObjectHandle* findObject( const std::string& uuid, const caffa::Session* session );
     static ServiceResponse      documents( const caffa::Session* session, bool skeleton );
 
-    static ServiceResponse perform( http::verb                    verb,
-                                    caffa::ObjectHandle*          object,
-                                    const std::list<std::string>& path,
-                                    const nlohmann::json&         arguments,
-                                    bool                          skeleton,
-                                    bool                          replace );
+    static ServiceResponse perform( std::shared_ptr<caffa::Session> session,
+                                    http::verb                      verb,
+                                    caffa::ObjectHandle*            object,
+                                    const std::list<std::string>&   path,
+                                    const nlohmann::json&           arguments,
+                                    bool                            skeleton,
+                                    bool                            replace );
 
     static std::pair<caffa::ObjectAttribute*, int64_t> findFieldOrMethod( caffa::ObjectHandle*          object,
                                                                           const std::list<std::string>& path );
