@@ -274,7 +274,7 @@ RestObjectService::ServiceResponse
 {
     auto scriptability = field->capability<caffa::FieldScriptingCapability>();
     if ( !scriptability || !scriptability->isReadable() )
-        return std::make_tuple( http::status::forbidden, "Field is not remote readable", nullptr );
+        return std::make_tuple( http::status::forbidden, "Field " + field->keyword() + " is not remote readable", nullptr );
 
     auto ioCapability = field->capability<caffa::FieldJsonCapability>();
     if ( !ioCapability )
@@ -328,7 +328,7 @@ RestObjectService::ServiceResponse
 {
     auto scriptability = field->capability<caffa::FieldScriptingCapability>();
     if ( !scriptability || !scriptability->isWritable() )
-        return std::make_tuple( http::status::forbidden, "Field is not remote writable", nullptr );
+        return std::make_tuple( http::status::forbidden, "Field " + field->keyword() + " is not remote writable", nullptr );
 
     auto ioCapability = field->capability<caffa::FieldJsonCapability>();
     if ( !ioCapability )
