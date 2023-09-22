@@ -515,7 +515,7 @@ void RestClient::destroySession()
 
     if ( m_sessionUuid.empty() ) return;
 
-    CAFFA_DEBUG( "Destroing session " << m_sessionUuid );
+    CAFFA_DEBUG( "Destroying session " << m_sessionUuid );
 
     auto jsonObject            = nlohmann::json::object();
     jsonObject["session_uuid"] = m_sessionUuid;
