@@ -355,7 +355,6 @@ std::string RestClient::execute( caffa::not_null<const caffa::ObjectHandle*> sel
 //--------------------------------------------------------------------------------------------------
 bool RestClient::stopServer()
 {
-    std::thread* keepAliveThread;
     {
         std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
@@ -371,12 +370,13 @@ bool RestClient::stopServer()
         }
 
         CAFFA_TRACE( "Stopped server, which also destroys session" );
-        m_sessionUuid   = "";
-        keepAliveThread = m_keepAliveThread.get();
+        m_sessionUuid = "";
     }
-    if ( keepAliveThread )
+
+    if ( m_keepAliveThread )
     {
-        keepAliveThread->join();
+        m_keepAliveThread->join();
+        m_keepAliveThread.reset();
     }
     return true;
 }
@@ -511,26 +511,33 @@ void RestClient::changeSession( caffa::Session::Type newType )
 //--------------------------------------------------------------------------------------------------
 void RestClient::destroySession()
 {
-    std::scoped_lock<std::mutex> lock( m_sessionMutex );
-
-    if ( m_sessionUuid.empty() ) return;
-
-    CAFFA_DEBUG( "Destroying session " << m_sessionUuid );
-
-    auto jsonObject            = nlohmann::json::object();
-    jsonObject["session_uuid"] = m_sessionUuid;
-
-    auto [status, body] =
-        performRequest( http::verb::delete_, hostname(), port(), std::string( "/session/destroy" ), jsonObject.dump() );
-
-    if ( status != http::status::ok && status != http::status::not_found )
     {
-        throw std::runtime_error( "Failed to destroy session: " + body );
+        std::scoped_lock<std::mutex> lock( m_sessionMutex );
+
+        if ( m_sessionUuid.empty() ) return;
+
+        CAFFA_DEBUG( "Destroying session " << m_sessionUuid );
+
+        auto jsonObject            = nlohmann::json::object();
+        jsonObject["session_uuid"] = m_sessionUuid;
+
+        auto [status, body] =
+            performRequest( http::verb::delete_, hostname(), port(), std::string( "/session/destroy" ), jsonObject.dump() );
+
+        if ( status != http::status::ok && status != http::status::not_found )
+        {
+            throw std::runtime_error( "Failed to destroy session: " + body );
+        }
+
+        CAFFA_TRACE( "Destroyed session " << m_sessionUuid );
+        m_sessionUuid = "";
     }
 
-    CAFFA_TRACE( "Destroyed session " << m_sessionUuid );
-
-    m_sessionUuid = "";
+    if ( m_keepAliveThread )
+    {
+        m_keepAliveThread->join();
+        m_keepAliveThread.reset();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
