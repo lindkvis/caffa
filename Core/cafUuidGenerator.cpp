@@ -1,24 +1,24 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Custom Visualization Core library
-//   Copyright (C) 2022- Kontur AS
+//    Custom Visualization Core library
+//    Copyright (C) 2022- Kontur AS
 //
-//   This library may be used under the terms of the GNU Lesser General Public License as follows:
+//    This library may be used under the terms of the GNU Lesser General Public License as follows:
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
-//##################################################################################################
+// ##################################################################################################
 #include "cafUuidGenerator.h"
 
 #include "cafLogger.h"
@@ -38,7 +38,7 @@ std::string UuidGenerator::generate()
     std::scoped_lock lock( s_mutex );
     if ( !s_uuidGenerator )
     {
-        auto     now                           = system_clock::now();
+        auto     now                           = steady_clock::now();
         auto     nanoseconds_since_epoch       = now.time_since_epoch();
         auto     seconds_since_epoch           = duration_cast<seconds>( nanoseconds_since_epoch );
         unsigned nanoseconds_since_last_second = static_cast<unsigned>(

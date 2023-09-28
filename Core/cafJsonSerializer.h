@@ -22,6 +22,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include <chrono>
+#include <fstream>
 #include <set>
 #include <string>
 
@@ -105,4 +107,26 @@ public:
     void readObjectFromJson( ObjectHandle* object, const nlohmann::json& jsonObject ) const;
     void writeObjectToJson( const ObjectHandle* object, nlohmann::json& jsonObject ) const;
 };
+
 } // End of namespace caffa
+
+/**
+ * Serialiser for chrono time points as regular int64_t nanoseconds since epoch
+ */
+namespace nlohmann
+{
+template <typename Clock, typename Duration>
+struct adl_serializer<std::chrono::time_point<Clock, Duration>>
+{
+    static void to_json( json& j, const std::chrono::time_point<Clock, Duration>& tp )
+    {
+        j = std::chrono::duration_cast<Duration>( tp.time_since_epoch() ).count();
+    }
+
+    static void from_json( const json& j, std::chrono::time_point<Clock, Duration>& tp )
+    {
+        Duration duration( j.get<int64_t>() );
+        tp = std::chrono::steady_clock::time_point( duration );
+    }
+};
+} // namespace nlohmann

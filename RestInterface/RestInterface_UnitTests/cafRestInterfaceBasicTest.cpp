@@ -904,9 +904,9 @@ TEST_F( RestTest, LocalResponseTimeAndDataTransfer )
 
         {
             serverDocument->demoObject->floatVector = { 42.0f };
-            auto start_time                         = std::chrono::system_clock::now();
+            auto start_time                         = std::chrono::steady_clock::now();
             auto clientVector                       = clientDocument->demoObject->floatVector();
-            auto end_time                           = std::chrono::system_clock::now();
+            auto end_time                           = std::chrono::steady_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>( end_time - start_time ).count();
             CAFFA_INFO( "Getting single float vector took " << duration << "µs" );
             ASSERT_EQ( serverDocument->demoObject->floatVector(), clientDocument->demoObject->floatVector() );
@@ -924,9 +924,9 @@ TEST_F( RestTest, LocalResponseTimeAndDataTransfer )
         serverDocument->demoObject->floatVector = serverVector;
 
         {
-            auto   start_time   = std::chrono::system_clock::now();
+            auto   start_time   = std::chrono::steady_clock::now();
             auto   clientVector = clientDocument->demoObject->floatVector();
-            auto   end_time     = std::chrono::system_clock::now();
+            auto   end_time     = std::chrono::steady_clock::now();
             auto   duration = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
             size_t KB       = numberOfFloats * sizeof( float ) / ( 1024u );
             CAFFA_INFO( "Transferred " << numberOfFloats << " floats for a total of " << KB << " KB" );

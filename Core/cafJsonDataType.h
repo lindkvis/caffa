@@ -21,6 +21,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include <chrono>
 #include <concepts>
 #include <string>
 #include <typeinfo>
@@ -103,6 +104,17 @@ struct JsonDataType<std::string>
     {
         auto object    = nlohmann::json::object();
         object["type"] = "string";
+        return object;
+    }
+};
+
+template <>
+struct JsonDataType<std::chrono::steady_clock::time_point>
+{
+    static nlohmann::json type()
+    {
+        auto object    = nlohmann::json::object();
+        object["type"] = "integer";
         return object;
     }
 };

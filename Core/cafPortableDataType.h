@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <string>
 #include <typeinfo>
 #include <vector>
@@ -105,4 +106,5 @@ CAFFA_DEFINE_PORTABLE_TYPE_NAME( uint64_t, "uint64" )
 CAFFA_DEFINE_PORTABLE_TYPE_NAME( int64_t, "int64" )
 CAFFA_DEFINE_PORTABLE_TYPE_NAME( std::string, "string" )
 CAFFA_DEFINE_PORTABLE_TYPE_NAME( void, "void" )
+CAFFA_DEFINE_PORTABLE_TYPE_NAME( std::chrono::steady_clock::time_point, "timestamp_ns" )
 } // namespace caffa
