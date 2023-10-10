@@ -19,7 +19,7 @@ Caffa has currently implemented client bindings to the following langages:
 - Python
 - Java
 
-This means you write your server application on your embedded device in C++ and you can write the client code in Python, Java (or any other languages using REST and JSON directly).
+This means you write your server application on your embedded device in C++ and you can write the client code in C++, Python, Java (or any other languages using REST and JSON directly).
 
 # Examples
 
