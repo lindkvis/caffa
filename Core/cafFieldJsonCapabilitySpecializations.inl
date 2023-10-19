@@ -290,7 +290,7 @@ void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::jso
         serializer.readObjectFromString( object.get(), jsonObject.dump() );
 
         size_t currentSize = m_field->size();
-        CAFFA_DEBUG( "Inserting new object into " << m_field->keyword() << " at position " << currentSize );
+        CAFFA_TRACE( "Inserting new object into " << m_field->keyword() << " at position " << currentSize );
 
         m_field->insertAt( currentSize, object );
     }

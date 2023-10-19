@@ -38,7 +38,7 @@ using namespace caffa;
 //--------------------------------------------------------------------------------------------------
 void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::json& jsonObject ) const
 {
-    CAFFA_DEBUG( "Reading fields from json with type = " << serializationTypeLabel( this->serializationType() )
+    CAFFA_TRACE( "Reading fields from json with type = " << serializationTypeLabel( this->serializationType() )
                                                          << ", serializeUuids = " << this->serializeUuids() );
 
     if ( this->serializationType() != Serializer::SerializationType::DATA_FULL &&
