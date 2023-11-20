@@ -32,6 +32,39 @@
 #include <vector>
 
 using namespace caffa::rpc;
+using namespace std::chrono_literals;
+
+constexpr std::chrono::seconds RATE_LIMITER_TIME_PERIOD  = 1s;
+constexpr size_t               RATE_LIMITER_MAX_REQUESTS = 5;
+
+std::mutex                                       RestSchemaService::s_requestMutex;
+std::list<std::chrono::steady_clock::time_point> RestSchemaService::s_requestTimes;
+
+bool RestSchemaService::refuseDueToTimeLimiter()
+{
+    std::scoped_lock lock( s_requestMutex );
+
+    auto now = std::chrono::steady_clock::now();
+
+    std::list<std::chrono::steady_clock::time_point> recentRequests;
+    for ( auto requestTime : s_requestTimes )
+    {
+        if ( now - requestTime < RATE_LIMITER_TIME_PERIOD )
+        {
+            recentRequests.push_back( requestTime );
+        }
+    }
+
+    s_requestTimes.swap( recentRequests );
+
+    if ( s_requestTimes.size() >= RATE_LIMITER_MAX_REQUESTS )
+    {
+        return true;
+    }
+
+    s_requestTimes.push_back( now );
+    return false;
+}
 
 RestSchemaService::ServiceResponse RestSchemaService::perform( http::verb                    verb,
                                                                const std::list<std::string>& path,
@@ -61,7 +94,10 @@ RestSchemaService::ServiceResponse RestSchemaService::perform( http::verb       
 
     if ( !session && RestServerApplication::instance()->requiresValidSession() )
     {
-        return std::make_tuple( http::status::forbidden, "No session provided", nullptr );
+        if ( refuseDueToTimeLimiter() )
+        {
+            return std::make_tuple( http::status::too_many_requests, "Too many unauthenticated schema requests", nullptr );
+        }
     }
 
     if ( path.empty() )

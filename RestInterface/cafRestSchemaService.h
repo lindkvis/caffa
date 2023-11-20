@@ -22,6 +22,9 @@
 
 #include <nlohmann/json.hpp>
 
+#include <chrono>
+#include <list>
+#include <mutex>
 #include <string>
 #include <utility>
 
@@ -55,6 +58,12 @@ public:
     static ServiceResponse getFieldSchema( const caffa::ObjectHandle* object, const std::string& fieldName );
 
     static ServiceResponse getAllSchemas();
+
+private:
+    static bool refuseDueToTimeLimiter();
+
+    static std::list<std::chrono::steady_clock::time_point> s_requestTimes;
+    static std::mutex                                       s_requestMutex;
 };
 
 } // namespace caffa::rpc
