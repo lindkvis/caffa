@@ -49,9 +49,26 @@ public:
 
     // Basic access
 
-    std::shared_ptr<DataType> object() { return std::dynamic_pointer_cast<DataType>( m_fieldDataAccessor->object() ); }
+    std::shared_ptr<DataType> object()
+    {
+        if ( !m_fieldDataAccessor )
+        {
+            std::string errorMessage = "Failed to get object for '" + this->keyword() + "': Field is not accessible";
+            CAFFA_ERROR( errorMessage );
+            throw std::runtime_error( errorMessage );
+        }
+
+        return std::dynamic_pointer_cast<DataType>( m_fieldDataAccessor->object() );
+    }
     std::shared_ptr<const DataType> object() const
     {
+        if ( !m_fieldDataAccessor )
+        {
+            std::string errorMessage = "Failed to get object for '" + this->keyword() + "': Field is not accessible";
+            CAFFA_ERROR( errorMessage );
+            throw std::runtime_error( errorMessage );
+        }
+
         return std::dynamic_pointer_cast<const DataType>( m_fieldDataAccessor->object() );
     }
     void setObject( Ptr object );
@@ -80,6 +97,8 @@ public:
     void                                setChildObject( ObjectHandle::Ptr object );
 
     std::string dataType() const override { return PortableDataType<DataType>::name(); }
+
+    bool accessible() const override { return m_fieldDataAccessor != nullptr; }
 
     void setAccessor( std::unique_ptr<ChildFieldAccessor> accessor ) override
     {

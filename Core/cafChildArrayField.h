@@ -68,6 +68,10 @@ public:
 
     std::string dataType() const override { return PortableDataType<std::vector<DataType>>::name(); }
 
+    bool accessible() const override {
+        return m_fieldDataAccessor != nullptr;
+    }
+
     void setAccessor( std::unique_ptr<ChildArrayFieldAccessor> accessor ) override
     {
         m_fieldDataAccessor = std::move( accessor );

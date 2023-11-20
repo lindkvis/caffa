@@ -54,6 +54,14 @@ template <typename DataTypePtr>
 void ChildField<DataTypePtr>::setObject( std::shared_ptr<DataType> object )
 {
     CAFFA_ASSERT( isInitialized() );
+
+    if ( !m_fieldDataAccessor )
+    {
+        std::string errorMessage = "Failed to set object for '" + this->keyword() + "': Field is not accessible";
+        CAFFA_ERROR( errorMessage );
+        throw std::runtime_error( errorMessage );
+    }
+
     m_fieldDataAccessor->setObject( object );
 }
 
@@ -65,6 +73,14 @@ template <typename DataTypePtr>
 std::shared_ptr<typename ChildField<DataTypePtr>::DataType> ChildField<DataTypePtr>::deepCloneObject() const
 {
     CAFFA_ASSERT( isInitialized() );
+
+    if ( !m_fieldDataAccessor )
+    {
+        std::string errorMessage = "Failed to get object for '" + this->keyword() + "': Field is not accessible";
+        CAFFA_ERROR( errorMessage );
+        throw std::runtime_error( errorMessage );
+    }
+
     auto clonedObject = m_fieldDataAccessor->deepCloneObject();
     return std::dynamic_pointer_cast<DataType>( clonedObject );
 }
@@ -77,6 +93,14 @@ template <typename DataTypePtr>
 void ChildField<DataTypePtr>::deepCopyObjectFrom( std::shared_ptr<const DataType> copyFrom )
 {
     CAFFA_ASSERT( isInitialized() );
+
+    if ( !m_fieldDataAccessor )
+    {
+        std::string errorMessage = "Failed to set object for '" + this->keyword() + "': Field is not accessible";
+        CAFFA_ERROR( errorMessage );
+        throw std::runtime_error( errorMessage );
+    }
+
     m_fieldDataAccessor->deepCopyObjectFrom( copyFrom );
 }
 
@@ -88,6 +112,13 @@ template <typename DataTypePtr>
 std::vector<ObjectHandle::Ptr> ChildField<DataTypePtr>::childObjects()
 {
     CAFFA_ASSERT( isInitialized() );
+
+    if ( !m_fieldDataAccessor )
+    {
+        std::string errorMessage = "Failed to get child objects for '" + this->keyword() + "': Field is not accessible";
+        CAFFA_ERROR( errorMessage );
+        throw std::runtime_error( errorMessage );
+    }
 
     auto object = m_fieldDataAccessor->object();
     if ( !object ) return {};
@@ -104,6 +135,13 @@ std::vector<ObjectHandle::ConstPtr> ChildField<DataTypePtr>::childObjects() cons
 {
     CAFFA_ASSERT( isInitialized() );
 
+    if ( !m_fieldDataAccessor )
+    {
+        std::string errorMessage = "Failed to get child objects for '" + this->keyword() + "': Field is not accessible";
+        CAFFA_ERROR( errorMessage );
+        throw std::runtime_error( errorMessage );
+    }
+
     auto object = m_fieldDataAccessor->object();
     if ( !object ) return {};
 
@@ -118,6 +156,13 @@ template <typename DataTypePtr>
 void ChildField<DataTypePtr>::clear()
 {
     CAFFA_ASSERT( isInitialized() );
+    if ( !m_fieldDataAccessor )
+    {
+        std::string errorMessage = "Failed to clear object for '" + this->keyword() + "': Field is not accessible";
+        CAFFA_ERROR( errorMessage );
+        throw std::runtime_error( errorMessage );
+    }
+
     m_fieldDataAccessor->clear();
 }
 //--------------------------------------------------------------------------------------------------
@@ -128,6 +173,14 @@ template <typename DataTypePtr>
 void ChildField<DataTypePtr>::removeChildObject( ObjectHandle::ConstPtr object )
 {
     CAFFA_ASSERT( isInitialized() );
+
+    if ( !m_fieldDataAccessor )
+    {
+        std::string errorMessage = "Failed to remove object for '" + this->keyword() + "': Field is not accessible";
+        CAFFA_ERROR( errorMessage );
+        throw std::runtime_error( errorMessage );
+    }
+
     if ( this->object() == object )
     {
         this->clear();

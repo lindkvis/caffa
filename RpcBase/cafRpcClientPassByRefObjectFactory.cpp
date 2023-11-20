@@ -56,9 +56,16 @@ std::shared_ptr<ObjectHandle> ClientPassByRefObjectFactory::doCreate( const std:
 
     for ( auto field : objectHandle->fields() )
     {
-        if ( field->keyword() != "uuid" && field->capability<FieldScriptingCapability>() != nullptr )
+        if ( field->keyword() != "uuid" )
         {
-            applyAccessorToField( objectHandle.get(), field );
+            if ( field->capability<FieldScriptingCapability>() != nullptr )
+            {
+                applyAccessorToField( objectHandle.get(), field );
+            }
+            else
+            {
+                applyNullAccessorToField( objectHandle.get(), field );
+            }
         }
     }
 
@@ -122,6 +129,33 @@ void ClientPassByRefObjectFactory::applyAccessorToField( caffa::ObjectHandle* fi
             throw std::runtime_error( std::string( "Data type " ) + fieldHandle->dataType() + " not implemented in client" );
         }
         dataField->setUntypedAccessor( accessorCreator->create( m_client, fieldOwner, fieldHandle->keyword() ) );
+    }
+    else
+    {
+        CAFFA_ASSERT( false && "Datatype not implemented" );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void ClientPassByRefObjectFactory::applyNullAccessorToField( caffa::ObjectHandle* fieldOwner,
+                                                             caffa::FieldHandle*  fieldHandle )
+{
+    CAFFA_ASSERT( m_client );
+    if ( !m_client ) throw std::runtime_error( "No Client set in Client factory" );
+
+    if ( auto childField = dynamic_cast<caffa::ChildFieldHandle*>( fieldHandle ); childField )
+    {
+        childField->setAccessor( nullptr );
+    }
+    else if ( auto childField = dynamic_cast<caffa::ChildArrayFieldHandle*>( fieldHandle ); childField )
+    {
+        childField->setAccessor( nullptr );
+    }
+    else if ( auto dataField = dynamic_cast<caffa::DataField*>( fieldHandle ); dataField )
+    {
+        dataField->setUntypedAccessor( nullptr );
     }
     else
     {

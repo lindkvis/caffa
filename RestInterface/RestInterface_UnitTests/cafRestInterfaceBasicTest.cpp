@@ -105,7 +105,7 @@ TEST_F( RestTest, Document )
     ASSERT_TRUE( blankNameDocument );
     auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
-    CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
+    CAFFA_INFO( "Server Document File Name: " << serverDocument->fileName() );
 
     size_t childCount = 11u;
     for ( size_t i = 0; i < childCount; ++i )
@@ -169,8 +169,19 @@ TEST_F( RestTest, Document )
                 ASSERT_EQ( ( *server_it )->uuid(), ( *client_it )->uuid() );
             }
         }
-        std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument.get() );
+
+        caffa::JsonSerializer serverSerializer;
+        // Need to only write scriptable field into Server-JSON, otherwise it won't match the client JSON
+        serverSerializer.setFieldSelector(
+            []( const FieldHandle* handle ) -> bool
+            {
+                auto scriptability = handle->capability<FieldScriptingCapability>();
+                return scriptability && scriptability->isReadable();
+            } );
+        std::string serverJson = serverSerializer.writeObjectToString( serverDocument.get() );
         CAFFA_DEBUG( serverJson );
+
+        CAFFA_INFO( "Writing client JSON" );
         std::string clientJson = caffa::JsonSerializer().writeObjectToString( clientDocument.get() );
         CAFFA_DEBUG( clientJson );
         ASSERT_EQ( serverJson, clientJson );
@@ -231,10 +242,18 @@ TEST_F( RestTest, DocumentWithNonScriptableChild )
 
     {
         auto serverObject = serverDocument->demoObjectNonScriptable();
-        auto clientObject = clientDocument->demoObjectNonScriptable();
-
-        // The objects are not scriptable, so uuid should not match!!
-        ASSERT_NE( serverObject->uuid(), clientObject->uuid() );
+        // The objects are not scriptable, so client object should not exist!
+        try
+        {
+            CAFFA_INFO( "Tring to read non-scriptable object from client. This should fail." );
+            auto clientObject = clientDocument->demoObjectNonScriptable();
+            FAIL();
+            ASSERT_TRUE( clientObject == nullptr );
+        }
+        catch ( const std::exception& e )
+        {
+            CAFFA_INFO( "Expected exception when trying to access non-scriptable client object" );
+        }
     }
 
     {
@@ -656,7 +675,8 @@ TEST_F( RestTest, ObjectIntegratedGettersAndSetters )
     ASSERT_TRUE( clientDocument != nullptr );
 
     ASSERT_EQ( 10, clientDocument->demoObject->intField() );
-    ASSERT_NE( 12, clientDocument->demoObject->intFieldNonScriptable() ); // Should not be equal
+    ASSERT_ANY_THROW( clientDocument->demoObject->intFieldNonScriptable() ); // Should throw since the field is not
+                                                                             // scriptable
     ASSERT_EQ( DemoObject::T2, clientDocument->demoObject->enumField() );
     clientDocument->demoObject->enumField = DemoObject::T3;
     ASSERT_EQ( DemoObject::T3, serverDocument->demoObject->enumField() );
