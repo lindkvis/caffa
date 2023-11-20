@@ -83,6 +83,13 @@ public:
     {
         CAFFA_ASSERT( this->isInitialized() );
 
+        if ( !m_fieldDataAccessor )
+        {
+            std::string errorMessage = "Failed to get value for '" + this->keyword() + "': Field is not accessible";
+            CAFFA_ERROR( errorMessage );
+            throw std::runtime_error( errorMessage );
+        }
+
         try
         {
             return m_fieldDataAccessor->value();
@@ -97,6 +104,13 @@ public:
     void setValue( const DataType& fieldValue ) override
     {
         CAFFA_ASSERT( this->isInitialized() );
+
+        if ( !m_fieldDataAccessor )
+        {
+            std::string errorMessage = "Failed to set value for '" + this->keyword() + "': Field is not accessible";
+            CAFFA_ERROR( errorMessage );
+            throw std::runtime_error( errorMessage );
+        }
 
         try
         {
@@ -129,34 +143,31 @@ public:
     // Access operators
 
     /*Conversion */
-    operator DataType() const
-    {
-        CAFFA_ASSERT( m_fieldDataAccessor );
-        return this->value();
-    }
-    DataType operator()() const
-    {
-        CAFFA_ASSERT( m_fieldDataAccessor );
-        return this->value();
-    }
-    DataType operator*() const
-    {
-        CAFFA_ASSERT( m_fieldDataAccessor );
-        return this->value();
-    }
+    operator DataType() const { return this->value(); }
+    DataType operator()() const { return this->value(); }
+    DataType operator*() const { return this->value(); }
 
     auto operator<=>( const DataType& fieldValue ) const { return this->value() <=> fieldValue; }
+
+    bool accessible() const override {
+        return m_fieldDataAccessor != nullptr;
+    }
 
     // Replace accessor
     void setAccessor( std::unique_ptr<DataAccessor> accessor ) { m_fieldDataAccessor = std::move( accessor ); }
 
     void setUntypedAccessor( std::unique_ptr<DataFieldAccessorInterface> accessor ) override
     {
-        CAFFA_ASSERT( dynamic_cast<DataAccessor*>( accessor.get() ) != nullptr );
-
-        std::unique_ptr<DataAccessor> typedAccessor( dynamic_cast<DataAccessor*>( accessor.release() ) );
-        CAFFA_ASSERT( typedAccessor );
-        setAccessor( std::move( typedAccessor ) );
+        if ( accessor )
+        {
+            std::unique_ptr<DataAccessor> typedAccessor( dynamic_cast<DataAccessor*>( accessor.release() ) );
+            CAFFA_ASSERT( typedAccessor );
+            setAccessor( std::move( typedAccessor ) );
+        }
+        else
+        {
+            setAccessor( nullptr );
+        }
     }
 
     template <typename ValidatorType>

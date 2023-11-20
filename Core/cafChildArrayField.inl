@@ -23,6 +23,15 @@ template <typename DataTypePtr>
 std::shared_ptr<typename ChildArrayField<DataTypePtr>::DataType> ChildArrayField<DataTypePtr>::operator[]( size_t index ) const
 {
     CAFFA_ASSERT( isInitialized() );
+
+    if ( !m_fieldDataAccessor )
+    {
+        std::string errorMessage = "Failed to get object at " + std::to_string( index ) + " for '" + this->keyword() +
+                                   "': Field is not accessible";
+        CAFFA_ERROR( errorMessage );
+        throw std::runtime_error( errorMessage );
+    }
+
     return std::dynamic_pointer_cast<DataType>( m_fieldDataAccessor->at( index ) );
 }
 
@@ -34,6 +43,14 @@ template <typename DataTypePtr>
 void ChildArrayField<DataTypePtr>::push_back( std::shared_ptr<DataType> pointer )
 {
     CAFFA_ASSERT( isInitialized() );
+
+    if ( !m_fieldDataAccessor )
+    {
+        std::string errorMessage = "Failed to add object to '" + this->keyword() + "': Field is not accessible";
+        CAFFA_ERROR( errorMessage );
+        throw std::runtime_error( errorMessage );
+    }
+
     m_fieldDataAccessor->push_back( pointer );
 }
 
@@ -63,6 +80,14 @@ void ChildArrayField<DataTypePtr>::insert( size_t index, std::shared_ptr<DataTyp
 {
     CAFFA_ASSERT( isInitialized() );
 
+    if ( !m_fieldDataAccessor )
+    {
+        std::string errorMessage = "Failed to insert object at " + std::to_string( index ) + " in '" + this->keyword() +
+                                   "': Field is not accessible";
+        CAFFA_ERROR( errorMessage );
+        throw std::runtime_error( errorMessage );
+    }
+
     m_fieldDataAccessor->insert( index, pointer );
 }
 
@@ -73,13 +98,11 @@ template <typename DataTypePtr>
     requires is_pointer<DataTypePtr>
 void ChildArrayField<DataTypePtr>::insertAt( size_t index, ObjectHandle::Ptr obj )
 {
-    CAFFA_ASSERT( isInitialized() );
-
     auto typedPtr = std::dynamic_pointer_cast<DataType>( obj );
     CAFFA_ASSERT( typedPtr );
     if ( typedPtr )
     {
-        m_fieldDataAccessor->insert( index, obj );
+        this->insert( index, typedPtr );
     }
 }
 
@@ -91,7 +114,12 @@ template <typename DataTypePtr>
 void ChildArrayField<DataTypePtr>::clear()
 {
     CAFFA_ASSERT( isInitialized() );
-
+    if ( !m_fieldDataAccessor )
+    {
+        std::string errorMessage = "Failed to clear objects from '" + this->keyword() + "': Field is not accessible";
+        CAFFA_ERROR( errorMessage );
+        throw std::runtime_error( errorMessage );
+    }
     return m_fieldDataAccessor->clear();
 }
 
@@ -103,6 +131,14 @@ template <typename DataTypePtr>
 void ChildArrayField<DataTypePtr>::erase( size_t index )
 {
     CAFFA_ASSERT( isInitialized() );
+
+    if ( !m_fieldDataAccessor )
+    {
+        std::string errorMessage = "Failed to remove object " + std::to_string( index ) + " from '" + this->keyword() +
+                                   "': Field is not accessible";
+        CAFFA_ERROR( errorMessage );
+        throw std::runtime_error( errorMessage );
+    }
     m_fieldDataAccessor->remove( index );
 }
 
@@ -131,6 +167,13 @@ void ChildArrayField<DataTypePtr>::removeChildObject( ObjectHandle::ConstPtr obj
 {
     CAFFA_ASSERT( isInitialized() );
 
+    if ( !m_fieldDataAccessor )
+    {
+        std::string errorMessage = "Failed to remove object from '" + this->keyword() + "': Field is not accessible";
+        CAFFA_ERROR( errorMessage );
+        throw std::runtime_error( errorMessage );
+    }
+
     if ( object )
     {
         size_t index = m_fieldDataAccessor->index( object );
@@ -148,6 +191,12 @@ template <typename DataTypePtr>
     requires is_pointer<DataTypePtr>
 std::vector<ObjectHandle::Ptr> ChildArrayField<DataTypePtr>::childObjects()
 {
+    if ( !m_fieldDataAccessor )
+    {
+        std::string errorMessage = "Failed to get child objects from '" + this->keyword() + "': Field is not accessible";
+        CAFFA_ERROR( errorMessage );
+        throw std::runtime_error( errorMessage );
+    }
     return m_fieldDataAccessor->objects();
 }
 
@@ -159,6 +208,13 @@ template <typename DataTypePtr>
 std::vector<ObjectHandle::ConstPtr> ChildArrayField<DataTypePtr>::childObjects() const
 {
     const ChildArrayFieldAccessor* accessor = m_fieldDataAccessor.get();
+
+    if ( !accessor )
+    {
+        std::string errorMessage = "Failed to get child objects from '" + this->keyword() + "': Field is not accessible";
+        CAFFA_ERROR( errorMessage );
+        throw std::runtime_error( errorMessage );
+    }
     return accessor->objects();
 }
 //--------------------------------------------------------------------------------------------------
@@ -206,6 +262,14 @@ template <typename DataTypePtr>
 ObjectHandle::Ptr ChildArrayField<DataTypePtr>::at( size_t index )
 {
     CAFFA_ASSERT( isInitialized() );
+
+    if ( !m_fieldDataAccessor )
+    {
+        std::string errorMessage = "Failed to get object at " + std::to_string( index ) + " from '" + this->keyword() +
+                                   "': Field is not accessible";
+        CAFFA_ERROR( errorMessage );
+        throw std::runtime_error( errorMessage );
+    }
 
     return m_fieldDataAccessor->at( index );
 }
