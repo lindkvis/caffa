@@ -78,7 +78,7 @@ RestServiceInterface::CleanupCallback
                    http::request<Body, http::basic_fields<Allocator>>&&                req,
                    Send&&                                                              send )
 {
-    // Returns an error response
+    // Returns a http response
     auto const createResponse = [&req]( http::status status, beast::string_view response )
     {
         http::response<http::string_body> res{ status, req.version() };
@@ -91,6 +91,7 @@ RestServiceInterface::CleanupCallback
         {
             res.set( http::field::content_type, "text/plain" );
         }
+
         if ( status == http::status::unauthorized )
         {
             res.set( http::field::www_authenticate, "Basic realm=\"Restricted Area\"" );
