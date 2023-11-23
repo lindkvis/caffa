@@ -19,6 +19,7 @@
 #pragma once
 
 #include "cafChildArrayFieldAccessor.h"
+#include "cafFieldScriptingCapability.h"
 #include "cafRpcClient.h"
 
 namespace caffa::rpc
@@ -100,6 +101,18 @@ public:
         CAFFA_ASSERT( index < size() );
         m_remoteObjects.erase( m_remoteObjects.begin() + index );
         m_client->removeChildObject( m_field->ownerObject(), m_field->keyword(), index );
+    }
+
+    bool hasGetter() const override
+    {
+        auto scriptability = m_field->capability<caffa::FieldScriptingCapability>();
+        return scriptability && scriptability->isReadable();
+    }
+
+    bool hasSetter() const override
+    {
+        auto scriptability = m_field->capability<caffa::FieldScriptingCapability>();
+        return scriptability && scriptability->isWritable();
     }
 
 private:

@@ -42,18 +42,16 @@ class AccessorCreatorBase
 public:
     AccessorCreatorBase() {}
     virtual ~AccessorCreatorBase() {}
-    virtual std::unique_ptr<DataFieldAccessorInterface>
-        create( Client* client, caffa::ObjectHandle* fieldOwner, const std::string& fieldName ) = 0;
+    virtual std::unique_ptr<DataFieldAccessorInterface> create( Client* client, caffa::FieldHandle* fieldHandle ) = 0;
 };
 
 template <typename DataType>
 class AccessorCreator : public AccessorCreatorBase
 {
 public:
-    std::unique_ptr<DataFieldAccessorInterface>
-        create( Client* client, caffa::ObjectHandle* fieldOwner, const std::string& fieldName ) override
+    std::unique_ptr<DataFieldAccessorInterface> create( Client* client, caffa::FieldHandle* fieldHandle ) override
     {
-        return std::make_unique<DataFieldAccessor<DataType>>( client, fieldOwner, fieldName );
+        return std::make_unique<DataFieldAccessor<DataType>>( client, fieldHandle );
     }
 };
 

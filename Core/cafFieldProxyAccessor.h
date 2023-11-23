@@ -108,8 +108,8 @@ public:
         m_valueGetter = std::make_unique<GetterMethodCB<DataType>>( getterMethod );
     }
 
-    bool hasSetter() const { return m_valueSetter != nullptr; }
-    bool hasGetter() const { return m_valueGetter != nullptr; }
+    bool hasSetter() const override { return m_valueSetter != nullptr; }
+    bool hasGetter() const override { return m_valueGetter != nullptr; }
 
 private:
     std::unique_ptr<SetValueInterface<DataType>> m_valueSetter;

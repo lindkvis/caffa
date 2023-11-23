@@ -43,6 +43,18 @@ public:
     virtual ObjectHandle::Ptr deepCloneObject() const                             = 0;
     virtual void              deepCopyObjectFrom( ObjectHandle::ConstPtr object ) = 0;
 
+    /**
+     * The accessor has a getter. Thus can be read.
+     * @return true if it has a getter
+     */
+    virtual bool hasSetter() const = 0;
+
+    /**
+     * The accessor has a setter. Thus can be written to.
+     * @return true if it has a setter
+     */
+    virtual bool hasGetter() const = 0;
+
 protected:
     FieldHandle* m_field;
 };
@@ -59,6 +71,9 @@ public:
 
     ObjectHandle::Ptr deepCloneObject() const override;
     void              deepCopyObjectFrom( ObjectHandle::ConstPtr object ) override;
+
+    bool hasGetter() const override { return true; }
+    bool hasSetter() const override { return true; }
 
 private:
     ObjectHandle::Ptr m_object;

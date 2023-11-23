@@ -50,6 +50,18 @@ public:
     virtual size_t            index( ObjectHandle::ConstPtr pointer ) const     = 0;
     virtual void              remove( size_t index )                            = 0;
 
+    /**
+     * The accessor has a getter. Thus can be read.
+     * @return true if it has a getter
+     */
+    virtual bool hasSetter() const = 0;
+
+    /**
+     * The accessor has a setter. Thus can be written to.
+     * @return true if it has a setter
+     */
+    virtual bool hasGetter() const = 0;
+
 protected:
     FieldHandle* m_field;
 };
@@ -69,6 +81,8 @@ public:
     void                                push_back( ObjectHandle::Ptr pointer ) override;
     size_t                              index( ObjectHandle::ConstPtr object ) const override;
     virtual void                        remove( size_t index ) override;
+    bool                                hasGetter() const override { return true; }
+    bool                                hasSetter() const override { return true; }
 
 private:
     std::vector<ObjectHandle::Ptr> m_pointers;

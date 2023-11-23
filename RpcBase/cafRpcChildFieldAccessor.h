@@ -19,6 +19,7 @@
 #pragma once
 
 #include "cafChildFieldAccessor.h"
+#include "cafFieldScriptingCapability.h"
 #include "cafJsonSerializer.h"
 #include "cafRpcClient.h"
 
@@ -69,6 +70,18 @@ public:
         }
         CAFFA_TRACE( "Trying to copy object back to server" );
         m_client->deepCopyChildObjectFrom( m_field->ownerObject(), m_field->keyword(), copyFrom.get() );
+    }
+
+    bool hasGetter() const override
+    {
+        auto scriptability = m_field->capability<caffa::FieldScriptingCapability>();
+        return scriptability && scriptability->isReadable();
+    }
+
+    bool hasSetter() const override
+    {
+        auto scriptability = m_field->capability<caffa::FieldScriptingCapability>();
+        return scriptability && scriptability->isWritable();
     }
 
 private:

@@ -98,7 +98,8 @@ public:
 
     std::string dataType() const override { return PortableDataType<DataType>::name(); }
 
-    bool accessible() const override { return m_fieldDataAccessor != nullptr; }
+    bool isReadable() const override { return m_fieldDataAccessor != nullptr && m_fieldDataAccessor->hasGetter(); }
+    bool isWritable() const override { return m_fieldDataAccessor != nullptr && m_fieldDataAccessor->hasSetter(); }
 
     void setAccessor( std::unique_ptr<ChildFieldAccessor> accessor ) override
     {

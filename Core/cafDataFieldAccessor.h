@@ -1,20 +1,20 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Caffa
-//   Copyright (C) Gaute Lindkvist
+//    Caffa
+//    Copyright (C) Gaute Lindkvist
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
 #pragma once
 
@@ -63,6 +63,18 @@ public:
      * @param value The value to set
      */
     virtual void setValue( const DataType& value ) = 0;
+
+    /**
+     * The accessor has a getter. Thus can be read.
+     * @return true if it has a getter
+     */
+    virtual bool hasSetter() const = 0;
+
+    /**
+     * The accessor has a setter. Thus can be written to.
+     * @return true if it has a setter
+     */
+    virtual bool hasGetter() const = 0;
 };
 
 /**
@@ -99,6 +111,9 @@ public:
     DataType value() override { return m_value; };
 
     void setValue( const DataType& value ) override { m_value = value; }
+
+    bool hasGetter() const { return true; }
+    bool hasSetter() const { return true; }
 
 private:
     DataType m_value;

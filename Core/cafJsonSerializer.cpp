@@ -81,7 +81,7 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
                   keyword != "methods" )
         {
             auto fieldHandle = object->findField( keyword );
-            if ( fieldHandle && fieldHandle->capability<FieldJsonCapability>() && fieldHandle->accessible() )
+            if ( fieldHandle && fieldHandle->capability<FieldJsonCapability>() && fieldHandle->isWritable() )
             {
                 if ( this->fieldSelector() && !this->fieldSelector()( fieldHandle ) ) continue;
 
@@ -135,7 +135,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             auto keyword = field->keyword();
 
             const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
-            if ( ioCapability && keyword != "uuid" && field->accessible() )
+            if ( ioCapability && keyword != "uuid" && field->isReadable() )
             {
                 nlohmann::json value;
                 ioCapability->writeToJson( value, *this );
@@ -175,7 +175,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             auto keyword = field->keyword();
 
             const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
-            if ( ioCapability && keyword != "uuid" && field->accessible() )
+            if ( ioCapability && keyword != "uuid" && field->isReadable() )
             {
                 nlohmann::json value;
                 ioCapability->writeToJson( value, *this );

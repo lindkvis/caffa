@@ -149,9 +149,8 @@ public:
 
     auto operator<=>( const DataType& fieldValue ) const { return this->value() <=> fieldValue; }
 
-    bool accessible() const override {
-        return m_fieldDataAccessor != nullptr;
-    }
+    bool isReadable() const override { return m_fieldDataAccessor != nullptr && m_fieldDataAccessor->hasGetter(); }
+    bool isWritable() const override { return m_fieldDataAccessor != nullptr && m_fieldDataAccessor->hasSetter(); }
 
     // Replace accessor
     void setAccessor( std::unique_ptr<DataAccessor> accessor ) { m_fieldDataAccessor = std::move( accessor ); }

@@ -19,6 +19,7 @@
 #pragma once
 
 #include "cafDataFieldAccessor.h"
+#include "cafFieldScriptingCapability.h"
 #include "cafRpcClient.h"
 
 namespace caffa::rpc
@@ -27,31 +28,43 @@ template <class DataType>
 class DataFieldAccessor : public caffa::DataFieldAccessor<DataType>
 {
 public:
-    DataFieldAccessor( Client* client, caffa::ObjectHandle* fieldOwner, const std::string& fieldName )
+    DataFieldAccessor( Client* client, caffa::FieldHandle* fieldHandle )
         : caffa::DataFieldAccessor<DataType>()
         , m_client( client )
-        , m_fieldOwner( fieldOwner )
-        , m_fieldName( fieldName )
+        , m_fieldHandle( fieldHandle )
     {
     }
 
     std::unique_ptr<caffa::DataFieldAccessor<DataType>> clone() const override
     {
-        return std::make_unique<DataFieldAccessor<DataType>>( m_client, m_fieldOwner, m_fieldName );
+        return std::make_unique<DataFieldAccessor<DataType>>( m_client, m_fieldHandle );
     }
 
-    DataType value() override { return m_client->get<DataType>( m_fieldOwner, m_fieldName ); }
+    DataType value() override
+    {
+        return m_client->get<DataType>( m_fieldHandle->ownerObject(), m_fieldHandle->keyword() );
+    }
 
     void setValue( const DataType& value ) override
     {
-        return m_client->set<DataType>( m_fieldOwner, m_fieldName, value );
+        return m_client->set<DataType>( m_fieldHandle->ownerObject(), m_fieldHandle->keyword(), value );
+    }
+
+    bool hasGetter() const override
+    {
+        auto scriptability = m_fieldHandle->capability<caffa::FieldScriptingCapability>();
+        return scriptability && scriptability->isReadable();
+    }
+    bool hasSetter() const override
+    {
+        auto scriptability = m_fieldHandle->capability<caffa::FieldScriptingCapability>();
+        return scriptability && scriptability->isWritable();
     }
 
 private:
     Client* m_client;
 
-    caffa::ObjectHandle* m_fieldOwner;
-    std::string          m_fieldName;
+    caffa::FieldHandle* m_fieldHandle;
 };
 
 } // namespace caffa::rpc

@@ -53,7 +53,7 @@ public:
 
         for ( auto field : object->fields() )
         {
-            if ( field->accessible() )
+            if ( field->isReadable() )
             {
                 CAFFA_TRACE( "Testing field: " << field->keyword() );
                 field->accept( this );
@@ -65,7 +65,7 @@ public:
 
     void visitChildField( const ChildFieldBaseHandle* childField ) override
     {
-        CAFFA_ASSERT( childField->accessible() );
+        CAFFA_ASSERT( childField->isReadable() );
         for ( auto object : childField->childObjects() )
         {
             object->accept( this );
@@ -103,7 +103,7 @@ public:
 
         for ( auto field : object->fields() )
         {
-            if ( field->accessible() )
+            if ( field->isReadable() )
             {
                 field->accept( this );
             }
@@ -114,7 +114,7 @@ public:
 
     void visitChildField( ChildFieldBaseHandle* childField ) override
     {
-        CAFFA_ASSERT( childField->accessible() );
+        CAFFA_ASSERT( childField->isReadable() );
         for ( auto object : childField->childObjects() )
         {
             object->accept( this );

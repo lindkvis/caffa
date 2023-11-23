@@ -51,9 +51,14 @@ public:
     virtual void accept( Editor* visitor );
 
     /**
-     * Can the field be accessed. A non-scriptable field cannot be accessed within the client.
+     * Can the field be read. A non-scriptable field cannot be read within the client.
      */
-    virtual bool accessible() const = 0;
+    virtual bool isReadable() const = 0;
+
+    /**
+     * Can the field be written to. A non-scriptable field cannot be written to within the client.
+     */
+    virtual bool isWritable() const = 0;
 
 protected:
     bool isInitialized() const { return m_ownerObject != nullptr; }
