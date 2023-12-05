@@ -68,6 +68,11 @@ RestAppService::ServiceResponse
 {
     CAFFA_DEBUG( "Received appInfo request" );
 
+    if ( RestServiceInterface::refuseDueToTimeLimiter() )
+    {
+        return std::make_tuple( http::status::too_many_requests, "Too many unauthenticated requests", nullptr );
+    }
+
     if ( verb != http::verb::get )
     {
         return std::make_tuple( http::status::bad_request, "Only GET makes any sense with app/info", nullptr );

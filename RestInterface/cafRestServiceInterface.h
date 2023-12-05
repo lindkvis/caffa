@@ -24,9 +24,11 @@
 
 #include <boost/beast/http.hpp>
 
+#include <chrono>
 #include <functional>
 #include <list>
 #include <map>
+#include <mutex>
 #include <tuple>
 
 namespace http = boost::beast::http;
@@ -53,6 +55,13 @@ public:
                                      const nlohmann::json&         metaData ) = 0;
 
     virtual bool requiresAuthentication( const std::list<std::string>& path ) const = 0;
+
+protected:
+    static bool refuseDueToTimeLimiter();
+
+private:
+    static std::list<std::chrono::steady_clock::time_point> s_requestTimes;
+    static std::mutex                                       s_requestMutex;
 };
 
 typedef caffa::Factory<RestServiceInterface, std::string> RestServiceFactory;
