@@ -357,7 +357,7 @@ beast::tcp_stream& PlainRestSession::stream()
 // Start the asynchronous operation
 void PlainRestSession::run()
 {
-    CAFFA_DEBUG( "Starting Plain HTTP session" );
+    CAFFA_DEBUG( "Starting Plain HTTP session with " << m_stream.socket().remote_endpoint().address().to_string() );
     // We need to be executing within a strand to perform async operations
     // on the I/O objects in this session. Although not strictly necessary
     // for single-threaded contexts, this example code is written to be
