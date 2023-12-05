@@ -23,6 +23,7 @@ set(PROJECT_FILES
     cafRestClient.cpp
     cafRestServerApplication.cpp
     cafRestClientApplication.cpp
+    cafRestServiceInterface.cpp
     cafRestAppService.cpp
     cafRestObjectService.cpp
     cafRestSessionService.cpp

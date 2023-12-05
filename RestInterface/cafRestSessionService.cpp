@@ -75,6 +75,11 @@ RestSessionService::ServiceResponse
 {
     CAFFA_TRACE( "Received ready for session request with arguments " << arguments );
 
+    if ( RestServiceInterface::refuseDueToTimeLimiter() )
+    {
+        return std::make_tuple( http::status::too_many_requests, "Too many unauthenticated requests", nullptr );
+    }
+
     try
     {
         caffa::Session::Type type = caffa::Session::Type::REGULAR;
