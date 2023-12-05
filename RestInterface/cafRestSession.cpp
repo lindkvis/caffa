@@ -50,7 +50,7 @@ struct SendLambda
     }
 
     template <bool isRequest, class Body, class Fields>
-    void operator()( http::message<isRequest, Body, Fields>&& msg ) const
+    void operator()( http::message<isRequest, Body, Fields>&& msg, bool forceEof = false ) const
     {
         // The lifetime of the message has to extend
         // for the duration of the async operation so
@@ -66,7 +66,7 @@ struct SendLambda
                            *sp,
                            beast::bind_front_handler( &RestSession<Derived>::onWrite,
                                                       m_self.derived().shared_from_this(),
-                                                      sp->need_eof() ) );
+                                                      sp->need_eof() || forceEof ) );
     }
 };
 
@@ -119,7 +119,7 @@ RestServiceInterface::CleanupCallback
 
     std::string target( req.target() );
 
-    CAFFA_DEBUG( req.method() << " request for " << target << ", body length: " << req.body().length() );
+    CAFFA_TRACE( req.method() << " request for " << target << ", body length: " << req.body().length() );
 
     std::regex paramRegex( "[\?&]" );
 
@@ -229,13 +229,14 @@ RestServiceInterface::CleanupCallback
         if ( status == http::status::ok )
         {
             CAFFA_TRACE( "Responding with " << status << ": " << message );
+            send( createResponse( status, message ) );
         }
         else
         {
             CAFFA_ERROR( "Responding with " << status << ": " << message );
+            send( createResponse( status, message ), status == http::status::too_many_requests );
         }
 
-        send( createResponse( status, message ) );
         return cleanupCallback;
     }
     catch ( const std::exception& e )
@@ -357,7 +358,7 @@ beast::tcp_stream& PlainRestSession::stream()
 // Start the asynchronous operation
 void PlainRestSession::run()
 {
-    CAFFA_DEBUG( "Starting Plain HTTP session with " << m_stream.socket().remote_endpoint().address().to_string() );
+    CAFFA_TRACE( "Starting Plain HTTP session with " << m_stream.socket().remote_endpoint().address().to_string() );
     // We need to be executing within a strand to perform async operations
     // on the I/O objects in this session. Although not strictly necessary
     // for single-threaded contexts, this example code is written to be

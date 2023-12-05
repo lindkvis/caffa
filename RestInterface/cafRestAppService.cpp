@@ -66,7 +66,7 @@ bool RestAppService::requiresAuthentication( const std::list<std::string>& path 
 RestAppService::ServiceResponse
     RestAppService::info( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
 {
-    CAFFA_DEBUG( "Received appInfo request" );
+    CAFFA_TRACE( "Received appInfo request" );
 
     if ( RestServiceInterface::refuseDueToTimeLimiter() )
     {
