@@ -53,7 +53,7 @@ public:
 
     caffa::AppInfo                                    appInfo() const override;
     std::shared_ptr<caffa::ObjectHandle>              document( const std::string& documentId ) const override;
-    std::vector<std::shared_ptr<caffa::ObjectHandle>> documents() const;
+    std::vector<std::shared_ptr<caffa::ObjectHandle>> documents() const override;
     std::string                                       execute( caffa::not_null<const caffa::ObjectHandle*> selfObject,
                                                                const std::string&                          methodName,
                                                                const std::string&                          jsonArguments ) const override;

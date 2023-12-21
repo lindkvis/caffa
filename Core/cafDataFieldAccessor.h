@@ -112,8 +112,8 @@ public:
 
     void setValue( const DataType& value ) override { m_value = value; }
 
-    bool hasGetter() const { return true; }
-    bool hasSetter() const { return true; }
+    bool hasGetter() const override { return true; }
+    bool hasSetter() const override { return true; }
 
 private:
     DataType m_value;

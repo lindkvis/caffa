@@ -81,7 +81,7 @@ public:
     bool authenticate( const std::string& authorisationHeader ) const;
 
 private:
-    friend class SendLambda<Derived>;
+    friend struct SendLambda<Derived>;
 
     // Access the derived class, this is part of
     // the Curiously Recurring Template Pattern idiom.

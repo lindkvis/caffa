@@ -114,7 +114,7 @@ public:
             // Fold expression
             // https://en.cppreference.com/w/cpp/language/fold
             (
-                [&]
+                [&i, &args, &jsonArguments]
                 {
                     jsonArguments.push_back( args );
                     i++;
