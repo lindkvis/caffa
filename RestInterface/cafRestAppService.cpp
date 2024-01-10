@@ -105,7 +105,7 @@ RestAppService::ServiceResponse
     {
         return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is not valid", nullptr );
     }
-    else if ( session->isExpired() && RestServerApplication::instance()->requiresValidSession() )
+    else if ( RestServerApplication::instance()->requiresValidSession() && session->isExpired() )
     {
         return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is expired", nullptr );
     }
