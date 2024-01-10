@@ -52,13 +52,19 @@ bool Session::unlockedIsExpired() const
     auto now                = std::chrono::steady_clock::now();
     auto timeSinceKeepalive = std::chrono::duration_cast<std::chrono::milliseconds>( now - m_lastKeepAlive );
 
-    if ( m_expirationBlocked )
-    {
-        CAFFA_DEBUG( "Session " << m_uuid << " is currently blocked from expiring without a keepalive for "
-                                << timeSinceKeepalive.count() / 1000.0 << " ms. Trying with a longer timeout" );
-        return timeSinceKeepalive > 4 * m_timeOut;
-    }
     bool isExpired = timeSinceKeepalive > m_timeOut;
+
+    if ( isExpired && m_expirationBlocked )
+    {
+        bool expiredWithExtendedTimeout = timeSinceKeepalive > 4 * m_timeOut;
+        if ( expiredWithExtendedTimeout )
+        {
+            CAFFA_DEBUG( "Session " << m_uuid << " is currently blocked from expiring without a keepalive for "
+                                    << timeSinceKeepalive.count() / 1000.0 << " ms. Trying with a longer timeout" );
+        }
+        return expiredWithExtendedTimeout;
+    }
+
     CAFFA_TRACE( "Was the session expired? " << isExpired );
     return isExpired;
 }
