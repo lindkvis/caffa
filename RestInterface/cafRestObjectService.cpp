@@ -66,6 +66,10 @@ RestObjectService::ServiceResponse RestObjectService::perform( http::verb       
     {
         return std::make_tuple( http::status::forbidden, "Session " + session_uuid + " is not valid!", nullptr );
     }
+    else if ( session->isExpired() && RestServerApplication::instance()->requiresValidSession() )
+    {
+        return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is expired", nullptr );
+    }
 
     bool skeleton = metaData.contains( "skeleton" ) && metaData["skeleton"].get<bool>();
     bool replace  = metaData.contains( "replace" ) && metaData["replace"].get<bool>();

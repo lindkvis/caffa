@@ -145,7 +145,7 @@ public:
 
     caffa::SessionMaintainer getExistingSession( const std::string& sessionUuid ) override
     {
-        if ( m_session && m_session->uuid() == sessionUuid && !m_session->isExpired() )
+        if ( m_session && m_session->uuid() == sessionUuid )
         {
             return caffa::SessionMaintainer( m_session );
         }
@@ -163,7 +163,7 @@ public:
 
     caffa::ConstSessionMaintainer getExistingSession( const std::string& sessionUuid ) const override
     {
-        if ( m_session && m_session->uuid() == sessionUuid && !m_session->isExpired() )
+        if ( m_session && m_session->uuid() == sessionUuid )
         {
             return caffa::ConstSessionMaintainer( m_session );
         }

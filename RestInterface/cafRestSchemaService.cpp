@@ -59,7 +59,7 @@ RestSchemaService::ServiceResponse RestSchemaService::perform( http::verb       
     }
     auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
 
-    if ( !session && RestServerApplication::instance()->requiresValidSession() )
+    if ( ( !session || session->isExpired() ) && RestServerApplication::instance()->requiresValidSession() )
     {
         if ( RestServiceInterface::refuseDueToTimeLimiter() )
         {

@@ -127,6 +127,10 @@ RestSessionService::ServiceResponse
     {
         return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is not valid", nullptr );
     }
+    else if ( session->isExpired() )
+    {
+        return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is expired", nullptr );
+    }
 
     auto jsonResponse            = nlohmann::json::object();
     jsonResponse["session_uuid"] = session->uuid();
@@ -157,6 +161,11 @@ RestSessionService::ServiceResponse
     {
         return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is not valid", nullptr );
     }
+    else if ( session->isExpired() )
+    {
+        return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is expired", nullptr );
+    }
+
     if ( !arguments.contains( "type" ) && !metaData.contains( "type" ) )
     {
         return std::make_tuple( http::status::bad_request, "No new type provided", nullptr );
@@ -239,6 +248,10 @@ RestSessionService::ServiceResponse
     if ( !session )
     {
         return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is not valid", nullptr );
+    }
+    else if ( session->isExpired() )
+    {
+        return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is expired", nullptr );
     }
 
     session->updateKeepAlive();
