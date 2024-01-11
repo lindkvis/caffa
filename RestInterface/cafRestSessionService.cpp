@@ -222,7 +222,7 @@ RestSessionService::ServiceResponse
     catch ( const std::exception& e )
     {
         CAFFA_ERROR( "Failed to create session with error: " << e.what() );
-        return std::make_tuple( http::status::unauthorized, e.what(), nullptr );
+        return std::make_tuple( http::status::forbidden, e.what(), nullptr );
     }
 }
 
