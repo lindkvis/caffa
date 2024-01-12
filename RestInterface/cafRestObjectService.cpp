@@ -213,7 +213,7 @@ RestObjectService::ServiceResponse RestObjectService::perform( std::shared_ptr<c
     auto method = dynamic_cast<caffa::MethodHandle*>( fieldOrMethod );
     CAFFA_ASSERT( method );
 
-    CAFFA_DEBUG( "Found method: " << method->keyword() );
+    CAFFA_TRACE( "Found method: " << method->keyword() );
 
     auto result = method->execute( session, arguments.dump() );
     return std::make_tuple( http::status::ok, result, nullptr );
