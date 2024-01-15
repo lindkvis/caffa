@@ -287,6 +287,7 @@ void RestSession<Derived>::onRead( beast::error_code ec, std::size_t bytes_trans
         {
             CAFFA_WARNING( "Failed to read socket: " + ec.message() + " after reading " << bytes_transferred << " bytes" );
         }
+        return;
     }
 
     // Send the response
