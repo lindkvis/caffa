@@ -278,15 +278,15 @@ void RestSession<Derived>::read()
 template <class Derived>
 void RestSession<Derived>::onRead( beast::error_code ec, std::size_t bytes_transferred )
 {
-    boost::ignore_unused( bytes_transferred );
-
     // This means they closed the connection
     if ( ec == http::error::end_of_stream ) return derived().sendEof();
 
     if ( ec && ec != boost::asio::ssl::error::stream_truncated )
     {
-        CAFFA_WARNING( "Failed to read socket: " + ec.message() );
-        return;
+        if ( bytes_transferred > 0u )
+        {
+            CAFFA_WARNING( "Failed to read socket: " + ec.message() + " after reading " << bytes_transferred << " bytes" );
+        }
     }
 
     // Send the response
