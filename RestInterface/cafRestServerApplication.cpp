@@ -101,6 +101,10 @@ void RestServerApplication::run()
     v.reserve( m_threads - 1 );
     for ( auto i = m_threads - 1; i > 0; --i )
         v.emplace_back( [this] { m_ioContext.run(); } );
+
+    boost::asio::signal_set signals( m_ioContext, SIGINT, SIGTERM );
+    signals.async_wait( [this]( const boost::system::error_code& error, int signal_number ) { quit(); } );
+
     m_ioContext.run();
 }
 
