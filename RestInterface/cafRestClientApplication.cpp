@@ -29,7 +29,8 @@ using namespace caffa::rpc;
 RestClientApplication::RestClientApplication( const std::string& hostname, int portNumber )
     : RpcApplication( AppInfo::AppCapability::CLIENT )
 {
-    m_client = std::make_unique<caffa::rpc::RestClient>( caffa::Session::Type::REGULAR, hostname, portNumber );
+    m_client = std::make_unique<caffa::rpc::RestClient>( hostname, portNumber );
+    m_client->createSession( caffa::Session::Type::REGULAR );
 }
 
 //--------------------------------------------------------------------------------------------------

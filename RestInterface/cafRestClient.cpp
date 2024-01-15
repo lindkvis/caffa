@@ -202,12 +202,14 @@ std::pair<http::status, std::string> RestClient::performRequest( http::verb     
                                                                  const std::string& hostname,
                                                                  int                port,
                                                                  const std::string& target,
-                                                                 const std::string& body ) const
+                                                                 const std::string& body,
+                                                                 const std::string& username,
+                                                                 const std::string& password ) const
 {
     // The io_context is required for all I/O
     net::io_context ioc;
 
-    auto request = std::make_shared<Request>( ioc, m_username, m_password );
+    auto request = std::make_shared<Request>( ioc, username, password );
     request->run( verb, hostname, port, target, body );
     ioc.run();
 
@@ -216,32 +218,24 @@ std::pair<http::status, std::string> RestClient::performRequest( http::verb     
     return result;
 }
 
-std::pair<http::status, std::string>
-    RestClient::performGetRequest( const std::string& hostname, int port, const std::string& target ) const
+std::pair<http::status, std::string> RestClient::performGetRequest( const std::string& hostname,
+                                                                    int                port,
+                                                                    const std::string& target,
+                                                                    const std::string& username,
+                                                                    const std::string& password ) const
 {
-    return performRequest( http::verb::get, hostname, port, target, "" );
+    return performRequest( http::verb::get, hostname, port, target, "", username, password );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestClient::RestClient( caffa::Session::Type sessionType,
-                        const std::string&   hostname,
-                        int                  port /*= 50000 */,
-                        const std::string&   username,
-                        const std::string&   password )
+RestClient::RestClient( const std::string& hostname, int port /*= 50000 */ )
     : Client( hostname, port )
-    , m_username( username )
-    , m_password( password )
 {
     // Apply current client to the two client object factories.
     caffa::rpc::ClientPassByRefObjectFactory::instance()->setClient( this );
     caffa::rpc::ClientPassByValueObjectFactory::instance()->setClient( this );
-
-    if ( sessionType != caffa::Session::Type::INVALID )
-    {
-        createSession( sessionType );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -432,9 +426,39 @@ void RestClient::startKeepAliveThread()
 }
 
 //--------------------------------------------------------------------------------------------------
+// Check if the server is ready for sessions
+//--------------------------------------------------------------------------------------------------
+bool RestClient::isReady( caffa::Session::Type type ) const
+{
+    std::scoped_lock<std::mutex> lock( m_sessionMutex );
+
+    CAFFA_TRACE( "Checking if server is ready for sessions" );
+
+    auto unsignedType = static_cast<unsigned>( type );
+
+    auto [status, body] =
+        performGetRequest( hostname(), port(), std::string( "/session/ready?type=" + std::to_string( unsignedType ) ) );
+
+    if ( status != http::status::ok )
+    {
+        throw std::runtime_error( "Failed to check for session: " + body );
+    }
+
+    CAFFA_TRACE( "Got result: " << body );
+    auto jsonObject = nlohmann::json::parse( body );
+    if ( !jsonObject.contains( "ready" ) )
+    {
+        throw std::runtime_error( "Malformed ready reply" );
+    }
+
+    bool ready = jsonObject["ready"].get<bool>();
+    return ready;
+}
+
+//--------------------------------------------------------------------------------------------------
 // Create a new session
 //--------------------------------------------------------------------------------------------------
-void RestClient::createSession( caffa::Session::Type type )
+void RestClient::createSession( caffa::Session::Type type, const std::string& username, const std::string& password )
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
@@ -443,7 +467,8 @@ void RestClient::createSession( caffa::Session::Type type )
     auto arguments    = nlohmann::json::object();
     arguments["type"] = static_cast<unsigned>( type );
 
-    auto [status, body] = performRequest( http::verb::put, hostname(), port(), "/session/create", arguments.dump() );
+    auto [status, body] =
+        performRequest( http::verb::put, hostname(), port(), "/session/create", arguments.dump(), username, password );
 
     if ( status != http::status::ok )
     {

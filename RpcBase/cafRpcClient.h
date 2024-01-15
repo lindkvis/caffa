@@ -52,7 +52,10 @@ public:
                                  const std::string&                          jsonArguments ) const                                     = 0;
     virtual bool        stopServer()                                                                          = 0;
     virtual void        sendKeepAlive()                                                                       = 0;
+    virtual bool        isReady( caffa::Session::Type type ) const                                            = 0;
 
+    virtual void
+        createSession( caffa::Session::Type type, const std::string& username = "", const std::string& password = "" ) = 0;
     /**
      * @brief Check the session. Will return a session type (including possibly INVALID) if the session exists.
      * And throw an exception if it does not.

@@ -44,11 +44,8 @@ namespace caffa::rpc
 class RestClient : public Client
 {
 public:
-    RestClient( caffa::Session::Type sessionType,
-                const std::string&   hostname,
-                int                  port     = 50000,
-                const std::string&   username = "",
-                const std::string&   password = "" );
+    RestClient( const std::string& hostname, int port = 50000 );
+
     ~RestClient() override;
 
     caffa::AppInfo                                    appInfo() const override;
@@ -59,6 +56,9 @@ public:
                                                                const std::string&                          jsonArguments ) const override;
     bool                                              stopServer() override;
     void                                              sendKeepAlive() override;
+    bool                                              isReady( caffa::Session::Type type ) const override;
+
+    void createSession( caffa::Session::Type type, const std::string& username = "", const std::string& password = "" ) override;
 
     /**
      * @brief Check the session. Will return a session type (including possibly INVALID) if the session exists.
@@ -98,8 +98,6 @@ public:
                             const caffa::ObjectHandle* childObject ) override;
 
 private:
-    void createSession( caffa::Session::Type type );
-
     void setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value ) override;
     nlohmann::json getJson( const caffa::ObjectHandle*, const std::string& fieldName ) const override;
 
@@ -107,17 +105,19 @@ private:
                                                          const std::string& hostname,
                                                          int                port,
                                                          const std::string& target,
-                                                         const std::string& body ) const;
-    std::pair<http::status, std::string>
-        performGetRequest( const std::string& hostname, int port, const std::string& target ) const;
+                                                         const std::string& body,
+                                                         const std::string& username = "",
+                                                         const std::string& password = "" ) const;
+    std::pair<http::status, std::string> performGetRequest( const std::string& hostname,
+                                                            int                port,
+                                                            const std::string& target,
+                                                            const std::string& username = "",
+                                                            const std::string& password = "" ) const;
 
 private:
     std::string                  m_sessionUuid;
     std::unique_ptr<std::thread> m_keepAliveThread;
     mutable std::mutex           m_sessionMutex;
-
-    std::string m_username;
-    std::string m_password;
 };
 
 } // namespace caffa::rpc
