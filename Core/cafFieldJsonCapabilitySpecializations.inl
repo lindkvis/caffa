@@ -1,10 +1,10 @@
 
 #include "cafAssert.h"
 #include "cafFieldDocumentationCapability.h"
-#include "cafJsonDataType.h"
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
 #include "cafObjectFactory.h"
+#include "cafPortableDataType.h"
 
 #include <nlohmann/json.hpp>
 
@@ -65,7 +65,7 @@ void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Se
     }
     else if ( serializer.serializationType() == Serializer::SerializationType::SCHEMA )
     {
-        nlohmann::json jsonField = JsonDataType<typename FieldType::FieldDataType>::type();
+        nlohmann::json jsonField = PortableDataType<typename FieldType::FieldDataType>::jsonType();
         if ( !m_field->isReadable() && m_field->isWritable() )
         {
             jsonField["writeOnly"] = true;
@@ -208,7 +208,7 @@ void FieldJsonCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonField
 
     if ( serializer.serializationType() == Serializer::SerializationType::SCHEMA )
     {
-        jsonField = JsonDataType<DataType>::type();
+        jsonField = PortableDataType<DataType>::jsonType();
         if ( !m_field->isReadable() && m_field->isWritable() )
         {
             jsonField["writeOnly"] = true;
@@ -319,7 +319,7 @@ void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& json
 {
     if ( serializer.serializationType() == Serializer::SerializationType::SCHEMA )
     {
-        jsonField = JsonDataType<std::vector<DataType>>::type();
+        jsonField = PortableDataType<std::vector<DataType>>::jsonType();
         if ( !m_field->isReadable() && m_field->isWritable() )
         {
             jsonField["writeOnly"] = true;
@@ -328,6 +328,7 @@ void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& json
         {
             jsonField["readOnly"] = true;
         }
+
         if ( auto doc = m_field->template capability<FieldDocumentationCapability>(); doc )
         {
             jsonField["description"] = doc->documentation();

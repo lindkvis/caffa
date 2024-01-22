@@ -571,20 +571,6 @@ TEST( BaseTest, Pointer )
     }
 }
 
-TEST( BaseTest, PortableDataType )
-{
-    EXPECT_EQ( "int32", caffa::PortableDataType<int>::name() );
-    EXPECT_EQ( "uint32", caffa::PortableDataType<unsigned>::name() );
-    EXPECT_EQ( "string", caffa::PortableDataType<std::string>::name() );
-    EXPECT_EQ( "double", caffa::PortableDataType<double>::name() );
-    EXPECT_EQ( "float", caffa::PortableDataType<float>::name() );
-    EXPECT_EQ( "char", caffa::PortableDataType<char>::name() );
-    EXPECT_EQ( "bool", caffa::PortableDataType<bool>::name() );
-    EXPECT_EQ( "int32[]", caffa::PortableDataType<std::vector<int>>::name() );
-    EXPECT_EQ( "uint32[]", caffa::PortableDataType<std::vector<uint32_t>>::name() );
-    EXPECT_EQ( "string[]", caffa::PortableDataType<std::vector<std::string>>::name() );
-}
-
 class ObjectWithPointerInField : public caffa::Object
 {
     CAFFA_HEADER_INIT( DemoObject, Object )

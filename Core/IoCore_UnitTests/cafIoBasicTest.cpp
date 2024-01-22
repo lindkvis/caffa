@@ -295,17 +295,17 @@ TEST( BaseTest, TestDataType )
 
     {
         auto dataType = s1->m_position.dataType();
-        EXPECT_EQ( "double", dataType );
+        EXPECT_EQ( "number64", dataType );
     }
 
     {
         auto dataType = s1->m_proxyDouble.dataType();
-        EXPECT_EQ( "double", dataType );
+        EXPECT_EQ( "number64", dataType );
     }
 
     {
         auto dataType = s1->m_up.dataType();
-        EXPECT_EQ( "int32", dataType );
+        EXPECT_EQ( "integer32", dataType );
     }
 
     {
@@ -313,7 +313,7 @@ TEST( BaseTest, TestDataType )
         auto dataType = obj->m_childArrayField.dataType();
 
         // We've stored an InheritedDemoObj in the field, but the field is actually of the parent type DemoObject
-        EXPECT_EQ( ( std::string( "object[]::" ) + DemoObject::classKeywordStatic() ), dataType );
+        EXPECT_EQ( ( std::string( "object::" ) + DemoObject::classKeywordStatic() + "[]" ), dataType );
     }
 }
 

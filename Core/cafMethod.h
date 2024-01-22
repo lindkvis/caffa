@@ -20,7 +20,7 @@
 #pragma once
 
 #include "cafAssert.h"
-#include "cafJsonDataType.h"
+#include "cafPortableDataType.h"
 #include "cafLogger.h"
 #include "cafMethodHandle.h"
 
@@ -90,7 +90,7 @@ public:
 
     Result resultFromJsonString( const std::string& jsonResultString, ObjectFactory* objectFactory ) const
     {
-        CAFFA_DEBUG( "Attempting to get a value of type " << JsonDataType<Result>::type()
+        CAFFA_DEBUG( "Attempting to get a value of type " << PortableDataType<Result>::jsonType()
                                                           << " from JSON: " << jsonResultString );
         nlohmann::json jsonResult;
         if ( !jsonResultString.empty() )
@@ -161,9 +161,9 @@ public:
             jsonLabelledArguments["properties"]   = jsonLabelledArgumentProperties;
             jsonProperties["labelledArguments"]   = jsonLabelledArguments;
         }
-        if ( !JsonDataType<Result>::type().empty() )
+        if ( !PortableDataType<Result>::jsonType().empty() )
         {
-            jsonProperties["returns"] = JsonDataType<Result>::type();
+            jsonProperties["returns"] = PortableDataType<Result>::jsonType();
         }
 
         jsonMethod["properties"] = jsonProperties;
@@ -278,7 +278,7 @@ private:
     nlohmann::json jsonArgumentSchemaArray( std::index_sequence<Is...> ) const
     {
         auto jsonArguments = nlohmann::json::array();
-        argumentHelper( jsonArguments, JsonDataType<ArgTypes>::type()... );
+        argumentHelper( jsonArguments, PortableDataType<ArgTypes>::jsonType()... );
         return jsonArguments;
     }
 
