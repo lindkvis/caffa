@@ -23,7 +23,6 @@
 #pragma once
 
 #include "cafAssert.h"
-#include "cafJsonDataType.h"
 #include "cafPortableDataType.h"
 
 #include <nlohmann/json.hpp>
@@ -285,30 +284,7 @@ struct PortableDataType<AppEnum<EnumType>>
         ss << ")";
         return ss.str();
     }
-};
-
-template <typename EnumType>
-struct PortableDataType<std::vector<AppEnum<EnumType>>>
-{
-    static std::string name()
-    {
-        auto              labels = AppEnum<EnumType>::labels();
-        std::stringstream ss;
-        ss << "AppEnum[](";
-        for ( size_t i = 0; i < labels.size(); ++i )
-        {
-            if ( i > 0u ) ss << ",";
-            ss << labels[i];
-        }
-        ss << ")";
-        return ss.str();
-    }
-};
-
-template <typename EnumType>
-struct JsonDataType<AppEnum<EnumType>>
-{
-    static nlohmann::json type()
+    static nlohmann::json jsonType()
     {
         auto values = nlohmann::json::array();
         for ( auto entry : AppEnum<EnumType>::labels() )

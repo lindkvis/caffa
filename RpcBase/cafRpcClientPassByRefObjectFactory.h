@@ -74,8 +74,6 @@ public:
         registerAccessorCreator( PortableDataType<DataType>::name(), std::make_unique<AccessorCreator<DataType>>() );
         registerAccessorCreator( PortableDataType<std::vector<DataType>>::name(),
                                  std::make_unique<AccessorCreator<std::vector<DataType>>>() );
-        registerAccessorCreator( PortableDataType<std::vector<std::vector<DataType>>>::name(),
-                                 std::make_unique<AccessorCreator<std::vector<std::vector<DataType>>>>() );
     }
 
 private:

@@ -25,7 +25,6 @@
 
 #include "cafAssert.h"
 #include "cafFieldHandle.h"
-#include "cafJsonDataType.h"
 #include "cafLogger.h"
 #include "cafMethodHandle.h"
 #include "cafObjectCapability.h"
@@ -225,51 +224,8 @@ concept IsSharedPtr = is_shared_ptr<T>::value;
 template <DerivesFromObjectHandle DataType>
 struct PortableDataType<DataType>
 {
-    static std::string name() { return std::string( "object::" ) + DataType::classKeywordStatic(); }
-};
-
-/**
- * The portable type id for an ObjectHandle
- */
-template <DerivesFromObjectHandle DataType>
-struct PortableDataType<std::vector<DataType>>
-{
-    static std::string name() { return std::string( "object[]::" ) + DataType::classKeywordStatic(); }
-};
-
-/**
- * The portable type id for an ObjectHandle
- */
-template <IsSharedPtr DataType>
-struct PortableDataType<DataType>
-{
-    static std::string name()
-    {
-        static_assert( DerivesFromObjectHandle<typename DataType::element_type> );
-        return std::string( "object::" ) + DataType::element_type::classKeywordStatic();
-    }
-};
-
-/**
- * The portable type id for an ObjectHandle
- */
-template <IsSharedPtr DataType>
-struct PortableDataType<std::vector<DataType>>
-{
-    static std::string name()
-    {
-        static_assert( DerivesFromObjectHandle<typename DataType::element_type> );
-        return std::string( "object[]::" ) + DataType::element_type::classKeywordStatic();
-    }
-};
-
-/**
- * The portable type id for an ObjectHandle
- */
-template <DerivesFromObjectHandle DataType>
-struct JsonDataType<DataType>
-{
-    static nlohmann::json type()
+    static std::string    name() { return std::string( "object::" ) + DataType::classKeywordStatic(); }
+    static nlohmann::json jsonType()
     {
         auto object    = nlohmann::json::object();
         object["$ref"] = std::string( "#/schemas/" ) + DataType::classKeywordStatic();
@@ -281,9 +237,11 @@ struct JsonDataType<DataType>
  * The portable type id for an ObjectHandle
  */
 template <IsSharedPtr DataType>
-struct JsonDataType<DataType>
+struct PortableDataType<DataType>
 {
-    static nlohmann::json type()
+    static std::string name() { return std::string( "object::" ) + DataType::element_type::classKeywordStatic(); }
+
+    static nlohmann::json jsonType()
     {
         auto object    = nlohmann::json::object();
         object["$ref"] = std::string( "#/schemas/" ) + DataType::element_type::classKeywordStatic();

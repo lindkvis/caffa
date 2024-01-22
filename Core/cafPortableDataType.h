@@ -1,7 +1,7 @@
 // ##################################################################################################
 //
 //    Caffa
-//    Copyright (C) 3D-Radar AS
+//    Copyright (C) Kontur AS
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify
@@ -19,92 +19,118 @@
 
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include <chrono>
+#include <concepts>
 #include <string>
 #include <typeinfo>
+#include <utility>
 #include <vector>
-
-#define CONCAT( a, b ) a b
 
 namespace caffa
 {
 /**
- * The default non-portable mangled type id
+ * The default
  */
 template <typename DataType>
 struct PortableDataType
 {
-    static std::string name() { return typeid( DataType ).name(); }
+    static std::string    name() { return "object"; }
+    static nlohmann::json jsonType()
+    {
+        auto object    = nlohmann::json::object();
+        object["type"] = PortableDataType<DataType>::name();
+
+        return object;
+    }
 };
 
-/**
- * Specialisations for common data types
- */
-#define CAFFA_DEFINE_PORTABLE_TYPE( DataType )                  \
-    template <>                                                 \
-    struct PortableDataType<DataType>                           \
-    {                                                           \
-        static std::string name()                               \
-        {                                                       \
-            return #DataType;                                   \
-        }                                                       \
-    };                                                          \
-                                                                \
-    template <>                                                 \
-    struct PortableDataType<std::vector<DataType>>              \
-    {                                                           \
-        static std::string name()                               \
-        {                                                       \
-            return CONCAT( #DataType, "[]" );                   \
-        }                                                       \
-    };                                                          \
-                                                                \
-    template <>                                                 \
-    struct PortableDataType<std::vector<std::vector<DataType>>> \
-    {                                                           \
-        static std::string name()                               \
-        {                                                       \
-            return CONCAT( #DataType, "[][]" );                 \
-        }                                                       \
-    };
+template <>
+struct PortableDataType<void>
+{
+    static std::string    name() { return "void"; }
+    static nlohmann::json jsonType() { return nlohmann::json::object(); }
+};
 
-#define CAFFA_DEFINE_PORTABLE_TYPE_NAME( DataType, StringAlias ) \
-    template <>                                                  \
-    struct PortableDataType<DataType>                            \
-    {                                                            \
-        static std::string name()                                \
-        {                                                        \
-            return StringAlias;                                  \
-        }                                                        \
-    };                                                           \
-                                                                 \
-    template <>                                                  \
-    struct PortableDataType<std::vector<DataType>>               \
-    {                                                            \
-        static std::string name()                                \
-        {                                                        \
-            return CONCAT( StringAlias, "[]" );                  \
-        }                                                        \
-    };                                                           \
-                                                                 \
-    template <>                                                  \
-    struct PortableDataType<std::vector<std::vector<DataType>>>  \
-    {                                                            \
-        static std::string name()                                \
-        {                                                        \
-            return CONCAT( StringAlias, "[][]" );                \
-        }                                                        \
-    };
+template <typename DataType>
+struct PortableDataType<std::vector<DataType>>
+{
+    static std::string name() { return PortableDataType<DataType>::name() + "[]"; }
 
-CAFFA_DEFINE_PORTABLE_TYPE( double )
-CAFFA_DEFINE_PORTABLE_TYPE( float )
-CAFFA_DEFINE_PORTABLE_TYPE( bool )
-CAFFA_DEFINE_PORTABLE_TYPE( char )
-CAFFA_DEFINE_PORTABLE_TYPE_NAME( int, "int32" )
-CAFFA_DEFINE_PORTABLE_TYPE_NAME( unsigned, "uint32" )
-CAFFA_DEFINE_PORTABLE_TYPE_NAME( uint64_t, "uint64" )
-CAFFA_DEFINE_PORTABLE_TYPE_NAME( int64_t, "int64" )
-CAFFA_DEFINE_PORTABLE_TYPE_NAME( std::string, "string" )
-CAFFA_DEFINE_PORTABLE_TYPE_NAME( void, "void" )
-CAFFA_DEFINE_PORTABLE_TYPE_NAME( std::chrono::steady_clock::time_point, "timestamp_ns" )
+    static nlohmann::json jsonType()
+    {
+        auto object     = nlohmann::json::object();
+        object["type"]  = "array";
+        object["items"] = PortableDataType<DataType>::jsonType();
+
+        return object;
+    }
+};
+
+template <std::floating_point DataType>
+struct PortableDataType<DataType>
+{
+    static std::string name() { return "number" + std::to_string( sizeof( DataType ) * 8 ); }
+
+    static nlohmann::json jsonType()
+    {
+        auto object    = nlohmann::json::object();
+        object["type"] = "number";
+        return object;
+    }
+};
+
+template <std::integral DataType>
+struct PortableDataType<DataType>
+{
+    static std::string name() { return "integer" + std::to_string( sizeof( DataType ) * 8 ); }
+
+    static nlohmann::json jsonType()
+    {
+        auto object    = nlohmann::json::object();
+        object["type"] = "integer";
+        return object;
+    }
+};
+
+template <>
+struct PortableDataType<bool>
+{
+    static std::string name() { return "boolean"; }
+
+    static nlohmann::json jsonType()
+    {
+        auto object    = nlohmann::json::object();
+        object["type"] = name();
+        return object;
+    }
+};
+
+template <>
+struct PortableDataType<std::string>
+{
+    static std::string name() { return "string"; }
+
+    static nlohmann::json jsonType()
+    {
+        auto object    = nlohmann::json::object();
+        object["type"] = name();
+        return object;
+    }
+};
+
+template <>
+struct PortableDataType<std::chrono::steady_clock::time_point>
+{
+    static std::string name() { return "timestamp_ns"; }
+
+    static nlohmann::json jsonType()
+    {
+        auto object    = nlohmann::json::object();
+        object["type"] = "integer";
+        return object;
+    }
+};
+
 } // namespace caffa
