@@ -101,6 +101,7 @@ public:
             throw std::runtime_error( errorMessage );
         }
     }
+
     void setValue( const DataType& fieldValue ) override
     {
         CAFFA_ASSERT( this->isInitialized() );
@@ -167,28 +168,6 @@ public:
         {
             setAccessor( nullptr );
         }
-    }
-
-    template <typename ValidatorType>
-    const ValidatorType* valueValidator() const
-    {
-        for ( const auto& validator : m_valueValidators )
-        {
-            const ValidatorType* typedValidator = dynamic_cast<const ValidatorType*>( validator.get() );
-            if ( typedValidator ) return typedValidator;
-        }
-        return nullptr;
-    }
-
-    template <typename ValidatorType>
-    ValidatorType* valueValidator()
-    {
-        for ( auto& validator : m_valueValidators )
-        {
-            const ValidatorType* typedValidator = dynamic_cast<const ValidatorType*>( validator.get() );
-            if ( typedValidator ) return typedValidator;
-        }
-        return nullptr;
     }
 
     std::vector<const FieldValidator<DataType>*> valueValidators() const
