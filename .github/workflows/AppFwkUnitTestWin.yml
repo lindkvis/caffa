@@ -29,7 +29,7 @@ jobs:
         with:
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
           cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-          cmakeAppendedArgs: '-DCAFFA_REST_INTERFACE=OFF -DCAFFA_BUILD_EXAMPLES=ON -DCAFFA_BUILD_UNIT_TESTS=ON -DBOOST_ROOT=${{ steps.install-boost.outputs.BOOST_ROOT }}'
+          cmakeAppendedArgs: '-DCAFFA_REST_INTERFACE=ON -DCAFFA_BUILD_EXAMPLES=ON -DCAFFA_BUILD_UNIT_TESTS=ON -DBOOST_ROOT=${{ steps.install-boost.outputs.BOOST_ROOT }}'
           buildDirectory: ${{ github.workspace }}/cmakebuild
           buildWithCMakeArgs: '--config Release'
       - name: Run Unit Tests Windows
@@ -38,3 +38,4 @@ jobs:
           cmakebuild/bin/Release/caffaCore_UnitTests.exe
           cmakebuild/bin/Release/caffaIoCore_UnitTests.exe
           cmakebuild/bin/Release/caffaProjectDataModel_UnitTests.exe
+
