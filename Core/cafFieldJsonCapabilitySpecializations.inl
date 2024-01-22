@@ -79,6 +79,7 @@ void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Se
         {
             jsonField["description"] = doc->documentation();
         }
+
         for ( auto validator : m_field->valueValidators() )
         {
             validator->writeToJson( jsonField, serializer );
@@ -328,7 +329,6 @@ void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& json
         {
             jsonField["readOnly"] = true;
         }
-
         if ( auto doc = m_field->template capability<FieldDocumentationCapability>(); doc )
         {
             jsonField["description"] = doc->documentation();
