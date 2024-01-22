@@ -2,10 +2,6 @@ cmake_minimum_required(VERSION 3.16)
 
 project(caffaRpcBase)
 
-if(MSVC)
-  add_definitions(-D_WIN32_WINNT=0x600)
-endif()
-
 set(PUBLIC_HEADERS
     cafRpcServer.h
     cafRpcClient.h
@@ -27,6 +23,11 @@ if(CAFFA_BUILD_SHARED)
   add_library(${PROJECT_NAME} SHARED ${PROJECT_FILES})
 else()
   add_library(${PROJECT_NAME} STATIC ${PROJECT_FILES})
+endif()
+
+if(MSVC)
+  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
+  set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${CMAKE_PROJECT_VERSION})
