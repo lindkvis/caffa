@@ -205,11 +205,11 @@ RestServiceInterface::CleanupCallback
             {
                 jsonMetaData[keyValue[0]] = *doubleValue;
             }
-            else if ( strcasecmp( "true", keyValue[1].c_str() ) == 0 )
+            else if ( caffa::StringTools::tolower( keyValue[1] ) == "true" )
             {
                 jsonMetaData[keyValue[0]] = true;
             }
-            else if ( strcasecmp( "false", keyValue[1].c_str() ) == 0 )
+            else if ( caffa::StringTools::tolower( keyValue[1] ) == "false" )
             {
                 jsonMetaData[keyValue[0]] = false;
             }
