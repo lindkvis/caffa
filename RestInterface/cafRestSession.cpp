@@ -27,6 +27,9 @@
 // ##################################################################################################
 #include "cafRestSession.h"
 
+#include "cafRestServerApplication.h"
+#include "cafSession.h"
+
 namespace caffa::rpc
 {
 
@@ -83,12 +86,13 @@ RestServiceInterface::CleanupCallback
     {
         http::response<http::string_body> res{ status, req.version() };
         res.set( http::field::server, BOOST_BEAST_VERSION_STRING );
-        if ( status == http::status::ok )
+        if ( status == http::status::ok || status == http::status::accepted )
         {
             res.set( http::field::content_type, "application/json" );
         }
         else
         {
+            CAFFA_DEBUG( "Sending failure response: " << response );
             res.set( http::field::content_type, "text/plain" );
         }
 
@@ -96,17 +100,32 @@ RestServiceInterface::CleanupCallback
         {
             res.set( http::field::www_authenticate, "Basic realm=\"Restricted Area\"" );
         }
+        res.set( http::field::access_control_allow_origin, "http://localhost:8080" );
+        res.insert( boost::beast::http::field::access_control_allow_methods, "GET, POST, OPTIONS, PUT, PATCH, DELETE" );
+        res.insert( boost::beast::http::field::access_control_allow_headers, "X-Requested-With,content-type" );
         res.keep_alive( req.keep_alive() );
         res.body() = std::string( response );
         res.prepare_payload();
         return res;
     };
 
-    // Make sure we can handle the method
-    if ( req.method() != http::verb::post && req.method() != http::verb::delete_ && req.method() != http::verb::patch &&
-         req.method() != http::verb::put && req.method() != http::verb::get && req.method() != http::verb::head )
+    auto method = req.method();
+    CAFFA_DEBUG( "VERB: " << method );
+
+    auto accessControlMethod = req.find( http::field::access_control_request_method );
+    if ( method == http::verb::options && accessControlMethod != req.end() )
     {
-        send( createResponse( http::status::bad_request, "Unknown HTTP-method" ) );
+        CAFFA_DEBUG( "Access control method: " << accessControlMethod->value().data() );
+        method = http::string_to_verb(
+            std::string( accessControlMethod->value().data(), accessControlMethod->value().size() ) );
+    }
+
+    // Make sure we can handle the method
+    if ( method != http::verb::post && method != http::verb::delete_ && method != http::verb::patch &&
+         method != http::verb::put && method != http::verb::get && method != http::verb::head )
+    {
+        send( createResponse( http::status::bad_request,
+                              "Unknown HTTP-method " + std::string( http::to_string( method ) ) ) );
         return nullptr;
     }
 
@@ -119,46 +138,62 @@ RestServiceInterface::CleanupCallback
 
     std::string target( req.target() );
 
-    CAFFA_TRACE( req.method() << " request for " << target << ", body length: " << req.body().length() );
+    CAFFA_DEBUG( "Target: " << target << ", body length: " << req.body().length() );
 
     std::regex paramRegex( "[\?&]" );
 
     auto targetComponents = caffa::StringTools::split<std::vector<std::string>>( target, paramRegex );
     if ( targetComponents.empty() )
     {
+        CAFFA_WARNING( "Sending malformed request" );
         send( createResponse( http::status::bad_request, "Malformed request" ) );
         return nullptr;
     }
 
     auto                     path = targetComponents.front();
-    std::vector<std::string> params;
+    std::vector<std::string> queryParams;
     for ( size_t i = 1; i < targetComponents.size(); ++i )
     {
-        params.push_back( targetComponents[i] );
+        queryParams.push_back( targetComponents[i] );
     }
 
     std::shared_ptr<caffa::rpc::RestServiceInterface> service;
 
     auto pathComponents = caffa::StringTools::split<std::list<std::string>>( path, "/", true );
 
-    if ( pathComponents.size() >= 1u )
+    CAFFA_DEBUG( "Path component size: " << pathComponents.size() );
+    if ( !pathComponents.empty() )
     {
-        auto docOrServiceComponent = pathComponents.front();
-        service                    = findRestService( docOrServiceComponent, services );
+        auto serviceComponent = pathComponents.front();
+        service               = findRestService( serviceComponent, services );
         if ( service )
         {
             pathComponents.pop_front();
         }
     }
+    else
+    {
+        service = findRestService( "openapi", services );
+    }
 
     if ( !service )
     {
-        service = findRestService( "object", services );
+        CAFFA_ERROR( "Could not find service " << path );
+        send( createResponse( http::status::not_found, "Service not found from path " + path ) );
     }
 
     CAFFA_ASSERT( service );
 
-    if ( service->requiresAuthentication( pathComponents ) )
+    bool requiresAuthentication = service->requiresAuthentication( method, pathComponents );
+    bool requiresValidSession = ServerApplication::instance()->requiresValidSession() && service->requiresSession( method, pathComponents );
+        
+    if ( !(requiresAuthentication || requiresValidSession) && RestServiceInterface::refuseDueToTimeLimiter() )
+    {
+        send( createResponse( http::status::too_many_requests, "Too many unauthenticated requests" ) );
+        return nullptr;
+    }
+
+    if ( requiresAuthentication  )
     {
         auto authorisation = req[http::field::authorization];
         auto trimmed       = caffa::StringTools::replace( std::string( authorisation ), "Basic ", "" );
@@ -176,12 +211,63 @@ RestServiceInterface::CleanupCallback
         }
     }
 
-    nlohmann::json jsonArguments = nlohmann::json::object();
+    nlohmann::json queryParamsJson = nlohmann::json::object();
+    for ( auto param : queryParams )
+    {
+        auto keyValue = caffa::StringTools::split<std::vector<std::string>>( param, "=", true );
+        if ( keyValue.size() == 2 )
+        {
+            if ( auto intValue = caffa::StringTools::toInt64( keyValue[1] ); intValue )
+            {
+                queryParamsJson[keyValue[0]] = *intValue;
+            }
+            else if ( auto doubleValue = caffa::StringTools::toDouble( keyValue[1] ); doubleValue )
+            {
+                queryParamsJson[keyValue[0]] = *doubleValue;
+            }
+            else if ( caffa::StringTools::tolower( keyValue[1] ) == "true" )
+            {
+                queryParamsJson[keyValue[0]] = true;
+            }
+            else if ( caffa::StringTools::tolower( keyValue[1] ) == "false" )
+            {
+                queryParamsJson[keyValue[0]] = false;
+            }
+            else
+            {
+                queryParamsJson[keyValue[0]] = keyValue[1];
+            }
+        }
+    }
+
+    if ( requiresValidSession )
+    {
+        caffa::SessionMaintainer session;
+        std::string              session_uuid = "NONE";
+        if ( queryParamsJson.contains( "session_uuid" ) )
+        {
+            session_uuid = queryParamsJson["session_uuid"].get<std::string>();
+            session      = RestServerApplication::instance()->getExistingSession( session_uuid );
+        }
+
+        if ( !session )
+        {
+            send( createResponse( http::status::forbidden, "Session '" + session_uuid + "' is not valid" ) );
+            return nullptr;
+        }
+        else if ( session->isExpired() )
+        {
+            send( createResponse( http::status::forbidden, "Session '" + session_uuid + "' is not valid" ) );
+            return nullptr;
+        }
+    }
+
+    nlohmann::json bodyJson = nlohmann::json::object();
     if ( !req.body().empty() )
     {
         try
         {
-            jsonArguments = nlohmann::json::parse( req.body() );
+            bodyJson = nlohmann::json::parse( req.body() );
         }
         catch ( const nlohmann::detail::parse_error& )
         {
@@ -191,44 +277,15 @@ RestServiceInterface::CleanupCallback
             return nullptr;
         }
     }
-    nlohmann::json jsonMetaData = nlohmann::json::object();
-    for ( auto param : params )
-    {
-        auto keyValue = caffa::StringTools::split<std::vector<std::string>>( param, "=", true );
-        if ( keyValue.size() == 2 )
-        {
-            if ( auto intValue = caffa::StringTools::toInt64( keyValue[1] ); intValue )
-            {
-                jsonMetaData[keyValue[0]] = *intValue;
-            }
-            else if ( auto doubleValue = caffa::StringTools::toDouble( keyValue[1] ); doubleValue )
-            {
-                jsonMetaData[keyValue[0]] = *doubleValue;
-            }
-            else if ( caffa::StringTools::tolower( keyValue[1] ) == "true" )
-            {
-                jsonMetaData[keyValue[0]] = true;
-            }
-            else if ( caffa::StringTools::tolower( keyValue[1] ) == "false" )
-            {
-                jsonMetaData[keyValue[0]] = false;
-            }
-            else
-            {
-                jsonMetaData[keyValue[0]] = keyValue[1];
-            }
-        }
-    }
 
-    CAFFA_TRACE( "Arguments: " << jsonArguments.dump() << ", Meta data: " << jsonMetaData.dump() );
+    CAFFA_DEBUG( "Path: " << path << ", Query Arguments: " << queryParamsJson.dump() << ", Body: " << bodyJson.dump() );
 
     try
     {
-        auto [status, message, cleanupCallback] =
-            service->perform( req.method(), pathComponents, jsonArguments, jsonMetaData );
-        if ( status == http::status::ok )
+        auto [status, message, cleanupCallback] = service->perform( method, pathComponents, queryParamsJson, bodyJson );
+        if ( status == http::status::ok || status == http::status::accepted )
         {
-            CAFFA_TRACE( "Responding with " << status << ": " << message );
+            CAFFA_DEBUG( "Responding with " << status << ": " << message );
             send( createResponse( status, message ) );
         }
         else

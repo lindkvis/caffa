@@ -20,8 +20,9 @@
 
 #include "cafRestAppService.h"
 #include "cafRestAuthenticator.h"
+#include "cafRestDocumentService.h"
 #include "cafRestObjectService.h"
-#include "cafRestSchemaService.h"
+#include "cafRestOpenApiService.h"
 #include "cafRestServer.h"
 #include "cafRestServiceInterface.h"
 #include "cafRestSessionService.h"
@@ -43,9 +44,10 @@ RestServerApplication::RestServerApplication( unsigned short                    
     , m_ioContext( threads )
 {
     caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestAppService>( "app" );
-    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestObjectService>( "object" );
-    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestSchemaService>( "schemas" );
-    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestSessionService>( "session" );
+    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestObjectService>( "objects" );
+    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestSessionService>( "sessions" );
+    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestOpenApiService>( "openapi" );
+    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestDocumentService>( "documents" );
 
     auto cert = authenticator->sslCertificate();
     auto key  = authenticator->sslKey();

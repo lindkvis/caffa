@@ -69,6 +69,9 @@ public:
     ///
     //--------------------------------------------------------------------------------------------------
     int patchVersion() const override { return CAFFA_VERSION_PATCH; }
+
+    std::string description() const override { return "Example Client for Caffa"; }
+    std::string contactEmail() const override { return "client@thisdomaindoesnotexist.com"; }
 };
 
 //--------------------------------------------------------------------------------------------------

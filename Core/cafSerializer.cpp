@@ -30,6 +30,8 @@ std::string Serializer::serializationTypeLabel( SerializationType type )
             return "DATA_SKELETON";
         case SerializationType::SCHEMA:
             return "SCHEMA";
+        case SerializationType::PATH:
+            return "PATH";
     }
     CAFFA_ASSERT( false );
     return "";

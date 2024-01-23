@@ -65,6 +65,19 @@ public:
     virtual std::string classKeyword() const { return classKeywordStatic(); }
 
     virtual InheritanceStackType classInheritanceStack() const { return { classKeywordStatic() }; }
+    /**
+     * @brief Get the parent class keyword
+     *
+     * @return std::string Class keyword of the parent class
+     */
+    std::string parentClassKeyword() const
+    {
+        // ObjectHandle is abstract and cannot be instantiated.
+        // Any child class will have a minimum of 2 items in stack.
+        auto stack = classInheritanceStack();
+        CAFFA_ASSERT( stack.size() >= 2 );
+        return stack[1];
+    }
 
     static bool matchesClassKeyword( const std::string& classKeyword, const InheritanceStackType& inheritanceStack )
     {
@@ -174,9 +187,9 @@ public:
 
     /**
      * Accept the visit by an editing visitor
-     * @param visitor
+     * @param editor
      */
-    void accept( Editor* visitor );
+    void accept( Editor* editor );
 
 protected:
     /**
@@ -228,7 +241,7 @@ struct PortableDataType<DataType>
     static nlohmann::json jsonType()
     {
         auto object    = nlohmann::json::object();
-        object["$ref"] = std::string( "#/schemas/" ) + DataType::classKeywordStatic();
+        object["$ref"] = std::string( "#/components/object_schemas/" ) + DataType::classKeywordStatic();
         return object;
     }
 };
@@ -244,7 +257,7 @@ struct PortableDataType<DataType>
     static nlohmann::json jsonType()
     {
         auto object    = nlohmann::json::object();
-        object["$ref"] = std::string( "#/schemas/" ) + DataType::element_type::classKeywordStatic();
+        object["$ref"] = std::string( "#/components/object_schemas/" ) + DataType::element_type::classKeywordStatic();
         return object;
     }
 };

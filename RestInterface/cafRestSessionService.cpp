@@ -26,72 +26,151 @@
 
 using namespace caffa::rpc;
 
-RestSessionService::ServiceResponse RestSessionService::perform( http::verb                    verb,
-                                                                 const std::list<std::string>& path,
-                                                                 const nlohmann::json&         arguments,
-                                                                 const nlohmann::json&         metaData )
+RestSessionService::ServiceResponse RestSessionService::perform( http::verb             verb,
+                                                                 std::list<std::string> path,
+                                                                 const nlohmann::json&  queryParams,
+                                                                 const nlohmann::json&  body )
 {
-    auto allCallbacks = callbacks();
-
     if ( path.empty() )
     {
-        auto jsonArray = nlohmann::json::array();
-        for ( auto [name, callback] : allCallbacks )
-        {
-            jsonArray.push_back( name );
-        }
-        return std::make_tuple( http::status::ok, jsonArray.dump(), nullptr );
+        return performOnAll( verb, queryParams, body );
     }
-    auto name = path.front();
+    CAFFA_DEBUG( "Performing session request: " << path.front() );
 
-    auto it = allCallbacks.find( name );
-    if ( it != allCallbacks.end() )
+    auto uuid = path.front();
+    return performOnOne( verb, body, uuid );
+}
+
+bool RestSessionService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
+{
+    // Create requests have no session and requires authentication
+    bool isCreateRequest = path.empty() && verb == http::verb::post;
+    return isCreateRequest;
+}
+
+bool RestSessionService::requiresSession( http::verb verb, const std::list<std::string>& path ) const
+{
+    // Create requests use authentication instead while the ready requests are completely unauthenticated
+    bool isCreateRequest = path.empty() && verb == http::verb::post;
+    bool isReadyRequest  = path.empty() && verb == http::verb::get;
+    // Allow destruction of a session without a valid session uuid just so we can return not_found instead of forbidden
+    bool isDestroyRequest = !path.empty() && verb == http::verb::delete_;
+    return !( isCreateRequest || isReadyRequest || isDestroyRequest);
+}
+
+nlohmann::json RestSessionService::createOperation( const std::string&    operationId,
+                                                    const std::string&    summary,
+                                                    const nlohmann::json& parameters,
+                                                    const nlohmann::json& responses,
+                                                    const nlohmann::json& requestBody )
+{
+    auto tags = nlohmann::json::array( { "sessions" } );
+    return RestServiceInterface::createOperation( operationId, summary, parameters, responses, requestBody, tags );
+}
+
+std::map<std::string, nlohmann::json> RestSessionService::servicePathEntries() const
+{
+    auto sessionObject                = nlohmann::json::object();
+    sessionObject["application/json"] = { { "schema", { { "$ref", "#/components/session_schemas/Session" } } } };
+    auto sessionContent = nlohmann::json{ { "description", "An application session" }, { "content", sessionObject } };
+
+    auto createGetPutResponses =
+        nlohmann::json{ { HTTP_OK, sessionContent }, { "default", RestServiceInterface::plainErrorResponse() } };
+
+    auto emptyResponseContent = nlohmann::json{ { "description", "Success" } };
+
+    auto acceptedOrFailureResponses = nlohmann::json{ { HTTP_ACCEPTED, emptyResponseContent },
+                                                      { "default", RestServiceInterface::plainErrorResponse() } };
+
+    auto sessions = nlohmann::json::object();
+
+    auto typeParameter = nlohmann::json{ { "name", "type" },
+                                         { "in", "path" },
+                                         { "required", false },
+                                         { "default", static_cast<unsigned>( caffa::Session::Type::REGULAR ) },
+                                         { "description", "The type of session to query for" },
+                                         { "schema", { { "type", "integer" }, { "format", "int32" } } } };
+
+    auto readyValue = nlohmann::json{
+        { "application/json", { { "schema", { { "$ref", "#/components/session_schemas/ReadyState" } } } } } };
+    auto readyContent = nlohmann::json{ { "description", "Ready State" }, { "content", readyValue } };
+
+    auto readyResponses =
+        nlohmann::json{ { HTTP_OK, readyContent }, { "default", RestServiceInterface::plainErrorResponse() } };
+
+    sessions["get"] =
+        createOperation( "readyForSession", "Check if app is ready for session", typeParameter, readyResponses );
+
+    sessions["post"] = createOperation( "createSession", "Create a new session", typeParameter, createGetPutResponses );
+
+    auto uuidParameter = nlohmann::json{ { "name", "uuid" },
+                                         { "in", "query" },
+                                         { "required", true },
+                                         { "description", "The session UUID of the session to get" },
+                                         { "schema", { { "type", "string" } } } };
+
+    auto session   = nlohmann::json::object();
+    session["get"] = createOperation( "getSession", "Get a particular session", uuidParameter, createGetPutResponses );
+
+    session["delete"] =
+        createOperation( "destroySession", "Destroy a particular session", uuidParameter, acceptedOrFailureResponses );
+
+    session["patch"] =
+        createOperation( "keepSessionAlive", "Keep a particular session alive", uuidParameter, acceptedOrFailureResponses );
+
+    session["put"] =
+        createOperation( "changeSession", "Change a session", uuidParameter, createGetPutResponses, sessionContent );
+
+    return { { "/sessions", sessions }, { "/sessions/{uuid}", session } };
+}
+
+std::map<std::string, nlohmann::json> RestSessionService::serviceComponentEntries() const
+{
+    auto session = nlohmann::json{ { "type", "object" },
+                                   { "properties",
+                                     { { "uuid", { { "type", "string" } } },
+                                       { "type", { { "type", "integer" }, { "format", "int32" } } },
+                                       { "valid", { { "type", "boolean" } } } } } };
+
+    auto ready = nlohmann::json{ { "type", "object" },
+                                 { "properties",
+                                   {
+                                       { "ready", { { "type", "boolean" } } },
+                                       { "other_sessions", { { "type", "boolean" } } },
+                                   } } };
+
+    return { { "session_schemas", { { "Session", session }, { "ReadyState", ready } } } };
+}
+
+RestSessionService::ServiceResponse RestSessionService::performOnAll( http::verb verb, const nlohmann::json& queryParams, const nlohmann::json& body )
+{
+    switch ( verb )
     {
-        return it->second( verb, arguments, metaData );
+        case http::verb::get:
+            return ready( queryParams );
+        case http::verb::post:
+            return create( body );
+        default:
+            CAFFA_WARNING( "Invalid sessions request " << http::to_string(verb) );
     }
-    return std::make_tuple( http::status::not_found, "No such method", nullptr );
-}
-
-bool RestSessionService::requiresAuthentication( const std::list<std::string>& path ) const
-{
-    return !path.empty() && path.front() == "create";
-}
-
-std::map<std::string, RestSessionService::ServiceCallback> RestSessionService::callbacks() const
-{
-    return { { "ready", &RestSessionService::ready },
-             { "check", &RestSessionService::check },
-             { "change", &RestSessionService::change },
-             { "create", &RestSessionService::create },
-             { "keepalive", &RestSessionService::keepalive },
-             { "destroy", &RestSessionService::destroy } };
+    return std::make_tuple( http::status::bad_request, "Invalid sessions requests", nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse
-    RestSessionService::ready( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
+RestSessionService::ServiceResponse RestSessionService::ready( const nlohmann::json& body )
 {
-    CAFFA_TRACE( "Received ready for session request with arguments " << arguments );
-
-    if ( RestServiceInterface::refuseDueToTimeLimiter() )
-    {
-        return std::make_tuple( http::status::too_many_requests, "Too many unauthenticated requests", nullptr );
-    }
-
+    CAFFA_DEBUG( "Received ready for session request with metadata " << body );
     try
     {
         caffa::Session::Type type = caffa::Session::Type::REGULAR;
-        if ( arguments.contains( "type" ) )
+        if ( body.contains( "type" ) )
         {
-            type = caffa::Session::typeFromUint( arguments["type"].get<unsigned>() );
-        }
-        else if ( metaData.contains( "type" ) )
-        {
-            type = caffa::Session::typeFromUint( metaData["type"].get<unsigned>() );
+            type = caffa::Session::typeFromUint( body["type"].get<unsigned>() );
         }
         auto jsonResponse = nlohmann::json::object();
+        CAFFA_DEBUG("Checking if we're ready for a session of type " << static_cast<unsigned>(type));
 
         bool ready = RestServerApplication::instance()->readyForSession( type );
 
@@ -108,115 +187,25 @@ RestSessionService::ServiceResponse
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse
-    RestSessionService::check( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
-{
-    CAFFA_TRACE( "Got session check request with arguments " << arguments );
-
-    std::string session_uuid = "";
-    if ( arguments.contains( "session_uuid" ) )
-    {
-        session_uuid = arguments["session_uuid"].get<std::string>();
-    }
-    else if ( metaData.contains( "session_uuid" ) )
-    {
-        session_uuid = metaData["session_uuid"].get<std::string>();
-    }
-    auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
-    if ( !session )
-    {
-        return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is not valid", nullptr );
-    }
-    else if ( session->isExpired() )
-    {
-        return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is expired", nullptr );
-    }
-
-    auto jsonResponse            = nlohmann::json::object();
-    jsonResponse["session_uuid"] = session->uuid();
-    jsonResponse["type"]         = static_cast<unsigned>( session->type() );
-    jsonResponse["timeout"]      = session->timeout().count();
-    return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse
-    RestSessionService::change( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
-{
-    CAFFA_TRACE( "Got session check request with arguments " << arguments );
-
-    std::string session_uuid = "";
-    if ( arguments.contains( "session_uuid" ) )
-    {
-        session_uuid = arguments["session_uuid"].get<std::string>();
-    }
-    else if ( metaData.contains( "session_uuid" ) )
-    {
-        session_uuid = metaData["session_uuid"].get<std::string>();
-    }
-    auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
-    if ( !session )
-    {
-        return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is not valid", nullptr );
-    }
-    else if ( session->isExpired() )
-    {
-        return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is expired", nullptr );
-    }
-
-    if ( !arguments.contains( "type" ) && !metaData.contains( "type" ) )
-    {
-        return std::make_tuple( http::status::bad_request, "No new type provided", nullptr );
-    }
-
-    caffa::Session::Type type = caffa::Session::Type::REGULAR;
-    if ( arguments.contains( "type" ) )
-    {
-        type = caffa::Session::typeFromUint( arguments["type"].get<unsigned>() );
-    }
-    else if ( metaData.contains( "type" ) )
-    {
-        type = caffa::Session::typeFromUint( metaData["type"].get<unsigned>() );
-    }
-
-    RestServerApplication::instance()->changeSession( session.get(), type );
-
-    auto jsonResponse            = nlohmann::json::object();
-    jsonResponse["session_uuid"] = session->uuid();
-    jsonResponse["type"]         = static_cast<unsigned>( session->type() );
-    jsonResponse["timeout"]      = session->timeout().count();
-    return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse
-    RestSessionService::create( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
+RestSessionService::ServiceResponse RestSessionService::create( const nlohmann::json& body )
 {
     CAFFA_DEBUG( "Received create session request" );
 
     try
     {
         caffa::Session::Type type = caffa::Session::Type::REGULAR;
-        if ( arguments.contains( "type" ) )
+        if ( body.contains( "type" ) )
         {
-            type = caffa::Session::typeFromUint( arguments["type"].get<unsigned>() );
-        }
-        else if ( metaData.contains( "type" ) )
-        {
-            type = caffa::Session::typeFromUint( metaData["type"].get<unsigned>() );
+            type = caffa::Session::typeFromUint( body["type"].get<unsigned>() );
         }
         auto session = RestServerApplication::instance()->createSession( type );
 
         CAFFA_TRACE( "Created session: " << session->uuid() );
 
-        auto jsonResponse            = nlohmann::json::object();
-        jsonResponse["session_uuid"] = session->uuid();
-        jsonResponse["type"]         = static_cast<unsigned>( session->type() );
-        jsonResponse["timeout"]      = session->timeout().count();
+        auto jsonResponse     = nlohmann::json::object();
+        jsonResponse["uuid"]  = session->uuid();
+        jsonResponse["type"]  = static_cast<unsigned>( session->type() );
+        jsonResponse["valid"] = !session->isExpired();
         return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
     }
     catch ( const std::exception& e )
@@ -226,68 +215,117 @@ RestSessionService::ServiceResponse
     }
 }
 
+RestSessionService::ServiceResponse
+    RestSessionService::performOnOne( http::verb verb, const nlohmann::json& body, const std::string& uuid )
+{
+    switch ( verb )
+    {
+        case http::verb::get:
+            return get( uuid );
+        case http::verb::put:
+            return change( uuid, body );
+        case http::verb::delete_:
+            return destroy( uuid );
+        case http::verb::patch:
+            return keepalive( uuid );
+        default:
+            CAFFA_WARNING( "Invalid individual session request" );
+    }
+    return std::make_tuple( http::status::bad_request, "Invalid indidual session request", nullptr );
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse
-    RestSessionService::keepalive( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
+RestSessionService::ServiceResponse RestSessionService::get( const std::string& uuid )
 {
-    CAFFA_TRACE( "Got session keep-alive request with arguments " << arguments );
+    CAFFA_TRACE( "Got session get request for uuid " << uuid );
 
-    std::string session_uuid = "";
-    if ( arguments.contains( "session_uuid" ) )
-    {
-        session_uuid = arguments["session_uuid"].get<std::string>();
-    }
-    else if ( metaData.contains( "session_uuid" ) )
-    {
-        session_uuid = metaData["session_uuid"].get<std::string>();
-    }
-
-    auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
+    caffa::SessionMaintainer session = RestServerApplication::instance()->getExistingSession( uuid );
     if ( !session )
     {
-        return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is not valid", nullptr );
-    }
-    else if ( session->isExpired() )
-    {
-        return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is expired", nullptr );
+        return std::make_tuple( http::status::not_found, "Session '" + uuid + "' is not valid", nullptr );
     }
 
-    session->updateKeepAlive();
+    auto jsonResponse     = nlohmann::json::object();
+    jsonResponse["uuid"]  = session->uuid();
+    jsonResponse["type"]  = static_cast<unsigned>( session->type() );
+    jsonResponse["valid"] = !session->isExpired();
 
-    auto jsonResponse            = nlohmann::json::object();
-    jsonResponse["session_uuid"] = session->uuid();
-    jsonResponse["type"]         = static_cast<unsigned>( session->type() );
-    jsonResponse["timeout"]      = session->timeout().count();
     return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse
-    RestSessionService::destroy( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
+RestSessionService::ServiceResponse RestSessionService::change( const std::string& uuid, const nlohmann::json& body )
 {
-    CAFFA_DEBUG( "Got destroy session request with arguments " << arguments );
+    CAFFA_TRACE( "Got session change request for " << uuid );
 
-    std::string session_uuid = "";
-    if ( arguments.contains( "session_uuid" ) )
+    caffa::SessionMaintainer session = RestServerApplication::instance()->getExistingSession( uuid );
+
+    if ( !session )
     {
-        session_uuid = arguments["session_uuid"].get<std::string>();
+        return std::make_tuple( http::status::not_found, "Session '" + uuid + "' is not valid", nullptr );
     }
-    else if ( metaData.contains( "session_uuid" ) )
+    else if ( session->isExpired() )
     {
-        session_uuid = metaData["session_uuid"].get<std::string>();
+        return std::make_tuple( http::status::gone, "Session '" + uuid + "' is expired", nullptr );
     }
+
+    if ( !body.contains( "type" ) )
+    {
+        return std::make_tuple( http::status::bad_request, "No new type provided", nullptr );
+    }
+
+    caffa::Session::Type type = caffa::Session::typeFromUint( body["type"].get<unsigned>() );
+
+    RestServerApplication::instance()->changeSession( session.get(), type );
+
+    auto jsonResponse     = nlohmann::json::object();
+    jsonResponse["uuid"]  = session->uuid();
+    jsonResponse["type"]  = static_cast<unsigned>( session->type() );
+    jsonResponse["valid"] = !session->isExpired();
+
+    return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RestSessionService::ServiceResponse RestSessionService::keepalive( const std::string& uuid )
+{
+    CAFFA_TRACE( "Got session keep-alive request for " << uuid );
+
+    auto session = RestServerApplication::instance()->getExistingSession( uuid );
+    if ( !session )
+    {
+        return std::make_tuple( http::status::not_found, "Session '" + uuid + "' is not valid", nullptr );
+    }
+    else if ( session->isExpired() )
+    {
+        return std::make_tuple( http::status::gone, "Session '" + uuid + "' is expired", nullptr );
+    }
+
+    session->updateKeepAlive();
+    return std::make_tuple( http::status::accepted, "", nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RestSessionService::ServiceResponse RestSessionService::destroy( const std::string& uuid )
+{
+    CAFFA_DEBUG( "Got destroy session request for " << uuid );
+
     try
     {
-        RestServerApplication::instance()->destroySession( session_uuid );
-        return std::make_tuple( http::status::ok, "Session successfully destroyed", nullptr );
+        RestServerApplication::instance()->destroySession( uuid );
+        return std::make_tuple( http::status::accepted, "Session successfully destroyed", nullptr );
     }
     catch ( const std::exception& e )
     {
-        CAFFA_WARNING( "Session '" << session_uuid
+        CAFFA_WARNING( "Session '" << uuid
                                    << "' did not exist. It may already have been destroyed due to lack of keepalive" );
         return std::make_tuple( http::status::not_found,
                                 "Failed to destroy session. It may already have been destroyed.",

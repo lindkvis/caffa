@@ -28,6 +28,8 @@ public:
     virtual void readFromJson( const nlohmann::json& value, const Serializer& serializer ) = 0;
     virtual void writeToJson( nlohmann::json& value, const Serializer& serializer ) const  = 0;
 
+    virtual nlohmann::json jsonType() const = 0;
+
 protected:
     bool assertValid() const;
 };

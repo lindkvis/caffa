@@ -114,18 +114,38 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
 
     if ( this->serializationType() == Serializer::SerializationType::SCHEMA )
     {
-        jsonObject["type"]  = "object";
+        std::set<std::string> parentalFields;
+        std::set<std::string> parentalMethods;
+
+        auto parentClassKeyword = object->parentClassKeyword();
+
+        auto parentClassInstance = DefaultObjectFactory::instance()->create( parentClassKeyword );
+        if ( parentClassInstance )
+        {
+            for ( auto field : parentClassInstance->fields() )
+            {
+                parentalFields.insert( field->keyword() );
+            }
+            for ( auto method : parentClassInstance->methods() )
+            {
+                parentalMethods.insert( method->keyword() );
+            }
+        }
+
+        auto jsonClass = nlohmann::json::object();
+
+        jsonClass["type"]   = "object";
         auto jsonProperties = nlohmann::json::object();
 
         jsonProperties["keyword"] = { { "type", "string" } };
         jsonProperties["uuid"]    = { { "type", "string" } };
-        jsonObject["$schema"]     = "https://json-schema.org/draft/2020-12/schema";
-        jsonObject["$id"]         = "/schemas/" + object->classKeyword();
-        jsonObject["title"]       = object->classKeyword();
+        // jsonObject["$schema"]     = "https://json-schema.org/draft/2020-12/schema";
+        // jsonObject["$id"]         = "/components/object_schemas/" + object->classKeyword();
+        //  jsonObject["title"]       = object->classKeyword();
 
         if ( !object->classDocumentation().empty() )
         {
-            jsonObject["description"] = object->classDocumentation();
+            jsonClass["description"] = object->classDocumentation();
         }
 
         for ( auto field : object->fields() )
@@ -133,6 +153,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             if ( this->fieldSelector() && !this->fieldSelector()( field ) ) continue;
 
             auto keyword = field->keyword();
+            if ( parentalFields.contains( keyword ) ) continue;
 
             const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
             if ( ioCapability && keyword != "uuid" && ( field->isReadable() || field->isWritable() ) )
@@ -146,7 +167,10 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
         auto methods = nlohmann::json::object();
         for ( auto method : object->methods() )
         {
-            methods[method->keyword()] = method->jsonSchema();
+            auto keyword = method->keyword();
+            if ( parentalMethods.contains( keyword ) ) continue;
+
+            methods[keyword] = method->jsonSchema();
         }
         if ( !methods.empty() )
         {
@@ -156,8 +180,21 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             jsonProperties["methods"]   = methodsObject;
         }
 
-        jsonObject["properties"] = jsonProperties;
-        jsonObject["required"]   = { "keyword" };
+        jsonClass["properties"] = jsonProperties;
+        jsonClass["required"]   = { "keyword", "uuid" };
+
+        if ( parentClassInstance )
+        {
+            auto jsonAllOf = nlohmann::json::array();
+            jsonAllOf.push_back( { { "$ref", "#/components/object_schemas/" + parentClassKeyword } } );
+
+            jsonAllOf.push_back( jsonClass );
+            jsonObject["allOf"] = jsonAllOf;
+        }
+        else
+        {
+            jsonObject = jsonClass;
+        }
     }
     else
     {

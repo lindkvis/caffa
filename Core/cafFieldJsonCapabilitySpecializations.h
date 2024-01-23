@@ -29,6 +29,7 @@ public:
     void               writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
     const FieldHandle* owner() const override;
     void               setOwner( FieldHandle* owner ) override;
+    nlohmann::json     jsonType() const override;
 
 private:
     FieldType* m_field;
@@ -51,6 +52,7 @@ public:
     void               writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
     const FieldHandle* owner() const override;
     void               setOwner( FieldHandle* owner ) override;
+    nlohmann::json     jsonType() const override;
 
 private:
     FieldType* m_field;
@@ -73,6 +75,7 @@ public:
     void               writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
     const FieldHandle* owner() const override;
     void               setOwner( FieldHandle* owner ) override;
+    nlohmann::json     jsonType() const override;
 
 private:
     FieldType* m_field;

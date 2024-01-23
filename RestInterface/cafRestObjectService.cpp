@@ -32,6 +32,7 @@
 #include "cafObject.h"
 #include "cafObjectCollector.h"
 #include "cafRestServerApplication.h"
+#include "cafRpcClientPassByRefObjectFactory.h"
 #include "cafRpcObjectConversion.h"
 
 #include <iostream>
@@ -40,111 +41,240 @@
 
 using namespace caffa::rpc;
 
-RestObjectService::ServiceResponse RestObjectService::perform( http::verb                    verb,
-                                                               const std::list<std::string>& path,
-                                                               const nlohmann::json&         arguments,
-                                                               const nlohmann::json&         metaData )
+RestObjectService::ServiceResponse RestObjectService::perform( http::verb             verb,
+                                                               std::list<std::string> path,
+                                                               const nlohmann::json&  queryParams,
+                                                               const nlohmann::json&  body )
 {
-    std::string session_uuid = "";
-    if ( arguments.contains( "session_uuid" ) )
-    {
-        session_uuid = arguments["session_uuid"].get<std::string>();
-    }
-    else if ( metaData.contains( "session_uuid" ) )
-    {
-        session_uuid = metaData["session_uuid"].get<std::string>();
-    }
+    caffa::SessionMaintainer session;
 
-    if ( session_uuid.empty() && RestServerApplication::instance()->requiresValidSession() )
-    {
-        CAFFA_ERROR( "No session uuid provided" );
-        return std::make_tuple( http::status::forbidden, "No session provided", nullptr );
-    }
-    auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
+    CAFFA_ASSERT( !path.empty() );
 
-    if ( !session && RestServerApplication::instance()->requiresValidSession() )
+    if ( queryParams.contains( "session_uuid" ) )
     {
-        return std::make_tuple( http::status::forbidden, "Session " + session_uuid + " is not valid!", nullptr );
+        auto session_uuid = queryParams["session_uuid"].get<std::string>();
+        session           = RestServerApplication::instance()->getExistingSession( session_uuid );
     }
-    else if ( RestServerApplication::instance()->requiresValidSession() && session->isExpired() )
-    {
-        return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is expired", nullptr );
-    }
-
-    bool skeleton = metaData.contains( "skeleton" ) && metaData["skeleton"].get<bool>();
-    bool replace  = metaData.contains( "replace" ) && metaData["replace"].get<bool>();
 
     if ( path.empty() )
     {
-        return documents( session.get(), skeleton );
+        return std::make_tuple( http::status::bad_request, "Object uuid not specified", nullptr );
     }
-    else
+
+    auto uuid = path.front();
+    path.pop_front();
+
+    CAFFA_TRACE( "Trying to look for uuid '" << uuid << "'" );
+
+    auto object = findObject( uuid, session.get() );
+    if ( !object )
     {
-        caffa::ObjectHandle* object;
+        return std::make_tuple( http::status::not_found, "Object " + uuid + " not found", nullptr );
+    }
 
-        auto documentId  = path.front();
-        auto reducedPath = path;
-        reducedPath.pop_front();
-
-        CAFFA_TRACE( "Trying to look for document id '" << documentId << "'" );
-        if ( documentId == "uuid" && !reducedPath.empty() )
+    CAFFA_ASSERT( object );
+    if ( path.empty() )
+    {
+        bool skeleton = queryParams.contains( "skeleton" ) && body["skeleton"].get<bool>();
+        if ( skeleton )
         {
-            auto uuid = reducedPath.front();
-            CAFFA_TRACE( "Using uuid: " << uuid );
-            object = findObject( reducedPath.front(), session.get() );
-            reducedPath.pop_front();
-            if ( !object )
-            {
-                return std::make_tuple( http::status::not_found, "Object " + uuid + " not found", nullptr );
-            }
+            return std::make_tuple( http::status::ok, createJsonSkeletonFromProjectObject( object ).dump(), nullptr );
         }
         else
         {
-            object = document( documentId, session.get() );
-            if ( !object )
-            {
-                return std::make_tuple( http::status::not_found, "Document not found '" + documentId + "'", nullptr );
-            }
+            return std::make_tuple( http::status::ok, createJsonFromProjectObject( object ).dump(), nullptr );
         }
+    }
 
-        CAFFA_ASSERT( object );
-        if ( reducedPath.empty() )
-        {
-            if ( skeleton )
-            {
-                return std::make_tuple( http::status::ok, createJsonSkeletonFromProjectObject( object ).dump(), nullptr );
-            }
-            else
-            {
-                return std::make_tuple( http::status::ok, createJsonFromProjectObject( object ).dump(), nullptr );
-            }
-        }
-        return perform( *session, verb, object, reducedPath, arguments, skeleton, replace );
+    auto fieldOrMethod = path.front();
+    path.pop_front();
+
+    if ( path.empty() )
+    {
+        return std::make_tuple( http::status::bad_request, "No field or method keyword specified", nullptr );
+    }
+
+    auto keyword = path.front();
+    path.pop_front();
+
+    if ( fieldOrMethod == "fields" )
+    {
+        return performFieldOperation( *session, verb, object, keyword, queryParams, body );
+    }
+    else if ( fieldOrMethod == "methods" )
+    {
+        return performMethodOperation( *session, verb, object, keyword, queryParams, body );
+    }
+    else
+    {
+        return std::make_tuple( http::status::bad_request,
+                                "No such target " + fieldOrMethod + " available for Objects",
+                                nullptr );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// The object service uses session uuids to decide if it accepts the request or not
 //--------------------------------------------------------------------------------------------------
-bool RestObjectService::requiresAuthentication( const std::list<std::string>& path ) const
+bool RestObjectService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
 {
     return false;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caffa::Document* RestObjectService::document( const std::string& documentId, const caffa::Session* session )
+bool RestObjectService::requiresSession( http::verb verb, const std::list<std::string>& path ) const
 {
-    CAFFA_TRACE( "Got document request for " << documentId );
+    return true;
+}
 
-    auto document = RestServerApplication::instance()->document( documentId, session );
-    if ( document )
+std::map<std::string, nlohmann::json> RestObjectService::servicePathEntries() const
+{
+    auto emptyResponseContent = nlohmann::json{ { "description", "Success" } };
+
+    auto acceptedOrFailureResponses = nlohmann::json{ { HTTP_ACCEPTED, emptyResponseContent },
+                                                      { "default", RestServiceInterface::plainErrorResponse() } };
+
+    auto uuidParameter = nlohmann::json{ { "name", "uuid" },
+                                         { "in", "path" },
+                                         { "required", true },
+                                         { "description", "The object UUID of the object to get" },
+                                         { "schema", { { "type", "string" } } } };
+
+    auto objectContent = nlohmann::json::object();
+    auto classArray    = nlohmann::json::array();
+    for ( auto classKeyword : DefaultObjectFactory::instance()->classes() )
     {
-        CAFFA_TRACE( "Found document with UUID: " << document->uuid() );
-        return document.get();
+        auto schemaRef = nlohmann::json{ { "$ref", "#/components/object_schemas/" + classKeyword } };
+        classArray.push_back( schemaRef );
     }
-    return nullptr;
+    auto classSchema                  = nlohmann::json{ { "oneOf", classArray }, { "discriminator", "keyword" } };
+    objectContent["application/json"] = { { "schema", classSchema } };
+    auto objectResponse = nlohmann::json{ { "description", "Specific object" }, { "content", objectContent } };
+
+    auto getResponses =
+        nlohmann::json{ { HTTP_OK, objectResponse }, { "default", RestServiceInterface::plainErrorResponse() } };
+
+    auto object = nlohmann::json::object();
+    object["get"] =
+        createOperation( "getObject", "Get a particular object", uuidParameter, getResponses, nullptr, { "objects" } );
+    object["delete"] = createOperation( "deleteObject",
+                                        "Destroy a particular object",
+                                        uuidParameter,
+                                        acceptedOrFailureResponses,
+                                        nullptr,
+                                        { "objects" } );
+
+    auto field = nlohmann::json::object();
+    {
+        auto fieldKeywordParameter = nlohmann::json{ { "name", "fieldKeyword" },
+                                                     { "in", "path" },
+                                                     { "required", true },
+                                                     { "description", "The field keyword" },
+                                                     { "schema", { { "type", "string" } } } };
+
+        auto indexParameter = nlohmann::json{ { "name", "index" },
+                                              { "in", "query" },
+                                              { "required", false },
+                                              { "default", -1 },
+                                              { "description", "The index of the child object field." },
+                                              { "schema", { { "type", "integer" } } } };
+        auto skeletonParameter =
+            nlohmann::json{ { "name", "skeleton" },
+                            { "in", "query" },
+                            { "required", false },
+                            { "default", false },
+                            { "description", "Whether to only retrieve the structure and not field values" },
+                            { "schema", { { "type", "boolean" } } } };
+
+        auto oneOf = nlohmann::json::array();
+        for ( auto dataType : caffa::rpc::ClientPassByRefObjectFactory::instance()->supportedDataTypes() )
+        {
+            oneOf.push_back( nlohmann::json::parse( dataType ) );
+        }
+        for ( auto classEntry : classArray )
+        {
+            oneOf.push_back( classEntry );
+            auto array = nlohmann::json{ { "type", "array" }, { "items", classEntry } };
+            oneOf.push_back( array );
+        }
+
+        auto fieldValue   = nlohmann::json{ { "application/json", { { "schema", { { "oneOf", oneOf } } } } } };
+        auto fieldContent = nlohmann::json{ { "description", "JSON content representing a valid Caffa data type" },
+                                            { "content", fieldValue } };
+
+        auto fieldParameters = nlohmann::json::array( { uuidParameter, fieldKeywordParameter, indexParameter } );
+        auto fieldResponses =
+            nlohmann::json{ { HTTP_OK, fieldContent }, { "default", RestServiceInterface::plainErrorResponse() } };
+
+        field["put"]    = createOperation( "replaceFieldValue",
+                                        "Replace a particular field value",
+                                        fieldParameters,
+                                        acceptedOrFailureResponses,
+                                        fieldContent,
+                                           { "fields" } );
+        field["post"]   = createOperation( "insertFieldValue",
+                                         "Insert a particular field value",
+                                         fieldParameters,
+                                         acceptedOrFailureResponses,
+                                         fieldContent,
+                                           { "fields" } );
+        field["delete"] = createOperation( "deleteFieldValue",
+                                           "Delete a value from a field. For array fields.",
+                                           fieldParameters,
+                                           acceptedOrFailureResponses,
+                                           nullptr,
+                                           { "fields" } );
+
+        fieldParameters.push_back( skeletonParameter );
+        field["get"] = createOperation( "getFieldValue",
+                                        "Get a particular field value",
+                                        fieldParameters,
+                                        fieldResponses,
+                                        nullptr,
+                                        { "fields" } );
+    }
+
+    auto method = nlohmann::json::object();
+    {
+        auto methodKeywordParameter = nlohmann::json{ { "name", "methodKeyword" },
+                                                      { "in", "path" },
+                                                      { "required", true },
+                                                      { "description", "The method keyword" },
+                                                      { "schema", { { "type", "string" } } } };
+
+        auto methodBody = nlohmann::json{ { "application/json", { { "schema", nlohmann::json::object() } } } };
+
+        auto jsonContentObject = nlohmann::json{ { "description", "JSON content representing a valid Caffa data type" },
+                                                 { "content", methodBody } };
+
+        auto methodParameters = nlohmann::json::array( { uuidParameter, methodKeywordParameter } );
+        auto methodResponses =
+            nlohmann::json{ { HTTP_OK, jsonContentObject }, { "default", RestServiceInterface::plainErrorResponse() } };
+
+        method["post"] = createOperation( "executeMethod",
+                                          "Execute an Object Method",
+                                          methodParameters,
+                                          methodResponses,
+                                          jsonContentObject,
+                                          { "methods" } );
+    }
+
+    return { { "/objects/{uuid}", object },
+             { "/objects/{uuid}/fields/{fieldKeyword}", field },
+             { "/objects/{uuid}/methods/{methodKeyword}", method } };
+}
+
+std::map<std::string, nlohmann::json> RestObjectService::serviceComponentEntries() const
+{
+    auto factory = DefaultObjectFactory::instance();
+
+    auto schemas = nlohmann::json::object();
+
+    for ( auto className : factory->classes() )
+    {
+        auto object        = factory->create( className );
+        schemas[className] = createJsonSchemaFromProjectObject( object.get() );
+    }
+    return { { "object_schemas", schemas } };
 }
 
 caffa::ObjectHandle* RestObjectService::findObject( const std::string& uuid, const caffa::Session* session )
@@ -152,125 +282,58 @@ caffa::ObjectHandle* RestObjectService::findObject( const std::string& uuid, con
     return findCafObjectFromUuid( session, uuid );
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RestObjectService::ServiceResponse RestObjectService::documents( const caffa::Session* session, bool skeleton )
+RestObjectService::ServiceResponse RestObjectService::performFieldOperation( std::shared_ptr<caffa::Session> session,
+                                                                             http::verb                      verb,
+                                                                             caffa::ObjectHandle*            object,
+                                                                             const std::string&              keyword,
+                                                                             const nlohmann::json& queryParams,
+                                                                             const nlohmann::json& body )
 {
-    CAFFA_DEBUG( "Got list document request for" );
-
-    auto documents = RestServerApplication::instance()->documents( session );
-    CAFFA_DEBUG( "Found " << documents.size() << " document" );
-
-    auto jsonResult = nlohmann::json::array();
-    for ( auto document : documents )
+    if ( auto field = object->findField( keyword ); field )
     {
-        if ( skeleton )
-        {
-            jsonResult.push_back( createJsonSkeletonFromProjectObject( document.get() ) );
-        }
-        else
-        {
-            jsonResult.push_back( createJsonFromProjectObject( document.get() ) );
-        }
-    }
-    return std::make_tuple( http::status::ok, jsonResult.dump(), nullptr );
-}
+        CAFFA_DEBUG( "Found field: " << field->keyword() );
 
-RestObjectService::ServiceResponse RestObjectService::perform( std::shared_ptr<caffa::Session> session,
-                                                               http::verb                      verb,
-                                                               caffa::ObjectHandle*            object,
-                                                               const std::list<std::string>&   path,
-                                                               const nlohmann::json&           arguments,
-                                                               bool                            skeleton,
-                                                               bool                            replace )
-{
-    auto [fieldOrMethod, index] = findFieldOrMethod( object, path );
+        int  index    = queryParams.contains( "index" ) ? queryParams["index"].get<int>() : -1;
+        bool skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
 
-    if ( !fieldOrMethod )
-    {
-        return std::make_tuple( http::status::not_found, "Failed to find field or method", nullptr );
-    }
-
-    auto field = dynamic_cast<caffa::FieldHandle*>( fieldOrMethod );
-    if ( field )
-    {
         if ( verb == http::verb::get )
         {
             return getFieldValue( field, index, skeleton );
         }
         else if ( verb == http::verb::put )
         {
-            return putFieldValue( field, index, arguments, replace );
+            return replaceFieldValue( field, index, body );
         }
+        else if ( verb == http::verb::post )
+        {
+            return insertFieldValue( field, index, body );
+        }
+
         else if ( verb == http::verb::delete_ )
         {
-            return deleteChildObject( field, index, arguments );
+            return deleteFieldValue( field, index );
         }
         return std::make_tuple( http::status::bad_request, "Verb not implemented", nullptr );
     }
-
-    auto method = dynamic_cast<caffa::MethodHandle*>( fieldOrMethod );
-    CAFFA_ASSERT( method );
-
-    CAFFA_TRACE( "Found method: " << method->keyword() );
-
-    auto result = method->execute( session, arguments.dump() );
-    return std::make_tuple( http::status::ok, result, nullptr );
+    return std::make_tuple( http::status::not_found, "No field named " + keyword + " found", nullptr );
 }
 
-std::pair<caffa::ObjectAttribute*, int64_t> RestObjectService::findFieldOrMethod( caffa::ObjectHandle*          object,
-                                                                                  const std::list<std::string>& path )
+RestObjectService::ServiceResponse RestObjectService::performMethodOperation( std::shared_ptr<caffa::Session> session,
+                                                                              http::verb                      verb,
+                                                                              caffa::ObjectHandle*            object,
+                                                                              const std::string&              keyword,
+                                                                              const nlohmann::json& queryParams,
+                                                                              const nlohmann::json& body )
 {
-    auto pathComponent = path.front();
-
-    std::regex  arrayRgx( "(.+)\\[(\\d+)\\]" );
-    std::smatch matches;
-
-    std::string fieldOrMethodName = pathComponent;
-    int64_t     index             = -1;
-    if ( std::regex_match( pathComponent, matches, arrayRgx ) )
+    if ( auto method = object->findMethod( keyword ); method )
     {
-        if ( matches.size() == 3 )
-        {
-            fieldOrMethodName = matches[1];
-            auto optindex     = caffa::StringTools::toInt64( matches[2] );
-            if ( optindex ) index = *optindex;
-        }
+        CAFFA_TRACE( "Found method: " << method->keyword() );
+
+        auto result = method->execute( session, body.dump() );
+        return std::make_tuple( http::status::ok, result, nullptr );
     }
 
-    CAFFA_TRACE( "Looking for field '" << fieldOrMethodName << "', index: " << index );
-    if ( auto currentLevelField = object->findField( fieldOrMethodName ); currentLevelField )
-    {
-        auto reducedPath = path;
-        reducedPath.pop_front();
-        if ( !reducedPath.empty() )
-        {
-            auto childField = dynamic_cast<caffa::ChildFieldBaseHandle*>( currentLevelField );
-            if ( childField )
-            {
-                auto childObjects = childField->childObjects();
-                if ( index == -1 )
-                {
-                    index = 0;
-                }
-
-                CAFFA_TRACE( "Looking for index " << index << " in an array of size " << childObjects.size() );
-                if ( index >= static_cast<int64_t>( childObjects.size() ) )
-                {
-                    return std::make_pair( nullptr, -1 );
-                }
-                return findFieldOrMethod( childObjects[index].get(), reducedPath );
-            }
-            return std::make_pair( nullptr, -1 );
-        }
-        return std::make_pair( currentLevelField, index );
-    }
-    else if ( auto currentLevelMethod = object->findMethod( fieldOrMethodName ); currentLevelMethod )
-    {
-        return std::make_pair( currentLevelMethod, -1 );
-    }
-    return std::make_pair( nullptr, -1 );
+    return std::make_tuple( http::status::not_found, "No method named " + keyword + " found", nullptr );
 }
 
 RestObjectService::ServiceResponse
@@ -328,7 +391,7 @@ RestObjectService::ServiceResponse
 }
 
 RestObjectService::ServiceResponse
-    RestObjectService::putFieldValue( caffa::FieldHandle* field, int64_t index, const nlohmann::json& arguments, bool replace )
+    RestObjectService::replaceFieldValue( caffa::FieldHandle* field, int64_t index, const nlohmann::json& body )
 {
     auto scriptability = field->capability<caffa::FieldScriptingCapability>();
     if ( !scriptability || !scriptability->isWritable() )
@@ -355,38 +418,28 @@ RestObjectService::ServiceResponse
                                         "Index does not make sense for a simple Child Field",
                                         nullptr );
             }
-            ioCapability->readFromJson( arguments, serializer );
-            return std::make_tuple( http::status::ok, "", nullptr );
+            ioCapability->readFromJson( body, serializer );
+            return std::make_tuple( http::status::accepted, "", nullptr );
         }
 
         auto childArrayField = dynamic_cast<caffa::ChildArrayFieldHandle*>( field );
         if ( childArrayField )
         {
-            CAFFA_DEBUG( "Inserting into child array field with index " << index );
-            if ( index >= 0 )
+            CAFFA_DEBUG( "Replacing child array object at index " << index );
+
+            auto childObjects = childArrayField->childObjects();
+            if ( index >= 0 && static_cast<size_t>( index ) < childObjects.size() )
             {
                 auto childObjects = childArrayField->childObjects();
-                if ( index >= static_cast<int64_t>( childObjects.size() ) )
-                {
-                    auto object = serializer.createObjectFromString( arguments.dump() );
-                    childArrayField->push_back_obj( object );
-                    return std::make_tuple( http::status::ok, "", nullptr );
-                }
-                else if ( !replace )
-                {
-                    auto object = serializer.createObjectFromString( arguments.dump() );
-                    childArrayField->insertAt( index, object );
-                    return std::make_tuple( http::status::ok, "", nullptr );
-                }
-                else
-                {
-                    serializer.readObjectFromString( childObjects[index].get(), arguments.dump() );
-                    return std::make_tuple( http::status::ok, "", nullptr );
-                }
+                serializer.readObjectFromString( childObjects[index].get(), body.dump() );
+                return std::make_tuple( http::status::accepted, "", nullptr );
             }
+            return std::make_tuple( http::status::bad_request,
+                                    "Index out of bounds for array field replace item request",
+                                    nullptr );
         }
-        ioCapability->readFromJson( arguments, serializer );
-        return std::make_tuple( http::status::ok, "", nullptr );
+        ioCapability->readFromJson( body, serializer );
+        return std::make_tuple( http::status::accepted, "", nullptr );
     }
     catch ( const std::exception& e )
     {
@@ -396,7 +449,55 @@ RestObjectService::ServiceResponse
 }
 
 RestObjectService::ServiceResponse
-    RestObjectService::deleteChildObject( caffa::FieldHandle* field, int64_t index, const nlohmann::json& arguments )
+    RestObjectService::insertFieldValue( caffa::FieldHandle* field, int64_t index, const nlohmann::json& body )
+{
+    auto scriptability = field->capability<caffa::FieldScriptingCapability>();
+    if ( !scriptability || !scriptability->isWritable() )
+        return std::make_tuple( http::status::forbidden, "Field " + field->keyword() + " is not remote writable", nullptr );
+
+    auto ioCapability = field->capability<caffa::FieldJsonCapability>();
+    if ( !ioCapability )
+    {
+        return std::make_tuple( http::status::forbidden,
+                                "Field " + field->keyword() + " found, but it has no JSON capability",
+                                nullptr );
+    }
+
+    JsonSerializer serializer;
+
+    try
+    {
+        auto childArrayField = dynamic_cast<caffa::ChildArrayFieldHandle*>( field );
+        if ( childArrayField )
+        {
+            CAFFA_INFO( "Inserting into child array field with index " << index );
+            auto existingSize = childArrayField->size();
+            if ( index >= 0 && static_cast<size_t>( index ) < existingSize )
+            {
+                auto object = serializer.createObjectFromString( body.dump() );
+                childArrayField->insertAt( index, object );
+                return std::make_tuple( http::status::accepted, "", nullptr );
+            }
+            else
+            {
+                auto object = serializer.createObjectFromString( body.dump() );
+                childArrayField->push_back_obj( object );
+                return std::make_tuple( http::status::accepted, "", nullptr );
+            }
+        }
+        else
+        {
+            return std::make_tuple( http::status::bad_request, "Insert only makes sense for a Child Array Fields", nullptr );
+        }
+    }
+    catch ( const std::exception& e )
+    {
+        CAFFA_ERROR( "Failed to insert field value for  '" << field->keyword() << "' with error: '" << e.what() << "'" );
+        return std::make_tuple( http::status::internal_server_error, e.what(), nullptr );
+    }
+}
+
+RestObjectService::ServiceResponse RestObjectService::deleteFieldValue( caffa::FieldHandle* field, int64_t index )
 {
     auto scriptability = field->capability<caffa::FieldScriptingCapability>();
     if ( !scriptability || !scriptability->isWritable() )
@@ -428,7 +529,7 @@ RestObjectService::ServiceResponse
             else
             {
                 childField->clear();
-                return std::make_tuple( http::status::ok, "", nullptr );
+                return std::make_tuple( http::status::accepted, "", nullptr );
             }
         }
 
@@ -443,7 +544,7 @@ RestObjectService::ServiceResponse
             {
                 childArrayField->clear();
             }
-            return std::make_tuple( http::status::ok, "", nullptr );
+            return std::make_tuple( http::status::accepted, "", nullptr );
         }
         return std::make_tuple( http::status::bad_request, "Can not delete from a non-child field", nullptr );
     }

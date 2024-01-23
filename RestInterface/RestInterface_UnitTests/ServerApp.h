@@ -55,6 +55,8 @@ public:
     int         majorVersion() const override { return 1; }
     int         minorVersion() const override { return 0; }
     int         patchVersion() const override { return 0; }
+    std::string description() const override { return "Unit Test Server for Caffa"; }
+    std::string contactEmail() const override { return "test@thisdomaindoesnotexist.com"; }
 
     std::shared_ptr<caffa::Document> document( const std::string& documentId, const caffa::Session* session ) override
     {
@@ -91,6 +93,11 @@ public:
     std::list<std::shared_ptr<const caffa::Document>> documents( const caffa::Session* session ) const override
     {
         return { m_demoDocument, m_demoDocumentWithNonScriptableMember };
+    }
+
+    std::list<std::shared_ptr<caffa::Document>> defaultDocuments() const override
+    {
+        return { std::make_shared<DemoDocument>(), std::make_shared<DemoDocumentWithNonScriptableMember>() };
     }
 
     bool hasActiveSessions() const override { return !m_observingSessions.empty(); }

@@ -26,57 +26,87 @@
 
 using namespace caffa::rpc;
 
-RestAppService::ServiceResponse RestAppService::perform( http::verb                    verb,
-                                                         const std::list<std::string>& path,
-                                                         const nlohmann::json&         arguments,
-                                                         const nlohmann::json&         metaData )
+RestAppService::ServiceResponse RestAppService::perform( http::verb             verb,
+                                                         std::list<std::string> path,
+                                                         const nlohmann::json&  queryParams,
+                                                         const nlohmann::json&  body )
 {
-    auto allCallbacks = callbacks();
-
-    if ( path.empty() )
+    if ( verb == http::verb::get )
     {
-        auto jsonArray = nlohmann::json::array();
-        for ( auto [name, callback] : allCallbacks )
-        {
-            jsonArray.push_back( name );
-        }
-        return std::make_tuple( http::status::ok, jsonArray.dump(), nullptr );
+        return info();
     }
-    auto name = path.front();
-
-    auto it = allCallbacks.find( name );
-    if ( it != allCallbacks.end() )
+    else if ( verb == http::verb::delete_ )
     {
-        return it->second( verb, arguments, metaData );
+        return quit();
     }
-    return std::make_tuple( http::status::not_found, "No such method", nullptr );
+    return std::make_tuple( http::status::bad_request, "Only GET or DELETE makes any sense with app requests", nullptr );
 }
 
-//--------------------------------------------------------------------------------------------------
-/// The app service uses session uuids to decide if it accepts the request or not
-//--------------------------------------------------------------------------------------------------
-bool RestAppService::requiresAuthentication( const std::list<std::string>& path ) const
+bool RestAppService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
 {
     return false;
 }
 
+bool RestAppService::requiresSession( http::verb verb, const std::list<std::string>& path ) const
+{
+    return verb == http::verb::delete_;
+}
+
+std::map<std::string, nlohmann::json> RestAppService::servicePathEntries() const
+{
+    auto infoRequest = nlohmann::json::object();
+
+    auto getContent                = nlohmann::json::object();
+    getContent["application/json"] = { { "schema", { { "$ref", "#/components/app_schemas/AppInfo" } } } };
+    auto getResponses              = nlohmann::json::object();
+
+    auto errorContent          = nlohmann::json::object();
+    errorContent["text/plain"] = { { "schema", { { "$ref", "#/components/error_schemas/PlainError" } } } };
+
+    getResponses[std::to_string( static_cast<unsigned>( http::status::ok ) )] = { { "description",
+                                                                                    "Application Information" },
+                                                                                  { "content", getContent } };
+    getResponses[std::to_string( static_cast<unsigned>( http::status::too_many_requests ) )] =
+        { { "description", "Too many Requests Error Message" }, { "content", errorContent } };
+
+    infoRequest["get"] = { { "summary", "Get Application Information" },
+                           { "operationId", "info" },
+                           { "responses", getResponses },
+                           { "tags", { "app" } } };
+
+    auto quitRequest   = nlohmann::json::object();
+    auto quitResponses = nlohmann::json::object();
+
+    quitResponses[std::to_string( static_cast<unsigned>( http::status::accepted ) )] = {
+        { "description", "Success" },
+    };
+
+    quitResponses[std::to_string( static_cast<unsigned>( http::status::forbidden ) )] = { { "description",
+                                                                                            "Quit Error Message" },
+                                                                                          { "content", errorContent } };
+
+    quitRequest["delete"] = { { "summary", "Quit Application" },
+                              { "operationId", "quit" },
+                              { "responses", quitResponses },
+                              { "tags", { "app" } } };
+
+    return { { "/app/info", infoRequest }, { "/app/quit", quitRequest } };
+}
+
+std::map<std::string, nlohmann::json> RestAppService::serviceComponentEntries() const
+{
+    auto appInfo = AppInfo::jsonSchema();
+
+    return { { "app_schemas", { { "AppInfo", appInfo } } } };
+};
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestAppService::ServiceResponse
-    RestAppService::info( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
+RestAppService::ServiceResponse RestAppService::info()
 {
-    CAFFA_TRACE( "Received appInfo request" );
+    CAFFA_TRACE( "Received info request" );
 
-    if ( RestServiceInterface::refuseDueToTimeLimiter() )
-    {
-        return std::make_tuple( http::status::too_many_requests, "Too many unauthenticated requests", nullptr );
-    }
-
-    if ( verb != http::verb::get )
-    {
-        return std::make_tuple( http::status::bad_request, "Only GET makes any sense with app/info", nullptr );
-    }
     auto app     = RestServerApplication::instance();
     auto appInfo = app->appInfo();
 
@@ -87,40 +117,11 @@ RestAppService::ServiceResponse
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestAppService::ServiceResponse
-    RestAppService::quit( http::verb verb, const nlohmann::json& arguments, const nlohmann::json& metaData )
+RestAppService::ServiceResponse RestAppService::quit()
 {
-    std::string session_uuid = "";
-    if ( arguments.contains( "session_uuid" ) )
-    {
-        session_uuid = arguments["session_uuid"].get<std::string>();
-    }
-    else if ( metaData.contains( "session_uuid" ) )
-    {
-        session_uuid = metaData["session_uuid"].get<std::string>();
-    }
+    CAFFA_DEBUG( "Received quit request" );
 
-    auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
-    if ( !session && RestServerApplication::instance()->requiresValidSession() )
-    {
-        return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is not valid", nullptr );
-    }
-    else if ( RestServerApplication::instance()->requiresValidSession() && session->isExpired() )
-    {
-        return std::make_tuple( http::status::forbidden, "Session '" + session_uuid + "' is expired", nullptr );
-    }
-
-    return std::make_tuple( http::status::ok, "", []() { RestServerApplication::instance()->quit(); } );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::map<std::string, RestAppService::ServiceCallback> RestAppService::callbacks() const
-{
-    std::map<std::string, ServiceCallback> callbacks = {
-        { "info", &RestAppService::info },
-        { "quit", &RestAppService::quit },
-    };
-    return callbacks;
+    return std::make_tuple( http::status::accepted,
+                            "Told to quit. It will happen soon",
+                            []() { RestServerApplication::instance()->quit(); } );
 }

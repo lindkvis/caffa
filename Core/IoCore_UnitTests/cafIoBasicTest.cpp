@@ -295,17 +295,17 @@ TEST( BaseTest, TestDataType )
 
     {
         auto dataType = s1->m_position.dataType();
-        EXPECT_EQ( "number64", dataType );
+        EXPECT_EQ( "double", dataType );
     }
 
     {
         auto dataType = s1->m_proxyDouble.dataType();
-        EXPECT_EQ( "number64", dataType );
+        EXPECT_EQ( "double", dataType );
     }
 
     {
         auto dataType = s1->m_up.dataType();
-        EXPECT_EQ( "integer32", dataType );
+        EXPECT_EQ( "int32", dataType );
     }
 
     {
