@@ -148,7 +148,11 @@ void ClientPassByRefObjectFactory::applyAccessorToField( caffa::ObjectHandle* fi
                 throw std::runtime_error( std::string( "Data type " ) + fieldHandle->dataType() +
                                           " not implemented in client" );
             }
-            dataField->setUntypedAccessor( accessorCreator->create( m_client, fieldHandle ) );
+            CAFFA_ASSERT( accessorCreator );
+            auto accessor = accessorCreator->create( m_client, fieldHandle );
+            CAFFA_ASSERT( accessor );
+
+            dataField->setUntypedAccessor( std::move( accessor ) );
         }
         else
         {
