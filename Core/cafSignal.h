@@ -1,45 +1,46 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Custom Visualization Core library
-//   Copyright (C) 2020- Ceetron Solutions AS
+//    Custom Visualization Core library
+//    Copyright (C) 2020-2023 Ceetron Solutions AS
+//    Copyright (C) 2024- Kontur AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
-//   the GNU Lesser General Public License as follows:
+//    This library may be used under the terms of either the GNU General Public License or
+//    the GNU Lesser General Public License as follows:
 //
-//   GNU General Public License Usage
-//   This library is free software: you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation, either version 3 of the License, or
-//   (at your option) any later version.
+//    GNU General Public License Usage
+//    This library is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
-//   for more details.
+//    See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
+//    for more details.
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
-//##################################################################################################
+// ##################################################################################################
 #pragma once
 
 #include "cafAssert.h"
 
 #include <functional>
-#include <list>
 #include <map>
+#include <set>
 #include <string>
 #include <type_traits>
 
@@ -65,11 +66,11 @@ public:
     SignalEmitter();
     virtual ~SignalEmitter() noexcept;
 
-    void                       addEmittedSignal( AbstractSignal* signalToAdd ) const;
-    std::list<AbstractSignal*> emittedSignals() const;
+    void                      addEmittedSignal( AbstractSignal* signalToAdd ) const;
+    std::set<AbstractSignal*> emittedSignals() const;
 
 private:
-    mutable std::list<AbstractSignal*> m_signals;
+    mutable std::set<AbstractSignal*> m_signals;
 };
 
 //==================================================================================================
@@ -81,15 +82,15 @@ class SignalObserver
 public:
     SignalObserver();
     virtual ~SignalObserver() noexcept;
-    std::list<AbstractSignal*> observedSignals() const;
-    void                       addObservedSignal( AbstractSignal* signalToAdd ) const;
-    void                       removeObservedSignal( AbstractSignal* signalToRemove ) const noexcept;
+    std::set<AbstractSignal*> observedSignals() const;
+    void                      addObservedSignal( AbstractSignal* signalToAdd ) const;
+    void                      removeObservedSignal( AbstractSignal* signalToRemove ) const noexcept;
 
 private:
     void disconnectAllSignals() noexcept;
 
 private:
-    mutable std::list<AbstractSignal*> m_signals;
+    mutable std::set<AbstractSignal*> m_signals;
 };
 
 //==================================================================================================
@@ -102,8 +103,7 @@ template <typename... Args>
 class Signal : public AbstractSignal
 {
 public:
-    using MemberCallback              = std::function<void( const SignalEmitter*, Args... args )>;
-    using MemberCallbackAndActiveFlag = std::pair<MemberCallback, bool>;
+    using MemberCallback = std::function<void( const SignalEmitter*, Args... args )>;
 
 public:
     Signal( const SignalEmitter* emitter )
@@ -114,9 +114,9 @@ public:
 
     virtual ~Signal()
     {
-        for ( auto observerCallbackPair : m_observerCallbacks )
+        for ( auto& [observer, callback] : m_observerCallbacks )
         {
-            observerCallbackPair.first->removeObservedSignal( this );
+            observer->removeObservedSignal( this );
         }
     }
 
@@ -136,7 +136,7 @@ public:
     {
         static_assert( std::is_convertible<ClassType*, SignalObserver*>::value,
                        "Only classes that inherit SignalObserver can connect as an observer of a Signal." );
-        m_observerCallbacks[observer] = std::make_pair( callback, true );
+        m_observerCallbacks[observer] = callback;
         observer->addObservedSignal( this );
     }
 
@@ -154,37 +154,18 @@ public:
     void send( Args... args ) const
     {
         auto observerCallBacksCopy = m_observerCallbacks;
-        for ( auto observerCallbackPair : observerCallBacksCopy )
+        for ( const auto& [observer, callback] : observerCallBacksCopy )
         {
-            if ( observerCallbackPair.second.second )
-            {
-                observerCallbackPair.second.first( m_emitter, args... );
-            }
+            callback( m_emitter, args... );
         }
     }
 
-    void block( SignalObserver* observer )
-    {
-        auto it = m_observerCallbacks.find( observer );
-        CAFFA_ASSERT( it != m_observerCallbacks.end() );
-        it->second.second = false;
-    }
-
-    void unblock( SignalObserver* observer )
-    {
-        auto it = m_observerCallbacks.find( observer );
-        CAFFA_ASSERT( it != m_observerCallbacks.end() );
-        it->second.second = true;
-    }
     size_t observerCount() const { return m_observerCallbacks.size(); }
 
     bool connected( const SignalObserver* observer ) const
     {
-        for ( const auto& observerPair : m_observerCallbacks )
-        {
-            if ( observerPair.first == observer ) return true;
-        }
-        return false;
+        auto it = m_observerCallbacks.find( observer );
+        return it != m_observerCallbacks.end();
     }
 
 private:
@@ -192,7 +173,7 @@ private:
     Signal& operator=( const Signal& rhs ) = delete;
 
 private:
-    std::map<SignalObserver*, MemberCallbackAndActiveFlag> m_observerCallbacks;
-    const SignalEmitter*                                   m_emitter;
+    std::map<SignalObserver*, MemberCallback> m_observerCallbacks;
+    const SignalEmitter*                      m_emitter;
 };
 } // namespace caffa

@@ -1,38 +1,39 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Custom Visualization Core library
-//   Copyright (C) 2020- Ceetron Solutions AS
+//    Custom Visualization Core library
+//     Copyright (C) 2020-2023 Ceetron Solutions AS
+//     Copyright (C) 2024- Kontur AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
-//   the GNU Lesser General Public License as follows:
+//    This library may be used under the terms of either the GNU General Public License or
+//    the GNU Lesser General Public License as follows:
 //
-//   GNU General Public License Usage
-//   This library is free software: you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation, either version 3 of the License, or
-//   (at your option) any later version.
+//    GNU General Public License Usage
+//    This library is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
-//   for more details.
+//    See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
+//    for more details.
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
-//##################################################################################################
+// ##################################################################################################
 #include "cafSignal.h"
 
 using namespace caffa;
@@ -56,13 +57,13 @@ SignalEmitter::~SignalEmitter() noexcept
 //--------------------------------------------------------------------------------------------------
 void SignalEmitter::addEmittedSignal( AbstractSignal* signalToAdd ) const
 {
-    m_signals.push_back( signalToAdd );
+    m_signals.insert( signalToAdd );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::list<AbstractSignal*> SignalEmitter::emittedSignals() const
+std::set<AbstractSignal*> SignalEmitter::emittedSignals() const
 {
     return m_signals;
 }
@@ -85,7 +86,7 @@ SignalObserver::~SignalObserver() noexcept
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::list<AbstractSignal*> SignalObserver::observedSignals() const
+std::set<AbstractSignal*> SignalObserver::observedSignals() const
 {
     return m_signals;
 }
@@ -95,7 +96,7 @@ std::list<AbstractSignal*> SignalObserver::observedSignals() const
 //--------------------------------------------------------------------------------------------------
 void SignalObserver::addObservedSignal( AbstractSignal* signalToObserve ) const
 {
-    m_signals.push_back( signalToObserve );
+    m_signals.insert( signalToObserve );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,9 +104,9 @@ void SignalObserver::addObservedSignal( AbstractSignal* signalToObserve ) const
 //--------------------------------------------------------------------------------------------------
 void SignalObserver::removeObservedSignal( AbstractSignal* signalToRemove ) const noexcept
 {
-    // This does not throw, since std::list::remove only throws if the comparison operator throws
+    // This does not throw, since std::set::erase only throws if the comparison operator throws
     // and we're just comparing pointers.
-    m_signals.remove( signalToRemove );
+    m_signals.erase( signalToRemove );
 }
 
 //--------------------------------------------------------------------------------------------------
