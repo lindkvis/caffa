@@ -164,6 +164,7 @@ public:
 
     bool connected( const SignalObserver* observer ) const
     {
+        // Possible to search for const-pointer due to transparent comparator
         auto it = m_observerCallbacks.find( observer );
         return it != m_observerCallbacks.end();
     }
@@ -173,7 +174,8 @@ private:
     Signal& operator=( const Signal& rhs ) = delete;
 
 private:
-    std::map<SignalObserver*, MemberCallback> m_observerCallbacks;
-    const SignalEmitter*                      m_emitter;
+    using TransparentComparator = std::less<>;
+    std::map<SignalObserver*, MemberCallback, TransparentComparator> m_observerCallbacks;
+    const SignalEmitter*                                             m_emitter;
 };
 } // namespace caffa
