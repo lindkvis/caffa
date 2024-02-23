@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(CAFFA_VERSION 1.2.2)
+set(CAFFA_VERSION 1.2.3)
 
 project(
   caffa
