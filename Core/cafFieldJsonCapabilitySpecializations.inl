@@ -66,6 +66,14 @@ void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Se
     else if ( serializer.serializationType() == Serializer::SerializationType::SCHEMA )
     {
         nlohmann::json jsonField = JsonDataType<typename FieldType::FieldDataType>::type();
+        if ( !m_field->isReadable() && m_field->isWritable() )
+        {
+            jsonField["writeOnly"] = true;
+        }
+        else if ( m_field->isReadable() && !m_field->isWritable() )
+        {
+            jsonField["readOnly"] = true;
+        }
 
         if ( auto doc = m_field->template capability<FieldDocumentationCapability>(); doc )
         {
@@ -201,6 +209,14 @@ void FieldJsonCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonField
     if ( serializer.serializationType() == Serializer::SerializationType::SCHEMA )
     {
         jsonField = JsonDataType<DataType>::type();
+        if ( !m_field->isReadable() && m_field->isWritable() )
+        {
+            jsonField["writeOnly"] = true;
+        }
+        else if ( m_field->isReadable() && !m_field->isWritable() )
+        {
+            jsonField["readOnly"] = true;
+        }
         if ( auto doc = m_field->template capability<FieldDocumentationCapability>(); doc )
         {
             jsonField["description"] = doc->documentation();
@@ -304,7 +320,14 @@ void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& json
     if ( serializer.serializationType() == Serializer::SerializationType::SCHEMA )
     {
         jsonField = JsonDataType<std::vector<DataType>>::type();
-
+        if ( !m_field->isReadable() && m_field->isWritable() )
+        {
+            jsonField["writeOnly"] = true;
+        }
+        else if ( m_field->isReadable() && !m_field->isWritable() )
+        {
+            jsonField["readOnly"] = true;
+        }
         if ( auto doc = m_field->template capability<FieldDocumentationCapability>(); doc )
         {
             jsonField["description"] = doc->documentation();
