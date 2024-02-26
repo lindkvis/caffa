@@ -67,39 +67,31 @@ RestAppService::ServiceResponse RestAppService::perform( http::verb             
                                                          const nlohmann::json&  queryParams,
                                                          const nlohmann::json&  body )
 {
-    caffa::SessionMaintainer session;
-
     CAFFA_ASSERT( !path.empty() );
 
-    if ( queryParams.contains( "session_uuid" ) )
-    {
-        auto session_uuid = queryParams["session_uuid"].get<std::string>();
-        session           = RestServerApplication::instance()->getExistingSession( session_uuid );
-    }
-
-    auto request = m_requestPathRoot->findPathEntry( path );
+    auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request )
     {
         return std::make_tuple( http::status::bad_request, "Path not found", nullptr );
     }
 
-    return request->perform( verb, queryParams, body );
+    return request->perform( verb, pathArguments, queryParams, body );
 }
 
 bool RestAppService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
 {
-    auto service = m_requestPathRoot->findPathEntry( path );
-    if ( !service ) return false;
+    auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
+    if ( !request ) return false;
 
-    return service->requiresAuthentication( verb );
+    return request->requiresAuthentication( verb );
 }
 
 bool RestAppService::requiresSession( http::verb verb, const std::list<std::string>& path ) const
 {
-    auto service = m_requestPathRoot->findPathEntry( path );
-    if ( !service ) return false;
+    auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
+    if ( !request ) return false;
 
-    return service->requiresSession( verb );
+    return request->requiresSession( verb );
 }
 
 std::map<std::string, nlohmann::json> RestAppService::servicePathEntries() const
@@ -131,7 +123,9 @@ std::map<std::string, nlohmann::json> RestAppService::serviceComponentEntries() 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestAppService::ServiceResponse RestAppService::info( const nlohmann::json& queryParams, const nlohmann::json& body )
+RestAppService::ServiceResponse RestAppService::info( const std::list<std::string>& pathArguments,
+                                                      const nlohmann::json&         queryParams,
+                                                      const nlohmann::json&         body )
 {
     CAFFA_TRACE( "Received info request" );
 
@@ -145,7 +139,9 @@ RestAppService::ServiceResponse RestAppService::info( const nlohmann::json& quer
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestAppService::ServiceResponse RestAppService::quit( const nlohmann::json& queryParams, const nlohmann::json& body )
+RestAppService::ServiceResponse RestAppService::quit( const std::list<std::string>& pathArguments,
+                                                      const nlohmann::json&         queryParams,
+                                                      const nlohmann::json&         body )
 {
     CAFFA_DEBUG( "Received quit request" );
 

@@ -21,6 +21,7 @@
 #include "cafRestRequest.h"
 #include "cafRestServiceInterface.h"
 
+#include <list>
 #include <utility>
 #include <vector>
 
@@ -45,8 +46,10 @@ public:
 private:
     using ServiceCallback = std::function<ServiceResponse( http::verb verb, const nlohmann::json&, const nlohmann::json& )>;
 
-    static ServiceResponse info( const nlohmann::json& queryParams, const nlohmann::json& body );
-    static ServiceResponse quit( const nlohmann::json& queryParams, const nlohmann::json& body );
+    static ServiceResponse
+        info( const std::list<std::string>& pathArguments, const nlohmann::json& queryParams, const nlohmann::json& body );
+    static ServiceResponse
+        quit( const std::list<std::string>& pathArguments, const nlohmann::json& queryParams, const nlohmann::json& body );
 
     std::unique_ptr<RestPathEntry> m_requestPathRoot;
 };

@@ -18,6 +18,7 @@
 //
 #pragma once
 
+#include "cafPortableDataType.h"
 #include "cafRestServiceInterface.h"
 
 #include <nlohmann/json.hpp>
@@ -27,6 +28,7 @@
 #include <functional>
 #include <list>
 #include <map>
+#include <optional>
 #include <string>
 
 namespace http = boost::beast::http;
@@ -37,10 +39,14 @@ namespace caffa::rpc
 class RestResponse
 {
 public:
-    RestResponse( const std::string& description, const std::string& contentType = "", const std::string& schemaPath = "" );
+    RestResponse( const std::string& contentType, const std::string& schemaPath, const std::string& description );
+    RestResponse( const std::string& description );
+
     nlohmann::json schema() const;
 
     static std::unique_ptr<RestResponse> plainError();
+
+    std::unique_ptr<RestResponse> clone() const;
 
 private:
     std::string m_description;
@@ -48,20 +54,86 @@ private:
     std::string m_schemaPath;
 };
 
+class RestParameter
+{
+public:
+    enum class Location
+    {
+        PATH,
+        QUERY
+    };
+
+    RestParameter( const std::string& name, Location location, bool required, const std::string& description );
+
+    virtual nlohmann::json                 schema() const = 0;
+    virtual std::unique_ptr<RestParameter> clone() const  = 0;
+
+protected:
+    std::string m_name;
+    Location    m_location;
+    bool        m_required;
+    std::string m_description;
+};
+
+template <typename DataType>
+class RestTypedParameter : public RestParameter
+{
+public:
+    RestTypedParameter( const std::string& name, Location location, bool required, const std::string& description )
+        : RestParameter( name, location, required, description )
+    {
+    }
+
+    void setDefaultValue( DataType defaultValue ) { m_defaultValue = defaultValue; }
+
+    nlohmann::json schema() const override
+    {
+        std::string locString = ( m_location == Location::PATH ) ? "path" : "query";
+        auto        schema    = nlohmann::json{ { "name", m_name },
+                                                { "in", locString },
+                                                { "required", m_required },
+                                                { "description", m_description },
+                                                { "schema", caffa::PortableDataType<DataType>::jsonType() } };
+        if ( m_defaultValue )
+        {
+            schema["default"] = *m_defaultValue;
+        }
+        return schema;
+    }
+
+    std::unique_ptr<RestParameter> clone() const override
+    {
+        auto clone = std::make_unique<RestTypedParameter<DataType>>( m_name, m_location, m_required, m_description );
+        if ( m_defaultValue )
+        {
+            clone->setDefaultValue( *m_defaultValue );
+        }
+        return clone;
+    }
+
+private:
+    std::optional<DataType> m_defaultValue;
+};
+
 class RestAction
 {
 public:
     using ServiceResponse = RestServiceInterface::ServiceResponse;
-    using Callback = std::function<ServiceResponse( const nlohmann::json& queryParams, const nlohmann::json& body )>;
+    using Callback =
+        std::function<ServiceResponse( const std::list<std::string>&, const nlohmann::json&, const nlohmann::json& )>;
 
     RestAction( http::verb verb, const std::string& summary, const std::string& operationId, const Callback& callback );
 
-    http::verb     verb() const;
-    void           addTag( const std::string& tag );
+    http::verb verb() const;
+    void       addTag( const std::string& tag );
+
+    void           addParameter( std::unique_ptr<RestParameter> parameter );
     void           addResponse( http::status status, std::unique_ptr<RestResponse> response );
     nlohmann::json schema() const;
 
-    ServiceResponse perform( const nlohmann::json& queryParams, const nlohmann::json& body ) const;
+    ServiceResponse perform( const std::list<std::string>& pathArguments,
+                             const nlohmann::json&         queryParams,
+                             const nlohmann::json&         body ) const;
 
     void setRequiresSession( bool requiresSession );
     void setRequiresAuthentication( bool requiresAuthentication );
@@ -78,6 +150,7 @@ private:
     bool        m_requiresAuthentication;
 
     std::list<std::string>                                m_tags;
+    std::list<std::unique_ptr<RestParameter>>             m_parameters;
     std::map<http::status, std::unique_ptr<RestResponse>> m_responses;
 };
 
@@ -89,14 +162,17 @@ public:
 public:
     RestPathEntry( const std::string& name );
     const std::string& name() const;
-    ServiceResponse    perform( http::verb verb, const nlohmann::json& queryParams, const nlohmann::json& body ) const;
+    ServiceResponse    perform( http::verb                    verb,
+                                const std::list<std::string>& pathArguments,
+                                const nlohmann::json&         queryParams,
+                                const nlohmann::json&         body ) const;
 
     void addEntry( std::unique_ptr<RestPathEntry> pathEntry );
     void addAction( std::unique_ptr<RestAction> action );
 
     nlohmann::json schema() const;
 
-    const RestPathEntry* findPathEntry( std::list<std::string> path ) const;
+    std::pair<const RestPathEntry*, std::list<std::string>> findPathEntry( std::list<std::string> path ) const;
 
     std::list<const RestAction*>    actions() const;
     std::list<const RestPathEntry*> children() const;

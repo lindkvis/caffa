@@ -19,13 +19,21 @@
 #include "cafRestRequest.h"
 
 #include "cafLogger.h"
+#include "cafStringTools.h"
 
 using namespace caffa::rpc;
 
-RestResponse::RestResponse( const std::string& description, const std::string& contentType, const std::string& schemaPath )
-    : m_description( description )
-    , m_contentType( contentType )
+RestResponse::RestResponse( const std::string& contentType, const std::string& schemaPath, const std::string& description )
+    : m_contentType( contentType )
     , m_schemaPath( schemaPath )
+    , m_description( description )
+{
+}
+
+RestResponse::RestResponse( const std::string& description )
+    : m_contentType( "" )
+    , m_schemaPath( "" )
+    , m_description( description )
 {
 }
 
@@ -43,9 +51,22 @@ nlohmann::json RestResponse::schema() const
     return response;
 }
 
+std::unique_ptr<RestResponse> RestResponse::clone() const
+{
+    return std::make_unique<RestResponse>( m_description, m_contentType, m_schemaPath );
+}
+
 std::unique_ptr<RestResponse> RestResponse::plainError()
 {
     return std::make_unique<RestResponse>( "A Service Error Message", "text/plain", "#/components/error_schemas/PlainError" );
+}
+
+RestParameter::RestParameter( const std::string& name, Location location, bool required, const std::string& description )
+    : m_name( name )
+    , m_location( location )
+    , m_required( required )
+    , m_description( description )
+{
 }
 
 RestAction::RestAction( http::verb verb, const std::string& summary, const std::string& operationId, const Callback& callback )
@@ -68,6 +89,11 @@ void RestAction::addTag( const std::string& tag )
     m_tags.push_back( tag );
 }
 
+void RestAction::addParameter( std::unique_ptr<RestParameter> parameter )
+{
+    m_parameters.push_back( std::move( parameter ) );
+}
+
 void RestAction::addResponse( http::status status, std::unique_ptr<RestResponse> response )
 {
     CAFFA_ASSERT( !m_responses.contains( status ) );
@@ -85,7 +111,11 @@ nlohmann::json RestAction::schema() const
     auto responses = nlohmann::json::object();
     for ( const auto& [status, response] : m_responses )
     {
-        auto statusString       = std::to_string( static_cast<unsigned>( status ) );
+        std::string statusString = "default";
+        if ( status != http::status::unknown )
+        {
+            statusString = std::to_string( static_cast<unsigned>( status ) );
+        }
         responses[statusString] = response->schema();
     }
 
@@ -93,12 +123,24 @@ nlohmann::json RestAction::schema() const
                                   { "operationId", m_operationId },
                                   { "responses", responses },
                                   { "tags", tagList } };
+
+    if ( !m_parameters.empty() )
+    {
+        auto parameters = nlohmann::json::array();
+        for ( const auto& parameter : m_parameters )
+        {
+            parameters.push_back( parameter->schema() );
+        }
+        action["parameters"] = parameters;
+    }
     return action;
 }
 
-RestAction::ServiceResponse RestAction::perform( const nlohmann::json& queryParams, const nlohmann::json& body ) const
+RestAction::ServiceResponse RestAction::perform( const std::list<std::string>& pathArguments,
+                                                 const nlohmann::json&         queryParams,
+                                                 const nlohmann::json&         body ) const
 {
-    return m_callback( queryParams, body );
+    return m_callback( pathArguments, queryParams, body );
 }
 
 void RestAction::setRequiresSession( bool requiresSession )
@@ -131,8 +173,10 @@ const std::string& RestPathEntry::name() const
     return m_name;
 }
 
-RestPathEntry::ServiceResponse
-    RestPathEntry::perform( http::verb verb, const nlohmann::json& queryParams, const nlohmann::json& body ) const
+RestPathEntry::ServiceResponse RestPathEntry::perform( http::verb                    verb,
+                                                       const std::list<std::string>& pathArguments,
+                                                       const nlohmann::json&         queryParams,
+                                                       const nlohmann::json&         body ) const
 {
     auto it = m_actions.find( verb );
     if ( it == m_actions.end() )
@@ -141,7 +185,7 @@ RestPathEntry::ServiceResponse
                                   name() );
     }
 
-    return it->second->perform( queryParams, body );
+    return it->second->perform( pathArguments, queryParams, body );
 }
 
 void RestPathEntry::addEntry( std::unique_ptr<RestPathEntry> pathEntry )
@@ -157,7 +201,7 @@ void RestPathEntry::addAction( std::unique_ptr<RestAction> action )
     m_actions[verb] = std::move( action );
 }
 
-const RestPathEntry* RestPathEntry::findPathEntry( std::list<std::string> path ) const
+std::pair<const RestPathEntry*, std::list<std::string>> RestPathEntry::findPathEntry( std::list<std::string> path ) const
 {
     CAFFA_ASSERT( !path.empty() );
     auto currentLevel = path.front();
@@ -169,16 +213,13 @@ const RestPathEntry* RestPathEntry::findPathEntry( std::list<std::string> path )
         {
             for ( const auto& [name, child] : m_children )
             {
-                auto request = child->findPathEntry( path );
-                if ( request ) return request;
+                auto requestAndRemainingParameters = child->findPathEntry( path );
+                if ( requestAndRemainingParameters.first ) return requestAndRemainingParameters;
             }
         }
-        else
-        {
-            return this;
-        }
+        return std::make_pair( this, path );
     }
-    return nullptr;
+    return std::make_pair( nullptr, path );
 }
 
 std::list<const RestPathEntry*> RestPathEntry::children() const
@@ -208,7 +249,7 @@ nlohmann::json RestPathEntry::schema() const
     for ( const auto& [verb, action] : m_actions )
     {
         std::string verbString( http::to_string( verb ) );
-        request[verbString] = action->schema();
+        request[caffa::StringTools::tolower( verbString )] = action->schema();
     }
 
     return request;
@@ -253,7 +294,7 @@ const std::list<std::pair<std::string, const RestPathEntry*>>& RequestFinder::al
 
 void RequestFinder::searchPath( const RestPathEntry* pathEntry, std::string currentPath )
 {
-    auto request = pathEntry->findPathEntry( { pathEntry->name() } );
+    auto [request, pathArguments] = pathEntry->findPathEntry( { pathEntry->name() } );
 
     if ( request && !request->actions().empty() )
     {
