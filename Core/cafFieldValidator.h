@@ -1,24 +1,24 @@
-//##################################################################################################
+// ##################################################################################################
 //
-//   Custom Visualization Core library
-//   Copyright (C) 2021- 3D-Radar AS
+//    Custom Visualization Core library
+//    Copyright (C) 2021- 3D-Radar AS
 //
-//   This library may be used under the terms of the GNU Lesser General Public License as follows:
+//    This library may be used under the terms of the GNU Lesser General Public License as follows:
 //
-//   GNU Lesser General Public License Usage
-//   This library is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; either version 2.1 of the License, or
-//   (at your option) any later version.
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//   FITNESS FOR A PARTICULAR PURPOSE.
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
 //
-//##################################################################################################
+// ##################################################################################################
 #pragma once
 
 #include "cafAssert.h"
@@ -140,14 +140,15 @@ public:
 
     void readFromJson( const nlohmann::json& jsonFieldObject, const caffa::Serializer& serializer ) override
     {
-        if ( jsonFieldObject.is_object() && jsonFieldObject.contains( "valid-range" ) )
+        if ( jsonFieldObject.is_object() )
         {
-            auto jsonRange = jsonFieldObject["valid-range"];
-            CAFFA_ASSERT( jsonRange.is_object() );
-            if ( jsonRange.contains( "min" ) && jsonRange.contains( "max" ) )
+            if ( jsonFieldObject.contains( "minimum" ) )
             {
-                m_minimum = jsonRange["min"];
-                m_maximum = jsonRange["max"];
+                m_minimum = jsonFieldObject["minimum"];
+            }
+            if ( jsonFieldObject.contains( "maximum" ) )
+            {
+                m_maximum = jsonFieldObject["maximum"];
             }
         }
     }
@@ -155,10 +156,8 @@ public:
     void writeToJson( nlohmann::json& jsonFieldObject, const caffa::Serializer& serializer ) const override
     {
         CAFFA_ASSERT( jsonFieldObject.is_object() );
-        auto jsonRange                 = nlohmann::json::object();
-        jsonRange["min"]               = m_minimum;
-        jsonRange["max"]               = m_maximum;
-        jsonFieldObject["valid-range"] = jsonRange;
+        jsonFieldObject["minimum"] = m_minimum;
+        jsonFieldObject["maximum"] = m_maximum;
     }
 
     std::pair<bool, std::string> validate( const DataType& value ) const override
