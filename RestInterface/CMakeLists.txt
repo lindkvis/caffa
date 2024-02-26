@@ -16,6 +16,7 @@ set(PUBLIC_HEADERS
     cafRestSessionService.h
     cafRestRequest.h
     cafRestOpenApiService.h
+    cafRestRequest.h
     cafRestSessionService.h)
 
 set(PROJECT_FILES
@@ -32,6 +33,7 @@ set(PROJECT_FILES
     cafRestSessionService.cpp
     cafRestRequest.cpp
     cafRestOpenApiService.cpp
+    cafRestRequest.cpp
     cafRestSessionService.cpp)
 
 if(CAFFA_BUILD_SHARED)
