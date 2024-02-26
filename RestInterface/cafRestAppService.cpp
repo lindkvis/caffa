@@ -19,6 +19,7 @@
 #include "cafRestAppService.h"
 
 #include "cafLogger.h"
+#include "cafRestRequest.h"
 #include "cafRestServerApplication.h"
 #include "cafSession.h"
 
@@ -26,71 +27,98 @@
 
 using namespace caffa::rpc;
 
+RestAppService::RestAppService()
+{
+    m_requestPathRoot = std::make_unique<RestPathEntry>( "app" );
+
+    auto info = std::make_unique<RestPathEntry>( "info" );
+    {
+        auto action =
+            std::make_unique<RestAction>( http::verb::get, "Get Application Information", "info", &RestAppService::info );
+        action->addResponse( http::status::ok,
+                             std::make_unique<RestResponse>( "application/json",
+                                                             "#/components/app_schemas/AppInfo",
+                                                             "Application Information" ) );
+        action->addResponse( http::status::too_many_requests, RestResponse::plainError() );
+        action->setRequiresAuthentication( false );
+        action->setRequiresSession( false );
+
+        info->addAction( std::move( action ) );
+    }
+
+    auto quit = std::make_unique<RestPathEntry>( "quit" );
+    {
+        auto action =
+            std::make_unique<RestAction>( http::verb::delete_, "Quit Application", "quit", &RestAppService::quit );
+        action->addResponse( http::status::accepted, std::make_unique<RestResponse>( "Success" ) );
+        action->addResponse( http::status::forbidden, RestResponse::plainError() );
+        action->setRequiresAuthentication( false );
+        action->setRequiresSession( true );
+
+        quit->addAction( std::move( action ) );
+    }
+
+    m_requestPathRoot->addEntry( std::move( info ) );
+    m_requestPathRoot->addEntry( std::move( quit ) );
+}
+
 RestAppService::ServiceResponse RestAppService::perform( http::verb             verb,
                                                          std::list<std::string> path,
                                                          const nlohmann::json&  queryParams,
                                                          const nlohmann::json&  body )
 {
-    if ( verb == http::verb::get )
+    caffa::SessionMaintainer session;
+
+    CAFFA_ASSERT( !path.empty() );
+
+    if ( queryParams.contains( "session_uuid" ) )
     {
-        return info();
+        auto session_uuid = queryParams["session_uuid"].get<std::string>();
+        session           = RestServerApplication::instance()->getExistingSession( session_uuid );
     }
-    else if ( verb == http::verb::delete_ )
+
+    auto request = m_requestPathRoot->findPathEntry( path );
+    if ( !request )
     {
-        return quit();
+        return std::make_tuple( http::status::bad_request, "Path not found", nullptr );
     }
-    return std::make_tuple( http::status::bad_request, "Only GET or DELETE makes any sense with app requests", nullptr );
+
+    return request->perform( verb, queryParams, body );
 }
 
 bool RestAppService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
 {
-    return false;
+    auto service = m_requestPathRoot->findPathEntry( path );
+    if ( !service ) return false;
+
+    return service->requiresAuthentication( verb );
 }
 
 bool RestAppService::requiresSession( http::verb verb, const std::list<std::string>& path ) const
 {
-    return verb == http::verb::delete_;
+    auto service = m_requestPathRoot->findPathEntry( path );
+    if ( !service ) return false;
+
+    return service->requiresSession( verb );
 }
 
 std::map<std::string, nlohmann::json> RestAppService::servicePathEntries() const
 {
-    auto infoRequest = nlohmann::json::object();
+    CAFFA_DEBUG( "Get service path entries" );
 
-    auto getContent                = nlohmann::json::object();
-    getContent["application/json"] = { { "schema", { { "$ref", "#/components/app_schemas/AppInfo" } } } };
-    auto getResponses              = nlohmann::json::object();
+    auto services = nlohmann::json::object();
 
-    auto errorContent          = nlohmann::json::object();
-    errorContent["text/plain"] = { { "schema", { { "$ref", "#/components/error_schemas/PlainError" } } } };
+    RequestFinder finder( m_requestPathRoot.get() );
+    finder.search();
 
-    getResponses[std::to_string( static_cast<unsigned>( http::status::ok ) )] = { { "description",
-                                                                                    "Application Information" },
-                                                                                  { "content", getContent } };
-    getResponses[std::to_string( static_cast<unsigned>( http::status::too_many_requests ) )] =
-        { { "description", "Too many Requests Error Message" }, { "content", errorContent } };
+    CAFFA_DEBUG( "Got " << finder.allPathEntriesWithActions().size() << " service path entries" );
 
-    infoRequest["get"] = { { "summary", "Get Application Information" },
-                           { "operationId", "info" },
-                           { "responses", getResponses },
-                           { "tags", { "app" } } };
-
-    auto quitRequest   = nlohmann::json::object();
-    auto quitResponses = nlohmann::json::object();
-
-    quitResponses[std::to_string( static_cast<unsigned>( http::status::accepted ) )] = {
-        { "description", "Success" },
-    };
-
-    quitResponses[std::to_string( static_cast<unsigned>( http::status::forbidden ) )] = { { "description",
-                                                                                            "Quit Error Message" },
-                                                                                          { "content", errorContent } };
-
-    quitRequest["delete"] = { { "summary", "Quit Application" },
-                              { "operationId", "quit" },
-                              { "responses", quitResponses },
-                              { "tags", { "app" } } };
-
-    return { { "/app/info", infoRequest }, { "/app/quit", quitRequest } };
+    for ( const auto& [path, request] : finder.allPathEntriesWithActions() )
+    {
+        CAFFA_INFO( "Got path: " << path );
+        services[path] = request->schema();
+    }
+    return services;
 }
 
 std::map<std::string, nlohmann::json> RestAppService::serviceComponentEntries() const
@@ -103,7 +131,7 @@ std::map<std::string, nlohmann::json> RestAppService::serviceComponentEntries() 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestAppService::ServiceResponse RestAppService::info()
+RestAppService::ServiceResponse RestAppService::info( const nlohmann::json& queryParams, const nlohmann::json& body )
 {
     CAFFA_TRACE( "Received info request" );
 
@@ -117,7 +145,7 @@ RestAppService::ServiceResponse RestAppService::info()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestAppService::ServiceResponse RestAppService::quit()
+RestAppService::ServiceResponse RestAppService::quit( const nlohmann::json& queryParams, const nlohmann::json& body )
 {
     CAFFA_DEBUG( "Received quit request" );
 

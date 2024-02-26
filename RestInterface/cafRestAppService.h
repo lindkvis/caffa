@@ -18,6 +18,7 @@
 //
 #pragma once
 
+#include "cafRestRequest.h"
 #include "cafRestServiceInterface.h"
 
 #include <utility>
@@ -28,6 +29,8 @@ namespace caffa::rpc
 class RestAppService : public RestServiceInterface
 {
 public:
+    RestAppService();
+
     ServiceResponse perform( http::verb             verb,
                              std::list<std::string> path,
                              const nlohmann::json&  queryParams,
@@ -42,7 +45,9 @@ public:
 private:
     using ServiceCallback = std::function<ServiceResponse( http::verb verb, const nlohmann::json&, const nlohmann::json& )>;
 
-    static ServiceResponse info();
-    static ServiceResponse quit();
+    static ServiceResponse info( const nlohmann::json& queryParams, const nlohmann::json& body );
+    static ServiceResponse quit( const nlohmann::json& queryParams, const nlohmann::json& body );
+
+    std::unique_ptr<RestPathEntry> m_requestPathRoot;
 };
 } // namespace caffa::rpc

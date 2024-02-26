@@ -31,6 +31,12 @@ if(UNIX)
   set(THREAD_LIBRARY "pthread")
 endif()
 
+if(MSVC)
+  # Windows 10 minimum
+  add_definitions(WIN32_WINNT=0x0A00)
+endif()
+
+
 add_definitions(-DGTEST_HAS_STD_WSTRING=0)
 # Third Party libraries
 set(JSON_BuildTests

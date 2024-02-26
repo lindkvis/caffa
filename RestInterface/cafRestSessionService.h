@@ -18,6 +18,7 @@
 //
 #pragma once
 
+#include "cafRestRequest.h"
 #include "cafRestServiceInterface.h"
 
 #include <utility>
@@ -28,6 +29,7 @@ namespace caffa::rpc
 class RestSessionService : public RestServiceInterface
 {
 public:
+    RestSessionService();
     ServiceResponse perform( http::verb             verb,
                              std::list<std::string> path,
                              const nlohmann::json&  queryParams,
@@ -58,5 +60,8 @@ private:
     static ServiceResponse change( const std::string& uuid, const nlohmann::json& body );
     static ServiceResponse destroy( const std::string& uuid );
     static ServiceResponse keepalive( const std::string& uuid );
+
+private:
+    std::unique_ptr<RestPath> m_requestPathRoot;
 };
 } // namespace caffa::rpc
