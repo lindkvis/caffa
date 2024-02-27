@@ -42,13 +42,9 @@ RestServerApplication::RestServerApplication( unsigned short                    
     , m_portNumber( portNumber )
     , m_threads( threads )
     , m_ioContext( threads )
+    , m_authenticator( authenticator )
+    , m_threadRunning( false )
 {
-    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestAppService>( "app" );
-    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestObjectService>( "objects" );
-    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestSessionService>( "sessions" );
-    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestOpenApiService>( "openapi" );
-    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestDocumentService>( "documents" );
-
     auto cert = authenticator->sslCertificate();
     auto key  = authenticator->sslKey();
     auto dh   = authenticator->sslDhParameters();
@@ -69,11 +65,6 @@ RestServerApplication::RestServerApplication( unsigned short                    
 
         m_sslContext->use_tmp_dh( boost::asio::buffer( dh.data(), dh.size() ) );
     }
-    m_server = std::make_shared<RestServer>( m_ioContext,
-                                             m_sslContext,
-                                             tcp::endpoint{ net::ip::make_address( "0.0.0.0" ), m_portNumber },
-                                             ".",
-                                             authenticator );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,10 +86,22 @@ int RestServerApplication::portNumber() const
 //--------------------------------------------------------------------------------------------------
 void RestServerApplication::run()
 {
-    CAFFA_ASSERT( m_server );
+    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestAppService>( "app" );
+    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestObjectService>( "objects" );
+    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestSessionService>( "sessions" );
+    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestOpenApiService>( "openapi" );
+    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestDocumentService>( "documents" );
+
+    m_server = std::make_shared<RestServer>( m_ioContext,
+                                             m_sslContext,
+                                             tcp::endpoint{ net::ip::make_address( "0.0.0.0" ), m_portNumber },
+                                             ".",
+                                             m_authenticator );
+
     onStartup();
 
     m_server->run();
+    m_threadRunning = true;
     std::vector<std::thread> v;
     v.reserve( m_threads - 1 );
     for ( auto i = m_threads - 1; i > 0; --i )
@@ -122,5 +125,5 @@ void RestServerApplication::quit()
 
 bool RestServerApplication::running() const
 {
-    return !m_ioContext.stopped();
+    return m_threadRunning && !m_ioContext.stopped();
 }

@@ -131,7 +131,7 @@ public:
             {
                 if ( !m_session->isExpired() )
                 {
-                    throw std::runtime_error( "We already have a session and only allow one at a time!" );
+                    throw std::runtime_error( "We already have a regular session and only allow one at a time!" );
                 }
                 else
                 {

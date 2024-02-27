@@ -180,10 +180,16 @@ public:
     bool requiresSession( http::verb verb ) const;
     bool requiresAuthentication( http::verb verb ) const;
 
+    void setPathArgumentMatcher( const std::function<bool( std::string )>& argumentMatcher );
+
 private:
+    bool matchesPathArgument( const std::string& pathArgument ) const;
+
     std::string                                           m_name;
     std::map<std::string, std::unique_ptr<RestPathEntry>> m_children;
     std::map<http::verb, std::unique_ptr<RestAction>>     m_actions;
+
+    std::function<bool( std::string )> m_pathArgumentMatcher;
 };
 
 class RequestFinder

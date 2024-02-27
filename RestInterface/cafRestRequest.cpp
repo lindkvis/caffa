@@ -205,9 +205,18 @@ std::pair<const RestPathEntry*, std::list<std::string>> RestPathEntry::findPathE
 {
     CAFFA_ASSERT( !path.empty() );
     auto currentLevel = path.front();
-    path.pop_front();
 
-    if ( currentLevel == name() )
+    bool match = currentLevel == name();
+    if ( match )
+    {
+        path.pop_front();
+    }
+    else if ( matchesPathArgument( currentLevel ) )
+    {
+        match = true;
+    }
+
+    if ( match )
     {
         if ( !path.empty() )
         {
@@ -275,6 +284,20 @@ bool RestPathEntry::requiresAuthentication( http::verb verb ) const
                                   name() );
     }
     return it->second->requiresAuthentication();
+}
+
+void RestPathEntry::setPathArgumentMatcher( const std::function<bool( std::string )>& argumentMatcher )
+{
+    m_pathArgumentMatcher = argumentMatcher;
+}
+
+bool RestPathEntry::matchesPathArgument( const std::string& pathArgument ) const
+{
+    if ( m_pathArgumentMatcher )
+    {
+        return m_pathArgumentMatcher( pathArgument );
+    }
+    return false;
 }
 
 RequestFinder::RequestFinder( const RestPathEntry* rootPath )

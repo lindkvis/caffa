@@ -34,6 +34,7 @@
 //
 #include "cafRestClient.h"
 
+#include "cafAppEnum.h"
 #include "cafDefaultObjectFactory.h"
 #include "cafDocument.h"
 #include "cafJsonSerializer.h"
@@ -130,7 +131,7 @@ public:
     {
         if ( ec )
         {
-            CAFFA_ERROR( "Failed to connect to host" << ec );
+            CAFFA_ERROR( "Failed to connect to host: " << ec );
             m_result.set_value( std::make_pair( http::status::network_connect_timeout_error, "Failed to connect to host" ) );
             return;
         }
@@ -447,10 +448,9 @@ bool RestClient::isReady( caffa::Session::Type type ) const
 
     CAFFA_TRACE( "Checking if server is ready for sessions" );
 
-    auto unsignedType = static_cast<unsigned>( type );
+    caffa::AppEnum<caffa::Session::Type> enumType( type );
 
-    auto [status, body] =
-        performGetRequest( hostname(), port(), std::string( "/sessions/?type=" + std::to_string( unsignedType ) ) );
+    auto [status, body] = performGetRequest( hostname(), port(), std::string( "/sessions/?type=" + enumType.label() ) );
 
     if ( status != http::status::ok )
     {
@@ -475,13 +475,12 @@ void RestClient::createSession( caffa::Session::Type type, const std::string& us
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
-    CAFFA_TRACE( "Creating session of type " << static_cast<unsigned>( type ) );
+    caffa::AppEnum<caffa::Session::Type> enumType( type );
 
-    auto arguments    = nlohmann::json::object();
-    arguments["type"] = static_cast<unsigned>( type );
+    CAFFA_TRACE( "Creating session of type " << enumType.label() );
 
     auto [status, body] =
-        performRequest( http::verb::post, hostname(), port(), "/sessions", arguments.dump(), username, password );
+        performRequest( http::verb::post, hostname(), port(), "/sessions?type=" + enumType.label(), "", username, password );
 
     if ( status != http::status::ok )
     {

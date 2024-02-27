@@ -56,6 +56,8 @@ RestObjectService::ServiceResponse RestObjectService::perform( http::verb       
         session           = RestServerApplication::instance()->getExistingSession( session_uuid );
     }
 
+    path.pop_front();
+
     if ( path.empty() )
     {
         return std::make_tuple( http::status::bad_request, "Object uuid not specified", nullptr );

@@ -204,7 +204,7 @@ void ClientPassByRefObjectFactory::applyAccessorToMethod( caffa::ObjectHandle* o
 void ClientPassByRefObjectFactory::registerAccessorCreator( const std::string&                   dataType,
                                                             std::unique_ptr<AccessorCreatorBase> creator )
 {
-    CAFFA_INFO( "Registering accessor for data type: " << dataType << ", -> " << creator->jsonDataType() );
+    CAFFA_DEBUG( "Registering accessor for data type: " << dataType << ", -> " << creator->jsonDataType() );
     m_accessorCreatorMap.insert( std::make_pair( dataType, std::move( creator ) ) );
 }
 

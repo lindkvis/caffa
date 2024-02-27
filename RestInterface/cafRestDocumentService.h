@@ -18,6 +18,7 @@
 //
 #pragma once
 
+#include "cafRestRequest.h"
 #include "cafRestServiceInterface.h"
 
 #include <nlohmann/json.hpp>
@@ -44,6 +45,8 @@ namespace caffa::rpc
 class RestDocumentService : public RestServiceInterface
 {
 public:
+    RestDocumentService();
+
     ServiceResponse perform( http::verb             verb,
                              std::list<std::string> path,
                              const nlohmann::json&  queryParams,
@@ -56,8 +59,13 @@ public:
     std::map<std::string, nlohmann::json> serviceComponentEntries() const override;
 
 private:
-    static caffa::Document* document( const std::string& documentId, const caffa::Session* session );
-    static ServiceResponse  documents( const caffa::Session* session, bool skeleton );
+    static ServiceResponse document( const std::string&            documentId,
+                                     const std::list<std::string>& pathArguments,
+                                     const nlohmann::json&         queryParams,
+                                     const nlohmann::json&         body );
+    static ServiceResponse documents( const caffa::Session* session, bool skeleton );
+
+    std::unique_ptr<RestPathEntry> m_requestPathRoot;
 };
 
 } // namespace caffa::rpc

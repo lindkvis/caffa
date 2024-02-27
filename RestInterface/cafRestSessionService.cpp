@@ -22,6 +22,7 @@
 #include "cafLogger.h"
 #include "cafRestServerApplication.h"
 #include "cafSession.h"
+#include "cafUuidGenerator.h"
 
 #include <nlohmann/json.hpp>
 
@@ -74,6 +75,7 @@ RestSessionService::RestSessionService()
 
     {
         auto uuidEntry = std::make_unique<RestPathEntry>( "{uuid}" );
+        uuidEntry->setPathArgumentMatcher( &caffa::UuidGenerator::isUuid );
 
         auto uuidParameter = std::make_unique<RestTypedParameter<std::string>>( "uuid",
                                                                                 RestParameter::Location::PATH,
@@ -89,6 +91,7 @@ RestSessionService::RestSessionService()
         getAction->addResponse( http::status::ok, sessionResponse->clone() );
         getAction->addResponse( http::status::unknown, RestResponse::plainError() );
         getAction->setRequiresAuthentication( false );
+        getAction->setRequiresSession( false );
 
         uuidEntry->addAction( std::move( getAction ) );
 
@@ -101,7 +104,7 @@ RestSessionService::RestSessionService()
         deleteAction->addResponse( http::status::accepted, std::make_unique<RestResponse>( "Success" ) );
         deleteAction->addResponse( http::status::unknown, RestResponse::plainError() );
         deleteAction->setRequiresAuthentication( false );
-
+        deleteAction->setRequiresSession( false );
         uuidEntry->addAction( std::move( deleteAction ) );
 
         auto patchAction = std::make_unique<RestAction>( http::verb::patch,
@@ -114,6 +117,7 @@ RestSessionService::RestSessionService()
         patchAction->addResponse( http::status::accepted, std::make_unique<RestResponse>( "Success" ) );
         patchAction->addResponse( http::status::unknown, RestResponse::plainError() );
         patchAction->setRequiresAuthentication( false );
+        patchAction->setRequiresSession( false );
 
         uuidEntry->addAction( std::move( patchAction ) );
 
@@ -126,6 +130,7 @@ RestSessionService::RestSessionService()
         putAction->addResponse( http::status::ok, sessionResponse->clone() );
         putAction->addResponse( http::status::unknown, RestResponse::plainError() );
         putAction->setRequiresAuthentication( false );
+        putAction->setRequiresSession( false );
         uuidEntry->addAction( std::move( putAction ) );
 
         m_requestPathRoot->addEntry( std::move( uuidEntry ) );
@@ -150,19 +155,22 @@ RestSessionService::ServiceResponse RestSessionService::perform( http::verb     
 
 bool RestSessionService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
 {
-    // Create requests have no session and requires authentication
-    bool isCreateRequest = path.empty() && verb == http::verb::post;
-    return isCreateRequest;
+    auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
+    if ( !request )
+    {
+        return true;
+    }
+    return request->requiresAuthentication( verb );
 }
 
 bool RestSessionService::requiresSession( http::verb verb, const std::list<std::string>& path ) const
 {
-    // Create requests use authentication instead while the ready requests are completely unauthenticated
-    bool isCreateRequest = path.empty() && verb == http::verb::post;
-    bool isReadyRequest  = path.empty() && verb == http::verb::get;
-    // Allow destruction of a session without a valid session uuid just so we can return not_found instead of forbidden
-    bool isDestroyRequest = !path.empty() && verb == http::verb::delete_;
-    return !( isCreateRequest || isReadyRequest || isDestroyRequest );
+    auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
+    if ( !request )
+    {
+        return true;
+    }
+    return request->requiresSession( verb );
 }
 
 std::map<std::string, nlohmann::json> RestSessionService::servicePathEntries() const
@@ -212,15 +220,15 @@ RestSessionService::ServiceResponse RestSessionService::ready( const std::list<s
     CAFFA_DEBUG( "Received ready for session request with metadata " << queryParams );
     try
     {
-        caffa::Session::Type type = caffa::Session::Type::REGULAR;
+        caffa::AppEnum<caffa::Session::Type> type;
         if ( queryParams.contains( "type" ) )
         {
-            type = caffa::Session::typeFromUint( queryParams["type"].get<unsigned>() );
+            type.setFromLabel( queryParams["type"].get<std::string>() );
         }
         auto jsonResponse = nlohmann::json::object();
-        CAFFA_DEBUG( "Checking if we're ready for a session of type " << static_cast<unsigned>( type ) );
+        CAFFA_DEBUG( "Checking if we're ready for a session of type " << type.label() );
 
-        bool ready = RestServerApplication::instance()->readyForSession( type );
+        bool ready = RestServerApplication::instance()->readyForSession( type.value() );
 
         jsonResponse["ready"]          = ready;
         jsonResponse["other_sessions"] = RestServerApplication::instance()->hasActiveSessions();
@@ -243,12 +251,12 @@ RestSessionService::ServiceResponse RestSessionService::create( const std::list<
 
     try
     {
-        caffa::Session::Type type = caffa::Session::Type::REGULAR;
+        caffa::AppEnum<caffa::Session::Type> type;
         if ( queryParams.contains( "type" ) )
         {
-            type = caffa::Session::typeFromUint( queryParams["type"].get<unsigned>() );
+            type.setFromLabel( queryParams["type"].get<std::string>() );
         }
-        auto session = RestServerApplication::instance()->createSession( type );
+        auto session = RestServerApplication::instance()->createSession( type.value() );
 
         CAFFA_TRACE( "Created session: " << session->uuid() );
 
@@ -278,7 +286,7 @@ RestSessionService::ServiceResponse RestSessionService::get( const std::list<std
     }
     auto uuid = pathArguments.front();
 
-    CAFFA_TRACE( "Got session get request for uuid " << uuid );
+    CAFFA_DEBUG( "Got session get request for uuid " << uuid );
 
     caffa::SessionMaintainer session = RestServerApplication::instance()->getExistingSession( uuid );
     if ( !session )
@@ -307,7 +315,7 @@ RestSessionService::ServiceResponse RestSessionService::change( const std::list<
     }
     auto uuid = pathArguments.front();
 
-    CAFFA_TRACE( "Got session change request for " << uuid );
+    CAFFA_DEBUG( "Got session change request for " << uuid );
 
     caffa::SessionMaintainer session = RestServerApplication::instance()->getExistingSession( uuid );
 
@@ -325,9 +333,10 @@ RestSessionService::ServiceResponse RestSessionService::change( const std::list<
         return std::make_tuple( http::status::bad_request, "No new type provided", nullptr );
     }
 
-    caffa::Session::Type type = caffa::Session::typeFromUint( queryParams["type"].get<unsigned>() );
+    caffa::AppEnum<caffa::Session::Type> type;
+    type.setFromLabel( queryParams["type"].get<std::string>() );
 
-    RestServerApplication::instance()->changeSession( session.get(), type );
+    RestServerApplication::instance()->changeSession( session.get(), type.value() );
 
     auto jsonResponse     = nlohmann::json::object();
     jsonResponse["uuid"]  = session->uuid();
@@ -350,7 +359,7 @@ RestSessionService::ServiceResponse RestSessionService::keepalive( const std::li
     }
     auto uuid = pathArguments.front();
 
-    CAFFA_TRACE( "Got session keep-alive request for " << uuid );
+    CAFFA_DEBUG( "Got session keep-alive request for " << uuid );
 
     auto session = RestServerApplication::instance()->getExistingSession( uuid );
     if ( !session )
