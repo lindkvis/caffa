@@ -129,4 +129,22 @@ struct adl_serializer<std::chrono::time_point<Clock, Duration>>
         tp = std::chrono::steady_clock::time_point( duration );
     }
 };
+
+/**
+ * Serialiser for chrono durations
+ */
+template <typename IntType, typename Period>
+struct adl_serializer<std::chrono::duration<IntType, Period>>
+{
+    static void to_json( json& j, const std::chrono::duration<IntType, Period>& duration )
+    {
+        j = static_cast<IntType>( duration.count() );
+    }
+
+    static void from_json( const json& j, std::chrono::duration<IntType, Period>& duration )
+    {
+        duration = std::chrono::duration<IntType, Period>( j.get<IntType>() );
+    }
+};
+
 } // namespace nlohmann

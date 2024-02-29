@@ -146,7 +146,62 @@ struct PortableDataType<std::chrono::steady_clock::time_point>
     {
         auto object      = nlohmann::json::object();
         object["type"]   = "integer";
-        object["format"] = PortableDataType<int64_t>::name();
+        object["format"] = name();
+        return object;
+    }
+};
+
+template <>
+struct PortableDataType<std::chrono::nanoseconds>
+{
+    static std::string name() { return "nanoseconds"; }
+
+    static nlohmann::json jsonType()
+    {
+        auto object      = nlohmann::json::object();
+        object["type"]   = "integer";
+        object["format"] = name();
+        return object;
+    }
+};
+
+template <>
+struct PortableDataType<std::chrono::microseconds>
+{
+    static std::string name() { return "microseconds"; }
+
+    static nlohmann::json jsonType()
+    {
+        auto object      = nlohmann::json::object();
+        object["type"]   = "integer";
+        object["format"] = name();
+        return object;
+    }
+};
+
+template <>
+struct PortableDataType<std::chrono::milliseconds>
+{
+    static std::string name() { return "milliseconds"; }
+
+    static nlohmann::json jsonType()
+    {
+        auto object      = nlohmann::json::object();
+        object["type"]   = "integer";
+        object["format"] = name();
+        return object;
+    }
+};
+template <>
+struct PortableDataType<std::chrono::seconds>
+{
+    static std::string name() { return "seconds"; }
+
+    static nlohmann::json jsonType()
+    {
+        auto object      = nlohmann::json::object();
+        object["type"]   = "integer";
+        object["format"] = name();
         return object;
     }
 };

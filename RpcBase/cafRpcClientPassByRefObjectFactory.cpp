@@ -189,6 +189,10 @@ void ClientPassByRefObjectFactory::registerAllBasicAccessorCreators()
     registerBasicAccessorCreators<bool>();
     registerBasicAccessorCreators<std::string>();
     registerBasicAccessorCreators<std::chrono::steady_clock::time_point>();
+    registerBasicAccessorCreators<std::chrono::nanoseconds>();
+    registerBasicAccessorCreators<std::chrono::microseconds>();
+    registerBasicAccessorCreators<std::chrono::milliseconds>();
+    registerBasicAccessorCreators<std::chrono::seconds>();
 }
 
 } // namespace caffa::rpc
