@@ -63,7 +63,9 @@ private:
                                      const std::list<std::string>& pathArguments,
                                      const nlohmann::json&         queryParams,
                                      const nlohmann::json&         body );
-    static ServiceResponse documents( const caffa::Session* session, bool skeleton );
+    static ServiceResponse documents( const std::list<std::string>& pathArguments,
+                                      const nlohmann::json&         queryParams,
+                                      const nlohmann::json&         body );
 
     std::unique_ptr<RestPathEntry> m_requestPathRoot;
 };

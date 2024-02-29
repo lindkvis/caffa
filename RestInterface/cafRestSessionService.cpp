@@ -32,9 +32,7 @@ RestSessionService::RestSessionService()
 {
     m_requestPathRoot = std::make_unique<RestPathEntry>( "sessions" );
 
-    auto sessionResponse = std::make_unique<RestResponse>( "application/json",
-                                                           "#/components/session_schemas/Session",
-                                                           "An application session" );
+    auto sessionResponse = RestResponse::objectResponse( "#/components/session_schemas/Session", "An application session" );
 
     auto typeParameter =
         std::make_unique<RestTypedParameter<caffa::AppEnum<caffa::Session::Type>>>( "type",
@@ -51,11 +49,9 @@ RestSessionService::RestSessionService()
                                                          &RestSessionService::ready );
 
         readyAction->addResponse( http::status::ok,
-                                  std::make_unique<RestResponse>( "application/json",
-                                                                  "#/components/session_schemas/ReadyState",
-                                                                  "Ready State" ) );
+                                  RestResponse::objectResponse( "#/components/session_schemas/ReadyState", "Ready State" ) );
 
-        readyAction->addResponse( http::status::unknown, RestResponse::plainError() );
+        readyAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
         readyAction->setRequiresAuthentication( false );
         readyAction->setRequiresSession( false );
 
@@ -65,7 +61,7 @@ RestSessionService::RestSessionService()
         createAction->addParameter( typeParameter->clone() );
 
         createAction->addResponse( http::status::accepted, sessionResponse->clone() );
-        createAction->addResponse( http::status::unknown, RestResponse::plainError() );
+        createAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
         createAction->setRequiresAuthentication( true );
         createAction->setRequiresSession( false );
 
@@ -89,7 +85,7 @@ RestSessionService::RestSessionService()
 
         getAction->addParameter( uuidParameter->clone() );
         getAction->addResponse( http::status::ok, sessionResponse->clone() );
-        getAction->addResponse( http::status::unknown, RestResponse::plainError() );
+        getAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
         getAction->setRequiresAuthentication( false );
         getAction->setRequiresSession( false );
 
@@ -101,8 +97,8 @@ RestSessionService::RestSessionService()
                                                           &RestSessionService::destroy );
 
         deleteAction->addParameter( uuidParameter->clone() );
-        deleteAction->addResponse( http::status::accepted, std::make_unique<RestResponse>( "Success" ) );
-        deleteAction->addResponse( http::status::unknown, RestResponse::plainError() );
+        deleteAction->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
+        deleteAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
         deleteAction->setRequiresAuthentication( false );
         deleteAction->setRequiresSession( false );
         uuidEntry->addAction( std::move( deleteAction ) );
@@ -114,8 +110,8 @@ RestSessionService::RestSessionService()
 
         patchAction->addParameter( uuidParameter->clone() );
 
-        patchAction->addResponse( http::status::accepted, std::make_unique<RestResponse>( "Success" ) );
-        patchAction->addResponse( http::status::unknown, RestResponse::plainError() );
+        patchAction->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
+        patchAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
         patchAction->setRequiresAuthentication( false );
         patchAction->setRequiresSession( false );
 
@@ -128,7 +124,7 @@ RestSessionService::RestSessionService()
         putAction->addParameter( typeParameter->clone() );
 
         putAction->addResponse( http::status::ok, sessionResponse->clone() );
-        putAction->addResponse( http::status::unknown, RestResponse::plainError() );
+        putAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
         putAction->setRequiresAuthentication( false );
         putAction->setRequiresSession( false );
         uuidEntry->addAction( std::move( putAction ) );

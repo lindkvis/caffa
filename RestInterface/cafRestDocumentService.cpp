@@ -57,6 +57,12 @@ RestDocumentService::RestDocumentService()
     // Create a trial tree with an object for each entry
     auto documents = rpc::RestServerApplication::instance()->defaultDocuments();
 
+    auto skeletonParameter = std::make_unique<RestTypedParameter<bool>>( "skeleton",
+                                                                         RestParameter::Location::QUERY,
+                                                                         false,
+                                                                         "Whether to only send the skeleton" );
+    skeletonParameter->setDefaultValue( false );
+
     for ( auto document : documents )
     {
         auto getAction =
@@ -66,11 +72,11 @@ RestDocumentService::RestDocumentService()
                                           std::bind( &RestDocumentService::document, document->id(), _1, _2, _3 ) );
 
         getAction->addResponse( http::status::ok,
-                                std::make_unique<RestResponse>( "application/json",
-                                                                "#/components/object_schemas/" + document->classKeyword(),
-                                                                "Get " + document->classDocumentation() ) );
+                                RestResponse::objectResponse( "#/components/object_schemas/" + document->classKeyword(),
+                                                              document->classDocumentation() ) );
 
-        getAction->addResponse( http::status::unknown, RestResponse::plainError() );
+        getAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+        getAction->addParameter( skeletonParameter->clone() );
         getAction->setRequiresAuthentication( false );
         getAction->setRequiresSession( true );
 
@@ -79,6 +85,19 @@ RestDocumentService::RestDocumentService()
 
         m_requestPathRoot->addEntry( std::move( documentEntry ) );
     }
+
+    auto getAllAction =
+        std::make_unique<RestAction>( http::verb::get, "Get all documents", "getDocuments", &RestDocumentService::documents );
+
+    getAllAction->addResponse( http::status::ok,
+                               RestResponse::objectArrayResponse( "#/components/object_schemas/Document", "All documents" ) );
+    getAllAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+    getAllAction->addParameter( skeletonParameter->clone() );
+
+    getAllAction->setRequiresAuthentication( false );
+    getAllAction->setRequiresSession( true );
+
+    m_requestPathRoot->addAction( std::move( getAllAction ) );
 }
 
 RestDocumentService::ServiceResponse RestDocumentService::perform( http::verb             verb,
@@ -303,11 +322,26 @@ RestServiceInterface::ServiceResponse RestDocumentService::document( const std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestDocumentService::ServiceResponse RestDocumentService::documents( const Session* session, bool skeleton )
+RestDocumentService::ServiceResponse RestDocumentService::documents( const std::list<std::string>& pathArguments,
+                                                                     const nlohmann::json&         queryParams,
+                                                                     const nlohmann::json&         body )
 {
-    CAFFA_DEBUG( "Got list document request for" );
+    CAFFA_DEBUG( "Got list document request" );
 
-    auto documents = RestServerApplication::instance()->documents( session );
+    caffa::SessionMaintainer session;
+
+    if ( queryParams.contains( "session_uuid" ) )
+    {
+        auto session_uuid = queryParams["session_uuid"].get<std::string>();
+        session           = RestServerApplication::instance()->getExistingSession( session_uuid );
+    }
+
+    if ( !session || session->isExpired() )
+    {
+        return std::make_tuple( http::status::forbidden, "No valid session provided", nullptr );
+    }
+    bool skeleton  = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
+    auto documents = RestServerApplication::instance()->documents( session.get() );
     CAFFA_DEBUG( "Found " << documents.size() << " document" );
 
     auto jsonResult = nlohmann::json::array();

@@ -23,16 +23,8 @@
 
 using namespace caffa::rpc;
 
-RestResponse::RestResponse( const std::string& contentType, const std::string& schemaPath, const std::string& description )
-    : m_contentType( contentType )
-    , m_schemaPath( schemaPath )
-    , m_description( description )
-{
-}
-
-RestResponse::RestResponse( const std::string& description )
-    : m_contentType( "" )
-    , m_schemaPath( "" )
+RestResponse::RestResponse( const nlohmann::json& contentSchema, const std::string& description )
+    : m_content( contentSchema )
     , m_description( description )
 {
 }
@@ -41,11 +33,9 @@ nlohmann::json RestResponse::schema() const
 {
     auto response = nlohmann::json{ { "description", m_description } };
 
-    if ( !m_contentType.empty() && !m_schemaPath.empty() )
+    if ( !m_content.is_null() )
     {
-        auto content           = nlohmann::json::object();
-        content[m_contentType] = { { "schema", { { "$ref", m_schemaPath } } } };
-        response["content"]    = content;
+        response["content"] = m_content;
     }
 
     return response;
@@ -53,12 +43,38 @@ nlohmann::json RestResponse::schema() const
 
 std::unique_ptr<RestResponse> RestResponse::clone() const
 {
-    return std::make_unique<RestResponse>( m_description, m_contentType, m_schemaPath );
+    return std::make_unique<RestResponse>( m_content, m_description );
 }
 
-std::unique_ptr<RestResponse> RestResponse::plainError()
+std::unique_ptr<RestResponse> RestResponse::emptyResponse( const std::string& description )
 {
-    return std::make_unique<RestResponse>( "A Service Error Message", "text/plain", "#/components/error_schemas/PlainError" );
+    return std::make_unique<RestResponse>( nlohmann::json(), description );
+}
+
+std::unique_ptr<RestResponse> RestResponse::plainErrorResponse()
+{
+    auto content          = nlohmann::json::object();
+    content["text/plain"] = { { "schema", "#/components/error_schemas/PlainError" } };
+    return std::make_unique<RestResponse>( content, "A Service Error Message" );
+}
+
+std::unique_ptr<RestResponse> RestResponse::objectResponse( const std::string& schemaPath, const std::string& description )
+{
+    auto content                = nlohmann::json::object();
+    content["application/json"] = { { "schema", { { "$ref", schemaPath } } } };
+    return std::make_unique<RestResponse>( content, description );
+}
+
+std::unique_ptr<RestResponse> RestResponse::objectArrayResponse( const std::string& schemaPath,
+                                                                 const std::string& description )
+{
+    auto arraySchema    = nlohmann::json::object();
+    arraySchema["type"] = "array";
+    arraySchema["item"] = { { "$ref", schemaPath } };
+
+    auto content                = nlohmann::json::object();
+    content["application/json"] = arraySchema;
+    return std::make_unique<RestResponse>( content, description );
 }
 
 RestParameter::RestParameter( const std::string& name, Location location, bool required, const std::string& description )

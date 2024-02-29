@@ -36,10 +36,8 @@ RestAppService::RestAppService()
         auto action =
             std::make_unique<RestAction>( http::verb::get, "Get Application Information", "info", &RestAppService::info );
         action->addResponse( http::status::ok,
-                             std::make_unique<RestResponse>( "application/json",
-                                                             "#/components/app_schemas/AppInfo",
-                                                             "Application Information" ) );
-        action->addResponse( http::status::too_many_requests, RestResponse::plainError() );
+                             RestResponse::objectResponse( "#/components/app_schemas/AppInfo", "Application Information" ) );
+        action->addResponse( http::status::too_many_requests, RestResponse::plainErrorResponse() );
         action->setRequiresAuthentication( false );
         action->setRequiresSession( false );
 
@@ -50,8 +48,8 @@ RestAppService::RestAppService()
     {
         auto action =
             std::make_unique<RestAction>( http::verb::delete_, "Quit Application", "quit", &RestAppService::quit );
-        action->addResponse( http::status::accepted, std::make_unique<RestResponse>( "Success" ) );
-        action->addResponse( http::status::forbidden, RestResponse::plainError() );
+        action->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
+        action->addResponse( http::status::forbidden, RestResponse::plainErrorResponse() );
         action->setRequiresAuthentication( false );
         action->setRequiresSession( true );
 

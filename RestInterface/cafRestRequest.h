@@ -39,19 +39,21 @@ namespace caffa::rpc
 class RestResponse
 {
 public:
-    RestResponse( const std::string& contentType, const std::string& schemaPath, const std::string& description );
-    RestResponse( const std::string& description );
+    RestResponse( const nlohmann::json& contentSchema, const std::string& description );
 
     nlohmann::json schema() const;
 
-    static std::unique_ptr<RestResponse> plainError();
+    static std::unique_ptr<RestResponse> emptyResponse( const std::string& description );
+    static std::unique_ptr<RestResponse> plainErrorResponse();
+    static std::unique_ptr<RestResponse> objectResponse( const std::string& schemaPath, const std::string& description );
+    static std::unique_ptr<RestResponse> objectArrayResponse( const std::string& schemaPath,
+                                                              const std::string& description );
 
     std::unique_ptr<RestResponse> clone() const;
 
 private:
-    std::string m_contentType;
-    std::string m_schemaPath;
-    std::string m_description;
+    nlohmann::json m_content;
+    std::string    m_description;
 };
 
 class RestParameter
