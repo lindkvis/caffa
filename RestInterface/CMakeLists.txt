@@ -16,8 +16,7 @@ set(PUBLIC_HEADERS
     cafRestSessionService.h
     cafRestRequest.h
     cafRestOpenApiService.h
-    cafRestRequest.h
-    cafRestSessionService.h)
+    cafRestRequest.h)
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
@@ -33,8 +32,7 @@ set(PROJECT_FILES
     cafRestSessionService.cpp
     cafRestRequest.cpp
     cafRestOpenApiService.cpp
-    cafRestRequest.cpp
-    cafRestSessionService.cpp)
+    cafRestRequest.cpp)
 
 if(CAFFA_BUILD_SHARED)
   message(STATUS "Building ${PROJECT_NAME} shared")
