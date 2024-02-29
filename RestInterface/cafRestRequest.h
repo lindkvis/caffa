@@ -49,9 +49,9 @@ public:
     std::unique_ptr<RestResponse> clone() const;
 
 private:
-    std::string m_description;
     std::string m_contentType;
     std::string m_schemaPath;
+    std::string m_description;
 };
 
 class RestParameter
@@ -64,6 +64,7 @@ public:
     };
 
     RestParameter( const std::string& name, Location location, bool required, const std::string& description );
+    virtual ~RestParameter();
 
     virtual nlohmann::json                 schema() const = 0;
     virtual std::unique_ptr<RestParameter> clone() const  = 0;

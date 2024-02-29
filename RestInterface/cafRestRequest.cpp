@@ -69,6 +69,10 @@ RestParameter::RestParameter( const std::string& name, Location location, bool r
 {
 }
 
+RestParameter::~RestParameter()
+{
+}
+
 RestAction::RestAction( http::verb verb, const std::string& summary, const std::string& operationId, const Callback& callback )
     : m_verb( verb )
     , m_summary( summary )
