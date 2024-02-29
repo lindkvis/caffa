@@ -395,7 +395,7 @@ void RestClient::sendKeepAlive()
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
-    auto [status, body] = performRequest( http::verb::patch,
+    auto [status, body] = performRequest( http::verb::put,
                                           hostname(),
                                           port(),
                                           std::string( "/sessions/" ) + m_sessionUuid + "?session_uuid=" + m_sessionUuid,

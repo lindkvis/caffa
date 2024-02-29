@@ -38,8 +38,7 @@ RestSessionService::RestSessionService()
         std::make_unique<RestTypedParameter<caffa::AppEnum<caffa::Session::Type>>>( "type",
                                                                                     RestParameter::Location::QUERY,
                                                                                     false,
-                                                                                    "The type of session to "
-                                                                                    "create " );
+                                                                                    "The type of session" );
     typeParameter->setDefaultValue( caffa::Session::Type::REGULAR );
 
     {
@@ -103,22 +102,10 @@ RestSessionService::RestSessionService()
         deleteAction->setRequiresSession( false );
         uuidEntry->addAction( std::move( deleteAction ) );
 
-        auto patchAction = std::make_unique<RestAction>( http::verb::patch,
-                                                         "Keep a session alive",
-                                                         "keepSessionAlive",
-                                                         &RestSessionService::keepalive );
-
-        patchAction->addParameter( uuidParameter->clone() );
-
-        patchAction->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
-        patchAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
-        patchAction->setRequiresAuthentication( false );
-        patchAction->setRequiresSession( false );
-
-        uuidEntry->addAction( std::move( patchAction ) );
-
-        auto putAction =
-            std::make_unique<RestAction>( http::verb::put, "Change session", "changeSession", &RestSessionService::change );
+        auto putAction = std::make_unique<RestAction>( http::verb::put,
+                                                       "Change or keep session alive",
+                                                       "changeOrKeepAliveSession",
+                                                       &RestSessionService::changeOrKeepAlive );
 
         putAction->addParameter( uuidParameter->clone() );
         putAction->addParameter( typeParameter->clone() );
@@ -258,7 +245,7 @@ RestSessionService::ServiceResponse RestSessionService::create( const std::list<
 
         auto jsonResponse     = nlohmann::json::object();
         jsonResponse["uuid"]  = session->uuid();
-        jsonResponse["type"]  = static_cast<unsigned>( session->type() );
+        jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::label( session->type() );
         jsonResponse["valid"] = !session->isExpired();
         return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
     }
@@ -292,7 +279,7 @@ RestSessionService::ServiceResponse RestSessionService::get( const std::list<std
 
     auto jsonResponse     = nlohmann::json::object();
     jsonResponse["uuid"]  = session->uuid();
-    jsonResponse["type"]  = static_cast<unsigned>( session->type() );
+    jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::label( session->type() );
     jsonResponse["valid"] = !session->isExpired();
 
     return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
@@ -301,9 +288,9 @@ RestSessionService::ServiceResponse RestSessionService::get( const std::list<std
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse RestSessionService::change( const std::list<std::string>& pathArguments,
-                                                                const nlohmann::json&         queryParams,
-                                                                const nlohmann::json&         body )
+RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( const std::list<std::string>& pathArguments,
+                                                                           const nlohmann::json&         queryParams,
+                                                                           const nlohmann::json&         body )
 {
     if ( pathArguments.empty() )
     {
@@ -326,49 +313,21 @@ RestSessionService::ServiceResponse RestSessionService::change( const std::list<
 
     if ( !queryParams.contains( "type" ) )
     {
-        return std::make_tuple( http::status::bad_request, "No new type provided", nullptr );
+        session->updateKeepAlive();
     }
+    else
+    {
+        caffa::AppEnum<caffa::Session::Type> type;
+        type.setFromLabel( queryParams["type"].get<std::string>() );
 
-    caffa::AppEnum<caffa::Session::Type> type;
-    type.setFromLabel( queryParams["type"].get<std::string>() );
-
-    RestServerApplication::instance()->changeSession( session.get(), type.value() );
-
+        RestServerApplication::instance()->changeSession( session.get(), type.value() );
+    }
     auto jsonResponse     = nlohmann::json::object();
     jsonResponse["uuid"]  = session->uuid();
     jsonResponse["type"]  = static_cast<unsigned>( session->type() );
     jsonResponse["valid"] = !session->isExpired();
 
     return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse RestSessionService::keepalive( const std::list<std::string>& pathArguments,
-                                                                   const nlohmann::json&         queryParams,
-                                                                   const nlohmann::json&         body )
-{
-    if ( pathArguments.empty() )
-    {
-        return std::make_tuple( http::status::bad_request, "Session uuid not provided", nullptr );
-    }
-    auto uuid = pathArguments.front();
-
-    CAFFA_DEBUG( "Got session keep-alive request for " << uuid );
-
-    auto session = RestServerApplication::instance()->getExistingSession( uuid );
-    if ( !session )
-    {
-        return std::make_tuple( http::status::not_found, "Session '" + uuid + "' is not valid", nullptr );
-    }
-    else if ( session->isExpired() )
-    {
-        return std::make_tuple( http::status::gone, "Session '" + uuid + "' is expired", nullptr );
-    }
-
-    session->updateKeepAlive();
-    return std::make_tuple( http::status::accepted, "", nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------

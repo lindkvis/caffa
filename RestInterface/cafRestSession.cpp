@@ -92,7 +92,7 @@ RestServiceInterface::CleanupCallback
         }
         else
         {
-            CAFFA_DEBUG( "Sending failure response: " << response );
+            CAFFA_DEBUG( "Sending failure response " << status << " :" << response );
             res.set( http::field::content_type, "text/plain" );
         }
 
