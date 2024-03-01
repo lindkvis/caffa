@@ -18,7 +18,7 @@
 //
 // ##################################################################################################
 
-#include "cafRestUtility.h"
+#include "cafStringEncoding.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/archive/iterators/base64_from_binary.hpp>
@@ -26,7 +26,7 @@
 #include <boost/archive/iterators/remove_whitespace.hpp>
 #include <boost/archive/iterators/transform_width.hpp>
 
-namespace caffa::rpc
+namespace caffa::StringTools
 {
 
 std::string decodeBase64( std::string input )
@@ -62,4 +62,4 @@ std::string encodeBase64( std::string val )
     auto tmp = std::string( It( std::begin( val ) ), It( std::end( val ) ) );
     return tmp.append( ( 3 - val.size() % 3 ) % 3, '=' );
 }
-} // namespace caffa::rpc
+} // namespace caffa::StringTools

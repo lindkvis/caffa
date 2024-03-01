@@ -163,7 +163,7 @@ RestServiceInterface::CleanupCallback
         auto authorisation = req[http::field::authorization];
         auto trimmed       = caffa::StringTools::replace( std::string( authorisation ), "Basic ", "" );
 
-        if ( !authenticator->authenticate( decodeBase64( trimmed ) ) )
+        if ( !authenticator->authenticate( caffa::StringTools::decodeBase64( trimmed ) ) )
         {
             if ( authorisation.empty() )
             {
