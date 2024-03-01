@@ -12,8 +12,10 @@
 #include "cafJsonSerializer.h"
 #include "cafMethod.h"
 #include "cafObject.h"
+#include "cafStringEncoding.h"
 
 #include <functional>
+#include <random>
 
 using namespace std::placeholders;
 
@@ -328,4 +330,107 @@ TEST( BaseTest, TestRangeValidation )
     ASSERT_THROW( s1->m_up.setValue( 12 ), std::runtime_error );
     ASSERT_THROW( s1->m_up.setValue( -2 ), std::runtime_error );
     ASSERT_EQ( 5, s1->m_up );
+}
+
+std::string ipsum()
+{
+    return "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed aliquam ligula sed nibh rutrum, quis tempus "
+           "neque finibus. Sed ante elit, facilisis ut libero ut, elementum congue nibh. Cras aliquam tellus eu cursus "
+           "molestie. Aenean ut felis ut mi convallis dictum. Sed laoreet nisi in varius mattis. Integer eget arcu "
+           "ligula. Cras in cursus urna. Aenean cursus bibendum efficitur. Suspendisse vel ex mauris. Nulla facilisi. "
+           "Nulla vel ipsum imperdiet, volutpat dui interdum, ultrices erat. Aliquam ac bibendum erat. Proin elit sem, "
+           "mollis vel tortor eget, vulputate posuere eros. Fusce fringilla a eros nec imperdiet. Quisque viverra "
+           "tempor "
+           "turpis, a ornare eros imperdiet sit amet.";
+}
+
+TEST( Base64Test, encode64ipsum )
+{
+    std::string expected =
+        "TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4gU2VkIGFsaXF1YW0gbGlndWxhIHNlZCBuaW"
+        "JoIHJ1dHJ1bSwgcXVpcyB0ZW1wdXMgbmVxdWUgZmluaWJ1cy4gU2VkIGFudGUgZWxpdCwgZmFjaWxpc2lzIHV0IGxpYmVybyB1dCwgZWxlbWVu"
+        "dHVtIGNvbmd1ZSBuaWJoLiBDcmFzIGFsaXF1YW0gdGVsbHVzIGV1IGN1cnN1cyBtb2xlc3RpZS4gQWVuZWFuIHV0IGZlbGlzIHV0IG1pIGNvbn"
+        "ZhbGxpcyBkaWN0dW0uIFNlZCBsYW9yZWV0IG5pc2kgaW4gdmFyaXVzIG1hdHRpcy4gSW50ZWdlciBlZ2V0IGFyY3UgbGlndWxhLiBDcmFzIGlu"
+        "IGN1cnN1cyB1cm5hLiBBZW5lYW4gY3Vyc3VzIGJpYmVuZHVtIGVmZmljaXR1ci4gU3VzcGVuZGlzc2UgdmVsIGV4IG1hdXJpcy4gTnVsbGEgZm"
+        "FjaWxpc2kuIE51bGxhIHZlbCBpcHN1bSBpbXBlcmRpZXQsIHZvbHV0cGF0IGR1aSBpbnRlcmR1bSwgdWx0cmljZXMgZXJhdC4gQWxpcXVhbSBh"
+        "YyBiaWJlbmR1bSBlcmF0LiBQcm9pbiBlbGl0IHNlbSwgbW9sbGlzIHZlbCB0b3J0b3IgZWdldCwgdnVscHV0YXRlIHBvc3VlcmUgZXJvcy4gRn"
+        "VzY2UgZnJpbmdpbGxhIGEgZXJvcyBuZWMgaW1wZXJkaWV0LiBRdWlzcXVlIHZpdmVycmEgdGVtcG9yIHR1cnBpcywgYSBvcm5hcmUgZXJvcyBp"
+        "bXBlcmRpZXQgc2l0IGFtZXQu";
+
+    std::string encoded = caffa::StringTools::encodeBase64( ipsum() );
+
+    ASSERT_EQ( expected, encoded );
+}
+
+TEST( Base64Test, decode64ipsum )
+{
+    std::string encoded =
+        "TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4gU2VkIGFsaXF1YW0gbGlndWxhIHNlZCBuaW"
+        "JoIHJ1dHJ1bSwgcXVpcyB0ZW1wdXMgbmVxdWUgZmluaWJ1cy4gU2VkIGFudGUgZWxpdCwgZmFjaWxpc2lzIHV0IGxpYmVybyB1dCwgZWxlbWVu"
+        "dHVtIGNvbmd1ZSBuaWJoLiBDcmFzIGFsaXF1YW0gdGVsbHVzIGV1IGN1cnN1cyBtb2xlc3RpZS4gQWVuZWFuIHV0IGZlbGlzIHV0IG1pIGNvbn"
+        "ZhbGxpcyBkaWN0dW0uIFNlZCBsYW9yZWV0IG5pc2kgaW4gdmFyaXVzIG1hdHRpcy4gSW50ZWdlciBlZ2V0IGFyY3UgbGlndWxhLiBDcmFzIGlu"
+        "IGN1cnN1cyB1cm5hLiBBZW5lYW4gY3Vyc3VzIGJpYmVuZHVtIGVmZmljaXR1ci4gU3VzcGVuZGlzc2UgdmVsIGV4IG1hdXJpcy4gTnVsbGEgZm"
+        "FjaWxpc2kuIE51bGxhIHZlbCBpcHN1bSBpbXBlcmRpZXQsIHZvbHV0cGF0IGR1aSBpbnRlcmR1bSwgdWx0cmljZXMgZXJhdC4gQWxpcXVhbSBh"
+        "YyBiaWJlbmR1bSBlcmF0LiBQcm9pbiBlbGl0IHNlbSwgbW9sbGlzIHZlbCB0b3J0b3IgZWdldCwgdnVscHV0YXRlIHBvc3VlcmUgZXJvcy4gRn"
+        "VzY2UgZnJpbmdpbGxhIGEgZXJvcyBuZWMgaW1wZXJkaWV0LiBRdWlzcXVlIHZpdmVycmEgdGVtcG9yIHR1cnBpcywgYSBvcm5hcmUgZXJvcyBp"
+        "bXBlcmRpZXQgc2l0IGFtZXQu";
+
+    std::string decoded = caffa::StringTools::decodeBase64( encoded );
+    ASSERT_EQ( ipsum(), decoded );
+}
+
+class Base64RoundTrip
+{
+public:
+    Base64RoundTrip()
+    {
+        constexpr size_t maxLength = 5000;
+        encodedStrings.reserve( maxLength );
+        for ( size_t len = 1; len <= maxLength; ++len )
+        {
+            auto rs = randomString( len );
+            encodedStrings.push_back( rs );
+        }
+    }
+
+    static std::string randomString( size_t len )
+    {
+        static std::random_device                 rd;
+        static std::mt19937                       mt( rd() );
+        static std::uniform_int_distribution<int> dist( 0, 25 );
+
+        std::string string;
+        string.reserve( len );
+
+        for ( int i = 0; i < len; ++i )
+        {
+            string.push_back( 'a' + dist( mt ) );
+        }
+        return string;
+    }
+
+    std::vector<std::string> encodedStrings;
+};
+
+Base64RoundTrip roundTripHolder;
+std::string     oneLongString = Base64RoundTrip::randomString( 50 * 1024 * 1024 );
+
+TEST( Base64Test, roundtrip )
+{
+    CAFFA_INFO( "Got " << roundTripHolder.encodedStrings.size() << " strings to encode and decode" );
+    for ( auto string : roundTripHolder.encodedStrings )
+    {
+        auto encoded = caffa::StringTools::encodeBase64( string );
+        auto decoded = caffa::StringTools::decodeBase64( encoded );
+        ASSERT_EQ( string, decoded );
+    }
+}
+
+TEST( Base64Test, oneLongRoundtrip )
+{
+    CAFFA_INFO( "Got a string of size " << oneLongString.length() / 1024 / 1024 << " MebiBytes to encode and decode" );
+    auto encoded = caffa::StringTools::encodeBase64( oneLongString );
+    CAFFA_INFO( "Encoded string is " << encoded.length() / 1024 / 1024 << " MebiBytes" );
+    auto decoded = caffa::StringTools::decodeBase64( encoded );
+    ASSERT_EQ( oneLongString, decoded );
 }
