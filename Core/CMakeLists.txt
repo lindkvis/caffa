@@ -86,13 +86,11 @@ if(MSVC)
   set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif()
 
-find_package(Boost 1.71.0 REQUIRED COMPONENTS system)
-
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(
   ${PROJECT_NAME}
-  PUBLIC caffaBase nlohmann_json::nlohmann_json Boost::system
+  PUBLIC caffaBase nlohmann_json::nlohmann_json
   PRIVATE stduuid)
 
 install(

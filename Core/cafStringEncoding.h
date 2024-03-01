@@ -23,6 +23,6 @@
 
 namespace caffa::StringTools
 {
-std::string decodeBase64( std::string encodedValue );
-std::string encodeBase64( std::string unencodedValue );
+std::string decodeBase64( std::string_view encodedValue );
+std::string encodeBase64( std::string_view unencodedValue );
 } // namespace caffa::StringTools
