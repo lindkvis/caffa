@@ -39,12 +39,12 @@
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
 #include "cafRestObjectService.h"
-#include "cafRestUtility.h"
 #include "cafRpcApplication.h"
 #include "cafRpcClientPassByRefObjectFactory.h"
 #include "cafRpcClientPassByValueObjectFactory.h"
 #include "cafRpcObjectConversion.h"
 #include "cafSession.h"
+#include "cafStringEncoding.h"
 
 #include <nlohmann/json.hpp>
 
@@ -94,7 +94,8 @@ public:
         if ( !m_username.empty() && !m_password.empty() )
         {
             CAFFA_DEBUG( "Setting authorisation header!" );
-            m_req.set( http::field::authorization, "Basic " + encodeBase64( m_username + ":" + m_password ) );
+            m_req.set( http::field::authorization,
+                       "Basic " + caffa::StringTools::encodeBase64( m_username + ":" + m_password ) );
         }
         if ( !body.empty() )
         {

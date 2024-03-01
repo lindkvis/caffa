@@ -30,7 +30,7 @@
 #include "cafLogger.h"
 #include "cafRestAuthenticator.h"
 #include "cafRestServiceInterface.h"
-#include "cafRestUtility.h"
+#include "cafStringEncoding.h"
 #include "cafStringTools.h"
 
 #include <utility> // Workaround for boost/asio not being a self-contained include

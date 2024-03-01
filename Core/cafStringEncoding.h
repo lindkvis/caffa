@@ -21,8 +21,8 @@
 
 #include <string>
 
-namespace caffa::rpc
+namespace caffa::StringTools
 {
 std::string decodeBase64( std::string encodedValue );
 std::string encodeBase64( std::string unencodedValue );
-} // namespace caffa::rpc
+} // namespace caffa::StringTools
