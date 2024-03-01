@@ -10,6 +10,8 @@ using namespace caffa;
 
 using namespace std::chrono;
 
+CAFFA_SOURCE_INIT( Object );
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +79,7 @@ bool Object::readFromJsonFile( const std::string& filePath )
         serializer.readStream( this, inStream );
 
         ObjectPerformer<> performer( []( ObjectHandle* object ) { object->initAfterRead(); } );
-        performer.visitObject( this );
+        performer.visit( this );
     }
     catch ( const std::exception& err )
     {

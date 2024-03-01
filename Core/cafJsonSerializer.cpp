@@ -238,7 +238,7 @@ std::shared_ptr<ObjectHandle> JsonSerializer::copyBySerialization( const ObjectH
     if ( !objectCopy ) return nullptr;
 
     ObjectPerformer<> performer( []( ObjectHandle* object ) { object->initAfterRead(); } );
-    performer.visitObject( objectCopy.get() );
+    performer.visit( objectCopy.get() );
 
     return objectCopy;
 }
@@ -264,7 +264,7 @@ std::shared_ptr<ObjectHandle> JsonSerializer::copyAndCastBySerialization( const 
     readObjectFromJson( objectCopy.get(), jsonObject );
 
     ObjectPerformer<> performer( []( ObjectHandle* object ) { object->initAfterRead(); } );
-    performer.visitObject( objectCopy.get() );
+    performer.visit( objectCopy.get() );
 
     return objectCopy;
 }

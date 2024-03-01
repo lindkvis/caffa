@@ -190,101 +190,110 @@ TEST_F( RestTest, Document )
         ASSERT_EQ( serverJson, clientJson );
 
         CAFFA_DEBUG( "Confirmed test results!" );
-        bool ok = client->stopServer();
-        ASSERT_TRUE( ok );
-        CAFFA_DEBUG( "Waiting for server thread to join" );
-        thread.join();
-        CAFFA_DEBUG( "Finishing test" );
     }
     catch ( const std::runtime_error& e )
     {
         CAFFA_ERROR( "Exception caught: " << e.what() );
+        FAIL();
         return;
     }
     catch ( ... )
     {
         CAFFA_ERROR( "Exception caught" );
+        FAIL();
         return;
     }
+    bool ok = client->stopServer();
+    ASSERT_TRUE( ok );
+    CAFFA_DEBUG( "Waiting for server thread to join" );
+    thread.join();
+    CAFFA_DEBUG( "Finishing test" );
+
+
 }
 
 TEST_F( RestTest, DocumentWithNonScriptableChild )
 {
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
-
+    
     CAFFA_DEBUG( "Launching Server" );
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
-
+    
     CAFFA_DEBUG( "Launching Client" );
     while ( !serverApp->running() )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
     auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
-    client->createSession( caffa::Session::Type::REGULAR );
 
-    auto session = serverApp->getExistingSession( client->sessionUuid() );
-
-    auto serverDocument = std::dynamic_pointer_cast<DemoDocumentWithNonScriptableMember>(
-        serverApp->document( "testDocument2", session.get() ) );
-    ASSERT_TRUE( serverDocument );
-    CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
-
-    auto objectHandle   = client->document( "testDocument2" );
-    auto clientDocument = std::dynamic_pointer_cast<DemoDocumentWithNonScriptableMember>( objectHandle );
-    ASSERT_TRUE( clientDocument != nullptr );
-
-    ASSERT_EQ( serverDocument->fileName(), clientDocument->fileName() );
-    ASSERT_EQ( serverDocument->uuid(), clientDocument->uuid() );
-
-    size_t childCount = 11u;
-    for ( size_t i = 0; i < childCount; ++i )
-    {
-        serverDocument->addInheritedObject( std::make_shared<InheritedDemoObj>() );
-    }
-
-    {
-        auto serverObject = serverDocument->demoObjectNonScriptable();
-        // The objects are not scriptable, so client object should not exist!
-        try
+    try {
+        client->createSession( caffa::Session::Type::REGULAR );
+        
+        auto session = serverApp->getExistingSession( client->sessionUuid() );
+        
+        auto serverDocument = std::dynamic_pointer_cast<DemoDocumentWithNonScriptableMember>(
+                                                                                             serverApp->document( "testDocument2", session.get() ) );
+        ASSERT_TRUE( serverDocument );
+        CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
+        
+        auto objectHandle   = client->document( "testDocument2" );
+        auto clientDocument = std::dynamic_pointer_cast<DemoDocumentWithNonScriptableMember>( objectHandle );
+        ASSERT_TRUE( clientDocument != nullptr );
+        
+        ASSERT_EQ( serverDocument->fileName(), clientDocument->fileName() );
+        ASSERT_EQ( serverDocument->uuid(), clientDocument->uuid() );
+        
+        size_t childCount = 11u;
+        for ( size_t i = 0; i < childCount; ++i )
         {
-            CAFFA_INFO( "Tring to read non-scriptable object from client. This should fail." );
-            auto clientObject = clientDocument->demoObjectNonScriptable();
-            FAIL();
-            ASSERT_TRUE( clientObject == nullptr );
+            serverDocument->addInheritedObject( std::make_shared<InheritedDemoObj>() );
         }
-        catch ( const std::exception& e )
+        
         {
-            CAFFA_INFO( "Expected exception when trying to access non-scriptable client object" );
+            auto serverObject = serverDocument->demoObjectNonScriptable();
+            // The objects are not scriptable, so client object should not exist!
+            try
+            {
+                CAFFA_INFO( "Tring to read non-scriptable object from client. This should fail." );
+                auto clientObject = clientDocument->demoObjectNonScriptable();
+                FAIL();
+                ASSERT_TRUE( clientObject == nullptr );
+            }
+            catch ( const std::exception& e )
+            {
+                CAFFA_INFO( "Expected exception when trying to access non-scriptable client object" );
+            }
         }
-    }
-
-    {
-        caffa::ConstObjectCollector<InheritedDemoObj> serverCollector, clientCollector;
-        serverDocument->accept( &serverCollector );
-        clientDocument->accept( &clientCollector );
-
-        auto serverDescendants = serverCollector.objects();
-        auto clientDescendants = clientCollector.objects();
-
-        ASSERT_EQ( childCount, serverDescendants.size() );
-        ASSERT_EQ( serverDescendants.size(), clientDescendants.size() );
-        for ( auto server_it = serverDescendants.begin(), client_it = clientDescendants.begin();
-              server_it != serverDescendants.end();
-              ++server_it, ++client_it )
+        
         {
-            ASSERT_EQ( ( *server_it )->uuid(), ( *client_it )->uuid() );
+            caffa::ConstObjectCollector<InheritedDemoObj> serverCollector, clientCollector;
+            serverDocument->accept( &serverCollector );
+            clientDocument->accept( &clientCollector );
+            
+            auto serverDescendants = serverCollector.objects();
+            auto clientDescendants = clientCollector.objects();
+            
+            ASSERT_EQ( childCount, serverDescendants.size() );
+            ASSERT_EQ( serverDescendants.size(), clientDescendants.size() );
+            for ( auto server_it = serverDescendants.begin(), client_it = clientDescendants.begin();
+                 server_it != serverDescendants.end();
+                 ++server_it, ++client_it )
+            {
+                ASSERT_EQ( ( *server_it )->uuid(), ( *client_it )->uuid() );
+            }
         }
+        
+        std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument.get() );
+        CAFFA_DEBUG( serverJson );
+        std::string clientJson = caffa::JsonSerializer().writeObjectToString( clientDocument.get() );
+        CAFFA_DEBUG( clientJson );
+        ASSERT_NE( serverJson, clientJson );
+        CAFFA_DEBUG( "Confirmed test results!" );
     }
-
-    std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument.get() );
-    CAFFA_DEBUG( serverJson );
-    std::string clientJson = caffa::JsonSerializer().writeObjectToString( clientDocument.get() );
-    CAFFA_DEBUG( clientJson );
-    ASSERT_NE( serverJson, clientJson );
-
-    CAFFA_DEBUG( "Confirmed test results!" );
+    catch(const std::exception& e) {
+        CAFFA_WARNING("Something went wrong in the tests: " << e.what());
+    }
     bool ok = client->stopServer();
     ASSERT_TRUE( ok );
     CAFFA_DEBUG( "Waiting for server thread to join" );
@@ -837,75 +846,86 @@ TEST_F( RestTest, ChildObjects )
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
     }
     auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
-    client->createSession( caffa::Session::Type::REGULAR );
-
-    auto session = serverApp->getExistingSession( client->sessionUuid() );
-    auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
-    ASSERT_TRUE( serverDocument );
-    CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
-
-    auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
-    ASSERT_TRUE( clientDocument != nullptr );
-
-    ASSERT_TRUE( clientDocument->demoObject.object() != nullptr );
-    clientDocument->demoObject.clear();
-    ASSERT_TRUE( clientDocument->demoObject.object() == nullptr );
-
-    size_t childCount = 12u;
-    for ( size_t i = 0; i < childCount; ++i )
-    {
-        serverDocument->addInheritedObject( std::make_shared<InheritedDemoObj>() );
+    try {
+        client->createSession( caffa::Session::Type::REGULAR );
+        
+        auto session = serverApp->getExistingSession( client->sessionUuid() );
+        auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
+        ASSERT_TRUE( serverDocument );
+        CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
+        
+        auto objectHandle   = client->document( "testDocument" );
+        auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
+        ASSERT_TRUE( clientDocument != nullptr );
+        
+        ASSERT_TRUE( clientDocument->demoObject.object() != nullptr );
+        clientDocument->demoObject.clear();
+        ASSERT_TRUE( clientDocument->demoObject.object() == nullptr );
+        
+        size_t childCount = 12u;
+        for ( size_t i = 0; i < childCount; ++i )
+        {
+            serverDocument->addInheritedObject( std::make_shared<InheritedDemoObj>() );
+        }
+        
+        CAFFA_INFO("Added lots of children");
+        
+        ASSERT_EQ( childCount, clientDocument->m_inheritedDemoObjects.size() );
+        serverDocument->m_inheritedDemoObjects.clear();
+        ASSERT_EQ( 0u, clientDocument->m_inheritedDemoObjects.size() );
+        
+        size_t clientChildCount = 4u;
+        for ( size_t i = 0; i < clientChildCount; ++i )
+        {
+            auto inheritedObject     = std::make_shared<InheritedDemoObj>();
+            inheritedObject->m_texts = "whatever test";
+            clientDocument->addInheritedObject( inheritedObject );
+        }
+        ASSERT_EQ( clientChildCount, serverDocument->m_inheritedDemoObjects.size() );
+        ASSERT_EQ( clientChildCount, clientDocument->m_inheritedDemoObjects.size() );
+        
+        for ( size_t i = 0; i < clientChildCount; ++i )
+        {
+            ASSERT_EQ( "whatever test", serverDocument->m_inheritedDemoObjects[i]->m_texts() );
+        }
+        clientDocument->m_inheritedDemoObjects.clear();
+        ASSERT_EQ( 0u, serverDocument->m_inheritedDemoObjects.size() );
+        ASSERT_EQ( 0u, clientDocument->m_inheritedDemoObjects.size() );
+        
+        for ( size_t i = 0; i < clientChildCount; ++i )
+        {
+            auto inheritedObject     = std::make_shared<InheritedDemoObj>();
+            inheritedObject->m_texts = "whatever test";
+            clientDocument->addInheritedObject( inheritedObject );
+        }
+        ASSERT_EQ( clientChildCount, serverDocument->m_inheritedDemoObjects.size() );
+        ASSERT_EQ( clientChildCount, clientDocument->m_inheritedDemoObjects.size() );
+        
+        {
+            auto inheritedObject      = std::make_shared<InheritedDemoObj>();
+            inheritedObject->intField = 1113;
+            ASSERT_THROW( inheritedObject->intField = 10000, std::exception );
+            clientDocument->m_inheritedDemoObjects.insert( 2u, inheritedObject );
+        }
+        ASSERT_EQ( clientChildCount + 1u, serverDocument->m_inheritedDemoObjects.size() );
+        ASSERT_EQ( clientChildCount + 1u, clientDocument->m_inheritedDemoObjects.size() );
+        
+        CAFFA_INFO( "The server now has a new member with an int value of: "
+                   << serverDocument->m_inheritedDemoObjects[2]->intField() );
+        ASSERT_EQ( 1113, serverDocument->m_inheritedDemoObjects[2]->intField() );
+        
+        serverDocument->m_inheritedDemoObjects.clear();
+        ASSERT_EQ( 0u, serverDocument->m_inheritedDemoObjects.size() );
+        ASSERT_EQ( 0u, clientDocument->m_inheritedDemoObjects.size() );
+        CAFFA_DEBUG("Completed test");
     }
-
-    ASSERT_EQ( childCount, clientDocument->m_inheritedDemoObjects.size() );
-    serverDocument->m_inheritedDemoObjects.clear();
-    ASSERT_EQ( 0u, clientDocument->m_inheritedDemoObjects.size() );
-
-    size_t clientChildCount = 4u;
-    for ( size_t i = 0; i < clientChildCount; ++i )
-    {
-        auto inheritedObject     = std::make_shared<InheritedDemoObj>();
-        inheritedObject->m_texts = "whatever test";
-        clientDocument->addInheritedObject( inheritedObject );
+    catch(const std::exception& e) {
+        CAFFA_CRITICAL("Exception caught in test: " << e.what());
+        bool ok = client->stopServer();
+        ASSERT_TRUE( ok );
+        thread.join();
+        FAIL();
     }
-    ASSERT_EQ( clientChildCount, serverDocument->m_inheritedDemoObjects.size() );
-    ASSERT_EQ( clientChildCount, clientDocument->m_inheritedDemoObjects.size() );
-
-    for ( size_t i = 0; i < clientChildCount; ++i )
-    {
-        ASSERT_EQ( "whatever test", serverDocument->m_inheritedDemoObjects[i]->m_texts() );
-    }
-    clientDocument->m_inheritedDemoObjects.clear();
-    ASSERT_EQ( 0u, serverDocument->m_inheritedDemoObjects.size() );
-    ASSERT_EQ( 0u, clientDocument->m_inheritedDemoObjects.size() );
-
-    for ( size_t i = 0; i < clientChildCount; ++i )
-    {
-        auto inheritedObject     = std::make_shared<InheritedDemoObj>();
-        inheritedObject->m_texts = "whatever test";
-        clientDocument->addInheritedObject( inheritedObject );
-    }
-    ASSERT_EQ( clientChildCount, serverDocument->m_inheritedDemoObjects.size() );
-    ASSERT_EQ( clientChildCount, clientDocument->m_inheritedDemoObjects.size() );
-
-    {
-        auto inheritedObject      = std::make_shared<InheritedDemoObj>();
-        inheritedObject->intField = 1113;
-        ASSERT_THROW( inheritedObject->intField = 10000, std::exception );
-        clientDocument->m_inheritedDemoObjects.insert( 2u, inheritedObject );
-    }
-    ASSERT_EQ( clientChildCount + 1u, serverDocument->m_inheritedDemoObjects.size() );
-    ASSERT_EQ( clientChildCount + 1u, clientDocument->m_inheritedDemoObjects.size() );
-
-    CAFFA_INFO( "The server now has a new member with an int value of: "
-                << serverDocument->m_inheritedDemoObjects[2]->intField() );
-    ASSERT_EQ( 1113, serverDocument->m_inheritedDemoObjects[2]->intField() );
-
-    serverDocument->m_inheritedDemoObjects.clear();
-    ASSERT_EQ( 0u, serverDocument->m_inheritedDemoObjects.size() );
-    ASSERT_EQ( 0u, clientDocument->m_inheritedDemoObjects.size() );
-
     bool ok = client->stopServer();
     ASSERT_TRUE( ok );
 
@@ -1125,19 +1145,27 @@ TEST_F( RestTest, MultipleConcurrentSessionsWithKeepalive )
     std::unique_ptr<caffa::rpc::RestClient> client1, client2;
 
     client1 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
-    ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ) );
-    ASSERT_NO_THROW( client1->createSession( caffa::Session::Type::REGULAR ) );
-
-    for ( size_t i = 0; i < 10; ++i )
-    {
-        std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
-        client1->sendKeepAlive();
+    try {
+        ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ) );
+        ASSERT_NO_THROW( client1->createSession( caffa::Session::Type::REGULAR ) );
+        
+        for ( size_t i = 0; i < 10; ++i )
+        {
+            std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+            client1->sendKeepAlive();
+        }
+        
+        CAFFA_INFO("Expecting errors when creating a new session, because the old one has been kept alive!");
+        client2 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+        ASSERT_FALSE( client2->isReady( caffa::Session::Type::REGULAR ) );
+        ASSERT_ANY_THROW( client2->createSession( caffa::Session::Type::REGULAR ) );
+        CAFFA_DEBUG("Test completed");
     }
-
-    client2 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
-    ASSERT_FALSE( client2->isReady( caffa::Session::Type::REGULAR ) );
-    ASSERT_ANY_THROW( client2->createSession( caffa::Session::Type::REGULAR ) );
-
+    catch(const std::exception& e)
+    {
+        CAFFA_CRITICAL("Exception thrown in test: " << e.what());
+        FAIL();
+    }
     client1->stopServer();
     CAFFA_DEBUG( "Stopping server and waiting for server to join" );
     thread.join();

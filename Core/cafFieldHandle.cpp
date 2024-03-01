@@ -40,6 +40,14 @@ caffa::ObjectHandle* FieldHandle::ownerObject()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const caffa::ObjectHandle* FieldHandle::ownerObject() const
+{
+    return m_ownerObject;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::list<FieldCapability*> FieldHandle::capabilities()
 {
     std::list<FieldCapability*> allCapabilities;
@@ -59,22 +67,6 @@ void FieldHandle::addCapability( std::unique_ptr<FieldCapability> capability )
 
     // Push to the front, so that any new capability takes precedence over old ones.
     m_capabilities.push_front( std::move( capability ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void FieldHandle::accept( Inspector* visitor ) const
-{
-    visitor->visitField( this );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void FieldHandle::accept( Editor* visitor )
-{
-    visitor->visitField( this );
 }
 
 } // End of namespace caffa

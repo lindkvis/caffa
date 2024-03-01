@@ -41,6 +41,8 @@ public:
 
     virtual ~ChildField();
 
+    bool empty() const override { return !object(); }
+
     // Assignment
 
     ChildField& operator=( Ptr object );
@@ -94,7 +96,7 @@ public:
     std::vector<ObjectHandle::ConstPtr> childObjects() const override;
     void                                clear() override;
     void                                removeChildObject( ObjectHandle::ConstPtr object );
-    void                                setChildObject( ObjectHandle::Ptr object );
+    void                                setChildObject( ObjectHandle::Ptr object ) override;
 
     std::string dataType() const override { return PortableDataType<DataType>::name(); }
 

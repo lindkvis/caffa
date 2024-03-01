@@ -13,6 +13,7 @@ set(PUBLIC_HEADERS
     cafChildField.inl
     cafChildFieldAccessor.h
     cafDataFieldAccessor.h
+    cafDataField.h
     cafField.h
     cafFieldCapability.h
     cafFieldHandle.h
@@ -51,6 +52,8 @@ set(PROJECT_FILES
     ${PUBLIC_HEADERS}
     cafChildArrayFieldAccessor.cpp
     cafChildFieldAccessor.cpp
+    cafChildFieldHandle.cpp
+    cafDataField.cpp
     cafFieldCapability.cpp
     cafFieldHandle.cpp
     cafObjectCapability.cpp
@@ -68,7 +71,8 @@ set(PROJECT_FILES
     cafSession.cpp
     cafUuidGenerator.cpp
     cafFieldDocumentationCapability.cpp
-    cafStringEncoding.cpp)
+    cafStringEncoding.cpp
+    cafVisitor.cpp)
 
 if(CAFFA_BUILD_SHARED)
   message(STATUS "Building ${PROJECT_NAME} shared")
