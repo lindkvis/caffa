@@ -68,28 +68,16 @@ struct PortableDataType<std::vector<DataType>>
     }
 };
 
-template <std::floating_point DataType>
-struct PortableDataType<DataType>
-{
-    static std::string name() { return "number" + std::to_string( sizeof( DataType ) * 8 ); }
-
-    static nlohmann::json jsonType()
-    {
-        auto object    = nlohmann::json::object();
-        object["type"] = "number";
-        return object;
-    }
-};
-
 template <std::integral DataType>
 struct PortableDataType<DataType>
 {
-    static std::string name() { return "integer" + std::to_string( sizeof( DataType ) * 8 ); }
+    static std::string name() { return "int" + std::to_string( sizeof( DataType ) * 8 ); }
 
     static nlohmann::json jsonType()
     {
-        auto object    = nlohmann::json::object();
-        object["type"] = "integer";
+        auto object      = nlohmann::json::object();
+        object["type"]   = "integer";
+        object["format"] = PortableDataType<DataType>::name();
         return object;
     }
 };
@@ -103,6 +91,35 @@ struct PortableDataType<bool>
     {
         auto object    = nlohmann::json::object();
         object["type"] = name();
+        return object;
+    }
+};
+
+template <>
+struct PortableDataType<float>
+{
+    static std::string name() { return "float"; }
+
+    static nlohmann::json jsonType()
+    {
+        auto object      = nlohmann::json::object();
+        object["type"]   = "number";
+        object["format"] = name();
+        return object;
+    }
+};
+
+template <>
+struct PortableDataType<double>
+{
+    static std::string name() { return "double"; }
+
+    static nlohmann::json jsonType()
+    {
+        auto object      = nlohmann::json::object();
+        object["type"]   = "number";
+        object["format"] = name();
+
         return object;
     }
 };
@@ -127,8 +144,9 @@ struct PortableDataType<std::chrono::steady_clock::time_point>
 
     static nlohmann::json jsonType()
     {
-        auto object    = nlohmann::json::object();
-        object["type"] = "integer";
+        auto object      = nlohmann::json::object();
+        object["type"]   = "integer";
+        object["format"] = PortableDataType<int64_t>::name();
         return object;
     }
 };
