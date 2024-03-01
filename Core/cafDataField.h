@@ -1,7 +1,7 @@
 // ##################################################################################################
 //
-//    Caffa
-//    Copyright (C) 2023- Kontur AS
+//    CAFFA
+//    Copyright (C) 2024- Kontur AS
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify
@@ -19,40 +19,21 @@
 // ##################################################################################################
 #pragma once
 
+#include "cafDataFieldAccessor.h"
 #include "cafFieldHandle.h"
-#include "cafVisitor.h"
 
 namespace caffa
 {
-class ChildFieldAccessor;
-class ObjectHandle;
+class Editor;
+class Visitor;
 
-template <typename DataTypePtr>
-concept is_pointer = std::is_pointer<DataTypePtr>::value;
-
-class ChildFieldBaseHandle : public FieldHandle
+class DataField : public FieldHandle
 {
 public:
-    /**
-     * @brief Get the class keyword of the contained child(ren)
-     *
-     */
-    virtual std::string childClassKeyword() const = 0;
-
-    virtual std::vector<std::shared_ptr<ObjectHandle>>       childObjects()       = 0;
-    virtual std::vector<std::shared_ptr<const ObjectHandle>> childObjects() const = 0;
-    virtual bool                                             empty() const        = 0;
+    virtual void setUntypedAccessor( std::unique_ptr<DataFieldAccessorInterface> accessor ) = 0;
 
     void accept( Inspector* visitor ) const override;
     void accept( Editor* editor ) override;
 };
 
-class ChildFieldHandle : public ChildFieldBaseHandle
-{
-public:
-    virtual void setChildObject( std::shared_ptr<ObjectHandle> object ) = 0;
-
-    virtual void setAccessor( std::unique_ptr<ChildFieldAccessor> accessor ) = 0;
-    virtual void clear()                                                     = 0;
-};
 } // namespace caffa

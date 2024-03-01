@@ -50,27 +50,9 @@ public:
         {
             m_objects.push_back( typedObject );
         }
-
-        for ( auto field : object->fields() )
-        {
-            if ( field->isReadable() )
-            {
-                CAFFA_TRACE( "Testing field: " << field->keyword() );
-                field->accept( this );
-            }
-        }
     }
 
     void visitField( const FieldHandle* field ) override {}
-
-    void visitChildField( const ChildFieldBaseHandle* childField ) override
-    {
-        CAFFA_ASSERT( childField->isReadable() );
-        for ( auto object : childField->childObjects() )
-        {
-            object->accept( this );
-        }
-    }
 
     const std::list<const ObjectType*>& objects() const { return m_objects; }
 
@@ -92,7 +74,9 @@ public:
         : m_selector( selector )
     {
     }
+    const std::list<ObjectType*>& objects() { return m_objects; }
 
+private:
     void visitObject( ObjectHandle* object ) override
     {
         auto typedObject = dynamic_cast<ObjectType*>( object );
@@ -100,28 +84,9 @@ public:
         {
             m_objects.push_back( typedObject );
         }
-
-        for ( auto field : object->fields() )
-        {
-            if ( field->isReadable() )
-            {
-                field->accept( this );
-            }
-        }
     }
 
     void visitField( FieldHandle* field ) override {}
-
-    void visitChildField( ChildFieldBaseHandle* childField ) override
-    {
-        CAFFA_ASSERT( childField->isReadable() );
-        for ( auto object : childField->childObjects() )
-        {
-            object->accept( this );
-        }
-    }
-
-    const std::list<ObjectType*>& objects() { return m_objects; }
 
 private:
     Selector               m_selector;

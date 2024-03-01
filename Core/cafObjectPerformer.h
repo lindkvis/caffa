@@ -27,7 +27,7 @@
 namespace caffa
 {
 /**
- * A simple depth first collector
+ * A simple depth first Editor that performs tasks on objects found
  */
 template <typename ObjectType = ObjectHandle>
 class ObjectPerformer : public Editor
@@ -42,6 +42,7 @@ public:
     {
     }
 
+private:
     void visitObject( ObjectHandle* object ) override
     {
         auto typedObject = dynamic_cast<ObjectType*>( object );
@@ -49,22 +50,9 @@ public:
         {
             m_callback( typedObject );
         }
-
-        for ( auto field : object->fields() )
-        {
-            field->accept( this );
-        }
     }
 
     void visitField( FieldHandle* field ) override {}
-
-    void visitChildField( ChildFieldBaseHandle* childField ) override
-    {
-        for ( auto object : childField->childObjects() )
-        {
-            object->accept( this );
-        }
-    }
 
 private:
     Selector m_selector;

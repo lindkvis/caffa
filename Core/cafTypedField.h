@@ -35,7 +35,7 @@
 // ##################################################################################################
 #pragma once
 
-#include "cafDataFieldAccessor.h"
+#include "cafDataField.h"
 #include "cafFieldHandle.h"
 #include "cafPortableDataType.h"
 
@@ -55,12 +55,6 @@ struct is_vector<std::vector<T, A>> : public std::true_type
 
 template <typename T>
 concept IsVector = is_vector<T>::value;
-
-class DataField : public FieldHandle
-{
-public:
-    virtual void setUntypedAccessor( std::unique_ptr<DataFieldAccessorInterface> accessor ) = 0;
-};
 
 template <typename DataType>
 class TypedField : public DataField

@@ -25,8 +25,9 @@ public:
     FieldHandle();
     ~FieldHandle() override;
 
-    std::string   keyword() const override { return m_keyword; }
-    ObjectHandle* ownerObject();
+    std::string         keyword() const override { return m_keyword; }
+    ObjectHandle*       ownerObject();
+    const ObjectHandle* ownerObject() const;
 
     virtual std::string dataType() const = 0;
 
@@ -42,13 +43,13 @@ public:
      * Accept the visit by an inspecting visitor
      * @param visitor
      */
-    virtual void accept( Inspector* visitor ) const;
+    virtual void accept( Inspector* visitor ) const = 0;
 
     /**
      * Accept the visit by an editing visitor
      * @param visitor
      */
-    virtual void accept( Editor* visitor );
+    virtual void accept( Editor* visitor ) = 0;
 
     /**
      * Can the field be read. A non-scriptable field cannot be read within the client.

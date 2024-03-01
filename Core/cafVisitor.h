@@ -22,8 +22,9 @@
 namespace caffa
 {
 class ChildFieldBaseHandle;
-class ObjectHandle;
+class DataField;
 class FieldHandle;
+class ObjectHandle;
 
 /**
  * A visitor which is only allowed to inspect objects
@@ -31,9 +32,15 @@ class FieldHandle;
 class Inspector
 {
 public:
-    virtual void visitObject( const ObjectHandle* object )            = 0;
-    virtual void visitChildField( const ChildFieldBaseHandle* field ) = 0;
-    virtual void visitField( const FieldHandle* field )               = 0;
+    void visit( const ObjectHandle* object );
+    void visit( const ChildFieldBaseHandle* field );
+    void visit( const DataField* field );
+
+private:
+    virtual void visitObject( const ObjectHandle* object ) = 0;
+    virtual void visitField( const FieldHandle* field )    = 0;
+    virtual void leaveObject( const ObjectHandle* object ) {}
+    virtual void leaveField( const FieldHandle* field ) {}
 };
 
 /**
@@ -42,9 +49,15 @@ public:
 class Editor
 {
 public:
-    virtual void visitObject( ObjectHandle* object )            = 0;
-    virtual void visitChildField( ChildFieldBaseHandle* field ) = 0;
-    virtual void visitField( FieldHandle* field )               = 0;
+    void visit( ObjectHandle* object );
+    void visit( ChildFieldBaseHandle* field );
+    void visit( DataField* field );
+
+private:
+    virtual void visitObject( ObjectHandle* object ) = 0;
+    virtual void visitField( FieldHandle* field )    = 0;
+    virtual void leaveObject( ObjectHandle* object ) {}
+    virtual void leaveField( FieldHandle* field ) {}
 };
 
 } // namespace caffa

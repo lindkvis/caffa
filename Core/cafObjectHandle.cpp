@@ -137,13 +137,13 @@ MethodHandle* ObjectHandle::findMethod( const std::string& keyword ) const
 //--------------------------------------------------------------------------------------------------
 void ObjectHandle::accept( Inspector* visitor ) const
 {
-    visitor->visitObject( this );
+    visitor->visit( this );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectHandle::accept( Editor* visitor )
+void ObjectHandle::accept( Editor* editor )
 {
-    visitor->visitObject( this );
+    editor->visit( this );
 }
