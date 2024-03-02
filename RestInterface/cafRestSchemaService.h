@@ -50,13 +50,19 @@ class RestSchemaService : public RestServiceInterface
 public:
     ServiceResponse perform( http::verb                    verb,
                              const std::list<std::string>& path,
-                             const nlohmann::json&         arguments,
-                             const nlohmann::json&         metaData ) override;
+                             const nlohmann::json&         queryParams,
+                             const nlohmann::json&         body ) override;
 
-    bool requiresAuthentication( const std::list<std::string>& path ) const override;
+    bool requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const override;
+    bool requiresSession( http::verb verb, const std::list<std::string>& path ) const override;
 
+    static nlohmann::json plainErrorResponse();
+
+    std::map<std::string, nlohmann::json> servicePathEntries() const override;
+    std::map<std::string, nlohmann::json> serviceComponentEntries() const override;
+
+    static nlohmann::json  getJsonForAllSchemas();
     static ServiceResponse getFieldSchema( const caffa::ObjectHandle* object, const std::string& fieldName );
-
     static ServiceResponse getAllSchemas();
 };
 

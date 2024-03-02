@@ -21,6 +21,7 @@
 #include "cafSession.h"
 
 #include "cafDefaultObjectFactory.h"
+#include "cafDocument.h"
 #include "cafFieldJsonCapability.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafJsonSerializer.h"
@@ -35,36 +36,12 @@ using namespace caffa::rpc;
 
 RestSchemaService::ServiceResponse RestSchemaService::perform( http::verb                    verb,
                                                                const std::list<std::string>& path,
-                                                               const nlohmann::json&         arguments,
-                                                               const nlohmann::json&         metaData )
+                                                               const nlohmann::json&         queryParams,
+                                                               const nlohmann::json&         body )
 {
     if ( verb != http::verb::get )
     {
         return std::make_tuple( http::status::bad_request, "Only GET requests are allowed for schema queries", nullptr );
-    }
-
-    std::string session_uuid = "";
-    if ( arguments.contains( "session_uuid" ) )
-    {
-        session_uuid = arguments["session_uuid"].get<std::string>();
-    }
-    else if ( metaData.contains( "session_uuid" ) )
-    {
-        session_uuid = metaData["session_uuid"].get<std::string>();
-    }
-
-    if ( session_uuid.empty() )
-    {
-        CAFFA_WARNING( "No session uuid provided" );
-    }
-    auto session = RestServerApplication::instance()->getExistingSession( session_uuid );
-
-    if ( RestServerApplication::instance()->requiresValidSession() && ( !session || session->isExpired() ) )
-    {
-        if ( RestServiceInterface::refuseDueToTimeLimiter() )
-        {
-            return std::make_tuple( http::status::too_many_requests, "Too many unauthenticated equests", nullptr );
-        }
     }
 
     if ( path.empty() )
@@ -89,33 +66,39 @@ RestSchemaService::ServiceResponse RestSchemaService::perform( http::verb       
     return getFieldSchema( object.get(), reducedPath.front() );
 }
 
-bool RestSchemaService::requiresAuthentication( const std::list<std::string>& path ) const
+bool RestSchemaService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
 {
     return false;
 }
 
-RestSchemaService::ServiceResponse RestSchemaService::getAllSchemas()
+bool RestSchemaService::requiresSession( http::verb verb, const std::list<std::string>& path ) const
+{
+    return false;
+}
+
+std::map<std::string, nlohmann::json> RestSchemaService::servicePathEntries() const
+{
+    return {};
+}
+
+std::map<std::string, nlohmann::json> RestSchemaService::serviceComponentEntries() const
+{
+    return {};
+}
+
+nlohmann::json RestSchemaService::getJsonForAllSchemas()
 {
     auto factory = DefaultObjectFactory::instance();
 
-    auto root    = nlohmann::json::object();
-    root["$id"]  = "/schemas";
-    root["type"] = "object";
-
-    auto oneOf   = nlohmann::json::array();
     auto schemas = nlohmann::json::object();
 
     for ( auto className : factory->classes() )
     {
-        auto object = factory->create( className );
-
-        oneOf.push_back( { { "$ref", "#/schemas/" + className } } );
+        auto object        = factory->create( className );
         schemas[className] = createJsonSchemaFromProjectObject( object.get() );
     }
-    root["oneOf"]   = oneOf;
-    root["schemas"] = schemas;
 
-    return std::make_tuple( http::status::ok, root.dump(), nullptr );
+    return schemas;
 }
 
 RestSchemaService::ServiceResponse RestSchemaService::getFieldSchema( const caffa::ObjectHandle* object,
@@ -142,4 +125,9 @@ RestSchemaService::ServiceResponse RestSchemaService::getFieldSchema( const caff
     nlohmann::json json;
     ioCapability->writeToJson( json, serializer );
     return std::make_tuple( http::status::ok, json.dump(), nullptr );
+}
+
+RestSchemaService::ServiceResponse RestSchemaService::getAllSchemas()
+{
+    return std::make_tuple( http::status::ok, getJsonForAllSchemas().dump(), nullptr );
 }

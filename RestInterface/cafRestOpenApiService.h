@@ -20,12 +20,31 @@
 
 #include "cafRestServiceInterface.h"
 
+#include <nlohmann/json.hpp>
+
+#include <chrono>
+#include <list>
+#include <mutex>
+#include <string>
 #include <utility>
-#include <vector>
+
+namespace caffa
+{
+class Document;
+class FieldHandle;
+class MethodHandle;
+class ObjectAttribute;
+class ObjectHandle;
+class Session;
+} // namespace caffa
 
 namespace caffa::rpc
 {
-class RestSessionService : public RestServiceInterface
+/**
+ * @brief Rest-service producing an OpenAPI v3.1 schema
+ *
+ */
+class RestOpenApiService : public RestServiceInterface
 {
 public:
     ServiceResponse perform( http::verb             verb,
@@ -40,23 +59,7 @@ public:
     std::map<std::string, nlohmann::json> serviceComponentEntries() const override;
 
 private:
-    using ServiceCallback = std::function<ServiceResponse( http::verb verb, const nlohmann::json&, const nlohmann::json& )>;
-
-    static nlohmann::json createOperation( const std::string&    operationId,
-                                           const std::string&    summary,
-                                           const nlohmann::json& parameters,
-                                           const nlohmann::json& responses,
-                                           const nlohmann::json& requestBody = nullptr );
-
-    static ServiceResponse performOnAll( http::verb verb, const nlohmann::json& queryParams, const nlohmann::json& body );
-    static ServiceResponse ready( const nlohmann::json& body );
-    static ServiceResponse create( const nlohmann::json& body );
-
-    static ServiceResponse performOnOne( http::verb verb, const nlohmann::json& body, const std::string& uuid );
-    static ServiceResponse get( const std::string& uuid );
-
-    static ServiceResponse change( const std::string& uuid, const nlohmann::json& body );
-    static ServiceResponse destroy( const std::string& uuid );
-    static ServiceResponse keepalive( const std::string& uuid );
+    nlohmann::json getOpenApiV31Schema() const;
 };
+
 } // namespace caffa::rpc
