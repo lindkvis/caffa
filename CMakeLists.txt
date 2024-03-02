@@ -34,7 +34,6 @@ endif()
 if(MSVC)
   # Windows 10 minimum
   add_definitions(/DWIN32_WINNT=0x0A00)
-  add_compile_options(/W4 /WX)
 else()
   add_compile_options(
     -Wall
