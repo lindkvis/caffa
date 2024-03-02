@@ -95,6 +95,15 @@ void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Se
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
+nlohmann::json FieldJsonCap<FieldType>::jsonType() const
+{
+    return PortableDataType<typename FieldType::FieldDataType>::jsonType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename FieldType>
 const FieldHandle* FieldJsonCap<FieldType>::owner() const
 {
     return m_field;
@@ -118,7 +127,11 @@ template <typename DataType>
 void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
 {
     CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildField" );
-    if ( jsonElement.is_null() ) return;
+    if ( jsonElement.is_null() )
+    {
+        m_field->setChildObject( nullptr );
+    }
+
     CAFFA_ASSERT( jsonElement.is_object() );
 
     nlohmann::json jsonObject;
@@ -130,7 +143,10 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
     {
         jsonObject = jsonElement;
     }
-    if ( jsonObject.is_null() ) return;
+    if ( jsonObject.is_null() )
+    {
+        m_field->setChildObject( nullptr );
+    }
 
     auto classNameElement = jsonObject.find( "keyword" );
     if ( classNameElement == jsonObject.end() )
@@ -156,7 +172,7 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
     auto object = m_field->object();
     if ( object && !uuid.empty() && object->uuid() == uuid )
     {
-        CAFFA_TRACE( "Had existing object! Overwriting values!" );
+        CAFFA_TRACE( "Had existing matching object! Overwriting field values!" );
     }
     else
     {
@@ -177,6 +193,7 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
             m_field->setObject( object );
         }
     }
+
     if ( !ObjectHandle::matchesClassKeyword( className, object->classInheritanceStack() ) )
     {
         // Error: Field contains different class type than in the JSON
@@ -223,6 +240,15 @@ void FieldJsonCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonField
             jsonField["description"] = doc->documentation();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+nlohmann::json FieldJsonCap<ChildField<DataType*>>::jsonType() const
+{
+    return PortableDataType<ChildField<DataType*>>::jsonType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -334,7 +360,8 @@ void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& json
             jsonField["description"] = doc->documentation();
         }
     }
-    else
+    else if ( serializer.serializationType() == Serializer::SerializationType::DATA_FULL ||
+              serializer.serializationType() == Serializer::SerializationType::DATA_SKELETON )
     {
         nlohmann::json jsonArray = nlohmann::json::array();
 
@@ -349,6 +376,15 @@ void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& json
         }
         jsonField = jsonArray;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+nlohmann::json FieldJsonCap<ChildArrayField<DataType*>>::jsonType() const
+{
+    return PortableDataType<ChildArrayField<DataType*>>::jsonType();
 }
 
 //--------------------------------------------------------------------------------------------------
