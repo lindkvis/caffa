@@ -34,8 +34,17 @@ endif()
 if(MSVC)
   # Windows 10 minimum
   add_definitions(/DWIN32_WINNT=0x0A00)
+  add_compile_options(/W4 /WX)
+else()
+  add_compile_options(
+    -Wall
+    -Wextra
+    -Wpedantic
+    -Werror
+    -Wno-unused-parameter
+    -Wno-conversion
+    -Wno-psabi)
 endif()
-
 
 add_definitions(-DGTEST_HAS_STD_WSTRING=0)
 # Third Party libraries

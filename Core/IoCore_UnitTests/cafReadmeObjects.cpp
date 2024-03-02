@@ -116,8 +116,11 @@ TEST( ReadmeObjectTest, ServerCreation )
 
     try
     {
-        doc->toggleField    = true;
+        ASSERT_EQ( true, doc->toggleField );
+        doc->toggleField = false;
+        ASSERT_EQ( false, doc->toggleField );
         int currentIntValue = doc->intField;
+        ASSERT_EQ( 42, currentIntValue );
         doc->scaleDoubleField( 3.0 );
 
         CAFFA_DEBUG( "Demo Doc: " << caffa::JsonSerializer().setSerializeUuids( false ).writeObjectToString( doc.get() ) );
