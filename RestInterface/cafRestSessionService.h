@@ -18,6 +18,7 @@
 //
 #pragma once
 
+#include "cafRestRequrest.h"
 #include "cafRestServiceInterface.h"
 
 #include <utility>
@@ -28,6 +29,8 @@ namespace caffa::rpc
 class RestSessionService : public RestServiceInterface
 {
 public:
+    RestSessionService();
+
     ServiceResponse perform( http::verb             verb,
                              std::list<std::string> path,
                              const nlohmann::json&  queryParams,
@@ -48,15 +51,27 @@ private:
                                            const nlohmann::json& responses,
                                            const nlohmann::json& requestBody = nullptr );
 
-    static ServiceResponse performOnAll( http::verb verb, const nlohmann::json& queryParams, const nlohmann::json& body );
-    static ServiceResponse ready( const nlohmann::json& body );
-    static ServiceResponse create( const nlohmann::json& body );
+    static ServiceResponse ready( const std::list<std::string>& pathArguments,
+                                  const nlohmann::json&         queryParams,
+                                  const nlohmann::json&         body );
+    static ServiceResponse create( const std::list<std::string>& pathArguments,
+                                   const nlohmann::json&         queryParams,
+                                   const nlohmann::json&         body );
 
-    static ServiceResponse performOnOne( http::verb verb, const nlohmann::json& body, const std::string& uuid );
-    static ServiceResponse get( const std::string& uuid );
+    static ServiceResponse
+        get( const std::list<std::string>& pathArguments, const nlohmann::json& queryParams, const nlohmann::json& body );
 
-    static ServiceResponse change( const std::string& uuid, const nlohmann::json& body );
-    static ServiceResponse destroy( const std::string& uuid );
-    static ServiceResponse keepalive( const std::string& uuid );
+    static ServiceResponse change( const std::list<std::string>& pathArguments,
+                                   const nlohmann::json&         queryParams,
+                                   const nlohmann::json&         body );
+    static ServiceResponse destroy( const std::list<std::string>& pathArguments,
+                                    const nlohmann::json&         queryParams,
+                                    const nlohmann::json&         body );
+    static ServiceResponse keepalive( const std::list<std::string>& pathArguments,
+                                      const nlohmann::json&         queryParams,
+                                      const nlohmann::json&         body );
+
+private:
+    std::unique_ptr<RestPathEntry> m_requestPathRoot;
 };
 } // namespace caffa::rpc

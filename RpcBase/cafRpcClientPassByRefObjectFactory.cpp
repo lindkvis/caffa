@@ -125,17 +125,18 @@ void ClientPassByRefObjectFactory::applyAccessorToField( caffa::ObjectHandle* fi
     }
     else if ( auto dataField = dynamic_cast<caffa::DataField*>( fieldHandle ); dataField )
     {
-        auto jsonCapability = fieldHandle->capability<caffa::FieldJsonCapability>();
+        auto                 jsonCapability  = fieldHandle->capability<caffa::FieldJsonCapability>();
         AccessorCreatorBase* accessorCreator = nullptr;
 
-        if (jsonCapability) {
+        if ( jsonCapability )
+        {
             auto jsonType = jsonCapability->jsonType();
 
             CAFFA_TRACE( "Looking for an accessor creator for data type: " << jsonType );
             for ( auto& [dataType, storedAccessorCreator] : m_accessorCreatorMap )
             {
                 CAFFA_TRACE( "Found one for " << dataType << " is that right?" );
-                if ( dataType == jsonType.dump())
+                if ( dataType == jsonType.dump() )
                 {
                     CAFFA_TRACE( "Yes!" );
                     accessorCreator = storedAccessorCreator.get();
@@ -144,15 +145,16 @@ void ClientPassByRefObjectFactory::applyAccessorToField( caffa::ObjectHandle* fi
             }
             if ( !accessorCreator )
             {
-                throw std::runtime_error( std::string( "Data type " ) + fieldHandle->dataType() + " not implemented in client" );
+                throw std::runtime_error( std::string( "Data type " ) + fieldHandle->dataType() +
+                                          " not implemented in client" );
             }
             dataField->setUntypedAccessor( accessorCreator->create( m_client, fieldHandle ) );
         }
-        else {
-            CAFFA_ASSERT(false && "All fields that are scriptable has to be serializable");
-            throw std::runtime_error("Field " + fieldHandle->keyword() + " is not serializable");
+        else
+        {
+            CAFFA_ASSERT( false && "All fields that are scriptable has to be serializable" );
+            throw std::runtime_error( "Field " + fieldHandle->keyword() + " is not serializable" );
         }
-
     }
     else
     {
@@ -198,7 +200,7 @@ void ClientPassByRefObjectFactory::applyAccessorToMethod( caffa::ObjectHandle* o
 void ClientPassByRefObjectFactory::registerAccessorCreator( const std::string&                   dataType,
                                                             std::unique_ptr<AccessorCreatorBase> creator )
 {
-    CAFFA_TRACE( "Registering accessor for data type: " << dataType );
+    CAFFA_DEBUG( "Registering accessor for data type: " << dataType << ", -> " << creator->jsonDataType() );
     m_accessorCreatorMap.insert( std::make_pair( dataType, std::move( creator ) ) );
 }
 

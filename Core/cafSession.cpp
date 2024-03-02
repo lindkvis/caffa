@@ -2,12 +2,25 @@
 
 #include "cafUuidGenerator.h"
 
+#include "cafAppEnum.h"
 #include "cafAssert.h"
 #include "cafLogger.h"
 
 #include <random>
 
 using namespace caffa;
+
+namespace caffa
+{
+template <>
+void AppEnum<Session::Type>::setUp()
+{
+    addItem( Session::Type::REGULAR, "REGULAR" );
+    addItem( Session::Type::OBSERVING, "OBSERVING" );
+    setDefault( Session::Type::REGULAR );
+}
+
+} // namespace caffa
 
 std::shared_ptr<Session> Session::create( Type type, std::chrono::milliseconds timeout )
 {
