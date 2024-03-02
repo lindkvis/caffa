@@ -26,6 +26,7 @@
 #include "uuid.h"
 
 #include <chrono>
+#include <regex>
 
 using namespace caffa;
 using namespace std::chrono;
@@ -49,4 +50,11 @@ std::string UuidGenerator::generate()
     }
 
     return uuids::to_string( ( *s_uuidGenerator )() );
+}
+
+bool UuidGenerator::isUuid( const std::string& string )
+{
+    static const std::regex e( "^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                               std::regex_constants::icase );
+    return std::regex_match( string, e );
 }
