@@ -11,10 +11,12 @@ set(PUBLIC_HEADERS
     cafRestClientApplication.h
     cafRestServiceInterface.h
     cafRestAppService.h
+    cafRestDocumentService.h
     cafRestObjectService.h
     cafRestSessionService.h
-    cafRestSchemaService.h
-    cafRestRequest.h)
+    cafRestRequest.h
+    cafRestOpenApiService.h
+    cafRestSessionService.h)
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
@@ -25,10 +27,12 @@ set(PROJECT_FILES
     cafRestClientApplication.cpp
     cafRestServiceInterface.cpp
     cafRestAppService.cpp
+    cafRestDocumentService.cpp
     cafRestObjectService.cpp
     cafRestSessionService.cpp
-    cafRestSchemaService.cpp
-    cafRestRequest.cpp)
+    cafRestRequest.cpp
+    cafRestOpenApiService.cpp
+    cafRestSessionService.cpp)
 
 if(CAFFA_BUILD_SHARED)
   message(STATUS "Building ${PROJECT_NAME} shared")

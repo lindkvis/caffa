@@ -71,10 +71,13 @@ public:
     template <typename DataType>
     void registerBasicAccessorCreators()
     {
-        registerAccessorCreator( PortableDataType<DataType>::name(), std::make_unique<AccessorCreator<DataType>>() );
-        registerAccessorCreator( PortableDataType<std::vector<DataType>>::name(),
+        registerAccessorCreator( PortableDataType<DataType>::jsonType().dump(),
+                                 std::make_unique<AccessorCreator<DataType>>() );
+        registerAccessorCreator( PortableDataType<std::vector<DataType>>::jsonType().dump(),
                                  std::make_unique<AccessorCreator<std::vector<DataType>>>() );
     }
+
+    std::list<std::string> supportedDataTypes() const;
 
 private:
     std::shared_ptr<ObjectHandle> doCreate( const std::string_view& classKeyword ) override;

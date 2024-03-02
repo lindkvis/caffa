@@ -25,6 +25,7 @@
 #include "cafDefaultObjectFactory.h"
 #include "cafField.h"
 #include "cafFieldScriptingCapability.h"
+#include "cafPortableDataType.h"
 #include "cafRpcChildArrayFieldAccessor.h"
 #include "cafRpcChildFieldAccessor.h"
 #include "cafRpcClient.h"
@@ -94,6 +95,18 @@ void ClientPassByRefObjectFactory::setClient( Client* client )
     m_client = client;
 }
 
+std::list<std::string> ClientPassByRefObjectFactory::supportedDataTypes() const
+{
+    std::list<std::string> dataTypes;
+
+    for ( const auto& [type, creator] : m_accessorCreatorMap )
+    {
+        dataTypes.push_back( type );
+    }
+
+    return dataTypes;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -112,23 +125,34 @@ void ClientPassByRefObjectFactory::applyAccessorToField( caffa::ObjectHandle* fi
     }
     else if ( auto dataField = dynamic_cast<caffa::DataField*>( fieldHandle ); dataField )
     {
-        CAFFA_TRACE( "Looking for an accessor creator for data type: " << fieldHandle->dataType() );
+        auto jsonCapability = fieldHandle->capability<caffa::FieldJsonCapability>();
         AccessorCreatorBase* accessorCreator = nullptr;
-        for ( auto& [dataType, storedAccessorCreator] : m_accessorCreatorMap )
-        {
-            CAFFA_TRACE( "Found one for " << dataType << " is that right?" );
-            if ( dataType == fieldHandle->dataType() )
+
+        if (jsonCapability) {
+            auto jsonType = jsonCapability->jsonType();
+
+            CAFFA_TRACE( "Looking for an accessor creator for data type: " << jsonType );
+            for ( auto& [dataType, storedAccessorCreator] : m_accessorCreatorMap )
             {
-                CAFFA_TRACE( "Yes!" );
-                accessorCreator = storedAccessorCreator.get();
-                break;
+                CAFFA_TRACE( "Found one for " << dataType << " is that right?" );
+                if ( dataType == jsonType.dump())
+                {
+                    CAFFA_TRACE( "Yes!" );
+                    accessorCreator = storedAccessorCreator.get();
+                    break;
+                }
             }
+            if ( !accessorCreator )
+            {
+                throw std::runtime_error( std::string( "Data type " ) + fieldHandle->dataType() + " not implemented in client" );
+            }
+            dataField->setUntypedAccessor( accessorCreator->create( m_client, fieldHandle ) );
         }
-        if ( !accessorCreator )
-        {
-            throw std::runtime_error( std::string( "Data type " ) + fieldHandle->dataType() + " not implemented in client" );
+        else {
+            CAFFA_ASSERT(false && "All fields that are scriptable has to be serializable");
+            throw std::runtime_error("Field " + fieldHandle->keyword() + " is not serializable");
         }
-        dataField->setUntypedAccessor( accessorCreator->create( m_client, fieldHandle ) );
+
     }
     else
     {

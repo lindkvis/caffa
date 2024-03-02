@@ -20,12 +20,28 @@
 
 #include "cafRestServiceInterface.h"
 
+#include <nlohmann/json.hpp>
+
+#include <string>
 #include <utility>
-#include <vector>
+
+namespace caffa
+{
+class Document;
+class FieldHandle;
+class MethodHandle;
+class ObjectAttribute;
+class ObjectHandle;
+class Session;
+} // namespace caffa
 
 namespace caffa::rpc
 {
-class RestSessionService : public RestServiceInterface
+/**
+ * @brief REST-service answering request for explicit paths in the project tree
+ *
+ */
+class RestDocumentService : public RestServiceInterface
 {
 public:
     ServiceResponse perform( http::verb             verb,
@@ -40,23 +56,8 @@ public:
     std::map<std::string, nlohmann::json> serviceComponentEntries() const override;
 
 private:
-    using ServiceCallback = std::function<ServiceResponse( http::verb verb, const nlohmann::json&, const nlohmann::json& )>;
-
-    static nlohmann::json createOperation( const std::string&    operationId,
-                                           const std::string&    summary,
-                                           const nlohmann::json& parameters,
-                                           const nlohmann::json& responses,
-                                           const nlohmann::json& requestBody = nullptr );
-
-    static ServiceResponse performOnAll( http::verb verb, const nlohmann::json& queryParams, const nlohmann::json& body );
-    static ServiceResponse ready( const nlohmann::json& body );
-    static ServiceResponse create( const nlohmann::json& body );
-
-    static ServiceResponse performOnOne( http::verb verb, const nlohmann::json& body, const std::string& uuid );
-    static ServiceResponse get( const std::string& uuid );
-
-    static ServiceResponse change( const std::string& uuid, const nlohmann::json& body );
-    static ServiceResponse destroy( const std::string& uuid );
-    static ServiceResponse keepalive( const std::string& uuid );
+    static caffa::Document* document( const std::string& documentId, const caffa::Session* session );
+    static ServiceResponse  documents( const caffa::Session* session, bool skeleton );
 };
+
 } // namespace caffa::rpc

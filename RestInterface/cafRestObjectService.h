@@ -37,43 +37,44 @@ class Session;
 
 namespace caffa::rpc
 {
-//==================================================================================================
-//
-// REST-service answering request searching for Objects in property tree
-//
-//==================================================================================================
+/**
+ * @brief REST-service answering request searching for arbitrary Objects in project tree
+ *
+ */
 class RestObjectService : public RestServiceInterface
 {
 public:
-    ServiceResponse perform( http::verb                    verb,
-                             const std::list<std::string>& path,
-                             const nlohmann::json&         arguments,
-                             const nlohmann::json&         metaData ) override;
+    ServiceResponse perform( http::verb             verb,
+                             std::list<std::string> path,
+                             const nlohmann::json&  queryParams,
+                             const nlohmann::json&  body ) override;
 
-    bool requiresAuthentication( const std::list<std::string>& path ) const override;
+    bool requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const override;
+    bool requiresSession( http::verb verb, const std::list<std::string>& path ) const override;
+
+    std::map<std::string, nlohmann::json> servicePathEntries() const override;
+    std::map<std::string, nlohmann::json> serviceComponentEntries() const override;
 
 private:
-    static caffa::Document*     document( const std::string& documentId, const caffa::Session* session );
     static caffa::ObjectHandle* findObject( const std::string& uuid, const caffa::Session* session );
-    static ServiceResponse      documents( const caffa::Session* session, bool skeleton );
 
-    static ServiceResponse perform( std::shared_ptr<caffa::Session> session,
-                                    http::verb                      verb,
-                                    caffa::ObjectHandle*            object,
-                                    const std::list<std::string>&   path,
-                                    const nlohmann::json&           arguments,
-                                    bool                            skeleton,
-                                    bool                            replace );
-
-    static std::pair<caffa::ObjectAttribute*, int64_t> findFieldOrMethod( caffa::ObjectHandle*          object,
-                                                                          const std::list<std::string>& path );
+    static ServiceResponse performFieldOperation( std::shared_ptr<caffa::Session> session,
+                                                          http::verb                      verb,
+                                                          caffa::ObjectHandle*            object,
+                                                          const std::string&              keyword,
+                                                          const nlohmann::json&           queryParams,
+                                                          const nlohmann::json&           body );
+    static ServiceResponse performMethodOperation( std::shared_ptr<caffa::Session> session,
+                                                          http::verb                      verb,
+                                                          caffa::ObjectHandle*            object,
+                                                          const std::string&              keyword,
+                                                          const nlohmann::json&           queryParams,
+                                                          const nlohmann::json&           body );
 
     static ServiceResponse getFieldValue( const caffa::FieldHandle* fieldHandle, int64_t index, bool skeleton );
-    static ServiceResponse putFieldValue( caffa::FieldHandle*   fieldHandle,
-                                          int64_t               index,
-                                          const nlohmann::json& arguments,
-                                          bool                  replace = false );
-    static ServiceResponse deleteChildObject( caffa::FieldHandle* field, int64_t index, const nlohmann::json& arguments );
+    static ServiceResponse replaceFieldValue( caffa::FieldHandle* fieldHandle, int64_t index, const nlohmann::json& body );
+    static ServiceResponse insertFieldValue( caffa::FieldHandle* fieldHandle, int64_t index, const nlohmann::json& body );
+    static ServiceResponse deleteFieldValue( caffa::FieldHandle* field, int64_t index );
 };
 
 } // namespace caffa::rpc

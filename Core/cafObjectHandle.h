@@ -241,7 +241,7 @@ struct PortableDataType<DataType>
     static nlohmann::json jsonType()
     {
         auto object    = nlohmann::json::object();
-        object["$ref"] = std::string( "#/schemas/" ) + DataType::classKeywordStatic();
+        object["$ref"] = std::string( "#/components/object_schemas/" ) + DataType::classKeywordStatic();
         return object;
     }
 };
@@ -257,7 +257,7 @@ struct PortableDataType<DataType>
     static nlohmann::json jsonType()
     {
         auto object    = nlohmann::json::object();
-        object["$ref"] = std::string( "#/schemas/" ) + DataType::element_type::classKeywordStatic();
+        object["$ref"] = std::string( "#/components/object_schemas/" ) + DataType::element_type::classKeywordStatic();
         return object;
     }
 };

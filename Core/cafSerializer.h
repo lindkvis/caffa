@@ -40,6 +40,7 @@ public:
         DATA_FULL,
         DATA_SKELETON,
         SCHEMA,
+        PATH
     };
 
     using FieldSelector = std::function<bool( const FieldHandle* )>;
