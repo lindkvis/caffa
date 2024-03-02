@@ -78,6 +78,16 @@ struct AppInfo
     unsigned int appType;
 
     /**
+     * @brief Application description.
+     */
+    std::string description;
+
+    /**
+     * @brief Contact email
+     */
+    std::string contactEmail;
+
+    /**
      * @brief Check if the application has the specified capability
      *
      * @param typeToCheck
@@ -98,6 +108,8 @@ struct AppInfo
     {
         return std::to_string( majorVersion ) + "." + std::to_string( minorVersion ) + "." + std::to_string( patchVersion );
     }
+
+    static nlohmann::json jsonSchema();
 };
 
 void to_json( nlohmann::json& jsonValue, const AppInfo& appInfo );
@@ -114,9 +126,11 @@ public:
     bool                hasCapability( AppInfo::AppCapability typeToCheck ) const;
     AppInfo             appInfo() const;
 
-    virtual int majorVersion() const = 0;
-    virtual int minorVersion() const = 0;
-    virtual int patchVersion() const = 0;
+    virtual int         majorVersion() const = 0;
+    virtual int         minorVersion() const = 0;
+    virtual int         patchVersion() const = 0;
+    virtual std::string description() const  = 0;
+    virtual std::string contactEmail() const = 0;
 
     static Application* instance();
     static void         registerInstance( Application* instance );

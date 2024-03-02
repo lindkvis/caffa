@@ -5,6 +5,25 @@ using namespace caffa;
 
 Application* Application::s_instance = nullptr;
 
+nlohmann::json AppInfo::jsonSchema()
+{
+    auto appInfoSchema = nlohmann::json::object();
+
+    auto properties             = nlohmann::json::object();
+    properties["name"]          = { { "type", "string" } };
+    properties["type"]          = { { "type", "integer" }, { "format", "int32" } };
+    properties["major_version"] = { { "type", "integer" }, { "format", "int32" } };
+    properties["minor_version"] = { { "type", "integer" }, { "format", "int32" } };
+    properties["patch_version"] = { { "type", "integer" }, { "format", "int32" } };
+    properties["description"]   = { { "type", "string" } };
+    properties["contact_email"] = { { "type", "string" } };
+
+    appInfoSchema["type"]       = "object";
+    appInfoSchema["properties"] = properties;
+
+    return appInfoSchema;
+}
+
 void caffa::to_json( nlohmann::json& jsonValue, const AppInfo& appInfo )
 {
     jsonValue                  = nlohmann::json::object();
@@ -13,6 +32,8 @@ void caffa::to_json( nlohmann::json& jsonValue, const AppInfo& appInfo )
     jsonValue["major_version"] = appInfo.majorVersion;
     jsonValue["minor_version"] = appInfo.minorVersion;
     jsonValue["patch_version"] = appInfo.patchVersion;
+    jsonValue["description"]   = appInfo.description;
+    jsonValue["contact_email"] = appInfo.contactEmail;
 }
 
 void caffa::from_json( const nlohmann::json& jsonValue, AppInfo& appInfo )
@@ -22,6 +43,8 @@ void caffa::from_json( const nlohmann::json& jsonValue, AppInfo& appInfo )
     appInfo.majorVersion = jsonValue["major_version"].get<int>();
     appInfo.minorVersion = jsonValue["minor_version"].get<int>();
     appInfo.patchVersion = jsonValue["patch_version"].get<int>();
+    appInfo.description  = jsonValue["description"].get<std::string>();
+    appInfo.contactEmail = jsonValue["contact_email"].get<std::string>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,7 +106,7 @@ bool Application::hasCapability( AppInfo::AppCapability typeToCheck ) const
 //--------------------------------------------------------------------------------------------------
 AppInfo Application::appInfo() const
 {
-    return { name(), majorVersion(), minorVersion(), patchVersion(), m_capabilities };
+    return { name(), majorVersion(), minorVersion(), patchVersion(), m_capabilities, description(), contactEmail() };
 }
 
 //--------------------------------------------------------------------------------------------------

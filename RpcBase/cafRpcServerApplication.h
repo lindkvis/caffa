@@ -49,6 +49,8 @@ namespace rpc
         virtual std::list<std::shared_ptr<Document>>       documents( const caffa::Session* session )              = 0;
         virtual std::list<std::shared_ptr<const Document>> documents( const caffa::Session* session ) const        = 0;
 
+        virtual std::list<std::shared_ptr<caffa::Document>> defaultDocuments() const = 0;
+
         bool requiresValidSession() const;
         void setRequiresValidSession( bool requiresValidSession );
 
