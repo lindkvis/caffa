@@ -27,6 +27,7 @@
 #include <boost/asio.hpp>
 #include <boost/beast/ssl.hpp>
 
+#include <atomic>
 #include <memory>
 #include <vector>
 
@@ -61,10 +62,12 @@ public:
     bool running() const override;
 
 private:
-    unsigned short                m_portNumber;
-    int                           m_threads;
-    net::io_context               m_ioContext;
-    std::shared_ptr<ssl::context> m_sslContext;
-    std::shared_ptr<RestServer>   m_server;
+    unsigned short                           m_portNumber;
+    int                                      m_threads;
+    net::io_context                          m_ioContext;
+    std::shared_ptr<const RestAuthenticator> m_authenticator;
+    std::shared_ptr<ssl::context>            m_sslContext;
+    std::shared_ptr<RestServer>              m_server;
+    std::atomic<bool>                        m_threadRunning;
 };
 } // namespace caffa::rpc

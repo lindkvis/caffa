@@ -55,6 +55,8 @@ public:
     int         majorVersion() const override { return 1; }
     int         minorVersion() const override { return 0; }
     int         patchVersion() const override { return 0; }
+    std::string description() const override { return "Unit Test Server for Caffa"; }
+    std::string contactEmail() const override { return "test@thisdomaindoesnotexist.com"; }
 
     std::shared_ptr<caffa::Document> document( const std::string& documentId, const caffa::Session* session ) override
     {
@@ -93,6 +95,11 @@ public:
         return { m_demoDocument, m_demoDocumentWithNonScriptableMember };
     }
 
+    std::list<std::shared_ptr<caffa::Document>> defaultDocuments() const override
+    {
+        return { std::make_shared<DemoDocument>(), std::make_shared<DemoDocumentWithNonScriptableMember>() };
+    }
+
     bool hasActiveSessions() const override { return !m_observingSessions.empty(); }
 
     bool readyForSession( caffa::Session::Type type ) const override
@@ -124,7 +131,7 @@ public:
             {
                 if ( !m_session->isExpired() )
                 {
-                    throw std::runtime_error( "We already have a session and only allow one at a time!" );
+                    throw std::runtime_error( "We already have a regular session and only allow one at a time!" );
                 }
                 else
                 {

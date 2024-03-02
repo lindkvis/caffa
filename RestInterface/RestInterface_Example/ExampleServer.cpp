@@ -108,6 +108,9 @@ public:
     //--------------------------------------------------------------------------------------------------
     int patchVersion() const override { return CAFFA_VERSION_PATCH; }
 
+    std::string description() const override { return "Example Server for Caffa"; }
+    std::string contactEmail() const override { return "example@thisdomaindoesnotexist.com"; }
+
     std::shared_ptr<Document> document( const std::string& documentId, const Session* session ) override
     {
         CAFFA_TRACE( "Trying to get document with id '" << documentId << "' while our main document is called "
@@ -131,6 +134,11 @@ public:
     std::list<std::shared_ptr<const Document>> documents( const Session* session ) const override
     {
         return { document( "", session ) };
+    }
+
+    std::list<std::shared_ptr<caffa::Document>> defaultDocuments() const override
+    {
+        return { std::make_shared<DemoDocument>() };
     }
 
     bool hasActiveSessions() const override { return m_session && !m_session->isExpired(); }
@@ -271,7 +279,7 @@ int main( int argc, char* argv[] )
 
     serverApp->destroySession( session->uuid() );
 
-    serverApp->setRequiresValidSession( true );
+    serverApp->setRequiresValidSession( false );
     serverApp->run();
 
     return EXIT_SUCCESS;
