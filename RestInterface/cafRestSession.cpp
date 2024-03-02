@@ -166,10 +166,6 @@ RestServiceInterface::CleanupCallback
     {
         auto serviceComponent = pathComponents.front();
         service               = findRestService( serviceComponent, services );
-        if ( service )
-        {
-            pathComponents.pop_front();
-        }
     }
     else
     {
@@ -185,15 +181,16 @@ RestServiceInterface::CleanupCallback
     CAFFA_ASSERT( service );
 
     bool requiresAuthentication = service->requiresAuthentication( method, pathComponents );
-    bool requiresValidSession = ServerApplication::instance()->requiresValidSession() && service->requiresSession( method, pathComponents );
-        
-    if ( !(requiresAuthentication || requiresValidSession) && RestServiceInterface::refuseDueToTimeLimiter() )
+    bool requiresValidSession   = ServerApplication::instance()->requiresValidSession() &&
+                                service->requiresSession( method, pathComponents );
+
+    if ( !( requiresAuthentication || requiresValidSession ) && RestServiceInterface::refuseDueToTimeLimiter() )
     {
         send( createResponse( http::status::too_many_requests, "Too many unauthenticated requests" ) );
         return nullptr;
     }
 
-    if ( requiresAuthentication  )
+    if ( requiresAuthentication )
     {
         auto authorisation = req[http::field::authorization];
         auto trimmed       = caffa::StringTools::replace( std::string( authorisation ), "Basic ", "" );
@@ -278,7 +275,8 @@ RestServiceInterface::CleanupCallback
         }
     }
 
-    CAFFA_DEBUG( "Path: " << path << ", Query Arguments: " << queryParamsJson.dump() << ", Body: " << bodyJson.dump() );
+    CAFFA_DEBUG( "Path: " << path << ", Query Arguments: " << queryParamsJson.dump() << ", Body: " << bodyJson.dump()
+                          << ", Method: " << method );
 
     try
     {
