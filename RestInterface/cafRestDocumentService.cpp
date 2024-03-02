@@ -39,6 +39,7 @@
 #include "cafRestServerApplication.h"
 #include "cafRpcObjectConversion.h"
 
+#include <functional>
 #include <iostream>
 #include <regex>
 #include <vector>
@@ -46,41 +47,73 @@
 using namespace caffa;
 using namespace caffa::rpc;
 
+using namespace std::placeholders;
+
+RestDocumentService::RestDocumentService()
+{
+    m_requestPathRoot = std::make_unique<RestPathEntry>( "documents" );
+
+    CAFFA_DEBUG( "Get service path entries" );
+    // Create a trial tree with an object for each entry
+    auto documents = rpc::RestServerApplication::instance()->defaultDocuments();
+
+    auto skeletonParameter = std::make_unique<RestTypedParameter<bool>>( "skeleton",
+                                                                         RestParameter::Location::QUERY,
+                                                                         false,
+                                                                         "Whether to only send the skeleton" );
+    skeletonParameter->setDefaultValue( false );
+
+    for ( auto document : documents )
+    {
+        auto getAction =
+            std::make_unique<RestAction>( http::verb::get,
+                                          "Get " + document->id() + " document",
+                                          "getDocument",
+                                          std::bind( &RestDocumentService::document, document->id(), _1, _2, _3 ) );
+
+        getAction->addResponse( http::status::ok,
+                                RestResponse::objectResponse( "#/components/object_schemas/" + document->classKeyword(),
+                                                              document->classDocumentation() ) );
+
+        getAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+        getAction->addParameter( skeletonParameter->clone() );
+        getAction->setRequiresAuthentication( false );
+        getAction->setRequiresSession( true );
+
+        auto documentEntry = std::make_unique<RestPathEntry>( document->id() );
+        documentEntry->addAction( std::move( getAction ) );
+
+        m_requestPathRoot->addEntry( std::move( documentEntry ) );
+    }
+
+    auto getAllAction =
+        std::make_unique<RestAction>( http::verb::get, "Get all documents", "getDocuments", &RestDocumentService::documents );
+
+    getAllAction->addResponse( http::status::ok,
+                               RestResponse::objectArrayResponse( "#/components/object_schemas/Document", "All documents" ) );
+    getAllAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+    getAllAction->addParameter( skeletonParameter->clone() );
+
+    getAllAction->setRequiresAuthentication( false );
+    getAllAction->setRequiresSession( true );
+
+    m_requestPathRoot->addAction( std::move( getAllAction ) );
+}
+
 RestDocumentService::ServiceResponse RestDocumentService::perform( http::verb             verb,
                                                                    std::list<std::string> path,
                                                                    const nlohmann::json&  queryParams,
                                                                    const nlohmann::json&  body )
 {
-    caffa::SessionMaintainer session;
-    if ( queryParams.contains( "session_uuid" ) )
+    CAFFA_ASSERT( !path.empty() );
+
+    auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
+    if ( !request )
     {
-        auto session_uuid = queryParams["session_uuid"].get<std::string>();
-        session           = RestServerApplication::instance()->getExistingSession( session_uuid );
+        return std::make_tuple( http::status::bad_request, "Path not found", nullptr );
     }
 
-    bool skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
-
-    if ( path.empty() )
-    {
-        return documents( session.get(), skeleton );
-    }
-
-    auto                 documentId = path.front();
-    caffa::ObjectHandle* object     = document( documentId, session.get() );
-    if ( !object )
-    {
-        return std::make_tuple( http::status::not_found, "Document " + documentId + " not found", nullptr );
-    }
-    CAFFA_ASSERT( object );
-
-    if ( skeleton )
-    {
-        return std::make_tuple( http::status::ok, createJsonSkeletonFromProjectObject( object ).dump(), nullptr );
-    }
-    else
-    {
-        return std::make_tuple( http::status::ok, createJsonFromProjectObject( object ).dump(), nullptr );
-    }
+    return request->perform( verb, pathArguments, queryParams, body );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -247,27 +280,68 @@ std::map<std::string, nlohmann::json> RestDocumentService::serviceComponentEntri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Document* RestDocumentService::document( const std::string& documentId, const Session* session )
+RestServiceInterface::ServiceResponse RestDocumentService::document( const std::string&            documentId,
+                                                                     const std::list<std::string>& pathArguments,
+                                                                     const nlohmann::json&         queryParams,
+                                                                     const nlohmann::json&         body )
 {
+    caffa::SessionMaintainer session;
+
+    if ( queryParams.contains( "session_uuid" ) )
+    {
+        auto session_uuid = queryParams["session_uuid"].get<std::string>();
+        session           = RestServerApplication::instance()->getExistingSession( session_uuid );
+    }
+
+    if ( !session || session->isExpired() )
+    {
+        return std::make_tuple( http::status::forbidden, "No valid session provided", nullptr );
+    }
+
     CAFFA_TRACE( "Got document request for " << documentId );
 
-    auto document = RestServerApplication::instance()->document( documentId, session );
+    auto document = RestServerApplication::instance()->document( documentId, session.get() );
     if ( document )
     {
         CAFFA_TRACE( "Found document with UUID: " << document->uuid() );
-        return document.get();
+        bool           skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
+        nlohmann::json jsonDocument;
+        if ( skeleton )
+        {
+            jsonDocument = createJsonSkeletonFromProjectObject( document.get() );
+        }
+        else
+        {
+            jsonDocument = createJsonFromProjectObject( document.get() );
+        }
+        return std::make_tuple( http::status::ok, jsonDocument.dump(), nullptr );
     }
-    return nullptr;
+    return std::make_tuple( http::status::not_found, "Document " + documentId + " not found", nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestDocumentService::ServiceResponse RestDocumentService::documents( const Session* session, bool skeleton )
+RestDocumentService::ServiceResponse RestDocumentService::documents( const std::list<std::string>& pathArguments,
+                                                                     const nlohmann::json&         queryParams,
+                                                                     const nlohmann::json&         body )
 {
-    CAFFA_DEBUG( "Got list document request for" );
+    CAFFA_DEBUG( "Got list document request" );
 
-    auto documents = RestServerApplication::instance()->documents( session );
+    caffa::SessionMaintainer session;
+
+    if ( queryParams.contains( "session_uuid" ) )
+    {
+        auto session_uuid = queryParams["session_uuid"].get<std::string>();
+        session           = RestServerApplication::instance()->getExistingSession( session_uuid );
+    }
+
+    if ( !session || session->isExpired() )
+    {
+        return std::make_tuple( http::status::forbidden, "No valid session provided", nullptr );
+    }
+    bool skeleton  = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
+    auto documents = RestServerApplication::instance()->documents( session.get() );
     CAFFA_DEBUG( "Found " << documents.size() << " document" );
 
     auto jsonResult = nlohmann::json::array();

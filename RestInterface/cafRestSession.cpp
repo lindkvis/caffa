@@ -176,6 +176,7 @@ RestServiceInterface::CleanupCallback
     {
         CAFFA_ERROR( "Could not find service " << path );
         send( createResponse( http::status::not_found, "Service not found from path " + path ) );
+        return nullptr;
     }
 
     CAFFA_ASSERT( service );
