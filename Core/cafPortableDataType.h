@@ -68,7 +68,21 @@ struct PortableDataType<std::vector<DataType>>
     }
 };
 
-template <std::integral DataType>
+template <std::unsigned_integral DataType>
+struct PortableDataType<DataType>
+{
+    static std::string name() { return "uint" + std::to_string( sizeof( DataType ) * 8 ); }
+
+    static nlohmann::json jsonType()
+    {
+        auto object      = nlohmann::json::object();
+        object["type"]   = "integer";
+        object["format"] = PortableDataType<DataType>::name();
+        return object;
+    }
+};
+
+template <std::signed_integral DataType>
 struct PortableDataType<DataType>
 {
     static std::string name() { return "int" + std::to_string( sizeof( DataType ) * 8 ); }
