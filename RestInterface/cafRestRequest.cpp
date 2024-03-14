@@ -239,6 +239,9 @@ std::pair<const RestPathEntry*, std::list<std::string>> RestPathEntry::findPathE
 
     if ( currentLevel == name() )
     {
+        CAFFA_TRACE( "Found regular path entry " << currentLevel << " == " << name() << ", Rest of path is: "
+                                                 << caffa::StringTools::join( path.begin(), path.end(), "/" ) );
+
         path.pop_front();
         if ( path.empty() )
         {
@@ -255,14 +258,27 @@ std::pair<const RestPathEntry*, std::list<std::string>> RestPathEntry::findPathE
     }
     else if ( matchesPathArgument( currentLevel ) )
     {
+        CAFFA_TRACE( "Found path argument " << currentLevel << " == " << name() << ", Rest of path is: "
+                                            << caffa::StringTools::join( path.begin(), path.end(), "/" ) );
+
+        path.pop_front();
+        std::list<std::string> parameters = { currentLevel };
+
         // Matches an argument in the path (such as an UUID)
         // Look for (optional) children
         for ( const auto& [name, child] : m_children )
         {
-            auto requestAndRemainingParameters = child->findPathEntry( path );
-            if ( requestAndRemainingParameters.first ) return requestAndRemainingParameters;
+            auto [request, subParameters] = child->findPathEntry( path );
+            if ( request )
+            {
+                for ( const auto& param : subParameters )
+                {
+                    parameters.push_back( param );
+                }
+                return std::make_pair( request, parameters );
+            }
         }
-        return std::make_pair( this, path );
+        return std::make_pair( this, parameters );
     }
 
     return std::make_pair( nullptr, path );
@@ -364,7 +380,6 @@ void RequestFinder::searchPath( const RestPathEntry* pathEntry, std::string curr
     for ( auto child : pathEntry->children() )
     {
         auto nextLevelPath = currentPath + "/" + child->name();
-        CAFFA_INFO( "FOUND PATH ENTRY: " << nextLevelPath << " with " << child->actions().size() << " actions" );
         searchPath( child, nextLevelPath );
     }
 }

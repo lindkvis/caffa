@@ -18,6 +18,7 @@
 //
 #pragma once
 
+#include "cafRestRequest.h"
 #include "cafRestServiceInterface.h"
 
 #include <nlohmann/json.hpp>
@@ -44,6 +45,8 @@ namespace caffa::rpc
 class RestObjectService : public RestServiceInterface
 {
 public:
+    RestObjectService();
+
     ServiceResponse perform( http::verb             verb,
                              std::list<std::string> path,
                              const nlohmann::json&  queryParams,
@@ -56,25 +59,33 @@ public:
     std::map<std::string, nlohmann::json> serviceComponentEntries() const override;
 
 private:
-    static caffa::ObjectHandle* findObject( const std::string& uuid, const caffa::Session* session );
+    static std::pair<caffa::ObjectHandle*, ServiceResponse> findObject( std::list<std::string>& pathArguments,
+                                                                        const nlohmann::json&   queryParam );
 
-    static ServiceResponse performFieldOperation( std::shared_ptr<caffa::Session> session,
-                                                          http::verb                      verb,
-                                                          caffa::ObjectHandle*            object,
-                                                          const std::string&              keyword,
-                                                          const nlohmann::json&           queryParams,
-                                                          const nlohmann::json&           body );
-    static ServiceResponse performMethodOperation( std::shared_ptr<caffa::Session> session,
-                                                          http::verb                      verb,
-                                                          caffa::ObjectHandle*            object,
-                                                          const std::string&              keyword,
-                                                          const nlohmann::json&           queryParams,
-                                                          const nlohmann::json&           body );
+    static nlohmann::json anyObjectResponseContent();
+    static nlohmann::json anyFieldResponseContent();
+
+    static ServiceResponse object( http::verb                    verb,
+                                   const std::list<std::string>& pathArguments,
+                                   const nlohmann::json&         queryParams,
+                                   const nlohmann::json&         body );
 
     static ServiceResponse getFieldValue( const caffa::FieldHandle* fieldHandle, int64_t index, bool skeleton );
     static ServiceResponse replaceFieldValue( caffa::FieldHandle* fieldHandle, int64_t index, const nlohmann::json& body );
     static ServiceResponse insertFieldValue( caffa::FieldHandle* fieldHandle, int64_t index, const nlohmann::json& body );
     static ServiceResponse deleteFieldValue( caffa::FieldHandle* field, int64_t index );
+
+    static ServiceResponse performFieldOperation( http::verb                    verb,
+                                                  const std::list<std::string>& pathArguments,
+                                                  const nlohmann::json&         queryParams,
+                                                  const nlohmann::json&         body );
+
+    static ServiceResponse executeMethod( http::verb                    verb,
+                                          const std::list<std::string>& pathArguments,
+                                          const nlohmann::json&         queryParams,
+                                          const nlohmann::json&         body );
+
+    std::unique_ptr<RestPathEntry> m_requestPathRoot;
 };
 
 } // namespace caffa::rpc
