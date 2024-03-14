@@ -29,7 +29,7 @@ using namespace caffa;
 
 class DemoObject : public Object
 {
-    CAFFA_HEADER_INIT( DemoObject, Object )
+    CAFFA_HEADER_INIT_WITH_DOC( "A demo object", DemoObject, Object )
 
 public:
     enum TestEnumType
@@ -112,7 +112,7 @@ public:
 
 class DemoDocument : public Document
 {
-    CAFFA_HEADER_INIT( DemoDocument, Document )
+    CAFFA_HEADER_INIT_WITH_DOC( "A demo document", DemoDocument, Document )
 
 public:
     DemoDocument()
