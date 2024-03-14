@@ -331,7 +331,7 @@ RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( const
     }
     auto jsonResponse     = nlohmann::json::object();
     jsonResponse["uuid"]  = session->uuid();
-    jsonResponse["type"]  = static_cast<unsigned>( session->type() );
+    jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::label( session->type() );
     jsonResponse["valid"] = !session->isExpired();
 
     return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );

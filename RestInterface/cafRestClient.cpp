@@ -401,7 +401,7 @@ void RestClient::sendKeepAlive()
                                           std::string( "/sessions/" ) + m_sessionUuid + "?session_uuid=" + m_sessionUuid,
                                           "" );
 
-    if ( status != http::status::accepted )
+    if ( status != http::status::accepted && status != http::status::ok )
     {
         throw std::runtime_error( "Failed to keep server alive: " + body );
     }
@@ -523,7 +523,7 @@ caffa::Session::Type RestClient::checkSession() const
 
     auto jsonResult = nlohmann::json::parse( body );
     CAFFA_ASSERT( jsonResult.contains( "type" ) );
-    return static_cast<caffa::Session::Type>( jsonResult["type"].get<unsigned>() );
+    return caffa::AppEnum<caffa::Session::Type>::fromLabel( jsonResult["type"].get<std::string>() ).value();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -535,7 +535,7 @@ void RestClient::changeSession( caffa::Session::Type newType )
 
     auto jsonObject    = nlohmann::json::object();
     jsonObject["uuid"] = m_sessionUuid;
-    jsonObject["type"] = static_cast<unsigned>( newType );
+    jsonObject["type"] = caffa::AppEnum<caffa::Session::Type>( newType ).label();
 
     auto [status, body] = performRequest( http::verb::put,
                                           hostname(),
