@@ -153,7 +153,10 @@ bool RestSessionService::requiresSession( http::verb verb, const std::list<std::
     {
         return true;
     }
-    return request->requiresSession( verb );
+
+    auto required = request->requiresSession( verb );
+    CAFFA_INFO( "Service " << request->name() << " requires session: " << required );
+    return required;
 }
 
 std::map<std::string, nlohmann::json> RestSessionService::servicePathEntries() const

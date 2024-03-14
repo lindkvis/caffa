@@ -182,14 +182,17 @@ RestServiceInterface::CleanupCallback
     CAFFA_ASSERT( service );
 
     bool requiresAuthentication = service->requiresAuthentication( method, pathComponents );
-    bool requiresValidSession   = ServerApplication::instance()->requiresValidSession() &&
-                                service->requiresSession( method, pathComponents );
+    bool requiresValidSession   = service->requiresSession( method, pathComponents );
+
+    CAFFA_DEBUG( "Requires authentication: " << requiresAuthentication << ", Requires session: " << requiresValidSession );
 
     if ( !( requiresAuthentication || requiresValidSession ) && RestServiceInterface::refuseDueToTimeLimiter() )
     {
         send( createResponse( http::status::too_many_requests, "Too many unauthenticated requests" ) );
         return nullptr;
     }
+
+    requiresValidSession = requiresValidSession && ServerApplication::instance()->requiresValidSession();
 
     if ( requiresAuthentication )
     {
