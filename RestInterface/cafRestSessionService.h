@@ -45,12 +45,6 @@ public:
 private:
     using ServiceCallback = std::function<ServiceResponse( http::verb verb, const nlohmann::json&, const nlohmann::json& )>;
 
-    static nlohmann::json createOperation( const std::string&    operationId,
-                                           const std::string&    summary,
-                                           const nlohmann::json& parameters,
-                                           const nlohmann::json& responses,
-                                           const nlohmann::json& requestBody = nullptr );
-
     static ServiceResponse ready( http::verb                    verb,
                                   const std::list<std::string>& pathArguments,
                                   const nlohmann::json&         queryParams,

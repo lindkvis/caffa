@@ -112,13 +112,7 @@ public:
      */
     virtual std::map<std::string, nlohmann::json> serviceComponentEntries() const = 0;
 
-    static bool           refuseDueToTimeLimiter();
-    static nlohmann::json createOperation( const std::string&    operationId,
-                                           const std::string&    summary,
-                                           const nlohmann::json& parameters,
-                                           const nlohmann::json& responses,
-                                           const nlohmann::json& requestBody = nullptr,
-                                           const nlohmann::json& tags        = nullptr );
+    static bool refuseDueToTimeLimiter();
 
 private:
     static std::list<std::chrono::steady_clock::time_point> s_requestTimes;
