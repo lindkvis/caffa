@@ -236,40 +236,20 @@ private:
 std::map<std::string, nlohmann::json> RestDocumentService::servicePathEntries() const
 {
     CAFFA_DEBUG( "Get service path entries" );
-    // Create a trial tree with an object for each entry
-    auto           documents = rpc::RestServerApplication::instance()->defaultDocuments();
-    JsonSerializer serializer;
-    serializer.setSerializationType( Serializer::SerializationType::PATH );
 
-    std::map<std::string, nlohmann::json> pathEntries;
+    auto services = nlohmann::json::object();
 
-    for ( auto document : documents )
+    RequestFinder finder( m_requestPathRoot.get() );
+    finder.search();
+
+    CAFFA_DEBUG( "Got " << finder.allPathEntriesWithActions().size() << " service path entries" );
+
+    for ( const auto& [path, request] : finder.allPathEntriesWithActions() )
     {
-        auto operationId = document->id();
-        operationId[0]   = std::toupper( operationId[0] );
-        operationId      = "get" + operationId;
-
-        auto getOperation = nlohmann::json{ { "summary", "Get " + document->id() },
-                                            { "operationId", operationId },
-                                            { "tags", { "documents" } } };
-
-        auto objectContent                = nlohmann::json::object();
-        objectContent["application/json"] = {
-            { "schema", { { "$ref", "#/components/object_schemas/" + document->classKeyword() } } } };
-        auto objectResponse =
-            nlohmann::json{ { "description", document->classDocumentation() }, { "content", objectContent } };
-
-        auto getResponses =
-            nlohmann::json{ { HTTP_OK, objectResponse }, { "default", RestServiceInterface::plainErrorResponse() } };
-        getOperation["responses"] = getResponses;
-
-        auto schema   = nlohmann::json::object();
-        schema["get"] = getOperation;
-
-        pathEntries["/documents/" + document->id()] = schema;
+        CAFFA_INFO( "Got path: " << path );
+        services[path] = request->schema();
     }
-
-    return pathEntries;
+    return services;
 }
 
 std::map<std::string, nlohmann::json> RestDocumentService::serviceComponentEntries() const
