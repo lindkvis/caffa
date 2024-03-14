@@ -226,28 +226,34 @@ std::pair<const RestPathEntry*, std::list<std::string>> RestPathEntry::findPathE
     CAFFA_ASSERT( !path.empty() );
     auto currentLevel = path.front();
 
-    bool match = currentLevel == name();
-    if ( match )
+    if ( currentLevel == name() )
     {
         path.pop_front();
+        if ( path.empty() )
+        {
+            return std::make_pair( this, path );
+        }
+
+        // Path is still not empty, need to look for children
+        for ( const auto& [name, child] : m_children )
+        {
+            auto requestAndRemainingParameters = child->findPathEntry( path );
+            if ( requestAndRemainingParameters.first ) return requestAndRemainingParameters;
+        }
+        return std::make_pair( nullptr, path );
     }
     else if ( matchesPathArgument( currentLevel ) )
     {
-        match = true;
-    }
-
-    if ( match )
-    {
-        if ( !path.empty() )
+        // Matches an argument in the path (such as an UUID)
+        // Look for (optional) children
+        for ( const auto& [name, child] : m_children )
         {
-            for ( const auto& [name, child] : m_children )
-            {
-                auto requestAndRemainingParameters = child->findPathEntry( path );
-                if ( requestAndRemainingParameters.first ) return requestAndRemainingParameters;
-            }
+            auto requestAndRemainingParameters = child->findPathEntry( path );
+            if ( requestAndRemainingParameters.first ) return requestAndRemainingParameters;
         }
         return std::make_pair( this, path );
     }
+
     return std::make_pair( nullptr, path );
 }
 
