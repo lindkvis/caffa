@@ -60,10 +60,12 @@ public:
 
 private:
     static ServiceResponse document( const std::string&            documentId,
+                                     http::verb                    verb,
                                      const std::list<std::string>& pathArguments,
                                      const nlohmann::json&         queryParams,
                                      const nlohmann::json&         body );
-    static ServiceResponse documents( const std::list<std::string>& pathArguments,
+    static ServiceResponse documents( http::verb                    verb,
+                                      const std::list<std::string>& pathArguments,
                                       const nlohmann::json&         queryParams,
                                       const nlohmann::json&         body );
 

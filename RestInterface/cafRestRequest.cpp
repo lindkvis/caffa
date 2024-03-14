@@ -96,6 +96,7 @@ RestAction::RestAction( http::verb verb, const std::string& summary, const std::
     , m_callback( callback )
     , m_requiresSession( true )
     , m_requiresAuthentication( true )
+    , m_requestBodySchema( nullptr )
 {
 }
 
@@ -153,6 +154,11 @@ nlohmann::json RestAction::schema() const
         }
         action["parameters"] = parameters;
     }
+
+    if ( !m_requestBodySchema.is_null() )
+    {
+        action["requestBody"] = m_requestBodySchema;
+    }
     return action;
 }
 
@@ -160,7 +166,7 @@ RestAction::ServiceResponse RestAction::perform( const std::list<std::string>& p
                                                  const nlohmann::json&         queryParams,
                                                  const nlohmann::json&         body ) const
 {
-    return m_callback( pathArguments, queryParams, body );
+    return m_callback( m_verb, pathArguments, queryParams, body );
 }
 
 void RestAction::setRequiresSession( bool requiresSession )
@@ -181,6 +187,11 @@ bool RestAction::requiresSession() const
 bool RestAction::requiresAuthentication() const
 {
     return m_requiresAuthentication;
+}
+
+void RestAction::setRequestBodySchema( const nlohmann::json& requestBodySchema )
+{
+    m_requestBodySchema = requestBodySchema;
 }
 
 RestPathEntry::RestPathEntry( const std::string& name )

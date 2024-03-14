@@ -69,7 +69,7 @@ RestDocumentService::RestDocumentService()
             std::make_unique<RestAction>( http::verb::get,
                                           "Get " + document->id() + " document",
                                           "getDocument",
-                                          std::bind( &RestDocumentService::document, document->id(), _1, _2, _3 ) );
+                                          std::bind( &RestDocumentService::document, document->id(), _1, _2, _3, _4 ) );
 
         getAction->addResponse( http::status::ok,
                                 RestResponse::objectResponse( "#/components/object_schemas/" + document->classKeyword(),
@@ -261,6 +261,7 @@ std::map<std::string, nlohmann::json> RestDocumentService::serviceComponentEntri
 ///
 //--------------------------------------------------------------------------------------------------
 RestServiceInterface::ServiceResponse RestDocumentService::document( const std::string&            documentId,
+                                                                     http::verb                    verb,
                                                                      const std::list<std::string>& pathArguments,
                                                                      const nlohmann::json&         queryParams,
                                                                      const nlohmann::json&         body )
@@ -302,7 +303,8 @@ RestServiceInterface::ServiceResponse RestDocumentService::document( const std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestDocumentService::ServiceResponse RestDocumentService::documents( const std::list<std::string>& pathArguments,
+RestDocumentService::ServiceResponse RestDocumentService::documents( http::verb                    verb,
+                                                                     const std::list<std::string>& pathArguments,
                                                                      const nlohmann::json&         queryParams,
                                                                      const nlohmann::json&         body )
 {
