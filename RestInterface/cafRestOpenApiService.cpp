@@ -44,8 +44,24 @@ RestServiceInterface::ServiceResponse RestOpenApiService::perform( http::verb   
     {
         return std::make_tuple( http::status::bad_request, "Only GET requests are allowed for api queries", nullptr );
     }
+    CAFFA_ASSERT( !path.empty() );
+    path.pop_front();
 
-    return std::make_tuple( http::status::ok, getOpenApiV31Schema().dump(), nullptr );
+    auto currentSchema = getOpenApiV31Schema();
+
+    for ( auto currentPathEntry : path )
+    {
+        if ( currentSchema.contains( currentPathEntry ) )
+        {
+            currentSchema = currentSchema[currentPathEntry];
+        }
+        else
+        {
+            return std::make_tuple( http::status::not_found, "Entry " + currentPathEntry + " not found", nullptr );
+        }
+    }
+
+    return std::make_tuple( http::status::ok, currentSchema.dump(), nullptr );
 }
 
 bool RestOpenApiService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
