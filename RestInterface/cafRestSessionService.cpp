@@ -203,7 +203,8 @@ std::map<std::string, nlohmann::json> RestSessionService::serviceComponentEntrie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse RestSessionService::ready( const std::list<std::string>& pathArguments,
+RestSessionService::ServiceResponse RestSessionService::ready( http::verb                    verb,
+                                                               const std::list<std::string>& pathArguments,
                                                                const nlohmann::json&         queryParams,
                                                                const nlohmann::json&         body )
 {
@@ -233,7 +234,8 @@ RestSessionService::ServiceResponse RestSessionService::ready( const std::list<s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse RestSessionService::create( const std::list<std::string>& pathArguments,
+RestSessionService::ServiceResponse RestSessionService::create( http::verb                    verb,
+                                                                const std::list<std::string>& pathArguments,
                                                                 const nlohmann::json&         queryParams,
                                                                 const nlohmann::json&         body )
 {
@@ -266,7 +268,8 @@ RestSessionService::ServiceResponse RestSessionService::create( const std::list<
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse RestSessionService::get( const std::list<std::string>& pathArguments,
+RestSessionService::ServiceResponse RestSessionService::get( http::verb                    verb,
+                                                             const std::list<std::string>& pathArguments,
                                                              const nlohmann::json&         queryParams,
                                                              const nlohmann::json&         body )
 {
@@ -295,7 +298,8 @@ RestSessionService::ServiceResponse RestSessionService::get( const std::list<std
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( const std::list<std::string>& pathArguments,
+RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( http::verb                    verb,
+                                                                           const std::list<std::string>& pathArguments,
                                                                            const nlohmann::json&         queryParams,
                                                                            const nlohmann::json&         body )
 {
@@ -340,7 +344,8 @@ RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse RestSessionService::destroy( const std::list<std::string>& pathArguments,
+RestSessionService::ServiceResponse RestSessionService::destroy( http::verb                    verb,
+                                                                 const std::list<std::string>& pathArguments,
                                                                  const nlohmann::json&         queryParams,
                                                                  const nlohmann::json&         body )
 {

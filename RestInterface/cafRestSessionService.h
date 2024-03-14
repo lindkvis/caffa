@@ -51,20 +51,26 @@ private:
                                            const nlohmann::json& responses,
                                            const nlohmann::json& requestBody = nullptr );
 
-    static ServiceResponse ready( const std::list<std::string>& pathArguments,
+    static ServiceResponse ready( http::verb                    verb,
+                                  const std::list<std::string>& pathArguments,
                                   const nlohmann::json&         queryParams,
                                   const nlohmann::json&         body );
-    static ServiceResponse create( const std::list<std::string>& pathArguments,
+    static ServiceResponse create( http::verb                    verb,
+                                   const std::list<std::string>& pathArguments,
                                    const nlohmann::json&         queryParams,
                                    const nlohmann::json&         body );
 
-    static ServiceResponse
-        get( const std::list<std::string>& pathArguments, const nlohmann::json& queryParams, const nlohmann::json& body );
+    static ServiceResponse get( http::verb                    verb,
+                                const std::list<std::string>& pathArguments,
+                                const nlohmann::json&         queryParams,
+                                const nlohmann::json&         body );
 
-    static ServiceResponse changeOrKeepAlive( const std::list<std::string>& pathArguments,
+    static ServiceResponse changeOrKeepAlive( http::verb                    verb,
+                                              const std::list<std::string>& pathArguments,
                                               const nlohmann::json&         queryParams,
                                               const nlohmann::json&         body );
-    static ServiceResponse destroy( const std::list<std::string>& pathArguments,
+    static ServiceResponse destroy( http::verb                    verb,
+                                    const std::list<std::string>& pathArguments,
                                     const nlohmann::json&         queryParams,
                                     const nlohmann::json&         body );
 

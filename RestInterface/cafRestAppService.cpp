@@ -121,7 +121,8 @@ std::map<std::string, nlohmann::json> RestAppService::serviceComponentEntries() 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestAppService::ServiceResponse RestAppService::info( const std::list<std::string>& pathArguments,
+RestAppService::ServiceResponse RestAppService::info( http::verb                    verb,
+                                                      const std::list<std::string>& pathArguments,
                                                       const nlohmann::json&         queryParams,
                                                       const nlohmann::json&         body )
 {
@@ -137,7 +138,8 @@ RestAppService::ServiceResponse RestAppService::info( const std::list<std::strin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestAppService::ServiceResponse RestAppService::quit( const std::list<std::string>& pathArguments,
+RestAppService::ServiceResponse RestAppService::quit( http::verb                    verb,
+                                                      const std::list<std::string>& pathArguments,
                                                       const nlohmann::json&         queryParams,
                                                       const nlohmann::json&         body )
 {

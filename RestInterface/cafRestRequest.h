@@ -123,7 +123,7 @@ class RestAction
 public:
     using ServiceResponse = RestServiceInterface::ServiceResponse;
     using Callback =
-        std::function<ServiceResponse( const std::list<std::string>&, const nlohmann::json&, const nlohmann::json& )>;
+        std::function<ServiceResponse( http::verb, const std::list<std::string>&, const nlohmann::json&, const nlohmann::json& )>;
 
     RestAction( http::verb verb, const std::string& summary, const std::string& operationId, const Callback& callback );
 
@@ -144,6 +144,8 @@ public:
     bool requiresSession() const;
     bool requiresAuthentication() const;
 
+    void setRequestBodySchema( const nlohmann::json& requestBodySchema );
+
 private:
     http::verb  m_verb;
     std::string m_summary;
@@ -155,6 +157,8 @@ private:
     std::list<std::string>                                m_tags;
     std::list<std::unique_ptr<RestParameter>>             m_parameters;
     std::map<http::status, std::unique_ptr<RestResponse>> m_responses;
+
+    nlohmann::json m_requestBodySchema;
 };
 
 class RestPathEntry
