@@ -199,6 +199,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
     else
     {
         jsonObject["keyword"] = object->classKeyword();
+        jsonObject["$id"]     = "/components/object_schemas/" + object->classKeyword();
 
         if ( this->serializeUuids() && !object->uuid().empty() )
         {
