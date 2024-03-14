@@ -56,33 +56,3 @@ std::map<std::string, nlohmann::json> RestServiceInterface::basicServiceSchemas(
 
     return { { "error_schemas", { { "PlainError", plainError } } } };
 }
-
-nlohmann::json RestServiceInterface::createOperation( const std::string&    operationId,
-                                                      const std::string&    summary,
-                                                      const nlohmann::json& parameters,
-                                                      const nlohmann::json& responses,
-                                                      const nlohmann::json& requestBody,
-                                                      const nlohmann::json& tags )
-{
-    auto schema = nlohmann::json{ { "operationId", operationId }, { "summary", summary }, { "responses", responses } };
-    if ( !parameters.is_null() )
-    {
-        if ( parameters.is_array() )
-        {
-            schema["parameters"] = parameters;
-        }
-        else
-        {
-            schema["parameters"] = nlohmann::json::array( { parameters } );
-        }
-    }
-    if ( !requestBody.is_null() )
-    {
-        schema["requestBody"] = requestBody;
-    }
-    if ( !tags.is_null() )
-    {
-        schema["tags"] = tags;
-    }
-    return schema;
-}

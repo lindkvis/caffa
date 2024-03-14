@@ -21,7 +21,6 @@
 
 #include "cafRpcClientPassByRefObjectFactory.h"
 #include "cafRpcServer.h"
-#include "cafSession.h"
 
 #include "cafDocument.h"
 #include "cafField.h"
@@ -62,121 +61,92 @@ RestObjectService::RestObjectService()
                                                                             true,
                                                                             "The UUID of the object" );
 
-    auto getAction =
-        std::make_unique<RestAction>( http::verb::get, "Get object by UUID", "getObject", &RestObjectService::object );
-
-    getAction->addResponse( http::status::ok,
-                            std::make_unique<RestResponse>( anyObjectResponseContent(), "Specific object" ) );
-
-    getAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
-    getAction->addParameter( uuidParameter->clone() );
-    getAction->addParameter( skeletonParameter->clone() );
-    getAction->setRequiresAuthentication( false );
-    getAction->setRequiresSession( true );
-
-    uuidEntry->addAction( std::move( getAction ) );
+    uuidEntry->addAction( createObjectGetAction( { uuidParameter.get(), skeletonParameter.get() } ) );
 
     auto fieldEntry        = std::make_unique<RestPathEntry>( "fields" );
-    auto fieldKeywordEntry = std::make_unique<RestPathEntry>( "{fieldKeyword}" );
+    auto fieldKeywordEntry = std::make_unique<RestPathEntry>( "{keyword}" );
     fieldKeywordEntry->setPathArgumentMatcher( &caffa::ObjectHandle::isValidKeyword );
 
-    auto fieldKeywordParameter = std::make_unique<RestTypedParameter<std::string>>( "fieldKeyword",
-                                                                                    RestParameter::Location::PATH,
-                                                                                    true,
-                                                                                    "The keyword of the field" );
+    auto keywordParameter = std::make_unique<RestTypedParameter<std::string>>( "keyword",
+                                                                               RestParameter::Location::PATH,
+                                                                               true,
+                                                                               "The keyword of the field" );
 
     auto indexParameter = std::make_unique<RestTypedParameter<int>>( "index",
                                                                      RestParameter::Location::QUERY,
                                                                      false,
                                                                      "The index of the field (for array fields)" );
+    {
+        auto getAction =
+            createFieldOrMethodAction( http::verb::get,
+                                       "Get a field value",
+                                       "getFieldValue",
+                                       { keywordParameter.get(), indexParameter.get(), skeletonParameter.get() } );
+        getAction->addResponse( http::status::ok,
+                                std::make_unique<RestResponse>( anyFieldResponseContent(), "Specific field" ) );
+        getAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+        fieldKeywordEntry->addAction( std::move( getAction ) );
+    }
 
     {
-        auto fieldGetAction = std::make_unique<RestAction>( http::verb::get,
-                                                            "Get field value",
-                                                            "getFieldValue",
-                                                            &RestObjectService::performFieldOperation );
-        fieldGetAction->addResponse( http::status::ok,
-                                     std::make_unique<RestResponse>( anyFieldResponseContent(), "Specific field" ) );
-        fieldGetAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
-        fieldGetAction->addParameter( fieldKeywordParameter->clone() );
-        fieldGetAction->addParameter( indexParameter->clone() );
-        fieldGetAction->addParameter( skeletonParameter->clone() );
-        fieldGetAction->setRequiresAuthentication( false );
-        fieldGetAction->setRequiresSession( true );
-        fieldKeywordEntry->addAction( std::move( fieldGetAction ) );
+        auto putAction =
+            createFieldOrMethodAction( http::verb::put,
+                                       "Replace a field value",
+                                       "replaceFieldValue",
+                                       { keywordParameter.get(), indexParameter.get(), skeletonParameter.get() } );
+
+        putAction->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
+        putAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+        fieldKeywordEntry->addAction( std::move( putAction ) );
     }
+
     {
-        auto fieldPutAction = std::make_unique<RestAction>( http::verb::put,
-                                                            "Set field value",
-                                                            "replaceFieldValue",
-                                                            &RestObjectService::performFieldOperation );
-        fieldPutAction->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
-        fieldPutAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
-        fieldPutAction->addParameter( fieldKeywordParameter->clone() );
-        fieldPutAction->addParameter( indexParameter->clone() );
-        fieldPutAction->setRequiresAuthentication( false );
-        fieldPutAction->setRequiresSession( true );
+        auto postAction =
+            createFieldOrMethodAction( http::verb::post,
+                                       "Insert a field value",
+                                       "insertFieldValue",
+                                       { keywordParameter.get(), indexParameter.get(), skeletonParameter.get() } );
+
+        postAction->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
+        postAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
 
         auto requestBody       = nlohmann::json::object();
         requestBody["content"] = anyFieldResponseContent();
 
-        fieldPutAction->setRequestBodySchema( requestBody );
-        fieldKeywordEntry->addAction( std::move( fieldPutAction ) );
+        postAction->setRequestBodySchema( requestBody );
+
+        fieldKeywordEntry->addAction( std::move( postAction ) );
     }
+
     {
-        auto fieldPostAction = std::make_unique<RestAction>( http::verb::post,
-                                                             "Insert into field",
-                                                             "insertFieldValue",
-                                                             &RestObjectService::performFieldOperation );
-        fieldPostAction->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
-        fieldPostAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
-        fieldPostAction->addParameter( fieldKeywordParameter->clone() );
-        fieldPostAction->addParameter( indexParameter->clone() );
-        fieldPostAction->setRequiresAuthentication( false );
-        fieldPostAction->setRequiresSession( true );
+        auto deleteAction =
+            createFieldOrMethodAction( http::verb::delete_,
+                                       "Delete a field value",
+                                       "deleteFieldValue",
+                                       { keywordParameter.get(), indexParameter.get(), skeletonParameter.get() } );
 
-        auto requestBody       = nlohmann::json::object();
-        requestBody["content"] = anyFieldResponseContent();
-
-        fieldPostAction->setRequestBodySchema( requestBody );
-        fieldKeywordEntry->addAction( std::move( fieldPostAction ) );
+        deleteAction->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
+        deleteAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+        fieldKeywordEntry->addAction( std::move( deleteAction ) );
     }
-    {
-        auto fieldDeleteAction = std::make_unique<RestAction>( http::verb::delete_,
-                                                               "Delete from field",
-                                                               "deleteFieldValue",
-                                                               &RestObjectService::performFieldOperation );
-        fieldDeleteAction->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
-        fieldDeleteAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
-        fieldDeleteAction->addParameter( fieldKeywordParameter->clone() );
-        fieldDeleteAction->addParameter( indexParameter->clone() );
-        fieldDeleteAction->setRequiresAuthentication( false );
-        fieldDeleteAction->setRequiresSession( true );
 
-        fieldKeywordEntry->addAction( std::move( fieldDeleteAction ) );
-    }
     fieldEntry->addEntry( std::move( fieldKeywordEntry ) );
 
     auto methodEntry        = std::make_unique<RestPathEntry>( "methods" );
-    auto methodKeywordEntry = std::make_unique<RestPathEntry>( "{methodKeyword}" );
+    auto methodKeywordEntry = std::make_unique<RestPathEntry>( "{keyword}" );
     methodKeywordEntry->setPathArgumentMatcher( &caffa::ObjectHandle::isValidKeyword );
-    auto methodKeywordParameter = std::make_unique<RestTypedParameter<std::string>>( "methodKeyword",
+    auto methodKeywordParameter = std::make_unique<RestTypedParameter<std::string>>( "keyword",
                                                                                      RestParameter::Location::PATH,
                                                                                      true,
                                                                                      "The keyword of the method" );
 
     {
-        auto methodExecuteAction = std::make_unique<RestAction>( http::verb::post,
-                                                                 "Execute method",
-                                                                 "executeMethod",
-                                                                 &RestObjectService::executeMethod );
+        auto methodExecuteAction =
+            createFieldOrMethodAction( http::verb::post, "Execute method", "executeMethod", { keywordParameter.get() } );
 
         methodExecuteAction->addResponse( http::status::ok,
                                           std::make_unique<RestResponse>( anyFieldResponseContent(), "Success" ) );
         methodExecuteAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
-        methodExecuteAction->addParameter( methodKeywordParameter->clone() );
-        methodExecuteAction->setRequiresAuthentication( false );
-        methodExecuteAction->setRequiresSession( true );
 
         auto methodContent = nlohmann::json{ { "application/json", { { "schema", nlohmann::json::object() } } } };
 
@@ -305,55 +275,37 @@ std::map<std::string, nlohmann::json> RestObjectService::serviceComponentEntries
     return { { "object_schemas", schemas } };
 }
 
-std::pair<caffa::ObjectHandle*, RestObjectService::ServiceResponse>
-    RestObjectService::findObject( std::list<std::string>& pathArguments, const nlohmann::json& queryParams )
+RestObjectService::ServiceResponse
+    RestObjectService::performFieldOrMethodOperation( http::verb                    verb,
+                                                      const std::list<std::string>& pathArguments,
+                                                      const nlohmann::json&         queryParams,
+                                                      const nlohmann::json&         body )
 {
-    caffa::SessionMaintainer session;
+    CAFFA_DEBUG( "Full arguments for field operation: "
+                 << caffa::StringTools::join( pathArguments.begin(), pathArguments.end(), "/" ) );
+
+    auto session = findSession( queryParams );
+    if ( !session || session->isExpired() )
+    {
+        return std::make_tuple( http::status::forbidden, "No valid session provided", nullptr );
+    }
+
+    auto arguments = pathArguments;
 
     if ( pathArguments.empty() )
     {
-        return std::make_pair( nullptr, std::make_tuple( http::status::bad_request, "Object uuid not specified", nullptr ) );
+        return std::make_tuple( http::status::bad_request, "Object uuid not specified", nullptr );
     }
 
-    auto uuid = pathArguments.front();
-    pathArguments.pop_front();
-
-    if ( queryParams.contains( "session_uuid" ) )
-    {
-        auto session_uuid = queryParams["session_uuid"].get<std::string>();
-        session           = RestServerApplication::instance()->getExistingSession( session_uuid );
-    }
-
-    if ( !session || session->isExpired() )
-    {
-        return std::make_pair( nullptr, std::make_tuple( http::status::forbidden, "No valid session provided", nullptr ) );
-    }
+    auto uuid = arguments.front();
+    arguments.pop_front();
 
     CAFFA_TRACE( "Trying to look for uuid '" << uuid << "'" );
 
     auto object = findCafObjectFromUuid( session.get(), uuid );
     if ( !object )
     {
-        return std::make_pair( nullptr,
-                               std::make_tuple( http::status::not_found, "Object " + uuid + " not found", nullptr ) );
-    }
-
-    return std::make_pair( object, std::make_tuple( http::status::ok, "", nullptr ) );
-}
-
-RestObjectService::ServiceResponse RestObjectService::performFieldOperation( http::verb verb,
-                                                                             const std::list<std::string>& pathArguments,
-                                                                             const nlohmann::json& queryParams,
-                                                                             const nlohmann::json& body )
-{
-    CAFFA_DEBUG( "Full arguments for field operation: "
-                 << caffa::StringTools::join( pathArguments.begin(), pathArguments.end(), "/" ) );
-
-    auto arguments          = pathArguments;
-    auto [object, response] = findObject( arguments, queryParams );
-    if ( !object )
-    {
-        return response;
+        return std::make_tuple( http::status::not_found, "Object " + uuid + " not found", nullptr );
     }
 
     if ( arguments.empty() )
@@ -361,15 +313,14 @@ RestObjectService::ServiceResponse RestObjectService::performFieldOperation( htt
         return std::make_tuple( http::status::bad_request, "field keyword not provided", nullptr );
     }
 
-    CAFFA_DEBUG( "Got arguments:" );
-    for ( auto arg : arguments )
-    {
-        CAFFA_DEBUG( "  /" << arg );
-    }
-
     auto keyword = arguments.front();
 
-    if ( auto field = object->findField( keyword ); field )
+    if ( auto method = object->findMethod( keyword ); method )
+    {
+        auto result = method->execute( *session, body.dump() );
+        return std::make_tuple( http::status::ok, result, nullptr );
+    }
+    else if ( auto field = object->findField( keyword ); field )
     {
         int  index    = queryParams.contains( "index" ) ? queryParams["index"].get<int>() : -1;
         bool skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
@@ -385,7 +336,6 @@ RestObjectService::ServiceResponse RestObjectService::performFieldOperation( htt
         {
             return insertFieldValue( field, index, body );
         }
-
         else if ( verb == http::verb::delete_ )
         {
             return deleteFieldValue( field, index );
@@ -582,8 +532,7 @@ RestObjectService::ServiceResponse RestObjectService::deleteFieldValue( FieldHan
             {
                 return std::make_tuple( http::status::bad_request,
                                         "It does not make sense to provide an index for deleting objects from a single "
-                                        "Child "
-                                        "Field",
+                                        "Child Field",
                                         nullptr );
             }
             else
@@ -620,11 +569,28 @@ RestObjectService::ServiceResponse RestObjectService::object( http::verb        
                                                               const nlohmann::json&         queryParams,
                                                               const nlohmann::json&         body )
 {
-    auto arguments          = pathArguments;
-    auto [object, response] = findObject( arguments, queryParams );
+    auto session = findSession( queryParams );
+    if ( !session || session->isExpired() )
+    {
+        return std::make_tuple( http::status::forbidden, "No valid session provided", nullptr );
+    }
+
+    auto arguments = pathArguments;
+
+    if ( arguments.empty() )
+    {
+        return std::make_tuple( http::status::bad_request, "Object uuid not specified", nullptr );
+    }
+
+    auto uuid = arguments.front();
+    arguments.pop_front();
+
+    CAFFA_TRACE( "Trying to look for uuid '" << uuid << "'" );
+
+    auto object = findCafObjectFromUuid( session.get(), uuid );
     if ( !object )
     {
-        return response;
+        return std::make_tuple( http::status::not_found, "Object " + uuid + " not found", nullptr );
     }
 
     bool           skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
@@ -640,21 +606,9 @@ RestObjectService::ServiceResponse RestObjectService::object( http::verb        
     return std::make_tuple( http::status::ok, jsonObject.dump(), nullptr );
 }
 
-RestObjectService::ServiceResponse RestObjectService::executeMethod( http::verb                    verb,
-                                                                     const std::list<std::string>& pathArguments,
-                                                                     const nlohmann::json&         queryParams,
-                                                                     const nlohmann::json&         body )
+caffa::SessionMaintainer RestObjectService::findSession( const nlohmann::json& queryParams )
 {
     caffa::SessionMaintainer session;
-    auto                     arguments = pathArguments;
-
-    if ( arguments.empty() )
-    {
-        return std::make_tuple( http::status::bad_request, "Object uuid not specified", nullptr );
-    }
-
-    auto uuid = arguments.front();
-    arguments.pop_front();
 
     if ( queryParams.contains( "session_uuid" ) )
     {
@@ -662,33 +616,39 @@ RestObjectService::ServiceResponse RestObjectService::executeMethod( http::verb 
         session           = RestServerApplication::instance()->getExistingSession( session_uuid );
     }
 
-    if ( !session || session->isExpired() )
+    return session;
+}
+
+std::unique_ptr<RestAction> RestObjectService::createObjectGetAction( const std::list<RestParameter*>& parameters )
+{
+    auto getAction =
+        std::make_unique<RestAction>( http::verb::get, "Get object by UUID", "getObject", &RestObjectService::object );
+
+    getAction->addResponse( http::status::ok,
+                            std::make_unique<RestResponse>( anyObjectResponseContent(), "Specific object" ) );
+
+    getAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+    for ( auto param : parameters )
     {
-        return std::make_tuple( http::status::forbidden, "No valid session provided", nullptr );
+        getAction->addParameter( param->clone() );
     }
+    getAction->setRequiresAuthentication( false );
+    getAction->setRequiresSession( true );
+    return getAction;
+}
 
-    CAFFA_TRACE( "Trying to look for uuid '" << uuid << "'" );
-
-    auto object = findCafObjectFromUuid( session.get(), uuid );
-    if ( !object )
+std::unique_ptr<RestAction> RestObjectService::createFieldOrMethodAction( http::verb                       verb,
+                                                                          const std::string&               description,
+                                                                          const std::string&               name,
+                                                                          const std::list<RestParameter*>& parameters )
+{
+    auto fieldAction =
+        std::make_unique<RestAction>( verb, description, name, &RestObjectService::performFieldOrMethodOperation );
+    for ( auto param : parameters )
     {
-        return std::make_tuple( http::status::not_found, "Object " + uuid + " not found", nullptr );
+        fieldAction->addParameter( param->clone() );
     }
-
-    if ( arguments.empty() )
-    {
-        return std::make_tuple( http::status::bad_request, "method keyword not provided", nullptr );
-    }
-
-    auto keyword = arguments.front();
-
-    if ( auto method = object->findMethod( keyword ); method )
-    {
-        CAFFA_TRACE( "Found method: " << method->keyword() );
-
-        auto result = method->execute( *session, body.dump() );
-        return std::make_tuple( http::status::ok, result, nullptr );
-    }
-
-    return std::make_tuple( http::status::not_found, "No method named " + keyword + " found", nullptr );
+    fieldAction->setRequiresAuthentication( false );
+    fieldAction->setRequiresSession( true );
+    return fieldAction;
 }
