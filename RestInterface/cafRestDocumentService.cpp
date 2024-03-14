@@ -274,7 +274,7 @@ RestServiceInterface::ServiceResponse RestDocumentService::document( const std::
         session           = RestServerApplication::instance()->getExistingSession( session_uuid );
     }
 
-    if ( !session || session->isExpired() )
+    if ( RestServerApplication::instance()->requiresValidSession() && ( !session || session->isExpired() ) )
     {
         return std::make_tuple( http::status::forbidden, "No valid session provided", nullptr );
     }
@@ -318,7 +318,7 @@ RestDocumentService::ServiceResponse RestDocumentService::documents( http::verb 
         session           = RestServerApplication::instance()->getExistingSession( session_uuid );
     }
 
-    if ( !session || session->isExpired() )
+    if ( RestServerApplication::instance()->requiresValidSession() && ( !session || session->isExpired() ) )
     {
         return std::make_tuple( http::status::forbidden, "No valid session provided", nullptr );
     }
