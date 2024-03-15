@@ -117,9 +117,16 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
         std::set<std::string> parentalFields;
         std::set<std::string> parentalMethods;
 
-        auto parentClassKeyword = object->parentClassKeyword();
+        auto inheritanceStack = object->classInheritanceStack();
 
-        auto parentClassInstance = DefaultObjectFactory::instance()->create( parentClassKeyword );
+        std::shared_ptr<caffa::ObjectHandle> parentClassInstance;
+        for ( auto it = inheritanceStack.begin() + 1; it != inheritanceStack.end(); ++it )
+        {
+            parentClassInstance = DefaultObjectFactory::instance()->create( *it );
+            if ( parentClassInstance ) break;
+        }
+
+        std::string parentClassKeyword;
         if ( parentClassInstance )
         {
             for ( auto field : parentClassInstance->fields() )
@@ -130,6 +137,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             {
                 parentalMethods.insert( method->keyword() );
             }
+            parentClassKeyword = parentClassInstance->classKeyword();
         }
 
         auto jsonClass = nlohmann::json::object();
