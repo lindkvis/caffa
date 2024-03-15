@@ -533,15 +533,12 @@ void RestClient::changeSession( caffa::Session::Type newType )
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
-    auto jsonObject    = nlohmann::json::object();
-    jsonObject["uuid"] = m_sessionUuid;
-    jsonObject["type"] = caffa::AppEnum<caffa::Session::Type>( newType ).label();
-
     auto [status, body] = performRequest( http::verb::put,
                                           hostname(),
                                           port(),
-                                          std::string( "/sessions/" + m_sessionUuid + "?session_uuid=" ) + m_sessionUuid,
-                                          jsonObject.dump() );
+                                          std::string( "/sessions/" + m_sessionUuid + "?session_uuid=" ) + m_sessionUuid +
+                                              "&type=" + caffa::AppEnum<caffa::Session::Type>( newType ).label(),
+                                          "" );
 
     if ( status != http::status::ok )
     {
