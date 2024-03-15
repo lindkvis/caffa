@@ -167,10 +167,6 @@ RestServiceInterface::CleanupCallback
         auto serviceComponent = pathComponents.front();
         service               = findRestService( serviceComponent, services );
     }
-    else
-    {
-        service = findRestService( "openapi", services );
-    }
 
     if ( !service )
     {

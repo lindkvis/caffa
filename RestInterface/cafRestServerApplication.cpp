@@ -89,8 +89,8 @@ void RestServerApplication::run()
     caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestAppService>( "app" );
     caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestObjectService>( "objects" );
     caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestSessionService>( "sessions" );
-    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestOpenApiService>( "openapi" );
     caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestDocumentService>( "documents" );
+    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestOpenApiService>( "openapi.json" );
 
     m_server = std::make_shared<RestServer>( m_ioContext,
                                              m_sslContext,
