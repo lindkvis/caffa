@@ -105,7 +105,7 @@ std::map<std::string, nlohmann::json> RestAppService::servicePathEntries() const
 
     for ( const auto& [path, request] : finder.allPathEntriesWithActions() )
     {
-        CAFFA_INFO( "Got path: " << path );
+        CAFFA_DEBUG( "Got path: " << path );
         services[path] = request->schema();
     }
     return services;

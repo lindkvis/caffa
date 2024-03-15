@@ -246,7 +246,7 @@ std::map<std::string, nlohmann::json> RestDocumentService::servicePathEntries() 
 
     for ( const auto& [path, request] : finder.allPathEntriesWithActions() )
     {
-        CAFFA_INFO( "Got path: " << path );
+        CAFFA_DEBUG( "Got path: " << path );
         services[path] = request->schema();
     }
     return services;
