@@ -207,7 +207,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
     else
     {
         jsonObject["keyword"] = object->classKeyword();
-        jsonObject["$id"]     = "/openapi.json/components/object_schemas/" + object->classKeyword();
+        // jsonObject["$id"]     = "/openapi.json/components/object_schemas/" + object->classKeyword();
 
         if ( this->serializeUuids() && !object->uuid().empty() )
         {
