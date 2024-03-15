@@ -66,7 +66,7 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
     {
         CAFFA_TRACE( "Reading field: " << keyword << " with value " << value.dump() );
 
-        if ( keyword == "uuid" )
+        if ( keyword == "uuid" || keyword == "$id" )
         {
             continue;
         }
@@ -140,7 +140,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
         jsonProperties["keyword"] = { { "type", "string" } };
         jsonProperties["uuid"]    = { { "type", "string" } };
         jsonObject["$schema"]     = "https://json-schema.org/draft/2020-12/schema";
-        jsonObject["$id"]         = "/openapi/components/object_schemas/" + object->classKeyword();
+        jsonObject["$id"]         = "/openapi.json/components/object_schemas/" + object->classKeyword();
         //  jsonObject["title"]       = object->classKeyword();
 
         if ( !object->classDocumentation().empty() )
@@ -199,7 +199,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
     else
     {
         jsonObject["keyword"] = object->classKeyword();
-        jsonObject["$id"]     = "/openapi/components/object_schemas/" + object->classKeyword();
+        jsonObject["$id"]     = "/openapi.json/components/object_schemas/" + object->classKeyword();
 
         if ( this->serializeUuids() && !object->uuid().empty() )
         {
