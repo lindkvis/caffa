@@ -154,9 +154,7 @@ bool RestSessionService::requiresSession( http::verb verb, const std::list<std::
         return true;
     }
 
-    auto required = request->requiresSession( verb );
-    CAFFA_INFO( "Service " << request->name() << " requires session: " << required );
-    return required;
+    return request->requiresSession( verb );
 }
 
 std::map<std::string, nlohmann::json> RestSessionService::servicePathEntries() const
@@ -172,7 +170,7 @@ std::map<std::string, nlohmann::json> RestSessionService::servicePathEntries() c
 
     for ( const auto& [path, request] : finder.allPathEntriesWithActions() )
     {
-        CAFFA_INFO( "Got path: " << path );
+        CAFFA_DEBUG( "Got path: " << path );
         services[path] = request->schema();
     }
     return services;
