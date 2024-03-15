@@ -139,8 +139,6 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
 
         jsonProperties["keyword"] = { { "type", "string" } };
         jsonProperties["uuid"]    = { { "type", "string" } };
-        jsonObject["$schema"]     = "https://json-schema.org/draft/2020-12/schema";
-        jsonObject["$id"]         = "/openapi.json/components/object_schemas/" + object->classKeyword();
         //  jsonObject["title"]       = object->classKeyword();
 
         if ( !object->classDocumentation().empty() )
@@ -195,6 +193,8 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
         {
             jsonObject = jsonClass;
         }
+        jsonObject["$schema"] = "https://json-schema.org/draft/2020-12/schema";
+        jsonObject["$id"]     = "/openapi.json/components/object_schemas/" + object->classKeyword();
     }
     else
     {
