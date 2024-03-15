@@ -212,8 +212,10 @@ RestPathEntry::ServiceResponse RestPathEntry::perform( http::verb               
     auto it = m_actions.find( verb );
     if ( it == m_actions.end() )
     {
-        throw std::runtime_error( "Could not find the verb " + std::string( http::to_string( verb ) ) + " in request " +
-                                  name() );
+        return std::make_tuple( http::status::not_found,
+                                "Could not find the verb " + std::string( http::to_string( verb ) ) + " in request " +
+                                    name(),
+                                nullptr );
     }
 
     return it->second->perform( pathArguments, queryParams, body );
@@ -322,8 +324,7 @@ bool RestPathEntry::requiresSession( http::verb verb ) const
     auto it = m_actions.find( verb );
     if ( it == m_actions.end() )
     {
-        throw std::runtime_error( "Could not find the verb " + std::string( http::to_string( verb ) ) + " in request " +
-                                  name() );
+        return false;
     }
     return it->second->requiresSession();
 }
@@ -333,8 +334,7 @@ bool RestPathEntry::requiresAuthentication( http::verb verb ) const
     auto it = m_actions.find( verb );
     if ( it == m_actions.end() )
     {
-        throw std::runtime_error( "Could not find the verb " + std::string( http::to_string( verb ) ) + " in request " +
-                                  name() );
+        return false;
     }
     return it->second->requiresAuthentication();
 }
