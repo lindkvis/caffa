@@ -359,31 +359,29 @@ std::string RestClient::execute( caffa::not_null<const caffa::ObjectHandle*> sel
 //--------------------------------------------------------------------------------------------------
 bool RestClient::stopServer()
 {
+    std::string sessionUuid;
     {
         std::scoped_lock<std::mutex> lock( m_sessionMutex );
-        auto                         sessionUuid = m_sessionUuid;
+        sessionUuid = m_sessionUuid;
 
         m_sessionUuid = "";
-
-        if ( m_keepAliveThread )
-        {
-            m_keepAliveThread->join();
-            m_keepAliveThread.reset();
-        }
-
-        auto [status, body] = performRequest( http::verb::delete_,
-                                              hostname(),
-                                              port(),
-                                              std::string( "/app/quit?session_uuid=" ) + sessionUuid,
-                                              "" );
-
-        if ( status != http::status::accepted )
-        {
-            throw std::runtime_error( "Failed to stop server: " + body );
-        }
-
-        CAFFA_TRACE( "Stopped server, which also destroys session" );
     }
+
+    if ( m_keepAliveThread )
+    {
+        m_keepAliveThread->join();
+        m_keepAliveThread.reset();
+    }
+
+    auto [status, body] =
+        performRequest( http::verb::delete_, hostname(), port(), std::string( "/app/quit?session_uuid=" ) + sessionUuid, "" );
+
+    if ( status != http::status::accepted )
+    {
+        throw std::runtime_error( "Failed to stop server: " + body );
+    }
+
+    CAFFA_TRACE( "Stopped server, which also destroys session" );
 
     return true;
 }
