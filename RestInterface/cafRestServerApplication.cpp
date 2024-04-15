@@ -108,7 +108,19 @@ void RestServerApplication::run()
         v.emplace_back( [this] { m_ioContext.run(); } );
 
     boost::asio::signal_set signals( m_ioContext, SIGINT, SIGTERM );
-    signals.async_wait( [this]( const boost::system::error_code& error, int signal_number ) { quit(); } );
+    signals.async_wait(
+        [this]( const boost::system::error_code& error, int signal_number )
+        {
+            if ( error )
+            {
+                CAFFA_ERROR( "Quitting server due to signal " << error << ", signal: " << signal_number );
+            }
+            else
+            {
+                CAFFA_INFO( "Quitting server due to signal " << signal_number );
+                quit();
+            }
+        } );
 
     m_ioContext.run();
 }
