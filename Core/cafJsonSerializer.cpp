@@ -285,9 +285,6 @@ std::shared_ptr<ObjectHandle> JsonSerializer::copyBySerialization( const ObjectH
     std::shared_ptr<ObjectHandle> objectCopy = createObjectFromString( string );
     if ( !objectCopy ) return nullptr;
 
-    ObjectPerformer<> performer( []( ObjectHandle* object ) { object->initAfterRead(); } );
-    performer.visit( objectCopy.get() );
-
     return objectCopy;
 }
 
@@ -348,6 +345,9 @@ std::shared_ptr<ObjectHandle> JsonSerializer::createObjectFromString( const std:
     if ( !newObject ) return nullptr;
 
     readObjectFromJson( newObject.get(), jsonObject );
+
+    ObjectPerformer<> performer( []( ObjectHandle* object ) { object->initAfterRead(); } );
+    performer.visit( newObject.get() );
 
     return newObject;
 }
