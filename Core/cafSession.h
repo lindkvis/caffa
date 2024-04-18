@@ -18,9 +18,10 @@
 //
 #pragma once
 
+#include <atomic>
 #include <chrono>
 #include <memory>
-#include <mutex>
+#include <shared_mutex>
 #include <string>
 
 namespace caffa
@@ -69,12 +70,12 @@ private:
     void unblockExpiration() const;
 
     const std::string               m_uuid;
-    Type                            m_type;
+    std::atomic<Type>               m_type;
     const std::chrono::milliseconds m_timeOut;
 
-    mutable std::chrono::steady_clock::time_point m_lastKeepAlive;
-    mutable std::mutex                            m_mutex;
-    mutable bool                                  m_expirationBlocked;
+    mutable std::atomic<std::chrono::steady_clock::time_point> m_lastKeepAlive;
+    mutable std::shared_mutex                                  m_expirationBlockedMutex;
+    mutable bool                                               m_expirationBlocked;
 };
 
 class SessionMaintainer
