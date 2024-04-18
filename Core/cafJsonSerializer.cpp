@@ -357,8 +357,6 @@ std::shared_ptr<ObjectHandle> JsonSerializer::createObjectFromString( const std:
 //--------------------------------------------------------------------------------------------------
 void JsonSerializer::readStream( ObjectHandle* object, std::istream& file ) const
 {
-    CAFFA_ASSERT( file );
-
     nlohmann::json document;
     file >> document;
 
@@ -373,5 +371,5 @@ void JsonSerializer::writeStream( const ObjectHandle* object, std::ostream& file
     nlohmann::json document = nlohmann::json::object();
     writeObjectToJson( object, document );
 
-    file << std::setw( 2 ) << document;
+    file << std::setw( 4 ) << document;
 }
