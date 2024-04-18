@@ -50,20 +50,20 @@ class RestSchemaService : public RestServiceInterface
 public:
     ServiceResponse perform( http::verb                    verb,
                              const std::list<std::string>& path,
-                             const nlohmann::json&         queryParams,
-                             const nlohmann::json&         body ) override;
+                             const nlohmann::ordered_json& queryParams,
+                             const nlohmann::ordered_json& body ) override;
 
     bool requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const override;
     bool requiresSession( http::verb verb, const std::list<std::string>& path ) const override;
 
-    static nlohmann::json plainErrorResponse();
+    static nlohmann::ordered_json plainErrorResponse();
 
-    std::map<std::string, nlohmann::json> servicePathEntries() const override;
-    std::map<std::string, nlohmann::json> serviceComponentEntries() const override;
+    std::map<std::string, nlohmann::ordered_json> servicePathEntries() const override;
+    std::map<std::string, nlohmann::ordered_json> serviceComponentEntries() const override;
 
-    static nlohmann::json  getJsonForAllSchemas();
-    static ServiceResponse getFieldSchema( const caffa::ObjectHandle* object, const std::string& fieldName );
-    static ServiceResponse getAllSchemas();
+    static nlohmann::ordered_json getJsonForAllSchemas();
+    static ServiceResponse        getFieldSchema( const caffa::ObjectHandle* object, const std::string& fieldName );
+    static ServiceResponse        getAllSchemas();
 };
 
 } // namespace caffa::rpc

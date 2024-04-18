@@ -36,8 +36,8 @@ using namespace caffa::rpc;
 
 RestSchemaService::ServiceResponse RestSchemaService::perform( http::verb                    verb,
                                                                const std::list<std::string>& path,
-                                                               const nlohmann::json&         queryParams,
-                                                               const nlohmann::json&         body )
+                                                               const nlohmann::ordered_json& queryParams,
+                                                               const nlohmann::ordered_json& body )
 {
     if ( verb != http::verb::get )
     {
@@ -76,21 +76,21 @@ bool RestSchemaService::requiresSession( http::verb verb, const std::list<std::s
     return false;
 }
 
-std::map<std::string, nlohmann::json> RestSchemaService::servicePathEntries() const
+std::map<std::string, nlohmann::ordered_json> RestSchemaService::servicePathEntries() const
 {
     return {};
 }
 
-std::map<std::string, nlohmann::json> RestSchemaService::serviceComponentEntries() const
+std::map<std::string, nlohmann::ordered_json> RestSchemaService::serviceComponentEntries() const
 {
     return {};
 }
 
-nlohmann::json RestSchemaService::getJsonForAllSchemas()
+nlohmann::ordered_json RestSchemaService::getJsonForAllSchemas()
 {
     auto factory = DefaultObjectFactory::instance();
 
-    auto schemas = nlohmann::json::object();
+    auto schemas = nlohmann::ordered_json::object();
 
     for ( auto className : factory->classes() )
     {
@@ -122,7 +122,7 @@ RestSchemaService::ServiceResponse RestSchemaService::getFieldSchema( const caff
     caffa::JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
     serializer.setSerializationType( Serializer::SerializationType::SCHEMA );
 
-    nlohmann::json json;
+    nlohmann::ordered_json json;
     ioCapability->writeToJson( json, serializer );
     return std::make_tuple( http::status::ok, json.dump(), nullptr );
 }

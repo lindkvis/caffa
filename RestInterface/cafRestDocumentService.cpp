@@ -100,10 +100,10 @@ RestDocumentService::RestDocumentService()
     m_requestPathRoot->addAction( std::move( getAllAction ) );
 }
 
-RestDocumentService::ServiceResponse RestDocumentService::perform( http::verb             verb,
-                                                                   std::list<std::string> path,
-                                                                   const nlohmann::json&  queryParams,
-                                                                   const nlohmann::json&  body )
+RestDocumentService::ServiceResponse RestDocumentService::perform( http::verb                    verb,
+                                                                   std::list<std::string>        path,
+                                                                   const nlohmann::ordered_json& queryParams,
+                                                                   const nlohmann::ordered_json& body )
 {
     CAFFA_ASSERT( !path.empty() );
 
@@ -138,14 +138,14 @@ public:
         m_serializer.setSerializationType( Serializer::SerializationType::PATH );
     }
 
-    const std::map<std::string, nlohmann::json>& pathSchemas() const { return m_pathSchemas; }
+    const std::map<std::string, nlohmann::ordered_json>& pathSchemas() const { return m_pathSchemas; }
 
     void visitObject( const ObjectHandle* object ) override
     {
         if ( auto doc = dynamic_cast<const Document*>( object ); doc )
         {
             m_pathStack.push_back( doc->id() );
-            auto schema = nlohmann::json::object();
+            auto schema = nlohmann::ordered_json::object();
             m_serializer.writeObjectToJson( object, schema );
             auto path           = StringTools::join( m_pathStack.begin(), m_pathStack.end(), "/" );
             m_pathSchemas[path] = schema;
@@ -155,7 +155,7 @@ public:
     void visitField( const FieldHandle* field ) override
     {
         m_pathStack.push_back( field->keyword() );
-        auto schema = nlohmann::json::object();
+        auto schema = nlohmann::ordered_json::object();
 
         if ( auto scriptability = field->capability<FieldScriptingCapability>(); scriptability )
         {
@@ -168,9 +168,9 @@ public:
                 operationId      = field->ownerObject()->classKeyword() + ".get" + operationId;
 
                 auto getOperation =
-                    nlohmann::json{ { "summary", "Get " + field->keyword() }, { "operationId", operationId } };
+                    nlohmann::ordered_json{ { "summary", "Get " + field->keyword() }, { "operationId", operationId } };
 
-                auto fieldContent                = nlohmann::json::object();
+                auto fieldContent                = nlohmann::ordered_json::object();
                 fieldContent["application/json"] = { { "schema", jsonCapability->jsonType() } };
 
                 std::string description;
@@ -179,7 +179,7 @@ public:
                     description = doc->documentation();
                 }
 
-                auto fieldResponse = nlohmann::json{ { "description", description }, { "content", fieldContent } };
+                auto fieldResponse = nlohmann::ordered_json{ { "description", description }, { "content", fieldContent } };
 
                 getOperation["responses"] = fieldResponse;
                 schema["get"]             = getOperation;
@@ -191,9 +191,9 @@ public:
                 operationId      = field->ownerObject()->classKeyword() + ".set" + operationId;
 
                 auto setOperation =
-                    nlohmann::json{ { "summary", "Set " + field->keyword() }, { "operationId", operationId } };
+                    nlohmann::ordered_json{ { "summary", "Set " + field->keyword() }, { "operationId", operationId } };
 
-                auto fieldContent                = nlohmann::json::object();
+                auto fieldContent                = nlohmann::ordered_json::object();
                 fieldContent["application/json"] = { { "schema", jsonCapability->jsonType() } };
 
                 std::string description;
@@ -203,12 +203,12 @@ public:
                 }
 
                 auto acceptedOrFailureResponses =
-                    nlohmann::json{ { RestServiceInterface::HTTP_ACCEPTED,
-                                      { { "description", "Success" } },
-                                      { "default", RestServiceInterface::plainErrorResponse() } } };
+                    nlohmann::ordered_json{ { RestServiceInterface::HTTP_ACCEPTED,
+                                              { { "description", "Success" } },
+                                              { "default", RestServiceInterface::plainErrorResponse() } } };
 
                 setOperation["responses"]   = acceptedOrFailureResponses;
-                setOperation["requestBody"] = nlohmann::json{ { "content", fieldContent } };
+                setOperation["requestBody"] = nlohmann::ordered_json{ { "content", fieldContent } };
                 schema["set"]               = setOperation;
             }
         }
@@ -230,14 +230,14 @@ private:
     std::list<std::string> m_pathStack;
     JsonSerializer         m_serializer;
 
-    std::map<std::string, nlohmann::json> m_pathSchemas;
+    std::map<std::string, nlohmann::ordered_json> m_pathSchemas;
 };
 
-std::map<std::string, nlohmann::json> RestDocumentService::servicePathEntries() const
+std::map<std::string, nlohmann::ordered_json> RestDocumentService::servicePathEntries() const
 {
     CAFFA_DEBUG( "Get service path entries" );
 
-    auto services = nlohmann::json::object();
+    auto services = nlohmann::ordered_json::object();
 
     RequestFinder finder( m_requestPathRoot.get() );
     finder.search();
@@ -252,7 +252,7 @@ std::map<std::string, nlohmann::json> RestDocumentService::servicePathEntries() 
     return services;
 }
 
-std::map<std::string, nlohmann::json> RestDocumentService::serviceComponentEntries() const
+std::map<std::string, nlohmann::ordered_json> RestDocumentService::serviceComponentEntries() const
 {
     return {};
 }
@@ -263,8 +263,8 @@ std::map<std::string, nlohmann::json> RestDocumentService::serviceComponentEntri
 RestServiceInterface::ServiceResponse RestDocumentService::document( const std::string&            documentId,
                                                                      http::verb                    verb,
                                                                      const std::list<std::string>& pathArguments,
-                                                                     const nlohmann::json&         queryParams,
-                                                                     const nlohmann::json&         body )
+                                                                     const nlohmann::ordered_json& queryParams,
+                                                                     const nlohmann::ordered_json& body )
 {
     caffa::SessionMaintainer session;
 
@@ -285,8 +285,8 @@ RestServiceInterface::ServiceResponse RestDocumentService::document( const std::
     if ( document )
     {
         CAFFA_TRACE( "Found document with UUID: " << document->uuid() );
-        bool           skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
-        nlohmann::json jsonDocument;
+        bool                   skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
+        nlohmann::ordered_json jsonDocument;
         if ( skeleton )
         {
             jsonDocument = createJsonSkeletonFromProjectObject( document.get() );
@@ -305,8 +305,8 @@ RestServiceInterface::ServiceResponse RestDocumentService::document( const std::
 //--------------------------------------------------------------------------------------------------
 RestDocumentService::ServiceResponse RestDocumentService::documents( http::verb                    verb,
                                                                      const std::list<std::string>& pathArguments,
-                                                                     const nlohmann::json&         queryParams,
-                                                                     const nlohmann::json&         body )
+                                                                     const nlohmann::ordered_json& queryParams,
+                                                                     const nlohmann::ordered_json& body )
 {
     CAFFA_DEBUG( "Got list document request" );
 
@@ -326,7 +326,7 @@ RestDocumentService::ServiceResponse RestDocumentService::documents( http::verb 
     auto documents = RestServerApplication::instance()->documents( session.get() );
     CAFFA_DEBUG( "Found " << documents.size() << " document" );
 
-    auto jsonResult = nlohmann::json::array();
+    auto jsonResult = nlohmann::ordered_json::array();
     for ( auto document : documents )
     {
         if ( skeleton )

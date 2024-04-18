@@ -110,7 +110,7 @@ RestObjectService::RestObjectService()
         postAction->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
         postAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
 
-        auto requestBody       = nlohmann::json::object();
+        auto requestBody       = nlohmann::ordered_json::object();
         requestBody["content"] = anyFieldResponseContent();
 
         postAction->setRequestBodySchema( requestBody );
@@ -148,10 +148,12 @@ RestObjectService::RestObjectService()
                                           std::make_unique<RestResponse>( anyFieldResponseContent(), "Success" ) );
         methodExecuteAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
 
-        auto methodContent = nlohmann::json{ { "application/json", { { "schema", nlohmann::json::object() } } } };
+        auto methodContent =
+            nlohmann::ordered_json{ { "application/json", { { "schema", nlohmann::ordered_json::object() } } } };
 
-        auto methodBody = nlohmann::json{ { "description", "JSON content representing the parameters of the method" },
-                                          { "content", methodContent } };
+        auto methodBody =
+            nlohmann::ordered_json{ { "description", "JSON content representing the parameters of the method" },
+                                    { "content", methodContent } };
 
         methodExecuteAction->setRequestBodySchema( methodBody );
         methodKeywordEntry->addAction( std::move( methodExecuteAction ) );
@@ -164,48 +166,48 @@ RestObjectService::RestObjectService()
     m_requestPathRoot->addEntry( std::move( uuidEntry ) );
 }
 
-nlohmann::json RestObjectService::anyObjectResponseContent()
+nlohmann::ordered_json RestObjectService::anyObjectResponseContent()
 {
-    auto objectContent = nlohmann::json::object();
-    auto classArray    = nlohmann::json::array();
+    auto objectContent = nlohmann::ordered_json::object();
+    auto classArray    = nlohmann::ordered_json::array();
     for ( auto classKeyword : DefaultObjectFactory::instance()->classes() )
     {
-        auto schemaRef = nlohmann::json{ { "$ref", "#/components/object_schemas/" + classKeyword } };
+        auto schemaRef = nlohmann::ordered_json{ { "$ref", "#/components/object_schemas/" + classKeyword } };
         classArray.push_back( schemaRef );
     }
-    auto classSchema                  = nlohmann::json{ { "oneOf", classArray }, { "discriminator", "keyword" } };
+    auto classSchema = nlohmann::ordered_json{ { "oneOf", classArray }, { "discriminator", "keyword" } };
     objectContent["application/json"] = { { "schema", classSchema } };
     return objectContent;
 }
 
-nlohmann::json RestObjectService::anyFieldResponseContent()
+nlohmann::ordered_json RestObjectService::anyFieldResponseContent()
 {
-    auto objectContent = nlohmann::json::object();
-    auto classArray    = nlohmann::json::array();
+    auto objectContent = nlohmann::ordered_json::object();
+    auto classArray    = nlohmann::ordered_json::array();
     for ( auto classKeyword : DefaultObjectFactory::instance()->classes() )
     {
-        auto schemaRef = nlohmann::json{ { "$ref", "#/components/object_schemas/" + classKeyword } };
+        auto schemaRef = nlohmann::ordered_json{ { "$ref", "#/components/object_schemas/" + classKeyword } };
         classArray.push_back( schemaRef );
     }
 
-    auto oneOf = nlohmann::json::array();
+    auto oneOf = nlohmann::ordered_json::array();
     for ( auto dataType : caffa::rpc::ClientPassByRefObjectFactory::instance()->supportedDataTypes() )
     {
-        oneOf.push_back( nlohmann::json::parse( dataType ) );
+        oneOf.push_back( nlohmann::ordered_json::parse( dataType ) );
     }
     for ( auto classEntry : classArray )
     {
         oneOf.push_back( classEntry );
-        auto array = nlohmann::json{ { "type", "array" }, { "items", classEntry } };
+        auto array = nlohmann::ordered_json{ { "type", "array" }, { "items", classEntry } };
         oneOf.push_back( array );
     }
-    return nlohmann::json{ { "application/json", { { "schema", { { "oneOf", oneOf } } } } } };
+    return nlohmann::ordered_json{ { "application/json", { { "schema", { { "oneOf", oneOf } } } } } };
 }
 
-RestObjectService::ServiceResponse RestObjectService::perform( http::verb             verb,
-                                                               std::list<std::string> path,
-                                                               const nlohmann::json&  queryParams,
-                                                               const nlohmann::json&  body )
+RestObjectService::ServiceResponse RestObjectService::perform( http::verb                    verb,
+                                                               std::list<std::string>        path,
+                                                               const nlohmann::ordered_json& queryParams,
+                                                               const nlohmann::ordered_json& body )
 {
     CAFFA_ASSERT( !path.empty() );
 
@@ -242,11 +244,11 @@ bool RestObjectService::requiresSession( http::verb verb, const std::list<std::s
     return request->requiresSession( verb );
 }
 
-std::map<std::string, nlohmann::json> RestObjectService::servicePathEntries() const
+std::map<std::string, nlohmann::ordered_json> RestObjectService::servicePathEntries() const
 {
     CAFFA_DEBUG( "Get service path entries" );
 
-    auto services = nlohmann::json::object();
+    auto services = nlohmann::ordered_json::object();
 
     RequestFinder finder( m_requestPathRoot.get() );
     finder.search();
@@ -261,11 +263,11 @@ std::map<std::string, nlohmann::json> RestObjectService::servicePathEntries() co
     return services;
 }
 
-std::map<std::string, nlohmann::json> RestObjectService::serviceComponentEntries() const
+std::map<std::string, nlohmann::ordered_json> RestObjectService::serviceComponentEntries() const
 {
     auto factory = DefaultObjectFactory::instance();
 
-    auto schemas = nlohmann::json::object();
+    auto schemas = nlohmann::ordered_json::object();
 
     for ( auto className : factory->classes() )
     {
@@ -278,8 +280,8 @@ std::map<std::string, nlohmann::json> RestObjectService::serviceComponentEntries
 RestObjectService::ServiceResponse
     RestObjectService::performFieldOrMethodOperation( http::verb                    verb,
                                                       const std::list<std::string>& pathArguments,
-                                                      const nlohmann::json&         queryParams,
-                                                      const nlohmann::json&         body )
+                                                      const nlohmann::ordered_json& queryParams,
+                                                      const nlohmann::ordered_json& body )
 {
     CAFFA_DEBUG( "Full arguments for field operation: "
                  << caffa::StringTools::join( pathArguments.begin(), pathArguments.end(), "/" ) );
@@ -382,13 +384,13 @@ RestObjectService::ServiceResponse
                                         serializer.writeObjectToString( childObjects[index].get() ),
                                         nullptr );
             }
-            nlohmann::json jsonValue;
+            nlohmann::ordered_json jsonValue;
             ioCapability->writeToJson( jsonValue, serializer );
 
             return std::make_tuple( http::status::ok, jsonValue.dump(), nullptr );
         }
 
-        nlohmann::json jsonValue;
+        nlohmann::ordered_json jsonValue;
         ioCapability->writeToJson( jsonValue, serializer );
 
         return std::make_tuple( http::status::ok, jsonValue.dump(), nullptr );
@@ -401,7 +403,7 @@ RestObjectService::ServiceResponse
 }
 
 RestObjectService::ServiceResponse
-    RestObjectService::replaceFieldValue( FieldHandle* field, int64_t index, const nlohmann::json& body )
+    RestObjectService::replaceFieldValue( FieldHandle* field, int64_t index, const nlohmann::ordered_json& body )
 {
     auto scriptability = field->capability<FieldScriptingCapability>();
     if ( !scriptability || !scriptability->isWritable() )
@@ -459,7 +461,7 @@ RestObjectService::ServiceResponse
 }
 
 RestObjectService::ServiceResponse
-    RestObjectService::insertFieldValue( FieldHandle* field, int64_t index, const nlohmann::json& body )
+    RestObjectService::insertFieldValue( FieldHandle* field, int64_t index, const nlohmann::ordered_json& body )
 {
     auto scriptability = field->capability<FieldScriptingCapability>();
     if ( !scriptability || !scriptability->isWritable() )
@@ -566,8 +568,8 @@ RestObjectService::ServiceResponse RestObjectService::deleteFieldValue( FieldHan
 
 RestObjectService::ServiceResponse RestObjectService::object( http::verb                    verb,
                                                               const std::list<std::string>& pathArguments,
-                                                              const nlohmann::json&         queryParams,
-                                                              const nlohmann::json&         body )
+                                                              const nlohmann::ordered_json& queryParams,
+                                                              const nlohmann::ordered_json& body )
 {
     auto session = findSession( queryParams );
     if ( !session || session->isExpired() )
@@ -593,8 +595,8 @@ RestObjectService::ServiceResponse RestObjectService::object( http::verb        
         return std::make_tuple( http::status::not_found, "Object " + uuid + " not found", nullptr );
     }
 
-    bool           skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
-    nlohmann::json jsonObject;
+    bool                   skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
+    nlohmann::ordered_json jsonObject;
     if ( skeleton )
     {
         jsonObject = createJsonSkeletonFromProjectObject( object );
@@ -606,7 +608,7 @@ RestObjectService::ServiceResponse RestObjectService::object( http::verb        
     return std::make_tuple( http::status::ok, jsonObject.dump(), nullptr );
 }
 
-caffa::SessionMaintainer RestObjectService::findSession( const nlohmann::json& queryParams )
+caffa::SessionMaintainer RestObjectService::findSession( const nlohmann::ordered_json& queryParams )
 {
     caffa::SessionMaintainer session;
 

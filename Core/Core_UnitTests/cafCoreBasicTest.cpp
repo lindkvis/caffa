@@ -621,12 +621,13 @@ TEST( BaseTest, Methods )
         CAFFA_DEBUG( "Argument json: " << argumentJson.dump() );
         auto stringResult = object.add.execute( session, argumentJson.dump() );
         CAFFA_DEBUG( "String result: " << stringResult );
-        auto result = nlohmann::json::parse( stringResult );
+        auto result = nlohmann::ordered_json::parse( stringResult );
         EXPECT_EQ( 11, result.get<int>() );
     }
 
     {
-        auto result = nlohmann::json::parse( object.multiply.execute( session, object.multiply.toJson( 4, 5 ).dump() ) );
+        auto result =
+            nlohmann::ordered_json::parse( object.multiply.execute( session, object.multiply.toJson( 4, 5 ).dump() ) );
         EXPECT_DOUBLE_EQ( 20.0, result.get<int>() );
     }
 

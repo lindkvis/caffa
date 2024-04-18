@@ -48,37 +48,39 @@ class RestObjectService : public RestServiceInterface
 public:
     RestObjectService();
 
-    ServiceResponse perform( http::verb             verb,
-                             std::list<std::string> path,
-                             const nlohmann::json&  queryParams,
-                             const nlohmann::json&  body ) override;
+    ServiceResponse perform( http::verb                    verb,
+                             std::list<std::string>        path,
+                             const nlohmann::ordered_json& queryParams,
+                             const nlohmann::ordered_json& body ) override;
 
     bool requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const override;
     bool requiresSession( http::verb verb, const std::list<std::string>& path ) const override;
 
-    std::map<std::string, nlohmann::json> servicePathEntries() const override;
-    std::map<std::string, nlohmann::json> serviceComponentEntries() const override;
+    std::map<std::string, nlohmann::ordered_json> servicePathEntries() const override;
+    std::map<std::string, nlohmann::ordered_json> serviceComponentEntries() const override;
 
 private:
-    static nlohmann::json anyObjectResponseContent();
-    static nlohmann::json anyFieldResponseContent();
+    static nlohmann::ordered_json anyObjectResponseContent();
+    static nlohmann::ordered_json anyFieldResponseContent();
 
     static ServiceResponse object( http::verb                    verb,
                                    const std::list<std::string>& pathArguments,
-                                   const nlohmann::json&         queryParams,
-                                   const nlohmann::json&         body );
+                                   const nlohmann::ordered_json& queryParams,
+                                   const nlohmann::ordered_json& body );
 
     static ServiceResponse getFieldValue( const caffa::FieldHandle* fieldHandle, int64_t index, bool skeleton );
-    static ServiceResponse replaceFieldValue( caffa::FieldHandle* fieldHandle, int64_t index, const nlohmann::json& body );
-    static ServiceResponse insertFieldValue( caffa::FieldHandle* fieldHandle, int64_t index, const nlohmann::json& body );
+    static ServiceResponse
+        replaceFieldValue( caffa::FieldHandle* fieldHandle, int64_t index, const nlohmann::ordered_json& body );
+    static ServiceResponse
+        insertFieldValue( caffa::FieldHandle* fieldHandle, int64_t index, const nlohmann::ordered_json& body );
     static ServiceResponse deleteFieldValue( caffa::FieldHandle* field, int64_t index );
 
     static ServiceResponse performFieldOrMethodOperation( http::verb                    verb,
                                                           const std::list<std::string>& pathArguments,
-                                                          const nlohmann::json&         queryParams,
-                                                          const nlohmann::json&         body );
+                                                          const nlohmann::ordered_json& queryParams,
+                                                          const nlohmann::ordered_json& body );
 
-    static caffa::SessionMaintainer findSession( const nlohmann::json& queryParams );
+    static caffa::SessionMaintainer findSession( const nlohmann::ordered_json& queryParams );
 
     std::unique_ptr<RestAction> createObjectGetAction( const std::list<RestParameter*>& parameters );
     std::unique_ptr<RestAction> createFieldOrMethodAction( http::verb                       verb,

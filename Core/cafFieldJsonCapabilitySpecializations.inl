@@ -21,7 +21,7 @@ namespace caffa
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void FieldJsonCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
+void FieldJsonCap<FieldType>::readFromJson( const nlohmann::ordered_json& jsonElement, const Serializer& serializer )
 {
     this->assertValid();
 
@@ -55,7 +55,7 @@ void FieldJsonCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, c
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const
+void FieldJsonCap<FieldType>::writeToJson( nlohmann::ordered_json& jsonElement, const Serializer& serializer ) const
 {
     this->assertValid();
 
@@ -65,7 +65,7 @@ void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Se
     }
     else if ( serializer.serializationType() == Serializer::SerializationType::SCHEMA )
     {
-        nlohmann::json jsonField = PortableDataType<typename FieldType::FieldDataType>::jsonType();
+        nlohmann::ordered_json jsonField = PortableDataType<typename FieldType::FieldDataType>::jsonType();
         if ( !m_field->isReadable() && m_field->isWritable() )
         {
             jsonField["writeOnly"] = true;
@@ -95,7 +95,7 @@ void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Se
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-nlohmann::json FieldJsonCap<FieldType>::jsonType() const
+nlohmann::ordered_json FieldJsonCap<FieldType>::jsonType() const
 {
     return PortableDataType<typename FieldType::FieldDataType>::jsonType();
 }
@@ -124,7 +124,8 @@ void FieldJsonCap<FieldType>::setOwner( FieldHandle* owner )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
+void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::ordered_json& jsonElement,
+                                                        const Serializer&             serializer )
 {
     CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildField" );
     if ( jsonElement.is_null() )
@@ -134,7 +135,7 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
 
     CAFFA_ASSERT( jsonElement.is_object() );
 
-    nlohmann::json jsonObject;
+    nlohmann::ordered_json jsonObject;
     if ( jsonElement.contains( "value" ) )
     {
         jsonObject = jsonElement["value"];
@@ -213,14 +214,14 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldJsonCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonField, const Serializer& serializer ) const
+void FieldJsonCap<ChildField<DataType*>>::writeToJson( nlohmann::ordered_json& jsonField, const Serializer& serializer ) const
 {
     auto object = m_field->object();
 
     if ( object )
     {
         std::string jsonString = serializer.writeObjectToString( object.get() );
-        jsonField              = nlohmann::json::parse( jsonString );
+        jsonField              = nlohmann::ordered_json::parse( jsonString );
         CAFFA_ASSERT( jsonField.is_object() );
     }
 
@@ -246,7 +247,7 @@ void FieldJsonCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonField
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-nlohmann::json FieldJsonCap<ChildField<DataType*>>::jsonType() const
+nlohmann::ordered_json FieldJsonCap<ChildField<DataType*>>::jsonType() const
 {
     return PortableDataType<ChildField<DataType*>>::jsonType();
 }
@@ -275,13 +276,14 @@ void FieldJsonCap<ChildField<DataType*>>::setOwner( FieldHandle* owner )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
+void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::ordered_json& jsonElement,
+                                                             const Serializer&             serializer )
 {
     m_field->clear();
 
     CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildArrayField " << m_field->keyword() );
 
-    nlohmann::json jsonArray;
+    nlohmann::ordered_json jsonArray;
     if ( jsonElement.is_array() )
     {
         jsonArray = jsonElement;
@@ -342,7 +344,8 @@ void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::jso
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& jsonField, const Serializer& serializer ) const
+void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::ordered_json& jsonField,
+                                                            const Serializer&       serializer ) const
 {
     if ( serializer.serializationType() == Serializer::SerializationType::SCHEMA )
     {
@@ -363,15 +366,15 @@ void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& json
     else if ( serializer.serializationType() == Serializer::SerializationType::DATA_FULL ||
               serializer.serializationType() == Serializer::SerializationType::DATA_SKELETON )
     {
-        nlohmann::json jsonArray = nlohmann::json::array();
+        nlohmann::ordered_json jsonArray = nlohmann::ordered_json::array();
 
         for ( size_t i = 0; i < m_field->size(); ++i )
         {
             ObjectHandle::Ptr object = m_field->at( i );
             if ( !object ) continue;
 
-            std::string    jsonString = serializer.writeObjectToString( object.get() );
-            nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
+            std::string            jsonString = serializer.writeObjectToString( object.get() );
+            nlohmann::ordered_json jsonObject = nlohmann::ordered_json::parse( jsonString );
             jsonArray.push_back( jsonObject );
         }
         jsonField = jsonArray;
@@ -382,7 +385,7 @@ void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& json
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-nlohmann::json FieldJsonCap<ChildArrayField<DataType*>>::jsonType() const
+nlohmann::ordered_json FieldJsonCap<ChildArrayField<DataType*>>::jsonType() const
 {
     return PortableDataType<ChildArrayField<DataType*>>::jsonType();
 }

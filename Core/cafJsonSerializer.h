@@ -104,8 +104,8 @@ public:
      */
     void writeStream( const ObjectHandle* object, std::ostream& stream ) const override;
 
-    void readObjectFromJson( ObjectHandle* object, const nlohmann::json& jsonObject ) const;
-    void writeObjectToJson( const ObjectHandle* object, nlohmann::json& jsonObject ) const;
+    void readObjectFromJson( ObjectHandle* object, const nlohmann::ordered_json& jsonObject ) const;
+    void writeObjectToJson( const ObjectHandle* object, nlohmann::ordered_json& jsonObject ) const;
 };
 
 } // End of namespace caffa
@@ -118,12 +118,12 @@ namespace nlohmann
 template <typename Clock, typename Duration>
 struct adl_serializer<std::chrono::time_point<Clock, Duration>>
 {
-    static void to_json( json& j, const std::chrono::time_point<Clock, Duration>& tp )
+    static void to_json( ordered_json& j, const std::chrono::time_point<Clock, Duration>& tp )
     {
         j = std::chrono::duration_cast<Duration>( tp.time_since_epoch() ).count();
     }
 
-    static void from_json( const json& j, std::chrono::time_point<Clock, Duration>& tp )
+    static void from_json( const ordered_json& j, std::chrono::time_point<Clock, Duration>& tp )
     {
         Duration duration( j.get<int64_t>() );
         tp = std::chrono::steady_clock::time_point( duration );
@@ -136,12 +136,12 @@ struct adl_serializer<std::chrono::time_point<Clock, Duration>>
 template <typename IntType, typename Period>
 struct adl_serializer<std::chrono::duration<IntType, Period>>
 {
-    static void to_json( json& j, const std::chrono::duration<IntType, Period>& duration )
+    static void to_json( ordered_json& j, const std::chrono::duration<IntType, Period>& duration )
     {
         j = static_cast<IntType>( duration.count() );
     }
 
-    static void from_json( const json& j, std::chrono::duration<IntType, Period>& duration )
+    static void from_json( const ordered_json& j, std::chrono::duration<IntType, Period>& duration )
     {
         duration = std::chrono::duration<IntType, Period>( j.get<IntType>() );
     }

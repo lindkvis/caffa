@@ -103,9 +103,10 @@ public:
     int                port() const { return m_port; }
 
 private:
-    virtual void
-        setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value ) = 0;
-    virtual nlohmann::json getJson( const caffa::ObjectHandle*, const std::string& fieldName ) const = 0;
+    virtual void                   setJson( const caffa::ObjectHandle*    objectHandle,
+                                            const std::string&            fieldName,
+                                            const nlohmann::ordered_json& value )                            = 0;
+    virtual nlohmann::ordered_json getJson( const caffa::ObjectHandle*, const std::string& fieldName ) const = 0;
 
 private:
     std::string m_hostname;
@@ -118,7 +119,7 @@ private:
 template <typename DataType>
 DataType caffa::rpc::Client::get( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
-    nlohmann::json jsonValue = getJson( objectHandle, fieldName );
+    nlohmann::ordered_json jsonValue = getJson( objectHandle, fieldName );
     return jsonValue.get<DataType>();
 }
 
@@ -128,7 +129,7 @@ DataType caffa::rpc::Client::get( const caffa::ObjectHandle* objectHandle, const
 template <typename DataType>
 void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value )
 {
-    nlohmann::json jsonValue = value;
+    nlohmann::ordered_json jsonValue = value;
     setJson( objectHandle, fieldName, jsonValue );
 }
 

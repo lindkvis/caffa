@@ -267,7 +267,7 @@ caffa::AppInfo RestClient::appInfo() const
         throw std::runtime_error( "Failed to get Server information: " + body );
     }
 
-    auto jsonContent = nlohmann::json::parse( body );
+    auto jsonContent = nlohmann::ordered_json::parse( body );
 
     return jsonContent.get<caffa::AppInfo>();
 }
@@ -313,7 +313,7 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::documents() const
         throw std::runtime_error( "Failed to get document list: " + body );
     }
 
-    auto jsonArray = nlohmann::json::parse( body );
+    auto jsonArray = nlohmann::ordered_json::parse( body );
     if ( !jsonArray.is_array() )
     {
         throw std::runtime_error( "Failed to get documents" );
@@ -456,7 +456,7 @@ bool RestClient::isReady( caffa::Session::Type type ) const
     }
 
     CAFFA_TRACE( "Got result: " << body );
-    auto jsonObject = nlohmann::json::parse( body );
+    auto jsonObject = nlohmann::ordered_json::parse( body );
     if ( !jsonObject.contains( "ready" ) )
     {
         throw std::runtime_error( "Malformed ready reply" );
@@ -486,7 +486,7 @@ void RestClient::createSession( caffa::Session::Type type, const std::string& us
     }
 
     CAFFA_TRACE( "Got result: " << body );
-    auto jsonObject = nlohmann::json::parse( body );
+    auto jsonObject = nlohmann::ordered_json::parse( body );
     if ( !jsonObject.contains( "uuid" ) )
     {
         throw std::runtime_error( "Failed to create session" );
@@ -503,7 +503,7 @@ caffa::Session::Type RestClient::checkSession() const
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
-    auto jsonObject    = nlohmann::json::object();
+    auto jsonObject    = nlohmann::ordered_json::object();
     jsonObject["uuid"] = m_sessionUuid;
 
     auto [status, body] = performRequest( http::verb::get,
@@ -519,7 +519,7 @@ caffa::Session::Type RestClient::checkSession() const
 
     CAFFA_TRACE( "Got result: " << body );
 
-    auto jsonResult = nlohmann::json::parse( body );
+    auto jsonResult = nlohmann::ordered_json::parse( body );
     CAFFA_ASSERT( jsonResult.contains( "type" ) );
     return caffa::AppEnum<caffa::Session::Type>::fromLabel( jsonResult["type"].get<std::string>() ).value();
 }
@@ -590,7 +590,9 @@ const std::string& RestClient::sessionUuid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RestClient::setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value )
+void RestClient::setJson( const caffa::ObjectHandle*    objectHandle,
+                          const std::string&            fieldName,
+                          const nlohmann::ordered_json& value )
 {
     auto [status, body] = performRequest( http::verb::put,
                                           hostname(),
@@ -607,7 +609,7 @@ void RestClient::setJson( const caffa::ObjectHandle* objectHandle, const std::st
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-nlohmann::json RestClient::getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
+nlohmann::ordered_json RestClient::getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     auto [status, body] = performGetRequest( hostname(),
                                              port(),
@@ -618,7 +620,7 @@ nlohmann::json RestClient::getJson( const caffa::ObjectHandle* objectHandle, con
         throw std::runtime_error( "Failed to get field value" );
     }
 
-    return nlohmann::json::parse( body );
+    return nlohmann::ordered_json::parse( body );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -657,7 +659,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::getDeepCopyOfChildObject( const
         throw std::runtime_error( "Failed to get field value" );
     }
 
-    auto parsedResult = nlohmann::json::parse( body );
+    auto parsedResult = nlohmann::ordered_json::parse( body );
     if ( parsedResult.contains( "value" ) )
     {
         parsedResult = parsedResult["value"];
@@ -707,7 +709,7 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::getChildObjects( c
     }
     CAFFA_TRACE( "Got body: " << body );
 
-    auto jsonArray = nlohmann::json::parse( body );
+    auto jsonArray = nlohmann::ordered_json::parse( body );
     if ( !jsonArray.is_array() )
     {
         throw std::runtime_error( "The return value was not an array" );

@@ -25,11 +25,11 @@ public:
 
 public:
     // Json Serializing
-    void               readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer ) override;
-    void               writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
+    void               readFromJson( const nlohmann::ordered_json& jsonElement, const Serializer& serializer ) override;
+    void               writeToJson( nlohmann::ordered_json& jsonElement, const Serializer& serializer ) const override;
     const FieldHandle* owner() const override;
     void               setOwner( FieldHandle* owner ) override;
-    nlohmann::json     jsonType() const override;
+    nlohmann::ordered_json jsonType() const override;
 
 private:
     FieldType* m_field;
@@ -48,11 +48,11 @@ public:
 
 public:
     // Json Serializing
-    void               readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer ) override;
-    void               writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
+    void               readFromJson( const nlohmann::ordered_json& jsonElement, const Serializer& serializer ) override;
+    void               writeToJson( nlohmann::ordered_json& jsonElement, const Serializer& serializer ) const override;
     const FieldHandle* owner() const override;
     void               setOwner( FieldHandle* owner ) override;
-    nlohmann::json     jsonType() const override;
+    nlohmann::ordered_json jsonType() const override;
 
 private:
     FieldType* m_field;
@@ -71,11 +71,11 @@ public:
 
 public:
     // Json Serializing
-    void               readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer ) override;
-    void               writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
+    void               readFromJson( const nlohmann::ordered_json& jsonElement, const Serializer& serializer ) override;
+    void               writeToJson( nlohmann::ordered_json& jsonElement, const Serializer& serializer ) const override;
     const FieldHandle* owner() const override;
     void               setOwner( FieldHandle* owner ) override;
-    nlohmann::json     jsonType() const override;
+    nlohmann::ordered_json jsonType() const override;
 
 private:
     FieldType* m_field;

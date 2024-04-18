@@ -237,10 +237,10 @@ concept IsSharedPtr = is_shared_ptr<T>::value;
 template <DerivesFromObjectHandle DataType>
 struct PortableDataType<DataType>
 {
-    static std::string    name() { return std::string( "object::" ) + DataType::classKeywordStatic(); }
-    static nlohmann::json jsonType()
+    static std::string            name() { return std::string( "object::" ) + DataType::classKeywordStatic(); }
+    static nlohmann::ordered_json jsonType()
     {
-        auto object    = nlohmann::json::object();
+        auto object    = nlohmann::ordered_json::object();
         object["$ref"] = std::string( "#/components/object_schemas/" ) + DataType::classKeywordStatic();
         return object;
     }
@@ -254,9 +254,9 @@ struct PortableDataType<DataType>
 {
     static std::string name() { return std::string( "object::" ) + DataType::element_type::classKeywordStatic(); }
 
-    static nlohmann::json jsonType()
+    static nlohmann::ordered_json jsonType()
     {
-        auto object    = nlohmann::json::object();
+        auto object    = nlohmann::ordered_json::object();
         object["$ref"] = std::string( "#/components/object_schemas/" ) + DataType::element_type::classKeywordStatic();
         return object;
     }

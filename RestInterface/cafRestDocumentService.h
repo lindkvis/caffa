@@ -47,27 +47,27 @@ class RestDocumentService : public RestServiceInterface
 public:
     RestDocumentService();
 
-    ServiceResponse perform( http::verb             verb,
-                             std::list<std::string> path,
-                             const nlohmann::json&  queryParams,
-                             const nlohmann::json&  body ) override;
+    ServiceResponse perform( http::verb                    verb,
+                             std::list<std::string>        path,
+                             const nlohmann::ordered_json& queryParams,
+                             const nlohmann::ordered_json& body ) override;
 
     bool requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const override;
     bool requiresSession( http::verb verb, const std::list<std::string>& path ) const override;
 
-    std::map<std::string, nlohmann::json> servicePathEntries() const override;
-    std::map<std::string, nlohmann::json> serviceComponentEntries() const override;
+    std::map<std::string, nlohmann::ordered_json> servicePathEntries() const override;
+    std::map<std::string, nlohmann::ordered_json> serviceComponentEntries() const override;
 
 private:
     static ServiceResponse document( const std::string&            documentId,
                                      http::verb                    verb,
                                      const std::list<std::string>& pathArguments,
-                                     const nlohmann::json&         queryParams,
-                                     const nlohmann::json&         body );
+                                     const nlohmann::ordered_json& queryParams,
+                                     const nlohmann::ordered_json& body );
     static ServiceResponse documents( http::verb                    verb,
                                       const std::list<std::string>& pathArguments,
-                                      const nlohmann::json&         queryParams,
-                                      const nlohmann::json&         body );
+                                      const nlohmann::ordered_json& queryParams,
+                                      const nlohmann::ordered_json& body );
 
     std::unique_ptr<RestPathEntry> m_requestPathRoot;
 };

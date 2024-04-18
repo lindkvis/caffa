@@ -5,11 +5,11 @@ using namespace caffa;
 
 Application* Application::s_instance = nullptr;
 
-nlohmann::json AppInfo::jsonSchema()
+nlohmann::ordered_json AppInfo::jsonSchema()
 {
-    auto appInfoSchema = nlohmann::json::object();
+    auto appInfoSchema = nlohmann::ordered_json::object();
 
-    auto properties             = nlohmann::json::object();
+    auto properties             = nlohmann::ordered_json::object();
     properties["name"]          = { { "type", "string" } };
     properties["type"]          = { { "type", "integer" }, { "format", "int32" } };
     properties["major_version"] = { { "type", "integer" }, { "format", "int32" } };
@@ -24,9 +24,9 @@ nlohmann::json AppInfo::jsonSchema()
     return appInfoSchema;
 }
 
-void caffa::to_json( nlohmann::json& jsonValue, const AppInfo& appInfo )
+void caffa::to_json( nlohmann::ordered_json& jsonValue, const AppInfo& appInfo )
 {
-    jsonValue                  = nlohmann::json::object();
+    jsonValue                  = nlohmann::ordered_json::object();
     jsonValue["name"]          = appInfo.name;
     jsonValue["type"]          = appInfo.appType;
     jsonValue["major_version"] = appInfo.majorVersion;
@@ -36,7 +36,7 @@ void caffa::to_json( nlohmann::json& jsonValue, const AppInfo& appInfo )
     jsonValue["contact_email"] = appInfo.contactEmail;
 }
 
-void caffa::from_json( const nlohmann::json& jsonValue, AppInfo& appInfo )
+void caffa::from_json( const nlohmann::ordered_json& jsonValue, AppInfo& appInfo )
 {
     appInfo.name         = jsonValue["name"].get<std::string>();
     appInfo.appType      = jsonValue["type"].get<unsigned>();

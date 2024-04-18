@@ -42,7 +42,7 @@ static bool fieldIsScriptReadable( const caffa::FieldHandle* fieldHandle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-nlohmann::json caffa::rpc::createJsonSchemaFromProjectObject( const caffa::ObjectHandle* source )
+nlohmann::ordered_json caffa::rpc::createJsonSchemaFromProjectObject( const caffa::ObjectHandle* source )
 {
     CAFFA_ASSERT( source );
     CAFFA_ASSERT( !source->uuid().empty() );
@@ -50,7 +50,7 @@ nlohmann::json caffa::rpc::createJsonSchemaFromProjectObject( const caffa::Objec
     caffa::JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
     serializer.setSerializationType( Serializer::SerializationType::SCHEMA );
 
-    auto object = nlohmann::json::object();
+    auto object = nlohmann::ordered_json::object();
     serializer.writeObjectToJson( source, object );
     return object;
 }
@@ -58,7 +58,7 @@ nlohmann::json caffa::rpc::createJsonSchemaFromProjectObject( const caffa::Objec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-nlohmann::json caffa::rpc::createJsonFromProjectObject( const caffa::ObjectHandle* source )
+nlohmann::ordered_json caffa::rpc::createJsonFromProjectObject( const caffa::ObjectHandle* source )
 {
     CAFFA_ASSERT( source );
     CAFFA_ASSERT( !source->uuid().empty() );
@@ -66,7 +66,7 @@ nlohmann::json caffa::rpc::createJsonFromProjectObject( const caffa::ObjectHandl
     caffa::JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
     serializer.setSerializeUuids( true );
 
-    auto object = nlohmann::json::object();
+    auto object = nlohmann::ordered_json::object();
     serializer.writeObjectToJson( source, object );
     return object;
 }
@@ -74,7 +74,7 @@ nlohmann::json caffa::rpc::createJsonFromProjectObject( const caffa::ObjectHandl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-nlohmann::json caffa::rpc::createJsonSkeletonFromProjectObject( const caffa::ObjectHandle* source )
+nlohmann::ordered_json caffa::rpc::createJsonSkeletonFromProjectObject( const caffa::ObjectHandle* source )
 {
     CAFFA_ASSERT( source );
     CAFFA_ASSERT( !source->uuid().empty() );
@@ -84,7 +84,7 @@ nlohmann::json caffa::rpc::createJsonSkeletonFromProjectObject( const caffa::Obj
     serializer.setSerializationType( Serializer::SerializationType::DATA_SKELETON );
     serializer.setSerializeUuids( true );
 
-    auto object = nlohmann::json::object();
+    auto object = nlohmann::ordered_json::object();
     serializer.writeObjectToJson( source, object );
     return object;
 }

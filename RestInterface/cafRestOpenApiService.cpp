@@ -34,10 +34,10 @@
 
 using namespace caffa::rpc;
 
-RestServiceInterface::ServiceResponse RestOpenApiService::perform( http::verb             verb,
-                                                                   std::list<std::string> path,
-                                                                   const nlohmann::json&  queryParams,
-                                                                   const nlohmann::json&  body )
+RestServiceInterface::ServiceResponse RestOpenApiService::perform( http::verb                    verb,
+                                                                   std::list<std::string>        path,
+                                                                   const nlohmann::ordered_json& queryParams,
+                                                                   const nlohmann::ordered_json& body )
 {
     CAFFA_DEBUG( "Perfoming OpenAPI request" );
     if ( verb != http::verb::get )
@@ -74,23 +74,23 @@ bool RestOpenApiService::requiresSession( http::verb verb, const std::list<std::
     return false;
 }
 
-nlohmann::json RestOpenApiService::getOpenApiV31Schema() const
+nlohmann::ordered_json RestOpenApiService::getOpenApiV31Schema() const
 {
-    auto root       = nlohmann::json::object();
+    auto root       = nlohmann::ordered_json::object();
     root["openapi"] = "3.1.0";
 
-    auto info           = nlohmann::json::object();
+    auto info           = nlohmann::ordered_json::object();
     info["version"]     = RestServerApplication::instance()->appInfo().version_string();
     info["title"]       = RestServerApplication::instance()->appInfo().name;
     info["description"] = RestServerApplication::instance()->appInfo().description;
 
-    auto contact     = nlohmann::json::object();
+    auto contact     = nlohmann::ordered_json::object();
     contact["email"] = RestServerApplication::instance()->appInfo().contactEmail;
     info["contact"]  = contact;
     root["info"]     = info;
 
-    auto components = nlohmann::json::object();
-    auto paths      = nlohmann::json::object();
+    auto components = nlohmann::ordered_json::object();
+    auto paths      = nlohmann::ordered_json::object();
 
     for ( auto [key, jsonSchema] : RestServiceInterface::basicServiceSchemas() )
     {
@@ -116,11 +116,11 @@ nlohmann::json RestOpenApiService::getOpenApiV31Schema() const
     return root;
 }
 
-std::map<std::string, nlohmann::json> RestOpenApiService::servicePathEntries() const
+std::map<std::string, nlohmann::ordered_json> RestOpenApiService::servicePathEntries() const
 {
     return {};
 }
-std::map<std::string, nlohmann::json> RestOpenApiService::serviceComponentEntries() const
+std::map<std::string, nlohmann::ordered_json> RestOpenApiService::serviceComponentEntries() const
 {
     return {};
 }

@@ -284,14 +284,14 @@ struct PortableDataType<AppEnum<EnumType>>
         ss << ")";
         return ss.str();
     }
-    static nlohmann::json jsonType()
+    static nlohmann::ordered_json jsonType()
     {
-        auto values = nlohmann::json::array();
+        auto values = nlohmann::ordered_json::array();
         for ( auto entry : AppEnum<EnumType>::labels() )
         {
             values.push_back( entry );
         }
-        auto object    = nlohmann::json::object();
+        auto object    = nlohmann::ordered_json::object();
         object["enum"] = values;
         return object;
     }
@@ -321,7 +321,7 @@ std::ostream& operator<<( std::ostream& str, const caffa::AppEnum<Enum>& appEnum
 }
 
 template <typename Enum>
-void to_json( nlohmann::json& jsonValue, const AppEnum<Enum>& appEnum )
+void to_json( nlohmann::ordered_json& jsonValue, const AppEnum<Enum>& appEnum )
 {
     std::stringstream stream;
     stream << appEnum;
@@ -329,7 +329,7 @@ void to_json( nlohmann::json& jsonValue, const AppEnum<Enum>& appEnum )
 }
 
 template <typename Enum>
-void from_json( const nlohmann::json& jsonValue, AppEnum<Enum>& appEnum )
+void from_json( const nlohmann::ordered_json& jsonValue, AppEnum<Enum>& appEnum )
 {
     std::stringstream stream( jsonValue.get<std::string>() );
     stream >> appEnum;

@@ -98,8 +98,10 @@ public:
                             const caffa::ObjectHandle* childObject ) override;
 
 private:
-    void setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value ) override;
-    nlohmann::json getJson( const caffa::ObjectHandle*, const std::string& fieldName ) const override;
+    void                   setJson( const caffa::ObjectHandle*    objectHandle,
+                                    const std::string&            fieldName,
+                                    const nlohmann::ordered_json& value ) override;
+    nlohmann::ordered_json getJson( const caffa::ObjectHandle*, const std::string& fieldName ) const override;
 
     std::pair<http::status, std::string> performRequest( http::verb         verb,
                                                          const std::string& hostname,

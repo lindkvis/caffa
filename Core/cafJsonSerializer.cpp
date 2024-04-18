@@ -36,7 +36,7 @@ using namespace caffa;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::json& jsonObject ) const
+void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::ordered_json& jsonObject ) const
 {
     CAFFA_TRACE( "Reading fields from json with type = " << serializationTypeLabel( this->serializationType() )
                                                          << ", serializeUuids = " << this->serializeUuids() );
@@ -106,7 +106,7 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::json& jsonObject ) const
+void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::ordered_json& jsonObject ) const
 {
     CAFFA_TRACE( "Writing fields from json with serialize setting: type = "
                  << serializationTypeLabel( this->serializationType() )
@@ -140,10 +140,10 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             parentClassKeyword = parentClassInstance->classKeyword();
         }
 
-        auto jsonClass = nlohmann::json::object();
+        auto jsonClass = nlohmann::ordered_json::object();
 
         jsonClass["type"]   = "object";
-        auto jsonProperties = nlohmann::json::object();
+        auto jsonProperties = nlohmann::ordered_json::object();
 
         jsonProperties["keyword"] = { { "type", "string" } };
         jsonProperties["uuid"]    = { { "type", "string" } };
@@ -166,13 +166,13 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
             if ( ioCapability && keyword != "uuid" && ( field->isReadable() || field->isWritable() ) )
             {
-                nlohmann::json value;
+                nlohmann::ordered_json value;
                 ioCapability->writeToJson( value, *this );
                 jsonProperties[keyword] = value;
             }
         }
 
-        auto methods = nlohmann::json::object();
+        auto methods = nlohmann::ordered_json::object();
         for ( auto method : object->methods() )
         {
             auto keyword = method->keyword();
@@ -182,7 +182,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
         }
         if ( !methods.empty() )
         {
-            auto methodsObject          = nlohmann::json::object();
+            auto methodsObject          = nlohmann::ordered_json::object();
             methodsObject["type"]       = "object";
             methodsObject["properties"] = methods;
             jsonProperties["methods"]   = methodsObject;
@@ -193,7 +193,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
 
         if ( parentClassInstance )
         {
-            auto jsonAllOf = nlohmann::json::array();
+            auto jsonAllOf = nlohmann::ordered_json::array();
             jsonAllOf.push_back( { { "$ref", "#/components/object_schemas/" + parentClassKeyword } } );
 
             jsonAllOf.push_back( jsonClass );
@@ -227,7 +227,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
             if ( ioCapability && keyword != "uuid" && field->isReadable() )
             {
-                nlohmann::json value;
+                nlohmann::ordered_json value;
                 ioCapability->writeToJson( value, *this );
                 if ( !value.is_null() ) jsonObject[keyword] = value;
             }
@@ -248,7 +248,7 @@ JsonSerializer::JsonSerializer( ObjectFactory* objectFactory /* = nullptr */ )
 //--------------------------------------------------------------------------------------------------
 std::string JsonSerializer::readUUIDFromObjectString( const std::string& string ) const
 {
-    nlohmann::json jsonValue = nlohmann::json::parse( string );
+    nlohmann::ordered_json jsonValue = nlohmann::ordered_json::parse( string );
 
     if ( jsonValue.is_object() )
     {
@@ -263,7 +263,7 @@ std::string JsonSerializer::readUUIDFromObjectString( const std::string& string 
 //--------------------------------------------------------------------------------------------------
 void JsonSerializer::readObjectFromString( ObjectHandle* object, const std::string& string ) const
 {
-    nlohmann::json jsonValue = nlohmann::json::parse( string );
+    nlohmann::ordered_json jsonValue = nlohmann::ordered_json::parse( string );
     readObjectFromJson( object, jsonValue );
 }
 
@@ -272,7 +272,7 @@ void JsonSerializer::readObjectFromString( ObjectHandle* object, const std::stri
 //--------------------------------------------------------------------------------------------------
 std::string JsonSerializer::writeObjectToString( const ObjectHandle* object ) const
 {
-    nlohmann::json jsonObject = nlohmann::json::object();
+    nlohmann::ordered_json jsonObject = nlohmann::ordered_json::object();
     writeObjectToJson( object, jsonObject );
     return jsonObject.dump();
 }
@@ -307,7 +307,7 @@ std::shared_ptr<ObjectHandle> JsonSerializer::copyAndCastBySerialization( const 
 
     if ( !sourceInheritsDestination && !destinationInheritsSource ) return nullptr;
 
-    nlohmann::json jsonObject = nlohmann::json::parse( string );
+    nlohmann::ordered_json jsonObject = nlohmann::ordered_json::parse( string );
     readObjectFromJson( objectCopy.get(), jsonObject );
 
     ObjectPerformer<> performer( []( ObjectHandle* object ) { object->initAfterRead(); } );
@@ -325,7 +325,7 @@ std::shared_ptr<ObjectHandle> JsonSerializer::createObjectFromString( const std:
 
     if ( string.empty() ) return nullptr;
 
-    nlohmann::json jsonObject = nlohmann::json::parse( string );
+    nlohmann::ordered_json jsonObject = nlohmann::ordered_json::parse( string );
 
     if ( jsonObject.is_null() ) return nullptr;
 
@@ -359,7 +359,7 @@ std::shared_ptr<ObjectHandle> JsonSerializer::createObjectFromString( const std:
 //--------------------------------------------------------------------------------------------------
 void JsonSerializer::readStream( ObjectHandle* object, std::istream& file ) const
 {
-    nlohmann::json document;
+    nlohmann::ordered_json document;
     file >> document;
 
     readObjectFromJson( object, document );
@@ -370,7 +370,7 @@ void JsonSerializer::readStream( ObjectHandle* object, std::istream& file ) cons
 //--------------------------------------------------------------------------------------------------
 void JsonSerializer::writeStream( const ObjectHandle* object, std::ostream& file ) const
 {
-    nlohmann::json document = nlohmann::json::object();
+    nlohmann::ordered_json document = nlohmann::ordered_json::object();
     writeObjectToJson( object, document );
 
     file << document.dump( 4 );

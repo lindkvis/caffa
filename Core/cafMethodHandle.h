@@ -78,7 +78,7 @@ public:
 
     virtual std::string execute( std::shared_ptr<Session> session, const std::string& jsonArgumentsString ) const = 0;
     virtual std::string schema() const                                                                            = 0;
-    virtual nlohmann::json jsonSchema() const                                                                     = 0;
+    virtual nlohmann::ordered_json jsonSchema() const                                                             = 0;
 
     MethodAccessorInterface* accessor() const { return m_accessor.get(); }
     void setAccessor( std::unique_ptr<MethodAccessorInterface> accessor ) { m_accessor = std::move( accessor ); }

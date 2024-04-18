@@ -120,10 +120,10 @@ RestSessionService::RestSessionService()
     }
 }
 
-RestSessionService::ServiceResponse RestSessionService::perform( http::verb             verb,
-                                                                 std::list<std::string> path,
-                                                                 const nlohmann::json&  queryParams,
-                                                                 const nlohmann::json&  body )
+RestSessionService::ServiceResponse RestSessionService::perform( http::verb                    verb,
+                                                                 std::list<std::string>        path,
+                                                                 const nlohmann::ordered_json& queryParams,
+                                                                 const nlohmann::ordered_json& body )
 {
     CAFFA_ASSERT( !path.empty() );
 
@@ -157,11 +157,11 @@ bool RestSessionService::requiresSession( http::verb verb, const std::list<std::
     return request->requiresSession( verb );
 }
 
-std::map<std::string, nlohmann::json> RestSessionService::servicePathEntries() const
+std::map<std::string, nlohmann::ordered_json> RestSessionService::servicePathEntries() const
 {
     CAFFA_DEBUG( "Get service path entries" );
 
-    auto services = nlohmann::json::object();
+    auto services = nlohmann::ordered_json::object();
 
     RequestFinder finder( m_requestPathRoot.get() );
     finder.search();
@@ -176,27 +176,27 @@ std::map<std::string, nlohmann::json> RestSessionService::servicePathEntries() c
     return services;
 }
 
-std::map<std::string, nlohmann::json> RestSessionService::serviceComponentEntries() const
+std::map<std::string, nlohmann::ordered_json> RestSessionService::serviceComponentEntries() const
 {
     auto sessionTypeLabels = caffa::AppEnum<caffa::Session::Type>::labels();
-    auto jsonTypeLabels    = nlohmann::json::array();
+    auto jsonTypeLabels    = nlohmann::ordered_json::array();
     for ( auto label : sessionTypeLabels )
     {
         jsonTypeLabels.push_back( label );
     }
 
-    auto session = nlohmann::json{ { "type", "object" },
-                                   { "properties",
-                                     { { "uuid", { { "type", "string" } } },
-                                       { "type", { { "type", "string" }, { "enum", jsonTypeLabels } } },
-                                       { "valid", { { "type", "boolean" } } } } } };
+    auto session = nlohmann::ordered_json{ { "type", "object" },
+                                           { "properties",
+                                             { { "uuid", { { "type", "string" } } },
+                                               { "type", { { "type", "string" }, { "enum", jsonTypeLabels } } },
+                                               { "valid", { { "type", "boolean" } } } } } };
 
-    auto ready = nlohmann::json{ { "type", "object" },
-                                 { "properties",
-                                   {
-                                       { "ready", { { "type", "boolean" } } },
-                                       { "other_sessions", { { "type", "boolean" } } },
-                                   } } };
+    auto ready = nlohmann::ordered_json{ { "type", "object" },
+                                         { "properties",
+                                           {
+                                               { "ready", { { "type", "boolean" } } },
+                                               { "other_sessions", { { "type", "boolean" } } },
+                                           } } };
 
     return { { "session_schemas", { { "Session", session }, { "ReadyState", ready } } } };
 }
@@ -206,8 +206,8 @@ std::map<std::string, nlohmann::json> RestSessionService::serviceComponentEntrie
 //--------------------------------------------------------------------------------------------------
 RestSessionService::ServiceResponse RestSessionService::ready( http::verb                    verb,
                                                                const std::list<std::string>& pathArguments,
-                                                               const nlohmann::json&         queryParams,
-                                                               const nlohmann::json&         body )
+                                                               const nlohmann::ordered_json& queryParams,
+                                                               const nlohmann::ordered_json& body )
 {
     CAFFA_DEBUG( "Received ready for session request with metadata " << queryParams );
     try
@@ -217,7 +217,7 @@ RestSessionService::ServiceResponse RestSessionService::ready( http::verb       
         {
             type.setFromLabel( queryParams["type"].get<std::string>() );
         }
-        auto jsonResponse = nlohmann::json::object();
+        auto jsonResponse = nlohmann::ordered_json::object();
         CAFFA_DEBUG( "Checking if we're ready for a session of type " << type.label() );
 
         bool ready = RestServerApplication::instance()->readyForSession( type.value() );
@@ -237,8 +237,8 @@ RestSessionService::ServiceResponse RestSessionService::ready( http::verb       
 //--------------------------------------------------------------------------------------------------
 RestSessionService::ServiceResponse RestSessionService::create( http::verb                    verb,
                                                                 const std::list<std::string>& pathArguments,
-                                                                const nlohmann::json&         queryParams,
-                                                                const nlohmann::json&         body )
+                                                                const nlohmann::ordered_json& queryParams,
+                                                                const nlohmann::ordered_json& body )
 {
     CAFFA_DEBUG( "Received create session request" );
 
@@ -253,7 +253,7 @@ RestSessionService::ServiceResponse RestSessionService::create( http::verb      
 
         CAFFA_TRACE( "Created session: " << session->uuid() );
 
-        auto jsonResponse     = nlohmann::json::object();
+        auto jsonResponse     = nlohmann::ordered_json::object();
         jsonResponse["uuid"]  = session->uuid();
         jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::label( session->type() );
         jsonResponse["valid"] = !session->isExpired();
@@ -271,8 +271,8 @@ RestSessionService::ServiceResponse RestSessionService::create( http::verb      
 //--------------------------------------------------------------------------------------------------
 RestSessionService::ServiceResponse RestSessionService::get( http::verb                    verb,
                                                              const std::list<std::string>& pathArguments,
-                                                             const nlohmann::json&         queryParams,
-                                                             const nlohmann::json&         body )
+                                                             const nlohmann::ordered_json& queryParams,
+                                                             const nlohmann::ordered_json& body )
 {
     if ( pathArguments.empty() )
     {
@@ -288,7 +288,7 @@ RestSessionService::ServiceResponse RestSessionService::get( http::verb         
         return std::make_tuple( http::status::not_found, "Session '" + uuid + "' is not valid", nullptr );
     }
 
-    auto jsonResponse     = nlohmann::json::object();
+    auto jsonResponse     = nlohmann::ordered_json::object();
     jsonResponse["uuid"]  = session->uuid();
     jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::label( session->type() );
     jsonResponse["valid"] = !session->isExpired();
@@ -301,8 +301,8 @@ RestSessionService::ServiceResponse RestSessionService::get( http::verb         
 //--------------------------------------------------------------------------------------------------
 RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( http::verb                    verb,
                                                                            const std::list<std::string>& pathArguments,
-                                                                           const nlohmann::json&         queryParams,
-                                                                           const nlohmann::json&         body )
+                                                                           const nlohmann::ordered_json& queryParams,
+                                                                           const nlohmann::ordered_json& body )
 {
     if ( pathArguments.empty() )
     {
@@ -334,7 +334,7 @@ RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( http:
 
         RestServerApplication::instance()->changeSession( session.get(), type.value() );
     }
-    auto jsonResponse     = nlohmann::json::object();
+    auto jsonResponse     = nlohmann::ordered_json::object();
     jsonResponse["uuid"]  = session->uuid();
     jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::label( session->type() );
     jsonResponse["valid"] = !session->isExpired();
@@ -347,8 +347,8 @@ RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( http:
 //--------------------------------------------------------------------------------------------------
 RestSessionService::ServiceResponse RestSessionService::destroy( http::verb                    verb,
                                                                  const std::list<std::string>& pathArguments,
-                                                                 const nlohmann::json&         queryParams,
-                                                                 const nlohmann::json&         body )
+                                                                 const nlohmann::ordered_json& queryParams,
+                                                                 const nlohmann::ordered_json& body )
 {
     if ( pathArguments.empty() )
     {

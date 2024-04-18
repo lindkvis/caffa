@@ -22,19 +22,19 @@
 namespace caffa
 {
 
-void to_json( nlohmann::json& jsonValue, const ObjectHandle& object )
+void to_json( nlohmann::ordered_json& jsonValue, const ObjectHandle& object )
 {
     JsonSerializer serializer;
     serializer.writeObjectToJson( &object, jsonValue );
 }
 
-void from_json( const nlohmann::json& jsonValue, ObjectHandle& object )
+void from_json( const nlohmann::ordered_json& jsonValue, ObjectHandle& object )
 {
     JsonSerializer serializer;
     serializer.readObjectFromString( &object, jsonValue );
 }
 
-void to_json( nlohmann::json& jsonValue, std::shared_ptr<const ObjectHandle> object )
+void to_json( nlohmann::ordered_json& jsonValue, std::shared_ptr<const ObjectHandle> object )
 {
     if ( object )
     {
@@ -42,7 +42,7 @@ void to_json( nlohmann::json& jsonValue, std::shared_ptr<const ObjectHandle> obj
     }
 }
 
-void from_json( const nlohmann::json& jsonValue, std::shared_ptr<ObjectHandle> object )
+void from_json( const nlohmann::ordered_json& jsonValue, std::shared_ptr<ObjectHandle> object )
 {
     if ( object )
     {

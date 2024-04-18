@@ -208,7 +208,7 @@ RestServiceInterface::CleanupCallback
         }
     }
 
-    nlohmann::json queryParamsJson = nlohmann::json::object();
+    nlohmann::ordered_json queryParamsJson = nlohmann::ordered_json::object();
     for ( auto param : queryParams )
     {
         auto keyValue = caffa::StringTools::split<std::vector<std::string>>( param, "=", true );
@@ -259,12 +259,12 @@ RestServiceInterface::CleanupCallback
         }
     }
 
-    nlohmann::json bodyJson = nlohmann::json::object();
+    nlohmann::ordered_json bodyJson = nlohmann::ordered_json::object();
     if ( !req.body().empty() )
     {
         try
         {
-            bodyJson = nlohmann::json::parse( req.body() );
+            bodyJson = nlohmann::ordered_json::parse( req.body() );
         }
         catch ( const nlohmann::detail::parse_error& )
         {

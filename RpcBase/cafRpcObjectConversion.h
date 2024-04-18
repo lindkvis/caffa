@@ -33,8 +33,8 @@ namespace caffa::rpc
 caffa::ObjectHandle* findCafObjectFromJsonObject( const caffa::Session* session, const std::string& jsonObject );
 caffa::ObjectHandle* findCafObjectFromUuid( const caffa::Session* session, const std::string& objectUuid );
 
-nlohmann::json createJsonSchemaFromProjectObject( const caffa::ObjectHandle* source );
-nlohmann::json createJsonSkeletonFromProjectObject( const caffa::ObjectHandle* source );
-nlohmann::json createJsonFromProjectObject( const caffa::ObjectHandle* source );
+nlohmann::ordered_json createJsonSchemaFromProjectObject( const caffa::ObjectHandle* source );
+nlohmann::ordered_json createJsonSkeletonFromProjectObject( const caffa::ObjectHandle* source );
+nlohmann::ordered_json createJsonFromProjectObject( const caffa::ObjectHandle* source );
 
 } // namespace caffa::rpc

@@ -42,17 +42,17 @@ bool RestServiceInterface::refuseDueToTimeLimiter()
     return false;
 }
 
-nlohmann::json RestServiceInterface::plainErrorResponse()
+nlohmann::ordered_json RestServiceInterface::plainErrorResponse()
 {
-    auto errorContent          = nlohmann::json::object();
+    auto errorContent          = nlohmann::ordered_json::object();
     errorContent["text/plain"] = { { "schema", { { "$ref", "#/components/error_schemas/PlainError" } } } };
-    auto errorResponse         = nlohmann::json{ { "description", "Error message" }, { "content", errorContent } };
+    auto errorResponse = nlohmann::ordered_json{ { "description", "Error message" }, { "content", errorContent } };
     return errorResponse;
 }
 
-std::map<std::string, nlohmann::json> RestServiceInterface::basicServiceSchemas()
+std::map<std::string, nlohmann::ordered_json> RestServiceInterface::basicServiceSchemas()
 {
-    auto plainError = nlohmann::json{ { "type", "string" }, { "example", "An example error" } };
+    auto plainError = nlohmann::ordered_json{ { "type", "string" }, { "example", "An example error" } };
 
     return { { "error_schemas", { { "PlainError", plainError } } } };
 }

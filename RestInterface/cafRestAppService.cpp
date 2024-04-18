@@ -60,10 +60,10 @@ RestAppService::RestAppService()
     m_requestPathRoot->addEntry( std::move( quit ) );
 }
 
-RestAppService::ServiceResponse RestAppService::perform( http::verb             verb,
-                                                         std::list<std::string> path,
-                                                         const nlohmann::json&  queryParams,
-                                                         const nlohmann::json&  body )
+RestAppService::ServiceResponse RestAppService::perform( http::verb                    verb,
+                                                         std::list<std::string>        path,
+                                                         const nlohmann::ordered_json& queryParams,
+                                                         const nlohmann::ordered_json& body )
 {
     CAFFA_ASSERT( !path.empty() );
 
@@ -92,11 +92,11 @@ bool RestAppService::requiresSession( http::verb verb, const std::list<std::stri
     return request->requiresSession( verb );
 }
 
-std::map<std::string, nlohmann::json> RestAppService::servicePathEntries() const
+std::map<std::string, nlohmann::ordered_json> RestAppService::servicePathEntries() const
 {
     CAFFA_DEBUG( "Get service path entries" );
 
-    auto services = nlohmann::json::object();
+    auto services = nlohmann::ordered_json::object();
 
     RequestFinder finder( m_requestPathRoot.get() );
     finder.search();
@@ -111,7 +111,7 @@ std::map<std::string, nlohmann::json> RestAppService::servicePathEntries() const
     return services;
 }
 
-std::map<std::string, nlohmann::json> RestAppService::serviceComponentEntries() const
+std::map<std::string, nlohmann::ordered_json> RestAppService::serviceComponentEntries() const
 {
     auto appInfo = AppInfo::jsonSchema();
 
@@ -123,15 +123,15 @@ std::map<std::string, nlohmann::json> RestAppService::serviceComponentEntries() 
 //--------------------------------------------------------------------------------------------------
 RestAppService::ServiceResponse RestAppService::info( http::verb                    verb,
                                                       const std::list<std::string>& pathArguments,
-                                                      const nlohmann::json&         queryParams,
-                                                      const nlohmann::json&         body )
+                                                      const nlohmann::ordered_json& queryParams,
+                                                      const nlohmann::ordered_json& body )
 {
     CAFFA_TRACE( "Received info request" );
 
     auto app     = RestServerApplication::instance();
     auto appInfo = app->appInfo();
 
-    nlohmann::json json = appInfo;
+    nlohmann::ordered_json json = appInfo;
     return std::make_tuple( http::status::ok, json.dump(), nullptr );
 }
 
@@ -140,8 +140,8 @@ RestAppService::ServiceResponse RestAppService::info( http::verb                
 //--------------------------------------------------------------------------------------------------
 RestAppService::ServiceResponse RestAppService::quit( http::verb                    verb,
                                                       const std::list<std::string>& pathArguments,
-                                                      const nlohmann::json&         queryParams,
-                                                      const nlohmann::json&         body )
+                                                      const nlohmann::ordered_json& queryParams,
+                                                      const nlohmann::ordered_json& body )
 {
     CAFFA_DEBUG( "Received quit request" );
 

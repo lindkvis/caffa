@@ -23,15 +23,15 @@
 
 using namespace caffa::rpc;
 
-RestResponse::RestResponse( const nlohmann::json& contentSchema, const std::string& description )
+RestResponse::RestResponse( const nlohmann::ordered_json& contentSchema, const std::string& description )
     : m_content( contentSchema )
     , m_description( description )
 {
 }
 
-nlohmann::json RestResponse::schema() const
+nlohmann::ordered_json RestResponse::schema() const
 {
-    auto response = nlohmann::json{ { "description", m_description } };
+    auto response = nlohmann::ordered_json{ { "description", m_description } };
 
     if ( !m_content.is_null() )
     {
@@ -48,19 +48,19 @@ std::unique_ptr<RestResponse> RestResponse::clone() const
 
 std::unique_ptr<RestResponse> RestResponse::emptyResponse( const std::string& description )
 {
-    return std::make_unique<RestResponse>( nlohmann::json(), description );
+    return std::make_unique<RestResponse>( nlohmann::ordered_json(), description );
 }
 
 std::unique_ptr<RestResponse> RestResponse::plainErrorResponse()
 {
-    auto content          = nlohmann::json::object();
+    auto content          = nlohmann::ordered_json::object();
     content["text/plain"] = { { "schema", "#/components/error_schemas/PlainError" } };
     return std::make_unique<RestResponse>( content, "A Service Error Message" );
 }
 
 std::unique_ptr<RestResponse> RestResponse::objectResponse( const std::string& schemaPath, const std::string& description )
 {
-    auto content                = nlohmann::json::object();
+    auto content                = nlohmann::ordered_json::object();
     content["application/json"] = { { "schema", { { "$ref", schemaPath } } } };
     return std::make_unique<RestResponse>( content, description );
 }
@@ -68,11 +68,11 @@ std::unique_ptr<RestResponse> RestResponse::objectResponse( const std::string& s
 std::unique_ptr<RestResponse> RestResponse::objectArrayResponse( const std::string& schemaPath,
                                                                  const std::string& description )
 {
-    auto arraySchema    = nlohmann::json::object();
+    auto arraySchema    = nlohmann::ordered_json::object();
     arraySchema["type"] = "array";
     arraySchema["item"] = { { "$ref", schemaPath } };
 
-    auto content                = nlohmann::json::object();
+    auto content                = nlohmann::ordered_json::object();
     content["application/json"] = arraySchema;
     return std::make_unique<RestResponse>( content, description );
 }
@@ -121,15 +121,15 @@ void RestAction::addResponse( http::status status, std::unique_ptr<RestResponse>
     m_responses[status] = std::move( response );
 }
 
-nlohmann::json RestAction::schema() const
+nlohmann::ordered_json RestAction::schema() const
 {
-    auto tagList = nlohmann::json::array();
+    auto tagList = nlohmann::ordered_json::array();
     for ( const auto& tag : m_tags )
     {
         tagList.push_back( tag );
     }
 
-    auto responses = nlohmann::json::object();
+    auto responses = nlohmann::ordered_json::object();
     for ( const auto& [status, response] : m_responses )
     {
         std::string statusString = "default";
@@ -140,14 +140,14 @@ nlohmann::json RestAction::schema() const
         responses[statusString] = response->schema();
     }
 
-    auto action = nlohmann::json{ { "summary", m_summary },
-                                  { "operationId", m_operationId },
-                                  { "responses", responses },
-                                  { "tags", tagList } };
+    auto action = nlohmann::ordered_json{ { "summary", m_summary },
+                                          { "operationId", m_operationId },
+                                          { "responses", responses },
+                                          { "tags", tagList } };
 
     if ( !m_parameters.empty() )
     {
-        auto parameters = nlohmann::json::array();
+        auto parameters = nlohmann::ordered_json::array();
         for ( const auto& parameter : m_parameters )
         {
             parameters.push_back( parameter->schema() );
@@ -163,8 +163,8 @@ nlohmann::json RestAction::schema() const
 }
 
 RestAction::ServiceResponse RestAction::perform( const std::list<std::string>& pathArguments,
-                                                 const nlohmann::json&         queryParams,
-                                                 const nlohmann::json&         body ) const
+                                                 const nlohmann::ordered_json& queryParams,
+                                                 const nlohmann::ordered_json& body ) const
 {
     return m_callback( m_verb, pathArguments, queryParams, body );
 }
@@ -189,7 +189,7 @@ bool RestAction::requiresAuthentication() const
     return m_requiresAuthentication;
 }
 
-void RestAction::setRequestBodySchema( const nlohmann::json& requestBodySchema )
+void RestAction::setRequestBodySchema( const nlohmann::ordered_json& requestBodySchema )
 {
     m_requestBodySchema = requestBodySchema;
 }
@@ -206,8 +206,8 @@ const std::string& RestPathEntry::name() const
 
 RestPathEntry::ServiceResponse RestPathEntry::perform( http::verb                    verb,
                                                        const std::list<std::string>& pathArguments,
-                                                       const nlohmann::json&         queryParams,
-                                                       const nlohmann::json&         body ) const
+                                                       const nlohmann::ordered_json& queryParams,
+                                                       const nlohmann::ordered_json& body ) const
 {
     auto it = m_actions.find( verb );
     if ( it == m_actions.end() )
@@ -306,9 +306,9 @@ std::list<const RestAction*> RestPathEntry::actions() const
     return actions;
 }
 
-nlohmann::json RestPathEntry::schema() const
+nlohmann::ordered_json RestPathEntry::schema() const
 {
-    auto request = nlohmann::json::object();
+    auto request = nlohmann::ordered_json::object();
 
     for ( const auto& [verb, action] : m_actions )
     {

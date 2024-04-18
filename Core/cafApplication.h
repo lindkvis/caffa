@@ -109,11 +109,11 @@ struct AppInfo
         return std::to_string( majorVersion ) + "." + std::to_string( minorVersion ) + "." + std::to_string( patchVersion );
     }
 
-    static nlohmann::json jsonSchema();
+    static nlohmann::ordered_json jsonSchema();
 };
 
-void to_json( nlohmann::json& jsonValue, const AppInfo& appInfo );
-void from_json( const nlohmann::json& jsonValue, AppInfo& appInfo );
+void to_json( nlohmann::ordered_json& jsonValue, const AppInfo& appInfo );
+void from_json( const nlohmann::ordered_json& jsonValue, AppInfo& appInfo );
 
 class Application
 {
