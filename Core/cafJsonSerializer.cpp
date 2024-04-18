@@ -371,5 +371,5 @@ void JsonSerializer::writeStream( const ObjectHandle* object, std::ostream& file
     nlohmann::json document = nlohmann::json::object();
     writeObjectToJson( object, document );
 
-    file << std::setw( 4 ) << document;
+    file << std::setw( 2 ) << document;
 }
