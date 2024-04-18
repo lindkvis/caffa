@@ -33,7 +33,10 @@ void Inspector::visit( const ObjectHandle* object )
 
     for ( auto field : object->fields() )
     {
-        field->accept( this );
+        if ( field->isReadable() )
+        {
+            field->accept( this );
+        }
     }
 
     leaveObject( object );
@@ -63,7 +66,10 @@ void Editor::visit( ObjectHandle* object )
 
     for ( auto field : object->fields() )
     {
-        field->accept( this );
+        if ( field->isWritable() )
+        {
+            field->accept( this );
+        }
     }
     leaveObject( object );
 }
