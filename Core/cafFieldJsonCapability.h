@@ -30,7 +30,12 @@ public:
 
     virtual nlohmann::json jsonType() const = 0;
 
+    bool isSerializable() const;
+    void setSerializable( bool serializable );
+
 protected:
     bool assertValid() const;
+
+    bool m_serializable;
 };
 } // End of namespace caffa

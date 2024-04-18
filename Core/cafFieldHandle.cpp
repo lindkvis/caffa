@@ -11,6 +11,7 @@ namespace caffa
 //--------------------------------------------------------------------------------------------------
 FieldHandle::FieldHandle()
     : m_ownerObject( nullptr )
+    , m_isDeprecated( false )
 {
 }
 
@@ -67,6 +68,16 @@ void FieldHandle::addCapability( std::unique_ptr<FieldCapability> capability )
 
     // Push to the front, so that any new capability takes precedence over old ones.
     m_capabilities.push_front( std::move( capability ) );
+}
+
+bool FieldHandle::isDeprecated() const
+{
+    return m_isDeprecated;
+}
+
+void FieldHandle::markDeprecated()
+{
+    m_isDeprecated = true;
 }
 
 } // End of namespace caffa

@@ -59,11 +59,14 @@ class UiTreeOrdering;
 class ObjectCapability;
 class ObjectFactory;
 
+template <typename T>
+concept DerivesFromFieldHandle = std::is_base_of<FieldHandle, T>::value;
+
 /**
  * Helper class that is initialised with Object::initField and allows
  * .. addding additional features to the field.
  */
-template <typename FieldType>
+template <DerivesFromFieldHandle FieldType>
 class FieldInitHelper
 {
 public:
@@ -136,6 +139,12 @@ public:
     {
         auto doc = std::make_unique<caffa::FieldDocumentationCapability>( documentation );
         m_field.addCapability( std::move( doc ) );
+        return *this;
+    }
+
+    FieldInitHelper& markDeprecated()
+    {
+        m_field.markDeprecated();
         return *this;
     }
 

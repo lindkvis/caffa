@@ -61,6 +61,9 @@ public:
      */
     virtual bool isWritable() const = 0;
 
+    bool isDeprecated() const;
+    void markDeprecated();
+
 protected:
     bool isInitialized() const { return m_ownerObject != nullptr; }
 
@@ -77,6 +80,8 @@ private:
     std::string m_keyword;
 
     std::list<std::unique_ptr<FieldCapability>> m_capabilities;
+
+    bool m_isDeprecated;
 };
 
 //--------------------------------------------------------------------------------------------------

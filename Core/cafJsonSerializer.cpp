@@ -158,6 +158,8 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
         {
             if ( this->fieldSelector() && !this->fieldSelector()( field ) ) continue;
 
+            if ( field->isDeprecated() ) continue;
+
             auto keyword = field->keyword();
             if ( parentalFields.contains( keyword ) ) continue;
 
