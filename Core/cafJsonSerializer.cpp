@@ -101,6 +101,9 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
             }
         }
     }
+
+    ObjectPerformer<> performer( []( ObjectHandle* object ) { object->initAfterRead(); } );
+    performer.visit( object );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -310,9 +313,6 @@ std::shared_ptr<ObjectHandle> JsonSerializer::copyAndCastBySerialization( const 
     nlohmann::json jsonObject = nlohmann::json::parse( string );
     readObjectFromJson( objectCopy.get(), jsonObject );
 
-    ObjectPerformer<> performer( []( ObjectHandle* object ) { object->initAfterRead(); } );
-    performer.visit( objectCopy.get() );
-
     return objectCopy;
 }
 
@@ -347,9 +347,6 @@ std::shared_ptr<ObjectHandle> JsonSerializer::createObjectFromString( const std:
     if ( !newObject ) return nullptr;
 
     readObjectFromJson( newObject.get(), jsonObject );
-
-    ObjectPerformer<> performer( []( ObjectHandle* object ) { object->initAfterRead(); } );
-    performer.visit( newObject.get() );
 
     return newObject;
 }

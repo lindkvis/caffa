@@ -77,9 +77,6 @@ bool Object::readFromJsonFile( const std::string& filePath )
     try
     {
         serializer.readStream( this, inStream );
-
-        ObjectPerformer<> performer( []( ObjectHandle* object ) { object->initAfterRead(); } );
-        performer.visit( this );
     }
     catch ( const std::exception& err )
     {
