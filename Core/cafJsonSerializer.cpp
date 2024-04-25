@@ -220,6 +220,8 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
         {
             if ( this->fieldSelector() && !this->fieldSelector()( field ) ) continue;
 
+            if ( field->isDeprecated() ) continue;
+
             auto keyword = field->keyword();
 
             const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
@@ -371,5 +373,5 @@ void JsonSerializer::writeStream( const ObjectHandle* object, std::ostream& file
     nlohmann::json document = nlohmann::json::object();
     writeObjectToJson( object, document );
 
-    file << std::setw( 2 ) << document;
+    file << document.dump( 4 );
 }
