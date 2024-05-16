@@ -114,7 +114,7 @@ public:
         if ( ec )
         {
             CAFFA_ERROR( "Failed to resolve host" );
-            m_result.set_value( std::make_pair( http::status::network_connect_timeout_error, "Failed to resolve host" ) );
+            m_result.set_value( std::make_pair( http::status::service_unavailable, "Failed to resolve host" ) );
             return;
         }
 
@@ -129,8 +129,8 @@ public:
     {
         if ( ec )
         {
-            CAFFA_ERROR( "Failed to connect to host" );
-            m_result.set_value( std::make_pair( http::status::network_connect_timeout_error, "Failed to connect to host" ) );
+            CAFFA_ERROR( "Failed to connect to host: " << ec );
+            m_result.set_value( std::make_pair( http::status::service_unavailable, "Failed to connect to host" ) );
             return;
         }
 
@@ -148,7 +148,7 @@ public:
         if ( ec )
         {
             CAFFA_ERROR( "Failed to write to stream" );
-            m_result.set_value( std::make_pair( http::status::network_connect_timeout_error, "Failed to write to stream" ) );
+            m_result.set_value( std::make_pair( http::status::service_unavailable, "Failed to write to stream" ) );
             return;
         }
 
@@ -162,9 +162,9 @@ public:
 
         if ( ec )
         {
-            CAFFA_ERROR( "Failed to read from stream" );
-            m_result.set_value(
-                std::make_pair( http::status::network_connect_timeout_error, "Failed to read from stream" ) );
+            CAFFA_ERROR( "Failed to read from stream from thread ID " << std::this_thread::get_id() << "-> "
+                                                                      << ec.message() );
+            m_result.set_value( std::make_pair( http::status::service_unavailable, "Failed to read from stream" ) );
             return;
         }
 
