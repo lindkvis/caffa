@@ -78,20 +78,4 @@ void Document::setFileName( const std::string& fileName )
     m_fileName.setValue( fileName );
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool Document::readFromJsonFile()
-{
-    return Object::readFromJsonFile( m_fileName() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool Document::writeToJsonFile() const
-{
-    return Object::writeToJsonFile( m_fileName() );
-}
-
 } // End of namespace caffa

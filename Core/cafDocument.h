@@ -49,9 +49,6 @@ public:
     void setId( const std::string& id );
     void setFileName( const std::string& fileName );
 
-    bool readFromJsonFile();
-    bool writeToJsonFile() const;
-
 private:
     Field<std::string> m_id;
     Field<std::string> m_fileName;
