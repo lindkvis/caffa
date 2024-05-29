@@ -56,23 +56,15 @@ protected:
 class MethodHandle : public ObjectAttribute
 {
 public:
-    enum class Type
-    {
-        READ_WRITE = 0,
-        READ_ONLY
-    };
-
-    MethodHandle()
-        : m_documentation( "" )
-    {
-    }
+    MethodHandle()           = default;
     ~MethodHandle() override = default;
 
     std::string keyword() const override { return m_name; }
     void        setArgumentNames( const std::vector<std::string>& argumentNames ) { m_argumentNames = argumentNames; }
     const std::vector<std::string>& argumentNames() const { return m_argumentNames; }
 
-    Type               type() const { return m_type; }
+    bool               isConst() const { return m_isConst; }
+    void               setConst( bool isConst ) { m_isConst = isConst; }
     const std::string& documentation() const { return m_documentation; }
     void               setDocumentation( const std::string& documentation ) { m_documentation = documentation; }
 
@@ -86,11 +78,10 @@ public:
 private:
     friend class ObjectHandle;
     void setName( const std::string& name ) { m_name = name; }
-    void setType( Type type ) { m_type = type; }
 
     std::string              m_name;
     std::vector<std::string> m_argumentNames;
-    Type                     m_type;
+    bool                     m_isConst;
     std::string              m_documentation;
 
     std::unique_ptr<MethodAccessorInterface> m_accessor;

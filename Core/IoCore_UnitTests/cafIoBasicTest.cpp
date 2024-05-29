@@ -48,19 +48,15 @@ public:
 
         m_enumMember = T1;
 
-        initMethod(
-            getEnum,
-            "getEnum",
-            {},
-            [this]() -> caffa::AppEnum<TestEnumType> { return this->m_proxyEnumField.value(); },
-            caffa::MethodHandle::Type::READ_ONLY );
+        initMethod( getEnum,
+                    "getEnum",
+                    [this]() -> caffa::AppEnum<TestEnumType> { return this->m_proxyEnumField.value(); } )
+            .makeConst();
 
-        initMethod(
-            setEnum,
-            "setEnum",
-            { "enum" },
-            [this]( caffa::AppEnum<TestEnumType> val ) -> void { return m_proxyEnumField.setValue( val ); },
-            caffa::MethodHandle::Type::READ_ONLY );
+        initMethod( setEnum,
+                    "setEnum",
+                    [this]( caffa::AppEnum<TestEnumType> val ) -> void { return m_proxyEnumField.setValue( val ); } )
+            .withArgumentNames( { "enum" } );
     }
 
     ~DemoObject() {}

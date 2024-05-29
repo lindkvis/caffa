@@ -1,6 +1,6 @@
 // ##################################################################################################
 //
-//    CAFFA
+//    Caffa
 //    Copyright (C) 2020- Kontur AS
 //
 //    GNU Lesser General Public License Usage
@@ -28,9 +28,9 @@
 
 namespace caffa
 {
-
 template <typename T>
 concept DerivesFromFieldHandle = std::is_base_of<FieldHandle, T>::value;
+
 /**
  * Helper class that is initialised with Object::initField and allows
  * .. addding additional features to the field.

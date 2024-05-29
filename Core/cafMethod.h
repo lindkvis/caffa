@@ -20,9 +20,9 @@
 #pragma once
 
 #include "cafAssert.h"
-#include "cafPortableDataType.h"
 #include "cafLogger.h"
 #include "cafMethodHandle.h"
+#include "cafPortableDataType.h"
 
 #include "cafObjectFactory.h"
 #include "cafObjectJsonSpecializations.h"
@@ -265,8 +265,11 @@ private:
                 [&]
                 {
                     nlohmann::json jsonArg = nlohmann::json::object();
-                    jsonArg["keyword"]     = argumentNames[i];
-                    jsonArg["type"]        = argumentTypes;
+                    if ( i < argumentNames.size() )
+                    {
+                        jsonArg["keyword"] = argumentNames[i];
+                    }
+                    jsonArg["type"] = argumentTypes;
                     jsonArguments.push_back( jsonArg );
                     i++;
                 }(),
