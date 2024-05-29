@@ -20,12 +20,12 @@
 #pragma once
 
 #include "cafAssert.h"
+#include "cafJsonSerializer.h"
 #include "cafLogger.h"
 #include "cafMethodHandle.h"
-#include "cafPortableDataType.h"
-
 #include "cafObjectFactory.h"
-#include "cafObjectJsonSpecializations.h"
+#include "cafObjectJsonConversion.h"
+#include "cafPortableDataType.h"
 #include "cafSession.h"
 
 #include <nlohmann/json.hpp>
