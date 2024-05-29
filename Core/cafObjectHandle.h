@@ -28,14 +28,10 @@
 #include "cafLogger.h"
 #include "cafMethodHandle.h"
 #include "cafObjectCapability.h"
-#include "cafPortableDataType.h"
 #include "cafSignal.h"
 #include "cafStringTools.h"
 
-#include <array>
-#include <list>
 #include <memory>
-#include <set>
 #include <string_view>
 #include <type_traits>
 #include <vector>
@@ -115,13 +111,13 @@ public:
      * The registered fields contained in this Object.
      * @return a vector of FieldHandle pointers
      */
-    std::list<FieldHandle*> fields() const;
+    std::vector<FieldHandle*> fields() const;
 
     /**
      * The registered methods for this Object.
      * @return a list of MethodHandle pointers
      */
-    std::list<MethodHandle*> methods() const;
+    std::vector<MethodHandle*> methods() const;
 
     /**
      * Find a particular field by keyword
@@ -221,36 +217,5 @@ struct is_shared_ptr<std::shared_ptr<T>> : std::true_type
 
 template <typename T>
 concept IsSharedPtr = is_shared_ptr<T>::value;
-
-/**
- * The portable type id for an ObjectHandle
- */
-template <DerivesFromObjectHandle DataType>
-struct PortableDataType<DataType>
-{
-    static std::string    name() { return std::string( "object::" ) + DataType::classKeywordStatic(); }
-    static nlohmann::json jsonType()
-    {
-        auto object    = nlohmann::json::object();
-        object["$ref"] = std::string( "#/components/object_schemas/" ) + DataType::classKeywordStatic();
-        return object;
-    }
-};
-
-/**
- * The portable type id for an ObjectHandle
- */
-template <IsSharedPtr DataType>
-struct PortableDataType<DataType>
-{
-    static std::string name() { return std::string( "object::" ) + DataType::element_type::classKeywordStatic(); }
-
-    static nlohmann::json jsonType()
-    {
-        auto object    = nlohmann::json::object();
-        object["$ref"] = std::string( "#/components/object_schemas/" ) + DataType::element_type::classKeywordStatic();
-        return object;
-    }
-};
 
 } // namespace caffa

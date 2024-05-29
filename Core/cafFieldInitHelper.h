@@ -19,10 +19,13 @@
 // ##################################################################################################
 #pragma once
 
+#include "cafDataFieldAccessor.h"
+
 #include "cafField.h"
 #include "cafFieldDocumentationCapability.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
+#include "cafFieldValidator.h"
 
 #include <memory>
 

@@ -19,6 +19,8 @@
 #pragma once
 
 #include "cafFieldHandle.h"
+#include "cafObjectFactory.h"
+#include "cafObjectHandle.h"
 
 #include <functional>
 #include <iostream>
@@ -26,8 +28,6 @@
 
 namespace caffa
 {
-class ObjectHandle;
-class ObjectFactory;
 
 /**
  * Interface for Serializer. Can be implemented for different types of text serialization.
@@ -92,6 +92,20 @@ public:
      */
     virtual std::shared_ptr<ObjectHandle>
         copyAndCastBySerialization( const ObjectHandle* object, const std::string& destinationClassKeyword ) const = 0;
+
+    /**
+     * Clone the object by serializing to and from text string
+     *
+     * @param object The object to copy
+     * @param destinationClassKeyword The class of the object to create.
+     * @return unique ptr containing a new copy
+     */
+    template <DerivesFromObjectHandle ObjectType>
+    std::shared_ptr<ObjectType> cloneObject( const ObjectType* object ) const
+    {
+        auto basePointer = copyAndCastBySerialization( object, ObjectType::classKeywordStatic() );
+        return std::dynamic_pointer_cast<ObjectType>( basePointer );
+    }
 
     /**
      * Create a new object from a JSON text string
