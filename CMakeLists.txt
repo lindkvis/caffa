@@ -62,16 +62,9 @@ set(JSON_ImplicitConversions
 set(JSON_MultipleHeaders
     OFF
     CACHE INTERNAL "Split in multiple headers")
-set(UUID_USING_CXX20_SPAN
-    ON
-    CACHE INTERNAL "Use CXX20 span")
-set(UUID_BUILD_TESTS
-    OFF
-    CACHE INTERNAL "Build stduuid tests")
 
 add_subdirectory(ThirdParty/json)
 add_subdirectory(ThirdParty/gtest)
-add_subdirectory(ThirdParty/stduuid)
 add_subdirectory(ThirdParty/caffa-base)
 
 # libraries

@@ -47,9 +47,8 @@ set(PUBLIC_HEADERS
     cafDocument.h
     cafApplication.h
     cafSession.h
-    cafUuidGenerator.h
     cafFieldDocumentationCapability.h
-    cafStringEncoding.h)
+  )
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
@@ -72,9 +71,7 @@ set(PROJECT_FILES
     cafDocument.cpp
     cafApplication.cpp
     cafSession.cpp
-    cafUuidGenerator.cpp
     cafFieldDocumentationCapability.cpp
-    cafStringEncoding.cpp
     cafVisitor.cpp)
 
 if(CAFFA_BUILD_SHARED)
@@ -97,8 +94,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(
   ${PROJECT_NAME}
-  PUBLIC caffaBase nlohmann_json::nlohmann_json
-  PRIVATE stduuid)
+  PUBLIC caffaBase nlohmann_json::nlohmann_json)
 
 install(
   TARGETS ${PROJECT_NAME}

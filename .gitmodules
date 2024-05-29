@@ -1,9 +1,6 @@
 [submodule "ThirdParty/json"]
 	path = ThirdParty/json
 	url = https://github.com/nlohmann/json.git
-[submodule "ThirdParty/stduuid"]
-	path = ThirdParty/stduuid
-	url = https://github.com/mariusbancila/stduuid.git
 [submodule "Bindings/caffa-Java"]
 	path = Bindings/Java
 	url = https://github.com/lindkvis/caffa-Java.git
