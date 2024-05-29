@@ -1,25 +1,7 @@
 // ##################################################################################################
 //
-//    Custom Visualization Core library
-//    Copyright (C) 2011-2013 Ceetron AS
-//    Copyright (C) 2013-2020 Ceetron Solutions AS
+//    Caffa
 //    Copyright (C) 2020- Kontur AS
-//
-//    This library may be used under the terms of either the GNU General Public License or
-//    the GNU Lesser General Public License as follows:
-//
-//    GNU General Public License Usage
-//    This library is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
-//
-//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//    FITNESS FOR A PARTICULAR PURPOSE.
-//
-//    See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
-//    for more details.
 //
 //    GNU Lesser General Public License Usage
 //    This library is free software; you can redistribute it and/or modify
@@ -38,24 +20,14 @@
 
 #pragma once
 
-#include "cafDataFieldAccessor.h"
 #include "cafField.h"
-#include "cafFieldDocumentationCapability.h"
 #include "cafFieldInitHelper.h"
-#include "cafFieldJsonCapability.h"
-#include "cafFieldJsonCapabilitySpecializations.h"
-#include "cafFieldValidator.h"
 #include "cafMethodInitHelper.h"
-#include "cafObjectCapability.h"
 #include "cafObjectHandle.h"
 #include "cafObjectMacros.h"
 
-#include <set>
-
 namespace caffa
 {
-class ObjectCapability;
-
 class Object : public ObjectHandle
 {
 public:
@@ -104,11 +76,23 @@ public:
     {
         method.setCallbackWithSession( callback );
         addMethod( &method, keyword );
+
         return MethodInitHelper<MethodType>( method, keyword );
     }
 
+    /**
+     * @brief Get the Object UUID. Used to associate server and client objects.
+     *
+     * @return std::string
+     */
     std::string uuid() const override;
-    void        setUuid( const std::string& uuid ) override;
+
+    /**
+     * @brief Set the UUID for the Object
+     *
+     * @param uuid
+     */
+    void setUuid( const std::string& uuid ) override;
 
 private:
     caffa::Field<std::string> m_uuid;

@@ -42,6 +42,7 @@ set(PUBLIC_HEADERS
     cafObjectFactory.h
     cafObject.h
     cafObjectJsonSpecializations.h
+    cafObjectPortableDataType.h
     cafFieldScriptingCapability.h
     cafDocument.h
     cafApplication.h

@@ -48,27 +48,27 @@ ObjectHandle::~ObjectHandle() noexcept
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::list<FieldHandle*> ObjectHandle::fields() const
+std::vector<FieldHandle*> ObjectHandle::fields() const
 {
-    std::list<FieldHandle*> fieldList;
+    std::vector<FieldHandle*> fieldVector;
     for ( auto& [ignore, field] : m_fields )
     {
-        fieldList.push_back( field );
+        fieldVector.push_back( field );
     }
-    return fieldList;
+    return fieldVector;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::list<MethodHandle*> ObjectHandle::methods() const
+std::vector<MethodHandle*> ObjectHandle::methods() const
 {
-    std::list<MethodHandle*> methodList;
+    std::vector<MethodHandle*> methodVector;
     for ( auto& [ignore, method] : m_methods )
     {
-        methodList.push_back( method );
+        methodVector.push_back( method );
     }
-    return methodList;
+    return methodVector;
 }
 
 //--------------------------------------------------------------------------------------------------
