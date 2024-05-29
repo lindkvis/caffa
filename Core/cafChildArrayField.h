@@ -4,6 +4,7 @@
 #include "cafChildArrayFieldAccessor.h"
 #include "cafChildArrayFieldHandle.h"
 #include "cafFieldHandle.h"
+#include "cafObjectPortableDataType.h"
 
 #include <memory>
 
