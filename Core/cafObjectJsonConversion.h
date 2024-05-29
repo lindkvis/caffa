@@ -18,7 +18,6 @@
 // ##################################################################################################
 #pragma once
 
-#include "cafJsonSerializer.h"
 #include "cafObjectHandle.h"
 
 #include <nlohmann/json.hpp>

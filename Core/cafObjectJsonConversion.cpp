@@ -17,7 +17,9 @@
 //
 // ##################################################################################################
 
-#include "cafObjectJsonSpecializations.h"
+#include "cafObjectJsonConversion.h"
+
+#include "cafJsonSerializer.h"
 
 namespace caffa
 {
