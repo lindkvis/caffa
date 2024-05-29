@@ -45,6 +45,7 @@
 #include "cafFieldJsonCapability.h"
 #include "cafFieldJsonCapabilitySpecializations.h"
 #include "cafFieldValidator.h"
+#include "cafMethodInitHelper.h"
 #include "cafObjectCapability.h"
 #include "cafObjectHandle.h"
 #include "cafObjectMacros.h"
@@ -53,8 +54,6 @@
 
 namespace caffa
 {
-class UiEditorAttribute;
-class UiTreeOrdering;
 class ObjectCapability;
 class ObjectFactory;
 
@@ -83,20 +82,15 @@ public:
      * Initialises the method with a keyword and registers it with the class
      * @param method A reference to the method
      * @param keyword The method keyword. Has to be unique within the class.
-     * @param argumentNames A vector of argument names
      * @param callback The method that will be called locally
-     * @param type Whether it is a READ_WRITE or a READ_ONLY (const) type method
      */
     template <typename MethodType, typename CallbackT>
-    void initMethod( MethodType&                     method,
-                     const std::string&              keyword,
-                     const std::vector<std::string>& argumentNames,
-                     CallbackT&&                     callback,
-                     MethodHandle::Type              type = MethodHandle::Type::READ_WRITE )
+    MethodInitHelper<MethodType> initMethod( MethodType& method, const std::string& keyword, CallbackT&& callback )
     {
-        addMethod( &method, keyword, type );
         method.setCallback( callback );
-        method.setArgumentNames( argumentNames );
+        addMethod( &method, keyword );
+
+        return MethodInitHelper<MethodType>( method, keyword );
     }
 
     /**
@@ -105,63 +99,13 @@ public:
      * @param keyword The method keyword. Has to be unique within the class.
      * @param argumentNames A vector of argument names
      * @param callback The method that will be called locally
-     * @param type Whether it is a READ_WRITE or a READ_ONLY (const) type method
      */
     template <typename MethodType, typename CallbackT>
-    void initMethodWithSession( MethodType&                     method,
-                                const std::string&              keyword,
-                                const std::vector<std::string>& argumentNames,
-                                CallbackT&&                     callback,
-                                MethodHandle::Type              type = MethodHandle::Type::READ_WRITE )
+    MethodInitHelper<MethodType> initMethodWithSession( MethodType& method, const std::string& keyword, CallbackT&& callback )
     {
-        addMethod( &method, keyword, type );
         method.setCallbackWithSession( callback );
-        method.setArgumentNames( argumentNames );
-    }
-
-    /**
-     * Initialises the method with a keyword and registers it with the class
-     * @param method A reference to the method
-     * @param keyword The method keyword. Has to be unique within the class.
-     * @param argumentNames A vector of argument names
-     * @param documentation A documentation string
-     * @param callback The method that will be called locally
-     * @param type Whether it is a READ_WRITE or a READ_ONLY (const) type method
-     */
-    template <typename MethodType, typename CallbackT>
-    void initMethodWithDoc( MethodType&                     method,
-                            const std::string&              keyword,
-                            const std::vector<std::string>& argumentNames,
-                            const std::string&              documentation,
-                            CallbackT&&                     callback,
-                            MethodHandle::Type              type = MethodHandle::Type::READ_WRITE )
-    {
-        addMethod( &method, keyword, type );
-        method.setCallback( callback );
-        method.setArgumentNames( argumentNames );
-        method.setDocumentation( documentation );
-    }
-    /**
-     * Initialises the method with a keyword and registers it with the class
-     * @param method A reference to the method
-     * @param keyword The method keyword. Has to be unique within the class.
-     * @param argumentNames A vector of argument names
-     * @param documentation A documentation string
-     * @param callback The method that will be called locally
-     * @param type Whether it is a READ_WRITE or a READ_ONLY (const) type method
-     */
-    template <typename MethodType, typename CallbackT>
-    void initMethodWithSessionAndDoc( MethodType&                     method,
-                                      const std::string&              keyword,
-                                      const std::vector<std::string>& argumentNames,
-                                      const std::string&              documentation,
-                                      CallbackT&&                     callback,
-                                      MethodHandle::Type              type = MethodHandle::Type::READ_WRITE )
-    {
-        addMethod( &method, keyword, type );
-        method.setCallbackWithSession( callback );
-        method.setArgumentNames( argumentNames );
-        method.setDocumentation( documentation );
+        addMethod( &method, keyword );
+        return MethodInitHelper<MethodType>( method, keyword );
     }
 
     std::string uuid() const override;
@@ -176,7 +120,8 @@ public:
     ObjectHandle::Ptr deepClone( caffa::ObjectFactory* optionalObjectFactory = nullptr ) const override;
 
     /**
-     * @brief Deep clone and cast to the typed class using an optional object factory
+     * @brief Deep clone and cast to the typed class using an optional object
+     * y
      *
      * @tparam DerivedClass
      * @param optionalObjectFactory if null the default object factory will be used

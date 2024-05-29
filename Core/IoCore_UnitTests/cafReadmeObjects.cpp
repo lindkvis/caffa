@@ -95,9 +95,9 @@ TinyDemoDocument::TinyDemoDocument()
 
     initMethod( scaleDoubleField,
                 "scaleDouble",
-                { "scalingFactor" },
                 [this]( double scalingFactor )
-                { this->doubleField.setValue( this->doubleField.value() * scalingFactor ); } );
+                { this->doubleField.setValue( this->doubleField.value() * scalingFactor ); } )
+        .withArgumentNames( { "scalingFactor" } );
 
     // Add a couple of children to the child array field
     children.push_back( std::make_shared<ChildObject>( "Alice" ) );

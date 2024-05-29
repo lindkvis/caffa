@@ -36,6 +36,7 @@ set(PUBLIC_HEADERS
     cafJsonSerializer.h
     cafMethodHandle.h
     cafMethod.h
+    cafMethodInitHelper.h
     cafObjectMacros.h
     cafDefaultObjectFactory.h
     cafObjectFactory.h

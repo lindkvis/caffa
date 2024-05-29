@@ -112,9 +112,9 @@ TinyDemoDocument::TinyDemoDocument()
     initField(children, "Children").withScripting();
     initField(specialChild, "SpecialChild"); // Omitted withScripting => not remote accessible.
     
-    initMethod(scaleDoubleField, "scaleDouble", {"scalingFactor"}, [this](double scalingFactor)
+    initMethod(scaleDoubleField, "scaleDouble", [this](double scalingFactor)
     {
-        this->doubleField.setValue(this->doubleField.value() * scalingFactor);
+        this->doubleField.setValue(this->doubleField.value() * scalingFactor).withArgumentNames({"scalingFactor"});
     });
 
 
