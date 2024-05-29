@@ -55,7 +55,6 @@
 namespace caffa
 {
 class ObjectCapability;
-class ObjectFactory;
 
 class Object : public ObjectHandle
 {
@@ -110,42 +109,6 @@ public:
 
     std::string uuid() const override;
     void        setUuid( const std::string& uuid ) override;
-
-    /**
-     * @brief Deep clone the object using an optional object factory
-     *
-     * @param optionalObjectFactory if null the default object factory will be used
-     * @return std::shared_ptr<Object>
-     */
-    ObjectHandle::Ptr deepClone( caffa::ObjectFactory* optionalObjectFactory = nullptr ) const override;
-
-    /**
-     * @brief Deep clone and cast to the typed class using an optional object
-     * y
-     *
-     * @tparam DerivedClass
-     * @param optionalObjectFactory if null the default object factory will be used
-     * @return std::shared_ptr<DerivedClass>
-     */
-    template <typename DerivedClass>
-    std::shared_ptr<DerivedClass> typedDeepClone( caffa::ObjectFactory* optionalObjectFactory = nullptr ) const
-    {
-        return std::dynamic_pointer_cast<DerivedClass>( deepClone( optionalObjectFactory ) );
-    }
-
-    /**
-     * @brief Read the object content from JSON file
-     * @param filePath The file path to read from
-     * @return true if ok, false if not
-     */
-    bool readFromJsonFile( const std::string& filePath );
-
-    /**
-     * @brief Write the object content to a JSON file
-     * @param filePath The file path to write to
-     * @return true if ok, false if not
-     */
-    bool writeToJsonFile( const std::string& filePath ) const;
 
 private:
     caffa::Field<std::string> m_uuid;

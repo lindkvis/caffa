@@ -43,7 +43,6 @@
 namespace caffa
 {
 class FieldCapability;
-class ObjectFactory;
 class Inspector;
 class Editor;
 
@@ -164,14 +163,6 @@ public:
 
     virtual std::string uuid() const { return ""; }
     virtual void        setUuid( const std::string& ) {}
-
-    /**
-     * @brief Deep clone the object using an optional object factory
-     *
-     * @param optionalObjectFactory if null the default object factory will be used
-     * @return std::shared_ptr<Object>
-     */
-    virtual ObjectHandle::Ptr deepClone( caffa::ObjectFactory* optionalObjectFactory = nullptr ) const = 0;
 
     /// Method gets called from Document after all objects are read.
     /// Re-implement to set up internal pointers etc. in your data structure
