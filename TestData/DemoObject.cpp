@@ -73,19 +73,13 @@ DemoObject::DemoObject()
 
     initMethod( copyValues,
                 "copyValues",
-                { "intValue", "doubleValue", "stringValue" },
-                std::bind( &DemoObject::_copyValues, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 ) );
+                std::bind( &DemoObject::_copyValues, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 ) )
+        .withArgumentNames( { "intValue", "doubleValue", "stringValue" } );
 
-    initMethod( setIntVector,
-                "setIntVector",
-                { "intVector" },
-                std::bind( &DemoObject::setIntVectorProxy, this, std::placeholders::_1 ) );
+    initMethod( setIntVector, "setIntVector", std::bind( &DemoObject::setIntVectorProxy, this, std::placeholders::_1 ) )
+        .withArgumentNames( { "intVector" } );
 
-    initMethod( getIntVector,
-                "getIntVector",
-                {},
-                std::bind( &DemoObject::getIntVectorProxy, this ),
-                MethodHandle::Type::READ_ONLY );
+    initMethod( getIntVector, "getIntVector", std::bind( &DemoObject::getIntVectorProxy, this ) ).makeConst();
 }
 
 void DemoObject::_copyValues( int intValue, double doubleValue, std::string stringValue )

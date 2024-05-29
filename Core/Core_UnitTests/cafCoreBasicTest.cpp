@@ -66,19 +66,16 @@ public:
 
         initMethod( multiply,
                     "multiply",
-                    { "a", "b" },
-                    std::bind( []( int a, int b ) -> double { return a * b; }, std::placeholders::_1, std::placeholders::_2 ),
-                    caffa::MethodHandle::Type::READ_ONLY );
+                    std::bind( []( int a, int b ) -> double { return a * b; }, std::placeholders::_1, std::placeholders::_2 ) )
+            .withArgumentNames( { "a", "b" } )
+            .makeConst();
 
-        initMethod( add,
-                    "add",
-                    { "a", "b" },
-                    std::bind( &DemoObject::_add, this, std::placeholders::_1, std::placeholders::_2 ),
-                    caffa::MethodHandle::Type::READ_ONLY );
+        initMethod( add, "add", std::bind( &DemoObject::_add, this, std::placeholders::_1, std::placeholders::_2 ) )
+            .withArgumentNames( { "a", "b" } )
+            .makeConst();
 
         initMethod( clone,
                     "clone",
-                    {},
                     std::bind(
                         [this]() -> std::shared_ptr<DemoObject>
                         {
@@ -86,10 +83,12 @@ public:
                             auto                  object =
                                 caffa::JsonSerializer( objectFactory ).setSerializeUuids( false ).copyBySerialization( this );
                             return std::dynamic_pointer_cast<DemoObject>( object );
-                        } ),
-                    caffa::MethodHandle::Type::READ_ONLY );
+                        } ) )
+            .makeConst();
 
-        initMethod( copyFrom, "copyFrom", { "rhs" }, std::bind( &DemoObject::_copyFrom, this, std::placeholders::_1 ) );
+        initMethod( copyFrom, "copyFrom", std::bind( &DemoObject::_copyFrom, this, std::placeholders::_1 ) )
+            .withArgumentNames( { "rhs" } )
+            .makeConst();
     }
 
     // Fields

@@ -103,14 +103,13 @@ void ObjectHandle::addField( FieldHandle* field, const std::string& keyword )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectHandle::addMethod( MethodHandle* method, const std::string& keyword, MethodHandle::Type type )
+void ObjectHandle::addMethod( MethodHandle* method, const std::string& keyword )
 {
     CAFFA_ASSERT( !keyword.empty() );
     CAFFA_ASSERT( !m_methods.contains( keyword ) && "Object already has a field with this keyword!" );
 
     CAFFA_ASSERT( ObjectHandle::isValidKeyword( keyword ) );
     method->setName( keyword );
-    method->setType( type );
     m_methods[keyword] = method;
 }
 

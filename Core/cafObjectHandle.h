@@ -175,7 +175,7 @@ public:
 
     /// Method gets called from Document after all objects are read.
     /// Re-implement to set up internal pointers etc. in your data structure
-    virtual void initAfterRead(){};
+    virtual void initAfterRead() {};
 
     void disconnectObserverFromAllSignals( SignalObserver* observer );
 
@@ -200,7 +200,7 @@ protected:
     /**
      * Add a method to the object
      */
-    void addMethod( MethodHandle* method, const std::string& keyword, MethodHandle::Type type );
+    void addMethod( MethodHandle* method, const std::string& keyword );
 
 private:
     ObjectHandle( const ObjectHandle& )            = delete;
