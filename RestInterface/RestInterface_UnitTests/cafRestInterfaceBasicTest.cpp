@@ -531,7 +531,7 @@ TEST_F( RestTest, ObjectDeepCopyVsShallowCopy )
     auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
 
     auto clientDemoObjectReference = clientDocument->demoObject.object();
-    auto clientDemoObjectClone     = clientDocument->demoObject.deepCloneObject();
+    auto clientDemoObjectClone     = caffa::JsonSerializer().cloneObject( clientDemoObjectReference.get() );
 
     std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject().get() );
     CAFFA_TRACE( serverJson );
@@ -583,7 +583,7 @@ TEST_F( RestTest, ObjectDeepCopyFromClient )
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
 
-    auto clientDemoObjectClone = clientDocument->demoObject.deepCloneObject();
+    auto clientDemoObjectClone = caffa::JsonSerializer().cloneObject( clientDocument->demoObject.object().get() );
 
     std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject().get() );
     std::string clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() );
@@ -595,7 +595,7 @@ TEST_F( RestTest, ObjectDeepCopyFromClient )
     clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() );
     ASSERT_NE( serverJson, clientJson );
 
-    clientDocument->demoObject.deepCopyObjectFrom( clientDemoObjectClone );
+    clientDocument->demoObject.setObject( clientDemoObjectClone );
 
     serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject().get() );
     clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() );

@@ -71,15 +71,8 @@ public:
     const std::string&   sessionUuid() const override;
     void                 startKeepAliveThread() override;
 
-    std::shared_ptr<caffa::ObjectHandle> getShallowCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
-                                                                      const std::string& fieldName ) const override;
-
-    std::shared_ptr<caffa::ObjectHandle> getDeepCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
-                                                                   const std::string& fieldName ) const override;
-
-    void deepCopyChildObjectFrom( const caffa::ObjectHandle* objectHandle,
-                                  const std::string&         fieldName,
-                                  const caffa::ObjectHandle* childObject ) override;
+    std::shared_ptr<caffa::ObjectHandle> getChildObject( const caffa::ObjectHandle* objectHandle,
+                                                         const std::string&         fieldName ) const override;
 
     std::vector<std::shared_ptr<caffa::ObjectHandle>> getChildObjects( const caffa::ObjectHandle* objectHandle,
                                                                        const std::string& fieldName ) const override;
