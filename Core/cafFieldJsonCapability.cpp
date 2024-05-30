@@ -13,7 +13,6 @@ using namespace caffa;
 //--------------------------------------------------------------------------------------------------
 FieldJsonCapability::FieldJsonCapability()
     : FieldCapability()
-    , m_serializable( false )
 {
 }
 
@@ -39,14 +38,4 @@ bool FieldJsonCapability::assertValid() const
     }
 
     return true;
-}
-
-bool FieldJsonCapability::isSerializable() const
-{
-    return m_serializable;
-}
-
-void FieldJsonCapability::setSerializable( bool serializable )
-{
-    m_serializable = serializable;
 }
