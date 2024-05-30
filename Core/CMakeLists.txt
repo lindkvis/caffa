@@ -19,7 +19,6 @@ set(PUBLIC_HEADERS
     cafFieldInitHelper.h
     cafFieldHandle.h
     cafFieldValidator.h
-    cafObjectAttribute.h
     cafObjectCapability.h
     cafObjectCollector.h
     cafObjectPerformer.h

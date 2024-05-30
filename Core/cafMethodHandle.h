@@ -19,8 +19,6 @@
 // ##################################################################################################
 #pragma once
 
-#include "cafObjectAttribute.h"
-
 #include <nlohmann/json.hpp>
 
 #include <string>
@@ -53,13 +51,13 @@ protected:
     ObjectFactory*      m_objectFactory;
 };
 
-class MethodHandle : public ObjectAttribute
+class MethodHandle
 {
 public:
-    MethodHandle()           = default;
-    ~MethodHandle() override = default;
+    MethodHandle()  = default;
+    ~MethodHandle() = default;
 
-    std::string keyword() const override { return m_name; }
+    std::string keyword() const { return m_name; }
     void        setArgumentNames( const std::vector<std::string>& argumentNames ) { m_argumentNames = argumentNames; }
     const std::vector<std::string>& argumentNames() const { return m_argumentNames; }
 

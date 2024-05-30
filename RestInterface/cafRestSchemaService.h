@@ -33,7 +33,6 @@ namespace caffa
 class Document;
 class FieldHandle;
 class MethodHandle;
-class ObjectAttribute;
 class ObjectHandle;
 class Session;
 } // namespace caffa
