@@ -45,7 +45,6 @@ set(PROJECT_FILES
     cafChildFieldHandle.cpp
     cafDataField.cpp
     cafFieldHandle.cpp
-    cafObjectCapability.cpp
     cafObjectHandle.cpp
     cafDefaultObjectFactory.cpp
     cafFieldScriptingCapability.cpp
