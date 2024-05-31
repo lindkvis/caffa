@@ -40,6 +40,7 @@
 
 #include <cstddef>
 #include <map>
+#include <memory>
 #include <vector>
 
 // Taken from gtest.h
@@ -115,7 +116,7 @@ public:
         return false;
     }
 
-    BaseType* create( const KeyType& key )
+    std::shared_ptr<BaseType> create( const KeyType& key )
     {
         iterator_type entryIt;
 
@@ -162,14 +163,14 @@ private:
     public:
         ObjectCreatorBase() {}
         virtual ~ObjectCreatorBase() {}
-        virtual BaseType* create() = 0;
+        virtual std::shared_ptr<BaseType> create() = 0;
     };
 
     template <typename TypeToCreate>
     class ObjectCreator : public ObjectCreatorBase
     {
     public:
-        BaseType* create() override { return new TypeToCreate(); }
+        std::shared_ptr<BaseType> create() override { return std::make_shared<TypeToCreate>(); }
     };
 
     // Map to store factory

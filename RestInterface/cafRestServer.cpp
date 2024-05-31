@@ -52,10 +52,10 @@
 
 using namespace caffa::rpc;
 
-RestServer::RestServer( net::io_context&                        ioc,
-                        std::shared_ptr<ssl::context>           sslContext,
-                        tcp::endpoint                           endpoint,
-                        const std::string&                      docRoot,
+RestServer::RestServer( net::io_context&                         ioc,
+                        std::shared_ptr<ssl::context>            sslContext,
+                        tcp::endpoint                            endpoint,
+                        const std::string&                       docRoot,
                         std::shared_ptr<const RestAuthenticator> authenticator )
     : m_ioContext( ioc )
     , m_sslContext( sslContext )
@@ -65,7 +65,7 @@ RestServer::RestServer( net::io_context&                        ioc,
 {
     for ( auto key : RestServiceFactory::instance()->allKeys() )
     {
-        auto service    = std::shared_ptr<RestServiceInterface>( RestServiceFactory::instance()->create( key ) );
+        auto service    = RestServiceFactory::instance()->create( key );
         m_services[key] = service;
     }
 
