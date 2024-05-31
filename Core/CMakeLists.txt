@@ -14,7 +14,6 @@ set(PUBLIC_HEADERS
     cafJsonSerializer.h
     cafMethod.h
     cafObject.h
-    cafSerializer.h
     cafSession.h
   )
 
@@ -26,7 +25,6 @@ set(PROJECT_FILES
     cafJsonConversionHelpers.cpp
     cafJsonSerializer.cpp
     cafObject.cpp
-    cafSerializer.cpp
     cafSession.cpp
 )
 

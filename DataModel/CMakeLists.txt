@@ -35,6 +35,7 @@ set(PUBLIC_HEADERS
     cafSignal.h
     cafMethodHandle.h
     cafMethodInitHelper.h
+    cafSerializer.h
   )
 
 set(PROJECT_FILES
@@ -50,6 +51,7 @@ set(PROJECT_FILES
     cafFieldScriptingCapability.cpp
     cafSignal.cpp
     cafVisitor.cpp
+    cafSerializer.cpp
 )
 
 if(CAFFA_BUILD_SHARED)
