@@ -1,18 +1,12 @@
 #include "Parent.h"
 #include "Child.h"
 
-#include "gtest.h"
-
 CAFFA_SOURCE_INIT( Parent )
 
 Parent::Parent()
 {
-    initField( m_simpleObjectsField, "SimpleObjects" );
-    initField( m_simpleObjectF, "SimpleObject" );
-}
-
-Parent::~Parent()
-{
+    addField( m_simpleObjectsField, "SimpleObjects" );
+    addField( m_simpleObjectF, "SimpleObject" );
 }
 
 void Parent::doSome()
@@ -24,6 +18,8 @@ void Parent::doSome()
         // TestObj* to = c->m_testObj();
     }
 }
+
+#include "gtest.h"
 
 TEST( IncludeTest, Basic )
 {

@@ -6,10 +6,11 @@
 
 class Child : public caffa::Object
 {
-    CAFFA_HEADER_INIT( Child, Object )
+    CAFFA_HEADER_INIT(Child, Object)
 
 public:
     Child();
+
     ~Child();
 
     caffa::ChildField<TestObj*> m_testObj;

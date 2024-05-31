@@ -12,6 +12,7 @@ class Parent : public caffa::Object
 
 public:
     Parent();
+    ~Parent();
 
     void doSome();
 

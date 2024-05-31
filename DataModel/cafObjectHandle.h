@@ -24,8 +24,9 @@
 #pragma once
 
 #include "cafAssert.h"
-#include "cafFieldHandle.h"
 #include "cafLogger.h"
+
+#include "cafFieldHandle.h"
 #include "cafMethodHandle.h"
 #include "cafObjectCapability.h"
 #include "cafSignal.h"
@@ -182,12 +183,12 @@ protected:
     /**
      * Add a field to the object
      */
-    void addField( FieldHandle* field, const std::string& keyword );
+    void addField( FieldHandle& field, const std::string& keyword );
 
     /**
      * Add a method to the object
      */
-    void addMethod( MethodHandle* method, const std::string& keyword );
+    void addMethod( MethodHandle& method, const std::string& keyword );
 
 private:
     ObjectHandle( const ObjectHandle& )            = delete;

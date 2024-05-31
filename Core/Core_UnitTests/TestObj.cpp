@@ -1,8 +1,10 @@
 #include "TestObj.h"
 
+CAFFA_SOURCE_INIT( TestObj )
+
 TestObj::TestObj()
 {
-    this->addField( &m_position, "Position" );
+    initField( m_position, "Position" ).withDefault( 8765.2 );
 }
 
 TestObj::~TestObj()

@@ -1,12 +1,15 @@
 #pragma once
 
 #include "cafField.h"
-#include "cafObjectHandle.h"
+#include "cafObject.h"
 
-class TestObj : public caffa::ObjectHandle
+class TestObj : public caffa::Object
 {
+    CAFFA_HEADER_INIT( TestObj, Object );
+
 public:
     TestObj();
+
     ~TestObj();
 
     caffa::Field<double> m_position;

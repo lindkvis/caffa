@@ -16,39 +16,37 @@
 //    for more details.
 //
 // ##################################################################################################
+#pragma once
 
-#include "cafObjectJsonConversion.h"
+#include "cafAppEnum.h"
+#include "cafObjectHandle.h"
 
-#include "cafJsonSerializer.h"
+#include <nlohmann/json.hpp>
+
+#include <memory>
 
 namespace caffa
 {
 
-void to_json( nlohmann::json& jsonValue, const ObjectHandle& object )
+void to_json( nlohmann::json& jsonValue, const ObjectHandle& object );
+void from_json( const nlohmann::json& jsonValue, ObjectHandle& object );
+
+void to_json( nlohmann::json& jsonValue, std::shared_ptr<const ObjectHandle> object );
+void from_json( const nlohmann::json& jsonValue, std::shared_ptr<ObjectHandle> object );
+
+template <typename Enum>
+void to_json( nlohmann::json& jsonValue, const AppEnum<Enum>& appEnum )
 {
-    JsonSerializer serializer;
-    serializer.writeObjectToJson( &object, jsonValue );
+    std::stringstream stream;
+    stream << appEnum;
+    jsonValue = stream.str();
 }
 
-void from_json( const nlohmann::json& jsonValue, ObjectHandle& object )
+template <typename Enum>
+void from_json( const nlohmann::json& jsonValue, AppEnum<Enum>& appEnum )
 {
-    JsonSerializer serializer;
-    serializer.readObjectFromString( &object, jsonValue );
+    std::stringstream stream( jsonValue.get<std::string>() );
+    stream >> appEnum;
 }
 
-void to_json( nlohmann::json& jsonValue, std::shared_ptr<const ObjectHandle> object )
-{
-    if ( object )
-    {
-        to_json( jsonValue, *object );
-    }
-}
-
-void from_json( const nlohmann::json& jsonValue, std::shared_ptr<ObjectHandle> object )
-{
-    if ( object )
-    {
-        from_json( jsonValue, *object );
-    }
-}
 } // namespace caffa

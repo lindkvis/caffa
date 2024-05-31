@@ -8,7 +8,7 @@
 #include "cafFieldJsonCapability.h"
 #include "cafFieldJsonCapabilitySpecializations.h"
 #include "cafFieldProxyAccessor.h"
-#include "cafFieldValidator.h"
+#include "cafFieldRangeValidator.h"
 #include "cafJsonSerializer.h"
 #include "cafMethod.h"
 #include "cafObject.h"
@@ -57,16 +57,33 @@ public:
                     "setEnum",
                     [this]( caffa::AppEnum<TestEnumType> val ) -> void { return m_proxyEnumField.setValue( val ); } )
             .withArgumentNames( { "enum" } );
+        initMethod( clone,
+                    "clone",
+                    std::bind(
+                        [this]() -> std::shared_ptr<DemoObject>
+                        {
+                            caffa::ObjectFactory* objectFactory = caffa::DefaultObjectFactory::instance();
+                            auto                  object =
+                                caffa::JsonSerializer( objectFactory ).setSerializeUuids( false ).copyBySerialization( this );
+                            return std::dynamic_pointer_cast<DemoObject>( object );
+                        } ) )
+            .makeConst();
+
+        initMethod( copyFrom, "copyFrom", std::bind( &DemoObject::_copyFrom, this, std::placeholders::_1 ) )
+            .withArgumentNames( { "rhs" } )
+            .makeConst();
     }
 
     ~DemoObject() {}
 
     // Fields
 
-    caffa::Field<caffa::AppEnum<TestEnumType>>          m_proxyEnumField;
-    caffa::Field<double>                                m_proxyDoubleField;
-    caffa::Method<caffa::AppEnum<TestEnumType>()>       getEnum;
-    caffa::Method<void( caffa::AppEnum<TestEnumType> )> setEnum;
+    caffa::Field<caffa::AppEnum<TestEnumType>>               m_proxyEnumField;
+    caffa::Field<double>                                     m_proxyDoubleField;
+    caffa::Method<caffa::AppEnum<TestEnumType>()>            getEnum;
+    caffa::Method<void( caffa::AppEnum<TestEnumType> )>      setEnum;
+    caffa::Method<std::shared_ptr<DemoObject>()>             clone;
+    caffa::Method<void( std::shared_ptr<const DemoObject> )> copyFrom;
 
 private:
     void setDoubleMember( const double& d )
@@ -82,6 +99,12 @@ private:
 
     void setEnumMember( const caffa::AppEnum<TestEnumType>& val ) { m_enumMember = val.value(); }
     caffa::AppEnum<TestEnumType> enumMember() const { return m_enumMember; }
+    void                         _copyFrom( std::shared_ptr<const DemoObject> rhs )
+    {
+        caffa::JsonSerializer serializer;
+        std::string           json = serializer.writeObjectToString( rhs.get() );
+        serializer.readObjectFromString( this, json );
+    }
 
     double       m_doubleMember;
     TestEnumType m_enumMember;
@@ -136,8 +159,28 @@ TEST( BaseTest, FieldWrite )
     ASSERT_EQ( serializedString, secondSerializedString );
 }
 
+TEST( BaseTest, Methods )
+{
+    DemoObject object;
+
+    EXPECT_EQ( DemoObject::T1, object.getEnum() );
+    object.setEnum( DemoObject::T2 );
+
+    object.m_proxyDoubleField = 589.123;
+
+    EXPECT_DOUBLE_EQ( 589.123, object.m_proxyDoubleField() );
+
+    auto result = object.clone();
+    EXPECT_TRUE( result != nullptr );
+    EXPECT_DOUBLE_EQ( object.m_proxyDoubleField(), result->m_proxyDoubleField() );
+
+    caffa::JsonSerializer serializer;
+    CAFFA_DEBUG( "Original: " << serializer.writeObjectToString( &object ) );
+    CAFFA_DEBUG( "Clone: " << serializer.writeObjectToString( result.get() ) );
+}
+
 //--------------------------------------------------------------------------------------------------
-/// Read/write fields to a valid Xml document encoded in a std::string
+/// Read/write fields to a valid document encoded in a std::string
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, MethodWrite )
 {
@@ -178,7 +221,7 @@ public:
 };
 CAFFA_SOURCE_INIT( InheritedDemoObj )
 
-using IntRangeValidator = caffa::RangeValidator<int>;
+using IntFieldRangeValidator = caffa::FieldRangeValidator<int>;
 
 class SimpleObj : public caffa::Object
 {
@@ -216,7 +259,7 @@ public:
     }
     void setUpRange( int minimum, int maximum )
     {
-        m_up.addValidator( std::make_unique<IntRangeValidator>( minimum, maximum ) );
+        m_up.addValidator( std::make_unique<IntFieldRangeValidator>( minimum, maximum ) );
     }
 
     double m_doubleMember;

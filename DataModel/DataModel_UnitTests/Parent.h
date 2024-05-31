@@ -2,17 +2,17 @@
 
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
-#include "cafObject.h"
+#include "cafObjectHandle.h"
+#include "cafObjectMacros.h"
 
 class Child;
 
-class Parent : public caffa::Object
+class Parent : public caffa::ObjectHandle
 {
-    CAFFA_HEADER_INIT( Parent, Object )
+    CAFFA_HEADER_INIT( Parent, ObjectHandle );
 
 public:
     Parent();
-    ~Parent();
 
     void doSome();
 

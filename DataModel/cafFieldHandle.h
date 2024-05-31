@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cafSignal.h"
+#include "cafFieldCapability.h"
 
 #include <list>
 #include <memory>
@@ -9,7 +9,6 @@
 
 namespace caffa
 {
-class FieldCapability;
 class ObjectHandle;
 
 class Editor;
@@ -18,11 +17,11 @@ class Inspector;
 //==================================================================================================
 /// Base class for all fields, making it possible to handle them generically
 //==================================================================================================
-class FieldHandle : public SignalEmitter
+class FieldHandle
 {
 public:
     FieldHandle();
-    ~FieldHandle() override;
+    virtual ~FieldHandle();
 
     std::string         keyword() const { return m_keyword; }
     ObjectHandle*       ownerObject();

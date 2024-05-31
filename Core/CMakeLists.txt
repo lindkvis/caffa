@@ -3,76 +3,31 @@ cmake_minimum_required(VERSION 3.16)
 project(caffaCore)
 
 set(PUBLIC_HEADERS
-    cafAppEnum.h
-    cafFactory.h
-    cafChildArrayField.h
-    cafChildArrayField.inl
-    cafChildArrayFieldAccessor.h
-    cafChildFieldHandle.h
-    cafChildField.h
-    cafChildField.inl
-    cafChildFieldAccessor.h
-    cafDataFieldAccessor.h
-    cafDataField.h
-    cafField.h
-    cafFieldCapability.h
-    cafFieldInitHelper.h
-    cafFieldHandle.h
-    cafFieldValidator.h
-    cafObjectCapability.h
-    cafObjectCollector.h
-    cafObjectPerformer.h
-    cafObjectHandle.h
-    cafPortableDataType.h
-    cafFieldProxyAccessor.h
-    cafChildArrayFieldHandle.h
-    cafTypedField.h
-    cafSignal.h
-    cafSerializer.h
-    cafMethodHandle.h
-    cafMethod.h
-    cafMethodInitHelper.h
-    cafObjectMacros.h
-    cafDefaultObjectFactory.h
-    cafObjectFactory.h
-    cafObject.h
-    cafObjectJsonConversion.h
-    cafObjectPortableDataType.h
-    cafFieldScriptingCapability.h
-    cafDocument.h
     cafApplication.h
-    cafSession.h
-    cafFieldDocumentationCapability.h
+    cafDocument.h
     cafFieldJsonCapabilitySpecializations.h
     cafFieldJsonCapabilitySpecializations.inl
     cafFieldJsonCapability.h
+    cafFieldRangeValidator.h
+    cafJsonConversionHelpers.h
     cafJsonDataType.h
     cafJsonSerializer.h
+    cafMethod.h
+    cafObject.h
+    cafSerializer.h
+    cafSession.h
   )
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
-    cafChildArrayFieldAccessor.cpp
-    cafChildFieldAccessor.cpp
-    cafChildFieldHandle.cpp
-    cafDataField.cpp
-    cafFieldCapability.cpp
-    cafFieldHandle.cpp
-    cafObjectCapability.cpp
-    cafObjectHandle.cpp
-    cafSignal.cpp
-    cafSerializer.cpp
-    cafDefaultObjectFactory.cpp
-    cafObject.cpp
-    cafFieldScriptingCapability.cpp
-    cafDocument.cpp
     cafApplication.cpp
-    cafSession.cpp
-    cafFieldDocumentationCapability.cpp
-    cafVisitor.cpp
+    cafDocument.cpp
     cafFieldJsonCapability.cpp
+    cafJsonConversionHelpers.cpp
     cafJsonSerializer.cpp
-    cafObjectJsonConversion.cpp
+    cafObject.cpp
+    cafSerializer.cpp
+    cafSession.cpp
 )
 
 if(CAFFA_BUILD_SHARED)
@@ -95,7 +50,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(
   ${PROJECT_NAME}
-  PUBLIC caffaBase nlohmann_json::nlohmann_json)
+  PUBLIC caffaDataModel nlohmann_json::nlohmann_json)
 
 install(
   TARGETS ${PROJECT_NAME}

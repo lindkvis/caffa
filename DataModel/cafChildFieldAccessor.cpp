@@ -18,7 +18,6 @@
 //
 #include "cafChildFieldAccessor.h"
 
-#include "cafJsonSerializer.h"
 #include "cafObjectHandle.h"
 
 using namespace caffa;

@@ -68,6 +68,7 @@ add_subdirectory(ThirdParty/gtest)
 add_subdirectory(ThirdParty/caffa-base)
 
 # libraries
+add_subdirectory(DataModel)
 add_subdirectory(Core)
 add_subdirectory(RpcBase)
 
@@ -82,18 +83,10 @@ if(CAFFA_REST_INTERFACE)
 endif()
 
 if(CAFFA_BUILD_UNIT_TESTS)
+  add_subdirectory(DataModel/DataModel_UnitTests)
+  add_subdirectory(Core/Json_UnitTests)
   add_subdirectory(Core/Core_UnitTests)
-  add_subdirectory(Core/IoCore_UnitTests)
-  add_subdirectory(Core/ProjectDataModel_UnitTests)
   add_subdirectory(TestData)
-endif()
-
-# Organize sub-projects into folders on Visual Studio Turn on using solution folders
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-set_property(TARGET caffaCore PROPERTY FOLDER "Core")
-if(CAFFA_BUILD_UNIT_TESTS)
-  set_property(TARGET caffaCore_UnitTests caffaIoCore_UnitTests PROPERTY FOLDER "Core")
 endif()
 
 if(CAFFA_BUILD_DOCS)

@@ -18,6 +18,7 @@
 //
 #pragma once
 
+#include "cafJsonConversionHelpers.h"
 #include "cafJsonDataType.h"
 #include "cafRestServiceInterface.h"
 
@@ -91,12 +92,12 @@ public:
 
     nlohmann::json schema() const override
     {
-        std::string locString = ( m_location == Location::PATH ) ? "path" : "query";
-        auto        schema    = nlohmann::json{ { "name", m_name },
-                                                { "in", locString },
-                                                { "required", m_required },
-                                                { "description", m_description },
-                                                { "schema", caffa::JsonDataType<DataType>::jsonType() } };
+        std::string    locString = ( m_location == Location::PATH ) ? "path" : "query";
+        nlohmann::json schema    = nlohmann::json{ { "name", m_name },
+                                                   { "in", locString },
+                                                   { "required", m_required },
+                                                   { "description", m_description },
+                                                   { "schema", caffa::JsonDataType<DataType>::jsonType() } };
         if ( m_defaultValue )
         {
             schema["default"] = *m_defaultValue;

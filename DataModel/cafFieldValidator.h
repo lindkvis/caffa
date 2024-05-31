@@ -23,8 +23,6 @@
 
 #include "cafAssert.h"
 
-#include <nlohmann/json.hpp>
-
 #include <memory>
 #include <sstream>
 #include <string>
@@ -32,7 +30,6 @@
 
 namespace caffa
 {
-class Serializer;
 
 /**
  * @brief An abstract field validator interface for validating field values
@@ -67,20 +64,18 @@ public:
 
     virtual ~FieldValidatorInterface() = default;
     /**
-     * @brief Read the validator from JSON.
+     * @brief Read the validator from string.
      *
-     * @param jsonFieldObject the JSON value to read from
-     * @param serializer the serializer object
+     * @param string String to read the validator from
      */
-    virtual void readFromJson( const nlohmann::json& jsonFieldObject, const Serializer& serializer ) = 0;
+    virtual void readFromString( const std::string& string ) = 0;
 
     /**
-     * @brief Write the validator to JSON.
+     * @brief Write the validator to string.
      *
-     * @param jsonFieldObject to JSON value to write to.
-     * @param serializer the serializer object
+     * @param string String to write the validator to
      */
-    virtual void writeToJson( nlohmann::json& jsonFieldObject, const Serializer& serializer ) const = 0;
+    virtual void writeToString( std::string& string ) const = 0;
 
     /**
      * @brief Get the severity of a failure of the validator
@@ -118,69 +113,6 @@ public:
      * @return false if not
      */
     virtual std::pair<bool, std::string> validate( const DataType& value ) const = 0;
-};
-
-/**
- * @brief Simple range validator.
- *
- * @tparam DataType
- */
-template <typename DataType>
-class RangeValidator : public FieldValidator<DataType>
-{
-public:
-    using FailureSeverity = FieldValidatorInterface::FailureSeverity;
-
-    RangeValidator( DataType minimum, DataType maximum, FailureSeverity failureSeverity = FailureSeverity::VALIDATOR_ERROR )
-        : FieldValidator<DataType>( failureSeverity )
-        , m_minimum( minimum )
-        , m_maximum( maximum )
-    {
-    }
-
-    void readFromJson( const nlohmann::json& jsonFieldObject, const caffa::Serializer& serializer ) override
-    {
-        if ( jsonFieldObject.is_object() )
-        {
-            if ( jsonFieldObject.contains( "minimum" ) )
-            {
-                m_minimum = jsonFieldObject["minimum"];
-            }
-            if ( jsonFieldObject.contains( "maximum" ) )
-            {
-                m_maximum = jsonFieldObject["maximum"];
-            }
-        }
-    }
-
-    void writeToJson( nlohmann::json& jsonFieldObject, const caffa::Serializer& serializer ) const override
-    {
-        CAFFA_ASSERT( jsonFieldObject.is_object() );
-        jsonFieldObject["minimum"] = m_minimum;
-        jsonFieldObject["maximum"] = m_maximum;
-    }
-
-    std::pair<bool, std::string> validate( const DataType& value ) const override
-    {
-        bool valid = m_minimum <= value && value <= m_maximum;
-        if ( !valid )
-        {
-            std::stringstream ss;
-            ss << "The value " << value << " is outside the limits [" << m_minimum << ", " << m_maximum << "]";
-            return std::make_pair( false, ss.str() );
-        }
-        return std::make_pair( true, "" );
-    }
-
-    static std::unique_ptr<RangeValidator<DataType>>
-        create( DataType minimum, DataType maximum, FailureSeverity failureSeverity = FailureSeverity::VALIDATOR_ERROR )
-    {
-        return std::make_unique<RangeValidator<DataType>>( minimum, maximum, failureSeverity );
-    }
-
-private:
-    DataType m_minimum;
-    DataType m_maximum;
 };
 
 } // namespace caffa

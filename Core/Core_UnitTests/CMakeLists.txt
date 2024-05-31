@@ -2,27 +2,15 @@ cmake_minimum_required(VERSION 3.16)
 
 project(caffaCore_UnitTests)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(PROJECT_FILES
-    cafCore_UnitTests.cpp
-    cafCoreBasicTest.cpp
-    cafChildArrayFieldHandleTest.cpp
-    cafSignalTest.cpp
-    Child.cpp
-    Child.h
-    Parent.cpp
-    Parent.h
-    TestObj.cpp
-    TestObj.h)
+set(PROJECT_FILES cafBasicTest.cpp cafCore_UnitTests.cpp Child.cpp Parent.cpp TestObj.cpp)
 
 # add the executable
 add_executable(${PROJECT_NAME} ${PROJECT_FILES})
 
+target_link_libraries(${PROJECT_NAME} PRIVATE caffaCore gtest ${THREAD_LIBRARY} nlohmann_json::nlohmann_json)
+
 source_group("" FILES ${PROJECT_FILES})
-
-find_package(Boost 1.71.0 REQUIRED COMPONENTS program_options)
-
-target_link_libraries(${PROJECT_NAME} gtest caffaCore Boost::program_options ${THREAD_LIBRARY})
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

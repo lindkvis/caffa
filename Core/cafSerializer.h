@@ -62,7 +62,7 @@ public:
     virtual std::string readUUIDFromObjectString( const std::string& string ) const = 0;
 
     /**
-     * Convenience method to read this particular object (with children) from a json string
+     * Convenience method to read this particular object (with children) from a string
      * @param object ObjectHandle to read in to.
      * @param string The text string containing the object
      */

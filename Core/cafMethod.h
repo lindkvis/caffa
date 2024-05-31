@@ -20,12 +20,12 @@
 #pragma once
 
 #include "cafAssert.h"
+#include "cafJsonConversionHelpers.h"
 #include "cafJsonDataType.h"
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
 #include "cafMethodHandle.h"
 #include "cafObjectFactory.h"
-#include "cafObjectJsonConversion.h"
 #include "cafSession.h"
 
 #include <nlohmann/json.hpp>
@@ -123,7 +123,7 @@ public:
         return jsonMethod;
     }
 
-    nlohmann::json jsonSchema() const override
+    nlohmann::json jsonSchema() const
     {
         auto jsonMethod = nlohmann::json::object();
         CAFFA_ASSERT( !keyword().empty() );

@@ -7,8 +7,7 @@ class FieldHandle;
 class FieldCapability
 {
 public:
-    FieldCapability();
-    virtual ~FieldCapability();
+    virtual ~FieldCapability() = default;
 
 protected:
     friend class FieldHandle;

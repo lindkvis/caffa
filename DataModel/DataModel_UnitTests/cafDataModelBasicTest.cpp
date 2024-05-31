@@ -7,53 +7,87 @@
 #include "cafChildField.h"
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
-#include "cafJsonSerializer.h"
-#include "cafMethod.h"
-#include "cafObject.h"
+#include "cafFieldValidator.h"
+#include "cafObjectHandle.h"
 #include "cafPortableDataType.h"
-#include "cafSession.h"
 #include "cafTypedField.h"
 
 #include <functional>
 #include <map>
 #include <vector>
-namespace caffa
-{
-class Serializer;
-}
-
-using IntRangeValidator = caffa::RangeValidator<int>;
 
 using namespace std::placeholders;
 
-class DemoObject : public caffa::Object
+template <typename DataType>
+class TestRangeValidator : public caffa::FieldValidator<DataType>
 {
-    CAFFA_HEADER_INIT( DemoObject, Object )
+public:
+    using FailureSeverity = caffa::FieldValidatorInterface::FailureSeverity;
+
+    TestRangeValidator( DataType minimum, DataType maximum, FailureSeverity failureSeverity = FailureSeverity::VALIDATOR_ERROR )
+        : caffa::FieldValidator<DataType>( failureSeverity )
+        , m_minimum( minimum )
+        , m_maximum( maximum )
+    {
+    }
+
+    void readFromString( const std::string& string ) override {}
+
+    void writeToString( std::string& string ) const override {}
+
+    std::pair<bool, std::string> validate( const DataType& value ) const override
+    {
+        bool valid = m_minimum <= value && value <= m_maximum;
+        if ( !valid )
+        {
+            std::stringstream ss;
+            ss << "The value " << value << " is outside the limits [" << m_minimum << ", " << m_maximum << "]";
+            return std::make_pair( false, ss.str() );
+        }
+        return std::make_pair( true, "" );
+    }
+
+    static std::unique_ptr<TestRangeValidator<DataType>>
+        create( DataType minimum, DataType maximum, FailureSeverity failureSeverity = FailureSeverity::VALIDATOR_ERROR )
+    {
+        return std::make_unique<TestRangeValidator<DataType>>( minimum, maximum, failureSeverity );
+    }
+
+private:
+    DataType m_minimum;
+    DataType m_maximum;
+};
+
+class DemoObject : public caffa::ObjectHandle
+{
+    CAFFA_HEADER_INIT( DemoObject, ObjectHandle )
 
 public:
     DemoObject()
     {
-        initField( m_proxyDoubleField, "m_proxyDoubleField" );
+        addField( m_proxyDoubleField, "m_proxyDoubleField" );
         auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
         doubleProxyAccessor->registerSetMethod( std::bind( &DemoObject::setDoubleMember, this, _1 ) );
         doubleProxyAccessor->registerGetMethod( std::bind( &DemoObject::doubleMember, this ) );
         m_proxyDoubleField.setAccessor( std::move( doubleProxyAccessor ) );
 
-        initField( m_proxyIntField, "m_proxyIntField" );
+        addField( m_proxyIntField, "m_proxyIntField" );
         auto intProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<int>>();
         intProxyAccessor->registerSetMethod( std::bind( &DemoObject::setIntMember, this, _1 ) );
         intProxyAccessor->registerGetMethod( std::bind( &DemoObject::intMember, this ) );
         m_proxyIntField.setAccessor( std::move( intProxyAccessor ) );
 
-        initField( m_proxyStringField, "m_proxyStringField" );
+        addField( m_proxyStringField, "m_proxyStringField" );
         auto stringProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::string>>();
         stringProxyAccessor->registerSetMethod( std::bind( &DemoObject::setStringMember, this, _1 ) );
         stringProxyAccessor->registerGetMethod( std::bind( &DemoObject::stringMember, this ) );
         m_proxyStringField.setAccessor( std::move( stringProxyAccessor ) );
 
-        initField( m_memberDoubleField, "m_memberDoubleField" );
-        initField( m_memberIntField, "m_memberIntField" ).withValidator( IntRangeValidator::create( -10, 1000 ) );
-        initField( m_memberStringField, "m_memberStringField" );
+        addField( m_memberDoubleField, "m_memberDoubleField" );
+        addField( m_memberIntField, "m_memberIntField" );
+        m_memberIntField.addValidator( TestRangeValidator<int>::create( -10, 1000 ) );
+
+        addField( m_memberStringField, "m_memberStringField" );
 
         // Default values
         m_doubleMember = 2.1;
@@ -63,32 +97,6 @@ public:
         m_memberDoubleField = 0.0;
         m_memberIntField    = 0;
         m_memberStringField = "";
-
-        initMethod( multiply,
-                    "multiply",
-                    std::bind( []( int a, int b ) -> double { return a * b; }, std::placeholders::_1, std::placeholders::_2 ) )
-            .withArgumentNames( { "a", "b" } )
-            .makeConst();
-
-        initMethod( add, "add", std::bind( &DemoObject::_add, this, std::placeholders::_1, std::placeholders::_2 ) )
-            .withArgumentNames( { "a", "b" } )
-            .makeConst();
-
-        initMethod( clone,
-                    "clone",
-                    std::bind(
-                        [this]() -> std::shared_ptr<DemoObject>
-                        {
-                            caffa::ObjectFactory* objectFactory = caffa::DefaultObjectFactory::instance();
-                            auto                  object =
-                                caffa::JsonSerializer( objectFactory ).setSerializeUuids( false ).copyBySerialization( this );
-                            return std::dynamic_pointer_cast<DemoObject>( object );
-                        } ) )
-            .makeConst();
-
-        initMethod( copyFrom, "copyFrom", std::bind( &DemoObject::_copyFrom, this, std::placeholders::_1 ) )
-            .withArgumentNames( { "rhs" } )
-            .makeConst();
     }
 
     // Fields
@@ -99,11 +107,6 @@ public:
     caffa::Field<double>      m_memberDoubleField;
     caffa::Field<int>         m_memberIntField;
     caffa::Field<std::string> m_memberStringField;
-
-    caffa::Method<double( int, int )>                        multiply;
-    caffa::Method<int( int, int )>                           add;
-    caffa::Method<std::shared_ptr<DemoObject>()>             clone;
-    caffa::Method<void( std::shared_ptr<const DemoObject> )> copyFrom;
 
     // Internal class members accessed by proxy fields
     double doubleMember() const
@@ -123,15 +126,6 @@ public:
     std::string stringMember() const { return m_stringMember; }
     void        setStringMember( const std::string& val ) { m_stringMember = val; }
 
-    int _add( int a, int b ) const { return a + b; }
-
-    void _copyFrom( std::shared_ptr<const DemoObject> rhs )
-    {
-        caffa::JsonSerializer serializer;
-        std::string           json = serializer.writeObjectToString( rhs.get() );
-        serializer.readObjectFromString( this, json );
-    }
-
 private:
     double      m_doubleMember;
     int         m_intMember;
@@ -147,8 +141,8 @@ class InheritedDemoObj : public DemoObject
 public:
     InheritedDemoObj()
     {
-        initField( m_texts, "Texts" );
-        initField( m_childArrayField, "DemoObjectects" );
+        addField( m_texts, "Texts" );
+        addField( m_childArrayField, "DemoObjectects" );
     }
 
     caffa::Field<std::string>           m_texts;
@@ -179,7 +173,7 @@ TEST( BaseTest, TestInheritanceStack )
             validEntries.push_back( entry );
         }
     }
-    ASSERT_EQ( (size_t)4, validEntries.size() );
+    ASSERT_EQ( (size_t)3, validEntries.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -229,18 +223,18 @@ TEST( BaseTest, TestProxyTypedField )
     ASSERT_TRUE( a->m_proxyStringField.value() == "123" );
 }
 
-class A : public caffa::Object
+class A : public caffa::ObjectHandle
 {
-    CAFFA_HEADER_INIT( A, Object )
+    CAFFA_HEADER_INIT( A, ObjectHandle )
 
 public:
     A() {}
 
     explicit A( const std::vector<double>& testValue )
     {
-        initField( field1, "field1" );
-        initField( field2, "field2" );
-        initField( field3, "field3" );
+        addField( field1, "field1" );
+        addField( field2, "field2" );
+        addField( field3, "field3" );
 
         field2 = testValue;
         field3 = field2();
@@ -489,15 +483,15 @@ TEST( BaseTest, ChildArrayFieldHandle )
     EXPECT_TRUE( listField->empty() );
 }
 
-class A2 : public caffa::Object
+class A2 : public caffa::ObjectHandle
 {
-    CAFFA_HEADER_INIT( A2, Object )
+    CAFFA_HEADER_INIT( A2, ObjectHandle )
 
 public:
     explicit A2()
         : b( 0 )
     {
-        initField( field2, "field2" );
+        addField( field2, "field2" );
     }
 
     caffa::ChildField<Child*> field2;
@@ -570,12 +564,12 @@ TEST( BaseTest, Pointer )
     }
 }
 
-class ObjectWithPointerInField : public caffa::Object
+class ObjectWithPointerInField : public caffa::ObjectHandle
 {
-    CAFFA_HEADER_INIT( DemoObject, Object )
+    CAFFA_HEADER_INIT( DemoObject, ObjectHandle )
 
 public:
-    ObjectWithPointerInField() { initField( fieldWithPointer, "fieldWithPointer" ); }
+    ObjectWithPointerInField() { addField( fieldWithPointer, "fieldWithPointer" ); }
 
     caffa::Field<std::shared_ptr<DemoObject>> fieldWithPointer;
 };
@@ -586,58 +580,4 @@ TEST( BaseTest, PointerInRegularField )
     object.fieldWithPointer = std::make_shared<DemoObject>();
 
     // object.fieldWithPointer->
-}
-
-TEST( BaseTest, Methods )
-{
-    DemoObject object;
-
-    EXPECT_EQ( 5, object.add( 3, 2 ) );
-    EXPECT_DOUBLE_EQ( 12.0, object.multiply( 4, 3 ) );
-
-    object.setIntMember( 513 );
-    object.setDoubleMember( 589.123 );
-
-    EXPECT_EQ( 513, object.intMember() );
-    EXPECT_DOUBLE_EQ( 589.123, object.doubleMember() );
-
-    CAFFA_DEBUG( "Clone method skeleton: " << object.clone.jsonSchema().dump() );
-
-    auto result = object.clone();
-    EXPECT_TRUE( result != nullptr );
-    EXPECT_EQ( object.intMember(), result->intMember() );
-    EXPECT_DOUBLE_EQ( object.doubleMember(), result->doubleMember() );
-
-    caffa::JsonSerializer serializer;
-    CAFFA_DEBUG( "Clone: " << serializer.writeObjectToString( result.get() ) );
-
-    auto session = caffa::Session::create( caffa::Session::Type::REGULAR );
-
-    {
-        CAFFA_DEBUG( "Method skeleton: " << object.add.jsonSchema().dump() );
-
-        auto argumentJson = object.add.toJson( 3, 8 );
-        CAFFA_DEBUG( "Argument json: " << argumentJson.dump() );
-        auto stringResult = object.add.execute( session, argumentJson.dump() );
-        CAFFA_DEBUG( "String result: " << stringResult );
-        auto result = nlohmann::json::parse( stringResult );
-        EXPECT_EQ( 11, result.get<int>() );
-    }
-
-    {
-        auto result = nlohmann::json::parse( object.multiply.execute( session, object.multiply.toJson( 4, 5 ).dump() ) );
-        EXPECT_DOUBLE_EQ( 20.0, result.get<int>() );
-    }
-
-    {
-        auto stringArguments = object.multiply.toJson( 4, 5 );
-        CAFFA_DEBUG( "Parameter json: " << stringArguments );
-    }
-
-    result->setIntMember( 10001 );
-    EXPECT_EQ( 10001, result->intMember() );
-    object.copyFrom( result );
-    EXPECT_EQ( 10001, object.intMember() );
-
-    CAFFA_DEBUG( "Method skeleton for copyFrom(): " << object.copyFrom.jsonSchema().dump() );
 }

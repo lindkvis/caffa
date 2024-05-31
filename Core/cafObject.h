@@ -22,6 +22,7 @@
 
 #include "cafField.h"
 #include "cafFieldInitHelper.h"
+#include "cafFieldJsonCapabilitySpecializations.h"
 #include "cafMethodInitHelper.h"
 #include "cafObjectHandle.h"
 #include "cafObjectMacros.h"
@@ -45,7 +46,7 @@ public:
     FieldInitHelper<FieldType> initField( FieldType& field, const std::string& keyword )
     {
         AddIoCapabilityToField( &field );
-        addField( &field, keyword );
+        addField( field, keyword );
         return FieldInitHelper( field, keyword );
     }
 
@@ -59,7 +60,7 @@ public:
     MethodInitHelper<MethodType> initMethod( MethodType& method, const std::string& keyword, CallbackT&& callback )
     {
         method.setCallback( callback );
-        addMethod( &method, keyword );
+        addMethod( method, keyword );
 
         return MethodInitHelper<MethodType>( method, keyword );
     }

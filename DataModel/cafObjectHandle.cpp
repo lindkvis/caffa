@@ -88,29 +88,29 @@ void ObjectHandle::disconnectObserverFromAllSignals( SignalObserver* observer )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectHandle::addField( FieldHandle* field, const std::string& keyword )
+void ObjectHandle::addField( FieldHandle& field, const std::string& keyword )
 {
-    field->m_ownerObject = this;
+    field.m_ownerObject = this;
 
     CAFFA_ASSERT( ObjectHandle::isValidKeyword( keyword ) );
     CAFFA_ASSERT( !keyword.empty() );
     CAFFA_ASSERT( !m_fields.contains( keyword ) && "Object already has a field with this keyword!" );
 
-    field->setKeyword( keyword );
-    m_fields[keyword] = field;
+    field.setKeyword( keyword );
+    m_fields[keyword] = &field;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectHandle::addMethod( MethodHandle* method, const std::string& keyword )
+void ObjectHandle::addMethod( MethodHandle& method, const std::string& keyword )
 {
     CAFFA_ASSERT( !keyword.empty() );
     CAFFA_ASSERT( !m_methods.contains( keyword ) && "Object already has a field with this keyword!" );
 
     CAFFA_ASSERT( ObjectHandle::isValidKeyword( keyword ) );
-    method->setName( keyword );
-    m_methods[keyword] = method;
+    method.setName( keyword );
+    m_methods[keyword] = &method;
 }
 
 //--------------------------------------------------------------------------------------------------

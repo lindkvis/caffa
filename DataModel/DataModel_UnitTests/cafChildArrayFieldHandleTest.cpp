@@ -5,20 +5,21 @@
 #include "cafChildField.h"
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
-#include "cafObject.h"
+#include "cafObjectHandle.h"
+#include "cafObjectMacros.h"
 
 #include <string>
 
-class MsjSimpleObj : public caffa::Object
+class MsjSimpleObj : public caffa::ObjectHandle
 {
-    CAFFA_HEADER_INIT( MsjSimpleObj, Object )
+    CAFFA_HEADER_INIT( MsjSimpleObj, ObjectHandle )
 
 public:
     MsjSimpleObj()
-        : Object()
+        : ObjectHandle()
     {
-        initField( name, "Name" );
-        initField( id, "ID" );
+        addField( name, "Name" );
+        addField( id, "ID" );
 
         static int a = 0;
 
@@ -40,7 +41,7 @@ public:
     SimpleObjDerived()
         : MsjSimpleObj()
     {
-        initField( valueA, "valueA" );
+        addField( valueA, "valueA" );
     }
 
     caffa::Field<int> valueA;
@@ -56,7 +57,7 @@ public:
     SimpleObjDerivedOther()
         : MsjSimpleObj()
     {
-        initField( valueDouble, "valueDouble" );
+        addField( valueDouble, "valueDouble" );
     }
 
     caffa::Field<double> valueDouble;
@@ -64,16 +65,16 @@ public:
 
 CAFFA_SOURCE_INIT( SimpleObjDerivedOther )
 
-class ContainerObj : public caffa::Object
+class ContainerObj : public caffa::ObjectHandle
 {
-    CAFFA_HEADER_INIT( ContainerObj, Object )
+    CAFFA_HEADER_INIT( ContainerObj, ObjectHandle )
 
 public:
     ContainerObj()
-        : Object()
+        : ObjectHandle()
     {
-        initField( derivedObjs, "derivedObjs" );
-        initField( derivedOtherObjs, "derivedOtherObjs" );
+        addField( derivedObjs, "derivedObjs" );
+        addField( derivedOtherObjs, "derivedOtherObjs" );
     }
 
     ~ContainerObj() {}

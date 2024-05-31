@@ -1,7 +1,7 @@
 #include "DemoObject.h"
 
 #include "cafFieldProxyAccessor.h"
-#include "cafFieldValidator.h"
+#include "cafFieldRangeValidator.h"
 
 #include <functional>
 
@@ -64,7 +64,10 @@ DemoObject::DemoObject()
     stringVector.setAccessor( std::move( stringVectorProxyAccessor ) );
 
     initField( doubleField, "doubleField" ).withScripting().withDefault( 0.0 );
-    initField( intField, "intField" ).withScripting().withDefault( 0 ).withValidator( RangeValidator<int>::create( -100, 2000 ) );
+    initField( intField, "intField" )
+        .withScripting()
+        .withDefault( 0 )
+        .withValidator( FieldRangeValidator<int>::create( -100, 2000 ) );
     initField( stringField, "stringField" ).withScripting().withDefault( "" );
     initField( intFieldNonScriptable, "intFieldNonScriptable" ).withDefault( -1 );
 
