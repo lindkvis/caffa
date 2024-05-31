@@ -76,7 +76,7 @@ public:
     MethodInitHelper<MethodType> initMethodWithSession( MethodType& method, const std::string& keyword, CallbackT&& callback )
     {
         method.setCallbackWithSession( callback );
-        addMethod( &method, keyword );
+        addMethod( method, keyword );
 
         return MethodInitHelper<MethodType>( method, keyword );
     }

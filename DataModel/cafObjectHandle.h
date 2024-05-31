@@ -32,6 +32,7 @@
 #include "cafSignal.h"
 #include "cafStringTools.h"
 
+#include <algorithm>
 #include <memory>
 #include <string_view>
 #include <type_traits>

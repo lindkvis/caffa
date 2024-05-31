@@ -1,5 +1,6 @@
 
 #include "cafAssert.h"
+#include "cafJsonConversionHelpers.h"
 #include "cafJsonDataType.h"
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
