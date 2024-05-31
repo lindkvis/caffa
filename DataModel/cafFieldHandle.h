@@ -62,6 +62,9 @@ public:
     bool isDeprecated() const;
     void markDeprecated();
 
+    void               setDocumentation( const std::string& documentation );
+    const std::string& documentation() const;
+
 protected:
     bool isInitialized() const { return m_ownerObject != nullptr; }
 
@@ -80,6 +83,8 @@ private:
     std::list<std::unique_ptr<FieldCapability>> m_capabilities;
 
     bool m_isDeprecated;
+
+    std::string m_documentation;
 };
 
 //--------------------------------------------------------------------------------------------------

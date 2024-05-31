@@ -1,6 +1,5 @@
 
 #include "cafAssert.h"
-#include "cafFieldDocumentationCapability.h"
 #include "cafJsonDataType.h"
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
@@ -77,9 +76,9 @@ void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Se
             jsonField["readOnly"] = true;
         }
 
-        if ( auto doc = m_field->template capability<FieldDocumentationCapability>(); doc )
+        if ( !m_field->documentation().empty() )
         {
-            jsonField["description"] = doc->documentation();
+            jsonField["description"] = m_field->documentation();
         }
 
         for ( auto validator : m_field->valueValidators() )
@@ -239,9 +238,9 @@ void FieldJsonCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonField
         {
             jsonField["readOnly"] = true;
         }
-        if ( auto doc = m_field->template capability<FieldDocumentationCapability>(); doc )
+        if ( !m_field->documentation().empty() )
         {
-            jsonField["description"] = doc->documentation();
+            jsonField["description"] = m_field->documentation();
         }
     }
 }
@@ -359,9 +358,9 @@ void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& json
         {
             jsonField["readOnly"] = true;
         }
-        if ( auto doc = m_field->template capability<FieldDocumentationCapability>(); doc )
+        if ( !m_field->documentation().empty() )
         {
-            jsonField["description"] = doc->documentation();
+            jsonField["description"] = m_field->documentation();
         }
     }
     else if ( serializer.serializationType() == Serializer::SerializationType::DATA_FULL ||

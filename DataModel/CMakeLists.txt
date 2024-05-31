@@ -32,7 +32,6 @@ set(PUBLIC_HEADERS
     cafObjectFactory.h
     cafObjectPortableDataType.h
     cafFieldScriptingCapability.h
-    cafFieldDocumentationCapability.h
     cafSignal.h
     cafMethodHandle.h
     cafMethodInitHelper.h
@@ -49,7 +48,6 @@ set(PROJECT_FILES
     cafObjectHandle.cpp
     cafDefaultObjectFactory.cpp
     cafFieldScriptingCapability.cpp
-    cafFieldDocumentationCapability.cpp
     cafSignal.cpp
     cafVisitor.cpp
 )
