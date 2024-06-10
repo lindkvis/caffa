@@ -1,8 +1,6 @@
 #pragma once
 
-#include "cafFieldIoCapability.h"
-
-#include <nlohmann/json.hpp>
+#include "cafFieldCapability.h"
 
 #include <string>
 
@@ -14,14 +12,10 @@ class Serializer;
 //
 //
 //==================================================================================================
-class FieldJsonCapability : public FieldIoCapability
+class FieldIoCapability : public FieldCapability
 {
 public:
-    FieldJsonCapability();
-
-    virtual nlohmann::json jsonType() const = 0;
-
-protected:
-    bool assertValid() const;
+    virtual void readFromString( const std::string& value, const Serializer& serializer ) = 0;
+    virtual void writeToString( std::string& value, const Serializer& serializer ) const  = 0;
 };
 } // End of namespace caffa

@@ -33,7 +33,7 @@ public:
 
     DemoObject()
     {
-        initField( m_proxyDoubleField, "BigNumber" );
+        initField( m_proxyDoubleField, "BigNumber" ).withCapability<caffa::FieldJsonCap<caffa::Field<double>>>();
 
         auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
         doubleProxyAccessor->registerSetMethod( std::bind( &DemoObject::setDoubleMember, this, _1 ) );

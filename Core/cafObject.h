@@ -38,19 +38,6 @@ public:
     ~Object() noexcept override;
 
     /**
-     * Initialises the field with a keyword and registers it with the class
-     * @param field A reference to the field
-     * @param keyword The field keyword. Has to be unique within the class.
-     */
-    template <typename FieldType>
-    FieldInitHelper<FieldType> initField( FieldType& field, const std::string& keyword )
-    {
-        AddIoCapabilityToField( &field );
-        addField( field, keyword );
-        return FieldInitHelper( field, keyword );
-    }
-
-    /**
      * Initialises the method with a keyword and registers it with the class
      * @param method A reference to the method
      * @param keyword The method keyword. Has to be unique within the class.

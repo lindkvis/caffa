@@ -22,9 +22,11 @@ namespace caffa
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void FieldJsonCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
+void FieldJsonCap<FieldType>::readFromString( const std::string& string, const Serializer& serializer )
 {
     this->assertValid();
+
+    auto jsonElement = nlohmann::json::parse( string );
 
     if ( jsonElement.is_null() ) return;
 
@@ -57,9 +59,12 @@ void FieldJsonCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, c
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const
+void FieldJsonCap<FieldType>::writeToString( std::string& string, const Serializer& serializer ) const
 {
     this->assertValid();
+
+    nlohmann::json jsonElement;
+    if ( !string.empty() ) jsonElement = nlohmann::json::parse( string );
 
     if ( serializer.serializationType() == Serializer::SerializationType::DATA_FULL )
     {
@@ -92,7 +97,8 @@ void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Se
     }
 
     CAFFA_TRACE( "Writing field to json " << m_field->keyword() << "(" << m_field->dataType() << ") = " );
-    CAFFA_TRACE( jsonElement.dump() );
+    string = jsonElement.dump();
+    CAFFA_TRACE( string );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,8 +134,10 @@ void FieldJsonCap<FieldType>::setOwner( FieldHandle* owner )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
+void FieldJsonCap<ChildField<DataType*>>::readFromString( const std::string& string, const Serializer& serializer )
 {
+    auto jsonElement = nlohmann::json::parse( string );
+
     CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildField" );
     if ( jsonElement.is_null() )
     {
@@ -217,8 +225,11 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldJsonCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonField, const Serializer& serializer ) const
+void FieldJsonCap<ChildField<DataType*>>::writeToString( std::string& string, const Serializer& serializer ) const
 {
+    nlohmann::json jsonField;
+    if ( !string.empty() ) jsonField = nlohmann::json::parse( string );
+
     auto object = m_field->object();
 
     if ( object )
@@ -244,6 +255,7 @@ void FieldJsonCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonField
             jsonField["description"] = m_field->documentation();
         }
     }
+    string = jsonField.dump();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -279,8 +291,10 @@ void FieldJsonCap<ChildField<DataType*>>::setOwner( FieldHandle* owner )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer )
+void FieldJsonCap<ChildArrayField<DataType*>>::readFromString( const std::string& string, const Serializer& serializer )
 {
+    auto jsonElement = nlohmann::json::parse( string );
+
     m_field->clear();
 
     CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildArrayField " << m_field->keyword() );
@@ -346,8 +360,12 @@ void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::jso
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& jsonField, const Serializer& serializer ) const
+void FieldJsonCap<ChildArrayField<DataType*>>::writeToString( std::string& string, const Serializer& serializer ) const
 {
+    CAFFA_INFO( "Writing child array field to string" );
+    nlohmann::json jsonField;
+    if ( !string.empty() ) jsonField = nlohmann::json::parse( string );
+
     if ( serializer.serializationType() == Serializer::SerializationType::SCHEMA )
     {
         jsonField = JsonDataType<std::vector<DataType>>::jsonType();
@@ -380,6 +398,7 @@ void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& json
         }
         jsonField = jsonArray;
     }
+    string = jsonField.dump();
 }
 
 //--------------------------------------------------------------------------------------------------

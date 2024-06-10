@@ -90,7 +90,6 @@ private:
 
 /**
  * @brief Used to validate the value of data fields
- * Implementations need the the validate method as well as readFromJson and writeToJson.
  *
  * @tparam DataType
  */

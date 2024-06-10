@@ -25,8 +25,8 @@ public:
 
 public:
     // Json Serializing
-    void               readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer ) override;
-    void               writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
+    void               readFromString( const std::string& string, const Serializer& serializer ) override;
+    void               writeToString( std::string& string, const Serializer& serializer ) const override;
     const FieldHandle* owner() const override;
     void               setOwner( FieldHandle* owner ) override;
     nlohmann::json     jsonType() const override;
@@ -48,8 +48,8 @@ public:
 
 public:
     // Json Serializing
-    void               readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer ) override;
-    void               writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
+    void               readFromString( const std::string& string, const Serializer& serializer ) override;
+    void               writeToString( std::string& string, const Serializer& serializer ) const override;
     const FieldHandle* owner() const override;
     void               setOwner( FieldHandle* owner ) override;
     nlohmann::json     jsonType() const override;
@@ -71,8 +71,8 @@ public:
 
 public:
     // Json Serializing
-    void               readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer ) override;
-    void               writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
+    void               readFromString( const std::string& string, const Serializer& serializer ) override;
+    void               writeToString( std::string& string, const Serializer& serializer ) const override;
     const FieldHandle* owner() const override;
     void               setOwner( FieldHandle* owner ) override;
     nlohmann::json     jsonType() const override;
@@ -80,15 +80,6 @@ public:
 private:
     FieldType* m_field;
 };
-
-template <typename FieldType>
-void AddIoCapabilityToField( FieldType* field )
-{
-    if ( !field->template capability<FieldJsonCapability>() )
-    {
-        field->addCapability( std::make_unique<FieldJsonCap<FieldType>>() );
-    }
-}
 
 } // End of namespace caffa
 

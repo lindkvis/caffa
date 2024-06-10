@@ -88,7 +88,7 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
                 auto ioFieldHandle = fieldHandle->capability<FieldJsonCapability>();
                 if ( ioFieldHandle )
                 {
-                    ioFieldHandle->readFromJson( value, *this );
+                    ioFieldHandle->readFromString( value.dump(), *this );
                 }
                 else
                 {
@@ -169,9 +169,9 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
             if ( ioCapability && keyword != "uuid" && ( field->isReadable() || field->isWritable() ) )
             {
-                nlohmann::json value;
-                ioCapability->writeToJson( value, *this );
-                jsonProperties[keyword] = value;
+                std::string string;
+                ioCapability->writeToString( string, *this );
+                jsonProperties[keyword] = nlohmann::json::parse( string );
             }
         }
 
@@ -230,8 +230,9 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
             if ( ioCapability && keyword != "uuid" && field->isReadable() )
             {
-                nlohmann::json value;
-                ioCapability->writeToJson( value, *this );
+                std::string string;
+                ioCapability->writeToString( string, *this );
+                auto value = nlohmann::json::parse( string );
                 if ( !value.is_null() ) jsonObject[keyword] = value;
             }
         }

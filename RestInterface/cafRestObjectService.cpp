@@ -24,6 +24,7 @@
 
 #include "cafDocument.h"
 #include "cafField.h"
+#include "cafFieldJsonCapability.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafJsonSerializer.h"
@@ -382,16 +383,16 @@ RestObjectService::ServiceResponse
                                         serializer.writeObjectToString( childObjects[index].get() ),
                                         nullptr );
             }
-            nlohmann::json jsonValue;
-            ioCapability->writeToJson( jsonValue, serializer );
+            std::string string;
+            ioCapability->writeToString( string, serializer );
 
-            return std::make_tuple( http::status::ok, jsonValue.dump(), nullptr );
+            return std::make_tuple( http::status::ok, string, nullptr );
         }
 
-        nlohmann::json jsonValue;
-        ioCapability->writeToJson( jsonValue, serializer );
+        std::string string;
+        ioCapability->writeToString( string, serializer );
 
-        return std::make_tuple( http::status::ok, jsonValue.dump(), nullptr );
+        return std::make_tuple( http::status::ok, string, nullptr );
     }
     catch ( const std::exception& e )
     {
@@ -428,7 +429,7 @@ RestObjectService::ServiceResponse
                                         "Index does not make sense for a simple Child Field",
                                         nullptr );
             }
-            ioCapability->readFromJson( body, serializer );
+            ioCapability->readFromString( body.dump(), serializer );
             return std::make_tuple( http::status::accepted, "", nullptr );
         }
 
@@ -448,7 +449,7 @@ RestObjectService::ServiceResponse
                                     "Index out of bounds for array field replace item request",
                                     nullptr );
         }
-        ioCapability->readFromJson( body, serializer );
+        ioCapability->readFromString( body.dump(), serializer );
         return std::make_tuple( http::status::accepted, "", nullptr );
     }
     catch ( const std::exception& e )

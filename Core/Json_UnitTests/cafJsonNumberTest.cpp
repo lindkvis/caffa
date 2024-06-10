@@ -18,11 +18,13 @@ class SimpleObjectWithNumbers : public caffa::Object
 public:
     SimpleObjectWithNumbers()
     {
-        initField( m_valueA, "ValueA" );
-        initField( m_valueB, "ValueB" );
+        initField( m_valueA, "ValueA" ).withCapability<caffa::FieldJsonCap<caffa::Field<double>>>();
+        initField( m_valueB, "ValueB" ).withCapability<caffa::FieldJsonCap<caffa::Field<double>>>();
+        ;
 
-        initField( m_floatValueA, "FloatValueA" );
-        initField( m_floatValueB, "FloatValueB" );
+        initField( m_floatValueA, "FloatValueA" ).withCapability<caffa::FieldJsonCap<caffa::Field<float>>>();
+        ;
+        initField( m_floatValueB, "FloatValueB" ).withCapability<caffa::FieldJsonCap<caffa::Field<float>>>();
     }
 
     caffa::Field<double> m_valueA;

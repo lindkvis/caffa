@@ -22,6 +22,7 @@
 #include "cafDataFieldAccessor.h"
 
 #include "cafField.h"
+#include "cafFieldCapability.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafFieldValidator.h"
@@ -32,7 +33,8 @@ namespace caffa
 {
 template <typename T>
 concept DerivesFromFieldHandle = std::is_base_of<FieldHandle, T>::value;
-
+template <typename T>
+concept DerivesFromCapability = std::is_base_of<FieldCapability, T>::value;
 /**
  * Helper class that is initialised with Object::initField and allows
  * .. addding additional features to the field.
@@ -57,18 +59,26 @@ public:
         return *this;
     }
 
-    FieldInitHelper& withScripting( const std::string& scriptFieldKeyword, bool readable = true, bool writable = true )
-    {
-        m_field.addCapability(
-            std::make_unique<FieldScriptingCapability>( scriptFieldKeyword.empty() ? m_keyword : scriptFieldKeyword,
-                                                        readable,
-                                                        writable ) );
-        return *this;
-    }
-
     FieldInitHelper& withScripting( bool readable = true, bool writable = true )
     {
-        m_field.addCapability( std::make_unique<FieldScriptingCapability>( m_keyword, readable, writable ) );
+        return withCapability<FieldScriptingCapability>(
+            [readable, writable]( FieldScriptingCapability& scripting )
+            {
+                scripting.setReadable( readable );
+                scripting.setWritable( writable );
+            } );
+    }
+
+    template <DerivesFromCapability CapT>
+    FieldInitHelper& withCapability( std::function<void( CapT& capability )> initializer = nullptr )
+    {
+        auto capability = std::make_unique<CapT>();
+        if ( initializer )
+        {
+            capability->setOwner( &m_field );
+            initializer( *capability );
+        }
+        m_field.addCapability( std::move( capability ) );
         return *this;
     }
 

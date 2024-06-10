@@ -27,6 +27,7 @@
 #include "cafLogger.h"
 
 #include "cafFieldHandle.h"
+#include "cafFieldInitHelper.h"
 #include "cafMethodHandle.h"
 #include "cafObjectCapability.h"
 #include "cafSignal.h"
@@ -181,6 +182,18 @@ public:
     void accept( Editor* editor );
 
 protected:
+    /**
+     * Initialises the field with a keyword and registers it with the class
+     * @param field A reference to the field
+     * @param keyword The field keyword. Has to be unique within the class.
+     */
+    template <typename FieldType>
+    FieldInitHelper<FieldType> initField( FieldType& field, const std::string& keyword )
+    {
+        addField( field, keyword );
+        return FieldInitHelper( field, keyword );
+    }
+
     /**
      * Add a field to the object
      */
