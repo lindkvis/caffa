@@ -22,7 +22,6 @@
 #include "cafDataFieldAccessor.h"
 
 #include "cafField.h"
-#include "cafFieldDocumentationCapability.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafFieldValidator.h"
@@ -109,8 +108,7 @@ public:
 
     FieldInitHelper& withDoc( const std::string& documentation )
     {
-        auto doc = std::make_unique<caffa::FieldDocumentationCapability>( documentation );
-        m_field.addCapability( std::move( doc ) );
+        m_field.setDocumentation( documentation );
         return *this;
     }
 

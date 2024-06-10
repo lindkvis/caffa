@@ -27,7 +27,6 @@
 #include "cafChildField.h"
 #include "cafDocument.h"
 #include "cafField.h"
-#include "cafFieldDocumentationCapability.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafJsonSerializer.h"
@@ -173,13 +172,8 @@ public:
                 auto fieldContent                = nlohmann::json::object();
                 fieldContent["application/json"] = { { "schema", jsonCapability->jsonType() } };
 
-                std::string description;
-                if ( auto doc = field->template capability<FieldDocumentationCapability>(); doc )
-                {
-                    description = doc->documentation();
-                }
-
-                auto fieldResponse = nlohmann::json{ { "description", description }, { "content", fieldContent } };
+                auto fieldResponse =
+                    nlohmann::json{ { "description", field->documentation() }, { "content", fieldContent } };
 
                 getOperation["responses"] = fieldResponse;
                 schema["get"]             = getOperation;
@@ -195,12 +189,6 @@ public:
 
                 auto fieldContent                = nlohmann::json::object();
                 fieldContent["application/json"] = { { "schema", jsonCapability->jsonType() } };
-
-                std::string description;
-                if ( auto doc = field->template capability<FieldDocumentationCapability>(); doc )
-                {
-                    description = doc->documentation();
-                }
 
                 auto acceptedOrFailureResponses =
                     nlohmann::json{ { RestServiceInterface::HTTP_ACCEPTED,

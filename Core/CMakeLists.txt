@@ -47,7 +47,6 @@ set(PUBLIC_HEADERS
     cafApplication.h
     cafSession.h
     cafUuidGenerator.h
-    cafFieldDocumentationCapability.h
     cafStringEncoding.h)
 
 set(PROJECT_FILES
@@ -72,7 +71,6 @@ set(PROJECT_FILES
     cafApplication.cpp
     cafSession.cpp
     cafUuidGenerator.cpp
-    cafFieldDocumentationCapability.cpp
     cafStringEncoding.cpp
     cafVisitor.cpp)
 
