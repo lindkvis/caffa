@@ -80,4 +80,14 @@ void FieldHandle::markDeprecated()
     m_isDeprecated = true;
 }
 
+void FieldHandle::setDocumentation( const std::string& documentation )
+{
+    m_documentation = documentation;
+}
+
+const std::string& FieldHandle::documentation() const
+{
+    return m_documentation;
+}
+
 } // End of namespace caffa
