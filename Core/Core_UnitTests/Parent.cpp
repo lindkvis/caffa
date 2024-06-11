@@ -19,7 +19,7 @@ void Parent::doSome()
     }
 }
 
-#include "gtest.h"
+#include "gtest/gtest.h"
 
 TEST( IncludeTest, Basic )
 {

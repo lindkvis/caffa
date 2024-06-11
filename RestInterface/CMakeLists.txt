@@ -52,9 +52,19 @@ endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-find_package(Boost 1.71.0 REQUIRED COMPONENTS system)
+find_package(Boost 1.71.0 REQUIRED COMPONENTS system serialization)
 find_package(OpenSSL REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC caffaBase caffaCore caffaRpcBase nlohmann_json::nlohmann_json OpenSSL::SSL OpenSSL::Crypto Boost::system)
+find_package(nlohmann_json CONFIG REQUIRED)
+
+target_link_libraries(
+  ${PROJECT_NAME}
+  PUBLIC caffaBase
+         caffaCore
+         caffaRpcBase
+         nlohmann_json::nlohmann_json
+         OpenSSL::SSL
+         OpenSSL::Crypto
+         Boost::system)
 
 install(
   TARGETS ${PROJECT_NAME}

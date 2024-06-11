@@ -9,12 +9,13 @@ add_executable(${PROJECT_NAME} ${PROJECT_FILES})
 source_group("" FILES ${PROJECT_FILES})
 
 find_package(Boost 1.71.0 REQUIRED COMPONENTS program_options)
+find_package(GTest CONFIG REQUIRED)
 
 target_link_libraries(
   ${PROJECT_NAME}
   Boost::program_options
   ${THREAD_LIBRARY}
-  gtest
+  GTest::gtest
   caffaCore
   caffaRestInterface
   caffaTestData)

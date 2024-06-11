@@ -21,6 +21,8 @@ add_executable(${PROJECT_NAME} ${PROJECT_FILES})
 
 source_group("" FILES ${PROJECT_FILES})
 
-target_link_libraries(${PROJECT_NAME} gtest caffaCore ${THREAD_LIBRARY})
+find_package(GTest CONFIG REQUIRED)
+
+target_link_libraries(${PROJECT_NAME} GTest::gtest caffaCore ${THREAD_LIBRARY})
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
