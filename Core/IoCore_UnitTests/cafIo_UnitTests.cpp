@@ -35,7 +35,7 @@
 // ##################################################################################################
 #include "cafLogger.h"
 
-#include "gtest.h"
+#include "gtest/gtest.h"
 #include <iostream>
 #include <stdio.h>
 #include <string>

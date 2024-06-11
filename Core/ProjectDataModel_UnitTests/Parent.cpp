@@ -1,7 +1,7 @@
 #include "Parent.h"
 #include "Child.h"
 
-#include "gtest.h"
+#include "gtest/gtest.h"
 
 CAFFA_SOURCE_INIT( Parent )
 

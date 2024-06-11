@@ -38,7 +38,7 @@
 
 #include "ServerApp.h"
 
-#include "gtest.h"
+#include "gtest/gtest.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>

@@ -34,7 +34,7 @@
 //
 // ##################################################################################################
 
-#include "gtest.h"
+#include "gtest/gtest.h"
 
 #include "cafLogger.h"
 
@@ -46,7 +46,8 @@
 //--------------------------------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-    auto logLevel = caffa::Logger::Level::warn;
+    std::cout << "Starting Caffa Core Unit Test" << std::endl;
+    auto logLevel = caffa::Logger::Level::debug;
 
     caffa::Logger::setApplicationLogLevel( logLevel );
     testing::InitGoogleTest( &argc, argv );

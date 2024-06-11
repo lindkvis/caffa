@@ -1,0 +1,54 @@
+name: Build with Unit Tests
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+  - cron: '0 1 * * *'
+jobs:
+  caffa-x64:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-22.04, ubuntu-24.04, macos-13, macos-14]
+        include:
+          - os: windows-latest
+            triplet: x64-windows
+            vcpkgCommitId: '01f602195983451bc83e72f4214af2cbc495aa94'
+          - os: ubuntu-22.04
+            vcpkgCommitId: '01f602195983451bc83e72f4214af2cbc495aa94'
+          - os: ubuntu-24.04
+            vcpkgCommitId: '01f602195983451bc83e72f4214af2cbc495aa94'
+          - os: macos-13
+            vcpkgCommitId: '01f602195983451bc83e72f4214af2cbc495aa94'
+          - os: macos-14
+            vcpkgCommitId: '01f602195983451bc83e72f4214af2cbc495aa94'
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/ThirdParty/vcpkg
+      VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
+    steps:
+      - name: Install dependencies
+        run: sudo apt-get install libboost-all-dev ninja-build googletest libgtest-dev nlohmann-json3-dev
+        if: contains(matrix.os, 'ubuntu')
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: lukka/get-cmake@latest
+      - name: Setup VCPKG or load from cache
+        uses: lukka/run-vcpkg@v11
+        id: runvcpkg
+        with:
+          vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
+          vcpkgGitCommitId: '${{ matrix.vcpkgCommitId}}'
+      - name: Build Caffa with Unit Tests
+        uses: lukka/run-cmake@v10.7
+        with:
+          configurePreset: 'ninja-multi-vcpkg'
+          buildPreset: 'ninja-release-vcpkg'
+          testPreset: 'test-release-vcpkg'
+

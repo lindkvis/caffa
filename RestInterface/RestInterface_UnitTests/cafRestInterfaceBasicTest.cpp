@@ -1,5 +1,5 @@
 
-#include "gtest.h"
+#include "gtest/gtest.h"
 
 #include "Child.h"
 #include "DemoObject.h"
