@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 
 set(CAFFA_VERSION 1.3.0)
 
@@ -16,7 +16,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/scripts")
 
-option(CAFFA_REST_INTERFACE "Enable the REST API interface to the Project Data Model" OFF)
+option(CAFFA_REST_INTERFACE "Enable the REST API interface to the Project Data Model" ON)
 option(CAFFA_BUILD_EXAMPLES "Build examples" OFF)
 option(CAFFA_BUILD_UNIT_TESTS "Build unit tests" ON)
 option(CAFFA_BUILD_DOCS "Build Doxygen documentation" OFF)
@@ -46,22 +46,6 @@ else()
 endif()
 
 add_definitions(-DGTEST_HAS_STD_WSTRING=0)
-# Third Party libraries
-set(JSON_BuildTests
-    OFF
-    CACHE INTERNAL "Build Json library with unit tests")
-set(JSON_Coverage
-    OFF
-    CACHE INTERNAL "Build Json library with coverage tests")
-set(JSON_Install
-    OFF
-    CACHE INTERNAL "Add install step to json library")
-set(JSON_ImplicitConversions
-    ON
-    CACHE INTERNAL "Do implicit data type conversions")
-set(JSON_MultipleHeaders
-    OFF
-    CACHE INTERNAL "Split in multiple headers")
 set(UUID_USING_CXX20_SPAN
     ON
     CACHE INTERNAL "Use CXX20 span")
@@ -69,8 +53,6 @@ set(UUID_BUILD_TESTS
     OFF
     CACHE INTERNAL "Build stduuid tests")
 
-add_subdirectory(ThirdParty/json)
-add_subdirectory(ThirdParty/gtest)
 add_subdirectory(ThirdParty/stduuid)
 add_subdirectory(ThirdParty/caffa-base)
 
@@ -93,6 +75,15 @@ if(CAFFA_BUILD_UNIT_TESTS)
   add_subdirectory(Core/IoCore_UnitTests)
   add_subdirectory(Core/ProjectDataModel_UnitTests)
   add_subdirectory(TestData)
+
+  enable_testing()
+  add_test(caffaCore_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaCore_UnitTests)
+  add_test(caffaIoCore_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaIoCore_UnitTests)
+  add_test(caffaProjectDataModel_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaProjectDataModel_UnitTests)
+
+  if(CAFFA_REST_INTERFACE)
+    add_test(caffaRestInterface_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaRestInterface_UnitTests)
+  endif()
 endif()
 
 # Organize sub-projects into folders on Visual Studio Turn on using solution folders

@@ -1,0 +1,72 @@
+name: Build with Unit Tests
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+  - cron: '0 1 * * *'
+jobs:
+  caffa-x64:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-22.04, ubuntu-24.04, macos-13, macos-14]
+        include:
+          - os: windows-latest
+            triplet: x64-windows
+            vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
+          - os: ubuntu-22.04
+            vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
+          - os: ubuntu-24.04
+            vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
+          - os: macos-13
+            vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
+          - os: macos-14
+            vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/ThirdParty/vcpkg
+      VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
+    steps:
+      - name: Install dependencies
+        run: sudo apt-get install libboost-all-dev ninja-build googletest libgtest-dev nlohmann-json3-dev
+        if: contains(matrix.os, 'ubuntu')
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: lukka/get-cmake@latest
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        if: contains(matrix.os, 'windows')
+      - name: List $RUNNER_WORKSPACE before build
+        run: find $RUNNER_WORKSPACE
+        shell: bash
+      - name: Setup VCPKG or load from cache
+        uses: lukka/run-vcpkg@v11
+        id: runvcpkg
+        with:
+          vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
+          vcpkgGitCommitId: '${{ matrix.vcpkgCommitId}}'
+          runVcpkgInstall: true
+      - name: Prints output of run-vcpkg's action.
+        run: echo "root='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}', triplet='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_DEFAULT_TRIPLET_OUT }}' "
+      - name: Configure Caffa
+        uses: lukka/run-cmake@v10.7
+        with:
+          configurePreset: 'ninja-multi-vcpkg'
+      - name: Build Caffa
+        uses: lukka/run-cmake@v10.7
+        with:
+          buildPreset: 'ninja-release-vcpkg'          
+      - name: Run Caffa Unit Tests
+        uses: lukka/run-cmake@v10.7
+        with:
+          testPreset: 'test-release-vcpkg'
+      - name: List $RUNNER_WORKSPACE after build
+        run: find $RUNNER_WORKSPACE
+        shell: bash
+

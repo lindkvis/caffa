@@ -1,0 +1,38 @@
+{
+  "name": "main",
+  "version-string": "latest",
+  "dependencies": [
+    {
+      "name": "nlohmann-json",
+      "platform": "!linux"
+    },
+    {
+      "name": "boost-system",
+      "platform": "!linux"
+    },
+    {
+      "name": "boost-beast",
+      "platform": "!linux"
+    },
+    {
+      "name": "boost-program-options",
+      "platform": "!linux"
+    },
+    {
+      "name": "boost-asio",
+      "platform": "!linux"
+    },
+    {
+      "name": "boost-serialization",
+      "platform": "!linux"
+    },
+    {
+      "name": "openssl",
+      "platform": "!linux"
+    },
+    {
+      "name": "gtest",
+      "platform": "!linux"
+    }
+  ]
+}
