@@ -92,21 +92,21 @@ nlohmann::json RestOpenApiService::getOpenApiV31Schema() const
     auto components = nlohmann::json::object();
     auto paths      = nlohmann::json::object();
 
-    for ( auto [key, jsonSchema] : RestServiceInterface::basicServiceSchemas() )
+    for ( auto [basicKey, jsonSchema] : RestServiceInterface::basicServiceSchemas() )
     {
-        components[key] = jsonSchema;
+        components[basicKey] = jsonSchema;
     }
 
-    for ( auto key : RestServiceFactory::instance()->allKeys() )
+    for ( auto serviceKey : RestServiceFactory::instance()->allKeys() )
     {
-        auto service = std::shared_ptr<RestServiceInterface>( RestServiceFactory::instance()->create( key ) );
-        for ( auto [key, jsonObject] : service->serviceComponentEntries() )
+        auto service = std::shared_ptr<RestServiceInterface>( RestServiceFactory::instance()->create( serviceKey ) );
+        for ( auto [componentKey, jsonObject] : service->serviceComponentEntries() )
         {
-            components[key] = jsonObject;
+            components[componentKey] = jsonObject;
         }
-        for ( auto [key, jsonObject] : service->servicePathEntries() )
+        for ( auto [pathKey, jsonObject] : service->servicePathEntries() )
         {
-            paths[key] = jsonObject;
+            paths[pathKey] = jsonObject;
         }
     }
 

@@ -440,7 +440,6 @@ RestObjectService::ServiceResponse
             auto childObjects = childArrayField->childObjects();
             if ( index >= 0 && static_cast<size_t>( index ) < childObjects.size() )
             {
-                auto childObjects = childArrayField->childObjects();
                 serializer.readObjectFromString( childObjects[index].get(), body.dump() );
                 return std::make_tuple( http::status::accepted, "", nullptr );
             }

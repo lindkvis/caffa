@@ -22,6 +22,8 @@
 #include "cafFieldScriptingCapability.h"
 #include "cafRpcClient.h"
 
+#include <limits>
+
 namespace caffa::rpc
 {
 class ChildArrayFieldAccessor : public caffa::ChildArrayFieldAccessor
@@ -94,7 +96,7 @@ public:
                 return i;
             }
         }
-        return -1;
+        return std::numeric_limits<size_t>::max();
     }
     void remove( size_t index ) override
     {

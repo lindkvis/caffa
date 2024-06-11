@@ -164,7 +164,7 @@ public:
             if ( scriptability->isReadable() )
             {
                 auto operationId = field->keyword();
-                operationId[0]   = std::toupper( operationId[0] );
+                operationId[0]   = (char)std::toupper( operationId[0] );
                 operationId      = field->ownerObject()->classKeyword() + ".get" + operationId;
 
                 auto getOperation =

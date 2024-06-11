@@ -119,9 +119,9 @@ void ClientPassByRefObjectFactory::applyAccessorToField( caffa::ObjectHandle* fi
     {
         childField->setAccessor( std::make_unique<ChildFieldAccessor>( m_client, childField ) );
     }
-    else if ( auto childField = dynamic_cast<caffa::ChildArrayFieldHandle*>( fieldHandle ); childField )
+    else if ( auto childArrayField = dynamic_cast<caffa::ChildArrayFieldHandle*>( fieldHandle ); childArrayField )
     {
-        childField->setAccessor( std::make_unique<ChildArrayFieldAccessor>( m_client, childField ) );
+        childArrayField->setAccessor( std::make_unique<ChildArrayFieldAccessor>( m_client, childArrayField ) );
     }
     else if ( auto dataField = dynamic_cast<caffa::DataField*>( fieldHandle ); dataField )
     {

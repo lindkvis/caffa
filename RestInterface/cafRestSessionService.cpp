@@ -365,8 +365,8 @@ RestSessionService::ServiceResponse RestSessionService::destroy( http::verb     
     }
     catch ( const std::exception& e )
     {
-        CAFFA_WARNING( "Session '" << uuid
-                                   << "' did not exist. It may already have been destroyed due to lack of keepalive" );
+        CAFFA_WARNING( "Session '" << uuid << "' did not exist. It may already have been destroyed due to lack of keepalive: "
+                                   << e.what() );
         return std::make_tuple( http::status::not_found,
                                 "Failed to destroy session. It may already have been destroyed.",
                                 nullptr );
