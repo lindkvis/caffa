@@ -33,7 +33,7 @@ endif()
 
 if(MSVC)
   # Windows 10 minimum
-  add_definitions(/DWIN32_WINNT=0x0A00)
+  add_definitions(/D_WIN32_WINNT=0x0A00)
 else()
   add_compile_options(
     -Wall
