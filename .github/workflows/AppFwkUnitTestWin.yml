@@ -17,10 +17,10 @@ jobs:
         with:
           submodules: recursive
       - name: Install boost
-        uses: MarkusJx/install-boost@v2.4.4
+        uses: MarkusJx/install-boost@v2.4.5
         id: install-boost
         with:
-            boost_version: 1.81.0
+            boost_version: 1.84.0
             platform_version: 2022
             toolset: msvc
             arch: x86
