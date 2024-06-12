@@ -31,6 +31,7 @@
 
 #include <concepts>
 #include <iostream>
+#include <limits>
 #include <list>
 #include <optional>
 #include <stdexcept>
@@ -143,9 +144,9 @@ public:
         }
 
         CAFFA_ERROR( "No label " << label << " in AppEnum" );
-        for ( const auto& [entry, label] : m_mapping )
+        for ( const auto& [entry, entryLabel] : m_mapping )
         {
-            CAFFA_ERROR( "Found label " << label << "(" << static_cast<int>( entry ) << ")" );
+            CAFFA_ERROR( "Found label " << entryLabel << "(" << static_cast<int>( entry ) << ")" );
         }
         return std::nullopt;
     }
@@ -175,36 +176,52 @@ public:
 
     std::string label( Enum enumValue ) const
     {
-        for ( const auto& [entry, label] : m_mapping )
+        std::string label;
+        for ( const auto& [entry, entryLabel] : m_mapping )
         {
-            if ( enumValue == entry ) return label;
+            if ( enumValue == entry )
+            {
+                label = entryLabel;
+                break;
+            }
         }
 
-        CAFFA_ERROR( "No value " << static_cast<int>( enumValue ) << " in AppEnum" );
-        for ( const auto& [entry, label] : m_mapping )
+        if ( label.empty() )
         {
-            CAFFA_ERROR( "Found label " << label << "(" << static_cast<int>( entry ) << ")" );
+            CAFFA_ERROR( "No value " << static_cast<int>( enumValue ) << " in AppEnum" );
+            for ( const auto& [entry, label] : m_mapping )
+            {
+                CAFFA_ERROR( "Found label " << label << "(" << static_cast<int>( entry ) << ")" );
+            }
+            throw std::runtime_error( "AppEnum does not have the value " + std::to_string( static_cast<int>( enumValue ) ) );
         }
-        throw std::runtime_error( "AppEnum does not have the value " + std::to_string( static_cast<int>( enumValue ) ) );
-        return "";
+
+        return label;
     }
 
     size_t index( Enum enumValue ) const
     {
+        std::optional<size_t> foundIndex;
         for ( size_t i = 0; i < m_mapping.size(); ++i )
         {
-            if ( m_mapping[i].first == enumValue ) return i;
+            if ( m_mapping[i].first == enumValue )
+            {
+                foundIndex = i;
+                break;
+            }
         }
 
-        CAFFA_ERROR( "No value " << static_cast<int>( value ) << " in AppEnum" );
-        for ( const auto& [entry, label] : m_mapping )
+        if ( !foundIndex.has_value() )
         {
-            CAFFA_ERROR( "Found label " << label << "(" << static_cast<int>( entry ) << ")" );
+            CAFFA_ERROR( "No value " << static_cast<int>( value ) << " in AppEnum" );
+            for ( const auto& [entry, label] : m_mapping )
+            {
+                CAFFA_ERROR( "Found label " << label << "(" << static_cast<int>( entry ) << ")" );
+            }
+
+            throw std::runtime_error( "AppEnum does not have the value " + std::to_string( static_cast<int>( enumValue ) ) );
         }
-
-        throw std::runtime_error( "AppEnum does not have the value " + std::to_string( static_cast<int>( enumValue ) ) );
-
-        return 0u;
+        return *foundIndex;
     }
 
     // Static interface to access the properties of the enum definition
