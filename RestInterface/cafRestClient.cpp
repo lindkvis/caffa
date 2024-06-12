@@ -121,7 +121,7 @@ public:
         }
 
         // Set a timeout on the operation
-        m_stream.expires_after( 1s );
+        m_stream.expires_after( 10s );
 
         // Make the connection on the IP address we get from a lookup
         m_stream.async_connect( results, beast::bind_front_handler( &Request::onConnect, shared_from_this() ) );
@@ -137,7 +137,7 @@ public:
         }
 
         // Set a timeout on the operation
-        m_stream.expires_after( 2s );
+        m_stream.expires_after( 10s );
 
         // Send the HTTP request to the remote host
         http::async_write( m_stream, m_req, beast::bind_front_handler( &Request::onWrite, shared_from_this() ) );
