@@ -274,16 +274,30 @@ RestServiceInterface::CleanupCallback
         if ( queryParamsJson.contains( "session_uuid" ) )
         {
             session_uuid = queryParamsJson["session_uuid"].get<std::string>();
-            session      = RestServerApplication::instance()->getExistingSession( session_uuid );
+            if ( method == http::verb::delete_ )
+            {
+                CAFFA_DEBUG( "Searching for session " << session_uuid );
+            }
+
+            session = RestServerApplication::instance()->getExistingSession( session_uuid );
         }
 
         if ( !session )
         {
+            if ( method == http::verb::delete_ )
+            {
+                CAFFA_DEBUG( "No session found" );
+            }
             send( createResponse( http::status::forbidden, "Session '" + session_uuid + "' is not valid" ) );
             return nullptr;
         }
         else if ( session->isExpired() )
         {
+            if ( method == http::verb::delete_ )
+            {
+                CAFFA_DEBUG( "Session expired" );
+            }
+
             send( createResponse( http::status::forbidden, "Session '" + session_uuid + "' is not valid" ) );
             return nullptr;
         }
