@@ -162,6 +162,12 @@ public:
     {
         boost::ignore_unused( bytes_transferred );
 
+        if ( ec == http::error::end_of_stream )
+        {
+            m_stream.socket().shutdown( tcp::socket::shutdown_both, ec );
+            return;
+        }
+
         if ( ec )
         {
             CAFFA_ERROR( "Failed to read from stream from thread ID " << std::this_thread::get_id() << "-> "
