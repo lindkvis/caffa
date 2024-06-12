@@ -73,10 +73,7 @@
         {
             "name": "test-ninja",
             "configurePreset": "ninja-multi",
-            "hidden": true,
-            "output": {
-                "outputOnFailure": true
-            }
+            "hidden": true
         },
         {
             "name": "test-debug",
@@ -85,7 +82,11 @@
             "configuration": "Debug",
             "inherits": [
                 "test-ninja"
-            ]
+            ],
+            "output": {
+                "verbosity": "extra",
+                "outputOnFailure": true
+            }
         },
         {
             "name": "test-release",
@@ -94,15 +95,16 @@
             "configuration": "Release",
             "inherits": [
                 "test-ninja"
-            ]
+            ],
+            "output": {
+                "verbosity": "extra",
+                "outputOnFailure": true
+            }
         },
         {
             "name": "test-ninja-vcpkg",
             "configurePreset": "ninja-multi-vcpkg",
-            "hidden": true,
-            "output": {
-                "outputOnFailure": true
-            }
+            "hidden": true
         },
         {
             "name": "test-debug-vcpkg",
@@ -111,7 +113,11 @@
             "configuration": "Debug",
             "inherits": [
                 "test-ninja-vcpkg"
-            ]
+            ],
+            "output": {
+                "verbosity": "extra",
+                "outputOnFailure": true
+            }
         },
         {
             "name": "test-release-vcpkg",
@@ -120,7 +126,11 @@
             "configuration": "Release",
             "inherits": [
                 "test-ninja-vcpkg"
-            ]
+            ],
+            "output": {
+                "verbosity": "extra",
+                "outputOnFailure": true
+            }
         }
     ]
 }
