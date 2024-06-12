@@ -99,7 +99,10 @@
         {
             "name": "test-ninja-vcpkg",
             "configurePreset": "ninja-multi-vcpkg",
-            "hidden": true
+            "hidden": true,
+            "output": {
+                "outputOnFailure": true
+            }
         },
         {
             "name": "test-debug-vcpkg",
