@@ -278,8 +278,16 @@ RestServiceInterface::CleanupCallback
             {
                 CAFFA_DEBUG( "Searching for session " << session_uuid );
             }
-
-            session = RestServerApplication::instance()->getExistingSession( session_uuid );
+            auto app = RestServerApplication::instance();
+            if ( !app )
+            {
+                CAFFA_ERROR( "WTF???" );
+            }
+            session = app->getExistingSession( session_uuid );
+            if ( method == http::verb::delete_ )
+            {
+                CAFFA_DEBUG( "Got a response from session search" );
+            }
         }
 
         if ( !session )
@@ -291,15 +299,22 @@ RestServiceInterface::CleanupCallback
             send( createResponse( http::status::forbidden, "Session '" + session_uuid + "' is not valid" ) );
             return nullptr;
         }
-        else if ( session->isExpired() )
+        else
         {
             if ( method == http::verb::delete_ )
             {
-                CAFFA_DEBUG( "Session expired" );
+                CAFFA_DEBUG( "Got a session" );
             }
+            if ( session->isExpired() )
+            {
+                if ( method == http::verb::delete_ )
+                {
+                    CAFFA_DEBUG( "Session expired" );
+                }
 
-            send( createResponse( http::status::forbidden, "Session '" + session_uuid + "' is not valid" ) );
-            return nullptr;
+                send( createResponse( http::status::forbidden, "Session '" + session_uuid + "' is not valid" ) );
+                return nullptr;
+            }
         }
     }
 
