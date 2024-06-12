@@ -178,7 +178,7 @@ std::map<std::string, nlohmann::json> RestSessionService::servicePathEntries() c
 
 std::map<std::string, nlohmann::json> RestSessionService::serviceComponentEntries() const
 {
-    auto sessionTypeLabels = caffa::AppEnum<caffa::Session::Type>::labels();
+    auto sessionTypeLabels = caffa::AppEnum<caffa::Session::Type>::validLabels();
     auto jsonTypeLabels    = nlohmann::json::array();
     for ( auto label : sessionTypeLabels )
     {
@@ -255,7 +255,7 @@ RestSessionService::ServiceResponse RestSessionService::create( http::verb      
 
         auto jsonResponse     = nlohmann::json::object();
         jsonResponse["uuid"]  = session->uuid();
-        jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::label( session->type() );
+        jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::getLabel( session->type() );
         jsonResponse["valid"] = !session->isExpired();
         return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
     }
@@ -290,7 +290,7 @@ RestSessionService::ServiceResponse RestSessionService::get( http::verb         
 
     auto jsonResponse     = nlohmann::json::object();
     jsonResponse["uuid"]  = session->uuid();
-    jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::label( session->type() );
+    jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::getLabel( session->type() );
     jsonResponse["valid"] = !session->isExpired();
 
     return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
@@ -336,7 +336,7 @@ RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( http:
     }
     auto jsonResponse     = nlohmann::json::object();
     jsonResponse["uuid"]  = session->uuid();
-    jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::label( session->type() );
+    jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::getLabel( session->type() );
     jsonResponse["valid"] = !session->isExpired();
 
     return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
