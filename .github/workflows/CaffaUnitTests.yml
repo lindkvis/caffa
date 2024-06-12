@@ -18,15 +18,15 @@ jobs:
         include:
           - os: windows-latest
             triplet: x64-windows
-            vcpkgCommitId: '01f602195983451bc83e72f4214af2cbc495aa94'
+            vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
           - os: ubuntu-22.04
-            vcpkgCommitId: '01f602195983451bc83e72f4214af2cbc495aa94'
+            vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
           - os: ubuntu-24.04
-            vcpkgCommitId: '01f602195983451bc83e72f4214af2cbc495aa94'
+            vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
           - os: macos-13
-            vcpkgCommitId: '01f602195983451bc83e72f4214af2cbc495aa94'
+            vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
           - os: macos-14
-            vcpkgCommitId: '01f602195983451bc83e72f4214af2cbc495aa94'
+            vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
     env:
       VCPKG_ROOT: ${{ github.workspace }}/ThirdParty/vcpkg
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
@@ -42,16 +42,24 @@ jobs:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
         if: contains(matrix.os, 'windows')
+      - name: List $RUNNER_WORKSPACE before build
+        run: find $RUNNER_WORKSPACE
+        shell: bash
       - name: Setup VCPKG or load from cache
         uses: lukka/run-vcpkg@v11
         id: runvcpkg
         with:
           vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
           vcpkgGitCommitId: '${{ matrix.vcpkgCommitId}}'
+      - name: Prints output of run-vcpkg's action.
+        run: echo "root='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}', triplet='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_DEFAULT_TRIPLET_OUT }}' "
       - name: Build Caffa with Unit Tests
         uses: lukka/run-cmake@v10.7
         with:
           configurePreset: 'ninja-multi-vcpkg'
           buildPreset: 'ninja-release-vcpkg'
           testPreset: 'test-release-vcpkg'
+      - name: List $RUNNER_WORKSPACE after build
+        run: find $RUNNER_WORKSPACE
+        shell: bash
 
