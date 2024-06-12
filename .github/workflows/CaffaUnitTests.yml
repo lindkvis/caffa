@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-22.04, ubuntu-24.04, macos-13, macos-14]
+        os: [windows-latest, ubuntu-22.04, ubuntu-24.04, macos-14]
         include:
           - os: windows-latest
             triplet: x64-windows
@@ -22,8 +22,6 @@ jobs:
           - os: ubuntu-22.04
             vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
           - os: ubuntu-24.04
-            vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
-          - os: macos-13
             vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
           - os: macos-14
             vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
