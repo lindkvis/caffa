@@ -214,8 +214,6 @@ RestObjectService::ServiceResponse RestObjectService::perform( http::verb       
     {
         return std::make_tuple( http::status::bad_request, "Path not found", nullptr );
     }
-    CAFFA_DEBUG( "Found request handler: " << request->name() );
-
     return request->perform( verb, pathArguments, queryParams, body );
 }
 
@@ -281,7 +279,7 @@ RestObjectService::ServiceResponse
                                                       const nlohmann::json&         queryParams,
                                                       const nlohmann::json&         body )
 {
-    CAFFA_DEBUG( "Full arguments for field operation: "
+    CAFFA_TRACE( "Full arguments for field operation: "
                  << caffa::StringTools::join( pathArguments.begin(), pathArguments.end(), "/" ) );
 
     auto session = findSession( queryParams );
