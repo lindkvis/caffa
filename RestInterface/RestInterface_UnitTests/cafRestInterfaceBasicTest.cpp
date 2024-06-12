@@ -46,12 +46,14 @@ TEST_F( RestTest, Launch )
 {
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
 
+    CAFFA_DEBUG( "Starting server" );
     auto thread = std::thread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
     }
+    CAFFA_DEBUG( "Server started" );
     std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
 
     CAFFA_DEBUG( "Connecting client to server" );
