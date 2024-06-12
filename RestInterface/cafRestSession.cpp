@@ -281,7 +281,7 @@ RestServiceInterface::CleanupCallback
         auto [status, message, cleanupCallback] = service->perform( method, pathComponents, queryParamsJson, bodyJson );
         if ( status == http::status::ok || status == http::status::accepted )
         {
-            CAFFA_DEBUG( "Responding with " << status << ": " << message );
+            CAFFA_TRACE( "Responding with " << status << ": " << message );
             send( createResponse( status, message ) );
         }
         else
