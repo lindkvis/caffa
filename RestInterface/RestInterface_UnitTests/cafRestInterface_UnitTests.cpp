@@ -55,7 +55,7 @@ int main( int argc, char** argv )
 {
     testing::InitGoogleTest( &argc, argv );
 
-    auto logLevel = caffa::Logger::Level::info;
+    auto logLevel = caffa::Logger::Level::debug;
 
     auto        logLevels = caffa::Logger::logLevels();
     std::string logLevelString;
