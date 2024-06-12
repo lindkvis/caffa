@@ -110,7 +110,6 @@ RestServiceInterface::CleanupCallback
     };
 
     auto method = req.method();
-    CAFFA_DEBUG( "VERB: " << method );
 
     auto accessControlMethod = req.find( http::field::access_control_request_method );
     if ( method == http::verb::options && accessControlMethod != req.end() )
@@ -138,7 +137,7 @@ RestServiceInterface::CleanupCallback
 
     std::string target( req.target() );
 
-    CAFFA_DEBUG( "Target: " << target << ", body length: " << req.body().length() );
+    CAFFA_TRACE( "Target: " << target << ", body length: " << req.body().length() );
 
     std::regex paramRegex( "[\?&]" );
 
@@ -161,7 +160,6 @@ RestServiceInterface::CleanupCallback
 
     auto pathComponents = caffa::StringTools::split<std::list<std::string>>( path, "/", true );
 
-    CAFFA_DEBUG( "Path component size: " << pathComponents.size() );
     if ( !pathComponents.empty() )
     {
         auto serviceComponent = pathComponents.front();
@@ -180,7 +178,7 @@ RestServiceInterface::CleanupCallback
     bool requiresAuthentication = service->requiresAuthentication( method, pathComponents );
     bool requiresValidSession   = service->requiresSession( method, pathComponents );
 
-    CAFFA_DEBUG( "Requires authentication: " << requiresAuthentication << ", Requires session: " << requiresValidSession );
+    CAFFA_TRACE( "Requires authentication: " << requiresAuthentication << ", Requires session: " << requiresValidSession );
 
     if ( !( requiresAuthentication || requiresValidSession ) && RestServiceInterface::refuseDueToTimeLimiter() )
     {
@@ -275,7 +273,7 @@ RestServiceInterface::CleanupCallback
         }
     }
 
-    CAFFA_DEBUG( "Path: " << path << ", Query Arguments: " << queryParamsJson.dump() << ", Body: " << bodyJson.dump()
+    CAFFA_TRACE( "Path: " << path << ", Query Arguments: " << queryParamsJson.dump() << ", Body: " << bodyJson.dump()
                           << ", Method: " << method );
 
     try
@@ -283,7 +281,7 @@ RestServiceInterface::CleanupCallback
         auto [status, message, cleanupCallback] = service->perform( method, pathComponents, queryParamsJson, bodyJson );
         if ( status == http::status::ok || status == http::status::accepted )
         {
-            CAFFA_DEBUG( "Responding with " << status << ": " << message );
+            CAFFA_TRACE( "Responding with " << status << ": " << message );
             send( createResponse( status, message ) );
         }
         else
