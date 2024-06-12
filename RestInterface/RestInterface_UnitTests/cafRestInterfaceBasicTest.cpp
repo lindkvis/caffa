@@ -1128,7 +1128,7 @@ TEST_F( RestTest, MultipleConcurrentSessionsDelayWithoutKeepalive )
     ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ) );
     ASSERT_NO_THROW( client1->createSession( caffa::Session::Type::REGULAR ) );
 
-    std::this_thread::sleep_for( std::chrono::milliseconds( 2500 ) );
+    std::this_thread::sleep_for( std::chrono::milliseconds( 5000 ) );
 
     client2 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
     ASSERT_TRUE( client2->isReady( caffa::Session::Type::REGULAR ) );
