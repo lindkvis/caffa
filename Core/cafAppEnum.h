@@ -189,9 +189,9 @@ public:
         if ( label.empty() )
         {
             CAFFA_ERROR( "No value " << static_cast<int>( enumValue ) << " in AppEnum" );
-            for ( const auto& [entry, label] : m_mapping )
+            for ( const auto& [entry, entryLabel] : m_mapping )
             {
-                CAFFA_ERROR( "Found label " << label << "(" << static_cast<int>( entry ) << ")" );
+                CAFFA_ERROR( "Found label " << entryLabel << "(" << static_cast<int>( entry ) << ")" );
             }
             throw std::runtime_error( "AppEnum does not have the value " + std::to_string( static_cast<int>( enumValue ) ) );
         }
