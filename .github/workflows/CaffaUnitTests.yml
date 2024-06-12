@@ -52,11 +52,17 @@ jobs:
           runVcpkgInstall: true
       - name: Prints output of run-vcpkg's action.
         run: echo "root='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}', triplet='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_DEFAULT_TRIPLET_OUT }}' "
-      - name: Build Caffa with Unit Tests
+      - name: Configure Caffa
         uses: lukka/run-cmake@v10.7
         with:
           configurePreset: 'ninja-multi-vcpkg'
-          buildPreset: 'ninja-release-vcpkg'
+      - name: Build Caffa
+        uses: lukka/run-cmake@v10.7
+        with:
+          buildPreset: 'ninja-release-vcpkg'          
+      - name: Run Caffa Unit Tests
+        uses: lukka/run-cmake@v10.7
+        with:
           testPreset: 'test-release-vcpkg'
       - name: List $RUNNER_WORKSPACE after build
         run: find $RUNNER_WORKSPACE
