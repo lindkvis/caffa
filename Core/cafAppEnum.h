@@ -23,7 +23,9 @@
 #pragma once
 
 #include "cafAssert.h"
+#include "cafLogger.h"
 #include "cafPortableDataType.h"
+#include "cafStringTools.h"
 
 #include <nlohmann/json.hpp>
 
@@ -234,6 +236,13 @@ private:
             {
                 if ( value == m_mapping[i].first ) return i;
             }
+
+            CAFFA_ERROR( "No value " << static_cast<int>( value ) << " in AppEnum" );
+            for ( const auto& [enumVal, label] : m_mapping )
+            {
+                CAFFA_ERROR( "Found label " << label << "(" << static_cast<int>( enumVal ) << ")" );
+            }
+
             throw std::runtime_error( "AppEnum does not have the value " + std::to_string( static_cast<int>( value ) ) );
         }
 
@@ -242,6 +251,12 @@ private:
             for ( const auto& [enumVal, label] : m_mapping )
             {
                 if ( value == enumVal ) return label;
+            }
+
+            CAFFA_ERROR( "No value " << static_cast<int>( value ) << " in AppEnum" );
+            for ( const auto& [enumVal, label] : m_mapping )
+            {
+                CAFFA_ERROR( "Found label " << label << "(" << static_cast<int>( enumVal ) << ")" );
             }
             throw std::runtime_error( "AppEnum does not have the value " + std::to_string( static_cast<int>( value ) ) );
         }
