@@ -27,6 +27,7 @@
 #include "cafSession.h"
 
 #include <chrono>
+#include <mutex>
 #include <stdexcept>
 
 class UnitTestAuthenticator : public caffa::rpc::RestAuthenticator
@@ -100,11 +101,18 @@ public:
         return { std::make_shared<DemoDocument>(), std::make_shared<DemoDocumentWithNonScriptableMember>() };
     }
 
-    bool hasActiveSessions() const override { return !m_observingSessions.empty(); }
+    bool hasActiveSessions() const override
+    {
+        std::scoped_lock lock( m_sessionMutex );
+
+        return m_session || !m_observingSessions.empty();
+    }
 
     bool readyForSession( caffa::Session::Type type ) const override
     {
         if ( type == caffa::Session::Type::INVALID ) return false;
+
+        std::scoped_lock lock( m_sessionMutex );
 
         if ( type == caffa::Session::Type::REGULAR )
         {
@@ -124,6 +132,8 @@ public:
     {
         if ( type == caffa::Session::Type::INVALID )
             throw std::runtime_error( "Cannot create sessions of type 'INVALID'" );
+
+        std::scoped_lock lock( m_sessionMutex );
 
         if ( type == caffa::Session::Type::REGULAR )
         {
@@ -152,12 +162,14 @@ public:
 
     caffa::SessionMaintainer getExistingSession( const std::string& sessionUuid ) override
     {
+        std::scoped_lock lock( m_sessionMutex );
+
         if ( m_session && m_session->uuid() == sessionUuid )
         {
             return caffa::SessionMaintainer( m_session );
         }
 
-        for ( auto& observingSession : m_observingSessions )
+        for ( auto observingSession : m_observingSessions )
         {
             if ( observingSession && observingSession->uuid() == sessionUuid && !observingSession->isExpired() )
             {
@@ -170,12 +182,14 @@ public:
 
     caffa::ConstSessionMaintainer getExistingSession( const std::string& sessionUuid ) const override
     {
+        std::scoped_lock lock( m_sessionMutex );
+
         if ( m_session && m_session->uuid() == sessionUuid )
         {
             return caffa::ConstSessionMaintainer( m_session );
         }
 
-        for ( auto& observingSession : m_observingSessions )
+        for ( auto observingSession : m_observingSessions )
         {
             if ( observingSession && observingSession->uuid() == sessionUuid && !observingSession->isExpired() )
             {
@@ -193,6 +207,8 @@ public:
 
     void destroySession( const std::string& sessionUuid ) override
     {
+        std::scoped_lock lock( m_sessionMutex );
+
         CAFFA_TRACE( "Attempting to destroy session " << sessionUuid );
         if ( m_session && m_session->uuid() == sessionUuid )
         {
@@ -226,4 +242,5 @@ private:
 
     std::shared_ptr<caffa::Session>            m_session;
     std::list<std::shared_ptr<caffa::Session>> m_observingSessions;
+    mutable std::mutex                         m_sessionMutex;
 };
