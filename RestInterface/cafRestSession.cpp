@@ -190,7 +190,11 @@ RestServiceInterface::CleanupCallback
     bool requiresAuthentication = service->requiresAuthentication( method, pathComponents );
     bool requiresValidSession   = service->requiresSession( method, pathComponents );
 
-    CAFFA_TRACE( "Requires authentication: " << requiresAuthentication << ", Requires session: " << requiresValidSession );
+    if ( method == http::verb::delete_ )
+    {
+        CAFFA_DEBUG( "Requires authentication: " << requiresAuthentication
+                                                 << ", Requires session: " << requiresValidSession );
+    }
 
     if ( !( requiresAuthentication || requiresValidSession ) && RestServiceInterface::refuseDueToTimeLimiter() )
     {
@@ -202,8 +206,14 @@ RestServiceInterface::CleanupCallback
 
     if ( requiresAuthentication )
     {
-        auto authorisation = req[http::field::authorization];
-        auto trimmed       = caffa::StringTools::replace( std::string( authorisation ), "Basic ", "" );
+        if ( method == http::verb::delete_ )
+        {
+            CAFFA_DEBUG( "Checking authentication" );
+        }
+
+        auto authHeader    = req.find( http::field::authorization );
+        auto authorisation = authHeader != req.end() ? std::string( authHeader->value().data() ) : "";
+        auto trimmed       = caffa::StringTools::replace( authorisation, "Basic ", "" );
 
         if ( !authenticator->authenticate( caffa::StringTools::decodeBase64( trimmed ) ) )
         {
@@ -216,6 +226,11 @@ RestServiceInterface::CleanupCallback
             send( createResponse( http::status::forbidden, "Failed to authenticate" ) );
             return nullptr;
         }
+    }
+
+    if ( method == http::verb::delete_ )
+    {
+        CAFFA_DEBUG( "Generating query param JSON" );
     }
 
     nlohmann::json queryParamsJson = nlohmann::json::object();
@@ -249,6 +264,11 @@ RestServiceInterface::CleanupCallback
 
     if ( requiresValidSession )
     {
+        if ( method == http::verb::delete_ )
+        {
+            CAFFA_DEBUG( "Checking for valid session" );
+        }
+
         caffa::SessionMaintainer session;
         std::string              session_uuid = "NONE";
         if ( queryParamsJson.contains( "session_uuid" ) )
@@ -267,6 +287,11 @@ RestServiceInterface::CleanupCallback
             send( createResponse( http::status::forbidden, "Session '" + session_uuid + "' is not valid" ) );
             return nullptr;
         }
+    }
+
+    if ( method == http::verb::delete_ )
+    {
+        CAFFA_DEBUG( "Generating body JSON" );
     }
 
     nlohmann::json bodyJson = nlohmann::json::object();
