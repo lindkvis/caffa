@@ -179,9 +179,9 @@ void ClientPassByRefObjectFactory::applyNullAccessorToField( caffa::ObjectHandle
     {
         childField->setAccessor( nullptr );
     }
-    else if ( auto childField = dynamic_cast<caffa::ChildArrayFieldHandle*>( fieldHandle ); childField )
+    else if ( auto childArrayField = dynamic_cast<caffa::ChildArrayFieldHandle*>( fieldHandle ); childArrayField )
     {
-        childField->setAccessor( nullptr );
+        childArrayField->setAccessor( nullptr );
     }
     else if ( auto dataField = dynamic_cast<caffa::DataField*>( fieldHandle ); dataField )
     {

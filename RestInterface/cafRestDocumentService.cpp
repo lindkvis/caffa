@@ -187,7 +187,7 @@ public:
             if ( scriptability->isWritable() )
             {
                 auto operationId = field->keyword();
-                operationId[0]   = std::toupper( operationId[0] );
+                operationId[0]   = (char)std::toupper( operationId[0] );
                 operationId      = field->ownerObject()->classKeyword() + ".set" + operationId;
 
                 auto setOperation =
