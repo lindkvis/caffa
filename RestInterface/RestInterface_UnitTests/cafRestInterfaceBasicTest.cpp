@@ -137,6 +137,8 @@ TEST_F( RestTest, Document )
         ASSERT_EQ( serverApp->document( "testDocument", session.get() )->fileName(), clientFileName );
         ASSERT_EQ( serverDocument->uuid(), clientDocument->uuid() );
 
+        CAFFA_DEBUG( "Collecting both client and server objects" );
+
         {
             caffa::ConstObjectCollector<DemoObject> serverCollector, clientCollector;
             serverDocument->accept( &serverCollector );
@@ -157,6 +159,8 @@ TEST_F( RestTest, Document )
             }
         }
 
+        CAFFA_DEBUG( "Collecting both client and server inherited objects" );
+
         {
             caffa::ConstObjectCollector<InheritedDemoObj> serverCollector, clientCollector;
             serverDocument->accept( &serverCollector );
@@ -174,6 +178,8 @@ TEST_F( RestTest, Document )
                 ASSERT_EQ( ( *server_it )->uuid(), ( *client_it )->uuid() );
             }
         }
+
+        CAFFA_DEBUG( "Serializing" );
 
         caffa::JsonSerializer serverSerializer;
         // Need to only write scriptable field into Server-JSON, otherwise it won't match the client JSON
@@ -1121,7 +1127,7 @@ TEST_F( RestTest, MultipleConcurrentSessionsDelayWithoutKeepalive )
     ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ) );
     ASSERT_NO_THROW( client1->createSession( caffa::Session::Type::REGULAR ) );
 
-    std::this_thread::sleep_for( std::chrono::milliseconds( 2500 ) );
+    std::this_thread::sleep_for( std::chrono::milliseconds( 6000 ) );
 
     client2 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
     ASSERT_TRUE( client2->isReady( caffa::Session::Type::REGULAR ) );
