@@ -142,8 +142,10 @@ RestServiceInterface::CleanupCallback
 
     std::string target( req.target() );
 
-    CAFFA_TRACE( "Target: " << target << ", body length: " << req.body().length() );
-
+    if ( method == http::verb::delete_ )
+    {
+        CAFFA_DEBUG( "Target: " << target << ", body length: " << req.body().length() );
+    }
     std::regex paramRegex( "[\?&]" );
 
     auto targetComponents = caffa::StringTools::split<std::vector<std::string>>( target, paramRegex );
@@ -179,6 +181,11 @@ RestServiceInterface::CleanupCallback
     }
 
     CAFFA_ASSERT( service );
+
+    if ( method == http::verb::delete_ )
+    {
+        CAFFA_DEBUG( "Found service" );
+    }
 
     bool requiresAuthentication = service->requiresAuthentication( method, pathComponents );
     bool requiresValidSession   = service->requiresSession( method, pathComponents );
@@ -278,8 +285,11 @@ RestServiceInterface::CleanupCallback
         }
     }
 
-    CAFFA_TRACE( "Path: " << path << ", Query Arguments: " << queryParamsJson.dump() << ", Body: " << bodyJson.dump()
-                          << ", Method: " << method );
+    if ( method == http::verb::delete_ )
+    {
+        CAFFA_DEBUG( "Path: " << path << ", Query Arguments: " << queryParamsJson.dump()
+                              << ", Body: " << bodyJson.dump() << ", Method: " << method );
+    }
 
     try
     {
