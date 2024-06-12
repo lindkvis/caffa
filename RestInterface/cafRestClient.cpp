@@ -364,6 +364,16 @@ std::string RestClient::execute( caffa::not_null<const caffa::ObjectHandle*> sel
 //--------------------------------------------------------------------------------------------------
 bool RestClient::stopServer()
 {
+    CAFFA_DEBUG( "Sending quit request" );
+
+    if ( m_sessionUuid.empty() )
+    {
+        CAFFA_WARNING( "No session available to perform quit for!" );
+    }
+
+    auto [status, body] =
+        performRequest( http::verb::delete_, hostname(), port(), std::string( "/app/quit?session_uuid=" ) + m_sessionUuid, "" );
+
     std::string sessionUuid;
     {
         std::scoped_lock<std::mutex> lock( m_sessionMutex );
@@ -379,11 +389,6 @@ bool RestClient::stopServer()
         m_keepAliveThread->join();
         m_keepAliveThread.reset();
     }
-
-    CAFFA_DEBUG( "Sending quit request" );
-
-    auto [status, body] =
-        performRequest( http::verb::delete_, hostname(), port(), std::string( "/app/quit?session_uuid=" ) + sessionUuid, "" );
 
     if ( status != http::status::accepted )
     {
