@@ -149,12 +149,12 @@ public:
                                                 << " but it has not been kept alive, so destroying it" );
                 }
             }
-            m_session = caffa::Session::create( type, std::chrono::seconds( 2 ) );
+            m_session = caffa::Session::create( type, std::chrono::seconds( 5 ) );
             return caffa::SessionMaintainer( m_session );
         }
         else
         {
-            auto observingSession = caffa::Session::create( type, std::chrono::seconds( 1 ) );
+            auto observingSession = caffa::Session::create( type, std::chrono::seconds( 3 ) );
             m_observingSessions.push_back( observingSession );
             return caffa::SessionMaintainer( observingSession );
         }
@@ -163,12 +163,10 @@ public:
     caffa::SessionMaintainer getExistingSession( const std::string& sessionUuid ) override
     {
         std::scoped_lock lock( m_sessionMutex );
-
         if ( m_session && m_session->uuid() == sessionUuid )
         {
             return caffa::SessionMaintainer( m_session );
         }
-
         for ( auto observingSession : m_observingSessions )
         {
             if ( observingSession && observingSession->uuid() == sessionUuid && !observingSession->isExpired() )
@@ -176,7 +174,6 @@ public:
                 return caffa::SessionMaintainer( observingSession );
             }
         }
-
         return caffa::SessionMaintainer();
     }
 
