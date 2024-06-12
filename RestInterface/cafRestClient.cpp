@@ -372,11 +372,15 @@ bool RestClient::stopServer()
         m_sessionUuid = "";
     }
 
+    CAFFA_DEBUG( "Joining keepalive thread for session " << sessionUuid );
+
     if ( m_keepAliveThread )
     {
         m_keepAliveThread->join();
         m_keepAliveThread.reset();
     }
+
+    CAFFA_DEBUG( "Sending quit request" );
 
     auto [status, body] =
         performRequest( http::verb::delete_, hostname(), port(), std::string( "/app/quit?session_uuid=" ) + sessionUuid, "" );

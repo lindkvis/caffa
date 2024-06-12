@@ -130,6 +130,7 @@ void RestServerApplication::run()
 //--------------------------------------------------------------------------------------------------
 void RestServerApplication::quit()
 {
+    CAFFA_INFO( "Quitting Server Application" );
     m_server->quit();
     m_ioContext.stop();
     onShutdown();

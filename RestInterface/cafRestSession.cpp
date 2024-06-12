@@ -111,6 +111,11 @@ RestServiceInterface::CleanupCallback
 
     auto method = req.method();
 
+    if ( method == http::verb::delete_ )
+    {
+        CAFFA_DEBUG( "Got delete request" );
+    }
+
     auto accessControlMethod = req.find( http::field::access_control_request_method );
     if ( method == http::verb::options && accessControlMethod != req.end() )
     {
@@ -290,6 +295,11 @@ RestServiceInterface::CleanupCallback
             send( createResponse( status, message ), status == http::status::too_many_requests );
         }
 
+        if ( cleanupCallback )
+        {
+            CAFFA_DEBUG( "Got a cleanup callback that needs to be handled" );
+        }
+
         return cleanupCallback;
     }
     catch ( const std::exception& e )
@@ -345,6 +355,10 @@ void RestSession<Derived>::onRead( beast::error_code ec, std::size_t bytes_trans
 
     // Send the response
     m_cleanupCallback = handleRequest( m_services, m_authenticator, m_docRoot, std::move( m_request ), *m_lambda );
+    if ( m_cleanupCallback )
+    {
+        CAFFA_DEBUG( "Got a cleanup callback from request handler" );
+    }
 }
 
 template <class Derived>

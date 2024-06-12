@@ -68,6 +68,11 @@ TEST_F( RestTest, Launch )
 
         CAFFA_DEBUG( "Confirmed test results!" );
         bool ok = client->stopServer();
+        CAFFA_DEBUG( "Stopped server" );
+        if ( !ok )
+        {
+            CAFFA_ERROR( "Failed to stop server gracefully" );
+        }
         ASSERT_TRUE( ok );
     }
     catch ( const std::exception& e )
