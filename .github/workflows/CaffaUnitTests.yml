@@ -56,14 +56,14 @@ jobs:
         uses: lukka/run-cmake@v10.7
         with:
           configurePreset: 'ninja-multi-vcpkg'
-      - name: Build Caffa
+      - name: Build Caffa (Debug)
         uses: lukka/run-cmake@v10.7
         with:
-          buildPreset: 'ninja-release-vcpkg'          
-      - name: Run Caffa Unit Tests
+          buildPreset: 'ninja-debug-vcpkg'
+      - name: Run Caffa Unit Tests (Debug)
         uses: lukka/run-cmake@v10.7
         with:
-          testPreset: 'test-release-vcpkg'
+          testPreset: 'test-debug-vcpkg'
       - name: List $RUNNER_WORKSPACE after build
         run: find $RUNNER_WORKSPACE
         shell: bash
