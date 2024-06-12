@@ -32,6 +32,7 @@
 #include <concepts>
 #include <iostream>
 #include <list>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -71,22 +72,33 @@ class AppEnum
 public:
     using DataType = Enum;
 
-    AppEnum() { m_value = EnumMapper::instance()->defaultValue(); }
+    AppEnum()
+    {
+        setUp();
+        m_value = m_defaultValue;
+    }
     AppEnum( Enum value )
         : m_value( value )
     {
+        setUp();
     }
     AppEnum( const std::string& value )
     {
-        m_value = EnumMapper::instance()->defaultValue();
+        setUp();
+        m_value = m_defaultValue;
         setFromLabel( value );
     }
 
-    auto operator<=>( const AppEnum& rhs ) const = default;
+    Enum value() const
+    {
+        if ( m_value )
+        {
+            return *m_value;
+        }
+        throw std::runtime_error( "The AppEnum has no value!" );
+    }
 
-    Enum        value() const { return m_value; }
-    size_t      index() const { return EnumMapper::instance()->index( m_value ); }
-    std::string label() const { return EnumMapper::instance()->label( m_value ); }
+    auto operator<=>( const AppEnum& rhs ) const = default;
 
     AppEnum& operator=( Enum value )
     {
@@ -96,7 +108,12 @@ public:
 
     void setFromLabel( const std::string& label )
     {
-        if ( !EnumMapper::instance()->enumVal( m_value, label ) )
+        auto value = enumVal( label );
+        if ( value )
+        {
+            m_value = value;
+        }
+        else
         {
             throw std::runtime_error( label + " is not a valid option" );
         }
@@ -104,32 +121,102 @@ public:
 
     void setFromIndex( size_t index )
     {
-        if ( !EnumMapper::instance()->enumVal( m_value, index ) )
+        auto value = enumVal( index );
+        if ( value )
+        {
+            m_value = value;
+        }
+        else
         {
             throw std::runtime_error( std::to_string( index ) + " is not a valid option index" );
         }
     }
 
+    std::optional<Enum> enumVal( const std::string& label ) const
+    {
+        for ( auto [entryValue, entryLabel] : m_mapping )
+        {
+            if ( entryLabel == label )
+            {
+                return entryValue;
+            }
+        }
+
+        CAFFA_ERROR( "No label " << label << " in AppEnum" );
+        for ( const auto& [entry, label] : m_mapping )
+        {
+            CAFFA_ERROR( "Found label " << label << "(" << static_cast<int>( entry ) << ")" );
+        }
+        return std::nullopt;
+    }
+
+    std::optional<Enum> enumVal( size_t index ) const
+    {
+        if ( index < m_mapping.size() )
+        {
+            return m_mapping[index].first;
+        }
+        return std::nullopt;
+    }
+
+    size_t size() const { return m_mapping.size(); }
+
+    std::vector<std::string> labels() const
+    {
+        std::vector<std::string> labelList;
+        for ( const auto& [ignore, label] : m_mapping )
+        {
+            labelList.push_back( label );
+        }
+        return labelList;
+    }
+
+    std::string label() const { return this->label( value() ); }
+
+    std::string label( Enum enumValue ) const
+    {
+        for ( const auto& [entry, label] : m_mapping )
+        {
+            if ( enumValue == entry ) return label;
+        }
+
+        CAFFA_ERROR( "No value " << static_cast<int>( enumValue ) << " in AppEnum" );
+        for ( const auto& [entry, label] : m_mapping )
+        {
+            CAFFA_ERROR( "Found label " << label << "(" << static_cast<int>( entry ) << ")" );
+        }
+        throw std::runtime_error( "AppEnum does not have the value " + std::to_string( static_cast<int>( enumValue ) ) );
+        return "";
+    }
+
+    size_t index( Enum enumValue ) const
+    {
+        for ( size_t i = 0; i < m_mapping.size(); ++i )
+        {
+            if ( m_mapping[i].first == enumValue ) return i;
+        }
+
+        CAFFA_ERROR( "No value " << static_cast<int>( value ) << " in AppEnum" );
+        for ( const auto& [entry, label] : m_mapping )
+        {
+            CAFFA_ERROR( "Found label " << label << "(" << static_cast<int>( entry ) << ")" );
+        }
+
+        throw std::runtime_error( "AppEnum does not have the value " + std::to_string( static_cast<int>( enumValue ) ) );
+
+        return 0u;
+    }
+
     // Static interface to access the properties of the enum definition
 
-    static bool   isValid( const std::string& label ) { return EnumMapper::instance()->isValid( label ); }
-    static bool   isValid( size_t index ) { return index < EnumMapper::instance()->size(); }
-    static size_t size() { return EnumMapper::instance()->size(); }
+    static bool   isValid( const std::string& label ) { return AppEnum<Enum>().enumVal( label ).has_value(); }
+    static bool   isValid( size_t index ) { return AppEnum<Enum>().enumval( index ).has_value(); }
+    static size_t validSize() { return AppEnum<Enum>().size(); }
 
-    static std::vector<std::string> labels() { return EnumMapper::instance()->labels(); }
-    static auto                     fromIndex( size_t idx )
-    {
-        Enum val;
-        if ( !EnumMapper::instance()->enumVal( val, idx ) )
-        {
-            throw std::runtime_error( std::to_string( idx ) + " is not a valid option index" );
-        }
-        return AppEnum<Enum>( val );
-    }
-    static auto        fromLabel( const std::string& label ) { return AppEnum<Enum>( label ); }
-    static size_t      index( Enum enumValue ) { return EnumMapper::instance()->index( enumValue ); }
-    static std::string label( Enum enumValue ) { return EnumMapper::instance()->label( enumValue ); }
-    static std::string labelFromIndex( size_t idx ) { return label( fromIndex( idx ).value() ); }
+    static std::vector<std::string> validLabels() { return AppEnum<Enum>().labels(); }
+
+    static size_t      getIndex( Enum enumValue ) { return AppEnum<Enum>().index( enumValue ); }
+    static std::string getLabel( Enum enumValue ) { return AppEnum<Enum>().label( enumValue ); }
 
 private:
     //==================================================================================================
@@ -137,150 +224,15 @@ private:
     /// and is supposed to set up the mapping between enum values, label and ui-label using the \m addItem
     /// method. It may also set a default value using \m setDefault
     //==================================================================================================
-    static void setUp();
-    static void addItem( Enum enumVal, const std::string& label ) { EnumMapper::instance()->addItem( enumVal, label ); }
+    void setUp();
+    void addItem( Enum enumVal, const std::string& label ) { m_mapping.push_back( std::make_pair( enumVal, label ) ); }
 
-    static void setDefault( Enum defaultEnumValue ) { EnumMapper::instance()->setDefault( defaultEnumValue ); }
+    void setDefault( Enum defaultEnumValue ) { m_defaultValue = defaultEnumValue; }
 
-    Enum m_value;
+    std::optional<Enum> m_value;
+    std::optional<Enum> m_defaultValue;
 
-    //==================================================================================================
-    /// A private class to handle the instance of the mapping vector.
-    /// all access methods could have been placed directly in the \class AppEnum class,
-    /// but AppEnum implementation gets nicer this way.
-    /// The real core of this class is the vector map member and the static instance method
-    //==================================================================================================
-
-    class EnumMapper
-    {
-    public:
-        void addItem( Enum enumVal, const std::string& label )
-        {
-            instance()->m_mapping.push_back( std::make_pair( enumVal, label ) );
-        }
-
-        static EnumMapper* instance()
-        {
-            static EnumMapper storedInstance;
-            static bool       isInitialized = false;
-            if ( !isInitialized )
-            {
-                isInitialized = true;
-                AppEnum<Enum>::setUp();
-            }
-            return &storedInstance;
-        }
-
-        void setDefault( Enum defaultEnumValue )
-        {
-            m_defaultValue      = defaultEnumValue;
-            m_defaultValueIsSet = true;
-        }
-
-        Enum defaultValue() const
-        {
-            if ( m_defaultValueIsSet )
-            {
-                return m_defaultValue;
-            }
-            else
-            {
-                CAFFA_ASSERT( m_mapping.size() );
-                return m_mapping[0].first;
-            }
-        }
-
-        bool isValid( const std::string& label ) const
-        {
-            size_t idx;
-            for ( idx = 0; idx < m_mapping.size(); ++idx )
-            {
-                if ( label == m_mapping[idx].second ) return true;
-            }
-
-            return false;
-        }
-
-        size_t size() const { return m_mapping.size(); }
-
-        bool enumVal( Enum& value, const std::string& label ) const
-        {
-            value = defaultValue();
-            size_t idx;
-            for ( idx = 0; idx < m_mapping.size(); ++idx )
-            {
-                if ( label == m_mapping[idx].second )
-                {
-                    value = m_mapping[idx].first;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        bool enumVal( Enum& value, size_t index ) const
-        {
-            value = defaultValue();
-            if ( index < m_mapping.size() )
-            {
-                value = m_mapping[index].first;
-                return true;
-            }
-            else
-                return false;
-        }
-
-        size_t index( Enum value ) const
-        {
-            for ( size_t i = 0; i < m_mapping.size(); ++i )
-            {
-                if ( value == m_mapping[i].first ) return i;
-            }
-
-            CAFFA_ERROR( "No value " << static_cast<int>( value ) << " in AppEnum" );
-            for ( const auto& [enumVal, label] : m_mapping )
-            {
-                CAFFA_ERROR( "Found label " << label << "(" << static_cast<int>( enumVal ) << ")" );
-            }
-
-            throw std::runtime_error( "AppEnum does not have the value " + std::to_string( static_cast<int>( value ) ) );
-        }
-
-        std::string label( Enum value ) const
-        {
-            for ( const auto& [enumVal, label] : m_mapping )
-            {
-                if ( value == enumVal ) return label;
-            }
-
-            CAFFA_ERROR( "No value " << static_cast<int>( value ) << " in AppEnum" );
-            for ( const auto& [enumVal, label] : m_mapping )
-            {
-                CAFFA_ERROR( "Found label " << label << "(" << static_cast<int>( enumVal ) << ")" );
-            }
-            throw std::runtime_error( "AppEnum does not have the value " + std::to_string( static_cast<int>( value ) ) );
-        }
-
-        std::vector<std::string> labels() const
-        {
-            std::vector<std::string> labelList;
-            for ( const auto& [ignore, label] : m_mapping )
-            {
-                labelList.push_back( label );
-            }
-            return labelList;
-        }
-
-    private:
-        EnumMapper()
-            : m_defaultValueIsSet( false )
-        {
-        }
-
-        std::vector<std::pair<Enum, std::string>> m_mapping;
-        Enum                                      m_defaultValue;
-        bool                                      m_defaultValueIsSet;
-    };
+    std::vector<std::pair<Enum, std::string>> m_mapping;
 };
 
 template <typename EnumType>
@@ -288,7 +240,7 @@ struct PortableDataType<AppEnum<EnumType>>
 {
     static std::string name()
     {
-        auto              labels = AppEnum<EnumType>::labels();
+        auto              labels = AppEnum<EnumType>::validLabels();
         std::stringstream ss;
         ss << "AppEnum(";
         for ( size_t i = 0; i < labels.size(); ++i )
@@ -302,7 +254,7 @@ struct PortableDataType<AppEnum<EnumType>>
     static nlohmann::json jsonType()
     {
         auto values = nlohmann::json::array();
-        for ( auto entry : AppEnum<EnumType>::labels() )
+        for ( auto entry : AppEnum<EnumType>::validLabels() )
         {
             values.push_back( entry );
         }
@@ -330,8 +282,8 @@ std::istream& operator>>( std::istream& str, caffa::AppEnum<Enum>& appEnum )
 template <typename Enum>
 std::ostream& operator<<( std::ostream& str, const caffa::AppEnum<Enum>& appEnum )
 {
-    std::string label = appEnum.label();
-    str << appEnum.label();
+    auto value = appEnum.value();
+    str << appEnum.label( value );
     return str;
 }
 
