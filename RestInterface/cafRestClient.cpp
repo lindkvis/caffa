@@ -520,7 +520,7 @@ caffa::Session::Type RestClient::checkSession() const
 
     auto jsonResult = nlohmann::json::parse( body );
     CAFFA_ASSERT( jsonResult.contains( "type" ) );
-    return caffa::AppEnum<caffa::Session::Type>::fromLabel( jsonResult["type"].get<std::string>() ).value();
+    return caffa::AppEnum<caffa::Session::Type>( jsonResult["type"].get<std::string>() ).value();
 }
 
 //--------------------------------------------------------------------------------------------------
