@@ -89,7 +89,7 @@ RestClient::~RestClient()
     }
     catch ( const std::exception& e )
     {
-        CAFFA_ERROR( "Failed to shut down keepalive thread gracefully" );
+        CAFFA_ERROR( "Failed to shut down keepalive thread gracefully: " << e.what() );
     }
 }
 
