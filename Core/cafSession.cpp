@@ -98,9 +98,9 @@ Session::Type Session::typeFromUint( unsigned type )
         case static_cast<unsigned>( Session::Type::OBSERVING ):
             return Session::Type::OBSERVING;
         default:
-            throw std::runtime_error( "Bad session type " + std::to_string( type ) );
+            break;
     }
-    return Session::Type::INVALID;
+    throw std::runtime_error( "Bad session type " + std::to_string( type ) );
 }
 
 std::chrono::milliseconds Session::timeout() const
