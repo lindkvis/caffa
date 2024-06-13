@@ -17,7 +17,7 @@ set(CMAKE_CXX_STANDARD 20)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/scripts")
 
 option(CAFFA_REST_INTERFACE "Enable the REST API interface to the Project Data Model" ON)
-option(CAFFA_BUILD_EXAMPLES "Build examples" OFF)
+option(CAFFA_BUILD_EXAMPLES "Build examples" ON)
 option(CAFFA_BUILD_UNIT_TESTS "Build unit tests" ON)
 option(CAFFA_BUILD_DOCS "Build Doxygen documentation" OFF)
 

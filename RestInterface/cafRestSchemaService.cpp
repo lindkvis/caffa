@@ -34,14 +34,16 @@
 
 using namespace caffa::rpc;
 
-RestSchemaService::ServiceResponse RestSchemaService::perform( http::verb                    verb,
+RestSchemaService::ServiceResponse RestSchemaService::perform( HttpVerb                      verb,
                                                                const std::list<std::string>& path,
                                                                const nlohmann::json&         queryParams,
                                                                const nlohmann::json&         body )
 {
-    if ( verb != http::verb::get )
+    if ( verb != HttpVerb::GET )
     {
-        return std::make_tuple( http::status::bad_request, "Only GET requests are allowed for schema queries", nullptr );
+        return std::make_pair( httplib::StatusCode::BadRequest_400,
+                               "Only GET requests are allowed for schema queries",
+                               nullptr );
     }
 
     if ( path.empty() )
@@ -54,24 +56,26 @@ RestSchemaService::ServiceResponse RestSchemaService::perform( http::verb       
 
     if ( !object )
     {
-        return std::make_tuple( http::status::not_found, "No such class", nullptr );
+        return std::make_pair( httplib::StatusCode::NotFound_404, "No such class" );
     }
 
     auto reducedPath = path;
     reducedPath.pop_front();
     if ( reducedPath.empty() )
     {
-        return std::make_tuple( http::status::ok, createJsonSchemaFromProjectObject( object.get() ).dump(), nullptr );
+        return std::make_pair( httplib::StatusCode::OK_200,
+                               createJsonSchemaFromProjectObject( object.get() ).dump(),
+                               nullptr );
     }
     return getFieldSchema( object.get(), reducedPath.front() );
 }
 
-bool RestSchemaService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
+bool RestSchemaService::requiresAuthentication( HttpVerb verb, const std::list<std::string>& path ) const
 {
     return false;
 }
 
-bool RestSchemaService::requiresSession( http::verb verb, const std::list<std::string>& path ) const
+bool RestSchemaService::requiresSession( HttpVerb verb, const std::list<std::string>& path ) const
 {
     return false;
 }
@@ -105,18 +109,18 @@ RestSchemaService::ServiceResponse RestSchemaService::getFieldSchema( const caff
                                                                       const std::string&         fieldName )
 {
     auto field = object->findField( fieldName );
-    if ( !field ) return std::make_tuple( http::status::not_found, "Field does not exist", nullptr );
+    if ( !field ) return std::make_pair( httplib::StatusCode::NotFound_404, "Field does not exist" );
 
     auto scriptability = field->capability<caffa::FieldScriptingCapability>();
     if ( !scriptability || !scriptability->isWritable() )
-        return std::make_tuple( http::status::forbidden, "Field is not remote writable", nullptr );
+        return std::make_pair( httplib::StatusCode::Forbidden_403, "Field is not remote writable" );
 
     auto ioCapability = field->capability<caffa::FieldJsonCapability>();
     if ( !ioCapability )
     {
-        return std::make_tuple( http::status::forbidden,
-                                "Field " + field->keyword() + " found, but it has no JSON capability",
-                                nullptr );
+        return std::make_pair( httplib::StatusCode::Forbidden_403,
+                               "Field " + field->keyword() + " found, but it has no JSON capability",
+                               nullptr );
     }
 
     caffa::JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
@@ -124,10 +128,10 @@ RestSchemaService::ServiceResponse RestSchemaService::getFieldSchema( const caff
 
     nlohmann::json json;
     ioCapability->writeToJson( json, serializer );
-    return std::make_tuple( http::status::ok, json.dump(), nullptr );
+    return std::make_pair( httplib::StatusCode::OK_200, json.dump() );
 }
 
 RestSchemaService::ServiceResponse RestSchemaService::getAllSchemas()
 {
-    return std::make_tuple( http::status::ok, getJsonForAllSchemas().dump(), nullptr );
+    return std::make_pair( httplib::StatusCode::OK_200, getJsonForAllSchemas().dump() );
 }

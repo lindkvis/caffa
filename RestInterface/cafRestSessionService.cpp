@@ -42,25 +42,25 @@ RestSessionService::RestSessionService()
     typeParameter->setDefaultValue( caffa::Session::Type::REGULAR );
 
     {
-        auto readyAction = std::make_unique<RestAction>( http::verb::get,
+        auto readyAction = std::make_unique<RestAction>( HttpVerb::GET,
                                                          "Check if App is ready for a new session",
                                                          "ready",
                                                          &RestSessionService::ready );
 
-        readyAction->addResponse( http::status::ok,
+        readyAction->addResponse( httplib::StatusCode::OK_200,
                                   RestResponse::objectResponse( "#/components/session_schemas/ReadyState", "Ready State" ) );
 
-        readyAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+        readyAction->addResponse( httplib::StatusCode::MultiStatus_207, RestResponse::plainErrorResponse() );
         readyAction->setRequiresAuthentication( false );
         readyAction->setRequiresSession( false );
 
         auto createAction =
-            std::make_unique<RestAction>( http::verb::post, "Create a new session", "create", &RestSessionService::create );
+            std::make_unique<RestAction>( HttpVerb::POST, "Create a new session", "create", &RestSessionService::create );
 
         createAction->addParameter( typeParameter->clone() );
 
-        createAction->addResponse( http::status::accepted, sessionResponse->clone() );
-        createAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+        createAction->addResponse( httplib::StatusCode::Accepted_202, sessionResponse->clone() );
+        createAction->addResponse( httplib::StatusCode::MultiStatus_207, RestResponse::plainErrorResponse() );
         createAction->setRequiresAuthentication( true );
         createAction->setRequiresSession( false );
 
@@ -77,32 +77,32 @@ RestSessionService::RestSessionService()
                                                                                 true,
                                                                                 "The UUID of the session to check " );
 
-        auto getAction = std::make_unique<RestAction>( http::verb::get,
+        auto getAction = std::make_unique<RestAction>( HttpVerb::GET,
                                                        "Get status of a particular session",
                                                        "getSession",
                                                        &RestSessionService::get );
 
         getAction->addParameter( uuidParameter->clone() );
-        getAction->addResponse( http::status::ok, sessionResponse->clone() );
-        getAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+        getAction->addResponse( httplib::StatusCode::OK_200, sessionResponse->clone() );
+        getAction->addResponse( httplib::StatusCode::MultiStatus_207, RestResponse::plainErrorResponse() );
         getAction->setRequiresAuthentication( false );
         getAction->setRequiresSession( false );
 
         uuidEntry->addAction( std::move( getAction ) );
 
-        auto deleteAction = std::make_unique<RestAction>( http::verb::delete_,
+        auto deleteAction = std::make_unique<RestAction>( HttpVerb::DELETE,
                                                           "Destroy a particular session",
                                                           "destroySession",
                                                           &RestSessionService::destroy );
 
         deleteAction->addParameter( uuidParameter->clone() );
-        deleteAction->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
-        deleteAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+        deleteAction->addResponse( httplib::StatusCode::Accepted_202, RestResponse::emptyResponse( "Success" ) );
+        deleteAction->addResponse( httplib::StatusCode::MultiStatus_207, RestResponse::plainErrorResponse() );
         deleteAction->setRequiresAuthentication( false );
         deleteAction->setRequiresSession( false );
         uuidEntry->addAction( std::move( deleteAction ) );
 
-        auto putAction = std::make_unique<RestAction>( http::verb::put,
+        auto putAction = std::make_unique<RestAction>( HttpVerb::PUT,
                                                        "Change or keep session alive",
                                                        "changeOrKeepAliveSession",
                                                        &RestSessionService::changeOrKeepAlive );
@@ -110,8 +110,8 @@ RestSessionService::RestSessionService()
         putAction->addParameter( uuidParameter->clone() );
         putAction->addParameter( typeParameter->clone() );
 
-        putAction->addResponse( http::status::ok, sessionResponse->clone() );
-        putAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+        putAction->addResponse( httplib::StatusCode::OK_200, sessionResponse->clone() );
+        putAction->addResponse( httplib::StatusCode::MultiStatus_207, RestResponse::plainErrorResponse() );
         putAction->setRequiresAuthentication( false );
         putAction->setRequiresSession( false );
         uuidEntry->addAction( std::move( putAction ) );
@@ -120,7 +120,7 @@ RestSessionService::RestSessionService()
     }
 }
 
-RestSessionService::ServiceResponse RestSessionService::perform( http::verb             verb,
+RestSessionService::ServiceResponse RestSessionService::perform( HttpVerb               verb,
                                                                  std::list<std::string> path,
                                                                  const nlohmann::json&  queryParams,
                                                                  const nlohmann::json&  body )
@@ -130,13 +130,13 @@ RestSessionService::ServiceResponse RestSessionService::perform( http::verb     
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request )
     {
-        return std::make_tuple( http::status::bad_request, "Path not found", nullptr );
+        return std::make_pair( httplib::StatusCode::BadRequest_400, "Path not found" );
     }
 
     return request->perform( verb, pathArguments, queryParams, body );
 }
 
-bool RestSessionService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
+bool RestSessionService::requiresAuthentication( HttpVerb verb, const std::list<std::string>& path ) const
 {
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request )
@@ -146,7 +146,7 @@ bool RestSessionService::requiresAuthentication( http::verb verb, const std::lis
     return request->requiresAuthentication( verb );
 }
 
-bool RestSessionService::requiresSession( http::verb verb, const std::list<std::string>& path ) const
+bool RestSessionService::requiresSession( HttpVerb verb, const std::list<std::string>& path ) const
 {
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request )
@@ -204,7 +204,7 @@ std::map<std::string, nlohmann::json> RestSessionService::serviceComponentEntrie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse RestSessionService::ready( http::verb                    verb,
+RestSessionService::ServiceResponse RestSessionService::ready( HttpVerb                      verb,
                                                                const std::list<std::string>& pathArguments,
                                                                const nlohmann::json&         queryParams,
                                                                const nlohmann::json&         body )
@@ -224,18 +224,18 @@ RestSessionService::ServiceResponse RestSessionService::ready( http::verb       
 
         jsonResponse["ready"]          = ready;
         jsonResponse["other_sessions"] = RestServerApplication::instance()->hasActiveSessions();
-        return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
+        return std::make_pair( httplib::StatusCode::OK_200, jsonResponse.dump() );
     }
     catch ( ... )
     {
-        return std::make_tuple( http::status::not_found, "Failed to check for session readiness", nullptr );
+        return std::make_pair( httplib::StatusCode::NotFound_404, "Failed to check for session readiness" );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse RestSessionService::create( http::verb                    verb,
+RestSessionService::ServiceResponse RestSessionService::create( HttpVerb                      verb,
                                                                 const std::list<std::string>& pathArguments,
                                                                 const nlohmann::json&         queryParams,
                                                                 const nlohmann::json&         body )
@@ -257,26 +257,26 @@ RestSessionService::ServiceResponse RestSessionService::create( http::verb      
         jsonResponse["uuid"]  = session->uuid();
         jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::getLabel( session->type() );
         jsonResponse["valid"] = !session->isExpired();
-        return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
+        return std::make_pair( httplib::StatusCode::OK_200, jsonResponse.dump() );
     }
     catch ( const std::exception& e )
     {
         CAFFA_ERROR( "Failed to create session with error: " << e.what() );
-        return std::make_tuple( http::status::forbidden, e.what(), nullptr );
+        return std::make_pair( httplib::StatusCode::Forbidden_403, e.what() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse RestSessionService::get( http::verb                    verb,
+RestSessionService::ServiceResponse RestSessionService::get( HttpVerb                      verb,
                                                              const std::list<std::string>& pathArguments,
                                                              const nlohmann::json&         queryParams,
                                                              const nlohmann::json&         body )
 {
     if ( pathArguments.empty() )
     {
-        return std::make_tuple( http::status::bad_request, "Session uuid not provided", nullptr );
+        return std::make_pair( httplib::StatusCode::BadRequest_400, "Session uuid not provided" );
     }
     auto uuid = pathArguments.front();
 
@@ -285,7 +285,7 @@ RestSessionService::ServiceResponse RestSessionService::get( http::verb         
     caffa::SessionMaintainer session = RestServerApplication::instance()->getExistingSession( uuid );
     if ( !session )
     {
-        return std::make_tuple( http::status::not_found, "Session '" + uuid + "' is not valid", nullptr );
+        return std::make_pair( httplib::StatusCode::NotFound_404, "Session '" + uuid + "' is not valid" );
     }
 
     auto jsonResponse     = nlohmann::json::object();
@@ -293,20 +293,20 @@ RestSessionService::ServiceResponse RestSessionService::get( http::verb         
     jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::getLabel( session->type() );
     jsonResponse["valid"] = !session->isExpired();
 
-    return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
+    return std::make_pair( httplib::StatusCode::OK_200, jsonResponse.dump() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( http::verb                    verb,
+RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( HttpVerb                      verb,
                                                                            const std::list<std::string>& pathArguments,
                                                                            const nlohmann::json&         queryParams,
                                                                            const nlohmann::json&         body )
 {
     if ( pathArguments.empty() )
     {
-        return std::make_tuple( http::status::bad_request, "Session uuid not provided", nullptr );
+        return std::make_pair( httplib::StatusCode::BadRequest_400, "Session uuid not provided" );
     }
     auto uuid = pathArguments.front();
 
@@ -316,11 +316,11 @@ RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( http:
 
     if ( !session )
     {
-        return std::make_tuple( http::status::not_found, "Session '" + uuid + "' is not valid", nullptr );
+        return std::make_pair( httplib::StatusCode::NotFound_404, "Session '" + uuid + "' is not valid" );
     }
     else if ( session->isExpired() )
     {
-        return std::make_tuple( http::status::gone, "Session '" + uuid + "' is expired", nullptr );
+        return std::make_pair( httplib::StatusCode::Gone_410, "Session '" + uuid + "' is expired" );
     }
 
     if ( !queryParams.contains( "type" ) )
@@ -339,20 +339,20 @@ RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( http:
     jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::getLabel( session->type() );
     jsonResponse["valid"] = !session->isExpired();
 
-    return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
+    return std::make_pair( httplib::StatusCode::OK_200, jsonResponse.dump() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse RestSessionService::destroy( http::verb                    verb,
+RestSessionService::ServiceResponse RestSessionService::destroy( HttpVerb                      verb,
                                                                  const std::list<std::string>& pathArguments,
                                                                  const nlohmann::json&         queryParams,
                                                                  const nlohmann::json&         body )
 {
     if ( pathArguments.empty() )
     {
-        return std::make_tuple( http::status::bad_request, "Session uuid not provided", nullptr );
+        return std::make_pair( httplib::StatusCode::BadRequest_400, "Session uuid not provided" );
     }
     auto uuid = pathArguments.front();
 
@@ -361,14 +361,13 @@ RestSessionService::ServiceResponse RestSessionService::destroy( http::verb     
     try
     {
         RestServerApplication::instance()->destroySession( uuid );
-        return std::make_tuple( http::status::accepted, "Session successfully destroyed", nullptr );
+        return std::make_pair( httplib::StatusCode::Accepted_202, "Session successfully destroyed" );
     }
     catch ( const std::exception& e )
     {
         CAFFA_WARNING( "Session '" << uuid << "' did not exist. It may already have been destroyed due to lack of keepalive: "
                                    << e.what() );
-        return std::make_tuple( http::status::not_found,
-                                "Failed to destroy session. It may already have been destroyed.",
-                                nullptr );
+        return std::make_pair( httplib::StatusCode::NotFound_404,
+                               "Failed to destroy session. It may already have been destroyed." );
     }
 }

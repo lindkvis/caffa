@@ -22,7 +22,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include <boost/beast/http.hpp>
+#include "httplib.h"
 
 #include <chrono>
 #include <functional>
@@ -30,8 +30,6 @@
 #include <map>
 #include <mutex>
 #include <tuple>
-
-namespace http = boost::beast::http;
 
 namespace caffa::rpc
 {
@@ -43,19 +41,21 @@ class AbstractRestCallback;
 class RestServiceInterface
 {
 public:
-    static const std::string HTTP_OK;
-    static const std::string HTTP_ACCEPTED;
-    static const std::string HTTP_FORBIDDEN;
-    static const std::string HTTP_TOO_MANY_REQUESTS;
-    static const std::string HTTP_NOT_FOUND;
+    enum class HttpVerb
+    {
+        GET,
+        DELETE,
+        PUT,
+        POST
+    };
 
-    // Callback to be called after sending response. Can be nullptr
-    using CleanupCallback = std::function<void()>;
-    using ServiceResponse = std::tuple<http::status, std::string, CleanupCallback>;
+    static std::string to_string( HttpVerb verb );
+
+    using ServiceResponse = std::pair<httplib::StatusCode, std::string>;
 
     virtual ~RestServiceInterface() = default;
 
-    virtual ServiceResponse perform( http::verb             verb,
+    virtual ServiceResponse perform( HttpVerb               verb,
                                      std::list<std::string> path,
                                      const nlohmann::json&  queryParams,
                                      const nlohmann::json&  body ) = 0;
@@ -70,7 +70,7 @@ public:
      * @return true if the service requires authentication for this verb and path
      * @return false if the service does not require authentication for this verb and path
      */
-    virtual bool requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const = 0;
+    virtual bool requiresAuthentication( HttpVerb verb, const std::list<std::string>& path ) const = 0;
 
     /**
      * @brief Check whether the service requires a valid session
@@ -82,7 +82,7 @@ public:
      * @return true if the service requires a valid session for this verb and path
      * @return false if the service does not requires a valid session for this verb and path
      */
-    virtual bool requiresSession( http::verb verb, const std::list<std::string>& path ) const = 0;
+    virtual bool requiresSession( HttpVerb verb, const std::list<std::string>& path ) const = 0;
 
     /**
      * @brief Create a plain text OpenAPI error response

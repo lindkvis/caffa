@@ -34,33 +34,20 @@ RestAppService::RestAppService()
     auto info = std::make_unique<RestPathEntry>( "info" );
     {
         auto action =
-            std::make_unique<RestAction>( http::verb::get, "Get Application Information", "info", &RestAppService::info );
-        action->addResponse( http::status::ok,
+            std::make_unique<RestAction>( HttpVerb::GET, "Get Application Information", "info", &RestAppService::info );
+        action->addResponse( httplib::StatusCode::OK_200,
                              RestResponse::objectResponse( "#/components/app_schemas/AppInfo", "Application Information" ) );
-        action->addResponse( http::status::too_many_requests, RestResponse::plainErrorResponse() );
+        action->addResponse( httplib::StatusCode::TooManyRequests_429, RestResponse::plainErrorResponse() );
         action->setRequiresAuthentication( false );
         action->setRequiresSession( false );
 
         info->addAction( std::move( action ) );
     }
 
-    auto quit = std::make_unique<RestPathEntry>( "quit" );
-    {
-        auto action =
-            std::make_unique<RestAction>( http::verb::delete_, "Quit Application", "quit", &RestAppService::quit );
-        action->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
-        action->addResponse( http::status::forbidden, RestResponse::plainErrorResponse() );
-        action->setRequiresAuthentication( false );
-        action->setRequiresSession( true );
-
-        quit->addAction( std::move( action ) );
-    }
-
     m_requestPathRoot->addEntry( std::move( info ) );
-    m_requestPathRoot->addEntry( std::move( quit ) );
 }
 
-RestAppService::ServiceResponse RestAppService::perform( http::verb             verb,
+RestAppService::ServiceResponse RestAppService::perform( HttpVerb               verb,
                                                          std::list<std::string> path,
                                                          const nlohmann::json&  queryParams,
                                                          const nlohmann::json&  body )
@@ -70,13 +57,13 @@ RestAppService::ServiceResponse RestAppService::perform( http::verb             
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request )
     {
-        return std::make_tuple( http::status::bad_request, "Path not found", nullptr );
+        return std::make_pair( httplib::StatusCode::BadRequest_400, "Path not found" );
     }
 
     return request->perform( verb, pathArguments, queryParams, body );
 }
 
-bool RestAppService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
+bool RestAppService::requiresAuthentication( HttpVerb verb, const std::list<std::string>& path ) const
 {
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request ) return false;
@@ -84,7 +71,7 @@ bool RestAppService::requiresAuthentication( http::verb verb, const std::list<st
     return request->requiresAuthentication( verb );
 }
 
-bool RestAppService::requiresSession( http::verb verb, const std::list<std::string>& path ) const
+bool RestAppService::requiresSession( HttpVerb verb, const std::list<std::string>& path ) const
 {
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request ) return false;
@@ -121,7 +108,7 @@ std::map<std::string, nlohmann::json> RestAppService::serviceComponentEntries() 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestAppService::ServiceResponse RestAppService::info( http::verb                    verb,
+RestAppService::ServiceResponse RestAppService::info( HttpVerb                      verb,
                                                       const std::list<std::string>& pathArguments,
                                                       const nlohmann::json&         queryParams,
                                                       const nlohmann::json&         body )
@@ -132,20 +119,5 @@ RestAppService::ServiceResponse RestAppService::info( http::verb                
     auto appInfo = app->appInfo();
 
     nlohmann::json json = appInfo;
-    return std::make_tuple( http::status::ok, json.dump(), nullptr );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RestAppService::ServiceResponse RestAppService::quit( http::verb                    verb,
-                                                      const std::list<std::string>& pathArguments,
-                                                      const nlohmann::json&         queryParams,
-                                                      const nlohmann::json&         body )
-{
-    CAFFA_DEBUG( "Received quit request" );
-
-    return std::make_tuple( http::status::accepted,
-                            "Told to quit. It will happen soon",
-                            []() { RestServerApplication::instance()->quit(); } );
+    return std::make_pair( httplib::StatusCode::OK_200, json.dump() );
 }

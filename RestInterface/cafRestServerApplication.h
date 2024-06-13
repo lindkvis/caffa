@@ -24,15 +24,9 @@
 
 #include <utility>
 
-#include <boost/asio.hpp>
-#include <boost/beast/ssl.hpp>
-
 #include <atomic>
 #include <memory>
-#include <vector>
-
-namespace net = boost::asio; // from <boost/asio.hpp>
-namespace ssl = boost::asio::ssl; // from <boost/asio/ssl.hpp>
+#include <mutex>
 
 namespace caffa::rpc
 {
@@ -60,13 +54,12 @@ public:
     void run() override;
     void quit() override;
     bool running() const override;
+    void waitUntilReady() const override;
 
 private:
     unsigned short                           m_portNumber;
     int                                      m_threads;
-    net::io_context                          m_ioContext;
     std::shared_ptr<const RestAuthenticator> m_authenticator;
-    std::shared_ptr<ssl::context>            m_sslContext;
     std::shared_ptr<RestServer>              m_server;
     std::atomic<bool>                        m_threadRunning;
 };

@@ -78,37 +78,37 @@ RestObjectService::RestObjectService()
                                                                      "The index of the field (for array fields)" );
     {
         auto getAction =
-            createFieldOrMethodAction( http::verb::get,
+            createFieldOrMethodAction( HttpVerb::GET,
                                        "Get a field value",
                                        "getFieldValue",
                                        { keywordParameter.get(), indexParameter.get(), skeletonParameter.get() } );
-        getAction->addResponse( http::status::ok,
+        getAction->addResponse( httplib::StatusCode::OK_200,
                                 std::make_unique<RestResponse>( anyFieldResponseContent(), "Specific field" ) );
-        getAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+        getAction->addResponse( httplib::StatusCode::MultiStatus_207, RestResponse::plainErrorResponse() );
         fieldKeywordEntry->addAction( std::move( getAction ) );
     }
 
     {
         auto putAction =
-            createFieldOrMethodAction( http::verb::put,
+            createFieldOrMethodAction( HttpVerb::PUT,
                                        "Replace a field value",
                                        "replaceFieldValue",
                                        { keywordParameter.get(), indexParameter.get(), skeletonParameter.get() } );
 
-        putAction->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
-        putAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+        putAction->addResponse( httplib::StatusCode::Accepted_202, RestResponse::emptyResponse( "Success" ) );
+        putAction->addResponse( httplib::StatusCode::MultiStatus_207, RestResponse::plainErrorResponse() );
         fieldKeywordEntry->addAction( std::move( putAction ) );
     }
 
     {
         auto postAction =
-            createFieldOrMethodAction( http::verb::post,
+            createFieldOrMethodAction( HttpVerb::POST,
                                        "Insert a field value",
                                        "insertFieldValue",
                                        { keywordParameter.get(), indexParameter.get(), skeletonParameter.get() } );
 
-        postAction->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
-        postAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+        postAction->addResponse( httplib::StatusCode::Accepted_202, RestResponse::emptyResponse( "Success" ) );
+        postAction->addResponse( httplib::StatusCode::MultiStatus_207, RestResponse::plainErrorResponse() );
 
         auto requestBody       = nlohmann::json::object();
         requestBody["content"] = anyFieldResponseContent();
@@ -120,13 +120,13 @@ RestObjectService::RestObjectService()
 
     {
         auto deleteAction =
-            createFieldOrMethodAction( http::verb::delete_,
+            createFieldOrMethodAction( HttpVerb::DELETE,
                                        "Delete a field value",
                                        "deleteFieldValue",
                                        { keywordParameter.get(), indexParameter.get(), skeletonParameter.get() } );
 
-        deleteAction->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
-        deleteAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+        deleteAction->addResponse( httplib::StatusCode::Accepted_202, RestResponse::emptyResponse( "Success" ) );
+        deleteAction->addResponse( httplib::StatusCode::MultiStatus_207, RestResponse::plainErrorResponse() );
         fieldKeywordEntry->addAction( std::move( deleteAction ) );
     }
 
@@ -142,11 +142,11 @@ RestObjectService::RestObjectService()
 
     {
         auto methodExecuteAction =
-            createFieldOrMethodAction( http::verb::post, "Execute method", "executeMethod", { keywordParameter.get() } );
+            createFieldOrMethodAction( HttpVerb::POST, "Execute method", "executeMethod", { keywordParameter.get() } );
 
-        methodExecuteAction->addResponse( http::status::ok,
+        methodExecuteAction->addResponse( httplib::StatusCode::OK_200,
                                           std::make_unique<RestResponse>( anyFieldResponseContent(), "Success" ) );
-        methodExecuteAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+        methodExecuteAction->addResponse( httplib::StatusCode::MultiStatus_207, RestResponse::plainErrorResponse() );
 
         auto methodContent = nlohmann::json{ { "application/json", { { "schema", nlohmann::json::object() } } } };
 
@@ -202,7 +202,7 @@ nlohmann::json RestObjectService::anyFieldResponseContent()
     return nlohmann::json{ { "application/json", { { "schema", { { "oneOf", oneOf } } } } } };
 }
 
-RestObjectService::ServiceResponse RestObjectService::perform( http::verb             verb,
+RestObjectService::ServiceResponse RestObjectService::perform( HttpVerb               verb,
                                                                std::list<std::string> path,
                                                                const nlohmann::json&  queryParams,
                                                                const nlohmann::json&  body )
@@ -212,7 +212,7 @@ RestObjectService::ServiceResponse RestObjectService::perform( http::verb       
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request )
     {
-        return std::make_tuple( http::status::bad_request, "Path not found", nullptr );
+        return std::make_pair( httplib::StatusCode::BadRequest_400, "Path not found" );
     }
     return request->perform( verb, pathArguments, queryParams, body );
 }
@@ -220,7 +220,7 @@ RestObjectService::ServiceResponse RestObjectService::perform( http::verb       
 //--------------------------------------------------------------------------------------------------
 /// The object service uses session uuids to decide if it accepts the request or not
 //--------------------------------------------------------------------------------------------------
-bool RestObjectService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
+bool RestObjectService::requiresAuthentication( HttpVerb verb, const std::list<std::string>& path ) const
 {
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request )
@@ -230,7 +230,7 @@ bool RestObjectService::requiresAuthentication( http::verb verb, const std::list
     return request->requiresAuthentication( verb );
 }
 
-bool RestObjectService::requiresSession( http::verb verb, const std::list<std::string>& path ) const
+bool RestObjectService::requiresSession( HttpVerb verb, const std::list<std::string>& path ) const
 {
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request )
@@ -274,7 +274,7 @@ std::map<std::string, nlohmann::json> RestObjectService::serviceComponentEntries
 }
 
 RestObjectService::ServiceResponse
-    RestObjectService::performFieldOrMethodOperation( http::verb                    verb,
+    RestObjectService::performFieldOrMethodOperation( HttpVerb                      verb,
                                                       const std::list<std::string>& pathArguments,
                                                       const nlohmann::json&         queryParams,
                                                       const nlohmann::json&         body )
@@ -285,14 +285,14 @@ RestObjectService::ServiceResponse
     auto session = findSession( queryParams );
     if ( !session || session->isExpired() )
     {
-        return std::make_tuple( http::status::forbidden, "No valid session provided", nullptr );
+        return std::make_pair( httplib::StatusCode::Forbidden_403, "No valid session provided" );
     }
 
     auto arguments = pathArguments;
 
     if ( pathArguments.empty() )
     {
-        return std::make_tuple( http::status::bad_request, "Object uuid not specified", nullptr );
+        return std::make_pair( httplib::StatusCode::BadRequest_400, "Object uuid not specified" );
     }
 
     auto uuid = arguments.front();
@@ -303,12 +303,12 @@ RestObjectService::ServiceResponse
     auto object = findCafObjectFromUuid( session.get(), uuid );
     if ( !object )
     {
-        return std::make_tuple( http::status::not_found, "Object " + uuid + " not found", nullptr );
+        return std::make_pair( httplib::StatusCode::NotFound_404, "Object " + uuid + " not found" );
     }
 
     if ( arguments.empty() )
     {
-        return std::make_tuple( http::status::bad_request, "field keyword not provided", nullptr );
+        return std::make_pair( httplib::StatusCode::BadRequest_400, "field keyword not provided" );
     }
 
     auto keyword = arguments.front();
@@ -316,32 +316,32 @@ RestObjectService::ServiceResponse
     if ( auto method = object->findMethod( keyword ); method )
     {
         auto result = method->execute( *session, body.dump() );
-        return std::make_tuple( http::status::ok, result, nullptr );
+        return std::make_pair( httplib::StatusCode::OK_200, result );
     }
     else if ( auto field = object->findField( keyword ); field )
     {
         int  index    = queryParams.contains( "index" ) ? queryParams["index"].get<int>() : -1;
         bool skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
-        if ( verb == http::verb::get )
+        if ( verb == HttpVerb::GET )
         {
             return getFieldValue( field, index, skeleton );
         }
-        else if ( verb == http::verb::put )
+        else if ( verb == HttpVerb::PUT )
         {
             return replaceFieldValue( field, index, body );
         }
-        else if ( verb == http::verb::post )
+        else if ( verb == HttpVerb::POST )
         {
             return insertFieldValue( field, index, body );
         }
-        else if ( verb == http::verb::delete_ )
+        else if ( verb == HttpVerb::DELETE )
         {
             return deleteFieldValue( field, index );
         }
-        return std::make_tuple( http::status::bad_request, "Verb not implemented", nullptr );
+        return std::make_pair( httplib::StatusCode::BadRequest_400, "Verb not implemented" );
     }
 
-    return std::make_tuple( http::status::not_found, "No field named " + keyword + " found", nullptr );
+    return std::make_pair( httplib::StatusCode::NotFound_404, "No field named " + keyword + " found" );
 }
 
 RestObjectService::ServiceResponse
@@ -349,14 +349,13 @@ RestObjectService::ServiceResponse
 {
     auto scriptability = field->capability<caffa::FieldScriptingCapability>();
     if ( !scriptability || !scriptability->isReadable() )
-        return std::make_tuple( http::status::forbidden, "Field " + field->keyword() + " is not remote readable", nullptr );
+        return std::make_pair( httplib::StatusCode::Forbidden_403, "Field " + field->keyword() + " is not remote readable" );
 
     auto ioCapability = field->capability<caffa::FieldJsonCapability>();
     if ( !ioCapability )
     {
-        return std::make_tuple( http::status::forbidden,
-                                "Field " + field->keyword() + " found, but it has no JSON capability",
-                                nullptr );
+        return std::make_pair( httplib::StatusCode::Forbidden_403,
+                               "Field " + field->keyword() + " found, but it has no JSON capability" );
     }
     auto childField = dynamic_cast<const caffa::ChildFieldBaseHandle*>( field );
     try
@@ -374,27 +373,26 @@ RestObjectService::ServiceResponse
                 {
                     CAFFA_ERROR( "Failed to get field value for  '" << field->keyword()
                                                                     << "' because index was out of range" );
-                    return std::make_tuple( http::status::forbidden, "index out of range", nullptr );
+                    return std::make_pair( httplib::StatusCode::Forbidden_403, "index out of range" );
                 }
-                return std::make_tuple( http::status::ok,
-                                        serializer.writeObjectToString( childObjects[index].get() ),
-                                        nullptr );
+                return std::make_pair( httplib::StatusCode::OK_200,
+                                       serializer.writeObjectToString( childObjects[index].get() ) );
             }
             nlohmann::json jsonValue;
             ioCapability->writeToJson( jsonValue, serializer );
 
-            return std::make_tuple( http::status::ok, jsonValue.dump(), nullptr );
+            return std::make_pair( httplib::StatusCode::OK_200, jsonValue.dump() );
         }
 
         nlohmann::json jsonValue;
         ioCapability->writeToJson( jsonValue, serializer );
 
-        return std::make_tuple( http::status::ok, jsonValue.dump(), nullptr );
+        return std::make_pair( httplib::StatusCode::OK_200, jsonValue.dump() );
     }
     catch ( const std::exception& e )
     {
         CAFFA_ERROR( "Failed to get field value for  '" << field->keyword() << "' with error: '" << e.what() << "'" );
-        return std::make_tuple( http::status::internal_server_error, e.what(), nullptr );
+        return std::make_pair( httplib::StatusCode::InternalServerError_500, e.what() );
     }
 }
 
@@ -403,14 +401,13 @@ RestObjectService::ServiceResponse
 {
     auto scriptability = field->capability<FieldScriptingCapability>();
     if ( !scriptability || !scriptability->isWritable() )
-        return std::make_tuple( http::status::forbidden, "Field " + field->keyword() + " is not remote writable", nullptr );
+        return std::make_pair( httplib::StatusCode::Forbidden_403, "Field " + field->keyword() + " is not remote writable" );
 
     auto ioCapability = field->capability<FieldJsonCapability>();
     if ( !ioCapability )
     {
-        return std::make_tuple( http::status::forbidden,
-                                "Field " + field->keyword() + " found, but it has no JSON capability",
-                                nullptr );
+        return std::make_pair( httplib::StatusCode::Forbidden_403,
+                               "Field " + field->keyword() + " found, but it has no JSON capability" );
     }
 
     JsonSerializer serializer;
@@ -422,12 +419,11 @@ RestObjectService::ServiceResponse
         {
             if ( index >= 0 )
             {
-                return std::make_tuple( http::status::bad_request,
-                                        "Index does not make sense for a simple Child Field",
-                                        nullptr );
+                return std::make_pair( httplib::StatusCode::BadRequest_400,
+                                       "Index does not make sense for a simple Child Field" );
             }
             ioCapability->readFromJson( body, serializer );
-            return std::make_tuple( http::status::accepted, "", nullptr );
+            return std::make_pair( httplib::StatusCode::Accepted_202, "" );
         }
 
         auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
@@ -439,19 +435,18 @@ RestObjectService::ServiceResponse
             if ( index >= 0 && static_cast<size_t>( index ) < childObjects.size() )
             {
                 serializer.readObjectFromString( childObjects[index].get(), body.dump() );
-                return std::make_tuple( http::status::accepted, "", nullptr );
+                return std::make_pair( httplib::StatusCode::Accepted_202, "" );
             }
-            return std::make_tuple( http::status::bad_request,
-                                    "Index out of bounds for array field replace item request",
-                                    nullptr );
+            return std::make_pair( httplib::StatusCode::BadRequest_400,
+                                   "Index out of bounds for array field replace item request" );
         }
         ioCapability->readFromJson( body, serializer );
-        return std::make_tuple( http::status::accepted, "", nullptr );
+        return std::make_pair( httplib::StatusCode::Accepted_202, "" );
     }
     catch ( const std::exception& e )
     {
         CAFFA_ERROR( "Failed to set field value for  '" << field->keyword() << "' with error: '" << e.what() << "'" );
-        return std::make_tuple( http::status::internal_server_error, e.what(), nullptr );
+        return std::make_pair( httplib::StatusCode::InternalServerError_500, e.what() );
     }
 }
 
@@ -460,14 +455,13 @@ RestObjectService::ServiceResponse
 {
     auto scriptability = field->capability<FieldScriptingCapability>();
     if ( !scriptability || !scriptability->isWritable() )
-        return std::make_tuple( http::status::forbidden, "Field " + field->keyword() + " is not remote writable", nullptr );
+        return std::make_pair( httplib::StatusCode::Forbidden_403, "Field " + field->keyword() + " is not remote writable" );
 
     auto ioCapability = field->capability<FieldJsonCapability>();
     if ( !ioCapability )
     {
-        return std::make_tuple( http::status::forbidden,
-                                "Field " + field->keyword() + " found, but it has no JSON capability",
-                                nullptr );
+        return std::make_pair( httplib::StatusCode::Forbidden_403,
+                               "Field " + field->keyword() + " found, but it has no JSON capability" );
     }
 
     JsonSerializer serializer;
@@ -483,24 +477,24 @@ RestObjectService::ServiceResponse
             {
                 auto object = serializer.createObjectFromString( body.dump() );
                 childArrayField->insertAt( index, object );
-                return std::make_tuple( http::status::accepted, "", nullptr );
+                return std::make_pair( httplib::StatusCode::Accepted_202, "" );
             }
             else
             {
                 auto object = serializer.createObjectFromString( body.dump() );
                 childArrayField->push_back_obj( object );
-                return std::make_tuple( http::status::accepted, "", nullptr );
+                return std::make_pair( httplib::StatusCode::Accepted_202, "" );
             }
         }
         else
         {
-            return std::make_tuple( http::status::bad_request, "Insert only makes sense for a Child Array Fields", nullptr );
+            return std::make_pair( httplib::StatusCode::BadRequest_400, "Insert only makes sense for a Child Array Fields" );
         }
     }
     catch ( const std::exception& e )
     {
         CAFFA_ERROR( "Failed to insert field value for  '" << field->keyword() << "' with error: '" << e.what() << "'" );
-        return std::make_tuple( http::status::internal_server_error, e.what(), nullptr );
+        return std::make_pair( httplib::StatusCode::InternalServerError_500, e.what() );
     }
 }
 
@@ -508,14 +502,13 @@ RestObjectService::ServiceResponse RestObjectService::deleteFieldValue( FieldHan
 {
     auto scriptability = field->capability<FieldScriptingCapability>();
     if ( !scriptability || !scriptability->isWritable() )
-        return std::make_tuple( http::status::forbidden, "Field is not remote writable", nullptr );
+        return std::make_pair( httplib::StatusCode::Forbidden_403, "Field is not remote writable" );
 
     auto ioCapability = field->capability<FieldJsonCapability>();
     if ( !ioCapability )
     {
-        return std::make_tuple( http::status::forbidden,
-                                "Field " + field->keyword() + " found, but it has no JSON capability",
-                                nullptr );
+        return std::make_pair( httplib::StatusCode::Forbidden_403,
+                               "Field " + field->keyword() + " found, but it has no JSON capability" );
     }
 
     JsonSerializer serializer;
@@ -527,15 +520,14 @@ RestObjectService::ServiceResponse RestObjectService::deleteFieldValue( FieldHan
         {
             if ( index >= 0 )
             {
-                return std::make_tuple( http::status::bad_request,
-                                        "It does not make sense to provide an index for deleting objects from a single "
-                                        "Child Field",
-                                        nullptr );
+                return std::make_pair( httplib::StatusCode::BadRequest_400,
+                                       "It does not make sense to provide an index for deleting objects from a single "
+                                       "Child Field" );
             }
             else
             {
                 childField->clear();
-                return std::make_tuple( http::status::accepted, "", nullptr );
+                return std::make_pair( httplib::StatusCode::Accepted_202, "" );
             }
         }
 
@@ -550,18 +542,18 @@ RestObjectService::ServiceResponse RestObjectService::deleteFieldValue( FieldHan
             {
                 childArrayField->clear();
             }
-            return std::make_tuple( http::status::accepted, "", nullptr );
+            return std::make_pair( httplib::StatusCode::Accepted_202, "" );
         }
-        return std::make_tuple( http::status::bad_request, "Can not delete from a non-child field", nullptr );
+        return std::make_pair( httplib::StatusCode::BadRequest_400, "Can not delete from a non-child field" );
     }
     catch ( const std::exception& e )
     {
         CAFFA_ERROR( "Failed to delete child object for  '" << field->keyword() << "' with error: '" << e.what() << "'" );
-        return std::make_tuple( http::status::internal_server_error, e.what(), nullptr );
+        return std::make_pair( httplib::StatusCode::InternalServerError_500, e.what() );
     }
 }
 
-RestObjectService::ServiceResponse RestObjectService::object( http::verb                    verb,
+RestObjectService::ServiceResponse RestObjectService::object( HttpVerb                      verb,
                                                               const std::list<std::string>& pathArguments,
                                                               const nlohmann::json&         queryParams,
                                                               const nlohmann::json&         body )
@@ -569,14 +561,14 @@ RestObjectService::ServiceResponse RestObjectService::object( http::verb        
     auto session = findSession( queryParams );
     if ( !session || session->isExpired() )
     {
-        return std::make_tuple( http::status::forbidden, "No valid session provided", nullptr );
+        return std::make_pair( httplib::StatusCode::Forbidden_403, "No valid session provided" );
     }
 
     auto arguments = pathArguments;
 
     if ( arguments.empty() )
     {
-        return std::make_tuple( http::status::bad_request, "Object uuid not specified", nullptr );
+        return std::make_pair( httplib::StatusCode::BadRequest_400, "Object uuid not specified" );
     }
 
     auto uuid = arguments.front();
@@ -587,7 +579,7 @@ RestObjectService::ServiceResponse RestObjectService::object( http::verb        
     auto object = findCafObjectFromUuid( session.get(), uuid );
     if ( !object )
     {
-        return std::make_tuple( http::status::not_found, "Object " + uuid + " not found", nullptr );
+        return std::make_pair( httplib::StatusCode::NotFound_404, "Object " + uuid + " not found" );
     }
 
     bool           skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
@@ -600,7 +592,7 @@ RestObjectService::ServiceResponse RestObjectService::object( http::verb        
     {
         jsonObject = createJsonFromProjectObject( object );
     }
-    return std::make_tuple( http::status::ok, jsonObject.dump(), nullptr );
+    return std::make_pair( httplib::StatusCode::OK_200, jsonObject.dump() );
 }
 
 caffa::SessionMaintainer RestObjectService::findSession( const nlohmann::json& queryParams )
@@ -619,12 +611,12 @@ caffa::SessionMaintainer RestObjectService::findSession( const nlohmann::json& q
 std::unique_ptr<RestAction> RestObjectService::createObjectGetAction( const std::list<RestParameter*>& parameters )
 {
     auto getAction =
-        std::make_unique<RestAction>( http::verb::get, "Get object by UUID", "getObject", &RestObjectService::object );
+        std::make_unique<RestAction>( HttpVerb::GET, "Get object by UUID", "getObject", &RestObjectService::object );
 
-    getAction->addResponse( http::status::ok,
+    getAction->addResponse( httplib::StatusCode::OK_200,
                             std::make_unique<RestResponse>( anyObjectResponseContent(), "Specific object" ) );
 
-    getAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+    getAction->addResponse( httplib::StatusCode::MultiStatus_207, RestResponse::plainErrorResponse() );
     for ( auto param : parameters )
     {
         getAction->addParameter( param->clone() );
@@ -634,7 +626,7 @@ std::unique_ptr<RestAction> RestObjectService::createObjectGetAction( const std:
     return getAction;
 }
 
-std::unique_ptr<RestAction> RestObjectService::createFieldOrMethodAction( http::verb                       verb,
+std::unique_ptr<RestAction> RestObjectService::createFieldOrMethodAction( HttpVerb                         verb,
                                                                           const std::string&               description,
                                                                           const std::string&               name,
                                                                           const std::list<RestParameter*>& parameters )

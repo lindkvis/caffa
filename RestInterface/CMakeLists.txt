@@ -4,7 +4,6 @@ project(caffaRestInterface)
 
 set(PUBLIC_HEADERS
     cafRestAuthenticator.h
-    cafRestSession.h
     cafRestServer.h
     cafRestClient.h
     cafRestServerApplication.h
@@ -20,7 +19,6 @@ set(PUBLIC_HEADERS
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
-    cafRestSession.cpp
     cafRestServer.cpp
     cafRestClient.cpp
     cafRestServerApplication.cpp
@@ -64,8 +62,7 @@ target_link_libraries(
          httplib
          nlohmann_json::nlohmann_json
          OpenSSL::SSL
-         OpenSSL::Crypto
-         Boost::system)
+         OpenSSL::Crypto)
 
 install(
   TARGETS ${PROJECT_NAME}

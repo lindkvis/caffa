@@ -21,9 +21,9 @@
 #include "DemoObject.h"
 
 #include "cafLogger.h"
+#include "cafRestAuthenticator.h"
 #include "cafRestServer.h"
 #include "cafRestServerApplication.h"
-#include "cafRestSession.h"
 #include "cafSession.h"
 
 #include <chrono>
@@ -44,8 +44,8 @@ class ServerApp : public caffa::rpc::RestServerApplication
 public:
     static int s_port;
 
-    ServerApp( int port, int threads )
-        : caffa::rpc::RestServerApplication( port, threads, std::make_shared<UnitTestAuthenticator>() )
+    ServerApp( int port )
+        : caffa::rpc::RestServerApplication( port, 1, std::make_shared<UnitTestAuthenticator>() )
         , m_demoDocument( std::make_unique<DemoDocument>() )
         , m_demoDocumentWithNonScriptableMember( std::make_unique<DemoDocumentWithNonScriptableMember>() )
     {
