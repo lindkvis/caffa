@@ -39,6 +39,11 @@ class ObjectHandle;
 
 namespace http = boost::beast::http; // from <boost/beast/http.hpp>
 
+namespace boost::asio
+{
+class io_context;
+}
+
 namespace caffa::rpc
 {
 class RestClient : public Client
@@ -118,6 +123,9 @@ private:
     std::string                  m_sessionUuid;
     std::unique_ptr<std::thread> m_keepAliveThread;
     mutable std::mutex           m_sessionMutex;
+
+    // The io_context is required for all I/O
+    std::shared_ptr<boost::asio::io_context> m_ioc;
 };
 
 } // namespace caffa::rpc
