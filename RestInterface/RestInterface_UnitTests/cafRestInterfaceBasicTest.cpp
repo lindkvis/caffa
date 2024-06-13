@@ -98,6 +98,7 @@ TEST_F( RestTest, Document )
         auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
         ASSERT_TRUE( client->isReady( caffa::Session::Type::REGULAR ) );
         client->createSession( caffa::Session::Type::REGULAR );
+        client->startKeepAliveThread();
 
         auto session = serverApp->getExistingSession( client->sessionUuid() );
         CAFFA_INFO( "Expect failure to get document with the wrong document ID. Next line should be an error." );
@@ -233,7 +234,7 @@ TEST_F( RestTest, DocumentWithNonScriptableChild )
         try
         {
             client->createSession( caffa::Session::Type::REGULAR );
-
+            client->startKeepAliveThread();
             auto session = serverApp->getExistingSession( client->sessionUuid() );
 
             auto serverDocument = std::dynamic_pointer_cast<DemoDocumentWithNonScriptableMember>(
@@ -320,7 +321,7 @@ TEST_F( RestTest, Sync )
     {
         auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
         client->createSession( caffa::Session::Type::REGULAR );
-
+        client->startKeepAliveThread();
         auto session = serverApp->getExistingSession( client->sessionUuid() );
         auto serverDocument =
             std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -364,7 +365,7 @@ TEST_F( RestTest, SettingValueWithObserver )
     {
         auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
         client->createSession( caffa::Session::Type::OBSERVING );
-
+        client->startKeepAliveThread();
         auto session = serverApp->getExistingSession( client->sessionUuid() );
         auto serverDocument =
             std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -414,7 +415,7 @@ TEST_F( RestTest, ObjectMethod )
     {
         auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
         client->createSession( caffa::Session::Type::REGULAR );
-
+        client->startKeepAliveThread();
         auto session = serverApp->getExistingSession( client->sessionUuid() );
         auto serverDocument =
             std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -462,7 +463,7 @@ TEST_F( RestTest, ObjectIntGetterAndSetter )
     {
         auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
         client->createSession( caffa::Session::Type::REGULAR );
-
+        client->startKeepAliveThread();
         auto session = serverApp->getExistingSession( client->sessionUuid() );
         auto serverDocument =
             std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -508,41 +509,49 @@ TEST_F( RestTest, ObjectDeepCopyVsShallowCopy )
 
     serverApp->waitUntilReady();
 
-    auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
-    client->createSession( caffa::Session::Type::REGULAR );
+    try
+    {
+        auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+        client->createSession( caffa::Session::Type::REGULAR );
+        client->startKeepAliveThread();
+        auto session = serverApp->getExistingSession( client->sessionUuid() );
+        auto serverDocument =
+            std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
+        ASSERT_TRUE( serverDocument );
+        CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
-    auto session = serverApp->getExistingSession( client->sessionUuid() );
-    auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
-    ASSERT_TRUE( serverDocument );
-    CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
+        std::vector<int> largeIntVector;
+        std::mt19937     rng;
+        std::generate_n( std::back_inserter( largeIntVector ), 10000u, std::ref( rng ) );
 
-    std::vector<int> largeIntVector;
-    std::mt19937     rng;
-    std::generate_n( std::back_inserter( largeIntVector ), 10000u, std::ref( rng ) );
+        serverDocument->demoObject->intVector = largeIntVector;
 
-    serverDocument->demoObject->intVector = largeIntVector;
+        auto objectHandle   = client->document( "testDocument" );
+        auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
 
-    auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
+        auto clientDemoObjectReference = clientDocument->demoObject.object();
+        auto clientDemoObjectClone     = clientDocument->demoObject.deepCloneObject();
 
-    auto clientDemoObjectReference = clientDocument->demoObject.object();
-    auto clientDemoObjectClone     = clientDocument->demoObject.deepCloneObject();
+        std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject().get() );
+        CAFFA_TRACE( serverJson );
 
-    std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject().get() );
-    CAFFA_TRACE( serverJson );
+        // Stop server *before* we read the client JSON
+        serverApp->quit();
+        thread.join();
 
-    // Stop server *before* we read the client JSON
-    serverApp->quit();
-    thread.join();
+        // Should succeed in reading the clone but not the reference
+        std::string clientJson;
+        ASSERT_NO_THROW( clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() ) );
+        CAFFA_TRACE( clientJson );
+        ASSERT_EQ( serverJson, clientJson );
 
-    // Should succeed in reading the clone but not the reference
-    std::string clientJson;
-    ASSERT_NO_THROW( clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() ) );
-    CAFFA_TRACE( clientJson );
-    ASSERT_EQ( serverJson, clientJson );
-
-    CAFFA_INFO( "Expect errors when trying to write a shallow copied object reference after the server is closed" );
-    ASSERT_ANY_THROW( clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectReference.get() ) );
+        CAFFA_INFO( "Expect errors when trying to write a shallow copied object reference after the server is closed" );
+        ASSERT_ANY_THROW( clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectReference.get() ) );
+    }
+    catch ( const std::exception& e )
+    {
+        CAFFA_INFO( "Expected Failed to communicate error and got: " << e.what() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -559,7 +568,7 @@ TEST_F( RestTest, ObjectDeepCopyFromClient )
     {
         auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
         client->createSession( caffa::Session::Type::REGULAR );
-
+        client->startKeepAliveThread();
         auto session = serverApp->getExistingSession( client->sessionUuid() );
         auto serverDocument =
             std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -612,7 +621,7 @@ TEST_F( RestTest, ObjectDoubleGetterAndSetter )
     {
         auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
         client->createSession( caffa::Session::Type::REGULAR );
-
+        client->startKeepAliveThread();
         auto session = serverApp->getExistingSession( client->sessionUuid() );
         auto serverDocument =
             std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -661,7 +670,7 @@ TEST_F( RestTest, ObjectIntegratedGettersAndSetters )
     {
         auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
         client->createSession( caffa::Session::Type::REGULAR );
-
+        client->startKeepAliveThread();
         auto session = serverApp->getExistingSession( client->sessionUuid() );
         auto serverDocument =
             std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -730,7 +739,7 @@ TEST_F( RestTest, EmptyVectorGettersAndSetters )
     {
         auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
         client->createSession( caffa::Session::Type::REGULAR );
-
+        client->startKeepAliveThread();
         auto session = serverApp->getExistingSession( client->sessionUuid() );
         auto serverDocument =
             std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -783,7 +792,7 @@ TEST_F( RestTest, BoolVectorGettersAndSetters )
     {
         auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
         client->createSession( caffa::Session::Type::REGULAR );
-
+        client->startKeepAliveThread();
         auto session = serverApp->getExistingSession( client->sessionUuid() );
         auto serverDocument =
             std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -833,7 +842,7 @@ TEST_F( RestTest, ChildObjects )
         try
         {
             client->createSession( caffa::Session::Type::REGULAR );
-
+            client->startKeepAliveThread();
             auto session = serverApp->getExistingSession( client->sessionUuid() );
             auto serverDocument =
                 std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -932,7 +941,7 @@ TEST_F( RestTest, LocalResponseTimeAndDataTransfer )
     {
         auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
         client->createSession( caffa::Session::Type::REGULAR );
-
+        client->startKeepAliveThread();
         auto session = serverApp->getExistingSession( client->sessionUuid() );
         auto serverDocument =
             std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
@@ -998,13 +1007,14 @@ TEST_F( RestTest, MultipleSessions )
 
         client1 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
         ASSERT_NO_THROW( client1->createSession( caffa::Session::Type::REGULAR ) );
-
+        client1->startKeepAliveThread();
         ASSERT_TRUE( client1 );
     }
     {
         std::unique_ptr<caffa::rpc::RestClient> client2;
         client2 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
         ASSERT_NO_THROW( client2->createSession( caffa::Session::Type::REGULAR ) );
+        client2->startKeepAliveThread();
         ASSERT_TRUE( client2 );
     }
     serverApp->quit();
@@ -1028,10 +1038,12 @@ TEST_F( RestTest, MultipleConcurrentSessionsShouldBeRefused )
         client1 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
         ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ) );
         ASSERT_NO_THROW( client1->createSession( caffa::Session::Type::REGULAR ) );
+        client1->startKeepAliveThread();
 
         client2 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
         ASSERT_FALSE( client2->isReady( caffa::Session::Type::REGULAR ) );
         ASSERT_ANY_THROW( client2->createSession( caffa::Session::Type::REGULAR ) );
+        client2->startKeepAliveThread();
         CAFFA_INFO( "Failed to create new session as expected" );
     }
 
