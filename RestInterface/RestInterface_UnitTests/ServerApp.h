@@ -217,8 +217,8 @@ public:
     }
 
 private:
-    void onStartup() override { CAFFA_DEBUG( "Starting Server" ); }
-    void onShutdown() override { CAFFA_DEBUG( "Shutting down Server" ); }
+    void onStartup() override { CAFFA_DEBUG( "Server Starting Up...." ); }
+    void onShutdown() override { CAFFA_DEBUG( "Server Shutting Down..." ); }
 
 private:
     std::shared_ptr<DemoDocument>                        m_demoDocument;
