@@ -66,16 +66,16 @@ RestDocumentService::RestDocumentService()
     for ( auto document : documents )
     {
         auto getAction =
-            std::make_unique<RestAction>( http::verb::get,
+            std::make_unique<RestAction>( HttpVerb::GET,
                                           "Get " + document->id() + " document",
                                           "getDocument",
                                           std::bind( &RestDocumentService::document, document->id(), _1, _2, _3, _4 ) );
 
-        getAction->addResponse( http::status::ok,
+        getAction->addResponse( httplib::StatusCode::OK_200,
                                 RestResponse::objectResponse( "#/components/object_schemas/" + document->classKeyword(),
                                                               document->classDocumentation() ) );
 
-        getAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+        getAction->addResponse( httplib::StatusCode::MultiStatus_207, RestResponse::plainErrorResponse() );
         getAction->addParameter( skeletonParameter->clone() );
         getAction->setRequiresAuthentication( false );
         getAction->setRequiresSession( true );
@@ -87,11 +87,11 @@ RestDocumentService::RestDocumentService()
     }
 
     auto getAllAction =
-        std::make_unique<RestAction>( http::verb::get, "Get all documents", "getDocuments", &RestDocumentService::documents );
+        std::make_unique<RestAction>( HttpVerb::GET, "Get all documents", "getDocuments", &RestDocumentService::documents );
 
-    getAllAction->addResponse( http::status::ok,
+    getAllAction->addResponse( httplib::StatusCode::OK_200,
                                RestResponse::objectArrayResponse( "#/components/object_schemas/Document", "All documents" ) );
-    getAllAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+    getAllAction->addResponse( httplib::StatusCode::MultiStatus_207, RestResponse::plainErrorResponse() );
     getAllAction->addParameter( skeletonParameter->clone() );
 
     getAllAction->setRequiresAuthentication( false );
@@ -100,7 +100,7 @@ RestDocumentService::RestDocumentService()
     m_requestPathRoot->addAction( std::move( getAllAction ) );
 }
 
-RestDocumentService::ServiceResponse RestDocumentService::perform( http::verb             verb,
+RestDocumentService::ServiceResponse RestDocumentService::perform( HttpVerb               verb,
                                                                    std::list<std::string> path,
                                                                    const nlohmann::json&  queryParams,
                                                                    const nlohmann::json&  body )
@@ -110,7 +110,7 @@ RestDocumentService::ServiceResponse RestDocumentService::perform( http::verb   
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request )
     {
-        return std::make_tuple( http::status::bad_request, "Path not found", nullptr );
+        return std::make_pair( httplib::StatusCode::BadRequest_400, "Path not found" );
     }
 
     return request->perform( verb, pathArguments, queryParams, body );
@@ -119,12 +119,12 @@ RestDocumentService::ServiceResponse RestDocumentService::perform( http::verb   
 //--------------------------------------------------------------------------------------------------
 /// The object service uses session uuids to decide if it accepts the request or not
 //--------------------------------------------------------------------------------------------------
-bool RestDocumentService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
+bool RestDocumentService::requiresAuthentication( HttpVerb verb, const std::list<std::string>& path ) const
 {
     return false;
 }
 
-bool RestDocumentService::requiresSession( http::verb verb, const std::list<std::string>& path ) const
+bool RestDocumentService::requiresSession( HttpVerb verb, const std::list<std::string>& path ) const
 {
     return true;
 }
@@ -203,7 +203,7 @@ public:
                 }
 
                 auto acceptedOrFailureResponses =
-                    nlohmann::json{ { RestServiceInterface::HTTP_ACCEPTED,
+                    nlohmann::json{ { std::to_string( httplib::StatusCode::Accepted_202 ),
                                       { { "description", "Success" } },
                                       { "default", RestServiceInterface::plainErrorResponse() } } };
 
@@ -261,7 +261,7 @@ std::map<std::string, nlohmann::json> RestDocumentService::serviceComponentEntri
 ///
 //--------------------------------------------------------------------------------------------------
 RestServiceInterface::ServiceResponse RestDocumentService::document( const std::string&            documentId,
-                                                                     http::verb                    verb,
+                                                                     HttpVerb                      verb,
                                                                      const std::list<std::string>& pathArguments,
                                                                      const nlohmann::json&         queryParams,
                                                                      const nlohmann::json&         body )
@@ -276,7 +276,7 @@ RestServiceInterface::ServiceResponse RestDocumentService::document( const std::
 
     if ( RestServerApplication::instance()->requiresValidSession() && ( !session || session->isExpired() ) )
     {
-        return std::make_tuple( http::status::forbidden, "No valid session provided", nullptr );
+        return std::make_pair( httplib::StatusCode::Forbidden_403, "No valid session provided" );
     }
 
     CAFFA_TRACE( "Got document request for " << documentId );
@@ -295,15 +295,15 @@ RestServiceInterface::ServiceResponse RestDocumentService::document( const std::
         {
             jsonDocument = createJsonFromProjectObject( document.get() );
         }
-        return std::make_tuple( http::status::ok, jsonDocument.dump(), nullptr );
+        return std::make_pair( httplib::StatusCode::OK_200, jsonDocument.dump() );
     }
-    return std::make_tuple( http::status::not_found, "Document " + documentId + " not found", nullptr );
+    return std::make_pair( httplib::StatusCode::NotFound_404, "Document " + documentId + " not found" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestDocumentService::ServiceResponse RestDocumentService::documents( http::verb                    verb,
+RestDocumentService::ServiceResponse RestDocumentService::documents( HttpVerb                      verb,
                                                                      const std::list<std::string>& pathArguments,
                                                                      const nlohmann::json&         queryParams,
                                                                      const nlohmann::json&         body )
@@ -320,7 +320,7 @@ RestDocumentService::ServiceResponse RestDocumentService::documents( http::verb 
 
     if ( RestServerApplication::instance()->requiresValidSession() && ( !session || session->isExpired() ) )
     {
-        return std::make_tuple( http::status::forbidden, "No valid session provided", nullptr );
+        return std::make_pair( httplib::StatusCode::Forbidden_403, "No valid session provided" );
     }
     bool skeleton  = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
     auto documents = RestServerApplication::instance()->documents( session.get() );
@@ -338,5 +338,5 @@ RestDocumentService::ServiceResponse RestDocumentService::documents( http::verb 
             jsonResult.push_back( createJsonFromProjectObject( document.get() ) );
         }
     }
-    return std::make_tuple( http::status::ok, jsonResult.dump(), nullptr );
+    return std::make_pair( httplib::StatusCode::OK_200, jsonResult.dump() );
 }

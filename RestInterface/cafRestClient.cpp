@@ -82,7 +82,7 @@ RestClient::~RestClient()
     }
     catch ( const std::exception& e )
     {
-        CAFFA_CRITICAL( "Failed to destroy session " << e.what() );
+        CAFFA_WARNING( "Failed to destroy session " << e.what() );
     }
     try
     {
@@ -100,6 +100,7 @@ RestClient::~RestClient()
 caffa::AppInfo RestClient::appInfo() const
 {
     auto result = m_httpClient->Get( "/app/info" );
+
     throwOnNoResult( result );
 
     if ( result->status != httplib::StatusCode::OK_200 )
@@ -194,49 +195,6 @@ std::string RestClient::execute( caffa::not_null<const caffa::ObjectHandle*> sel
     }
 
     return result->body;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Tell the server to stop operation. Returns a simple boolean status where true is ok.
-//--------------------------------------------------------------------------------------------------
-bool RestClient::stopServer()
-{
-    CAFFA_DEBUG( "Sending quit request" );
-
-    if ( m_sessionUuid.empty() )
-    {
-        CAFFA_WARNING( "No session available to perform quit for!" );
-    }
-
-    auto result = m_httpClient->Delete( std::string( "/app/quit?session_uuid=" ) + m_sessionUuid );
-
-    std::string sessionUuid;
-    {
-        std::scoped_lock<std::mutex> lock( m_sessionMutex );
-        sessionUuid = m_sessionUuid;
-
-        m_sessionUuid = "";
-    }
-
-    if ( m_keepAliveThread )
-    {
-        m_keepAliveThread->join();
-        m_keepAliveThread.reset();
-    }
-
-    if ( !result )
-    {
-        throw std::runtime_error( "Failed to communicate with server: " + httplib::to_string( result.error() ) );
-    }
-
-    if ( result->status != httplib::StatusCode::Accepted_202 )
-    {
-        throw std::runtime_error( "Failed to stop server: " + result->body );
-    }
-
-    CAFFA_TRACE( "Stopped server, which also destroys session" );
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

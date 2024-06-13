@@ -18,9 +18,9 @@
 //
 
 #include "cafLogger.h"
+#include "cafRestAuthenticator.h"
 #include "cafRestServer.h"
 #include "cafRestServerApplication.h"
-#include "cafRestSession.h"
 #include "cafSession.h"
 
 #include "DemoObject.h"

@@ -43,7 +43,6 @@ RestServerApplication::RestServerApplication( const std::string&                
     , m_clientHost( clientHost )
     , m_portNumber( portNumber )
     , m_threads( threads )
-    , m_ioContext( threads )
     , m_authenticator( authenticator )
     , m_threadRunning( false )
 {
@@ -54,19 +53,9 @@ RestServerApplication::RestServerApplication( const std::string&                
     if ( !cert.empty() && !key.empty() && !dh.empty() )
     {
         CAFFA_INFO( "Loading SSL certificates" );
-
-        m_sslContext = std::make_shared<ssl::context>( ssl::context::tlsv12 );
-
-        m_sslContext->set_options( boost::asio::ssl::context::default_workarounds |
-                                   boost::asio::ssl::context::no_sslv2 | boost::asio::ssl::context::single_dh_use );
-
-        m_sslContext->use_certificate_chain( boost::asio::buffer( cert.data(), cert.size() ) );
-
-        m_sslContext->use_private_key( boost::asio::buffer( key.data(), key.size() ),
-                                       boost::asio::ssl::context::file_format::pem );
-
-        m_sslContext->use_tmp_dh( boost::asio::buffer( dh.data(), dh.size() ) );
     }
+
+    m_server = std::make_shared<RestServer>( "0.0.0.0", m_threads, m_portNumber, m_authenticator );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,37 +83,10 @@ void RestServerApplication::run()
     caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestDocumentService>( "documents" );
     caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestOpenApiService>( "openapi.json" );
 
-    m_server = std::make_shared<RestServer>( m_ioContext,
-                                             m_sslContext,
-                                             tcp::endpoint{ net::ip::make_address( m_clientHost ), m_portNumber },
-                                             ".",
-                                             m_authenticator );
-
     onStartup();
 
-    m_server->run();
     m_threadRunning = true;
-    std::vector<std::thread> v;
-    v.reserve( m_threads - 1 );
-    for ( auto i = m_threads - 1; i > 0; --i )
-        v.emplace_back( [this] { m_ioContext.run(); } );
-
-    boost::asio::signal_set signals( m_ioContext, SIGINT, SIGTERM );
-    signals.async_wait(
-        [this]( const boost::system::error_code& error, int signal_number )
-        {
-            if ( error )
-            {
-                CAFFA_ERROR( "Quitting server due to signal " << error << ", signal: " << signal_number );
-            }
-            else
-            {
-                CAFFA_INFO( "Quitting server due to signal " << signal_number );
-                quit();
-            }
-        } );
-
-    m_ioContext.run();
+    m_server->run();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,11 +95,15 @@ void RestServerApplication::run()
 void RestServerApplication::quit()
 {
     m_server->quit();
-    m_ioContext.stop();
     onShutdown();
 }
 
 bool RestServerApplication::running() const
 {
-    return m_threadRunning && !m_ioContext.stopped();
+    return m_threadRunning;
+}
+
+void RestServerApplication::waitUntilReady() const
+{
+    m_server->waitUntilReady();
 }

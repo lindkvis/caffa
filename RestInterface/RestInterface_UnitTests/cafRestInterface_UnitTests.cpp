@@ -40,13 +40,8 @@
 
 #include "gtest/gtest.h"
 
-#include <boost/lexical_cast.hpp>
-#include <boost/program_options.hpp>
-
 #include <iostream>
 #include <string>
-
-namespace po = boost::program_options;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -57,69 +52,17 @@ int main( int argc, char** argv )
 
     auto logLevel = caffa::Logger::Level::info;
 
-    auto        logLevels = caffa::Logger::logLevels();
-    std::string logLevelString;
-    for ( auto [enumValue, name] : logLevels )
-    {
-        if ( !logLevelString.empty() ) logLevelString += ", ";
-        logLevelString += name;
-    }
-    std::string verbosityHelpString = "Set verbosity level (" + logLevelString + ")";
+    caffa::Logger::setApplicationLogLevel( logLevel );
 
-    int result = EXIT_FAILURE;
-
+    int result = EXIT_SUCCESS;
     try
     {
-        po::options_description flags( "Flags" );
-        flags.add_options()( "help,h", "Show help message" );
-        flags.add_options()( "verbosity,V", po::value<std::string>()->value_name( "level" ), verbosityHelpString.c_str() );
-        flags.add_options()( "logfile,l", po::value<std::string>()->value_name( "filename" ), "Log to provided file" );
-        flags.add_options()( "server-cert,c",
-                             po::value<std::string>()->value_name( "filename" ),
-                             "SSL/TLS server certificate file" );
-        flags.add_options()( "server-key,k",
-                             po::value<std::string>()->value_name( "filename" ),
-                             "SSL/TLS server private key file" );
-        flags.add_options()( "ca-cert,a",
-                             po::value<std::string>()->value_name( "filename" ),
-                             "SSL/TLS Certiticate Autority certificate file" );
-        flags.add_options()( "client-cert,C",
-                             po::value<std::string>()->value_name( "filename" ),
-                             "SSL/TLS client certificate file" );
-        flags.add_options()( "client-key,K",
-                             po::value<std::string>()->value_name( "filename" ),
-                             "SSL/TLS client private key file" );
-
-        po::variables_map vm;
-        po::store( po::parse_command_line( argc, argv, flags ), vm );
-        po::notify( vm );
-
-        if ( vm.count( "help" ) )
-        {
-            std::cout << flags << std::endl;
-            testing::InitGoogleTest( &argc, argv );
-
-            return 1;
-        }
-
-        if ( vm.count( "logfile" ) )
-        {
-            caffa::Logger::registerDefaultFileLogger( vm["logfile"].as<std::string>() );
-        }
-
-        if ( vm.count( "verbosity" ) )
-        {
-            logLevel = caffa::Logger::logLevelFromLabel( vm["verbosity"].as<std::string>() );
-        }
-
-        caffa::Logger::setApplicationLogLevel( logLevel );
-
         result = RUN_ALL_TESTS();
     }
     catch ( const std::exception& e )
     {
         std::cerr << "ERROR: " << e.what() << std::endl;
-        return 2;
+        return EXIT_FAILURE;
     }
 
     return result;

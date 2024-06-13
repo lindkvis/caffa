@@ -9,12 +9,21 @@ constexpr size_t               RATE_LIMITER_MAX_REQUESTS = 200;
 std::mutex                                       RestServiceInterface::s_requestMutex;
 std::list<std::chrono::steady_clock::time_point> RestServiceInterface::s_requestTimes;
 
-const std::string RestServiceInterface::HTTP_OK = std::to_string( static_cast<unsigned>( http::status::ok ) );
-const std::string RestServiceInterface::HTTP_ACCEPTED = std::to_string( static_cast<unsigned>( http::status::accepted ) );
-const std::string RestServiceInterface::HTTP_FORBIDDEN = std::to_string( static_cast<unsigned>( http::status::forbidden ) );
-const std::string RestServiceInterface::HTTP_TOO_MANY_REQUESTS =
-    std::to_string( static_cast<unsigned>( http::status::too_many_requests ) );
-const std::string RestServiceInterface::HTTP_NOT_FOUND = std::to_string( static_cast<unsigned>( http::status::not_found ) );
+std::string RestServiceInterface::to_string( HttpVerb verb )
+{
+    switch ( verb )
+    {
+        case HttpVerb::GET:
+            return "get";
+        case HttpVerb::POST:
+            return "post";
+        case HttpVerb::DELETE_:
+            return "delete";
+        case HttpVerb::PUT:
+            return "put";
+    }
+    return "UNKNOWN";
+}
 
 bool RestServiceInterface::refuseDueToTimeLimiter()
 {

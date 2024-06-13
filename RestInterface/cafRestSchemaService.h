@@ -48,13 +48,13 @@ namespace caffa::rpc
 class RestSchemaService : public RestServiceInterface
 {
 public:
-    ServiceResponse perform( http::verb                    verb,
+    ServiceResponse perform( HttpVerb                      verb,
                              const std::list<std::string>& path,
                              const nlohmann::json&         queryParams,
                              const nlohmann::json&         body ) override;
 
-    bool requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const override;
-    bool requiresSession( http::verb verb, const std::list<std::string>& path ) const override;
+    bool requiresAuthentication( HttpVerb verb, const std::list<std::string>& path ) const override;
+    bool requiresSession( HttpVerb verb, const std::list<std::string>& path ) const override;
 
     static nlohmann::json plainErrorResponse();
 
