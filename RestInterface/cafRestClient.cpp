@@ -83,6 +83,14 @@ RestClient::~RestClient()
     {
         CAFFA_WARNING( "Failed to destroy session " << e.what() );
     }
+    try
+    {
+        if ( m_keepAliveThread && m_keepAliveThread->joinable() ) m_keepAliveThread->join();
+    }
+    catch ( const std::exception& e )
+    {
+        CAFFA_ERROR( "Failed to shut down keepalive thread gracefully" );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -229,7 +237,7 @@ void RestClient::startKeepAliveThread()
                 try
                 {
                     this->sendKeepAlive();
-                    std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+                    std::this_thread::sleep_for( std::chrono::milliseconds( 500 ) );
                 }
                 catch ( ... )
                 {
