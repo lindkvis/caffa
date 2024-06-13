@@ -61,6 +61,7 @@ target_link_libraries(
   PUBLIC caffaBase
          caffaCore
          caffaRpcBase
+         httplib
          nlohmann_json::nlohmann_json
          OpenSSL::SSL
          OpenSSL::Crypto

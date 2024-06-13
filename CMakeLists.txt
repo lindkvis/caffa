@@ -55,6 +55,7 @@ set(UUID_BUILD_TESTS
 
 add_subdirectory(ThirdParty/stduuid)
 add_subdirectory(ThirdParty/caffa-base)
+add_subdirectory(ThirdParty/cpp-httplib)
 
 # libraries
 add_subdirectory(Core)

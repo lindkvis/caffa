@@ -47,15 +47,9 @@
 #include "cafSession.h"
 #include "cafStringEncoding.h"
 
-#include <nlohmann/json.hpp>
+#include "httplib.h"
 
-#include <boost/asio/connect.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/strand.hpp>
-#include <boost/asio/use_future.hpp>
-#include <boost/beast/core.hpp>
-#include <boost/beast/http.hpp>
-#include <boost/beast/version.hpp>
+#include <nlohmann/json.hpp>
 
 #include <chrono>
 #include <cstdlib>
@@ -64,172 +58,97 @@
 #include <memory>
 #include <sstream>
 
-namespace beast = boost::beast; // from <boost/beast.hpp>
-namespace http  = beast::http; // from <boost/beast/http.hpp>
-namespace net   = boost::asio; // from <boost/asio.hpp>
-using tcp       = net::ip::tcp; // from <boost/asio/ip/tcp.hpp>
-
 using namespace caffa::rpc;
 using namespace std::chrono_literals;
 
-class Request : public std::enable_shared_from_this<Request>
+httplib::Client createClient( const std::string& hostname, int port, const std::string& username, const std::string& password )
 {
-public:
-    explicit Request( net::io_context& ioc, const std::string& username, const std::string& password )
-        : m_resolver( net::make_strand( ioc ) )
-        , m_stream( net::make_strand( ioc ) )
-        , m_username( username )
-        , m_password( password )
+    httplib::Client client( hostname, port );
+
+    if ( !username.empty() && !password.empty() )
     {
+        client.set_default_headers(
+            { { "Authorization", "Basic " + caffa::StringTools::encodeBase64( username + ":" + password ) } } );
     }
-
-    // Start the asynchronous operation
-    void run( http::verb verb, const std::string& host, int port, const std::string& target, const std::string& body )
-    {
-        // Set up an HTTP GET request message
-        m_req.version( 11 );
-        m_req.method( verb );
-        m_req.target( target );
-        m_req.set( http::field::host, host );
-        m_req.set( http::field::user_agent, BOOST_BEAST_VERSION_STRING );
-        if ( !m_username.empty() && !m_password.empty() )
-        {
-            CAFFA_DEBUG( "Setting authorisation header!" );
-            m_req.set( http::field::authorization,
-                       "Basic " + caffa::StringTools::encodeBase64( m_username + ":" + m_password ) );
-        }
-        if ( !body.empty() )
-        {
-            CAFFA_TRACE( "Setting request body: " << body );
-            m_req.body() = body;
-            m_req.prepare_payload();
-        }
-
-        // Look up the domain name
-        m_resolver.async_resolve( host,
-                                  std::to_string( port ),
-                                  beast::bind_front_handler( &Request::onResolve, shared_from_this() ) );
-    }
-
-    void onResolve( beast::error_code ec, tcp::resolver::results_type results )
-    {
-        if ( ec )
-        {
-            CAFFA_ERROR( "Failed to resolve host" );
-            m_result.set_value( std::make_pair( http::status::service_unavailable, "Failed to resolve host" ) );
-            return;
-        }
-
-        // Set a timeout on the operation
-        m_stream.expires_after( 10s );
-
-        // Make the connection on the IP address we get from a lookup
-        m_stream.async_connect( results, beast::bind_front_handler( &Request::onConnect, shared_from_this() ) );
-    }
-
-    void onConnect( beast::error_code ec, tcp::resolver::results_type::endpoint_type )
-    {
-        if ( ec )
-        {
-            CAFFA_ERROR( "Failed to connect to host: " << ec );
-            m_result.set_value( std::make_pair( http::status::service_unavailable, "Failed to connect to host" ) );
-            return;
-        }
-
-        // Set a timeout on the operation
-        m_stream.expires_after( 10s );
-
-        // Send the HTTP request to the remote host
-        http::async_write( m_stream, m_req, beast::bind_front_handler( &Request::onWrite, shared_from_this() ) );
-    }
-
-    void onWrite( beast::error_code ec, std::size_t bytes_transferred )
-    {
-        boost::ignore_unused( bytes_transferred );
-
-        if ( ec )
-        {
-            CAFFA_ERROR( "Failed to write to stream" );
-            m_result.set_value( std::make_pair( http::status::service_unavailable, "Failed to write to stream" ) );
-            return;
-        }
-
-        // Receive the HTTP response
-        http::async_read( m_stream, m_buffer, m_res, beast::bind_front_handler( &Request::onRead, shared_from_this() ) );
-    }
-
-    void onRead( beast::error_code ec, std::size_t bytes_transferred )
-    {
-        boost::ignore_unused( bytes_transferred );
-
-        if ( ec == http::error::end_of_stream )
-        {
-            m_stream.socket().shutdown( tcp::socket::shutdown_both, ec );
-            return;
-        }
-
-        if ( ec )
-        {
-            CAFFA_ERROR( "Failed to read from stream from thread ID " << std::this_thread::get_id() << "-> "
-                                                                      << ec.message() );
-            m_result.set_value( std::make_pair( http::status::service_unavailable, "Failed to read from stream" ) );
-            return;
-        }
-
-        m_result.set_value( std::make_pair( m_res.result(), m_res.body() ) );
-
-        // Gracefully close the socket
-        m_stream.socket().shutdown( tcp::socket::shutdown_both, ec );
-
-        // not_connected happens sometimes so don't bother reporting it.
-        if ( ec && ec != beast::errc::not_connected )
-        {
-            CAFFA_ERROR( "Failed to shut down" );
-            return;
-        }
-
-        // If we get here then the connection is closed gracefully
-    }
-
-    std::pair<http::status, std::string> wait() { return m_result.get_future().get(); }
-
-private:
-    tcp::resolver                     m_resolver;
-    beast::tcp_stream                 m_stream;
-    beast::flat_buffer                m_buffer; // (Must persist between reads)
-    http::request<http::string_body>  m_req;
-    http::response<http::string_body> m_res;
-
-    std::promise<std::pair<http::status, std::string>> m_result;
-
-    std::string m_username;
-    std::string m_password;
-};
-
-std::pair<http::status, std::string> RestClient::performRequest( http::verb         verb,
-                                                                 const std::string& hostname,
-                                                                 int                port,
-                                                                 const std::string& target,
-                                                                 const std::string& body,
-                                                                 const std::string& username,
-                                                                 const std::string& password ) const
-{
-    auto request = std::make_shared<Request>( *m_ioc, username, password );
-    request->run( verb, hostname, port, target, body );
-    m_ioc->run();
-    auto result = request->wait();
-    m_ioc->reset();
-
-    return result;
+    client.set_connection_timeout( 5s );
+    client.set_read_timeout( 5s );
+    client.set_write_timeout( 5s );
+    return client;
 }
 
-std::pair<http::status, std::string> RestClient::performGetRequest( const std::string& hostname,
-                                                                    int                port,
-                                                                    const std::string& target,
-                                                                    const std::string& username,
-                                                                    const std::string& password ) const
+std::pair<int, std::string> RestClient::performGetRequest( const std::string& hostname,
+                                                           int                port,
+                                                           const std::string& target,
+                                                           const std::string& username,
+                                                           const std::string& password ) const
 {
-    return performRequest( http::verb::get, hostname, port, target, "", username, password );
+    auto client = createClient( hostname, port, username, password );
+    auto res    = client.Get( target );
+
+    if ( res )
+    {
+        return std::make_pair( res->status, res->body );
+    }
+    else
+    {
+        return std::make_pair( httplib::StatusCode::ServiceUnavailable_503, httplib::to_string( res.error() ) );
+    }
+}
+
+std::pair<int, std::string> RestClient::performPostRequest( const std::string& hostname,
+                                                            int                port,
+                                                            const std::string& target,
+                                                            const std::string& body,
+                                                            const std::string& username,
+                                                            const std::string& password ) const
+{
+    auto client = createClient( hostname, port, username, password );
+    auto res    = client.Post( target, body, "application/json" );
+    if ( res )
+    {
+        return std::make_pair( res->status, res->body );
+    }
+    else
+    {
+        return std::make_pair( httplib::StatusCode::ServiceUnavailable_503, httplib::to_string( res.error() ) );
+    }
+}
+
+std::pair<int, std::string> RestClient::performPutRequest( const std::string& hostname,
+                                                           int                port,
+                                                           const std::string& target,
+                                                           const std::string& body,
+                                                           const std::string& username,
+                                                           const std::string& password ) const
+{
+    auto client = createClient( hostname, port, username, password );
+    auto res    = client.Put( target, body, "application/json" );
+    if ( res )
+    {
+        return std::make_pair( res->status, res->body );
+    }
+    else
+    {
+        return std::make_pair( httplib::StatusCode::ServiceUnavailable_503, httplib::to_string( res.error() ) );
+    }
+}
+
+std::pair<int, std::string> RestClient::performDeleteRequest( const std::string& hostname,
+                                                              int                port,
+                                                              const std::string& target,
+                                                              const std::string& username,
+                                                              const std::string& password ) const
+{
+    auto client = createClient( hostname, port, username, password );
+    auto res    = client.Delete( target );
+    if ( res )
+    {
+        return std::make_pair( res->status, res->body );
+    }
+    else
+    {
+        return std::make_pair( httplib::StatusCode::ServiceUnavailable_503, httplib::to_string( res.error() ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -237,7 +156,6 @@ std::pair<http::status, std::string> RestClient::performGetRequest( const std::s
 //--------------------------------------------------------------------------------------------------
 RestClient::RestClient( const std::string& hostname, int port /*= 50000 */ )
     : Client( hostname, port )
-    , m_ioc( std::make_shared<net::io_context>() )
 {
     // Apply current client to the two client object factories.
     caffa::rpc::ClientPassByRefObjectFactory::instance()->setClient( this );
@@ -265,7 +183,7 @@ RestClient::~RestClient()
 caffa::AppInfo RestClient::appInfo() const
 {
     auto [status, body] = performGetRequest( hostname(), port(), "/app/info" );
-    if ( status != http::status::ok )
+    if ( status != httplib::StatusCode::OK_200 )
     {
         throw std::runtime_error( "Failed to get Server information: " + body );
     }
@@ -289,7 +207,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::document( const std::string& do
                            port(),
                            std::string( "/documents/" ) + documentId + "?skeleton=true&session_uuid=" + m_sessionUuid );
 
-    if ( status != http::status::ok )
+    if ( status != httplib::StatusCode::OK_200 )
     {
         throw std::runtime_error( "Failed to get document " + documentId + ": " + body );
     }
@@ -311,7 +229,7 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::documents() const
     auto [status, body] =
         performGetRequest( hostname(), port(), std::string( "/documents/?skeleton=true&session_uuid=" ) + m_sessionUuid );
 
-    if ( status != http::status::ok )
+    if ( status != httplib::StatusCode::OK_200 )
     {
         throw std::runtime_error( "Failed to get document list: " + body );
     }
@@ -343,13 +261,12 @@ std::string RestClient::execute( caffa::not_null<const caffa::ObjectHandle*> sel
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
-    auto [status, body] =
-        performRequest( http::verb::post,
-                        hostname(),
-                        port(),
-                        "/objects/" + selfObject->uuid() + "/methods/" + methodName + "?session_uuid=" + m_sessionUuid,
-                        jsonArguments );
-    if ( status != http::status::ok )
+    auto [status, body] = performPostRequest( hostname(),
+                                              port(),
+                                              "/objects/" + selfObject->uuid() + "/methods/" + methodName +
+                                                  "?session_uuid=" + m_sessionUuid,
+                                              jsonArguments );
+    if ( status != httplib::StatusCode::OK_200 )
     {
         throw std::runtime_error( body );
     }
@@ -370,7 +287,7 @@ bool RestClient::stopServer()
     }
 
     auto [status, body] =
-        performRequest( http::verb::delete_, hostname(), port(), std::string( "/app/quit?session_uuid=" ) + m_sessionUuid, "" );
+        performDeleteRequest( hostname(), port(), std::string( "/app/quit?session_uuid=" ) + m_sessionUuid, "" );
 
     std::string sessionUuid;
     {
@@ -388,7 +305,7 @@ bool RestClient::stopServer()
         m_keepAliveThread.reset();
     }
 
-    if ( status != http::status::accepted )
+    if ( status != httplib::StatusCode::Accepted_202 )
     {
         throw std::runtime_error( "Failed to stop server: " + body );
     }
@@ -405,13 +322,12 @@ void RestClient::sendKeepAlive()
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
-    auto [status, body] = performRequest( http::verb::put,
-                                          hostname(),
-                                          port(),
-                                          std::string( "/sessions/" ) + m_sessionUuid + "?session_uuid=" + m_sessionUuid,
-                                          "" );
+    auto [status, body] = performPutRequest( hostname(),
+                                             port(),
+                                             std::string( "/sessions/" ) + m_sessionUuid + "?session_uuid=" + m_sessionUuid,
+                                             "" );
 
-    if ( status != http::status::accepted && status != http::status::ok )
+    if ( status != httplib::StatusCode::Accepted_202 && status != httplib::StatusCode::OK_200 )
     {
         throw std::runtime_error( "Failed to keep server alive: " + body );
     }
@@ -462,7 +378,9 @@ bool RestClient::isReady( caffa::Session::Type type ) const
 
     auto [status, body] = performGetRequest( hostname(), port(), std::string( "/sessions/?type=" + enumType.label() ) );
 
-    if ( status != http::status::ok )
+    std::cout << status << std::endl;
+
+    if ( status != httplib::StatusCode::OK_200 )
     {
         throw std::runtime_error( "Failed to check for session: " + body );
     }
@@ -490,18 +408,20 @@ void RestClient::createSession( caffa::Session::Type type, const std::string& us
     CAFFA_TRACE( "Creating session of type " << enumType.label() );
 
     auto [status, body] =
-        performRequest( http::verb::post, hostname(), port(), "/sessions?type=" + enumType.label(), "", username, password );
+        performPostRequest( hostname(), port(), "/sessions?type=" + enumType.label(), "", username, password );
 
-    if ( status != http::status::ok )
+    if ( status != httplib::StatusCode::OK_200 )
     {
+        std::cout << status << " == " << httplib::StatusCode::OK_200 << std::endl;
+
         throw std::runtime_error( "Failed to create session: " + body );
     }
 
-    CAFFA_TRACE( "Got result: " << body );
+    CAFFA_INFO( "Got result: " << body );
     auto jsonObject = nlohmann::json::parse( body );
     if ( !jsonObject.contains( "uuid" ) )
     {
-        throw std::runtime_error( "Failed to create session" );
+        throw std::runtime_error( "Error creating session. Malformed response (no UUID)." );
     }
 
     m_sessionUuid = jsonObject["uuid"].get<std::string>();
@@ -518,13 +438,12 @@ caffa::Session::Type RestClient::checkSession() const
     auto jsonObject    = nlohmann::json::object();
     jsonObject["uuid"] = m_sessionUuid;
 
-    auto [status, body] = performRequest( http::verb::get,
-                                          hostname(),
-                                          port(),
-                                          std::string( "/sessions/" + m_sessionUuid + "?session_uuid=" ) + m_sessionUuid,
-                                          jsonObject.dump() );
+    auto [status, body] = performGetRequest( hostname(),
+                                             port(),
+                                             std::string( "/sessions/" + m_sessionUuid + "?session_uuid=" ) + m_sessionUuid,
+                                             jsonObject.dump() );
 
-    if ( status != http::status::ok )
+    if ( status != httplib::StatusCode::OK_200 )
     {
         throw std::runtime_error( "Failed to check session: " + body );
     }
@@ -543,14 +462,13 @@ void RestClient::changeSession( caffa::Session::Type newType )
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
-    auto [status, body] = performRequest( http::verb::put,
-                                          hostname(),
-                                          port(),
-                                          std::string( "/sessions/" + m_sessionUuid + "?session_uuid=" ) + m_sessionUuid +
-                                              "&type=" + caffa::AppEnum<caffa::Session::Type>( newType ).label(),
-                                          "" );
+    auto [status, body] = performPutRequest( hostname(),
+                                             port(),
+                                             std::string( "/sessions/" + m_sessionUuid + "?session_uuid=" ) + m_sessionUuid +
+                                                 "&type=" + caffa::AppEnum<caffa::Session::Type>( newType ).label(),
+                                             "" );
 
-    if ( status != http::status::ok )
+    if ( status != httplib::StatusCode::OK_200 )
     {
         throw std::runtime_error( "Failed to check session: " + body );
     }
@@ -568,13 +486,13 @@ void RestClient::destroySession()
 
         CAFFA_DEBUG( "Destroying session " << m_sessionUuid );
 
-        auto [status, body] = performRequest( http::verb::delete_,
-                                              hostname(),
-                                              port(),
-                                              std::string( "/sessions/" + m_sessionUuid + "?session_uuid=" ) + m_sessionUuid,
-                                              "" );
+        auto [status, body] =
+            performDeleteRequest( hostname(),
+                                  port(),
+                                  std::string( "/sessions/" + m_sessionUuid + "?session_uuid=" ) + m_sessionUuid,
+                                  "" );
 
-        if ( status != http::status::accepted && status != http::status::not_found )
+        if ( status != httplib::StatusCode::Accepted_202 && status != httplib::StatusCode::NotFound_404 )
         {
             CAFFA_ERROR( "Failed to destroy session: " << body );
             throw std::runtime_error( "Failed to destroy session: " + body );
@@ -604,13 +522,12 @@ const std::string& RestClient::sessionUuid() const
 //--------------------------------------------------------------------------------------------------
 void RestClient::setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value )
 {
-    auto [status, body] = performRequest( http::verb::put,
-                                          hostname(),
-                                          port(),
-                                          std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" + fieldName +
-                                              "?session_uuid=" + m_sessionUuid,
-                                          value.dump() );
-    if ( status != http::status::accepted )
+    auto [status, body] = performPutRequest( hostname(),
+                                             port(),
+                                             std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" +
+                                                 fieldName + "?session_uuid=" + m_sessionUuid,
+                                             value.dump() );
+    if ( status != httplib::StatusCode::Accepted_202 )
     {
         throw std::runtime_error( "Failed to set field value" );
     }
@@ -625,7 +542,7 @@ nlohmann::json RestClient::getJson( const caffa::ObjectHandle* objectHandle, con
                                              port(),
                                              std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" +
                                                  fieldName + "?skeleton=true&session_uuid=" + m_sessionUuid );
-    if ( status != http::status::ok )
+    if ( status != httplib::StatusCode::OK_200 )
     {
         throw std::runtime_error( "Failed to get field value" );
     }
@@ -643,7 +560,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::getShallowCopyOfChildObject( co
                                              port(),
                                              std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" +
                                                  fieldName + "?skeleton=true&session_uuid=" + m_sessionUuid );
-    if ( status != http::status::ok )
+    if ( status != httplib::StatusCode::OK_200 )
     {
         throw std::runtime_error( "Failed to get field value" );
     }
@@ -664,7 +581,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::getDeepCopyOfChildObject( const
                                              port(),
                                              std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" +
                                                  fieldName + "?session_uuid=" + m_sessionUuid );
-    if ( status != http::status::ok )
+    if ( status != httplib::StatusCode::OK_200 )
     {
         throw std::runtime_error( "Failed to get field value" );
     }
@@ -688,13 +605,12 @@ void RestClient::deepCopyChildObjectFrom( const caffa::ObjectHandle* objectHandl
                                           const caffa::ObjectHandle* childObject )
 {
     auto childString    = caffa::JsonSerializer().writeObjectToString( childObject );
-    auto [status, body] = performRequest( http::verb::put,
-                                          hostname(),
-                                          port(),
-                                          std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" + fieldName +
-                                              "?session_uuid=" + m_sessionUuid,
-                                          childString );
-    if ( status != http::status::accepted )
+    auto [status, body] = performPutRequest( hostname(),
+                                             port(),
+                                             std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" +
+                                                 fieldName + "?session_uuid=" + m_sessionUuid,
+                                             childString );
+    if ( status != httplib::StatusCode::Accepted_202 )
     {
         throw std::runtime_error( "Failed to deep copy object with status " +
                                   std::to_string( static_cast<unsigned>( status ) ) + " and body: " + body );
@@ -713,7 +629,7 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::getChildObjects( c
                                              port(),
                                              std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" +
                                                  fieldName + "?skeleton=true&session_uuid=" + m_sessionUuid );
-    if ( status != http::status::ok )
+    if ( status != httplib::StatusCode::OK_200 )
     {
         throw std::runtime_error( "Failed to get field value" );
     }
@@ -741,13 +657,12 @@ void RestClient::setChildObject( const caffa::ObjectHandle* objectHandle,
                                  const std::string&         fieldName,
                                  const caffa::ObjectHandle* childObject )
 {
-    auto [status, body] = performRequest( http::verb::put,
-                                          hostname(),
-                                          port(),
-                                          std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" + fieldName +
-                                              "?session_uuid=" + m_sessionUuid,
-                                          caffa::JsonSerializer().writeObjectToString( childObject ) );
-    if ( status != http::status::accepted )
+    auto [status, body] = performPutRequest( hostname(),
+                                             port(),
+                                             std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" +
+                                                 fieldName + "?session_uuid=" + m_sessionUuid,
+                                             caffa::JsonSerializer().writeObjectToString( childObject ) );
+    if ( status != httplib::StatusCode::Accepted_202 )
     {
         throw std::runtime_error( "Failed to set child object with status " +
                                   std::to_string( static_cast<unsigned>( status ) ) + " and body: " + body );
@@ -759,13 +674,13 @@ void RestClient::setChildObject( const caffa::ObjectHandle* objectHandle,
 //--------------------------------------------------------------------------------------------------
 void RestClient::removeChildObject( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, size_t index )
 {
-    auto [status, body] = performRequest( http::verb::delete_,
-                                          hostname(),
-                                          port(),
-                                          std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" + fieldName +
-                                              "?index=" + std::to_string( index ) + "&session_uuid=" + m_sessionUuid,
-                                          "" );
-    if ( status != http::status::accepted )
+    auto [status, body] =
+        performDeleteRequest( hostname(),
+                              port(),
+                              std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" + fieldName +
+                                  "?index=" + std::to_string( index ) + "&session_uuid=" + m_sessionUuid,
+                              "" );
+    if ( status != httplib::StatusCode::Accepted_202 )
     {
         throw std::runtime_error( "Failed to remove child object with status " +
                                   std::to_string( static_cast<unsigned>( status ) ) + " and body: " + body );
@@ -777,13 +692,12 @@ void RestClient::removeChildObject( const caffa::ObjectHandle* objectHandle, con
 //--------------------------------------------------------------------------------------------------
 void RestClient::clearChildObjects( const caffa::ObjectHandle* objectHandle, const std::string& fieldName )
 {
-    auto [status, body] = performRequest( http::verb::delete_,
-                                          hostname(),
-                                          port(),
-                                          std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" + fieldName +
-                                              "?session_uuid=" + m_sessionUuid,
-                                          "" );
-    if ( status != http::status::accepted )
+    auto [status, body] = performDeleteRequest( hostname(),
+                                                port(),
+                                                std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" +
+                                                    fieldName + "?session_uuid=" + m_sessionUuid,
+                                                "" );
+    if ( status != httplib::StatusCode::Accepted_202 )
     {
         throw std::runtime_error( "Failed to clear all child objects with status " +
                                   std::to_string( static_cast<unsigned>( status ) ) + " and body: " + body );
@@ -799,13 +713,12 @@ void RestClient::insertChildObject( const caffa::ObjectHandle* objectHandle,
                                     const caffa::ObjectHandle* childObject )
 {
     auto childString    = caffa::JsonSerializer().writeObjectToString( childObject );
-    auto [status, body] = performRequest( http::verb::post,
-                                          hostname(),
-                                          port(),
-                                          std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" + fieldName +
-                                              "?index=" + std::to_string( index ) + "&session_uuid=" + m_sessionUuid,
-                                          childString );
-    if ( status != http::status::accepted )
+    auto [status, body] = performPostRequest( hostname(),
+                                              port(),
+                                              std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" + fieldName +
+                                                  "?index=" + std::to_string( index ) + "&session_uuid=" + m_sessionUuid,
+                                              childString );
+    if ( status != httplib::StatusCode::Accepted_202 )
     {
         throw std::runtime_error( "Failed to insert child object at index " + std::to_string( index ) + " with status " +
                                   std::to_string( static_cast<unsigned>( status ) ) + " and body: " + body );

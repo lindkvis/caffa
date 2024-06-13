@@ -11,3 +11,6 @@
 	path = Bindings/Python/caffa
 	url = https://github.com/lindkvis/caffa-python.git
 
+[submodule "ThirdParty/cpp-httplib"]
+	path = ThirdParty/cpp-httplib
+	url = https://github.com/yhirose/cpp-httplib.git

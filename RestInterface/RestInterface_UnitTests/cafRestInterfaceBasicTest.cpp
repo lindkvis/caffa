@@ -77,7 +77,7 @@ TEST_F( RestTest, Launch )
     }
     catch ( const std::exception& e )
     {
-        CAFFA_ERROR( "Exception when connecting to client: " << e.what() );
+        CAFFA_ERROR( "Exception when connecting to server: " << e.what() );
         FAIL();
     }
     std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
