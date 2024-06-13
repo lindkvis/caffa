@@ -34,6 +34,12 @@ struct AppInfo;
 class ObjectHandle;
 } // namespace caffa
 
+namespace httplib
+{
+class Client;
+class Result;
+} // namespace httplib
+
 namespace caffa::rpc
 {
 class RestClient : public Client
@@ -96,33 +102,11 @@ private:
     void setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value ) override;
     nlohmann::json getJson( const caffa::ObjectHandle*, const std::string& fieldName ) const override;
 
-    std::pair<int, std::string> performPutRequest( const std::string& hostname,
-                                                   int                port,
-                                                   const std::string& target,
-                                                   const std::string& body,
-                                                   const std::string& username = "",
-                                                   const std::string& password = "" ) const;
-    std::pair<int, std::string> performPostRequest( const std::string& hostname,
-                                                    int                port,
-                                                    const std::string& target,
-                                                    const std::string& body,
-                                                    const std::string& username = "",
-                                                    const std::string& password = "" ) const;
-    std::pair<int, std::string> performDeleteRequest( const std::string& hostname,
-                                                      int                port,
-                                                      const std::string& target,
-                                                      const std::string& username = "",
-                                                      const std::string& password = "" ) const;
-    std::pair<int, std::string> performGetRequest( const std::string& hostname,
-                                                   int                port,
-                                                   const std::string& target,
-                                                   const std::string& username = "",
-                                                   const std::string& password = "" ) const;
-
 private:
-    std::string                  m_sessionUuid;
-    std::unique_ptr<std::thread> m_keepAliveThread;
-    mutable std::mutex           m_sessionMutex;
+    std::string                      m_sessionUuid;
+    std::unique_ptr<std::thread>     m_keepAliveThread;
+    mutable std::mutex               m_sessionMutex;
+    std::shared_ptr<httplib::Client> m_httpClient;
 };
 
 } // namespace caffa::rpc
