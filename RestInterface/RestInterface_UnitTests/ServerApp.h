@@ -149,12 +149,12 @@ public:
                                                 << " but it has not been kept alive, so destroying it" );
                 }
             }
-            m_session = caffa::Session::create( type, std::chrono::seconds( 4 ) );
+            m_session = caffa::Session::create( type, std::chrono::seconds( 5 ) );
             return caffa::SessionMaintainer( m_session );
         }
         else
         {
-            auto observingSession = caffa::Session::create( type, std::chrono::seconds( 2 ) );
+            auto observingSession = caffa::Session::create( type, std::chrono::seconds( 3 ) );
             m_observingSessions.push_back( observingSession );
             return caffa::SessionMaintainer( observingSession );
         }
