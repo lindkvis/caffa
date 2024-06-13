@@ -614,7 +614,7 @@ void RestClient::setJson( const caffa::ObjectHandle* objectHandle, const std::st
                                           value.dump() );
     if ( status != http::status::accepted )
     {
-        throw std::runtime_error( "Failed to set field value" );
+        throw std::runtime_error( "Failed to set field value: " + result->body );
     }
 }
 
@@ -629,7 +629,7 @@ nlohmann::json RestClient::getJson( const caffa::ObjectHandle* objectHandle, con
                                                  fieldName + "?skeleton=true&session_uuid=" + m_sessionUuid );
     if ( status != http::status::ok )
     {
-        throw std::runtime_error( "Failed to get field value" );
+        throw std::runtime_error( "Failed to get field value: " + result->body );
     }
 
     return nlohmann::json::parse( body );
@@ -647,7 +647,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::getShallowCopyOfChildObject( co
                                                  fieldName + "?skeleton=true&session_uuid=" + m_sessionUuid );
     if ( status != http::status::ok )
     {
-        throw std::runtime_error( "Failed to get field value" );
+        throw std::runtime_error( "Failed to get field value: " + result->body );
     }
     CAFFA_TRACE( "Got body: " << body );
 
@@ -668,7 +668,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::getDeepCopyOfChildObject( const
                                                  fieldName + "?session_uuid=" + m_sessionUuid );
     if ( status != http::status::ok )
     {
-        throw std::runtime_error( "Failed to get field value" );
+        throw std::runtime_error( "Failed to get field value: " + result->body );
     }
 
     auto parsedResult = nlohmann::json::parse( body );
@@ -717,7 +717,7 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::getChildObjects( c
                                                  fieldName + "?skeleton=true&session_uuid=" + m_sessionUuid );
     if ( status != http::status::ok )
     {
-        throw std::runtime_error( "Failed to get field value" );
+        throw std::runtime_error( "Failed to get field value: " + result->body );
     }
     CAFFA_TRACE( "Got body: " << body );
 
