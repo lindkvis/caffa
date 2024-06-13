@@ -89,7 +89,7 @@ RestParameter::~RestParameter()
 {
 }
 
-RestAction::RestAction( http::verb verb, const std::string& summary, const std::string& operationId, const Callback& callback )
+RestAction::RestAction( HttpVerb verb, const std::string& summary, const std::string& operationId, const Callback& callback )
     : m_verb( verb )
     , m_summary( summary )
     , m_operationId( operationId )
@@ -100,7 +100,7 @@ RestAction::RestAction( http::verb verb, const std::string& summary, const std::
 {
 }
 
-http::verb RestAction::verb() const
+RestAction::HttpVerb RestAction::verb() const
 {
     return m_verb;
 }
@@ -115,7 +115,7 @@ void RestAction::addParameter( std::unique_ptr<RestParameter> parameter )
     m_parameters.push_back( std::move( parameter ) );
 }
 
-void RestAction::addResponse( http::status status, std::unique_ptr<RestResponse> response )
+void RestAction::addResponse( httplib::StatusCode status, std::unique_ptr<RestResponse> response )
 {
     CAFFA_ASSERT( !m_responses.contains( status ) );
     m_responses[status] = std::move( response );
@@ -133,7 +133,7 @@ nlohmann::json RestAction::schema() const
     for ( const auto& [status, response] : m_responses )
     {
         std::string statusString = "default";
-        if ( status != http::status::unknown )
+        if ( status != httplib::StatusCode::MultiStatus_207 )
         {
             statusString = std::to_string( static_cast<unsigned>( status ) );
         }
@@ -204,7 +204,7 @@ const std::string& RestPathEntry::name() const
     return m_name;
 }
 
-RestPathEntry::ServiceResponse RestPathEntry::perform( http::verb                    verb,
+RestPathEntry::ServiceResponse RestPathEntry::perform( HttpVerb                      verb,
                                                        const std::list<std::string>& pathArguments,
                                                        const nlohmann::json&         queryParams,
                                                        const nlohmann::json&         body ) const
@@ -212,10 +212,9 @@ RestPathEntry::ServiceResponse RestPathEntry::perform( http::verb               
     auto it = m_actions.find( verb );
     if ( it == m_actions.end() )
     {
-        return std::make_tuple( http::status::not_found,
-                                "Could not find the verb " + std::string( http::to_string( verb ) ) + " in request " +
-                                    name(),
-                                nullptr );
+        return std::make_pair( httplib::NotFound_404,
+                               "Could not find the verb " + std::string( RestServiceInterface::to_string( verb ) ) +
+                                   " in request " + name() );
     }
 
     return it->second->perform( pathArguments, queryParams, body );
@@ -312,14 +311,14 @@ nlohmann::json RestPathEntry::schema() const
 
     for ( const auto& [verb, action] : m_actions )
     {
-        std::string verbString( http::to_string( verb ) );
+        std::string verbString( RestServiceInterface::to_string( verb ) );
         request[caffa::StringTools::tolower( verbString )] = action->schema();
     }
 
     return request;
 }
 
-bool RestPathEntry::requiresSession( http::verb verb ) const
+bool RestPathEntry::requiresSession( HttpVerb verb ) const
 {
     auto it = m_actions.find( verb );
     if ( it == m_actions.end() )
@@ -329,7 +328,7 @@ bool RestPathEntry::requiresSession( http::verb verb ) const
     return it->second->requiresSession();
 }
 
-bool RestPathEntry::requiresAuthentication( http::verb verb ) const
+bool RestPathEntry::requiresAuthentication( HttpVerb verb ) const
 {
     auto it = m_actions.find( verb );
     if ( it == m_actions.end() )

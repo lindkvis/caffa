@@ -34,15 +34,15 @@
 
 using namespace caffa::rpc;
 
-RestServiceInterface::ServiceResponse RestOpenApiService::perform( http::verb             verb,
+RestServiceInterface::ServiceResponse RestOpenApiService::perform( HttpVerb               verb,
                                                                    std::list<std::string> path,
                                                                    const nlohmann::json&  queryParams,
                                                                    const nlohmann::json&  body )
 {
     CAFFA_DEBUG( "Perfoming OpenAPI request" );
-    if ( verb != http::verb::get )
+    if ( verb != HttpVerb::GET )
     {
-        return std::make_tuple( http::status::bad_request, "Only GET requests are allowed for api queries", nullptr );
+        return std::make_pair( httplib::StatusCode::BadRequest_400, "Only GET requests are allowed for api queries" );
     }
     CAFFA_ASSERT( !path.empty() );
     path.pop_front();
@@ -57,19 +57,19 @@ RestServiceInterface::ServiceResponse RestOpenApiService::perform( http::verb   
         }
         else
         {
-            return std::make_tuple( http::status::not_found, "Entry " + currentPathEntry + " not found", nullptr );
+            return std::make_pair( httplib::StatusCode::NotFound_404, "Entry " + currentPathEntry + " not found" );
         }
     }
 
-    return std::make_tuple( http::status::ok, currentSchema.dump(), nullptr );
+    return std::make_pair( httplib::StatusCode::OK_200, currentSchema.dump() );
 }
 
-bool RestOpenApiService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
+bool RestOpenApiService::requiresAuthentication( HttpVerb verb, const std::list<std::string>& path ) const
 {
     return false;
 }
 
-bool RestOpenApiService::requiresSession( http::verb verb, const std::list<std::string>& path ) const
+bool RestOpenApiService::requiresSession( HttpVerb verb, const std::list<std::string>& path ) const
 {
     return false;
 }

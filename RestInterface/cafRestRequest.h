@@ -21,17 +21,15 @@
 #include "cafPortableDataType.h"
 #include "cafRestServiceInterface.h"
 
-#include <nlohmann/json.hpp>
+#include "httplib.h"
 
-#include <boost/beast/http.hpp>
+#include <nlohmann/json.hpp>
 
 #include <functional>
 #include <list>
 #include <map>
 #include <optional>
 #include <string>
-
-namespace http = boost::beast::http;
 
 namespace caffa::rpc
 {
@@ -121,17 +119,18 @@ private:
 class RestAction
 {
 public:
+    using HttpVerb        = RestServiceInterface::HttpVerb;
     using ServiceResponse = RestServiceInterface::ServiceResponse;
     using Callback =
-        std::function<ServiceResponse( http::verb, const std::list<std::string>&, const nlohmann::json&, const nlohmann::json& )>;
+        std::function<ServiceResponse( HttpVerb, const std::list<std::string>&, const nlohmann::json&, const nlohmann::json& )>;
 
-    RestAction( http::verb verb, const std::string& summary, const std::string& operationId, const Callback& callback );
+    RestAction( HttpVerb verb, const std::string& summary, const std::string& operationId, const Callback& callback );
 
-    http::verb verb() const;
-    void       addTag( const std::string& tag );
+    HttpVerb verb() const;
+    void     addTag( const std::string& tag );
 
     void           addParameter( std::unique_ptr<RestParameter> parameter );
-    void           addResponse( http::status status, std::unique_ptr<RestResponse> response );
+    void           addResponse( httplib::StatusCode status, std::unique_ptr<RestResponse> response );
     nlohmann::json schema() const;
 
     ServiceResponse perform( const std::list<std::string>& pathArguments,
@@ -147,16 +146,16 @@ public:
     void setRequestBodySchema( const nlohmann::json& requestBodySchema );
 
 private:
-    http::verb  m_verb;
+    HttpVerb    m_verb;
     std::string m_summary;
     std::string m_operationId;
     Callback    m_callback;
     bool        m_requiresSession;
     bool        m_requiresAuthentication;
 
-    std::list<std::string>                                m_tags;
-    std::list<std::unique_ptr<RestParameter>>             m_parameters;
-    std::map<http::status, std::unique_ptr<RestResponse>> m_responses;
+    std::list<std::string>                                       m_tags;
+    std::list<std::unique_ptr<RestParameter>>                    m_parameters;
+    std::map<httplib::StatusCode, std::unique_ptr<RestResponse>> m_responses;
 
     nlohmann::json m_requestBodySchema;
 };
@@ -164,12 +163,13 @@ private:
 class RestPathEntry
 {
 public:
+    using HttpVerb        = RestServiceInterface::HttpVerb;
     using ServiceResponse = RestServiceInterface::ServiceResponse;
 
 public:
     RestPathEntry( const std::string& name );
     const std::string& name() const;
-    ServiceResponse    perform( http::verb                    verb,
+    ServiceResponse    perform( HttpVerb                      verb,
                                 const std::list<std::string>& pathArguments,
                                 const nlohmann::json&         queryParams,
                                 const nlohmann::json&         body ) const;
@@ -184,8 +184,8 @@ public:
     std::list<const RestAction*>    actions() const;
     std::list<const RestPathEntry*> children() const;
 
-    bool requiresSession( http::verb verb ) const;
-    bool requiresAuthentication( http::verb verb ) const;
+    bool requiresSession( HttpVerb verb ) const;
+    bool requiresAuthentication( HttpVerb verb ) const;
 
     void setPathArgumentMatcher( const std::function<bool( std::string )>& argumentMatcher );
 
@@ -194,7 +194,7 @@ private:
 
     std::string                                           m_name;
     std::map<std::string, std::unique_ptr<RestPathEntry>> m_children;
-    std::map<http::verb, std::unique_ptr<RestAction>>     m_actions;
+    std::map<HttpVerb, std::unique_ptr<RestAction>>       m_actions;
 
     std::function<bool( std::string )> m_pathArgumentMatcher;
 };

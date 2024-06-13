@@ -47,24 +47,24 @@ class RestDocumentService : public RestServiceInterface
 public:
     RestDocumentService();
 
-    ServiceResponse perform( http::verb             verb,
+    ServiceResponse perform( HttpVerb               verb,
                              std::list<std::string> path,
                              const nlohmann::json&  queryParams,
                              const nlohmann::json&  body ) override;
 
-    bool requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const override;
-    bool requiresSession( http::verb verb, const std::list<std::string>& path ) const override;
+    bool requiresAuthentication( HttpVerb verb, const std::list<std::string>& path ) const override;
+    bool requiresSession( HttpVerb verb, const std::list<std::string>& path ) const override;
 
     std::map<std::string, nlohmann::json> servicePathEntries() const override;
     std::map<std::string, nlohmann::json> serviceComponentEntries() const override;
 
 private:
     static ServiceResponse document( const std::string&            documentId,
-                                     http::verb                    verb,
+                                     HttpVerb                      verb,
                                      const std::list<std::string>& pathArguments,
                                      const nlohmann::json&         queryParams,
                                      const nlohmann::json&         body );
-    static ServiceResponse documents( http::verb                    verb,
+    static ServiceResponse documents( HttpVerb                      verb,
                                       const std::list<std::string>& pathArguments,
                                       const nlohmann::json&         queryParams,
                                       const nlohmann::json&         body );
