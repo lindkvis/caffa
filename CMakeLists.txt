@@ -61,6 +61,7 @@ add_subdirectory(Core)
 add_subdirectory(RpcBase)
 
 if(CAFFA_REST_INTERFACE)
+  add_subdirectory(ThirdParty/cpp-httplib)
   add_subdirectory(RestInterface)
   if(CAFFA_BUILD_UNIT_TESTS)
     add_subdirectory(RestInterface/RestInterface_UnitTests)
