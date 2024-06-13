@@ -22,11 +22,6 @@
 #include "cafRpcClient.h"
 #include "cafSession.h"
 
-#include <boost/beast/core.hpp>
-#include <boost/beast/http/status.hpp>
-#include <boost/beast/http/verb.hpp>
-
-#include <future>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -39,7 +34,11 @@ struct AppInfo;
 class ObjectHandle;
 } // namespace caffa
 
-namespace http = boost::beast::http; // from <boost/beast/http.hpp>
+namespace httplib
+{
+class Client;
+class Result;
+} // namespace httplib
 
 namespace boost::asio
 {
@@ -108,27 +107,11 @@ private:
     void setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value ) override;
     nlohmann::json getJson( const caffa::ObjectHandle*, const std::string& fieldName ) const override;
 
-    std::pair<http::status, std::string> performRequest( http::verb         verb,
-                                                         const std::string& hostname,
-                                                         int                port,
-                                                         const std::string& target,
-                                                         const std::string& body,
-                                                         const std::string& username = "",
-                                                         const std::string& password = "" ) const;
-    std::pair<http::status, std::string> performGetRequest( const std::string& hostname,
-                                                            int                port,
-                                                            const std::string& target,
-                                                            const std::string& username = "",
-                                                            const std::string& password = "" ) const;
-
 private:
-    std::string                  m_sessionUuid;
-    std::unique_ptr<std::thread> m_keepAliveThread;
-    mutable std::mutex           m_sessionMutex;
-
-    // The io_context is required for all I/O
-    std::shared_ptr<boost::asio::io_context>          m_ioc;
-    mutable std::shared_ptr<boost::beast::tcp_stream> m_stream;
+    std::string                      m_sessionUuid;
+    std::unique_ptr<std::thread>     m_keepAliveThread;
+    mutable std::mutex               m_sessionMutex;
+    std::shared_ptr<httplib::Client> m_httpClient;
 };
 
 } // namespace caffa::rpc
