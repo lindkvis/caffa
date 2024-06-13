@@ -90,7 +90,7 @@ RestSessionService::RestSessionService()
 
         uuidEntry->addAction( std::move( getAction ) );
 
-        auto deleteAction = std::make_unique<RestAction>( HttpVerb::DELETE,
+        auto deleteAction = std::make_unique<RestAction>( HttpVerb::DELETE_,
                                                           "Destroy a particular session",
                                                           "destroySession",
                                                           &RestSessionService::destroy );

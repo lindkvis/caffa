@@ -120,7 +120,7 @@ RestObjectService::RestObjectService()
 
     {
         auto deleteAction =
-            createFieldOrMethodAction( HttpVerb::DELETE,
+            createFieldOrMethodAction( HttpVerb::DELETE_,
                                        "Delete a field value",
                                        "deleteFieldValue",
                                        { keywordParameter.get(), indexParameter.get(), skeletonParameter.get() } );
@@ -334,7 +334,7 @@ RestObjectService::ServiceResponse
         {
             return insertFieldValue( field, index, body );
         }
-        else if ( verb == HttpVerb::DELETE )
+        else if ( verb == HttpVerb::DELETE_ )
         {
             return deleteFieldValue( field, index );
         }

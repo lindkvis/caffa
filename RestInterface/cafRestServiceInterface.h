@@ -44,7 +44,7 @@ public:
     enum class HttpVerb
     {
         GET,
-        DELETE,
+        DELETE_,
         PUT,
         POST
     };

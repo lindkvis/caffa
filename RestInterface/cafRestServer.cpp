@@ -16,14 +16,6 @@
 //    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
 //    for more details.
 //
-//    Based on example code from Boost Beast:
-//    Copyright (c) 2016-2019 Vinnie Falco (vinnie dot falco at gmail dot com)
-//
-//    Distributed under the Boost Software License, Version 1.0. (See accompanying
-//    file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
-//    Official repository: https://github.com/boostorg/beast
-//
 // ##################################################################################################
 #include "cafRestServer.h"
 
@@ -81,7 +73,7 @@ void RestServer::run()
         std::bind( &RestServer::handleRequest, this, HttpVerb::POST, std::placeholders::_1, std::placeholders::_2 );
 
     Handler deleteHandler =
-        std::bind( &RestServer::handleRequest, this, HttpVerb::DELETE, std::placeholders::_1, std::placeholders::_2 );
+        std::bind( &RestServer::handleRequest, this, HttpVerb::DELETE_, std::placeholders::_1, std::placeholders::_2 );
 
     m_httpServer->Get( R"(.*)", getHandler );
     m_httpServer->Put( R"(.*)", putHandler );

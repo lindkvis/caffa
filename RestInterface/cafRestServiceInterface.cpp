@@ -17,7 +17,7 @@ std::string RestServiceInterface::to_string( HttpVerb verb )
             return "get";
         case HttpVerb::POST:
             return "post";
-        case HttpVerb::DELETE:
+        case HttpVerb::DELETE_:
             return "delete";
         case HttpVerb::PUT:
             return "put";
