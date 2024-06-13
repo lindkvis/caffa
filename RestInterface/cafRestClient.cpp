@@ -422,7 +422,7 @@ void RestClient::setJson( const caffa::ObjectHandle* objectHandle, const std::st
 
     if ( result->status != httplib::StatusCode::Accepted_202 )
     {
-        throw std::runtime_error( "Failed to set field value" );
+        throw std::runtime_error( "Failed to set field value: " + result->body );
     }
 }
 
@@ -438,7 +438,7 @@ nlohmann::json RestClient::getJson( const caffa::ObjectHandle* objectHandle, con
 
     if ( result->status != httplib::StatusCode::OK_200 )
     {
-        throw std::runtime_error( "Failed to get field value" );
+        throw std::runtime_error( "Failed to get field value: " + result->body );
     }
 
     return nlohmann::json::parse( result->body );
@@ -457,7 +457,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::getShallowCopyOfChildObject( co
 
     if ( result->status != httplib::StatusCode::OK_200 )
     {
-        throw std::runtime_error( "Failed to get field value" );
+        throw std::runtime_error( "Failed to get field value: " + result->body );
     }
     CAFFA_TRACE( "Got body: " << result->body );
 
@@ -479,7 +479,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::getDeepCopyOfChildObject( const
 
     if ( result->status != httplib::StatusCode::OK_200 )
     {
-        throw std::runtime_error( "Failed to get field value" );
+        throw std::runtime_error( "Failed to get field value: " + result->body );
     }
 
     auto parsedResult = nlohmann::json::parse( result->body );
