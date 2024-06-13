@@ -164,11 +164,12 @@ public:
     {
         std::scoped_lock lock( m_sessionMutex );
 
+        CAFFA_DEBUG( "Checking current session" );
         if ( m_session && m_session->uuid() == sessionUuid )
         {
             return caffa::SessionMaintainer( m_session );
         }
-
+        CAFFA_DEBUG( "Checking observing sessions" );
         for ( auto observingSession : m_observingSessions )
         {
             if ( observingSession && observingSession->uuid() == sessionUuid && !observingSession->isExpired() )
@@ -176,7 +177,7 @@ public:
                 return caffa::SessionMaintainer( observingSession );
             }
         }
-
+        CAFFA_DEBUG( "Returning null object" );
         return caffa::SessionMaintainer();
     }
 
@@ -184,10 +185,14 @@ public:
     {
         std::scoped_lock lock( m_sessionMutex );
 
+        CAFFA_DEBUG( "Checking current session const" );
+
         if ( m_session && m_session->uuid() == sessionUuid )
         {
             return caffa::ConstSessionMaintainer( m_session );
         }
+
+        CAFFA_DEBUG( "Checking observing sessions const" );
 
         for ( auto observingSession : m_observingSessions )
         {
@@ -196,6 +201,7 @@ public:
                 return caffa::ConstSessionMaintainer( observingSession );
             }
         }
+        CAFFA_DEBUG( "Returning null const object" );
 
         return caffa::ConstSessionMaintainer();
     }
