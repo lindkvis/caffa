@@ -81,7 +81,7 @@ bool Session::unlockedIsExpired() const
     return isExpired;
 }
 
-void Session::updateKeepAlive()
+void Session::updateKeepAlive() const
 {
     CAFFA_DEBUG( "Update keepalive for session " << m_uuid );
     m_lastKeepAlive = std::chrono::steady_clock::now();
@@ -140,6 +140,7 @@ SessionMaintainer::~SessionMaintainer()
 {
     if ( m_session )
     {
+        m_session->updateKeepAlive();
         m_session->unblockExpiration();
     }
 }
@@ -181,6 +182,7 @@ ConstSessionMaintainer::~ConstSessionMaintainer()
 {
     if ( m_session )
     {
+        m_session->updateKeepAlive();
         m_session->unblockExpiration();
     }
 }
