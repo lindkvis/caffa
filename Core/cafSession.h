@@ -53,7 +53,7 @@ public:
     void setType( Type type );
 
     bool isExpired() const;
-    void updateKeepAlive();
+    void updateKeepAlive() const;
 
     static Type typeFromUint( unsigned type );
 
