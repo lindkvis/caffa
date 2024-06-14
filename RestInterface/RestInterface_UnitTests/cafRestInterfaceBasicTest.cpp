@@ -202,12 +202,16 @@ TEST_F( RestTest, Document )
         catch ( const std::runtime_error& e )
         {
             CAFFA_ERROR( "Exception caught: " << e.what() );
+            serverApp->quit();
+            thread.join();
             FAIL();
             return;
         }
         catch ( ... )
         {
             CAFFA_ERROR( "Exception caught" );
+            serverApp->quit();
+            thread.join();
             FAIL();
             return;
         }
