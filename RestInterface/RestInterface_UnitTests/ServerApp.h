@@ -45,7 +45,7 @@ public:
     static int s_port;
 
     ServerApp( int port, int threads )
-        : caffa::rpc::RestServerApplication( port, threads, std::make_shared<UnitTestAuthenticator>() )
+        : caffa::rpc::RestServerApplication( "0.0.0.0", port, threads, std::make_shared<UnitTestAuthenticator>() )
         , m_demoDocument( std::make_unique<DemoDocument>() )
         , m_demoDocumentWithNonScriptableMember( std::make_unique<DemoDocumentWithNonScriptableMember>() )
     {
