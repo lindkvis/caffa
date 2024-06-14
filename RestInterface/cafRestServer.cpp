@@ -118,6 +118,16 @@ void RestServer::handleRequest( HttpVerb verb, const httplib::Request& request, 
         return;
     }
 
+    caffa::SessionMaintainer session;
+    std::string              session_uuid = "NONE";
+    auto                     it           = request.params.find( "session_uuid" );
+    if ( request.params.contains( "session_uuid" ) )
+    {
+        session_uuid = it->second;
+        auto app     = RestServerApplication::instance();
+        session      = app->getExistingSession( session_uuid );
+    }
+
     auto path = target;
 
     std::shared_ptr<caffa::rpc::RestServiceInterface> service;
@@ -127,10 +137,10 @@ void RestServer::handleRequest( HttpVerb verb, const httplib::Request& request, 
     if ( !pathComponents.empty() )
     {
         auto serviceComponent = pathComponents.front();
-        auto it               = m_services.find( serviceComponent );
-        if ( it != m_services.end() )
+        auto service_it       = m_services.find( serviceComponent );
+        if ( service_it != m_services.end() )
         {
-            service = it->second;
+            service = service_it->second;
         }
     }
 
@@ -207,15 +217,6 @@ void RestServer::handleRequest( HttpVerb verb, const httplib::Request& request, 
 
     if ( requiresValidSession )
     {
-        caffa::SessionMaintainer session;
-        std::string              session_uuid = "NONE";
-        if ( queryParamsJson.contains( "session_uuid" ) )
-        {
-            session_uuid = queryParamsJson["session_uuid"].get<std::string>();
-            auto app     = RestServerApplication::instance();
-            session      = app->getExistingSession( session_uuid );
-        }
-
         if ( !session )
         {
             response.status = httplib::StatusCode::Forbidden_403;
