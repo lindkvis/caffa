@@ -121,7 +121,7 @@ public:
         }
 
         // Set a timeout on the operation
-        m_stream.expires_after( 1s );
+        m_stream.expires_after( 5s );
 
         // Make the connection on the IP address we get from a lookup
         m_stream.async_connect( results, beast::bind_front_handler( &Request::onConnect, shared_from_this() ) );
@@ -132,12 +132,13 @@ public:
         if ( ec )
         {
             CAFFA_ERROR( "Failed to connect to host: " << ec );
-            m_result.set_value( std::make_pair( http::status::service_unavailable, "Failed to connect to host" ) );
+            m_result.set_value(
+                std::make_pair( http::status::service_unavailable, "Failed to connect to host " + ec.message() ) );
             return;
         }
 
         // Set a timeout on the operation
-        m_stream.expires_after( 2s );
+        m_stream.expires_after( 5s );
 
         // Send the HTTP request to the remote host
         http::async_write( m_stream, m_req, beast::bind_front_handler( &Request::onWrite, shared_from_this() ) );
