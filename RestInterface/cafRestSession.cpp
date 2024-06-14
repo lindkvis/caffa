@@ -156,6 +156,43 @@ RestServiceInterface::CleanupCallback
         queryParams.push_back( targetComponents[i] );
     }
 
+    nlohmann::json queryParamsJson = nlohmann::json::object();
+    for ( auto param : queryParams )
+    {
+        auto keyValue = caffa::StringTools::split<std::vector<std::string>>( param, "=", true );
+        if ( keyValue.size() == 2 )
+        {
+            if ( auto intValue = caffa::StringTools::toInt64( keyValue[1] ); intValue )
+            {
+                queryParamsJson[keyValue[0]] = *intValue;
+            }
+            else if ( auto doubleValue = caffa::StringTools::toDouble( keyValue[1] ); doubleValue )
+            {
+                queryParamsJson[keyValue[0]] = *doubleValue;
+            }
+            else if ( caffa::StringTools::tolower( keyValue[1] ) == "true" )
+            {
+                queryParamsJson[keyValue[0]] = true;
+            }
+            else if ( caffa::StringTools::tolower( keyValue[1] ) == "false" )
+            {
+                queryParamsJson[keyValue[0]] = false;
+            }
+            else
+            {
+                queryParamsJson[keyValue[0]] = keyValue[1];
+            }
+        }
+    }
+
+    caffa::SessionMaintainer session;
+    std::string              session_uuid = "NONE";
+    if ( queryParamsJson.contains( "session_uuid" ) )
+    {
+        session_uuid = queryParamsJson["session_uuid"].get<std::string>();
+        session      = RestServerApplication::instance()->getExistingSession( session_uuid );
+    }
+
     std::shared_ptr<caffa::rpc::RestServiceInterface> service;
 
     auto pathComponents = caffa::StringTools::split<std::list<std::string>>( path, "/", true );
@@ -206,45 +243,8 @@ RestServiceInterface::CleanupCallback
         }
     }
 
-    nlohmann::json queryParamsJson = nlohmann::json::object();
-    for ( auto param : queryParams )
-    {
-        auto keyValue = caffa::StringTools::split<std::vector<std::string>>( param, "=", true );
-        if ( keyValue.size() == 2 )
-        {
-            if ( auto intValue = caffa::StringTools::toInt64( keyValue[1] ); intValue )
-            {
-                queryParamsJson[keyValue[0]] = *intValue;
-            }
-            else if ( auto doubleValue = caffa::StringTools::toDouble( keyValue[1] ); doubleValue )
-            {
-                queryParamsJson[keyValue[0]] = *doubleValue;
-            }
-            else if ( caffa::StringTools::tolower( keyValue[1] ) == "true" )
-            {
-                queryParamsJson[keyValue[0]] = true;
-            }
-            else if ( caffa::StringTools::tolower( keyValue[1] ) == "false" )
-            {
-                queryParamsJson[keyValue[0]] = false;
-            }
-            else
-            {
-                queryParamsJson[keyValue[0]] = keyValue[1];
-            }
-        }
-    }
-
     if ( requiresValidSession )
     {
-        caffa::SessionMaintainer session;
-        std::string              session_uuid = "NONE";
-        if ( queryParamsJson.contains( "session_uuid" ) )
-        {
-            session_uuid = queryParamsJson["session_uuid"].get<std::string>();
-            session      = RestServerApplication::instance()->getExistingSession( session_uuid );
-        }
-
         if ( !session )
         {
             send( createResponse( http::status::forbidden, "Session '" + session_uuid + "' is not valid" ) );
