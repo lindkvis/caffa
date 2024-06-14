@@ -55,7 +55,7 @@ RestServerApplication::RestServerApplication( const std::string&                
         CAFFA_INFO( "Loading SSL certificates" );
     }
 
-    m_server = std::make_shared<RestServer>( "0.0.0.0", m_threads, m_portNumber, m_authenticator );
+    m_server = std::make_shared<RestServer>( clientHost, m_threads, m_portNumber, m_authenticator );
 }
 
 //--------------------------------------------------------------------------------------------------
