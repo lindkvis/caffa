@@ -72,25 +72,82 @@ using tcp       = net::ip::tcp; // from <boost/asio/ip/tcp.hpp>
 using namespace caffa::rpc;
 using namespace std::chrono_literals;
 
+class Connector : public std::enable_shared_from_this<Connector>
+{
+public:
+    explicit Connector( net::io_context& ioc )
+        : m_resolver( net::make_strand( ioc ) )
+        , m_stream( std::make_shared<beast::tcp_stream>( net::make_strand( ioc ) ) )
+    {
+    }
+
+    void connect( const std::string& host, int port )
+    {
+        // Look up the domain name
+        m_resolver.async_resolve( host,
+                                  std::to_string( port ),
+                                  beast::bind_front_handler( &Connector::onResolve, shared_from_this() ) );
+    }
+
+    void onResolve( beast::error_code ec, tcp::resolver::results_type results )
+    {
+        if ( ec )
+        {
+            CAFFA_ERROR( "Failed to resolve host" );
+            m_connectedStream.set_value( std::make_pair( nullptr, "Failed to resolve host" ) );
+            return;
+        }
+
+        // Set a timeout on the operation
+        m_stream->expires_after( 10s );
+
+        // Make the connection on the IP address we get from a lookup
+        m_stream->async_connect( results, beast::bind_front_handler( &Connector::onConnect, shared_from_this() ) );
+    }
+
+    void onConnect( beast::error_code ec, tcp::resolver::results_type::endpoint_type )
+    {
+        if ( ec )
+        {
+            CAFFA_ERROR( "Failed to connect to host: " << ec );
+            m_connectedStream.set_value( std::make_pair( nullptr, "Failed to connect to host " + ec.message() ) );
+            return;
+        }
+
+        // Set a timeout on the operation
+        m_stream->expires_after( 10s );
+
+        boost::asio::socket_base::keep_alive option( true );
+        m_stream->socket().set_option( option );
+
+        m_connectedStream.set_value( std::make_pair( m_stream, "Success" ) );
+    }
+
+    std::pair<std::shared_ptr<beast::tcp_stream>, std::string> wait() { return m_connectedStream.get_future().get(); }
+
+private:
+    tcp::resolver                                                            m_resolver;
+    std::shared_ptr<beast::tcp_stream>                                       m_stream;
+    std::promise<std::pair<std::shared_ptr<beast::tcp_stream>, std::string>> m_connectedStream;
+};
+
 class Request : public std::enable_shared_from_this<Request>
 {
 public:
-    explicit Request( net::io_context& ioc, const std::string& username, const std::string& password )
-        : m_resolver( net::make_strand( ioc ) )
-        , m_stream( net::make_strand( ioc ) )
+    explicit Request( beast::tcp_stream& stream, net::io_context& ioc, const std::string& username, const std::string& password )
+        : m_stream( stream )
         , m_username( username )
         , m_password( password )
     {
     }
 
     // Start the asynchronous operation
-    void run( http::verb verb, const std::string& host, int port, const std::string& target, const std::string& body )
+    void run( http::verb verb, const std::string& target, const std::string& body )
     {
         // Set up an HTTP GET request message
         m_req.version( 11 );
         m_req.method( verb );
         m_req.target( target );
-        m_req.set( http::field::host, host );
         m_req.set( http::field::user_agent, BOOST_BEAST_VERSION_STRING );
         if ( !m_username.empty() && !m_password.empty() )
         {
@@ -105,41 +162,6 @@ public:
             m_req.prepare_payload();
         }
 
-        // Look up the domain name
-        m_resolver.async_resolve( host,
-                                  std::to_string( port ),
-                                  beast::bind_front_handler( &Request::onResolve, shared_from_this() ) );
-    }
-
-    void onResolve( beast::error_code ec, tcp::resolver::results_type results )
-    {
-        if ( ec )
-        {
-            CAFFA_ERROR( "Failed to resolve host" );
-            m_result.set_value( std::make_pair( http::status::service_unavailable, "Failed to resolve host" ) );
-            return;
-        }
-
-        // Set a timeout on the operation
-        m_stream.expires_after( 5s );
-
-        // Make the connection on the IP address we get from a lookup
-        m_stream.async_connect( results, beast::bind_front_handler( &Request::onConnect, shared_from_this() ) );
-    }
-
-    void onConnect( beast::error_code ec, tcp::resolver::results_type::endpoint_type )
-    {
-        if ( ec )
-        {
-            CAFFA_ERROR( "Failed to connect to host: " << ec );
-            m_result.set_value(
-                std::make_pair( http::status::service_unavailable, "Failed to connect to host " + ec.message() ) );
-            return;
-        }
-
-        // Set a timeout on the operation
-        m_stream.expires_after( 5s );
-
         // Send the HTTP request to the remote host
         http::async_write( m_stream, m_req, beast::bind_front_handler( &Request::onWrite, shared_from_this() ) );
     }
@@ -152,6 +174,7 @@ public:
         {
             CAFFA_ERROR( "Failed to write to stream" );
             m_result.set_value( std::make_pair( http::status::service_unavailable, "Failed to write to stream" ) );
+            m_closeConnection.set_value( true );
             return;
         }
 
@@ -165,7 +188,6 @@ public:
 
         if ( ec == http::error::end_of_stream )
         {
-            m_stream.socket().shutdown( tcp::socket::shutdown_both, ec );
             return;
         }
 
@@ -174,34 +196,33 @@ public:
             CAFFA_ERROR( "Failed to read from stream from thread ID " << std::this_thread::get_id() << "-> "
                                                                       << ec.message() );
             m_result.set_value( std::make_pair( http::status::service_unavailable, "Failed to read from stream" ) );
+            m_closeConnection.set_value( true );
             return;
         }
 
         m_result.set_value( std::make_pair( m_res.result(), m_res.body() ) );
 
-        // Gracefully close the socket
-        m_stream.socket().shutdown( tcp::socket::shutdown_both, ec );
-
         // not_connected happens sometimes so don't bother reporting it.
         if ( ec && ec != beast::errc::not_connected )
         {
             CAFFA_ERROR( "Failed to shut down" );
+            m_closeConnection.set_value( true );
             return;
         }
-
-        // If we get here then the connection is closed gracefully
+        m_closeConnection.set_value( false );
     }
 
     std::pair<http::status, std::string> wait() { return m_result.get_future().get(); }
+    bool                                 closeConnection() { return m_closeConnection.get_future().get(); }
 
 private:
-    tcp::resolver                     m_resolver;
-    beast::tcp_stream                 m_stream;
+    beast::tcp_stream&                m_stream;
     beast::flat_buffer                m_buffer; // (Must persist between reads)
     http::request<http::string_body>  m_req;
     http::response<http::string_body> m_res;
 
     std::promise<std::pair<http::status, std::string>> m_result;
+    std::promise<bool>                                 m_closeConnection;
 
     std::string m_username;
     std::string m_password;
@@ -215,14 +236,33 @@ std::pair<http::status, std::string> RestClient::performRequest( http::verb     
                                                                  const std::string& username,
                                                                  const std::string& password ) const
 {
-    // The io_context is required for all I/O
-    net::io_context ioc;
+    if ( !m_stream )
+    {
+        CAFFA_INFO( "Connecting to " << hostname << ": " << port );
+        auto connector = std::make_shared<Connector>( *m_ioc );
+        connector->connect( hostname, port );
+        m_ioc->run();
 
-    auto request = std::make_shared<Request>( *m_ioc, username, password );
-    request->run( verb, hostname, port, target, body );
+        auto [stream, message] = connector->wait();
+        if ( !stream )
+        {
+            return std::make_pair( http::status::service_unavailable, message );
+        }
+        m_stream = stream;
+        m_ioc->reset();
+    }
+
+    auto request = std::make_shared<Request>( *m_stream, *m_ioc, username, password );
+    request->run( verb, target, body );
     m_ioc->run();
 
     auto result = request->wait();
+
+    if ( request->closeConnection() )
+    {
+        CAFFA_ERROR( "Request failed and stream needs to be closed" );
+        m_stream.reset();
+    }
 
     m_ioc->reset();
 

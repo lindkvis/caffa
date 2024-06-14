@@ -22,9 +22,11 @@
 #include "cafRpcClient.h"
 #include "cafSession.h"
 
+#include <boost/beast/core.hpp>
 #include <boost/beast/http/status.hpp>
 #include <boost/beast/http/verb.hpp>
 
+#include <future>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -38,6 +40,11 @@ class ObjectHandle;
 } // namespace caffa
 
 namespace http = boost::beast::http; // from <boost/beast/http.hpp>
+
+namespace boost::asio
+{
+class io_context;
+}
 
 namespace caffa::rpc
 {
@@ -118,8 +125,10 @@ private:
     std::string                  m_sessionUuid;
     std::unique_ptr<std::thread> m_keepAliveThread;
     mutable std::mutex           m_sessionMutex;
+
     // The io_context is required for all I/O
     std::shared_ptr<boost::asio::io_context>          m_ioc;
+    mutable std::shared_ptr<boost::beast::tcp_stream> m_stream;
 };
 
 } // namespace caffa::rpc
