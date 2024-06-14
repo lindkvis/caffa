@@ -218,11 +218,13 @@ std::pair<http::status, std::string> RestClient::performRequest( http::verb     
     // The io_context is required for all I/O
     net::io_context ioc;
 
-    auto request = std::make_shared<Request>( ioc, username, password );
+    auto request = std::make_shared<Request>( *m_ioc, username, password );
     request->run( verb, hostname, port, target, body );
-    ioc.run();
+    m_ioc->run();
 
     auto result = request->wait();
+
+    m_ioc->reset();
 
     return result;
 }
@@ -241,6 +243,7 @@ std::pair<http::status, std::string> RestClient::performGetRequest( const std::s
 //--------------------------------------------------------------------------------------------------
 RestClient::RestClient( const std::string& hostname, int port /*= 50000 */ )
     : Client( hostname, port )
+    , m_ioc( std::make_shared<net::io_context>() )
 {
     // Apply current client to the two client object factories.
     caffa::rpc::ClientPassByRefObjectFactory::instance()->setClient( this );
