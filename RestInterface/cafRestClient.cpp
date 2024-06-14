@@ -207,7 +207,8 @@ void RestClient::sendKeepAlive()
 
     if ( !result )
     {
-        throw std::runtime_error( "Failed to communicate with server: " + httplib::to_string( result.error() ) );
+        throw std::runtime_error( "Failed to keep server alive due to failure in server communication: " +
+                                  httplib::to_string( result.error() ) );
     }
 
     if ( result->status != httplib::StatusCode::Accepted_202 && result->status != httplib::StatusCode::OK_200 )
