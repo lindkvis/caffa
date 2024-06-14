@@ -35,10 +35,12 @@ using namespace caffa::rpc;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestServerApplication::RestServerApplication( unsigned short                           portNumber,
+RestServerApplication::RestServerApplication( const std::string&                       clientHost,
+                                              unsigned short                           portNumber,
                                               int                                      threads,
                                               std::shared_ptr<const RestAuthenticator> authenticator )
     : ServerApplication( AppInfo::AppCapability::SERVER )
+    , m_clientHost( clientHost )
     , m_portNumber( portNumber )
     , m_threads( threads )
     , m_ioContext( threads )
@@ -94,7 +96,7 @@ void RestServerApplication::run()
 
     m_server = std::make_shared<RestServer>( m_ioContext,
                                              m_sslContext,
-                                             tcp::endpoint{ net::ip::make_address( "0.0.0.0" ), m_portNumber },
+                                             tcp::endpoint{ net::ip::make_address( m_clientHost ), m_portNumber },
                                              ".",
                                              m_authenticator );
 
