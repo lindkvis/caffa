@@ -47,7 +47,10 @@ public:
      * @param threads The number of accept threads
      * @param authenticator The authenticator used to determine if a client is allowed to access the server.
      */
-    RestServerApplication( unsigned short portNumber, int threads, std::shared_ptr<const RestAuthenticator> authenticator );
+    RestServerApplication( const std::string&                       clientHost,
+                           unsigned short                           portNumber,
+                           int                                      threads,
+                           std::shared_ptr<const RestAuthenticator> authenticator );
     static RestServerApplication* instance();
 
     int  portNumber() const override;

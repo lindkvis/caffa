@@ -35,7 +35,8 @@ using namespace caffa::rpc;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestServerApplication::RestServerApplication( unsigned short                           portNumber,
+RestServerApplication::RestServerApplication( const std::string&                       clientHost,
+                                              unsigned short                           portNumber,
                                               int                                      threads,
                                               std::shared_ptr<const RestAuthenticator> authenticator )
     : ServerApplication( AppInfo::AppCapability::SERVER )
@@ -53,7 +54,7 @@ RestServerApplication::RestServerApplication( unsigned short                    
         CAFFA_INFO( "Loading SSL certificates" );
     }
 
-    m_server = std::make_shared<RestServer>( "0.0.0.0", m_threads, m_portNumber, m_authenticator );
+    m_server = std::make_shared<RestServer>( clientHost, m_threads, m_portNumber, m_authenticator );
 }
 
 //--------------------------------------------------------------------------------------------------

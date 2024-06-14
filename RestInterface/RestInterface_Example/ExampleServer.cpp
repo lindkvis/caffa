@@ -84,7 +84,7 @@ class ServerApp : public rpc::RestServerApplication
 {
 public:
     ServerApp( int port, int threads, std::shared_ptr<const rpc::RestAuthenticator> authenticator )
-        : rpc::RestServerApplication( port, threads, authenticator )
+        : rpc::RestServerApplication( "0.0.0.0", port, threads, authenticator )
         , m_demoDocument( std::make_shared<DemoDocument>() )
     {
     }
