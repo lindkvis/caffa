@@ -83,4 +83,18 @@ jobs:
           cd Bindings/Python/caffa
           python -m pytest --log-cli-level=DEBUG
           cd ../../..
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          cache: gradle
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
+      - name: Build with Gradle
+        run: |
+          builds/ninja-multi-vcpkg/bin/Release/caffaRestInterface_ExampleServer 50000 1 &
+          cd Bindings/Java
+          gradle wrapper
+          ./gradlew build
 
