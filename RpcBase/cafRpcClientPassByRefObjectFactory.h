@@ -27,7 +27,7 @@
 #include "cafRpcClient.h"
 #include "cafRpcDataFieldAccessor.h"
 
-#include "cafPortableDataType.h"
+#include "cafJsonDataType.h"
 
 #include <map>
 #include <string>
@@ -54,7 +54,7 @@ public:
     {
         return std::make_unique<DataFieldAccessor<DataType>>( client, fieldHandle );
     }
-    std::string jsonDataType() const override { return caffa::PortableDataType<DataType>::jsonType().dump(); }
+    std::string jsonDataType() const override { return caffa::JsonDataType<DataType>::jsonType().dump(); }
 };
 
 /**
@@ -73,11 +73,10 @@ public:
     template <typename DataType>
     void registerBasicAccessorCreators()
     {
-        registerAccessorCreator( PortableDataType<DataType>::jsonType().dump(),
-                                 std::make_unique<AccessorCreator<DataType>>() );
-        registerAccessorCreator( PortableDataType<std::vector<DataType>>::jsonType().dump(),
+        registerAccessorCreator( JsonDataType<DataType>::jsonType().dump(), std::make_unique<AccessorCreator<DataType>>() );
+        registerAccessorCreator( JsonDataType<std::vector<DataType>>::jsonType().dump(),
                                  std::make_unique<AccessorCreator<std::vector<DataType>>>() );
-        registerAccessorCreator( PortableDataType<std::vector<std::vector<DataType>>>::jsonType().dump(),
+        registerAccessorCreator( JsonDataType<std::vector<std::vector<DataType>>>::jsonType().dump(),
                                  std::make_unique<AccessorCreator<std::vector<std::vector<DataType>>>>() );
     }
 

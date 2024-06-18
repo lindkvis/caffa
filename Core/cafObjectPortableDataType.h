@@ -31,13 +31,7 @@ namespace caffa
 template <DerivesFromObjectHandle DataType>
 struct PortableDataType<DataType>
 {
-    static std::string    name() { return std::string( "object::" ) + DataType::classKeywordStatic(); }
-    static nlohmann::json jsonType()
-    {
-        auto object    = nlohmann::json::object();
-        object["$ref"] = std::string( "#/components/object_schemas/" ) + DataType::classKeywordStatic();
-        return object;
-    }
+    static std::string name() { return std::string( "object::" ) + DataType::classKeywordStatic(); }
 };
 
 /**
@@ -47,12 +41,5 @@ template <IsSharedPtr DataType>
 struct PortableDataType<DataType>
 {
     static std::string name() { return std::string( "object::" ) + DataType::element_type::classKeywordStatic(); }
-
-    static nlohmann::json jsonType()
-    {
-        auto object    = nlohmann::json::object();
-        object["$ref"] = std::string( "#/components/object_schemas/" ) + DataType::element_type::classKeywordStatic();
-        return object;
-    }
 };
 } // namespace caffa
