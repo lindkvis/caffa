@@ -52,7 +52,7 @@ public:
     using Ptr                  = std::shared_ptr<ObjectHandle>;
     using ConstPtr             = std::shared_ptr<const ObjectHandle>;
 
-    ObjectHandle();
+    ObjectHandle( bool generateUuid = true );
     virtual ~ObjectHandle() noexcept;
 
     // TODO: Once compilers support constexpr std::vector and std::string these can be made constexpr
@@ -133,8 +133,8 @@ public:
      */
     MethodHandle* findMethod( const std::string& keyword ) const;
 
-    virtual std::string uuid() const { return ""; }
-    virtual void        setUuid( const std::string& ) {}
+    const std::string& uuid() const;
+    void               setUuid( const std::string& );
 
     /// Method gets called from Document after all objects are read.
     /// Re-implement to set up internal pointers etc. in your data structure
@@ -168,6 +168,8 @@ protected:
 private:
     ObjectHandle( const ObjectHandle& )            = delete;
     ObjectHandle& operator=( const ObjectHandle& ) = delete;
+
+    std::string m_uuid;
 
     // Fields
     std::map<std::string, FieldHandle*> m_fields;

@@ -79,23 +79,6 @@ public:
 
         return MethodInitHelper<MethodType>( method, keyword );
     }
-
-    /**
-     * @brief Get the Object UUID. Used to associate server and client objects.
-     *
-     * @return std::string
-     */
-    std::string uuid() const override;
-
-    /**
-     * @brief Set the UUID for the Object
-     *
-     * @param uuid
-     */
-    void setUuid( const std::string& uuid ) override;
-
-private:
-    caffa::Field<std::string> m_uuid;
 };
 
 } // End of namespace caffa

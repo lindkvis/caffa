@@ -21,7 +21,6 @@
 
 #include "cafLogger.h"
 #include "cafObjectPerformer.h"
-#include "cafUuidGenerator.h"
 
 #include <fstream>
 
@@ -35,14 +34,8 @@ CAFFA_SOURCE_INIT( Object );
 ///
 //--------------------------------------------------------------------------------------------------
 Object::Object( bool generateUuid /* = true*/ )
-    : ObjectHandle()
+    : ObjectHandle( generateUuid )
 {
-    initField( m_uuid, "uuid" ).withScripting( true, false );
-
-    if ( generateUuid )
-    {
-        m_uuid = UuidGenerator::generate();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,20 +43,4 @@ Object::Object( bool generateUuid /* = true*/ )
 //--------------------------------------------------------------------------------------------------
 Object::~Object() noexcept
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::string Object::uuid() const
-{
-    return m_uuid;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Object::setUuid( const std::string& uuid )
-{
-    m_uuid = uuid;
 }
