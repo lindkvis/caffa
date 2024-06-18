@@ -47,7 +47,7 @@ void FieldJsonCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, c
 
     for ( auto validator : m_field->valueValidators() )
     {
-        validator->readFromJson( jsonElement, serializer );
+        validator->readFromString( jsonElement.dump() );
     }
 }
 
@@ -82,7 +82,12 @@ void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Js
 
         for ( auto validator : m_field->valueValidators() )
         {
-            validator->writeToJson( jsonField, serializer );
+            auto validatorString = validator->writeToString();
+            auto validatorJson   = nlohmann::json::parse( validatorString );
+            for ( auto [key, entry] : validatorJson.items() )
+            {
+                jsonField[key] = entry;
+            }
         }
         jsonElement = jsonField;
     }

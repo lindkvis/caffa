@@ -1,7 +1,7 @@
 #include "DemoObject.h"
 
 #include "cafFieldProxyAccessor.h"
-#include "cafFieldValidator.h"
+#include "cafRangeValidator.h"
 
 #include <functional>
 

@@ -4,7 +4,7 @@ project(caffaProjectDataModel_UnitTests)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(PROJECT_FILES cafBasicTest.cpp cafProjectDataModel_UnitTests.cpp Child.cpp Parent.cpp TestObj.cpp)
+set(PROJECT_FILES cafBasicTest.cpp cafProjectDataModel_UnitTests.cpp cafSignalTest.cpp Child.cpp Parent.cpp TestObj.cpp)
 
 # add the executable
 add_executable(${PROJECT_NAME} ${PROJECT_FILES})

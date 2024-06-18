@@ -22,6 +22,7 @@
 
 #include "cafField.h"
 #include "cafFieldInitHelper.h"
+#include "cafFieldJsonCapabilitySpecializations.h"
 #include "cafMethodInitHelper.h"
 #include "cafObjectHandle.h"
 #include "cafObjectMacros.h"

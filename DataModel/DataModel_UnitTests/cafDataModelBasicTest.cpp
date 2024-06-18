@@ -7,11 +7,10 @@
 #include "cafChildField.h"
 #include "cafField.h"
 #include "cafFieldProxyAccessor.h"
-#include "cafJsonSerializer.h"
-#include "cafMethod.h"
-#include "cafObject.h"
+#include "cafObjectHandle.h"
+#include "cafObjectMacros.h"
+
 #include "cafPortableDataType.h"
-#include "cafSession.h"
 #include "cafTypedField.h"
 
 #include <functional>
@@ -22,38 +21,36 @@ namespace caffa
 class Serializer;
 }
 
-using IntRangeValidator = caffa::RangeValidator<int>;
-
 using namespace std::placeholders;
 
-class DemoObject : public caffa::Object
+class DemoObject : public caffa::ObjectHandle
 {
-    CAFFA_HEADER_INIT( DemoObject, Object )
+    CAFFA_HEADER_INIT( DemoObject, ObjectHandle )
 
 public:
     DemoObject()
     {
-        initField( m_proxyDoubleField, "m_proxyDoubleField" );
+        addField( &m_proxyDoubleField, "m_proxyDoubleField" );
         auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
         doubleProxyAccessor->registerSetMethod( std::bind( &DemoObject::setDoubleMember, this, _1 ) );
         doubleProxyAccessor->registerGetMethod( std::bind( &DemoObject::doubleMember, this ) );
         m_proxyDoubleField.setAccessor( std::move( doubleProxyAccessor ) );
 
-        initField( m_proxyIntField, "m_proxyIntField" );
+        addField( &m_proxyIntField, "m_proxyIntField" );
         auto intProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<int>>();
         intProxyAccessor->registerSetMethod( std::bind( &DemoObject::setIntMember, this, _1 ) );
         intProxyAccessor->registerGetMethod( std::bind( &DemoObject::intMember, this ) );
         m_proxyIntField.setAccessor( std::move( intProxyAccessor ) );
 
-        initField( m_proxyStringField, "m_proxyStringField" );
+        addField( &m_proxyStringField, "m_proxyStringField" );
         auto stringProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<std::string>>();
         stringProxyAccessor->registerSetMethod( std::bind( &DemoObject::setStringMember, this, _1 ) );
         stringProxyAccessor->registerGetMethod( std::bind( &DemoObject::stringMember, this ) );
         m_proxyStringField.setAccessor( std::move( stringProxyAccessor ) );
 
-        initField( m_memberDoubleField, "m_memberDoubleField" );
-        initField( m_memberIntField, "m_memberIntField" ).withValidator( IntRangeValidator::create( -10, 1000 ) );
-        initField( m_memberStringField, "m_memberStringField" );
+        addField( &m_memberDoubleField, "m_memberDoubleField" );
+        addField( &m_memberIntField, "m_memberIntField" );
+        addField( &m_memberStringField, "m_memberStringField" );
 
         // Default values
         m_doubleMember = 2.1;
@@ -63,32 +60,6 @@ public:
         m_memberDoubleField = 0.0;
         m_memberIntField    = 0;
         m_memberStringField = "";
-
-        initMethod( multiply,
-                    "multiply",
-                    std::bind( []( int a, int b ) -> double { return a * b; }, std::placeholders::_1, std::placeholders::_2 ) )
-            .withArgumentNames( { "a", "b" } )
-            .makeConst();
-
-        initMethod( add, "add", std::bind( &DemoObject::_add, this, std::placeholders::_1, std::placeholders::_2 ) )
-            .withArgumentNames( { "a", "b" } )
-            .makeConst();
-
-        initMethod( clone,
-                    "clone",
-                    std::bind(
-                        [this]() -> std::shared_ptr<DemoObject>
-                        {
-                            caffa::ObjectFactory* objectFactory = caffa::DefaultObjectFactory::instance();
-                            auto                  object =
-                                caffa::JsonSerializer( objectFactory ).setSerializeUuids( false ).copyBySerialization( this );
-                            return std::dynamic_pointer_cast<DemoObject>( object );
-                        } ) )
-            .makeConst();
-
-        initMethod( copyFrom, "copyFrom", std::bind( &DemoObject::_copyFrom, this, std::placeholders::_1 ) )
-            .withArgumentNames( { "rhs" } )
-            .makeConst();
     }
 
     // Fields
@@ -99,11 +70,6 @@ public:
     caffa::Field<double>      m_memberDoubleField;
     caffa::Field<int>         m_memberIntField;
     caffa::Field<std::string> m_memberStringField;
-
-    caffa::Method<double( int, int )>                        multiply;
-    caffa::Method<int( int, int )>                           add;
-    caffa::Method<std::shared_ptr<DemoObject>()>             clone;
-    caffa::Method<void( std::shared_ptr<const DemoObject> )> copyFrom;
 
     // Internal class members accessed by proxy fields
     double doubleMember() const
@@ -123,15 +89,6 @@ public:
     std::string stringMember() const { return m_stringMember; }
     void        setStringMember( const std::string& val ) { m_stringMember = val; }
 
-    int _add( int a, int b ) const { return a + b; }
-
-    void _copyFrom( std::shared_ptr<const DemoObject> rhs )
-    {
-        caffa::JsonSerializer serializer;
-        std::string           json = serializer.writeObjectToString( rhs.get() );
-        serializer.readObjectFromString( this, json );
-    }
-
 private:
     double      m_doubleMember;
     int         m_intMember;
@@ -147,15 +104,15 @@ class InheritedDemoObj : public DemoObject
 public:
     InheritedDemoObj()
     {
-        initField( m_texts, "Texts" );
-        initField( m_childArrayField, "DemoObjectects" );
+        addField( &m_texts, "Texts" );
+        addField( &m_childArrayField, "DemoObjectects" );
     }
 
     caffa::Field<std::string>           m_texts;
     caffa::ChildArrayField<DemoObject*> m_childArrayField;
 };
 
-TEST( BaseTest, Delete )
+TEST( DataModelTest, Delete )
 {
     DemoObject* s2 = new DemoObject;
     delete s2;
@@ -166,7 +123,7 @@ CAFFA_SOURCE_INIT( InheritedDemoObj )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, TestInheritanceStack )
+TEST( DataModelTest, TestInheritanceStack )
 {
     InheritedDemoObj              demoObj;
     auto                          stack = demoObj.classInheritanceStack();
@@ -179,13 +136,13 @@ TEST( BaseTest, TestInheritanceStack )
             validEntries.push_back( entry );
         }
     }
-    ASSERT_EQ( (size_t)4, validEntries.size() );
+    ASSERT_EQ( (size_t)3, validEntries.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// TestField
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, TestField )
+TEST( DataModelTest, TestField )
 {
     auto a = std::make_shared<DemoObject>();
 
@@ -201,7 +158,6 @@ TEST( BaseTest, TestField )
     ASSERT_NO_THROW( a->m_memberIntField = 1000 );
     ASSERT_NO_THROW( a->m_memberIntField = -10 );
     ASSERT_NO_THROW( a->m_memberIntField = 11 );
-    ASSERT_THROW( a->m_memberIntField = 1001, std::runtime_error );
     ASSERT_EQ( 11, a->m_memberIntField.value() );
 
     ASSERT_TRUE( ( *a->m_memberStringField ).empty() );
@@ -212,7 +168,7 @@ TEST( BaseTest, TestField )
 //--------------------------------------------------------------------------------------------------
 /// TestProxyTypedField
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, TestProxyTypedField )
+TEST( DataModelTest, TestProxyTypedField )
 {
     auto a = std::make_shared<DemoObject>();
 
@@ -229,18 +185,18 @@ TEST( BaseTest, TestProxyTypedField )
     ASSERT_TRUE( a->m_proxyStringField.value() == "123" );
 }
 
-class A : public caffa::Object
+class A : public caffa::ObjectHandle
 {
-    CAFFA_HEADER_INIT( A, Object )
+    CAFFA_HEADER_INIT( A, ObjectHandle )
 
 public:
     A() {}
 
     explicit A( const std::vector<double>& testValue )
     {
-        initField( field1, "field1" );
-        initField( field2, "field2" );
-        initField( field3, "field3" );
+        addField( &field1, "field1" );
+        addField( &field2, "field2" );
+        addField( &field3, "field3" );
 
         field2 = testValue;
         field3 = field2();
@@ -256,7 +212,7 @@ CAFFA_SOURCE_INIT( A )
 //--------------------------------------------------------------------------------------------------
 /// Test of Field operations
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, NormalField )
+TEST( DataModelTest, NormalField )
 {
     std::vector<double> testValue;
     testValue.push_back( 1.1 );
@@ -296,7 +252,7 @@ TEST( BaseTest, NormalField )
 /// Test of ChildArrayField operations
 //--------------------------------------------------------------------------------------------------
 
-TEST( BaseTest, ChildArrayField )
+TEST( DataModelTest, ChildArrayField )
 {
     auto ihd1 = std::make_shared<InheritedDemoObj>();
 
@@ -414,7 +370,7 @@ TEST( BaseTest, ChildArrayField )
     EXPECT_TRUE( s3p.expired() );
 }
 
-TEST( BaseTest, ChildArrayParentField )
+TEST( DataModelTest, ChildArrayParentField )
 {
     // Test of instanciating a class with forward declare of object used in ChildArrayField and ChildField
     Parent* parentObj = new Parent;
@@ -424,7 +380,7 @@ TEST( BaseTest, ChildArrayParentField )
 
 #include "Child.h"
 
-TEST( BaseTest, PointersFieldInsertVector )
+TEST( DataModelTest, PointersFieldInsertVector )
 {
     auto ihd1 = std::make_shared<Parent>();
 
@@ -449,7 +405,7 @@ TEST( BaseTest, PointersFieldInsertVector )
 //--------------------------------------------------------------------------------------------------
 /// ChildArrayFieldHandle
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, ChildArrayFieldHandle )
+TEST( DataModelTest, ChildArrayFieldHandle )
 {
     auto s0                 = std::make_shared<DemoObject>();
     s0->m_memberDoubleField = 1000;
@@ -489,15 +445,15 @@ TEST( BaseTest, ChildArrayFieldHandle )
     EXPECT_TRUE( listField->empty() );
 }
 
-class A2 : public caffa::Object
+class A2 : public caffa::ObjectHandle
 {
-    CAFFA_HEADER_INIT( A2, Object )
+    CAFFA_HEADER_INIT( A2, ObjectHandle )
 
 public:
     explicit A2()
         : b( 0 )
     {
-        initField( field2, "field2" );
+        addField( &field2, "field2" );
     }
 
     caffa::ChildField<Child*> field2;
@@ -509,7 +465,7 @@ CAFFA_SOURCE_INIT( A2 )
 /// Test of ChildField
 //--------------------------------------------------------------------------------------------------
 
-TEST( BaseTest, ChildField )
+TEST( DataModelTest, ChildField )
 {
     {
         std::weak_ptr<Child> weapPtr;
@@ -545,7 +501,7 @@ TEST( BaseTest, ChildField )
 //--------------------------------------------------------------------------------------------------
 /// Tests the features of Pointer
 //--------------------------------------------------------------------------------------------------
-TEST( BaseTest, Pointer )
+TEST( DataModelTest, Pointer )
 {
     auto d = std::make_shared<InheritedDemoObj>();
 
@@ -570,74 +526,20 @@ TEST( BaseTest, Pointer )
     }
 }
 
-class ObjectWithPointerInField : public caffa::Object
+class ObjectWithPointerInField : public caffa::ObjectHandle
 {
-    CAFFA_HEADER_INIT( DemoObject, Object )
+    CAFFA_HEADER_INIT( DemoObject, ObjectHandle )
 
 public:
-    ObjectWithPointerInField() { initField( fieldWithPointer, "fieldWithPointer" ); }
+    ObjectWithPointerInField() { addField( &fieldWithPointer, "fieldWithPointer" ); }
 
     caffa::Field<std::shared_ptr<DemoObject>> fieldWithPointer;
 };
 
-TEST( BaseTest, PointerInRegularField )
+TEST( DataModelTest, PointerInRegularField )
 {
     ObjectWithPointerInField object;
     object.fieldWithPointer = std::make_shared<DemoObject>();
 
     // object.fieldWithPointer->
-}
-
-TEST( BaseTest, Methods )
-{
-    DemoObject object;
-
-    EXPECT_EQ( 5, object.add( 3, 2 ) );
-    EXPECT_DOUBLE_EQ( 12.0, object.multiply( 4, 3 ) );
-
-    object.setIntMember( 513 );
-    object.setDoubleMember( 589.123 );
-
-    EXPECT_EQ( 513, object.intMember() );
-    EXPECT_DOUBLE_EQ( 589.123, object.doubleMember() );
-
-    CAFFA_DEBUG( "Clone method schema: " << object.clone.jsonSchema().dump() );
-
-    auto result = object.clone();
-    EXPECT_TRUE( result != nullptr );
-    EXPECT_EQ( object.intMember(), result->intMember() );
-    EXPECT_DOUBLE_EQ( object.doubleMember(), result->doubleMember() );
-
-    caffa::JsonSerializer serializer;
-    CAFFA_DEBUG( "Clone: " << serializer.writeObjectToString( result.get() ) );
-
-    auto session = caffa::Session::create( caffa::Session::Type::REGULAR );
-
-    {
-        CAFFA_DEBUG( "Method schema: " << object.add.jsonSchema().dump() );
-
-        auto argumentJson = object.add.toJson( 3, 8 );
-        CAFFA_DEBUG( "Argument json: " << argumentJson.dump() );
-        auto stringResult = object.add.execute( session, argumentJson.dump() );
-        CAFFA_DEBUG( "String result: " << stringResult );
-        auto result = nlohmann::json::parse( stringResult );
-        EXPECT_EQ( 11, result.get<int>() );
-    }
-
-    {
-        auto result = nlohmann::json::parse( object.multiply.execute( session, object.multiply.toJson( 4, 5 ).dump() ) );
-        EXPECT_DOUBLE_EQ( 20.0, result.get<int>() );
-    }
-
-    {
-        auto stringArguments = object.multiply.toJson( 4, 5 );
-        CAFFA_DEBUG( "Parameter json: " << stringArguments );
-    }
-
-    result->setIntMember( 10001 );
-    EXPECT_EQ( 10001, result->intMember() );
-    object.copyFrom( result );
-    EXPECT_EQ( 10001, object.intMember() );
-
-    CAFFA_DEBUG( "Method schema for copyFrom(): " << object.copyFrom.jsonSchema().dump() );
 }

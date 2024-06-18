@@ -38,8 +38,8 @@ public:
         , m_objectFactory( objectFactory )
     {
     }
-    virtual ~MethodAccessorInterface()                                          = default;
-    virtual std::string execute( const std::string& jsonArgumentsString ) const = 0;
+    virtual ~MethodAccessorInterface()                                     = default;
+    virtual std::string execute( const std::string& argumentString ) const = 0;
 
     ObjectFactory* objectFactory() const { return m_objectFactory; }
 
@@ -64,8 +64,8 @@ public:
     const std::string& documentation() const { return m_documentation; }
     void               setDocumentation( const std::string& documentation ) { m_documentation = documentation; }
 
-    virtual std::string execute( std::shared_ptr<Session> session, const std::string& jsonArgumentsString ) const = 0;
-    virtual std::string schema() const                                                                            = 0;
+    virtual std::string execute( std::shared_ptr<Session> session, const std::string& argumentsString ) const = 0;
+    virtual std::string schema() const                                                                        = 0;
 
     MethodAccessorInterface* accessor() const { return m_accessor.get(); }
     void setAccessor( std::unique_ptr<MethodAccessorInterface> accessor ) { m_accessor = std::move( accessor ); }

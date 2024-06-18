@@ -21,7 +21,6 @@
 // ##################################################################################################
 
 #include "cafDocument.h"
-#include "cafFieldScriptingCapability.h"
 #include "cafObjectPerformer.h"
 
 #include <fstream>

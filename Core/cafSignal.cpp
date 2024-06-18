@@ -1,7 +1,8 @@
 // ##################################################################################################
 //
 //    Custom Visualization Core library
-//    Copyright (C) Ceetron Solutions AS
+//     Copyright (C) 2020-2023 Ceetron Solutions AS
+//     Copyright (C) 2024- Kontur AS
 //
 //    This library may be used under the terms of either the GNU General Public License or
 //    the GNU Lesser General Public License as follows:
@@ -33,69 +34,89 @@
 //    for more details.
 //
 // ##################################################################################################
-#include "cafFieldScriptingCapability.h"
+#include "cafSignal.h"
 
-#include "cafFieldHandle.h"
+using namespace caffa;
 
-namespace caffa
-{
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FieldScriptingCapability::FieldScriptingCapability( bool readable, bool writeable )
-    : FieldCapability()
-    , m_readable( readable )
-    , m_writeable( writeable )
-    , m_field( nullptr )
+SignalEmitter::SignalEmitter()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool FieldScriptingCapability::isReadable() const
+SignalEmitter::~SignalEmitter() noexcept
 {
-    return m_readable;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool FieldScriptingCapability::isWritable() const
+void SignalEmitter::addEmittedSignal( AbstractSignal* signalToAdd ) const
 {
-    return m_writeable;
+    m_signals.insert( signalToAdd );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void FieldScriptingCapability::setReadable( bool writeable )
+std::set<AbstractSignal*> SignalEmitter::emittedSignals() const
 {
-    m_writeable = writeable;
+    return m_signals;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void FieldScriptingCapability::setWritable( bool writeable )
+SignalObserver::SignalObserver()
 {
-    m_writeable = writeable;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const FieldHandle* FieldScriptingCapability::owner() const
+SignalObserver::~SignalObserver() noexcept
 {
-    return m_field;
+    disconnectAllSignals();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void FieldScriptingCapability::setOwner( FieldHandle* field )
+std::set<AbstractSignal*> SignalObserver::observedSignals() const
 {
-    m_field = field;
+    return m_signals;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void SignalObserver::addObservedSignal( AbstractSignal* signalToObserve ) const
+{
+    m_signals.insert( signalToObserve );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void SignalObserver::removeObservedSignal( AbstractSignal* signalToRemove ) const noexcept
+{
+    // This does not throw, since std::set::erase only throws if the comparison operator throws
+    // and we're just comparing pointers.
+    m_signals.erase( signalToRemove );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void SignalObserver::disconnectAllSignals() noexcept
+{
+    auto observedSignals = m_signals;
+    for ( auto observedSignal : observedSignals )
+    {
+        observedSignal->disconnect( const_cast<SignalObserver*>( this ) );
+    }
 }

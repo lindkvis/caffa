@@ -1,37 +1,47 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(caffaCore)
+project(caffaDataModel)
 
 set(PUBLIC_HEADERS
-    cafRangeValidator.h
-    cafMethod.h
-    cafObject.h
-    cafObjectJsonConversion.h
-    cafDocument.h
-    cafApplication.h
-    cafSession.h
-    cafFieldInitHelper.h
-    cafFieldJsonCapabilitySpecializations.h
-    cafFieldJsonCapabilitySpecializations.inl
-    cafFieldJsonCapability.h
-    cafFieldScriptingCapability.h
-    cafJsonDataType.h
-    cafJsonSerializer.h
-    cafSignal.h
-    cafStringEncoding.h)
+    cafAppEnum.h
+    cafChildArrayField.h
+    cafChildArrayField.inl
+    cafChildArrayFieldAccessor.h
+    cafChildFieldHandle.h
+    cafChildField.h
+    cafChildField.inl
+    cafChildFieldAccessor.h
+    cafDataFieldAccessor.h
+    cafDataField.h
+    cafField.h
+    cafFieldCapability.h
+    cafFieldHandle.h
+    cafObjectMacros.h
+    cafObjectCollector.h
+    cafObjectPerformer.h
+    cafObjectHandle.h
+    cafPortableDataType.h
+    cafFieldProxyAccessor.h
+    cafChildArrayFieldHandle.h
+    cafTypedField.h
+    cafMethodHandle.h
+    cafDefaultObjectFactory.h
+    cafObjectFactory.h
+    cafObjectHandlePortableDataType.h
+    cafUuidGenerator.h)
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
-    cafObject.cpp
-    cafDocument.cpp
-    cafApplication.cpp
-    cafSession.cpp
-    cafFieldJsonCapability.cpp
-    cafFieldScriptingCapability.cpp
-    cafJsonSerializer.cpp
-    cafObjectJsonConversion.cpp
-    cafSignal.cpp
-    cafStringEncoding.cpp)
+    cafChildArrayFieldAccessor.cpp
+    cafChildFieldAccessor.cpp
+    cafChildFieldHandle.cpp
+    cafDataField.cpp
+    cafFieldCapability.cpp
+    cafFieldHandle.cpp
+    cafObjectHandle.cpp
+    cafDefaultObjectFactory.cpp
+    cafUuidGenerator.cpp
+    cafVisitor.cpp)
 
 if(CAFFA_BUILD_SHARED)
   message(STATUS "Building ${PROJECT_NAME} shared")
@@ -51,9 +61,10 @@ endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-find_package(nlohmann_json CONFIG REQUIRED)
-
-target_link_libraries(${PROJECT_NAME} PUBLIC caffaBase caffaDataModel nlohmann_json::nlohmann_json)
+target_link_libraries(
+  ${PROJECT_NAME}
+  PUBLIC caffaBase
+  PRIVATE stduuid)
 
 install(
   TARGETS ${PROJECT_NAME}
