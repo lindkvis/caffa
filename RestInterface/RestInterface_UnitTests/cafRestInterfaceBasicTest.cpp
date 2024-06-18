@@ -21,7 +21,6 @@
 #include "cafRpcClientPassByRefObjectFactory.h"
 #include "cafRpcObjectConversion.h"
 #include "cafStringEncoding.h"
-#include "cafTypedField.h"
 #include "cafUuidGenerator.h"
 
 #include <algorithm>

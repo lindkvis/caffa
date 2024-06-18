@@ -11,7 +11,6 @@
 #include "cafObjectMacros.h"
 
 #include "cafPortableDataType.h"
-#include "cafTypedField.h"
 
 #include <functional>
 #include <map>

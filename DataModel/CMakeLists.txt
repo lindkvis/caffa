@@ -23,7 +23,6 @@ set(PUBLIC_HEADERS
     cafPortableDataType.h
     cafFieldProxyAccessor.h
     cafChildArrayFieldHandle.h
-    cafTypedField.h
     cafMethodHandle.h
     cafDefaultObjectFactory.h
     cafObjectFactory.h
@@ -33,10 +32,7 @@ set(PUBLIC_HEADERS
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
     cafChildArrayFieldAccessor.cpp
-    cafChildFieldAccessor.cpp
     cafChildFieldHandle.cpp
-    cafDataField.cpp
-    cafFieldCapability.cpp
     cafFieldHandle.cpp
     cafObjectHandle.cpp
     cafDefaultObjectFactory.cpp
