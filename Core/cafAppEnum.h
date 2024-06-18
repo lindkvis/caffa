@@ -25,12 +25,8 @@
 #include "cafAssert.h"
 #include "cafLogger.h"
 #include "cafPortableDataType.h"
-#include "cafStringTools.h"
 
 #include <concepts>
-#include <iostream>
-#include <limits>
-#include <list>
 #include <optional>
 #include <stdexcept>
 #include <string>
