@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include <nlohmann/json.hpp>
-
 #include <chrono>
 #include <concepts>
 #include <string>
@@ -36,188 +34,85 @@ namespace caffa
 template <typename DataType>
 struct PortableDataType
 {
-    static std::string    name() { return "object"; }
-    static nlohmann::json jsonType()
-    {
-        auto object    = nlohmann::json::object();
-        object["type"] = PortableDataType<DataType>::name();
-
-        return object;
-    }
+    static std::string name() { return "object"; }
 };
 
 template <>
 struct PortableDataType<void>
 {
-    static std::string    name() { return "void"; }
-    static nlohmann::json jsonType() { return nlohmann::json::object(); }
+    static std::string name() { return "void"; }
 };
 
 template <typename DataType>
 struct PortableDataType<std::vector<DataType>>
 {
     static std::string name() { return PortableDataType<DataType>::name() + "[]"; }
-
-    static nlohmann::json jsonType()
-    {
-        auto object     = nlohmann::json::object();
-        object["type"]  = "array";
-        object["items"] = PortableDataType<DataType>::jsonType();
-
-        return object;
-    }
 };
 
 template <std::unsigned_integral DataType>
 struct PortableDataType<DataType>
 {
     static std::string name() { return "uint" + std::to_string( sizeof( DataType ) * 8 ); }
-
-    static nlohmann::json jsonType()
-    {
-        auto object      = nlohmann::json::object();
-        object["type"]   = "integer";
-        object["format"] = PortableDataType<DataType>::name();
-        return object;
-    }
 };
 
 template <std::signed_integral DataType>
 struct PortableDataType<DataType>
 {
     static std::string name() { return "int" + std::to_string( sizeof( DataType ) * 8 ); }
-
-    static nlohmann::json jsonType()
-    {
-        auto object      = nlohmann::json::object();
-        object["type"]   = "integer";
-        object["format"] = PortableDataType<DataType>::name();
-        return object;
-    }
 };
 
 template <>
 struct PortableDataType<bool>
 {
     static std::string name() { return "boolean"; }
-
-    static nlohmann::json jsonType()
-    {
-        auto object    = nlohmann::json::object();
-        object["type"] = name();
-        return object;
-    }
 };
 
 template <>
 struct PortableDataType<float>
 {
     static std::string name() { return "float"; }
-
-    static nlohmann::json jsonType()
-    {
-        auto object      = nlohmann::json::object();
-        object["type"]   = "number";
-        object["format"] = name();
-        return object;
-    }
 };
 
 template <>
 struct PortableDataType<double>
 {
     static std::string name() { return "double"; }
-
-    static nlohmann::json jsonType()
-    {
-        auto object      = nlohmann::json::object();
-        object["type"]   = "number";
-        object["format"] = name();
-
-        return object;
-    }
 };
 
 template <>
 struct PortableDataType<std::string>
 {
     static std::string name() { return "string"; }
-
-    static nlohmann::json jsonType()
-    {
-        auto object    = nlohmann::json::object();
-        object["type"] = name();
-        return object;
-    }
 };
 
 template <>
 struct PortableDataType<std::chrono::steady_clock::time_point>
 {
     static std::string name() { return "timestamp_ns"; }
-
-    static nlohmann::json jsonType()
-    {
-        auto object      = nlohmann::json::object();
-        object["type"]   = "integer";
-        object["format"] = name();
-        return object;
-    }
 };
 
 template <>
 struct PortableDataType<std::chrono::nanoseconds>
 {
     static std::string name() { return "nanoseconds"; }
-
-    static nlohmann::json jsonType()
-    {
-        auto object      = nlohmann::json::object();
-        object["type"]   = "integer";
-        object["format"] = name();
-        return object;
-    }
 };
 
 template <>
 struct PortableDataType<std::chrono::microseconds>
 {
     static std::string name() { return "microseconds"; }
-
-    static nlohmann::json jsonType()
-    {
-        auto object      = nlohmann::json::object();
-        object["type"]   = "integer";
-        object["format"] = name();
-        return object;
-    }
 };
 
 template <>
 struct PortableDataType<std::chrono::milliseconds>
 {
     static std::string name() { return "milliseconds"; }
-
-    static nlohmann::json jsonType()
-    {
-        auto object      = nlohmann::json::object();
-        object["type"]   = "integer";
-        object["format"] = name();
-        return object;
-    }
 };
+
 template <>
 struct PortableDataType<std::chrono::seconds>
 {
     static std::string name() { return "seconds"; }
-
-    static nlohmann::json jsonType()
-    {
-        auto object      = nlohmann::json::object();
-        object["type"]   = "integer";
-        object["format"] = name();
-        return object;
-    }
 };
 
 } // namespace caffa
