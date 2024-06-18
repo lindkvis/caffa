@@ -350,8 +350,9 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::document( const std::string& do
     CAFFA_TRACE( "Got document JSON '" << body << "'" );
 
     caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
-    serializer.setSerializationType( Serializer::SerializationType::DATA_SKELETON );
+    serializer.setClient( true );
     auto document = serializer.createObjectFromString( body );
+
     return document;
 }
 
@@ -377,7 +378,7 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::documents() const
     }
 
     caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
-    serializer.setSerializationType( Serializer::SerializationType::DATA_SKELETON );
+    serializer.setClient( true );
 
     std::vector<std::shared_ptr<caffa::ObjectHandle>> documents;
     for ( auto jsonDocument : jsonArray )
@@ -702,7 +703,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::getShallowCopyOfChildObject( co
     CAFFA_TRACE( "Got body: " << body );
 
     return caffa::JsonSerializer( caffa::rpc::ClientPassByRefObjectFactory::instance() )
-        .setSerializationType( Serializer::SerializationType::DATA_SKELETON )
+        .setClient( true )
         .createObjectFromString( body );
 }
 
@@ -728,7 +729,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::getDeepCopyOfChildObject( const
     }
 
     return caffa::JsonSerializer( caffa::rpc::ClientPassByValueObjectFactory::instance() )
-        .setSerializationType( Serializer::SerializationType::DATA_FULL )
+        .setClient( true )
         .createObjectFromString( parsedResult.dump() );
 }
 
@@ -777,6 +778,10 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::getChildObjects( c
         throw std::runtime_error( "The return value was not an array" );
     }
 
+    caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
+    serializer.setSerializationType( Serializer::SerializationType::DATA_SKELETON );
+    serializer.setClient( true );
+
     for ( auto jsonObject : jsonArray )
     {
         childObjects.push_back( caffa::JsonSerializer( caffa::rpc::ClientPassByRefObjectFactory::instance() )
@@ -798,7 +803,7 @@ void RestClient::setChildObject( const caffa::ObjectHandle* objectHandle,
                                           port(),
                                           std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" + fieldName +
                                               "?session_uuid=" + m_sessionUuid,
-                                          caffa::JsonSerializer().writeObjectToString( childObject ) );
+                                          caffa::JsonSerializer().setClient( true ).writeObjectToString( childObject ) );
     if ( status != http::status::accepted )
     {
         throw std::runtime_error( "Failed to set child object with status " +
@@ -850,7 +855,7 @@ void RestClient::insertChildObject( const caffa::ObjectHandle* objectHandle,
                                     size_t                     index,
                                     const caffa::ObjectHandle* childObject )
 {
-    auto childString    = caffa::JsonSerializer().writeObjectToString( childObject );
+    auto childString    = caffa::JsonSerializer().setClient( true ).writeObjectToString( childObject );
     auto [status, body] = performRequest( http::verb::post,
                                           hostname(),
                                           port(),

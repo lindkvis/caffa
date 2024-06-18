@@ -38,8 +38,9 @@ using namespace caffa;
 //--------------------------------------------------------------------------------------------------
 void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::json& jsonObject ) const
 {
-    CAFFA_TRACE( "Reading fields from json with type = " << serializationTypeLabel( this->serializationType() )
-                                                         << ", serializeUuids = " << this->serializeUuids() );
+    CAFFA_TRACE( "Reading fields on " << ( isClient() ? "client" : "server" )
+                                      << " from json with type = " << serializationTypeLabel( this->serializationType() )
+                                      << ", serializeUuids = " << this->serializeUuids() );
 
     if ( this->serializationType() != Serializer::SerializationType::DATA_FULL &&
          this->serializationType() != Serializer::SerializationType::DATA_SKELETON )
@@ -111,9 +112,9 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
 //--------------------------------------------------------------------------------------------------
 void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::json& jsonObject ) const
 {
-    CAFFA_TRACE( "Writing fields from json with serialize setting: type = "
-                 << serializationTypeLabel( this->serializationType() )
-                 << ", serializeUuids = " << this->serializeUuids() );
+    CAFFA_TRACE( "Writing fields " << ( isClient() ? "client" : "server" ) << " from json with serialize setting: type = "
+                                   << serializationTypeLabel( this->serializationType() )
+                                   << ", serializeUuids = " << this->serializeUuids() );
 
     if ( this->serializationType() == Serializer::SerializationType::SCHEMA )
     {
