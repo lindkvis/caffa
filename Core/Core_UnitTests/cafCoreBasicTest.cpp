@@ -601,7 +601,7 @@ TEST( BaseTest, Methods )
     EXPECT_EQ( 513, object.intMember() );
     EXPECT_DOUBLE_EQ( 589.123, object.doubleMember() );
 
-    CAFFA_DEBUG( "Clone method skeleton: " << object.clone.jsonSchema().dump() );
+    CAFFA_DEBUG( "Clone method schema: " << object.clone.jsonSchema().dump() );
 
     auto result = object.clone();
     EXPECT_TRUE( result != nullptr );
@@ -614,7 +614,7 @@ TEST( BaseTest, Methods )
     auto session = caffa::Session::create( caffa::Session::Type::REGULAR );
 
     {
-        CAFFA_DEBUG( "Method skeleton: " << object.add.jsonSchema().dump() );
+        CAFFA_DEBUG( "Method schema: " << object.add.jsonSchema().dump() );
 
         auto argumentJson = object.add.toJson( 3, 8 );
         CAFFA_DEBUG( "Argument json: " << argumentJson.dump() );
@@ -639,5 +639,5 @@ TEST( BaseTest, Methods )
     object.copyFrom( result );
     EXPECT_EQ( 10001, object.intMember() );
 
-    CAFFA_DEBUG( "Method skeleton for copyFrom(): " << object.copyFrom.jsonSchema().dump() );
+    CAFFA_DEBUG( "Method schema for copyFrom(): " << object.copyFrom.jsonSchema().dump() );
 }
