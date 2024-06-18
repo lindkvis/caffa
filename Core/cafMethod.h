@@ -123,7 +123,7 @@ public:
         return jsonMethod;
     }
 
-    nlohmann::json jsonSchema() const override
+    nlohmann::json jsonSchema() const
     {
         auto jsonMethod = nlohmann::json::object();
         CAFFA_ASSERT( !keyword().empty() );
