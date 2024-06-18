@@ -36,6 +36,8 @@
 
 #include "cafLogger.h"
 
+#include "cafUuidGenerator.h"
+
 #include "ServerApp.h"
 
 #include "gtest/gtest.h"
@@ -89,6 +91,9 @@ int main( int argc, char** argv )
         flags.add_options()( "client-key,K",
                              po::value<std::string>()->value_name( "filename" ),
                              "SSL/TLS client private key file" );
+#ifndef NDEBUG
+        flags.add_options()( "dummy-uuid", "Use a simple incremented UUID" );
+#endif
 
         po::variables_map vm;
         po::store( po::parse_command_line( argc, argv, flags ), vm );
@@ -111,6 +116,13 @@ int main( int argc, char** argv )
         {
             logLevel = caffa::Logger::logLevelFromLabel( vm["verbosity"].as<std::string>() );
         }
+
+#ifndef NDEBUG
+        if ( vm.count( "dummy-uuid" ) )
+        {
+            caffa::UuidGenerator::s_useDummyUuids = true;
+        }
+#endif
 
         caffa::Logger::setApplicationLogLevel( logLevel );
 

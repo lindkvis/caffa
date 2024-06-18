@@ -41,6 +41,11 @@ public:
 
     static bool isUuid( const std::string& string );
 
+#ifndef NDEBUG
+    static bool     s_useDummyUuids;
+    static uint64_t s_dummyUuidCounter;
+#endif
+
 private:
     static std::unique_ptr<uuids::uuid_random_generator> s_uuidGenerator;
     static std::mutex                                    s_mutex;

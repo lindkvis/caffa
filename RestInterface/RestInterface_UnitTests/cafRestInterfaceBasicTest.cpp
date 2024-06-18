@@ -20,6 +20,7 @@
 #include "cafRestClient.h"
 #include "cafRpcClientPassByRefObjectFactory.h"
 #include "cafTypedField.h"
+#include "cafUuidGenerator.h"
 
 #include <algorithm>
 #include <chrono>
@@ -36,11 +37,20 @@ protected:
     {
         caffa::rpc::ClientPassByRefObjectFactory* factory = caffa::rpc::ClientPassByRefObjectFactory::instance();
         factory->registerBasicAccessorCreators<caffa::AppEnum<DemoObject::TestEnumType>>();
+#ifndef NDEBUG
+        caffa::UuidGenerator::s_dummyUuidCounter = 0u;
+#endif
+
         serverApp = std::make_unique<ServerApp>( ServerApp::s_port, 1 );
     }
 
     std::unique_ptr<ServerApp> serverApp;
 };
+
+TEST( RestTestUuid, isUuid )
+{
+    ASSERT_TRUE( caffa::UuidGenerator::isUuid( "00000000-0000-0000-0000-000000000000" ) );
+}
 
 TEST_F( RestTest, Launch )
 {

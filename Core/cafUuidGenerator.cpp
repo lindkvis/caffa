@@ -26,10 +26,17 @@
 #include "uuid.h"
 
 #include <chrono>
+#include <iomanip>
 #include <regex>
+#include <sstream>
 
 using namespace caffa;
 using namespace std::chrono;
+
+#ifndef NDEBUG
+bool     UuidGenerator::s_useDummyUuids    = false;
+uint64_t UuidGenerator::s_dummyUuidCounter = 0u;
+#endif
 
 std::unique_ptr<uuids::uuid_random_generator> UuidGenerator::s_uuidGenerator;
 std::mutex                                    UuidGenerator::s_mutex;
@@ -37,6 +44,14 @@ std::mutex                                    UuidGenerator::s_mutex;
 std::string UuidGenerator::generate()
 {
     std::scoped_lock lock( s_mutex );
+#ifndef NDEBUG
+    if ( s_useDummyUuids )
+    {
+        std::stringstream ss;
+        ss << std::hex << "00000000-0000-0000-0000-" << std::setfill( '0' ) << std::setw( 12 ) << s_dummyUuidCounter++;
+        return ss.str();
+    }
+#endif
     if ( !s_uuidGenerator )
     {
         auto     now                           = steady_clock::now();
