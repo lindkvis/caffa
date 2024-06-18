@@ -238,7 +238,7 @@ std::pair<http::status, std::string> RestClient::performRequest( http::verb     
 {
     if ( !m_stream )
     {
-        CAFFA_INFO( "Connecting to " << hostname << ": " << port );
+        CAFFA_DEBUG( "Connecting to " << hostname << ": " << port );
         auto connector = std::make_shared<Connector>( *m_ioc );
         connector->connect( hostname, port );
         m_ioc->run();
