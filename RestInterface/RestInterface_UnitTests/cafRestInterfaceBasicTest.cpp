@@ -19,6 +19,7 @@
 #include "cafObjectHandle.h"
 #include "cafRestClient.h"
 #include "cafRpcClientPassByRefObjectFactory.h"
+#include "cafRpcObjectConversion.h"
 #include "cafTypedField.h"
 #include "cafUuidGenerator.h"
 
@@ -192,18 +193,15 @@ TEST_F( RestTest, Document )
         CAFFA_DEBUG( "Serializing" );
 
         caffa::JsonSerializer serverSerializer;
-        // Need to only write scriptable field into Server-JSON, otherwise it won't match the client JSON
-        serverSerializer.setFieldSelector(
-            []( const FieldHandle* handle ) -> bool
-            {
-                auto scriptability = handle->capability<FieldScriptingCapability>();
-                return scriptability && scriptability->isReadable();
-            } );
+        // Need to only write scriptable field into both client and Server-JSON, otherwise they won't match
+        serverSerializer.setFieldSelector( caffa::rpc::fieldIsScriptReadable );
         std::string serverJson = serverSerializer.writeObjectToString( serverDocument.get() );
         CAFFA_DEBUG( serverJson );
 
         CAFFA_INFO( "Writing client JSON" );
-        std::string clientJson = caffa::JsonSerializer().writeObjectToString( clientDocument.get() );
+        std::string clientJson = caffa::JsonSerializer()
+                                     .setFieldSelector( caffa::rpc::fieldIsScriptReadable )
+                                     .writeObjectToString( clientDocument.get() );
         CAFFA_DEBUG( clientJson );
         ASSERT_EQ( serverJson, clientJson );
 
