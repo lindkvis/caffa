@@ -137,7 +137,7 @@ public:
     PathCreator()
         : m_pathStack( { "/documents" } )
     {
-        m_serializer.setSerializationType( Serializer::SerializationType::PATH );
+        m_serializer.setSerializationType( JsonSerializer::SerializationType::PATH );
     }
 
     const std::map<std::string, nlohmann::json>& pathSchemas() const { return m_pathSchemas; }

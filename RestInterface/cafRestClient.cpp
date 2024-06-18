@@ -351,7 +351,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::document( const std::string& do
 
     caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
     serializer.setClient( true );
-    serializer.setSerializationType( Serializer::SerializationType::DATA_SKELETON );
+    serializer.setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON );
 
     auto document = serializer.createObjectFromString( body );
 
@@ -381,7 +381,7 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::documents() const
 
     caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
     serializer.setClient( true );
-    serializer.setSerializationType( Serializer::SerializationType::DATA_SKELETON );
+    serializer.setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON );
     std::vector<std::shared_ptr<caffa::ObjectHandle>> documents;
     for ( auto jsonDocument : jsonArray )
     {
@@ -706,7 +706,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::getChildObject( const caffa::Ob
 
     return caffa::JsonSerializer( caffa::rpc::ClientPassByRefObjectFactory::instance() )
         .setClient( true )
-        .setSerializationType( Serializer::SerializationType::DATA_SKELETON )
+        .setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON )
         .createObjectFromString( body );
 }
 
@@ -735,13 +735,13 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::getChildObjects( c
     }
 
     caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
-    serializer.setSerializationType( Serializer::SerializationType::DATA_SKELETON );
+    serializer.setSerializationType( caffa::JsonSerializer::SerializationType::DATA_SKELETON );
     serializer.setClient( true );
 
     for ( auto jsonObject : jsonArray )
     {
         childObjects.push_back( caffa::JsonSerializer( caffa::rpc::ClientPassByRefObjectFactory::instance() )
-                                    .setSerializationType( Serializer::SerializationType::DATA_SKELETON )
+                                    .setSerializationType( caffa::JsonSerializer::SerializationType::DATA_SKELETON )
                                     .createObjectFromString( jsonObject.dump() ) );
     }
     return childObjects;

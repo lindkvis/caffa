@@ -368,7 +368,7 @@ RestObjectService::ServiceResponse
         if ( childField )
         {
             // The skeleton serialization only makes sense for objects
-            if ( skeleton ) serializer.setSerializationType( Serializer::SerializationType::DATA_SKELETON );
+            if ( skeleton ) serializer.setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON );
 
             if ( index >= 0 )
             {
