@@ -40,9 +40,6 @@ public:
     virtual void                   setObject( ObjectHandle::Ptr object ) = 0;
     virtual void                   clear()                               = 0;
 
-    virtual ObjectHandle::Ptr deepCloneObject() const                             = 0;
-    virtual void              deepCopyObjectFrom( ObjectHandle::ConstPtr object ) = 0;
-
     /**
      * The accessor has a getter. Thus can be read.
      * @return true if it has a getter
@@ -68,9 +65,6 @@ public:
     ObjectHandle::ConstPtr object() const override;
     void                   setObject( ObjectHandle::Ptr object ) override;
     void                   clear() override;
-
-    ObjectHandle::Ptr deepCloneObject() const override;
-    void              deepCopyObjectFrom( ObjectHandle::ConstPtr object ) override;
 
     bool hasGetter() const override { return true; }
     bool hasSetter() const override { return true; }

@@ -691,8 +691,8 @@ nlohmann::json RestClient::getJson( const caffa::ObjectHandle* objectHandle, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<caffa::ObjectHandle> RestClient::getShallowCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
-                                                                              const std::string& fieldName ) const
+std::shared_ptr<caffa::ObjectHandle> RestClient::getChildObject( const caffa::ObjectHandle* objectHandle,
+                                                                 const std::string&         fieldName ) const
 {
     auto [status, body] = performGetRequest( hostname(),
                                              port(),
@@ -708,53 +708,6 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::getShallowCopyOfChildObject( co
         .setClient( true )
         .setSerializationType( Serializer::SerializationType::DATA_SKELETON )
         .createObjectFromString( body );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::shared_ptr<caffa::ObjectHandle> RestClient::getDeepCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
-                                                                           const std::string&         fieldName ) const
-{
-    auto [status, body] = performGetRequest( hostname(),
-                                             port(),
-                                             std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" +
-                                                 fieldName + "?session_uuid=" + m_sessionUuid );
-    if ( status != http::status::ok )
-    {
-        throw std::runtime_error( "Failed to get field value" );
-    }
-
-    auto parsedResult = nlohmann::json::parse( body );
-    if ( parsedResult.contains( "value" ) )
-    {
-        parsedResult = parsedResult["value"];
-    }
-
-    return caffa::JsonSerializer( caffa::rpc::ClientPassByValueObjectFactory::instance() )
-        .setClient( true )
-        .createObjectFromString( parsedResult.dump() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RestClient::deepCopyChildObjectFrom( const caffa::ObjectHandle* objectHandle,
-                                          const std::string&         fieldName,
-                                          const caffa::ObjectHandle* childObject )
-{
-    auto childString    = caffa::JsonSerializer().writeObjectToString( childObject );
-    auto [status, body] = performRequest( http::verb::put,
-                                          hostname(),
-                                          port(),
-                                          std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" + fieldName +
-                                              "?session_uuid=" + m_sessionUuid,
-                                          childString );
-    if ( status != http::status::accepted )
-    {
-        throw std::runtime_error( "Failed to deep copy object with status " +
-                                  std::to_string( static_cast<unsigned>( status ) ) + " and body: " + body );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
