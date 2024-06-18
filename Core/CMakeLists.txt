@@ -19,7 +19,6 @@ set(PUBLIC_HEADERS
     cafFieldInitHelper.h
     cafFieldHandle.h
     cafFieldValidator.h
-    cafObjectCapability.h
     cafObjectCollector.h
     cafObjectPerformer.h
     cafObjectHandle.h
@@ -57,7 +56,6 @@ set(PROJECT_FILES
     cafDataField.cpp
     cafFieldCapability.cpp
     cafFieldHandle.cpp
-    cafObjectCapability.cpp
     cafObjectHandle.cpp
     cafSignal.cpp
     cafDefaultObjectFactory.cpp

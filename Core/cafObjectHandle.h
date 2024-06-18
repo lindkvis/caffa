@@ -27,7 +27,6 @@
 #include "cafFieldHandle.h"
 #include "cafLogger.h"
 #include "cafMethodHandle.h"
-#include "cafObjectCapability.h"
 #include "cafSignal.h"
 #include "cafStringTools.h"
 
@@ -134,30 +133,6 @@ public:
      */
     MethodHandle* findMethod( const std::string& keyword ) const;
 
-    /**
-     * Add an object capability to the object
-     * @param capability the new capability
-     */
-    void addCapability( std::unique_ptr<ObjectCapability> capability )
-    {
-        m_capabilities.push_back( std::move( capability ) );
-    }
-
-    /**
-     * Get an object capability of the given type
-     * @return a typed object capability
-     */
-    template <typename CapabilityType>
-    CapabilityType* capability() const
-    {
-        for ( auto& cap : m_capabilities )
-        {
-            CapabilityType* capability = dynamic_cast<CapabilityType*>( cap.get() );
-            if ( capability ) return capability;
-        }
-        return nullptr;
-    }
-
     virtual std::string uuid() const { return ""; }
     virtual void        setUuid( const std::string& ) {}
 
@@ -199,9 +174,6 @@ private:
 
     // Methods
     std::map<std::string, MethodHandle*> m_methods;
-
-    // Capabilities
-    std::vector<std::unique_ptr<ObjectCapability>> m_capabilities;
 };
 
 template <typename T>
