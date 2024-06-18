@@ -21,19 +21,32 @@
 
 #include "cafDataFieldAccessor.h"
 #include "cafFieldHandle.h"
+#include "cafPortableDataType.h"
+#include "cafVisitor.h"
 
 namespace caffa
 {
-class Editor;
-class Visitor;
 
 class DataField : public FieldHandle
 {
 public:
     virtual void setUntypedAccessor( std::unique_ptr<DataFieldAccessorInterface> accessor ) = 0;
 
-    void accept( Inspector* visitor ) const override;
-    void accept( Editor* editor ) override;
+    void accept( Inspector* visitor ) const override { visitor->visit( this ); }
+    void accept( Editor* editor ) override { editor->visit( this ); }
+};
+
+template <typename DataType>
+class TypedField : public DataField
+{
+public:
+    using FieldDataType = DataType;
+
+public:
+    virtual DataType value() const                          = 0;
+    virtual void     setValue( const DataType& fieldValue ) = 0;
+
+    std::string dataType() const override { return PortableDataType<DataType>::name(); }
 };
 
 } // namespace caffa

@@ -21,8 +21,8 @@
 // ##################################################################################################
 #pragma once
 
+#include "cafDataField.h"
 #include "cafFieldValidator.h"
-#include "cafTypedField.h"
 
 #include "cafAssert.h"
 #include "cafDataFieldAccessor.h"

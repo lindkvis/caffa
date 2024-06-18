@@ -22,8 +22,8 @@
 
 #include "cafChildArrayFieldHandle.h"
 #include "cafChildFieldHandle.h"
+#include "cafDataField.h"
 #include "cafObjectHandle.h"
-#include "cafTypedField.h"
 
 using namespace caffa;
 

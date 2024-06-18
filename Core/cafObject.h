@@ -37,6 +37,7 @@ public:
     Object( bool generateUuid = true );
     ~Object() noexcept override;
 
+protected:
     /**
      * Initialises the field with a keyword and registers it with the class
      * @param field A reference to the field
