@@ -37,8 +37,7 @@ class Serializer
 public:
     enum class SerializationType
     {
-        DATA_FULL,
-        DATA_SKELETON,
+        DATA,
         SCHEMA,
         PATH
     };

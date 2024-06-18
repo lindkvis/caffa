@@ -52,6 +52,8 @@ private:
 
     void applyAccessorToMethod( caffa::ObjectHandle* objectHandle, caffa::MethodHandle* methodHandle );
 
+    void doApplyAccessors( caffa::not_null<caffa::ObjectHandle*> objectHandl ) override;
+
 private:
     Client* m_client;
 };

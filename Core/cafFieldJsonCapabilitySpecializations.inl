@@ -26,7 +26,7 @@ void FieldJsonCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, c
 
     if ( jsonElement.is_null() ) return;
 
-    if ( serializer.serializationType() == Serializer::SerializationType::DATA_FULL )
+    if ( serializer.serializationType() == Serializer::SerializationType::DATA )
     {
         CAFFA_TRACE( "Setting value from json to: " << jsonElement.dump() );
         if ( jsonElement.is_object() )
@@ -58,7 +58,7 @@ void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Se
 {
     this->assertValid();
 
-    if ( serializer.serializationType() == Serializer::SerializationType::DATA_FULL )
+    if ( serializer.serializationType() == Serializer::SerializationType::DATA )
     {
         jsonElement = m_field->value();
     }
@@ -168,6 +168,9 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
         uuid = jsonObject["uuid"].get<std::string>();
     }
 
+    // Create a new object
+    auto objectFactory = serializer.objectFactory();
+
     auto object = m_field->object();
     if ( object && !uuid.empty() && object->uuid() == uuid )
     {
@@ -175,9 +178,6 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
     }
     else
     {
-        // Create a new object
-        auto objectFactory = serializer.objectFactory();
-
         CAFFA_ASSERT( objectFactory );
 
         object = std::dynamic_pointer_cast<DataType>( objectFactory->create( className ) );
@@ -206,6 +206,8 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
     // Everything seems ok, so read the contents of the object:
     std::string jsonString = jsonObject.dump();
     serializer.readObjectFromString( object.get(), jsonString );
+
+    objectFactory->applyAccessors( object.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -329,12 +331,14 @@ void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::jso
             continue;
         }
 
+        size_t currentSize = m_field->size();
+        m_field->insertAt( currentSize, object );
+
         serializer.readObjectFromString( object.get(), jsonObject.dump() );
 
-        size_t currentSize = m_field->size();
         CAFFA_TRACE( "Inserting new object into " << m_field->keyword() << " at position " << currentSize );
 
-        m_field->insertAt( currentSize, object );
+        objectFactory->applyAccessors( object.get() );
     }
 }
 //--------------------------------------------------------------------------------------------------
@@ -359,8 +363,7 @@ void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& json
             jsonField["description"] = m_field->documentation();
         }
     }
-    else if ( serializer.serializationType() == Serializer::SerializationType::DATA_FULL ||
-              serializer.serializationType() == Serializer::SerializationType::DATA_SKELETON )
+    else if ( serializer.serializationType() == Serializer::SerializationType::DATA )
     {
         nlohmann::json jsonArray = nlohmann::json::array();
 

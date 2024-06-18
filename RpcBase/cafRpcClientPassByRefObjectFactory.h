@@ -43,7 +43,7 @@ public:
     AccessorCreatorBase() {}
     virtual ~AccessorCreatorBase() {}
     virtual std::unique_ptr<DataFieldAccessorInterface> create( Client* client, caffa::FieldHandle* fieldHandle ) = 0;
-    virtual std::string jsonDataType() const = 0;
+    virtual std::string                                 jsonDataType() const                                      = 0;
 };
 
 template <typename DataType>
@@ -54,9 +54,7 @@ public:
     {
         return std::make_unique<DataFieldAccessor<DataType>>( client, fieldHandle );
     }
-    std::string jsonDataType() const override {
-        return caffa::PortableDataType<DataType>::jsonType().dump();
-    }
+    std::string jsonDataType() const override { return caffa::PortableDataType<DataType>::jsonType().dump(); }
 };
 
 /**
@@ -103,6 +101,8 @@ private:
     void registerAccessorCreator( const std::string& dataType, std::unique_ptr<AccessorCreatorBase> creator );
 
     void registerAllBasicAccessorCreators();
+
+    void doApplyAccessors( caffa::not_null<caffa::ObjectHandle*> ) override;
 
 private:
     Client* m_client;

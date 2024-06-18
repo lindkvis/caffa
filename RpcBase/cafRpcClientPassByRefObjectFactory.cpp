@@ -54,27 +54,6 @@ std::shared_ptr<ObjectHandle> ClientPassByRefObjectFactory::doCreate( const std:
     auto objectHandle = caffa::DefaultObjectFactory::instance()->create( classKeyword );
 
     CAFFA_ASSERT( objectHandle );
-
-    for ( auto field : objectHandle->fields() )
-    {
-        if ( field->keyword() != "uuid" )
-        {
-            if ( field->capability<FieldScriptingCapability>() != nullptr )
-            {
-                applyAccessorToField( objectHandle.get(), field );
-            }
-            else
-            {
-                applyNullAccessorToField( objectHandle.get(), field );
-            }
-        }
-    }
-
-    for ( auto method : objectHandle->methods() )
-    {
-        applyAccessorToMethod( objectHandle.get(), method );
-    }
-
     return objectHandle;
 }
 
@@ -199,6 +178,29 @@ void ClientPassByRefObjectFactory::applyAccessorToMethod( caffa::ObjectHandle* o
     CAFFA_TRACE( "Applying remote accessor to " << objectHandle->classKeyword() << "::" << methodHandle->keyword() << "()" );
     methodHandle->setAccessor(
         std::make_unique<MethodAccessor>( m_client, objectHandle, methodHandle, ClientPassByValueObjectFactory::instance() ) );
+}
+
+void ClientPassByRefObjectFactory::doApplyAccessors( caffa::not_null<caffa::ObjectHandle*> objectHandle )
+{
+    for ( auto field : objectHandle->fields() )
+    {
+        if ( field->keyword() != "uuid" )
+        {
+            if ( field->capability<FieldScriptingCapability>() != nullptr )
+            {
+                applyAccessorToField( objectHandle, field );
+            }
+            else
+            {
+                applyNullAccessorToField( objectHandle, field );
+            }
+        }
+    }
+
+    for ( auto method : objectHandle->methods() )
+    {
+        applyAccessorToMethod( objectHandle, method );
+    }
 }
 
 void ClientPassByRefObjectFactory::registerAccessorCreator( const std::string&                   dataType,

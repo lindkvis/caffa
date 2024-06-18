@@ -49,12 +49,6 @@ RestObjectService::RestObjectService()
 {
     m_requestPathRoot = std::make_unique<RestPathEntry>( "objects" );
 
-    auto skeletonParameter = std::make_unique<RestTypedParameter<bool>>( "skeleton",
-                                                                         RestParameter::Location::QUERY,
-                                                                         false,
-                                                                         "Whether to only send the skeleton" );
-    skeletonParameter->setDefaultValue( false );
-
     auto uuidEntry = std::make_unique<RestPathEntry>( "{uuid}" );
     uuidEntry->setPathArgumentMatcher( &caffa::UuidGenerator::isUuid );
     auto uuidParameter = std::make_unique<RestTypedParameter<std::string>>( "uuid",
@@ -62,7 +56,7 @@ RestObjectService::RestObjectService()
                                                                             true,
                                                                             "The UUID of the object" );
 
-    uuidEntry->addAction( createObjectGetAction( { uuidParameter.get(), skeletonParameter.get() } ) );
+    uuidEntry->addAction( createObjectGetAction( { uuidParameter.get() } ) );
 
     auto fieldEntry        = std::make_unique<RestPathEntry>( "fields" );
     auto fieldKeywordEntry = std::make_unique<RestPathEntry>( "{keyword}" );
@@ -78,11 +72,10 @@ RestObjectService::RestObjectService()
                                                                      false,
                                                                      "The index of the field (for array fields)" );
     {
-        auto getAction =
-            createFieldOrMethodAction( http::verb::get,
-                                       "Get a field value",
-                                       "getFieldValue",
-                                       { keywordParameter.get(), indexParameter.get(), skeletonParameter.get() } );
+        auto getAction = createFieldOrMethodAction( http::verb::get,
+                                                    "Get a field value",
+                                                    "getFieldValue",
+                                                    { keywordParameter.get(), indexParameter.get() } );
         getAction->addResponse( http::status::ok,
                                 std::make_unique<RestResponse>( anyFieldResponseContent(), "Specific field" ) );
         getAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
@@ -90,11 +83,10 @@ RestObjectService::RestObjectService()
     }
 
     {
-        auto putAction =
-            createFieldOrMethodAction( http::verb::put,
-                                       "Replace a field value",
-                                       "replaceFieldValue",
-                                       { keywordParameter.get(), indexParameter.get(), skeletonParameter.get() } );
+        auto putAction = createFieldOrMethodAction( http::verb::put,
+                                                    "Replace a field value",
+                                                    "replaceFieldValue",
+                                                    { keywordParameter.get(), indexParameter.get() } );
 
         putAction->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
         putAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
@@ -102,11 +94,10 @@ RestObjectService::RestObjectService()
     }
 
     {
-        auto postAction =
-            createFieldOrMethodAction( http::verb::post,
-                                       "Insert a field value",
-                                       "insertFieldValue",
-                                       { keywordParameter.get(), indexParameter.get(), skeletonParameter.get() } );
+        auto postAction = createFieldOrMethodAction( http::verb::post,
+                                                     "Insert a field value",
+                                                     "insertFieldValue",
+                                                     { keywordParameter.get(), indexParameter.get() } );
 
         postAction->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
         postAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
@@ -120,11 +111,10 @@ RestObjectService::RestObjectService()
     }
 
     {
-        auto deleteAction =
-            createFieldOrMethodAction( http::verb::delete_,
-                                       "Delete a field value",
-                                       "deleteFieldValue",
-                                       { keywordParameter.get(), indexParameter.get(), skeletonParameter.get() } );
+        auto deleteAction = createFieldOrMethodAction( http::verb::delete_,
+                                                       "Delete a field value",
+                                                       "deleteFieldValue",
+                                                       { keywordParameter.get(), indexParameter.get() } );
 
         deleteAction->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
         deleteAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
@@ -323,11 +313,10 @@ RestObjectService::ServiceResponse
     }
     else if ( auto field = object->findField( keyword ); field )
     {
-        int  index    = queryParams.contains( "index" ) ? queryParams["index"].get<int>() : -1;
-        bool skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
+        int index = queryParams.contains( "index" ) ? queryParams["index"].get<int>() : -1;
         if ( verb == http::verb::get )
         {
-            return getFieldValue( field, index, skeleton );
+            return getFieldValue( field, index );
         }
         else if ( verb == http::verb::put )
         {
@@ -347,8 +336,7 @@ RestObjectService::ServiceResponse
     return std::make_tuple( http::status::not_found, "No field named " + keyword + " found", nullptr );
 }
 
-RestObjectService::ServiceResponse
-    RestObjectService::getFieldValue( const caffa::FieldHandle* field, int64_t index, bool skeleton )
+RestObjectService::ServiceResponse RestObjectService::getFieldValue( const caffa::FieldHandle* field, int64_t index )
 {
     auto scriptability = field->capability<caffa::FieldScriptingCapability>();
     if ( !scriptability || !scriptability->isReadable() )
@@ -367,9 +355,6 @@ RestObjectService::ServiceResponse
         JsonSerializer serializer;
         if ( childField )
         {
-            // The skeleton serialization only makes sense for objects
-            if ( skeleton ) serializer.setSerializationType( Serializer::SerializationType::DATA_SKELETON );
-
             if ( index >= 0 )
             {
                 auto childObjects = childField->childObjects();
@@ -593,16 +578,7 @@ RestObjectService::ServiceResponse RestObjectService::object( http::verb        
         return std::make_tuple( http::status::not_found, "Object " + uuid + " not found", nullptr );
     }
 
-    bool           skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
-    nlohmann::json jsonObject;
-    if ( skeleton )
-    {
-        jsonObject = createJsonSkeletonFromProjectObject( object );
-    }
-    else
-    {
-        jsonObject = createJsonFromProjectObject( object );
-    }
+    nlohmann::json jsonObject = createJsonFromProjectObject( object );
     return std::make_tuple( http::status::ok, jsonObject.dump(), nullptr );
 }
 

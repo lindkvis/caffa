@@ -55,11 +55,6 @@ std::shared_ptr<ObjectHandle> ClientPassByValueObjectFactory::doCreate( const st
 
     CAFFA_ASSERT( objectHandle );
 
-    for ( auto method : objectHandle->methods() )
-    {
-        applyAccessorToMethod( objectHandle.get(), method );
-    }
-
     return objectHandle;
 }
 
@@ -84,6 +79,14 @@ void ClientPassByValueObjectFactory::applyAccessorToMethod( caffa::ObjectHandle*
                                                             caffa::MethodHandle* methodHandle )
 {
     methodHandle->setAccessor( std::make_unique<MethodAccessor>( m_client, objectHandle, methodHandle, this ) );
+}
+
+void ClientPassByValueObjectFactory::doApplyAccessors( caffa::not_null<caffa::ObjectHandle*> objectHandle )
+{
+    for ( auto method : objectHandle->methods() )
+    {
+        applyAccessorToMethod( objectHandle, method );
+    }
 }
 
 } // namespace caffa::rpc

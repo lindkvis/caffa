@@ -42,8 +42,7 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
                                       << " from json with type = " << serializationTypeLabel( this->serializationType() )
                                       << ", serializeUuids = " << this->serializeUuids() );
 
-    if ( this->serializationType() != Serializer::SerializationType::DATA_FULL &&
-         this->serializationType() != Serializer::SerializationType::DATA_SKELETON )
+    if ( this->serializationType() != Serializer::SerializationType::DATA )
     {
         CAFFA_ERROR( "Reading JSON into objects only makes sense for data" );
         return;
@@ -55,12 +54,6 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
     {
         auto uuid = jsonObject["uuid"].get<std::string>();
         object->setUuid( uuid );
-    }
-
-    if ( this->serializationType() == Serializer::SerializationType::DATA_SKELETON )
-    {
-        CAFFA_ASSERT( this->serializeUuids() && "Does not make sense to serialise data skeleton without UUIDs" );
-        CAFFA_ASSERT( jsonObject.contains( "uuid" ) );
     }
 
     for ( const auto& [keyword, value] : jsonObject.items() )
@@ -78,7 +71,7 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
                 classKeyword.is_string() &&
                 ObjectHandle::matchesClassKeyword( classKeyword.get<std::string>(), object->classInheritanceStack() ) );
         }
-        else if ( this->serializationType() == Serializer::SerializationType::DATA_FULL && !value.is_null() &&
+        else if ( this->serializationType() == Serializer::SerializationType::DATA && !value.is_null() &&
                   keyword != "methods" )
         {
             auto fieldHandle = object->findField( keyword );
@@ -314,6 +307,8 @@ std::shared_ptr<ObjectHandle> JsonSerializer::copyAndCastBySerialization( const 
     nlohmann::json jsonObject = nlohmann::json::parse( string );
     readObjectFromJson( objectCopy.get(), jsonObject );
 
+    m_objectFactory->applyAccessors( objectCopy.get() );
+
     return objectCopy;
 }
 
@@ -348,6 +343,8 @@ std::shared_ptr<ObjectHandle> JsonSerializer::createObjectFromString( const std:
     if ( !newObject ) return nullptr;
 
     readObjectFromJson( newObject.get(), jsonObject );
+
+    m_objectFactory->applyAccessors( newObject.get() );
 
     return newObject;
 }

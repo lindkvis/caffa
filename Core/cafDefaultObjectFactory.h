@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "cafNotNull.h"
 #include "cafObjectFactory.h"
 
 #include "cafAssert.h"
@@ -67,9 +68,9 @@ private:
     ObjectHandle::Ptr doCreate( const std::string_view& classKeyword ) override;
 
     DefaultObjectFactory() {}
-    ~DefaultObjectFactory() override
-    { /* Could clean up, but ... */
-    }
+    ~DefaultObjectFactory() override { /* Could clean up, but ... */ }
+
+    void doApplyAccessors( caffa::not_null<caffa::ObjectHandle*> ) override;
 
     // Internal helper classes
 

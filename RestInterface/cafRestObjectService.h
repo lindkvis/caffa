@@ -67,7 +67,7 @@ private:
                                    const nlohmann::json&         queryParams,
                                    const nlohmann::json&         body );
 
-    static ServiceResponse getFieldValue( const caffa::FieldHandle* fieldHandle, int64_t index, bool skeleton );
+    static ServiceResponse getFieldValue( const caffa::FieldHandle* fieldHandle, int64_t index );
     static ServiceResponse replaceFieldValue( caffa::FieldHandle* fieldHandle, int64_t index, const nlohmann::json& body );
     static ServiceResponse insertFieldValue( caffa::FieldHandle* fieldHandle, int64_t index, const nlohmann::json& body );
     static ServiceResponse deleteFieldValue( caffa::FieldHandle* field, int64_t index );

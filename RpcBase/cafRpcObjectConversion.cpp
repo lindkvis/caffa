@@ -76,25 +76,6 @@ nlohmann::json caffa::rpc::createJsonFromProjectObject( const caffa::ObjectHandl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-nlohmann::json caffa::rpc::createJsonSkeletonFromProjectObject( const caffa::ObjectHandle* source )
-{
-    CAFFA_ASSERT( source );
-    CAFFA_ASSERT( !source->uuid().empty() );
-
-    caffa::JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
-    serializer.setFieldSelector( fieldIsScriptReadable );
-    serializer.setFieldSelector( fieldIsScriptReadable );
-    serializer.setSerializationType( Serializer::SerializationType::DATA_SKELETON );
-    serializer.setSerializeUuids( true );
-
-    auto object = nlohmann::json::object();
-    auto object = nlohmann::json::object();
-    serializer.writeObjectToJson( source, object );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 caffa::ObjectHandle* caffa::rpc::findCafObjectFromJsonObject( const caffa::Session* session, const std::string& jsonObject )
 {
     CAFFA_TRACE( "Looking for object from json: " << jsonObject );

@@ -41,4 +41,8 @@ DefaultObjectFactory* DefaultObjectFactory::instance()
     return fact;
 }
 
+void DefaultObjectFactory::doApplyAccessors( caffa::not_null<caffa::ObjectHandle*> )
+{ // Do nothing. Fields already have a direct local accessor
+}
+
 } // End of namespace caffa

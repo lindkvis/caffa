@@ -339,9 +339,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::document( const std::string& do
     CAFFA_TRACE( "Trying to get document: " << documentId );
 
     auto [status, body] =
-        performGetRequest( hostname(),
-                           port(),
-                           std::string( "/documents/" ) + documentId + "?skeleton=true&session_uuid=" + m_sessionUuid );
+        performGetRequest( hostname(), port(), std::string( "/documents/" ) + documentId + "?session_uuid=" + m_sessionUuid );
 
     if ( status != http::status::ok )
     {
@@ -350,6 +348,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::document( const std::string& do
     CAFFA_TRACE( "Got document JSON '" << body << "'" );
 
     caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
+    serializer.setSerializationType( Serializer::SerializationType::DATA );
     serializer.setClient( true );
     auto document = serializer.createObjectFromString( body );
 
@@ -364,7 +363,7 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::documents() const
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
     auto [status, body] =
-        performGetRequest( hostname(), port(), std::string( "/documents/?skeleton=true&session_uuid=" ) + m_sessionUuid );
+        performGetRequest( hostname(), port(), std::string( "/documents/?session_uuid=" ) + m_sessionUuid );
 
     if ( status != http::status::ok )
     {
@@ -378,6 +377,7 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::documents() const
     }
 
     caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
+    serializer.setSerializationType( Serializer::SerializationType::DATA );
     serializer.setClient( true );
 
     std::vector<std::shared_ptr<caffa::ObjectHandle>> documents;
@@ -677,7 +677,7 @@ nlohmann::json RestClient::getJson( const caffa::ObjectHandle* objectHandle, con
     auto [status, body] = performGetRequest( hostname(),
                                              port(),
                                              std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" +
-                                                 fieldName + "?skeleton=true&session_uuid=" + m_sessionUuid );
+                                                 fieldName + "?session_uuid=" + m_sessionUuid );
     if ( status != http::status::ok )
     {
         throw std::runtime_error( "Failed to get field value" );
@@ -695,7 +695,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::getShallowCopyOfChildObject( co
     auto [status, body] = performGetRequest( hostname(),
                                              port(),
                                              std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" +
-                                                 fieldName + "?skeleton=true&session_uuid=" + m_sessionUuid );
+                                                 fieldName + "?session_uuid=" + m_sessionUuid );
     if ( status != http::status::ok )
     {
         throw std::runtime_error( "Failed to get field value" );
@@ -703,6 +703,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::getShallowCopyOfChildObject( co
     CAFFA_TRACE( "Got body: " << body );
 
     return caffa::JsonSerializer( caffa::rpc::ClientPassByRefObjectFactory::instance() )
+        .setSerializationType( Serializer::SerializationType::DATA )
         .setClient( true )
         .createObjectFromString( body );
 }
@@ -729,6 +730,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::getDeepCopyOfChildObject( const
     }
 
     return caffa::JsonSerializer( caffa::rpc::ClientPassByValueObjectFactory::instance() )
+        .setSerializationType( Serializer::SerializationType::DATA )
         .setClient( true )
         .createObjectFromString( parsedResult.dump() );
 }
@@ -740,7 +742,7 @@ void RestClient::deepCopyChildObjectFrom( const caffa::ObjectHandle* objectHandl
                                           const std::string&         fieldName,
                                           const caffa::ObjectHandle* childObject )
 {
-    auto childString    = caffa::JsonSerializer().writeObjectToString( childObject );
+    auto childString    = caffa::JsonSerializer().setClient( true ).writeObjectToString( childObject );
     auto [status, body] = performRequest( http::verb::put,
                                           hostname(),
                                           port(),
@@ -765,7 +767,7 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::getChildObjects( c
     auto [status, body] = performGetRequest( hostname(),
                                              port(),
                                              std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" +
-                                                 fieldName + "?skeleton=true&session_uuid=" + m_sessionUuid );
+                                                 fieldName + "?session_uuid=" + m_sessionUuid );
     if ( status != http::status::ok )
     {
         throw std::runtime_error( "Failed to get field value" );
@@ -779,14 +781,12 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::getChildObjects( c
     }
 
     caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
-    serializer.setSerializationType( Serializer::SerializationType::DATA_SKELETON );
+    serializer.setSerializationType( Serializer::SerializationType::DATA );
     serializer.setClient( true );
 
     for ( auto jsonObject : jsonArray )
     {
-        childObjects.push_back( caffa::JsonSerializer( caffa::rpc::ClientPassByRefObjectFactory::instance() )
-                                    .setSerializationType( Serializer::SerializationType::DATA_SKELETON )
-                                    .createObjectFromString( jsonObject.dump() ) );
+        childObjects.push_back( serializer.createObjectFromString( jsonObject.dump() ) );
     }
     return childObjects;
 }

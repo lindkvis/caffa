@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "cafNotNull.h"
 #include "cafObjectHandle.h"
 
 #include <list>
@@ -41,13 +42,15 @@ public:
     ObjectHandle::Ptr create( const std::string_view& classKeyword ) { return doCreate( classKeyword ); }
 
     virtual std::string name() const = 0;
+    void                applyAccessors( ObjectHandle* object ) { doApplyAccessors( object ); }
 
 protected:
     ObjectFactory() {}
     virtual ~ObjectFactory() {}
 
 private:
-    virtual ObjectHandle::Ptr doCreate( const std::string_view& classKeyword ) = 0;
+    virtual ObjectHandle::Ptr doCreate( const std::string_view& classKeyword )          = 0;
+    virtual void              doApplyAccessors( caffa::not_null<caffa::ObjectHandle*> ) = 0;
 };
 
 } // End of namespace caffa

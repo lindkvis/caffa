@@ -57,12 +57,6 @@ RestDocumentService::RestDocumentService()
     // Create a trial tree with an object for each entry
     auto documents = rpc::RestServerApplication::instance()->defaultDocuments();
 
-    auto skeletonParameter = std::make_unique<RestTypedParameter<bool>>( "skeleton",
-                                                                         RestParameter::Location::QUERY,
-                                                                         false,
-                                                                         "Whether to only send the skeleton" );
-    skeletonParameter->setDefaultValue( false );
-
     for ( auto document : documents )
     {
         auto getAction =
@@ -76,7 +70,6 @@ RestDocumentService::RestDocumentService()
                                                               document->classDocumentation() ) );
 
         getAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
-        getAction->addParameter( skeletonParameter->clone() );
         getAction->setRequiresAuthentication( false );
         getAction->setRequiresSession( true );
 
@@ -92,7 +85,6 @@ RestDocumentService::RestDocumentService()
     getAllAction->addResponse( http::status::ok,
                                RestResponse::objectArrayResponse( "#/components/object_schemas/Document", "All documents" ) );
     getAllAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
-    getAllAction->addParameter( skeletonParameter->clone() );
 
     getAllAction->setRequiresAuthentication( false );
     getAllAction->setRequiresSession( true );
@@ -276,16 +268,8 @@ RestServiceInterface::ServiceResponse RestDocumentService::document( const std::
     if ( document )
     {
         CAFFA_TRACE( "Found document with UUID: " << document->uuid() );
-        bool           skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
-        nlohmann::json jsonDocument;
-        if ( skeleton )
-        {
-            jsonDocument = createJsonSkeletonFromProjectObject( document.get() );
-        }
-        else
-        {
-            jsonDocument = createJsonFromProjectObject( document.get() );
-        }
+        nlohmann::json jsonDocument = createJsonFromProjectObject( document.get() );
+
         return std::make_tuple( http::status::ok, jsonDocument.dump(), nullptr );
     }
     return std::make_tuple( http::status::not_found, "Document " + documentId + " not found", nullptr );
@@ -313,21 +297,13 @@ RestDocumentService::ServiceResponse RestDocumentService::documents( http::verb 
     {
         return std::make_tuple( http::status::forbidden, "No valid session provided", nullptr );
     }
-    bool skeleton  = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
     auto documents = RestServerApplication::instance()->documents( session.get() );
     CAFFA_DEBUG( "Found " << documents.size() << " document" );
 
     auto jsonResult = nlohmann::json::array();
     for ( auto document : documents )
     {
-        if ( skeleton )
-        {
-            jsonResult.push_back( createJsonSkeletonFromProjectObject( document.get() ) );
-        }
-        else
-        {
-            jsonResult.push_back( createJsonFromProjectObject( document.get() ) );
-        }
+        jsonResult.push_back( createJsonFromProjectObject( document.get() ) );
     }
     return std::make_tuple( http::status::ok, jsonResult.dump(), nullptr );
 }

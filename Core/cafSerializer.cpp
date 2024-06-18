@@ -24,10 +24,8 @@ std::string Serializer::serializationTypeLabel( SerializationType type )
 {
     switch ( type )
     {
-        case SerializationType::DATA_FULL:
+        case SerializationType::DATA:
             return "DATA";
-        case SerializationType::DATA_SKELETON:
-            return "DATA_SKELETON";
         case SerializationType::SCHEMA:
             return "SCHEMA";
         case SerializationType::PATH:
@@ -40,6 +38,7 @@ std::string Serializer::serializationTypeLabel( SerializationType type )
 Serializer::Serializer( ObjectFactory* objectFactory )
     : m_client( false )
     , m_objectFactory( objectFactory )
+    , m_serializationType( SerializationType::DATA )
     , m_serializeUuids( true )
 {
 }
