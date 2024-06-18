@@ -184,16 +184,13 @@ void ClientPassByRefObjectFactory::doApplyAccessors( caffa::not_null<caffa::Obje
 {
     for ( auto field : objectHandle->fields() )
     {
-        if ( field->keyword() != "uuid" )
+        if ( field->capability<FieldScriptingCapability>() != nullptr )
         {
-            if ( field->capability<FieldScriptingCapability>() != nullptr )
-            {
-                applyAccessorToField( objectHandle, field );
-            }
-            else
-            {
-                applyNullAccessorToField( objectHandle, field );
-            }
+            applyAccessorToField( objectHandle, field );
+        }
+        else
+        {
+            applyNullAccessorToField( objectHandle, field );
         }
     }
 

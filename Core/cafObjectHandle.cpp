@@ -25,7 +25,7 @@
 #include "cafAssert.h"
 #include "cafChildArrayField.h"
 #include "cafFieldHandle.h"
-#include "cafObjectCapability.h"
+#include "cafUuidGenerator.h"
 #include "cafVisitor.h"
 
 using namespace caffa;
@@ -33,8 +33,12 @@ using namespace caffa;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle::ObjectHandle()
+ObjectHandle::ObjectHandle( bool generateUuid /* = true */ )
 {
+    if ( generateUuid )
+    {
+        m_uuid = UuidGenerator::generate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,4 +148,20 @@ void ObjectHandle::accept( Inspector* visitor ) const
 void ObjectHandle::accept( Editor* editor )
 {
     editor->visit( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::string& ObjectHandle::uuid() const
+{
+    return m_uuid;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void ObjectHandle::setUuid( const std::string& uuid )
+{
+    m_uuid = uuid;
 }
