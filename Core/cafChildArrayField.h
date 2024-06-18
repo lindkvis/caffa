@@ -12,9 +12,6 @@ namespace caffa
 {
 class ObjectHandle;
 
-template <typename T>
-class FieldJsonCap;
-
 /**
  * @brief Field class to handle a collection of Object derived pointers
  * The ChildArrayField will take over ownership of any object assigned to it.
@@ -84,7 +81,6 @@ private: // To be disabled
     ChildArrayField& operator=( const ChildArrayField& ) = delete;
 
 private:
-    friend class FieldJsonCap<ChildArrayField<DataType*>>;
     std::unique_ptr<DataAccessor> m_fieldDataAccessor;
 };
 
