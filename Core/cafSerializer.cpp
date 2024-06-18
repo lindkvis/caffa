@@ -38,8 +38,8 @@ std::string Serializer::serializationTypeLabel( SerializationType type )
 }
 
 Serializer::Serializer( ObjectFactory* objectFactory )
-    : m_objectFactory( objectFactory )
-    , m_serializationType( SerializationType::DATA_FULL )
+    : m_client( false )
+    , m_objectFactory( objectFactory )
     , m_serializeUuids( true )
 {
 }
@@ -80,4 +80,15 @@ Serializer::SerializationType Serializer::serializationType() const
 bool Serializer::serializeUuids() const
 {
     return m_serializeUuids;
+}
+
+Serializer& Serializer::setClient( bool client )
+{
+    m_client = client;
+    return *this;
+}
+
+bool Serializer::isClient() const
+{
+    return m_client;
 }

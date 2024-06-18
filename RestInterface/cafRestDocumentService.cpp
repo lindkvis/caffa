@@ -37,6 +37,7 @@
 #include "cafPortableDataType.h"
 #include "cafRestServerApplication.h"
 #include "cafRpcObjectConversion.h"
+#include "cafStringTools.h"
 
 #include <functional>
 #include <iostream>
@@ -109,7 +110,9 @@ RestDocumentService::ServiceResponse RestDocumentService::perform( http::verb   
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request )
     {
-        return std::make_tuple( http::status::bad_request, "Path not found", nullptr );
+        return std::make_tuple( http::status::bad_request,
+                                "Document Path not found: " + caffa::StringTools::join( path.begin(), path.end(), "/" ),
+                                nullptr );
     }
 
     return request->perform( verb, pathArguments, queryParams, body );

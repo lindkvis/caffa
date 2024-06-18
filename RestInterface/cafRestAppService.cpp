@@ -22,6 +22,7 @@
 #include "cafRestRequest.h"
 #include "cafRestServerApplication.h"
 #include "cafSession.h"
+#include "cafStringTools.h"
 
 #include <nlohmann/json.hpp>
 
@@ -70,7 +71,9 @@ RestAppService::ServiceResponse RestAppService::perform( http::verb             
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request )
     {
-        return std::make_tuple( http::status::bad_request, "Path not found", nullptr );
+        return std::make_tuple( http::status::bad_request,
+                                "App Path not found: " + caffa::StringTools::join( path.begin(), path.end(), "/" ),
+                                nullptr );
     }
 
     return request->perform( verb, pathArguments, queryParams, body );

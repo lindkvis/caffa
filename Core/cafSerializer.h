@@ -180,7 +180,11 @@ public:
      */
     bool serializeUuids() const;
 
+    Serializer& setClient( bool client );
+    bool        isClient() const;
+
 protected:
+    bool           m_client;
     ObjectFactory* m_objectFactory;
     FieldSelector  m_fieldSelector;
 
