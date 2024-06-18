@@ -22,6 +22,8 @@
 #include "cafFieldHandle.h"
 #include "cafVisitor.h"
 
+#include <vector>
+
 namespace caffa
 {
 class ChildFieldAccessor;
@@ -33,6 +35,8 @@ concept is_pointer = std::is_pointer<DataTypePtr>::value;
 class ChildFieldBaseHandle : public FieldHandle
 {
 public:
+    virtual ~ChildFieldBaseHandle() = default;
+
     /**
      * @brief Get the class keyword of the contained child(ren)
      *

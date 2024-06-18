@@ -26,7 +26,6 @@ set(PUBLIC_HEADERS
     cafFieldProxyAccessor.h
     cafChildArrayFieldHandle.h
     cafTypedField.h
-    cafSignal.h
     cafMethodHandle.h
     cafMethod.h
     cafMethodInitHelper.h
@@ -57,7 +56,6 @@ set(PROJECT_FILES
     cafFieldCapability.cpp
     cafFieldHandle.cpp
     cafObjectHandle.cpp
-    cafSignal.cpp
     cafDefaultObjectFactory.cpp
     cafObject.cpp
     cafFieldScriptingCapability.cpp
