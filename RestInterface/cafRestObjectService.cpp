@@ -33,6 +33,7 @@
 #include "cafRestServerApplication.h"
 #include "cafRpcClientPassByRefObjectFactory.h"
 #include "cafRpcObjectConversion.h"
+#include "cafStringTools.h"
 #include "cafUuidGenerator.h"
 
 #include <iostream>
@@ -212,7 +213,9 @@ RestObjectService::ServiceResponse RestObjectService::perform( http::verb       
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request )
     {
-        return std::make_tuple( http::status::bad_request, "Path not found", nullptr );
+        return std::make_tuple( http::status::bad_request,
+                                "Object Path not found: " + caffa::StringTools::join( path.begin(), path.end(), "/" ),
+                                nullptr );
     }
     return request->perform( verb, pathArguments, queryParams, body );
 }
