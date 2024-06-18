@@ -24,6 +24,7 @@
 #include "cafFieldHandle.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafJsonSerializer.h"
+#include "cafLogger.h"
 #include "cafObject.h"
 #include "cafObjectCollector.h"
 #include "cafRpcServerApplication.h"
@@ -33,7 +34,7 @@ using namespace caffa::rpc;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-static bool fieldIsScriptReadable( const caffa::FieldHandle* fieldHandle )
+bool caffa::rpc::fieldIsScriptReadable( const caffa::FieldHandle* fieldHandle )
 {
     auto scriptability = fieldHandle->capability<caffa::FieldScriptingCapability>();
     return scriptability && scriptability->isReadable();
@@ -65,6 +66,7 @@ nlohmann::json caffa::rpc::createJsonFromProjectObject( const caffa::ObjectHandl
 
     caffa::JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
     serializer.setSerializeUuids( true );
+    serializer.setFieldSelector( fieldIsScriptReadable );
 
     auto object = nlohmann::json::object();
     serializer.writeObjectToJson( source, object );
@@ -81,12 +83,13 @@ nlohmann::json caffa::rpc::createJsonSkeletonFromProjectObject( const caffa::Obj
 
     caffa::JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
     serializer.setFieldSelector( fieldIsScriptReadable );
+    serializer.setFieldSelector( fieldIsScriptReadable );
     serializer.setSerializationType( Serializer::SerializationType::DATA_SKELETON );
     serializer.setSerializeUuids( true );
 
     auto object = nlohmann::json::object();
+    auto object = nlohmann::json::object();
     serializer.writeObjectToJson( source, object );
-    return object;
 }
 
 //--------------------------------------------------------------------------------------------------
