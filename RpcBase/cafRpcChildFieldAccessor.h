@@ -58,20 +58,6 @@ public:
         m_client->clearChildObjects( m_field->ownerObject(), m_field->keyword() );
     }
 
-    ObjectHandle::Ptr deepCloneObject() const override { return getDeepCopyOfRemoteObject(); }
-
-    void deepCopyObjectFrom( ObjectHandle::ConstPtr copyFrom ) override
-    {
-        if ( m_remoteObject )
-        {
-            JsonSerializer serializer;
-            std::string    json = serializer.writeObjectToString( copyFrom.get() );
-            serializer.readObjectFromString( m_remoteObject.get(), json );
-        }
-        CAFFA_TRACE( "Trying to copy object back to server" );
-        m_client->deepCopyChildObjectFrom( m_field->ownerObject(), m_field->keyword(), copyFrom.get() );
-    }
-
     bool hasGetter() const override
     {
         auto scriptability = m_field->capability<caffa::FieldScriptingCapability>();
@@ -87,12 +73,7 @@ public:
 private:
     ObjectHandle::Ptr getShallowCopyOfRemoteObject() const
     {
-        return m_client->getShallowCopyOfChildObject( m_field->ownerObject(), m_field->keyword() );
-    }
-
-    ObjectHandle::Ptr getDeepCopyOfRemoteObject() const
-    {
-        return m_client->getDeepCopyOfChildObject( m_field->ownerObject(), m_field->keyword() );
+        return m_client->getChildObject( m_field->ownerObject(), m_field->keyword() );
     }
 
 private:

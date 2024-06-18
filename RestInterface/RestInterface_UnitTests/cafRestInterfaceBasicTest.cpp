@@ -545,7 +545,8 @@ TEST_F( RestTest, ObjectDeepCopyVsShallowCopy )
     auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
 
     auto clientDemoObjectReference = clientDocument->demoObject.object();
-    auto clientDemoObjectClone     = clientDocument->demoObject.deepCloneObject();
+
+    auto clientDemoObjectClone = caffa::JsonSerializer().cloneObject( clientDemoObjectReference.get() );
 
     std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject().get() );
     CAFFA_TRACE( serverJson );
@@ -564,62 +565,6 @@ TEST_F( RestTest, ObjectDeepCopyVsShallowCopy )
 
     CAFFA_INFO( "Expect errors when trying to write a shallow copied object reference after the server is closed" );
     ASSERT_ANY_THROW( clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectReference.get() ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-TEST_F( RestTest, ObjectDeepCopyFromClient )
-{
-    ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
-    ASSERT_TRUE( serverApp.get() );
-
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
-
-    while ( !serverApp->running() )
-    {
-        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
-    }
-    auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
-    client->createSession( caffa::Session::Type::REGULAR );
-
-    auto session = serverApp->getExistingSession( client->sessionUuid() );
-    auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
-    ASSERT_TRUE( serverDocument );
-    CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
-
-    std::vector<int> largeIntVector;
-    std::mt19937     rng;
-    std::generate_n( std::back_inserter( largeIntVector ), 100u, std::ref( rng ) );
-
-    serverDocument->demoObject->intVector = largeIntVector;
-
-    auto objectHandle   = client->document( "testDocument" );
-    auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
-
-    auto clientDemoObjectClone = clientDocument->demoObject.deepCloneObject();
-
-    std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject().get() );
-    std::string clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() );
-    ASSERT_EQ( serverJson, clientJson );
-
-    clientDemoObjectClone->intVector = { 1, 2, 3 };
-
-    serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject().get() );
-    clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() );
-    ASSERT_NE( serverJson, clientJson );
-
-    clientDocument->demoObject.deepCopyObjectFrom( clientDemoObjectClone );
-
-    serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject().get() );
-    clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() );
-    ASSERT_EQ( serverJson, clientJson );
-    CAFFA_INFO( serverJson );
-
-    bool ok = client->stopServer();
-    ASSERT_TRUE( ok );
-
-    thread.join();
 }
 
 //--------------------------------------------------------------------------------------------------

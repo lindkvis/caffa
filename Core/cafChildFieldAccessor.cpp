@@ -18,7 +18,6 @@
 //
 #include "cafChildFieldAccessor.h"
 
-#include "cafJsonSerializer.h"
 #include "cafObjectHandle.h"
 
 using namespace caffa;
@@ -53,34 +52,6 @@ ObjectHandle::ConstPtr ChildFieldDirectStorageAccessor::object() const
 void ChildFieldDirectStorageAccessor::setObject( ObjectHandle::Ptr object )
 {
     m_object = object;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-ObjectHandle::Ptr ChildFieldDirectStorageAccessor::deepCloneObject() const
-{
-    if ( !m_object ) return nullptr;
-
-    JsonSerializer serializer;
-    return serializer.copyBySerialization( m_object.get() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void ChildFieldDirectStorageAccessor::deepCopyObjectFrom( ObjectHandle::ConstPtr copyFrom )
-{
-    JsonSerializer serializer;
-    if ( !m_object )
-    {
-        m_object = serializer.copyBySerialization( copyFrom.get() );
-    }
-    else
-    {
-        std::string json = serializer.writeObjectToString( copyFrom.get() );
-        serializer.readObjectFromString( m_object.get(), json );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

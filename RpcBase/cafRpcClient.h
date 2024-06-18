@@ -73,14 +73,8 @@ public:
     template <typename DataType>
     DataType get( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
-    virtual std::shared_ptr<caffa::ObjectHandle> getShallowCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
-                                                                              const std::string& fieldName ) const = 0;
-
-    virtual std::shared_ptr<caffa::ObjectHandle> getDeepCopyOfChildObject( const caffa::ObjectHandle* objectHandle,
-                                                                           const std::string& fieldName ) const    = 0;
-    virtual void                                 deepCopyChildObjectFrom( const caffa::ObjectHandle* objectHandle,
-                                                                          const std::string&         fieldName,
-                                                                          const caffa::ObjectHandle* childObject ) = 0;
+    virtual std::shared_ptr<caffa::ObjectHandle> getChildObject( const caffa::ObjectHandle* objectHandle,
+                                                                 const std::string&         fieldName ) const = 0;
 
     virtual std::vector<std::shared_ptr<caffa::ObjectHandle>> getChildObjects( const caffa::ObjectHandle* objectHandle,
                                                                                const std::string& fieldName ) const = 0;
