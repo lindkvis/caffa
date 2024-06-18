@@ -49,44 +49,22 @@
 
 #define CAFFA_FACTORY_REGISTER( BaseType, TypeToCreate, KeyType, key )   \
     static bool CAFFA_UNIQUE_COMPILE_UNIT_VAR_NAME( my##TypeToCreate ) = \
-        caffa::Factory<BaseType, KeyType>::instance() -> registerCreator<TypeToCreate>( key )
+        caffa::RestServiceFactory<BaseType, KeyType>::instance() -> registerCreator<TypeToCreate>( key )
 #define CAFFA_FACTORY_REGISTER2( BaseType, TypeToCreate, KeyType, key )   \
     static bool CAFFA_UNIQUE_COMPILE_UNIT_VAR_NAME( my2##TypeToCreate ) = \
-        caffa::Factory<BaseType, KeyType>::instance() -> registerCreator<TypeToCreate>( key )
+        caffa::RestServiceFactory<BaseType, KeyType>::instance() -> registerCreator<TypeToCreate>( key )
 
 namespace caffa
 {
-//==================================================================================================
-/// A generic Factory class template
-/// Usage:
-///     Simply add the classes that is supposed to be created by the factory by doing the folowing:
-///
-///     caffa::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key);
-///
-///     This must only be done once for each TypeToCreate. It will assert if you try to do it several times.
-///     This method returns a bool to make it possible to make this initialization as a static variable initialization.
-///     That is useful if you do not want a centralized registering (but rather making each class register itself):
-///
-///     static bool uniqueVarname = caffa::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key);
-///
-///     You can also use the macro CAFFA_FACTORY_REGISTER(BaseType, TypeToCreate, KeyType, key)
-///
-///     See also cafUiFieldEditorHandle.h for an advanced example.
-///
-///     When you need an object:
-///
-///     BaseType* newObject = caffa::Factory<BaseType, KeyType>::instance()->create(key);
-//==================================================================================================
-
 template <typename BaseType, typename KeyType>
-class Factory
+class RestServiceFactory
 {
     class ObjectCreatorBase;
 
 public:
-    static Factory<BaseType, KeyType>* instance()
+    static RestServiceFactory<BaseType, KeyType>* instance()
     {
-        static Factory<BaseType, KeyType>* fact = new Factory<BaseType, KeyType>;
+        static RestServiceFactory<BaseType, KeyType>* fact = new RestServiceFactory<BaseType, KeyType>;
         return fact;
     }
 
@@ -128,8 +106,8 @@ public:
     }
 
 private:
-    Factory() {}
-    ~Factory() = default;
+    RestServiceFactory() {}
+    ~RestServiceFactory() = default;
 
     // Internal helper classes
 

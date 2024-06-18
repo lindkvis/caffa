@@ -18,7 +18,7 @@
 //
 #pragma once
 
-#include "cafFactory.h"
+#include "cafRestServiceFactory.h"
 
 #include <nlohmann/json.hpp>
 
@@ -119,5 +119,5 @@ private:
     static std::mutex                                       s_requestMutex;
 };
 
-typedef caffa::Factory<RestServiceInterface, std::string> RestServiceFactory;
+typedef caffa::RestServiceFactory<RestServiceInterface, std::string> RestServiceFactory;
 } // namespace caffa::rpc

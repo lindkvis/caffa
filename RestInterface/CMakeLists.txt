@@ -16,7 +16,8 @@ set(PUBLIC_HEADERS
     cafRestSessionService.h
     cafRestRequest.h
     cafRestOpenApiService.h
-    cafRestRequest.h)
+    cafRestRequest.h
+    cafRestServiceFactory.h)
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
