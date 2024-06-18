@@ -244,7 +244,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             if ( parentalFields.contains( keyword ) ) continue;
 
             const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
-            if ( ioCapability && keyword != "uuid" && ( field->isReadable() || field->isWritable() ) )
+            if ( ioCapability && ( field->isReadable() || field->isWritable() ) )
             {
                 nlohmann::json value;
                 ioCapability->writeToJson( value, *this );
@@ -305,7 +305,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             auto keyword = field->keyword();
 
             const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
-            if ( ioCapability && keyword != "uuid" && field->isReadable() )
+            if ( ioCapability && field->isReadable() )
             {
                 nlohmann::json value;
                 ioCapability->writeToJson( value, *this );
