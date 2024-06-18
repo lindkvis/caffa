@@ -348,7 +348,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::document( const std::string& do
     CAFFA_TRACE( "Got document JSON '" << body << "'" );
 
     caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
-    serializer.setSerializationType( Serializer::SerializationType::DATA );
+    serializer.setSerializationType( JsonSerializer::SerializationType::DATA );
     serializer.setClient( true );
     auto document = serializer.createObjectFromString( body );
 
@@ -377,7 +377,7 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::documents() const
     }
 
     caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
-    serializer.setSerializationType( Serializer::SerializationType::DATA );
+    serializer.setSerializationType( JsonSerializer::SerializationType::DATA );
     serializer.setClient( true );
 
     std::vector<std::shared_ptr<caffa::ObjectHandle>> documents;
@@ -703,7 +703,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::getChildObject( const caffa::Ob
     CAFFA_TRACE( "Got body: " << body );
 
     return caffa::JsonSerializer( caffa::rpc::ClientPassByRefObjectFactory::instance() )
-        .setSerializationType( Serializer::SerializationType::DATA )
+        .setSerializationType( JsonSerializer::SerializationType::DATA )
         .setClient( true )
         .createObjectFromString( body );
 }
@@ -733,7 +733,7 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::getChildObjects( c
     }
 
     caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
-    serializer.setSerializationType( Serializer::SerializationType::DATA );
+    serializer.setSerializationType( JsonSerializer::SerializationType::DATA );
     serializer.setClient( true );
 
     for ( auto jsonObject : jsonArray )

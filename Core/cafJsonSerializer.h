@@ -18,7 +18,7 @@
 //
 #pragma once
 
-#include "cafSerializer.h"
+#include "cafObjectHandle.h"
 
 #include <nlohmann/json.hpp>
 
@@ -29,19 +29,100 @@
 
 namespace caffa
 {
-class ObjectHandle;
+class FieldHandle;
+class ObjectFactory;
 
 /**
  * Implementation of Serializer for JSON serialization.
  */
-class JsonSerializer : public Serializer
+class JsonSerializer
 {
+public:
+    enum class SerializationType
+    {
+        DATA,
+        SCHEMA,
+        PATH
+    };
+
+    using FieldSelector = std::function<bool( const FieldHandle* )>;
+
+    static std::string serializationTypeLabel( SerializationType type );
+
 public:
     /**
      * Constructor
      * @param objectFactory The factory used when creating new objects. Not relevant when writing.
      */
     JsonSerializer( ObjectFactory* objectFactory = nullptr );
+    /**
+     * Clone the object by serializing to and from text string
+     *
+     * @param object The object to copy
+     * @param destinationClassKeyword The class of the object to create.
+     * @return unique ptr containing a new copy
+     */
+    template <DerivesFromObjectHandle ObjectType>
+    std::shared_ptr<ObjectType> cloneObject( const ObjectType* object ) const
+    {
+        auto basePointer = copyAndCastBySerialization( object, ObjectType::classKeywordStatic() );
+        return std::dynamic_pointer_cast<ObjectType>( basePointer );
+    }
+
+    /**
+     * Set Field Selector
+     * Since it returns a reference it can be used like: Serializer(objectFactory).setFieldSelector(functor);
+     *
+     * @param fieldSelector
+     * @return cafSerializer& reference to this
+     */
+    JsonSerializer& setFieldSelector( FieldSelector fieldSelector );
+
+    /**
+     * Set what to serialize (data, schema, etc)
+     * Since it returns a reference it can be used like: Serializer(objectFactory).setSerializationTypes(...);
+     *
+     * @param serializationType
+     * @return cafSerializer& reference to this
+     */
+    JsonSerializer& setSerializationType( SerializationType type );
+
+    /**
+     * Set whether to serialize UUIDs. Only makes a difference when serializing data
+     * Since it returns a reference, it can be used like: Serializer(objectFactory).setSerializeUuids(false);
+     *
+     * @param serializeUuids
+     * @return cafSerializer& reference to this
+     */
+    JsonSerializer& setSerializeUuids( bool serializeUuids );
+
+    /**
+     * Get the object factory
+     * @return object factory
+     */
+    ObjectFactory* objectFactory() const;
+
+    /**
+     * Get the field selector
+     * @return field selector
+     */
+    FieldSelector fieldSelector() const;
+
+    /**
+     * Check which type of serialization we're doing
+     * @return The type of serialization to do
+     */
+    SerializationType serializationType() const;
+
+    /**
+     * Check if we're meant to serialize UUIDs. UUIDs are used for dynamic connection to runtime objects,
+     * not for writing to file. Only makes a difference when serializing data.
+     * @return true if we should write the UUIDs
+     */
+    bool serializeUuids() const;
+
+    JsonSerializer& setClient( bool client );
+    bool            isClient() const;
 
     /**
      * Convenience method for reading the class keyword and uuid from a json string.
@@ -49,28 +130,28 @@ public:
      * @param string The JSON text string containing the object
      * @return pair of keyword and uuid in that order.
      */
-    std::string readUUIDFromObjectString( const std::string& string ) const override;
+    std::string readUUIDFromObjectString( const std::string& string ) const;
 
     /**
      * Convenience method to read this particular object (with children) from a json string
      * @param object ObjectHandle to read in to.
      * @param string The JSON text string containing the object
      */
-    void readObjectFromString( ObjectHandle* object, const std::string& string ) const override;
+    void readObjectFromString( ObjectHandle* object, const std::string& string ) const;
 
     /**
      * Write an object to JSON text string
      * @param object The object handle to write to string.
      * @return A JSON text string
      */
-    std::string writeObjectToString( const ObjectHandle* object ) const override;
+    std::string writeObjectToString( const ObjectHandle* object ) const;
 
     /**
      * Copy the object by serializing to text string and reading in again
      * @param object The object to copy
      * @return unique ptr containing a new copy
      */
-    std::shared_ptr<ObjectHandle> copyBySerialization( const ObjectHandle* object ) const override;
+    std::shared_ptr<ObjectHandle> copyBySerialization( const ObjectHandle* object ) const;
 
     /**
      * Copy the object by serializing to text string but cast to a different class keyword.
@@ -81,31 +162,39 @@ public:
      * @return unique ptr containing a new copy
      */
     std::shared_ptr<ObjectHandle> copyAndCastBySerialization( const ObjectHandle* object,
-                                                              const std::string& destinationClassKeyword ) const override;
+                                                              const std::string&  destinationClassKeyword ) const;
 
     /**
      * Create a new object from a JSON text string
      * @param string The JSON text string
      * @return unique ptr to new object
      */
-    std::shared_ptr<ObjectHandle> createObjectFromString( const std::string& string ) const override;
+    std::shared_ptr<ObjectHandle> createObjectFromString( const std::string& string ) const;
 
     /**
      * Read object from an input stream
      * @param object Pointer to object to read into
      * @param stream The input stream
      */
-    void readStream( ObjectHandle* object, std::istream& stream ) const override;
+    void readStream( ObjectHandle* object, std::istream& stream ) const;
 
     /**
      * Write object to output stream
      * @param object Pointer to object to write
      * @param stream The output stream
      */
-    void writeStream( const ObjectHandle* object, std::ostream& stream ) const override;
+    void writeStream( const ObjectHandle* object, std::ostream& stream ) const;
 
     void readObjectFromJson( ObjectHandle* object, const nlohmann::json& jsonObject ) const;
     void writeObjectToJson( const ObjectHandle* object, nlohmann::json& jsonObject ) const;
+
+protected:
+    bool           m_client;
+    ObjectFactory* m_objectFactory;
+    FieldSelector  m_fieldSelector;
+
+    SerializationType m_serializationType;
+    bool              m_serializeUuids;
 };
 
 } // End of namespace caffa

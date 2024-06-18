@@ -33,6 +33,81 @@
 
 using namespace caffa;
 
+std::string JsonSerializer::serializationTypeLabel( SerializationType type )
+{
+    switch ( type )
+    {
+        case SerializationType::DATA:
+            return "DATA";
+        case SerializationType::SCHEMA:
+            return "SCHEMA";
+        case SerializationType::PATH:
+            return "PATH";
+    }
+    CAFFA_ASSERT( false );
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+JsonSerializer::JsonSerializer( ObjectFactory* objectFactory /* = nullptr */ )
+    : m_client( false )
+    , m_objectFactory( objectFactory == nullptr ? DefaultObjectFactory::instance() : objectFactory )
+    , m_serializationType( SerializationType::DATA )
+    , m_serializeUuids( true )
+{
+}
+
+JsonSerializer& JsonSerializer::setFieldSelector( FieldSelector fieldSelector )
+{
+    m_fieldSelector = fieldSelector;
+    return *this;
+}
+
+JsonSerializer& JsonSerializer::setSerializationType( SerializationType type )
+{
+    m_serializationType = type;
+    return *this;
+}
+
+JsonSerializer& JsonSerializer::setSerializeUuids( bool serializeUuids )
+{
+    m_serializeUuids = serializeUuids;
+    return *this;
+}
+
+ObjectFactory* JsonSerializer::objectFactory() const
+{
+    return m_objectFactory;
+}
+
+JsonSerializer::FieldSelector JsonSerializer::fieldSelector() const
+{
+    return m_fieldSelector;
+}
+
+JsonSerializer::SerializationType JsonSerializer::serializationType() const
+{
+    return m_serializationType;
+}
+
+bool JsonSerializer::serializeUuids() const
+{
+    return m_serializeUuids;
+}
+
+JsonSerializer& JsonSerializer::setClient( bool client )
+{
+    m_client = client;
+    return *this;
+}
+
+bool JsonSerializer::isClient() const
+{
+    return m_client;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -42,7 +117,7 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
                                       << " from json with type = " << serializationTypeLabel( this->serializationType() )
                                       << ", serializeUuids = " << this->serializeUuids() );
 
-    if ( this->serializationType() != Serializer::SerializationType::DATA )
+    if ( this->serializationType() != JsonSerializer::SerializationType::DATA )
     {
         CAFFA_ERROR( "Reading JSON into objects only makes sense for data" );
         return;
@@ -71,7 +146,7 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
                 classKeyword.is_string() &&
                 ObjectHandle::matchesClassKeyword( classKeyword.get<std::string>(), object->classInheritanceStack() ) );
         }
-        else if ( this->serializationType() == Serializer::SerializationType::DATA && !value.is_null() &&
+        else if ( this->serializationType() == JsonSerializer::SerializationType::DATA && !value.is_null() &&
                   keyword != "methods" )
         {
             auto fieldHandle = object->findField( keyword );
@@ -109,7 +184,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
                                    << serializationTypeLabel( this->serializationType() )
                                    << ", serializeUuids = " << this->serializeUuids() );
 
-    if ( this->serializationType() == Serializer::SerializationType::SCHEMA )
+    if ( this->serializationType() == JsonSerializer::SerializationType::SCHEMA )
     {
         std::set<std::string> parentalFields;
         std::set<std::string> parentalMethods;
@@ -230,14 +305,6 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             }
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-JsonSerializer::JsonSerializer( ObjectFactory* objectFactory /* = nullptr */ )
-    : Serializer( objectFactory == nullptr ? DefaultObjectFactory::instance() : objectFactory )
-{
 }
 
 //--------------------------------------------------------------------------------------------------

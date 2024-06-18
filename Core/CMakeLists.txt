@@ -28,7 +28,6 @@ set(PUBLIC_HEADERS
     cafChildArrayFieldHandle.h
     cafTypedField.h
     cafSignal.h
-    cafSerializer.h
     cafMethodHandle.h
     cafMethod.h
     cafMethodInitHelper.h
@@ -61,7 +60,6 @@ set(PROJECT_FILES
     cafObjectCapability.cpp
     cafObjectHandle.cpp
     cafSignal.cpp
-    cafSerializer.cpp
     cafDefaultObjectFactory.cpp
     cafObject.cpp
     cafFieldScriptingCapability.cpp
