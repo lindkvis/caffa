@@ -45,10 +45,8 @@ struct AppInfo
      */
     enum class AppCapability : unsigned int
     {
-        CONSOLE = 0x00, ///< Console Application
-        SERVER  = 0x01, ///< Server
-        CLIENT  = 0x02, ///< Client
-        GUI     = 0x04 ///< GUI application
+        SERVER,
+        CLIENT
     };
 
     /**

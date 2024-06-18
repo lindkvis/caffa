@@ -16,7 +16,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/scripts")
 
-option(CAFFA_REST_INTERFACE "Enable the REST API interface to the Project Data Model" ON)
+option(CAFFA_REST_INTERFACE "Enable the REST API interface to CAFFA" ON)
 option(CAFFA_BUILD_EXAMPLES "Build examples" ON)
 option(CAFFA_BUILD_UNIT_TESTS "Build unit tests" ON)
 option(CAFFA_BUILD_DOCS "Build Doxygen documentation" OFF)
@@ -57,10 +57,11 @@ add_subdirectory(ThirdParty/stduuid)
 add_subdirectory(ThirdParty/caffa-base)
 
 # libraries
+add_subdirectory(DataModel)
 add_subdirectory(Core)
-add_subdirectory(RpcBase)
 
 if(CAFFA_REST_INTERFACE)
+  add_subdirectory(RpcBase)
   add_subdirectory(RestInterface)
   if(CAFFA_BUILD_UNIT_TESTS)
     add_subdirectory(RestInterface/RestInterface_UnitTests)
@@ -71,27 +72,19 @@ if(CAFFA_REST_INTERFACE)
 endif()
 
 if(CAFFA_BUILD_UNIT_TESTS)
-  add_subdirectory(Core/Core_UnitTests)
+  add_subdirectory(DataModel/DataModel_UnitTests)
   add_subdirectory(Core/IoCore_UnitTests)
   add_subdirectory(Core/ProjectDataModel_UnitTests)
   add_subdirectory(TestData)
 
   enable_testing()
-  add_test(caffaCore_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaCore_UnitTests)
+  add_test(caffaDataModel_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaDataModel_UnitTests)
   add_test(caffaIoCore_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaIoCore_UnitTests)
   add_test(caffaProjectDataModel_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaProjectDataModel_UnitTests)
 
   if(CAFFA_REST_INTERFACE)
     add_test(caffaRestInterface_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaRestInterface_UnitTests)
   endif()
-endif()
-
-# Organize sub-projects into folders on Visual Studio Turn on using solution folders
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-set_property(TARGET caffaCore PROPERTY FOLDER "Core")
-if(CAFFA_BUILD_UNIT_TESTS)
-  set_property(TARGET caffaCore_UnitTests caffaIoCore_UnitTests PROPERTY FOLDER "Core")
 endif()
 
 if(CAFFA_BUILD_DOCS)
