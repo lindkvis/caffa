@@ -12,7 +12,7 @@
 
 namespace caffa
 {
-class Serializer;
+class JsonSerializer;
 
 template <typename FieldType>
 class FieldJsonCap : public FieldJsonCapability
@@ -25,8 +25,8 @@ public:
 
 public:
     // Json Serializing
-    void               readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer ) override;
-    void               writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
+    void               readFromJson( const nlohmann::json& jsonElement, const JsonSerializer& serializer ) override;
+    void               writeToJson( nlohmann::json& jsonElement, const JsonSerializer& serializer ) const override;
     const FieldHandle* owner() const override;
     void               setOwner( FieldHandle* owner ) override;
     nlohmann::json     jsonType() const override;
@@ -48,8 +48,8 @@ public:
 
 public:
     // Json Serializing
-    void               readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer ) override;
-    void               writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
+    void               readFromJson( const nlohmann::json& jsonElement, const JsonSerializer& serializer ) override;
+    void               writeToJson( nlohmann::json& jsonElement, const JsonSerializer& serializer ) const override;
     const FieldHandle* owner() const override;
     void               setOwner( FieldHandle* owner ) override;
     nlohmann::json     jsonType() const override;
@@ -71,8 +71,8 @@ public:
 
 public:
     // Json Serializing
-    void               readFromJson( const nlohmann::json& jsonElement, const Serializer& serializer ) override;
-    void               writeToJson( nlohmann::json& jsonElement, const Serializer& serializer ) const override;
+    void               readFromJson( const nlohmann::json& jsonElement, const JsonSerializer& serializer ) override;
+    void               writeToJson( nlohmann::json& jsonElement, const JsonSerializer& serializer ) const override;
     const FieldHandle* owner() const override;
     void               setOwner( FieldHandle* owner ) override;
     nlohmann::json     jsonType() const override;

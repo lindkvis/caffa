@@ -32,7 +32,7 @@
 
 namespace caffa
 {
-class Serializer;
+class JsonSerializer;
 
 /**
  * @brief An abstract field validator interface for validating field values
@@ -72,7 +72,7 @@ public:
      * @param jsonFieldObject the JSON value to read from
      * @param serializer the serializer object
      */
-    virtual void readFromJson( const nlohmann::json& jsonFieldObject, const Serializer& serializer ) = 0;
+    virtual void readFromJson( const nlohmann::json& jsonFieldObject, const JsonSerializer& serializer ) = 0;
 
     /**
      * @brief Write the validator to JSON.
@@ -80,7 +80,7 @@ public:
      * @param jsonFieldObject to JSON value to write to.
      * @param serializer the serializer object
      */
-    virtual void writeToJson( nlohmann::json& jsonFieldObject, const Serializer& serializer ) const = 0;
+    virtual void writeToJson( nlohmann::json& jsonFieldObject, const JsonSerializer& serializer ) const = 0;
 
     /**
      * @brief Get the severity of a failure of the validator
@@ -138,7 +138,7 @@ public:
     {
     }
 
-    void readFromJson( const nlohmann::json& jsonFieldObject, const caffa::Serializer& serializer ) override
+    void readFromJson( const nlohmann::json& jsonFieldObject, const caffa::JsonSerializer& serializer ) override
     {
         if ( jsonFieldObject.is_object() )
         {
@@ -153,7 +153,7 @@ public:
         }
     }
 
-    void writeToJson( nlohmann::json& jsonFieldObject, const caffa::Serializer& serializer ) const override
+    void writeToJson( nlohmann::json& jsonFieldObject, const caffa::JsonSerializer& serializer ) const override
     {
         CAFFA_ASSERT( jsonFieldObject.is_object() );
         jsonFieldObject["minimum"] = m_minimum;

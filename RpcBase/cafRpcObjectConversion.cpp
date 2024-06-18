@@ -49,7 +49,7 @@ nlohmann::json caffa::rpc::createJsonSchemaFromProjectObject( const caffa::Objec
     CAFFA_ASSERT( !source->uuid().empty() );
 
     caffa::JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
-    serializer.setSerializationType( Serializer::SerializationType::SCHEMA );
+    serializer.setSerializationType( JsonSerializer::SerializationType::SCHEMA );
 
     auto object = nlohmann::json::object();
     serializer.writeObjectToJson( source, object );
@@ -83,13 +83,12 @@ nlohmann::json caffa::rpc::createJsonSkeletonFromProjectObject( const caffa::Obj
 
     caffa::JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
     serializer.setFieldSelector( fieldIsScriptReadable );
-    serializer.setFieldSelector( fieldIsScriptReadable );
-    serializer.setSerializationType( Serializer::SerializationType::DATA_SKELETON );
+    serializer.setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON );
     serializer.setSerializeUuids( true );
 
     auto object = nlohmann::json::object();
-    auto object = nlohmann::json::object();
     serializer.writeObjectToJson( source, object );
+    return object;
 }
 
 //--------------------------------------------------------------------------------------------------
