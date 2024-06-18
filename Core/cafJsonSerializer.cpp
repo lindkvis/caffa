@@ -258,7 +258,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             auto keyword = method->keyword();
             if ( parentalMethods.contains( keyword ) ) continue;
 
-            methods[keyword] = method->jsonSchema();
+            methods[keyword] = nlohmann::json::parse( method->schema() );
         }
         if ( !methods.empty() )
         {
