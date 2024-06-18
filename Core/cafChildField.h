@@ -14,8 +14,6 @@
 
 namespace caffa
 {
-template <typename T>
-class FieldJsonCap;
 
 /**
  * @brief Field class to handle a pointer to a caffa Object.
@@ -111,7 +109,6 @@ private:
     ChildField( const ChildField& )            = delete;
     ChildField& operator=( const ChildField& ) = delete;
 
-    friend class FieldJsonCap<ChildField<DataType*>>;
     mutable std::unique_ptr<ChildFieldAccessor> m_fieldDataAccessor;
 };
 
