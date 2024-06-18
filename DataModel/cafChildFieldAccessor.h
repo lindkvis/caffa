@@ -59,12 +59,15 @@ protected:
 class ChildFieldDirectStorageAccessor : public ChildFieldAccessor
 {
 public:
-    ChildFieldDirectStorageAccessor( FieldHandle* field );
+    ChildFieldDirectStorageAccessor( FieldHandle* field )
+        : ChildFieldAccessor( field )
+    {
+    }
     ~ChildFieldDirectStorageAccessor() override = default;
-    ObjectHandle::Ptr      object() override;
-    ObjectHandle::ConstPtr object() const override;
-    void                   setObject( ObjectHandle::Ptr object ) override;
-    void                   clear() override;
+    ObjectHandle::Ptr      object() override { return m_object; }
+    ObjectHandle::ConstPtr object() const override { return m_object; }
+    void                   setObject( ObjectHandle::Ptr object ) override { m_object = object; }
+    void                   clear() override { m_object.reset(); }
 
     bool hasGetter() const override { return true; }
     bool hasSetter() const override { return true; }
