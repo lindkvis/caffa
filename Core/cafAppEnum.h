@@ -27,8 +27,6 @@
 #include "cafPortableDataType.h"
 #include "cafStringTools.h"
 
-#include <nlohmann/json.hpp>
-
 #include <concepts>
 #include <iostream>
 #include <limits>
@@ -268,17 +266,6 @@ struct PortableDataType<AppEnum<EnumType>>
         ss << ")";
         return ss.str();
     }
-    static nlohmann::json jsonType()
-    {
-        auto values = nlohmann::json::array();
-        for ( auto entry : AppEnum<EnumType>::validLabels() )
-        {
-            values.push_back( entry );
-        }
-        auto object    = nlohmann::json::object();
-        object["enum"] = values;
-        return object;
-    }
 };
 //==================================================================================================
 /// Implementation of stream operators to make Field<AppEnum<> > work smoothly
@@ -302,21 +289,6 @@ std::ostream& operator<<( std::ostream& str, const caffa::AppEnum<Enum>& appEnum
     auto value = appEnum.value();
     str << appEnum.label( value );
     return str;
-}
-
-template <typename Enum>
-void to_json( nlohmann::json& jsonValue, const AppEnum<Enum>& appEnum )
-{
-    std::stringstream stream;
-    stream << appEnum;
-    jsonValue = stream.str();
-}
-
-template <typename Enum>
-void from_json( const nlohmann::json& jsonValue, AppEnum<Enum>& appEnum )
-{
-    std::stringstream stream( jsonValue.get<std::string>() );
-    stream >> appEnum;
 }
 
 } // namespace caffa

@@ -28,11 +28,7 @@ set(PUBLIC_HEADERS
     cafChildArrayFieldHandle.h
     cafTypedField.h
     cafSignal.h
-    cafFieldJsonCapabilitySpecializations.h
-    cafFieldJsonCapabilitySpecializations.inl
-    cafFieldJsonCapability.h
     cafSerializer.h
-    cafJsonSerializer.h
     cafMethodHandle.h
     cafMethod.h
     cafMethodInitHelper.h
@@ -46,6 +42,11 @@ set(PUBLIC_HEADERS
     cafDocument.h
     cafApplication.h
     cafSession.h
+    cafFieldJsonCapabilitySpecializations.h
+    cafFieldJsonCapabilitySpecializations.inl
+    cafFieldJsonCapability.h
+    cafJsonDataType.h
+    cafJsonSerializer.h
     cafUuidGenerator.h
     cafStringEncoding.h)
 
@@ -60,18 +61,18 @@ set(PROJECT_FILES
     cafObjectCapability.cpp
     cafObjectHandle.cpp
     cafSignal.cpp
-    cafFieldJsonCapability.cpp
     cafSerializer.cpp
-    cafJsonSerializer.cpp
     cafDefaultObjectFactory.cpp
     cafObject.cpp
-    cafObjectJsonConversion.cpp
     cafFieldScriptingCapability.cpp
     cafDocument.cpp
     cafApplication.cpp
     cafSession.cpp
-    cafUuidGenerator.cpp
+    cafFieldJsonCapability.cpp
+    cafJsonSerializer.cpp
+    cafObjectJsonConversion.cpp
     cafStringEncoding.cpp
+    cafUuidGenerator.cpp
     cafVisitor.cpp)
 
 if(CAFFA_BUILD_SHARED)

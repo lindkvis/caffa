@@ -18,7 +18,7 @@
 //
 #pragma once
 
-#include "cafPortableDataType.h"
+#include "cafJsonDataType.h"
 #include "cafRestServiceInterface.h"
 
 #include <nlohmann/json.hpp>
@@ -96,7 +96,7 @@ public:
                                                 { "in", locString },
                                                 { "required", m_required },
                                                 { "description", m_description },
-                                                { "schema", caffa::PortableDataType<DataType>::jsonType() } };
+                                                { "schema", caffa::JsonDataType<DataType>::jsonType() } };
         if ( m_defaultValue )
         {
             schema["default"] = *m_defaultValue;
