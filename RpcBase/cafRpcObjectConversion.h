@@ -24,12 +24,14 @@
 
 namespace caffa
 {
+class FieldHandle;
 class ObjectHandle;
 class Session;
 } // namespace caffa
 
 namespace caffa::rpc
 {
+bool                 fieldIsScriptReadable( const caffa::FieldHandle* fieldHandle );
 caffa::ObjectHandle* findCafObjectFromJsonObject( const caffa::Session* session, const std::string& jsonObject );
 caffa::ObjectHandle* findCafObjectFromUuid( const caffa::Session* session, const std::string& objectUuid );
 
