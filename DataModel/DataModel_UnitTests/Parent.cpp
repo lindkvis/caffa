@@ -5,8 +5,8 @@ CAFFA_SOURCE_INIT( Parent )
 
 Parent::Parent()
 {
-    initField( m_simpleObjectsField, "SimpleObjects" );
-    initField( m_simpleObjectF, "SimpleObject" );
+    addField( &m_simpleObjectsField, "SimpleObjects" );
+    addField( &m_simpleObjectF, "SimpleObject" );
 }
 
 void Parent::doSome()

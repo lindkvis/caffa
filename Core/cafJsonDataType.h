@@ -20,7 +20,7 @@
 #pragma once
 
 #include "cafAppEnum.h"
-#include "cafObjectPortableDataType.h"
+#include "cafObjectHandlePortableDataType.h"
 #include "cafPortableDataType.h"
 
 #include <nlohmann/json.hpp>

@@ -37,7 +37,7 @@ namespace caffa
 class ObjectHandle;
 
 //==================================================================================================
-/// Field class encapsulating data with input and output of this data to/from JSON
+/// Field class encapsulating data with input and output of this data
 /// read/write-FieldData is supposed to be specialized for types needing specialization
 //==================================================================================================
 

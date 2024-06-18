@@ -57,18 +57,9 @@ public:
         return *this;
     }
 
-    FieldInitHelper& withScripting( const std::string& scriptFieldKeyword, bool readable = true, bool writable = true )
-    {
-        m_field.addCapability(
-            std::make_unique<FieldScriptingCapability>( scriptFieldKeyword.empty() ? m_keyword : scriptFieldKeyword,
-                                                        readable,
-                                                        writable ) );
-        return *this;
-    }
-
     FieldInitHelper& withScripting( bool readable = true, bool writable = true )
     {
-        m_field.addCapability( std::make_unique<FieldScriptingCapability>( m_keyword, readable, writable ) );
+        m_field.addCapability( std::make_unique<FieldScriptingCapability>( readable, writable ) );
         return *this;
     }
 

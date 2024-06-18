@@ -5,7 +5,7 @@ CAFFA_SOURCE_INIT( Child );
 
 Child::Child()
 {
-    initField( m_testObj, "Numbers" );
+    addField( &m_testObj, "Numbers" );
 }
 
 Child::~Child()
