@@ -70,45 +70,6 @@ void ChildField<DataTypePtr>::setObject( std::shared_ptr<DataType> object )
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
     requires is_pointer<DataTypePtr>
-std::shared_ptr<typename ChildField<DataTypePtr>::DataType> ChildField<DataTypePtr>::deepCloneObject() const
-{
-    CAFFA_ASSERT( isInitialized() );
-
-    if ( !m_fieldDataAccessor )
-    {
-        std::string errorMessage = "Failed to get object for '" + this->keyword() + "': Field is not accessible";
-        CAFFA_ERROR( errorMessage );
-        throw std::runtime_error( errorMessage );
-    }
-
-    auto clonedObject = m_fieldDataAccessor->deepCloneObject();
-    return std::dynamic_pointer_cast<DataType>( clonedObject );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataTypePtr>
-    requires is_pointer<DataTypePtr>
-void ChildField<DataTypePtr>::deepCopyObjectFrom( std::shared_ptr<const DataType> copyFrom )
-{
-    CAFFA_ASSERT( isInitialized() );
-
-    if ( !m_fieldDataAccessor )
-    {
-        std::string errorMessage = "Failed to set object for '" + this->keyword() + "': Field is not accessible";
-        CAFFA_ERROR( errorMessage );
-        throw std::runtime_error( errorMessage );
-    }
-
-    m_fieldDataAccessor->deepCopyObjectFrom( copyFrom );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataTypePtr>
-    requires is_pointer<DataTypePtr>
 std::vector<ObjectHandle::Ptr> ChildField<DataTypePtr>::childObjects()
 {
     CAFFA_ASSERT( isInitialized() );
