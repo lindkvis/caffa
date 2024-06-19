@@ -1,6 +1,6 @@
 // ##################################################################################################
 //
-//    CAFFA
+//    Caffa
 //    Copyright (C) 2024- Kontur AS
 //
 //    GNU Lesser General Public License Usage
