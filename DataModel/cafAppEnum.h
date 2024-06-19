@@ -1,6 +1,6 @@
 // ##################################################################################################
 //
-//    Custom Visualization Core library
+//    Caffa
 //    Copyright (C) 2011-2013 Ceetron AS
 //    Copyright (C) 2013- Ceetron Solutions AS
 //    Copyright (C) 2022- Kontur AS
