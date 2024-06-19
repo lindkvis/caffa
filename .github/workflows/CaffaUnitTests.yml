@@ -80,7 +80,7 @@ jobs:
       - name: Run pytest
         run: |
           builds/ninja-multi-vcpkg/bin/Release/caffaRestInterface_ExampleServer 50000 1 &
-          cd Bindings/Python/caffa
+          cd RestInterface/Bindings/Python/caffa
           python -m pytest --log-cli-level=DEBUG
           cd ../../..
       - name: Set up JDK 11
@@ -94,7 +94,7 @@ jobs:
       - name: Build with Gradle
         run: |
           builds/ninja-multi-vcpkg/bin/Release/caffaRestInterface_ExampleServer 50000 1 &
-          cd Bindings/Java
+          cd RestInterface/Bindings/Java
           gradle wrapper
           ./gradlew build
 
