@@ -54,9 +54,9 @@ set(UUID_BUILD_TESTS
     CACHE INTERNAL "Build stduuid tests")
 
 add_subdirectory(ThirdParty/stduuid)
-add_subdirectory(ThirdParty/caffa-base)
 
 # libraries
+add_subdirectory(Base)
 add_subdirectory(DataModel)
 add_subdirectory(Core)
 
