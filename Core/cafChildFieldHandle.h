@@ -22,6 +22,8 @@
 #include "cafFieldHandle.h"
 #include "cafVisitor.h"
 
+#include <vector>
+
 namespace caffa
 {
 class ChildFieldAccessor;
