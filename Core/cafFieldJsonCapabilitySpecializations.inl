@@ -6,8 +6,6 @@
 #include "cafObjectFactory.h"
 #include "cafPortableDataType.h"
 
-#include <nlohmann/json.hpp>
-
 #include <iostream>
 
 namespace caffa
