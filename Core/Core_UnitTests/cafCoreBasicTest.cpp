@@ -11,6 +11,7 @@
 #include "cafMethod.h"
 #include "cafObject.h"
 #include "cafPortableDataType.h"
+#include "cafRangeValidator.h"
 #include "cafSession.h"
 #include "cafTypedField.h"
 

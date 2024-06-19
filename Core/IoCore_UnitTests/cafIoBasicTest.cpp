@@ -8,10 +8,10 @@
 #include "cafFieldJsonCapability.h"
 #include "cafFieldJsonCapabilitySpecializations.h"
 #include "cafFieldProxyAccessor.h"
-#include "cafFieldValidator.h"
 #include "cafJsonSerializer.h"
 #include "cafMethod.h"
 #include "cafObject.h"
+#include "cafRangeValidator.h"
 #include "cafStringEncoding.h"
 
 #include <functional>
