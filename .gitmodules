@@ -1,13 +1,13 @@
 [submodule "ThirdParty/stduuid"]
 	path = ThirdParty/stduuid
 	url = https://github.com/mariusbancila/stduuid.git
-[submodule "Bindings/caffa-Java"]
-	path = Bindings/Java
-	url = https://github.com/lindkvis/caffa-Java.git
 [submodule "ThirdParty/caffa-base"]
 	path = ThirdParty/caffa-base
 	url = https://github.com/lindkvis/caffa-base
-[submodule "Bindings/Python"]
-	path = Bindings/Python/caffa
+[submodule "RestInterface/Bindings/caffa-Java"]
+	path = RestInterface/Bindings/Java
+	url = https://github.com/lindkvis/caffa-Java.git
+[submodule "RestInterfaceBindings/Python"]
+	path = RestInterface/Bindings/Python/caffa
 	url = https://github.com/lindkvis/caffa-python.git
 
