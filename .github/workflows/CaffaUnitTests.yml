@@ -28,6 +28,7 @@ jobs:
           - os: macos-14
             vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
     env:
+      VCPKG_ROOT: ${{ github.workspace }}/vcpkg
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
     steps:
       - name: Install dependencies
@@ -48,9 +49,10 @@ jobs:
         uses: lukka/run-vcpkg@v11
         id: runvcpkg
         with:
-          vcpkgDirectory: '${{ github.workspace }}/builds/vcpkg'
+          vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
           vcpkgGitCommitId: '${{ matrix.vcpkgCommitId}}'
           runVcpkgInstall: true
+          vcpkgJsonGlob: '${{ github.workspace }}/vcpkg.json'
       - name: Prints output of run-vcpkg's action.
         run: echo "root='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}', triplet='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_DEFAULT_TRIPLET_OUT }}' "
       - name: Configure Caffa
