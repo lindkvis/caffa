@@ -18,8 +18,11 @@
 //
 #include "cafChildArrayFieldAccessor.h"
 
+#include "cafAssert.h"
 #include "cafFieldHandle.h"
 #include "cafObjectHandle.h"
+
+#include <algorithm>
 
 using namespace caffa;
 
@@ -41,14 +44,14 @@ void ChildArrayFieldDirectStorageAccessor::clear()
     m_pointers.clear();
 }
 
-std::vector<ObjectHandle::Ptr> ChildArrayFieldDirectStorageAccessor::objects()
+std::vector<std::shared_ptr<ObjectHandle>> ChildArrayFieldDirectStorageAccessor::objects()
 {
     return m_pointers;
 }
 
-std::vector<ObjectHandle::ConstPtr> ChildArrayFieldDirectStorageAccessor::objects() const
+std::vector<std::shared_ptr<const ObjectHandle>> ChildArrayFieldDirectStorageAccessor::objects() const
 {
-    std::vector<ObjectHandle::ConstPtr> constPointers;
+    std::vector<std::shared_ptr<const ObjectHandle>> constPointers;
     for ( auto ptr : m_pointers )
     {
         constPointers.push_back( std::dynamic_pointer_cast<const ObjectHandle>( ptr ) );
@@ -56,13 +59,13 @@ std::vector<ObjectHandle::ConstPtr> ChildArrayFieldDirectStorageAccessor::object
     return constPointers;
 }
 
-ObjectHandle::Ptr ChildArrayFieldDirectStorageAccessor::at( size_t index ) const
+std::shared_ptr<ObjectHandle> ChildArrayFieldDirectStorageAccessor::at( size_t index ) const
 {
     CAFFA_ASSERT( index < m_pointers.size() );
     return m_pointers[index];
 }
 
-void ChildArrayFieldDirectStorageAccessor::insert( size_t index, ObjectHandle::Ptr pointer )
+void ChildArrayFieldDirectStorageAccessor::insert( size_t index, std::shared_ptr<ObjectHandle> pointer )
 {
     CAFFA_ASSERT( pointer );
 
@@ -70,12 +73,12 @@ void ChildArrayFieldDirectStorageAccessor::insert( size_t index, ObjectHandle::P
     m_pointers.insert( it, pointer );
 }
 
-void ChildArrayFieldDirectStorageAccessor::push_back( ObjectHandle::Ptr pointer )
+void ChildArrayFieldDirectStorageAccessor::push_back( std::shared_ptr<ObjectHandle> pointer )
 {
     m_pointers.push_back( pointer );
 }
 
-size_t ChildArrayFieldDirectStorageAccessor::index( ObjectHandle::ConstPtr object ) const
+size_t ChildArrayFieldDirectStorageAccessor::index( std::shared_ptr<const ObjectHandle> object ) const
 {
     auto it = std::find_if( m_pointers.begin(),
                             m_pointers.end(),

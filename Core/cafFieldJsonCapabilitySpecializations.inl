@@ -6,8 +6,6 @@
 #include "cafObjectFactory.h"
 #include "cafPortableDataType.h"
 
-#include <iostream>
-
 namespace caffa
 {
 //==================================================================================================
@@ -313,15 +311,15 @@ void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::jso
 
         std::string className = *classNameElement;
 
-        ObjectHandle::Ptr object = objectFactory->create( className );
+        std::shared_ptr<ObjectHandle> object = objectFactory->create( className );
 
         if ( !object )
         {
             // Warning: Unknown className read
             // Skip to corresponding end element
 
-            std::cout << "Warning: Unknown object type with class name: " << className
-                      << " found while reading the field : " << m_field->keyword() << std::endl;
+            CAFFA_ERROR( "Warning: Unknown object type with class name: "
+                         << className << " found while reading the field : " << m_field->keyword() );
 
             continue;
         }
@@ -371,7 +369,7 @@ void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& json
 
         for ( size_t i = 0; i < m_field->size(); ++i )
         {
-            ObjectHandle::Ptr object = m_field->at( i );
+            std::shared_ptr<ObjectHandle> object = m_field->at( i );
             if ( !object ) continue;
 
             std::string    jsonString = serializer.writeObjectToString( object.get() );

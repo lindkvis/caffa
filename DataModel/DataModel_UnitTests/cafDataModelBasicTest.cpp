@@ -491,7 +491,7 @@ TEST( DataModelTest, ChildField )
         EXPECT_EQ( c2, a.field2.object() );
         EXPECT_TRUE( c2 == a.field2 );
 
-        std::vector<caffa::ObjectHandle::Ptr> objects = a.field2.childObjects();
+        std::vector<std::shared_ptr<caffa::ObjectHandle>> objects = a.field2.childObjects();
         EXPECT_EQ( (size_t)1, objects.size() );
         EXPECT_EQ( c2, objects[0] );
     }

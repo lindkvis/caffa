@@ -124,7 +124,7 @@ TEST( AdvancedObjectTest, FieldWrite )
 
     std::cout << string << std::endl;
 
-    caffa::ObjectHandle::Ptr objCopy = serializer.createObjectFromString( string );
+    std::shared_ptr<caffa::ObjectHandle> objCopy = serializer.createObjectFromString( string );
     ASSERT_TRUE( std::dynamic_pointer_cast<ContainerObject>( objCopy ) );
 }
 

@@ -19,10 +19,6 @@
 //
 #pragma once
 
-#include <iostream>
-#include <list>
-#include <memory>
-#include <mutex>
 #include <string>
 
 namespace caffa

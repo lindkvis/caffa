@@ -19,7 +19,7 @@ std::list<std::string> DefaultObjectFactory::classes() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle::Ptr DefaultObjectFactory::doCreate( const std::string_view& classKeyword )
+std::shared_ptr<ObjectHandle> DefaultObjectFactory::doCreate( const std::string_view& classKeyword )
 {
     auto entryIt = m_factoryMap.find( classKeyword );
     if ( entryIt != m_factoryMap.end() )

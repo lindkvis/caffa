@@ -23,10 +23,8 @@
 
 #include "cafObjectHandle.h"
 
-#include <list>
 #include <memory>
 #include <string>
-#include <vector>
 
 namespace caffa
 {
@@ -38,7 +36,7 @@ namespace caffa
 class ObjectFactory
 {
 public:
-    ObjectHandle::Ptr create( const std::string_view& classKeyword ) { return doCreate( classKeyword ); }
+    std::shared_ptr<ObjectHandle> create( const std::string_view& classKeyword ) { return doCreate( classKeyword ); }
 
     virtual std::string name() const = 0;
 
@@ -47,7 +45,7 @@ protected:
     virtual ~ObjectFactory() {}
 
 private:
-    virtual ObjectHandle::Ptr doCreate( const std::string_view& classKeyword ) = 0;
+    virtual std::shared_ptr<ObjectHandle> doCreate( const std::string_view& classKeyword ) = 0;
 };
 
 } // End of namespace caffa

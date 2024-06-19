@@ -25,11 +25,11 @@
 
 #include "cafAssert.h"
 #include "cafFieldHandle.h"
-#include "cafLogger.h"
 #include "cafMethodHandle.h"
 #include "cafStringTools.h"
 
 #include <algorithm>
+#include <map>
 #include <memory>
 #include <string_view>
 #include <type_traits>
@@ -48,8 +48,6 @@ class ObjectHandle
 {
 public:
     using InheritanceStackType = std::vector<std::string>;
-    using Ptr                  = std::shared_ptr<ObjectHandle>;
-    using ConstPtr             = std::shared_ptr<const ObjectHandle>;
 
     ObjectHandle( bool generateUuid = true );
     virtual ~ObjectHandle() noexcept;
