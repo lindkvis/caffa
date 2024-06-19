@@ -59,9 +59,5 @@ void ChildFieldDirectStorageAccessor::setObject( ObjectHandle::Ptr object )
 //--------------------------------------------------------------------------------------------------
 void ChildFieldDirectStorageAccessor::clear()
 {
-    if ( m_object && m_field && m_field->ownerObject() )
-    {
-        m_object->disconnectObserverFromAllSignals( m_field->ownerObject() );
-    }
     m_object.reset();
 }

@@ -77,20 +77,6 @@ std::vector<MethodHandle*> ObjectHandle::methods() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectHandle::disconnectObserverFromAllSignals( SignalObserver* observer )
-{
-    if ( observer )
-    {
-        for ( auto emittedSignal : emittedSignals() )
-        {
-            emittedSignal->disconnect( observer );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void ObjectHandle::addField( FieldHandle* field, const std::string& keyword )
 {
     field->m_ownerObject = this;
