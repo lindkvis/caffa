@@ -45,6 +45,7 @@ set(PUBLIC_HEADERS
     cafJsonDataType.h
     cafJsonSerializer.h
     cafUuidGenerator.h
+    cafRangeValidator.h
     cafStringEncoding.h)
 
 set(PROJECT_FILES
