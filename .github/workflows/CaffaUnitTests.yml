@@ -28,7 +28,6 @@ jobs:
           - os: macos-14
             vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
     env:
-      VCPKG_ROOT: ${{ github.workspace }}/ThirdParty/vcpkg
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
     steps:
       - name: Install dependencies
