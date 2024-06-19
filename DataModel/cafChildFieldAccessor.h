@@ -34,11 +34,11 @@ public:
         : m_field( field )
     {
     }
-    virtual ~ChildFieldAccessor()                                        = default;
-    virtual ObjectHandle::Ptr      object()                              = 0;
-    virtual ObjectHandle::ConstPtr object() const                        = 0;
-    virtual void                   setObject( ObjectHandle::Ptr object ) = 0;
-    virtual void                   clear()                               = 0;
+    virtual ~ChildFieldAccessor()                                                                 = default;
+    virtual std::shared_ptr<ObjectHandle>       object()                                          = 0;
+    virtual std::shared_ptr<const ObjectHandle> object() const                                    = 0;
+    virtual void                                setObject( std::shared_ptr<ObjectHandle> object ) = 0;
+    virtual void                                clear()                                           = 0;
 
     /**
      * The accessor has a getter. Thus can be read.
@@ -64,16 +64,16 @@ public:
     {
     }
     ~ChildFieldDirectStorageAccessor() override = default;
-    ObjectHandle::Ptr      object() override { return m_object; }
-    ObjectHandle::ConstPtr object() const override { return m_object; }
-    void                   setObject( ObjectHandle::Ptr object ) override { m_object = object; }
-    void                   clear() override { m_object.reset(); }
+    std::shared_ptr<ObjectHandle>       object() override { return m_object; }
+    std::shared_ptr<const ObjectHandle> object() const override { return m_object; }
+    void setObject( std::shared_ptr<ObjectHandle> object ) override { m_object = object; }
+    void clear() override { m_object.reset(); }
 
     bool hasGetter() const override { return true; }
     bool hasSetter() const override { return true; }
 
 private:
-    ObjectHandle::Ptr m_object;
+    std::shared_ptr<ObjectHandle> m_object;
 };
 
 } // namespace caffa

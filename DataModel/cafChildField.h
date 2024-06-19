@@ -21,13 +21,11 @@
 // ##################################################################################################
 #pragma once
 
-#include "cafAssert.h"
 #include "cafChildFieldAccessor.h"
 #include "cafChildFieldHandle.h"
 #include "cafFieldHandle.h"
 #include "cafObjectHandle.h"
 #include "cafObjectHandlePortableDataType.h"
-#include "cafVisitor.h"
 
 #include <concepts>
 #include <memory>
@@ -66,7 +64,7 @@ public:
     // Assignment
 
     ChildField& operator=( Ptr object );
-    bool        operator==( ObjectHandle::ConstPtr object ) const;
+    bool        operator==( std::shared_ptr<const ObjectHandle> object ) const;
     bool        operator==( const ObjectHandle* object ) const;
 
     // Basic access
@@ -108,11 +106,11 @@ public:
     std::shared_ptr<const DataType> operator()() const { return this->object(); }
 
     // Child objects
-    std::vector<ObjectHandle::Ptr>      childObjects() override;
-    std::vector<ObjectHandle::ConstPtr> childObjects() const override;
-    void                                clear() override;
-    void                                removeChildObject( ObjectHandle::ConstPtr object );
-    void                                setChildObject( ObjectHandle::Ptr object ) override;
+    std::vector<std::shared_ptr<ObjectHandle>>       childObjects() override;
+    std::vector<std::shared_ptr<const ObjectHandle>> childObjects() const override;
+    void                                             clear() override;
+    void                                             removeChildObject( std::shared_ptr<const ObjectHandle> object );
+    void                                             setChildObject( std::shared_ptr<ObjectHandle> object ) override;
 
     std::string dataType() const override { return PortableDataType<DataType>::name(); }
 

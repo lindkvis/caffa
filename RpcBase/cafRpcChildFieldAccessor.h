@@ -34,19 +34,19 @@ public:
     {
     }
 
-    ObjectHandle::Ptr object() override
+    std::shared_ptr<ObjectHandle> object() override
     {
         m_remoteObject = getShallowCopyOfRemoteObject();
         return m_remoteObject;
     }
 
-    ObjectHandle::ConstPtr object() const override
+    std::shared_ptr<const ObjectHandle> object() const override
     {
         m_remoteObject = getShallowCopyOfRemoteObject();
         return m_remoteObject;
     }
 
-    void setObject( ObjectHandle::Ptr object ) override
+    void setObject( std::shared_ptr<ObjectHandle> object ) override
     {
         m_remoteObject = object;
         m_client->setChildObject( m_field->ownerObject(), m_field->keyword(), m_remoteObject.get() );
@@ -71,7 +71,7 @@ public:
     }
 
 private:
-    ObjectHandle::Ptr getShallowCopyOfRemoteObject() const
+    std::shared_ptr<ObjectHandle> getShallowCopyOfRemoteObject() const
     {
         return m_client->getChildObject( m_field->ownerObject(), m_field->keyword() );
     }
@@ -79,7 +79,7 @@ private:
 private:
     Client* m_client;
 
-    mutable ObjectHandle::Ptr m_remoteObject;
+    mutable std::shared_ptr<ObjectHandle> m_remoteObject;
 };
 
 } // namespace caffa::rpc

@@ -24,14 +24,13 @@
 #include "cafAssert.h"
 #include "cafChildArrayFieldAccessor.h"
 #include "cafChildArrayFieldHandle.h"
-#include "cafFieldHandle.h"
+#include "cafObjectHandle.h"
 #include "cafObjectHandlePortableDataType.h"
 
 #include <memory>
 
 namespace caffa
 {
-class ObjectHandle;
 
 /**
  * @brief Field class to handle a collection of Object derived pointers
@@ -65,7 +64,7 @@ public:
 
     size_t                                       size() const override { return m_fieldDataAccessor->size(); }
     void                                         clear() override;
-    ObjectHandle::Ptr                            at( size_t index ) override;
+    std::shared_ptr<ObjectHandle>                at( size_t index ) override;
     std::vector<std::shared_ptr<DataType>>       objects();
     std::vector<std::shared_ptr<const DataType>> objects() const;
     void                                         setObjects( std::vector<std::shared_ptr<DataType>>& objects );
@@ -75,15 +74,15 @@ public:
     std::shared_ptr<DataType> operator[]( size_t index ) const;
 
     void push_back( std::shared_ptr<DataType> pointer );
-    void push_back_obj( ObjectHandle::Ptr obj ) override;
+    void push_back_obj( std::shared_ptr<ObjectHandle> obj ) override;
     void insert( size_t index, std::shared_ptr<DataType> pointer );
-    void insertAt( size_t index, ObjectHandle::Ptr obj ) override;
+    void insertAt( size_t index, std::shared_ptr<ObjectHandle> obj ) override;
     void erase( size_t index ) override;
 
     // Child objects
-    std::vector<ObjectHandle::Ptr>      childObjects() override;
-    std::vector<ObjectHandle::ConstPtr> childObjects() const override;
-    void                                removeChildObject( ObjectHandle::ConstPtr object );
+    std::vector<std::shared_ptr<ObjectHandle>>       childObjects() override;
+    std::vector<std::shared_ptr<const ObjectHandle>> childObjects() const override;
+    void                                             removeChildObject( std::shared_ptr<const ObjectHandle> object );
 
     std::string dataType() const override { return PortableDataType<std::vector<DataType>>::name(); }
 

@@ -22,8 +22,6 @@
 #include "cafObjectHandle.h"
 #include "cafVisitor.h"
 
-#include <list>
-
 namespace caffa
 {
 /**

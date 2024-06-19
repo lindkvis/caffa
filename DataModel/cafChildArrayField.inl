@@ -19,7 +19,7 @@
 //    for more details.
 //
 // ##################################################################################################
-#include "cafObjectHandle.h"
+#include "cafLogger.h"
 
 namespace caffa
 {
@@ -80,7 +80,7 @@ void ChildArrayField<DataTypePtr>::push_back( std::shared_ptr<DataType> pointer 
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
     requires is_pointer<DataTypePtr>
-void ChildArrayField<DataTypePtr>::push_back_obj( ObjectHandle::Ptr obj )
+void ChildArrayField<DataTypePtr>::push_back_obj( std::shared_ptr<ObjectHandle> obj )
 {
     CAFFA_ASSERT( isInitialized() );
 
@@ -117,7 +117,7 @@ void ChildArrayField<DataTypePtr>::insert( size_t index, std::shared_ptr<DataTyp
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
     requires is_pointer<DataTypePtr>
-void ChildArrayField<DataTypePtr>::insertAt( size_t index, ObjectHandle::Ptr obj )
+void ChildArrayField<DataTypePtr>::insertAt( size_t index, std::shared_ptr<ObjectHandle> obj )
 {
     auto typedPtr = std::dynamic_pointer_cast<DataType>( obj );
     CAFFA_ASSERT( typedPtr );
@@ -184,7 +184,7 @@ void ChildArrayField<DataTypePtr>::setObjects( std::vector<std::shared_ptr<DataT
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
     requires is_pointer<DataTypePtr>
-void ChildArrayField<DataTypePtr>::removeChildObject( ObjectHandle::ConstPtr object )
+void ChildArrayField<DataTypePtr>::removeChildObject( std::shared_ptr<const ObjectHandle> object )
 {
     CAFFA_ASSERT( isInitialized() );
 
@@ -210,7 +210,7 @@ void ChildArrayField<DataTypePtr>::removeChildObject( ObjectHandle::ConstPtr obj
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
     requires is_pointer<DataTypePtr>
-std::vector<ObjectHandle::Ptr> ChildArrayField<DataTypePtr>::childObjects()
+std::vector<std::shared_ptr<ObjectHandle>> ChildArrayField<DataTypePtr>::childObjects()
 {
     if ( !m_fieldDataAccessor )
     {
@@ -226,7 +226,7 @@ std::vector<ObjectHandle::Ptr> ChildArrayField<DataTypePtr>::childObjects()
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
     requires is_pointer<DataTypePtr>
-std::vector<ObjectHandle::ConstPtr> ChildArrayField<DataTypePtr>::childObjects() const
+std::vector<std::shared_ptr<const ObjectHandle>> ChildArrayField<DataTypePtr>::childObjects() const
 {
     const ChildArrayFieldAccessor* accessor = m_fieldDataAccessor.get();
 
@@ -280,7 +280,7 @@ std::vector<std::shared_ptr<const typename ChildArrayField<DataTypePtr>::DataTyp
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
     requires is_pointer<DataTypePtr>
-ObjectHandle::Ptr ChildArrayField<DataTypePtr>::at( size_t index )
+std::shared_ptr<ObjectHandle> ChildArrayField<DataTypePtr>::at( size_t index )
 {
     CAFFA_ASSERT( isInitialized() );
 

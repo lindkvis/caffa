@@ -45,21 +45,21 @@ public:
     {
         m_client->clearChildObjects( m_field->ownerObject(), m_field->keyword() );
 
-        std::vector<ObjectHandle::Ptr> removedObjects;
+        std::vector<std::shared_ptr<ObjectHandle>> removedObjects;
         removedObjects.swap( m_remoteObjects );
     }
 
-    std::vector<ObjectHandle::Ptr> objects() override
+    std::vector<std::shared_ptr<ObjectHandle>> objects() override
     {
         getRemoteObjectsIfNecessary();
         return m_remoteObjects;
     }
 
-    std::vector<ObjectHandle::ConstPtr> objects() const override
+    std::vector<std::shared_ptr<const ObjectHandle>> objects() const override
     {
         getRemoteObjectsIfNecessary();
 
-        std::vector<ObjectHandle::ConstPtr> constPtrs;
+        std::vector<std::shared_ptr<const ObjectHandle>> constPtrs;
         for ( auto objectPtr : m_remoteObjects )
         {
             constPtrs.push_back( objectPtr );
@@ -67,7 +67,7 @@ public:
         return constPtrs;
     }
 
-    ObjectHandle::Ptr at( size_t index ) const override
+    std::shared_ptr<ObjectHandle> at( size_t index ) const override
     {
         getRemoteObjectsIfNecessary();
 
@@ -76,7 +76,7 @@ public:
         return m_remoteObjects[index];
     }
 
-    void insert( size_t index, ObjectHandle::Ptr pointer ) override
+    void insert( size_t index, std::shared_ptr<ObjectHandle> pointer ) override
     {
         size_t oldSize = m_remoteObjects.size();
         m_client->insertChildObject( m_field->ownerObject(), m_field->keyword(), index, pointer.get() );
@@ -84,9 +84,9 @@ public:
         CAFFA_ASSERT( m_remoteObjects.size() == ( oldSize + 1u ) );
     }
 
-    void push_back( ObjectHandle::Ptr pointer ) override { insert( size(), pointer ); }
+    void push_back( std::shared_ptr<ObjectHandle> pointer ) override { insert( size(), pointer ); }
 
-    size_t index( ObjectHandle::ConstPtr pointer ) const override
+    size_t index( std::shared_ptr<const ObjectHandle> pointer ) const override
     {
         getRemoteObjectsIfNecessary();
         for ( size_t i = 0; i < m_remoteObjects.size(); ++i )
@@ -127,7 +127,7 @@ private:
 private:
     Client* m_client;
 
-    mutable std::vector<ObjectHandle::Ptr> m_remoteObjects;
+    mutable std::vector<std::shared_ptr<ObjectHandle>> m_remoteObjects;
 };
 
 } // namespace caffa::rpc

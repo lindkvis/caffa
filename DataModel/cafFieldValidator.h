@@ -21,10 +21,6 @@
 // ##################################################################################################
 #pragma once
 
-#include "cafAssert.h"
-
-#include <memory>
-#include <sstream>
 #include <string>
 #include <utility>
 

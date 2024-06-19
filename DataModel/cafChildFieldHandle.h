@@ -20,14 +20,15 @@
 #pragma once
 
 #include "cafFieldHandle.h"
-#include "cafVisitor.h"
 
 #include <vector>
 
 namespace caffa
 {
 class ChildFieldAccessor;
+class Inspector;
 class ObjectHandle;
+class Visitor;
 
 template <typename DataTypePtr>
 concept is_pointer = std::is_pointer<DataTypePtr>::value;

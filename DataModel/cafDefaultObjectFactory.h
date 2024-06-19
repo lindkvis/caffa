@@ -64,12 +64,10 @@ public:
     }
 
 private:
-    ObjectHandle::Ptr doCreate( const std::string_view& classKeyword ) override;
+    std::shared_ptr<ObjectHandle> doCreate( const std::string_view& classKeyword ) override;
 
     DefaultObjectFactory() {}
-    ~DefaultObjectFactory() override
-    { /* Could clean up, but ... */
-    }
+    ~DefaultObjectFactory() override { /* Could clean up, but ... */ }
 
     // Internal helper classes
 
@@ -78,14 +76,14 @@ private:
     public:
         ObjectCreatorBase() {}
         virtual ~ObjectCreatorBase() {}
-        virtual ObjectHandle::Ptr create() = 0;
+        virtual std::shared_ptr<ObjectHandle> create() = 0;
     };
 
     template <typename ObjectBaseDerivative>
     class ObjectCreator : public ObjectCreatorBase
     {
     public:
-        ObjectHandle::Ptr create() override { return std::make_shared<ObjectBaseDerivative>(); }
+        std::shared_ptr<ObjectHandle> create() override { return std::make_shared<ObjectBaseDerivative>(); }
     };
 
     // Map to store factory

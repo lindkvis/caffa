@@ -19,7 +19,7 @@
 //    for more details.
 //
 // ##################################################################################################
-#include "cafObjectHandle.h"
+#include "cafAssert.h"
 
 #include <iostream>
 #include <vector>
@@ -52,7 +52,7 @@ ChildField<DataTypePtr>& ChildField<DataTypePtr>::operator=( std::shared_ptr<Dat
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
     requires is_pointer<DataTypePtr>
-bool ChildField<DataTypePtr>::operator==( ObjectHandle::ConstPtr object ) const
+bool ChildField<DataTypePtr>::operator==( std::shared_ptr<const ObjectHandle> object ) const
 {
     return this->object() == object;
 }
@@ -91,7 +91,7 @@ void ChildField<DataTypePtr>::setObject( std::shared_ptr<DataType> object )
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
     requires is_pointer<DataTypePtr>
-std::vector<ObjectHandle::Ptr> ChildField<DataTypePtr>::childObjects()
+std::vector<std::shared_ptr<ObjectHandle>> ChildField<DataTypePtr>::childObjects()
 {
     CAFFA_ASSERT( isInitialized() );
 
@@ -113,7 +113,7 @@ std::vector<ObjectHandle::Ptr> ChildField<DataTypePtr>::childObjects()
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
     requires is_pointer<DataTypePtr>
-std::vector<ObjectHandle::ConstPtr> ChildField<DataTypePtr>::childObjects() const
+std::vector<std::shared_ptr<const ObjectHandle>> ChildField<DataTypePtr>::childObjects() const
 {
     CAFFA_ASSERT( isInitialized() );
 
@@ -152,7 +152,7 @@ void ChildField<DataTypePtr>::clear()
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
     requires is_pointer<DataTypePtr>
-void ChildField<DataTypePtr>::removeChildObject( ObjectHandle::ConstPtr object )
+void ChildField<DataTypePtr>::removeChildObject( std::shared_ptr<const ObjectHandle> object )
 {
     CAFFA_ASSERT( isInitialized() );
 
@@ -174,7 +174,7 @@ void ChildField<DataTypePtr>::removeChildObject( ObjectHandle::ConstPtr object )
 //--------------------------------------------------------------------------------------------------
 template <typename DataTypePtr>
     requires is_pointer<DataTypePtr>
-void ChildField<DataTypePtr>::setChildObject( ObjectHandle::Ptr object )
+void ChildField<DataTypePtr>::setChildObject( std::shared_ptr<ObjectHandle> object )
 {
     CAFFA_ASSERT( isInitialized() );
 
