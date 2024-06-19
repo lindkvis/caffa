@@ -48,7 +48,7 @@ jobs:
         uses: lukka/run-vcpkg@v11
         id: runvcpkg
         with:
-          vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
+          vcpkgDirectory: '${{ github.workspace }}/builds/vcpkg'
           vcpkgGitCommitId: '${{ matrix.vcpkgCommitId}}'
           runVcpkgInstall: true
       - name: Prints output of run-vcpkg's action.
