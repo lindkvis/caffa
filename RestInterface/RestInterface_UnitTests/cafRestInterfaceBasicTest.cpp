@@ -48,11 +48,6 @@ protected:
     std::unique_ptr<ServerApp> serverApp;
 };
 
-TEST( RestTestUuid, isUuid )
-{
-    ASSERT_TRUE( caffa::UuidGenerator::isUuid( "00000000-0000-0000-0000-000000000000" ) );
-}
-
 TEST_F( RestTest, Launch )
 {
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );

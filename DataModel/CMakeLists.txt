@@ -26,8 +26,7 @@ set(PUBLIC_HEADERS
     cafMethodHandle.h
     cafDefaultObjectFactory.h
     cafObjectFactory.h
-    cafObjectHandlePortableDataType.h
-    cafUuidGenerator.h)
+    cafObjectHandlePortableDataType.h)
 
 set(PROJECT_FILES
     ${PUBLIC_HEADERS}
@@ -36,7 +35,6 @@ set(PROJECT_FILES
     cafFieldHandle.cpp
     cafObjectHandle.cpp
     cafDefaultObjectFactory.cpp
-    cafUuidGenerator.cpp
     cafVisitor.cpp)
 
 if(CAFFA_BUILD_SHARED)
