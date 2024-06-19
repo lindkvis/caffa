@@ -27,7 +27,6 @@
 #include "cafFieldHandle.h"
 #include "cafLogger.h"
 #include "cafMethodHandle.h"
-#include "cafSignal.h"
 #include "cafStringTools.h"
 
 #include <algorithm>
@@ -45,7 +44,7 @@ class Editor;
 /**
  * The base class of all objects
  */
-class ObjectHandle : public SignalObserver, public SignalEmitter
+class ObjectHandle
 {
 public:
     using InheritanceStackType = std::vector<std::string>;
@@ -139,8 +138,6 @@ public:
     /// Method gets called from Document after all objects are read.
     /// Re-implement to set up internal pointers etc. in your data structure
     virtual void initAfterRead() {};
-
-    void disconnectObserverFromAllSignals( SignalObserver* observer );
 
     /**
      * Accept the visit by an inspecting visitor

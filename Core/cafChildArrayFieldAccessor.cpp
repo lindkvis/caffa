@@ -38,10 +38,6 @@ size_t ChildArrayFieldDirectStorageAccessor::size() const
 
 void ChildArrayFieldDirectStorageAccessor::clear()
 {
-    for ( auto& ptr : m_pointers )
-    {
-        ptr->disconnectObserverFromAllSignals( m_field->ownerObject() );
-    }
     m_pointers.clear();
 }
 
@@ -99,12 +95,7 @@ void ChildArrayFieldDirectStorageAccessor::remove( size_t index )
 
     if ( it != m_pointers.end() )
     {
-        ObjectHandle::Ptr detachedPtr = *it;
         m_pointers.erase( it );
-        if ( detachedPtr && m_field && m_field->ownerObject() )
-        {
-            detachedPtr->disconnectObserverFromAllSignals( m_field->ownerObject() );
-        }
     }
     else
     {
