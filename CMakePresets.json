@@ -45,7 +45,7 @@
         {
             "name": "ninja",
             "configurePreset": "ninja-multi",
-            "displayName": "Build",
+            "displayName": "Build All Configurations",
             "description": "Build with Ninja"
         },
         {
@@ -65,7 +65,7 @@
         {
             "name": "ninja-vcpkg",
             "configurePreset": "ninja-multi-vcpkg",
-            "displayName": "Build with VCPKG",
+            "displayName": "Build All Configurations with VCPKG",
             "description": "Build with Ninja/vcpkg"
         }
     ],
