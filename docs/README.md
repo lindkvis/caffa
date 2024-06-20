@@ -224,7 +224,7 @@ git submodule update --init --recursive
 Dependencies can be build automatically with VCPKG using the vcpkg ninja multi build:
 ```bash
 cmake --preset ninja-multi-vcpkg
-cmake --build --preset ninja-vcpkg
+cmake --build --preset ninja-release-vcpkg
 ```
 
 If you don't have VCPKG the following dependencies are needed:
@@ -241,7 +241,19 @@ apt-get install libboost-all-dev ninja-build googletest libgtest-dev nlohmann-js
 Caffa can then be built using the regular ninja multi build:
 ```bash
 cmake --preset ninja-multi
-cmake --build --preset ninja
+cmake --build --preset ninja-release
+```
+
+Unit Tests can be run with
+```bash
+ctest --preset test-release
+```
+
+Use the --list-presets for any of the commands to list all the available configurations, i.e.:
+```bash
+cmake --list-presets
+cmake --build --list-presets
+ctest --list-presets
 ```
 
 # Licensing

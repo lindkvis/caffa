@@ -43,12 +43,6 @@
             "configuration": "Release"
         },
         {
-            "name": "ninja",
-            "configurePreset": "ninja-multi",
-            "displayName": "Build All Configurations",
-            "description": "Build with Ninja"
-        },
-        {
             "name": "ninja-debug-vcpkg",
             "configurePreset": "ninja-multi-vcpkg",
             "displayName": "Build (Debug) with VCPKG",
@@ -61,12 +55,6 @@
             "displayName": "Build (Release) with VCPKG",
             "description": "Build with Ninja/vcpkg (Release)",
             "configuration": "Release"
-        },
-        {
-            "name": "ninja-vcpkg",
-            "configurePreset": "ninja-multi-vcpkg",
-            "displayName": "Build All Configurations with VCPKG",
-            "description": "Build with Ninja/vcpkg"
         }
     ],
     "testPresets": [
