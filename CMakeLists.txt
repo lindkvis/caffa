@@ -46,14 +46,6 @@ else()
 endif()
 
 add_definitions(-DGTEST_HAS_STD_WSTRING=0)
-set(UUID_USING_CXX20_SPAN
-    ON
-    CACHE INTERNAL "Use CXX20 span")
-set(UUID_BUILD_TESTS
-    OFF
-    CACHE INTERNAL "Build stduuid tests")
-
-add_subdirectory(ThirdParty/stduuid)
 
 # libraries
 add_subdirectory(Base)
