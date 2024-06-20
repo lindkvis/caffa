@@ -48,17 +48,14 @@ endif()
 add_definitions(-DGTEST_HAS_STD_WSTRING=0)
 
 # libraries
-add_git_submodule(Base TRUE)
-add_subdirectory(DataModel)
+add_git_submodule(DataModel TRUE)
 add_subdirectory(Core)
 
 if(CAFFA_BUILD_UNIT_TESTS)
-  add_subdirectory(DataModel/DataModel_UnitTests)
   add_subdirectory(Core/IoCore_UnitTests)
   add_subdirectory(Core/ProjectDataModel_UnitTests)
 
   enable_testing()
-  add_test(caffaDataModel_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaDataModel_UnitTests)
   add_test(caffaIoCore_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaIoCore_UnitTests)
   add_test(caffaProjectDataModel_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaProjectDataModel_UnitTests)
 
