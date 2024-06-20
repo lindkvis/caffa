@@ -7,6 +7,8 @@ project(
   VERSION ${CAFFA_VERSION}
   DESCRIPTION "Caffa Application Framework")
 
+include(cmake/git_submodule.cmake)
+
 message(STATUS "Building ${PROJECT_NAME} version ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}-${GIT_HASH}")
 
 add_definitions(-DCAFFA_VERSION_MAJOR=${PROJECT_VERSION_MAJOR} -DCAFFA_VERSION_MINOR=${PROJECT_VERSION_MINOR}
@@ -48,7 +50,7 @@ endif()
 add_definitions(-DGTEST_HAS_STD_WSTRING=0)
 
 # libraries
-add_subdirectory(Base)
+add_git_submodule(Base TRUE)
 add_subdirectory(DataModel)
 add_subdirectory(Core)
 
@@ -70,6 +72,8 @@ endif()
 if(CAFFA_REST_INTERFACE)
   add_subdirectory(RpcBase)
   add_subdirectory(RestInterface)
+  add_git_submodule(RestInterface/Bindings/Java FALSE)
+  add_git_submodule(RestInterface/Bindings/Python/caffa FALSE)
 
   if(CAFFA_BUILD_UNIT_TESTS OR CAFFA_BUILD_EXAMPLES)
     add_subdirectory(RestInterface/RestInterface_TestData)
