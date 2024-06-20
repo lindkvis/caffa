@@ -16,8 +16,6 @@ add_definitions(-DCAFFA_VERSION_MAJOR=${PROJECT_VERSION_MAJOR} -DCAFFA_VERSION_M
 
 set(CMAKE_CXX_STANDARD 20)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/scripts")
-
 option(CAFFA_REST_INTERFACE "Enable the REST API interface to CAFFA" ON)
 option(CAFFA_BUILD_EXAMPLES "Build examples" ON)
 option(CAFFA_BUILD_UNIT_TESTS "Build unit tests" ON)
