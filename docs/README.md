@@ -208,13 +208,40 @@ See [ExampleServer.cpp](https://github.com/lindkvis/caffa/blob/master/RestInterf
 more complete example.
 
 # Requirements
-Caffa uses modern C++ and requires a C++20 compatible compiler, Boost 1.71.0+ and CMake 3.16+.
+Caffa uses modern C++ and requires a C++20 compatible compiler, Boost 1.71.0+ Nlohmann JSON and CMake 3.16+. 
 
 # Building
 Caffa uses git submodules so it is important to initialise submodules recursively first
 
 ```bash
 git submodule update --init --recursive
+```
+
+```bash
+git submodule update --init --recursive
+```
+
+Dependencies can be build automatically with VCPKG using the vcpkg ninja multi build:
+```bash
+cmake --preset ninja-multi-vcpkg
+cmake --build --preset ninja-vcpkg
+```
+
+If you don't have VCPKG the following dependencies are needed:
+- Boost (System, Beast, Program Options and Serialization)
+- Ninja
+- GoogleTest (GTest)
+- Nlohmann JSON
+
+These can be installed on ubuntu using:
+```bash
+apt-get install libboost-all-dev ninja-build googletest libgtest-dev nlohmann-json3-dev
+```
+
+Caffa can then be built using the regular ninja multi build:
+```bash
+cmake --preset ninja-multi
+cmake --build --preset ninja
 ```
 
 # Licensing
