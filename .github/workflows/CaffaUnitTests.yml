@@ -52,7 +52,7 @@ jobs:
           vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
           vcpkgGitCommitId: '${{ matrix.vcpkgCommitId}}'
           runVcpkgInstall: true
-          vcpkgJsonGlob: '${{ github.workspace }}/vcpkg.json'
+          vcpkgJsonGlob: '*/vcpkg.json'
       - name: Prints output of run-vcpkg's action.
         run: echo "root='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}', triplet='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_DEFAULT_TRIPLET_OUT }}' "
       - name: Configure Caffa
