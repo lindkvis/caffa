@@ -74,12 +74,11 @@ struct SendLambda
 };
 
 template <class Body, class Allocator, class Send>
-RestServiceInterface::CleanupCallback
-    handleRequest( const std::map<std::string, std::shared_ptr<RestServiceInterface>>& services,
-                   std::shared_ptr<const RestAuthenticator>                            authenticator,
-                   beast::string_view                                                  docRoot,
-                   http::request<Body, http::basic_fields<Allocator>>&&                req,
-                   Send&&                                                              send )
+void handleRequest( const std::map<std::string, std::shared_ptr<RestServiceInterface>>& services,
+                    std::shared_ptr<const RestAuthenticator>                            authenticator,
+                    beast::string_view                                                  docRoot,
+                    http::request<Body, http::basic_fields<Allocator>>&&                req,
+                    Send&&                                                              send )
 {
     // Returns a http response
     auto const createResponse = [&req]( http::status status, beast::string_view response )
@@ -125,14 +124,14 @@ RestServiceInterface::CleanupCallback
     {
         send( createResponse( http::status::bad_request,
                               "Unknown HTTP-method " + std::string( http::to_string( method ) ) ) );
-        return nullptr;
+        return;
     }
 
     // Request path must be absolute and not contain "..".
     if ( req.target().empty() || req.target()[0] != '/' || req.target().find( ".." ) != beast::string_view::npos )
     {
         send( createResponse( http::status::bad_request, "Illegal request-target" ) );
-        return nullptr;
+        return;
     }
 
     std::string target( req.target() );
@@ -146,7 +145,7 @@ RestServiceInterface::CleanupCallback
     {
         CAFFA_WARNING( "Sending malformed request" );
         send( createResponse( http::status::bad_request, "Malformed request" ) );
-        return nullptr;
+        return;
     }
 
     auto                     path = targetComponents.front();
@@ -207,7 +206,7 @@ RestServiceInterface::CleanupCallback
     {
         CAFFA_ERROR( "Could not find service " << path );
         send( createResponse( http::status::not_found, "Service not found from path " + path ) );
-        return nullptr;
+        return;
     }
 
     CAFFA_ASSERT( service );
@@ -220,7 +219,7 @@ RestServiceInterface::CleanupCallback
     if ( !( requiresAuthentication || requiresValidSession ) && RestServiceInterface::refuseDueToTimeLimiter() )
     {
         send( createResponse( http::status::too_many_requests, "Too many unauthenticated requests" ) );
-        return nullptr;
+        return;
     }
 
     requiresValidSession = requiresValidSession && ServerApplication::instance()->requiresValidSession();
@@ -235,11 +234,11 @@ RestServiceInterface::CleanupCallback
             if ( authorisation.empty() )
             {
                 send( createResponse( http::status::unauthorized, "Need to provide password" ) );
-                return nullptr;
+                return;
             }
 
             send( createResponse( http::status::forbidden, "Failed to authenticate" ) );
-            return nullptr;
+            return;
         }
     }
 
@@ -248,12 +247,12 @@ RestServiceInterface::CleanupCallback
         if ( !session )
         {
             send( createResponse( http::status::forbidden, "Session '" + session_uuid + "' is not valid" ) );
-            return nullptr;
+            return;
         }
         else if ( session->isExpired() )
         {
             send( createResponse( http::status::forbidden, "Session '" + session_uuid + "' is not valid" ) );
-            return nullptr;
+            return;
         }
     }
 
@@ -269,7 +268,7 @@ RestServiceInterface::CleanupCallback
             CAFFA_ERROR( "Could not parse arguments \'" << req.body() << "\'" );
             send( createResponse( http::status::bad_request,
                                   std::string( "Could not parse arguments \'" ) + req.body() + "\'" ) );
-            return nullptr;
+            return;
         }
     }
 
@@ -278,7 +277,7 @@ RestServiceInterface::CleanupCallback
 
     try
     {
-        auto [status, message, cleanupCallback] = service->perform( method, pathComponents, queryParamsJson, bodyJson );
+        auto [status, message] = service->perform( method, pathComponents, queryParamsJson, bodyJson );
         if ( status == http::status::ok || status == http::status::accepted )
         {
             CAFFA_TRACE( "Responding with " << status << ": " << message );
@@ -289,14 +288,11 @@ RestServiceInterface::CleanupCallback
             CAFFA_ERROR( "Responding with " << status << ": " << message );
             send( createResponse( status, message ), status == http::status::too_many_requests );
         }
-
-        return cleanupCallback;
     }
     catch ( const std::exception& e )
     {
         CAFFA_ERROR( "Got exception: " << e.what() );
         send( createResponse( http::status::internal_server_error, e.what() ) );
-        return nullptr;
     }
 }
 
@@ -344,7 +340,7 @@ void RestSession<Derived>::onRead( beast::error_code ec, std::size_t bytes_trans
     }
 
     // Send the response
-    m_cleanupCallback = handleRequest( m_services, m_authenticator, m_docRoot, std::move( m_request ), *m_lambda );
+    handleRequest( m_services, m_authenticator, m_docRoot, std::move( m_request ), *m_lambda );
 }
 
 template <class Derived>
@@ -364,16 +360,11 @@ void RestSession<Derived>::onWrite( bool close, beast::error_code ec, std::size_
         // the response indicated the "Connection: close" semantic.
         derived().sendEof();
 
-        // At this point the connection is closed gracefully
-        if ( m_cleanupCallback ) m_cleanupCallback();
-
         return;
     }
 
     // We're done with the response so delete it
     m_result = nullptr;
-
-    if ( m_cleanupCallback ) m_cleanupCallback();
 
     // Read another request
     read();

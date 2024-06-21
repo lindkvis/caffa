@@ -61,7 +61,6 @@ public:
     std::string                                       execute( caffa::not_null<const caffa::ObjectHandle*> selfObject,
                                                                const std::string&                          methodName,
                                                                const std::string&                          jsonArguments ) const override;
-    bool                                              stopServer() override;
     void                                              sendKeepAlive() override;
     bool                                              isReady( caffa::Session::Type type ) const override;
 

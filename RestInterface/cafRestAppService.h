@@ -50,10 +50,6 @@ private:
                                  const std::list<std::string>& pathArguments,
                                  const nlohmann::json&         queryParams,
                                  const nlohmann::json&         body );
-    static ServiceResponse quit( http::verb                    verb,
-                                 const std::list<std::string>& pathArguments,
-                                 const nlohmann::json&         queryParams,
-                                 const nlohmann::json&         body );
 
     std::unique_ptr<RestPathEntry> m_requestPathRoot;
 };

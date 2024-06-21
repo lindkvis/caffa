@@ -212,10 +212,9 @@ RestPathEntry::ServiceResponse RestPathEntry::perform( http::verb               
     auto it = m_actions.find( verb );
     if ( it == m_actions.end() )
     {
-        return std::make_tuple( http::status::not_found,
-                                "Could not find the verb " + std::string( http::to_string( verb ) ) + " in request " +
-                                    name(),
-                                nullptr );
+        return std::make_pair( http::status::not_found,
+                               "Could not find the verb " + std::string( http::to_string( verb ) ) + " in request " +
+                                   name() );
     }
 
     return it->second->perform( pathArguments, queryParams, body );

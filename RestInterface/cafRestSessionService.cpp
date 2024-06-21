@@ -130,9 +130,8 @@ RestSessionService::ServiceResponse RestSessionService::perform( http::verb     
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request )
     {
-        return std::make_tuple( http::status::bad_request,
-                                "Session Path not found: " + caffa::StringTools::join( path.begin(), path.end(), "/" ),
-                                nullptr );
+        return std::make_pair( http::status::bad_request,
+                               "Session Path not found: " + caffa::StringTools::join( path.begin(), path.end(), "/" ) );
     }
 
     return request->perform( verb, pathArguments, queryParams, body );
@@ -226,11 +225,11 @@ RestSessionService::ServiceResponse RestSessionService::ready( http::verb       
 
         jsonResponse["ready"]          = ready;
         jsonResponse["other_sessions"] = RestServerApplication::instance()->hasActiveSessions();
-        return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
+        return std::make_pair( http::status::ok, jsonResponse.dump() );
     }
     catch ( ... )
     {
-        return std::make_tuple( http::status::not_found, "Failed to check for session readiness", nullptr );
+        return std::make_pair( http::status::not_found, "Failed to check for session readiness" );
     }
 }
 
@@ -259,12 +258,12 @@ RestSessionService::ServiceResponse RestSessionService::create( http::verb      
         jsonResponse["uuid"]  = session->uuid();
         jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::getLabel( session->type() );
         jsonResponse["valid"] = !session->isExpired();
-        return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
+        return std::make_pair( http::status::ok, jsonResponse.dump() );
     }
     catch ( const std::exception& e )
     {
         CAFFA_ERROR( "Failed to create session with error: " << e.what() );
-        return std::make_tuple( http::status::forbidden, e.what(), nullptr );
+        return std::make_pair( http::status::forbidden, e.what() );
     }
 }
 
@@ -278,7 +277,7 @@ RestSessionService::ServiceResponse RestSessionService::get( http::verb         
 {
     if ( pathArguments.empty() )
     {
-        return std::make_tuple( http::status::bad_request, "Session uuid not provided", nullptr );
+        return std::make_pair( http::status::bad_request, "Session uuid not provided" );
     }
     auto uuid = pathArguments.front();
 
@@ -287,7 +286,7 @@ RestSessionService::ServiceResponse RestSessionService::get( http::verb         
     caffa::SessionMaintainer session = RestServerApplication::instance()->getExistingSession( uuid );
     if ( !session )
     {
-        return std::make_tuple( http::status::not_found, "Session '" + uuid + "' is not valid", nullptr );
+        return std::make_pair( http::status::not_found, "Session '" + uuid + "' is not valid" );
     }
 
     auto jsonResponse     = nlohmann::json::object();
@@ -295,7 +294,7 @@ RestSessionService::ServiceResponse RestSessionService::get( http::verb         
     jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::getLabel( session->type() );
     jsonResponse["valid"] = !session->isExpired();
 
-    return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
+    return std::make_pair( http::status::ok, jsonResponse.dump() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -308,7 +307,7 @@ RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( http:
 {
     if ( pathArguments.empty() )
     {
-        return std::make_tuple( http::status::bad_request, "Session uuid not provided", nullptr );
+        return std::make_pair( http::status::bad_request, "Session uuid not provided" );
     }
     auto uuid = pathArguments.front();
 
@@ -318,11 +317,11 @@ RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( http:
 
     if ( !session )
     {
-        return std::make_tuple( http::status::not_found, "Session '" + uuid + "' is not valid", nullptr );
+        return std::make_pair( http::status::not_found, "Session '" + uuid + "' is not valid" );
     }
     else if ( session->isExpired() )
     {
-        return std::make_tuple( http::status::gone, "Session '" + uuid + "' is expired", nullptr );
+        return std::make_pair( http::status::gone, "Session '" + uuid + "' is expired" );
     }
 
     if ( !queryParams.contains( "type" ) )
@@ -341,7 +340,7 @@ RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( http:
     jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::getLabel( session->type() );
     jsonResponse["valid"] = !session->isExpired();
 
-    return std::make_tuple( http::status::ok, jsonResponse.dump(), nullptr );
+    return std::make_pair( http::status::ok, jsonResponse.dump() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -354,7 +353,7 @@ RestSessionService::ServiceResponse RestSessionService::destroy( http::verb     
 {
     if ( pathArguments.empty() )
     {
-        return std::make_tuple( http::status::bad_request, "Session uuid not provided", nullptr );
+        return std::make_pair( http::status::bad_request, "Session uuid not provided" );
     }
     auto uuid = pathArguments.front();
 
@@ -363,14 +362,12 @@ RestSessionService::ServiceResponse RestSessionService::destroy( http::verb     
     try
     {
         RestServerApplication::instance()->destroySession( uuid );
-        return std::make_tuple( http::status::accepted, "Session successfully destroyed", nullptr );
+        return std::make_pair( http::status::accepted, "Session successfully destroyed" );
     }
     catch ( const std::exception& e )
     {
         CAFFA_WARNING( "Session '" << uuid << "' did not exist. It may already have been destroyed due to lack of keepalive: "
                                    << e.what() );
-        return std::make_tuple( http::status::not_found,
-                                "Failed to destroy session. It may already have been destroyed.",
-                                nullptr );
+        return std::make_pair( http::status::not_found, "Failed to destroy session. It may already have been destroyed." );
     }
 }

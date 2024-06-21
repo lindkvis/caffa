@@ -301,7 +301,7 @@ RestClient::~RestClient()
     }
     catch ( const std::exception& e )
     {
-        CAFFA_CRITICAL( "Failed to destroy session " << e.what() );
+        CAFFA_ERROR( "Failed to destroy session " << e.what() );
     }
     try
     {
@@ -412,45 +412,6 @@ std::string RestClient::execute( caffa::not_null<const caffa::ObjectHandle*> sel
     }
 
     return body;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Tell the server to stop operation. Returns a simple boolean status where true is ok.
-//--------------------------------------------------------------------------------------------------
-bool RestClient::stopServer()
-{
-    CAFFA_DEBUG( "Sending quit request" );
-
-    if ( m_sessionUuid.empty() )
-    {
-        CAFFA_WARNING( "No session available to perform quit for!" );
-    }
-
-    auto [status, body] =
-        performRequest( http::verb::delete_, hostname(), port(), std::string( "/app/quit?session_uuid=" ) + m_sessionUuid, "" );
-
-    std::string sessionUuid;
-    {
-        std::scoped_lock<std::mutex> lock( m_sessionMutex );
-        sessionUuid = m_sessionUuid;
-
-        m_sessionUuid = "";
-    }
-
-    if ( m_keepAliveThread )
-    {
-        m_keepAliveThread->join();
-        m_keepAliveThread.reset();
-    }
-
-    if ( status != http::status::accepted )
-    {
-        throw std::runtime_error( "Failed to stop server: " + body );
-    }
-
-    CAFFA_TRACE( "Stopped server, which also destroys session" );
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

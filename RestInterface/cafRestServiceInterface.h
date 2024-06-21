@@ -49,9 +49,7 @@ public:
     static const std::string HTTP_TOO_MANY_REQUESTS;
     static const std::string HTTP_NOT_FOUND;
 
-    // Callback to be called after sending response. Can be nullptr
-    using CleanupCallback = std::function<void()>;
-    using ServiceResponse = std::tuple<http::status, std::string, CleanupCallback>;
+    using ServiceResponse = std::pair<http::status, std::string>;
 
     virtual ~RestServiceInterface() = default;
 

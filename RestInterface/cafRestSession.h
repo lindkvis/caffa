@@ -88,11 +88,10 @@ private:
     Derived& derived();
 
 private:
-    std::string                           m_docRoot;
-    http::request<http::string_body>      m_request;
-    std::shared_ptr<void>                 m_result;
-    std::shared_ptr<SendLambda<Derived>>  m_lambda;
-    RestServiceInterface::CleanupCallback m_cleanupCallback;
+    std::string                          m_docRoot;
+    http::request<http::string_body>     m_request;
+    std::shared_ptr<void>                m_result;
+    std::shared_ptr<SendLambda<Derived>> m_lambda;
 
     const std::map<std::string, std::shared_ptr<RestServiceInterface>>& m_services;
     std::shared_ptr<const RestAuthenticator>                            m_authenticator;

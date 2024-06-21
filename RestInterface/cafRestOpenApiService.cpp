@@ -42,7 +42,7 @@ RestServiceInterface::ServiceResponse RestOpenApiService::perform( http::verb   
     CAFFA_DEBUG( "Perfoming OpenAPI request" );
     if ( verb != http::verb::get )
     {
-        return std::make_tuple( http::status::bad_request, "Only GET requests are allowed for api queries", nullptr );
+        return std::make_pair( http::status::bad_request, "Only GET requests are allowed for api queries" );
     }
     CAFFA_ASSERT( !path.empty() );
     path.pop_front();
@@ -57,11 +57,11 @@ RestServiceInterface::ServiceResponse RestOpenApiService::perform( http::verb   
         }
         else
         {
-            return std::make_tuple( http::status::not_found, "Entry " + currentPathEntry + " not found", nullptr );
+            return std::make_pair( http::status::not_found, "Entry " + currentPathEntry + " not found" );
         }
     }
 
-    return std::make_tuple( http::status::ok, currentSchema.dump(), nullptr );
+    return std::make_pair( http::status::ok, currentSchema.dump() );
 }
 
 bool RestOpenApiService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
