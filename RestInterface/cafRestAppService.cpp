@@ -45,20 +45,7 @@ RestAppService::RestAppService()
         info->addAction( std::move( action ) );
     }
 
-    auto quit = std::make_unique<RestPathEntry>( "quit" );
-    {
-        auto action =
-            std::make_unique<RestAction>( http::verb::delete_, "Quit Application", "quit", &RestAppService::quit );
-        action->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
-        action->addResponse( http::status::forbidden, RestResponse::plainErrorResponse() );
-        action->setRequiresAuthentication( false );
-        action->setRequiresSession( true );
-
-        quit->addAction( std::move( action ) );
-    }
-
     m_requestPathRoot->addEntry( std::move( info ) );
-    m_requestPathRoot->addEntry( std::move( quit ) );
 }
 
 RestAppService::ServiceResponse RestAppService::perform( http::verb             verb,
@@ -71,9 +58,8 @@ RestAppService::ServiceResponse RestAppService::perform( http::verb             
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request )
     {
-        return std::make_tuple( http::status::bad_request,
-                                "App Path not found: " + caffa::StringTools::join( path.begin(), path.end(), "/" ),
-                                nullptr );
+        return std::make_pair( http::status::bad_request,
+                               "App Path not found: " + caffa::StringTools::join( path.begin(), path.end(), "/" ) );
     }
 
     return request->perform( verb, pathArguments, queryParams, body );
@@ -135,20 +121,5 @@ RestAppService::ServiceResponse RestAppService::info( http::verb                
     auto appInfo = app->appInfo();
 
     nlohmann::json json = appInfo;
-    return std::make_tuple( http::status::ok, json.dump(), nullptr );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RestAppService::ServiceResponse RestAppService::quit( http::verb                    verb,
-                                                      const std::list<std::string>& pathArguments,
-                                                      const nlohmann::json&         queryParams,
-                                                      const nlohmann::json&         body )
-{
-    CAFFA_DEBUG( "Received quit request" );
-
-    return std::make_tuple( http::status::accepted,
-                            "Told to quit. It will happen soon",
-                            []() { RestServerApplication::instance()->quit(); } );
+    return std::make_pair( http::status::ok, json.dump() );
 }

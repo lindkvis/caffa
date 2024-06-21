@@ -110,9 +110,8 @@ RestDocumentService::ServiceResponse RestDocumentService::perform( http::verb   
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request )
     {
-        return std::make_tuple( http::status::bad_request,
-                                "Document Path not found: " + caffa::StringTools::join( path.begin(), path.end(), "/" ),
-                                nullptr );
+        return std::make_pair( http::status::bad_request,
+                               "Document Path not found: " + caffa::StringTools::join( path.begin(), path.end(), "/" ) );
     }
 
     return request->perform( verb, pathArguments, queryParams, body );
@@ -267,7 +266,7 @@ RestServiceInterface::ServiceResponse RestDocumentService::document( const std::
 
     if ( RestServerApplication::instance()->requiresValidSession() && ( !session || session->isExpired() ) )
     {
-        return std::make_tuple( http::status::forbidden, "No valid session provided", nullptr );
+        return std::make_pair( http::status::forbidden, "No valid session provided" );
     }
 
     CAFFA_TRACE( "Got document request for " << documentId );
@@ -286,9 +285,9 @@ RestServiceInterface::ServiceResponse RestDocumentService::document( const std::
         {
             jsonDocument = createJsonFromProjectObject( document.get() );
         }
-        return std::make_tuple( http::status::ok, jsonDocument.dump(), nullptr );
+        return std::make_pair( http::status::ok, jsonDocument.dump() );
     }
-    return std::make_tuple( http::status::not_found, "Document " + documentId + " not found", nullptr );
+    return std::make_pair( http::status::not_found, "Document " + documentId + " not found" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -311,7 +310,7 @@ RestDocumentService::ServiceResponse RestDocumentService::documents( http::verb 
 
     if ( RestServerApplication::instance()->requiresValidSession() && ( !session || session->isExpired() ) )
     {
-        return std::make_tuple( http::status::forbidden, "No valid session provided", nullptr );
+        return std::make_pair( http::status::forbidden, "No valid session provided" );
     }
     bool skeleton  = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
     auto documents = RestServerApplication::instance()->documents( session.get() );
@@ -329,5 +328,5 @@ RestDocumentService::ServiceResponse RestDocumentService::documents( http::verb 
             jsonResult.push_back( createJsonFromProjectObject( document.get() ) );
         }
     }
-    return std::make_tuple( http::status::ok, jsonResult.dump(), nullptr );
+    return std::make_pair( http::status::ok, jsonResult.dump() );
 }

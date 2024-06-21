@@ -50,7 +50,6 @@ public:
     virtual std::string execute( caffa::not_null<const caffa::ObjectHandle*> selfObject,
                                  const std::string&                          methodName,
                                  const std::string&                          jsonArguments ) const                                     = 0;
-    virtual bool        stopServer()                                                                          = 0;
     virtual void        sendKeepAlive()                                                                       = 0;
     virtual bool        isReady( caffa::Session::Type type ) const                                            = 0;
 
