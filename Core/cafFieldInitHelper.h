@@ -38,16 +38,13 @@ template <DerivesFromFieldHandle FieldType>
 class FieldInitHelper
 {
 public:
-    using GetMethod = std::function<typename FieldType::FieldDataType()>;
-    using SetMethod = std::function<void( const typename FieldType::FieldDataType& )>;
-
     FieldInitHelper( FieldType& field, const std::string& keyword )
         : m_field( field )
         , m_keyword( keyword )
     {
     }
 
-    FieldInitHelper& withDefault( const typename FieldType::FieldDataType& defaultValue )
+    FieldInitHelper& withDefault( const typename FieldType::DataType& defaultValue )
     {
         m_field.setDefaultValue( defaultValue );
         m_field = defaultValue;
@@ -60,7 +57,7 @@ public:
         return *this;
     }
 
-    FieldInitHelper& withValidator( std::unique_ptr<FieldValidator<typename FieldType::FieldDataType>> validator )
+    FieldInitHelper& withValidator( std::unique_ptr<FieldValidator<typename FieldType::DataType>> validator )
     {
         m_field.addValidator( std::move( validator ) );
         return *this;

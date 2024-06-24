@@ -2,12 +2,9 @@
 #include "gtest/gtest.h"
 
 #include "cafAppEnum.h"
-#include "cafChildArrayField.h"
-#include "cafChildField.h"
 #include "cafField.h"
 #include "cafFieldJsonCapability.h"
 #include "cafFieldJsonCapabilitySpecializations.h"
-#include "cafFieldProxyAccessor.h"
 #include "cafJsonSerializer.h"
 #include "cafMethod.h"
 #include "cafObject.h"
@@ -35,16 +32,12 @@ public:
     {
         initField( m_proxyDoubleField, "BigNumber" );
 
-        auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
-        doubleProxyAccessor->registerSetMethod( std::bind( &DemoObject::setDoubleMember, this, _1 ) );
-        doubleProxyAccessor->registerGetMethod( std::bind( &DemoObject::doubleMember, this ) );
-        m_proxyDoubleField.setAccessor( std::move( doubleProxyAccessor ) );
+        m_proxyDoubleField->registerSetMethod( std::bind( &DemoObject::setDoubleMember, this, _1 ) );
+        m_proxyDoubleField->registerGetMethod( std::bind( &DemoObject::doubleMember, this ) );
 
         initField( m_proxyEnumField, "EnumField" );
-        auto proxyEnumAccessor = std::make_unique<caffa::FieldProxyAccessor<caffa::AppEnum<TestEnumType>>>();
-        proxyEnumAccessor->registerSetMethod( std::bind( &DemoObject::setEnumMember, this, _1 ) );
-        proxyEnumAccessor->registerGetMethod( std::bind( &DemoObject::enumMember, this ) );
-        m_proxyEnumField.setAccessor( std::move( proxyEnumAccessor ) );
+        m_proxyEnumField->registerSetMethod( std::bind( &DemoObject::setEnumMember, this, _1 ) );
+        m_proxyEnumField->registerGetMethod( std::bind( &DemoObject::enumMember, this ) );
 
         m_enumMember = T1;
 
@@ -63,10 +56,10 @@ public:
 
     // Fields
 
-    caffa::Field<caffa::AppEnum<TestEnumType>>          m_proxyEnumField;
-    caffa::Field<double>                                m_proxyDoubleField;
-    caffa::Method<caffa::AppEnum<TestEnumType>()>       getEnum;
-    caffa::Method<void( caffa::AppEnum<TestEnumType> )> setEnum;
+    caffa::Field<caffa::ValueProxy<caffa::AppEnum<TestEnumType>>> m_proxyEnumField;
+    caffa::Field<caffa::ValueProxy<double>>                       m_proxyDoubleField;
+    caffa::Method<caffa::AppEnum<TestEnumType>()>                 getEnum;
+    caffa::Method<void( caffa::AppEnum<TestEnumType> )>           setEnum;
 
 private:
     void setDoubleMember( const double& d )
@@ -173,8 +166,8 @@ public:
         initField( m_childArrayField, "DemoObjects" );
     }
 
-    caffa::Field<std::string>           m_texts;
-    caffa::ChildArrayField<DemoObject*> m_childArrayField;
+    caffa::Field<std::string>                              m_texts;
+    caffa::Field<std::vector<std::shared_ptr<DemoObject>>> m_childArrayField;
 };
 CAFFA_SOURCE_INIT( InheritedDemoObj )
 
@@ -193,16 +186,14 @@ public:
         initField( m_up, "Up" );
 
         initField( m_proxyDouble, "m_proxyDouble" );
-        auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
-        doubleProxyAccessor->registerSetMethod( std::bind( &SimpleObj::setDoubleMember, this, _1 ) );
-        doubleProxyAccessor->registerGetMethod( std::bind( &SimpleObj::doubleMember, this ) );
-        m_proxyDouble.setAccessor( std::move( doubleProxyAccessor ) );
+        m_proxyDouble->registerSetMethod( std::bind( &SimpleObj::setDoubleMember, this, _1 ) );
+        m_proxyDouble->registerGetMethod( std::bind( &SimpleObj::doubleMember, this ) );
     }
 
-    caffa::Field<double> m_position;
-    caffa::Field<double> m_dir;
-    caffa::Field<int>    m_up;
-    caffa::Field<double> m_proxyDouble;
+    caffa::Field<double>                    m_position;
+    caffa::Field<double>                    m_dir;
+    caffa::Field<int>                       m_up;
+    caffa::Field<caffa::ValueProxy<double>> m_proxyDouble;
 
     void setDoubleMember( const double& d )
     {
@@ -235,8 +226,8 @@ public:
     }
 
     // Fields
-    caffa::ChildField<ObjectHandle*>   m_pointersField;
-    caffa::ChildArrayField<SimpleObj*> m_simpleObjPtrField2;
+    caffa::Field<std::vector<std::shared_ptr<ObjectHandle>>> m_pointersField;
+    caffa::Field<std::vector<std::shared_ptr<SimpleObj>>>    m_simpleObjPtrField2;
 };
 
 CAFFA_SOURCE_INIT( ReferenceDemoObject )
@@ -250,16 +241,16 @@ TEST( BaseTest, ChildArrayFieldSerializing )
     auto s2 = std::make_shared<DemoObject>();
     auto s3 = std::make_shared<DemoObject>();
 
-    s1->m_proxyDoubleField.setValue( 10 );
-    s2->m_proxyDoubleField.setValue( 20 );
-    s3->m_proxyDoubleField.setValue( 30 );
+    s1->m_proxyDoubleField = 10;
+    s2->m_proxyDoubleField = 20;
+    s3->m_proxyDoubleField = 30;
 
     std::string serializedString;
     {
         auto ihd1 = std::make_shared<InheritedDemoObj>();
-        ihd1->m_childArrayField.push_back( s1 );
-        ihd1->m_childArrayField.push_back( s2 );
-        ihd1->m_childArrayField.push_back( s3 );
+        ihd1->m_childArrayField->push_back( s1 );
+        ihd1->m_childArrayField->push_back( s2 );
+        ihd1->m_childArrayField->push_back( s3 );
 
         serializedString = caffa::JsonSerializer().writeObjectToString( ihd1.get() );
 
@@ -268,17 +259,17 @@ TEST( BaseTest, ChildArrayFieldSerializing )
 
     {
         auto ihd1 = std::make_shared<InheritedDemoObj>();
-        ASSERT_EQ( 0u, ihd1->m_childArrayField.size() );
+        ASSERT_EQ( 0u, ihd1->m_childArrayField->size() );
 
         caffa::JsonSerializer().readObjectFromString( ihd1.get(), serializedString );
-        ASSERT_EQ( 3u, ihd1->m_childArrayField.size() );
+        ASSERT_EQ( 3u, ihd1->m_childArrayField->size() );
 
-        ASSERT_TRUE( ihd1->m_childArrayField[0] != nullptr );
-        ASSERT_TRUE( ihd1->m_childArrayField[1] != nullptr );
-        ASSERT_TRUE( ihd1->m_childArrayField[2] != nullptr );
-        ASSERT_DOUBLE_EQ( 10, ihd1->m_childArrayField[0]->m_proxyDoubleField.value() );
-        ASSERT_DOUBLE_EQ( 20, ihd1->m_childArrayField[1]->m_proxyDoubleField.value() );
-        ASSERT_DOUBLE_EQ( 30, ihd1->m_childArrayField[2]->m_proxyDoubleField.value() );
+        ASSERT_TRUE( ihd1->m_childArrayField->at( 0 ) != nullptr );
+        ASSERT_TRUE( ihd1->m_childArrayField->at( 1 ) != nullptr );
+        ASSERT_TRUE( ihd1->m_childArrayField->at( 2 ) != nullptr );
+        ASSERT_DOUBLE_EQ( 10, ihd1->m_childArrayField->at( 0 )->m_proxyDoubleField.value() );
+        ASSERT_DOUBLE_EQ( 20, ihd1->m_childArrayField->at( 1 )->m_proxyDoubleField.value() );
+        ASSERT_DOUBLE_EQ( 30, ihd1->m_childArrayField->at( 2 )->m_proxyDoubleField.value() );
     }
 }
 
@@ -309,7 +300,8 @@ TEST( BaseTest, TestDataType )
         auto dataType = obj->m_childArrayField.dataType();
 
         // We've stored an InheritedDemoObj in the field, but the field is actually of the parent type DemoObject
-        EXPECT_EQ( ( std::string( "object::" ) + DemoObject::classKeywordStatic() + "[]" ), dataType );
+        const std::string expectedDataType = std::string( "object::" ) + DemoObject::classKeywordStatic() + "[]";
+        EXPECT_EQ( expectedDataType, dataType );
     }
 }
 

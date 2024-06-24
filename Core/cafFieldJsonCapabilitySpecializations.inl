@@ -30,13 +30,14 @@ void FieldJsonCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, c
         {
             if ( jsonElement.contains( "value" ) && !jsonElement["value"].is_null() )
             {
-                typename FieldType::FieldDataType value = jsonElement["value"].get<typename FieldType::FieldDataType>();
+                typename FieldType::SerializationType value =
+                    jsonElement["value"].get<typename FieldType::SerializationType>();
                 m_field->setValue( value );
             }
         }
         else // Support JSON objects with direct value instead of separate value entry
         {
-            typename FieldType::FieldDataType value = jsonElement.get<typename FieldType::FieldDataType>();
+            typename FieldType::SerializationType value = jsonElement.get<typename FieldType::SerializationType>();
             m_field->setValue( value );
         }
     }
@@ -61,8 +62,8 @@ void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Js
     }
     else if ( serializer.serializationType() == JsonSerializer::SerializationType::SCHEMA )
     {
-        nlohmann::json jsonField = JsonDataType<typename FieldType::FieldDataType>::jsonType();
-        if ( !m_field->isReadable() && m_field->isWritable() )
+        nlohmann::json jsonField = JsonDataType<typename FieldType::DataType>::jsonType();
+        /* if ( !m_field->isReadable() && m_field->isWritable() )
         {
             jsonField["writeOnly"] = true;
         }
@@ -70,7 +71,7 @@ void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Js
         {
             jsonField["readOnly"] = true;
         }
-
+*/
         if ( !m_field->documentation().empty() )
         {
             jsonField["description"] = m_field->documentation();
@@ -98,7 +99,7 @@ void FieldJsonCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Js
 template <typename FieldType>
 nlohmann::json FieldJsonCap<FieldType>::jsonType() const
 {
-    return JsonDataType<typename FieldType::FieldDataType>::jsonType();
+    return JsonDataType<typename FieldType::DataType>::jsonType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,7 +132,8 @@ void FieldJsonCap<Field<std::shared_ptr<DataType>>>::readFromJson( const nlohman
     CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildField" );
     if ( jsonElement.is_null() )
     {
-        m_field->setChildObject( nullptr );
+        m_field->reference().reset();
+        return;
     }
 
     CAFFA_ASSERT( jsonElement.is_object() );
@@ -145,9 +147,10 @@ void FieldJsonCap<Field<std::shared_ptr<DataType>>>::readFromJson( const nlohman
     {
         jsonObject = jsonElement;
     }
+
     if ( jsonObject.is_null() )
     {
-        m_field->setChildObject( nullptr );
+        m_field->reference().reset();
     }
 
     auto classNameElement = jsonObject.find( "keyword" );
@@ -171,7 +174,7 @@ void FieldJsonCap<Field<std::shared_ptr<DataType>>>::readFromJson( const nlohman
         uuid = jsonObject["uuid"].get<std::string>();
     }
 
-    auto object = m_field->object();
+    auto object = m_field->value();
     if ( object && !uuid.empty() && object->uuid() == uuid )
     {
         CAFFA_TRACE( "Had existing matching object! Overwriting field values!" );
@@ -192,7 +195,7 @@ void FieldJsonCap<Field<std::shared_ptr<DataType>>>::readFromJson( const nlohman
         }
         else
         {
-            m_field->setObject( object );
+            ( *m_field ) = object;
         }
     }
 
@@ -218,7 +221,7 @@ template <typename DataType>
 void FieldJsonCap<Field<std::shared_ptr<DataType>>>::writeToJson( nlohmann::json&       jsonField,
                                                                   const JsonSerializer& serializer ) const
 {
-    auto object = m_field->object();
+    auto object = m_field->value();
 
     if ( object )
     {
@@ -230,14 +233,14 @@ void FieldJsonCap<Field<std::shared_ptr<DataType>>>::writeToJson( nlohmann::json
     if ( serializer.serializationType() == JsonSerializer::SerializationType::SCHEMA )
     {
         jsonField = JsonDataType<DataType>::jsonType();
-        if ( !m_field->isReadable() && m_field->isWritable() )
+        /* if ( !m_field->isReadable() && m_field->isWritable() )
         {
             jsonField["writeOnly"] = true;
         }
         else if ( m_field->isReadable() && !m_field->isWritable() )
         {
             jsonField["readOnly"] = true;
-        }
+        } */
         if ( !m_field->documentation().empty() )
         {
             jsonField["description"] = m_field->documentation();
@@ -281,7 +284,7 @@ template <typename DataType>
 void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::readFromJson( const nlohmann::json& jsonElement,
                                                                                 const JsonSerializer& serializer )
 {
-    m_field->clear();
+    m_field->reference().clear();
 
     CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildArrayField " << m_field->keyword() );
 
@@ -328,18 +331,18 @@ void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::readFromJson( 
 
         if ( !ObjectHandle::matchesClassKeyword( className, object->classInheritanceStack() ) )
         {
-            CAFFA_ASSERT( false ); // There is an inconsistency in the factory. It creates objects of type not
-                                   // matching the ClassKeyword
+            CAFFA_ASSERT( false && "Factory created an object not matching the ClassKeyword" );
 
             continue;
         }
+        auto typedObject = std::dynamic_pointer_cast<DataType>( object );
+        if ( !typedObject )
+        {
+            CAFFA_ASSERT( false && "Factory created an object of incorrect type" );
+        }
 
-        serializer.readObjectFromString( object.get(), jsonObject.dump() );
-
-        size_t currentSize = m_field->size();
-        CAFFA_TRACE( "Inserting new object into " << m_field->keyword() << " at position " << currentSize );
-
-        m_field->insertAt( currentSize, object );
+        serializer.readObjectFromString( typedObject.get(), jsonObject.dump() );
+        m_field->reference().push_back( typedObject );
     }
 }
 //--------------------------------------------------------------------------------------------------
@@ -352,7 +355,7 @@ void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::writeToJson( n
     if ( serializer.serializationType() == JsonSerializer::SerializationType::SCHEMA )
     {
         jsonField = JsonDataType<std::vector<DataType>>::jsonType();
-        if ( !m_field->isReadable() && m_field->isWritable() )
+        /* if ( !m_field->isReadable() && m_field->isWritable() )
         {
             jsonField["writeOnly"] = true;
         }
@@ -360,6 +363,7 @@ void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::writeToJson( n
         {
             jsonField["readOnly"] = true;
         }
+        */
         if ( !m_field->documentation().empty() )
         {
             jsonField["description"] = m_field->documentation();
@@ -370,9 +374,8 @@ void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::writeToJson( n
     {
         nlohmann::json jsonArray = nlohmann::json::array();
 
-        for ( size_t i = 0; i < m_field->size(); ++i )
+        for ( auto object : m_field->reference() )
         {
-            std::shared_ptr<ObjectHandle> object = m_field->at( i );
             if ( !object ) continue;
 
             std::string    jsonString = serializer.writeObjectToString( object.get() );

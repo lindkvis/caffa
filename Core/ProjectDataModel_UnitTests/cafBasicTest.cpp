@@ -37,14 +37,12 @@
 #include "gtest/gtest.h"
 #include <iostream>
 
-#include "cafChildArrayField.h"
-#include "cafChildField.h"
 #include "cafDocument.h"
 #include "cafField.h"
-#include "cafFieldProxyAccessor.h"
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
 #include "cafObject.h"
+#include "cafValueProxy.h"
 
 #include <fstream>
 #include <functional>
@@ -68,11 +66,9 @@ public:
         initField( m_up, "Up" ).withDefault( 0.0 );
         initField( m_numbers, "Numbers" );
 
-        auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
-        doubleProxyAccessor->registerSetMethod( std::bind( &SimpleObj::setDoubleMember, this, _1 ) );
-        doubleProxyAccessor->registerGetMethod( std::bind( &SimpleObj::doubleMember, this ) );
-
-        initField( m_proxyDouble, "ProxyDouble" ).withAccessor( std::move( doubleProxyAccessor ) );
+        initField( m_proxyDouble, "ProxyDouble" );
+        m_proxyDouble->registerSetMethod( std::bind( &SimpleObj::setDoubleMember, this, _1 ) );
+        m_proxyDouble->registerGetMethod( std::bind( &SimpleObj::doubleMember, this ) );
     }
 
     /// Assignment and copying of CAF objects is not focus for the features. This is only a
@@ -85,20 +81,20 @@ public:
         initField( m_up, "Up" );
         initField( m_numbers, "Numbers" );
 
-        m_position     = other.m_position();
-        m_dir          = other.m_dir();
-        m_up           = other.m_up();
-        m_numbers      = other.m_numbers();
+        m_position     = other.m_position;
+        m_dir          = other.m_dir;
+        m_up           = other.m_up;
+        m_numbers      = other.m_numbers;
         m_doubleMember = other.m_doubleMember;
     }
 
     ~SimpleObj() {}
 
-    caffa::Field<double>              m_position;
-    caffa::Field<double>              m_dir;
-    caffa::Field<double>              m_up;
-    caffa::Field<std::vector<double>> m_numbers;
-    caffa::Field<double>              m_proxyDouble;
+    caffa::Field<double>                    m_position;
+    caffa::Field<double>                    m_dir;
+    caffa::Field<double>                    m_up;
+    caffa::Field<std::vector<double>>       m_numbers;
+    caffa::Field<caffa::ValueProxy<double>> m_proxyDouble;
 
     void setDoubleMember( const double& d )
     {
@@ -129,7 +125,7 @@ public:
         initField( m_textField, "TextField" ).withDefault( "Test text   end" );
         initField( m_simpleObjPtrField, "SimpleObjPtrFieldWhichIsNull" );
         initField( m_simpleObjPtrField2, "SimpleObjPtrField2" );
-        m_simpleObjPtrField2 = std::make_unique<SimpleObj>();
+        m_simpleObjPtrField2 = std::make_shared<SimpleObj>();
     }
 
     // Fields
@@ -137,8 +133,8 @@ public:
     caffa::Field<int>         m_intField;
     caffa::Field<std::string> m_textField;
 
-    caffa::ChildField<SimpleObj*> m_simpleObjPtrField;
-    caffa::ChildField<SimpleObj*> m_simpleObjPtrField2;
+    caffa::Field<std::shared_ptr<SimpleObj>> m_simpleObjPtrField;
+    caffa::Field<std::shared_ptr<SimpleObj>> m_simpleObjPtrField2;
 };
 
 CAFFA_SOURCE_INIT( DemoObject )
@@ -154,8 +150,8 @@ public:
         initField( m_simpleObjectsField, "SimpleObjects" );
     }
 
-    caffa::Field<std::vector<std::string>> m_texts;
-    caffa::ChildArrayField<SimpleObj*>     m_simpleObjectsField;
+    caffa::Field<std::vector<std::string>>                m_texts;
+    caffa::Field<std::vector<std::shared_ptr<SimpleObj>>> m_simpleObjectsField;
 };
 CAFFA_SOURCE_INIT( InheritedDemoObj )
 
@@ -166,7 +162,7 @@ class MyDocument : public caffa::Document
 public:
     MyDocument() { initField( objects, "Objects" ); }
 
-    caffa::ChildArrayField<ObjectHandle*> objects;
+    caffa::Field<std::vector<std::shared_ptr<ObjectHandle>>> objects;
 };
 CAFFA_SOURCE_INIT( MyDocument )
 
@@ -218,20 +214,20 @@ TEST( BaseTest, NormalField )
 
     // Constructors
     myObj.field2 = testValue;
-    EXPECT_EQ( 1.3, myObj.field2.value()[2] );
+    EXPECT_EQ( 1.3, myObj.field2.reference()[2] );
 
-    myObj.field3 = myObj.field2();
-    EXPECT_EQ( 1.3, myObj.field3.value()[2] );
-    EXPECT_EQ( size_t( 0 ), myObj.field1().size() );
+    myObj.field3 = myObj.field2;
+    EXPECT_EQ( 1.3, myObj.field3.reference()[2] );
+    EXPECT_EQ( size_t( 0 ), myObj.field1->size() );
 
     // Operators
-    EXPECT_FALSE( myObj.field1() == myObj.field3() );
-    myObj.field1 = myObj.field2();
-    EXPECT_EQ( 1.3, myObj.field1()[2] );
+    EXPECT_FALSE( myObj.field1 == myObj.field3 );
+    myObj.field1 = myObj.field2;
+    EXPECT_EQ( 1.3, myObj.field1.reference()[2] );
     myObj.field1 = testValue2;
-    EXPECT_EQ( 2.3, myObj.field1()[2] );
-    myObj.field3 = myObj.field1();
-    EXPECT_TRUE( myObj.field1() == myObj.field3() );
+    EXPECT_EQ( 2.3, myObj.field1->at( 2 ) );
+    myObj.field3 = myObj.field1;
+    EXPECT_TRUE( myObj.field1 == myObj.field3 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -261,44 +257,42 @@ TEST( BaseTest, ReadWrite )
         d2->m_simpleObjPtrField  = s2;
         d2->m_simpleObjPtrField2 = s1;
 
-        id1->m_simpleObjectsField.push_back( std::make_shared<SimpleObj>() );
+        id1->m_simpleObjectsField->push_back( std::make_shared<SimpleObj>() );
         {
-            auto v = id1->m_simpleObjectsField[0]->m_numbers();
+            auto& v = id1->m_simpleObjectsField->back()->m_numbers.reference();
             v.push_back( 3.0 );
-            id1->m_simpleObjectsField[0]->m_numbers = v;
         }
 
-        id1->m_simpleObjectsField.push_back( std::make_shared<SimpleObj>() );
+        id1->m_simpleObjectsField->push_back( std::make_shared<SimpleObj>() );
         {
-            auto v = id1->m_simpleObjectsField[1]->m_numbers();
+            auto& v = id1->m_simpleObjectsField->back()->m_numbers.reference();
             v.push_back( 3.1 );
             v.push_back( 3.11 );
             v.push_back( 3.12 );
             v.push_back( 3.13 );
-            id1->m_simpleObjectsField[1]->m_numbers = v;
         }
-        id1->m_simpleObjectsField.push_back( std::make_shared<SimpleObj>() );
+        id1->m_simpleObjectsField->push_back( std::make_shared<SimpleObj>() );
         {
-            auto v = id1->m_simpleObjectsField[2]->m_numbers();
+            auto v = id1->m_simpleObjectsField->back()->m_numbers.value();
             v.push_back( 3.2 );
-            id1->m_simpleObjectsField[2]->m_numbers = v;
+            id1->m_simpleObjectsField->back()->m_numbers = v;
         }
 
-        id1->m_simpleObjectsField.push_back( std::make_shared<SimpleObj>() );
+        id1->m_simpleObjectsField->push_back( std::make_shared<SimpleObj>() );
         {
-            auto v = id1->m_simpleObjectsField[3]->m_numbers();
+            auto v = id1->m_simpleObjectsField->back()->m_numbers.value();
             v.push_back( 3.3 );
-            id1->m_simpleObjectsField[3]->m_numbers = v;
+            id1->m_simpleObjectsField->back()->m_numbers = v;
         }
 
         // Add to document
 
-        doc.objects.push_back( d1 );
+        doc.objects->push_back( d1 );
         auto d2p = d2.get();
-        doc.objects.push_back( d2 );
-        doc.objects.push_back( std::make_shared<SimpleObj>() );
-        doc.objects.push_back( id1 );
-        doc.objects.push_back( id2 );
+        doc.objects->push_back( d2 );
+        doc.objects->push_back( std::make_shared<SimpleObj>() );
+        doc.objects->push_back( id1 );
+        doc.objects->push_back( id2 );
 
         // Write file
         doc.setFileName( "TestFile.json" );
@@ -315,7 +309,7 @@ TEST( BaseTest, ReadWrite )
         }
 
         d2p->m_simpleObjPtrField = nullptr;
-        doc.objects.clear();
+        doc.objects->clear();
     }
 
     {
@@ -394,9 +388,8 @@ TEST( BaseTest, ChildArrayFieldHandle )
 {
     auto s1        = std::make_shared<SimpleObj>();
     s1->m_position = 1000;
-    auto v         = s1->m_numbers();
+    auto v         = s1->m_numbers.reference();
     v.push_back( 10 );
-    s1->m_numbers = v;
 
     auto s2        = std::make_shared<SimpleObj>();
     s2->m_position = 2000;
@@ -404,24 +397,24 @@ TEST( BaseTest, ChildArrayFieldHandle )
     auto s3        = std::make_shared<SimpleObj>();
     s3->m_position = 3000;
 
-    auto                          ihd1      = std::make_shared<InheritedDemoObj>();
-    caffa::ChildArrayFieldHandle* listField = &( ihd1->m_simpleObjectsField );
+    auto                                     ihd1      = std::make_shared<InheritedDemoObj>();
+    std::vector<std::shared_ptr<SimpleObj>>* listField = &ihd1->m_simpleObjectsField.reference();
 
     EXPECT_EQ( 0u, listField->size() );
     EXPECT_TRUE( listField->empty() );
 
-    ihd1->m_simpleObjectsField.push_back( std::make_shared<SimpleObj>() );
+    ihd1->m_simpleObjectsField->push_back( std::make_shared<SimpleObj>() );
     EXPECT_EQ( 1u, listField->size() );
     EXPECT_FALSE( listField->empty() );
 
-    ihd1->m_simpleObjectsField.push_back( s1 );
-    ihd1->m_simpleObjectsField.push_back( s2 );
-    ihd1->m_simpleObjectsField.push_back( s3 );
+    ihd1->m_simpleObjectsField->push_back( s1 );
+    ihd1->m_simpleObjectsField->push_back( s2 );
+    ihd1->m_simpleObjectsField->push_back( s3 );
 
     EXPECT_EQ( 4u, listField->size() );
     EXPECT_FALSE( listField->empty() );
 
-    listField->erase( 0 );
+    listField->erase( listField->begin() );
     EXPECT_EQ( 3u, listField->size() );
     EXPECT_FALSE( listField->empty() );
 

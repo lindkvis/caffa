@@ -22,6 +22,7 @@
 #include "cafAppEnum.h"
 #include "cafObjectHandlePortableDataType.h"
 #include "cafPortableDataType.h"
+#include "cafValueProxy.h"
 
 #include <nlohmann/json.hpp>
 
@@ -150,6 +151,12 @@ struct JsonDataType<AppEnum<EnumType>>
     }
 };
 
+template <typename DataType>
+struct JsonDataType<ValueProxy<DataType>>
+{
+    static nlohmann::json jsonType() { return JsonDataType<DataType>::jsonType(); }
+};
+
 template <typename Enum>
 void to_json( nlohmann::json& jsonValue, const AppEnum<Enum>& appEnum )
 {
@@ -163,6 +170,19 @@ void from_json( const nlohmann::json& jsonValue, AppEnum<Enum>& appEnum )
 {
     std::stringstream stream( jsonValue.get<std::string>() );
     stream >> appEnum;
+}
+
+template <typename DataType>
+void to_json( nlohmann::json& jsonValue, const ValueProxy<DataType>& proxy )
+{
+    to_json( jsonValue, proxy.value() );
+}
+
+template <typename DataType>
+void from_json( const nlohmann::json& jsonValue, ValueProxy<DataType>& proxy )
+{
+    DataType value = jsonValue.get<DataType>();
+    proxy.setValue( value );
 }
 
 } // namespace caffa

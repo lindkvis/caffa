@@ -17,7 +17,7 @@ Parent::~Parent()
 
 void Parent::doSome()
 {
-    size_t i = m_simpleObjectsField.size();
+    size_t i = m_simpleObjectsField->size();
     if ( i )
     {
         // Child* c = m_simpleObjectsField[0];

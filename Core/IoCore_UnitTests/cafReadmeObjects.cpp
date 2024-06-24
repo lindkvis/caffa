@@ -1,13 +1,10 @@
 #include "gtest/gtest.h"
 
 #include "cafAppEnum.h"
-#include "cafChildArrayField.h"
-#include "cafChildField.h"
 #include "cafDocument.h"
 #include "cafField.h"
 #include "cafFieldJsonCapability.h"
 #include "cafFieldJsonCapabilitySpecializations.h"
-#include "cafFieldProxyAccessor.h"
 #include "cafFieldValidator.h"
 #include "cafJsonSerializer.h"
 #include "cafMethod.h"
@@ -47,13 +44,13 @@ public:
     ~TinyDemoDocument() noexcept override = default;
 
 public:
-    Field<bool>                   toggleField;
-    Field<double>                 doubleField;
-    Field<int>                    intField;
-    Field<std::vector<int>>       intVectorField;
-    Field<AppEnum<TestEnumType>>  enumField;
-    ChildArrayField<ChildObject*> children; // ChildArrayFields hold a vector of Caffa Objects
-    ChildField<ChildObject*>      specialChild; // Child fields hold a single Caffa Object
+    Field<bool>                                      toggleField;
+    Field<double>                                    doubleField;
+    Field<int>                                       intField;
+    Field<std::vector<int>>                          intVectorField;
+    Field<AppEnum<TestEnumType>>                     enumField;
+    Field<std::vector<std::shared_ptr<ChildObject>>> children; // ChildArrayFields hold a vector of Caffa Objects
+    Field<std::shared_ptr<ChildObject>>              specialChild; // Child fields hold a single Caffa Object
 
 public:
     Method<void( double )> scaleDoubleField; // A registered method
@@ -99,9 +96,9 @@ TinyDemoDocument::TinyDemoDocument()
                 { this->doubleField.setValue( this->doubleField.value() * scalingFactor ); } )
         .withArgumentNames( { "scalingFactor" } );
 
-    // Add a couple of children to the child array field
-    children.push_back( std::make_shared<ChildObject>( "Alice" ) );
-    children.push_back( std::make_shared<ChildObject>( "Bob" ) );
+    // Add a couple of children to the child array field in two different but equivalent ways
+    children->push_back( std::make_shared<ChildObject>( "Alice" ) );
+    children.reference().push_back( std::make_shared<ChildObject>( "Bob" ) );
 
     // Set the single child object
     specialChild = std::make_shared<ChildObject>( "Balthazar" );
@@ -125,7 +122,7 @@ TEST( ReadmeObjectTest, ServerCreation )
 
         CAFFA_DEBUG( "Demo Doc: " << caffa::JsonSerializer().setSerializeUuids( false ).writeObjectToString( doc.get() ) );
 
-        auto object = doc->children.objects().front();
+        auto object = doc->children->front();
         CAFFA_DEBUG(
             "Child Object: " << caffa::JsonSerializer().setSerializeUuids( false ).writeObjectToString( object.get() ) );
     }

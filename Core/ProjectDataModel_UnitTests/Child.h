@@ -1,17 +1,16 @@
 #pragma once
 
 #include "TestObj.h"
-#include "cafChildField.h"
 #include "cafObject.h"
 
 class Child : public caffa::Object
 {
-    CAFFA_HEADER_INIT(Child, Object)
+    CAFFA_HEADER_INIT( Child, Object )
 
 public:
     Child();
 
     ~Child();
 
-    caffa::ChildField<TestObj*> m_testObj;
+    caffa::Field<std::shared_ptr<TestObj>> m_testObj;
 };

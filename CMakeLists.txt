@@ -16,7 +16,7 @@ add_definitions(-DCAFFA_VERSION_MAJOR=${PROJECT_VERSION_MAJOR} -DCAFFA_VERSION_M
 
 set(CMAKE_CXX_STANDARD 20)
 
-option(CAFFA_REST_INTERFACE "Enable the REST API interface to CAFFA" ON)
+option(CAFFA_REST_INTERFACE "Enable the REST API interface to CAFFA" OFF)
 option(CAFFA_BUILD_EXAMPLES "Build examples" ON)
 option(CAFFA_BUILD_UNIT_TESTS "Build unit tests" ON)
 option(CAFFA_BUILD_DOCS "Build Doxygen documentation" OFF)
@@ -59,9 +59,6 @@ if(CAFFA_BUILD_UNIT_TESTS)
   add_test(caffaIoCore_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaIoCore_UnitTests)
   add_test(caffaProjectDataModel_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaProjectDataModel_UnitTests)
 
-  if(CAFFA_REST_INTERFACE)
-    add_test(caffaRestInterface_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaRestInterface_UnitTests)
-  endif()
 endif()
 
 if(CAFFA_REST_INTERFACE)
@@ -75,6 +72,7 @@ if(CAFFA_REST_INTERFACE)
   endif()
   if(CAFFA_BUILD_UNIT_TESTS)
     add_subdirectory(RestInterface/RestInterface_UnitTests)
+    add_test(caffaRestInterface_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaRestInterface_UnitTests)
   endif()
   if(CAFFA_BUILD_EXAMPLES)
     add_subdirectory(RestInterface/RestInterface_Example)

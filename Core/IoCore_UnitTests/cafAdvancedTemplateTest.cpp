@@ -1,10 +1,10 @@
 
 #include "gtest/gtest.h"
 
-#include "cafChildArrayField.h"
-#include "cafFieldProxyAccessor.h"
+#include "cafField.h"
 #include "cafJsonSerializer.h"
 #include "cafObject.h"
+#include "cafValueProxy.h"
 
 #include <functional>
 
@@ -47,9 +47,9 @@ public:
     ~ContainerObject() {}
 
     // Fields
-    caffa::ChildArrayField<ItemObject*>      m_items;
-    caffa::ChildArrayField<ContainerObject*> m_containers;
-    caffa::ChildArrayField<DemoObjectA*>     m_demoObjs;
+    caffa::Field<std::vector<std::shared_ptr<ItemObject>>>      m_items;
+    caffa::Field<std::vector<std::shared_ptr<ContainerObject>>> m_containers;
+    caffa::Field<std::vector<std::shared_ptr<DemoObjectA>>>     m_demoObjs;
 };
 CAFFA_SOURCE_INIT( ContainerObject )
 
@@ -61,16 +61,14 @@ public:
     DemoObjectA()
     {
         initField( m_doubleField, "BigNumber" );
-        auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
-        doubleProxyAccessor->registerSetMethod( std::bind( &DemoObjectA::setDoubleMember, this, _1 ) );
-        doubleProxyAccessor->registerGetMethod( std::bind( &DemoObjectA::doubleMember, this ) );
-        m_doubleField.setAccessor( std::move( doubleProxyAccessor ) );
+        m_doubleField->registerSetMethod( std::bind( &DemoObjectA::setDoubleMember, this, _1 ) );
+        m_doubleField->registerGetMethod( std::bind( &DemoObjectA::doubleMember, this ) );
     }
 
     ~DemoObjectA() {}
 
     // Fields
-    caffa::Field<double> m_doubleField;
+    caffa::Field<caffa::ValueProxy<double>> m_doubleField;
 
     void setDoubleMember( const double& d )
     {
@@ -96,27 +94,27 @@ TEST( AdvancedObjectTest, FieldWrite )
     auto root      = std::make_shared<ContainerObject>();
     auto container = std::make_shared<ContainerObject>();
     auto sibling   = std::make_shared<ContainerObject>();
-    root->m_containers.push_back( container );
-    root->m_containers.push_back( sibling );
+    root->m_containers->push_back( container );
+    root->m_containers.reference().push_back( sibling );
 
     {
         auto item    = std::make_shared<ItemObject>();
         item->m_name = "Obj A";
 
-        container->m_items.push_back( item );
+        container->m_items.reference().push_back( item );
     }
     {
         auto item    = std::make_shared<ItemObject>();
         item->m_name = "Obj B";
 
-        container->m_items.push_back( item );
+        container->m_items.reference().push_back( item );
     }
 
     {
         auto item    = std::make_shared<ItemObject>();
         item->m_name = "Obj C";
 
-        container->m_items.push_back( item );
+        container->m_items->push_back( item );
     }
 
     caffa::JsonSerializer serializer;
@@ -136,33 +134,33 @@ TEST( AdvancedObjectTest, CopyOfObjects )
     auto root      = std::make_shared<ContainerObject>();
     auto container = std::make_shared<ContainerObject>();
     auto sibling   = std::make_shared<ContainerObject>();
-    root->m_containers.push_back( container );
-    root->m_containers.push_back( sibling );
+    root->m_containers->push_back( container );
+    root->m_containers->push_back( sibling );
 
     {
         auto item    = std::make_shared<ItemObject>();
         item->m_name = "Obj A";
 
-        container->m_items.push_back( item );
+        container->m_items->push_back( item );
     }
     {
         auto item    = std::make_shared<ItemObject>();
         item->m_name = "Obj B";
 
-        container->m_items.push_back( item );
+        container->m_items->push_back( item );
     }
 
     {
         auto item    = std::make_shared<ItemObject>();
         item->m_name = "Obj C";
 
-        container->m_items.push_back( item );
+        container->m_items->push_back( item );
 
         caffa::JsonSerializer serializer;
 
         {
             auto a = std::make_shared<DemoObjectA>();
-            sibling->m_demoObjs.push_back( a );
+            sibling->m_demoObjs->push_back( a );
             std::string originalOutput = serializer.writeObjectToString( a.get() );
             {
                 auto        objCopy    = serializer.copyBySerialization( a.get() );
@@ -172,7 +170,7 @@ TEST( AdvancedObjectTest, CopyOfObjects )
 
             {
                 auto objCopy = serializer.copyBySerialization( a.get() );
-                sibling->m_demoObjs.push_back( std::dynamic_pointer_cast<DemoObjectA>( objCopy ) );
+                sibling->m_demoObjs.reference().push_back( std::dynamic_pointer_cast<DemoObjectA>( objCopy ) );
             }
         }
     }

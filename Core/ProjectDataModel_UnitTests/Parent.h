@@ -1,10 +1,9 @@
 #pragma once
 
-#include "cafChildArrayField.h"
-#include "cafChildField.h"
-#include "cafObject.h"
+#include "Child.h"
 
-class Child;
+#include "cafField.h"
+#include "cafObject.h"
 
 class Parent : public caffa::Object
 {
@@ -16,6 +15,6 @@ public:
 
     void doSome();
 
-    caffa::ChildArrayField<Child*> m_simpleObjectsField;
-    caffa::ChildField<Child*>      m_simpleObjectF;
+    caffa::Field<std::vector<std::shared_ptr<Child>>> m_simpleObjectsField;
+    caffa::Field<std::shared_ptr<Child>>              m_simpleObjectF;
 };
