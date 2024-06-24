@@ -125,7 +125,8 @@ void FieldJsonCap<FieldType>::setOwner( FieldHandle* owner )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& jsonElement, const JsonSerializer& serializer )
+void FieldJsonCap<Field<std::shared_ptr<DataType>>>::readFromJson( const nlohmann::json& jsonElement,
+                                                                   const JsonSerializer& serializer )
 {
     CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildField" );
     if ( jsonElement.is_null() )
@@ -214,7 +215,8 @@ void FieldJsonCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& js
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldJsonCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonField, const JsonSerializer& serializer ) const
+void FieldJsonCap<Field<std::shared_ptr<DataType>>>::writeToJson( nlohmann::json&       jsonField,
+                                                                  const JsonSerializer& serializer ) const
 {
     auto object = m_field->object();
 
@@ -247,16 +249,16 @@ void FieldJsonCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonField
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-nlohmann::json FieldJsonCap<ChildField<DataType*>>::jsonType() const
+nlohmann::json FieldJsonCap<Field<std::shared_ptr<DataType>>>::jsonType() const
 {
-    return JsonDataType<ChildField<DataType*>>::jsonType();
+    return JsonDataType<Field<std::shared_ptr<DataType>>>::jsonType();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-const FieldHandle* FieldJsonCap<ChildField<DataType*>>::owner() const
+const FieldHandle* FieldJsonCap<Field<std::shared_ptr<DataType>>>::owner() const
 {
     return m_field;
 }
@@ -265,9 +267,9 @@ const FieldHandle* FieldJsonCap<ChildField<DataType*>>::owner() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldJsonCap<ChildField<DataType*>>::setOwner( FieldHandle* owner )
+void FieldJsonCap<Field<std::shared_ptr<DataType>>>::setOwner( FieldHandle* owner )
 {
-    auto field = dynamic_cast<ChildField<DataType*>*>( owner );
+    auto field = dynamic_cast<Field<std::shared_ptr<DataType>>*>( owner );
     CAFFA_ASSERT( field );
     m_field = field;
 }
@@ -276,8 +278,8 @@ void FieldJsonCap<ChildField<DataType*>>::setOwner( FieldHandle* owner )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json& jsonElement,
-                                                             const JsonSerializer& serializer )
+void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::readFromJson( const nlohmann::json& jsonElement,
+                                                                                const JsonSerializer& serializer )
 {
     m_field->clear();
 
@@ -344,7 +346,8 @@ void FieldJsonCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::jso
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& jsonField, const JsonSerializer& serializer ) const
+void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::writeToJson( nlohmann::json&       jsonField,
+                                                                               const JsonSerializer& serializer ) const
 {
     if ( serializer.serializationType() == JsonSerializer::SerializationType::SCHEMA )
     {
@@ -384,16 +387,16 @@ void FieldJsonCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& json
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-nlohmann::json FieldJsonCap<ChildArrayField<DataType*>>::jsonType() const
+nlohmann::json FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::jsonType() const
 {
-    return JsonDataType<ChildArrayField<DataType*>>::jsonType();
+    return JsonDataType<Field<std::vector<std::shared_ptr<DataType>>>>::jsonType();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-const FieldHandle* FieldJsonCap<ChildArrayField<DataType*>>::owner() const
+const FieldHandle* FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::owner() const
 {
     return m_field;
 }
@@ -402,9 +405,9 @@ const FieldHandle* FieldJsonCap<ChildArrayField<DataType*>>::owner() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldJsonCap<ChildArrayField<DataType*>>::setOwner( FieldHandle* owner )
+void FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>>::setOwner( FieldHandle* owner )
 {
-    auto field = dynamic_cast<ChildArrayField<DataType*>*>( owner );
+    auto field = dynamic_cast<Field<std::vector<std::shared_ptr<DataType>>>*>( owner );
     CAFFA_ASSERT( field );
     m_field = field;
 }

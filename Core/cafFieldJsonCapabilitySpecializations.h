@@ -1,7 +1,5 @@
 #pragma once
 
-#include "cafChildArrayField.h"
-#include "cafChildField.h"
 #include "cafFieldJsonCapability.h"
 
 #include <nlohmann/json.hpp>
@@ -36,9 +34,9 @@ private:
 };
 
 template <typename DataType>
-class FieldJsonCap<ChildField<DataType*>> : public FieldJsonCapability
+class FieldJsonCap<Field<std::shared_ptr<DataType>>> : public FieldJsonCapability
 {
-    typedef ChildField<DataType*> FieldType;
+    typedef Field<std::shared_ptr<DataType>> FieldType;
 
 public:
     FieldJsonCap()
@@ -59,9 +57,9 @@ private:
 };
 
 template <typename DataType>
-class FieldJsonCap<ChildArrayField<DataType*>> : public FieldJsonCapability
+class FieldJsonCap<Field<std::vector<std::shared_ptr<DataType>>>> : public FieldJsonCapability
 {
-    typedef ChildArrayField<DataType*> FieldType;
+    typedef Field<std::vector<std::shared_ptr<DataType>>> FieldType;
 
 public:
     FieldJsonCap()
