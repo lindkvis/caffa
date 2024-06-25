@@ -230,7 +230,6 @@ cmake --build --preset ninja-release-vcpkg
 If you don't have VCPKG the following dependencies are needed:
 - Boost (System, Beast, Program Options and Serialization)
 - Ninja
-- GoogleTest (GTest)
 - Nlohmann JSON
 
 These can be installed on ubuntu using:

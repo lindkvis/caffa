@@ -6,7 +6,6 @@ project(caffaIoCore_UnitTests)
 add_executable(${PROJECT_NAME} cafIo_UnitTests.cpp cafIoBasicTest.cpp cafAdvancedTemplateTest.cpp cafIoNumberTest.cpp cafReadmeObjects.cpp)
 
 find_package(nlohmann_json CONFIG REQUIRED)
-find_package(GTest CONFIG REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} caffaCore ${THREAD_LIBRARY} nlohmann_json::nlohmann_json GTest::gtest)
 

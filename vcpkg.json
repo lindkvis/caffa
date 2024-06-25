@@ -30,9 +30,5 @@
       "name": "openssl",
       "platform": "!linux"
     },
-    {
-      "name": "gtest",
-      "platform": "!linux"
-    }
   ]
 }
