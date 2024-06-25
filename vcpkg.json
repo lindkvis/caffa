@@ -29,6 +29,6 @@
     {
       "name": "openssl",
       "platform": "!linux"
-    },
+    }
   ]
 }
