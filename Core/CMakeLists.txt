@@ -17,7 +17,6 @@ set(PUBLIC_HEADERS
     cafFieldScriptingCapability.h
     cafJsonDataType.h
     cafJsonSerializer.h
-    cafSignal.h
     cafStringEncoding.h)
 
 set(PROJECT_FILES
@@ -30,7 +29,6 @@ set(PROJECT_FILES
     cafFieldScriptingCapability.cpp
     cafJsonSerializer.cpp
     cafObjectJsonConversion.cpp
-    cafSignal.cpp
     cafStringEncoding.cpp)
 
 if(CAFFA_BUILD_SHARED)
