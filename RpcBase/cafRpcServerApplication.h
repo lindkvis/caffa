@@ -22,6 +22,7 @@
 #include "cafRpcApplication.h"
 #include "cafSession.h"
 
+#include <list>
 #include <memory>
 
 namespace caffa

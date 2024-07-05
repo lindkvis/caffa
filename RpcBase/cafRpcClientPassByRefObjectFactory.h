@@ -23,7 +23,6 @@
 
 #include "cafObjectFactory.h"
 
-#include "cafAssert.h"
 #include "cafRpcClient.h"
 #include "cafRpcDataFieldAccessor.h"
 
@@ -64,10 +63,12 @@ public:
  * If you wish to pass fields by value and still access remote methods, use the ClientPassByValueObjectFactory
  */
 
-class ClientPassByRefObjectFactory : public ObjectFactory
+class ClientPassByRefObjectFactory final : public ObjectFactory
 {
 public:
-    static ClientPassByRefObjectFactory* instance();
+    static std::shared_ptr<ClientPassByRefObjectFactory> instance();
+
+    ~ClientPassByRefObjectFactory() override = default;
 
     std::string name() const override { return "RPC Client Pass By Reference ObjectFactory"; }
 
@@ -92,10 +93,9 @@ private:
     {
         registerAllBasicAccessorCreators();
     }
-    ~ClientPassByRefObjectFactory() override = default;
 
-    void applyAccessorToField( caffa::ObjectHandle* objectHandle, caffa::FieldHandle* fieldHandle );
-    void applyNullAccessorToField( caffa::ObjectHandle* objectHandle, caffa::FieldHandle* fieldHandle );
+    void applyAccessorToField( caffa::ObjectHandle* objectHandle, caffa::FieldHandle* fieldHandle ) const;
+    void applyNullAccessorToField( caffa::ObjectHandle* objectHandle, caffa::FieldHandle* fieldHandle ) const;
 
     void applyAccessorToMethod( caffa::ObjectHandle* objectHandle, caffa::MethodHandle* methodHandle );
 

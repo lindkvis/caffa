@@ -22,15 +22,10 @@
 
 #include "cafRpcClientPassByValueObjectFactory.h"
 
-#include "cafChildArrayField.h"
-#include "cafChildField.h"
 #include "cafDefaultObjectFactory.h"
 #include "cafField.h"
-#include "cafFieldScriptingCapability.h"
 #include "cafRpcChildArrayFieldAccessor.h"
-#include "cafRpcChildFieldAccessor.h"
 #include "cafRpcClient.h"
-#include "cafRpcDataFieldAccessor.h"
 #include "cafRpcMethodAccessor.h"
 
 #include <memory>
@@ -66,10 +61,10 @@ std::shared_ptr<ObjectHandle> ClientPassByValueObjectFactory::doCreate( const st
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ClientPassByValueObjectFactory* ClientPassByValueObjectFactory::instance()
+std::shared_ptr<ClientPassByValueObjectFactory> ClientPassByValueObjectFactory::instance()
 {
-    static ClientPassByValueObjectFactory* fact = new ClientPassByValueObjectFactory;
-    return fact;
+    static auto objectFactory = std::shared_ptr<ClientPassByValueObjectFactory>( new ClientPassByValueObjectFactory );
+    return objectFactory;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,7 +78,8 @@ void ClientPassByValueObjectFactory::setClient( Client* client )
 void ClientPassByValueObjectFactory::applyAccessorToMethod( caffa::ObjectHandle* objectHandle,
                                                             caffa::MethodHandle* methodHandle )
 {
-    methodHandle->setAccessor( std::make_unique<MethodAccessor>( m_client, objectHandle, methodHandle, this ) );
+    methodHandle->setAccessor(
+        std::make_unique<MethodAccessor>( m_client, objectHandle, methodHandle, shared_from_this() ) );
 }
 
 } // namespace caffa::rpc

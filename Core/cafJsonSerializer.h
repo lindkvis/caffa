@@ -23,8 +23,6 @@
 #include <nlohmann/json.hpp>
 
 #include <chrono>
-#include <fstream>
-#include <set>
 #include <string>
 
 namespace caffa
@@ -55,13 +53,12 @@ public:
      * Constructor
      * @param objectFactory The factory used when creating new objects. Not relevant when writing.
      */
-    JsonSerializer( ObjectFactory* objectFactory = nullptr );
+    JsonSerializer( const std::shared_ptr<ObjectFactory>& objectFactory = nullptr );
     /**
      * Clone the object by serializing to and from text string
      *
      * @param object The object to copy
-     * @param destinationClassKeyword The class of the object to create.
-     * @return unique ptr containing a new copy
+     * @return shared ptr containing a new copy
      */
     template <DerivesFromObjectHandle ObjectType>
     std::shared_ptr<ObjectType> cloneObject( const ObjectType* object ) const
@@ -83,7 +80,7 @@ public:
      * Set what to serialize (data, schema, etc)
      * Since it returns a reference it can be used like: Serializer(objectFactory).setSerializationTypes(...);
      *
-     * @param serializationType
+     * @param type
      * @return cafSerializer& reference to this
      */
     JsonSerializer& setSerializationType( SerializationType type );
@@ -101,7 +98,7 @@ public:
      * Get the object factory
      * @return object factory
      */
-    ObjectFactory* objectFactory() const;
+    std::shared_ptr<ObjectFactory> objectFactory() const;
 
     /**
      * Get the field selector
@@ -190,9 +187,9 @@ public:
     void writeObjectToJson( const ObjectHandle* object, nlohmann::json& jsonObject ) const;
 
 protected:
-    bool           m_client;
-    ObjectFactory* m_objectFactory;
-    FieldSelector  m_fieldSelector;
+    bool                         m_client;
+    std::weak_ptr<ObjectFactory> m_objectFactory;
+    FieldSelector                m_fieldSelector;
 
     SerializationType m_serializationType;
     bool              m_serializeUuids;

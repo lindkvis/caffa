@@ -29,7 +29,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include <iomanip>
+#include <set>
 
 using namespace caffa;
 
@@ -53,7 +53,7 @@ std::string JsonSerializer::serializationTypeLabel( SerializationType type )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-JsonSerializer::JsonSerializer( ObjectFactory* objectFactory /* = nullptr */ )
+JsonSerializer::JsonSerializer( const std::shared_ptr<ObjectFactory>& objectFactory /* = nullptr */ )
     : m_client( false )
     , m_objectFactory( objectFactory == nullptr ? DefaultObjectFactory::instance() : objectFactory )
     , m_serializationType( SerializationType::DATA_FULL )
@@ -79,9 +79,9 @@ JsonSerializer& JsonSerializer::setSerializeUuids( bool serializeUuids )
     return *this;
 }
 
-ObjectFactory* JsonSerializer::objectFactory() const
+std::shared_ptr<ObjectFactory> JsonSerializer::objectFactory() const
 {
-    return m_objectFactory;
+    return m_objectFactory.lock();
 }
 
 JsonSerializer::FieldSelector JsonSerializer::fieldSelector() const
@@ -370,7 +370,10 @@ std::shared_ptr<ObjectHandle> JsonSerializer::copyAndCastBySerialization( const 
 {
     std::string string = writeObjectToString( object );
 
-    std::shared_ptr<ObjectHandle> objectCopy = m_objectFactory->create( destinationClassKeyword );
+    auto objectFactory = m_objectFactory.lock();
+    CAFFA_ASSERT( objectFactory );
+
+    std::shared_ptr<ObjectHandle> objectCopy = objectFactory->create( destinationClassKeyword );
 
     bool sourceInheritsDestination =
         ObjectHandle::matchesClassKeyword( destinationClassKeyword, object->classInheritanceStack() );
@@ -411,7 +414,10 @@ std::shared_ptr<ObjectHandle> JsonSerializer::createObjectFromString( const std:
     CAFFA_ASSERT( jsonClassKeyword.is_string() );
     std::string classKeyword = jsonClassKeyword.get<std::string>();
 
-    std::shared_ptr<ObjectHandle> newObject = m_objectFactory->create( classKeyword );
+    auto objectFactory = m_objectFactory.lock();
+    CAFFA_ASSERT( objectFactory );
+
+    std::shared_ptr<ObjectHandle> newObject = objectFactory->create( classKeyword );
 
     if ( !newObject ) return nullptr;
 

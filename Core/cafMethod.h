@@ -88,7 +88,8 @@ public:
 
     std::string schema() const override { return this->jsonSchema().dump(); }
 
-    Result resultFromJsonString( const std::string& jsonResultString, ObjectFactory* objectFactory ) const
+    Result resultFromJsonString( const std::string&                    jsonResultString,
+                                 const std::shared_ptr<ObjectFactory>& objectFactory ) const
     {
         nlohmann::json jsonResult;
         if ( !jsonResultString.empty() )
@@ -174,15 +175,12 @@ public:
 
 private:
     template <typename ArgType>
-        requires std::same_as<ArgType, void>
-    static ArgType jsonToValue( const nlohmann::json& jsonData, ObjectFactory* objectFactory )
-    {
-        return;
-    }
+    requires std::same_as<ArgType, void>
+    static ArgType jsonToValue( const nlohmann::json&, const std::shared_ptr<ObjectFactory>& ) { return ArgType(); }
 
     template <typename ArgType>
-        requires IsSharedPtr<ArgType>
-    static ArgType jsonToValue( const nlohmann::json& jsonData, ObjectFactory* objectFactory )
+    requires IsSharedPtr<ArgType>
+    static ArgType jsonToValue( const nlohmann::json& jsonData, const std::shared_ptr<ObjectFactory>& objectFactory )
     {
         JsonSerializer serializer( objectFactory );
         return std::dynamic_pointer_cast<typename ArgType::element_type>(
@@ -190,15 +188,16 @@ private:
     }
 
     template <typename ArgType>
-        requires( not IsSharedPtr<ArgType> && not std::same_as<ArgType, void> )
-    static ArgType jsonToValue( const nlohmann::json& jsonData, ObjectFactory* objectFactory )
+    requires( not IsSharedPtr<ArgType> && not std::same_as<ArgType, void> ) static ArgType
+        jsonToValue( const nlohmann::json& jsonData, const std::shared_ptr<ObjectFactory>& )
     {
         return jsonData.get<ArgType>();
     }
 
     template <typename ReturnType, std::size_t... Is>
-        requires std::same_as<ReturnType, void>
-    nlohmann::json executeJson( std::shared_ptr<Session> session, const nlohmann::json& args, std::index_sequence<Is...> ) const
+    requires std::same_as<ReturnType, void> nlohmann::json
+        executeJson( std::shared_ptr<Session> session, const nlohmann::json& args, std::index_sequence<Is...> )
+    const
     {
         this->operator()( session, jsonToValue<ArgTypes>( args[Is], nullptr )... );
 
@@ -207,11 +206,9 @@ private:
     }
 
     template <typename ReturnType, std::size_t... Is>
-        requires( not std::same_as<ReturnType, void> )
-    nlohmann::json executeJson( std::shared_ptr<Session> session, const nlohmann::json& args, std::index_sequence<Is...> ) const
-    {
-        return this->operator()( session, jsonToValue<ArgTypes>( args[Is], nullptr )... );
-    }
+    requires( not std::same_as<ReturnType, void> ) nlohmann::json
+        executeJson( std::shared_ptr<Session> session, const nlohmann::json& args, std::index_sequence<Is...> )
+    const { return this->operator()( session, jsonToValue<ArgTypes>( args[Is], nullptr )... ); }
 
     nlohmann::json executeJson( std::shared_ptr<Session> session, const nlohmann::json& jsonMethod ) const
     {
@@ -231,10 +228,10 @@ private:
             throw std::runtime_error( "Wrong number of arguments! Got " + std::to_string( jsonArguments.size() ) +
                                       ", Expected " + std::to_string( expectedSize ) );
         }
-        return this->executeJson<Result>( session, jsonArguments, std::index_sequence_for<ArgTypes...>() );
+        return this->template executeJson<Result>( session, jsonArguments, std::index_sequence_for<ArgTypes...>() );
     }
 
-    void sortArguments( nlohmann::json& jsonMap, const std::vector<std::string>& argumentNames ) const
+    static void sortArguments( nlohmann::json& jsonMap, const std::vector<std::string>& argumentNames )
     {
         nlohmann::json sortedArray = nlohmann::json::array();
         for ( const auto& argumentName : argumentNames )

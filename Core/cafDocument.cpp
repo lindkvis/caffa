@@ -21,7 +21,6 @@
 // ##################################################################################################
 
 #include "cafDocument.h"
-#include "cafObjectPerformer.h"
 
 #include <fstream>
 

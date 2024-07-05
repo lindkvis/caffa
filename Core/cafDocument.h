@@ -40,11 +40,11 @@ class Document : public Object
                                 Object );
 
 public:
-    Document( const std::string& id = std::string( classKeywordStatic() ) );
+    explicit Document( const std::string& id = std::string( classKeywordStatic() ) );
     ~Document() noexcept override;
 
-    std::string id() const;
-    std::string fileName() const;
+    [[nodiscard]] std::string id() const;
+    [[nodiscard]] std::string fileName() const;
 
     void setId( const std::string& id );
     void setFileName( const std::string& fileName );

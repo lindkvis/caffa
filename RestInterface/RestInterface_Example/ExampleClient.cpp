@@ -21,7 +21,6 @@
 #include "cafRestClientApplication.h"
 #include "cafRpcClientPassByRefObjectFactory.h"
 
-#include "cafJsonSerializer.h"
 #include "cafLogger.h"
 
 #include "DemoObject.h"
@@ -48,7 +47,7 @@ public:
         : caffa::rpc::RestClientApplication( hostname, port )
     {
     }
-    ~ClientApp() = default;
+    ~ClientApp() override = default;
 
     //--------------------------------------------------------------------------------------------------
     ///
@@ -84,7 +83,7 @@ int main( int argc, char** argv )
 
     caffa::Logger::setApplicationLogLevel( caffa::Logger::Level::info );
 
-    caffa::rpc::ClientPassByRefObjectFactory* factory = caffa::rpc::ClientPassByRefObjectFactory::instance();
+    auto factory = caffa::rpc::ClientPassByRefObjectFactory::instance();
     factory->registerBasicAccessorCreators<caffa::AppEnum<DemoObject::TestEnumType>>();
 
     auto clientApp = std::make_unique<ClientApp>( hostname, portNumber );
