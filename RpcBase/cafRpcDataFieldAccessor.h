@@ -28,26 +28,24 @@ template <class DataType>
 class DataFieldAccessor : public caffa::DataFieldAccessor<DataType>
 {
 public:
-    DataFieldAccessor( Client* client, caffa::FieldHandle* fieldHandle )
+    DataFieldAccessor( Client* client, caffa::ObjectHandle* ownerObject, caffa::FieldHandle* fieldHandle )
         : caffa::DataFieldAccessor<DataType>()
         , m_client( client )
+        , m_ownerObject( ownerObject )
         , m_fieldHandle( fieldHandle )
     {
     }
 
     std::unique_ptr<caffa::DataFieldAccessor<DataType>> clone() const override
     {
-        return std::make_unique<DataFieldAccessor<DataType>>( m_client, m_fieldHandle );
+        return std::make_unique<DataFieldAccessor<DataType>>( m_client, m_ownerObject, m_fieldHandle );
     }
 
-    DataType value() override
-    {
-        return m_client->get<DataType>( m_fieldHandle->ownerObject(), m_fieldHandle->keyword() );
-    }
+    DataType value() override { return m_client->get<DataType>( m_ownerObject, m_fieldHandle->keyword() ); }
 
     void setValue( const DataType& value ) override
     {
-        return m_client->set<DataType>( m_fieldHandle->ownerObject(), m_fieldHandle->keyword(), value );
+        return m_client->set<DataType>( m_ownerObject, m_fieldHandle->keyword(), value );
     }
 
     bool hasGetter() const override
@@ -63,6 +61,8 @@ public:
 
 private:
     Client* m_client;
+
+    caffa::ObjectHandle* m_ownerObject;
 
     caffa::FieldHandle* m_fieldHandle;
 };

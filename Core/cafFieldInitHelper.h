@@ -108,7 +108,6 @@ public:
         return *this;
     }
 
-private:
     FieldInitHelper()                         = delete;
     FieldInitHelper( const FieldInitHelper& ) = delete;
     FieldInitHelper( FieldInitHelper&& )      = delete;
@@ -116,6 +115,7 @@ private:
     FieldInitHelper& operator=( const FieldInitHelper& ) = delete;
     FieldInitHelper& operator=( FieldInitHelper&& )      = delete;
 
+private:
     FieldType&         m_field;
     const std::string& m_keyword;
 };

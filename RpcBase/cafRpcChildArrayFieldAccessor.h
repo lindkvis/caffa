@@ -29,9 +29,10 @@ namespace caffa::rpc
 class ChildArrayFieldAccessor : public caffa::ChildArrayFieldAccessor
 {
 public:
-    ChildArrayFieldAccessor( Client* client, caffa::FieldHandle* fieldHandle )
+    ChildArrayFieldAccessor( Client* client, caffa::ObjectHandle* ownerObject, caffa::FieldHandle* fieldHandle )
         : caffa::ChildArrayFieldAccessor( fieldHandle )
         , m_client( client )
+        , m_ownerObject( ownerObject )
     {
     }
 
@@ -43,7 +44,7 @@ public:
 
     void clear() override
     {
-        m_client->clearChildObjects( m_field->ownerObject(), m_field->keyword() );
+        m_client->clearChildObjects( m_ownerObject, m_field->keyword() );
 
         std::vector<std::shared_ptr<ObjectHandle>> removedObjects;
         removedObjects.swap( m_remoteObjects );
@@ -79,7 +80,7 @@ public:
     void insert( size_t index, std::shared_ptr<ObjectHandle> pointer ) override
     {
         size_t oldSize = m_remoteObjects.size();
-        m_client->insertChildObject( m_field->ownerObject(), m_field->keyword(), index, pointer.get() );
+        m_client->insertChildObject( m_ownerObject, m_field->keyword(), index, pointer.get() );
         m_remoteObjects.insert( m_remoteObjects.begin() + index, pointer );
         CAFFA_ASSERT( m_remoteObjects.size() == ( oldSize + 1u ) );
     }
@@ -102,7 +103,7 @@ public:
     {
         CAFFA_ASSERT( index < size() );
         m_remoteObjects.erase( m_remoteObjects.begin() + index );
-        m_client->removeChildObject( m_field->ownerObject(), m_field->keyword(), index );
+        m_client->removeChildObject( m_ownerObject, m_field->keyword(), index );
     }
 
     bool hasGetter() const override
@@ -121,11 +122,13 @@ private:
     // TODO: This needs to be more sophisticated. At the moment we get the remote objects no matter what.
     void getRemoteObjectsIfNecessary() const
     {
-        m_remoteObjects = m_client->getChildObjects( m_field->ownerObject(), m_field->keyword() );
+        m_remoteObjects = m_client->getChildObjects( m_ownerObject, m_field->keyword() );
     }
 
 private:
     Client* m_client;
+
+    caffa::ObjectHandle* m_ownerObject;
 
     mutable std::vector<std::shared_ptr<ObjectHandle>> m_remoteObjects;
 };

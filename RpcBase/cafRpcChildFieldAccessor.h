@@ -27,9 +27,10 @@ namespace caffa::rpc
 class ChildFieldAccessor : public caffa::ChildFieldAccessor
 {
 public:
-    ChildFieldAccessor( Client* client, caffa::FieldHandle* fieldHandle )
+    ChildFieldAccessor( Client* client, caffa::ObjectHandle* ownerObject, caffa::FieldHandle* fieldHandle )
         : caffa::ChildFieldAccessor( fieldHandle )
         , m_client( client )
+        , m_ownerObject( ownerObject )
     {
     }
 
@@ -48,13 +49,13 @@ public:
     void setObject( std::shared_ptr<ObjectHandle> object ) override
     {
         m_remoteObject = object;
-        m_client->setChildObject( m_field->ownerObject(), m_field->keyword(), m_remoteObject.get() );
+        m_client->setChildObject( m_ownerObject, m_field->keyword(), m_remoteObject.get() );
     }
 
     void clear() override
     {
         m_remoteObject.reset();
-        m_client->clearChildObjects( m_field->ownerObject(), m_field->keyword() );
+        m_client->clearChildObjects( m_ownerObject, m_field->keyword() );
     }
 
     bool hasGetter() const override
@@ -72,11 +73,13 @@ public:
 private:
     std::shared_ptr<ObjectHandle> getShallowCopyOfRemoteObject() const
     {
-        return m_client->getChildObject( m_field->ownerObject(), m_field->keyword() );
+        return m_client->getChildObject( m_ownerObject, m_field->keyword() );
     }
 
 private:
     Client* m_client;
+
+    caffa::ObjectHandle* m_ownerObject;
 
     mutable std::shared_ptr<ObjectHandle> m_remoteObject;
 };

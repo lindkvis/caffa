@@ -117,11 +117,11 @@ void ClientPassByRefObjectFactory::applyAccessorToField( caffa::ObjectHandle* fi
 
     if ( auto childField = dynamic_cast<caffa::ChildFieldHandle*>( fieldHandle ); childField )
     {
-        childField->setAccessor( std::make_unique<ChildFieldAccessor>( m_client, childField ) );
+        childField->setAccessor( std::make_unique<ChildFieldAccessor>( m_client, fieldOwner, childField ) );
     }
     else if ( auto childArrayField = dynamic_cast<caffa::ChildArrayFieldHandle*>( fieldHandle ); childArrayField )
     {
-        childArrayField->setAccessor( std::make_unique<ChildArrayFieldAccessor>( m_client, childArrayField ) );
+        childArrayField->setAccessor( std::make_unique<ChildArrayFieldAccessor>( m_client, fieldOwner, childArrayField ) );
     }
     else if ( auto dataField = dynamic_cast<caffa::DataField*>( fieldHandle ); dataField )
     {
@@ -149,7 +149,7 @@ void ClientPassByRefObjectFactory::applyAccessorToField( caffa::ObjectHandle* fi
                                           " not implemented in client" );
             }
             CAFFA_ASSERT( accessorCreator );
-            auto accessor = accessorCreator->create( m_client, fieldHandle );
+            auto accessor = accessorCreator->create( m_client, fieldOwner, fieldHandle );
             CAFFA_ASSERT( accessor );
 
             dataField->setUntypedAccessor( std::move( accessor ) );
