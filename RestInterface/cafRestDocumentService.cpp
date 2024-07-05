@@ -20,28 +20,21 @@
 #include "cafRestDocumentService.h"
 
 #include "cafRpcClientPassByRefObjectFactory.h"
-#include "cafRpcServer.h"
 #include "cafSession.h"
 
-#include "cafChildArrayField.h"
-#include "cafChildField.h"
 #include "cafDocument.h"
 #include "cafField.h"
-#include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafJsonSerializer.h"
-#include "cafMethod.h"
 #include "cafObject.h"
 #include "cafObjectCollector.h"
 #include "cafObjectPerformer.h"
-#include "cafPortableDataType.h"
 #include "cafRestServerApplication.h"
 #include "cafRpcObjectConversion.h"
 #include "cafStringTools.h"
 
 #include <functional>
 #include <iostream>
-#include <regex>
 #include <vector>
 
 using namespace caffa;
@@ -138,6 +131,7 @@ public:
     {
         m_serializer.setSerializationType( JsonSerializer::SerializationType::PATH );
     }
+    ~PathCreator() override = default;
 
     const std::map<std::string, nlohmann::json>& pathSchemas() const { return m_pathSchemas; }
 
@@ -151,6 +145,7 @@ public:
             auto path           = StringTools::join( m_pathStack.begin(), m_pathStack.end(), "/" );
             m_pathSchemas[path] = schema;
         }
+        m_objectIdStack.push_back( object->classKeyword() );
     }
 
     void visitField( const FieldHandle* field ) override
@@ -161,12 +156,13 @@ public:
         if ( auto scriptability = field->capability<FieldScriptingCapability>(); scriptability )
         {
             auto jsonCapability = field->capability<FieldJsonCapability>();
-            CAFFA_ASSERT( jsonCapability );
+            if ( !jsonCapability ) return;
+
             if ( scriptability->isReadable() )
             {
                 auto operationId = field->keyword();
                 operationId[0]   = (char)std::toupper( operationId[0] );
-                operationId      = field->ownerObject()->classKeyword() + ".get" + operationId;
+                operationId      = m_objectIdStack.back() + ".get" + operationId;
 
                 auto getOperation =
                     nlohmann::json{ { "summary", "Get " + field->keyword() }, { "operationId", operationId } };
@@ -184,7 +180,7 @@ public:
             {
                 auto operationId = field->keyword();
                 operationId[0]   = (char)std::toupper( operationId[0] );
-                operationId      = field->ownerObject()->classKeyword() + ".set" + operationId;
+                operationId      = m_objectIdStack.back() + ".set" + operationId;
 
                 auto setOperation =
                     nlohmann::json{ { "summary", "Set " + field->keyword() }, { "operationId", operationId } };
@@ -213,11 +209,13 @@ public:
         {
             m_pathStack.pop_back();
         }
+        m_objectIdStack.pop_back();
     }
     void leaveField( const FieldHandle* field ) override { m_pathStack.pop_back(); }
 
 private:
     std::list<std::string> m_pathStack;
+    std::list<std::string> m_objectIdStack;
     JsonSerializer         m_serializer;
 
     std::map<std::string, nlohmann::json> m_pathSchemas;

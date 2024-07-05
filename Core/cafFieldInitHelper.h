@@ -21,7 +21,6 @@
 
 #include "cafDataFieldAccessor.h"
 
-#include "cafField.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafFieldValidator.h"
@@ -31,7 +30,7 @@
 namespace caffa
 {
 template <typename T>
-concept DerivesFromFieldHandle = std::is_base_of<FieldHandle, T>::value;
+concept DerivesFromFieldHandle = std::is_base_of_v<FieldHandle, T>;
 
 /**
  * Helper class that is initialised with Object::initField and allows

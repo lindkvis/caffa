@@ -20,7 +20,6 @@
 
 #include "cafChildFieldAccessor.h"
 #include "cafFieldScriptingCapability.h"
-#include "cafJsonSerializer.h"
 #include "cafRpcClient.h"
 
 namespace caffa::rpc
