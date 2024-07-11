@@ -24,13 +24,10 @@
 #include <utility> // Workaround for boost/asio not being a self-contained include
 
 #include <boost/asio.hpp>
-#include <boost/asio/dispatch.hpp>
-#include <boost/asio/strand.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 #include <boost/beast/ssl.hpp>
 
-#include <list>
 #include <memory>
 #include <string>
 
@@ -52,10 +49,10 @@ class RestAuthenticator;
 class RestServer : public std::enable_shared_from_this<RestServer>
 {
 public:
-    RestServer( net::io_context&                        ioc,
-                std::shared_ptr<ssl::context>           sslContext,
-                tcp::endpoint                           endpoint,
-                const std::string&                      docRoot,
+    RestServer( net::io_context&                         ioc,
+                std::shared_ptr<ssl::context>            sslContext,
+                tcp::endpoint                            endpoint,
+                const std::string&                       docRoot,
                 std::shared_ptr<const RestAuthenticator> authenticator );
 
     // Start accepting incoming connections
@@ -74,6 +71,6 @@ private:
     std::string                   m_docRoot;
 
     std::map<std::string, std::shared_ptr<RestServiceInterface>> m_services;
-    std::shared_ptr<const RestAuthenticator>                      m_authenticator;
+    std::shared_ptr<const RestAuthenticator>                     m_authenticator;
 };
 } // namespace caffa::rpc
