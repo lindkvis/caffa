@@ -7,14 +7,14 @@ on:
       - main
   workflow_dispatch:
   schedule:
-  - cron: '0 1 * * *'
+    - cron: '0 1 * * *'
 jobs:
   caffa:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-22.04, ubuntu-24.04, macos-13, macos-14]
+        os: [ windows-latest, ubuntu-22.04, ubuntu-24.04, macos-13, macos-14 ]
         include:
           - os: windows-latest
             triplet: x64-windows
@@ -62,7 +62,7 @@ jobs:
       - name: Build Caffa
         uses: lukka/run-cmake@v10.7
         with:
-          buildPreset: 'ninja-release-vcpkg'          
+          buildPreset: 'ninja-release-vcpkg'
       - name: Run Caffa Unit Tests
         uses: lukka/run-cmake@v10.7
         with:
