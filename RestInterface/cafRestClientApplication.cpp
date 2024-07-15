@@ -18,7 +18,6 @@
 //
 #include "cafRestClientApplication.h"
 
-#include "cafAssert.h"
 #include "cafRestClient.h"
 
 using namespace caffa::rpc;
@@ -26,11 +25,14 @@ using namespace caffa::rpc;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestClientApplication::RestClientApplication( const std::string& hostname, int portNumber )
+RestClientApplication::RestClientApplication( const std::string& hostname,
+                                              int                portNumber,
+                                              const std::string& username,
+                                              const std::string& password )
     : RpcApplication( AppInfo::AppCapability::CLIENT )
 {
-    m_client = std::make_unique<caffa::rpc::RestClient>( hostname, portNumber );
-    m_client->createSession( caffa::Session::Type::REGULAR );
+    m_client = std::make_unique<RestClient>( hostname, portNumber );
+    m_client->createSession( Session::Type::REGULAR, username, password );
 }
 
 //--------------------------------------------------------------------------------------------------

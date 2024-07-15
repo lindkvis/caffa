@@ -102,7 +102,7 @@ std::map<std::string, nlohmann::json> RestAppService::servicePathEntries() const
 
 std::map<std::string, nlohmann::json> RestAppService::serviceComponentEntries() const
 {
-    auto appInfo = AppInfo::jsonSchema();
+    auto appInfo = appJsonSchema();
 
     return { { "app_schemas", { { "AppInfo", appInfo } } } };
 };

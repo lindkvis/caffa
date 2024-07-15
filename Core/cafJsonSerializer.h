@@ -23,8 +23,6 @@
 #include <nlohmann/json.hpp>
 
 #include <chrono>
-#include <fstream>
-#include <set>
 #include <string>
 
 namespace caffa
@@ -55,12 +53,11 @@ public:
      * Constructor
      * @param objectFactory The factory used when creating new objects. Not relevant when writing.
      */
-    JsonSerializer( ObjectFactory* objectFactory = nullptr );
+    explicit JsonSerializer( ObjectFactory* objectFactory = nullptr );
     /**
      * Clone the object by serializing to and from text string
      *
      * @param object The object to copy
-     * @param destinationClassKeyword The class of the object to create.
      * @return unique ptr containing a new copy
      */
     template <DerivesFromObjectHandle ObjectType>
@@ -83,7 +80,7 @@ public:
      * Set what to serialize (data, schema, etc)
      * Since it returns a reference it can be used like: Serializer(objectFactory).setSerializationTypes(...);
      *
-     * @param serializationType
+     * @param type
      * @return cafSerializer& reference to this
      */
     JsonSerializer& setSerializationType( SerializationType type );
@@ -101,29 +98,29 @@ public:
      * Get the object factory
      * @return object factory
      */
-    ObjectFactory* objectFactory() const;
+    [[nodiscard]] ObjectFactory* objectFactory() const;
 
     /**
      * Get the field selector
      * @return field selector
      */
-    FieldSelector fieldSelector() const;
+    [[nodiscard]] FieldSelector fieldSelector() const;
 
     /**
      * Check which type of serialization we're doing
      * @return The type of serialization to do
      */
-    SerializationType serializationType() const;
+    [[nodiscard]] SerializationType serializationType() const;
 
     /**
      * Check if we're meant to serialize UUIDs. UUIDs are used for dynamic connection to runtime objects,
      * not for writing to file. Only makes a difference when serializing data.
      * @return true if we should write the UUIDs
      */
-    bool serializeUuids() const;
+    [[nodiscard]] bool serializeUuids() const;
 
-    JsonSerializer& setClient( bool client );
-    bool            isClient() const;
+    JsonSerializer&    setClient( bool client );
+    [[nodiscard]] bool isClient() const;
 
     /**
      * Convenience method for reading the class keyword and uuid from a json string.
@@ -131,7 +128,7 @@ public:
      * @param string The JSON text string containing the object
      * @return pair of keyword and uuid in that order.
      */
-    std::string readUUIDFromObjectString( const std::string& string ) const;
+    [[nodiscard]] static std::string readUUIDFromObjectString( const std::string& string );
 
     /**
      * Convenience method to read this particular object (with children) from a json string
@@ -145,14 +142,14 @@ public:
      * @param object The object handle to write to string.
      * @return A JSON text string
      */
-    std::string writeObjectToString( const ObjectHandle* object ) const;
+    [[nodiscard]] std::string writeObjectToString( const ObjectHandle* object ) const;
 
     /**
      * Copy the object by serializing to text string and reading in again
      * @param object The object to copy
      * @return unique ptr containing a new copy
      */
-    std::shared_ptr<ObjectHandle> copyBySerialization( const ObjectHandle* object ) const;
+    [[nodiscard]] std::shared_ptr<ObjectHandle> copyBySerialization( const ObjectHandle* object ) const;
 
     /**
      * Copy the object by serializing to text string but cast to a different class keyword.
@@ -162,15 +159,15 @@ public:
      * @param destinationClassKeyword The class of the object to create.
      * @return unique ptr containing a new copy
      */
-    std::shared_ptr<ObjectHandle> copyAndCastBySerialization( const ObjectHandle* object,
-                                                              const std::string&  destinationClassKeyword ) const;
+    [[nodiscard]] std::shared_ptr<ObjectHandle>
+        copyAndCastBySerialization( const ObjectHandle* object, const std::string_view& destinationClassKeyword ) const;
 
     /**
      * Create a new object from a JSON text string
      * @param string The JSON text string
      * @return unique ptr to new object
      */
-    std::shared_ptr<ObjectHandle> createObjectFromString( const std::string& string ) const;
+    [[nodiscard]] std::shared_ptr<ObjectHandle> createObjectFromString( const std::string& string ) const;
 
     /**
      * Read object from an input stream

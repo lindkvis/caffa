@@ -5,7 +5,7 @@
 
 class TestObj : public caffa::Object
 {
-    CAFFA_HEADER_INIT( TestObj, Object );
+    CAFFA_HEADER_INIT( TestObj, Object )
 
 public:
     TestObj();

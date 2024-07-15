@@ -47,6 +47,8 @@ using namespace std::placeholders;
 
 RestObjectService::RestObjectService()
 {
+    auto validKeywordLambda = []( const std::string& arg ) { return ObjectHandle::isValidKeyword( arg ); };
+
     m_requestPathRoot = std::make_unique<RestPathEntry>( "objects" );
 
     auto skeletonParameter = std::make_unique<RestTypedParameter<bool>>( "skeleton",
@@ -66,7 +68,7 @@ RestObjectService::RestObjectService()
 
     auto fieldEntry        = std::make_unique<RestPathEntry>( "fields" );
     auto fieldKeywordEntry = std::make_unique<RestPathEntry>( "{keyword}" );
-    fieldKeywordEntry->setPathArgumentMatcher( &caffa::ObjectHandle::isValidKeyword );
+    fieldKeywordEntry->setPathArgumentMatcher( validKeywordLambda );
 
     auto keywordParameter = std::make_unique<RestTypedParameter<std::string>>( "keyword",
                                                                                RestParameter::Location::PATH,
@@ -135,7 +137,7 @@ RestObjectService::RestObjectService()
 
     auto methodEntry        = std::make_unique<RestPathEntry>( "methods" );
     auto methodKeywordEntry = std::make_unique<RestPathEntry>( "{keyword}" );
-    methodKeywordEntry->setPathArgumentMatcher( &caffa::ObjectHandle::isValidKeyword );
+    methodKeywordEntry->setPathArgumentMatcher( validKeywordLambda );
     auto methodKeywordParameter = std::make_unique<RestTypedParameter<std::string>>( "keyword",
                                                                                      RestParameter::Location::PATH,
                                                                                      true,

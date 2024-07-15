@@ -3,11 +3,11 @@
 #include "cafField.h"
 #include "cafObject.h"
 
-class TestObj : public caffa::Object
+class TestObj final : public caffa::Object
 {
 public:
     TestObj();
-    ~TestObj();
+    ~TestObj() override;
 
     caffa::Field<double> m_position;
 };

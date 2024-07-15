@@ -37,14 +37,14 @@ class Document : public Object
     CAFFA_HEADER_INIT_WITH_DOC( "The Document class is a top level object acting as a "
                                 "\"Project\" or container",
                                 Document,
-                                Object );
+                                Object )
 
 public:
-    Document( const std::string& id = std::string( classKeywordStatic() ) );
+    explicit Document( const std::string& id = std::string( classKeywordStatic() ) );
     ~Document() noexcept override;
 
-    std::string id() const;
-    std::string fileName() const;
+    [[nodiscard]] std::string id() const;
+    [[nodiscard]] std::string fileName() const;
 
     void setId( const std::string& id );
     void setFileName( const std::string& fileName );

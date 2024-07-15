@@ -30,11 +30,14 @@ class RestClient;
 class RestClientApplication : public RpcApplication
 {
 public:
-    RestClientApplication( const std::string& hostname, int portNumber );
+    RestClientApplication( const std::string& hostname,
+                           int                portNumber,
+                           const std::string& username = "",
+                           const std::string& password = "" );
     static RestClientApplication* instance();
 
-    RestClient*       client();
-    const RestClient* client() const;
+    [[nodiscard]] RestClient*       client();
+    [[nodiscard]] const RestClient* client() const;
 
 private:
     std::unique_ptr<RestClient> m_client;

@@ -34,7 +34,8 @@ class Object : public ObjectHandle
 public:
     CAFFA_HEADER_INIT( Object, ObjectHandle )
 
-    Object( bool generateUuid = true );
+public:
+    explicit Object( bool generateUuid = true );
     ~Object() noexcept override;
 
 protected:
@@ -70,7 +71,6 @@ protected:
      * Initialises the method with a keyword and registers it with the class
      * @param method A reference to the method
      * @param keyword The method keyword. Has to be unique within the class.
-     * @param argumentNames A vector of argument names
      * @param callback The method that will be called locally
      */
     template <typename MethodType, typename CallbackT>

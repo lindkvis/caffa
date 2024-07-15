@@ -18,8 +18,6 @@
 //
 #include "cafRpcServerApplication.h"
 
-#include <cafDocument.h>
-
 using namespace caffa::rpc;
 
 //--------------------------------------------------------------------------------------------------

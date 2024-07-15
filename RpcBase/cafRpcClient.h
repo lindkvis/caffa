@@ -21,11 +21,11 @@
 #include "cafDocument.h"
 #include "cafLogger.h"
 #include "cafNotNull.h"
-#include "cafPortableDataType.h"
 #include "cafSession.h"
 
 #include <memory>
 #include <string>
+#include <utility>
 
 namespace caffa
 {
@@ -37,68 +37,69 @@ namespace caffa::rpc
 class Client
 {
 public:
-    Client( const std::string& hostname, int port )
-        : m_hostname( hostname )
+    Client( std::string hostname, int port )
+        : m_hostname( std::move( hostname ) )
         , m_port( port )
     {
     }
     virtual ~Client() = default;
 
-    virtual caffa::AppInfo                                    appInfo() const                                 = 0;
-    virtual std::shared_ptr<caffa::ObjectHandle>              document( const std::string& documentId ) const = 0;
-    virtual std::vector<std::shared_ptr<caffa::ObjectHandle>> documents() const                               = 0;
-    virtual std::string execute( caffa::not_null<const caffa::ObjectHandle*> selfObject,
-                                 const std::string&                          methodName,
-                                 const std::string&                          jsonArguments ) const                                     = 0;
-    virtual void        sendKeepAlive()                                                                       = 0;
-    virtual bool        isReady( caffa::Session::Type type ) const                                            = 0;
+    [[nodiscard]] virtual AppInfo                       appInfo() const                                 = 0;
+    [[nodiscard]] virtual std::shared_ptr<ObjectHandle> document( const std::string& documentId ) const = 0;
+    [[nodiscard]] virtual std::vector<std::shared_ptr<ObjectHandle>> documents() const                  = 0;
+    [[nodiscard]] virtual std::string                                execute( not_null<const ObjectHandle*> selfObject,
+                                                                              const std::string&            methodName,
+                                                                              const std::string&            jsonArguments ) const = 0;
+    virtual void                                                     sendKeepAlive()                     = 0;
+    [[nodiscard]] virtual bool                                       isReady( Session::Type type ) const = 0;
 
-    virtual void
-        createSession( caffa::Session::Type type, const std::string& username = "", const std::string& password = "" ) = 0;
+    void createSession( Session::Type type, const std::string& username = "", const std::string& password = "" )
+    {
+        doCreateSession( type, username, password );
+    }
+
     /**
      * @brief Check the session. Will return a session type (including possibly INVALID) if the session exists.
      * And throw an exception if it does not.
-     * @return caffa::Session::Type
+     * @return Session::Type
      */
-    virtual caffa::Session::Type checkSession() const                          = 0;
-    virtual void                 changeSession( caffa::Session::Type newType ) = 0;
-    virtual void                 destroySession()                              = 0;
-    virtual const std::string&   sessionUuid() const                           = 0;
-    virtual void                 startKeepAliveThread()                        = 0;
+    [[nodiscard]] virtual Session::Type      checkSession() const                   = 0;
+    virtual void                             changeSession( Session::Type newType ) = 0;
+    [[nodiscard]] virtual const std::string& sessionUuid() const                    = 0;
+    virtual void                             startKeepAliveThread()                 = 0;
 
     template <typename DataType>
-    void set( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value );
+    void set( const ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value );
 
     template <typename DataType>
-    DataType get( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const;
+    DataType get( const ObjectHandle* objectHandle, const std::string& fieldName ) const;
 
-    virtual std::shared_ptr<caffa::ObjectHandle> getChildObject( const caffa::ObjectHandle* objectHandle,
-                                                                 const std::string&         fieldName ) const = 0;
+    virtual std::shared_ptr<ObjectHandle> getChildObject( const ObjectHandle* objectHandle,
+                                                          const std::string&  fieldName ) const = 0;
 
-    virtual std::vector<std::shared_ptr<caffa::ObjectHandle>> getChildObjects( const caffa::ObjectHandle* objectHandle,
-                                                                               const std::string& fieldName ) const = 0;
+    virtual std::vector<std::shared_ptr<ObjectHandle>> getChildObjects( const ObjectHandle* objectHandle,
+                                                                        const std::string&  fieldName ) const = 0;
 
-    virtual void setChildObject( const caffa::ObjectHandle* objectHandle,
-                                 const std::string&         fieldName,
-                                 const caffa::ObjectHandle* childObject ) = 0;
+    virtual void setChildObject( const ObjectHandle* objectHandle,
+                                 const std::string&  fieldName,
+                                 const ObjectHandle* childObject ) = 0;
 
-    virtual void
-        removeChildObject( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, size_t index ) = 0;
+    virtual void removeChildObject( const ObjectHandle* objectHandle, const std::string& fieldName, size_t index ) = 0;
 
-    virtual void clearChildObjects( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) = 0;
+    virtual void clearChildObjects( const ObjectHandle* objectHandle, const std::string& fieldName ) = 0;
 
-    virtual void insertChildObject( const caffa::ObjectHandle* objectHandle,
-                                    const std::string&         fieldName,
-                                    size_t                     index,
-                                    const caffa::ObjectHandle* childObject ) = 0;
+    virtual void insertChildObject( const ObjectHandle* objectHandle,
+                                    const std::string&  fieldName,
+                                    size_t              index,
+                                    const ObjectHandle* childObject ) = 0;
 
-    const std::string& hostname() const { return m_hostname; }
-    int                port() const { return m_port; }
+    [[nodiscard]] const std::string& hostname() const { return m_hostname; }
+    [[nodiscard]] int                port() const { return m_port; }
 
 private:
-    virtual void
-        setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value ) = 0;
-    virtual nlohmann::json getJson( const caffa::ObjectHandle*, const std::string& fieldName ) const = 0;
+    virtual void setJson( const ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value ) = 0;
+    virtual nlohmann::json getJson( const ObjectHandle*, const std::string& fieldName ) const                    = 0;
+    virtual void doCreateSession( Session::Type type, const std::string& username, const std::string& password ) = 0;
 
 private:
     std::string m_hostname;
@@ -109,7 +110,7 @@ private:
 /// Get a value through RPC
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-DataType caffa::rpc::Client::get( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
+DataType Client::get( const ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     nlohmann::json jsonValue = getJson( objectHandle, fieldName );
     return jsonValue.get<DataType>();
@@ -119,7 +120,7 @@ DataType caffa::rpc::Client::get( const caffa::ObjectHandle* objectHandle, const
 /// Set a value through RPC
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caffa::rpc::Client::set( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value )
+void Client::set( const ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value )
 {
     nlohmann::json jsonValue = value;
     setJson( objectHandle, fieldName, jsonValue );

@@ -18,20 +18,30 @@
 //
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include "cafApplication.h"
 
 #include <string>
 
-namespace caffa::rpc
+namespace caffa
 {
-class RpcApplication : public caffa::Application
+
+namespace rpc
 {
-public:
-    RpcApplication( unsigned int capabilities );
-    RpcApplication( AppInfo::AppCapability capability );
+    class RpcApplication : public Application
+    {
+    public:
+        explicit RpcApplication( unsigned int capabilities );
+        explicit RpcApplication( AppInfo::AppCapability capability );
 
-    static RpcApplication* instance();
+        static RpcApplication* instance();
 
-    static std::string readKeyOrCertificate( const std::string& path );
-};
-} // namespace caffa::rpc
+        static std::string readKeyOrCertificate( const std::string& path );
+    };
+} // namespace rpc
+
+nlohmann::json appJsonSchema();
+void           to_json( nlohmann::json& jsonValue, const AppInfo& appInfo );
+void           from_json( const nlohmann::json& jsonValue, AppInfo& appInfo );
+} // namespace caffa

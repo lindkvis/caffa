@@ -22,10 +22,12 @@
 #include "cafRpcApplication.h"
 #include "cafSession.h"
 
+#include <list>
 #include <memory>
 
 namespace caffa
 {
+class Document;
 
 namespace rpc
 {
@@ -33,15 +35,15 @@ namespace rpc
     class ServerApplication : public RpcApplication
     {
     public:
-        ServerApplication( unsigned capability );
-        ServerApplication( AppInfo::AppCapability capability );
+        explicit ServerApplication( unsigned capability );
+        explicit ServerApplication( AppInfo::AppCapability capability );
 
         static ServerApplication* instance();
 
-        virtual int  portNumber() const = 0;
-        virtual void run()              = 0;
-        virtual void quit()             = 0;
-        virtual bool running() const    = 0;
+        [[nodiscard]] virtual int  portNumber() const = 0;
+        virtual void               run()              = 0;
+        virtual void               quit()             = 0;
+        [[nodiscard]] virtual bool running() const    = 0;
 
         virtual std::shared_ptr<Document> document( const std::string& documentId, const caffa::Session* session ) = 0;
         virtual std::shared_ptr<const Document>            document( const std::string&    documentId,
@@ -49,16 +51,16 @@ namespace rpc
         virtual std::list<std::shared_ptr<Document>>       documents( const caffa::Session* session )              = 0;
         virtual std::list<std::shared_ptr<const Document>> documents( const caffa::Session* session ) const        = 0;
 
-        virtual std::list<std::shared_ptr<caffa::Document>> defaultDocuments() const = 0;
+        [[nodiscard]] virtual std::list<std::shared_ptr<Document>> defaultDocuments() const = 0;
 
-        bool requiresValidSession() const;
-        void setRequiresValidSession( bool requiresValidSession );
+        [[nodiscard]] bool requiresValidSession() const;
+        void               setRequiresValidSession( bool requiresValidSession );
 
-        virtual bool                          readyForSession( caffa::Session::Type type ) const             = 0;
-        virtual caffa::SessionMaintainer      createSession( caffa::Session::Type type )                     = 0;
-        virtual bool                          hasActiveSessions() const                                      = 0;
-        virtual caffa::SessionMaintainer      getExistingSession( const std::string& sessionUuid )           = 0;
-        virtual caffa::ConstSessionMaintainer getExistingSession( const std::string& sessionUuid ) const     = 0;
+        [[nodiscard]] virtual bool                          readyForSession( caffa::Session::Type type ) const   = 0;
+        virtual caffa::SessionMaintainer                    createSession( caffa::Session::Type type )           = 0;
+        [[nodiscard]] virtual bool                          hasActiveSessions() const                            = 0;
+        virtual caffa::SessionMaintainer                    getExistingSession( const std::string& sessionUuid ) = 0;
+        [[nodiscard]] virtual caffa::ConstSessionMaintainer getExistingSession( const std::string& sessionUuid ) const = 0;
         virtual void changeSession( caffa::not_null<caffa::Session*> session, caffa::Session::Type newType ) = 0;
         virtual void destroySession( const std::string& sessionUuid )                                        = 0;
 
@@ -70,4 +72,5 @@ namespace rpc
         bool m_requiresValidSession;
     };
 } // namespace rpc
+
 } // namespace caffa

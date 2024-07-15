@@ -51,54 +51,54 @@ namespace caffa::rpc
 class RestClient : public Client
 {
 public:
-    RestClient( const std::string& hostname, int port = 50000 );
+    explicit RestClient( const std::string& hostname, int port = 50000 );
 
     ~RestClient() override;
 
-    caffa::AppInfo                                    appInfo() const override;
-    std::shared_ptr<caffa::ObjectHandle>              document( const std::string& documentId ) const override;
-    std::vector<std::shared_ptr<caffa::ObjectHandle>> documents() const override;
-    std::string                                       execute( caffa::not_null<const caffa::ObjectHandle*> selfObject,
-                                                               const std::string&                          methodName,
-                                                               const std::string&                          jsonArguments ) const override;
-    void                                              sendKeepAlive() override;
-    bool                                              isReady( caffa::Session::Type type ) const override;
-
-    void createSession( caffa::Session::Type type, const std::string& username = "", const std::string& password = "" ) override;
+    AppInfo                                    appInfo() const override;
+    std::shared_ptr<ObjectHandle>              document( const std::string& documentId ) const override;
+    std::vector<std::shared_ptr<ObjectHandle>> documents() const override;
+    std::string                                execute( not_null<const ObjectHandle*> selfObject,
+                                                        const std::string&            methodName,
+                                                        const std::string&            jsonArguments ) const override;
+    void                                       sendKeepAlive() override;
+    bool                                       isReady( Session::Type type ) const override;
 
     /**
      * @brief Check the session. Will return a session type (including possibly INVALID) if the session exists.
      * And throw an exception if it does not.
-     * @return caffa::Session::Type
+     * @return Session::Type
      */
-    caffa::Session::Type checkSession() const override;
-    void                 changeSession( caffa::Session::Type newType ) override;
-    void                 destroySession() override;
-    const std::string&   sessionUuid() const override;
-    void                 startKeepAliveThread() override;
+    Session::Type      checkSession() const override;
+    void               changeSession( Session::Type newType ) override;
+    void               destroySession();
+    const std::string& sessionUuid() const override;
+    void               startKeepAliveThread() override;
 
-    std::shared_ptr<caffa::ObjectHandle> getChildObject( const caffa::ObjectHandle* objectHandle,
-                                                         const std::string&         fieldName ) const override;
+    std::shared_ptr<ObjectHandle> getChildObject( const ObjectHandle* objectHandle,
+                                                  const std::string&  fieldName ) const override;
 
-    std::vector<std::shared_ptr<caffa::ObjectHandle>> getChildObjects( const caffa::ObjectHandle* objectHandle,
-                                                                       const std::string& fieldName ) const override;
+    std::vector<std::shared_ptr<ObjectHandle>> getChildObjects( const ObjectHandle* objectHandle,
+                                                                const std::string&  fieldName ) const override;
 
-    void setChildObject( const caffa::ObjectHandle* objectHandle,
-                         const std::string&         fieldName,
-                         const caffa::ObjectHandle* childObject ) override;
+    void setChildObject( const ObjectHandle* objectHandle,
+                         const std::string&  fieldName,
+                         const ObjectHandle* childObject ) override;
 
-    void removeChildObject( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, size_t index ) override;
+    void removeChildObject( const ObjectHandle* objectHandle, const std::string& fieldName, size_t index ) override;
 
-    void clearChildObjects( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) override;
+    void clearChildObjects( const ObjectHandle* objectHandle, const std::string& fieldName ) override;
 
-    void insertChildObject( const caffa::ObjectHandle* objectHandle,
-                            const std::string&         fieldName,
-                            size_t                     index,
-                            const caffa::ObjectHandle* childObject ) override;
+    void insertChildObject( const ObjectHandle* objectHandle,
+                            const std::string&  fieldName,
+                            size_t              index,
+                            const ObjectHandle* childObject ) override;
 
 private:
-    void setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value ) override;
-    nlohmann::json getJson( const caffa::ObjectHandle*, const std::string& fieldName ) const override;
+    void doCreateSession( Session::Type type, const std::string& username, const std::string& password ) override;
+
+    void setJson( const ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value ) override;
+    nlohmann::json getJson( const ObjectHandle*, const std::string& fieldName ) const override;
 
     std::pair<http::status, std::string> performRequest( http::verb         verb,
                                                          const std::string& hostname,

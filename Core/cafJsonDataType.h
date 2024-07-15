@@ -27,7 +27,7 @@
 
 namespace caffa
 {
-template <class _Tp>
+template <class T>
 struct is_chrono_integral : std::false_type
 {
 };
@@ -42,11 +42,11 @@ struct is_chrono_integral<std::chrono::time_point<Clock, Duration>> : std::true_
 {
 };
 
-template <typename _Tp>
-concept chrono_integral = is_chrono_integral<_Tp>::value;
+template <typename T>
+concept chrono_integral = is_chrono_integral<T>::value;
 
-template <typename _Tp>
-concept supported_integral = ( std::integral<_Tp> || chrono_integral<_Tp> ) && !std::is_same<_Tp, bool>::value;
+template <typename T>
+concept supported_integral = (std::integral<T> || chrono_integral<T>)&&!std::is_same_v<T, bool>;
 
 /**
  * The default
@@ -115,7 +115,7 @@ struct JsonDataType<DataType>
     static nlohmann::json jsonType()
     {
         auto object    = nlohmann::json::object();
-        object["$ref"] = std::string( "#/components/object_schemas/" ) + DataType::classKeywordStatic();
+        object["$ref"] = std::string( "#/components/object_schemas/" ) + std::string( DataType::classKeywordStatic() );
         return object;
     }
 };
@@ -129,7 +129,8 @@ struct JsonDataType<DataType>
     static nlohmann::json jsonType()
     {
         auto object    = nlohmann::json::object();
-        object["$ref"] = std::string( "#/components/object_schemas/" ) + DataType::element_type::classKeywordStatic();
+        object["$ref"] = std::string( "#/components/object_schemas/" ) +
+                         std::string( DataType::element_type::classKeywordStatic() );
         return object;
     }
 };

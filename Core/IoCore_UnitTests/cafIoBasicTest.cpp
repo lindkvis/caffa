@@ -309,7 +309,7 @@ TEST( BaseTest, TestDataType )
         auto dataType = obj->m_childArrayField.dataType();
 
         // We've stored an InheritedDemoObj in the field, but the field is actually of the parent type DemoObject
-        EXPECT_EQ( ( std::string( "object::" ) + DemoObject::classKeywordStatic() + "[]" ), dataType );
+        EXPECT_EQ( ( std::string( "object::" ) + std::string(DemoObject::classKeywordStatic()) + "[]" ), dataType );
     }
 }
 

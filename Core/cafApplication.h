@@ -17,10 +17,6 @@
 //    FITNESS FOR A PARTICULAR PURPOSE.
 #pragma once
 
-#include <nlohmann/json.hpp>
-
-#include <list>
-#include <set>
 #include <string>
 
 /**
@@ -29,7 +25,6 @@
  */
 namespace caffa
 {
-class Document;
 
 /**
  * @brief Basic Application Information.
@@ -92,7 +87,7 @@ struct AppInfo
      * @return true
      * @return false
      */
-    bool hasCapability( AppCapability typeToCheck ) const
+    [[nodiscard]] bool hasCapability( AppCapability typeToCheck ) const
     {
         return ( appType & static_cast<unsigned int>( typeToCheck ) ) != 0u;
     }
@@ -102,33 +97,28 @@ struct AppInfo
      *
      * @return std::string
      */
-    std::string version_string() const
+    [[nodiscard]] std::string version_string() const
     {
         return std::to_string( majorVersion ) + "." + std::to_string( minorVersion ) + "." + std::to_string( patchVersion );
     }
-
-    static nlohmann::json jsonSchema();
 };
-
-void to_json( nlohmann::json& jsonValue, const AppInfo& appInfo );
-void from_json( const nlohmann::json& jsonValue, AppInfo& appInfo );
 
 class Application
 {
 public:
-    Application( unsigned int capabilities );
-    Application( AppInfo::AppCapability capability );
+    explicit Application( unsigned int capabilities );
+    explicit Application( AppInfo::AppCapability capability );
     virtual ~Application();
 
-    virtual std::string name() const = 0;
-    bool                hasCapability( AppInfo::AppCapability typeToCheck ) const;
-    AppInfo             appInfo() const;
+    [[nodiscard]] virtual std::string name() const = 0;
+    [[nodiscard]] bool                hasCapability( AppInfo::AppCapability typeToCheck ) const;
+    [[nodiscard]] AppInfo             appInfo() const;
 
-    virtual int         majorVersion() const = 0;
-    virtual int         minorVersion() const = 0;
-    virtual int         patchVersion() const = 0;
-    virtual std::string description() const  = 0;
-    virtual std::string contactEmail() const = 0;
+    [[nodiscard]] virtual int         majorVersion() const = 0;
+    [[nodiscard]] virtual int         minorVersion() const = 0;
+    [[nodiscard]] virtual int         patchVersion() const = 0;
+    [[nodiscard]] virtual std::string description() const  = 0;
+    [[nodiscard]] virtual std::string contactEmail() const = 0;
 
     static Application* instance();
     static void         registerInstance( Application* instance );

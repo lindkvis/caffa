@@ -35,7 +35,6 @@
 #include "cafRestClient.h"
 
 #include "cafAppEnum.h"
-#include "cafDefaultObjectFactory.h"
 #include "cafDocument.h"
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
@@ -43,13 +42,11 @@
 #include "cafRpcApplication.h"
 #include "cafRpcClientPassByRefObjectFactory.h"
 #include "cafRpcClientPassByValueObjectFactory.h"
-#include "cafRpcObjectConversion.h"
 #include "cafSession.h"
 #include "cafStringEncoding.h"
 
 #include <nlohmann/json.hpp>
 
-#include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/asio/use_future.hpp>
@@ -63,12 +60,14 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
+#include <utility>
 
 namespace beast = boost::beast; // from <boost/beast.hpp>
 namespace http  = beast::http; // from <boost/beast/http.hpp>
 namespace net   = boost::asio; // from <boost/asio.hpp>
 using tcp       = net::ip::tcp; // from <boost/asio/ip/tcp.hpp>
 
+using namespace caffa;
 using namespace caffa::rpc;
 using namespace std::chrono_literals;
 
@@ -81,7 +80,7 @@ public:
     {
     }
 
-    void connect( const std::string& host, int port )
+    void connect( const std::string& host, const int port )
     {
         // Look up the domain name
         m_resolver.async_resolve( host,
@@ -89,7 +88,7 @@ public:
                                   beast::bind_front_handler( &Connector::onResolve, shared_from_this() ) );
     }
 
-    void onResolve( beast::error_code ec, tcp::resolver::results_type results )
+    void onResolve( const beast::error_code ec, const tcp::resolver::results_type& results )
     {
         if ( ec )
         {
@@ -105,7 +104,7 @@ public:
         m_stream->async_connect( results, beast::bind_front_handler( &Connector::onConnect, shared_from_this() ) );
     }
 
-    void onConnect( beast::error_code ec, tcp::resolver::results_type::endpoint_type )
+    void onConnect( const beast::error_code ec, const tcp::resolver::results_type::endpoint_type& )
     {
         if ( ec )
         {
@@ -134,10 +133,10 @@ private:
 class Request : public std::enable_shared_from_this<Request>
 {
 public:
-    explicit Request( beast::tcp_stream& stream, net::io_context& ioc, const std::string& username, const std::string& password )
+    explicit Request( beast::tcp_stream& stream, std::string username, std::string password )
         : m_stream( stream )
-        , m_username( username )
-        , m_password( password )
+        , m_username( std::move( username ) )
+        , m_password( std::move( password ) )
     {
     }
 
@@ -152,8 +151,7 @@ public:
         if ( !m_username.empty() && !m_password.empty() )
         {
             CAFFA_DEBUG( "Setting authorisation header!" );
-            m_req.set( http::field::authorization,
-                       "Basic " + caffa::StringTools::encodeBase64( m_username + ":" + m_password ) );
+            m_req.set( http::field::authorization, "Basic " + StringTools::encodeBase64( m_username + ":" + m_password ) );
         }
         if ( !body.empty() )
         {
@@ -252,7 +250,7 @@ std::pair<http::status, std::string> RestClient::performRequest( http::verb     
         m_ioc->reset();
     }
 
-    auto request = std::make_shared<Request>( *m_stream, *m_ioc, username, password );
+    auto request = std::make_shared<Request>( *m_stream, username, password );
     request->run( verb, target, body );
     m_ioc->run();
 
@@ -286,8 +284,8 @@ RestClient::RestClient( const std::string& hostname, int port /*= 50000 */ )
     , m_ioc( std::make_shared<net::io_context>() )
 {
     // Apply current client to the two client object factories.
-    caffa::rpc::ClientPassByRefObjectFactory::instance()->setClient( this );
-    caffa::rpc::ClientPassByValueObjectFactory::instance()->setClient( this );
+    ClientPassByRefObjectFactory::instance()->setClient( this );
+    ClientPassByValueObjectFactory::instance()->setClient( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -316,7 +314,7 @@ RestClient::~RestClient()
 //--------------------------------------------------------------------------------------------------
 /// Retrieve Application information
 //--------------------------------------------------------------------------------------------------
-caffa::AppInfo RestClient::appInfo() const
+AppInfo RestClient::appInfo() const
 {
     auto [status, body] = performGetRequest( hostname(), port(), "/app/info" );
     if ( status != http::status::ok )
@@ -326,13 +324,13 @@ caffa::AppInfo RestClient::appInfo() const
 
     auto jsonContent = nlohmann::json::parse( body );
 
-    return jsonContent.get<caffa::AppInfo>();
+    return jsonContent.get<AppInfo>();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Retrieve a top level document (project)
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<caffa::ObjectHandle> RestClient::document( const std::string& documentId ) const
+std::shared_ptr<ObjectHandle> RestClient::document( const std::string& documentId ) const
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
@@ -349,7 +347,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::document( const std::string& do
     }
     CAFFA_TRACE( "Got document JSON '" << body << "'" );
 
-    caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
+    JsonSerializer serializer( ClientPassByRefObjectFactory::instance() );
     serializer.setClient( true );
     serializer.setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON );
 
@@ -361,7 +359,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::document( const std::string& do
 //--------------------------------------------------------------------------------------------------
 /// Retrieve all top level documents
 //--------------------------------------------------------------------------------------------------
-std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::documents() const
+std::vector<std::shared_ptr<ObjectHandle>> RestClient::documents() const
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
@@ -379,11 +377,11 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::documents() const
         throw std::runtime_error( "Failed to get documents" );
     }
 
-    caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
+    JsonSerializer serializer( ClientPassByRefObjectFactory::instance() );
     serializer.setClient( true );
     serializer.setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON );
-    std::vector<std::shared_ptr<caffa::ObjectHandle>> documents;
-    for ( auto jsonDocument : jsonArray )
+    std::vector<std::shared_ptr<ObjectHandle>> documents;
+    for ( const auto& jsonDocument : jsonArray )
     {
         auto document = serializer.createObjectFromString( jsonDocument.dump() );
         documents.push_back( document );
@@ -394,9 +392,9 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::documents() const
 //--------------------------------------------------------------------------------------------------
 /// Execute a general non-streaming method.
 //--------------------------------------------------------------------------------------------------
-std::string RestClient::execute( caffa::not_null<const caffa::ObjectHandle*> selfObject,
-                                 const std::string&                          methodName,
-                                 const std::string&                          jsonArguments ) const
+std::string RestClient::execute( not_null<const ObjectHandle*> selfObject,
+                                 const std::string&            methodName,
+                                 const std::string&            jsonArguments ) const
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
@@ -468,13 +466,13 @@ void RestClient::startKeepAliveThread()
 //--------------------------------------------------------------------------------------------------
 // Check if the server is ready for sessions
 //--------------------------------------------------------------------------------------------------
-bool RestClient::isReady( caffa::Session::Type type ) const
+bool RestClient::isReady( Session::Type type ) const
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
     CAFFA_TRACE( "Checking if server is ready for sessions" );
 
-    caffa::AppEnum<caffa::Session::Type> enumType( type );
+    AppEnum<Session::Type> enumType( type );
 
     auto [status, body] = performGetRequest( hostname(), port(), std::string( "/sessions/?type=" + enumType.label() ) );
 
@@ -497,11 +495,11 @@ bool RestClient::isReady( caffa::Session::Type type ) const
 //--------------------------------------------------------------------------------------------------
 // Create a new session
 //--------------------------------------------------------------------------------------------------
-void RestClient::createSession( caffa::Session::Type type, const std::string& username, const std::string& password )
+void RestClient::doCreateSession( Session::Type type, const std::string& username, const std::string& password )
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
-    caffa::AppEnum<caffa::Session::Type> enumType( type );
+    AppEnum<Session::Type> enumType( type );
 
     CAFFA_TRACE( "Creating session of type " << enumType.label() );
 
@@ -527,7 +525,7 @@ void RestClient::createSession( caffa::Session::Type type, const std::string& us
 //--------------------------------------------------------------------------------------------------
 // Check the current session
 //--------------------------------------------------------------------------------------------------
-caffa::Session::Type RestClient::checkSession() const
+Session::Type RestClient::checkSession() const
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
@@ -549,21 +547,21 @@ caffa::Session::Type RestClient::checkSession() const
 
     auto jsonResult = nlohmann::json::parse( body );
     CAFFA_ASSERT( jsonResult.contains( "type" ) );
-    return caffa::AppEnum<caffa::Session::Type>( jsonResult["type"].get<std::string>() ).value();
+    return AppEnum<Session::Type>( jsonResult["type"].get<std::string>() ).value();
 }
 
 //--------------------------------------------------------------------------------------------------
 // Change the session type
 //--------------------------------------------------------------------------------------------------
-void RestClient::changeSession( caffa::Session::Type newType )
+void RestClient::changeSession( Session::Type newType )
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
     auto [status, body] = performRequest( http::verb::put,
                                           hostname(),
                                           port(),
-                                          std::string( "/sessions/" + m_sessionUuid + "?session_uuid=" ) + m_sessionUuid +
-                                              "&type=" + caffa::AppEnum<caffa::Session::Type>( newType ).label(),
+                                          std::string( "/sessions/" + m_sessionUuid + "?session_uuid=" ) +
+                                              m_sessionUuid + "&type=" + AppEnum<Session::Type>( newType ).label(),
                                           "" );
 
     if ( status != http::status::ok )
@@ -618,7 +616,7 @@ const std::string& RestClient::sessionUuid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RestClient::setJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value )
+void RestClient::setJson( const ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value )
 {
     auto [status, body] = performRequest( http::verb::put,
                                           hostname(),
@@ -635,7 +633,7 @@ void RestClient::setJson( const caffa::ObjectHandle* objectHandle, const std::st
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-nlohmann::json RestClient::getJson( const caffa::ObjectHandle* objectHandle, const std::string& fieldName ) const
+nlohmann::json RestClient::getJson( const ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     auto [status, body] = performGetRequest( hostname(),
                                              port(),
@@ -652,8 +650,7 @@ nlohmann::json RestClient::getJson( const caffa::ObjectHandle* objectHandle, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<caffa::ObjectHandle> RestClient::getChildObject( const caffa::ObjectHandle* objectHandle,
-                                                                 const std::string&         fieldName ) const
+std::shared_ptr<ObjectHandle> RestClient::getChildObject( const ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     auto [status, body] = performGetRequest( hostname(),
                                              port(),
@@ -665,7 +662,7 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::getChildObject( const caffa::Ob
     }
     CAFFA_TRACE( "Got body: " << body );
 
-    return caffa::JsonSerializer( caffa::rpc::ClientPassByRefObjectFactory::instance() )
+    return JsonSerializer( ClientPassByRefObjectFactory::instance() )
         .setClient( true )
         .setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON )
         .createObjectFromString( body );
@@ -674,10 +671,10 @@ std::shared_ptr<caffa::ObjectHandle> RestClient::getChildObject( const caffa::Ob
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::getChildObjects( const caffa::ObjectHandle* objectHandle,
-                                                                               const std::string& fieldName ) const
+std::vector<std::shared_ptr<ObjectHandle>> RestClient::getChildObjects( const ObjectHandle* objectHandle,
+                                                                        const std::string&  fieldName ) const
 {
-    std::vector<std::shared_ptr<caffa::ObjectHandle>> childObjects;
+    std::vector<std::shared_ptr<ObjectHandle>> childObjects;
 
     auto [status, body] = performGetRequest( hostname(),
                                              port(),
@@ -695,14 +692,14 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::getChildObjects( c
         throw std::runtime_error( "The return value was not an array" );
     }
 
-    caffa::JsonSerializer serializer( caffa::rpc::ClientPassByRefObjectFactory::instance() );
-    serializer.setSerializationType( caffa::JsonSerializer::SerializationType::DATA_SKELETON );
+    JsonSerializer serializer( ClientPassByRefObjectFactory::instance() );
+    serializer.setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON );
     serializer.setClient( true );
 
-    for ( auto jsonObject : jsonArray )
+    for ( const auto& jsonObject : jsonArray )
     {
-        childObjects.push_back( caffa::JsonSerializer( caffa::rpc::ClientPassByRefObjectFactory::instance() )
-                                    .setSerializationType( caffa::JsonSerializer::SerializationType::DATA_SKELETON )
+        childObjects.push_back( JsonSerializer( ClientPassByRefObjectFactory::instance() )
+                                    .setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON )
                                     .createObjectFromString( jsonObject.dump() ) );
     }
     return childObjects;
@@ -711,16 +708,14 @@ std::vector<std::shared_ptr<caffa::ObjectHandle>> RestClient::getChildObjects( c
 //--------------------------------------------------------------------------------------------------
 /// TODO: add support for index and replace
 //--------------------------------------------------------------------------------------------------
-void RestClient::setChildObject( const caffa::ObjectHandle* objectHandle,
-                                 const std::string&         fieldName,
-                                 const caffa::ObjectHandle* childObject )
+void RestClient::setChildObject( const ObjectHandle* objectHandle, const std::string& fieldName, const ObjectHandle* childObject )
 {
     auto [status, body] = performRequest( http::verb::put,
                                           hostname(),
                                           port(),
                                           std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" + fieldName +
                                               "?session_uuid=" + m_sessionUuid,
-                                          caffa::JsonSerializer().setClient( true ).writeObjectToString( childObject ) );
+                                          JsonSerializer().setClient( true ).writeObjectToString( childObject ) );
     if ( status != http::status::accepted )
     {
         throw std::runtime_error( "Failed to set child object with status " +
@@ -731,7 +726,7 @@ void RestClient::setChildObject( const caffa::ObjectHandle* objectHandle,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RestClient::removeChildObject( const caffa::ObjectHandle* objectHandle, const std::string& fieldName, size_t index )
+void RestClient::removeChildObject( const ObjectHandle* objectHandle, const std::string& fieldName, size_t index )
 {
     auto [status, body] = performRequest( http::verb::delete_,
                                           hostname(),
@@ -749,7 +744,7 @@ void RestClient::removeChildObject( const caffa::ObjectHandle* objectHandle, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RestClient::clearChildObjects( const caffa::ObjectHandle* objectHandle, const std::string& fieldName )
+void RestClient::clearChildObjects( const ObjectHandle* objectHandle, const std::string& fieldName )
 {
     auto [status, body] = performRequest( http::verb::delete_,
                                           hostname(),
@@ -767,12 +762,12 @@ void RestClient::clearChildObjects( const caffa::ObjectHandle* objectHandle, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RestClient::insertChildObject( const caffa::ObjectHandle* objectHandle,
-                                    const std::string&         fieldName,
-                                    size_t                     index,
-                                    const caffa::ObjectHandle* childObject )
+void RestClient::insertChildObject( const ObjectHandle* objectHandle,
+                                    const std::string&  fieldName,
+                                    size_t              index,
+                                    const ObjectHandle* childObject )
 {
-    auto childString    = caffa::JsonSerializer().setClient( true ).writeObjectToString( childObject );
+    auto childString    = JsonSerializer().setClient( true ).writeObjectToString( childObject );
     auto [status, body] = performRequest( http::verb::post,
                                           hostname(),
                                           port(),

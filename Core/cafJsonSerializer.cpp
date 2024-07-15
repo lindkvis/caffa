@@ -30,6 +30,8 @@
 #include <nlohmann/json.hpp>
 
 #include <iomanip>
+#include <set>
+#include <utility>
 
 using namespace caffa;
 
@@ -63,7 +65,7 @@ JsonSerializer::JsonSerializer( ObjectFactory* objectFactory /* = nullptr */ )
 
 JsonSerializer& JsonSerializer::setFieldSelector( FieldSelector fieldSelector )
 {
-    m_fieldSelector = fieldSelector;
+    m_fieldSelector = std::move( fieldSelector );
     return *this;
 }
 
@@ -162,8 +164,7 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
             {
                 if ( this->fieldSelector() && !this->fieldSelector()( fieldHandle ) ) continue;
 
-                auto ioFieldHandle = fieldHandle->capability<FieldJsonCapability>();
-                if ( ioFieldHandle )
+                if ( auto ioFieldHandle = fieldHandle->capability<FieldJsonCapability>(); ioFieldHandle )
                 {
                     ioFieldHandle->readFromJson( value, *this );
                 }
@@ -284,7 +285,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             jsonObject = jsonClass;
         }
         jsonObject["$schema"] = "https://json-schema.org/draft/2020-12/schema";
-        jsonObject["$id"]     = "/openapi.json/components/object_schemas/" + object->classKeyword();
+        jsonObject["$id"]     = "/openapi.json/components/object_schemas/" + std::string( object->classKeyword() );
     }
     else
     {
@@ -318,13 +319,13 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string JsonSerializer::readUUIDFromObjectString( const std::string& string ) const
+std::string JsonSerializer::readUUIDFromObjectString( const std::string& string )
 {
-    nlohmann::json jsonValue = nlohmann::json::parse( string );
+    const nlohmann::json jsonValue = nlohmann::json::parse( string );
 
     if ( jsonValue.is_object() )
     {
-        auto uuid_it = jsonValue.find( "uuid" );
+        const auto uuid_it = jsonValue.find( "uuid" );
         if ( uuid_it != jsonValue.end() ) return uuid_it->get<std::string>();
     }
     return "";
@@ -366,7 +367,7 @@ std::shared_ptr<ObjectHandle> JsonSerializer::copyBySerialization( const ObjectH
 ///
 //--------------------------------------------------------------------------------------------------
 std::shared_ptr<ObjectHandle> JsonSerializer::copyAndCastBySerialization( const ObjectHandle* object,
-                                                                          const std::string& destinationClassKeyword ) const
+                                                                          const std::string_view& destinationClassKeyword ) const
 {
     std::string string = writeObjectToString( object );
 

@@ -31,9 +31,9 @@ public:
     Field<std::string> name;
 };
 
-class TinyDemoDocument : public Document
+class TinyDemoDocument : public Object
 {
-    CAFFA_HEADER_INIT_WITH_DOC( "A tiny object with documentation", TinyDemoDocument, Document )
+    CAFFA_HEADER_INIT_WITH_DOC( "A tiny object with documentation", TinyDemoDocument, Object )
 
 public:
     enum TestEnumType

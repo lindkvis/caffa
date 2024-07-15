@@ -63,7 +63,7 @@ RestDocumentService::RestDocumentService()
                                                                          "Whether to only send the skeleton" );
     skeletonParameter->setDefaultValue( false );
 
-    for ( auto document : documents )
+    for ( const auto& document : documents )
     {
         auto getAction =
             std::make_unique<RestAction>( http::verb::get,
@@ -72,7 +72,8 @@ RestDocumentService::RestDocumentService()
                                           std::bind( &RestDocumentService::document, document->id(), _1, _2, _3, _4 ) );
 
         getAction->addResponse( http::status::ok,
-                                RestResponse::objectResponse( "#/components/object_schemas/" + document->classKeyword(),
+                                RestResponse::objectResponse( "#/components/object_schemas/" +
+                                                                  std::string( document->classKeyword() ),
                                                               document->classDocumentation() ) );
 
         getAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
@@ -166,7 +167,7 @@ public:
             {
                 auto operationId = field->keyword();
                 operationId[0]   = (char)std::toupper( operationId[0] );
-                operationId      = field->ownerObject()->classKeyword() + ".get" + operationId;
+                operationId      = std::string( field->ownerObject()->classKeyword() ) + ".get" + operationId;
 
                 auto getOperation =
                     nlohmann::json{ { "summary", "Get " + field->keyword() }, { "operationId", operationId } };
@@ -184,7 +185,7 @@ public:
             {
                 auto operationId = field->keyword();
                 operationId[0]   = (char)std::toupper( operationId[0] );
-                operationId      = field->ownerObject()->classKeyword() + ".set" + operationId;
+                operationId      = std::string( field->ownerObject()->classKeyword() ) + ".set" + operationId;
 
                 auto setOperation =
                     nlohmann::json{ { "summary", "Set " + field->keyword() }, { "operationId", operationId } };
