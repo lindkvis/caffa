@@ -44,14 +44,11 @@ public:
     ~Document() noexcept override;
 
     [[nodiscard]] std::string id() const;
-    [[nodiscard]] std::string fileName() const;
 
     void setId( const std::string& id );
-    void setFileName( const std::string& fileName );
 
 private:
     Field<std::string> m_id;
-    Field<std::string> m_fileName;
 };
 
 } // End of namespace caffa

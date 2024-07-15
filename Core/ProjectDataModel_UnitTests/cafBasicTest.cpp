@@ -301,17 +301,16 @@ TEST( BaseTest, ReadWrite )
         doc.objects.push_back( id2 );
 
         // Write file
-        doc.setFileName( "TestFile.json" );
+        auto fileName = "TestFile.json";
 
         {
-            std::ofstream f1( doc.fileName() );
+            std::ofstream f1( fileName );
             caffa::JsonSerializer().setSerializeUuids( false ).writeStream( &doc, f1 );
         }
 
         {
-            std::ifstream f1( doc.fileName() );
+            std::ifstream f1( fileName );
             std::string   str1( ( std::istreambuf_iterator<char>( f1 ) ), std::istreambuf_iterator<char>() );
-            CAFFA_DEBUG( "Wrote file content to " << doc.fileName() << ":\n" << str1 );
         }
 
         d2p->m_simpleObjPtrField = nullptr;
@@ -322,9 +321,9 @@ TEST( BaseTest, ReadWrite )
         MyDocument doc;
 
         // Read file
-        doc.setFileName( "TestFile.json" );
+        auto fileName = "TestFile.json";
         {
-            std::ifstream f1( doc.fileName() );
+            std::ifstream f1(fileName );
             caffa::JsonSerializer().setSerializeUuids( false ).readStream( &doc, f1 );
         }
 

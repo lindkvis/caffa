@@ -117,7 +117,6 @@ TEST_F( RestTest, Document )
         auto serverDocument =
             std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
         ASSERT_TRUE( serverDocument );
-        CAFFA_INFO( "Server Document File Name: " << serverDocument->fileName() );
 
         size_t childCount = 11u;
         for ( size_t i = 0; i < childCount; ++i )
@@ -136,12 +135,9 @@ TEST_F( RestTest, Document )
             ASSERT_TRUE( objectHandle != nullptr );
             auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
             ASSERT_TRUE( clientDocument != nullptr );
-            auto clientFileName = clientDocument->fileName();
-            CAFFA_DEBUG( "Client Document File Name: " << clientFileName );
 
             ASSERT_ANY_THROW( auto nonExistentClientDocument = client->document( "wrongName" ) );
 
-            ASSERT_EQ( serverApp->document( "testDocument", session.get() )->fileName(), clientFileName );
             ASSERT_EQ( serverDocument->uuid(), clientDocument->uuid() );
 
             CAFFA_DEBUG( "Collecting both client and server objects" );
@@ -247,13 +243,11 @@ TEST_F( RestTest, DocumentWithNonScriptableChild )
             auto serverDocument = std::dynamic_pointer_cast<DemoDocumentWithNonScriptableMember>(
                 serverApp->document( "testDocument2", session.get() ) );
             ASSERT_TRUE( serverDocument );
-            CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
             auto objectHandle   = client->document( "testDocument2" );
             auto clientDocument = std::dynamic_pointer_cast<DemoDocumentWithNonScriptableMember>( objectHandle );
             ASSERT_TRUE( clientDocument != nullptr );
 
-            ASSERT_EQ( serverDocument->fileName(), clientDocument->fileName() );
             ASSERT_EQ( serverDocument->uuid(), clientDocument->uuid() );
 
             size_t childCount = 11u;
@@ -346,14 +340,7 @@ TEST_F( RestTest, Sync )
         auto objectHandle   = client->document( "testDocument" );
         auto clientDocument = std::dynamic_pointer_cast<caffa::Document>( objectHandle );
         ASSERT_TRUE( clientDocument != nullptr );
-        CAFFA_DEBUG( "Client Document File Name: " << clientDocument->fileName() );
-        ASSERT_EQ( serverApp->document( "testDocument", session.get() )->fileName(), clientDocument->fileName() );
         ASSERT_EQ( serverDocument->uuid(), clientDocument->uuid() );
-
-        std::string newFileName = "ChangedFileName.txt";
-        clientDocument->setFileName( newFileName );
-        ASSERT_EQ( newFileName, serverDocument->fileName() );
-        ASSERT_EQ( newFileName, clientDocument->fileName() );
     }
     serverApp->quit();
 
@@ -392,20 +379,8 @@ TEST_F( RestTest, SettingValueWithObserver )
         auto objectHandle   = client->document( "testDocument" );
         auto clientDocument = std::dynamic_pointer_cast<caffa::Document>( objectHandle );
         ASSERT_TRUE( clientDocument != nullptr );
-        CAFFA_DEBUG( "Client Document File Name: " << clientDocument->fileName() );
-        ASSERT_EQ( serverApp->document( "testDocument", session.get() )->fileName(), clientDocument->fileName() );
         ASSERT_EQ( serverDocument->uuid(), clientDocument->uuid() );
 
-        std::string newFileName = "ChangedFileName.txt";
-        try
-        {
-            clientDocument->setFileName( newFileName );
-            CAFFA_ERROR( "Setting the file name should throw exception" );
-        }
-        catch ( const std::runtime_error& e )
-        {
-            CAFFA_INFO( "Setting file name with observing session threw exception as expected" );
-        }
     }
     serverApp->quit();
 
@@ -484,7 +459,6 @@ TEST_F( RestTest, ObjectIntGetterAndSetter )
         auto serverDocument =
             std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
         ASSERT_TRUE( serverDocument );
-        CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
         std::vector<int> largeIntVector;
         std::mt19937     rng;
@@ -534,7 +508,6 @@ TEST_F( RestTest, ObjectDeepCopyVsShallowCopy )
     auto session = serverApp->getExistingSession( client->sessionUuid() );
     auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
-    CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
     std::vector<int> largeIntVector;
     std::mt19937     rng;
@@ -588,7 +561,6 @@ TEST_F( RestTest, ObjectDoubleGetterAndSetter )
         auto serverDocument =
             std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
         ASSERT_TRUE( serverDocument );
-        CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
         std::vector<double> largeDoubleVector;
         std::mt19937        rng;
@@ -641,7 +613,6 @@ TEST_F( RestTest, ObjectIntegratedGettersAndSetters )
         auto serverDocument =
             std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
         ASSERT_TRUE( serverDocument );
-        CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
         serverDocument->demoObject->intField              = 10;
         serverDocument->demoObject->intFieldNonScriptable = 12;
@@ -767,7 +738,6 @@ TEST_F( RestTest, BoolVectorGettersAndSetters )
         auto serverDocument =
             std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
         ASSERT_TRUE( serverDocument );
-        CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
         ASSERT_EQ( false, serverDocument->demoObject->boolField() );
         serverDocument->demoObject->boolField = true;
@@ -820,7 +790,6 @@ TEST_F( RestTest, ChildObjects )
             auto serverDocument =
                 std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
             ASSERT_TRUE( serverDocument );
-            CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
             auto objectHandle   = client->document( "testDocument" );
             auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
@@ -922,7 +891,6 @@ TEST_F( RestTest, LocalResponseTimeAndDataTransfer )
         auto serverDocument =
             std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
         ASSERT_TRUE( serverDocument );
-        CAFFA_DEBUG( "Server Document File Name: " << serverDocument->fileName() );
 
         auto objectHandle   = client->document( "testDocument" );
         auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );

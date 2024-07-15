@@ -34,8 +34,7 @@ CAFFA_SOURCE_INIT( Document )
 //--------------------------------------------------------------------------------------------------
 Document::Document( const std::string& id )
 {
-    initField( m_id, "id" ).withScripting().withDefault( id ).withDoc( "A unique document ID" );
-    initField( m_fileName, "fileName" ).withScripting().withDoc( "The filename of the document if saved to disk" );
+    initField( m_id, "id" ).withScripting(true, false).withDefault( id ).withDoc( "A unique document ID" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,25 +53,9 @@ std::string Document::id() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string Document::fileName() const
-{
-    return m_fileName.value();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void Document::setId( const std::string& id )
 {
     m_id.setValue( id );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Document::setFileName( const std::string& fileName )
-{
-    m_fileName.setValue( fileName );
 }
 
 } // End of namespace caffa

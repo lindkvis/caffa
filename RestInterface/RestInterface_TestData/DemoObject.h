@@ -122,7 +122,6 @@ public:
         demoObject = std::make_shared<DemoObject>();
 
         this->setId( "testDocument" );
-        this->setFileName( "dummyFileName" );
     }
 
     void addInheritedObject( std::shared_ptr<InheritedDemoObj> object ) { m_inheritedDemoObjects.push_back( object ); }
@@ -146,7 +145,6 @@ public:
         demoObjectNonScriptable = std::make_shared<DemoObject>();
 
         this->setId( "testDocument2" );
-        this->setFileName( "dummyFileName2" );
     }
 
     void addInheritedObject( std::shared_ptr<InheritedDemoObj> object ) { m_inheritedDemoObjects.push_back( object ); }
