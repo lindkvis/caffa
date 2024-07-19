@@ -106,9 +106,11 @@ namespace std
 template <class T>
 std::ostream& operator<<( std::ostream& os, const std::vector<T>& v )
 {
+    std::string spacer;
     for ( typename std::vector<T>::const_iterator ii = v.begin(); ii != v.end(); ++ii )
     {
-        os << " " << *ii;
+        os << spacer << *ii;
+        spacer = " ";
     }
     return os;
 }
