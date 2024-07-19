@@ -161,7 +161,7 @@ public:
 
         if ( auto scriptability = field->capability<FieldScriptingCapability>(); scriptability )
         {
-            auto jsonCapability = field->capability<FieldJsonCapability>();
+            auto jsonCapability = field->capability<FieldIoCapability>();
             CAFFA_ASSERT( jsonCapability );
             if ( scriptability->isReadable() )
             {

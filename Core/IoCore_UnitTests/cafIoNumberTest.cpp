@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 
 #include "cafField.h"
-#include "cafFieldJsonCapabilitySpecializations.h"
+#include "cafFieldIoCapabilitySpecializations.h"
 #include "cafJsonSerializer.h"
 #include "cafObject.h"
 

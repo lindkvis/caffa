@@ -22,11 +22,7 @@
 
 #include "cafDefaultObjectFactory.h"
 #include "cafDocument.h"
-#include "cafFieldJsonCapability.h"
-#include "cafFieldScriptingCapability.h"
-#include "cafJsonSerializer.h"
 #include "cafRestServerApplication.h"
-#include "cafRpcObjectConversion.h"
 
 #include <iostream>
 #include <regex>

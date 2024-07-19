@@ -4,33 +4,31 @@
 
 #include <nlohmann/json.hpp>
 
-#include <chrono>
-#include <memory>
 #include <string>
-#include <vector>
 
 namespace caffa
 {
 class FieldHandle;
-class ObjectFactory;
-class ObjectHandle;
 class JsonSerializer;
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
-class FieldJsonCapability : public FieldCapability
+class FieldIoCapability : public FieldCapability
 {
 public:
-    FieldJsonCapability();
+    FieldIoCapability();
 
     virtual void readFromJson( const nlohmann::json& value, const JsonSerializer& serializer ) = 0;
     virtual void writeToJson( nlohmann::json& value, const JsonSerializer& serializer ) const  = 0;
 
+    virtual void readFromString( const std::string& value ) = 0;
+    virtual void writeToString( std::string& value ) const  = 0;
+
     virtual nlohmann::json jsonType() const = 0;
 
 protected:
-    bool assertValid() const;
+    void assertValid() const;
 };
 } // End of namespace caffa

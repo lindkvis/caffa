@@ -5,8 +5,8 @@
 #include "cafChildArrayField.h"
 #include "cafChildField.h"
 #include "cafField.h"
-#include "cafFieldJsonCapability.h"
-#include "cafFieldJsonCapabilitySpecializations.h"
+#include "cafFieldIoCapability.h"
+#include "cafFieldIoCapabilitySpecializations.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafJsonSerializer.h"
 #include "cafMethod.h"
@@ -197,12 +197,16 @@ public:
         doubleProxyAccessor->registerSetMethod( std::bind( &SimpleObj::setDoubleMember, this, _1 ) );
         doubleProxyAccessor->registerGetMethod( std::bind( &SimpleObj::doubleMember, this ) );
         m_proxyDouble.setAccessor( std::move( doubleProxyAccessor ) );
+
+        initField(m_vectorField, "m_vectorField");
     }
 
     caffa::Field<double> m_position;
     caffa::Field<double> m_dir;
     caffa::Field<int>    m_up;
     caffa::Field<double> m_proxyDouble;
+    caffa::Field<std::vector<int>> m_vectorField;
+
 
     void setDoubleMember( const double& d )
     {
@@ -326,6 +330,28 @@ TEST( BaseTest, TestRangeValidation )
     ASSERT_THROW( s1->m_up.setValue( 12 ), std::runtime_error );
     ASSERT_THROW( s1->m_up.setValue( -2 ), std::runtime_error );
     ASSERT_EQ( 5, s1->m_up );
+}
+
+TEST(BaseTest, StringStreamers)
+{
+    auto s1 = std::make_shared<SimpleObj>();
+    s1->m_vectorField.setValue({1, 2, 3});
+
+    std::string string;
+    auto ioCapability = s1->m_vectorField.capability<caffa::FieldIoCapability>();
+    ASSERT_TRUE(ioCapability != nullptr);
+    ioCapability->writeToString(string);
+    CAFFA_INFO("String read from vector field: " << string);
+    string += " 4";
+    ioCapability->readFromString(string);
+
+    ASSERT_EQ(4u, s1->m_vectorField.value().size());
+    ASSERT_EQ(4, s1->m_vectorField.value().back());
+
+    std::string newString;
+    ioCapability->writeToString(newString);
+    CAFFA_INFO("String read from vector field: " << newString);
+
 }
 
 std::string ipsum()

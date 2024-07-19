@@ -125,7 +125,7 @@ void ClientPassByRefObjectFactory::applyAccessorToField( caffa::ObjectHandle* fi
     }
     else if ( auto dataField = dynamic_cast<caffa::DataField*>( fieldHandle ); dataField )
     {
-        auto                 jsonCapability  = fieldHandle->capability<caffa::FieldJsonCapability>();
+        auto                 jsonCapability  = fieldHandle->capability<caffa::FieldIoCapability>();
         AccessorCreatorBase* accessorCreator = nullptr;
 
         if ( jsonCapability )

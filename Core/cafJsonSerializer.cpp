@@ -20,7 +20,7 @@
 
 #include "cafAssert.h"
 #include "cafDefaultObjectFactory.h"
-#include "cafFieldJsonCapability.h"
+#include "cafFieldIoCapability.h"
 #include "cafLogger.h"
 #include "cafObjectHandle.h"
 #include "cafObjectPerformer.h"
@@ -160,11 +160,11 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
         else if ( this->serializationType() == SerializationType::DATA_FULL && !value.is_null() && keyword != "methods" )
         {
             auto fieldHandle = object->findField( keyword );
-            if ( fieldHandle && fieldHandle->capability<FieldJsonCapability>() && fieldHandle->isWritable() )
+            if ( fieldHandle && fieldHandle->capability<FieldIoCapability>() && fieldHandle->isWritable() )
             {
                 if ( this->fieldSelector() && !this->fieldSelector()( fieldHandle ) ) continue;
 
-                if ( auto ioFieldHandle = fieldHandle->capability<FieldJsonCapability>(); ioFieldHandle )
+                if ( auto ioFieldHandle = fieldHandle->capability<FieldIoCapability>(); ioFieldHandle )
                 {
                     ioFieldHandle->readFromJson( value, *this );
                 }
@@ -244,7 +244,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             auto keyword = field->keyword();
             if ( parentalFields.contains( keyword ) ) continue;
 
-            const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
+            const FieldIoCapability* ioCapability = field->capability<FieldIoCapability>();
             if ( ioCapability && ( field->isReadable() || field->isWritable() ) )
             {
                 nlohmann::json value;
@@ -305,7 +305,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
 
             auto keyword = field->keyword();
 
-            const FieldJsonCapability* ioCapability = field->capability<FieldJsonCapability>();
+            const FieldIoCapability* ioCapability = field->capability<FieldIoCapability>();
             if ( ioCapability && field->isReadable() )
             {
                 nlohmann::json value;

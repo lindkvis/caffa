@@ -355,7 +355,7 @@ RestObjectService::ServiceResponse
     if ( !scriptability || !scriptability->isReadable() )
         return std::make_pair( http::status::forbidden, "Field " + field->keyword() + " is not remote readable" );
 
-    auto ioCapability = field->capability<caffa::FieldJsonCapability>();
+    auto ioCapability = field->capability<caffa::FieldIoCapability>();
     if ( !ioCapability )
     {
         return std::make_pair( http::status::forbidden,
@@ -406,7 +406,7 @@ RestObjectService::ServiceResponse
     if ( !scriptability || !scriptability->isWritable() )
         return std::make_pair( http::status::forbidden, "Field " + field->keyword() + " is not remote writable" );
 
-    auto ioCapability = field->capability<FieldJsonCapability>();
+    auto ioCapability = field->capability<FieldIoCapability>();
     if ( !ioCapability )
     {
         return std::make_pair( http::status::forbidden,
@@ -458,7 +458,7 @@ RestObjectService::ServiceResponse
     if ( !scriptability || !scriptability->isWritable() )
         return std::make_pair( http::status::forbidden, "Field " + field->keyword() + " is not remote writable" );
 
-    auto ioCapability = field->capability<FieldJsonCapability>();
+    auto ioCapability = field->capability<FieldIoCapability>();
     if ( !ioCapability )
     {
         return std::make_pair( http::status::forbidden,
@@ -505,7 +505,7 @@ RestObjectService::ServiceResponse RestObjectService::deleteFieldValue( FieldHan
     if ( !scriptability || !scriptability->isWritable() )
         return std::make_pair( http::status::forbidden, "Field is not remote writable" );
 
-    auto ioCapability = field->capability<FieldJsonCapability>();
+    auto ioCapability = field->capability<FieldIoCapability>();
     if ( !ioCapability )
     {
         return std::make_pair( http::status::forbidden,

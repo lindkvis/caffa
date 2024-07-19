@@ -21,7 +21,6 @@
 // ##################################################################################################
 
 #include "cafDocument.h"
-#include "cafObjectPerformer.h"
 
 #include <fstream>
 
@@ -34,7 +33,7 @@ CAFFA_SOURCE_INIT( Document )
 //--------------------------------------------------------------------------------------------------
 Document::Document( const std::string& id )
 {
-    initField( m_id, "id" ).withScripting(true, false).withDefault( id ).withDoc( "A unique document ID" );
+    initField( m_id, "id" ).withScripting( true, false ).withDefault( id ).withDoc( "A unique document ID" );
 }
 
 //--------------------------------------------------------------------------------------------------
