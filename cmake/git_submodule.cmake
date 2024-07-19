@@ -12,7 +12,7 @@ function(add_git_submodule dir build)
     if (NOT EXISTS ${dir}/CMakeLists.txt)
         execute_process(COMMAND ${GIT_EXECUTABLE} submodule init -- ${dir}
                 WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                COMMAND_ERROR_IS_FATAL ANY)
+                ERROR_QUIET)
     endif ()
 
     if (build)
