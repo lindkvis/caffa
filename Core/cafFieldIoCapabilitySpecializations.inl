@@ -1,13 +1,12 @@
 
+#pragma once
 #include "cafAssert.h"
 #include "cafJsonDataType.h"
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
 #include "cafObjectFactory.h"
 
-#include <concepts>
 #include <string>
-#include <typeinfo>
 
 namespace caffa
 {
@@ -101,7 +100,7 @@ void FieldIoCap<FieldType>::readFromString( const std::string& string )
     std::istringstream ss( string );
 
     typename FieldType::FieldDataType value{};
-    std::istream&                     istream = static_cast<std::istream&>( ss );
+    auto&                             istream = static_cast<std::istream&>( ss );
 
     istream >> std::boolalpha >> value;
     m_field->setValue( value );
@@ -187,7 +186,7 @@ void FieldIoCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& json
 
     std::string className = *classNameElement;
 
-    std::string uuid = "";
+    std::string uuid;
     if ( jsonObject.contains( "uuid" ) )
     {
         uuid = jsonObject["uuid"].get<std::string>();
@@ -238,31 +237,29 @@ void FieldIoCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& json
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonField, const JsonSerializer& serializer ) const
+void FieldIoCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonElement, const JsonSerializer& serializer ) const
 {
-    auto object = m_field->object();
-
-    if ( object )
+    if ( auto object = m_field->object(); object )
     {
         std::string jsonString = serializer.writeObjectToString( object.get() );
-        jsonField              = nlohmann::json::parse( jsonString );
-        CAFFA_ASSERT( jsonField.is_object() );
+        jsonElement            = nlohmann::json::parse( jsonString );
+        CAFFA_ASSERT( jsonElement.is_object() );
     }
 
     if ( serializer.serializationType() == JsonSerializer::SerializationType::SCHEMA )
     {
-        jsonField = JsonDataType<DataType>::jsonType();
+        jsonElement = JsonDataType<DataType>::jsonType();
         if ( !m_field->isReadable() && m_field->isWritable() )
         {
-            jsonField["writeOnly"] = true;
+            jsonElement["writeOnly"] = true;
         }
         else if ( m_field->isReadable() && !m_field->isWritable() )
         {
-            jsonField["readOnly"] = true;
+            jsonElement["readOnly"] = true;
         }
         if ( !m_field->documentation().empty() )
         {
-            jsonField["description"] = m_field->documentation();
+            jsonElement["description"] = m_field->documentation();
         }
     }
 }
@@ -275,11 +272,11 @@ void FieldIoCap<ChildField<DataType*>>::readFromString( const std::string& strin
 }
 
 template <typename DataType>
-void FieldIoCap<ChildField<DataType*>>::writeToString( std::string& value ) const
+void FieldIoCap<ChildField<DataType*>>::writeToString( std::string& string ) const
 {
     nlohmann::json json;
     writeToJson( json, JsonSerializer() );
-    value = json.dump();
+    string = json.dump();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -388,22 +385,22 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json&
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void FieldIoCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& jsonField, const JsonSerializer& serializer ) const
+void FieldIoCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& jsonElement, const JsonSerializer& serializer ) const
 {
     if ( serializer.serializationType() == JsonSerializer::SerializationType::SCHEMA )
     {
-        jsonField = JsonDataType<std::vector<DataType>>::jsonType();
+        jsonElement = JsonDataType<std::vector<DataType>>::jsonType();
         if ( !m_field->isReadable() && m_field->isWritable() )
         {
-            jsonField["writeOnly"] = true;
+            jsonElement["writeOnly"] = true;
         }
         else if ( m_field->isReadable() && !m_field->isWritable() )
         {
-            jsonField["readOnly"] = true;
+            jsonElement["readOnly"] = true;
         }
         if ( !m_field->documentation().empty() )
         {
-            jsonField["description"] = m_field->documentation();
+            jsonElement["description"] = m_field->documentation();
         }
     }
     else if ( serializer.serializationType() == JsonSerializer::SerializationType::DATA_FULL ||
@@ -420,7 +417,7 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& jsonFi
             nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
             jsonArray.push_back( jsonObject );
         }
-        jsonField = jsonArray;
+        jsonElement = jsonArray;
     }
 }
 
@@ -432,11 +429,11 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFromString( const std::string& 
 }
 
 template <typename DataType>
-void FieldIoCap<ChildArrayField<DataType*>>::writeToString( std::string& value ) const
+void FieldIoCap<ChildArrayField<DataType*>>::writeToString( std::string& string ) const
 {
     nlohmann::json json;
     writeToJson( json, JsonSerializer() );
-    value = json.dump();
+    string = json.dump();
 }
 
 //--------------------------------------------------------------------------------------------------

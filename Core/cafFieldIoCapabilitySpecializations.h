@@ -12,7 +12,7 @@ namespace caffa
 class JsonSerializer;
 
 template <typename FieldType>
-class FieldIoCap : public FieldIoCapability
+class FieldIoCap final : public FieldIoCapability
 {
 public:
     FieldIoCap()
@@ -28,16 +28,16 @@ public:
     void readFromString( const std::string& string ) override;
     void writeToString( std::string& string ) const override;
 
-    const FieldHandle* owner() const override;
-    void               setOwner( FieldHandle* owner ) override;
-    nlohmann::json     jsonType() const override;
+    [[nodiscard]] const FieldHandle* owner() const override;
+    void                             setOwner( FieldHandle* owner ) override;
+    [[nodiscard]] nlohmann::json     jsonType() const override;
 
 private:
     FieldType* m_field;
 };
 
 template <typename DataType>
-class FieldIoCap<ChildField<DataType*>> : public FieldIoCapability
+class FieldIoCap<ChildField<DataType*>> final : public FieldIoCapability
 {
     typedef ChildField<DataType*> FieldType;
 
@@ -55,9 +55,9 @@ public:
     void readFromString( const std::string& string ) override;
     void writeToString( std::string& string ) const override;
 
-    const FieldHandle* owner() const override;
-    void               setOwner( FieldHandle* owner ) override;
-    nlohmann::json     jsonType() const override;
+    [[nodiscard]] const FieldHandle* owner() const override;
+    void                             setOwner( FieldHandle* owner ) override;
+    [[nodiscard]] nlohmann::json     jsonType() const override;
 
 private:
     FieldType* m_field;
@@ -82,9 +82,9 @@ public:
     void readFromString( const std::string& string ) override;
     void writeToString( std::string& string ) const override;
 
-    const FieldHandle* owner() const override;
-    void               setOwner( FieldHandle* owner ) override;
-    nlohmann::json     jsonType() const override;
+    [[nodiscard]] const FieldHandle* owner() const override;
+    void                             setOwner( FieldHandle* owner ) override;
+    [[nodiscard]] nlohmann::json     jsonType() const override;
 
 private:
     FieldType* m_field;
@@ -99,10 +99,6 @@ void AddIoCapabilityToField( FieldType* field )
     }
 }
 
-} // End of namespace caffa
-
-namespace std
-{
 template <class T>
 std::ostream& operator<<( std::ostream& os, const std::vector<T>& v )
 {
@@ -118,8 +114,8 @@ std::ostream& operator<<( std::ostream& os, const std::vector<T>& v )
 template <typename T>
 std::istream& operator>>( std::istream& is, std::vector<T>& v )
 {
-    auto begin = std::istream_iterator<std::string>( is );
-    auto end   = std::istream_iterator<std::string>();
+    const auto begin = std::istream_iterator<std::string>( is );
+    const auto end   = std::istream_iterator<std::string>();
     for ( auto it = begin; it != end; ++it )
     {
         std::stringstream ss( *it );
@@ -130,6 +126,6 @@ std::istream& operator>>( std::istream& is, std::vector<T>& v )
     return is;
 }
 
-} // namespace std
+} // namespace caffa
 
 #include "cafFieldIoCapabilitySpecializations.inl"
