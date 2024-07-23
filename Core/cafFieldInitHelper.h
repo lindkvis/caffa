@@ -21,7 +21,6 @@
 
 #include "cafDataFieldAccessor.h"
 
-#include "cafField.h"
 #include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafFieldValidator.h"
@@ -31,7 +30,7 @@
 namespace caffa
 {
 template <typename T>
-concept DerivesFromFieldHandle = std::is_base_of<FieldHandle, T>::value;
+concept DerivesFromFieldHandle = std::is_base_of_v<FieldHandle, T>;
 
 /**
  * Helper class that is initialised with Object::initField and allows
@@ -71,21 +70,21 @@ public:
 
     FieldInitHelper& withProxyGetAccessor( GetMethod getMethod )
     {
-        auto accessor = std::make_unique<caffa::FieldProxyAccessor<typename FieldType::FieldDataType>>();
+        auto accessor = std::make_unique<FieldProxyAccessor<typename FieldType::FieldDataType>>();
         accessor->registerGetMethod( getMethod );
         return withAccessor( std::move( accessor ) );
     }
 
     FieldInitHelper& withProxySetAccessor( SetMethod setMethod )
     {
-        auto accessor = std::make_unique<caffa::FieldProxyAccessor<typename FieldType::FieldDataType>>();
+        auto accessor = std::make_unique<FieldProxyAccessor<typename FieldType::FieldDataType>>();
         accessor->registerSetMethod( setMethod );
         return withAccessor( std::move( accessor ) );
     }
 
     FieldInitHelper& withProxyGetSetAccessor( GetMethod getMethod, SetMethod setMethod )
     {
-        auto accessor = std::make_unique<caffa::FieldProxyAccessor<typename FieldType::FieldDataType>>();
+        auto accessor = std::make_unique<FieldProxyAccessor<typename FieldType::FieldDataType>>();
         accessor->registerGetMethod( getMethod );
         accessor->registerSetMethod( setMethod );
         return withAccessor( std::move( accessor ) );
@@ -109,7 +108,6 @@ public:
         return *this;
     }
 
-private:
     FieldInitHelper()                         = delete;
     FieldInitHelper( const FieldInitHelper& ) = delete;
     FieldInitHelper( FieldInitHelper&& )      = delete;
@@ -117,6 +115,7 @@ private:
     FieldInitHelper& operator=( const FieldInitHelper& ) = delete;
     FieldInitHelper& operator=( FieldInitHelper&& )      = delete;
 
+private:
     FieldType&         m_field;
     const std::string& m_keyword;
 };

@@ -26,7 +26,7 @@ public:
     virtual void readFromString( const std::string& value ) = 0;
     virtual void writeToString( std::string& value ) const  = 0;
 
-    virtual nlohmann::json jsonType() const = 0;
+    [[nodiscard]] virtual nlohmann::json jsonType() const = 0;
 
 protected:
     void assertValid() const;
