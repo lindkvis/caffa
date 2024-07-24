@@ -1,0 +1,227 @@
+// ##################################################################################################
+//
+//    Caffa
+//    Copyright (C) 2024- Kontur AS
+//
+//    GNU Lesser General Public License Usage
+//    This library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
+//
+//    This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
+//
+//    See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//    for more details.
+//
+// ##################################################################################################
+#include "cafRpcClientPassByRefObjectFactory.h"
+
+#include "cafChildArrayField.h"
+#include "cafChildField.h"
+#include "cafDefaultObjectFactory.h"
+#include "cafField.h"
+#include "cafFieldScriptingCapability.h"
+#include "cafPortableDataType.h"
+#include "cafRpcChildArrayFieldAccessor.h"
+#include "cafRpcChildFieldAccessor.h"
+#include "cafRpcClient.h"
+#include "cafRpcClientPassByValueObjectFactory.h"
+#include "cafRpcDataFieldAccessor.h"
+#include "cafRpcMethodAccessor.h"
+
+#include <memory>
+
+namespace caffa::rpc
+{
+//--------------------------------------------------------------------------------------------------
+///  ObjectFactory implementations
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<ObjectHandle> ClientPassByRefObjectFactory::doCreate( const std::string_view& classKeyword )
+{
+    CAFFA_ASSERT( m_client );
+    if ( !m_client ) throw std::runtime_error( "No Client set in Rpc Client factory" );
+
+    CAFFA_TRACE( "Creating Passed-By-Reference Object of type " << classKeyword );
+
+    auto objectHandle = caffa::DefaultObjectFactory::instance()->create( classKeyword );
+
+    CAFFA_ASSERT( objectHandle );
+
+    for ( auto field : objectHandle->fields() )
+    {
+        if ( field->keyword() != "uuid" )
+        {
+            if ( field->capability<FieldScriptingCapability>() != nullptr )
+            {
+                applyAccessorToField( objectHandle.get(), field );
+            }
+            else
+            {
+                applyNullAccessorToField( objectHandle.get(), field );
+            }
+        }
+    }
+
+    for ( auto method : objectHandle->methods() )
+    {
+        applyAccessorToMethod( objectHandle.get(), method );
+    }
+
+    return objectHandle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+ClientPassByRefObjectFactory* ClientPassByRefObjectFactory::instance()
+{
+    static ClientPassByRefObjectFactory* fact = new ClientPassByRefObjectFactory;
+    return fact;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void ClientPassByRefObjectFactory::setClient( Client* client )
+{
+    m_client = client;
+}
+
+std::list<std::string> ClientPassByRefObjectFactory::supportedDataTypes() const
+{
+    std::list<std::string> dataTypes;
+
+    for ( const auto& [type, creator] : m_accessorCreatorMap )
+    {
+        dataTypes.push_back( type );
+    }
+
+    return dataTypes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void ClientPassByRefObjectFactory::applyAccessorToField( caffa::ObjectHandle* fieldOwner, caffa::FieldHandle* fieldHandle )
+{
+    CAFFA_ASSERT( m_client );
+    if ( !m_client ) throw std::runtime_error( "No Client set in Client factory" );
+
+    if ( auto childField = dynamic_cast<caffa::ChildFieldHandle*>( fieldHandle ); childField )
+    {
+        childField->setAccessor( std::make_unique<ChildFieldAccessor>( m_client, childField ) );
+    }
+    else if ( auto childArrayField = dynamic_cast<caffa::ChildArrayFieldHandle*>( fieldHandle ); childArrayField )
+    {
+        childArrayField->setAccessor( std::make_unique<ChildArrayFieldAccessor>( m_client, childArrayField ) );
+    }
+    else if ( auto dataField = dynamic_cast<caffa::DataField*>( fieldHandle ); dataField )
+    {
+        auto                 jsonCapability  = fieldHandle->capability<caffa::FieldIoCapability>();
+        AccessorCreatorBase* accessorCreator = nullptr;
+
+        if ( jsonCapability )
+        {
+            auto jsonType = jsonCapability->jsonType();
+
+            CAFFA_TRACE( "Looking for an accessor creator for data type: " << jsonType );
+            for ( auto& [dataType, storedAccessorCreator] : m_accessorCreatorMap )
+            {
+                CAFFA_TRACE( "Found one for " << dataType << " is that right?" );
+                if ( dataType == jsonType.dump() )
+                {
+                    CAFFA_TRACE( "Yes!" );
+                    accessorCreator = storedAccessorCreator.get();
+                    break;
+                }
+            }
+            if ( !accessorCreator )
+            {
+                throw std::runtime_error( std::string( "Data type " ) + fieldHandle->dataType() +
+                                          " not implemented in client" );
+            }
+            CAFFA_ASSERT( accessorCreator );
+            auto accessor = accessorCreator->create( m_client, fieldHandle );
+            CAFFA_ASSERT( accessor );
+
+            dataField->setUntypedAccessor( std::move( accessor ) );
+        }
+        else
+        {
+            CAFFA_ASSERT( false && "All fields that are scriptable has to be serializable" );
+            throw std::runtime_error( "Field " + fieldHandle->keyword() + " is not serializable" );
+        }
+    }
+    else
+    {
+        CAFFA_ASSERT( false && "Datatype not implemented" );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void ClientPassByRefObjectFactory::applyNullAccessorToField( caffa::ObjectHandle* fieldOwner,
+                                                             caffa::FieldHandle*  fieldHandle )
+{
+    CAFFA_ASSERT( m_client );
+    if ( !m_client ) throw std::runtime_error( "No Client set in Client factory" );
+
+    if ( auto childField = dynamic_cast<caffa::ChildFieldHandle*>( fieldHandle ); childField )
+    {
+        childField->setAccessor( nullptr );
+    }
+    else if ( auto childArrayField = dynamic_cast<caffa::ChildArrayFieldHandle*>( fieldHandle ); childArrayField )
+    {
+        childArrayField->setAccessor( nullptr );
+    }
+    else if ( auto dataField = dynamic_cast<caffa::DataField*>( fieldHandle ); dataField )
+    {
+        dataField->setUntypedAccessor( nullptr );
+    }
+    else
+    {
+        CAFFA_ASSERT( false && "Datatype not implemented" );
+    }
+}
+
+void ClientPassByRefObjectFactory::applyAccessorToMethod( caffa::ObjectHandle* objectHandle,
+                                                          caffa::MethodHandle* methodHandle )
+{
+    CAFFA_TRACE( "Applying remote accessor to " << objectHandle->classKeyword() << "::" << methodHandle->keyword() << "()" );
+    methodHandle->setAccessor(
+        std::make_unique<MethodAccessor>( m_client, objectHandle, methodHandle, ClientPassByValueObjectFactory::instance() ) );
+}
+
+void ClientPassByRefObjectFactory::registerAccessorCreator( const std::string&                   dataType,
+                                                            std::unique_ptr<AccessorCreatorBase> creator )
+{
+    CAFFA_DEBUG( "Registering accessor for data type: " << dataType << ", -> " << creator->jsonDataType() );
+    m_accessorCreatorMap.insert( std::make_pair( dataType, std::move( creator ) ) );
+}
+
+void ClientPassByRefObjectFactory::registerAllBasicAccessorCreators()
+{
+    registerBasicAccessorCreators<double>();
+    registerBasicAccessorCreators<float>();
+    registerBasicAccessorCreators<int>();
+    registerBasicAccessorCreators<int64_t>();
+    registerBasicAccessorCreators<unsigned>();
+    registerBasicAccessorCreators<uint64_t>();
+    registerBasicAccessorCreators<bool>();
+    registerBasicAccessorCreators<std::string>();
+    registerBasicAccessorCreators<std::chrono::steady_clock::time_point>();
+    registerBasicAccessorCreators<std::chrono::nanoseconds>();
+    registerBasicAccessorCreators<std::chrono::microseconds>();
+    registerBasicAccessorCreators<std::chrono::milliseconds>();
+    registerBasicAccessorCreators<std::chrono::seconds>();
+}
+
+} // namespace caffa::rpc
