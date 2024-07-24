@@ -29,6 +29,7 @@
 #include "cafJsonDataType.h"
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -61,10 +62,11 @@ public:
  * If you wish to pass fields by value and still access remote methods, use the ClientPassByValueObjectFactory
  */
 
-class ClientPassByRefObjectFactory : public ObjectFactory
+class ClientPassByRefObjectFactory final : public ObjectFactory
 {
 public:
-    static ClientPassByRefObjectFactory* instance();
+    static std::shared_ptr<ClientPassByRefObjectFactory> instance();
+    ~ClientPassByRefObjectFactory() override = default;
 
     [[nodiscard]] std::string name() const override { return "RPC Client Pass By Reference ObjectFactory"; }
 
@@ -89,12 +91,11 @@ private:
     {
         registerAllBasicAccessorCreators();
     }
-    ~ClientPassByRefObjectFactory() override = default;
 
-    void applyAccessorToField( ObjectHandle* objectHandle, FieldHandle* fieldHandle );
-    void applyNullAccessorToField( ObjectHandle* objectHandle, FieldHandle* fieldHandle );
+    void applyAccessorToField( FieldHandle* fieldHandle ) const;
+    void applyNullAccessorToField( FieldHandle* fieldHandle ) const;
 
-    void applyAccessorToMethod( ObjectHandle* objectHandle, MethodHandle* methodHandle );
+    void applyAccessorToMethod( ObjectHandle* objectHandle, MethodHandle* methodHandle ) const;
 
     void registerAccessorCreator( const std::string& dataType, std::unique_ptr<AccessorCreatorBase> creator );
 

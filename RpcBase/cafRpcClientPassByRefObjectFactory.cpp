@@ -25,15 +25,14 @@
 #include "cafDefaultObjectFactory.h"
 #include "cafField.h"
 #include "cafFieldScriptingCapability.h"
-#include "cafPortableDataType.h"
 #include "cafRpcChildArrayFieldAccessor.h"
 #include "cafRpcChildFieldAccessor.h"
 #include "cafRpcClient.h"
 #include "cafRpcClientPassByValueObjectFactory.h"
-#include "cafRpcDataFieldAccessor.h"
 #include "cafRpcMethodAccessor.h"
 
 #include <memory>
+#include <ranges>
 
 namespace caffa::rpc
 {
@@ -51,26 +50,26 @@ std::shared_ptr<ObjectHandle> ClientPassByRefObjectFactory::doCreate( const std:
 
     CAFFA_TRACE( "Creating Passed-By-Reference Object of type " << classKeyword );
 
-    auto objectHandle = caffa::DefaultObjectFactory::instance()->create( classKeyword );
+    auto objectHandle = DefaultObjectFactory::instance()->create( classKeyword );
 
     CAFFA_ASSERT( objectHandle );
 
-    for ( auto field : objectHandle->fields() )
+    for ( const auto field : objectHandle->fields() )
     {
         if ( field->keyword() != "uuid" )
         {
             if ( field->capability<FieldScriptingCapability>() != nullptr )
             {
-                applyAccessorToField( objectHandle.get(), field );
+                applyAccessorToField( field );
             }
             else
             {
-                applyNullAccessorToField( objectHandle.get(), field );
+                applyNullAccessorToField( field );
             }
         }
     }
 
-    for ( auto method : objectHandle->methods() )
+    for ( const auto method : objectHandle->methods() )
     {
         applyAccessorToMethod( objectHandle.get(), method );
     }
@@ -81,9 +80,9 @@ std::shared_ptr<ObjectHandle> ClientPassByRefObjectFactory::doCreate( const std:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ClientPassByRefObjectFactory* ClientPassByRefObjectFactory::instance()
+std::shared_ptr<ClientPassByRefObjectFactory> ClientPassByRefObjectFactory::instance()
 {
-    static ClientPassByRefObjectFactory* fact = new ClientPassByRefObjectFactory;
+    static auto fact = std::shared_ptr<ClientPassByRefObjectFactory>( new ClientPassByRefObjectFactory );
     return fact;
 }
 
@@ -99,7 +98,7 @@ std::list<std::string> ClientPassByRefObjectFactory::supportedDataTypes() const
 {
     std::list<std::string> dataTypes;
 
-    for ( const auto& [type, creator] : m_accessorCreatorMap )
+    for ( const auto& type : std::views::keys( m_accessorCreatorMap ) )
     {
         dataTypes.push_back( type );
     }
@@ -110,27 +109,25 @@ std::list<std::string> ClientPassByRefObjectFactory::supportedDataTypes() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ClientPassByRefObjectFactory::applyAccessorToField( caffa::ObjectHandle* fieldOwner, caffa::FieldHandle* fieldHandle )
+void ClientPassByRefObjectFactory::applyAccessorToField( FieldHandle* fieldHandle ) const
 {
     CAFFA_ASSERT( m_client );
     if ( !m_client ) throw std::runtime_error( "No Client set in Client factory" );
 
-    if ( auto childField = dynamic_cast<caffa::ChildFieldHandle*>( fieldHandle ); childField )
+    if ( auto childField = dynamic_cast<ChildFieldHandle*>( fieldHandle ); childField )
     {
         childField->setAccessor( std::make_unique<ChildFieldAccessor>( m_client, childField ) );
     }
-    else if ( auto childArrayField = dynamic_cast<caffa::ChildArrayFieldHandle*>( fieldHandle ); childArrayField )
+    else if ( auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( fieldHandle ); childArrayField )
     {
         childArrayField->setAccessor( std::make_unique<ChildArrayFieldAccessor>( m_client, childArrayField ) );
     }
-    else if ( auto dataField = dynamic_cast<caffa::DataField*>( fieldHandle ); dataField )
+    else if ( auto dataField = dynamic_cast<DataField*>( fieldHandle ); dataField )
     {
-        auto                 jsonCapability  = fieldHandle->capability<caffa::FieldIoCapability>();
-        AccessorCreatorBase* accessorCreator = nullptr;
-
-        if ( jsonCapability )
+        if ( auto jsonCapability = fieldHandle->capability<FieldIoCapability>(); jsonCapability )
         {
-            auto jsonType = jsonCapability->jsonType();
+            AccessorCreatorBase* accessorCreator = nullptr;
+            auto                 jsonType        = jsonCapability->jsonType();
 
             CAFFA_TRACE( "Looking for an accessor creator for data type: " << jsonType );
             for ( auto& [dataType, storedAccessorCreator] : m_accessorCreatorMap )
@@ -169,21 +166,20 @@ void ClientPassByRefObjectFactory::applyAccessorToField( caffa::ObjectHandle* fi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ClientPassByRefObjectFactory::applyNullAccessorToField( caffa::ObjectHandle* fieldOwner,
-                                                             caffa::FieldHandle*  fieldHandle )
+void ClientPassByRefObjectFactory::applyNullAccessorToField( FieldHandle* fieldHandle ) const
 {
     CAFFA_ASSERT( m_client );
     if ( !m_client ) throw std::runtime_error( "No Client set in Client factory" );
 
-    if ( auto childField = dynamic_cast<caffa::ChildFieldHandle*>( fieldHandle ); childField )
+    if ( auto childField = dynamic_cast<ChildFieldHandle*>( fieldHandle ); childField )
     {
         childField->setAccessor( nullptr );
     }
-    else if ( auto childArrayField = dynamic_cast<caffa::ChildArrayFieldHandle*>( fieldHandle ); childArrayField )
+    else if ( auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( fieldHandle ); childArrayField )
     {
         childArrayField->setAccessor( nullptr );
     }
-    else if ( auto dataField = dynamic_cast<caffa::DataField*>( fieldHandle ); dataField )
+    else if ( auto dataField = dynamic_cast<DataField*>( fieldHandle ); dataField )
     {
         dataField->setUntypedAccessor( nullptr );
     }
@@ -193,12 +189,13 @@ void ClientPassByRefObjectFactory::applyNullAccessorToField( caffa::ObjectHandle
     }
 }
 
-void ClientPassByRefObjectFactory::applyAccessorToMethod( caffa::ObjectHandle* objectHandle,
-                                                          caffa::MethodHandle* methodHandle )
+void ClientPassByRefObjectFactory::applyAccessorToMethod( ObjectHandle* objectHandle, MethodHandle* methodHandle ) const
 {
     CAFFA_TRACE( "Applying remote accessor to " << objectHandle->classKeyword() << "::" << methodHandle->keyword() << "()" );
-    methodHandle->setAccessor(
-        std::make_unique<MethodAccessor>( m_client, objectHandle, methodHandle, ClientPassByValueObjectFactory::instance() ) );
+    methodHandle->setAccessor( std::make_unique<MethodAccessor>( m_client,
+                                                                 objectHandle,
+                                                                 methodHandle,
+                                                                 ClientPassByValueObjectFactory::instance().get() ) );
 }
 
 void ClientPassByRefObjectFactory::registerAccessorCreator( const std::string&                   dataType,

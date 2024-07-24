@@ -21,7 +21,6 @@
 #include "cafRestClientApplication.h"
 #include "cafRpcClientPassByRefObjectFactory.h"
 
-#include "cafJsonSerializer.h"
 #include "cafLogger.h"
 
 #include "DemoObject.h"
@@ -41,37 +40,37 @@
 #define CAFFA_VERSION_PATCH -3
 #endif
 
-class ClientApp : public caffa::rpc::RestClientApplication
+class ClientApp final : public caffa::rpc::RestClientApplication
 {
 public:
     ClientApp( const std::string& hostname, int port )
         : caffa::rpc::RestClientApplication( hostname, port )
     {
     }
-    ~ClientApp() = default;
+    ~ClientApp() override = default;
 
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    std::string name() const override { return "Client Test Example"; }
+    [[nodiscard]] std::string name() const override { return "Client Test Example"; }
 
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    int majorVersion() const override { return CAFFA_VERSION_MAJOR; }
+    [[nodiscard]] int majorVersion() const override { return CAFFA_VERSION_MAJOR; }
 
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    int minorVersion() const override { return CAFFA_VERSION_MINOR; }
+    [[nodiscard]] int minorVersion() const override { return CAFFA_VERSION_MINOR; }
 
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    int patchVersion() const override { return CAFFA_VERSION_PATCH; }
+    [[nodiscard]] int patchVersion() const override { return CAFFA_VERSION_PATCH; }
 
-    std::string description() const override { return "Example Client for Caffa"; }
-    std::string contactEmail() const override { return "client@thisdomaindoesnotexist.com"; }
+    [[nodiscard]] std::string description() const override { return "Example Client for Caffa"; }
+    [[nodiscard]] std::string contactEmail() const override { return "client@thisdomaindoesnotexist.com"; }
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -84,7 +83,7 @@ int main( int argc, char** argv )
 
     caffa::Logger::setApplicationLogLevel( caffa::Logger::Level::info );
 
-    caffa::rpc::ClientPassByRefObjectFactory* factory = caffa::rpc::ClientPassByRefObjectFactory::instance();
+    auto factory = caffa::rpc::ClientPassByRefObjectFactory::instance();
     factory->registerBasicAccessorCreators<caffa::AppEnum<DemoObject::TestEnumType>>();
 
     auto clientApp = std::make_unique<ClientApp>( hostname, portNumber );

@@ -57,7 +57,7 @@ std::string JsonSerializer::serializationTypeLabel( SerializationType type )
 //--------------------------------------------------------------------------------------------------
 JsonSerializer::JsonSerializer( ObjectFactory* objectFactory /* = nullptr */ )
     : m_client( false )
-    , m_objectFactory( objectFactory == nullptr ? DefaultObjectFactory::instance() : objectFactory )
+    , m_objectFactory( objectFactory == nullptr ? DefaultObjectFactory::instance().get() : objectFactory )
     , m_serializationType( SerializationType::DATA_FULL )
     , m_serializeUuids( true )
 {

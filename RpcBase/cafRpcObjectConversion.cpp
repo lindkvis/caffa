@@ -29,26 +29,26 @@
 #include "cafObjectCollector.h"
 #include "cafRpcServerApplication.h"
 
-using namespace caffa::rpc;
-
+namespace caffa::rpc
+{
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caffa::rpc::fieldIsScriptReadable( const caffa::FieldHandle* fieldHandle )
+bool fieldIsScriptReadable( const FieldHandle* fieldHandle )
 {
-    auto scriptability = fieldHandle->capability<caffa::FieldScriptingCapability>();
+    const auto scriptability = fieldHandle->capability<FieldScriptingCapability>();
     return scriptability && scriptability->isReadable();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-nlohmann::json caffa::rpc::createJsonSchemaFromProjectObject( const caffa::ObjectHandle* source )
+nlohmann::json createJsonSchemaFromProjectObject( const ObjectHandle* source )
 {
     CAFFA_ASSERT( source );
     CAFFA_ASSERT( !source->uuid().empty() );
 
-    caffa::JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
+    JsonSerializer serializer( DefaultObjectFactory::instance().get() );
     serializer.setSerializationType( JsonSerializer::SerializationType::SCHEMA );
 
     auto object = nlohmann::json::object();
@@ -59,12 +59,12 @@ nlohmann::json caffa::rpc::createJsonSchemaFromProjectObject( const caffa::Objec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-nlohmann::json caffa::rpc::createJsonFromProjectObject( const caffa::ObjectHandle* source )
+nlohmann::json createJsonFromProjectObject( const ObjectHandle* source )
 {
     CAFFA_ASSERT( source );
     CAFFA_ASSERT( !source->uuid().empty() );
 
-    caffa::JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
+    JsonSerializer serializer( DefaultObjectFactory::instance().get() );
     serializer.setSerializeUuids( true );
     serializer.setFieldSelector( fieldIsScriptReadable );
 
@@ -76,12 +76,12 @@ nlohmann::json caffa::rpc::createJsonFromProjectObject( const caffa::ObjectHandl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-nlohmann::json caffa::rpc::createJsonSkeletonFromProjectObject( const caffa::ObjectHandle* source )
+nlohmann::json createJsonSkeletonFromProjectObject( const ObjectHandle* source )
 {
     CAFFA_ASSERT( source );
     CAFFA_ASSERT( !source->uuid().empty() );
 
-    caffa::JsonSerializer serializer( caffa::DefaultObjectFactory::instance() );
+    JsonSerializer serializer( DefaultObjectFactory::instance().get() );
     serializer.setFieldSelector( fieldIsScriptReadable );
     serializer.setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON );
     serializer.setSerializeUuids( true );
@@ -94,24 +94,24 @@ nlohmann::json caffa::rpc::createJsonSkeletonFromProjectObject( const caffa::Obj
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caffa::ObjectHandle* caffa::rpc::findCafObjectFromJsonObject( const caffa::Session* session, const std::string& jsonObject )
+ObjectHandle* findCafObjectFromJsonObject( const Session* session, const std::string& jsonObject )
 {
     CAFFA_TRACE( "Looking for object from json: " << jsonObject );
-    auto objectUuid = caffa::JsonSerializer().readUUIDFromObjectString( jsonObject );
+    const auto objectUuid = JsonSerializer::readUUIDFromObjectString( jsonObject );
     return findCafObjectFromUuid( session, objectUuid );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caffa::ObjectHandle* caffa::rpc::findCafObjectFromUuid( const caffa::Session* session, const std::string& objectUuid )
+ObjectHandle* findCafObjectFromUuid( const Session* session, const std::string& objectUuid )
 {
     CAFFA_TRACE( "Looking for caf object with UUID '" << objectUuid << "'" );
 
-    caffa::ObjectCollector<> collector( [objectUuid]( const caffa::ObjectHandle* objectHandle ) -> bool
-                                        { return objectHandle->uuid() == objectUuid; } );
+    ObjectCollector<> collector( [objectUuid]( const ObjectHandle* objectHandle ) -> bool
+                                 { return objectHandle->uuid() == objectUuid; } );
 
-    for ( auto doc : ServerApplication::instance()->documents( session ) )
+    for ( const auto& doc : ServerApplication::instance()->documents( session ) )
     {
         doc->accept( &collector );
     }
@@ -122,3 +122,4 @@ caffa::ObjectHandle* caffa::rpc::findCafObjectFromUuid( const caffa::Session* se
 
     return collector.objects().front();
 }
+} // namespace caffa::rpc

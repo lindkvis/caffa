@@ -347,7 +347,7 @@ std::shared_ptr<ObjectHandle> RestClient::document( const std::string& documentI
     }
     CAFFA_TRACE( "Got document JSON '" << body << "'" );
 
-    JsonSerializer serializer( ClientPassByRefObjectFactory::instance() );
+    JsonSerializer serializer( ClientPassByRefObjectFactory::instance().get() );
     serializer.setClient( true );
     serializer.setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON );
 
@@ -377,7 +377,7 @@ std::vector<std::shared_ptr<ObjectHandle>> RestClient::documents() const
         throw std::runtime_error( "Failed to get documents" );
     }
 
-    JsonSerializer serializer( ClientPassByRefObjectFactory::instance() );
+    JsonSerializer serializer( ClientPassByRefObjectFactory::instance().get() );
     serializer.setClient( true );
     serializer.setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON );
     std::vector<std::shared_ptr<ObjectHandle>> documents;
@@ -662,7 +662,7 @@ std::shared_ptr<ObjectHandle> RestClient::getChildObject( const ObjectHandle* ob
     }
     CAFFA_TRACE( "Got body: " << body );
 
-    return JsonSerializer( ClientPassByRefObjectFactory::instance() )
+    return JsonSerializer( ClientPassByRefObjectFactory::instance().get() )
         .setClient( true )
         .setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON )
         .createObjectFromString( body );
@@ -692,13 +692,13 @@ std::vector<std::shared_ptr<ObjectHandle>> RestClient::getChildObjects( const Ob
         throw std::runtime_error( "The return value was not an array" );
     }
 
-    JsonSerializer serializer( ClientPassByRefObjectFactory::instance() );
+    JsonSerializer serializer( ClientPassByRefObjectFactory::instance().get() );
     serializer.setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON );
     serializer.setClient( true );
 
     for ( const auto& jsonObject : jsonArray )
     {
-        childObjects.push_back( JsonSerializer( ClientPassByRefObjectFactory::instance() )
+        childObjects.push_back( JsonSerializer( ClientPassByRefObjectFactory::instance().get() )
                                     .setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON )
                                     .createObjectFromString( jsonObject.dump() ) );
     }

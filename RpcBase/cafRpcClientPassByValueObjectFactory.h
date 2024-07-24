@@ -24,6 +24,8 @@
 
 #include "cafRpcClientPassByRefObjectFactory.h"
 
+#include <memory>
+
 namespace caffa::rpc
 {
 class Client;
@@ -32,12 +34,13 @@ class Client;
  * Adaptation of ClientPassByRefObjectFactory which assigns RPC *Method* Accessors but not field accessors.
  * Thus: fields are passed by value, but you can still call remote methods on them.
  */
-class ClientPassByValueObjectFactory : public ObjectFactory
+class ClientPassByValueObjectFactory final : public ObjectFactory
 {
 public:
-    static ClientPassByValueObjectFactory* instance();
+    static std::shared_ptr<ClientPassByValueObjectFactory> instance();
+    ~ClientPassByValueObjectFactory() override = default;
 
-    std::string name() const override { return "Client Pass By Value ObjectFactory"; }
+    [[nodiscard]] std::string name() const override { return "Client Pass By Value ObjectFactory"; }
 
     void setClient( Client* client );
 
@@ -48,9 +51,8 @@ private:
         : m_client( nullptr )
     {
     }
-    ~ClientPassByValueObjectFactory() override = default;
 
-    void applyAccessorToMethod( caffa::ObjectHandle* objectHandle, caffa::MethodHandle* methodHandle );
+    void applyAccessorToMethod( ObjectHandle* objectHandle, MethodHandle* methodHandle );
 
 private:
     Client* m_client;

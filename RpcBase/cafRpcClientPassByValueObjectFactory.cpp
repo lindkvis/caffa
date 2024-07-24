@@ -22,18 +22,12 @@
 
 #include "cafRpcClientPassByValueObjectFactory.h"
 
-#include "cafChildArrayField.h"
-#include "cafChildField.h"
 #include "cafDefaultObjectFactory.h"
 #include "cafField.h"
-#include "cafFieldScriptingCapability.h"
 #include "cafRpcChildArrayFieldAccessor.h"
-#include "cafRpcChildFieldAccessor.h"
 #include "cafRpcClient.h"
 #include "cafRpcDataFieldAccessor.h"
 #include "cafRpcMethodAccessor.h"
-
-#include <memory>
 
 namespace caffa::rpc
 {
@@ -51,11 +45,11 @@ std::shared_ptr<ObjectHandle> ClientPassByValueObjectFactory::doCreate( const st
 
     CAFFA_TRACE( "Creating Passed-By-Value Object of type " << classKeyword );
 
-    auto objectHandle = caffa::DefaultObjectFactory::instance()->create( classKeyword );
+    auto objectHandle = DefaultObjectFactory::instance()->create( classKeyword );
 
     CAFFA_ASSERT( objectHandle );
 
-    for ( auto method : objectHandle->methods() )
+    for ( const auto method : objectHandle->methods() )
     {
         applyAccessorToMethod( objectHandle.get(), method );
     }
@@ -66,9 +60,9 @@ std::shared_ptr<ObjectHandle> ClientPassByValueObjectFactory::doCreate( const st
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ClientPassByValueObjectFactory* ClientPassByValueObjectFactory::instance()
+std::shared_ptr<ClientPassByValueObjectFactory> ClientPassByValueObjectFactory::instance()
 {
-    static ClientPassByValueObjectFactory* fact = new ClientPassByValueObjectFactory;
+    static auto fact = std::shared_ptr<ClientPassByValueObjectFactory>( new ClientPassByValueObjectFactory );
     return fact;
 }
 
@@ -80,8 +74,7 @@ void ClientPassByValueObjectFactory::setClient( Client* client )
     m_client = client;
 }
 
-void ClientPassByValueObjectFactory::applyAccessorToMethod( caffa::ObjectHandle* objectHandle,
-                                                            caffa::MethodHandle* methodHandle )
+void ClientPassByValueObjectFactory::applyAccessorToMethod( ObjectHandle* objectHandle, MethodHandle* methodHandle )
 {
     methodHandle->setAccessor( std::make_unique<MethodAccessor>( m_client, objectHandle, methodHandle, this ) );
 }

@@ -36,7 +36,7 @@ class RestTest : public ::testing::Test
 protected:
     RestTest()
     {
-        caffa::rpc::ClientPassByRefObjectFactory* factory = caffa::rpc::ClientPassByRefObjectFactory::instance();
+        auto factory = caffa::rpc::ClientPassByRefObjectFactory::instance();
         factory->registerBasicAccessorCreators<caffa::AppEnum<DemoObject::TestEnumType>>();
 #ifndef NDEBUG
         caffa::UuidGenerator::s_dummyUuidCounter = 0u;
