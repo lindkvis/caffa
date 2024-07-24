@@ -23,7 +23,6 @@
 
 #include "cafObjectFactory.h"
 
-#include "cafAssert.h"
 #include "cafRpcClient.h"
 #include "cafRpcDataFieldAccessor.h"
 
@@ -40,21 +39,21 @@ class Client;
 class AccessorCreatorBase
 {
 public:
-    AccessorCreatorBase() {}
-    virtual ~AccessorCreatorBase() {}
-    virtual std::unique_ptr<DataFieldAccessorInterface> create( Client* client, caffa::FieldHandle* fieldHandle ) = 0;
-    virtual std::string                                 jsonDataType() const                                      = 0;
+    AccessorCreatorBase()          = default;
+    virtual ~AccessorCreatorBase() = default;
+    [[nodiscard]] virtual std::unique_ptr<DataFieldAccessorInterface> create( Client* client, FieldHandle* fieldHandle ) = 0;
+    [[nodiscard]] virtual std::string                                 jsonDataType() const = 0;
 };
 
 template <typename DataType>
-class AccessorCreator : public AccessorCreatorBase
+class AccessorCreator final : public AccessorCreatorBase
 {
 public:
-    std::unique_ptr<DataFieldAccessorInterface> create( Client* client, caffa::FieldHandle* fieldHandle ) override
+    std::unique_ptr<DataFieldAccessorInterface> create( Client* client, FieldHandle* fieldHandle ) override
     {
         return std::make_unique<DataFieldAccessor<DataType>>( client, fieldHandle );
     }
-    std::string jsonDataType() const override { return caffa::JsonDataType<DataType>::jsonType().dump(); }
+    [[nodiscard]] std::string jsonDataType() const override { return JsonDataType<DataType>::jsonType().dump(); }
 };
 
 /**
@@ -67,7 +66,7 @@ class ClientPassByRefObjectFactory : public ObjectFactory
 public:
     static ClientPassByRefObjectFactory* instance();
 
-    std::string name() const override { return "RPC Client Pass By Reference ObjectFactory"; }
+    [[nodiscard]] std::string name() const override { return "RPC Client Pass By Reference ObjectFactory"; }
 
     void setClient( Client* client );
     template <typename DataType>
@@ -80,7 +79,7 @@ public:
                                  std::make_unique<AccessorCreator<std::vector<std::vector<DataType>>>>() );
     }
 
-    std::list<std::string> supportedDataTypes() const;
+    [[nodiscard]] std::list<std::string> supportedDataTypes() const;
 
 private:
     std::shared_ptr<ObjectHandle> doCreate( const std::string_view& classKeyword ) override;
@@ -92,10 +91,10 @@ private:
     }
     ~ClientPassByRefObjectFactory() override = default;
 
-    void applyAccessorToField( caffa::ObjectHandle* objectHandle, caffa::FieldHandle* fieldHandle );
-    void applyNullAccessorToField( caffa::ObjectHandle* objectHandle, caffa::FieldHandle* fieldHandle );
+    void applyAccessorToField( ObjectHandle* objectHandle, FieldHandle* fieldHandle );
+    void applyNullAccessorToField( ObjectHandle* objectHandle, FieldHandle* fieldHandle );
 
-    void applyAccessorToMethod( caffa::ObjectHandle* objectHandle, caffa::MethodHandle* methodHandle );
+    void applyAccessorToMethod( ObjectHandle* objectHandle, MethodHandle* methodHandle );
 
     void registerAccessorCreator( const std::string& dataType, std::unique_ptr<AccessorCreatorBase> creator );
 
