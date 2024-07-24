@@ -21,7 +21,6 @@
 // ##################################################################################################
 #pragma once
 
-#include "cafAssert.h"
 #include "cafFieldValidator.h"
 
 #include <nlohmann/json.hpp>
@@ -40,7 +39,7 @@ class JsonSerializer;
  * @tparam DataType
  */
 template <typename DataType>
-class RangeValidator : public FieldValidator<DataType>
+class RangeValidator final : public FieldValidator<DataType>
 {
 public:
     using FailureSeverity = FieldValidatorInterface::FailureSeverity;
@@ -54,8 +53,7 @@ public:
 
     void readFromString( const std::string& string ) override
     {
-        auto jsonFieldObject = nlohmann::json::parse( string );
-        if ( jsonFieldObject.is_object() )
+        if ( auto jsonFieldObject = nlohmann::json::parse( string ); jsonFieldObject.is_object() )
         {
             if ( jsonFieldObject.contains( "minimum" ) )
             {
@@ -68,7 +66,7 @@ public:
         }
     }
 
-    std::string writeToString() const override
+    [[nodiscard]] std::string writeToString() const override
     {
         auto jsonFieldObject       = nlohmann::json::object();
         jsonFieldObject["minimum"] = m_minimum;
@@ -76,10 +74,9 @@ public:
         return jsonFieldObject.dump();
     }
 
-    std::pair<bool, std::string> validate( const DataType& value ) const override
+    [[nodiscard]] std::pair<bool, std::string> validate( const DataType& value ) const override
     {
-        bool valid = m_minimum <= value && value <= m_maximum;
-        if ( !valid )
+        if ( value < m_minimum || value > m_maximum )
         {
             std::stringstream ss;
             ss << "The value " << value << " is outside the limits [" << m_minimum << ", " << m_maximum << "]";
@@ -88,10 +85,10 @@ public:
         return std::make_pair( true, "" );
     }
 
-    static std::unique_ptr<RangeValidator<DataType>>
+    [[nodiscard]] static std::unique_ptr<RangeValidator>
         create( DataType minimum, DataType maximum, FailureSeverity failureSeverity = FailureSeverity::VALIDATOR_ERROR )
     {
-        return std::make_unique<RangeValidator<DataType>>( minimum, maximum, failureSeverity );
+        return std::make_unique<RangeValidator>( minimum, maximum, failureSeverity );
     }
 
 private:

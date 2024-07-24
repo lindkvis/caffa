@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.22)
 project(caffaCore)
 
 set(PUBLIC_HEADERS
+        cafExtraFieldValidators.hpp
         cafRangeValidator.h
         cafMethod.h
         cafObject.h
