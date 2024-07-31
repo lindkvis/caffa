@@ -160,7 +160,7 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
         else if ( this->serializationType() == SerializationType::DATA_FULL && !value.is_null() && keyword != "methods" )
         {
             auto fieldHandle = object->findField( keyword );
-            if ( fieldHandle && fieldHandle->capability<FieldIoCapability>() && fieldHandle->isWritable() )
+            if ( fieldHandle && fieldHandle->capability<FieldIoCapability>() )
             {
                 if ( this->fieldSelector() && !this->fieldSelector()( fieldHandle ) ) continue;
 
