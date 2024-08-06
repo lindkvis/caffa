@@ -49,6 +49,14 @@ std::shared_ptr<ObjectHandle> ClientPassByValueObjectFactory::doCreate( const st
 
     CAFFA_ASSERT( objectHandle );
 
+    for ( const auto field : objectHandle->fields() )
+    {
+        if ( field->keyword() != "uuid" )
+        {
+            applyAccessorToField( field );
+        }
+    }
+
     for ( const auto method : objectHandle->methods() )
     {
         applyAccessorToMethod( objectHandle.get(), method );
@@ -72,6 +80,37 @@ std::shared_ptr<ClientPassByValueObjectFactory> ClientPassByValueObjectFactory::
 void ClientPassByValueObjectFactory::setClient( Client* client )
 {
     m_client = client;
+}
+
+void ClientPassByValueObjectFactory::applyAccessorToField( FieldHandle* fieldHandle ) const
+{
+    CAFFA_ASSERT( m_client );
+    if ( !m_client ) throw std::runtime_error( "No Client set in Client factory" );
+
+    if ( auto childField = dynamic_cast<ChildFieldHandle*>( fieldHandle ); childField )
+    {
+        childField->setAccessor( std::make_unique<ChildFieldDirectStorageAccessor>( childField ) );
+    }
+    else if ( auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( fieldHandle ); childArrayField )
+    {
+        childArrayField->setAccessor( std::make_unique<ChildArrayFieldDirectStorageAccessor>( childArrayField ) );
+    }
+    else if ( auto dataField = dynamic_cast<DataField*>( fieldHandle ); dataField )
+    {
+        if ( auto jsonCapability = fieldHandle->capability<FieldIoCapability>(); jsonCapability )
+        {
+            dataField->applyDirectStorageAccessor();
+        }
+        else
+        {
+            CAFFA_ASSERT( false && "All fields that are scriptable has to be serializable" );
+            throw std::runtime_error( "Field " + fieldHandle->keyword() + " is not serializable" );
+        }
+    }
+    else
+    {
+        CAFFA_ASSERT( false && "Datatype not implemented" );
+    }
 }
 
 void ClientPassByValueObjectFactory::applyAccessorToMethod( ObjectHandle* objectHandle, MethodHandle* methodHandle )

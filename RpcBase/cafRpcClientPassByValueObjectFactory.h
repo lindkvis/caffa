@@ -52,6 +52,7 @@ private:
     {
     }
 
+    void applyAccessorToField( FieldHandle* fieldHandle ) const;
     void applyAccessorToMethod( ObjectHandle* objectHandle, MethodHandle* methodHandle );
 
 private:
