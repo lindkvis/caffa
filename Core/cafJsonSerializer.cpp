@@ -60,6 +60,7 @@ JsonSerializer::JsonSerializer( ObjectFactory* objectFactory /* = nullptr */ )
     , m_objectFactory( objectFactory == nullptr ? DefaultObjectFactory::instance().get() : objectFactory )
     , m_serializationType( SerializationType::DATA_FULL )
     , m_serializeUuids( true )
+    , m_level( -1 )
 {
 }
 
@@ -128,6 +129,7 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
         return;
     }
 
+    ++m_level;
     CAFFA_ASSERT( jsonObject.is_object() );
 
     if ( this->serializeUuids() && jsonObject.contains( "uuid" ) )
@@ -150,7 +152,7 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
         {
             continue;
         }
-        else if ( keyword == "keyword" || keyword == "class" )
+        if ( keyword == "keyword" || keyword == "class" )
         {
             const auto& classKeyword = value;
             CAFFA_ASSERT(
@@ -159,8 +161,8 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
         }
         else if ( this->serializationType() == SerializationType::DATA_FULL && !value.is_null() && keyword != "methods" )
         {
-            auto fieldHandle = object->findField( keyword );
-            if ( fieldHandle && fieldHandle->capability<FieldIoCapability>() && fieldHandle->isWritable() )
+            if ( auto fieldHandle = object->findField( keyword );
+                 fieldHandle && fieldHandle->capability<FieldIoCapability>() && fieldHandle->isWritable() )
             {
                 if ( this->fieldSelector() && !this->fieldSelector()( fieldHandle ) ) continue;
 
@@ -182,6 +184,8 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
 
     ObjectPerformer<> performer( []( ObjectHandle* object ) { object->initAfterRead(); } );
     performer.visit( object );
+
+    --m_level;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,7 +197,9 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
                                    << serializationTypeLabel( this->serializationType() )
                                    << ", serializeUuids = " << this->serializeUuids() );
 
-    if ( this->serializationType() == JsonSerializer::SerializationType::SCHEMA )
+    ++m_level;
+
+    if ( this->serializationType() == SerializationType::SCHEMA )
     {
         std::set<std::string> parentalFields;
         std::set<std::string> parentalMethods;
@@ -290,30 +296,32 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
     else
     {
         jsonObject["keyword"] = object->classKeyword();
-        // jsonObject["$id"]     = "/openapi.json/components/object_schemas/" + object->classKeyword();
-
         if ( this->serializeUuids() && !object->uuid().empty() )
         {
             jsonObject["uuid"] = object->uuid();
         }
 
-        for ( auto field : object->fields() )
+        if ( m_level == 0 || this->serializationType() != SerializationType::DATA_SKELETON )
         {
-            if ( this->fieldSelector() && !this->fieldSelector()( field ) ) continue;
-
-            if ( field->isDeprecated() ) continue;
-
-            auto keyword = field->keyword();
-
-            const FieldIoCapability* ioCapability = field->capability<FieldIoCapability>();
-            if ( ioCapability && field->isReadable() )
+            for ( auto field : object->fields() )
             {
-                nlohmann::json value;
-                ioCapability->writeToJson( value, *this );
-                if ( !value.is_null() ) jsonObject[keyword] = value;
+                if ( this->fieldSelector() && !this->fieldSelector()( field ) ) continue;
+
+                if ( field->isDeprecated() ) continue;
+
+                auto keyword = field->keyword();
+
+                const FieldIoCapability* ioCapability = field->capability<FieldIoCapability>();
+                if ( ioCapability && field->isReadable() )
+                {
+                    nlohmann::json value;
+                    ioCapability->writeToJson( value, *this );
+                    if ( !value.is_null() ) jsonObject[keyword] = value;
+                }
             }
         }
     }
+    --m_level;
 }
 
 //--------------------------------------------------------------------------------------------------

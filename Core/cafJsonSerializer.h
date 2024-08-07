@@ -193,6 +193,8 @@ protected:
 
     SerializationType m_serializationType;
     bool              m_serializeUuids;
+
+    mutable int m_level;
 };
 
 } // End of namespace caffa
