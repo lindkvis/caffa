@@ -70,7 +70,7 @@ public:
 
     [[nodiscard]] std::pair<bool, std::string> validate( const DataType& value ) const override
     {
-        if ( ( value % m_divisor ) != 0 )
+        if ( ( value % m_divisor ) != DataType( 0 ) )
         {
             std::stringstream ss;
             ss << "The value " << value << " is not divisible by " << m_divisor;
