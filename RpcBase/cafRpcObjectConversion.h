@@ -31,9 +31,10 @@ class Session;
 
 namespace caffa::rpc
 {
-bool                 fieldIsScriptReadable( const caffa::FieldHandle* fieldHandle );
-caffa::ObjectHandle* findCafObjectFromJsonObject( const caffa::Session* session, const std::string& jsonObject );
-caffa::ObjectHandle* findCafObjectFromUuid( const caffa::Session* session, const std::string& objectUuid );
+bool                                 fieldIsScriptReadable( const caffa::FieldHandle* fieldHandle );
+std::shared_ptr<caffa::ObjectHandle> findCafObjectFromJsonObject( const caffa::Session* session,
+                                                                  const std::string&    jsonObject );
+std::shared_ptr<caffa::ObjectHandle> findCafObjectFromUuid( const caffa::Session* session, const std::string& objectUuid );
 
 nlohmann::json createJsonSchemaFromProjectObject( const caffa::ObjectHandle* source );
 nlohmann::json createJsonSkeletonFromProjectObject( const caffa::ObjectHandle* source );

@@ -38,8 +38,18 @@ void FieldIoCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, con
         }
         else // Support JSON objects with direct value instead of separate value entry
         {
-            typename FieldType::FieldDataType value = jsonElement.get<typename FieldType::FieldDataType>();
-            m_field->setValue( value );
+            if ( jsonElement.is_null() )
+            {
+                if constexpr ( std::is_floating_point_v<typename FieldType::FieldDataType> )
+                {
+                    m_field->setValue( std::numeric_limits<typename FieldType::FieldDataType>::quiet_NaN() );
+                }
+            }
+            else
+            {
+                typename FieldType::FieldDataType value = jsonElement.get<typename FieldType::FieldDataType>();
+                m_field->setValue( value );
+            }
         }
     }
 

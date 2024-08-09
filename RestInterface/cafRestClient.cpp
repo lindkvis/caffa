@@ -658,7 +658,7 @@ std::shared_ptr<ObjectHandle> RestClient::getChildObject( const ObjectHandle* ob
                                                  fieldName + "?skeleton=true&session_uuid=" + m_sessionUuid );
     if ( status != http::status::ok )
     {
-        throw std::runtime_error( "Failed to get field value" );
+        return nullptr;
     }
     CAFFA_TRACE( "Got body: " << body );
 

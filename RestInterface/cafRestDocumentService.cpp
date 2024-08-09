@@ -142,19 +142,47 @@ public:
 
     const std::map<std::string, nlohmann::json>& pathSchemas() const { return m_pathSchemas; }
 
-    void visitObject( const ObjectHandle* object ) override
+    void visit( const std::shared_ptr<const ObjectHandle>& object ) override
     {
-        if ( auto doc = dynamic_cast<const Document*>( object ); doc )
+        if ( auto doc = dynamic_cast<const Document*>( object.get() ); doc )
         {
             m_pathStack.push_back( doc->id() );
             auto schema = nlohmann::json::object();
-            m_serializer.writeObjectToJson( object, schema );
+            m_serializer.writeObjectToJson( object.get(), schema );
             auto path           = StringTools::join( m_pathStack.begin(), m_pathStack.end(), "/" );
             m_pathSchemas[path] = schema;
         }
+
+        for ( const auto field : object->fields() )
+        {
+            field->accept( this );
+        }
+
+        if ( auto doc = dynamic_cast<const Document*>( object.get() ); doc )
+        {
+            m_pathStack.pop_back();
+        }
     }
 
-    void visitField( const FieldHandle* field ) override
+    void visit( const ChildFieldBaseHandle* field ) override
+    {
+        visitField( field );
+
+        for ( const auto& object : field->childObjects() )
+        {
+            object->accept( this );
+        }
+
+        leaveField( field );
+    }
+
+    void visit( const DataField* field ) override
+    {
+        visitField( field );
+        leaveField( field );
+    }
+
+    bool visitField( const FieldHandle* field )
     {
         m_pathStack.push_back( field->keyword() );
         auto schema = nlohmann::json::object();
@@ -206,16 +234,10 @@ public:
 
         auto path           = StringTools::join( m_pathStack.begin(), m_pathStack.end(), "/" );
         m_pathSchemas[path] = schema;
+        return false;
     }
 
-    void leaveObject( const ObjectHandle* object ) override
-    {
-        if ( auto doc = dynamic_cast<const Document*>( object ); doc )
-        {
-            m_pathStack.pop_back();
-        }
-    }
-    void leaveField( const FieldHandle* field ) override { m_pathStack.pop_back(); }
+    void leaveField( const FieldHandle* field ) { m_pathStack.pop_back(); }
 
 private:
     std::list<std::string> m_pathStack;
