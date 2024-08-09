@@ -182,9 +182,6 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
         }
     }
 
-    ObjectPerformer<> performer( []( ObjectHandle* object ) { object->initAfterRead(); } );
-    performer.visit( object );
-
     --m_level;
 }
 
@@ -193,11 +190,11 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
 //--------------------------------------------------------------------------------------------------
 void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::json& jsonObject ) const
 {
-    CAFFA_TRACE( "Writing fields " << ( isClient() ? "client" : "server" ) << " from json with serialize setting: type = "
-                                   << serializationTypeLabel( this->serializationType() )
-                                   << ", serializeUuids = " << this->serializeUuids() );
-
     ++m_level;
+    CAFFA_TRACE( "Writing fields for "
+                 << object->classKeyword() << " -> " << ( isClient() ? "client" : "server" )
+                 << " from json with serialize setting: type = " << serializationTypeLabel( this->serializationType() )
+                 << ", serializeUuids = " << this->serializeUuids() << ", level: " << m_level );
 
     if ( this->serializationType() == SerializationType::SCHEMA )
     {

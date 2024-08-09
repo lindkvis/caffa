@@ -284,7 +284,7 @@ RestObjectService::ServiceResponse
                                                       const nlohmann::json&         body )
 {
     CAFFA_TRACE( "Full arguments for field operation: "
-                 << caffa::StringTools::join( pathArguments.begin(), pathArguments.end(), "/" ) );
+                << caffa::StringTools::join( pathArguments.begin(), pathArguments.end(), "/" ) );
 
     auto session = findSession( queryParams );
     if ( !session || session->isExpired() )
@@ -322,7 +322,8 @@ RestObjectService::ServiceResponse
         auto result = method->execute( *session, body.dump() );
         return std::make_pair( http::status::ok, result );
     }
-    else if ( auto field = object->findField( keyword ); field )
+
+    if ( auto field = object->findField( keyword ); field )
     {
         int  index    = queryParams.contains( "index" ) ? queryParams["index"].get<int>() : -1;
         bool skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
@@ -330,22 +331,23 @@ RestObjectService::ServiceResponse
         {
             return getFieldValue( field, index, skeleton );
         }
-        else if ( verb == http::verb::put )
+        if ( verb == http::verb::put )
         {
             return replaceFieldValue( field, index, body );
         }
-        else if ( verb == http::verb::post )
+        if ( verb == http::verb::post )
         {
             return insertFieldValue( field, index, body );
         }
-        else if ( verb == http::verb::delete_ )
+        if ( verb == http::verb::delete_ )
         {
             return deleteFieldValue( field, index );
         }
         return std::make_pair( http::status::bad_request, "Verb not implemented" );
     }
 
-    return std::make_pair( http::status::not_found, "No field named " + keyword + " found" );
+    return std::make_pair( http::status::not_found,
+                           "No field named " + keyword + " found in object " + std::string( object->classKeyword() ) );
 }
 
 RestObjectService::ServiceResponse
@@ -583,15 +585,17 @@ RestObjectService::ServiceResponse RestObjectService::object( http::verb        
         return std::make_pair( http::status::not_found, "Object " + uuid + " not found" );
     }
 
+    CAFFA_TRACE( "Found object: " << object->classKeyword() << ", uuid: " << object->uuid() );
+
     bool           skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
     nlohmann::json jsonObject;
     if ( skeleton )
     {
-        jsonObject = createJsonSkeletonFromProjectObject( object );
+        jsonObject = createJsonSkeletonFromProjectObject( object.get() );
     }
     else
     {
-        jsonObject = createJsonFromProjectObject( object );
+        jsonObject = createJsonFromProjectObject( object.get() );
     }
     return std::make_pair( http::status::ok, jsonObject.dump() );
 }

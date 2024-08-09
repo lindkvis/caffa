@@ -26,7 +26,7 @@
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
 #include "cafObject.h"
-#include "cafObjectCollector.h"
+#include "cafObjectFinder.h"
 #include "cafRpcServerApplication.h"
 
 namespace caffa::rpc
@@ -94,7 +94,7 @@ nlohmann::json createJsonSkeletonFromProjectObject( const ObjectHandle* source )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle* findCafObjectFromJsonObject( const Session* session, const std::string& jsonObject )
+std::shared_ptr<ObjectHandle> findCafObjectFromJsonObject( const Session* session, const std::string& jsonObject )
 {
     CAFFA_TRACE( "Looking for object from json: " << jsonObject );
     const auto objectUuid = JsonSerializer::readUUIDFromObjectString( jsonObject );
@@ -104,22 +104,20 @@ ObjectHandle* findCafObjectFromJsonObject( const Session* session, const std::st
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectHandle* findCafObjectFromUuid( const Session* session, const std::string& objectUuid )
+std::shared_ptr<ObjectHandle> findCafObjectFromUuid( const Session* session, const std::string& objectUuid )
 {
     CAFFA_TRACE( "Looking for caf object with UUID '" << objectUuid << "'" );
 
-    ObjectCollector<> collector( [objectUuid]( const ObjectHandle* objectHandle ) -> bool
-                                 { return objectHandle->uuid() == objectUuid; } );
-
     for ( const auto& doc : ServerApplication::instance()->documents( session ) )
     {
-        doc->accept( &collector );
+        ObjectFinder<> finder( [objectUuid]( const ObjectHandle* objectHandle ) -> bool
+                               { return objectHandle->uuid() == objectUuid; } );
+        doc->accept( &finder );
+        if ( finder.object() )
+        {
+            return finder.object();
+        }
     }
-
-    CAFFA_ASSERT( collector.objects().size() <= 1u );
-
-    if ( collector.objects().empty() ) return nullptr;
-
-    return collector.objects().front();
+    return nullptr;
 }
 } // namespace caffa::rpc
