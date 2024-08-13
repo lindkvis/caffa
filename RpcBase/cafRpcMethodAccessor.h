@@ -24,19 +24,19 @@
 
 namespace caffa::rpc
 {
-class MethodAccessor : public caffa::MethodAccessorInterface
+class MethodAccessor final : public MethodAccessorInterface
 {
 public:
-    MethodAccessor( const Client*              client,
-                    const caffa::ObjectHandle* selfHandle,
-                    caffa::MethodHandle*       methodHandle,
-                    caffa::ObjectFactory*      objectFactory )
+    MethodAccessor( const Client*       client,
+                    const ObjectHandle* selfHandle,
+                    const MethodHandle* methodHandle,
+                    ObjectFactory*      objectFactory )
         : MethodAccessorInterface( selfHandle, methodHandle, objectFactory )
         , m_client( client )
     {
     }
 
-    std::string execute( const std::string& jsonArguments ) const
+    [[nodiscard]] std::string execute( const std::string& jsonArguments ) const override
     {
         return m_client->execute( m_selfHandle, m_methodHandle->keyword(), jsonArguments );
     }
