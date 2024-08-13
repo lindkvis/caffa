@@ -52,6 +52,8 @@ public:
 
     Result operator()( std::shared_ptr<Session> session, ArgTypes... args ) const
     {
+        CAFFA_ASSERT( ( m_callback || m_callbackWithSession ) && "Method has no callback!" );
+
         if ( !m_callbackWithSession )
         {
             return this->operator()( args... ); // pass on to operator without session
@@ -64,6 +66,8 @@ public:
 
     Result operator()( ArgTypes... args ) const
     {
+        CAFFA_ASSERT( ( m_callback || m_callbackWithSession ) && "Method has no callback!" );
+
         if ( auto accessor = this->accessor(); accessor )
         {
             auto serializedMethod = toJson( args... ).dump();
@@ -72,12 +76,17 @@ public:
             CAFFA_DEBUG( "Got serialized result: " << serialisedResult );
             return resultFromJsonString( serialisedResult, accessor->objectFactory() );
         }
-        CAFFA_ASSERT( m_callback );
+
+        if ( !m_callback )
+        {
+            throw std::runtime_error( "Method needs to be called with a session as the first argument!" );
+        }
         return m_callback( args... );
     }
 
     /**
      * Execute the method from a JSON string and return result as a JSON string
+     * @param session
      * @param jsonArgumentsString
      * @return a JSON result string
      */
@@ -103,14 +112,14 @@ public:
         auto jsonMethod = nlohmann::json::object();
         CAFFA_ASSERT( !keyword().empty() );
 
-        constexpr std::size_t n = sizeof...( args );
-        if constexpr ( n > 0 )
+        if constexpr ( sizeof...( args ) > 0 )
         {
             auto   jsonArguments = nlohmann::json::array();
             size_t i             = 0;
 
             // Fold expression
             // https://en.cppreference.com/w/cpp/language/fold
+            //            ( jsonArguments.push_back( std::forward<ArgTypes>( args ) ), ... );
             (
                 [&i, &args, &jsonArguments]
                 {
@@ -174,14 +183,11 @@ public:
 
 private:
     template <typename ArgType>
-        requires std::same_as<ArgType, void>
-    static ArgType jsonToValue( const nlohmann::json& jsonData, ObjectFactory* objectFactory )
-    {
-        return;
-    }
+    requires std::same_as<ArgType, void>
+    static ArgType jsonToValue( const nlohmann::json& jsonData, ObjectFactory* objectFactory ) { return void(); }
 
     template <typename ArgType>
-        requires IsSharedPtr<ArgType>
+    requires IsSharedPtr<ArgType>
     static ArgType jsonToValue( const nlohmann::json& jsonData, ObjectFactory* objectFactory )
     {
         JsonSerializer serializer( objectFactory );
@@ -190,15 +196,16 @@ private:
     }
 
     template <typename ArgType>
-        requires( not IsSharedPtr<ArgType> && not std::same_as<ArgType, void> )
-    static ArgType jsonToValue( const nlohmann::json& jsonData, ObjectFactory* objectFactory )
+    requires( not IsSharedPtr<ArgType> && not std::same_as<ArgType, void> ) static ArgType
+        jsonToValue( const nlohmann::json& jsonData, ObjectFactory* objectFactory )
     {
         return jsonData.get<ArgType>();
     }
 
     template <typename ReturnType, std::size_t... Is>
-        requires std::same_as<ReturnType, void>
-    nlohmann::json executeJson( std::shared_ptr<Session> session, const nlohmann::json& args, std::index_sequence<Is...> ) const
+    requires std::same_as<ReturnType, void> nlohmann::json
+        executeJson( std::shared_ptr<Session> session, const nlohmann::json& args, std::index_sequence<Is...> )
+    const
     {
         this->operator()( session, jsonToValue<ArgTypes>( args[Is], nullptr )... );
 
@@ -207,11 +214,9 @@ private:
     }
 
     template <typename ReturnType, std::size_t... Is>
-        requires( not std::same_as<ReturnType, void> )
-    nlohmann::json executeJson( std::shared_ptr<Session> session, const nlohmann::json& args, std::index_sequence<Is...> ) const
-    {
-        return this->operator()( session, jsonToValue<ArgTypes>( args[Is], nullptr )... );
-    }
+    requires( not std::same_as<ReturnType, void> ) nlohmann::json
+        executeJson( std::shared_ptr<Session> session, const nlohmann::json& args, std::index_sequence<Is...> )
+    const { return this->operator()( session, jsonToValue<ArgTypes>( args[Is], nullptr )... ); }
 
     nlohmann::json executeJson( std::shared_ptr<Session> session, const nlohmann::json& jsonMethod ) const
     {
