@@ -39,7 +39,7 @@ class ObjectHandle;
 template <class CallbackT>
 class Method : public MethodHandle
 {
-public:
+protected:
     std::function<CallbackT> m_callback;
 };
 
@@ -49,6 +49,10 @@ class Method<Result( ArgTypes... )> : public MethodHandle
 public:
     using Callback            = std::function<Result( ArgTypes... )>;
     using CallbackWithSession = std::function<Result( std::shared_ptr<Session>, ArgTypes... )>;
+
+    Method()                               = default;
+    Method( const Method& rhs )            = delete;
+    Method& operator=( const Method& rhs ) = delete;
 
     Result operator()( std::shared_ptr<Session> session, ArgTypes... args ) const
     {
