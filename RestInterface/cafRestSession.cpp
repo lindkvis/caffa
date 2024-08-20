@@ -137,7 +137,7 @@ void handleRequest( const std::map<std::string, std::shared_ptr<RestServiceInter
     std::string target( req.target() );
 
     CAFFA_TRACE( "Target: " << target << ", body length: " << req.body().length()
-                           << ", method: " << http::to_string( method ) );
+                            << ", method: " << http::to_string( method ) );
 
     std::regex paramRegex( "[\?&]" );
 
@@ -292,7 +292,7 @@ void handleRequest( const std::map<std::string, std::shared_ptr<RestServiceInter
     }
     catch ( const std::exception& e )
     {
-        CAFFA_ERROR( "Got exception: " << e.what() << " for request " );
+        CAFFA_ERROR( "Got error: " << e.what() );
         send( createResponse( http::status::internal_server_error, e.what() ) );
     }
 }
