@@ -46,7 +46,6 @@ FieldScriptingCapability::FieldScriptingCapability( bool readable, bool writeabl
     : FieldCapability()
     , m_readable( readable )
     , m_writeable( writeable )
-    , m_field( nullptr )
 {
 }
 
@@ -82,20 +81,4 @@ void FieldScriptingCapability::setWritable( bool writeable )
     m_writeable = writeable;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const FieldHandle* FieldScriptingCapability::owner() const
-{
-    return m_field;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void FieldScriptingCapability::setOwner( FieldHandle* field )
-{
-    m_field = field;
-}
-
-}
+} // namespace caffa

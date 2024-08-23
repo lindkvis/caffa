@@ -56,15 +56,9 @@ public:
     void setReadable( bool readable );
     void setWritable( bool writable );
 
-protected:
-    const FieldHandle* owner() const override;
-    void               setOwner( FieldHandle* field ) override;
-
 private:
     bool m_readable;
     bool m_writeable;
-
-    FieldHandle* m_field;
 };
 
 } // namespace caffa

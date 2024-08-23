@@ -15,12 +15,8 @@ template <typename FieldType>
 class FieldIoCap final : public FieldIoCapability
 {
 public:
-    FieldIoCap()
-        : m_field( nullptr )
-    {
-    }
+    FieldIoCap() = default;
 
-public:
     // Json Serializing
     void readFromJson( const nlohmann::json& jsonElement, const JsonSerializer& serializer ) override;
     void writeToJson( nlohmann::json& jsonElement, const JsonSerializer& serializer ) const override;
@@ -28,12 +24,10 @@ public:
     void readFromString( const std::string& string ) override;
     void writeToString( std::string& string ) const override;
 
-    [[nodiscard]] const FieldHandle* owner() const override;
-    void                             setOwner( FieldHandle* owner ) override;
-    [[nodiscard]] nlohmann::json     jsonType() const override;
+    [[nodiscard]] nlohmann::json jsonType() const override;
 
 private:
-    FieldType* m_field;
+    FieldType* typedOwner() const { return dynamic_cast<FieldType*>( this->owner() ); }
 };
 
 template <typename DataType>
@@ -42,12 +36,8 @@ class FieldIoCap<ChildField<DataType*>> final : public FieldIoCapability
     typedef ChildField<DataType*> FieldType;
 
 public:
-    FieldIoCap()
-        : m_field( nullptr )
-    {
-    }
+    FieldIoCap() = default;
 
-public:
     // Json Serializing
     void readFromJson( const nlohmann::json& jsonElement, const JsonSerializer& serializer ) override;
     void writeToJson( nlohmann::json& jsonElement, const JsonSerializer& serializer ) const override;
@@ -55,12 +45,10 @@ public:
     void readFromString( const std::string& string ) override;
     void writeToString( std::string& string ) const override;
 
-    [[nodiscard]] const FieldHandle* owner() const override;
-    void                             setOwner( FieldHandle* owner ) override;
-    [[nodiscard]] nlohmann::json     jsonType() const override;
+    [[nodiscard]] nlohmann::json jsonType() const override;
 
 private:
-    FieldType* m_field;
+    FieldType* typedOwner() const { return dynamic_cast<FieldType*>( this->owner() ); }
 };
 
 template <typename DataType>
@@ -69,12 +57,8 @@ class FieldIoCap<ChildArrayField<DataType*>> : public FieldIoCapability
     typedef ChildArrayField<DataType*> FieldType;
 
 public:
-    FieldIoCap()
-        : m_field( nullptr )
-    {
-    }
+    FieldIoCap() = default;
 
-public:
     // Json Serializing
     void readFromJson( const nlohmann::json& jsonElement, const JsonSerializer& serializer ) override;
     void writeToJson( nlohmann::json& jsonElement, const JsonSerializer& serializer ) const override;
@@ -82,12 +66,10 @@ public:
     void readFromString( const std::string& string ) override;
     void writeToString( std::string& string ) const override;
 
-    [[nodiscard]] const FieldHandle* owner() const override;
-    void                             setOwner( FieldHandle* owner ) override;
-    [[nodiscard]] nlohmann::json     jsonType() const override;
+    [[nodiscard]] nlohmann::json jsonType() const override;
 
 private:
-    FieldType* m_field;
+    FieldType* typedOwner() const { return dynamic_cast<FieldType*>( this->owner() ); }
 };
 
 template <typename FieldType>

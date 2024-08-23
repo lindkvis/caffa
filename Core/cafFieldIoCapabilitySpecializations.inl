@@ -33,7 +33,7 @@ void FieldIoCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, con
             if ( jsonElement.contains( "value" ) && !jsonElement["value"].is_null() )
             {
                 typename FieldType::FieldDataType value = jsonElement["value"].get<typename FieldType::FieldDataType>();
-                m_field->setValue( value );
+                typedOwner()->setValue( value );
             }
         }
         else // Support JSON objects with direct value instead of separate value entry
@@ -42,18 +42,18 @@ void FieldIoCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, con
             {
                 if constexpr ( std::is_floating_point_v<typename FieldType::FieldDataType> )
                 {
-                    m_field->setValue( std::numeric_limits<typename FieldType::FieldDataType>::quiet_NaN() );
+                    typedOwner()->setValue( std::numeric_limits<typename FieldType::FieldDataType>::quiet_NaN() );
                 }
             }
             else
             {
                 typename FieldType::FieldDataType value = jsonElement.get<typename FieldType::FieldDataType>();
-                m_field->setValue( value );
+                typedOwner()->setValue( value );
             }
         }
     }
 
-    for ( auto validator : m_field->valueValidators() )
+    for ( auto validator : typedOwner()->valueValidators() )
     {
         validator->readFromString( jsonElement.dump() );
     }
@@ -69,26 +69,26 @@ void FieldIoCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Json
 
     if ( serializer.serializationType() == JsonSerializer::SerializationType::DATA_FULL )
     {
-        jsonElement = m_field->value();
+        jsonElement = typedOwner()->value();
     }
     else if ( serializer.serializationType() == JsonSerializer::SerializationType::SCHEMA )
     {
         nlohmann::json jsonField = JsonDataType<typename FieldType::FieldDataType>::jsonType();
-        if ( !m_field->isReadable() && m_field->isWritable() )
+        if ( !typedOwner()->isReadable() && typedOwner()->isWritable() )
         {
             jsonField["writeOnly"] = true;
         }
-        else if ( m_field->isReadable() && !m_field->isWritable() )
+        else if ( typedOwner()->isReadable() && !typedOwner()->isWritable() )
         {
             jsonField["readOnly"] = true;
         }
 
-        if ( !m_field->documentation().empty() )
+        if ( !typedOwner()->documentation().empty() )
         {
-            jsonField["description"] = m_field->documentation();
+            jsonField["description"] = typedOwner()->documentation();
         }
 
-        for ( auto validator : m_field->valueValidators() )
+        for ( auto validator : typedOwner()->valueValidators() )
         {
             auto validatorString = validator->writeToString();
             auto validatorJson   = nlohmann::json::parse( validatorString );
@@ -100,7 +100,7 @@ void FieldIoCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Json
         jsonElement = jsonField;
     }
 
-    CAFFA_TRACE( "Writing field to json " << m_field->keyword() << "(" << m_field->dataType() << ") = " );
+    CAFFA_TRACE( "Writing field to json " << typedOwner()->keyword() << "(" << typedOwner()->dataType() << ") = " );
     CAFFA_TRACE( jsonElement.dump() );
 }
 
@@ -113,14 +113,14 @@ void FieldIoCap<FieldType>::readFromString( const std::string& string )
     auto&                             istream = static_cast<std::istream&>( ss );
 
     istream >> std::boolalpha >> value;
-    m_field->setValue( value );
+    typedOwner()->setValue( value );
 }
 
 template <typename FieldType>
 void FieldIoCap<FieldType>::writeToString( std::string& string ) const
 {
     std::ostringstream ss;
-    ss << std::boolalpha << ( m_field->value() );
+    ss << std::boolalpha << ( typedOwner()->value() );
     string = ss.str();
 }
 
@@ -136,33 +136,13 @@ nlohmann::json FieldIoCap<FieldType>::jsonType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template <typename FieldType>
-const FieldHandle* FieldIoCap<FieldType>::owner() const
-{
-    return m_field;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename FieldType>
-void FieldIoCap<FieldType>::setOwner( FieldHandle* owner )
-{
-    auto field = dynamic_cast<FieldType*>( owner );
-    CAFFA_ASSERT( field );
-    m_field = field;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 template <typename DataType>
 void FieldIoCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& jsonElement, const JsonSerializer& serializer )
 {
     CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildField" );
     if ( jsonElement.is_null() )
     {
-        m_field->setChildObject( nullptr );
+        typedOwner()->setChildObject( nullptr );
     }
 
     CAFFA_ASSERT( jsonElement.is_object() );
@@ -178,7 +158,7 @@ void FieldIoCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& json
     }
     if ( jsonObject.is_null() )
     {
-        m_field->setChildObject( nullptr );
+        typedOwner()->setChildObject( nullptr );
     }
 
     auto classNameElement = jsonObject.find( "keyword" );
@@ -202,7 +182,7 @@ void FieldIoCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& json
         uuid = jsonObject["uuid"].get<std::string>();
     }
 
-    auto object = m_field->object();
+    auto object = typedOwner()->object();
     if ( object && !uuid.empty() && object->uuid() == uuid )
     {
         CAFFA_TRACE( "Had existing matching object! Overwriting field values!" );
@@ -222,17 +202,17 @@ void FieldIoCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& json
         if ( !object )
         {
             CAFFA_ERROR( "Unknown object type with class name: " << className << " found while reading the field : "
-                                                                 << m_field->keyword() );
+                                                                 << typedOwner()->keyword() );
             return;
         }
-        m_field->setObject( object );
+        typedOwner()->setObject( object );
     }
 
     if ( !ObjectHandle::matchesClassKeyword( className, object->classInheritanceStack() ) )
     {
         // Error: Field contains different class type than in the JSON
         CAFFA_ERROR( "Unknown object type with class name: " << className << " found while reading the field : "
-                                                             << m_field->keyword() );
+                                                             << typedOwner()->keyword() );
         CAFFA_ERROR( "                     Expected class name: " << object->classKeyword() );
 
         return;
@@ -249,7 +229,7 @@ void FieldIoCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& json
 template <typename DataType>
 void FieldIoCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonElement, const JsonSerializer& serializer ) const
 {
-    if ( auto object = m_field->object(); object )
+    if ( auto object = typedOwner()->object(); object )
     {
         std::string jsonString = serializer.writeObjectToString( object.get() );
         jsonElement            = nlohmann::json::parse( jsonString );
@@ -259,17 +239,17 @@ void FieldIoCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonElement
     if ( serializer.serializationType() == JsonSerializer::SerializationType::SCHEMA )
     {
         jsonElement = JsonDataType<DataType>::jsonType();
-        if ( !m_field->isReadable() && m_field->isWritable() )
+        if ( !typedOwner()->isReadable() && typedOwner()->isWritable() )
         {
             jsonElement["writeOnly"] = true;
         }
-        else if ( m_field->isReadable() && !m_field->isWritable() )
+        else if ( typedOwner()->isReadable() && !typedOwner()->isWritable() )
         {
             jsonElement["readOnly"] = true;
         }
-        if ( !m_field->documentation().empty() )
+        if ( !typedOwner()->documentation().empty() )
         {
-            jsonElement["description"] = m_field->documentation();
+            jsonElement["description"] = typedOwner()->documentation();
         }
     }
 }
@@ -302,32 +282,12 @@ nlohmann::json FieldIoCap<ChildField<DataType*>>::jsonType() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-const FieldHandle* FieldIoCap<ChildField<DataType*>>::owner() const
-{
-    return m_field;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void FieldIoCap<ChildField<DataType*>>::setOwner( FieldHandle* owner )
-{
-    auto field = dynamic_cast<ChildField<DataType*>*>( owner );
-    CAFFA_ASSERT( field );
-    m_field = field;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
 void FieldIoCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json& jsonElement,
                                                            const JsonSerializer& serializer )
 {
-    m_field->clear();
+    typedOwner()->clear();
 
-    CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildArrayField " << m_field->keyword() );
+    CAFFA_TRACE( "Writing " << jsonElement.dump() << " to ChildArrayField " << typedOwner()->keyword() );
 
     nlohmann::json jsonArray;
     if ( jsonElement.is_array() )
@@ -370,7 +330,7 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json&
             // Skip to corresponding end element
 
             CAFFA_ERROR( "Warning: Unknown object type with class name: "
-                         << className << " found while reading the field : " << m_field->keyword() );
+                         << className << " found while reading the field : " << typedOwner()->keyword() );
 
             continue;
         }
@@ -385,10 +345,10 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json&
 
         serializer.readObjectFromString( object.get(), jsonObject.dump() );
 
-        size_t currentSize = m_field->size();
-        CAFFA_TRACE( "Inserting new object into " << m_field->keyword() << " at position " << currentSize );
+        size_t currentSize = typedOwner()->size();
+        CAFFA_TRACE( "Inserting new object into " << typedOwner()->keyword() << " at position " << currentSize );
 
-        m_field->insertAt( currentSize, object );
+        typedOwner()->insertAt( currentSize, object );
     }
 }
 //--------------------------------------------------------------------------------------------------
@@ -400,17 +360,17 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& jsonEl
     if ( serializer.serializationType() == JsonSerializer::SerializationType::SCHEMA )
     {
         jsonElement = JsonDataType<std::vector<DataType>>::jsonType();
-        if ( !m_field->isReadable() && m_field->isWritable() )
+        if ( !typedOwner()->isReadable() && typedOwner()->isWritable() )
         {
             jsonElement["writeOnly"] = true;
         }
-        else if ( m_field->isReadable() && !m_field->isWritable() )
+        else if ( typedOwner()->isReadable() && !typedOwner()->isWritable() )
         {
             jsonElement["readOnly"] = true;
         }
-        if ( !m_field->documentation().empty() )
+        if ( !typedOwner()->documentation().empty() )
         {
-            jsonElement["description"] = m_field->documentation();
+            jsonElement["description"] = typedOwner()->documentation();
         }
     }
     else if ( serializer.serializationType() == JsonSerializer::SerializationType::DATA_FULL ||
@@ -418,9 +378,9 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& jsonEl
     {
         nlohmann::json jsonArray = nlohmann::json::array();
 
-        for ( size_t i = 0; i < m_field->size(); ++i )
+        for ( size_t i = 0; i < typedOwner()->size(); ++i )
         {
-            std::shared_ptr<ObjectHandle> object = m_field->at( i );
+            std::shared_ptr<ObjectHandle> object = typedOwner()->at( i );
             if ( !object ) continue;
 
             std::string    jsonString = serializer.writeObjectToString( object.get() );
@@ -453,26 +413,6 @@ template <typename DataType>
 nlohmann::json FieldIoCap<ChildArrayField<DataType*>>::jsonType() const
 {
     return JsonDataType<ChildArrayField<DataType*>>::jsonType();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-const FieldHandle* FieldIoCap<ChildArrayField<DataType*>>::owner() const
-{
-    return m_field;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void FieldIoCap<ChildArrayField<DataType*>>::setOwner( FieldHandle* owner )
-{
-    auto field = dynamic_cast<ChildArrayField<DataType*>*>( owner );
-    CAFFA_ASSERT( field );
-    m_field = field;
 }
 
 } // End namespace caffa
