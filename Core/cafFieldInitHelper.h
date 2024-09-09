@@ -108,6 +108,12 @@ public:
         return *this;
     }
 
+    FieldInitHelper& markVolatile()
+    {
+        m_field.markVolatile();
+        return *this;
+    }
+
     FieldInitHelper()                         = delete;
     FieldInitHelper( const FieldInitHelper& ) = delete;
     FieldInitHelper( FieldInitHelper&& )      = delete;
