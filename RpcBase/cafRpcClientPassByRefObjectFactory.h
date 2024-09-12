@@ -43,18 +43,30 @@ public:
     AccessorCreatorBase()          = default;
     virtual ~AccessorCreatorBase() = default;
     [[nodiscard]] virtual std::unique_ptr<DataFieldAccessorInterface> create( Client* client, FieldHandle* fieldHandle ) = 0;
-    [[nodiscard]] virtual std::string                                 jsonDataType() const = 0;
+    [[nodiscard]] virtual std::string                                 portableDataType() const = 0;
+    [[nodiscard]] virtual std::string                                 jsonDataType() const     = 0;
 };
 
 template <typename DataType>
 class AccessorCreator final : public AccessorCreatorBase
 {
 public:
+    explicit AccessorCreator( const std::string& portableDataType, const std::string& jsonDataType )
+        : m_portableDataType( portableDataType )
+        , m_jsonDataType( jsonDataType )
+    {
+    }
+
     std::unique_ptr<DataFieldAccessorInterface> create( Client* client, FieldHandle* fieldHandle ) override
     {
         return std::make_unique<DataFieldAccessor<DataType>>( client, fieldHandle );
     }
-    [[nodiscard]] std::string jsonDataType() const override { return JsonDataType<DataType>::jsonType().dump(); }
+    [[nodiscard]] std::string portableDataType() const override { return m_portableDataType; }
+    [[nodiscard]] std::string jsonDataType() const override { return m_jsonDataType; }
+
+private:
+    const std::string m_portableDataType;
+    const std::string m_jsonDataType;
 };
 
 /**
@@ -71,14 +83,21 @@ public:
     [[nodiscard]] std::string name() const override { return "RPC Client Pass By Reference ObjectFactory"; }
 
     void setClient( Client* client );
+
     template <typename DataType>
     void registerBasicAccessorCreators()
     {
-        registerAccessorCreator( JsonDataType<DataType>::jsonType().dump(), std::make_unique<AccessorCreator<DataType>>() );
-        registerAccessorCreator( JsonDataType<std::vector<DataType>>::jsonType().dump(),
-                                 std::make_unique<AccessorCreator<std::vector<DataType>>>() );
-        registerAccessorCreator( JsonDataType<std::vector<std::vector<DataType>>>::jsonType().dump(),
-                                 std::make_unique<AccessorCreator<std::vector<std::vector<DataType>>>>() );
+        using TypeV  = std::vector<DataType>;
+        using TypeVV = std::vector<std::vector<DataType>>;
+        registerAccessorCreator( PortableDataType<DataType>::name(),
+                                 std::make_unique<AccessorCreator<DataType>>( PortableDataType<DataType>::name(),
+                                                                              JsonDataType<DataType>::jsonType().dump() ) );
+        registerAccessorCreator( PortableDataType<TypeV>::name(),
+                                 std::make_unique<AccessorCreator<TypeV>>( PortableDataType<TypeV>::name(),
+                                                                           JsonDataType<TypeV>::jsonType().dump() ) );
+        registerAccessorCreator( PortableDataType<TypeVV>::name(),
+                                 std::make_unique<AccessorCreator<TypeVV>>( PortableDataType<TypeVV>::name(),
+                                                                            JsonDataType<TypeVV>::jsonType().dump() ) );
     }
 
     [[nodiscard]] std::list<std::string> supportedDataTypes() const;

@@ -98,9 +98,9 @@ std::list<std::string> ClientPassByRefObjectFactory::supportedDataTypes() const
 {
     std::list<std::string> dataTypes;
 
-    for ( const auto& type : std::views::keys( m_accessorCreatorMap ) )
+    for ( const auto& creator : std::views::values( m_accessorCreatorMap ) )
     {
-        dataTypes.push_back( type );
+        dataTypes.push_back( creator->jsonDataType() );
     }
 
     return dataTypes;
@@ -127,18 +127,13 @@ void ClientPassByRefObjectFactory::applyAccessorToField( FieldHandle* fieldHandl
         if ( auto jsonCapability = fieldHandle->capability<FieldIoCapability>(); jsonCapability )
         {
             AccessorCreatorBase* accessorCreator = nullptr;
-            auto                 jsonType        = jsonCapability->jsonType();
+            auto                 fieldDataType   = fieldHandle->dataType();
 
-            CAFFA_TRACE( "Looking for an accessor creator for data type: " << jsonType );
-            for ( auto& [dataType, storedAccessorCreator] : m_accessorCreatorMap )
+            CAFFA_TRACE( "Looking for an accessor creator for data type: " << fieldDataType );
+
+            if ( const auto it = m_accessorCreatorMap.find( fieldDataType ); it != m_accessorCreatorMap.end() )
             {
-                CAFFA_TRACE( "Found one for " << dataType << " is that right?" );
-                if ( dataType == jsonType.dump() )
-                {
-                    CAFFA_TRACE( "Yes!" );
-                    accessorCreator = storedAccessorCreator.get();
-                    break;
-                }
+                accessorCreator = it->second.get();
             }
             if ( !accessorCreator )
             {
