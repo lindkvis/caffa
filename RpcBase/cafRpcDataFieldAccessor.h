@@ -20,6 +20,7 @@
 
 #include "cafDataFieldAccessor.h"
 #include "cafFieldScriptingCapability.h"
+#include "cafJsonDefinitions.h"
 #include "cafRpcClient.h"
 
 namespace caffa::rpc
@@ -50,14 +51,14 @@ public:
         return m_client->set<DataType>( m_fieldHandle->ownerObject(), m_fieldHandle->keyword(), value );
     }
 
-    bool hasGetter() const override
+    [[nodiscard]] bool hasGetter() const override
     {
-        auto scriptability = m_fieldHandle->capability<caffa::FieldScriptingCapability>();
+        const auto scriptability = m_fieldHandle->capability<caffa::FieldScriptingCapability>();
         return scriptability && scriptability->isReadable();
     }
-    bool hasSetter() const override
+    [[nodiscard]] bool hasSetter() const override
     {
-        auto scriptability = m_fieldHandle->capability<caffa::FieldScriptingCapability>();
+        const auto scriptability = m_fieldHandle->capability<caffa::FieldScriptingCapability>();
         return scriptability && scriptability->isWritable();
     }
 

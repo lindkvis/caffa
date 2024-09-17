@@ -20,18 +20,14 @@
 #include "cafRestObjectService.h"
 
 #include "cafRpcClientPassByRefObjectFactory.h"
-#include "cafRpcServer.h"
 
-#include "cafDocument.h"
 #include "cafField.h"
-#include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafJsonSerializer.h"
 #include "cafMethod.h"
 #include "cafObject.h"
 #include "cafObjectCollector.h"
 #include "cafRestServerApplication.h"
-#include "cafRpcClientPassByRefObjectFactory.h"
 #include "cafRpcObjectConversion.h"
 #include "cafStringTools.h"
 #include "cafUuidGenerator.h"
@@ -58,11 +54,11 @@ RestObjectService::RestObjectService()
     skeletonParameter->setDefaultValue( false );
 
     auto uuidEntry = std::make_unique<RestPathEntry>( "{uuid}" );
-    uuidEntry->setPathArgumentMatcher( &caffa::UuidGenerator::isUuid );
-    auto uuidParameter = std::make_unique<RestTypedParameter<std::string>>( "uuid",
-                                                                            RestParameter::Location::PATH,
-                                                                            true,
-                                                                            "The UUID of the object" );
+    uuidEntry->setPathArgumentMatcher( &UuidGenerator::isUuid );
+    const auto uuidParameter = std::make_unique<RestTypedParameter<std::string>>( "uuid",
+                                                                                  RestParameter::Location::PATH,
+                                                                                  true,
+                                                                                  "The UUID of the object" );
 
     uuidEntry->addAction( createObjectGetAction( { uuidParameter.get(), skeletonParameter.get() } ) );
 
@@ -70,10 +66,10 @@ RestObjectService::RestObjectService()
     auto fieldKeywordEntry = std::make_unique<RestPathEntry>( "{keyword}" );
     fieldKeywordEntry->setPathArgumentMatcher( validKeywordLambda );
 
-    auto keywordParameter = std::make_unique<RestTypedParameter<std::string>>( "keyword",
-                                                                               RestParameter::Location::PATH,
-                                                                               true,
-                                                                               "The keyword of the field" );
+    const auto keywordParameter = std::make_unique<RestTypedParameter<std::string>>( "keyword",
+                                                                                     RestParameter::Location::PATH,
+                                                                                     true,
+                                                                                     "The keyword of the field" );
 
     auto indexParameter = std::make_unique<RestTypedParameter<int>>( "index",
                                                                      RestParameter::Location::QUERY,
@@ -113,7 +109,7 @@ RestObjectService::RestObjectService()
         postAction->addResponse( http::status::accepted, RestResponse::emptyResponse( "Success" ) );
         postAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
 
-        auto requestBody       = nlohmann::json::object();
+        auto requestBody       = json::object();
         requestBody["content"] = anyFieldResponseContent();
 
         postAction->setRequestBodySchema( requestBody );
@@ -151,10 +147,10 @@ RestObjectService::RestObjectService()
                                           std::make_unique<RestResponse>( anyFieldResponseContent(), "Success" ) );
         methodExecuteAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
 
-        auto methodContent = nlohmann::json{ { "application/json", { { "schema", nlohmann::json::object() } } } };
+        json::object methodContent = { { "application/json", { { "schema", json::object() } } } };
 
-        auto methodBody = nlohmann::json{ { "description", "JSON content representing the parameters of the method" },
-                                          { "content", methodContent } };
+        json::object methodBody = { { "description", "JSON content representing the parameters of the method" },
+                                    { "content", methodContent } };
 
         methodExecuteAction->setRequestBodySchema( methodBody );
         methodKeywordEntry->addAction( std::move( methodExecuteAction ) );
@@ -167,48 +163,48 @@ RestObjectService::RestObjectService()
     m_requestPathRoot->addEntry( std::move( uuidEntry ) );
 }
 
-nlohmann::json RestObjectService::anyObjectResponseContent()
+json::object RestObjectService::anyObjectResponseContent()
 {
-    auto objectContent = nlohmann::json::object();
-    auto classArray    = nlohmann::json::array();
-    for ( auto classKeyword : DefaultObjectFactory::instance()->classes() )
+    json::object objectContent;
+    json::array  classArray;
+    for ( const auto& classKeyword : DefaultObjectFactory::instance()->classes() )
     {
-        auto schemaRef = nlohmann::json{ { "$ref", "#/components/object_schemas/" + classKeyword } };
+        json::object schemaRef = { { "$ref", "#/components/object_schemas/" + classKeyword } };
         classArray.push_back( schemaRef );
     }
-    auto classSchema                  = nlohmann::json{ { "oneOf", classArray }, { "discriminator", "keyword" } };
+    json::object classSchema          = { { "oneOf", classArray }, { "discriminator", "keyword" } };
     objectContent["application/json"] = { { "schema", classSchema } };
     return objectContent;
 }
 
-nlohmann::json RestObjectService::anyFieldResponseContent()
+json::object RestObjectService::anyFieldResponseContent()
 {
-    auto objectContent = nlohmann::json::object();
-    auto classArray    = nlohmann::json::array();
-    for ( auto classKeyword : DefaultObjectFactory::instance()->classes() )
+    auto objectContent = json::object();
+    auto classArray    = json::array();
+    for ( const auto& classKeyword : DefaultObjectFactory::instance()->classes() )
     {
-        auto schemaRef = nlohmann::json{ { "$ref", "#/components/object_schemas/" + classKeyword } };
+        json::object schemaRef = { { "$ref", "#/components/object_schemas/" + classKeyword } };
         classArray.push_back( schemaRef );
     }
 
-    auto oneOf = nlohmann::json::array();
-    for ( auto dataType : caffa::rpc::ClientPassByRefObjectFactory::instance()->supportedDataTypes() )
+    auto oneOf = json::array();
+    for ( const auto types = ClientPassByRefObjectFactory::instance()->supportedDataTypes(); const auto& dataType : types )
     {
-        oneOf.push_back( nlohmann::json::parse( dataType ) );
+        oneOf.push_back( json::parse( dataType ) );
     }
     for ( auto classEntry : classArray )
     {
         oneOf.push_back( classEntry );
-        auto array = nlohmann::json{ { "type", "array" }, { "items", classEntry } };
+        json::object array = { { "type", "array" }, { "items", classEntry } };
         oneOf.push_back( array );
     }
-    return nlohmann::json{ { "application/json", { { "schema", { { "oneOf", oneOf } } } } } };
+    return { { "application/json", { { "schema", { { "oneOf", oneOf } } } } } };
 }
 
 RestObjectService::ServiceResponse RestObjectService::perform( http::verb             verb,
                                                                std::list<std::string> path,
-                                                               const nlohmann::json&  queryParams,
-                                                               const nlohmann::json&  body )
+                                                               const json::object&    queryParams,
+                                                               const json::value&     body )
 {
     CAFFA_ASSERT( !path.empty() );
 
@@ -216,7 +212,7 @@ RestObjectService::ServiceResponse RestObjectService::perform( http::verb       
     if ( !request )
     {
         return std::make_pair( http::status::bad_request,
-                               "Object Path not found: " + caffa::StringTools::join( path.begin(), path.end(), "/" ) );
+                               "Object Path not found: " + StringTools::join( path.begin(), path.end(), "/" ) );
     }
     return request->perform( verb, pathArguments, queryParams, body );
 }
@@ -224,7 +220,7 @@ RestObjectService::ServiceResponse RestObjectService::perform( http::verb       
 //--------------------------------------------------------------------------------------------------
 /// The object service uses session uuids to decide if it accepts the request or not
 //--------------------------------------------------------------------------------------------------
-bool RestObjectService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
+bool RestObjectService::requiresAuthentication( const http::verb verb, const std::list<std::string>& path ) const
 {
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request )
@@ -234,7 +230,7 @@ bool RestObjectService::requiresAuthentication( http::verb verb, const std::list
     return request->requiresAuthentication( verb );
 }
 
-bool RestObjectService::requiresSession( http::verb verb, const std::list<std::string>& path ) const
+bool RestObjectService::requiresSession( const http::verb verb, const std::list<std::string>& path ) const
 {
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request )
@@ -244,11 +240,11 @@ bool RestObjectService::requiresSession( http::verb verb, const std::list<std::s
     return request->requiresSession( verb );
 }
 
-std::map<std::string, nlohmann::json> RestObjectService::servicePathEntries() const
+std::map<std::string, json::object> RestObjectService::servicePathEntries() const
 {
     CAFFA_DEBUG( "Get service path entries" );
 
-    auto services = nlohmann::json::object();
+    std::map<std::string, json::object> services;
 
     RequestFinder finder( m_requestPathRoot.get() );
     finder.search();
@@ -263,13 +259,13 @@ std::map<std::string, nlohmann::json> RestObjectService::servicePathEntries() co
     return services;
 }
 
-std::map<std::string, nlohmann::json> RestObjectService::serviceComponentEntries() const
+std::map<std::string, json::object> RestObjectService::serviceComponentEntries() const
 {
     auto factory = DefaultObjectFactory::instance();
 
-    auto schemas = nlohmann::json::object();
+    auto schemas = json::object();
 
-    for ( auto className : factory->classes() )
+    for ( const auto& className : factory->classes() )
     {
         auto object        = factory->create( className );
         schemas[className] = createJsonSchemaFromProjectObject( object.get() );
@@ -280,11 +276,11 @@ std::map<std::string, nlohmann::json> RestObjectService::serviceComponentEntries
 RestObjectService::ServiceResponse
     RestObjectService::performFieldOrMethodOperation( http::verb                    verb,
                                                       const std::list<std::string>& pathArguments,
-                                                      const nlohmann::json&         queryParams,
-                                                      const nlohmann::json&         body )
+                                                      const json::object&           queryParams,
+                                                      const json::value&            body )
 {
-    CAFFA_TRACE( "Full arguments for field operation: "
-                << caffa::StringTools::join( pathArguments.begin(), pathArguments.end(), "/" ) );
+    CAFFA_TRACE(
+        "Full arguments for field operation: " << StringTools::join( pathArguments.begin(), pathArguments.end(), "/" ) );
 
     auto session = findSession( queryParams );
     if ( !session || session->isExpired() )
@@ -317,16 +313,26 @@ RestObjectService::ServiceResponse
 
     auto keyword = arguments.front();
 
-    if ( auto method = object->findMethod( keyword ); method )
+    if ( const auto method = object->findMethod( keyword ); method )
     {
-        auto result = method->execute( *session, body.dump() );
+        auto result = method->execute( *session, json::dump( body ) );
         return std::make_pair( http::status::ok, result );
     }
 
-    if ( auto field = object->findField( keyword ); field )
+    if ( const auto field = object->findField( keyword ); field )
     {
-        int  index    = queryParams.contains( "index" ) ? queryParams["index"].get<int>() : -1;
-        bool skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
+        int index = -1;
+        if ( const auto it = queryParams.find( "index" ); it != queryParams.end() )
+        {
+            index = json::from_json<int>( it->value() );
+        }
+
+        bool skeleton = false;
+        if ( const auto it = queryParams.find( "skeleton" ); it != queryParams.end() )
+        {
+            skeleton = json::from_json<bool>( it->value() );
+        }
+
         if ( verb == http::verb::get )
         {
             return getFieldValue( field, index, skeleton );
@@ -351,19 +357,19 @@ RestObjectService::ServiceResponse
 }
 
 RestObjectService::ServiceResponse
-    RestObjectService::getFieldValue( const caffa::FieldHandle* field, int64_t index, bool skeleton )
+    RestObjectService::getFieldValue( const FieldHandle* field, const int64_t index, bool skeleton )
 {
-    auto scriptability = field->capability<caffa::FieldScriptingCapability>();
-    if ( !scriptability || !scriptability->isReadable() )
+    if ( const auto scriptability = field->capability<FieldScriptingCapability>();
+         !scriptability || !scriptability->isReadable() )
         return std::make_pair( http::status::forbidden, "Field " + field->keyword() + " is not remote readable" );
 
-    auto ioCapability = field->capability<caffa::FieldIoCapability>();
+    const auto ioCapability = field->capability<FieldIoCapability>();
     if ( !ioCapability )
     {
         return std::make_pair( http::status::forbidden,
                                "Field " + field->keyword() + " found, but it has no JSON capability" );
     }
-    auto childField = dynamic_cast<const caffa::ChildFieldBaseHandle*>( field );
+    const auto childField = dynamic_cast<const ChildFieldBaseHandle*>( field );
     try
     {
         JsonSerializer serializer;
@@ -383,16 +389,16 @@ RestObjectService::ServiceResponse
                 }
                 return std::make_pair( http::status::ok, serializer.writeObjectToString( childObjects[index].get() ) );
             }
-            nlohmann::json jsonValue;
+            json::value jsonValue;
             ioCapability->writeToJson( jsonValue, serializer );
 
-            return std::make_pair( http::status::ok, jsonValue.dump() );
+            return std::make_pair( http::status::ok, json::dump( jsonValue ) );
         }
 
-        nlohmann::json jsonValue;
+        json::value jsonValue;
         ioCapability->writeToJson( jsonValue, serializer );
 
-        return std::make_pair( http::status::ok, jsonValue.dump() );
+        return std::make_pair( http::status::ok, json::dump( jsonValue ) );
     }
     catch ( const std::exception& e )
     {
@@ -402,25 +408,24 @@ RestObjectService::ServiceResponse
 }
 
 RestObjectService::ServiceResponse
-    RestObjectService::replaceFieldValue( FieldHandle* field, int64_t index, const nlohmann::json& body )
+    RestObjectService::replaceFieldValue( FieldHandle* field, const int64_t index, const json::value& body )
 {
-    auto scriptability = field->capability<FieldScriptingCapability>();
-    if ( !scriptability || !scriptability->isWritable() )
+    if ( const auto scriptability = field->capability<FieldScriptingCapability>();
+         !scriptability || !scriptability->isWritable() )
         return std::make_pair( http::status::forbidden, "Field " + field->keyword() + " is not remote writable" );
 
-    auto ioCapability = field->capability<FieldIoCapability>();
+    const auto ioCapability = field->capability<FieldIoCapability>();
     if ( !ioCapability )
     {
         return std::make_pair( http::status::forbidden,
                                "Field " + field->keyword() + " found, but it has no JSON capability" );
     }
 
-    JsonSerializer serializer;
-
     try
     {
-        auto childField = dynamic_cast<ChildFieldHandle*>( field );
-        if ( childField )
+        JsonSerializer serializer;
+
+        if ( const auto childField = dynamic_cast<ChildFieldHandle*>( field ); childField )
         {
             if ( index >= 0 )
             {
@@ -430,15 +435,14 @@ RestObjectService::ServiceResponse
             return std::make_pair( http::status::accepted, "" );
         }
 
-        auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
-        if ( childArrayField )
+        if ( const auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field ); childArrayField )
         {
             CAFFA_DEBUG( "Replacing child array object at index " << index );
 
-            auto childObjects = childArrayField->childObjects();
-            if ( index >= 0 && static_cast<size_t>( index ) < childObjects.size() )
+            if ( const auto childObjects = childArrayField->childObjects();
+                 index >= 0 && static_cast<size_t>( index ) < childObjects.size() )
             {
-                serializer.readObjectFromString( childObjects[index].get(), body.dump() );
+                serializer.readObjectFromString( childObjects[index].get(), json::dump( body ) );
                 return std::make_pair( http::status::accepted, "" );
             }
             return std::make_pair( http::status::bad_request, "Index out of bounds for array field replace item request" );
@@ -454,45 +458,36 @@ RestObjectService::ServiceResponse
 }
 
 RestObjectService::ServiceResponse
-    RestObjectService::insertFieldValue( FieldHandle* field, int64_t index, const nlohmann::json& body )
+    RestObjectService::insertFieldValue( FieldHandle* field, const int64_t index, const json::value& body )
 {
-    auto scriptability = field->capability<FieldScriptingCapability>();
-    if ( !scriptability || !scriptability->isWritable() )
+    if ( const auto scriptability = field->capability<FieldScriptingCapability>();
+         !scriptability || !scriptability->isWritable() )
         return std::make_pair( http::status::forbidden, "Field " + field->keyword() + " is not remote writable" );
 
-    auto ioCapability = field->capability<FieldIoCapability>();
-    if ( !ioCapability )
+    if ( const auto ioCapability = field->capability<FieldIoCapability>(); !ioCapability )
     {
         return std::make_pair( http::status::forbidden,
                                "Field " + field->keyword() + " found, but it has no JSON capability" );
     }
 
-    JsonSerializer serializer;
-
     try
     {
-        auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
-        if ( childArrayField )
+        if ( const auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field ); childArrayField )
         {
             CAFFA_DEBUG( "Inserting into child array field with index " << index );
-            auto existingSize = childArrayField->size();
-            if ( index >= 0 && static_cast<size_t>( index ) < existingSize )
+            const auto object = JsonSerializer().createObjectFromJson( body.as_object() );
+
+            if ( const auto existingSize = childArrayField->size();
+                 index >= 0 && static_cast<size_t>( index ) < existingSize )
             {
-                auto object = serializer.createObjectFromString( body.dump() );
                 childArrayField->insertAt( index, object );
                 return std::make_pair( http::status::accepted, "" );
             }
-            else
-            {
-                auto object = serializer.createObjectFromString( body.dump() );
-                childArrayField->push_back_obj( object );
-                return std::make_pair( http::status::accepted, "" );
-            }
+
+            childArrayField->push_back_obj( object );
+            return std::make_pair( http::status::accepted, "" );
         }
-        else
-        {
-            return std::make_pair( http::status::bad_request, "Insert only makes sense for a Child Array Fields" );
-        }
+        return std::make_pair( http::status::bad_request, "Insert only makes sense for a Child Array Fields" );
     }
     catch ( const std::exception& e )
     {
@@ -501,25 +496,17 @@ RestObjectService::ServiceResponse
     }
 }
 
-RestObjectService::ServiceResponse RestObjectService::deleteFieldValue( FieldHandle* field, int64_t index )
+RestObjectService::ServiceResponse RestObjectService::deleteFieldValue( FieldHandle* field, const int64_t index )
 {
-    auto scriptability = field->capability<FieldScriptingCapability>();
-    if ( !scriptability || !scriptability->isWritable() )
+    if ( const auto scriptability = field->capability<FieldScriptingCapability>();
+         !scriptability || !scriptability->isWritable() )
         return std::make_pair( http::status::forbidden, "Field is not remote writable" );
-
-    auto ioCapability = field->capability<FieldIoCapability>();
-    if ( !ioCapability )
-    {
-        return std::make_pair( http::status::forbidden,
-                               "Field " + field->keyword() + " found, but it has no JSON capability" );
-    }
 
     JsonSerializer serializer;
 
     try
     {
-        auto childField = dynamic_cast<ChildFieldHandle*>( field );
-        if ( childField )
+        if ( auto* childField = dynamic_cast<ChildFieldHandle*>( field ); childField )
         {
             if ( index >= 0 )
             {
@@ -527,15 +514,11 @@ RestObjectService::ServiceResponse RestObjectService::deleteFieldValue( FieldHan
                                        "It does not make sense to provide an index for deleting objects from a single "
                                        "Child Field" );
             }
-            else
-            {
-                childField->clear();
-                return std::make_pair( http::status::accepted, "" );
-            }
+            childField->clear();
+            return std::make_pair( http::status::accepted, "" );
         }
 
-        auto childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field );
-        if ( childArrayField )
+        if ( auto* childArrayField = dynamic_cast<ChildArrayFieldHandle*>( field ); childArrayField )
         {
             if ( index >= 0 )
             {
@@ -556,10 +539,10 @@ RestObjectService::ServiceResponse RestObjectService::deleteFieldValue( FieldHan
     }
 }
 
-RestObjectService::ServiceResponse RestObjectService::object( http::verb                    verb,
+RestObjectService::ServiceResponse RestObjectService::object( http::verb,
                                                               const std::list<std::string>& pathArguments,
-                                                              const nlohmann::json&         queryParams,
-                                                              const nlohmann::json&         body )
+                                                              const json::object&           queryParams,
+                                                              const json::value& )
 {
     auto session = findSession( queryParams );
     if ( !session || session->isExpired() )
@@ -574,12 +557,12 @@ RestObjectService::ServiceResponse RestObjectService::object( http::verb        
         return std::make_pair( http::status::bad_request, "Object uuid not specified" );
     }
 
-    auto uuid = arguments.front();
+    const auto uuid = arguments.front();
     arguments.pop_front();
 
     CAFFA_TRACE( "Trying to look for uuid '" << uuid << "'" );
 
-    auto object = findCafObjectFromUuid( session.get(), uuid );
+    const auto object = findCafObjectFromUuid( session.get(), uuid );
     if ( !object )
     {
         return std::make_pair( http::status::not_found, "Object " + uuid + " not found" );
@@ -587,9 +570,8 @@ RestObjectService::ServiceResponse RestObjectService::object( http::verb        
 
     CAFFA_TRACE( "Found object: " << object->classKeyword() << ", uuid: " << object->uuid() );
 
-    bool           skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
-    nlohmann::json jsonObject;
-    if ( skeleton )
+    json::object jsonObject;
+    if ( const auto it = queryParams.find( "skeleton" ); it != queryParams.end() )
     {
         jsonObject = createJsonSkeletonFromProjectObject( object.get() );
     }
@@ -597,17 +579,17 @@ RestObjectService::ServiceResponse RestObjectService::object( http::verb        
     {
         jsonObject = createJsonFromProjectObject( object.get() );
     }
-    return std::make_pair( http::status::ok, jsonObject.dump() );
+    return std::make_pair( http::status::ok, json::dump( jsonObject ) );
 }
 
-caffa::SessionMaintainer RestObjectService::findSession( const nlohmann::json& queryParams )
+SessionMaintainer RestObjectService::findSession( const json::object& queryParams )
 {
-    caffa::SessionMaintainer session;
+    SessionMaintainer session;
 
-    if ( queryParams.contains( "session_uuid" ) )
+    if ( const auto it = queryParams.find( "session_uuid" ); it != queryParams.end() )
     {
-        auto session_uuid = queryParams["session_uuid"].get<std::string>();
-        session           = RestServerApplication::instance()->getExistingSession( session_uuid );
+        const auto session_uuid = json::from_json<std::string>( it->value() );
+        session                 = RestServerApplication::instance()->getExistingSession( session_uuid );
     }
 
     return session;
@@ -622,7 +604,7 @@ std::unique_ptr<RestAction> RestObjectService::createObjectGetAction( const std:
                             std::make_unique<RestResponse>( anyObjectResponseContent(), "Specific object" ) );
 
     getAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
-    for ( auto param : parameters )
+    for ( const auto param : parameters )
     {
         getAction->addParameter( param->clone() );
     }
@@ -638,7 +620,7 @@ std::unique_ptr<RestAction> RestObjectService::createFieldOrMethodAction( http::
 {
     auto fieldAction =
         std::make_unique<RestAction>( verb, description, name, &RestObjectService::performFieldOrMethodOperation );
-    for ( auto param : parameters )
+    for ( const auto param : parameters )
     {
         fieldAction->addParameter( param->clone() );
     }

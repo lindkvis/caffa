@@ -4,7 +4,7 @@
 #include "cafChildField.h"
 #include "cafFieldIoCapability.h"
 
-#include <nlohmann/json.hpp>
+#include <iterator>
 #include <sstream>
 
 namespace caffa
@@ -18,10 +18,10 @@ public:
     FieldIoCap() = default;
 
     // Json Serializing
-    void readFromJson( const nlohmann::json& jsonElement, const JsonSerializer& serializer ) override;
-    void writeToJson( nlohmann::json& jsonElement, const JsonSerializer& serializer ) const override;
+    void readFromJson( const json::value& jsonElement, const JsonSerializer& serializer ) override;
+    void writeToJson( json::value& jsonElement, const JsonSerializer& serializer ) const override;
 
-    [[nodiscard]] nlohmann::json jsonType() const override;
+    [[nodiscard]] json::object jsonType() const override;
 
 private:
     FieldType* typedOwner() const { return dynamic_cast<FieldType*>( this->owner() ); }
@@ -36,10 +36,10 @@ public:
     FieldIoCap() = default;
 
     // Json Serializing
-    void readFromJson( const nlohmann::json& jsonElement, const JsonSerializer& serializer ) override;
-    void writeToJson( nlohmann::json& jsonElement, const JsonSerializer& serializer ) const override;
+    void readFromJson( const json::value& jsonElement, const JsonSerializer& serializer ) override;
+    void writeToJson( json::value& jsonElement, const JsonSerializer& serializer ) const override;
 
-    [[nodiscard]] nlohmann::json jsonType() const override;
+    [[nodiscard]] json::object jsonType() const override;
 
 private:
     FieldType* typedOwner() const { return dynamic_cast<FieldType*>( this->owner() ); }
@@ -54,10 +54,10 @@ public:
     FieldIoCap() = default;
 
     // Json Serializing
-    void readFromJson( const nlohmann::json& jsonElement, const JsonSerializer& serializer ) override;
-    void writeToJson( nlohmann::json& jsonElement, const JsonSerializer& serializer ) const override;
+    void readFromJson( const json::value& jsonElement, const JsonSerializer& serializer ) override;
+    void writeToJson( json::value& jsonElement, const JsonSerializer& serializer ) const override;
 
-    [[nodiscard]] nlohmann::json jsonType() const override;
+    [[nodiscard]] json::object jsonType() const override;
 
 private:
     FieldType* typedOwner() const { return dynamic_cast<FieldType*>( this->owner() ); }

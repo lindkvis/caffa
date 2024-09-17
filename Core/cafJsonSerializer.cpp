@@ -27,7 +27,7 @@
 
 #include "cafFieldHandle.h"
 
-#include <nlohmann/json.hpp>
+#include <boost/json.hpp>
 
 #include <iomanip>
 #include <set>
@@ -116,7 +116,7 @@ bool JsonSerializer::isClient() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::json& jsonObject ) const
+void JsonSerializer::readObjectFromJson( ObjectHandle* object, const json::object& jsonObject ) const
 {
     CAFFA_TRACE( "Reading fields on " << ( isClient() ? "client" : "server" )
                                       << " from json with type = " << serializationTypeLabel( this->serializationType() )
@@ -130,12 +130,13 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
     }
 
     ++m_level;
-    CAFFA_ASSERT( jsonObject.is_object() );
 
-    if ( this->serializeUuids() && jsonObject.contains( "uuid" ) )
+    if ( this->serializeUuids() )
     {
-        auto uuid = jsonObject["uuid"].get<std::string>();
-        object->setUuid( uuid );
+        if ( auto it = jsonObject.find( "uuid" ); it != jsonObject.end() )
+        {
+            object->setUuid( json::from_json<std::string>( it->value() ) );
+        }
     }
 
     if ( this->serializationType() == SerializationType::DATA_SKELETON )
@@ -144,9 +145,9 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
         CAFFA_ASSERT( jsonObject.contains( "uuid" ) );
     }
 
-    for ( const auto& [keyword, value] : jsonObject.items() )
+    for ( const auto& [keyword, value] : jsonObject )
     {
-        CAFFA_TRACE( "Reading field: " << keyword << " with value " << value.dump() );
+        CAFFA_TRACE( "Reading field: " << keyword << " with value " << json::dump( value ) );
 
         if ( keyword == "uuid" || keyword == "$id" )
         {
@@ -155,9 +156,9 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
         if ( keyword == "keyword" || keyword == "class" )
         {
             const auto& classKeyword = value;
-            CAFFA_ASSERT(
-                classKeyword.is_string() &&
-                ObjectHandle::matchesClassKeyword( classKeyword.get<std::string>(), object->classInheritanceStack() ) );
+            CAFFA_ASSERT( classKeyword.is_string() &&
+                          ObjectHandle::matchesClassKeyword( json::from_json<std::string>( classKeyword ),
+                                                             object->classInheritanceStack() ) );
         }
         else if ( this->serializationType() == SerializationType::DATA_FULL && !value.is_null() && keyword != "methods" )
         {
@@ -188,7 +189,7 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const nlohmann::j
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::json& jsonObject ) const
+void JsonSerializer::writeObjectToJson( const ObjectHandle* object, json::object& jsonObject ) const
 {
     ++m_level;
     CAFFA_TRACE( "Writing fields for "
@@ -224,10 +225,10 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             parentClassKeyword = parentClassInstance->classKeyword();
         }
 
-        auto jsonClass = nlohmann::json::object();
+        auto jsonClass = boost::json::object();
 
         jsonClass["type"]   = "object";
-        auto jsonProperties = nlohmann::json::object();
+        auto jsonProperties = boost::json::object();
 
         jsonProperties["keyword"] = { { "type", "string" } };
         jsonProperties["uuid"]    = { { "type", "string" } };
@@ -250,23 +251,23 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
             const FieldIoCapability* ioCapability = field->capability<FieldIoCapability>();
             if ( ioCapability && ( field->isReadable() || field->isWritable() ) )
             {
-                nlohmann::json value;
+                json::value value;
                 ioCapability->writeToJson( value, *this );
                 jsonProperties[keyword] = value;
             }
         }
 
-        auto methods = nlohmann::json::object();
+        auto methods = json::object();
         for ( auto method : object->methods() )
         {
             auto keyword = method->keyword();
             if ( parentalMethods.contains( keyword ) ) continue;
 
-            methods[keyword] = nlohmann::json::parse( method->schema() );
+            methods[keyword] = json::parse( method->schema() );
         }
         if ( !methods.empty() )
         {
-            auto methodsObject          = nlohmann::json::object();
+            auto methodsObject          = json::object();
             methodsObject["type"]       = "object";
             methodsObject["properties"] = methods;
             jsonProperties["methods"]   = methodsObject;
@@ -277,8 +278,9 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
 
         if ( parentClassInstance )
         {
-            auto jsonAllOf = nlohmann::json::array();
-            jsonAllOf.push_back( { { "$ref", "#/components/object_schemas/" + parentClassKeyword } } );
+            auto         jsonAllOf    = json::array();
+            json::object objectSchema = { { "$ref", "#/components/object_schemas/" + parentClassKeyword } };
+            jsonAllOf.push_back( objectSchema );
 
             jsonAllOf.push_back( jsonClass );
             jsonObject["allOf"] = jsonAllOf;
@@ -311,7 +313,7 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
                 const FieldIoCapability* ioCapability = field->capability<FieldIoCapability>();
                 if ( ioCapability && field->isReadable() )
                 {
-                    nlohmann::json value;
+                    json::value value;
                     ioCapability->writeToJson( value, *this );
                     if ( !value.is_null() ) jsonObject[keyword] = value;
                 }
@@ -326,12 +328,11 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, nlohmann::js
 //--------------------------------------------------------------------------------------------------
 std::string JsonSerializer::readUUIDFromObjectString( const std::string& string )
 {
-    const nlohmann::json jsonValue = nlohmann::json::parse( string );
-
-    if ( jsonValue.is_object() )
+    if ( const json::value jsonValue = json::parse( string ); jsonValue.is_object() )
     {
-        const auto uuid_it = jsonValue.find( "uuid" );
-        if ( uuid_it != jsonValue.end() ) return uuid_it->get<std::string>();
+        const auto& jsonObject = jsonValue.get_object();
+        if ( const auto uuid_it = jsonObject.find( "uuid" ); uuid_it != jsonObject.end() )
+            return json::from_json<std::string>( uuid_it->value() );
     }
     return "";
 }
@@ -341,8 +342,8 @@ std::string JsonSerializer::readUUIDFromObjectString( const std::string& string 
 //--------------------------------------------------------------------------------------------------
 void JsonSerializer::readObjectFromString( ObjectHandle* object, const std::string& string ) const
 {
-    nlohmann::json jsonValue = nlohmann::json::parse( string );
-    readObjectFromJson( object, jsonValue );
+    const json::value jsonValue = json::parse( string );
+    readObjectFromJson( object, jsonValue.as_object() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -350,9 +351,9 @@ void JsonSerializer::readObjectFromString( ObjectHandle* object, const std::stri
 //--------------------------------------------------------------------------------------------------
 std::string JsonSerializer::writeObjectToString( const ObjectHandle* object ) const
 {
-    nlohmann::json jsonObject = nlohmann::json::object();
+    json::object jsonObject;
     writeObjectToJson( object, jsonObject );
-    return jsonObject.dump();
+    return json::dump( jsonObject );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -360,7 +361,7 @@ std::string JsonSerializer::writeObjectToString( const ObjectHandle* object ) co
 //--------------------------------------------------------------------------------------------------
 std::shared_ptr<ObjectHandle> JsonSerializer::copyBySerialization( const ObjectHandle* object ) const
 {
-    std::string string = writeObjectToString( object );
+    const std::string string = writeObjectToString( object );
 
     std::shared_ptr<ObjectHandle> objectCopy = createObjectFromString( string );
     if ( !objectCopy ) return nullptr;
@@ -385,8 +386,8 @@ std::shared_ptr<ObjectHandle> JsonSerializer::copyAndCastBySerialization( const 
 
     if ( !sourceInheritsDestination && !destinationInheritsSource ) return nullptr;
 
-    nlohmann::json jsonObject = nlohmann::json::parse( string );
-    readObjectFromJson( objectCopy.get(), jsonObject );
+    const json::value jsonValue = json::parse( string );
+    readObjectFromJson( objectCopy.get(), jsonValue.as_object() );
 
     return objectCopy;
 }
@@ -400,10 +401,14 @@ std::shared_ptr<ObjectHandle> JsonSerializer::createObjectFromString( const std:
 
     if ( string.empty() ) return nullptr;
 
-    nlohmann::json jsonObject = nlohmann::json::parse( string );
+    const json::value jsonValue = json::parse( string );
+    if ( jsonValue.is_null() ) return nullptr;
 
-    if ( jsonObject.is_null() ) return nullptr;
+    return createObjectFromJson( jsonValue.as_object() );
+}
 
+std::shared_ptr<ObjectHandle> JsonSerializer::createObjectFromJson( const json::object& jsonObject ) const
+{
     auto classNameElement = jsonObject.find( "keyword" );
     if ( classNameElement == jsonObject.end() )
     {
@@ -412,10 +417,10 @@ std::shared_ptr<ObjectHandle> JsonSerializer::createObjectFromString( const std:
 
     if ( classNameElement == jsonObject.end() ) return nullptr;
 
-    const auto& jsonClassKeyword = *classNameElement;
+    const auto& jsonClassKeyword = classNameElement->value();
 
     CAFFA_ASSERT( jsonClassKeyword.is_string() );
-    std::string classKeyword = jsonClassKeyword.get<std::string>();
+    const auto classKeyword = json::from_json<std::string>( jsonClassKeyword );
 
     std::shared_ptr<ObjectHandle> newObject = m_objectFactory->create( classKeyword );
 
@@ -431,10 +436,9 @@ std::shared_ptr<ObjectHandle> JsonSerializer::createObjectFromString( const std:
 //--------------------------------------------------------------------------------------------------
 void JsonSerializer::readStream( ObjectHandle* object, std::istream& file ) const
 {
-    nlohmann::json document;
-    file >> document;
+    const std::string str( ( std::istreambuf_iterator<char>( file ) ), std::istreambuf_iterator<char>() );
 
-    readObjectFromJson( object, document );
+    readObjectFromString( object, str );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -442,8 +446,8 @@ void JsonSerializer::readStream( ObjectHandle* object, std::istream& file ) cons
 //--------------------------------------------------------------------------------------------------
 void JsonSerializer::writeStream( const ObjectHandle* object, std::ostream& file ) const
 {
-    nlohmann::json document = nlohmann::json::object();
+    json::object document;
     writeObjectToJson( object, document );
 
-    file << document.dump( 4 );
+    file << json::dump( document );
 }

@@ -18,6 +18,7 @@
 //
 #pragma once
 
+#include "cafJsonDefinitions.h"
 #include "cafNotNull.h"
 #include "cafRpcClient.h"
 #include "cafSession.h"
@@ -97,8 +98,8 @@ public:
 private:
     void doCreateSession( Session::Type type, const std::string& username, const std::string& password ) override;
 
-    void setJson( const ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value ) override;
-    nlohmann::json getJson( const ObjectHandle*, const std::string& fieldName ) const override;
+    void setJson( const ObjectHandle* objectHandle, const std::string& fieldName, const json::value& value ) override;
+    json::value getJson( const ObjectHandle*, const std::string& fieldName ) const override;
 
     std::pair<http::status, std::string> performRequest( http::verb         verb,
                                                          const std::string& hostname,

@@ -97,8 +97,8 @@ public:
     [[nodiscard]] int                port() const { return m_port; }
 
 private:
-    virtual void setJson( const ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value ) = 0;
-    virtual nlohmann::json getJson( const ObjectHandle*, const std::string& fieldName ) const                    = 0;
+    virtual void setJson( const ObjectHandle* objectHandle, const std::string& fieldName, const json::value& value )    = 0;
+    virtual json::value getJson( const ObjectHandle*, const std::string& fieldName ) const                              = 0;
     virtual void doCreateSession( Session::Type type, const std::string& username, const std::string& password ) = 0;
 
 private:
@@ -112,8 +112,8 @@ private:
 template <typename DataType>
 DataType Client::get( const ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
-    nlohmann::json jsonValue = getJson( objectHandle, fieldName );
-    return jsonValue.get<DataType>();
+    const json::value jsonValue = getJson( objectHandle, fieldName );
+    return json::from_json<DataType>(jsonValue);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,7 +122,7 @@ DataType Client::get( const ObjectHandle* objectHandle, const std::string& field
 template <typename DataType>
 void Client::set( const ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value )
 {
-    nlohmann::json jsonValue = value;
+    const json::value jsonValue = json::to_json( value);
     setJson( objectHandle, fieldName, jsonValue );
 }
 

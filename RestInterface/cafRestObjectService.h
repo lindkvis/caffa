@@ -22,8 +22,6 @@
 #include "cafRestServiceInterface.h"
 #include "cafSession.h"
 
-#include <nlohmann/json.hpp>
-
 #include <string>
 #include <utility>
 
@@ -42,48 +40,48 @@ namespace caffa::rpc
  * @brief REST-service answering request searching for arbitrary Objects in project tree
  *
  */
-class RestObjectService : public RestServiceInterface
+class RestObjectService final : public RestServiceInterface
 {
 public:
     RestObjectService();
 
     ServiceResponse perform( http::verb             verb,
                              std::list<std::string> path,
-                             const nlohmann::json&  queryParams,
-                             const nlohmann::json&  body ) override;
+                             const json::object&    queryParams,
+                             const json::value&     body ) override;
 
-    bool requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const override;
-    bool requiresSession( http::verb verb, const std::list<std::string>& path ) const override;
+    [[nodiscard]] bool requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const override;
+    [[nodiscard]] bool requiresSession( http::verb verb, const std::list<std::string>& path ) const override;
 
-    std::map<std::string, nlohmann::json> servicePathEntries() const override;
-    std::map<std::string, nlohmann::json> serviceComponentEntries() const override;
+    [[nodiscard]] std::map<std::string, json::object> servicePathEntries() const override;
+    [[nodiscard]] std::map<std::string, json::object> serviceComponentEntries() const override;
 
 private:
-    static nlohmann::json anyObjectResponseContent();
-    static nlohmann::json anyFieldResponseContent();
+    static json::object anyObjectResponseContent();
+    static json::object anyFieldResponseContent();
 
     static ServiceResponse object( http::verb                    verb,
                                    const std::list<std::string>& pathArguments,
-                                   const nlohmann::json&         queryParams,
-                                   const nlohmann::json&         body );
+                                   const json::object&           queryParams,
+                                   const json::value&            body );
 
-    static ServiceResponse getFieldValue( const caffa::FieldHandle* fieldHandle, int64_t index, bool skeleton );
-    static ServiceResponse replaceFieldValue( caffa::FieldHandle* fieldHandle, int64_t index, const nlohmann::json& body );
-    static ServiceResponse insertFieldValue( caffa::FieldHandle* fieldHandle, int64_t index, const nlohmann::json& body );
+    static ServiceResponse getFieldValue( const caffa::FieldHandle* field, int64_t index, bool skeleton );
+    static ServiceResponse replaceFieldValue( caffa::FieldHandle* field, int64_t index, const json::value& body );
+    static ServiceResponse insertFieldValue( caffa::FieldHandle* field, int64_t index, const json::value& body );
     static ServiceResponse deleteFieldValue( caffa::FieldHandle* field, int64_t index );
 
     static ServiceResponse performFieldOrMethodOperation( http::verb                    verb,
                                                           const std::list<std::string>& pathArguments,
-                                                          const nlohmann::json&         queryParams,
-                                                          const nlohmann::json&         body );
+                                                          const json::object&           queryParams,
+                                                          const json::value&            body );
 
-    static caffa::SessionMaintainer findSession( const nlohmann::json& queryParams );
+    static caffa::SessionMaintainer findSession( const json::object& queryParams );
 
-    std::unique_ptr<RestAction> createObjectGetAction( const std::list<RestParameter*>& parameters );
-    std::unique_ptr<RestAction> createFieldOrMethodAction( http::verb                       verb,
-                                                           const std::string&               description,
-                                                           const std::string&               name,
-                                                           const std::list<RestParameter*>& parameters );
+    static std::unique_ptr<RestAction> createObjectGetAction( const std::list<RestParameter*>& parameters );
+    static std::unique_ptr<RestAction> createFieldOrMethodAction( http::verb                       verb,
+                                                                  const std::string&               description,
+                                                                  const std::string&               name,
+                                                                  const std::list<RestParameter*>& parameters );
 
 private:
     std::unique_ptr<RestPathEntry> m_requestPathRoot;

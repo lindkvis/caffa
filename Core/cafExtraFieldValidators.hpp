@@ -22,8 +22,7 @@
 #pragma once
 
 #include "cafFieldValidator.h"
-
-#include <nlohmann/json.hpp>
+#include "cafJsonDefinitions.h"
 
 #include <set>
 
@@ -47,8 +46,7 @@ public:
 
     void readFromString( const std::string& string ) override
     {
-        if ( auto jsonObject = nlohmann::json::parse( string );
-             jsonObject.is_object() && jsonObject.contains( "valid-divisor" ) )
+        if ( auto jsonObject = parse( string ); jsonObject.is_object() && jsonObject.contains( "valid-divisor" ) )
         {
             auto jsonDivisor = jsonObject["valid-divisor"];
             CAFFA_ASSERT( jsonDivisor.is_object() );
@@ -61,11 +59,11 @@ public:
 
     [[nodiscard]] std::string writeToString() const override
     {
-        auto jsonObject             = nlohmann::json::object();
-        auto jsonDivisor            = nlohmann::json::object();
+        auto jsonObject             = json::object();
+        auto jsonDivisor            = json::object();
         jsonDivisor["divisor"]      = m_divisor;
         jsonObject["valid-divisor"] = jsonDivisor;
-        return jsonObject.dump();
+        return dump( jsonObject );
     }
 
     [[nodiscard]] std::pair<bool, std::string> validate( const DataType& value ) const override
@@ -107,7 +105,7 @@ public:
 
     void readFromString( const std::string& string ) override
     {
-        auto jsonObject = nlohmann::json::parse( string );
+        auto jsonObject = parse( string );
 
         if ( jsonObject.is_object() && jsonObject.contains( "valid-legal" ) )
         {
@@ -122,12 +120,12 @@ public:
 
     [[nodiscard]] std::string writeToString() const override
     {
-        auto jsonObject  = nlohmann::json::object();
-        auto jsonDivisor = nlohmann::json::object();
+        auto jsonObject  = json::object();
+        auto jsonDivisor = json::object();
 
         jsonDivisor["values"]     = m_legalValues;
         jsonObject["valid-legal"] = jsonDivisor;
-        return jsonObject.dump();
+        return dump( jsonObject );
     }
     std::pair<bool, std::string> validate( const DataType& value ) const override
     {
@@ -176,7 +174,7 @@ public:
 
     void readFromString( const std::string& string ) override
     {
-        auto jsonObject = nlohmann::json::parse( string );
+        auto jsonObject = parse( string );
 
         if ( jsonObject.is_object() && jsonObject.contains( "valid-legal" ) )
         {
@@ -191,13 +189,13 @@ public:
 
     [[nodiscard]] std::string writeToString() const override
     {
-        auto jsonObject = nlohmann::json::object();
+        auto jsonObject = json::object();
 
-        auto jsonDivisor          = nlohmann::json::object();
+        auto jsonDivisor          = json::object();
         jsonDivisor["values"]     = m_legalValues;
         jsonObject["valid-legal"] = jsonDivisor;
 
-        return jsonObject.dump();
+        return dump( jsonObject );
     }
     std::pair<bool, std::string> validate( const std::vector<DataType>& values ) const override
     {
@@ -249,8 +247,7 @@ public:
 
     void readFromString( const std::string& string ) override
     {
-        if ( auto jsonObject = nlohmann::json::parse( string );
-             jsonObject.is_object() && jsonObject.contains( "valid-illegal" ) )
+        if ( auto jsonObject = parse( string ); jsonObject.is_object() && jsonObject.contains( "valid-illegal" ) )
         {
             auto jsonDivisor = jsonObject["valid-illegal"];
             CAFFA_ASSERT( jsonDivisor.is_object() );
@@ -263,11 +260,11 @@ public:
 
     [[nodiscard]] std::string writeToString() const override
     {
-        auto jsonObject             = nlohmann::json::object();
-        auto jsonDivisor            = nlohmann::json::object();
+        auto jsonObject             = json::object();
+        auto jsonDivisor            = json::object();
         jsonDivisor["values"]       = m_illegalValues;
         jsonObject["valid-illegal"] = jsonDivisor;
-        return jsonObject.dump();
+        return dump( jsonObject );
     }
 
     [[nodiscard]] std::pair<bool, std::string> validate( const DataType& value ) const override

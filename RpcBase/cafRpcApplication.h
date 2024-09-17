@@ -18,9 +18,8 @@
 //
 #pragma once
 
-#include <nlohmann/json.hpp>
-
 #include "cafApplication.h"
+#include "cafJsonDefinitions.h"
 
 #include <string>
 
@@ -41,7 +40,6 @@ namespace rpc
     };
 } // namespace rpc
 
-nlohmann::json appJsonSchema();
-void           to_json( nlohmann::json& jsonValue, const AppInfo& appInfo );
-void           from_json( const nlohmann::json& jsonValue, AppInfo& appInfo );
+json::object appJsonSchema();
+
 } // namespace caffa

@@ -43,7 +43,7 @@ bool fieldIsScriptReadable( const FieldHandle* fieldHandle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-nlohmann::json createJsonSchemaFromProjectObject( const ObjectHandle* source )
+json::object createJsonSchemaFromProjectObject( const ObjectHandle* source )
 {
     CAFFA_ASSERT( source );
     CAFFA_ASSERT( !source->uuid().empty() );
@@ -51,7 +51,7 @@ nlohmann::json createJsonSchemaFromProjectObject( const ObjectHandle* source )
     JsonSerializer serializer( DefaultObjectFactory::instance().get() );
     serializer.setSerializationType( JsonSerializer::SerializationType::SCHEMA );
 
-    auto object = nlohmann::json::object();
+    json::object object;
     serializer.writeObjectToJson( source, object );
     return object;
 }
@@ -59,7 +59,7 @@ nlohmann::json createJsonSchemaFromProjectObject( const ObjectHandle* source )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-nlohmann::json createJsonFromProjectObject( const ObjectHandle* source )
+json::object createJsonFromProjectObject( const ObjectHandle* source )
 {
     CAFFA_ASSERT( source );
     CAFFA_ASSERT( !source->uuid().empty() );
@@ -68,7 +68,7 @@ nlohmann::json createJsonFromProjectObject( const ObjectHandle* source )
     serializer.setSerializeUuids( true );
     serializer.setFieldSelector( fieldIsScriptReadable );
 
-    auto object = nlohmann::json::object();
+    json::object object;
     serializer.writeObjectToJson( source, object );
     return object;
 }
@@ -76,7 +76,7 @@ nlohmann::json createJsonFromProjectObject( const ObjectHandle* source )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-nlohmann::json createJsonSkeletonFromProjectObject( const ObjectHandle* source )
+json::object createJsonSkeletonFromProjectObject( const ObjectHandle* source )
 {
     CAFFA_ASSERT( source );
     CAFFA_ASSERT( !source->uuid().empty() );
@@ -86,7 +86,7 @@ nlohmann::json createJsonSkeletonFromProjectObject( const ObjectHandle* source )
     serializer.setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON );
     serializer.setSerializeUuids( true );
 
-    auto object = nlohmann::json::object();
+    json::object object;
     serializer.writeObjectToJson( source, object );
     return object;
 }

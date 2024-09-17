@@ -27,29 +27,29 @@
 
 namespace caffa::rpc
 {
-class RestAppService : public RestServiceInterface
+class RestAppService final : public RestServiceInterface
 {
 public:
     RestAppService();
 
     ServiceResponse perform( http::verb             verb,
                              std::list<std::string> path,
-                             const nlohmann::json&  queryParams,
-                             const nlohmann::json&  body ) override;
+                             const json::object&    queryParams,
+                             const json::value&     body ) override;
 
-    bool requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const override;
-    bool requiresSession( http::verb verb, const std::list<std::string>& path ) const override;
+    [[nodiscard]] bool requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const override;
+    [[nodiscard]] bool requiresSession( http::verb verb, const std::list<std::string>& path ) const override;
 
-    std::map<std::string, nlohmann::json> servicePathEntries() const override;
-    std::map<std::string, nlohmann::json> serviceComponentEntries() const override;
+    [[nodiscard]] std::map<std::string, json::object> servicePathEntries() const override;
+    [[nodiscard]] std::map<std::string, json::object> serviceComponentEntries() const override;
 
 private:
-    using ServiceCallback = std::function<ServiceResponse( http::verb verb, const nlohmann::json&, const nlohmann::json& )>;
+    using ServiceCallback = std::function<ServiceResponse( http::verb verb, const json::object&, const json::object& )>;
 
     static ServiceResponse info( http::verb                    verb,
                                  const std::list<std::string>& pathArguments,
-                                 const nlohmann::json&         queryParams,
-                                 const nlohmann::json&         body );
+                                 const json::object&           queryParams,
+                                 const json::value&            body );
 
     std::unique_ptr<RestPathEntry> m_requestPathRoot;
 };

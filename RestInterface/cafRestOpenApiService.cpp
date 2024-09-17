@@ -29,11 +29,12 @@
 #include <vector>
 
 using namespace caffa::rpc;
+using namespace caffa;
 
-RestServiceInterface::ServiceResponse RestOpenApiService::perform( http::verb             verb,
+RestServiceInterface::ServiceResponse RestOpenApiService::perform( const http::verb       verb,
                                                                    std::list<std::string> path,
-                                                                   const nlohmann::json&  queryParams,
-                                                                   const nlohmann::json&  body )
+                                                                   const json::object&    queryParams,
+                                                                   const json::value&     body )
 {
     CAFFA_DEBUG( "Perfoming OpenAPI request" );
     if ( verb != http::verb::get )
@@ -45,11 +46,11 @@ RestServiceInterface::ServiceResponse RestOpenApiService::perform( http::verb   
 
     auto currentSchema = getOpenApiV31Schema();
 
-    for ( auto currentPathEntry : path )
+    for ( const auto& currentPathEntry : path )
     {
-        if ( currentSchema.contains( currentPathEntry ) )
+        if ( const auto it = currentSchema.find( currentPathEntry ); it != currentSchema.end() )
         {
-            currentSchema = currentSchema[currentPathEntry];
+            currentSchema = it->value().as_object();
         }
         else
         {
@@ -57,7 +58,7 @@ RestServiceInterface::ServiceResponse RestOpenApiService::perform( http::verb   
         }
     }
 
-    return std::make_pair( http::status::ok, currentSchema.dump() );
+    return std::make_pair( http::status::ok, json::dump( currentSchema ) );
 }
 
 bool RestOpenApiService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
@@ -70,37 +71,37 @@ bool RestOpenApiService::requiresSession( http::verb verb, const std::list<std::
     return false;
 }
 
-nlohmann::json RestOpenApiService::getOpenApiV31Schema() const
+json::object RestOpenApiService::getOpenApiV31Schema()
 {
-    auto root       = nlohmann::json::object();
+    auto root       = json::object();
     root["openapi"] = "3.1.0";
 
-    auto info           = nlohmann::json::object();
+    auto info           = json::object();
     info["version"]     = RestServerApplication::instance()->appInfo().version_string();
     info["title"]       = RestServerApplication::instance()->appInfo().name;
     info["description"] = RestServerApplication::instance()->appInfo().description;
 
-    auto contact     = nlohmann::json::object();
-    contact["email"] = RestServerApplication::instance()->appInfo().contactEmail;
+    auto contact     = json::object();
+    contact["email"] = RestServerApplication::instance()->appInfo().contact_email;
     info["contact"]  = contact;
     root["info"]     = info;
 
-    auto components = nlohmann::json::object();
-    auto paths      = nlohmann::json::object();
+    auto components = json::object();
+    auto paths      = json::object();
 
-    for ( auto [basicKey, jsonSchema] : RestServiceInterface::basicServiceSchemas() )
+    for ( const auto& [basicKey, jsonSchema] : RestServiceInterface::basicServiceSchemas() )
     {
         components[basicKey] = jsonSchema;
     }
 
-    for ( auto serviceKey : RestServiceFactory::instance()->allKeys() )
+    for ( const auto& serviceKey : RestServiceFactory::instance()->allKeys() )
     {
         auto service = std::shared_ptr<RestServiceInterface>( RestServiceFactory::instance()->create( serviceKey ) );
-        for ( auto [componentKey, jsonObject] : service->serviceComponentEntries() )
+        for ( const auto& [componentKey, jsonObject] : service->serviceComponentEntries() )
         {
             components[componentKey] = jsonObject;
         }
-        for ( auto [pathKey, jsonObject] : service->servicePathEntries() )
+        for ( const auto& [pathKey, jsonObject] : service->servicePathEntries() )
         {
             paths[pathKey] = jsonObject;
         }
@@ -112,11 +113,11 @@ nlohmann::json RestOpenApiService::getOpenApiV31Schema() const
     return root;
 }
 
-std::map<std::string, nlohmann::json> RestOpenApiService::servicePathEntries() const
+std::map<std::string, json::object> RestOpenApiService::servicePathEntries() const
 {
     return {};
 }
-std::map<std::string, nlohmann::json> RestOpenApiService::serviceComponentEntries() const
+std::map<std::string, json::object> RestOpenApiService::serviceComponentEntries() const
 {
     return {};
 }

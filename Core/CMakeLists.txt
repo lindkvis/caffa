@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.22)
 project(caffaCore)
 
 set(PUBLIC_HEADERS
+        cafJsonDefinitions.h
         cafExtraFieldValidators.hpp
         cafRangeValidator.h
         cafMethod.h
@@ -48,11 +49,10 @@ if (MSVC)
     set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif ()
 
+find_package(Boost 1.83.0 REQUIRED COMPONENTS json)
+
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-find_package(nlohmann_json CONFIG REQUIRED)
-
-target_link_libraries(${PROJECT_NAME} PUBLIC caffaBase caffaDataModel nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PUBLIC caffaBase caffaDataModel Boost::json)
 
 install(
         TARGETS ${PROJECT_NAME}
