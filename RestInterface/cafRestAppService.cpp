@@ -24,9 +24,8 @@
 #include "cafSession.h"
 #include "cafStringTools.h"
 
-#include <nlohmann/json.hpp>
-
 using namespace caffa::rpc;
+using namespace caffa;
 
 RestAppService::RestAppService()
 {
@@ -48,10 +47,10 @@ RestAppService::RestAppService()
     m_requestPathRoot->addEntry( std::move( info ) );
 }
 
-RestAppService::ServiceResponse RestAppService::perform( http::verb             verb,
+RestAppService::ServiceResponse RestAppService::perform( const http::verb       verb,
                                                          std::list<std::string> path,
-                                                         const nlohmann::json&  queryParams,
-                                                         const nlohmann::json&  body )
+                                                         const json::object&    queryParams,
+                                                         const json::value&     body )
 {
     CAFFA_ASSERT( !path.empty() );
 
@@ -65,7 +64,7 @@ RestAppService::ServiceResponse RestAppService::perform( http::verb             
     return request->perform( verb, pathArguments, queryParams, body );
 }
 
-bool RestAppService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
+bool RestAppService::requiresAuthentication( const http::verb verb, const std::list<std::string>& path ) const
 {
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request ) return false;
@@ -73,7 +72,7 @@ bool RestAppService::requiresAuthentication( http::verb verb, const std::list<st
     return request->requiresAuthentication( verb );
 }
 
-bool RestAppService::requiresSession( http::verb verb, const std::list<std::string>& path ) const
+bool RestAppService::requiresSession( const http::verb verb, const std::list<std::string>& path ) const
 {
     auto [request, pathArguments] = m_requestPathRoot->findPathEntry( path );
     if ( !request ) return false;
@@ -81,11 +80,11 @@ bool RestAppService::requiresSession( http::verb verb, const std::list<std::stri
     return request->requiresSession( verb );
 }
 
-std::map<std::string, nlohmann::json> RestAppService::servicePathEntries() const
+std::map<std::string, json::object> RestAppService::servicePathEntries() const
 {
     CAFFA_DEBUG( "Get service path entries" );
 
-    auto services = nlohmann::json::object();
+    std::map<std::string, json::object> services;
 
     RequestFinder finder( m_requestPathRoot.get() );
     finder.search();
@@ -100,7 +99,7 @@ std::map<std::string, nlohmann::json> RestAppService::servicePathEntries() const
     return services;
 }
 
-std::map<std::string, nlohmann::json> RestAppService::serviceComponentEntries() const
+std::map<std::string, json::object> RestAppService::serviceComponentEntries() const
 {
     auto appInfo = appJsonSchema();
 
@@ -112,14 +111,14 @@ std::map<std::string, nlohmann::json> RestAppService::serviceComponentEntries() 
 //--------------------------------------------------------------------------------------------------
 RestAppService::ServiceResponse RestAppService::info( http::verb                    verb,
                                                       const std::list<std::string>& pathArguments,
-                                                      const nlohmann::json&         queryParams,
-                                                      const nlohmann::json&         body )
+                                                      const json::object&           queryParams,
+                                                      const json::value&            body )
 {
     CAFFA_TRACE( "Received info request" );
 
-    auto app     = RestServerApplication::instance();
-    auto appInfo = app->appInfo();
+    const auto app     = RestServerApplication::instance();
+    auto       appInfo = app->appInfo();
 
-    nlohmann::json json = appInfo;
-    return std::make_pair( http::status::ok, json.dump() );
+    const json::value json = json::to_json( appInfo );
+    return std::make_pair( http::status::ok, json::dump( json ) );
 }

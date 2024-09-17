@@ -22,11 +22,9 @@
 #pragma once
 
 #include "cafObjectFactory.h"
-
+#include "cafPortableDataType.h"
 #include "cafRpcClient.h"
 #include "cafRpcDataFieldAccessor.h"
-
-#include "cafJsonDataType.h"
 
 #include <map>
 #include <memory>
@@ -92,16 +90,17 @@ public:
         using TypeMap = std::map<std::string, DataType>;
         registerAccessorCreator( PortableDataType<DataType>::name(),
                                  std::make_unique<AccessorCreator<DataType>>( PortableDataType<DataType>::name(),
-                                                                              JsonDataType<DataType>::jsonType().dump() ) );
+                                                                              json::dump(
+                                                                                  JsonDataType<DataType>::jsonType() ) ) );
         registerAccessorCreator( PortableDataType<TypeV>::name(),
                                  std::make_unique<AccessorCreator<TypeV>>( PortableDataType<TypeV>::name(),
-                                                                           JsonDataType<TypeV>::jsonType().dump() ) );
+                                                                           json::dump( JsonDataType<TypeV>::jsonType() ) ) );
         registerAccessorCreator( PortableDataType<TypeVV>::name(),
                                  std::make_unique<AccessorCreator<TypeVV>>( PortableDataType<TypeVV>::name(),
-                                                                            JsonDataType<TypeVV>::jsonType().dump() ) );
+                                                                            json::dump( JsonDataType<TypeVV>::jsonType() ) ) );
         registerAccessorCreator( PortableDataType<TypeMap>::name(),
                                  std::make_unique<AccessorCreator<TypeMap>>( PortableDataType<TypeMap>::name(),
-                                                                            JsonDataType<TypeMap>::jsonType().dump() ) );
+                                                                            json::dump( JsonDataType<TypeMap>::jsonType() ) ) );
     }
 
     [[nodiscard]] std::list<std::string> supportedDataTypes() const;

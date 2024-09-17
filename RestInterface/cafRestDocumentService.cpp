@@ -20,21 +20,15 @@
 #include "cafRestDocumentService.h"
 
 #include "cafRpcClientPassByRefObjectFactory.h"
-#include "cafRpcServer.h"
 #include "cafSession.h"
 
-#include "cafChildArrayField.h"
-#include "cafChildField.h"
 #include "cafDocument.h"
 #include "cafField.h"
-#include "cafFieldProxyAccessor.h"
 #include "cafFieldScriptingCapability.h"
 #include "cafJsonSerializer.h"
-#include "cafMethod.h"
 #include "cafObject.h"
 #include "cafObjectCollector.h"
 #include "cafObjectPerformer.h"
-#include "cafPortableDataType.h"
 #include "cafRestServerApplication.h"
 #include "cafRpcObjectConversion.h"
 #include "cafStringTools.h"
@@ -65,11 +59,17 @@ RestDocumentService::RestDocumentService()
 
     for ( const auto& document : documents )
     {
-        auto getAction =
+        const std::string& id = document->id();
+        auto               getAction =
             std::make_unique<RestAction>( http::verb::get,
                                           "Get " + document->id() + " document",
                                           "getDocument",
-                                          std::bind( &RestDocumentService::document, document->id(), _1, _2, _3, _4 ) );
+                                          [id]( const http::verb              verb,
+                                                const std::list<std::string>& pathArguments,
+                                                const json::object&           queryParams,
+                                                const json::value&            body ) {
+                                              return RestDocumentService::document( id, verb, pathArguments, queryParams, body );
+                                          } );
 
         getAction->addResponse( http::status::ok,
                                 RestResponse::objectResponse( "#/components/object_schemas/" +
@@ -101,10 +101,10 @@ RestDocumentService::RestDocumentService()
     m_requestPathRoot->addAction( std::move( getAllAction ) );
 }
 
-RestDocumentService::ServiceResponse RestDocumentService::perform( http::verb             verb,
+RestDocumentService::ServiceResponse RestDocumentService::perform( const http::verb       verb,
                                                                    std::list<std::string> path,
-                                                                   const nlohmann::json&  queryParams,
-                                                                   const nlohmann::json&  body )
+                                                                   const json::object&    queryParams,
+                                                                   const json::value&     body )
 {
     CAFFA_ASSERT( !path.empty() );
 
@@ -112,7 +112,7 @@ RestDocumentService::ServiceResponse RestDocumentService::perform( http::verb   
     if ( !request )
     {
         return std::make_pair( http::status::bad_request,
-                               "Document Path not found: " + caffa::StringTools::join( path.begin(), path.end(), "/" ) );
+                               "Document Path not found: " + StringTools::join( path.begin(), path.end(), "/" ) );
     }
 
     return request->perform( verb, pathArguments, queryParams, body );
@@ -121,17 +121,17 @@ RestDocumentService::ServiceResponse RestDocumentService::perform( http::verb   
 //--------------------------------------------------------------------------------------------------
 /// The object service uses session uuids to decide if it accepts the request or not
 //--------------------------------------------------------------------------------------------------
-bool RestDocumentService::requiresAuthentication( http::verb verb, const std::list<std::string>& path ) const
+bool RestDocumentService::requiresAuthentication( http::verb, const std::list<std::string>& ) const
 {
     return false;
 }
 
-bool RestDocumentService::requiresSession( http::verb verb, const std::list<std::string>& path ) const
+bool RestDocumentService::requiresSession( http::verb, const std::list<std::string>& ) const
 {
     return true;
 }
 
-class PathCreator : public Inspector
+class PathCreator final : public Inspector
 {
 public:
     PathCreator()
@@ -140,14 +140,14 @@ public:
         m_serializer.setSerializationType( JsonSerializer::SerializationType::PATH );
     }
 
-    const std::map<std::string, nlohmann::json>& pathSchemas() const { return m_pathSchemas; }
+    const std::map<std::string, json::object>& pathSchemas() const { return m_pathSchemas; }
 
     void visit( const std::shared_ptr<const ObjectHandle>& object ) override
     {
-        if ( auto doc = dynamic_cast<const Document*>( object.get() ); doc )
+        if ( const auto doc = dynamic_cast<const Document*>( object.get() ); doc )
         {
             m_pathStack.push_back( doc->id() );
-            auto schema = nlohmann::json::object();
+            auto schema = json::object();
             m_serializer.writeObjectToJson( object.get(), schema );
             auto path           = StringTools::join( m_pathStack.begin(), m_pathStack.end(), "/" );
             m_pathSchemas[path] = schema;
@@ -158,7 +158,7 @@ public:
             field->accept( this );
         }
 
-        if ( auto doc = dynamic_cast<const Document*>( object.get() ); doc )
+        if ( const auto doc = dynamic_cast<const Document*>( object.get() ); doc )
         {
             m_pathStack.pop_back();
         }
@@ -182,29 +182,28 @@ public:
         leaveField( field );
     }
 
-    bool visitField( const FieldHandle* field )
+    void visitField( const FieldHandle* field )
     {
         m_pathStack.push_back( field->keyword() );
-        auto schema = nlohmann::json::object();
+        auto schema = json::object();
 
-        if ( auto scriptability = field->capability<FieldScriptingCapability>(); scriptability )
+        if ( const auto scriptability = field->capability<FieldScriptingCapability>(); scriptability )
         {
-            auto jsonCapability = field->capability<FieldIoCapability>();
-            CAFFA_ASSERT( jsonCapability );
+            const auto jsonCapability = field->capability<FieldIoCapability>();
+            if ( !jsonCapability ) return;
+
             if ( scriptability->isReadable() )
             {
                 auto operationId = field->keyword();
-                operationId[0]   = (char)std::toupper( operationId[0] );
+                operationId[0]   = static_cast<char>( std::toupper( operationId[0] ) );
                 operationId      = std::string( field->ownerObject()->classKeyword() ) + ".get" + operationId;
 
-                auto getOperation =
-                    nlohmann::json{ { "summary", "Get " + field->keyword() }, { "operationId", operationId } };
+                json::object getOperation = { { "summary", "Get " + field->keyword() }, { "operationId", operationId } };
 
-                auto fieldContent                = nlohmann::json::object();
-                fieldContent["application/json"] = { { "schema", jsonCapability->jsonType() } };
+                const json::object fieldContent = { { "application/json", { { "schema", jsonCapability->jsonType() } } } };
 
-                auto fieldResponse =
-                    nlohmann::json{ { "description", field->documentation() }, { "content", fieldContent } };
+                const json::object fieldResponse = { { "description", field->documentation() },
+                                                     { "content", fieldContent } };
 
                 getOperation["responses"] = fieldResponse;
                 schema["get"]             = getOperation;
@@ -212,45 +211,43 @@ public:
             if ( scriptability->isWritable() )
             {
                 auto operationId = field->keyword();
-                operationId[0]   = (char)std::toupper( operationId[0] );
+                operationId[0]   = static_cast<char>( std::toupper( operationId[0] ) );
                 operationId      = std::string( field->ownerObject()->classKeyword() ) + ".set" + operationId;
 
-                auto setOperation =
-                    nlohmann::json{ { "summary", "Set " + field->keyword() }, { "operationId", operationId } };
+                json::object setOperation = { { "summary", "Set " + field->keyword() }, { "operationId", operationId } };
 
-                auto fieldContent                = nlohmann::json::object();
-                fieldContent["application/json"] = { { "schema", jsonCapability->jsonType() } };
+                const json::object fieldContent = { { "application/json", { { "schema", jsonCapability->jsonType() } } } };
 
-                auto acceptedOrFailureResponses =
-                    nlohmann::json{ { RestServiceInterface::HTTP_ACCEPTED,
-                                      { { "description", "Success" } },
-                                      { "default", RestServiceInterface::plainErrorResponse() } } };
+                json::object acceptedOrFailureResponses;
+
+                acceptedOrFailureResponses[RestServiceInterface::HTTP_ACCEPTED] =
+                    { { "description", json::to_json( "Success" ) },
+                      { "default", RestServiceInterface::plainErrorResponse() } };
 
                 setOperation["responses"]   = acceptedOrFailureResponses;
-                setOperation["requestBody"] = nlohmann::json{ { "content", fieldContent } };
+                setOperation["requestBody"] = { { "content", fieldContent } };
                 schema["set"]               = setOperation;
             }
         }
 
-        auto path           = StringTools::join( m_pathStack.begin(), m_pathStack.end(), "/" );
+        const auto path     = StringTools::join( m_pathStack.begin(), m_pathStack.end(), "/" );
         m_pathSchemas[path] = schema;
-        return false;
     }
 
-    void leaveField( const FieldHandle* field ) { m_pathStack.pop_back(); }
+    void leaveField( const FieldHandle* ) { m_pathStack.pop_back(); }
 
 private:
     std::list<std::string> m_pathStack;
     JsonSerializer         m_serializer;
 
-    std::map<std::string, nlohmann::json> m_pathSchemas;
+    std::map<std::string, json::object> m_pathSchemas{};
 };
 
-std::map<std::string, nlohmann::json> RestDocumentService::servicePathEntries() const
+std::map<std::string, json::object> RestDocumentService::servicePathEntries() const
 {
     CAFFA_DEBUG( "Get service path entries" );
 
-    auto services = nlohmann::json::object();
+    std::map<std::string, json::object> services;
 
     RequestFinder finder( m_requestPathRoot.get() );
     finder.search();
@@ -265,7 +262,7 @@ std::map<std::string, nlohmann::json> RestDocumentService::servicePathEntries() 
     return services;
 }
 
-std::map<std::string, nlohmann::json> RestDocumentService::serviceComponentEntries() const
+std::map<std::string, json::object> RestDocumentService::serviceComponentEntries() const
 {
     return {};
 }
@@ -273,18 +270,17 @@ std::map<std::string, nlohmann::json> RestDocumentService::serviceComponentEntri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestServiceInterface::ServiceResponse RestDocumentService::document( const std::string&            documentId,
-                                                                     http::verb                    verb,
-                                                                     const std::list<std::string>& pathArguments,
-                                                                     const nlohmann::json&         queryParams,
-                                                                     const nlohmann::json&         body )
+RestServiceInterface::ServiceResponse RestDocumentService::document( const std::string& documentId,
+                                                                     http::verb,
+                                                                     const std::list<std::string>&,
+                                                                     const json::object& queryParams,
+                                                                     const json::value& )
 {
-    caffa::SessionMaintainer session;
+    SessionMaintainer session;
 
-    if ( queryParams.contains( "session_uuid" ) )
+    if ( const auto it = queryParams.find( "session_uuid" ); it != queryParams.end() )
     {
-        auto session_uuid = queryParams["session_uuid"].get<std::string>();
-        session           = RestServerApplication::instance()->getExistingSession( session_uuid );
+        session = RestServerApplication::instance()->getExistingSession( json::from_json<std::string>( it->value() ) );
     }
 
     if ( RestServerApplication::instance()->requiresValidSession() && ( !session || session->isExpired() ) )
@@ -298,9 +294,8 @@ RestServiceInterface::ServiceResponse RestDocumentService::document( const std::
     if ( document )
     {
         CAFFA_TRACE( "Found document with UUID: " << document->uuid() );
-        bool           skeleton = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
-        nlohmann::json jsonDocument;
-        if ( skeleton )
+        json::object jsonDocument;
+        if ( const auto it = queryParams.find( "skeleton" ); it != queryParams.end() && it->value().as_bool() )
         {
             jsonDocument = createJsonSkeletonFromProjectObject( document.get() );
         }
@@ -308,7 +303,7 @@ RestServiceInterface::ServiceResponse RestDocumentService::document( const std::
         {
             jsonDocument = createJsonFromProjectObject( document.get() );
         }
-        return std::make_pair( http::status::ok, jsonDocument.dump() );
+        return std::make_pair( http::status::ok, json::dump( jsonDocument ) );
     }
     return std::make_pair( http::status::not_found, "Document " + documentId + " not found" );
 }
@@ -316,40 +311,44 @@ RestServiceInterface::ServiceResponse RestDocumentService::document( const std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestDocumentService::ServiceResponse RestDocumentService::documents( http::verb                    verb,
-                                                                     const std::list<std::string>& pathArguments,
-                                                                     const nlohmann::json&         queryParams,
-                                                                     const nlohmann::json&         body )
+RestDocumentService::ServiceResponse RestDocumentService::documents( http::verb,
+                                                                     const std::list<std::string>&,
+                                                                     const json::object& queryParams,
+                                                                     const json::value& )
 {
     CAFFA_DEBUG( "Got list document request" );
 
-    caffa::SessionMaintainer session;
+    SessionMaintainer session;
 
-    if ( queryParams.contains( "session_uuid" ) )
+    if ( const auto it = queryParams.find( "session_uuid" ); it != queryParams.end() )
     {
-        auto session_uuid = queryParams["session_uuid"].get<std::string>();
-        session           = RestServerApplication::instance()->getExistingSession( session_uuid );
+        session = RestServerApplication::instance()->getExistingSession( json::from_json<std::string>( it->value() ) );
     }
 
     if ( RestServerApplication::instance()->requiresValidSession() && ( !session || session->isExpired() ) )
     {
         return std::make_pair( http::status::forbidden, "No valid session provided" );
     }
-    bool skeleton  = queryParams.contains( "skeleton" ) && queryParams["skeleton"].get<bool>();
-    auto documents = RestServerApplication::instance()->documents( session.get() );
+
+    const auto documents = RestServerApplication::instance()->documents( session.get() );
     CAFFA_DEBUG( "Found " << documents.size() << " document" );
 
-    auto jsonResult = nlohmann::json::array();
-    for ( auto document : documents )
+    auto jsonResult = json::array();
+
+    if ( const auto it = queryParams.find( "skeleton" ); it != queryParams.end() && it->value().as_bool() )
     {
-        if ( skeleton )
+        for ( const auto& document : documents )
         {
             jsonResult.push_back( createJsonSkeletonFromProjectObject( document.get() ) );
         }
-        else
+    }
+    else
+    {
+        for ( const auto& document : documents )
         {
             jsonResult.push_back( createJsonFromProjectObject( document.get() ) );
         }
     }
-    return std::make_pair( http::status::ok, jsonResult.dump() );
+
+    return std::make_pair( http::status::ok, json::dump( jsonResult ) );
 }

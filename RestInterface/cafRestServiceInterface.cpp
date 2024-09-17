@@ -1,6 +1,7 @@
 #include "cafRestServiceInterface.h"
 
 using namespace caffa::rpc;
+using namespace caffa;
 using namespace std::chrono_literals;
 
 constexpr std::chrono::seconds RATE_LIMITER_TIME_PERIOD  = 1s;
@@ -42,17 +43,17 @@ bool RestServiceInterface::refuseDueToTimeLimiter()
     return false;
 }
 
-nlohmann::json RestServiceInterface::plainErrorResponse()
+json::object RestServiceInterface::plainErrorResponse()
 {
-    auto errorContent          = nlohmann::json::object();
+    json::object errorContent;
     errorContent["text/plain"] = { { "schema", { { "$ref", "#/components/error_schemas/PlainError" } } } };
-    auto errorResponse         = nlohmann::json{ { "description", "Error message" }, { "content", errorContent } };
+    json::object errorResponse = { { "description", "Error message" }, { "content", errorContent } };
     return errorResponse;
 }
 
-std::map<std::string, nlohmann::json> RestServiceInterface::basicServiceSchemas()
+std::map<std::string, json::object> RestServiceInterface::basicServiceSchemas()
 {
-    auto plainError = nlohmann::json{ { "type", "string" }, { "example", "An example error" } };
+    json::object plainError = { { "type", "string" }, { "example", "An example error" } };
 
     return { { "error_schemas", { { "PlainError", plainError } } } };
 }

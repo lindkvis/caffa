@@ -24,9 +24,8 @@
 #include "cafSession.h"
 #include "cafUuidGenerator.h"
 
-#include <nlohmann/json.hpp>
-
 using namespace caffa::rpc;
+using namespace caffa;
 
 RestSessionService::RestSessionService()
 {
@@ -34,12 +33,11 @@ RestSessionService::RestSessionService()
 
     auto sessionResponse = RestResponse::objectResponse( "#/components/session_schemas/Session", "An application session" );
 
-    auto typeParameter =
-        std::make_unique<RestTypedParameter<caffa::AppEnum<caffa::Session::Type>>>( "type",
-                                                                                    RestParameter::Location::QUERY,
-                                                                                    false,
-                                                                                    "The type of session" );
-    typeParameter->setDefaultValue( caffa::Session::Type::REGULAR );
+    auto typeParameter = std::make_unique<RestTypedParameter<AppEnum<Session::Type>>>( "type",
+                                                                                       RestParameter::Location::QUERY,
+                                                                                       false,
+                                                                                       "The type of session" );
+    typeParameter->setDefaultValue( Session::Type::REGULAR );
 
     {
         auto readyAction = std::make_unique<RestAction>( http::verb::get,
@@ -70,7 +68,7 @@ RestSessionService::RestSessionService()
 
     {
         auto uuidEntry = std::make_unique<RestPathEntry>( "{uuid}" );
-        uuidEntry->setPathArgumentMatcher( &caffa::UuidGenerator::isUuid );
+        uuidEntry->setPathArgumentMatcher( &UuidGenerator::isUuid );
 
         auto uuidParameter = std::make_unique<RestTypedParameter<std::string>>( "uuid",
                                                                                 RestParameter::Location::PATH,
@@ -122,8 +120,8 @@ RestSessionService::RestSessionService()
 
 RestSessionService::ServiceResponse RestSessionService::perform( http::verb             verb,
                                                                  std::list<std::string> path,
-                                                                 const nlohmann::json&  queryParams,
-                                                                 const nlohmann::json&  body )
+                                                                 const json::object&    queryParams,
+                                                                 const json::value&     body )
 {
     CAFFA_ASSERT( !path.empty() );
 
@@ -131,7 +129,7 @@ RestSessionService::ServiceResponse RestSessionService::perform( http::verb     
     if ( !request )
     {
         return std::make_pair( http::status::bad_request,
-                               "Session Path not found: " + caffa::StringTools::join( path.begin(), path.end(), "/" ) );
+                               "Session Path not found: " + StringTools::join( path.begin(), path.end(), "/" ) );
     }
 
     return request->perform( verb, pathArguments, queryParams, body );
@@ -158,11 +156,11 @@ bool RestSessionService::requiresSession( http::verb verb, const std::list<std::
     return request->requiresSession( verb );
 }
 
-std::map<std::string, nlohmann::json> RestSessionService::servicePathEntries() const
+std::map<std::string, json::object> RestSessionService::servicePathEntries() const
 {
     CAFFA_DEBUG( "Get service path entries" );
 
-    auto services = nlohmann::json::object();
+    std::map<std::string, json::object> services;
 
     RequestFinder finder( m_requestPathRoot.get() );
     finder.search();
@@ -177,27 +175,27 @@ std::map<std::string, nlohmann::json> RestSessionService::servicePathEntries() c
     return services;
 }
 
-std::map<std::string, nlohmann::json> RestSessionService::serviceComponentEntries() const
+std::map<std::string, json::object> RestSessionService::serviceComponentEntries() const
 {
-    auto sessionTypeLabels = caffa::AppEnum<caffa::Session::Type>::validLabels();
-    auto jsonTypeLabels    = nlohmann::json::array();
+    auto        sessionTypeLabels = AppEnum<Session::Type>::validLabels();
+    json::array jsonTypeLabels;
     for ( auto label : sessionTypeLabels )
     {
-        jsonTypeLabels.push_back( label );
+        jsonTypeLabels.push_back( json::to_json( label ) );
     }
 
-    auto session = nlohmann::json{ { "type", "object" },
-                                   { "properties",
-                                     { { "uuid", { { "type", "string" } } },
-                                       { "type", { { "type", "string" }, { "enum", jsonTypeLabels } } },
-                                       { "valid", { { "type", "boolean" } } } } } };
+    json::object session = { { "type", "object" },
+                             { "properties",
+                               { { "uuid", { { "type", "string" } } },
+                                 { "type", { { "type", "string" }, { "enum", jsonTypeLabels } } },
+                                 { "valid", { { "type", "boolean" } } } } } };
 
-    auto ready = nlohmann::json{ { "type", "object" },
-                                 { "properties",
-                                   {
-                                       { "ready", { { "type", "boolean" } } },
-                                       { "other_sessions", { { "type", "boolean" } } },
-                                   } } };
+    json::object ready = { { "type", "object" },
+                           { "properties",
+                             {
+                                 { "ready", { { "type", "boolean" } } },
+                                 { "other_sessions", { { "type", "boolean" } } },
+                             } } };
 
     return { { "session_schemas", { { "Session", session }, { "ReadyState", ready } } } };
 }
@@ -207,25 +205,25 @@ std::map<std::string, nlohmann::json> RestSessionService::serviceComponentEntrie
 //--------------------------------------------------------------------------------------------------
 RestSessionService::ServiceResponse RestSessionService::ready( http::verb                    verb,
                                                                const std::list<std::string>& pathArguments,
-                                                               const nlohmann::json&         queryParams,
-                                                               const nlohmann::json&         body )
+                                                               const json::object&           queryParams,
+                                                               const json::value&            body )
 {
     CAFFA_DEBUG( "Received ready for session request with metadata " << queryParams );
     try
     {
-        caffa::AppEnum<caffa::Session::Type> type;
-        if ( queryParams.contains( "type" ) )
+        AppEnum<Session::Type> type;
+        if ( const auto it = queryParams.find( "type" ); it != queryParams.end() )
         {
-            type.setFromLabel( queryParams["type"].get<std::string>() );
+            type.setFromLabel( json::from_json<std::string>( it->value() ) );
         }
-        auto jsonResponse = nlohmann::json::object();
+        json::object jsonResponse;
         CAFFA_DEBUG( "Checking if we're ready for a session of type " << type.label() );
 
-        bool ready = RestServerApplication::instance()->readyForSession( type.value() );
+        const bool ready = RestServerApplication::instance()->readyForSession( type.value() );
 
         jsonResponse["ready"]          = ready;
         jsonResponse["other_sessions"] = RestServerApplication::instance()->hasActiveSessions();
-        return std::make_pair( http::status::ok, jsonResponse.dump() );
+        return std::make_pair( http::status::ok, json::dump( jsonResponse ) );
     }
     catch ( ... )
     {
@@ -236,29 +234,30 @@ RestSessionService::ServiceResponse RestSessionService::ready( http::verb       
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse RestSessionService::create( http::verb                    verb,
-                                                                const std::list<std::string>& pathArguments,
-                                                                const nlohmann::json&         queryParams,
-                                                                const nlohmann::json&         body )
+RestSessionService::ServiceResponse RestSessionService::create( http::verb,
+                                                                const std::list<std::string>&,
+                                                                const json::object& queryParams,
+                                                                const json::value& )
 {
     CAFFA_DEBUG( "Received create session request" );
 
     try
     {
-        caffa::AppEnum<caffa::Session::Type> type;
-        if ( queryParams.contains( "type" ) )
+        AppEnum<Session::Type> type;
+
+        if ( const auto it = queryParams.find( "type" ); it != queryParams.end() )
         {
-            type.setFromLabel( queryParams["type"].get<std::string>() );
+            type.setFromLabel( json::from_json<std::string>( it->value() ) );
         }
         auto session = RestServerApplication::instance()->createSession( type.value() );
 
         CAFFA_TRACE( "Created session: " << session->uuid() );
 
-        auto jsonResponse     = nlohmann::json::object();
+        json::object jsonResponse;
         jsonResponse["uuid"]  = session->uuid();
-        jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::getLabel( session->type() );
+        jsonResponse["type"]  = AppEnum<Session::Type>::getLabel( session->type() );
         jsonResponse["valid"] = !session->isExpired();
-        return std::make_pair( http::status::ok, jsonResponse.dump() );
+        return std::make_pair( http::status::ok, json::dump( jsonResponse ) );
     }
     catch ( const std::exception& e )
     {
@@ -270,56 +269,56 @@ RestSessionService::ServiceResponse RestSessionService::create( http::verb      
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse RestSessionService::get( http::verb                    verb,
+RestSessionService::ServiceResponse RestSessionService::get( http::verb,
                                                              const std::list<std::string>& pathArguments,
-                                                             const nlohmann::json&         queryParams,
-                                                             const nlohmann::json&         body )
+                                                             const json::object&,
+                                                             const json::value& )
 {
     if ( pathArguments.empty() )
     {
         return std::make_pair( http::status::bad_request, "Session uuid not provided" );
     }
-    auto uuid = pathArguments.front();
+    const auto& uuid = pathArguments.front();
 
     CAFFA_DEBUG( "Got session get request for uuid " << uuid );
 
-    caffa::SessionMaintainer session = RestServerApplication::instance()->getExistingSession( uuid );
+    SessionMaintainer session = RestServerApplication::instance()->getExistingSession( uuid );
     if ( !session )
     {
         return std::make_pair( http::status::not_found, "Session '" + uuid + "' is not valid" );
     }
 
-    auto jsonResponse     = nlohmann::json::object();
+    json::object jsonResponse;
     jsonResponse["uuid"]  = session->uuid();
-    jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::getLabel( session->type() );
+    jsonResponse["type"]  = AppEnum<Session::Type>::getLabel( session->type() );
     jsonResponse["valid"] = !session->isExpired();
 
-    return std::make_pair( http::status::ok, jsonResponse.dump() );
+    return std::make_pair( http::status::ok, json::dump( jsonResponse ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( http::verb                    verb,
+RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( http::verb,
                                                                            const std::list<std::string>& pathArguments,
-                                                                           const nlohmann::json&         queryParams,
-                                                                           const nlohmann::json&         body )
+                                                                           const json::object&           queryParams,
+                                                                           const json::value& )
 {
     if ( pathArguments.empty() )
     {
         return std::make_pair( http::status::bad_request, "Session uuid not provided" );
     }
-    auto uuid = pathArguments.front();
+    const auto& uuid = pathArguments.front();
 
     CAFFA_DEBUG( "Got session change request for " << uuid );
 
-    caffa::SessionMaintainer session = RestServerApplication::instance()->getExistingSession( uuid );
+    SessionMaintainer session = RestServerApplication::instance()->getExistingSession( uuid );
 
     if ( !session )
     {
         return std::make_pair( http::status::not_found, "Session '" + uuid + "' is not valid" );
     }
-    else if ( session->isExpired() )
+    if ( session->isExpired() )
     {
         return std::make_pair( http::status::gone, "Session '" + uuid + "' is expired" );
     }
@@ -330,32 +329,36 @@ RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( http:
     }
     else
     {
-        caffa::AppEnum<caffa::Session::Type> type;
-        type.setFromLabel( queryParams["type"].get<std::string>() );
+        AppEnum<Session::Type> type;
+
+        if ( const auto it = queryParams.find( "type" ); it != queryParams.end() )
+        {
+            type.setFromLabel( json::from_json<std::string>( it->value() ) );
+        }
 
         RestServerApplication::instance()->changeSession( session.get(), type.value() );
     }
-    auto jsonResponse     = nlohmann::json::object();
+    auto jsonResponse     = json::object();
     jsonResponse["uuid"]  = session->uuid();
-    jsonResponse["type"]  = caffa::AppEnum<caffa::Session::Type>::getLabel( session->type() );
+    jsonResponse["type"]  = AppEnum<Session::Type>::getLabel( session->type() );
     jsonResponse["valid"] = !session->isExpired();
 
-    return std::make_pair( http::status::ok, jsonResponse.dump() );
+    return std::make_pair( http::status::ok, json::dump( jsonResponse ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestSessionService::ServiceResponse RestSessionService::destroy( http::verb                    verb,
+RestSessionService::ServiceResponse RestSessionService::destroy( http::verb,
                                                                  const std::list<std::string>& pathArguments,
-                                                                 const nlohmann::json&         queryParams,
-                                                                 const nlohmann::json&         body )
+                                                                 const json::object&,
+                                                                 const json::value& )
 {
     if ( pathArguments.empty() )
     {
         return std::make_pair( http::status::bad_request, "Session uuid not provided" );
     }
-    auto uuid = pathArguments.front();
+    const auto& uuid = pathArguments.front();
 
     CAFFA_DEBUG( "Got destroy session request for " << uuid );
 

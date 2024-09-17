@@ -20,10 +20,11 @@
 #pragma once
 
 #include "cafAppEnum.h"
+#include "cafJsonDefinitions.h"
 #include "cafObjectHandlePortableDataType.h"
 #include "cafPortableDataType.h"
 
-#include <nlohmann/json.hpp>
+#include <boost/json.hpp>
 
 namespace caffa
 {
@@ -54,9 +55,9 @@ concept supported_integral = ( std::integral<T> || chrono_integral<T> ) && !std:
 template <typename DataType>
 struct JsonDataType
 {
-    static nlohmann::json jsonType()
+    static json::object jsonType()
     {
-        auto object    = nlohmann::json::object();
+        json::object object;
         object["type"] = PortableDataType<DataType>::name();
 
         return object;
@@ -66,15 +67,15 @@ struct JsonDataType
 template <>
 struct JsonDataType<void>
 {
-    static nlohmann::json jsonType() { return nlohmann::json::object(); }
+    static json::object jsonType() { return json::object(); }
 };
 
 template <typename DataType>
 struct JsonDataType<std::vector<DataType>>
 {
-    static nlohmann::json jsonType()
+    static json::object jsonType()
     {
-        auto object     = nlohmann::json::object();
+        json::object object;
         object["type"]  = "array";
         object["items"] = JsonDataType<DataType>::jsonType();
 
@@ -100,9 +101,9 @@ struct JsonDataType<std::map<std::string, DataType>>
 template <supported_integral DataType>
 struct JsonDataType<DataType>
 {
-    static nlohmann::json jsonType()
+    static json::object jsonType()
     {
-        auto object      = nlohmann::json::object();
+        json::object object;
         object["type"]   = "integer";
         object["format"] = PortableDataType<DataType>::name();
         return object;
@@ -112,9 +113,9 @@ struct JsonDataType<DataType>
 template <std::floating_point DataType>
 struct JsonDataType<DataType>
 {
-    static nlohmann::json jsonType()
+    static json::object jsonType()
     {
-        auto object      = nlohmann::json::object();
+        json::object object;
         object["type"]   = "number";
         object["format"] = PortableDataType<DataType>::name();
         return object;
@@ -127,9 +128,9 @@ struct JsonDataType<DataType>
 template <DerivesFromObjectHandle DataType>
 struct JsonDataType<DataType>
 {
-    static nlohmann::json jsonType()
+    static json::object jsonType()
     {
-        auto object    = nlohmann::json::object();
+        json::object object;
         object["$ref"] = std::string( "#/components/object_schemas/" ) + std::string( DataType::classKeywordStatic() );
         return object;
     }
@@ -141,9 +142,9 @@ struct JsonDataType<DataType>
 template <IsSharedPtr DataType>
 struct JsonDataType<DataType>
 {
-    static nlohmann::json jsonType()
+    static json::object jsonType()
     {
-        auto object    = nlohmann::json::object();
+        json::object object;
         object["$ref"] = std::string( "#/components/object_schemas/" ) +
                          std::string( DataType::element_type::classKeywordStatic() );
         return object;
@@ -153,21 +154,21 @@ struct JsonDataType<DataType>
 template <typename EnumType>
 struct JsonDataType<AppEnum<EnumType>>
 {
-    static nlohmann::json jsonType()
+    static json::object jsonType()
     {
-        auto values = nlohmann::json::array();
-        for ( auto entry : AppEnum<EnumType>::validLabels() )
+        json::array values;
+        for ( const auto& entry : AppEnum<EnumType>::validLabels() )
         {
-            values.push_back( entry );
+            values.push_back( json::to_json( entry ) );
         }
-        auto object    = nlohmann::json::object();
+        json::object object;
         object["enum"] = values;
         return object;
     }
 };
 
 template <typename Enum>
-void to_json( nlohmann::json& jsonValue, const AppEnum<Enum>& appEnum )
+void tag_invoke( const boost::json::value_from_tag&, json::value& jsonValue, const AppEnum<Enum>& appEnum )
 {
     std::stringstream stream;
     stream << appEnum;
@@ -175,10 +176,12 @@ void to_json( nlohmann::json& jsonValue, const AppEnum<Enum>& appEnum )
 }
 
 template <typename Enum>
-void from_json( const nlohmann::json& jsonValue, AppEnum<Enum>& appEnum )
+AppEnum<Enum> tag_invoke( const boost::json::value_to_tag<AppEnum<Enum>>&, const json::value& jsonValue )
 {
-    std::stringstream stream( jsonValue.get<std::string>() );
+    AppEnum<Enum>     appEnum;
+    std::stringstream stream( json::from_json<std::string>( jsonValue ) );
     stream >> appEnum;
+    return appEnum;
 }
 
 } // namespace caffa

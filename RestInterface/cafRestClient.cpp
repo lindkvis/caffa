@@ -45,8 +45,6 @@
 #include "cafSession.h"
 #include "cafStringEncoding.h"
 
-#include <nlohmann/json.hpp>
-
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/asio/use_future.hpp>
@@ -322,9 +320,9 @@ AppInfo RestClient::appInfo() const
         throw std::runtime_error( "Failed to get Server information: " + body );
     }
 
-    auto jsonContent = nlohmann::json::parse( body );
+    auto jsonContent = json::parse( body );
 
-    return jsonContent.get<AppInfo>();
+    return json::from_json<AppInfo>( jsonContent );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -371,7 +369,7 @@ std::vector<std::shared_ptr<ObjectHandle>> RestClient::documents() const
         throw std::runtime_error( "Failed to get document list: " + body );
     }
 
-    auto jsonArray = nlohmann::json::parse( body );
+    auto jsonArray = json::parse( body );
     if ( !jsonArray.is_array() )
     {
         throw std::runtime_error( "Failed to get documents" );
@@ -381,9 +379,9 @@ std::vector<std::shared_ptr<ObjectHandle>> RestClient::documents() const
     serializer.setClient( true );
     serializer.setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON );
     std::vector<std::shared_ptr<ObjectHandle>> documents;
-    for ( const auto& jsonDocument : jsonArray )
+    for ( const auto& jsonDocument : jsonArray.get_array() )
     {
-        auto document = serializer.createObjectFromString( jsonDocument.dump() );
+        auto document = serializer.createObjectFromString( json::dump( jsonDocument ) );
         documents.push_back( document );
     }
     return documents;
@@ -470,7 +468,7 @@ bool RestClient::isReady( Session::Type type ) const
 
     CAFFA_TRACE( "Checking if server is ready for sessions" );
 
-    AppEnum<Session::Type> enumType( type );
+    const AppEnum<Session::Type> enumType( type );
 
     auto [status, body] = performGetRequest( hostname(), port(), std::string( "/sessions/?type=" + enumType.label() ) );
 
@@ -480,24 +478,26 @@ bool RestClient::isReady( Session::Type type ) const
     }
 
     CAFFA_TRACE( "Got result: " << body );
-    auto jsonObject = nlohmann::json::parse( body );
-    if ( !jsonObject.contains( "ready" ) )
+    auto jsonValue = json::parse( body );
+    if ( const auto jsonObject = jsonValue.if_object(); jsonObject )
     {
-        throw std::runtime_error( "Malformed ready reply" );
+        if ( const auto it = jsonObject->find( "ready" ); it != jsonObject->end() && it->value().is_bool() )
+        {
+            return it->value().get_bool();
+        }
     }
 
-    bool ready = jsonObject["ready"].get<bool>();
-    return ready;
+    throw std::runtime_error( "Malformed ready reply" );
 }
 
 //--------------------------------------------------------------------------------------------------
 // Create a new session
 //--------------------------------------------------------------------------------------------------
-void RestClient::doCreateSession( Session::Type type, const std::string& username, const std::string& password )
+void RestClient::doCreateSession( const Session::Type type, const std::string& username, const std::string& password )
 {
-    std::scoped_lock<std::mutex> lock( m_sessionMutex );
+    std::scoped_lock lock( m_sessionMutex );
 
-    AppEnum<Session::Type> enumType( type );
+    const AppEnum enumType( type );
 
     CAFFA_TRACE( "Creating session of type " << enumType.label() );
 
@@ -510,14 +510,17 @@ void RestClient::doCreateSession( Session::Type type, const std::string& usernam
     }
 
     CAFFA_TRACE( "Got result: " << body );
-    auto jsonObject = nlohmann::json::parse( body );
-    if ( !jsonObject.contains( "uuid" ) )
+    auto jsonValue = json::parse( body );
+    if ( const auto jsonObject = jsonValue.if_object(); jsonObject )
     {
-        throw std::runtime_error( "Failed to create session" );
+        if ( const auto it = jsonObject->find( "uuid" ); it != jsonObject->end() && it->value().is_string() )
+        {
+            m_sessionUuid = json::from_json<std::string>( it->value() );
+            CAFFA_DEBUG( "Created session with UUID: " << m_sessionUuid );
+            return;
+        }
     }
-
-    m_sessionUuid = jsonObject["uuid"].get<std::string>();
-    CAFFA_DEBUG( "Created session with UUID: " << m_sessionUuid );
+    throw std::runtime_error( "Failed to create session" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -527,14 +530,14 @@ Session::Type RestClient::checkSession() const
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
-    auto jsonObject    = nlohmann::json::object();
+    auto jsonObject    = json::object();
     jsonObject["uuid"] = m_sessionUuid;
 
     auto [status, body] = performRequest( http::verb::get,
                                           hostname(),
                                           port(),
                                           std::string( "/sessions/" + m_sessionUuid + "?session_uuid=" ) + m_sessionUuid,
-                                          jsonObject.dump() );
+                                          json::dump( jsonObject ) );
 
     if ( status != http::status::ok )
     {
@@ -543,15 +546,22 @@ Session::Type RestClient::checkSession() const
 
     CAFFA_TRACE( "Got result: " << body );
 
-    auto jsonResult = nlohmann::json::parse( body );
-    CAFFA_ASSERT( jsonResult.contains( "type" ) );
-    return AppEnum<Session::Type>( jsonResult["type"].get<std::string>() ).value();
+    auto jsonResult = json::parse( body );
+
+    if ( const auto jsonResultObject = jsonResult.if_object(); jsonResultObject )
+    {
+        if ( const auto it = jsonResultObject->find( "type" ); it != jsonResultObject->end() && it->value().is_string() )
+        {
+            return AppEnum<Session::Type>( json::from_json<std::string>( it->value() ) ).value();
+        }
+    }
+    throw std::runtime_error( "Failed to check session: " + body );
 }
 
 //--------------------------------------------------------------------------------------------------
 // Change the session type
 //--------------------------------------------------------------------------------------------------
-void RestClient::changeSession( Session::Type newType )
+void RestClient::changeSession( const Session::Type newType )
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
@@ -613,14 +623,14 @@ const std::string& RestClient::sessionUuid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RestClient::setJson( const ObjectHandle* objectHandle, const std::string& fieldName, const nlohmann::json& value )
+void RestClient::setJson( const ObjectHandle* objectHandle, const std::string& fieldName, const json::value& value )
 {
     auto [status, body] = performRequest( http::verb::put,
                                           hostname(),
                                           port(),
                                           std::string( "/objects/" ) + objectHandle->uuid() + "/fields/" + fieldName +
                                               "?session_uuid=" + m_sessionUuid,
-                                          value.dump() );
+                                          json::dump( value ) );
     if ( status != http::status::accepted )
     {
         throw std::runtime_error( "Failed to set field value" );
@@ -630,7 +640,7 @@ void RestClient::setJson( const ObjectHandle* objectHandle, const std::string& f
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-nlohmann::json RestClient::getJson( const ObjectHandle* objectHandle, const std::string& fieldName ) const
+json::value RestClient::getJson( const ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     auto [status, body] = performGetRequest( hostname(),
                                              port(),
@@ -641,7 +651,7 @@ nlohmann::json RestClient::getJson( const ObjectHandle* objectHandle, const std:
         throw std::runtime_error( "Failed to get field value" );
     }
 
-    return nlohmann::json::parse( body );
+    return json::parse( body );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -683,7 +693,7 @@ std::vector<std::shared_ptr<ObjectHandle>> RestClient::getChildObjects( const Ob
     }
     CAFFA_TRACE( "Got body: " << body );
 
-    auto jsonArray = nlohmann::json::parse( body );
+    auto jsonArray = json::parse( body );
     if ( !jsonArray.is_array() )
     {
         throw std::runtime_error( "The return value was not an array" );
@@ -693,11 +703,12 @@ std::vector<std::shared_ptr<ObjectHandle>> RestClient::getChildObjects( const Ob
     serializer.setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON );
     serializer.setClient( true );
 
-    for ( const auto& jsonObject : jsonArray )
+    for ( const auto& jsonEntry : jsonArray.get_array() )
     {
+        const auto& jsonObject = jsonEntry.as_object();
         childObjects.push_back( JsonSerializer( ClientPassByRefObjectFactory::instance().get() )
                                     .setSerializationType( JsonSerializer::SerializationType::DATA_SKELETON )
-                                    .createObjectFromString( jsonObject.dump() ) );
+                                    .createObjectFromJson( jsonObject ) );
     }
     return childObjects;
 }

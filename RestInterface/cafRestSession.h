@@ -43,8 +43,6 @@
 #include <boost/beast/ssl.hpp>
 #include <boost/beast/version.hpp>
 
-#include <nlohmann/json.hpp>
-
 #include <memory>
 #include <optional>
 #include <regex>

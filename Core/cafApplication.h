@@ -17,6 +17,8 @@
 //    FITNESS FOR A PARTICULAR PURPOSE.
 #pragma once
 
+#include <boost/describe.hpp>
+
 #include <string>
 
 /**
@@ -53,22 +55,22 @@ struct AppInfo
      * @brief Major version number
      *
      */
-    int majorVersion;
+    int major_version;
     /**
      * @brief Minor version number
      *
      */
-    int minorVersion;
+    int minor_version;
     /**
      * @brief Patch version number
      *
      */
-    int patchVersion;
+    int patch_version;
     /**
      * @brief Application type. Can be CONSOLE, SERVER, CLIENT, GUI
      *
      */
-    unsigned int appType;
+    unsigned int type;
 
     /**
      * @brief Application description.
@@ -78,7 +80,7 @@ struct AppInfo
     /**
      * @brief Contact email
      */
-    std::string contactEmail;
+    std::string contact_email;
 
     /**
      * @brief Check if the application has the specified capability
@@ -89,7 +91,7 @@ struct AppInfo
      */
     [[nodiscard]] bool hasCapability( AppCapability typeToCheck ) const
     {
-        return ( appType & static_cast<unsigned int>( typeToCheck ) ) != 0u;
+        return ( type & static_cast<unsigned int>( typeToCheck ) ) != 0u;
     }
 
     /**
@@ -99,9 +101,11 @@ struct AppInfo
      */
     [[nodiscard]] std::string version_string() const
     {
-        return std::to_string( majorVersion ) + "." + std::to_string( minorVersion ) + "." + std::to_string( patchVersion );
+        return std::to_string( major_version ) + "." + std::to_string( minor_version ) + "." + std::to_string( patch_version );
     }
 };
+
+BOOST_DESCRIBE_STRUCT(AppInfo, (), (name, major_version, minor_version, patch_version, type, description, contact_email))
 
 class Application
 {

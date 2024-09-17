@@ -18,19 +18,12 @@
 // ##################################################################################################
 #pragma once
 
+#include "cafJsonDefinitions.h"
 #include "cafObjectHandle.h"
-
-#include <nlohmann/json.hpp>
 
 #include <memory>
 
 namespace caffa
 {
-
-void to_json( nlohmann::json& jsonValue, const ObjectHandle& object );
-void from_json( const nlohmann::json& jsonValue, ObjectHandle& object );
-
-void to_json( nlohmann::json& jsonValue, std::shared_ptr<const ObjectHandle> object );
-void from_json( const nlohmann::json& jsonValue, std::shared_ptr<ObjectHandle> object );
 
 } // namespace caffa

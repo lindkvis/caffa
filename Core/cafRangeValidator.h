@@ -22,8 +22,7 @@
 #pragma once
 
 #include "cafFieldValidator.h"
-
-#include <nlohmann/json.hpp>
+#include "cafJsonDefinitions.h"
 
 #include <memory>
 #include <sstream>
@@ -53,25 +52,24 @@ public:
 
     void readFromString( const std::string& string ) override
     {
-        if ( auto jsonFieldObject = nlohmann::json::parse( string ); jsonFieldObject.is_object() )
+        auto jsonFieldValue = json::parse( string );
+        if ( const auto* jsonFieldObject = jsonFieldValue.if_object(); jsonFieldObject )
         {
-            if ( jsonFieldObject.contains( "minimum" ) )
+            if ( const auto it = jsonFieldObject->find( "minimum" ); it != jsonFieldObject->end() )
             {
-                m_minimum = jsonFieldObject["minimum"];
+                m_minimum = json::from_json<DataType>( it->value() );
             }
-            if ( jsonFieldObject.contains( "maximum" ) )
+            if ( const auto it = jsonFieldObject->find( "maximum" ); it != jsonFieldObject->end() )
             {
-                m_maximum = jsonFieldObject["maximum"];
+                m_maximum = json::from_json<DataType>( it->value() );
             }
         }
     }
 
     [[nodiscard]] std::string writeToString() const override
     {
-        auto jsonFieldObject       = nlohmann::json::object();
-        jsonFieldObject["minimum"] = m_minimum;
-        jsonFieldObject["maximum"] = m_maximum;
-        return jsonFieldObject.dump();
+        const json::object jsonFieldObject = { { "minimum", m_minimum }, { "maximum", m_maximum } };
+        return json::dump( jsonFieldObject );
     }
 
     [[nodiscard]] std::pair<bool, std::string> validate( const DataType& value ) const override

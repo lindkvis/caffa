@@ -18,9 +18,8 @@
 //
 #pragma once
 
+#include "cafJsonDefinitions.h"
 #include "cafRestServiceFactory.h"
-
-#include <nlohmann/json.hpp>
 
 #include <boost/beast/http.hpp>
 
@@ -55,8 +54,8 @@ public:
 
     virtual ServiceResponse perform( http::verb             verb,
                                      std::list<std::string> path,
-                                     const nlohmann::json&  queryParams,
-                                     const nlohmann::json&  body ) = 0;
+                                     const json::object&    queryParams,
+                                     const json::value&     body ) = 0;
 
     /**
      * @brief Check whether the service requires authentication
@@ -85,30 +84,30 @@ public:
     /**
      * @brief Create a plain text OpenAPI error response
      *
-     * @return nlohmann::json a response object
+     * @return json a response object
      */
-    static nlohmann::json plainErrorResponse();
+    static json::object plainErrorResponse();
 
     /**
      * @brief Get the basic OpenAPI service schemas required for all services
      *
-     * @return std::map<std::string, nlohmann::json>
+     * @return std::map<std::string, json>
      */
-    static std::map<std::string, nlohmann::json> basicServiceSchemas();
+    static std::map<std::string, json::object> basicServiceSchemas();
 
     /**
      * @brief Entries into the OpenAPI paths objects
      *
-     * @return std::map<std::string, nlohmann::json>
+     * @return std::map<std::string, json>
      */
-    virtual std::map<std::string, nlohmann::json> servicePathEntries() const = 0;
+    virtual std::map<std::string, json::object> servicePathEntries() const = 0;
 
     /**
      * @brief Entries into the OpenAPI components objects
      *
-     * @return std::map<std::string, nlohmann::json>
+     * @return std::map<std::string, json>
      */
-    virtual std::map<std::string, nlohmann::json> serviceComponentEntries() const = 0;
+    virtual std::map<std::string, json::object> serviceComponentEntries() const = 0;
 
     static bool refuseDueToTimeLimiter();
 

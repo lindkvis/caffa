@@ -3,7 +3,7 @@
   "version-string": "latest",
   "dependencies": [
     {
-      "name": "nlohmann-json",
+      "name": "boost-json",
       "platform": "!linux"
     },
     {

@@ -21,19 +21,22 @@
 #include "cafLogger.h"
 #include "cafStringTools.h"
 
-using namespace caffa::rpc;
+#include <ranges>
 
-RestResponse::RestResponse( const nlohmann::json& contentSchema, const std::string& description )
+using namespace caffa::rpc;
+using namespace caffa;
+
+RestResponse::RestResponse( const json::object& contentSchema, const std::string& description )
     : m_content( contentSchema )
     , m_description( description )
 {
 }
 
-nlohmann::json RestResponse::schema() const
+json::object RestResponse::schema() const
 {
-    auto response = nlohmann::json{ { "description", m_description } };
+    json::object response = { { "description", m_description } };
 
-    if ( !m_content.is_null() )
+    if ( !m_content.empty() )
     {
         response["content"] = m_content;
     }
@@ -48,19 +51,19 @@ std::unique_ptr<RestResponse> RestResponse::clone() const
 
 std::unique_ptr<RestResponse> RestResponse::emptyResponse( const std::string& description )
 {
-    return std::make_unique<RestResponse>( nlohmann::json(), description );
+    return std::make_unique<RestResponse>( json::object(), description );
 }
 
 std::unique_ptr<RestResponse> RestResponse::plainErrorResponse()
 {
-    auto content          = nlohmann::json::object();
+    auto content          = json::object();
     content["text/plain"] = { { "schema", "#/components/error_schemas/PlainError" } };
     return std::make_unique<RestResponse>( content, "A Service Error Message" );
 }
 
 std::unique_ptr<RestResponse> RestResponse::objectResponse( const std::string& schemaPath, const std::string& description )
 {
-    auto content                = nlohmann::json::object();
+    auto content                = json::object();
     content["application/json"] = { { "schema", { { "$ref", schemaPath } } } };
     return std::make_unique<RestResponse>( content, description );
 }
@@ -68,11 +71,11 @@ std::unique_ptr<RestResponse> RestResponse::objectResponse( const std::string& s
 std::unique_ptr<RestResponse> RestResponse::objectArrayResponse( const std::string& schemaPath,
                                                                  const std::string& description )
 {
-    auto arraySchema    = nlohmann::json::object();
+    auto arraySchema    = json::object();
     arraySchema["type"] = "array";
     arraySchema["item"] = { { "$ref", schemaPath } };
 
-    auto content                = nlohmann::json::object();
+    auto content                = json::object();
     content["application/json"] = arraySchema;
     return std::make_unique<RestResponse>( content, description );
 }
@@ -85,9 +88,7 @@ RestParameter::RestParameter( const std::string& name, Location location, bool r
 {
 }
 
-RestParameter::~RestParameter()
-{
-}
+RestParameter::~RestParameter() = default;
 
 RestAction::RestAction( http::verb verb, const std::string& summary, const std::string& operationId, const Callback& callback )
     : m_verb( verb )
@@ -96,7 +97,6 @@ RestAction::RestAction( http::verb verb, const std::string& summary, const std::
     , m_callback( callback )
     , m_requiresSession( true )
     , m_requiresAuthentication( true )
-    , m_requestBodySchema( nullptr )
 {
 }
 
@@ -121,15 +121,15 @@ void RestAction::addResponse( http::status status, std::unique_ptr<RestResponse>
     m_responses[status] = std::move( response );
 }
 
-nlohmann::json RestAction::schema() const
+json::object RestAction::schema() const
 {
-    auto tagList = nlohmann::json::array();
+    json::array tagList;
     for ( const auto& tag : m_tags )
     {
-        tagList.push_back( tag );
+        tagList.push_back( json::to_json( tag ) );
     }
 
-    auto responses = nlohmann::json::object();
+    auto responses = json::object();
     for ( const auto& [status, response] : m_responses )
     {
         std::string statusString = "default";
@@ -140,14 +140,14 @@ nlohmann::json RestAction::schema() const
         responses[statusString] = response->schema();
     }
 
-    auto action = nlohmann::json{ { "summary", m_summary },
-                                  { "operationId", m_operationId },
-                                  { "responses", responses },
-                                  { "tags", tagList } };
+    json::object action = { { "summary", m_summary },
+                            { "operationId", m_operationId },
+                            { "responses", responses },
+                            { "tags", tagList } };
 
     if ( !m_parameters.empty() )
     {
-        auto parameters = nlohmann::json::array();
+        auto parameters = json::array();
         for ( const auto& parameter : m_parameters )
         {
             parameters.push_back( parameter->schema() );
@@ -155,7 +155,7 @@ nlohmann::json RestAction::schema() const
         action["parameters"] = parameters;
     }
 
-    if ( !m_requestBodySchema.is_null() )
+    if ( !m_requestBodySchema.empty() )
     {
         action["requestBody"] = m_requestBodySchema;
     }
@@ -163,8 +163,8 @@ nlohmann::json RestAction::schema() const
 }
 
 RestAction::ServiceResponse RestAction::perform( const std::list<std::string>& pathArguments,
-                                                 const nlohmann::json&         queryParams,
-                                                 const nlohmann::json&         body ) const
+                                                 const json::object&           queryParams,
+                                                 const json::value&            body ) const
 {
     return m_callback( m_verb, pathArguments, queryParams, body );
 }
@@ -189,7 +189,7 @@ bool RestAction::requiresAuthentication() const
     return m_requiresAuthentication;
 }
 
-void RestAction::setRequestBodySchema( const nlohmann::json& requestBodySchema )
+void RestAction::setRequestBodySchema( const json::object& requestBodySchema )
 {
     m_requestBodySchema = requestBodySchema;
 }
@@ -206,8 +206,8 @@ const std::string& RestPathEntry::name() const
 
 RestPathEntry::ServiceResponse RestPathEntry::perform( http::verb                    verb,
                                                        const std::list<std::string>& pathArguments,
-                                                       const nlohmann::json&         queryParams,
-                                                       const nlohmann::json&         body ) const
+                                                       const json::object&           queryParams,
+                                                       const json::value&            body ) const
 {
     auto it = m_actions.find( verb );
     if ( it == m_actions.end() )
@@ -288,7 +288,7 @@ std::pair<const RestPathEntry*, std::list<std::string>> RestPathEntry::findPathE
 std::list<const RestPathEntry*> RestPathEntry::children() const
 {
     std::list<const RestPathEntry*> children;
-    for ( const auto& [name, child] : m_children )
+    for ( const auto& child : std::views::values( m_children ) )
     {
         children.push_back( child.get() );
     }
@@ -298,21 +298,21 @@ std::list<const RestPathEntry*> RestPathEntry::children() const
 std::list<const RestAction*> RestPathEntry::actions() const
 {
     std::list<const RestAction*> actions;
-    for ( const auto& [verb, action] : m_actions )
+    for ( const auto& action : std::views::values( m_actions ) )
     {
         actions.push_back( action.get() );
     }
     return actions;
 }
 
-nlohmann::json RestPathEntry::schema() const
+json::object RestPathEntry::schema() const
 {
-    auto request = nlohmann::json::object();
+    auto request = json::object();
 
     for ( const auto& [verb, action] : m_actions )
     {
-        std::string verbString( http::to_string( verb ) );
-        request[caffa::StringTools::tolower( verbString )] = action->schema();
+        const std::string verbString( http::to_string( verb ) );
+        request[StringTools::tolower( verbString )] = action->schema();
     }
 
     return request;
@@ -320,7 +320,7 @@ nlohmann::json RestPathEntry::schema() const
 
 bool RestPathEntry::requiresSession( http::verb verb ) const
 {
-    auto it = m_actions.find( verb );
+    const auto it = m_actions.find( verb );
     if ( it == m_actions.end() )
     {
         return false;
@@ -330,7 +330,7 @@ bool RestPathEntry::requiresSession( http::verb verb ) const
 
 bool RestPathEntry::requiresAuthentication( http::verb verb ) const
 {
-    auto it = m_actions.find( verb );
+    const auto it = m_actions.find( verb );
     if ( it == m_actions.end() )
     {
         return false;
@@ -367,16 +367,15 @@ const std::list<std::pair<std::string, const RestPathEntry*>>& RequestFinder::al
     return m_allPathEntriesWithActions;
 }
 
-void RequestFinder::searchPath( const RestPathEntry* pathEntry, std::string currentPath )
+void RequestFinder::searchPath( const RestPathEntry* pathEntry, const std::string& currentPath )
 {
-    auto [request, pathArguments] = pathEntry->findPathEntry( { pathEntry->name() } );
-
-    if ( request && !request->actions().empty() )
+    if ( auto [request, pathArguments] = pathEntry->findPathEntry( { pathEntry->name() } );
+         request && !request->actions().empty() )
     {
-        m_allPathEntriesWithActions.push_back( std::make_pair( currentPath, request ) );
+        m_allPathEntriesWithActions.emplace_back( currentPath, request );
     }
 
-    for ( auto child : pathEntry->children() )
+    for ( const auto child : pathEntry->children() )
     {
         auto nextLevelPath = currentPath + "/" + child->name();
         searchPath( child, nextLevelPath );

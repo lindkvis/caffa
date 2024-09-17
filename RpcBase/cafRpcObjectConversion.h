@@ -18,8 +18,9 @@
 //
 #pragma once
 
-#include <nlohmann/json.hpp>
+#include "cafJsonDefinitions.h"
 
+#include <memory>
 #include <string>
 
 namespace caffa
@@ -36,8 +37,8 @@ std::shared_ptr<caffa::ObjectHandle> findCafObjectFromJsonObject( const caffa::S
                                                                   const std::string&    jsonObject );
 std::shared_ptr<caffa::ObjectHandle> findCafObjectFromUuid( const caffa::Session* session, const std::string& objectUuid );
 
-nlohmann::json createJsonSchemaFromProjectObject( const caffa::ObjectHandle* source );
-nlohmann::json createJsonSkeletonFromProjectObject( const caffa::ObjectHandle* source );
-nlohmann::json createJsonFromProjectObject( const caffa::ObjectHandle* source );
+json::object createJsonSchemaFromProjectObject( const caffa::ObjectHandle* source );
+json::object createJsonSkeletonFromProjectObject( const caffa::ObjectHandle* source );
+json::object createJsonFromProjectObject( const caffa::ObjectHandle* source );
 
 } // namespace caffa::rpc

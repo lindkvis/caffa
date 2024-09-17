@@ -75,7 +75,7 @@ struct SendLambda
 
 template <class Body, class Allocator, class Send>
 void handleRequest( const std::map<std::string, std::shared_ptr<RestServiceInterface>>& services,
-                    std::shared_ptr<const RestAuthenticator>                            authenticator,
+                    const std::shared_ptr<const RestAuthenticator>&                     authenticator,
                     beast::string_view                                                  docRoot,
                     http::request<Body, http::basic_fields<Allocator>>&&                req,
                     Send&&                                                              send )
@@ -91,7 +91,6 @@ void handleRequest( const std::map<std::string, std::shared_ptr<RestServiceInter
         }
         else
         {
-            CAFFA_DEBUG( "Sending failure response " << status << " :" << response );
             res.set( http::field::content_type, "text/plain" );
         }
 
@@ -141,7 +140,7 @@ void handleRequest( const std::map<std::string, std::shared_ptr<RestServiceInter
 
     std::regex paramRegex( "[\?&]" );
 
-    auto targetComponents = caffa::StringTools::split<std::vector<std::string>>( target, paramRegex );
+    auto targetComponents = StringTools::split<std::vector<std::string>>( target, paramRegex );
     if ( targetComponents.empty() )
     {
         CAFFA_WARNING( "Sending malformed request" );
@@ -149,32 +148,31 @@ void handleRequest( const std::map<std::string, std::shared_ptr<RestServiceInter
         return;
     }
 
-    auto                     path = targetComponents.front();
+    const auto&              path = targetComponents.front();
     std::vector<std::string> queryParams;
     for ( size_t i = 1; i < targetComponents.size(); ++i )
     {
         queryParams.push_back( targetComponents[i] );
     }
 
-    nlohmann::json queryParamsJson = nlohmann::json::object();
-    for ( auto param : queryParams )
+    json::object queryParamsJson;
+    for ( const auto& param : queryParams )
     {
-        auto keyValue = caffa::StringTools::split<std::vector<std::string>>( param, "=", true );
-        if ( keyValue.size() == 2 )
+        if ( auto keyValue = StringTools::split<std::vector<std::string>>( param, "=", true ); keyValue.size() == 2 )
         {
-            if ( auto intValue = caffa::StringTools::toInt64( keyValue[1] ); intValue )
+            if ( auto intValue = StringTools::toInt64( keyValue[1] ); intValue )
             {
                 queryParamsJson[keyValue[0]] = *intValue;
             }
-            else if ( auto doubleValue = caffa::StringTools::toDouble( keyValue[1] ); doubleValue )
+            else if ( auto doubleValue = StringTools::toDouble( keyValue[1] ); doubleValue )
             {
                 queryParamsJson[keyValue[0]] = *doubleValue;
             }
-            else if ( caffa::StringTools::tolower( keyValue[1] ) == "true" )
+            else if ( StringTools::tolower( keyValue[1] ) == "true" )
             {
                 queryParamsJson[keyValue[0]] = true;
             }
-            else if ( caffa::StringTools::tolower( keyValue[1] ) == "false" )
+            else if ( StringTools::tolower( keyValue[1] ) == "false" )
             {
                 queryParamsJson[keyValue[0]] = false;
             }
@@ -185,22 +183,22 @@ void handleRequest( const std::map<std::string, std::shared_ptr<RestServiceInter
         }
     }
 
-    caffa::SessionMaintainer session;
-    std::string              session_uuid = "NONE";
-    if ( queryParamsJson.contains( "session_uuid" ) )
+    SessionMaintainer session;
+    std::string       session_uuid = "NONE";
+    if ( auto it = queryParamsJson.find( "session_uuid" ); it != queryParamsJson.end() )
     {
-        session_uuid = queryParamsJson["session_uuid"].get<std::string>();
+        session_uuid = json::from_json<std::string>( it->value() );
         session      = RestServerApplication::instance()->getExistingSession( session_uuid );
     }
 
-    std::shared_ptr<caffa::rpc::RestServiceInterface> service;
+    std::shared_ptr<RestServiceInterface> service;
 
-    auto pathComponents = caffa::StringTools::split<std::list<std::string>>( path, "/", true );
+    auto pathComponents = StringTools::split<std::list<std::string>>( path, "/", true );
 
     if ( !pathComponents.empty() )
     {
-        auto serviceComponent = pathComponents.front();
-        service               = findRestService( serviceComponent, services );
+        const auto& serviceComponent = pathComponents.front();
+        service                      = findRestService( serviceComponent, services );
     }
 
     if ( !service )
@@ -228,9 +226,9 @@ void handleRequest( const std::map<std::string, std::shared_ptr<RestServiceInter
     if ( requiresAuthentication )
     {
         auto authorisation = req[http::field::authorization];
-        auto trimmed       = caffa::StringTools::replace( std::string( authorisation ), "Basic ", "" );
+        auto trimmed       = StringTools::replace( std::string( authorisation ), "Basic ", "" );
 
-        if ( !authenticator->authenticate( caffa::StringTools::decodeBase64( trimmed ) ) )
+        if ( !authenticator->authenticate( StringTools::decodeBase64( trimmed ) ) )
         {
             if ( authorisation.empty() )
             {
@@ -245,26 +243,21 @@ void handleRequest( const std::map<std::string, std::shared_ptr<RestServiceInter
 
     if ( requiresValidSession )
     {
-        if ( !session )
-        {
-            send( createResponse( http::status::forbidden, "Session '" + session_uuid + "' is not valid" ) );
-            return;
-        }
-        else if ( session->isExpired() )
+        if ( !session || session->isExpired() )
         {
             send( createResponse( http::status::forbidden, "Session '" + session_uuid + "' is not valid" ) );
             return;
         }
     }
 
-    nlohmann::json bodyJson = nlohmann::json::object();
+    json::value bodyJson;
     if ( !req.body().empty() )
     {
         try
         {
-            bodyJson = nlohmann::json::parse( req.body() );
+            bodyJson = json::parse( req.body() );
         }
-        catch ( const nlohmann::detail::parse_error& )
+        catch ( const std::exception& )
         {
             CAFFA_ERROR( "Could not parse arguments \'" << req.body() << "\'" );
             send( createResponse( http::status::bad_request,
@@ -273,8 +266,8 @@ void handleRequest( const std::map<std::string, std::shared_ptr<RestServiceInter
         }
     }
 
-    CAFFA_TRACE( "Path: " << path << ", Query Arguments: " << queryParamsJson.dump() << ", Body: " << bodyJson.dump()
-                          << ", Method: " << method );
+    CAFFA_TRACE( "Path: " << path << ", Query Arguments: " << json::dump( queryParamsJson )
+                          << ", Body: " << json::dump( bodyJson ) << ", Method: " << method );
 
     try
     {
