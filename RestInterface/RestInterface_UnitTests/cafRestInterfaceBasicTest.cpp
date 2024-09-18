@@ -496,6 +496,57 @@ TEST_F( RestTest, ObjectIntGetterAndSetter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST_F( RestTest, ObjectIntGetterAndSetterBenchmark )
+{
+    ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
+
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+    {
+        auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+        client->createSession( caffa::Session::Type::REGULAR );
+
+        auto session = serverApp->getExistingSession( client->sessionUuid() );
+        auto serverDocument =
+            std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
+        ASSERT_TRUE( serverDocument );
+
+        std::vector<int> largeIntVector;
+        std::mt19937     rng;
+        std::generate_n( std::back_inserter( largeIntVector ), 500000u, std::ref( rng ) );
+
+        serverDocument->demoObject->intVector = largeIntVector;
+
+        auto objectHandle   = client->document( "testDocument" );
+        auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
+        ASSERT_TRUE( clientDocument != nullptr );
+        auto clientIntVector = client->get<std::vector<int>>( clientDocument->demoObject().get(),
+                                                              clientDocument->demoObject->intVector.keyword() );
+        ASSERT_EQ( largeIntVector, clientIntVector );
+
+        for ( auto& i : clientIntVector )
+        {
+            i += 2;
+        }
+        ASSERT_NE( largeIntVector, clientIntVector );
+        client->set( clientDocument->demoObject().get(), clientDocument->demoObject->intVector.keyword(), clientIntVector );
+
+        largeIntVector = serverDocument->demoObject->intVector();
+        ASSERT_EQ( largeIntVector, clientIntVector );
+    }
+    serverApp->quit();
+
+    thread.join();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST_F( RestTest, ObjectDeepCopyVsShallowCopy )
 {
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
