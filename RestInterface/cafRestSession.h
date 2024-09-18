@@ -45,8 +45,8 @@
 
 #include <nlohmann/json.hpp>
 
-#include <list>
 #include <memory>
+#include <optional>
 #include <regex>
 
 namespace beast = boost::beast; // from <boost/beast.hpp>
@@ -88,10 +88,10 @@ private:
     Derived& derived();
 
 private:
-    std::string                          m_docRoot;
-    http::request<http::string_body>     m_request;
-    std::shared_ptr<void>                m_result;
-    std::shared_ptr<SendLambda<Derived>> m_lambda;
+    std::string                                            m_docRoot;
+    std::optional<http::request_parser<http::string_body>> m_parser;
+    std::shared_ptr<void>                                  m_result;
+    std::shared_ptr<SendLambda<Derived>>                   m_lambda;
 
     const std::map<std::string, std::shared_ptr<RestServiceInterface>>& m_services;
     std::shared_ptr<const RestAuthenticator>                            m_authenticator;

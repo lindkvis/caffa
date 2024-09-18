@@ -313,7 +313,9 @@ RestSession<Derived>::RestSession( beast::flat_buffer                           
 template <class Derived>
 void RestSession<Derived>::read()
 {
-    m_request = {}; // Clear request so reuse doesn't mean that the request grows
+    // Clear request so session reuse doesn't mean that the session grows
+    m_parser.emplace();
+    m_parser->body_limit( 8 * 1024 * 1024 );
 
     // Set the timeout.
     beast::get_lowest_layer( derived().stream() ).expires_after( std::chrono::seconds( 30 ) );
@@ -321,7 +323,7 @@ void RestSession<Derived>::read()
     // Read a request
     http::async_read( derived().stream(),
                       m_buffer,
-                      m_request,
+                      *m_parser,
                       beast::bind_front_handler( &RestSession<Derived>::onRead, derived().shared_from_this() ) );
 }
 
@@ -341,7 +343,7 @@ void RestSession<Derived>::onRead( beast::error_code ec, std::size_t bytes_trans
     }
 
     // Send the response
-    handleRequest( m_services, m_authenticator, m_docRoot, std::move( m_request ), *m_lambda );
+    handleRequest( m_services, m_authenticator, m_docRoot, m_parser->release(), *m_lambda );
 }
 
 template <class Derived>
