@@ -68,7 +68,8 @@ public:
 
     [[nodiscard]] std::string writeToString() const override
     {
-        const json::object jsonFieldObject = { { "minimum", m_minimum }, { "maximum", m_maximum } };
+        const json::object jsonFieldObject = { { "minimum", json::to_json( m_minimum ) },
+                                               { "maximum", json::to_json( m_maximum ) } };
         return json::dump( jsonFieldObject );
     }
 
