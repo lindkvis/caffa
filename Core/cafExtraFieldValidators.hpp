@@ -46,13 +46,17 @@ public:
 
     void readFromString( const std::string& string ) override
     {
-        if ( auto jsonObject = parse( string ); jsonObject.is_object() && jsonObject.contains( "valid-divisor" ) )
+        auto jsonValue = json::parse( string );
+        if ( const auto jsonObject = jsonValue.if_object(); jsonObject )
         {
-            auto jsonDivisor = jsonObject["valid-divisor"];
-            CAFFA_ASSERT( jsonDivisor.is_object() );
-            if ( jsonDivisor.contains( "divisor" ) )
+            if ( const auto it = jsonObject->find( "valid-divisor" ); it != jsonObject->end() )
             {
-                m_divisor = jsonDivisor["divisor"];
+                const auto jsonDivisor = it->value().as_object();
+
+                if ( const auto jt = jsonDivisor.find( "divisor" ); jt != jsonDivisor.end() )
+                {
+                    m_divisor = json::from_json<DataType>( jt->value() );
+                }
             }
         }
     }
@@ -61,9 +65,9 @@ public:
     {
         auto jsonObject             = json::object();
         auto jsonDivisor            = json::object();
-        jsonDivisor["divisor"]      = m_divisor;
+        jsonDivisor["divisor"]      = json::to_json( m_divisor );
         jsonObject["valid-divisor"] = jsonDivisor;
-        return dump( jsonObject );
+        return json::dump( jsonObject );
     }
 
     [[nodiscard]] std::pair<bool, std::string> validate( const DataType& value ) const override
@@ -105,28 +109,24 @@ public:
 
     void readFromString( const std::string& string ) override
     {
-        auto jsonObject = parse( string );
-
-        if ( jsonObject.is_object() && jsonObject.contains( "valid-legal" ) )
+        const auto jsonValue = json::parse( string );
+        if ( const auto* jsonObject = jsonValue.if_object(); jsonObject )
         {
-            auto jsonDivisor = jsonObject["valid-legal"];
-            CAFFA_ASSERT( jsonDivisor.is_object() );
-            if ( jsonDivisor.contains( "values" ) )
+            if ( const auto it = jsonObject->find( "valid-legal" ); it != jsonObject->end() )
             {
-                m_legalValues = jsonDivisor["values"].get<std::set<DataType>>();
+                m_legalValues = json::from_json<std::set<DataType>>( it->value() );
             }
         }
     }
 
     [[nodiscard]] std::string writeToString() const override
     {
-        auto jsonObject  = json::object();
-        auto jsonDivisor = json::object();
+        json::object jsonObject;
 
-        jsonDivisor["values"]     = m_legalValues;
-        jsonObject["valid-legal"] = jsonDivisor;
-        return dump( jsonObject );
+        jsonObject["valid-legal"] = { { "values", json::to_json( m_legalValues ) } };
+        return json::dump( jsonObject );
     }
+
     std::pair<bool, std::string> validate( const DataType& value ) const override
     {
         if ( !m_legalValues.contains( value ) )
@@ -174,29 +174,24 @@ public:
 
     void readFromString( const std::string& string ) override
     {
-        auto jsonObject = parse( string );
-
-        if ( jsonObject.is_object() && jsonObject.contains( "valid-legal" ) )
+        const auto jsonValue = json::parse( string );
+        if ( const auto* jsonObject = jsonValue.if_object(); jsonObject )
         {
-            auto jsonDivisor = jsonObject["valid-legal"];
-            CAFFA_ASSERT( jsonDivisor.is_object() );
-            if ( jsonDivisor.contains( "values" ) )
+            if ( const auto it = jsonObject->find( "valid-legal" ); it != jsonObject->end() )
             {
-                m_legalValues = jsonDivisor["values"].get<std::set<DataType>>();
+                m_legalValues = json::from_json<std::set<DataType>>( it->value() );
             }
         }
     }
 
     [[nodiscard]] std::string writeToString() const override
     {
-        auto jsonObject = json::object();
+        json::object jsonObject;
 
-        auto jsonDivisor          = json::object();
-        jsonDivisor["values"]     = m_legalValues;
-        jsonObject["valid-legal"] = jsonDivisor;
-
-        return dump( jsonObject );
+        jsonObject["valid-legal"] = { { "values", json::to_json( m_legalValues ) } };
+        return json::dump( jsonObject );
     }
+
     std::pair<bool, std::string> validate( const std::vector<DataType>& values ) const override
     {
         for ( const auto& value : values )
@@ -247,24 +242,22 @@ public:
 
     void readFromString( const std::string& string ) override
     {
-        if ( auto jsonObject = parse( string ); jsonObject.is_object() && jsonObject.contains( "valid-illegal" ) )
+        const auto jsonValue = json::parse( string );
+        if ( const auto* jsonObject = jsonValue.if_object(); jsonObject )
         {
-            auto jsonDivisor = jsonObject["valid-illegal"];
-            CAFFA_ASSERT( jsonDivisor.is_object() );
-            if ( jsonDivisor.contains( "values" ) )
+            if ( const auto it = jsonObject->find( "valid-illegal" ); it != jsonObject->end() )
             {
-                m_illegalValues = jsonDivisor["values"].get<std::set<DataType>>();
+                m_illegalValues = json::from_json<std::set<DataType>>( it->value() );
             }
         }
     }
 
     [[nodiscard]] std::string writeToString() const override
     {
-        auto jsonObject             = json::object();
-        auto jsonDivisor            = json::object();
-        jsonDivisor["values"]       = m_illegalValues;
-        jsonObject["valid-illegal"] = jsonDivisor;
-        return dump( jsonObject );
+        json::object jsonObject;
+
+        jsonObject["valid-illegal"] = { { "values", json::to_json( m_illegalValues ) } };
+        return json::dump( jsonObject );
     }
 
     [[nodiscard]] std::pair<bool, std::string> validate( const DataType& value ) const override
