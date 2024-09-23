@@ -60,8 +60,9 @@ public:
     Field<std::vector<int>>         intVector;
     Field<std::vector<std::string>> stringVector;
 
-    Field<std::vector<double>> doubleVector;
-    Field<std::vector<float>>  floatVector;
+    Field<std::vector<double>>          doubleVector;
+    Field<std::vector<float>>           floatVector;
+    Field<std::map<std::string, float>> floatMap;
 
     Method<void( int, double, std::string )> copyValues;
 

@@ -46,7 +46,7 @@ template <typename T>
 concept chrono_integral = is_chrono_integral<T>::value;
 
 template <typename T>
-concept supported_integral = (std::integral<T> || chrono_integral<T>)&&!std::is_same_v<T, bool>;
+concept supported_integral = ( std::integral<T> || chrono_integral<T> ) && !std::is_same_v<T, bool>;
 
 /**
  * The default
@@ -78,6 +78,21 @@ struct JsonDataType<std::vector<DataType>>
         object["type"]  = "array";
         object["items"] = JsonDataType<DataType>::jsonType();
 
+        return object;
+    }
+};
+
+template <typename DataType>
+struct JsonDataType<std::map<std::string, DataType>>
+{
+    static nlohmann::json jsonType()
+    {
+        auto object          = nlohmann::json::object();
+        auto properties      = nlohmann::json::object();
+        properties["key"]    = { { "type", "string" } };
+        properties["value"]  = { { "type", JsonDataType<DataType>::jsonType() } };
+        object["properties"] = properties;
+        object["type"]       = "object";
         return object;
     }
 };
