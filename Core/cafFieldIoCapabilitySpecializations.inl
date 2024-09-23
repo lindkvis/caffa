@@ -104,26 +104,6 @@ void FieldIoCap<FieldType>::writeToJson( nlohmann::json& jsonElement, const Json
     CAFFA_TRACE( jsonElement.dump() );
 }
 
-template <typename FieldType>
-void FieldIoCap<FieldType>::readFromString( const std::string& string )
-{
-    std::istringstream ss( string );
-
-    typename FieldType::FieldDataType value{};
-    auto&                             istream = static_cast<std::istream&>( ss );
-
-    istream >> std::boolalpha >> value;
-    typedOwner()->setValue( value );
-}
-
-template <typename FieldType>
-void FieldIoCap<FieldType>::writeToString( std::string& string ) const
-{
-    std::ostringstream ss;
-    ss << std::boolalpha << ( typedOwner()->value() );
-    string = ss.str();
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -254,21 +234,6 @@ void FieldIoCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonElement
     }
 }
 
-template <typename DataType>
-void FieldIoCap<ChildField<DataType*>>::readFromString( const std::string& string )
-{
-    auto json = nlohmann::json::parse( string );
-    readFromJson( json, JsonSerializer() );
-}
-
-template <typename DataType>
-void FieldIoCap<ChildField<DataType*>>::writeToString( std::string& string ) const
-{
-    nlohmann::json json;
-    writeToJson( json, JsonSerializer() );
-    string = json.dump();
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -389,21 +354,6 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& jsonEl
         }
         jsonElement = jsonArray;
     }
-}
-
-template <typename DataType>
-void FieldIoCap<ChildArrayField<DataType*>>::readFromString( const std::string& string )
-{
-    auto json = nlohmann::json::parse( string );
-    readFromJson( json, JsonSerializer() );
-}
-
-template <typename DataType>
-void FieldIoCap<ChildArrayField<DataType*>>::writeToString( std::string& string ) const
-{
-    nlohmann::json json;
-    writeToJson( json, JsonSerializer() );
-    string = json.dump();
 }
 
 //--------------------------------------------------------------------------------------------------
