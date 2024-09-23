@@ -41,7 +41,7 @@ public:
 
     DemoObject();
 
-    ~DemoObject() noexcept override {}
+    ~DemoObject() noexcept override = default;
 
     // Fields
     Field<double>      m_proxyDoubleField;
@@ -60,9 +60,11 @@ public:
     Field<std::vector<int>>         intVector;
     Field<std::vector<std::string>> stringVector;
 
-    Field<std::vector<double>>          doubleVector;
-    Field<std::vector<float>>           floatVector;
-    Field<std::map<std::string, float>> floatMap;
+    Field<std::vector<double>>                          doubleVector;
+    Field<std::vector<float>>                           floatVector;
+    Field<std::map<std::string, float>>                 floatMap;
+    Field<std::map<std::string, std::string>>           stringMap;
+    Field<std::map<std::string, AppEnum<TestEnumType>>> enumMap;
 
     Method<void( int, double, std::string )> copyValues;
 
