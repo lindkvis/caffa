@@ -71,6 +71,8 @@ DemoObject::DemoObject()
     initField( boolField, "boolField" ).withScripting();
     initField( boolVector, "boolVector" ).withScripting();
     initField( floatMap, "floatMap" ).withScripting();
+    initField( stringMap, "stringMap" ).withScripting();
+    initField( enumMap, "enumMap" ).withScripting();
 
     initMethod( copyValues,
                 "copyValues",

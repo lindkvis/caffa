@@ -633,8 +633,15 @@ TEST_F( RestTest, ObjectIntegratedGettersAndSetters )
         ASSERT_TRUE( clientDocument != nullptr );
 
         ASSERT_EQ( 10, clientDocument->demoObject->intField() );
-        ASSERT_ANY_THROW( clientDocument->demoObject->intFieldNonScriptable() ); // Should throw since the field is not
-                                                                                 // scriptable
+        try
+        {
+            auto value = clientDocument->demoObject->intFieldNonScriptable();
+            FAIL() << "Getting the field value succeeded even though it should have failed: " << value;
+        }
+        catch ( const std::exception& e )
+        {
+            SUCCEED() << "Expected exception since the field is not scriptable: " << e.what();
+        }
         ASSERT_EQ( DemoObject::T2, clientDocument->demoObject->enumField() );
         clientDocument->demoObject->enumField = DemoObject::T3;
         ASSERT_EQ( DemoObject::T3, serverDocument->demoObject->enumField() );
@@ -769,7 +776,7 @@ TEST_F( RestTest, BoolVectorGettersAndSetters )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST_F( RestTest, floatMap )
+TEST_F( RestTest, maps )
 {
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
@@ -808,6 +815,19 @@ TEST_F( RestTest, floatMap )
         clientDocument->demoObject->floatMap.setValue( floatMap2 );
         ASSERT_EQ( floatMap2, serverDocument->demoObject->floatMap() );
         ASSERT_EQ( floatMap2, clientDocument->demoObject->floatMap() );
+
+        std::map<std::string, std::string> stringMap = { { "key", "value" }, { "anotherKey", "anotherValue" } };
+        clientDocument->demoObject->stringMap.setValue( stringMap );
+        ASSERT_EQ( stringMap, serverDocument->demoObject->stringMap() );
+        ASSERT_EQ( stringMap, clientDocument->demoObject->stringMap() );
+
+        std::map<std::string, caffa::AppEnum<DemoObject::TestEnumType>> enumMap =
+            { { "firstEnum", caffa::AppEnum<DemoObject::TestEnumType>( DemoObject::T1 ) },
+              { "secondEnum", caffa::AppEnum<DemoObject::TestEnumType>( DemoObject::T2 ) },
+              { "thirdEnum", caffa::AppEnum<DemoObject::TestEnumType>( DemoObject::T1 ) } };
+        clientDocument->demoObject->enumMap.setValue( enumMap );
+        ASSERT_EQ( enumMap, serverDocument->demoObject->enumMap() );
+        ASSERT_EQ( enumMap, clientDocument->demoObject->enumMap() );
     }
     serverApp->quit();
 
