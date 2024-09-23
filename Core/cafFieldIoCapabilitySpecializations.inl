@@ -28,28 +28,22 @@ void FieldIoCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, con
     if ( serializer.serializationType() == JsonSerializer::SerializationType::DATA_FULL )
     {
         CAFFA_TRACE( "Setting value from json to: " << jsonElement.dump() );
-        if ( jsonElement.is_object() )
+        if ( jsonElement.is_null() )
         {
-            if ( jsonElement.contains( "value" ) && !jsonElement["value"].is_null() )
+            if constexpr ( std::is_floating_point_v<typename FieldType::FieldDataType> )
             {
-                typename FieldType::FieldDataType value = jsonElement["value"].get<typename FieldType::FieldDataType>();
-                typedOwner()->setValue( value );
+                typedOwner()->setValue( std::numeric_limits<typename FieldType::FieldDataType>::quiet_NaN() );
             }
+        }
+        else if ( jsonElement.is_object() && jsonElement.contains( "value" ) && !jsonElement["value"].is_null() )
+        {
+            typename FieldType::FieldDataType value = jsonElement["value"].get<typename FieldType::FieldDataType>();
+            typedOwner()->setValue( value );
         }
         else // Support JSON objects with direct value instead of separate value entry
         {
-            if ( jsonElement.is_null() )
-            {
-                if constexpr ( std::is_floating_point_v<typename FieldType::FieldDataType> )
-                {
-                    typedOwner()->setValue( std::numeric_limits<typename FieldType::FieldDataType>::quiet_NaN() );
-                }
-            }
-            else
-            {
-                typename FieldType::FieldDataType value = jsonElement.get<typename FieldType::FieldDataType>();
-                typedOwner()->setValue( value );
-            }
+            typename FieldType::FieldDataType value = jsonElement.get<typename FieldType::FieldDataType>();
+            typedOwner()->setValue( value );
         }
     }
 
