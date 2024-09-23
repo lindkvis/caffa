@@ -193,8 +193,7 @@ void FieldIoCap<ChildField<DataType*>>::readFromJson( const nlohmann::json& json
     }
 
     // Everything seems ok, so read the contents of the object:
-    std::string jsonString = jsonObject.dump();
-    serializer.readObjectFromString( object.get(), jsonString );
+    serializer.readObjectFromJson( object.get(), jsonObject );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,8 +204,7 @@ void FieldIoCap<ChildField<DataType*>>::writeToJson( nlohmann::json& jsonElement
 {
     if ( auto object = typedOwner()->object(); object )
     {
-        std::string jsonString = serializer.writeObjectToString( object.get() );
-        jsonElement            = nlohmann::json::parse( jsonString );
+        serializer.writeObjectToJson( object.get(), jsonElement );
         CAFFA_ASSERT( jsonElement.is_object() );
     }
 
@@ -302,7 +300,7 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFromJson( const nlohmann::json&
             continue;
         }
 
-        serializer.readObjectFromString( object.get(), jsonObject.dump() );
+        serializer.readObjectFromJson( object.get(), jsonObject );
 
         size_t currentSize = typedOwner()->size();
         CAFFA_TRACE( "Inserting new object into " << typedOwner()->keyword() << " at position " << currentSize );
@@ -342,8 +340,8 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeToJson( nlohmann::json& jsonEl
             std::shared_ptr<ObjectHandle> object = typedOwner()->at( i );
             if ( !object ) continue;
 
-            std::string    jsonString = serializer.writeObjectToString( object.get() );
-            nlohmann::json jsonObject = nlohmann::json::parse( jsonString );
+            nlohmann::json jsonObject;
+            serializer.writeObjectToJson( object.get(), jsonObject );
             jsonArray.push_back( jsonObject );
         }
         jsonElement = jsonArray;
