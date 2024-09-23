@@ -49,12 +49,12 @@ class ObjectHandle;
 class FieldScriptingCapability : public FieldCapability
 {
 public:
-    FieldScriptingCapability( bool readable = true, bool writeable = true );
+    explicit FieldScriptingCapability( bool readable = true, bool writeable = true );
 
-    bool isReadable() const;
-    bool isWritable() const;
-    void setReadable( bool readable );
-    void setWritable( bool writable );
+    [[nodiscard]] bool isReadable() const;
+    [[nodiscard]] bool isWritable() const;
+    void               setReadable( bool readable );
+    void               setWritable( bool writable );
 
 private:
     bool m_readable;
