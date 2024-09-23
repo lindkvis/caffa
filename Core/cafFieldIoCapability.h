@@ -23,9 +23,6 @@ public:
     virtual void readFromJson( const nlohmann::json& value, const JsonSerializer& serializer ) = 0;
     virtual void writeToJson( nlohmann::json& value, const JsonSerializer& serializer ) const  = 0;
 
-    virtual void readFromString( const std::string& value ) = 0;
-    virtual void writeToString( std::string& value ) const  = 0;
-
     [[nodiscard]] virtual nlohmann::json jsonType() const = 0;
 
 protected:
