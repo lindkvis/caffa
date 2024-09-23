@@ -70,6 +70,7 @@ DemoObject::DemoObject()
 
     initField( boolField, "boolField" ).withScripting();
     initField( boolVector, "boolVector" ).withScripting();
+    initField( floatMap, "floatMap" ).withScripting();
 
     initMethod( copyValues,
                 "copyValues",

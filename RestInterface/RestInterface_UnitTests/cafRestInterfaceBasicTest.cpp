@@ -380,7 +380,6 @@ TEST_F( RestTest, SettingValueWithObserver )
         auto clientDocument = std::dynamic_pointer_cast<caffa::Document>( objectHandle );
         ASSERT_TRUE( clientDocument != nullptr );
         ASSERT_EQ( serverDocument->uuid(), clientDocument->uuid() );
-
     }
     serverApp->quit();
 
@@ -766,6 +765,55 @@ TEST_F( RestTest, BoolVectorGettersAndSetters )
 
     thread.join();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST_F( RestTest, floatMap )
+{
+    ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
+    ASSERT_TRUE( serverApp.get() );
+
+    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+
+    while ( !serverApp->running() )
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+    }
+    {
+        auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+        client->createSession( caffa::Session::Type::REGULAR );
+
+        auto session = serverApp->getExistingSession( client->sessionUuid() );
+        auto serverDocument =
+            std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
+        ASSERT_TRUE( serverDocument );
+
+        ASSERT_TRUE( serverDocument->demoObject->floatMap().empty() );
+
+        auto objectHandle   = client->document( "testDocument" );
+        auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
+        ASSERT_TRUE( clientDocument != nullptr );
+
+        ASSERT_TRUE( clientDocument->demoObject->floatMap().empty() );
+
+        CAFFA_INFO( "Setting floatmap!" );
+        std::map<std::string, float> floatMap1 = { { "a", 1.0 }, { "b", 2.0 }, { "c", 3.0 } };
+        serverDocument->demoObject->floatMap   = floatMap1;
+        ASSERT_EQ( floatMap1, serverDocument->demoObject->floatMap() );
+        ASSERT_EQ( floatMap1, clientDocument->demoObject->floatMap() );
+
+        std::map<std::string, float> floatMap2 = { { "c", 4.0 }, { "a", 2.0 }, { "b", 3.0 } }; // input in weird order
+
+        clientDocument->demoObject->floatMap.setValue( floatMap2 );
+        ASSERT_EQ( floatMap2, serverDocument->demoObject->floatMap() );
+        ASSERT_EQ( floatMap2, clientDocument->demoObject->floatMap() );
+    }
+    serverApp->quit();
+
+    thread.join();
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

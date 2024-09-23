@@ -89,6 +89,7 @@ public:
     {
         using TypeV  = std::vector<DataType>;
         using TypeVV = std::vector<std::vector<DataType>>;
+        using TypeMap = std::map<std::string, DataType>;
         registerAccessorCreator( PortableDataType<DataType>::name(),
                                  std::make_unique<AccessorCreator<DataType>>( PortableDataType<DataType>::name(),
                                                                               JsonDataType<DataType>::jsonType().dump() ) );
@@ -98,6 +99,9 @@ public:
         registerAccessorCreator( PortableDataType<TypeVV>::name(),
                                  std::make_unique<AccessorCreator<TypeVV>>( PortableDataType<TypeVV>::name(),
                                                                             JsonDataType<TypeVV>::jsonType().dump() ) );
+        registerAccessorCreator( PortableDataType<TypeMap>::name(),
+                                 std::make_unique<AccessorCreator<TypeMap>>( PortableDataType<TypeMap>::name(),
+                                                                            JsonDataType<TypeMap>::jsonType().dump() ) );
     }
 
     [[nodiscard]] std::list<std::string> supportedDataTypes() const;
