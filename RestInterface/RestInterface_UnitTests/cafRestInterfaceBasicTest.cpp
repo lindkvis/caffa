@@ -501,7 +501,7 @@ TEST_F( RestTest, ObjectIntGetterAndSetterBenchmark )
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -563,7 +563,7 @@ TEST_F( RestTest, ObjectIntGetterAndSetterBenchmark )
     }
     serverApp->quit();
 
-    thread.join();
+    serverThread.join();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -573,6 +573,7 @@ TEST_F( RestTest, ObjectDeepCopyVsShallowCopy )
 {
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
+    CAFFA_INFO( "Starting test" );
 
     thread serverThread( &ServerApp::run, serverApp.get() );
 
@@ -591,15 +592,18 @@ TEST_F( RestTest, ObjectDeepCopyVsShallowCopy )
     std::mt19937     rng;
     std::generate_n( std::back_inserter( largeIntVector ), 10000u, std::ref( rng ) );
 
+    CAFFA_INFO( "Sending vector" );
     serverDocument->demoObject->intVector = largeIntVector;
 
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
 
+    CAFFA_INFO( "Retrieving objects" );
     auto clientDemoObjectReference = clientDocument->demoObject.object();
 
     auto clientDemoObjectClone = caffa::JsonSerializer().cloneObject( clientDemoObjectReference.get() );
 
+    CAFFA_INFO( "Writing serverObject to string" );
     std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject().get() );
     CAFFA_TRACE( serverJson );
 
