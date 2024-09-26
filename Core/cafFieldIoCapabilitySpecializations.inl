@@ -19,7 +19,7 @@ namespace caffa
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void FieldIoCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, const JsonSerializer& serializer )
+void FieldIoCap<FieldType>::readFromJson( const json::value& jsonElement, const JsonSerializer& serializer )
 {
     this->assertValid();
 
@@ -35,9 +35,9 @@ void FieldIoCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, con
                 typedOwner()->setValue( std::numeric_limits<typename FieldType::FieldDataType>::quiet_NaN() );
             }
         }
-        else if ( const auto* jsonObject = jsonElement.is_object(); jsonObject )
+        else if ( const auto* jsonObject = jsonElement.if_object(); jsonObject )
         {
-            if (const auto* jsonValue = jsonObject->if_contains("value"); jsonValue && !jsonValue.is_null() ) {
+            if (const auto* jsonValue = jsonObject->if_contains("value"); jsonValue && !jsonValue->is_null() ) {
                 typename FieldType::FieldDataType value = json::from_json<typename FieldType::FieldDataType>(*jsonValue);
                 typedOwner()->setValue( value );
             }
@@ -47,7 +47,7 @@ void FieldIoCap<FieldType>::readFromJson( const nlohmann::json& jsonElement, con
         }
         else // Support JSON objects with direct value instead of separate value entry
         {
-            typename FieldType::FieldDataType value = jsonElement.get<typename FieldType::FieldDataType>();
+            typename FieldType::FieldDataType value =  json::from_json<typename FieldType::FieldDataType>(jsonElement);
             typedOwner()->setValue( value );
         }
     }
@@ -366,21 +366,6 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeToJson( json::value& jsonEleme
         }
         jsonElement = jsonArray;
     }
-}
-
-template <typename DataType>
-void FieldIoCap<ChildArrayField<DataType*>>::readFromString( const std::string& string )
-{
-    auto jsonElement = json::parse( string );
-    readFromJson( jsonElement, JsonSerializer() );
-}
-
-template <typename DataType>
-void FieldIoCap<ChildArrayField<DataType*>>::writeToString( std::string& string ) const
-{
-    json::value jsonElement;
-    writeToJson( jsonElement, JsonSerializer() );
-    string = json::dump( jsonElement );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -18,6 +18,8 @@
 //
 #pragma once
 
+#include "cafStringTools.h"
+
 #include <boost/json.hpp>
 
 #include <chrono>
@@ -31,7 +33,25 @@ using value  = boost::json::value;
 
 inline value parse( const std::string& string )
 {
-    return boost::json::parse( string );
+    value jsonValue;
+    try
+    {
+        jsonValue = boost::json::parse( string );
+    }
+    catch ( const std::exception& )
+    {
+        // Quote the input and try again
+        const std::string quotedString = "\"" + caffa::StringTools::trim( string ) + "\"";
+        try
+        {
+            jsonValue = boost::json::parse( quotedString );
+        }
+        catch ( const std::exception& )
+        {
+            throw;
+        }
+    }
+    return jsonValue;
 }
 
 inline std::string dump( const value& value )
@@ -97,4 +117,5 @@ std::chrono::duration<IntType, Period> tag_invoke( value_to_tag<std::chrono::dur
 {
     return std::chrono::duration<IntType, Period>( value_to<IntType>( v ) );
 }
+
 } // namespace boost::json

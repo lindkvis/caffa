@@ -18,10 +18,32 @@
 // ##################################################################################################
 
 #include "cafObjectJsonConversion.h"
-
 #include "cafJsonSerializer.h"
 
 namespace caffa
 {
+
+void tag_invoke( boost::json::value_from_tag, boost::json::value& v, const std::shared_ptr<ObjectHandle>& objectHandle )
+{
+    json::object object;
+    JsonSerializer().writeObjectToJson( objectHandle.get(), object );
+    v = object;
+}
+
+void tag_invoke( boost::json::value_from_tag, boost::json::value& v, const ObjectHandle& objectHandle )
+{
+    json::object object;
+    JsonSerializer().writeObjectToJson( &objectHandle, object );
+    v = object;
+}
+
+std::shared_ptr<ObjectHandle> tag_invoke( boost::json::value_to_tag<std::shared_ptr<ObjectHandle>>, const json::value& v )
+{
+    if ( const auto* jsonObject = v.if_object(); jsonObject )
+    {
+        return JsonSerializer().createObjectFromJson( *jsonObject );
+    }
+    throw std::runtime_error( "Failed to create object handle from JSON" );
+}
 
 } // namespace caffa

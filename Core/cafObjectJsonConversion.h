@@ -25,5 +25,11 @@
 
 namespace caffa
 {
+/**
+ * Serialisers for Caffa Objects
+ */
+void tag_invoke( boost::json::value_from_tag, boost::json::value& v, const std::shared_ptr<ObjectHandle>& objectHandle );
+void tag_invoke( boost::json::value_from_tag, boost::json::value& v, const ObjectHandle& objectHandle );
+std::shared_ptr<ObjectHandle> tag_invoke( boost::json::value_to_tag<std::shared_ptr<ObjectHandle>>, const json::value& v );
 
 } // namespace caffa
