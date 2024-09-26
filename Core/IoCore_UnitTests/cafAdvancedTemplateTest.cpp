@@ -59,6 +59,7 @@ class DemoObjectA : public caffa::Object
 
 public:
     DemoObjectA()
+        : m_doubleMember( 420000.0 )
     {
         initField( m_doubleField, "BigNumber" );
         auto doubleProxyAccessor = std::make_unique<caffa::FieldProxyAccessor<double>>();
@@ -67,7 +68,7 @@ public:
         m_doubleField.setAccessor( std::move( doubleProxyAccessor ) );
     }
 
-    ~DemoObjectA() {}
+    ~DemoObjectA() override {}
 
     // Fields
     caffa::Field<double> m_doubleField;
