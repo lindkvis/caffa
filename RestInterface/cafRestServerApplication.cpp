@@ -27,18 +27,25 @@
 #include "cafRestServiceInterface.h"
 #include "cafRestSessionService.h"
 
-#include "cafAssert.h"
 #include "cafLogger.h"
+
+#include <thread>
+
+#ifdef __APPLE__
+using thread = std::thread;
+#else
+using thread = std::jthread;
+#endif
 
 using namespace caffa::rpc;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestServerApplication::RestServerApplication( const std::string&                       clientHost,
-                                              unsigned short                           portNumber,
-                                              int                                      threads,
-                                              std::shared_ptr<const RestAuthenticator> authenticator )
+RestServerApplication::RestServerApplication( const std::string&                              clientHost,
+                                              const unsigned short                            portNumber,
+                                              const int                                       threads,
+                                              const std::shared_ptr<const RestAuthenticator>& authenticator )
     : ServerApplication( AppInfo::AppCapability::SERVER )
     , m_clientHost( clientHost )
     , m_portNumber( portNumber )
@@ -104,7 +111,7 @@ void RestServerApplication::run()
 
     m_server->run();
     m_threadRunning = true;
-    std::vector<std::thread> v;
+    std::vector<thread> v;
     v.reserve( m_threads - 1 );
     for ( auto i = m_threads - 1; i > 0; --i )
         v.emplace_back( [this] { m_ioContext.run(); } );

@@ -31,6 +31,12 @@
 #include <thread>
 #include <vector>
 
+#ifdef __APPLE__
+using thread = std::thread;
+#else
+using thread = std::jthread;
+#endif
+
 class RestTest : public ::testing::Test
 {
 protected:
@@ -52,7 +58,7 @@ TEST_F( RestTest, Launch )
 {
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
 
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -81,7 +87,7 @@ TEST_F( RestTest, Launch )
 
     serverApp->quit();
     CAFFA_DEBUG( "Waiting for server thread to join" );
-    thread.join();
+    serverThread.join();
     CAFFA_DEBUG( "Finishing test" );
 }
 
@@ -95,7 +101,7 @@ TEST_F( RestTest, Document )
 
     CAFFA_DEBUG( "Launching Server" );
 
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -214,7 +220,7 @@ TEST_F( RestTest, Document )
     }
     serverApp->quit();
     CAFFA_DEBUG( "Waiting for server thread to join" );
-    thread.join();
+    serverThread.join();
     CAFFA_DEBUG( "Finishing test" );
 }
 
@@ -224,7 +230,7 @@ TEST_F( RestTest, DocumentWithNonScriptableChild )
     ASSERT_TRUE( serverApp.get() );
 
     CAFFA_DEBUG( "Launching Server" );
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     CAFFA_DEBUG( "Launching Client" );
     while ( !serverApp->running() )
@@ -304,7 +310,7 @@ TEST_F( RestTest, DocumentWithNonScriptableChild )
     }
     serverApp->quit();
     CAFFA_DEBUG( "Waiting for server thread to join" );
-    thread.join();
+    serverThread.join();
     CAFFA_DEBUG( "Finishing test" );
 }
 
@@ -316,7 +322,7 @@ TEST_F( RestTest, Sync )
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -344,7 +350,7 @@ TEST_F( RestTest, Sync )
     }
     serverApp->quit();
 
-    thread.join();
+    serverThread.join();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -355,7 +361,7 @@ TEST_F( RestTest, SettingValueWithObserver )
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -383,7 +389,7 @@ TEST_F( RestTest, SettingValueWithObserver )
     }
     serverApp->quit();
 
-    thread.join();
+    serverThread.join();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -394,7 +400,7 @@ TEST_F( RestTest, ObjectMethod )
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -433,7 +439,7 @@ TEST_F( RestTest, ObjectMethod )
     }
     serverApp->quit();
 
-    thread.join();
+    serverThread.join();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -444,7 +450,7 @@ TEST_F( RestTest, ObjectIntGetterAndSetter )
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -484,7 +490,7 @@ TEST_F( RestTest, ObjectIntGetterAndSetter )
     }
     serverApp->quit();
 
-    thread.join();
+    serverThread.join();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -495,7 +501,7 @@ TEST_F( RestTest, ObjectDeepCopyVsShallowCopy )
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -527,7 +533,7 @@ TEST_F( RestTest, ObjectDeepCopyVsShallowCopy )
     // Stop server *before* we read the client JSON
 
     serverApp->quit();
-    thread.join();
+    serverThread.join();
 
     // Should succeed in reading the clone but not the reference
     std::string clientJson;
@@ -546,7 +552,7 @@ TEST_F( RestTest, ObjectDoubleGetterAndSetter )
 {
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -588,7 +594,7 @@ TEST_F( RestTest, ObjectDoubleGetterAndSetter )
     }
     serverApp->quit();
 
-    thread.join();
+    serverThread.join();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -598,7 +604,7 @@ TEST_F( RestTest, ObjectIntegratedGettersAndSetters )
 {
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -664,7 +670,7 @@ TEST_F( RestTest, ObjectIntegratedGettersAndSetters )
     }
     serverApp->quit();
 
-    thread.join();
+    serverThread.join();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -675,7 +681,7 @@ TEST_F( RestTest, EmptyVectorGettersAndSetters )
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -719,7 +725,7 @@ TEST_F( RestTest, EmptyVectorGettersAndSetters )
     }
     serverApp->quit();
 
-    thread.join();
+    serverThread.join();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -730,7 +736,7 @@ TEST_F( RestTest, BoolVectorGettersAndSetters )
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -770,7 +776,7 @@ TEST_F( RestTest, BoolVectorGettersAndSetters )
     }
     serverApp->quit();
 
-    thread.join();
+    serverThread.join();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -781,7 +787,7 @@ TEST_F( RestTest, maps )
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -831,7 +837,7 @@ TEST_F( RestTest, maps )
     }
     serverApp->quit();
 
-    thread.join();
+    serverThread.join();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -842,7 +848,7 @@ TEST_F( RestTest, ChildObjects )
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -928,13 +934,13 @@ TEST_F( RestTest, ChildObjects )
         {
             CAFFA_CRITICAL( "Exception caught in test: " << e.what() );
             serverApp->quit();
-            thread.join();
+            serverThread.join();
             FAIL();
         }
     }
     serverApp->quit();
 
-    thread.join();
+    serverThread.join();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -945,7 +951,7 @@ TEST_F( RestTest, LocalResponseTimeAndDataTransfer )
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -1000,7 +1006,7 @@ TEST_F( RestTest, LocalResponseTimeAndDataTransfer )
     }
     CAFFA_DEBUG( "Stopping server and waiting for server to join" );
     serverApp->quit();
-    thread.join();
+    serverThread.join();
     CAFFA_DEBUG( "Server joined" );
 }
 
@@ -1009,7 +1015,7 @@ TEST_F( RestTest, MultipleSessions )
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -1032,7 +1038,7 @@ TEST_F( RestTest, MultipleSessions )
     }
     CAFFA_DEBUG( "Stopping server and waiting for server to join" );
     serverApp->quit();
-    thread.join();
+    serverThread.join();
     CAFFA_DEBUG( "Server joined" );
 }
 
@@ -1041,7 +1047,7 @@ TEST_F( RestTest, MultipleConcurrentSessionsShouldBeRefused )
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -1063,7 +1069,7 @@ TEST_F( RestTest, MultipleConcurrentSessionsShouldBeRefused )
     CAFFA_INFO( "Stopping server and waiting for server to join" );
     serverApp->quit();
 
-    thread.join();
+    serverThread.join();
     CAFFA_DEBUG( "Server joined" );
 }
 
@@ -1072,7 +1078,7 @@ TEST_F( RestTest, AdditionalObservingSessions )
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -1099,7 +1105,7 @@ TEST_F( RestTest, AdditionalObservingSessions )
     }
     CAFFA_DEBUG( "Stopping server and waiting for server to join" );
     serverApp->quit();
-    thread.join();
+    serverThread.join();
     CAFFA_DEBUG( "Server joined" );
 }
 
@@ -1108,7 +1114,7 @@ TEST_F( RestTest, MultipleConcurrentSessionsDelayWithoutKeepalive )
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -1132,7 +1138,7 @@ TEST_F( RestTest, MultipleConcurrentSessionsDelayWithoutKeepalive )
     }
     CAFFA_DEBUG( "Stopping server and waiting for server to join" );
     serverApp->quit();
-    thread.join();
+    serverThread.join();
     CAFFA_DEBUG( "Server joined" );
 }
 
@@ -1141,7 +1147,7 @@ TEST_F( RestTest, MultipleConcurrentSessionsWithKeepalive )
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
 
-    auto thread = std::thread( &ServerApp::run, serverApp.get() );
+    thread serverThread( &ServerApp::run, serverApp.get() );
 
     while ( !serverApp->running() )
     {
@@ -1177,6 +1183,6 @@ TEST_F( RestTest, MultipleConcurrentSessionsWithKeepalive )
     }
     CAFFA_DEBUG( "Stopping server and waiting for server to join" );
     serverApp->quit();
-    thread.join();
+    serverThread.join();
     CAFFA_DEBUG( "Server joined" );
 }

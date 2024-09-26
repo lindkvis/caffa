@@ -18,18 +18,13 @@
 //
 #pragma once
 
-#include "cafNotNull.h"
 #include "cafRpcServerApplication.h"
-#include "cafSession.h"
-
-#include <utility>
 
 #include <boost/asio.hpp>
 #include <boost/beast/ssl.hpp>
 
 #include <atomic>
 #include <memory>
-#include <vector>
 
 namespace net = boost::asio; // from <boost/asio.hpp>
 namespace ssl = boost::asio::ssl; // from <boost/asio/ssl.hpp>
@@ -41,7 +36,7 @@ class RestAuthenticator;
 
 /**
  * A base class for a REST server application.
- * Sub-class to create your REST application.
+ * Subclass to create your REST application.
  */
 class RestServerApplication : public caffa::rpc::ServerApplication
 {
@@ -49,14 +44,15 @@ public:
     /**
      * Constructor.
      *
+     * @param clientHost
      * @param portNumber Port number
      * @param threads The number of accept threads
      * @param authenticator The authenticator used to determine if a client is allowed to access the server.
      */
-    RestServerApplication( const std::string&                       clientHost,
-                           unsigned short                           portNumber,
-                           int                                      threads,
-                           std::shared_ptr<const RestAuthenticator> authenticator );
+    RestServerApplication( const std::string&                              clientHost,
+                           unsigned short                                  portNumber,
+                           int                                             threads,
+                           const std::shared_ptr<const RestAuthenticator>& authenticator );
     static RestServerApplication* instance();
 
     int  portNumber() const override;
