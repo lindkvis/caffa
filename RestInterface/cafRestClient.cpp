@@ -88,7 +88,7 @@ public:
                                   beast::bind_front_handler( &Connector::onResolve, shared_from_this() ) );
     }
 
-    void onResolve( const beast::error_code ec, const tcp::resolver::results_type& results )
+    void onResolve( const beast::error_code& ec, const tcp::resolver::results_type& results )
     {
         if ( ec )
         {
@@ -104,7 +104,7 @@ public:
         m_stream->async_connect( results, beast::bind_front_handler( &Connector::onConnect, shared_from_this() ) );
     }
 
-    void onConnect( const beast::error_code ec, const tcp::resolver::results_type::endpoint_type& )
+    void onConnect( const beast::error_code& ec, const tcp::resolver::results_type::endpoint_type& )
     {
         if ( ec )
         {
@@ -141,7 +141,7 @@ public:
     }
 
     // Start the asynchronous operation
-    void run( http::verb verb, const std::string& target, const std::string& body )
+    void run( const http::verb verb, const std::string& target, const std::string& body )
     {
         // Set up an HTTP GET request message
         m_req.version( 11 );
@@ -164,7 +164,7 @@ public:
         http::async_write( m_stream, m_req, beast::bind_front_handler( &Request::onWrite, shared_from_this() ) );
     }
 
-    void onWrite( beast::error_code ec, std::size_t bytes_transferred )
+    void onWrite( const beast::error_code& ec, std::size_t bytes_transferred )
     {
         boost::ignore_unused( bytes_transferred );
 
@@ -180,7 +180,7 @@ public:
         http::async_read( m_stream, m_buffer, m_res, beast::bind_front_handler( &Request::onRead, shared_from_this() ) );
     }
 
-    void onRead( beast::error_code ec, std::size_t bytes_transferred )
+    void onRead( const beast::error_code& ec, std::size_t bytes_transferred )
     {
         boost::ignore_unused( bytes_transferred );
 
@@ -303,7 +303,7 @@ RestClient::~RestClient()
     }
     try
     {
-        if ( m_keepAliveThread && m_keepAliveThread->joinable() ) m_keepAliveThread->join();
+        if ( m_keepAliveThread.joinable() ) m_keepAliveThread.join();
     }
     catch ( const std::exception& e )
     {
@@ -434,19 +434,17 @@ void RestClient::sendKeepAlive()
 }
 
 //--------------------------------------------------------------------------------------------------
-// Start sending keep-alives in a thread until the session is destroyed.
+// Start sending keep-alive messages until the session is destroyed.
 //--------------------------------------------------------------------------------------------------
 void RestClient::startKeepAliveThread()
 {
-    std::scoped_lock<std::mutex> lock( m_sessionMutex );
-
-    m_keepAliveThread = std::make_unique<std::thread>(
+    m_keepAliveThread = std::thread(
         [this]()
         {
             while ( true )
             {
                 {
-                    std::scoped_lock<std::mutex> lock( m_sessionMutex );
+                    std::scoped_lock lock( m_sessionMutex );
                     if ( m_sessionUuid.empty() ) break;
                 }
                 try
@@ -460,7 +458,7 @@ void RestClient::startKeepAliveThread()
                 }
             }
         } );
-    CAFFA_DEBUG( "Thread ID: " << m_keepAliveThread->get_id() );
+    CAFFA_DEBUG( "Thread ID: " << m_keepAliveThread.get_id() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -598,10 +596,9 @@ void RestClient::destroySession()
         m_sessionUuid = "";
     }
 
-    if ( m_keepAliveThread )
+    if ( m_keepAliveThread.joinable() )
     {
-        m_keepAliveThread->join();
-        m_keepAliveThread.reset();
+        m_keepAliveThread.join();
     }
 }
 
