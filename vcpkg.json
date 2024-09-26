@@ -3,28 +3,22 @@
   "version-string": "latest",
   "dependencies": [
     {
-      "name": "boost-json",
-      "platform": "!linux"
+      "name": "boost-json"
     },
     {
-      "name": "boost-system",
-      "platform": "!linux"
+      "name": "boost-system"
     },
     {
-      "name": "boost-beast",
-      "platform": "!linux"
+      "name": "boost-beast"
     },
     {
-      "name": "boost-program-options",
-      "platform": "!linux"
+      "name": "boost-program-options"
     },
     {
-      "name": "boost-asio",
-      "platform": "!linux"
+      "name": "boost-asio"
     },
     {
-      "name": "boost-serialization",
-      "platform": "!linux"
+      "name": "boost-serialization"
     },
     {
       "name": "openssl",
