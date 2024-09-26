@@ -604,10 +604,10 @@ TEST_F( RestTest, ObjectDeepCopyVsShallowCopy )
     CAFFA_TRACE( serverJson );
 
     // Stop server *before* we read the client JSON
-
+    CAFFA_INFO( "Terminating the server app" );
     serverApp->quit();
     serverThread.join();
-
+    CAFFA_INFO( "Server thread joined" );
     // Should succeed in reading the clone but not the reference
     std::string clientJson;
     ASSERT_NO_THROW( clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() ) );
