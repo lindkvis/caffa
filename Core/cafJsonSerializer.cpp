@@ -192,6 +192,8 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const json::objec
 void JsonSerializer::writeObjectToJson( const ObjectHandle* object, json::object& jsonObject ) const
 {
     ++m_level;
+    if ( !object ) return;
+
     CAFFA_TRACE( "Writing fields for "
                  << object->classKeyword() << " -> " << ( isClient() ? "client" : "server" )
                  << " from json with serialize setting: type = " << serializationTypeLabel( this->serializationType() )

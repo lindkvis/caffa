@@ -27,7 +27,7 @@ void FieldIoCap<FieldType>::readFromJson( const json::value& jsonElement, const 
 
     if ( serializer.serializationType() == JsonSerializer::SerializationType::DATA_FULL )
     {
-        CAFFA_TRACE( "Setting value from json to: " << jsonElement.dump() );
+        CAFFA_TRACE( "Setting value from json to: " << json::dump( jsonElement ) );
         if ( jsonElement.is_null() )
         {
             if constexpr ( std::is_floating_point_v<typename FieldType::FieldDataType> )
@@ -37,17 +37,19 @@ void FieldIoCap<FieldType>::readFromJson( const json::value& jsonElement, const 
         }
         else if ( const auto* jsonObject = jsonElement.if_object(); jsonObject )
         {
-            if (const auto* jsonValue = jsonObject->if_contains("value"); jsonValue && !jsonValue->is_null() ) {
-                typename FieldType::FieldDataType value = json::from_json<typename FieldType::FieldDataType>(*jsonValue);
+            if ( const auto* jsonValue = jsonObject->if_contains( "value" ); jsonValue && !jsonValue->is_null() )
+            {
+                typename FieldType::FieldDataType value = json::from_json<typename FieldType::FieldDataType>( *jsonValue );
                 typedOwner()->setValue( value );
             }
-            else {
-                throw std::runtime_error("Invalid CAFFA JSON");
+            else
+            {
+                throw std::runtime_error( "Invalid CAFFA JSON" );
             }
         }
         else // Support JSON objects with direct value instead of separate value entry
         {
-            typename FieldType::FieldDataType value =  json::from_json<typename FieldType::FieldDataType>(jsonElement);
+            typename FieldType::FieldDataType value = json::from_json<typename FieldType::FieldDataType>( jsonElement );
             typedOwner()->setValue( value );
         }
     }
