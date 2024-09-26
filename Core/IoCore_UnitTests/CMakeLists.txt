@@ -5,9 +5,9 @@ project(caffaIoCore_UnitTests)
 # add the executable
 add_executable(${PROJECT_NAME} cafIo_UnitTests.cpp cafIoBasicTest.cpp cafAdvancedTemplateTest.cpp cafIoNumberTest.cpp cafReadmeObjects.cpp)
 
-find_package(nlohmann_json CONFIG REQUIRED)
+find_package(Boost 1.83.0 REQUIRED COMPONENTS json)
 
-target_link_libraries(${PROJECT_NAME} caffaCore ${THREAD_LIBRARY} nlohmann_json::nlohmann_json GTest::gtest)
+target_link_libraries(${PROJECT_NAME} caffaCore ${THREAD_LIBRARY} Boost::json GTest::gtest)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

@@ -9,9 +9,9 @@ set(PROJECT_FILES cafBasicTest.cpp cafProjectDataModel_UnitTests.cpp Child.cpp P
 # add the executable
 add_executable(${PROJECT_NAME} ${PROJECT_FILES})
 
-find_package(nlohmann_json CONFIG REQUIRED)
+find_package(Boost 1.83.0 REQUIRED COMPONENTS json)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE caffaCore GTest::gtest ${THREAD_LIBRARY} nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PRIVATE caffaCore GTest::gtest ${THREAD_LIBRARY} Boost::json)
 
 source_group("" FILES ${PROJECT_FILES})
 

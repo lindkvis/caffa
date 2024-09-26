@@ -86,10 +86,10 @@ struct JsonDataType<std::vector<DataType>>
 template <typename DataType>
 struct JsonDataType<std::map<std::string, DataType>>
 {
-    static nlohmann::json jsonType()
+    static json::object jsonType()
     {
-        auto object          = nlohmann::json::object();
-        auto properties      = nlohmann::json::object();
+        json::object object;
+        json::object properties;
         properties["key"]    = { { "type", "string" } };
         properties["value"]  = { { "type", JsonDataType<DataType>::jsonType() } };
         object["properties"] = properties;
