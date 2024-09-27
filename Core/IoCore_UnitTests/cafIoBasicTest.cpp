@@ -32,6 +32,7 @@ public:
     };
 
     DemoObject()
+        : m_doubleMember( 420000.0 )
     {
         initField( m_proxyDoubleField, "BigNumber" );
 
