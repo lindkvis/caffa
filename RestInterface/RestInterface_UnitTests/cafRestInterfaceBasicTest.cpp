@@ -518,15 +518,27 @@ TEST_F( RestTest, ObjectIntGetterAndSetterBenchmark )
 
         std::vector<int> largeIntVector;
         std::mt19937     rng;
-        std::generate_n( std::back_inserter( largeIntVector ), 500000u, std::ref( rng ) );
+        std::generate_n( std::back_inserter( largeIntVector ), 512 * 1024u, std::ref( rng ) );
 
         serverDocument->demoObject->intVector = largeIntVector;
 
         auto objectHandle   = client->document( "testDocument" );
         auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
         ASSERT_TRUE( clientDocument != nullptr );
-        auto clientIntVector = client->get<std::vector<int>>( clientDocument->demoObject().get(),
-                                                              clientDocument->demoObject->intVector.keyword() );
+
+        std::vector<int> clientIntVector;
+
+        {
+            const auto start_time = std::chrono::steady_clock::now();
+            clientIntVector       = client->get<std::vector<int>>( clientDocument->demoObject().get(),
+                                                             clientDocument->demoObject->intVector.keyword() );
+            const auto end_time   = std::chrono::steady_clock::now();
+            const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
+            const size_t KB = clientIntVector.size() * sizeof( float ) / ( 1024u );
+            CAFFA_INFO( "Received " << clientIntVector.size() << " integers for a total of " << KB << " KB" );
+            CAFFA_INFO( "Time spent: " << duration << "ms" );
+            CAFFA_INFO( "KB per second: " << static_cast<float>( KB ) / static_cast<float>( duration ) * 1000 );
+        }
         ASSERT_EQ( largeIntVector, clientIntVector );
 
         for ( auto& i : clientIntVector )
@@ -534,8 +546,18 @@ TEST_F( RestTest, ObjectIntGetterAndSetterBenchmark )
             i += 2;
         }
         ASSERT_NE( largeIntVector, clientIntVector );
-        client->set( clientDocument->demoObject().get(), clientDocument->demoObject->intVector.keyword(), clientIntVector );
-
+        {
+            const auto start_time = std::chrono::steady_clock::now();
+            client->set( clientDocument->demoObject().get(),
+                         clientDocument->demoObject->intVector.keyword(),
+                         clientIntVector );
+            const auto end_time = std::chrono::steady_clock::now();
+            const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
+            const size_t KB = clientIntVector.size() * sizeof( float ) / ( 1024u );
+            CAFFA_INFO( "Sent " << clientIntVector.size() << " integers for a total of " << KB << " KB" );
+            CAFFA_INFO( "Time spent: " << duration << "ms" );
+            CAFFA_INFO( "KB per second: " << static_cast<float>( KB ) / static_cast<float>( duration ) * 1000 );
+        }
         largeIntVector = serverDocument->demoObject->intVector();
         ASSERT_EQ( largeIntVector, clientIntVector );
     }
@@ -997,7 +1019,7 @@ TEST_F( RestTest, ChildObjects )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST_F( RestTest, LocalResponseTimeAndDataTransfer )
+TEST_F( RestTest, LocalResponseTimeAndDataTransferBenchmark )
 {
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
     ASSERT_TRUE( serverApp.get() );
@@ -1033,7 +1055,7 @@ TEST_F( RestTest, LocalResponseTimeAndDataTransfer )
 
         std::vector<float> serverVector;
         std::mt19937       rng;
-        size_t             numberOfFloats = 12 * 1024;
+        size_t             numberOfFloats = 512 * 1024;
         serverVector.reserve( numberOfFloats );
         for ( size_t i = 0; i < numberOfFloats; ++i )
         {
@@ -1050,8 +1072,6 @@ TEST_F( RestTest, LocalResponseTimeAndDataTransfer )
             size_t KB       = numberOfFloats * sizeof( float ) / ( 1024u );
             CAFFA_INFO( "Transferred " << numberOfFloats << " floats for a total of " << KB << " KB" );
             CAFFA_INFO( "Time spent: " << duration << "ms" );
-            double fps = static_cast<float>( numberOfFloats ) / static_cast<float>( duration ) * 1000;
-            CAFFA_INFO( "floats per second: " << fps );
             CAFFA_INFO( "KB per second: " << static_cast<float>( KB ) / static_cast<float>( duration ) * 1000 );
         }
     }
