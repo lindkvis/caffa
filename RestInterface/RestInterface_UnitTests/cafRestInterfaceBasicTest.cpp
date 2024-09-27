@@ -592,26 +592,21 @@ TEST_F( RestTest, ObjectDeepCopyVsShallowCopy )
     std::mt19937     rng;
     std::generate_n( std::back_inserter( largeIntVector ), 10000u, std::ref( rng ) );
 
-    CAFFA_INFO( "Sending vector" );
     serverDocument->demoObject->intVector = largeIntVector;
 
     auto objectHandle   = client->document( "testDocument" );
     auto clientDocument = std::dynamic_pointer_cast<DemoDocument>( objectHandle );
 
-    CAFFA_INFO( "Retrieving objects" );
     auto clientDemoObjectReference = clientDocument->demoObject.object();
 
     auto clientDemoObjectClone = caffa::JsonSerializer().cloneObject( clientDemoObjectReference.get() );
 
-    CAFFA_INFO( "Writing serverObject to string" );
     std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject().get() );
     CAFFA_TRACE( serverJson );
 
     // Stop server *before* we read the client JSON
-    CAFFA_INFO( "Terminating the server app" );
     serverApp->quit();
     serverThread.join();
-    CAFFA_INFO( "Server thread joined" );
     // Should succeed in reading the clone but not the reference
     std::string clientJson;
     ASSERT_NO_THROW( clientJson = caffa::JsonSerializer().writeObjectToString( clientDemoObjectClone.get() ) );
