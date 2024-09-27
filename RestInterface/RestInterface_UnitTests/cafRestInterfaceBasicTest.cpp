@@ -599,7 +599,8 @@ TEST_F( RestTest, ObjectDeepCopyVsShallowCopy )
 
     auto clientDemoObjectReference = clientDocument->demoObject.object();
 
-    auto clientDemoObjectClone = caffa::JsonSerializer().cloneObject( clientDemoObjectReference.get() );
+    std::shared_ptr<DemoObject> clientDemoObjectClone;
+    ASSERT_NO_THROW( clientDemoObjectClone = caffa::JsonSerializer().cloneObject( clientDemoObjectReference.get() ) );
 
     std::string serverJson = caffa::JsonSerializer().writeObjectToString( serverDocument->demoObject().get() );
     CAFFA_TRACE( serverJson );
