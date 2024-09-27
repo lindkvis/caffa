@@ -35,17 +35,16 @@ void FieldIoCap<FieldType>::readFromJson( const json::value& jsonElement, const 
                 typedOwner()->setValue( std::numeric_limits<typename FieldType::FieldDataType>::quiet_NaN() );
             }
         }
-        else if ( const auto* jsonObject = jsonElement.if_object(); jsonObject )
+        else if ( const auto* jsonObject = jsonElement.if_object(); jsonObject && jsonObject->contains( "value" ) )
         {
-            if ( const auto* jsonValue = jsonObject->if_contains( "value" ); jsonValue && !jsonValue->is_null() )
+            const auto& jsonValue = jsonObject->at( "value" );
+
+            if ( jsonValue.is_null() )
             {
-                typename FieldType::FieldDataType value = json::from_json<typename FieldType::FieldDataType>( *jsonValue );
-                typedOwner()->setValue( value );
+                throw std::runtime_error( "Invalid CAFFA JSON: " + json::dump( jsonElement ) );
             }
-            else
-            {
-                throw std::runtime_error( "Invalid CAFFA JSON" );
-            }
+            typename FieldType::FieldDataType value = json::from_json<typename FieldType::FieldDataType>( jsonValue );
+            typedOwner()->setValue( value );
         }
         else // Support JSON objects with direct value instead of separate value entry
         {
