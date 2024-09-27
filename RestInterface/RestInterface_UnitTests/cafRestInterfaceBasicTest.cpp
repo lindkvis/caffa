@@ -34,6 +34,8 @@ using thread = std::thread;
 using thread = std::jthread;
 #endif
 
+const std::string hostname = "127.0.0.1";
+
 class RestTest : public ::testing::Test
 {
 protected:
@@ -82,7 +84,7 @@ TEST_F( RestTest, Launch )
     CAFFA_DEBUG( "Connecting client to server" );
     try
     {
-        auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+        auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
         ASSERT_TRUE( client->isReady( caffa::Session::Type::REGULAR ) );
         client->createSession( caffa::Session::Type::REGULAR );
 
@@ -108,7 +110,7 @@ TEST_F( RestTest, Document )
 
     CAFFA_DEBUG( "Launching Client" );
 
-    auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     ASSERT_TRUE( client->isReady( caffa::Session::Type::REGULAR ) );
     client->createSession( caffa::Session::Type::REGULAR );
 
@@ -220,7 +222,7 @@ TEST_F( RestTest, DocumentWithNonScriptableChild )
 {
     ASSERT_TRUE( caffa::rpc::RestServerApplication::instance() != nullptr );
 
-    auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
 
     try
     {
@@ -296,7 +298,7 @@ TEST_F( RestTest, DocumentWithNonScriptableChild )
 //--------------------------------------------------------------------------------------------------
 TEST_F( RestTest, Sync )
 {
-    auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     client->createSession( caffa::Session::Type::REGULAR );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
@@ -320,7 +322,7 @@ TEST_F( RestTest, Sync )
 //--------------------------------------------------------------------------------------------------
 TEST_F( RestTest, SettingValueWithObserver )
 {
-    auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     client->createSession( caffa::Session::Type::OBSERVING );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
@@ -344,7 +346,7 @@ TEST_F( RestTest, SettingValueWithObserver )
 //--------------------------------------------------------------------------------------------------
 TEST_F( RestTest, ObjectMethod )
 {
-    auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     client->createSession( caffa::Session::Type::REGULAR );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
@@ -379,7 +381,7 @@ TEST_F( RestTest, ObjectMethod )
 //--------------------------------------------------------------------------------------------------
 TEST_F( RestTest, ObjectIntGetterAndSetter )
 {
-    auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     client->createSession( caffa::Session::Type::REGULAR );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
@@ -415,12 +417,11 @@ TEST_F( RestTest, ObjectIntGetterAndSetter )
 //--------------------------------------------------------------------------------------------------
 TEST_F( RestTest, ObjectIntGetterAndSetterBenchmark )
 {
-    auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     client->createSession( caffa::Session::Type::REGULAR );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
-    auto serverDocument =
-        std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
+    auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
 
     std::vector<int> largeIntVector;
@@ -439,9 +440,9 @@ TEST_F( RestTest, ObjectIntGetterAndSetterBenchmark )
         const auto start_time = std::chrono::steady_clock::now();
         clientIntVector       = client->get<std::vector<int>>( clientDocument->demoObject().get(),
                                                          clientDocument->demoObject->intVector.keyword() );
-        const auto end_time   = std::chrono::steady_clock::now();
-        const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
-        const size_t KB = clientIntVector.size() * sizeof( float ) / ( 1024u );
+        const auto   end_time = std::chrono::steady_clock::now();
+        const auto   duration = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
+        const size_t KB       = clientIntVector.size() * sizeof( float ) / ( 1024u );
         CAFFA_INFO( "Received " << clientIntVector.size() << " integers for a total of " << KB << " KB" );
         CAFFA_INFO( "Time spent: " << duration << "ms" );
         CAFFA_INFO( "KB per second: " << static_cast<float>( KB ) / static_cast<float>( duration ) * 1000 );
@@ -455,12 +456,10 @@ TEST_F( RestTest, ObjectIntGetterAndSetterBenchmark )
     ASSERT_NE( largeIntVector, clientIntVector );
     {
         const auto start_time = std::chrono::steady_clock::now();
-        client->set( clientDocument->demoObject().get(),
-                     clientDocument->demoObject->intVector.keyword(),
-                     clientIntVector );
-        const auto end_time = std::chrono::steady_clock::now();
-        const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
-        const size_t KB = clientIntVector.size() * sizeof( float ) / ( 1024u );
+        client->set( clientDocument->demoObject().get(), clientDocument->demoObject->intVector.keyword(), clientIntVector );
+        const auto   end_time = std::chrono::steady_clock::now();
+        const auto   duration = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
+        const size_t KB       = clientIntVector.size() * sizeof( float ) / ( 1024u );
         CAFFA_INFO( "Sent " << clientIntVector.size() << " integers for a total of " << KB << " KB" );
         CAFFA_INFO( "Time spent: " << duration << "ms" );
         CAFFA_INFO( "KB per second: " << static_cast<float>( KB ) / static_cast<float>( duration ) * 1000 );
@@ -474,7 +473,7 @@ TEST_F( RestTest, ObjectIntGetterAndSetterBenchmark )
 //--------------------------------------------------------------------------------------------------
 TEST_F( RestTest, ObjectDeepCopyVsShallowCopy )
 {
-    auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     client->createSession( caffa::Session::Type::REGULAR );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
@@ -516,7 +515,7 @@ TEST_F( RestTest, ObjectDeepCopyVsShallowCopy )
 //--------------------------------------------------------------------------------------------------
 TEST_F( RestTest, ObjectDoubleGetterAndSetter )
 {
-    auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     client->createSession( caffa::Session::Type::REGULAR );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
@@ -554,15 +553,15 @@ TEST_F( RestTest, ObjectDoubleGetterAndSetter )
 //--------------------------------------------------------------------------------------------------
 TEST_F( RestTest, ObjectIntegratedGettersAndSetters )
 {
-    auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     client->createSession( caffa::Session::Type::REGULAR );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
     auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
 
-        serverDocument->demoObject->intField              = 10;
-        serverDocument->demoObject->intFieldNonScriptable = 12;
+    serverDocument->demoObject->intField              = 10;
+    serverDocument->demoObject->intFieldNonScriptable = 12;
 
     serverDocument->demoObject->enumField = DemoObject::T2;
     ASSERT_EQ( DemoObject::T2, serverDocument->demoObject->enumField() );
@@ -616,7 +615,7 @@ TEST_F( RestTest, ObjectIntegratedGettersAndSetters )
 //--------------------------------------------------------------------------------------------------
 TEST_F( RestTest, EmptyVectorGettersAndSetters )
 {
-    auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     client->createSession( caffa::Session::Type::REGULAR );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
@@ -656,7 +655,7 @@ TEST_F( RestTest, EmptyVectorGettersAndSetters )
 //--------------------------------------------------------------------------------------------------
 TEST_F( RestTest, BoolVectorGettersAndSetters )
 {
-    auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     client->createSession( caffa::Session::Type::REGULAR );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
@@ -692,7 +691,7 @@ TEST_F( RestTest, BoolVectorGettersAndSetters )
 //--------------------------------------------------------------------------------------------------
 TEST_F( RestTest, maps )
 {
-    auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     client->createSession( caffa::Session::Type::REGULAR );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
@@ -740,7 +739,7 @@ TEST_F( RestTest, ChildObjects )
 {
     try
     {
-        auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+        auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
         client->createSession( caffa::Session::Type::REGULAR );
 
         auto session = serverApp->getExistingSession( client->sessionUuid() );
@@ -825,12 +824,11 @@ TEST_F( RestTest, ChildObjects )
 //--------------------------------------------------------------------------------------------------
 TEST_F( RestTest, LocalResponseTimeAndDataTransfer )
 {
-    auto client = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     client->createSession( caffa::Session::Type::REGULAR );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
-    auto serverDocument =
-        std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
+    auto serverDocument = std::dynamic_pointer_cast<DemoDocument>( serverApp->document( "testDocument", session.get() ) );
     ASSERT_TRUE( serverDocument );
 
     auto objectHandle   = client->document( "testDocument" );
@@ -862,8 +860,8 @@ TEST_F( RestTest, LocalResponseTimeAndDataTransfer )
         auto   start_time   = std::chrono::steady_clock::now();
         auto   clientVector = clientDocument->demoObject->floatVector();
         auto   end_time     = std::chrono::steady_clock::now();
-        auto   duration = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
-        size_t KB       = numberOfFloats * sizeof( float ) / ( 1024u );
+        auto   duration     = std::chrono::duration_cast<std::chrono::milliseconds>( end_time - start_time ).count();
+        size_t KB           = numberOfFloats * sizeof( float ) / ( 1024u );
         CAFFA_INFO( "Transferred " << numberOfFloats << " floats for a total of " << KB << " KB" );
         CAFFA_INFO( "Time spent: " << duration << "ms" );
         CAFFA_INFO( "KB per second: " << static_cast<float>( KB ) / static_cast<float>( duration ) * 1000 );
@@ -873,13 +871,13 @@ TEST_F( RestTest, LocalResponseTimeAndDataTransfer )
 TEST_F( RestTest, MultipleSessions )
 {
     {
-        const auto client1 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+        const auto client1 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
         ASSERT_NO_THROW( client1->createSession( caffa::Session::Type::REGULAR ) );
 
         ASSERT_TRUE( client1 );
     }
     {
-        const auto client2 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+        const auto client2 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
         ASSERT_NO_THROW( client2->createSession( caffa::Session::Type::REGULAR ) );
         ASSERT_TRUE( client2 );
     }
@@ -887,11 +885,11 @@ TEST_F( RestTest, MultipleSessions )
 
 TEST_F( RestTest, MultipleConcurrentSessionsShouldBeRefused )
 {
-    const auto client1 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    const auto client1 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ) );
     ASSERT_NO_THROW( client1->createSession( caffa::Session::Type::REGULAR ) );
 
-    const auto client2 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    const auto client2 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     ASSERT_FALSE( client2->isReady( caffa::Session::Type::REGULAR ) );
     ASSERT_ANY_THROW( client2->createSession( caffa::Session::Type::REGULAR ) );
     CAFFA_INFO( "Failed to create new session as expected" );
@@ -899,27 +897,27 @@ TEST_F( RestTest, MultipleConcurrentSessionsShouldBeRefused )
 
 TEST_F( RestTest, AdditionalObservingSessions )
 {
-    const auto client1 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    const auto client1 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ) );
     ASSERT_NO_THROW( client1->createSession( caffa::Session::Type::REGULAR ) );
 
-    const auto client2 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    const auto client2 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     ASSERT_TRUE( client2->isReady( caffa::Session::Type::OBSERVING ) );
     ASSERT_NO_THROW( client2->createSession( caffa::Session::Type::OBSERVING ) );
 
-    const auto client3 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    const auto client3 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     ASSERT_NO_THROW( client3->createSession( caffa::Session::Type::OBSERVING ) );
 }
 
 TEST_F( RestTest, MultipleConcurrentSessionsDelayWithoutKeepalive )
 {
-    const auto client1 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    const auto client1 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ) );
     ASSERT_NO_THROW( client1->createSession( caffa::Session::Type::REGULAR ) );
 
     std::this_thread::sleep_for( std::chrono::milliseconds( 6000 ) );
 
-    const auto client2 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    const auto client2 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     ASSERT_TRUE( client2->isReady( caffa::Session::Type::REGULAR ) );
     ASSERT_NO_THROW( client2->createSession( caffa::Session::Type::REGULAR ) );
 
@@ -928,7 +926,7 @@ TEST_F( RestTest, MultipleConcurrentSessionsDelayWithoutKeepalive )
 
 TEST_F( RestTest, MultipleConcurrentSessionsWithKeepalive )
 {
-    const auto client1 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+    const auto client1 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     try
     {
         ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ) );
@@ -941,7 +939,7 @@ TEST_F( RestTest, MultipleConcurrentSessionsWithKeepalive )
         }
 
         CAFFA_INFO( "Expecting errors when creating a new session, because the old one has been kept alive!" );
-        const auto client2 = std::make_unique<caffa::rpc::RestClient>( "localhost", ServerApp::s_port );
+        const auto client2 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
         ASSERT_FALSE( client2->isReady( caffa::Session::Type::REGULAR ) );
         ASSERT_ANY_THROW( client2->createSession( caffa::Session::Type::REGULAR ) );
         CAFFA_DEBUG( "Test completed" );
