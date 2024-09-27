@@ -336,7 +336,7 @@ void FieldIoCap<ChildArrayField<DataType*>>::writeToJson( json::value& jsonEleme
 {
     if ( serializer.serializationType() == JsonSerializer::SerializationType::SCHEMA )
     {
-        auto jsonObject = JsonDataType<DataType>::jsonType();
+        auto jsonObject = JsonDataType<std::vector<DataType>>::jsonType();
         if ( !typedOwner()->isReadable() && typedOwner()->isWritable() )
         {
             jsonObject["writeOnly"] = true;
