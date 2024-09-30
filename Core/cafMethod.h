@@ -21,12 +21,12 @@
 
 #include "cafAssert.h"
 #include "cafJsonDataType.h"
+#include "cafJsonDataTypeConversion.h"
 #include "cafJsonDefinitions.h"
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
 #include "cafMethodHandle.h"
 #include "cafObjectFactory.h"
-#include "cafObjectJsonConversion.h"
 #include "cafSession.h"
 
 #include <functional>

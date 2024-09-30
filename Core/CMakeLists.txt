@@ -8,7 +8,7 @@ set(PUBLIC_HEADERS
         cafRangeValidator.h
         cafMethod.h
         cafObject.h
-        cafObjectJsonConversion.h
+        cafJsonDataTypeConversion.h
         cafDocument.h
         cafApplication.h
         cafSession.h
@@ -30,7 +30,6 @@ set(PROJECT_FILES
         cafFieldIoCapability.cpp
         cafFieldScriptingCapability.cpp
         cafJsonSerializer.cpp
-        cafObjectJsonConversion.cpp
         cafStringEncoding.cpp)
 
 if (CAFFA_BUILD_SHARED)

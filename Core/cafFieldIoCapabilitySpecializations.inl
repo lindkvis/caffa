@@ -2,6 +2,7 @@
 #pragma once
 #include "cafAssert.h"
 #include "cafJsonDataType.h"
+#include "cafJsonDataTypeConversion.h"
 #include "cafJsonSerializer.h"
 #include "cafLogger.h"
 #include "cafObjectFactory.h"
