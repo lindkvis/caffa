@@ -27,6 +27,7 @@
 #include <boost/beast/http/status.hpp>
 #include <boost/beast/http/verb.hpp>
 
+#include <chrono>
 #include <future>
 #include <memory>
 #include <mutex>
@@ -52,7 +53,9 @@ namespace caffa::rpc
 class RestClient : public Client
 {
 public:
-    explicit RestClient( const std::string& hostname, int port = 50000 );
+    explicit RestClient( const std::string&               hostname,
+                         int                              port    = 50000,
+                         const std::chrono::milliseconds& timeout = std::chrono::seconds( 10 ) );
 
     ~RestClient() override;
 
@@ -115,9 +118,10 @@ private:
                                                             const std::string& password = "" ) const;
 
 private:
-    std::string        m_sessionUuid;
-    std::thread        m_keepAliveThread;
-    mutable std::mutex m_sessionMutex;
+    std::chrono::milliseconds m_timeout;
+    std::string               m_sessionUuid;
+    std::thread               m_keepAliveThread;
+    mutable std::mutex        m_sessionMutex;
 
     // The io_context is required for all I/O
     std::shared_ptr<boost::asio::io_context>          m_ioc;

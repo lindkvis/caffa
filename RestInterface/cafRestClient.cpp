@@ -72,9 +72,10 @@ using namespace std::chrono_literals;
 class Connector : public std::enable_shared_from_this<Connector>
 {
 public:
-    explicit Connector( net::io_context& ioc )
+    explicit Connector( net::io_context& ioc, const std::chrono::milliseconds& timeout )
         : m_resolver( net::make_strand( ioc ) )
         , m_stream( std::make_shared<beast::tcp_stream>( net::make_strand( ioc ) ) )
+        , m_timeout( timeout )
     {
     }
 
@@ -96,7 +97,7 @@ public:
         }
 
         // Set a timeout on the operation
-        m_stream->expires_after( 10s );
+        m_stream->expires_after( m_timeout );
 
         // Make the connection on the IP address we get from a lookup
         m_stream->async_connect( results, beast::bind_front_handler( &Connector::onConnect, shared_from_this() ) );
@@ -112,7 +113,7 @@ public:
         }
 
         // Set a timeout on the operation
-        m_stream->expires_after( 10s );
+        m_stream->expires_after( m_timeout );
 
         boost::asio::socket_base::keep_alive option( true );
         m_stream->socket().set_option( option );
@@ -123,8 +124,10 @@ public:
     std::pair<std::shared_ptr<beast::tcp_stream>, std::string> wait() { return m_connectedStream.get_future().get(); }
 
 private:
-    tcp::resolver                                                            m_resolver;
-    std::shared_ptr<beast::tcp_stream>                                       m_stream;
+    tcp::resolver                      m_resolver;
+    std::shared_ptr<beast::tcp_stream> m_stream;
+
+    std::chrono::milliseconds                                                m_timeout;
     std::promise<std::pair<std::shared_ptr<beast::tcp_stream>, std::string>> m_connectedStream;
 };
 
@@ -235,7 +238,7 @@ std::pair<http::status, std::string> RestClient::performRequest( http::verb     
     if ( !m_stream )
     {
         CAFFA_DEBUG( "Connecting to " << hostname << ": " << port );
-        auto connector = std::make_shared<Connector>( *m_ioc );
+        auto connector = std::make_shared<Connector>( *m_ioc, m_timeout );
         connector->connect( hostname, port );
         m_ioc->run();
 
@@ -277,8 +280,9 @@ std::pair<http::status, std::string> RestClient::performGetRequest( const std::s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RestClient::RestClient( const std::string& hostname, int port /*= 50000 */ )
+RestClient::RestClient( const std::string& hostname, int port /*= 50000 */, const std::chrono::milliseconds& timeout )
     : Client( hostname, port )
+    , m_timeout( timeout )
     , m_ioc( std::make_shared<net::io_context>() )
 {
     // Apply current client to the two client object factories.
