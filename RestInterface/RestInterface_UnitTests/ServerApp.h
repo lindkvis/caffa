@@ -149,15 +149,12 @@ public:
                                                 << " but it has not been kept alive, so destroying it" );
                 }
             }
-            m_session = caffa::Session::create( type, std::chrono::seconds( 5 ) );
+            m_session = caffa::Session::create( type, std::chrono::seconds( 2 ) );
             return caffa::SessionMaintainer( m_session );
         }
-        else
-        {
-            auto observingSession = caffa::Session::create( type, std::chrono::seconds( 3 ) );
-            m_observingSessions.push_back( observingSession );
-            return caffa::SessionMaintainer( observingSession );
-        }
+        auto observingSession = caffa::Session::create( type, std::chrono::seconds( 2 ) );
+        m_observingSessions.push_back( observingSession );
+        return caffa::SessionMaintainer( observingSession );
     }
 
     caffa::SessionMaintainer getExistingSession( const std::string& sessionUuid ) override

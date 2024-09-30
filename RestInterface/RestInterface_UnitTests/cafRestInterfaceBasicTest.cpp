@@ -28,6 +28,8 @@
 #include <thread>
 #include <vector>
 
+using namespace std::chrono_literals;
+
 #ifdef __APPLE__
 using thread = std::thread;
 #else
@@ -473,7 +475,7 @@ TEST_F( RestTest, ObjectIntGetterAndSetterBenchmark )
 //--------------------------------------------------------------------------------------------------
 TEST_F( RestTest, ObjectDeepCopyVsShallowCopy )
 {
-    auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
+    auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port, 1s );
     client->createSession( caffa::Session::Type::REGULAR );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
@@ -915,7 +917,7 @@ TEST_F( RestTest, MultipleConcurrentSessionsDelayWithoutKeepalive )
     ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ) );
     ASSERT_NO_THROW( client1->createSession( caffa::Session::Type::REGULAR ) );
 
-    std::this_thread::sleep_for( std::chrono::milliseconds( 6000 ) );
+    std::this_thread::sleep_for( std::chrono::milliseconds( 2500 ) );
 
     const auto client2 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     ASSERT_TRUE( client2->isReady( caffa::Session::Type::REGULAR ) );
@@ -932,7 +934,7 @@ TEST_F( RestTest, MultipleConcurrentSessionsWithKeepalive )
         ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ) );
         ASSERT_NO_THROW( client1->createSession( caffa::Session::Type::REGULAR ) );
 
-        for ( size_t i = 0; i < 10; ++i )
+        for ( size_t i = 0; i < 25; ++i )
         {
             std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
             client1->sendKeepAlive();
