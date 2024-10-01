@@ -43,7 +43,7 @@ protected:
 };
 
 template <typename Result, typename... ArgTypes>
-class Method<Result( ArgTypes... )> : public MethodHandle
+class Method<Result( ArgTypes... )> final : public MethodHandle
 {
 public:
     using Callback            = std::function<Result( ArgTypes... )>;
@@ -53,7 +53,7 @@ public:
     Method( const Method& rhs )            = delete;
     Method& operator=( const Method& rhs ) = delete;
 
-    Result operator()( std::shared_ptr<Session> session, ArgTypes... args ) const
+    [[nodiscard]] Result operator()( std::shared_ptr<Session> session, ArgTypes... args ) const
     {
         CAFFA_ASSERT( ( m_callback || m_callbackWithSession ) && "Method has no callback!" );
 
@@ -67,7 +67,7 @@ public:
         return m_callbackWithSession( session, args... );
     }
 
-    Result operator()( ArgTypes... args ) const
+    [[nodiscard]] Result operator()( ArgTypes... args ) const
     {
         CAFFA_ASSERT( ( m_callback || m_callbackWithSession ) && "Method has no callback!" );
 
@@ -93,14 +93,14 @@ public:
      * @param jsonArgumentsString
      * @return a JSON result string
      */
-    std::string execute( std::shared_ptr<Session> session, const std::string& jsonArgumentsString ) const override
+    [[nodiscard]] std::string execute( std::shared_ptr<Session> session, const std::string& jsonArgumentsString ) const override
     {
         return json::dump( executeJson( session, json::parse( jsonArgumentsString ) ) );
     }
 
     [[nodiscard]] std::string schema() const override { return json::dump( this->jsonSchema() ); }
 
-    Result resultFromJsonString( const std::string& jsonResultString, ObjectFactory* objectFactory ) const
+    [[nodiscard]] Result resultFromJsonString( const std::string& jsonResultString, ObjectFactory* objectFactory ) const
     {
         json::value jsonResult;
         if ( !jsonResultString.empty() )
@@ -110,7 +110,7 @@ public:
         return jsonToValue<Result>( jsonResult, objectFactory );
     }
 
-    json::value toJson( ArgTypes... args ) const
+    [[nodiscard]] json::value toJson( ArgTypes... args ) const
     {
         auto jsonMethod = json::object();
         CAFFA_ASSERT( !keyword().empty() );
@@ -194,7 +194,7 @@ private:
 
     template <typename ArgType>
         requires IsSharedPtr<ArgType>
-    static ArgType jsonToValue( const json::value& jsonData, ObjectFactory* objectFactory )
+    [[nodiscard]] static ArgType jsonToValue( const json::value& jsonData, ObjectFactory* objectFactory )
     {
         const JsonSerializer serializer( objectFactory );
         return std::dynamic_pointer_cast<typename ArgType::element_type>(
@@ -203,14 +203,15 @@ private:
 
     template <typename ArgType>
         requires( not IsSharedPtr<ArgType> && not std::same_as<ArgType, void> )
-    static ArgType jsonToValue( const json::value& jsonData, ObjectFactory* objectFactory )
+    [[nodiscard]] static ArgType jsonToValue( const json::value& jsonData, ObjectFactory* objectFactory )
     {
         return json::from_json<ArgType>( jsonData );
     }
 
     template <typename ReturnType, std::size_t... Is>
         requires std::same_as<ReturnType, void>
-    json::value executeJson( std::shared_ptr<Session> session, const json::array& args, std::index_sequence<Is...> ) const
+    [[nodiscard]] json::value
+        executeJson( std::shared_ptr<Session> session, const json::array& args, std::index_sequence<Is...> ) const
     {
         this->operator()( session, jsonToValue<ArgTypes>( args[Is], nullptr )... );
 
@@ -220,13 +221,14 @@ private:
 
     template <typename ReturnType, std::size_t... Is>
         requires( not std::same_as<ReturnType, void> )
-    json::value executeJson( std::shared_ptr<Session> session, const json::array& args, std::index_sequence<Is...> ) const
+    [[nodiscard]] json::value
+        executeJson( std::shared_ptr<Session> session, const json::array& args, std::index_sequence<Is...> ) const
     {
         auto res = this->operator()( session, jsonToValue<ArgTypes>( args[Is], nullptr )... );
         return json::to_json( res );
     }
 
-    json::value executeJson( std::shared_ptr<Session> session, const json::value& jsonValue ) const
+    [[nodiscard]] json::value executeJson( std::shared_ptr<Session> session, const json::value& jsonValue ) const
     {
         const auto* jsonMethod = jsonValue.if_object();
 
@@ -266,10 +268,16 @@ private:
                 jsonMap.erase( it );
             }
         }
-        // All unnamed arguments
-        for ( const auto& unnamedArgument : jsonMap )
+        std::vector<std::string> unknownArguments;
+        // All unknown arguments
+        for ( const auto& unknownArgument : jsonMap )
         {
-            sortedArray.push_back( unnamedArgument.value() );
+            unknownArguments.push_back( ( unknownArgument.key() ) );
+        }
+        if ( !unknownArguments.empty() )
+        {
+            throw std::runtime_error( "Unknown arguments: " +
+                                      StringTools::join( unknownArguments.begin(), unknownArguments.end(), ", " ) );
         }
 
         return sortedArray;

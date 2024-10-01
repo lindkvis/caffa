@@ -173,12 +173,12 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const json::objec
                 }
                 else
                 {
-                    CAFFA_WARNING( "field handle not readable" );
+                    throw std::runtime_error( "Field handle " + std::string( keyword ) + " not readable" );
                 }
             }
             else
             {
-                CAFFA_WARNING( "Could not find field " << keyword );
+                throw std::runtime_error( "Could not find field " + std::string( keyword ) );
             }
         }
     }
