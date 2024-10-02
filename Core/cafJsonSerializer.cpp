@@ -122,6 +122,8 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const json::objec
                                       << " from json with type = " << serializationTypeLabel( this->serializationType() )
                                       << ", serializeUuids = " << this->serializeUuids() );
 
+    CAFFA_ASSERT( object );
+
     if ( this->serializationType() != SerializationType::DATA_FULL &&
          this->serializationType() != SerializationType::DATA_SKELETON )
     {
@@ -178,7 +180,8 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const json::objec
             }
             else
             {
-                throw std::runtime_error( "Could not find field " + std::string( keyword ) );
+                throw std::runtime_error( "Invalid field " + std::string( keyword ) + " in " +
+                                          std::string( object->classKeyword() ) );
             }
         }
     }
