@@ -81,7 +81,7 @@ private:
 class SessionMaintainer
 {
 public:
-    SessionMaintainer( std::shared_ptr<Session> session = nullptr );
+    explicit SessionMaintainer( std::shared_ptr<Session> session = nullptr );
     ~SessionMaintainer();
 
     std::shared_ptr<Session> operator->();
@@ -97,14 +97,14 @@ private:
 class ConstSessionMaintainer
 {
 public:
-    ConstSessionMaintainer( std::shared_ptr<const Session> session = nullptr );
+    explicit ConstSessionMaintainer( std::shared_ptr<const Session> session = nullptr );
     ~ConstSessionMaintainer();
 
     std::shared_ptr<const Session> operator->() const;
     std::shared_ptr<const Session> operator*() const;
     operator bool() const;
     bool           operator!() const;
-    const Session* get() const;
+    [[nodiscard]] const Session* get() const;
 
 private:
     std::shared_ptr<const Session> m_session;

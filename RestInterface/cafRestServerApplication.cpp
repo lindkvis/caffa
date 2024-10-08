@@ -95,11 +95,11 @@ int RestServerApplication::portNumber() const
 //--------------------------------------------------------------------------------------------------
 void RestServerApplication::run()
 {
-    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestAppService>( "app" );
-    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestObjectService>( "objects" );
-    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestSessionService>( "sessions" );
-    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestDocumentService>( "documents" );
-    caffa::rpc::RestServiceFactory::instance()->registerCreator<caffa::rpc::RestOpenApiService>( "openapi.json" );
+    RestServiceFactory::instance()->registerCreator<RestAppService>( "app" );
+    RestServiceFactory::instance()->registerCreator<RestObjectService>( "objects" );
+    RestServiceFactory::instance()->registerCreator<RestSessionService>( "sessions" );
+    RestServiceFactory::instance()->registerCreator<RestDocumentService>( "documents" );
+    RestServiceFactory::instance()->registerCreator<RestOpenApiService>( "openapi.json" );
 
     m_server = std::make_shared<RestServer>( m_ioContext,
                                              m_sslContext,
