@@ -4,7 +4,7 @@ using namespace caffa::rpc;
 using namespace std::chrono_literals;
 
 constexpr std::chrono::seconds RATE_LIMITER_TIME_PERIOD  = 1s;
-constexpr size_t               RATE_LIMITER_MAX_REQUESTS = 200;
+constexpr size_t               RATE_LIMITER_MAX_REQUESTS = 20;
 
 std::mutex                                       RestServiceInterface::s_requestMutex;
 std::list<std::chrono::steady_clock::time_point> RestServiceInterface::s_requestTimes;
