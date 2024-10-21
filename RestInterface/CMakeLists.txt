@@ -53,7 +53,7 @@ endif ()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-find_package(Boost 1.83.0 REQUIRED COMPONENTS system json)
+find_package(Boost 1.83.0 REQUIRED COMPONENTS system json regex)
 find_package(OpenSSL REQUIRED)
 
 target_link_libraries(
@@ -64,7 +64,8 @@ target_link_libraries(
         OpenSSL::SSL
         OpenSSL::Crypto
         Boost::system
-        Boost::json)
+        Boost::json
+        Boost::regex)
 
 install(
         TARGETS ${PROJECT_NAME}

@@ -30,8 +30,13 @@
 #include "cafRestServerApplication.h"
 #include "cafSession.h"
 
+#include <boost/regex.hpp>
+
 namespace caffa::rpc
 {
+
+static boost::regex s_paramRegex( "[\?&]" );
+
 
 std::shared_ptr<RestServiceInterface>
     findRestService( const std::string& key, const std::map<std::string, std::shared_ptr<RestServiceInterface>>& services )
@@ -138,9 +143,7 @@ void handleRequest( const std::map<std::string, std::shared_ptr<RestServiceInter
     CAFFA_TRACE( "Target: " << target << ", body length: " << req.body().length()
                             << ", method: " << http::to_string( method ) );
 
-    std::regex paramRegex( "[\?&]" );
-
-    auto targetComponents = StringTools::split<std::vector<std::string>>( target, paramRegex );
+    auto targetComponents = StringTools::split<std::vector<std::string>>( target, s_paramRegex );
     if ( targetComponents.empty() )
     {
         CAFFA_WARNING( "Sending malformed request" );
