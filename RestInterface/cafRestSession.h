@@ -42,12 +42,12 @@
 #include <boost/beast/http.hpp>
 #include <boost/beast/ssl.hpp>
 #include <boost/beast/version.hpp>
+#include <boost/regex.hpp>
 
 #include <nlohmann/json.hpp>
 
 #include <list>
 #include <memory>
-#include <regex>
 
 namespace beast = boost::beast; // from <boost/beast.hpp>
 namespace http  = beast::http; // from <boost/beast/http.hpp>

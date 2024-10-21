@@ -33,6 +33,8 @@
 namespace caffa::rpc
 {
 
+static boost::regex s_paramRegex( "[\?&]" );
+
 std::shared_ptr<RestServiceInterface>
     findRestService( const std::string& key, const std::map<std::string, std::shared_ptr<RestServiceInterface>>& services )
 {
@@ -140,9 +142,7 @@ RestServiceInterface::CleanupCallback
 
     CAFFA_DEBUG( "Target: " << target << ", body length: " << req.body().length() );
 
-    std::regex paramRegex( "[\?&]" );
-
-    auto targetComponents = caffa::StringTools::split<std::vector<std::string>>( target, paramRegex );
+    auto targetComponents = caffa::StringTools::split<std::vector<std::string>>( target, s_paramRegex );
     if ( targetComponents.empty() )
     {
         CAFFA_WARNING( "Sending malformed request" );
