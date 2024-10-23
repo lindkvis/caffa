@@ -26,6 +26,9 @@
     {
       "name": "openssl",
       "platform": "!linux"
+    },
+    {
+      "name": "gtest"
     }
   ]
 }

@@ -10,6 +10,7 @@ set(PROJECT_FILES cafBasicTest.cpp cafProjectDataModel_UnitTests.cpp Child.cpp P
 add_executable(${PROJECT_NAME} ${PROJECT_FILES})
 
 find_package(Boost 1.83.0 REQUIRED COMPONENTS json)
+find_package(GTest REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE caffaCore GTest::gtest ${THREAD_LIBRARY} Boost::json)
 
