@@ -21,6 +21,9 @@
       "name": "boost-serialization"
     },
     {
+      "name": "boost-regex"
+    },
+    {
       "name": "openssl",
       "platform": "!linux"
     }
