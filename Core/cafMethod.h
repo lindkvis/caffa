@@ -67,9 +67,9 @@ public:
         if ( auto accessor = this->accessor(); accessor )
         {
             auto serializedMethod = toJson( args... ).dump();
-            CAFFA_DEBUG( "Serialized method: " << serializedMethod );
+            CAFFA_TRACE( "Serialized method: " << serializedMethod );
             auto serialisedResult = accessor->execute( serializedMethod );
-            CAFFA_DEBUG( "Got serialized result: " << serialisedResult );
+            CAFFA_TRACE( "Got serialized result: " << serialisedResult );
             return resultFromJsonString( serialisedResult, accessor->objectFactory() );
         }
         CAFFA_ASSERT( m_callback );
