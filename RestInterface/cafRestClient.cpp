@@ -250,7 +250,7 @@ std::pair<http::status, std::string> RestClient::performRequest( http::verb     
         m_stream = stream;
         m_ioc->reset();
     }
-    m_stream->expires_never();
+    m_stream->expires_after( m_timeout );
 
     auto request = std::make_shared<Request>( *m_stream, username, password );
     request->run( verb, target, body );
