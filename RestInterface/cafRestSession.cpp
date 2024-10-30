@@ -30,6 +30,8 @@
 #include "cafRestServerApplication.h"
 #include "cafSession.h"
 
+using namespace std::chrono_literals;
+
 namespace caffa::rpc
 {
 
@@ -109,6 +111,7 @@ RestServiceInterface::CleanupCallback
         return res;
     };
 
+    auto start  = std::chrono::steady_clock::now();
     auto method = req.method();
     CAFFA_DEBUG( "VERB: " << method );
 
@@ -281,6 +284,14 @@ RestServiceInterface::CleanupCallback
     try
     {
         auto [status, message, cleanupCallback] = service->perform( method, pathComponents, queryParamsJson, bodyJson );
+
+        auto end = std::chrono::steady_clock::now();
+        if ( end - start > 12s ) // A bit shorter than the client timeout
+        {
+            CAFFA_WARNING( "Path: " << path << ", Query Arguments: " << queryParamsJson.dump() << ", Body: "
+                                    << bodyJson.dump() << ", Method: " << method << " took longer than 12s" );
+        }
+
         if ( status == http::status::ok || status == http::status::accepted )
         {
             CAFFA_DEBUG( "Responding with " << status << ": " << message );
