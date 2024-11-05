@@ -196,6 +196,7 @@ private:
         requires IsSharedPtr<ArgType>
     [[nodiscard]] static ArgType jsonToValue( const json::value& jsonData, ObjectFactory* objectFactory )
     {
+        if ( jsonData.is_null() ) return nullptr;
         const JsonSerializer serializer( objectFactory );
         return std::dynamic_pointer_cast<typename ArgType::element_type>(
             serializer.createObjectFromJson( jsonData.as_object() ) );
