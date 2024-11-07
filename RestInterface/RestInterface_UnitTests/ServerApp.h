@@ -128,7 +128,7 @@ public:
         return true;
     }
 
-    caffa::SessionMaintainer createSession( caffa::Session::Type type = caffa::Session::Type::REGULAR ) override
+    std::shared_ptr<caffa::Session> createSession( caffa::Session::Type type = caffa::Session::Type::REGULAR ) override
     {
         if ( type == caffa::Session::Type::INVALID )
             throw std::runtime_error( "Cannot create sessions of type 'INVALID'" );
@@ -150,48 +150,48 @@ public:
                 }
             }
             m_session = caffa::Session::create( type, std::chrono::seconds( 2 ) );
-            return caffa::SessionMaintainer( m_session );
+            return m_session;
         }
         auto observingSession = caffa::Session::create( type, std::chrono::seconds( 2 ) );
         m_observingSessions.push_back( observingSession );
-        return caffa::SessionMaintainer( observingSession );
+        return observingSession;
     }
 
-    caffa::SessionMaintainer getExistingSession( const std::string& sessionUuid ) override
+    std::shared_ptr<caffa::Session> getExistingSession( const std::string& sessionUuid ) override
     {
         std::scoped_lock lock( m_sessionMutex );
         if ( m_session && m_session->uuid() == sessionUuid )
         {
-            return caffa::SessionMaintainer( m_session );
+            return m_session;
         }
         for ( auto observingSession : m_observingSessions )
         {
             if ( observingSession && observingSession->uuid() == sessionUuid && !observingSession->isExpired() )
             {
-                return caffa::SessionMaintainer( observingSession );
+                return observingSession;
             }
         }
-        return caffa::SessionMaintainer();
+        return nullptr;
     }
 
-    caffa::ConstSessionMaintainer getExistingSession( const std::string& sessionUuid ) const override
+    std::shared_ptr<const Session> getExistingSession( const std::string& sessionUuid ) const override
     {
         std::scoped_lock lock( m_sessionMutex );
 
         if ( m_session && m_session->uuid() == sessionUuid )
         {
-            return caffa::ConstSessionMaintainer( m_session );
+            return m_session;
         }
 
         for ( auto observingSession : m_observingSessions )
         {
             if ( observingSession && observingSession->uuid() == sessionUuid && !observingSession->isExpired() )
             {
-                return caffa::ConstSessionMaintainer( observingSession );
+                return observingSession;
             }
         }
 
-        return caffa::ConstSessionMaintainer();
+        return nullptr;
     }
 
     void changeSession( caffa::not_null<caffa::Session*> session, caffa::Session::Type newType ) override

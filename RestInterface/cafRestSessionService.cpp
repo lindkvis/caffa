@@ -282,7 +282,7 @@ RestSessionService::ServiceResponse RestSessionService::get( http::verb,
 
     CAFFA_DEBUG( "Got session get request for uuid " << uuid );
 
-    SessionMaintainer session = RestServerApplication::instance()->getExistingSession( uuid );
+    std::shared_ptr<Session> session = RestServerApplication::instance()->getExistingSession( uuid );
     if ( !session )
     {
         return std::make_pair( http::status::not_found, "Session '" + uuid + "' is not valid" );
@@ -312,7 +312,7 @@ RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( http:
 
     CAFFA_DEBUG( "Got session change request for " << uuid );
 
-    SessionMaintainer session = RestServerApplication::instance()->getExistingSession( uuid );
+    const std::shared_ptr<Session> session = RestServerApplication::instance()->getExistingSession( uuid );
 
     if ( !session )
     {

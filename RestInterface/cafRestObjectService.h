@@ -75,7 +75,7 @@ private:
                                                           const json::object&           queryParams,
                                                           const json::value&            body );
 
-    static caffa::SessionMaintainer findSession( const json::object& queryParams );
+    static std::shared_ptr<Session> findSession( const json::object& queryParams );
 
     static std::unique_ptr<RestAction> createObjectGetAction( const std::list<RestParameter*>& parameters );
     static std::unique_ptr<RestAction> createFieldOrMethodAction( http::verb                       verb,

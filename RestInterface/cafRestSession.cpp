@@ -37,7 +37,6 @@ namespace caffa::rpc
 
 static boost::regex s_paramRegex( "[\?&]" );
 
-
 std::shared_ptr<RestServiceInterface>
     findRestService( const std::string& key, const std::map<std::string, std::shared_ptr<RestServiceInterface>>& services )
 {
@@ -186,8 +185,8 @@ void handleRequest( const std::map<std::string, std::shared_ptr<RestServiceInter
         }
     }
 
-    SessionMaintainer session;
-    std::string       session_uuid = "NONE";
+    std::shared_ptr<Session> session;
+    std::string              session_uuid = "NONE";
     if ( auto it = queryParamsJson.find( "session_uuid" ); it != queryParamsJson.end() )
     {
         session_uuid = json::from_json<std::string>( it->value() );

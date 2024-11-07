@@ -157,7 +157,8 @@ public:
         }
         return true;
     }
-    SessionMaintainer createSession( Session::Type type ) override
+
+    std::shared_ptr<caffa::Session> createSession( Session::Type type ) override
     {
         if ( m_session )
         {
@@ -171,25 +172,25 @@ public:
             }
         }
         m_session = Session::create( type, std::chrono::seconds( 60 ) );
-        return SessionMaintainer( m_session );
+        return m_session;
     }
 
-    SessionMaintainer getExistingSession( const std::string& sessionUuid ) override
+    std::shared_ptr<caffa::Session> getExistingSession( const std::string& sessionUuid ) override
     {
         if ( m_session && m_session->uuid() == sessionUuid )
         {
-            return SessionMaintainer( m_session );
+            return m_session;
         }
-        return SessionMaintainer( nullptr );
+        return nullptr;
     }
 
-    ConstSessionMaintainer getExistingSession( const std::string& sessionUuid ) const override
+    std::shared_ptr<const caffa::Session> getExistingSession( const std::string& sessionUuid ) const override
     {
         if ( m_session && m_session->uuid() == sessionUuid )
         {
-            return ConstSessionMaintainer( m_session );
+            return m_session;
         }
-        return ConstSessionMaintainer( nullptr );
+        return nullptr;
     }
 
     void changeSession( not_null<Session*> session, Session::Type newType ) override

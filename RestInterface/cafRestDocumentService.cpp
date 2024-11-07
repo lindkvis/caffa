@@ -276,7 +276,7 @@ RestServiceInterface::ServiceResponse RestDocumentService::document( const std::
                                                                      const json::object& queryParams,
                                                                      const json::value& )
 {
-    SessionMaintainer session;
+    std::shared_ptr<Session> session;
 
     if ( const auto it = queryParams.find( "session_uuid" ); it != queryParams.end() )
     {
@@ -318,7 +318,7 @@ RestDocumentService::ServiceResponse RestDocumentService::documents( http::verb,
 {
     CAFFA_DEBUG( "Got list document request" );
 
-    SessionMaintainer session;
+    std::shared_ptr<Session> session;
 
     if ( const auto it = queryParams.find( "session_uuid" ); it != queryParams.end() )
     {
