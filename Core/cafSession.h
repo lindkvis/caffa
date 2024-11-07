@@ -26,8 +26,6 @@
 
 namespace caffa
 {
-class SessionMaintainer;
-class ConstSessionMaintainer;
 /**
  * @brief Abstract class representing an application session
  *
@@ -60,54 +58,13 @@ public:
     std::chrono::milliseconds timeout() const;
 
 private:
-    friend class SessionMaintainer;
-    friend class ConstSessionMaintainer;
-
     Session( Type type, std::chrono::milliseconds timeout );
-
-    bool unlockedIsExpired() const;
-    void blockExpiration() const;
-    void unblockExpiration() const;
 
     const std::string               m_uuid;
     std::atomic<Type>               m_type;
     const std::chrono::milliseconds m_timeOut;
 
     mutable std::atomic<std::chrono::steady_clock::time_point> m_lastKeepAlive;
-    mutable std::shared_mutex                                  m_expirationBlockedMutex;
-    mutable bool                                               m_expirationBlocked;
-};
-
-class SessionMaintainer
-{
-public:
-    explicit SessionMaintainer( std::shared_ptr<Session> session = nullptr );
-    ~SessionMaintainer();
-
-    std::shared_ptr<Session> operator->();
-    std::shared_ptr<Session> operator*();
-    operator bool() const;
-    bool     operator!() const;
-    Session* get();
-
-private:
-    std::shared_ptr<Session> m_session;
-};
-
-class ConstSessionMaintainer
-{
-public:
-    explicit ConstSessionMaintainer( std::shared_ptr<const Session> session = nullptr );
-    ~ConstSessionMaintainer();
-
-    std::shared_ptr<const Session> operator->() const;
-    std::shared_ptr<const Session> operator*() const;
-    operator bool() const;
-    bool           operator!() const;
-    [[nodiscard]] const Session* get() const;
-
-private:
-    std::shared_ptr<const Session> m_session;
 };
 
 } // namespace caffa

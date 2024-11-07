@@ -315,7 +315,7 @@ RestObjectService::ServiceResponse
 
     if ( const auto method = object->findMethod( keyword ); method )
     {
-        auto result = method->execute( *session, json::dump( body ) );
+        auto result = method->execute( session, json::dump( body ) );
         return std::make_pair( http::status::ok, result );
     }
 
@@ -582,9 +582,9 @@ RestObjectService::ServiceResponse RestObjectService::object( http::verb,
     return std::make_pair( http::status::ok, json::dump( jsonObject ) );
 }
 
-SessionMaintainer RestObjectService::findSession( const json::object& queryParams )
+std::shared_ptr<Session> RestObjectService::findSession( const json::object& queryParams )
 {
-    SessionMaintainer session;
+    std::shared_ptr<Session> session;
 
     if ( const auto it = queryParams.find( "session_uuid" ); it != queryParams.end() )
     {
