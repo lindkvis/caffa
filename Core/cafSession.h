@@ -40,8 +40,7 @@ public:
         OBSERVING = 0x2
     };
 
-    static std::shared_ptr<Session> create( Type                      type,
-                                            std::chrono::milliseconds timeout = std::chrono::milliseconds( 1000 ) );
+    static std::shared_ptr<Session> create( Type type );
 
     ~Session() = default;
 
@@ -50,19 +49,16 @@ public:
     Type type() const;
     void setType( Type type );
 
-    bool isExpired() const;
-    void updateKeepAlive() const;
+    std::chrono::steady_clock::time_point lastKeepAlive() const;
+    void                                  updateKeepAlive() const;
 
     static Type typeFromUint( unsigned type );
 
-    std::chrono::milliseconds timeout() const;
-
 private:
-    Session( Type type, std::chrono::milliseconds timeout );
+    Session( Type type );
 
-    const std::string               m_uuid;
-    std::atomic<Type>               m_type;
-    const std::chrono::milliseconds m_timeOut;
+    const std::string m_uuid;
+    std::atomic<Type> m_type;
 
     mutable std::atomic<std::chrono::steady_clock::time_point> m_lastKeepAlive;
 };

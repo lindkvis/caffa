@@ -256,7 +256,7 @@ RestSessionService::ServiceResponse RestSessionService::create( http::verb,
         json::object jsonResponse;
         jsonResponse["uuid"]  = session->uuid();
         jsonResponse["type"]  = AppEnum<Session::Type>::getLabel( session->type() );
-        jsonResponse["valid"] = !session->isExpired();
+        jsonResponse["valid"] = RestServerApplication::instance()->isValid( session.get() );
         return std::make_pair( http::status::ok, json::dump( jsonResponse ) );
     }
     catch ( const std::exception& e )
@@ -291,7 +291,7 @@ RestSessionService::ServiceResponse RestSessionService::get( http::verb,
     json::object jsonResponse;
     jsonResponse["uuid"]  = session->uuid();
     jsonResponse["type"]  = AppEnum<Session::Type>::getLabel( session->type() );
-    jsonResponse["valid"] = !session->isExpired();
+    jsonResponse["valid"] = RestServerApplication::instance()->isValid( session.get() );
 
     return std::make_pair( http::status::ok, json::dump( jsonResponse ) );
 }
@@ -318,7 +318,8 @@ RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( http:
     {
         return std::make_pair( http::status::not_found, "Session '" + uuid + "' is not valid" );
     }
-    if ( session->isExpired() )
+
+    if ( !RestServerApplication::instance()->isValid( session.get() ) )
     {
         return std::make_pair( http::status::gone, "Session '" + uuid + "' is expired" );
     }
@@ -341,7 +342,7 @@ RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( http:
     auto jsonResponse     = json::object();
     jsonResponse["uuid"]  = session->uuid();
     jsonResponse["type"]  = AppEnum<Session::Type>::getLabel( session->type() );
-    jsonResponse["valid"] = !session->isExpired();
+    jsonResponse["valid"] = RestServerApplication::instance()->isValid( session.get() );
 
     return std::make_pair( http::status::ok, json::dump( jsonResponse ) );
 }

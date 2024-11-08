@@ -22,15 +22,14 @@ void AppEnum<Session::Type>::setUp()
 
 } // namespace caffa
 
-std::shared_ptr<Session> Session::create( Type type, std::chrono::milliseconds timeout )
+std::shared_ptr<Session> Session::create( Type type )
 {
-    return std::shared_ptr<Session>( new Session( type, timeout ) );
+    return std::shared_ptr<Session>( new Session( type ) );
 }
 
-Session::Session( Type type, std::chrono::milliseconds timeout )
+Session::Session( Type type )
     : m_uuid( caffa::UuidGenerator::generate() )
     , m_type( type )
-    , m_timeOut( timeout )
     , m_lastKeepAlive( std::chrono::steady_clock::now() )
 {
 }
@@ -50,16 +49,9 @@ void Session::setType( Type type )
     m_type = type;
 }
 
-bool Session::isExpired() const
+std::chrono::steady_clock::time_point Session::lastKeepAlive() const
 {
-    auto                                  now           = std::chrono::steady_clock::now();
-    std::chrono::steady_clock::time_point lastKeepAlive = m_lastKeepAlive;
-    auto timeSinceKeepalive = std::chrono::duration_cast<std::chrono::milliseconds>( now - lastKeepAlive );
-
-    bool isExpired = timeSinceKeepalive > m_timeOut;
-
-    CAFFA_TRACE( "Was the session expired? " << isExpired );
-    return isExpired;
+    return m_lastKeepAlive;
 }
 
 void Session::updateKeepAlive() const
@@ -82,9 +74,4 @@ Session::Type Session::typeFromUint( unsigned type )
             break;
     }
     throw std::runtime_error( "Bad session type " + std::to_string( type ) );
-}
-
-std::chrono::milliseconds Session::timeout() const
-{
-    return m_timeOut;
 }

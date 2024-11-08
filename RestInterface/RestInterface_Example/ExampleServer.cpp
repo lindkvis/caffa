@@ -42,6 +42,7 @@
 #endif
 
 using namespace caffa;
+using namespace std::chrono_literals;
 
 /**
  * A very simple, *not at all* production ready authenticator.
@@ -141,7 +142,7 @@ public:
         return { std::make_shared<DemoDocument>() };
     }
 
-    bool hasActiveSessions() const override { return m_session && !m_session->isExpired(); }
+    bool hasActiveSessions() const override { return m_session && isValid( m_session.get() ); }
 
     bool readyForSession( Session::Type type ) const override
     {
@@ -149,7 +150,7 @@ public:
 
         if ( type == Session::Type::REGULAR )
         {
-            if ( m_session && !m_session->isExpired() )
+            if ( m_session && isValid( m_session.get() ) )
             {
                 return false;
             }
@@ -162,7 +163,7 @@ public:
     {
         if ( m_session )
         {
-            if ( !m_session->isExpired() )
+            if ( isValid( m_session.get() ) )
             {
                 throw std::runtime_error( "We already have a session and only allow one at a time!" );
             }
@@ -171,7 +172,7 @@ public:
                 CAFFA_WARNING( "Had session " << m_session->uuid() << " but it has not been kept alive, so destroying it" );
             }
         }
-        m_session = Session::create( type, std::chrono::seconds( 60 ) );
+        m_session = Session::create( type );
         return m_session;
     }
 
@@ -208,6 +209,11 @@ public:
         {
             throw std::runtime_error( "Failed to destroy session " + sessionUuid );
         }
+    }
+
+    bool isValid( const caffa::Session* session ) const override
+    {
+        return ( std::chrono::steady_clock::now() - session->lastKeepAlive() ) < 60s;
     }
 
 private:

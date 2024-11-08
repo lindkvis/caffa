@@ -53,8 +53,9 @@ namespace rpc
 
         [[nodiscard]] virtual std::list<std::shared_ptr<Document>> defaultDocuments() const = 0;
 
-        [[nodiscard]] bool requiresValidSession() const;
-        void               setRequiresValidSession( bool requiresValidSession );
+        [[nodiscard]] bool         requiresValidSession() const;
+        void                       setRequiresValidSession( bool requiresValidSession );
+        [[nodiscard]] virtual bool isValid( const caffa::Session* session ) const = 0;
 
         [[nodiscard]] virtual bool       readyForSession( caffa::Session::Type type ) const   = 0;
         virtual std::shared_ptr<Session> createSession( caffa::Session::Type type )           = 0;
