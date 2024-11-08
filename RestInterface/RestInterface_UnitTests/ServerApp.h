@@ -30,6 +30,8 @@
 #include <mutex>
 #include <stdexcept>
 
+using namespace std::chrono_literals;
+
 class UnitTestAuthenticator : public caffa::rpc::RestAuthenticator
 {
 public:
@@ -118,7 +120,7 @@ public:
         {
             if ( m_session )
             {
-                if ( !m_session->isExpired() )
+                if ( isValidUnlocked( m_session.get() ) )
                 {
                     return false;
                 }
@@ -126,6 +128,18 @@ public:
             return true;
         }
         return true;
+    }
+
+    bool isValid( const caffa::Session* session ) const override
+    {
+        std::scoped_lock lock( m_sessionMutex );
+        return isValidUnlocked( session );
+    }
+
+    bool isValidUnlocked( const caffa::Session* session ) const
+    {
+        const auto now = std::chrono::steady_clock::now();
+        return session && ( ( now - session->lastKeepAlive() ) < 2s );
     }
 
     std::shared_ptr<caffa::Session> createSession( caffa::Session::Type type = caffa::Session::Type::REGULAR ) override
@@ -139,7 +153,7 @@ public:
         {
             if ( m_session )
             {
-                if ( !m_session->isExpired() )
+                if ( isValidUnlocked( m_session.get() ) )
                 {
                     throw std::runtime_error( "We already have a regular session and only allow one at a time!" );
                 }
@@ -149,10 +163,10 @@ public:
                                                 << " but it has not been kept alive, so destroying it" );
                 }
             }
-            m_session = caffa::Session::create( type, std::chrono::seconds( 2 ) );
+            m_session = caffa::Session::create( type );
             return m_session;
         }
-        auto observingSession = caffa::Session::create( type, std::chrono::seconds( 2 ) );
+        auto observingSession = caffa::Session::create( type );
         m_observingSessions.push_back( observingSession );
         return observingSession;
     }
@@ -166,7 +180,7 @@ public:
         }
         for ( auto observingSession : m_observingSessions )
         {
-            if ( observingSession && observingSession->uuid() == sessionUuid && !observingSession->isExpired() )
+            if ( observingSession && observingSession->uuid() == sessionUuid && isValidUnlocked( observingSession.get() ) )
             {
                 return observingSession;
             }
@@ -185,7 +199,7 @@ public:
 
         for ( auto observingSession : m_observingSessions )
         {
-            if ( observingSession && observingSession->uuid() == sessionUuid && !observingSession->isExpired() )
+            if ( observingSession && observingSession->uuid() == sessionUuid && isValidUnlocked( observingSession.get() ) )
             {
                 return observingSession;
             }

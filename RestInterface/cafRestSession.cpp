@@ -245,7 +245,7 @@ void handleRequest( const std::map<std::string, std::shared_ptr<RestServiceInter
 
     if ( requiresValidSession )
     {
-        if ( !session || session->isExpired() )
+        if ( !session || !RestServerApplication::instance()->isValid( session.get() ) )
         {
             send( createResponse( http::status::forbidden, "Session '" + session_uuid + "' is not valid" ) );
             return;

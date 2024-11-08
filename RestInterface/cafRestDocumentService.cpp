@@ -283,7 +283,8 @@ RestServiceInterface::ServiceResponse RestDocumentService::document( const std::
         session = RestServerApplication::instance()->getExistingSession( json::from_json<std::string>( it->value() ) );
     }
 
-    if ( RestServerApplication::instance()->requiresValidSession() && ( !session || session->isExpired() ) )
+    if ( RestServerApplication::instance()->requiresValidSession() &&
+         !RestServerApplication::instance()->isValid( session.get() ) )
     {
         return std::make_pair( http::status::forbidden, "No valid session provided" );
     }
@@ -325,7 +326,8 @@ RestDocumentService::ServiceResponse RestDocumentService::documents( http::verb,
         session = RestServerApplication::instance()->getExistingSession( json::from_json<std::string>( it->value() ) );
     }
 
-    if ( RestServerApplication::instance()->requiresValidSession() && ( !session || session->isExpired() ) )
+    if ( RestServerApplication::instance()->requiresValidSession() &&
+         !RestServerApplication::instance()->isValid( session.get() ) )
     {
         return std::make_pair( http::status::forbidden, "No valid session provided" );
     }

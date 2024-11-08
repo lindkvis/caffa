@@ -283,7 +283,7 @@ RestObjectService::ServiceResponse
         "Full arguments for field operation: " << StringTools::join( pathArguments.begin(), pathArguments.end(), "/" ) );
 
     auto session = findSession( queryParams );
-    if ( !session || session->isExpired() )
+    if ( !session || !RestServerApplication::instance()->isValid( session.get() ) )
     {
         return std::make_pair( http::status::forbidden, "No valid session provided" );
     }
@@ -545,7 +545,7 @@ RestObjectService::ServiceResponse RestObjectService::object( http::verb,
                                                               const json::value& )
 {
     auto session = findSession( queryParams );
-    if ( !session || session->isExpired() )
+    if ( !session )
     {
         return std::make_pair( http::status::forbidden, "No valid session provided" );
     }
