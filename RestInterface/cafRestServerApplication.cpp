@@ -105,7 +105,19 @@ void RestServerApplication::run()
     std::vector<std::thread> v;
     v.reserve( m_threads - 1 );
     for ( auto i = m_threads - 1; i > 0; --i )
-        v.emplace_back( [this] { m_ioContext.run(); } );
+        v.emplace_back(
+            [this, i]
+            {
+#ifdef __linux__
+                const sched_param param{ .sched_priority = 10 };
+                if ( pthread_setschedparam( pthread_self(), SCHED_FIFO, &param ) )
+                {
+                    CAFFA_WARNING( "Failed to set higher priority for REST thread " << i );
+                }
+#endif
+
+                m_ioContext.run();
+            } );
 
     boost::asio::signal_set signals( m_ioContext, SIGINT, SIGTERM );
     signals.async_wait(
