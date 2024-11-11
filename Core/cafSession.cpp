@@ -27,7 +27,7 @@ std::shared_ptr<Session> Session::create( Type type )
     return std::shared_ptr<Session>( new Session( type ) );
 }
 
-Session::Session( Type type )
+Session::Session( const Type type )
     : m_uuid( caffa::UuidGenerator::generate() )
     , m_type( type )
     , m_lastKeepAlive( std::chrono::steady_clock::now() )

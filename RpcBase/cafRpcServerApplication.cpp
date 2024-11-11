@@ -41,7 +41,7 @@ ServerApplication::ServerApplication( AppInfo::AppCapability capability )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ServerApplication* caffa::rpc::ServerApplication::instance()
+ServerApplication* ServerApplication::instance()
 {
     Application* appInstance = Application::instance();
     return dynamic_cast<ServerApplication*>( appInstance );
@@ -50,7 +50,7 @@ ServerApplication* caffa::rpc::ServerApplication::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caffa::rpc::ServerApplication::requiresValidSession() const
+bool ServerApplication::requiresValidSession() const
 {
     return m_requiresValidSession;
 }
@@ -58,7 +58,7 @@ bool caffa::rpc::ServerApplication::requiresValidSession() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caffa::rpc::ServerApplication::setRequiresValidSession( bool requiresValidSession )
+void ServerApplication::setRequiresValidSession( bool requiresValidSession )
 {
     m_requiresValidSession = requiresValidSession;
 }
