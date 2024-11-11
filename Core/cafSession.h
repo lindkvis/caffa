@@ -55,7 +55,7 @@ public:
     static Type typeFromUint( unsigned type );
 
 private:
-    Session( Type type );
+    explicit Session( Type type );
 
     const std::string m_uuid;
     std::atomic<Type> m_type;
