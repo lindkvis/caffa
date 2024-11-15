@@ -617,6 +617,35 @@ void RestClient::destroySession()
     }
 }
 
+std::shared_ptr<ObjectHandle> RestClient::sessionMetadata()
+{
+    std::scoped_lock<std::mutex> lock( m_sessionMutex );
+
+    auto jsonObject    = json::object();
+    jsonObject["uuid"] = m_sessionUuid;
+
+    auto [status, body] = performRequest( http::verb::options,
+                                          hostname(),
+                                          port(),
+                                          std::string( "/sessions/" + m_sessionUuid + "?session_uuid=" ) + m_sessionUuid,
+                                          json::dump( jsonObject ) );
+
+    if ( status != http::status::ok )
+    {
+        throw std::runtime_error( "Failed to check session: " + body );
+    }
+
+    CAFFA_TRACE( "Got result: " << body );
+
+    auto jsonResult = json::parse( body );
+
+    if ( const auto jsonResultObject = jsonResult.if_object(); jsonResultObject )
+    {
+        return JsonSerializer().createObjectFromJson( *jsonResultObject );
+    }
+    throw std::runtime_error( "Failed to check session: " + body );
+}
+
 //--------------------------------------------------------------------------------------------------
 // Get the current session ID
 //--------------------------------------------------------------------------------------------------
