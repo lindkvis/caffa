@@ -56,8 +56,9 @@ public:
     [[nodiscard]] std::map<std::string, json::object> servicePathEntries() const override;
     [[nodiscard]] std::map<std::string, json::object> serviceComponentEntries() const override;
 
-private:
     static json::object anyObjectResponseContent();
+
+private:
     static json::object anyFieldResponseContent();
 
     static ServiceResponse object( http::verb                    verb,

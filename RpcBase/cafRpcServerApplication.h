@@ -28,6 +28,7 @@
 namespace caffa
 {
 class Document;
+class ObjectHandle;
 
 namespace rpc
 {
@@ -64,6 +65,7 @@ namespace rpc
         [[nodiscard]] virtual std::shared_ptr<const Session> getExistingSession( const std::string& sessionUuid ) const = 0;
         virtual void changeSession( caffa::not_null<caffa::Session*> session, caffa::Session::Type newType ) = 0;
         virtual void destroySession( const std::string& sessionUuid )                                        = 0;
+        virtual std::shared_ptr<ObjectHandle> sessionMetadata( const std::string& sessionUuid ) { return nullptr; }
 
     protected:
         virtual void onStartup() {}

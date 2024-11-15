@@ -59,6 +59,11 @@ private:
                                 const json::object&           queryParams,
                                 const json::value&            body );
 
+    static ServiceResponse metadata( http::verb                    verb,
+                                     const std::list<std::string>& pathArguments,
+                                     const json::object&           queryParams,
+                                     const json::value&            body );
+
     static ServiceResponse changeOrKeepAlive( http::verb                    verb,
                                               const std::list<std::string>& pathArguments,
                                               const json::object&           queryParams,

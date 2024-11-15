@@ -63,10 +63,11 @@ public:
      * And throw an exception if it does not.
      * @return Session::Type
      */
-    [[nodiscard]] virtual Session::Type      checkSession() const                   = 0;
-    virtual void                             changeSession( Session::Type newType ) = 0;
-    [[nodiscard]] virtual const std::string& sessionUuid() const                    = 0;
-    virtual void                             startKeepAliveThread()                 = 0;
+    [[nodiscard]] virtual Session::Type                 checkSession() const                   = 0;
+    virtual void                                        changeSession( Session::Type newType ) = 0;
+    [[nodiscard]] virtual const std::string&            sessionUuid() const                    = 0;
+    virtual void                                        startKeepAliveThread()                 = 0;
+    [[nodiscard]] virtual std::shared_ptr<ObjectHandle> sessionMetadata()                      = 0;
 
     template <typename DataType>
     void set( const ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value );
@@ -97,8 +98,8 @@ public:
     [[nodiscard]] int                port() const { return m_port; }
 
 private:
-    virtual void setJson( const ObjectHandle* objectHandle, const std::string& fieldName, const json::value& value )    = 0;
-    virtual json::value getJson( const ObjectHandle*, const std::string& fieldName ) const                              = 0;
+    virtual void setJson( const ObjectHandle* objectHandle, const std::string& fieldName, const json::value& value ) = 0;
+    virtual json::value getJson( const ObjectHandle*, const std::string& fieldName ) const                       = 0;
     virtual void doCreateSession( Session::Type type, const std::string& username, const std::string& password ) = 0;
 
 private:
@@ -113,7 +114,7 @@ template <typename DataType>
 DataType Client::get( const ObjectHandle* objectHandle, const std::string& fieldName ) const
 {
     const json::value jsonValue = getJson( objectHandle, fieldName );
-    return json::from_json<DataType>(jsonValue);
+    return json::from_json<DataType>( jsonValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,7 +123,7 @@ DataType Client::get( const ObjectHandle* objectHandle, const std::string& field
 template <typename DataType>
 void Client::set( const ObjectHandle* objectHandle, const std::string& fieldName, const DataType& value )
 {
-    const json::value jsonValue = json::to_json( value);
+    const json::value jsonValue = json::to_json( value );
     setJson( objectHandle, fieldName, jsonValue );
 }
 

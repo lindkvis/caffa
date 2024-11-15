@@ -123,10 +123,11 @@ void handleRequest( const std::map<std::string, std::shared_ptr<RestServiceInter
 
     // Make sure we can handle the method
     if ( method != http::verb::post && method != http::verb::delete_ && method != http::verb::patch &&
-         method != http::verb::put && method != http::verb::get && method != http::verb::head )
+         method != http::verb::put && method != http::verb::get && method != http::verb::head &&
+         method != http::verb::options )
     {
         send( createResponse( http::status::bad_request,
-                              "Unknown HTTP-method " + std::string( http::to_string( method ) ) ) );
+                              "Unsupported HTTP-method " + std::string( http::to_string( method ) ) ) );
         return;
     }
 

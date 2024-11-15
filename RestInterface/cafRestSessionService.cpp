@@ -19,7 +19,9 @@
 #include "cafRestSessionService.h"
 
 #include "cafAppEnum.h"
+#include "cafJsonSerializer.h"
 #include "cafLogger.h"
+#include "cafRestObjectService.h"
 #include "cafRestServerApplication.h"
 #include "cafSession.h"
 #include "cafUuidGenerator.h"
@@ -87,6 +89,22 @@ RestSessionService::RestSessionService()
         getAction->setRequiresSession( false );
 
         uuidEntry->addAction( std::move( getAction ) );
+
+        auto optionsAction = std::make_unique<RestAction>( http::verb::options,
+                                                           "Get metadata for a particular session",
+                                                           "getMetadata",
+                                                           &RestSessionService::metadata );
+
+        optionsAction->addParameter( uuidParameter->clone() );
+        optionsAction->addResponse( http::status::ok,
+                                    std::make_unique<RestResponse>( RestObjectService::anyObjectResponseContent(),
+                                                                    "Any object" ) );
+
+        optionsAction->addResponse( http::status::unknown, RestResponse::plainErrorResponse() );
+        optionsAction->setRequiresAuthentication( false );
+        optionsAction->setRequiresSession( false );
+
+        uuidEntry->addAction( std::move( optionsAction ) );
 
         auto deleteAction = std::make_unique<RestAction>( http::verb::delete_,
                                                           "Destroy a particular session",
@@ -294,6 +312,27 @@ RestSessionService::ServiceResponse RestSessionService::get( http::verb,
     jsonResponse["valid"] = RestServerApplication::instance()->isValid( session.get() );
 
     return std::make_pair( http::status::ok, json::dump( jsonResponse ) );
+}
+RestServiceInterface::ServiceResponse RestSessionService::metadata( http::verb                    verb,
+                                                                    const std::list<std::string>& pathArguments,
+                                                                    const json::object&           queryParams,
+                                                                    const json::value&            body )
+{
+    if ( pathArguments.empty() )
+    {
+        return std::make_pair( http::status::bad_request, "Session uuid not provided" );
+    }
+    const auto& uuid = pathArguments.front();
+
+    CAFFA_DEBUG( "Got session metadata request for uuid " << uuid );
+
+    const std::shared_ptr<ObjectHandle> metadata = RestServerApplication::instance()->sessionMetadata( uuid );
+    if ( !metadata )
+    {
+        return std::make_pair( http::status::not_found, "Session '" + uuid + "' metadata not found" );
+    }
+
+    return std::make_pair( http::status::ok, JsonSerializer().writeObjectToString( metadata.get() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

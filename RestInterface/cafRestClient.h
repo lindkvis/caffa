@@ -73,11 +73,12 @@ public:
      * And throw an exception if it does not.
      * @return Session::Type
      */
-    Session::Type      checkSession() const override;
-    void               changeSession( Session::Type newType ) override;
-    void               destroySession();
-    const std::string& sessionUuid() const override;
-    void               startKeepAliveThread() override;
+    Session::Type                 checkSession() const override;
+    void                          changeSession( Session::Type newType ) override;
+    void                          destroySession();
+    const std::string&            sessionUuid() const override;
+    void                          startKeepAliveThread() override;
+    std::shared_ptr<ObjectHandle> sessionMetadata() override;
 
     std::shared_ptr<ObjectHandle> getChildObject( const ObjectHandle* objectHandle,
                                                   const std::string&  fieldName ) const override;
