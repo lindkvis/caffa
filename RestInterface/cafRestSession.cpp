@@ -187,7 +187,7 @@ void handleRequest( const std::map<std::string, std::shared_ptr<RestServiceInter
     }
 
     std::shared_ptr<Session> session;
-    std::string              session_uuid = "NONE";
+    std::string              session_uuid = "";
     if ( auto it = queryParamsJson.find( "session_uuid" ); it != queryParamsJson.end() )
     {
         session_uuid = json::from_json<std::string>( it->value() );

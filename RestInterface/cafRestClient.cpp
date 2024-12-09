@@ -479,7 +479,7 @@ bool RestClient::isReady( Session::Type type ) const
 
     if ( status != http::status::ok )
     {
-        throw std::runtime_error( "Failed to check for session: " + body );
+        throw std::runtime_error( "Failed to check for session readiness: " + body );
     }
 
     CAFFA_TRACE( "Got result: " << body );
@@ -534,6 +534,7 @@ void RestClient::doCreateSession( const Session::Type type, const std::string& u
 Session::Type RestClient::checkSession() const
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
+    if ( m_sessionUuid.empty() ) return Session::Type::UNKNOWN;
 
     auto jsonObject    = json::object();
     jsonObject["uuid"] = m_sessionUuid;
@@ -546,10 +547,10 @@ Session::Type RestClient::checkSession() const
 
     if ( status != http::status::ok )
     {
-        throw std::runtime_error( "Failed to check session: " + body );
+        throw std::runtime_error( "Failed to check session with error reply: " + body );
     }
 
-    CAFFA_TRACE( "Got result: " << body );
+    CAFFA_INFO( "Got result: " << body );
 
     auto jsonResult = json::parse( body );
 
@@ -560,7 +561,7 @@ Session::Type RestClient::checkSession() const
             return AppEnum<Session::Type>( json::from_json<std::string>( it->value() ) ).value();
         }
     }
-    throw std::runtime_error( "Failed to check session: " + body );
+    throw std::runtime_error( "Failed to check session due to malformed reply: " + body );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -579,7 +580,7 @@ void RestClient::changeSession( const Session::Type newType )
 
     if ( status != http::status::ok )
     {
-        throw std::runtime_error( "Failed to check session: " + body );
+        throw std::runtime_error( "Failed to change session: " + body );
     }
 }
 
@@ -593,7 +594,7 @@ void RestClient::destroySession()
 
         if ( m_sessionUuid.empty() ) return;
 
-        CAFFA_DEBUG( "Destroying session " << m_sessionUuid );
+        CAFFA_INFO( "Destroying session " << m_sessionUuid );
 
         auto [status, body] = performRequest( http::verb::delete_,
                                               hostname(),

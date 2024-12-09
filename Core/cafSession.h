@@ -35,7 +35,7 @@ class Session
 public:
     enum class Type
     {
-        INVALID   = 0x0,
+        UNKNOWN   = 0x0,
         REGULAR   = 0x1,
         OBSERVING = 0x2
     };
