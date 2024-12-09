@@ -146,7 +146,7 @@ public:
 
     bool readyForSession( Session::Type type ) const override
     {
-        if ( type == Session::Type::INVALID ) return false;
+        if ( type == Session::Type::UNKNOWN ) return false;
 
         if ( type == Session::Type::REGULAR )
         {

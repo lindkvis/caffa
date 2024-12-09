@@ -15,6 +15,7 @@ namespace caffa
 template <>
 void AppEnum<Session::Type>::setUp()
 {
+    addItem( Session::Type::UNKNOWN, "UNKNOWN" );
     addItem( Session::Type::REGULAR, "REGULAR" );
     addItem( Session::Type::OBSERVING, "OBSERVING" );
     setDefault( Session::Type::REGULAR );
@@ -64,8 +65,8 @@ Session::Type Session::typeFromUint( unsigned type )
 {
     switch ( type )
     {
-        case static_cast<unsigned>( Type::INVALID ):
-            return Type::INVALID;
+        case static_cast<unsigned>( Type::UNKNOWN ):
+            return Type::UNKNOWN;
         case static_cast<unsigned>( Type::REGULAR ):
             return Type::REGULAR;
         case static_cast<unsigned>( Type::OBSERVING ):

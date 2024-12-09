@@ -112,7 +112,7 @@ public:
 
     bool readyForSession( caffa::Session::Type type ) const override
     {
-        if ( type == caffa::Session::Type::INVALID ) return false;
+        if ( type == caffa::Session::Type::UNKNOWN ) return false;
 
         std::scoped_lock lock( m_sessionMutex );
 
@@ -144,7 +144,7 @@ public:
 
     std::shared_ptr<caffa::Session> createSession( caffa::Session::Type type = caffa::Session::Type::REGULAR ) override
     {
-        if ( type == caffa::Session::Type::INVALID )
+        if ( type == caffa::Session::Type::UNKNOWN )
             throw std::runtime_error( "Cannot create sessions of type 'INVALID'" );
 
         std::scoped_lock lock( m_sessionMutex );

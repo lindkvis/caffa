@@ -300,10 +300,19 @@ RestSessionService::ServiceResponse RestSessionService::get( http::verb,
 
     CAFFA_DEBUG( "Got session get request for uuid " << uuid );
 
-    std::shared_ptr<Session> session = RestServerApplication::instance()->getExistingSession( uuid );
+    const auto session = RestServerApplication::instance()->getExistingSession( uuid );
     if ( !session )
     {
-        return std::make_pair( http::status::not_found, "Session '" + uuid + "' is not valid" );
+        if ( !RestServerApplication::instance()->wasValidSession( uuid ) )
+        {
+            return std::make_pair( http::status::not_found, "Session '" + uuid + "' is not valid" );
+        }
+        json::object jsonResponse;
+        jsonResponse["uuid"]  = uuid;
+        jsonResponse["type"]  = AppEnum<Session::Type>::getLabel( Session::Type::UNKNOWN );
+        jsonResponse["valid"] = false;
+
+        return std::make_pair( http::status::ok, json::dump( jsonResponse ) );
     }
 
     json::object jsonResponse;
