@@ -216,6 +216,8 @@ public:
         return ( std::chrono::steady_clock::now() - session->lastKeepAlive() ) < 60s;
     }
 
+    [[nodiscard]] bool wasValidSession( const std::string& sessionUuid ) const override { return false; }
+
 private:
     void onStartup() override { CAFFA_INFO( "Starting Server" ); }
     void onShutdown() override { CAFFA_INFO( "Shutting down Server" ); }
