@@ -358,7 +358,7 @@ RestSessionService::ServiceResponse RestSessionService::changeOrKeepAlive( http:
     }
     const auto& uuid = pathArguments.front();
 
-    CAFFA_DEBUG( "Got session change request for " << uuid );
+    CAFFA_TRACE( "Got session change/keepalive request for " << uuid );
 
     const std::shared_ptr<Session> session = RestServerApplication::instance()->getExistingSession( uuid );
 
