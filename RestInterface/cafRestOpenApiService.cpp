@@ -54,7 +54,9 @@ RestServiceInterface::ServiceResponse RestOpenApiService::perform( const http::v
         }
         else
         {
-            return std::make_pair( http::status::not_found, "Entry " + currentPathEntry + " not found" );
+            return std::make_pair( http::status::not_found,
+                                   "Path entry " + currentPathEntry +
+                                       " not found. Has the Caffa object class been registered?" );
         }
     }
 
