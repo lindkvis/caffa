@@ -78,7 +78,7 @@ template <typename Clock, typename Duration>
 std::chrono::time_point<Clock, Duration> tag_invoke( value_to_tag<std::chrono::time_point<Clock, Duration>>, value const& v )
 {
     Duration duration( v.as_int64() );
-    return std::chrono::steady_clock::time_point( duration );
+    return std::chrono::time_point<Clock, Duration>( duration );
 }
 
 /**
