@@ -53,7 +53,7 @@ public:
     Method( const Method& rhs )            = delete;
     Method& operator=( const Method& rhs ) = delete;
 
-    [[nodiscard]] Result operator()( std::shared_ptr<Session> session, ArgTypes... args ) const
+    Result operator()( std::shared_ptr<Session> session, ArgTypes... args ) const
     {
         CAFFA_ASSERT( ( m_callback || m_callbackWithSession ) && "Method has no callback!" );
 
@@ -67,7 +67,7 @@ public:
         return m_callbackWithSession( session, args... );
     }
 
-    [[nodiscard]] Result operator()( ArgTypes... args ) const
+    Result operator()( ArgTypes... args ) const
     {
         CAFFA_ASSERT( ( m_callback || m_callbackWithSession ) && "Method has no callback!" );
 
@@ -93,7 +93,7 @@ public:
      * @param jsonArgumentsString
      * @return a JSON result string
      */
-    [[nodiscard]] std::string execute( std::shared_ptr<Session> session, const std::string& jsonArgumentsString ) const override
+    std::string execute( std::shared_ptr<Session> session, const std::string& jsonArgumentsString ) const override
     {
         return json::dump( executeJson( session, json::parse( jsonArgumentsString ) ) );
     }
