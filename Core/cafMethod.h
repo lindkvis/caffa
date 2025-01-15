@@ -161,9 +161,12 @@ public:
             for ( const json::value& argument : jsonArgumentItems )
             {
                 CAFFA_ASSERT( argument.is_object() );
-                auto        keyword                  = json::from_json<std::string>( argument.at( "keyword" ) );
-                const auto& type                     = argument.at( "type" );
-                jsonNamedArgumentProperties[keyword] = type;
+                const auto& type = argument.at( "type" );
+                if ( auto argumentObject = argument.if_object(); argumentObject )
+                {
+                    auto keyword                         = json::from_json<std::string>( argument.at( "keyword" ) );
+                    jsonNamedArgumentProperties[keyword] = type;
+                }
                 jsonNumberedArgumentItems.push_back( type );
             }
             jsonPositionalArguments["items"]      = jsonNumberedArgumentItems;
