@@ -139,9 +139,10 @@ public:
     /**
      * Write an object to JSON text string
      * @param object The object handle to write to string.
+     * @param pretty If true will pretty print with indentation and newlines
      * @return A JSON text string
      */
-    [[nodiscard]] std::string writeObjectToString( const ObjectHandle* object ) const;
+    [[nodiscard]] std::string writeObjectToString( const ObjectHandle* object, bool pretty = false ) const;
 
     /**
      * Copy the object by serializing to text string and reading in again
@@ -186,11 +187,14 @@ public:
      * Write object to output stream
      * @param object Pointer to object to write
      * @param stream The output stream
+     * @param pretty If true will pretty print with indentation and newlines
      */
-    void writeStream( const ObjectHandle* object, std::ostream& stream ) const;
+    void writeStream( const ObjectHandle* object, std::ostream& stream, bool pretty = false ) const;
 
     void readObjectFromJson( ObjectHandle* object, const json::object& jsonValue ) const;
     void writeObjectToJson( const ObjectHandle* object, json::object& jsonValue ) const;
+
+    void prettyPrint( std::ostream& os, json::value const& jv, std::string* indent = nullptr ) const;
 
 protected:
     bool           m_client;
