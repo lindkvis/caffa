@@ -328,6 +328,89 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, json::object
     --m_level;
 }
 
+void JsonSerializer::prettyPrint( std::ostream& os, json::value const& jv, std::string* indent ) const
+{
+    constexpr size_t indentSize = 2;
+    std::string      indent_;
+    if ( !indent ) indent = &indent_;
+    switch ( jv.kind() )
+    {
+        case boost::json::kind::object:
+        {
+            os << "{\n";
+            indent->append( indentSize, ' ' );
+            auto const& obj = jv.get_object();
+            if ( !obj.empty() )
+            {
+                auto it = obj.begin();
+                for ( ;; )
+                {
+                    os << *indent << boost::json::serialize( it->key() ) << " : ";
+                    prettyPrint( os, it->value(), indent );
+                    if ( ++it == obj.end() ) break;
+                    os << ",\n";
+                }
+            }
+            os << "\n";
+            indent->resize( indent->size() - indentSize );
+            os << *indent << "}";
+            break;
+        }
+        case boost::json::kind::array:
+        {
+            os << "[\n";
+            indent->append( indentSize, ' ' );
+            auto const& arr = jv.get_array();
+            if ( !arr.empty() )
+            {
+                auto it = arr.begin();
+                for ( ;; )
+                {
+                    os << *indent;
+                    prettyPrint( os, *it, indent );
+                    if ( ++it == arr.end() ) break;
+                    os << ",\n";
+                }
+            }
+            os << "\n";
+            indent->resize( indent->size() - indentSize );
+            os << *indent << "]";
+            break;
+        }
+
+        case boost::json::kind::string:
+        {
+            os << boost::json::serialize( jv.get_string() );
+            break;
+        }
+
+        case boost::json::kind::uint64:
+            os << jv.get_uint64();
+            break;
+
+        case boost::json::kind::int64:
+            os << jv.get_int64();
+            break;
+
+        case boost::json::kind::double_:
+            os << jv.get_double();
+            break;
+
+        case boost::json::kind::bool_:
+            if ( jv.get_bool() )
+                os << "true";
+            else
+                os << "false";
+            break;
+
+        case boost::json::kind::null:
+            os << "null";
+            break;
+    }
+
+    if ( indent->empty() ) os << "\n";
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -354,10 +437,16 @@ void JsonSerializer::readObjectFromString( ObjectHandle* object, const std::stri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string JsonSerializer::writeObjectToString( const ObjectHandle* object ) const
+std::string JsonSerializer::writeObjectToString( const ObjectHandle* object, bool pretty /*=false*/ ) const
 {
     json::object jsonObject;
     writeObjectToJson( object, jsonObject );
+    if ( pretty )
+    {
+        std::stringstream ss;
+        prettyPrint( ss, jsonObject );
+        return ss.str();
+    }
     return json::dump( jsonObject );
 }
 
@@ -449,10 +538,17 @@ void JsonSerializer::readStream( ObjectHandle* object, std::istream& file ) cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void JsonSerializer::writeStream( const ObjectHandle* object, std::ostream& file ) const
+void JsonSerializer::writeStream( const ObjectHandle* object, std::ostream& file, bool pretty /* = false*/ ) const
 {
     json::object document;
     writeObjectToJson( object, document );
 
-    file << json::dump( document );
+    if ( pretty )
+    {
+        prettyPrint( file, document );
+    }
+    else
+    {
+        file << json::dump( document );
+    }
 }
