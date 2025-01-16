@@ -24,6 +24,9 @@
       "name": "boost-regex"
     },
     {
+      "name": "boost-uuid"
+    },
+    {
       "name": "openssl",
       "platform": "!linux"
     },
