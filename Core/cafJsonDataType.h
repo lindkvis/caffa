@@ -178,10 +178,17 @@ void tag_invoke( const boost::json::value_from_tag&, json::value& jsonValue, con
 template <typename Enum>
 AppEnum<Enum> tag_invoke( const boost::json::value_to_tag<AppEnum<Enum>>&, const json::value& jsonValue )
 {
-    AppEnum<Enum>     appEnum;
-    std::stringstream stream( json::from_json<std::string>( jsonValue ) );
-    stream >> appEnum;
-    return appEnum;
+    if ( jsonValue.is_string() )
+    {
+        return AppEnum<Enum>( json::from_json<std::string>( jsonValue ) );
+    }
+
+    if ( jsonValue.is_int64() )
+    {
+        return AppEnum<Enum>( json::from_json<int64_t>( jsonValue ) );
+    }
+
+    throw std::runtime_error( "Invalid JSON value for creating AppEnum" );
 }
 
 } // namespace caffa
