@@ -550,7 +550,7 @@ Session::Type RestClient::checkSession() const
         throw std::runtime_error( "Failed to check session with error reply: " + body );
     }
 
-    CAFFA_INFO( "Got result: " << body );
+    CAFFA_DEBUG( "Got result: " << body );
 
     auto jsonResult = json::parse( body );
 
