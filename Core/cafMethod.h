@@ -162,9 +162,10 @@ public:
             {
                 CAFFA_ASSERT( argument.is_object() );
                 const auto& type = argument.at( "type" );
-                if ( auto argumentObject = argument.if_object(); argumentObject )
+                if ( auto argumentObject = argument.if_object();
+                     argumentObject && argumentObject->contains( "keyword" ) )
                 {
-                    auto keyword                         = json::from_json<std::string>( argument.at( "keyword" ) );
+                    auto keyword = json::from_json<std::string>( argumentObject->at( "keyword" ) );
                     jsonNamedArgumentProperties[keyword] = type;
                 }
                 jsonNumberedArgumentItems.push_back( type );
