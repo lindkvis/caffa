@@ -19,7 +19,8 @@ set(PUBLIC_HEADERS
         cafFieldScriptingCapability.h
         cafJsonDataType.h
         cafJsonSerializer.h
-        cafStringEncoding.h)
+        cafStringEncoding.h
+        cafVectorSizeValidator.h)
 
 set(PROJECT_FILES
         ${PUBLIC_HEADERS}
