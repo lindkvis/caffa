@@ -3,7 +3,7 @@
 	url = https://github.com/lindkvis/caffa-Java.git
 [submodule "RestInterfaceBindings/Python"]
 	path = RestInterface/Bindings/Python/caffa
-	url = https://github.com/lindkvis/caffa-python.git
+	url = https://github.com/Kontur-RD/caffa-python.git
 
 [submodule "DataModel"]
 	path = DataModel
