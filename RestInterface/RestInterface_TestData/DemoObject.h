@@ -98,6 +98,21 @@ private:
     std::vector<std::string> m_proxyStringVector;
 };
 
+class UnrelatedDemoObject : public Object
+{
+    CAFFA_HEADER_INIT_WITH_DOC( "An unrelated demo object", UnrelatedDemoObject, Object )
+
+public:
+    UnrelatedDemoObject()
+    {
+        initField( someField, "someField" );
+        initMethod( someMethod, "someMethod", []() { std::cout << "someMethod" << std::endl; } );
+    }
+
+    Field<int>           someField;
+    Method<void( void )> someMethod;
+};
+
 class InheritedDemoObj : public DemoObject
 {
     CAFFA_HEADER_INIT( InheritedDemoObj, DemoObject )
@@ -122,6 +137,10 @@ public:
     {
         initField( demoObject, "demoObject" ).withScripting();
         initField( m_inheritedDemoObjects, "inheritedDemoObjects" ).withScripting();
+        initMethod( createDemoObject, "createDemoObject", []() { return std::make_shared<DemoObject>(); } );
+        initMethod( createUnrelatedDemoObject,
+                    "createUnrelatedObject",
+                    []() { return std::make_shared<UnrelatedDemoObject>(); } );
         demoObject = std::make_shared<DemoObject>();
 
         this->setId( "testDocument" );
@@ -130,8 +149,10 @@ public:
     void addInheritedObject( std::shared_ptr<InheritedDemoObj> object ) { m_inheritedDemoObjects.push_back( object ); }
     std::vector<std::shared_ptr<InheritedDemoObj>> inheritedObjects() { return m_inheritedDemoObjects; }
 
-    ChildField<DemoObject*>            demoObject;
-    ChildArrayField<InheritedDemoObj*> m_inheritedDemoObjects;
+    ChildField<DemoObject*>                        demoObject;
+    ChildArrayField<InheritedDemoObj*>             m_inheritedDemoObjects;
+    Method<std::shared_ptr<DemoObject>()>          createDemoObject;
+    Method<std::shared_ptr<UnrelatedDemoObject>()> createUnrelatedDemoObject;
 };
 
 class DemoDocumentWithNonScriptableMember : public Document

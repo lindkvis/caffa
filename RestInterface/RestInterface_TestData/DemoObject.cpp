@@ -97,3 +97,5 @@ CAFFA_SOURCE_INIT( InheritedDemoObj )
 CAFFA_SOURCE_INIT( DemoDocument )
 
 CAFFA_SOURCE_INIT( DemoDocumentWithNonScriptableMember )
+
+CAFFA_SOURCE_INIT( UnrelatedDemoObject )
