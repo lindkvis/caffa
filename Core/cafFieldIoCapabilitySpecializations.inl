@@ -132,7 +132,8 @@ void FieldIoCap<ChildField<DataType*>>::readFromJson( const json::value& jsonEle
         return;
     }
 
-    CAFFA_ASSERT( jsonElement.is_object() );
+    if ( !jsonElement.is_object() ) throw std::runtime_error( "Invalid JSON object: " + json::dump( jsonElement ) );
+
     const auto& jsonValue = jsonElement.get_object();
 
     json::value jsonContent;
@@ -299,7 +300,10 @@ void FieldIoCap<ChildArrayField<DataType*>>::readFromJson( const json::value& js
         {
             classNameElement = jsonObject->find( "class" );
         }
-        CAFFA_ASSERT( classNameElement != jsonObject->end() );
+        if ( classNameElement == jsonObject->end() )
+        {
+            throw std::runtime_error( "Invalid JSON. Could not find keyword tag" );
+        }
 
         const auto className = json::from_json<std::string>( classNameElement->value() );
 
