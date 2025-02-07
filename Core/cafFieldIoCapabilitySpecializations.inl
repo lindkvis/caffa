@@ -54,9 +54,12 @@ void FieldIoCap<FieldType>::readFromJson( const json::value& jsonElement, const 
         }
     }
 
-    for ( auto validator : typedOwner()->valueValidators() )
+    if ( serializer.serializationType() == JsonSerializer::SerializationType::SCHEMA )
     {
-        validator->readFromString( json::dump( jsonElement ) );
+        for ( auto validator : typedOwner()->valueValidators() )
+        {
+            validator->readFromString( json::dump( jsonElement ) );
+        }
     }
 }
 
