@@ -466,8 +466,9 @@ void RestClient::startKeepAliveThread()
 
 //--------------------------------------------------------------------------------------------------
 // Check if the server is ready for sessions
+// Returns a pair with the first boolean specifying readiness and the second whether there are other sessions
 //--------------------------------------------------------------------------------------------------
-bool RestClient::isReady( Session::Type type ) const
+std::pair<bool, bool> RestClient::isReady( Session::Type type ) const
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
 
@@ -486,10 +487,11 @@ bool RestClient::isReady( Session::Type type ) const
     auto jsonValue = json::parse( body );
     if ( const auto jsonObject = jsonValue.if_object(); jsonObject )
     {
-        if ( const auto it = jsonObject->find( "ready" ); it != jsonObject->end() && it->value().is_bool() )
-        {
-            return it->value().get_bool();
-        }
+        auto it             = jsonObject->find( "ready" );
+        bool ready          = ( it != jsonObject->end() && it->value().is_bool() ) ? it->value().get_bool() : false;
+        it                  = jsonObject->find( "other_sessions" );
+        bool other_sessions = ( it != jsonObject->end() && it->value().is_bool() ) ? it->value().get_bool() : false;
+        return { ready, other_sessions };
     }
 
     throw std::runtime_error( "Malformed ready reply" );

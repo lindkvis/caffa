@@ -51,7 +51,7 @@ public:
                                                                               const std::string&            methodName,
                                                                               const std::string&            jsonArguments ) const = 0;
     virtual void                                                     sendKeepAlive()                     = 0;
-    [[nodiscard]] virtual bool                                       isReady( Session::Type type ) const = 0;
+    [[nodiscard]] virtual std::pair<bool, bool>                      isReady( Session::Type type ) const = 0;
 
     void createSession( Session::Type type, const std::string& username = "", const std::string& password = "" )
     {

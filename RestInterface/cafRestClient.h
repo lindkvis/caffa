@@ -66,7 +66,7 @@ public:
                                                         const std::string&            methodName,
                                                         const std::string&            jsonArguments ) const override;
     void                                       sendKeepAlive() override;
-    bool                                       isReady( Session::Type type ) const override;
+    std::pair<bool, bool>                      isReady( Session::Type type ) const override;
 
     /**
      * @brief Check the session. Will return a session type (including possibly INVALID) if the session exists.

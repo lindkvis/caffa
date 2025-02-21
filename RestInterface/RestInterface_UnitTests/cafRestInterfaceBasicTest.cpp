@@ -87,7 +87,7 @@ TEST_F( RestTest, Launch )
     try
     {
         auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
-        ASSERT_TRUE( client->isReady( caffa::Session::Type::REGULAR ) );
+        ASSERT_TRUE( client->isReady( caffa::Session::Type::REGULAR ).first);
         client->createSession( caffa::Session::Type::REGULAR );
 
         caffa::AppInfo appInfo = client->appInfo();
@@ -113,7 +113,7 @@ TEST_F( RestTest, Document )
     CAFFA_DEBUG( "Launching Client" );
 
     auto client = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
-    ASSERT_TRUE( client->isReady( caffa::Session::Type::REGULAR ) );
+    ASSERT_TRUE( client->isReady( caffa::Session::Type::REGULAR ).first );
     client->createSession( caffa::Session::Type::REGULAR );
 
     auto session = serverApp->getExistingSession( client->sessionUuid() );
@@ -888,11 +888,11 @@ TEST_F( RestTest, MultipleSessions )
 TEST_F( RestTest, MultipleConcurrentSessionsShouldBeRefused )
 {
     const auto client1 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
-    ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ) );
+    ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ).first );
     ASSERT_NO_THROW( client1->createSession( caffa::Session::Type::REGULAR ) );
 
     const auto client2 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
-    ASSERT_FALSE( client2->isReady( caffa::Session::Type::REGULAR ) );
+    ASSERT_FALSE( client2->isReady( caffa::Session::Type::REGULAR ).first );
     ASSERT_ANY_THROW( client2->createSession( caffa::Session::Type::REGULAR ) );
     CAFFA_INFO( "Failed to create new session as expected" );
 }
@@ -900,11 +900,11 @@ TEST_F( RestTest, MultipleConcurrentSessionsShouldBeRefused )
 TEST_F( RestTest, AdditionalObservingSessions )
 {
     const auto client1 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
-    ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ) );
+    ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ).first );
     ASSERT_NO_THROW( client1->createSession( caffa::Session::Type::REGULAR ) );
 
     const auto client2 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
-    ASSERT_TRUE( client2->isReady( caffa::Session::Type::OBSERVING ) );
+    ASSERT_TRUE( client2->isReady( caffa::Session::Type::OBSERVING ).first );
     ASSERT_NO_THROW( client2->createSession( caffa::Session::Type::OBSERVING ) );
 
     const auto client3 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
@@ -914,13 +914,13 @@ TEST_F( RestTest, AdditionalObservingSessions )
 TEST_F( RestTest, MultipleConcurrentSessionsDelayWithoutKeepalive )
 {
     const auto client1 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
-    ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ) );
+    ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ).first );
     ASSERT_NO_THROW( client1->createSession( caffa::Session::Type::REGULAR ) );
 
     std::this_thread::sleep_for( std::chrono::milliseconds( 2500 ) );
 
     const auto client2 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
-    ASSERT_TRUE( client2->isReady( caffa::Session::Type::REGULAR ) );
+    ASSERT_TRUE( client2->isReady( caffa::Session::Type::REGULAR ).first );
     ASSERT_NO_THROW( client2->createSession( caffa::Session::Type::REGULAR ) );
 
     ASSERT_NO_THROW( client1->destroySession() );
@@ -931,7 +931,7 @@ TEST_F( RestTest, MultipleConcurrentSessionsWithKeepalive )
     const auto client1 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
     try
     {
-        ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ) );
+        ASSERT_TRUE( client1->isReady( caffa::Session::Type::REGULAR ).first );
         ASSERT_NO_THROW( client1->createSession( caffa::Session::Type::REGULAR ) );
 
         for ( size_t i = 0; i < 25; ++i )
@@ -942,7 +942,7 @@ TEST_F( RestTest, MultipleConcurrentSessionsWithKeepalive )
 
         CAFFA_INFO( "Expecting errors when creating a new session, because the old one has been kept alive!" );
         const auto client2 = std::make_unique<caffa::rpc::RestClient>( hostname, ServerApp::s_port );
-        ASSERT_FALSE( client2->isReady( caffa::Session::Type::REGULAR ) );
+        ASSERT_FALSE( client2->isReady( caffa::Session::Type::REGULAR ).first );
         ASSERT_ANY_THROW( client2->createSession( caffa::Session::Type::REGULAR ) );
         CAFFA_DEBUG( "Test completed" );
     }
