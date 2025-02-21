@@ -47,6 +47,7 @@ RestSessionService::RestSessionService()
                                                          "ready",
                                                          &RestSessionService::ready );
 
+        readyAction->addParameter( typeParameter->clone() );
         readyAction->addResponse( http::status::ok,
                                   RestResponse::objectResponse( "#/components/session_schemas/ReadyState", "Ready State" ) );
 
@@ -235,12 +236,12 @@ RestSessionService::ServiceResponse RestSessionService::ready( http::verb       
             type.setFromLabel( json::from_json<std::string>( it->value() ) );
         }
         json::object jsonResponse;
-        CAFFA_DEBUG( "Checking if we're ready for a session of type " << type.label() );
 
         const bool ready = RestServerApplication::instance()->readyForSession( type.value() );
 
         jsonResponse["ready"]          = ready;
         jsonResponse["other_sessions"] = RestServerApplication::instance()->hasActiveSessions();
+        CAFFA_DEBUG( "Checking if we're ready for a session of type " << type.label() << "? " << ready);
         return std::make_pair( http::status::ok, json::dump( jsonResponse ) );
     }
     catch ( ... )
