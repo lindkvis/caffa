@@ -248,7 +248,12 @@ void handleRequest( const std::map<std::string, std::shared_ptr<RestServiceInter
     {
         if ( !session || !RestServerApplication::instance()->isValid( session.get() ) )
         {
-            send( createResponse( http::status::forbidden, "Session '" + session_uuid + "' is not valid" ) );
+            CAFFA_ERROR( "Session wasn't valid when performing request for Target: "
+                         << target << ", body length: " << req.body().length()
+                         << ", method: " << http::to_string( method ) );
+            send( createResponse( http::status::forbidden,
+                                  "The session '" + session_uuid + "' is not valid when trying to perform " +
+                                      std::string( http::to_string( method ) ) + " on " + target ) );
             return;
         }
     }
