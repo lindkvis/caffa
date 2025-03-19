@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(caffaCore)
+project(caffaCore VERSION ${CAFFA_VERSION})
 
 set(PUBLIC_HEADERS
         cafJsonDefinitions.h
@@ -39,8 +39,8 @@ else ()
     add_library(${PROJECT_NAME} STATIC ${PROJECT_FILES})
 endif ()
 
-set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${CMAKE_PROJECT_VERSION})
-set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
+set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR})
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 
 if (MSVC)
