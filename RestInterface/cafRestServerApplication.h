@@ -44,7 +44,7 @@ public:
     /**
      * Constructor.
      *
-     * @param clientHost
+     * @param clientHost Use "0.0.0.0" to serve any client.
      * @param portNumber Port number
      * @param threads The number of accept threads
      * @param authenticator The authenticator used to determine if a client is allowed to access the server.
