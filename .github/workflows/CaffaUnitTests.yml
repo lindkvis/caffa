@@ -39,6 +39,8 @@ jobs:
         with:
           submodules: recursive
       - uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: "~3.28.0"
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
         if: contains(matrix.os, 'windows')
