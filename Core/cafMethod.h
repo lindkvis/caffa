@@ -256,8 +256,9 @@ private:
         auto expectedSize = jsonArgumentSchemaArray( std::index_sequence_for<ArgTypes...>() ).size();
         if ( jsonArguments.size() != expectedSize )
         {
-            throw std::runtime_error( "Wrong number of arguments! Got " + std::to_string( jsonArguments.size() ) +
-                                      ", Expected " + std::to_string( expectedSize ) );
+            throw std::runtime_error( "Wrong number of arguments for " + this->keyword() + "(): Got " +
+                                      std::to_string( jsonArguments.size() ) + ", Expected " +
+                                      std::to_string( expectedSize ) );
         }
         return this->template executeJson<Result>( session, jsonArguments, std::index_sequence_for<ArgTypes...>() );
     }
