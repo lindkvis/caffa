@@ -157,10 +157,8 @@ void JsonSerializer::readObjectFromJson( ObjectHandle* object, const json::objec
         }
         if ( keyword == "keyword" || keyword == "class" )
         {
-            const auto& classKeyword = value;
-            CAFFA_ASSERT( classKeyword.is_string() &&
-                          ObjectHandle::matchesClassKeyword( json::from_json<std::string>( classKeyword ),
-                                                             object->classInheritanceStack() ) );
+            CAFFA_ASSERT( value.is_string() && ObjectHandle::matchesClassKeyword( json::from_json<std::string>( value ),
+                                                                                  object->classInheritanceStack() ) );
         }
         else if ( this->serializationType() == SerializationType::DATA_FULL && !value.is_null() && keyword != "methods" )
         {

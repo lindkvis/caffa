@@ -1,5 +1,6 @@
 #include "cafApplication.h"
 #include "cafAssert.h"
+#include "cafLogger.h"
 
 using namespace caffa;
 
@@ -72,6 +73,9 @@ AppInfo Application::appInfo() const
 //--------------------------------------------------------------------------------------------------
 void Application::assertCapability( AppInfo::AppCapability typeToAssert )
 {
-    auto app = instance();
-    CAFFA_ASSERT( app->hasCapability( typeToAssert ) );
+    if ( auto app = instance(); !app->hasCapability( typeToAssert ) )
+    {
+        CAFFA_CRITICAL( "Application does not have capability" );
+        std::abort();
+    }
 }

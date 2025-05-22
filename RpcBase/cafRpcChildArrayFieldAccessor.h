@@ -78,10 +78,9 @@ public:
 
     void insert( size_t index, std::shared_ptr<ObjectHandle> pointer ) override
     {
-        size_t oldSize = m_remoteObjects.size();
         m_client->insertChildObject( m_field->ownerObject(), m_field->keyword(), index, pointer.get() );
         m_remoteObjects.insert( m_remoteObjects.begin() + index, pointer );
-        CAFFA_ASSERT( m_remoteObjects.size() == ( oldSize + 1u ) );
+        CAFFA_ASSERT( m_remoteObjects.size() == ( m_remoteObjects.size() + 1u ) );
     }
 
     void push_back( std::shared_ptr<ObjectHandle> pointer ) override { insert( size(), pointer ); }
