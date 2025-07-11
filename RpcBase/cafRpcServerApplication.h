@@ -56,8 +56,7 @@ namespace rpc
 
         [[nodiscard]] bool         requiresValidSession() const;
         void                       setRequiresValidSession( bool requiresValidSession );
-        [[nodiscard]] virtual bool isValid( const caffa::Session* session ) const          = 0;
-        [[nodiscard]] virtual bool wasValidSession( const std::string& sessionUuid ) const = 0;
+        [[nodiscard]] virtual bool isValid( const caffa::Session* session ) const = 0;
 
         [[nodiscard]] virtual bool       readyForSession( caffa::Session::Type type ) const   = 0;
         virtual std::shared_ptr<Session> createSession( caffa::Session::Type type )           = 0;

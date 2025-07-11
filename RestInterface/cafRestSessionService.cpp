@@ -241,7 +241,7 @@ RestSessionService::ServiceResponse RestSessionService::ready( http::verb       
 
         jsonResponse["ready"]          = ready;
         jsonResponse["other_sessions"] = RestServerApplication::instance()->hasActiveSessions();
-        CAFFA_DEBUG( "Checking if we're ready for a session of type " << type.label() << "? " << ready);
+        CAFFA_DEBUG( "Checking if we're ready for a session of type " << type.label() << "? " << ready );
         return std::make_pair( http::status::ok, json::dump( jsonResponse ) );
     }
     catch ( ... )
@@ -304,21 +304,14 @@ RestSessionService::ServiceResponse RestSessionService::get( http::verb,
     const auto session = RestServerApplication::instance()->getExistingSession( uuid );
     if ( !session )
     {
-        if ( !RestServerApplication::instance()->wasValidSession( uuid ) )
-        {
-            return std::make_pair( http::status::not_found, "Session '" + uuid + "' is not valid" );
-        }
-        json::object jsonResponse;
-        jsonResponse["uuid"]  = uuid;
-        jsonResponse["type"]  = AppEnum<Session::Type>::getLabel( Session::Type::UNKNOWN );
-        jsonResponse["valid"] = false;
-
-        return std::make_pair( http::status::ok, json::dump( jsonResponse ) );
+        return std::make_pair( http::status::forbidden, "The session '" + uuid + "' is not valid" );
     }
 
     json::object jsonResponse;
-    jsonResponse["uuid"]  = session->uuid();
-    jsonResponse["type"]  = AppEnum<Session::Type>::getLabel( session->type() );
+    jsonResponse["uuid"] = session->uuid();
+    jsonResponse["type"] = AppEnum<Session::Type>::getLabel( session->type() );
+    // TODO: Remove in the future. The valid flag is not used in newer versions of Caffa.
+    //       Instead the type is used to signal validity.
     jsonResponse["valid"] = RestServerApplication::instance()->isValid( session.get() );
 
     return std::make_pair( http::status::ok, json::dump( jsonResponse ) );

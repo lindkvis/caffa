@@ -35,9 +35,10 @@ class Session
 public:
     enum class Type
     {
-        UNKNOWN   = 0x0,
+        INVALID   = 0x0,
         REGULAR   = 0x1,
-        OBSERVING = 0x2
+        OBSERVING = 0x2,
+        DENIED    = 0x3,
     };
 
     static std::shared_ptr<Session> create( Type type );
