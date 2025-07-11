@@ -142,8 +142,6 @@ public:
         return session && ( ( now - session->lastKeepAlive() ) < 2s );
     }
 
-    bool wasValidSession( const std::string& sessionUuid ) const override { return false; }
-
     std::shared_ptr<caffa::Session> createSession( caffa::Session::Type type = caffa::Session::Type::REGULAR ) override
     {
         if ( type == caffa::Session::Type::UNKNOWN )

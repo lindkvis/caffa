@@ -536,7 +536,7 @@ void RestClient::doCreateSession( const Session::Type type, const std::string& u
 Session::Type RestClient::checkSession() const
 {
     std::scoped_lock<std::mutex> lock( m_sessionMutex );
-    if ( m_sessionUuid.empty() ) return Session::Type::UNKNOWN;
+    if ( m_sessionUuid.empty() ) return Session::Type::INVALID;
 
     auto jsonObject    = json::object();
     jsonObject["uuid"] = m_sessionUuid;

@@ -146,7 +146,7 @@ public:
 
     bool readyForSession( Session::Type type ) const override
     {
-        if ( type == Session::Type::UNKNOWN ) return false;
+        if ( type == Session::Type::INVALID ) return false;
 
         if ( type == Session::Type::REGULAR )
         {
@@ -215,8 +215,6 @@ public:
     {
         return ( std::chrono::steady_clock::now() - session->lastKeepAlive() ) < 60s;
     }
-
-    [[nodiscard]] bool wasValidSession( const std::string& sessionUuid ) const override { return false; }
 
 private:
     void onStartup() override { CAFFA_INFO( "Starting Server" ); }
