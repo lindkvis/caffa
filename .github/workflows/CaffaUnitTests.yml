@@ -98,10 +98,10 @@ jobs:
         shell: bash
       - name: Build with Gradle
         run: |
-          builds/ninja-multi-vcpkg/bin/Release/caffaRestInterface_ExampleServer $PORT 1 &
+          builds/ninja-multi-vcpkg/bin/Release/caffaRestInterface_ExampleServer ${{ env.PORT }} 1 &
           cd RestInterface/Bindings/Java
           gradle wrapper
-          ./gradlew build test -Dport=$PORT
+          ./gradlew build test -Dport=${{ env.PORT }}
         env:
           PORT: ${{ env.PORT }}
       - name: Upload Gradle problems report
