@@ -94,10 +94,16 @@ jobs:
           cache: gradle
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v3
+
+      - name: Pick random port for Gradle
+        run: echo "PORT=$((RANDOM % 50001 + 10000))" >> $GITHUB_ENV
+        shell: bash
       - name: Build with Gradle
         run: |
-          builds/ninja-multi-vcpkg/bin/Release/caffaRestInterface_ExampleServer 50000 1 &
+          builds/ninja-multi-vcpkg/bin/Release/caffaRestInterface_ExampleServer $PORT 1 &
           cd RestInterface/Bindings/Java
           gradle wrapper
-          ./gradlew build
+          ./gradlew build test -Dport=$PORT
+        env:
+          PORT: ${{ env.PORT }}
 
