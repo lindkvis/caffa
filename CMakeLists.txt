@@ -34,6 +34,7 @@ endif ()
 if (MSVC)
     # Windows 10 minimum
     add_definitions(/D_WIN32_WINNT=0x0A00)
+    add_compile_options(/utf-8)
 else ()
     add_compile_options(
             -Wall
