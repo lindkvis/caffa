@@ -106,4 +106,9 @@ jobs:
           ./gradlew build test -Dport=$PORT
         env:
           PORT: ${{ env.PORT }}
+      - name: Upload Gradle problems report
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-problems-report
+          path: RestInterface/Bindings/Java/build/reports/problems/problems-report.html
 
