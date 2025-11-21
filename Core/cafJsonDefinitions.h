@@ -20,6 +20,8 @@
 
 #include "cafStringTools.h"
 
+#include "cafLogger.h"
+
 #include <boost/json.hpp>
 
 #include <chrono>
@@ -31,24 +33,47 @@ using array  = boost::json::array;
 using object = boost::json::object;
 using value  = boost::json::value;
 
-inline value parse( const std::string& string )
+inline value parse( const std::string& string ) noexcept
 {
     value jsonValue;
     try
     {
-        jsonValue = boost::json::parse( string );
+        CAFFA_INFO( "Parsing '" << string << "'" );
+
+        auto isParsableJson = []( const std::string& str )
+        {
+            return str.empty() || str == "null" || str == "true" || str == "false" ||
+                   ( str.front() == '"' && str.back() == '"' ) || std::isdigit( str.front() ) ||
+                   ( str.front() == '-' && str.size() > 1 && std::isdigit( str[1] ) ) || str.front() == '{' ||
+                   str.front() == '[';
+        };
+        if ( isParsableJson( string ) )
+        {
+            // Safe to parse
+            CAFFA_INFO( "Input '" << string << "' looks like valid JSON" );
+            jsonValue = boost::json::parse( string );
+        }
+        else
+        {
+            auto sanitise = []( const std::string& str ) { return "\"" + caffa::StringTools::trim( str ) + "\""; };
+
+            jsonValue = boost::json::parse( sanitise( string ) );
+        }
     }
-    catch ( const std::exception& )
+    catch ( const std::exception& e )
     {
+        CAFFA_ERROR( "Failed to parse " << string << ": " << e.what() );
+
         // Quote the input and try again
         const std::string quotedString = "\"" + caffa::StringTools::trim( string ) + "\"";
         try
         {
             jsonValue = boost::json::parse( quotedString );
+            CAFFA_WARNING( "Succeeded parsing " << quotedString );
         }
         catch ( const std::exception& )
         {
-            throw;
+            CAFFA_ERROR( "Failed to parse " << quotedString );
         }
     }
     return jsonValue;
@@ -62,7 +87,10 @@ inline std::string dump( const value& value )
 template <typename T>
 T from_json( const value& value )
 {
-    return boost::json::value_to<T>( value );
+    CAFFA_INFO( "Attempting to convert '" << boost::json::serialize( value ) << "' to type " << typeid( T ).name() );
+    T result = boost::json::value_to<T>( value );
+    // CAFFA_INFO( "Succeeded and got value: " << result );
+    return result;
 }
 
 template <typename T>
