@@ -38,8 +38,6 @@ inline value parse( const std::string& string ) noexcept
     value jsonValue;
     try
     {
-        CAFFA_INFO( "Parsing '" << string << "'" );
-
         auto isParsableJson = []( const std::string& str )
         {
             return str.empty() || str == "null" || str == "true" || str == "false" ||
@@ -50,11 +48,11 @@ inline value parse( const std::string& string ) noexcept
         if ( isParsableJson( string ) )
         {
             // Safe to parse
-            CAFFA_INFO( "Input '" << string << "' looks like valid JSON" );
             jsonValue = boost::json::parse( string );
         }
         else
         {
+            // Create trimmed and quoted string
             auto sanitise = []( const std::string& str ) { return "\"" + caffa::StringTools::trim( str ) + "\""; };
 
             jsonValue = boost::json::parse( sanitise( string ) );
@@ -87,7 +85,6 @@ inline std::string dump( const value& value )
 template <typename T>
 T from_json( const value& value )
 {
-    CAFFA_INFO( "Attempting to convert '" << boost::json::serialize( value ) << "' to type " << typeid( T ).name() );
     T result = boost::json::value_to<T>( value );
     // CAFFA_INFO( "Succeeded and got value: " << result );
     return result;
