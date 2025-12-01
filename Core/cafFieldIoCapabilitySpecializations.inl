@@ -1,4 +1,3 @@
-
 #pragma once
 #include "cafAssert.h"
 #include "cafJsonDataType.h"
@@ -49,8 +48,20 @@ void FieldIoCap<FieldType>::readFromJson( const json::value& jsonElement, const 
         }
         else // Support JSON objects with direct value instead of separate value entry
         {
-            typename FieldType::FieldDataType value = json::from_json<typename FieldType::FieldDataType>( jsonElement );
-            typedOwner()->setValue( value );
+            bool valueSet = false;
+            if constexpr ( std::is_same_v<typename FieldType::FieldDataType, std::string> )
+            {
+                if ( !jsonElement.is_string() )
+                {
+                    typedOwner()->setValue( json::dump( jsonElement ) );
+                    valueSet = true;
+                }
+            }
+            if ( !valueSet )
+            {
+                typename FieldType::FieldDataType value = json::from_json<typename FieldType::FieldDataType>( jsonElement );
+                typedOwner()->setValue( value );
+            }
         }
     }
 

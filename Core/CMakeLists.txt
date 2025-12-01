@@ -30,7 +30,8 @@ set(PROJECT_FILES
         cafFieldIoCapability.cpp
         cafFieldScriptingCapability.cpp
         cafJsonSerializer.cpp
-        cafStringEncoding.cpp)
+        cafStringEncoding.cpp
+        cafJsonDefinitions.cpp)
 
 if (CAFFA_BUILD_SHARED)
     message(STATUS "Building ${PROJECT_NAME} shared")
