@@ -55,16 +55,28 @@ jobs:
           vcpkgJsonGlob: '*/vcpkg.json'
       - name: Prints output of run-vcpkg's action.
         run: echo "root='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}', triplet='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_DEFAULT_TRIPLET_OUT }}' "
+      - name: Cache vcpkg downloads
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/vcpkg/downloads
+          key: vcpkg-downloads-${{ runner.os }}-${{ matrix.vcpkgCommitId }}
+          restore-keys: |
+            vcpkg-downloads-${{ runner.os }}-
       - name: Install vcpkg dependencies (retry on transient download failures)
         shell: bash
         run: |
           set -euo pipefail
+          ok=0
           for i in 1 2 3 4 5; do
             echo "vcpkg install attempt $i..."
-            "${VCPKG_ROOT}/vcpkg" install --disable-metrics && break
+            if "${VCPKG_ROOT}/vcpkg" install --disable-metrics; then
+              ok=1
+              break
+            fi
             echo "vcpkg install failed; sleeping before retry..."
-            sleep $((i*10))
+            sleep $((i*15))
           done
+          test "$ok" -eq 1
       - name: Configure Caffa
         uses: lukka/run-cmake@v10.7
         with:
