@@ -90,6 +90,8 @@ jobs:
           test "$ok" -eq 1
       - name: Configure Caffa
         uses: lukka/run-cmake@v10.7
+        env:
+          VCPKG_BINARY_SOURCES: "clear"
         with:
           configurePreset: 'ninja-multi-vcpkg'
       - name: Build Caffa
