@@ -48,15 +48,17 @@ jobs:
       - name: List $RUNNER_WORKSPACE before build
         run: find $RUNNER_WORKSPACE
         shell: bash
-      - name: Setup VCPKG or load from cache
+      - name: Setup VCPKG
         uses: lukka/run-vcpkg@v11
         id: runvcpkg
         env:
           # Explicitly clear the broken x-gha backend
           VCPKG_BINARY_SOURCES: "clear"
         with:
-          vcpkgDirectory: '${{ github.workspace }}/vcpkg-source'
-          vcpkgGitCommitId: '${{ matrix.vcpkgCommitId}}'
+          # Use runner.temp to stay away from Git's pathspec checks
+          vcpkgDirectory: '${{ runner.temp }}/vcpkg'
+          vcpkgGitCommitId: '${{ matrix.vcpkgCommitId }}'
+          vcpkgGitURL: 'https://github.com'
           runVcpkgInstall: true
           vcpkgJsonGlob: 'vcpkg.json'
           doNotCache: true
