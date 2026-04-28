@@ -61,17 +61,6 @@ jobs:
           vcpkgJsonGlob: '*/vcpkg.json'
       - name: Prints output of run-vcpkg's action.
         run: echo "root='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}', triplet='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_DEFAULT_TRIPLET_OUT }}' "
-      - name: Normalize X_VCPKG_RECURSIVE_DATA (Windows bash env workaround)
-        if: contains(matrix.os, 'windows')
-        shell: bash
-        run: |
-          python - <<'PY' >> "$GITHUB_ENV"
-          import os, json
-          s = os.environ.get("X_VCPKG_RECURSIVE_DATA","").strip()
-          if s:
-            obj = json.loads(s)
-            print("X_VCPKG_RECURSIVE_DATA=" + json.dumps(obj, separators=(",",":")))
-          PY
       - name: Cache vcpkg downloads
         uses: actions/cache@v4
         with:
@@ -104,6 +93,15 @@ jobs:
           test "$ok" -eq 1
       - name: Configure Caffa
         uses: lukka/run-cmake@v10.7
+        if: contains(matrix.os, 'windows')
+        env:
+          VCPKG_BINARY_SOURCES: "clear"
+          X_VCPKG_RECURSIVE_DATA: ""
+        with:
+          configurePreset: 'ninja-multi-vcpkg'
+      - name: Configure Caffa (non-Windows)
+        uses: lukka/run-cmake@v10.7
+        if: "!contains(matrix.os, 'windows')"
         env:
           VCPKG_BINARY_SOURCES: "clear"
         with:
