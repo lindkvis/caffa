@@ -21,13 +21,13 @@ jobs:
             vcpkgCommitId: 'c3867e714dd3a51c272826eea77267876517ed99'
           - os: ubuntu-22.04
             triplet: x64-linux
-            vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
+            vcpkgCommitId: 'c3867e714dd3a51c272826eea77267876517ed99'
           - os: ubuntu-24.04
             triplet: x64-linux
-            vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
+            vcpkgCommitId: 'c3867e714dd3a51c272826eea77267876517ed99'
           - os: macos-14
             triplet: arm64-osx
-            vcpkgCommitId: 'eb0f108ebd674c6ed79acb1c2e123208c416af0d'
+            vcpkgCommitId: 'c3867e714dd3a51c272826eea77267876517ed99'
     env:
       VCPKG_ROOT: ${{ github.workspace }}/vcpkg
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
