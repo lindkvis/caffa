@@ -55,7 +55,7 @@ jobs:
           # Explicitly clear the broken x-gha backend
           VCPKG_BINARY_SOURCES: "clear"
         with:
-          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+          vcpkgDirectory: '${{ github.workspace }}/vcpkg-source'
           vcpkgGitCommitId: '${{ matrix.vcpkgCommitId}}'
           runVcpkgInstall: true
           vcpkgJsonGlob: 'vcpkg.json'
