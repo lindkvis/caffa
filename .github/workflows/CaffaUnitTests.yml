@@ -45,6 +45,9 @@ jobs:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
         if: contains(matrix.os, 'windows')
+      - name: Install Ninja (Windows)
+        if: contains(matrix.os, 'windows')
+        uses: seanmiddleditch/gha-setup-ninja@v5
       - name: List $RUNNER_WORKSPACE before build
         run: find $RUNNER_WORKSPACE
         shell: bash
