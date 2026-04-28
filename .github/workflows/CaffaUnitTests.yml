@@ -28,9 +28,6 @@ jobs:
           - os: macos-14
             triplet: arm64-osx
             vcpkgCommitId: 'c3867e714dd3a51c272826eea77267876517ed99'
-    env:
-      VCPKG_ROOT: ${{ github.workspace }}/vcpkg
-      VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
     steps:
       - name: Install dependencies
         run: sudo apt-get install ninja-build googletest libgtest-dev libssl-dev
@@ -54,11 +51,15 @@ jobs:
       - name: Setup VCPKG or load from cache
         uses: lukka/run-vcpkg@v11
         id: runvcpkg
+        env:
+          # Explicitly clear the broken x-gha backend
+          VCPKG_BINARY_SOURCES: "clear"
         with:
           vcpkgDirectory: '${{ github.workspace }}/vcpkg'
           vcpkgGitCommitId: '${{ matrix.vcpkgCommitId}}'
           runVcpkgInstall: true
           vcpkgJsonGlob: 'vcpkg.json'
+          doNotCache: true
       - name: Prints output of run-vcpkg's action.
         run: echo "root='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}', triplet='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_DEFAULT_TRIPLET_OUT }}' "
       - name: Configure Caffa
