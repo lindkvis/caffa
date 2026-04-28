@@ -248,7 +248,7 @@ std::pair<http::status, std::string> RestClient::performRequest( http::verb     
             return std::make_pair( http::status::service_unavailable, message );
         }
         m_stream = stream;
-        m_ioc->reset();
+        m_ioc->restart();
     }
     m_stream->expires_after( m_timeout );
 
@@ -264,7 +264,7 @@ std::pair<http::status, std::string> RestClient::performRequest( http::verb     
         m_stream.reset();
     }
 
-    m_ioc->reset();
+    m_ioc->restart();
 
     return result;
 }
