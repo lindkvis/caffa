@@ -53,7 +53,7 @@ endif ()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-find_package(Boost 1.83.0 REQUIRED COMPONENTS system json regex)
+find_package(Boost 1.83.0 REQUIRED COMPONENTS json regex)
 find_package(OpenSSL REQUIRED)
 
 target_link_libraries(
@@ -63,7 +63,6 @@ target_link_libraries(
         caffaRpcBase
         OpenSSL::SSL
         OpenSSL::Crypto
-        Boost::system
         Boost::json
         Boost::regex)
 
