@@ -95,3 +95,6 @@ gradlew.bat
 
 #Mac stuff
 .DS_Store
+
+#Container stuff
+.container-home/
