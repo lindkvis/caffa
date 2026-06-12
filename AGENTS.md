@@ -1,5 +1,11 @@
 # Repository Guidelines
 
+## Document Duplication
+
+The following document is exactly duplicated in two places AGENTS.md and CLAUDE.md. This is due
+to difficulties maintaining symbolic links on different platforms. The files should always
+remain exactly the same and projects should have CI rules that enforce this.
+
 ## Project Structure & Module Organization
 
 This is the CAFFA C++20 application framework. It provides introspected object graphs, JSON
@@ -79,6 +85,8 @@ Keep subjects concise, imperative, and specific. Pull requests should describe b
 affected libraries/bindings, test results, and any required submodule, schema, REST API, or binding
 compatibility updates. Call out public API, serialized JSON, schema, or wire-format changes
 explicitly.
+
+When an LLM makes a commit, the commit message must end with a `Co-Authored-By` trailer identifying the harness, model, and effort level. For example, the final line should be something like `Co-Authored-By: Codex GPT-5.5 (High) <codex@openai.com>` for Codex and GPT.
 
 ## Configuration & Security Notes
 
