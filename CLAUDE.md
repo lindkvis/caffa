@@ -8,21 +8,19 @@ remain exactly the same and projects should have CI rules that enforce this.
 
 ## Project Structure & Module Organization
 
-This is the CAFFA C++20 application framework. It provides introspected object graphs, JSON
-serialization, schema generation, RPC-style client/server access, and REST exposure. Core C++ code is
-split across `DataModel/Base` for shared utilities, `DataModel` for reflection primitives, `Core` for
-`Object`/`Document`, JSON IO, sessions, methods, scripting, and validators, `RpcBase` for
-transport-independent client/server abstractions and remote accessors, and `RestInterface` for the
-Boost.Beast REST transport and C++ REST client. Example and test support lives under
-`RestInterface/RestInterface_Example`, `RestInterface/RestInterface_TestData`, and the `*_UnitTests`
-directories. Python and Java bindings are checked out under `RestInterface/Bindings/` and use their
-own toolchains.
+This is the CAFFA C++20 introspection and serialization library. It provides introspected object
+graphs, JSON serialization, schema generation, local methods, scripting capabilities, and validators.
+Core C++ code is split across `DataModel/Base` for shared utilities, `DataModel` for reflection
+primitives, and `Core` for `Object`/`Document`, JSON IO, sessions, methods, scripting, and validators.
+CAFFA 2.0 intentionally does not provide REST/RPC transport or Java/Python bindings; applications own
+their API transports and use CAFFA for local introspection and serialization.
 
 ## Architecture Documentation
 
 Use `docs/caffa_architecture.md` as the map before making cross-layer assumptions, then verify
-implementation details against the current code. The architecture spans Base -> DataModel -> Core ->
-RpcBase -> RestInterface -> language bindings.
+implementation details against the current code. The current architecture spans Base -> DataModel ->
+Core. Some older architecture text may still describe the removed REST/RPC stack; treat that as
+historical unless the code still proves otherwise.
 
 Task-scope guidance:
 
@@ -31,11 +29,9 @@ Task-scope guidance:
   `Core/`.
 * For serialization, schema, document, method, session, validator, or scripting work, read
   `docs/caffa_architecture.md` first and verify details in `Core/`.
-* For RPC, REST server/client, authentication, routing, sessions, or remote accessor work, read
-  `docs/caffa_architecture.md` first and verify details in `RpcBase/` and `RestInterface/`.
-* For Python or Java binding work, read `docs/caffa_architecture.md` first, then use
-  `RestInterface/Bindings/Python/caffa/`, `RestInterface/Bindings/Java/`, and nearby binding
-  README/build files.
+* For REST server/client, authentication, routing, remote accessor, Python binding, or Java binding
+  work, verify whether the code still exists before assuming it belongs in CAFFA. These pieces are
+  being removed from CAFFA 2.0 and should generally live in consuming applications instead.
 * If documentation and code disagree, trust the code for implementation details and mention the
   discrepancy in your response.
 
@@ -51,14 +47,12 @@ ctest --test-dir build -V
 Use these CMake options to narrow builds when useful:
 
 ```sh
-cmake -S . -B build -DCAFFA_REST_INTERFACE=ON -DCAFFA_BUILD_UNIT_TESTS=ON -DCAFFA_BUILD_EXAMPLES=ON
+cmake -S . -B build -DCAFFA_BUILD_UNIT_TESTS=ON
 cmake -S . -B build -DCAFFA_BUILD_DOCS=ON
 cmake -S . -B build -DCAFFA_BUILD_SHARED=OFF
 ```
 
-The root CMake build includes `DataModel` and `DataModel/Base`. The Java and Python binding
-submodules are present in the tree but are built by their own Gradle/Python packaging workflows, not
-by the root CMake build.
+The root CMake build includes `DataModel`, `DataModel/Base`, and `Core`.
 
 ## Coding Style & Naming Conventions
 
@@ -76,23 +70,21 @@ new ad hoc plumbing.
 Tests use GoogleTest through CMake/CTest. Add focused tests near the affected layer:
 `DataModel/DataModel_UnitTests` for reflection/data-model behavior, `DataModel/Base/Base_UnitTests`
 for low-level utilities, `Core/IoCore_UnitTests` and `Core/ProjectDataModel_UnitTests` for core
-serialization/document behavior, and `RestInterface/RestInterface_UnitTests` for REST/RPC behavior.
-Run `ctest --test-dir build -V`; individual test binaries are emitted under `build/bin`.
+serialization/document behavior. Run `ctest --test-dir build -V`; individual test binaries are
+emitted under `build/bin`.
 
 ## Commit & Pull Request Guidelines
 
 Keep subjects concise, imperative, and specific. Pull requests should describe behavior changes,
-affected libraries/bindings, test results, and any required submodule, schema, REST API, or binding
-compatibility updates. Call out public API, serialized JSON, schema, or wire-format changes
-explicitly.
+affected libraries, test results, and any required submodule or schema compatibility updates. Call
+out public API, serialized JSON, or schema changes explicitly.
 
 When an LLM makes a commit, the commit message must end with a `Co-Authored-By` trailer identifying the harness, model, and effort level. For example, the final line should be something like `Co-Authored-By: Codex GPT-5.5 (High) <codex@openai.com>` for Codex and GPT.
 
 ## Configuration & Security Notes
 
 Do not commit real credentials, local tokens, generated build directories, local logs, cache
-directories, or generated documentation output unless it is intentionally versioned. Be careful with
-REST authentication/session changes and avoid weakening default security behavior.
+directories, or generated documentation output unless it is intentionally versioned.
 
 ## Architecture Documentation Tasks
 

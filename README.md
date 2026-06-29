@@ -1,10 +1,13 @@
-# CAFFA Application Framework
+# CAFFA Introspection and Serialization Library
 
-CAFFA is a C++20 application framework for introspected object graphs, JSON serialization, schema
-generation, RPC-style client/server access, and REST exposure. Application data is modeled with
-`caffa::Object`, `caffa::Document`, fields, child fields, methods, capabilities, and factories so the
-same model can be used locally, serialized to JSON, exposed over REST, and accessed through remote
-clients.
+CAFFA is a C++20 library for introspected object graphs, JSON serialization, schema generation, and
+local method metadata. Application data is modeled with `caffa::Object`, `caffa::Document`, fields,
+child fields, methods, capabilities, and factories so the same model can be traversed locally and
+serialized to JSON.
+
+CAFFA 2.0 intentionally does not provide REST/RPC transport or language bindings. Server APIs and
+client transports are owned by applications that consume CAFFA's introspection and serialization
+surface.
 
 ## Development guidance and architecture docs
 
@@ -19,9 +22,6 @@ The main C++ layers are:
 | Base | `DataModel/Base` | Shared assertions, logging, string, UUID, and utility code |
 | DataModel | `DataModel` | Reflection primitives, fields, capabilities, factories, visitors, and object handles |
 | Core | `Core` | `Object`, `Document`, JSON IO, sessions, methods, scripting, and validators |
-| RpcBase | `RpcBase` | Transport-independent client/server abstractions and remote accessors |
-| RestInterface | `RestInterface` | Boost.Beast REST server/client implementation, routing, and authentication |
-| Bindings | `RestInterface/Bindings` | Python and Java clients built by their own toolchains |
 
 ## Build and test
 
@@ -35,19 +35,17 @@ ctest --test-dir build -V
 Useful CMake options:
 
 ```sh
-cmake -S . -B build -DCAFFA_REST_INTERFACE=ON -DCAFFA_BUILD_UNIT_TESTS=ON -DCAFFA_BUILD_EXAMPLES=ON
+cmake -S . -B build -DCAFFA_BUILD_UNIT_TESTS=ON
 cmake -S . -B build -DCAFFA_BUILD_DOCS=ON
 cmake -S . -B build -DCAFFA_BUILD_SHARED=OFF
 ```
 
-The root CMake build includes `DataModel` and `DataModel/Base`. The Java and Python binding
-submodules are checked out under `RestInterface/Bindings/`, but they are built with their own Gradle
-or Python packaging workflows.
+The root CMake build includes `DataModel`, `DataModel/Base`, and `Core`.
 
 ## Contributing
 
 Follow `.clang-format` and `.clang-tidy`. Keep changes close to the existing layer boundaries and
-prefer established CAFFA abstractions over ad hoc field, serialization, REST, or RPC plumbing. Add
+prefer established CAFFA abstractions over ad hoc field or serialization plumbing. Add
 GoogleTest coverage near the affected layer: `DataModel/DataModel_UnitTests`,
 `DataModel/Base/Base_UnitTests`, `Core/IoCore_UnitTests`, `Core/ProjectDataModel_UnitTests`, or
-`RestInterface/RestInterface_UnitTests`.
+another focused Core/DataModel test target.
