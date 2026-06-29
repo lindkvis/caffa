@@ -1,23 +1,32 @@
 cmake_minimum_required(VERSION 3.22)
 
-set(CAFFA_VERSION 1.7.3)
+set(CAFFA_VERSION 2.0.0)
+set(CAFFA_VERSION_PRERELEASE develop-1)
+set(CAFFA_VERSION_EXTENDED ${CAFFA_VERSION}-${CAFFA_VERSION_PRERELEASE})
+set(CAFFA_SEMVER_REGEX
+        "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$")
+
+if (NOT CAFFA_VERSION_EXTENDED MATCHES "${CAFFA_SEMVER_REGEX}")
+    message(FATAL_ERROR "CAFFA_VERSION_EXTENDED is not valid SemVer: ${CAFFA_VERSION_EXTENDED}")
+endif ()
 
 project(
         caffa
         VERSION ${CAFFA_VERSION}
-        DESCRIPTION "Caffa Application Framework")
+        DESCRIPTION "Caffa Introspection and Serialization Library")
 
 include(cmake/git_submodule.cmake)
 
-message(STATUS "Building ${PROJECT_NAME} version ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}-${GIT_HASH}")
+message(STATUS "Building ${PROJECT_NAME} version ${CAFFA_VERSION_EXTENDED}")
 
-add_definitions(-DCAFFA_VERSION_MAJOR=${PROJECT_VERSION_MAJOR} -DCAFFA_VERSION_MINOR=${PROJECT_VERSION_MINOR}
-        -DCAFFA_VERSION_PATCH=${PROJECT_VERSION_PATCH})
+add_compile_definitions(
+        CAFFA_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
+        CAFFA_VERSION_MINOR=${PROJECT_VERSION_MINOR}
+        CAFFA_VERSION_PATCH=${PROJECT_VERSION_PATCH}
+        CAFFA_VERSION_STRING="${CAFFA_VERSION_EXTENDED}")
 
 set(CMAKE_CXX_STANDARD 20)
 
-option(CAFFA_REST_INTERFACE "Enable the REST API interface to CAFFA" ON)
-option(CAFFA_BUILD_EXAMPLES "Build examples" ON)
 option(CAFFA_BUILD_UNIT_TESTS "Build unit tests" ON)
 option(CAFFA_BUILD_DOCS "Build Doxygen documentation" OFF)
 
@@ -59,24 +68,6 @@ if (CAFFA_BUILD_UNIT_TESTS)
     enable_testing()
     add_test(caffaIoCore_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaIoCore_UnitTests)
     add_test(caffaProjectDataModel_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaProjectDataModel_UnitTests)
-endif ()
-
-if (CAFFA_REST_INTERFACE)
-    add_subdirectory(RpcBase)
-    add_subdirectory(RestInterface)
-    add_git_submodule(RestInterface/Bindings/Java FALSE)
-    add_git_submodule(RestInterface/Bindings/Python/caffa FALSE)
-
-    if (CAFFA_BUILD_UNIT_TESTS OR CAFFA_BUILD_EXAMPLES)
-        add_subdirectory(RestInterface/RestInterface_TestData)
-    endif ()
-    if (CAFFA_BUILD_UNIT_TESTS)
-        add_subdirectory(RestInterface/RestInterface_UnitTests)
-        add_test(caffaRestInterface_UnitTests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/caffaRestInterface_UnitTests -V debug)
-    endif ()
-    if (CAFFA_BUILD_EXAMPLES)
-        add_subdirectory(RestInterface/RestInterface_Example)
-    endif ()
 endif ()
 
 if (CAFFA_BUILD_DOCS)

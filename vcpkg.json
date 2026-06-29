@@ -1,34 +1,15 @@
 {
-  "name": "main",
-  "version-string": "latest",
+  "name": "caffa",
+  "version-semver": "2.0.0-develop-1",
   "dependencies": [
     {
       "name": "boost-json"
-    },
-    {
-      "name": "boost-system"
-    },
-    {
-      "name": "boost-beast"
-    },
-    {
-      "name": "boost-program-options"
-    },
-    {
-      "name": "boost-asio"
-    },
-    {
-      "name": "boost-serialization"
     },
     {
       "name": "boost-regex"
     },
     {
       "name": "boost-uuid"
-    },
-    {
-      "name": "openssl",
-      "platform": "!linux"
     },
     {
       "name": "gtest"
