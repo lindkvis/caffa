@@ -66,21 +66,6 @@ protected:
 
         return MethodInitHelper<MethodType>( method, keyword );
     }
-
-    /**
-     * Initialises the method with a keyword and registers it with the class
-     * @param method A reference to the method
-     * @param keyword The method keyword. Has to be unique within the class.
-     * @param callback The method that will be called locally
-     */
-    template <typename MethodType, typename CallbackT>
-    MethodInitHelper<MethodType> initMethodWithSession( MethodType& method, const std::string& keyword, CallbackT&& callback )
-    {
-        method.setCallbackWithSession( callback );
-        addMethod( &method, keyword );
-
-        return MethodInitHelper<MethodType>( method, keyword );
-    }
 };
 
 } // End of namespace caffa

@@ -205,7 +205,6 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, json::object
     if ( this->serializationType() == SerializationType::SCHEMA )
     {
         std::set<std::string> parentalFields;
-        std::set<std::string> parentalMethods;
 
         auto inheritanceStack = object->classInheritanceStack();
 
@@ -222,10 +221,6 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, json::object
             for ( auto field : parentClassInstance->fields() )
             {
                 parentalFields.insert( field->keyword() );
-            }
-            for ( auto method : parentClassInstance->methods() )
-            {
-                parentalMethods.insert( method->keyword() );
             }
             parentClassKeyword = parentClassInstance->classKeyword();
         }
@@ -260,22 +255,6 @@ void JsonSerializer::writeObjectToJson( const ObjectHandle* object, json::object
                 ioCapability->writeToJson( value, *this );
                 jsonProperties[keyword] = value;
             }
-        }
-
-        auto methods = json::object();
-        for ( auto method : object->methods() )
-        {
-            auto keyword = method->keyword();
-            if ( parentalMethods.contains( keyword ) ) continue;
-
-            methods[keyword] = json::parse( method->schema() );
-        }
-        if ( !methods.empty() )
-        {
-            auto methodsObject          = json::object();
-            methodsObject["type"]       = "object";
-            methodsObject["properties"] = methods;
-            jsonProperties["methods"]   = methodsObject;
         }
 
         jsonClass["properties"] = jsonProperties;
