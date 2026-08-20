@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.22)
 project(caffaIoCore_UnitTests)
 
 # add the executable
-add_executable(${PROJECT_NAME} cafIo_UnitTests.cpp cafIoBasicTest.cpp cafAdvancedTemplateTest.cpp cafIoNumberTest.cpp cafReadmeObjects.cpp)
+add_executable(${PROJECT_NAME} cafIo_UnitTests.cpp cafIoBasicTest.cpp cafAdvancedTemplateTest.cpp cafIoNumberTest.cpp cafIoOptionalTest.cpp cafReadmeObjects.cpp)
 
 find_package(Boost 1.83.0 REQUIRED COMPONENTS json)
 find_package(GTest REQUIRED)

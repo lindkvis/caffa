@@ -26,6 +26,8 @@
 
 #include <boost/json.hpp>
 
+#include <optional>
+
 namespace caffa
 {
 template <class T>
@@ -94,6 +96,28 @@ struct JsonDataType<std::map<std::string, DataType>>
         properties["value"]  = { { "type", JsonDataType<DataType>::jsonType() } };
         object["properties"] = properties;
         object["type"]       = "object";
+        return object;
+    }
+};
+
+template <typename DataType>
+struct JsonDataType<std::optional<DataType>>
+{
+    static json::object jsonType()
+    {
+        json::object object = JsonDataType<DataType>::jsonType();
+
+        // JSON Schema 2020-12 spells nullability as a type union. Shapes carrying no "type" entry,
+        // such as $ref and enum, have to be wrapped in an anyOf instead.
+        if ( const auto* type = object.if_contains( "type" ) )
+        {
+            const json::value scalarType = *type;
+            object["type"]               = json::array{ scalarType, "null" };
+        }
+        else
+        {
+            object = json::object{ { "anyOf", json::array{ object, json::object{ { "type", "null" } } } } };
+        }
         return object;
     }
 };
