@@ -1,0 +1,3 @@
+[submodule "Base"]
+	path = Base
+	url = https://github.com/lindkvis/caffa-base.git
