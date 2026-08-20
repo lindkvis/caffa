@@ -60,7 +60,7 @@ build.gradle
 *_UnitTests
 !*_UnitTests/
 
-Visual Studio files
+# Visual Studio files
 *.[Oo]bj
 *.user
 *.aps

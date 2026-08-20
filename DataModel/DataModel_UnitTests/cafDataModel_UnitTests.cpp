@@ -46,7 +46,7 @@
 //--------------------------------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-    std::cout << "Starting Caffa Core Unit Test" << std::endl;
+    std::cout << "Starting Caffa Data Model Unit Test" << std::endl;
     auto logLevel = caffa::Logger::Level::debug;
 
     caffa::Logger::setApplicationLogLevel( logLevel );
