@@ -58,7 +58,7 @@ endif ()
 add_definitions(-DGTEST_HAS_STD_WSTRING=0)
 
 # libraries
-add_git_submodule(DataModel TRUE)
+add_subdirectory(DataModel)
 add_subdirectory(Core)
 
 if (CAFFA_BUILD_UNIT_TESTS)

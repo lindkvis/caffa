@@ -40,8 +40,16 @@ flowchart TD
 | DataModel | `DataModel` | Reflection primitives: `ObjectHandle`, fields, child fields, capabilities, factories, visitors, and method handles. |
 | Core | `Core` | Concrete `Object`/`Document`, JSON IO, local `Method`, `Session`, `Application`, scripting capability, and validators. |
 
-`DataModel` and `DataModel/Base` remain git submodules. Java/Python binding submodules are no longer
-part of CAFFA.
+`DataModel` used to be a git submodule (`lindkvis/caffa-data-model`) and is now part of this
+repository, imported with `git subtree` so its history is preserved. `caffaCore` was its only
+consumer, so the split cost a submodule level without buying independent consumption.
+
+`DataModel/Base` is still a git submodule (`lindkvis/caffa-base`), because it genuinely is consumed
+on its own: `aru-server-app` links `caffaBase` from a dozen targets that never touch `caffaCore`.
+Note that it is mounted below `DataModel/` for historical reasons - it was a submodule of the
+DataModel repository - which is why the path looks deeper than the dependency is.
+
+Java/Python binding submodules are no longer part of CAFFA.
 
 ## Build-Time Graph
 
