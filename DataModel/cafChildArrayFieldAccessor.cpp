@@ -23,6 +23,7 @@
 #include "cafObjectHandle.h"
 
 #include <algorithm>
+#include <limits>
 
 using namespace caffa;
 
@@ -83,7 +84,9 @@ size_t ChildArrayFieldDirectStorageAccessor::index( std::shared_ptr<const Object
                             [object]( const auto& ptr ) { return ptr.get() == object.get(); } );
     if ( it == m_pointers.end() )
     {
-        return std::numeric_limits<size_t>::infinity();
+        // size_t has no infinity, so numeric_limits<size_t>::infinity() is 0 - a valid index.
+        // Callers test the result against size(), so returning 0 here removes the first child.
+        return std::numeric_limits<size_t>::max();
     }
     return it - m_pointers.begin();
 }

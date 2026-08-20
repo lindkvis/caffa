@@ -314,6 +314,14 @@ TEST( DataModelTest, ChildArrayField )
     EXPECT_EQ( s3, ihd1->m_childArrayField[1] );
     EXPECT_EQ( s1, ihd1->m_childArrayField[0] );
 
+    // Removing an object which was never in the array must remove nothing. index() has to return a
+    // sentinel that fails the caller's "index < size()" test; 0 would silently delete the first child.
+    auto neverAdded = std::make_shared<DemoObject>();
+    ihd1->m_childArrayField.removeChildObject( neverAdded );
+    EXPECT_EQ( size_t( 2 ), ihd1->m_childArrayField.size() );
+    EXPECT_EQ( s1, ihd1->m_childArrayField[0] );
+    EXPECT_EQ( s3, ihd1->m_childArrayField[1] );
+
     // insertAt()
     ihd1->m_childArrayField.insertAt( 1, s2 );
     EXPECT_EQ( s1, ihd1->m_childArrayField[0] );
