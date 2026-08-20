@@ -11,7 +11,6 @@ set(PUBLIC_HEADERS
         cafJsonDataTypeConversion.h
         cafDocument.h
         cafApplication.h
-        cafSession.h
         cafFieldInitHelper.h
         cafFieldIoCapabilitySpecializations.h
         cafFieldIoCapabilitySpecializations.inl
@@ -26,7 +25,6 @@ set(PROJECT_FILES
         cafObject.cpp
         cafDocument.cpp
         cafApplication.cpp
-        cafSession.cpp
         cafFieldIoCapability.cpp
         cafFieldScriptingCapability.cpp
         cafJsonSerializer.cpp
