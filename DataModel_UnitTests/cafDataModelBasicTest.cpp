@@ -14,6 +14,7 @@
 
 #include <functional>
 #include <map>
+#include <optional>
 #include <vector>
 namespace caffa
 {
@@ -541,4 +542,14 @@ TEST( DataModelTest, PointerInRegularField )
     object.fieldWithPointer = std::make_shared<DemoObject>();
 
     // object.fieldWithPointer->
+}
+
+//--------------------------------------------------------------------------------------------------
+/// An optional field is named after the type it wraps, the way a vector field is.
+//--------------------------------------------------------------------------------------------------
+TEST( DataModelTest, OptionalPortableTypeName )
+{
+    ASSERT_EQ( "double?", ( caffa::PortableDataType<std::optional<double>>::name() ) );
+    ASSERT_EQ( "boolean?", ( caffa::PortableDataType<std::optional<bool>>::name() ) );
+    ASSERT_EQ( "int32[]?", ( caffa::PortableDataType<std::optional<std::vector<int>>>::name() ) );
 }
