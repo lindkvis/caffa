@@ -26,6 +26,7 @@
 
 #include <boost/json.hpp>
 
+#include <algorithm>
 #include <optional>
 
 namespace caffa
@@ -111,8 +112,17 @@ struct JsonDataType<std::optional<DataType>>
         // such as $ref and enum, have to be wrapped in an anyOf instead.
         if ( const auto* type = object.if_contains( "type" ) )
         {
-            const json::value scalarType = *type;
-            object["type"]               = json::array{ scalarType, "null" };
+            json::array types = type->is_array() ? type->as_array() : json::array{ *type };
+
+            const bool alreadyNullable =
+                std::ranges::any_of( types,
+                                     []( const json::value& entry )
+                                     { return entry.is_string() && entry.as_string() == "null"; } );
+            if ( !alreadyNullable )
+            {
+                types.push_back( "null" );
+            }
+            object["type"] = types;
         }
         else
         {

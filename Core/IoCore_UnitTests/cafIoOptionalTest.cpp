@@ -100,7 +100,7 @@ TEST( SerializeOptionals, EmptyValuesAreNotWritten )
     const auto json = caffa::JsonSerializer().writeObjectToString( &object );
 
     ASSERT_NE( std::string::npos, json.find( "\"Flag\":true" ) );
-    ASSERT_EQ( std::string::npos, json.find( "Number" ) );
+    ASSERT_EQ( std::string::npos, json.find( "\"Number\"" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,6 +112,10 @@ TEST( SerializeOptionals, Schema )
     const auto numberType = caffa::JsonDataType<std::optional<double>>::jsonType();
     ASSERT_EQ( "[\"number\",\"null\"]", caffa::json::dump( numberType.at( "type" ) ) );
     ASSERT_EQ( "\"double\"", caffa::json::dump( numberType.at( "format" ) ) );
+
+    // Wrapping an optional in another optional must widen the existing union rather than nest it.
+    const auto nestedType = caffa::JsonDataType<std::optional<std::optional<double>>>::jsonType();
+    ASSERT_EQ( "[\"number\",\"null\"]", caffa::json::dump( nestedType.at( "type" ) ) );
 
     const auto enumType =
         caffa::JsonDataType<std::optional<caffa::AppEnum<ObjectWithOptionals::TestEnumType>>>::jsonType();
