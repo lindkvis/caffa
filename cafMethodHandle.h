@@ -24,30 +24,7 @@
 
 namespace caffa
 {
-class MethodHandle;
 class ObjectHandle;
-class ObjectFactory;
-class Session;
-
-class MethodAccessorInterface
-{
-public:
-    MethodAccessorInterface( const ObjectHandle* selfHandle, const MethodHandle* methodHandle, ObjectFactory* objectFactory )
-        : m_selfHandle( selfHandle )
-        , m_methodHandle( methodHandle )
-        , m_objectFactory( objectFactory )
-    {
-    }
-    virtual ~MethodAccessorInterface()                                                   = default;
-    [[nodiscard]] virtual std::string execute( const std::string& argumentString ) const = 0;
-
-    [[nodiscard]] ObjectFactory* objectFactory() const { return m_objectFactory; }
-
-protected:
-    const ObjectHandle* m_selfHandle;
-    const MethodHandle* m_methodHandle;
-    ObjectFactory*      m_objectFactory;
-};
 
 class MethodHandle
 {
@@ -67,13 +44,6 @@ public:
     [[nodiscard]] const std::string& documentation() const { return m_documentation; }
     void setDocumentation( const std::string& documentation ) { m_documentation = documentation; }
 
-    [[nodiscard]] virtual std::string execute( std::shared_ptr<Session> session,
-                                               const std::string&       argumentsString ) const = 0;
-    [[nodiscard]] virtual std::string schema() const                                      = 0;
-
-    [[nodiscard]] MethodAccessorInterface* accessor() const { return m_accessor.get(); }
-    void setAccessor( std::unique_ptr<MethodAccessorInterface> accessor ) { m_accessor = std::move( accessor ); }
-
 private:
     friend class ObjectHandle;
     void setName( const std::string& name ) { m_name = name; }
@@ -82,7 +52,5 @@ private:
     std::vector<std::string> m_argumentNames;
     bool                     m_isConst;
     std::string              m_documentation;
-
-    std::unique_ptr<MethodAccessorInterface> m_accessor;
 };
 } // namespace caffa
