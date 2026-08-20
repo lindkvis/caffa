@@ -19,10 +19,12 @@
 // ##################################################################################################
 #pragma once
 
-#include "cafAssert.h"
 #include "cafMethodHandle.h"
 
 #include <functional>
+#include <stdexcept>
+#include <string>
+#include <utility>
 
 namespace caffa
 {
@@ -53,11 +55,14 @@ public:
 
     Result operator()( ArgTypes... args ) const
     {
-        CAFFA_ASSERT( m_callback && "Method has no callback!" );
+        if ( !m_callback )
+        {
+            throw std::runtime_error( "Method " + this->keyword() + "() has no callback" );
+        }
         return m_callback( args... );
     }
 
-    void setCallback( Callback callback ) { this->m_callback = callback; }
+    void setCallback( Callback callback ) { this->m_callback = std::move( callback ); }
 
 private:
     Callback m_callback;
