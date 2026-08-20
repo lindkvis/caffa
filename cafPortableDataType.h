@@ -22,6 +22,7 @@
 #include <chrono>
 #include <concepts>
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -52,6 +53,12 @@ template <typename DataType>
 struct PortableDataType<std::map<std::string, DataType>>
 {
     static std::string name() { return "{string, " + PortableDataType<DataType>::name() + "}"; }
+};
+
+template <typename DataType>
+struct PortableDataType<std::optional<DataType>>
+{
+    static std::string name() { return PortableDataType<DataType>::name() + "?"; }
 };
 
 template <std::unsigned_integral DataType>
