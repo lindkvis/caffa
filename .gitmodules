@@ -1,3 +1,3 @@
-[submodule "DataModel"]
-	path = DataModel
-	url = https://github.com/lindkvis/caffa-data-model.git
+[submodule "DataModel/Base"]
+	path = DataModel/Base
+	url = https://github.com/lindkvis/caffa-base.git

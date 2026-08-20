@@ -10,7 +10,7 @@ function(add_git_submodule dir build)
     # add_git_submodule(mysubmod_dir)
 
     if (NOT EXISTS ${dir}/CMakeLists.txt)
-        execute_process(COMMAND ${GIT_EXECUTABLE} submodule init -- ${dir}
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init -- ${dir}
                 WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                 ERROR_QUIET)
     endif ()

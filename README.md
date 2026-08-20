@@ -19,7 +19,7 @@ The main C++ layers are:
 
 | Layer | Path | Role |
 |---|---|---|
-| Base | `DataModel/Base` | Shared assertions, logging, string, UUID, and utility code |
+| Base | `DataModel/Base` | Shared assertions, logging, string, UUID, and utility code. A git submodule; consumed independently of Core |
 | DataModel | `DataModel` | Reflection primitives, fields, capabilities, factories, visitors, and object handles |
 | Core | `Core` | `Object`, `Document`, JSON IO, sessions, methods, scripting, and validators |
 

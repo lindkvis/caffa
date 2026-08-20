@@ -1,0 +1,15 @@
+{
+  "name": "caffa-data-model",
+  "version-string": "latest",
+  "dependencies": [
+    {
+      "name": "gtest"
+    },
+    {
+      "name": "boost-regex"
+    },
+    {
+      "name": "boost-uuid"
+    }
+  ]
+}
