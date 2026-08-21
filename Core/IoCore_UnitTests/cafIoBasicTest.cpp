@@ -51,8 +51,7 @@ public:
 
         initMethod( getEnum,
                     "getEnum",
-                    [this]() -> caffa::AppEnum<TestEnumType> { return this->m_proxyEnumField.value(); } )
-            .makeConst();
+                    [this]() -> caffa::AppEnum<TestEnumType> { return this->m_proxyEnumField.value(); } );
 
         initMethod( setEnum,
                     "setEnum",

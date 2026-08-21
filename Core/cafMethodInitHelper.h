@@ -67,18 +67,6 @@ public:
         return *this;
     }
 
-    /**
-     * @brief Make the method a const method that cannot alter values
-     * Analoguous to a regular const object method.
-     *
-     * @return MethodInitHelper&
-     */
-    MethodInitHelper& makeConst()
-    {
-        m_method.setConst( true );
-        return *this;
-    }
-
 private:
     MethodInitHelper()                          = delete;
     MethodInitHelper( const MethodInitHelper& ) = delete;
