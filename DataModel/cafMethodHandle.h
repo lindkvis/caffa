@@ -29,18 +29,13 @@ class ObjectHandle;
 class MethodHandle
 {
 public:
-    MethodHandle()
-        : m_isConst( false )
-    {
-    }
+    MethodHandle()          = default;
     virtual ~MethodHandle() = default;
 
     [[nodiscard]] std::string keyword() const { return m_name; }
     void setArgumentNames( const std::vector<std::string>& argumentNames ) { m_argumentNames = argumentNames; }
     [[nodiscard]] const std::vector<std::string>& argumentNames() const { return m_argumentNames; }
 
-    [[nodiscard]] bool               isConst() const { return m_isConst; }
-    void                             setConst( bool isConst ) { m_isConst = isConst; }
     [[nodiscard]] const std::string& documentation() const { return m_documentation; }
     void setDocumentation( const std::string& documentation ) { m_documentation = documentation; }
 
@@ -50,7 +45,6 @@ private:
 
     std::string              m_name;
     std::vector<std::string> m_argumentNames;
-    bool                     m_isConst;
     std::string              m_documentation;
 };
 } // namespace caffa
